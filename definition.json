@@ -1,0 +1,16 @@
+{
+  "name": "SocialPoint/BaseGame",
+  "paths": {
+      "targets": {
+        "root": "Game/Assets",
+        "csharp": "Game/Assets/Libraries",
+        "plugins": "Game/Assets/Plugins",
+        "xcodemods": "Game/Assets/Editor/xcodemods"
+      }
+  },
+  "require": {
+    "SocialPoint/Network/Curl": "master"
+    "ModestTree/Zenject": "v2.5"
+    "Prime31/GoKit": "v0.3"
+  }
+}

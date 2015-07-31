@@ -1,0 +1,1 @@
+{"copyFiles":{"{ROOT_PATH}/../Game/Assets/Plugins/Ios/curl/*.h":"{XCODE_PROJECT_PATH}/../Libraries/curl"}}
