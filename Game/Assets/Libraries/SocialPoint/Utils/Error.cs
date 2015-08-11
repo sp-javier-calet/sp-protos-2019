@@ -54,6 +54,11 @@ namespace SocialPoint.Utils
                 return Code != 0 || Msg.Length > 0;
             }
         }
+
+		public static bool IsNullOrEmpty(Error err)
+		{
+			return err == null || !err.HasError;
+		}
     }
 
     public delegate void ErrorDelegate(Error err);

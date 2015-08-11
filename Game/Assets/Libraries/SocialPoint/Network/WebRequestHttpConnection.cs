@@ -22,10 +22,9 @@ namespace SocialPoint.Network
             _delegate = rdelegate;
         }
     
-        public override bool Cancel()
+        public override void Cancel()
         {
             _request.Abort();
-            return base.Cancel();
         }
 
         public override IEnumerator Update()

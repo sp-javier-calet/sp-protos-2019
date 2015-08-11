@@ -3,11 +3,12 @@
 
 EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
 {
-    if(SPUnityCurlRunning() == 0)
+    if(paused)
     {
-        return;
+        while(SPUnityCurlRunning() > 0)
+        {
+            SPUnityCurlUpdate(0);
+        }
     }
-
-    // TODO Required?
 }
 

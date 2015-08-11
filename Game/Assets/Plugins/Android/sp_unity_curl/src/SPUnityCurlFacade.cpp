@@ -216,17 +216,6 @@ EXPORT_API intptr_t SPUnityCurlUpdate(intptr_t id)
         CURL* easy = res_msg->easy_handle;
         CURLMsg *msg = (CURLMsg*)res_msg;
 
-        /*__android_log_print(ANDROID_LOG_INFO, "Unity_Curl", "Struct size: %u Offsets: %d %d %d", 
-            sizeof(CURLMsg),
-            offsetof(CURLMsg, msg),
-            offsetof(CURLMsg, easy_handle),
-            offsetof(CURLMsg, data));
-        unsigned char const *p = (unsigned char const *)msg;
-        for (size_t i=0; i<sizeof(CURLMsg); i++)
-            __android_log_print(ANDROID_LOG_INFO, "Unity_Curl", "%02x\n", p[i]);
-
-        */
-
         if(msg->msg == CURLMSG_DONE)
         {
             curl_easy_getinfo(easy, CURLINFO_PRIVATE, &conn);

@@ -33,6 +33,21 @@ namespace SocialPoint.Utils
             }
         }
 
+        private const char QuerySeparator = '&';
+        private const char QueryAssign = '=';
+
+        public static string DictionaryToQuery(IDictionary<string,string> parms)
+        {
+            string query = string.Empty;
+            string sepChar = string.Empty;
+            foreach(KeyValuePair<string, string> entry in parms)
+            {
+                query += sepChar + entry.Key + QueryAssign + entry.Value;
+                sepChar = String.Empty + QuerySeparator;
+            }
+            return query;
+        }
+
         public static Dictionary<string,string> QueryToDictionary(string query)
         {
             var dict = new Dictionary<string, string>();
@@ -40,17 +55,17 @@ namespace SocialPoint.Utils
             {
                 return dict;
             }
-            var parts = query.Split('&');
+            var parts = query.Split(QuerySeparator);
             for(int i=0; i<parts.Length; ++i)
             {
-                var part = parts[i].Split('=');
+                var part = parts[i].Split(QueryAssign);
                 if(part.Length > 1)
                 {
                     dict[Uri.UnescapeDataString(part[0])] = Uri.UnescapeDataString(part[1]);
                 }
                 else
                 {
-                    dict[Uri.UnescapeDataString(part[0])] = "";
+                    dict[Uri.UnescapeDataString(part[0])] = string.Empty;
                 }
             }
             return dict;

@@ -22,6 +22,7 @@ namespace SocialPoint.Network
         double _transferTime;
         HttpRequest  _request;
         HttpResponseDelegate _delegate;
+        string _error;
         const char kHeaderEnd = '\n';
         const char kHeaderSeparator = ':';
 
@@ -58,27 +59,29 @@ namespace SocialPoint.Network
  
         public HttpResponse getResponse()
         {   
-            string[] lines = _headers.Split(new char[]{kHeaderEnd});
-            
             Dictionary<string, string> headersData = new Dictionary<string, string>();
 
-            for(int i = 1; i<lines.Length; i++)
+            if(_headers != null)
             {
-                if(lines[i].Length < 3)
+                string[] lines = _headers.Split(new char[]{kHeaderEnd});
+                for(int i = 1; i<lines.Length; i++)
                 {
-                    continue;
-                }
-                string[] head = lines[i].Split(new char[]{kHeaderSeparator});
-                if(head.Length >= 2)
-                {
-                    headersData.Add(head[0].Trim(), head[1].Trim());
+                    if(lines[i].Length < 3)
+                    {
+                        continue;
+                    }
+                    string[] head = lines[i].Split(new char[]{kHeaderSeparator});
+                    if(head.Length >= 2)
+                    {
+                        headersData.Add(head[0].Trim(), head[1].Trim());
+                    }
                 }
             }
 
             HttpResponse r = new HttpResponse(_respCode, headersData);
             if(r.HasError)
             {
-                r.Error = Error;
+                r.Error = new Error(_respCode, _error);
             }
             r.OriginalBody = new Data(_body);
             r.DownloadSize = _downloadSize;
@@ -90,7 +93,7 @@ namespace SocialPoint.Network
             return r;
         }
 
-        public override bool Cancel()
+        public override void Cancel()
         {
             if(_delegate != null)
             {
@@ -102,7 +105,6 @@ namespace SocialPoint.Network
                     _delegate -= item;
                 }
             }
-            return base.Cancel();
         }
 
         static CurlBridge.RequestStruct CreateRequestStruct(HttpRequest request, int id=0)
@@ -148,18 +150,7 @@ namespace SocialPoint.Network
             int ok = CurlBridge.SPUnityCurlSend(data);
             if(ok == 0)
             {
-                CurlBridge.SPUnityCurlDestroyConn(_connectionId);
-                if(_delegate != null)
-                {
-                    try
-                    {
-                        _delegate(getResponse());
-                    }
-                    catch(Exception e)
-                    {
-                        UnityEngine.Debug.LogError(e.ToString());
-                    }
-                }
+                ReceiveData();
             }
         }
 
@@ -181,14 +172,13 @@ namespace SocialPoint.Network
                 _respCode = (int)HttpResponse.StatusCodeType.ConnectionFailedError;
             }
             
-            string error = "";
+            _error = String.Empty;
             if(errorLength > 0)
             {
                 byte[] bytes = new byte[errorLength];
                 CurlBridge.SPUnityCurlGetError(_connectionId, bytes);
-                error = System.Text.Encoding.ASCII.GetString(bytes);
+                _error = System.Text.Encoding.ASCII.GetString(bytes);
             }
-            Error = new Error(_respCode, error);
             
             _body = new byte[0];
             if(bodyLength > 0)
@@ -196,27 +186,31 @@ namespace SocialPoint.Network
                 _body = new byte[bodyLength];
                 CurlBridge.SPUnityCurlGetBody(_connectionId, _body);
             }
-            _headers = "";
+            _headers = String.Empty;
             if(HeadersLength > 0)
             {
                 byte[] bytes = new byte[HeadersLength];
                 CurlBridge.SPUnityCurlGetHeaders(_connectionId, bytes);
                 _headers = System.Text.Encoding.ASCII.GetString(bytes);
             }
-            CurlBridge.SPUnityCurlDestroyConn(_connectionId);
 
+            CurlBridge.SPUnityCurlDestroyConn(_connectionId);
+            
+            HttpResponse resp = null;
+            try
+            {
+                resp = getResponse();
+            }
+            catch(Exception e)
+            {
+                UnityEngine.Debug.LogError(e.ToString());
+                return;
+            }
+            
             if(_delegate != null)
             {
-                try
-                {
-                    _delegate(getResponse());
-                }
-                catch(Exception e)
-                {
-                    UnityEngine.Debug.LogError(e.ToString());
-                }
+                _delegate(resp);
             }
-
         }
     }
 }

@@ -23,17 +23,17 @@ namespace SocialPoint.Utils
         /// <summary>
         ///     <c>true</c> if this Singleton Awake() method has already been called by Unity; otherwise, <c>false</c>.
         /// </summary>
-        public static bool IsAwakened  {get; private set;}
+        public static bool IsAwakened  { get; private set; }
 
         /// <summary>
         ///     <c>true</c> if this Singleton Start() method has already been called by Unity; otherwise, <c>false</c>.
         /// </summary>
-        public static bool IsStarted   {get; private set;}
+        public static bool IsStarted   { get; private set; }
 
         /// <summary>
         ///     <c>true</c> if this Singleton OnDestroy() method has already been called by Unity; otherwise, <c>false</c>.
         /// </summary>
-        public static bool IsDestroyed {get; private set;}
+        public static bool IsDestroyed { get; private set; }
 
         /// <summary>
         ///     Global access point to the unique instance of this class.
@@ -42,9 +42,10 @@ namespace SocialPoint.Utils
         {
             get
             {
-                if (_instance == null)
+                if(_instance == null)
                 {
-                    if (IsDestroyed) return null;
+                    if(IsDestroyed)
+                        return null;
 
                     _instance = FindExistingInstance() ?? CreateNewInstance();
                 }
@@ -67,7 +68,8 @@ namespace SocialPoint.Utils
             T[] existingInstances = FindObjectsOfType<T>();
 
             // No instance found
-            if (existingInstances == null || existingInstances.Length == 0) return null;
+            if(existingInstances == null || existingInstances.Length == 0)
+                return null;
 
             return existingInstances[0];
         }
@@ -94,7 +96,9 @@ namespace SocialPoint.Utils
         ///     singleton MonoBehaviour exist in the scene.
         ///     You can override this method in derived classes to customize the initialization of your MonoBehaviour
         /// </remarks>
-        protected virtual void SingletonAwakened() {}
+        protected virtual void SingletonAwakened()
+        {
+        }
 
         /// <summary>
         ///     Unity3D Start method.
@@ -104,7 +108,9 @@ namespace SocialPoint.Utils
         ///     singleton MonoBehaviour exist in the scene.
         ///     You can override this method in derived classes to customize the initialization of your MonoBehaviour
         /// </remarks>
-        protected virtual void SingletonStarted() {}
+        protected virtual void SingletonStarted()
+        {
+        }
 
         /// <summary>
         ///     Unity3D OnDestroy method.
@@ -114,7 +120,9 @@ namespace SocialPoint.Utils
         ///     singleton MonoBehaviour exist in the scene.
         ///     You can override this method in derived classes to customize the initialization of your MonoBehaviour
         /// </remarks>
-        protected virtual void SingletonDestroyed() {}
+        protected virtual void SingletonDestroyed()
+        {
+        }
 
 
         /// <summary>
@@ -133,19 +141,23 @@ namespace SocialPoint.Utils
         #endregion
 
         #region Unity3d Messages - DO NOT OVERRRIDE / IMPLEMENT THESE METHODS in child classes!
+
         void Awake()
         {
             T thisInstance = this.GetComponent<T>();
 
             // Initialize the singleton if the script is already in the scene in a GameObject
-            if (_instance == null)
+            if(_instance == null)
             {
                 _instance = thisInstance;
+                DontDestroyOnLoad(_instance.gameObject);
+
             }
-            else if(thisInstance != _instance)
+            else
+            if(thisInstance != _instance)
             {
                 PrintWarn(string.Format(
-                    "Found a duplicated instance of a Singleton with type {0} in the GameObject {1}",
+                    "Found a duplicated instance of a Singleton with type {0} in the GameObject {1} that will be ignored",
                     this.GetType(), this.gameObject.name));
 
                 NotifyInstanceRepeated();
@@ -160,7 +172,6 @@ namespace SocialPoint.Utils
                     "Awake() Singleton with type {0} in the GameObject {1}",
                     this.GetType(), this.gameObject.name));
 
-                DontDestroyOnLoad(_instance.gameObject);
                 SingletonAwakened();
                 IsAwakened = true;
             }
@@ -170,7 +181,8 @@ namespace SocialPoint.Utils
         void Start()
         {
             // do not start it twice
-            if(IsStarted) return;
+            if(IsStarted)
+                return;
 
             PrintLog(string.Format(
                 "Start() Singleton with type {0} in the GameObject {1}",
@@ -183,7 +195,8 @@ namespace SocialPoint.Utils
         void OnDestroy()
         {
             // Here we are dealing with a duplicate so we don't need to shut the singleton down
-            if (this != _instance) return;
+            if(this != _instance)
+                return;
 
             // Flag set when Unity sends the message OnDestroy to this Component.
             // This is needed because there is a chance that the GO holding this singleton
@@ -205,11 +218,12 @@ namespace SocialPoint.Utils
         #endregion
 
         #region Debug Methods (available in child classes)
+
         [Header("Debug")]
         /// <summary>
-        ///  Set this to true either by code or in the inspector to print trace log messages
-        /// </summary>
-        public bool PrintTrace = false;
+    ///  Set this to true either by code or in the inspector to print trace log messages
+    /// </summary>
+    public bool PrintTrace = false;
 
         protected void PrintLog(string str, params object[] args)
         {
@@ -223,7 +237,7 @@ namespace SocialPoint.Utils
 
         protected void PrintError(string str, params object[] args)
         {
-            Print(UnityEngine.Debug.LogError, PrintTrace, str, args);
+            Print(UnityEngine.Debug.LogError, true, str, args);
         }
 
         private void Print(Action<string> call, bool doPrint, string str, params object[] args)
@@ -235,8 +249,8 @@ namespace SocialPoint.Utils
                     Time.frameCount,
                     this.GetType().Name.ToUpper(),
                     string.Format(str, args)
-                    )
-                     );
+                )
+                );
             }
         }
 

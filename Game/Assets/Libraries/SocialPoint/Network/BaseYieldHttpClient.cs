@@ -8,9 +8,10 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public abstract class BaseYieldHttpConnection : Petition
+    public abstract class BaseYieldHttpConnection : IHttpConnection
     {
         public abstract IEnumerator Update();
+        public abstract void Cancel();
     }
 
     public abstract class BaseYieldHttpClient : IHttpClient
@@ -18,7 +19,7 @@ namespace SocialPoint.Network
         protected BaseYieldHttpConnection Current = null;
         protected PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection> Pending;
         MonoBehaviour _behaviour = null;
-		Coroutine _update = null;
+        Coroutine _update = null;
         
         public BaseYieldHttpClient(MonoBehaviour behaviour)
         {
@@ -55,14 +56,17 @@ namespace SocialPoint.Network
             {
                 req.Proxy = _defaultProxy;
             }
-            RequestSetup(req);
+            if(RequestSetup != null)
+            {
+                RequestSetup(req);
+            }
         }
 
         public virtual void OnApplicationPause(bool pause)
         {
         }
 
-        public void CancelAllPetitions()
+        public void CancelAllConnections()
         {
             foreach(BaseYieldHttpConnection connection in Pending.All)
             {
@@ -70,7 +74,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public virtual Petition Send(HttpRequest req, HttpResponseDelegate del = null)
+        public virtual IHttpConnection Send(HttpRequest req, HttpResponseDelegate del = null)
         {
             SetupHttpRequest(req);
             req.BeforeSend();
@@ -90,13 +94,13 @@ namespace SocialPoint.Network
             {
                 Current = Pending.Dequeue();
                 IEnumerator e = Current.Update();
-                while(e != null && e.MoveNext() && Current != null && Current.Active)
+                while(e != null && e.MoveNext() && Current != null)
                 {
                     yield return e.Current;
                 }
                 Current = null;
             }
-			_update = null;
+            _update = null;
         }
     }
 }

@@ -18,10 +18,10 @@ namespace SocialPoint.Utils
         {
             callbacks = new List<Application.LogCallback>();
         
-#if UNITY_4
-			Application.RegisterLogCallback(HandleLog);
-#else
+#if UNITY_5
 			Application.logMessageReceived += HandleLog;
+#else
+            Application.RegisterLogCallback(HandleLog);
 #endif
         }
     

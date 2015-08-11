@@ -15,9 +15,8 @@ namespace SocialPoint.Utils
             }
         }
 
-        public static bool SaveTextureToFile(Texture2D texture, string fileName, ref string errorMsg)
+        public static Error SaveTextureToFile(Texture2D texture, string fileName)
         {
-            bool success = true;
             try
             {
                 byte[] bytes = texture.EncodeToPNG();
@@ -30,13 +29,9 @@ namespace SocialPoint.Utils
             }
             catch(Exception e)
             {
-                success = false;
-                if(errorMsg != null)
-                {
-                    errorMsg = "Could not write the file. " + e.ToString();
-                }
+                return new Error("Could not write the file. " + e.ToString());
             }
-            return success;
+            return null;
         }
     }
 }

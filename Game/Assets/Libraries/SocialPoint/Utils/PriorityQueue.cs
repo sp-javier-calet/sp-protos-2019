@@ -34,7 +34,7 @@ namespace SocialPoint.Utils
             if(typeof(TPriority).IsEnum)
             {
                 var priorityValues = Enum.GetValues(typeof(TPriority)).Cast<TPriority>();
-                foreach(TPriority priority in priorityValues)
+                foreach(var priority in priorityValues)
                 {
                     _queues[priority] = new Queue<TValue>();
                 }
@@ -52,7 +52,7 @@ namespace SocialPoint.Utils
         
         public TValue Dequeue()
         {
-            foreach(KeyValuePair<TPriority, Queue<TValue>> currQueue in _queues)
+            foreach(var currQueue in _queues)
             {
                 if(currQueue.Value.Count > 0)
                 {
@@ -64,8 +64,9 @@ namespace SocialPoint.Utils
         
         public System.Collections.IEnumerable All
         {
-            get{
-                foreach(KeyValuePair<TPriority, Queue<TValue>> currQueue in _queues)
+            get
+            {
+                foreach(var currQueue in _queues)
                 {
                     foreach(TValue obj in currQueue.Value)
                     {
@@ -75,12 +76,20 @@ namespace SocialPoint.Utils
             }
         }
 
-        public int Count 
+        public void Clear()
+        {
+            foreach(var currQueue in _queues)
+            {
+                currQueue.Value.Clear();
+            }
+        }
+
+        public int Count
         {
             get
             {
                 int count = 0;
-                foreach(KeyValuePair<TPriority, Queue<TValue>> currQueue in _queues)
+                foreach(var currQueue in _queues)
                 {
                     count += currQueue.Value.Count;
                 }

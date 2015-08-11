@@ -1,17 +1,38 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE
+#define UNITY
+#endif
+
+
+#if UNITY
+using UnityEngine;
+#endif
+
+using System;
+using System.Collections.Generic;
 using System.Collections;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 
 namespace SocialPoint.IO {
 
     public class FileUtils 
     {
+
+#if UNITY
         private static WWW Download(string path)
         {
             var www = new WWW(path);
             while (!www.isDone);
             return www;
         }
+#endif
+
+        
+        private const char WildcardMultiChar = '*';
+        private const char WildcardOneChar = '?';
+
+        public delegate bool OperationFilter(string src, string dst);
         
         public static bool IsWritable(string path)
         {
@@ -26,13 +47,13 @@ namespace SocialPoint.IO {
             }
         }
         
-        public static void Copy(string from, string to, bool overwrite = false)
+        public static void CopyFile(string from, string to, bool overwrite = false)
         {
-            if (Exists (to)) 
+            if(Exists(to)) 
             {
                 if (!overwrite) 
                 {
-                    throw new IOException ("Destination exists.");
+                    throw new IOException("Destination exists.");
                 }
             }
             
@@ -46,8 +67,12 @@ namespace SocialPoint.IO {
         {
             if (IsUrl(path))
             {
+#if UNITY
                 var www = Download(path);
                 return string.IsNullOrEmpty(www.error);
+#else
+                throw new IOException("Url paths are not supported.");
+#endif
             }
             else
             {
@@ -64,8 +89,12 @@ namespace SocialPoint.IO {
         {
             if (IsUrl(path))
             {
+#if UNITY
                 var www = Download(path);
                 return www.text;
+#else
+                throw new IOException("Url paths are not supported.");
+#endif
             }
             else
             {
@@ -77,8 +106,12 @@ namespace SocialPoint.IO {
         {
             if (IsUrl(path))
             {
+#if UNITY
                 var www = Download(path);
                 return www.bytes;
+#else
+                throw new IOException("Url paths are not supported.");
+#endif
             }
             else
             {
@@ -102,11 +135,13 @@ namespace SocialPoint.IO {
 
         public static string [] GetFilesInDirectory(string path)
         {
+            CheckLocalPath(path);
             return Directory.GetFiles(path);
         }
 
         public static void CreateDirectory(string path)
         {
+            CheckLocalPath(path);
             Directory.CreateDirectory(path);
         }
 
@@ -125,21 +160,27 @@ namespace SocialPoint.IO {
             File.Create(path).Close();
         }
         
-        public static void Delete(string path)
+        public static bool Delete(string path)
         {
             if(!Exists(path))
             {
-                return;
+                return false;
             }
 
             FileAttributes attributes = File.GetAttributes(path);
             if((attributes & FileAttributes.Directory) == FileAttributes.Directory)
             {
-                Directory.Delete(path);
+                Directory.Delete(path, true);
+                return true;
+            }
+            if((attributes & FileAttributes.Archive) == FileAttributes.Archive)
+            {
+                File.Delete(path);
+                return true;
             }
             else
             {
-                File.Delete(path);
+                return false;
             }
         }
 
@@ -147,8 +188,335 @@ namespace SocialPoint.IO {
         {
             if(!IsWritable(path))
             {
-                throw new IOException("Destination needs to be writable.");
+                throw new IOException("Path needs to be writable.");
             }
+        }
+
+        private static void CheckLocalPath(string path)
+        {
+            if(IsUrl(path))
+            {
+                throw new IOException("Path needs to be local.");
+            }
+        }
+
+        public static string MakeRelativePath(string startFile, string targetFile)
+        {
+            StringBuilder newpath = new StringBuilder();
+            
+            if(startFile == null || targetFile == null)
+            {
+                return null;
+            }
+            if(startFile == targetFile)
+            {
+                return Path.GetFileName(targetFile);
+            }
+            
+            var sfpath = new List<string>(startFile.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            var tfpath = new List<string>(targetFile.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            
+            for(int i = sfpath.Count - 1; i >= 0; i--)
+            {
+                if(sfpath[i] == ".")
+                {
+                    sfpath.RemoveAt(i);
+                }
+            }
+            
+            for(int i = tfpath.Count - 1; i >= 0; i--)
+            {
+                if(tfpath[i] == ".")
+                {
+                    tfpath.RemoveAt(i);
+                }
+            }
+            
+            int cmpdepth = Math.Min(sfpath.Count - 1, tfpath.Count - 1);
+            int ixdiff = 0;
+            for(; ixdiff < cmpdepth; ixdiff++)
+            {
+                if(false == StringComparer.OrdinalIgnoreCase.Equals(sfpath[ixdiff], tfpath[ixdiff]))
+                {
+                    break;
+                }
+            }
+            
+            if(ixdiff == 0 && Path.IsPathRooted(targetFile))
+            {
+                return targetFile;//new volumes can't be relative
+            }
+            
+            for(int i = ixdiff; i < (sfpath.Count - 1); i++)
+            {
+                newpath.AppendFormat("..{0}", Path.DirectorySeparatorChar);
+            }
+            for(int i = ixdiff; i < tfpath.Count; i++)
+            {
+                newpath.Append(tfpath[i]);
+                if((i + 1) < tfpath.Count)
+                {
+                    newpath.Append(Path.DirectorySeparatorChar);
+                }
+            }
+            return newpath.ToString();
+        }
+        
+        static public bool IsDirectoryEmpty(string path)
+        {
+            var folder = new DirectoryInfo(path);
+            if(folder.Exists)
+            {
+                return folder.GetFileSystemInfos().Length == 0;
+            }
+            return false;
+        }
+
+        static public bool GlobMatch(string pattern, string value)
+        {
+            int pos = 0;
+            while (pattern.Length != pos)
+            {
+                switch (pattern[pos])
+                {
+                case WildcardOneChar:
+                    break;
+                    
+                case WildcardMultiChar:
+                    for (int i = value.Length; i >= pos; i--)
+                    {
+                        if (GlobMatch(value.Substring(i), pattern.Substring(pos + 1)))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                    
+                default:
+                    if (value.Length == pos || char.ToUpper(pattern[pos]) != char.ToUpper(value[pos]))
+                    {
+                        return false;
+                    }
+                    break;
+                }
+                
+                pos++;
+            }
+            
+            return value.Length == pos;
+        }
+        
+        static public void ReplaceFileNames(string path, string pattern, IDictionary<string,string> repls, OperationFilter dlg=null)
+        {
+            CheckLocalPath(path);
+            var regexes = new Dictionary<Regex,string>();
+            foreach(var repl in repls)
+            {
+                regexes.Add(new Regex(repl.Key), repl.Value);
+            }
+            var files = Directory.GetFiles(path);
+            foreach(var src in files)
+            {
+                var filename = Path.GetFileName(src);
+                if(!GlobMatch(pattern, filename))
+                {
+                    continue;
+                }
+                var dst = filename;
+                foreach(var regex in regexes)
+                {
+                    dst = regex.Key.Replace(dst, regex.Value);
+                }
+                dst = Path.Combine(path, dst);
+                if(src != dst)
+                {
+                    if(dlg != null && !dlg(src, dst))
+                    {
+                        continue;
+                    }
+                    File.Move(src, dst);
+                }
+            }
+            var dirs = Directory.GetDirectories(path);
+            foreach(var src in dirs)
+            {
+                var dir = src;
+                var dirname = Path.GetFileName(src);
+                if(GlobMatch(pattern, dirname))
+                {
+                    var dst = dirname;
+                    foreach(var regex in regexes)
+                    {
+                        dst = regex.Key.Replace(dst, regex.Value);
+                    }
+                    dst = Path.Combine(path, dst);
+                    if(src != dst)
+                    {
+                        if(dlg != null && !dlg(src, dst))
+                        {
+                            continue;
+                        }
+                        Directory.Move(src, dst);
+                    }
+                    dir = dst;
+                }
+                ReplaceFileNames(dir, pattern, repls, dlg);
+            }
+        }
+        
+        static public void ReplaceTextInFile(string path, IDictionary<string,string> repls)
+        {
+            string text = ReadAllText(path);
+            foreach(var repl in repls)
+            {
+                text = new Regex(repl.Key).Replace(text, repl.Value);
+            }
+            WriteAllText(path, text);
+        }
+
+        static public string CleanPath(string path)
+        {
+            return path.TrimEnd(new char[]{ Path.DirectorySeparatorChar });
+        }
+        
+        static public void Copy(string src, string dst, OperationFilter each=null)
+        {
+            CheckLocalPath(src);
+            CheckLocalPath(dst);
+            string dir;
+            string pattern;
+            bool isDir;
+            SearchOption search;
+            if(File.Exists(src))
+            {
+                search = SearchOption.TopDirectoryOnly;
+                dir = Path.GetDirectoryName(src);
+                pattern = null;
+                isDir = false;
+            }
+            else if(Directory.Exists(src))
+            {
+                search = SearchOption.AllDirectories;
+                dir = src;
+                pattern = null;
+                isDir = true;
+            }
+            else
+            {
+                var deepWildcard = string.Empty+WildcardMultiChar+WildcardMultiChar;
+                if(src.Contains(deepWildcard))
+                {
+                    src = src.Replace(deepWildcard, string.Empty+WildcardMultiChar);
+                    search = SearchOption.AllDirectories;
+                }
+                else
+                {
+                    search = SearchOption.TopDirectoryOnly;
+                }
+                dir = GetWildcardBasePath(src);
+                pattern = src;
+                isDir = true;
+            }
+
+            dir = CleanPath(dir);
+            string[] files;
+            if(isDir)
+            {
+                files = Directory.GetFiles(dir, string.Empty + WildcardMultiChar, search);
+            }
+            else
+            {
+                files = new string[]{ src };
+            }
+            dir += Path.DirectorySeparatorChar;
+            foreach(var srcPath in files)
+            {
+                if(srcPath.StartsWith(dir) && (pattern == null || GlobMatch(pattern, srcPath)))
+                {
+                    string dstPath = dst;
+                    if(isDir)
+                    {
+                        var srcRelPath = srcPath.Substring(dir.Length);
+                        dstPath = Path.Combine(dstPath, srcRelPath);
+                    }
+
+                    if(each == null || each(srcPath, dstPath))
+                    {
+                        CopyFile(srcPath, dstPath, true);
+                    }
+                }
+            }
+        }
+
+        static public string GetWildcardBasePath(string path)
+        {
+            path = CleanPath(path);
+            var i = path.IndexOfAny(new char[]{ WildcardOneChar, WildcardMultiChar });
+            if(i == -1)
+            {
+                return path;
+            }
+            i = path.LastIndexOf(Path.DirectorySeparatorChar, i, i+1);
+            if(i == -1)
+            {
+                return string.Empty;
+            }
+            return path.Substring(0, i);
+        }
+        
+        static public string SetDefaultFileName(string path, string filename)
+        {
+            if(Directory.Exists(path) || path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
+            {
+                return System.IO.Path.Combine(path, filename);
+            }
+            return path;
+        }
+        
+        static public bool CompareFiles(string path1, string path2)
+        {
+            CheckLocalPath(path1);
+            CheckLocalPath(path2);
+            if(!File.Exists(path1))
+            {
+                return !File.Exists(path2);
+            }
+            if(!File.Exists(path2))
+            {
+                return !File.Exists(path1);
+            }
+            
+            int file1byte;
+            int file2byte;
+            FileStream fs1;
+            FileStream fs2;
+            
+            if(path1 == path2)
+            {
+                return true;
+            }
+            
+            fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read);
+            fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read);
+            
+            if(fs1.Length != fs2.Length)
+            {
+                fs1.Close();
+                fs2.Close();
+                return false;
+            }
+            
+            do
+            {
+                file1byte = fs1.ReadByte();
+                file2byte = fs2.ReadByte();
+            }
+            while ((file1byte == file2byte) && (file1byte != -1));
+            
+            fs1.Close();
+            fs2.Close();
+            
+            return ((file1byte - file2byte) == 0);
         }
     }
 }
