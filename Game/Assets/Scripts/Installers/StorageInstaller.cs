@@ -1,5 +1,6 @@
 ﻿using System;
 using SocialPoint.Attributes;
+using SocialPoint.IO;
 using Zenject;
 
 public class StorageInstaller : MonoInstaller
@@ -7,6 +8,7 @@ public class StorageInstaller : MonoInstaller
     [Serializable]
     public class SettingsData
     {
+        public string VolatilePrefix = string.Empty;
         public string PersistentPrefix = string.Empty;
     };
     
@@ -14,9 +16,17 @@ public class StorageInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{		
-        Container.Bind<IAttrStorage>().ToSingle<PlayerPrefsAttrStorage>();
+        PathsManager.Init(this, true);
 
-        var persistent = new PersistentAttrStorage(Settings.PersistentPrefix);
-        Container.Bind<IAttrStorage>().ToSingleInstance("persistent", persistent);
+        var vol = new PlayerPrefsAttrStorage();
+        vol.Prefix = Settings.VolatilePrefix;
+        Container.Bind<IAttrStorage>("volatile").ToSingleInstance(vol);
+
+#if UNITY_IOS && !UNITY_EDITOR
+        var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
+#else
+        var persistent = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, Settings.PersistentPrefix));
+#endif
+        Container.Bind<IAttrStorage>("persistent").ToSingleInstance(persistent);
 	}
 }

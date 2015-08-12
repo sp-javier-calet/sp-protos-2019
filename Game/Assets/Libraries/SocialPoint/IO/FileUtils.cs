@@ -28,7 +28,6 @@ namespace SocialPoint.IO {
         }
 #endif
 
-        
         private const char WildcardMultiChar = '*';
         private const char WildcardOneChar = '?';
 
@@ -44,6 +43,18 @@ namespace SocialPoint.IO {
             {
                 var info = new System.IO.FileInfo(path);
                 return !info.Exists || !info.IsReadOnly; // FIXME IF file doesnt exist, check folder permissions
+            }
+        }
+
+        public static string Combine(string basePath, string relPath)
+        {
+            if(IsUrl(basePath))
+            {
+                return new Uri(new Uri(basePath), relPath).AbsoluteUri;
+            }
+            else
+            {
+                return Path.Combine(basePath, relPath);
             }
         }
         

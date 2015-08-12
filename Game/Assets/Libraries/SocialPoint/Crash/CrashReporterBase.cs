@@ -252,6 +252,8 @@ namespace SocialPoint.Crash
         public TrackEventDelegate TrackEvent;
         public GetUserIdDelegate GetUserId;
 
+        public const float DefaultSendInterval = 20.0f;
+
         bool _wasActiveInLastSession = false;
         bool _exceptionLogActive = true;
         bool _errorLogActive = true;
@@ -264,7 +266,7 @@ namespace SocialPoint.Crash
 
         MonoBehaviour _behaviour;
         Coroutine _updateCoroutine;
-        float _currentSendInterval = 20;
+        float _currentSendInterval = DefaultSendInterval;
         long _lastSendTimestamp;
         bool _sending;
 
@@ -375,8 +377,8 @@ namespace SocialPoint.Crash
             _httpClient = client;
             _deviceInfo = deviceInfo;
 
-            _exceptionStorage = new PersistentAttrStorage(string.Format("{0}/{1}", PathsManager.PersistentDataPath, "logs/exceptions"));
-            _crashStorage = new PersistentAttrStorage(string.Format("{0}/{1}", PathsManager.PersistentDataPath, "logs/crashes"));
+            _exceptionStorage = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/exceptions"));
+            _crashStorage = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/crashes"));
            
             //only used when crash detected
             _breadcrumbManager = breadcrumbManager;

@@ -17,7 +17,7 @@ public class HttpClient : CurlHttpClient
 
     private void OnRequestSetup(HttpRequest req)
     {
-        if(req.Proxy == null)
+        if(string.IsNullOrEmpty(req.Proxy))
         {
             req.Proxy = _httpProxy;
         }

@@ -74,6 +74,10 @@ namespace SocialPoint.Login
 
     public interface ILogin : IDisposable
     {
+        UInt64 UserId{ get; set; }
+
+        void SetupHttpRequest(HttpRequest req, string Uri);
+
 		void Login(LoginDelegate cbk = null, LinkFilter filter = LinkFilter.Auto);
     }
 }
