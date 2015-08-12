@@ -89,7 +89,7 @@ namespace SocialPoint.Base
         [MenuItem("File/AutoBuilder/iOS")]
         static void PerformiOSBuild()
         {
-#if UNITY_4
+#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
             SetDefines(BuildTargetGroup.iPhone);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.iPhone);
             BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iPhone, BuildOptions.None);
@@ -105,7 +105,7 @@ namespace SocialPoint.Base
         {
             SetDefines(BuildTargetGroup.Android);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.Android);
-#if UNITY_4
+#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
             EditorUserBuildSettings.androidBuildSubtarget = AndroidBuildSubtarget.ETC;
 #else
             EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ETC;

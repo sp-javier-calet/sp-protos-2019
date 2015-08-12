@@ -18,6 +18,7 @@
     "SocialPoint/AppEvents": "master",
     "SocialPoint/GUI": "master",
     "SocialPoint/Crash": "master",
+    "SocialPoint/AppRater": "master",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3"
   }
