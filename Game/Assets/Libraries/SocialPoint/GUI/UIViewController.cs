@@ -37,7 +37,7 @@ namespace SocialPoint.GUI
         [HideInInspector]
         public UIViewController Parent;
 
-		public static UIViewControllerFactory Factory = new UIViewControllerFactory();
+        public static UIViewControllerFactory Factory = new UIViewControllerFactory();
         public bool DestroyOnHide = false;
         UIViewAnimation _animation;
 

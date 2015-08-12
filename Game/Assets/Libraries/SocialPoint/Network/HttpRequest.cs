@@ -390,8 +390,6 @@ namespace SocialPoint.Network
             str.Append(kLineSeparator);
             str.Append(Url);
             str.Append(kNewline);
-            str.Append(ToStringHeaders());
-            str.Append(kNewline);
 
             if(Headers.Count > 0)
             {

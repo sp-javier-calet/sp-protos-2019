@@ -39,13 +39,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc28f5b49b4c747d4a0b3c21259cd14c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Settings:
+    Proxy: localhost:8888
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: Settings.Proxy
+      value: localhost:8888
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 197580}

@@ -89,9 +89,15 @@ namespace SocialPoint.Base
         [MenuItem("File/AutoBuilder/iOS")]
         static void PerformiOSBuild()
         {
+#if UNITY_4
+            SetDefines(BuildTargetGroup.iPhone);
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.iPhone);
+            BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iPhone, BuildOptions.None);
+#else
             SetDefines(BuildTargetGroup.iOS);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.iOS);
             BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iOS, BuildOptions.None);
+#endif
         }
 
         [MenuItem("File/AutoBuilder/Android")]
@@ -99,7 +105,12 @@ namespace SocialPoint.Base
         {
             SetDefines(BuildTargetGroup.Android);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.Android);
+#if UNITY_4
+            EditorUserBuildSettings.androidBuildSubtarget = AndroidBuildSubtarget.ETC;
+#else
             EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ETC;
+#endif
+
             EditorPrefs.SetString("AndroidSdkRoot", System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal) + "/Development/android-sdk/");
             BuildPipeline.BuildPlayer(ScenePaths, "Builds/Android/" + ProjectName + ".apk", BuildTarget.Android, BuildOptions.None);
         }

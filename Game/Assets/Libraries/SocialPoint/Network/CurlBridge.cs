@@ -14,7 +14,7 @@ namespace SocialPoint.Network
         public struct RequestStruct
         {
             [MarshalAs(UnmanagedType.SysInt)]
-            public int
+            public IntPtr
                 Id;
             [MarshalAs(UnmanagedType.LPTStr)]
             public string
@@ -26,10 +26,10 @@ namespace SocialPoint.Network
             public string
                 Method;
             [MarshalAs(UnmanagedType.SysInt)]
-            public int
+            public IntPtr
                 Timeout;
             [MarshalAs(UnmanagedType.SysInt)]
-            public int
+            public IntPtr
                 ActivityTimeout;
             [MarshalAs(UnmanagedType.LPTStr)]
             public string
@@ -39,9 +39,10 @@ namespace SocialPoint.Network
                 Headers;
             public byte[] Body;
             [MarshalAs(UnmanagedType.SysInt)]
-            public int
+            public IntPtr
                 BodyLength;
         };
+
         
         #if UNITY_EDITOR || UNITY_ANDROID
         const string PluginModuleName = "sp_unity_curl";

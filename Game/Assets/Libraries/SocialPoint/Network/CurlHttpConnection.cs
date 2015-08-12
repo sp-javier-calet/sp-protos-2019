@@ -131,16 +131,16 @@ namespace SocialPoint.Network
                 queryParamsStr = queryParamsStr.Substring(1);
             }
 
-            data.Id = id;
+            data.Id = new IntPtr(id);
             data.Url = urlPath;
             data.Query = queryParamsStr;
             data.Method = request.Method.ToString();
-            data.Timeout = (int)request.Timeout;
-            data.ActivityTimeout = (int)request.ActivityTimeout;
+            data.Timeout = new IntPtr((int)request.Timeout);
+            data.ActivityTimeout = new IntPtr((int)request.ActivityTimeout);
             data.Proxy = request.Proxy;
             data.Headers = request.ToStringHeaders();
             data.Body = request.Body.Bytes;
-            data.BodyLength = request.Body.Bytes != null ? request.Body.Bytes.Length : 0;
+            data.BodyLength = new IntPtr(request.Body.Bytes != null ? request.Body.Bytes.Length : 0);
             return data;
         }
 

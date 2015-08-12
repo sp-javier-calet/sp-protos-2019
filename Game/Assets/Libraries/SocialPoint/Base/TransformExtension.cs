@@ -66,29 +66,29 @@ namespace SocialPoint.Base
             return null;
         }
 
-		public static bool IsPrefab(this Transform This)
-		{
-			var TempObject = new GameObject();
-			try
-			{
-				TempObject.transform.parent = This.parent;
-				
-				var OriginalIndex = This.GetSiblingIndex();
-				
-				This.SetSiblingIndex(int.MaxValue);
-				if (This.GetSiblingIndex() == 0)
-				{
-					return true;
-				}
-				
-				This.SetSiblingIndex(OriginalIndex);
-				return false;
-			}
-			finally
-			{
-				Object.DestroyImmediate(TempObject);
-			}
-		}
+        public static bool IsPrefab(this Transform This)
+        {
+            var TempObject = new GameObject();
+            try
+            {
+                TempObject.transform.parent = This.parent;
+                
+                var OriginalIndex = This.GetSiblingIndex();
+                
+                This.SetSiblingIndex(int.MaxValue);
+                if (This.GetSiblingIndex() == 0)
+                {
+                    return true;
+                }
+                
+                This.SetSiblingIndex(OriginalIndex);
+                return false;
+            }
+            finally
+            {
+                Object.DestroyImmediate(TempObject);
+            }
+        }
     }
 }
 

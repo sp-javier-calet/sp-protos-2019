@@ -11,6 +11,9 @@
   "require": {
     "SocialPoint/Network/Curl": "master",
     "SocialPoint/Login": "master",
+    "SocialPoint/Hardware": "master",
+    "SocialPoint/Events": "master",
+    "SocialPoint/AppEvents": "master",
     "SocialPoint/GUI": "master",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3"

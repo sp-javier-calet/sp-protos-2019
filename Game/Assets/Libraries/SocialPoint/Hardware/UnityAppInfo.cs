@@ -68,10 +68,10 @@ namespace SocialPoint.Hardware
 #if UNITY_EDITOR
                 if(_shortVersion == null)
                 {
-#if UNITY_5
-					_shortVersion = UnityEditor.PlayerSettings.bundleVersion;
-#else
+#if UNITY_4
                     _shortVersion = UnityEditor.PlayerSettings.shortBundleVersion;
+#else
+                    _shortVersion = UnityEditor.PlayerSettings.bundleVersion;                    
 #endif
                 }
 #endif

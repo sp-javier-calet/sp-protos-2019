@@ -30,7 +30,7 @@ namespace SocialPoint.GUI
             }
             if(ctrl == null)
             {
-				ctrl = Factory.Create(c, prefab);
+                ctrl = Factory.Create(c, prefab);
             }
             if(ctrl != null)
             {
@@ -57,7 +57,7 @@ namespace SocialPoint.GUI
             }
             RemoveChild(ctrl);
             ctrl.Parent = this;
-			ctrl.transform.SetParent(transform);
+            ctrl.transform.SetParent(transform);
             ctrl.transform.localScale = Vector3.one;
             ctrl.ViewEvent += OnChildViewStateChanged;
         }

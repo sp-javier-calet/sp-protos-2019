@@ -171,7 +171,12 @@ namespace SocialPoint.Login
         private const int LinkedToLinkedError = 267;
         private const int ForceUpgradeError = 485;
 
-        private const uint DefaultMaxLoginRetries = 5;
+        public const uint DefaultMaxLoginRetries = 5;
+        public const float DefaultTimeout = 30.0f;
+        public const float DefaultActivityTimeout = 15.0f;
+        public const bool DefaultAutoUpdateFriends = true;
+        public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
+        public const uint DefaultUserMappingsBlock = 50;
 
         private LocalUser _user;
 
@@ -370,12 +375,12 @@ namespace SocialPoint.Login
             _userHasRegisteredLoaded = false;
             Friends = new List<SocialPoint.Login.User>();
             User = new LocalUser();
-            Timeout = 30.0f;
-            ActivityTimeout = 15.0f;
-            AutoUpdateFriends = true;
-            AutoUpdateFriendsPhotosSize = 0;
+            Timeout = DefaultTimeout;
+            ActivityTimeout = DefaultActivityTimeout;
+            AutoUpdateFriends = DefaultAutoUpdateFriends;
+            AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
             MaxLoginRetries = DefaultMaxLoginRetries;
-            UserMappingsBlock = 0;
+            UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
             Language = null;
             _user = new LocalUser();
