@@ -34,8 +34,6 @@ namespace SocialPoint.ServerSync
 
         public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
 
-        public delegate Attr SyncDelegate();
-
         private const string Uri = "packet";
         private const string AttrKeyPackets = "packets";
         private const string AttrKeyCommands = "commands";
@@ -161,17 +159,41 @@ namespace SocialPoint.ServerSync
         public event CommandErrorDelegate CommandError = delegate {};
         public event ResponseDelegate ResponseReceive = delegate {};
 
-        public SyncDelegate AutoSync;
+        private SyncDelegate _autoSync;
+        public SyncDelegate AutoSync
+        {
+            set
+            {
+                _autoSync = value;
+            }
+        }
+
+        private bool _autoSyncEnabled = true;
+        public bool AutoSyncEnabled
+        {
+            set
+            {
+                _autoSyncEnabled = value;
+            }
+        }
+
         public TrackEventDelegate TrackEvent;
 
+        public const bool DefaultIgnoreResponses = false;
+        public const int DefaultSendInterval = 20;
+        public const int DefaultMaxOutOfSyncInterval = 0;
+        public const float DefaultTimeout = 60.0f;
+        public const float DefaultBackoffMultiplier = 1.1f;
+        public const bool DefaultPingEnabled = true;
+
         public RequestSetupDelegate RequestSetup;
-        public bool IgnoreResponses = false;
-        public int SendInterval = 20;
-        public int MaxOutOfSyncInterval = 0;
-        public float Timeout = 60.0f;
-        public float BackoffMultiplier = 1.1f;
-        public bool PingEnabled = true;
-        public bool AutoSyncEnabled = true;
+        public bool IgnoreResponses = DefaultIgnoreResponses;
+        public int SendInterval = DefaultSendInterval;
+        public int MaxOutOfSyncInterval = DefaultMaxOutOfSyncInterval;
+        public float Timeout = DefaultTimeout;
+        public float BackoffMultiplier = DefaultBackoffMultiplier;
+        public bool PingEnabled = DefaultPingEnabled;
+
 
         IHttpClient _httpClient;
         MonoBehaviour _behaviour;
@@ -406,9 +428,9 @@ namespace SocialPoint.ServerSync
 
         void SendUpdate()
         {
-            if(AutoSyncEnabled && AutoSync != null)
+            if(_autoSyncEnabled && _autoSync != null)
             {
-                Add(new SyncCommand(AutoSync()));
+                Add(new SyncCommand(_autoSync()));
                 Flush();
             }
             if(!_sending)

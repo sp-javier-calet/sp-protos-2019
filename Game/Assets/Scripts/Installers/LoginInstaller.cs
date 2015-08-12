@@ -19,10 +19,7 @@ public class LoginInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-		if(Settings.BaseUrl != null)
-		{
-			Container.BindInstance("base_url", Settings.BaseUrl);
-		}
+		Container.BindInstance("base_url", Settings.BaseUrl);
         Container.BindInstance("login_timeout", Settings.Timeout);
         Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
         Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);

@@ -1,9 +1,15 @@
 ﻿using System;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
+    public delegate Attr SyncDelegate();
+
     public interface ICommandQueue : IDisposable
     {
+        SyncDelegate AutoSync { set; }
+        bool AutoSyncEnabled { set; }
+
 		bool Synced { get; }
 
         void Start();

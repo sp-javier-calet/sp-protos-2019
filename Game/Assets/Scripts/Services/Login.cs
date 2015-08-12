@@ -3,6 +3,7 @@ using SocialPoint.Login;
 using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
+using SocialPoint.Events;
 
 class Login : SocialPointLogin
 {
@@ -12,6 +13,15 @@ class Login : SocialPointLogin
         set
         {
             DeviceInfo = value;
+        }
+    }
+
+    [InjectOptional]
+    public IEventTracker InjectEventTracker
+    {
+        set
+        {
+            TrackEvent = value.TrackEvent;
         }
     }
     

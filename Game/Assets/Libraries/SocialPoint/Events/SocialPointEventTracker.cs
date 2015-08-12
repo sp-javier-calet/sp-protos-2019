@@ -44,6 +44,11 @@ namespace SocialPoint.Events
             "errors.*"
         };
 
+        public const int DefaultMaxOutOfSyncInterval = 0;
+        public const int DefaultSendInterval = 5;
+        public const float DefaultTimeout = 30.0f;
+        public const float DefaultBackoffMultiplier = 1.1f;
+
         public RequestSetupDelegate RequestSetup;
         public GetSessionIdDelegate GetSessionId;
 
@@ -51,16 +56,15 @@ namespace SocialPoint.Events
         public event Action SyncChange = delegate {};
         public event EventTrackerErrorDelegate GeneralError = delegate {};
 
-        public int MaxOutOfSyncInterval = 0;
-        public int SendInterval = 5;
-        public float Timeout = 30.0f;
-        public float BackoffMultiplier = 1.1f;
+        public int MaxOutOfSyncInterval = DefaultMaxOutOfSyncInterval;
+        public int SendInterval = DefaultSendInterval;
+        public float Timeout = DefaultTimeout;
+        public float BackoffMultiplier = DefaultBackoffMultiplier;
         public List<string> UnauthorizedEvents;
 
         public IHttpClient HttpClient;
         public IDeviceInfo DeviceInfo;
         public ICommandQueue CommandQueue;
-        public IAttrStorage Storage = new PlayerPrefsAttrStorage();
 
         List<Events.Event> _pendingEvents;
         MonoBehaviour _behaviour;

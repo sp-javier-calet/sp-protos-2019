@@ -10,11 +10,14 @@
   },
   "require": {
     "SocialPoint/Network/Curl": "master",
+    "SocialPoint/Attributes/Ios": "master",
     "SocialPoint/Login": "master",
+    "SocialPoint/ServerSync": "master",
     "SocialPoint/Hardware": "master",
     "SocialPoint/Events": "master",
     "SocialPoint/AppEvents": "master",
     "SocialPoint/GUI": "master",
+    "SocialPoint/Crash": "master",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3"
   }
