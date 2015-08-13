@@ -11,7 +11,8 @@ public class GUIInstaller : MonoInstaller
 	[Serializable]
 	public class SettingsData
 	{
-		public GameObject FirstScreen;
+        public GameObject FirstScreen;
+        public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
 	};
 
 	public SettingsData Settings;
@@ -24,34 +25,52 @@ public class GUIInstaller : MonoInstaller
 			{
 				name = name.Substring(0, name.Length-UIViewControllerSuffix.Length);
 			}
-			var prefab = string.Format("GUI/{0}", name);
-			var ctrl = UIViewControllerFactory.CreateFromResource(prefab);
-			Container.Inject(ctrl);
-			return ctrl;
+			return string.Format("GUI/{0}", name);
 		});
 
+        UIViewController.Factory.Filter += (ctrl, t) => {
+            if(ctrl != null)
+            {
+                Container.Inject(ctrl);
+            }
+        };
+
+        Container.BindInstance("popup_fade_speed", Settings.PopupFadeSpeed);
+
+        var popups = GameObject.FindObjectOfType<PopupsController>();
+        if(popups != null)
+        {
+            Container.Bind<PopupsController>().ToInstance(popups);
+        }
+        var firstScreen = Settings.FirstScreen;
+        if(firstScreen != null)
+        {
+            if(firstScreen.transform.IsPrefab())
+            {
+                firstScreen = Instantiate(firstScreen);
+            }
+            Container.BindInstance("first_screen", firstScreen);
+        }
 		var screens = GameObject.FindObjectOfType<ScreensController>();
 		if(screens != null)
-		{
-			Container.Bind<ScreensController>().ToInstance(screens);
-			if(Settings.FirstScreen != null)
-			{
-				var go = Settings.FirstScreen;
-				if(Settings.FirstScreen.transform.IsPrefab())
-				{
-					go = Instantiate(go);
-				}
-				Container.InjectGameObject(go);
-				screens.Push(go);
-			}
-		}
-		
-		var popups = GameObject.FindObjectOfType<PopupsController>();
-		if(popups != null)
-		{
-			Container.Bind<PopupsController>().ToInstance(popups);
-		}
+        {
+            Container.Bind<ScreensController>().ToInstance(screens);
+        }
 
+        if(firstScreen != null)
+        {
+            Container.InjectGameObject(firstScreen);
+        }
+        if(popups != null)
+        {
+            Container.Inject(popups);
+        }
+        if(screens != null)
+        {
+            Container.Inject(screens);
+        }
+
+		
     }
     
 }

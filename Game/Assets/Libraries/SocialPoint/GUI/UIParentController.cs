@@ -51,6 +51,7 @@ namespace SocialPoint.GUI
 
         public void AddChild(UIViewController ctrl)
         {
+            Load();
             if(ctrl == null)
             {
                 throw new ArgumentException("Controller cannot be null.");

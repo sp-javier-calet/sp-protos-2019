@@ -14,9 +14,9 @@ namespace SocialPoint.GUI
         public GameObject BackContainer;
         public GameObject Blocker;
         public bool SimultaneousAnimations = true;
-        public UIViewAnimation UpAnimation;
-        public UIViewAnimation DownAnimation;
-        public UIViewAnimation DefAnimation;
+        public UIViewAnimation ChildUpAnimation;
+        public UIViewAnimation ChildDownAnimation;
+        public UIViewAnimation ChildAnimation;
 
         public enum ActionType
         {
@@ -142,23 +142,23 @@ namespace SocialPoint.GUI
             }
             if(act == ActionType.Push)
             {
-                if(!SetAnimation(from, to, UpAnimation))
+                if(!SetAnimation(from, to, ChildUpAnimation))
                 {
-                    SetAnimation(from, to, DefAnimation);
+                    SetAnimation(from, to, ChildAnimation);
                 }
             }
             else if(IsPopAction(act))
             {
-                if(!SetAnimation(from, to, DownAnimation))
+                if(!SetAnimation(from, to, ChildDownAnimation))
                 {
-                    SetAnimation(from, to, DefAnimation);
+                    SetAnimation(from, to, ChildAnimation);
                 }
             }
             else
             {
                 if(act == ActionType.Replace)
                 {
-                    SetAnimation(from, to, DefAnimation);
+                    SetAnimation(from, to, ChildAnimation);
                 }
             }
         }

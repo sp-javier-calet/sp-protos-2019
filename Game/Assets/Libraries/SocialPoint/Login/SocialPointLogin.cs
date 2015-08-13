@@ -352,7 +352,7 @@ namespace SocialPoint.Login
         public event LoginNewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
         public event LoginProgressDelegate ProgressEvent = delegate{};
         public event LoginConfirmLinkDelegate ConfirmLinkEvent = delegate{};
-        public event LoginErrorDelegate ErrorEvent = delegate{};
+        public event LoginErrorDelegate ErrorEvent = delegate {};
         public event RestartDelegate RestartEvent = delegate {};
 
         public SocialPointLogin(IHttpClient client, string baseUrl=null)
@@ -366,6 +366,13 @@ namespace SocialPoint.Login
 
             // Ensure the URL always contains a trailing slash
             _baseUrl = baseUrl.EndsWith(UriSeparator.ToString()) ? baseUrl : baseUrl + UriSeparator;
+        }
+
+        
+        [System.Diagnostics.Conditional("DEBUG_SPGUI")]
+        void DebugLog(string msg)
+        {
+            Debug.Log(string.Format("SocialPointLogin {0}", msg));
         }
 
         private void Init()
@@ -530,7 +537,7 @@ namespace SocialPoint.Login
                     HttpRequestEvent(req);
                 }
 
-                Debug.Log("\nSocialPointLogin login\n----\n" + req.ToString() + "----\n");
+                DebugLog("login\n----\n" + req.ToString() + "----\n");
                 _httpClient.Send(req, (resp) => OnLogin(resp, cbk, retry, filter));
             }
         }
@@ -545,7 +552,7 @@ namespace SocialPoint.Login
 
         void OnLogin(HttpResponse resp, LoginDelegate cbk, uint retry, LinkFilter filter)
         {
-            Debug.Log("\nSocialPointLogin login\n----\n" + resp.ToString() + "----\n");
+            DebugLog("login\n----\n" + resp.ToString() + "----\n");
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearUserId();
@@ -683,7 +690,7 @@ namespace SocialPoint.Login
                             req.AddParam(itr.Current.Key, itr.Current.Value);
                         }
                     }
-                    Debug.Log("\nSocialPointLogin link\n----\n" + req.ToString() + "----\n");
+                    DebugLog("link\n----\n" + req.ToString() + "----\n");
                     _httpClient.Send(req, (resp) => OnNewLinkResponse(info, resp));
                 }
             }
@@ -692,7 +699,7 @@ namespace SocialPoint.Login
         void OnNewLinkResponse(LinkInfo info, HttpResponse resp)
         {
             Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
-            Debug.Log("\nSocialPointLogin link\n----\n" + resp.ToString() + "----\n");
+            DebugLog("link\n----\n" + resp.ToString() + "----\n");
             var type = LinkConfirmType.None;
             switch(resp.StatusCode)
             {
@@ -1090,7 +1097,7 @@ namespace SocialPoint.Login
         
         void OnAppRequestResponse(HttpResponse resp, AppRequest req, LoginDelegate cbk)
         {
-            Debug.Log("\nSocialPointLogin app req\n----\n" + resp.ToString() + "---\n");
+            DebugLog("app req\n----\n" + resp.ToString() + "---\n");
             var err = HandleResponseErrors(resp, ErrorType.AppRequest);
             if(Error.IsNullOrEmpty(err))
             {
@@ -1102,7 +1109,7 @@ namespace SocialPoint.Login
 
         void OnAppRequestLinkNotified(LinkInfo info, AppRequest req, Error err, LoginDelegate cbk)
         {
-            Debug.Log("\nSocialPointLogin app req\n----\n" + req.ToString() + "---\n");
+            DebugLog("app req\n----\n" + req.ToString() + "---\n");
             if(Error.IsNullOrEmpty(err))
             {
                 info = GetNextLinkInfo(info, LinkFilter.All);
@@ -1596,7 +1603,7 @@ namespace SocialPoint.Login
                 // unset link token to prevent multiple confirms
                 linkInfo.Token = "";
             }
-            Debug.Log("\nSocialPointLogin link confirm\n----\n" + req.ToString() + "----\n");
+            DebugLog("link confirm\n----\n" + req.ToString() + "----\n");
             _httpClient.Send(req, (HttpResponse resp) => OnLinkConfirmResponse(linkInfo, decision, resp, cbk));
         }
         
@@ -1848,7 +1855,7 @@ namespace SocialPoint.Login
 
             httpReq.Body = new JsonAttrSerializer().Serialize(appRequestParams);
 
-            Debug.Log("\nSocialPointLogin app req\n----\n" + httpReq.ToString() + "----\n");
+            DebugLog("app req\n----\n" + httpReq.ToString() + "----\n");
             _httpClient.Send(httpReq, (resp) => OnAppRequestResponse(resp, req, cbk));
         }
 

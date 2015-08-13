@@ -9,23 +9,26 @@ namespace SocialPoint.GUI
     {
         public delegate UIViewController Delegate();
         public delegate UIViewController DefaultDelegate(Type t);
-        public delegate string StringDelegate();
-        public delegate string DefaultStringDelegate(Type t);
+        public delegate string PrefabDelegate();
+        public delegate string DefaultPrefabDelegate(Type t);
+        public delegate void FilterDelegate(UIViewController ctrl, Type t);
 
         private IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
+        private IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
         private DefaultDelegate _defaultCreator;
+        private DefaultPrefabDelegate _defaultPrefabCreator;
 		private UIViewControllerFactory _parent;
+
+        public event FilterDelegate Filter;
 
 		public UIViewControllerFactory(UIViewControllerFactory parent=null)
 		{
 			_parent = parent;
 		}
 
-		public void Define(DefaultStringDelegate dlg)
+		public void Define(DefaultPrefabDelegate dlg)
         {
-            Define((Type c) => {
-                return CreateFromResource(c, dlg(c));
-            });
+            _defaultPrefabCreator = dlg;
         }
 
         public void Define(DefaultDelegate dlg)
@@ -33,14 +36,12 @@ namespace SocialPoint.GUI
             _defaultCreator = dlg;
         }
 
-        public void Define(Type c, StringDelegate dlg)
+        public void Define(Type c, PrefabDelegate dlg)
         {
-            Define(c, () => {
-                return CreateFromResource(c, dlg());
-            });
+            _prefabCreators[c] = dlg;
         }
         
-        public void Define<C>(StringDelegate dlg) where C : UIViewController
+        public void Define<C>(PrefabDelegate dlg) where C : UIViewController
         {
             Define(typeof(C), dlg);
         }
@@ -95,13 +96,23 @@ namespace SocialPoint.GUI
 			return null;
         }
 
-        public UIViewController Create(Type c, string prefab=null)
+        public UIViewController Create(Type c, string prefab)
+        {
+            if(prefab == null)
+            {
+                return Create(c);
+            }
+            else
+            {
+                var ctrl = CreateFromResource(c, prefab);
+                return CreateEnd(c, prefab, ctrl);
+            }
+        }
+
+        public UIViewController Create(Type c)
         {
             UIViewController ctrl = null;
-            if(ctrl == null && prefab != null)
-            {
-                ctrl = CreateFromResource(c, prefab);
-            }
+            string prefab = null;
             if(ctrl == null)
             {
                 Delegate creator = null;
@@ -117,25 +128,47 @@ namespace SocialPoint.GUI
                     ctrl = _defaultCreator(c);
                 }
             }
-			if(ctrl == null)
-			{
-				if(_parent != null)
-				{
-					ctrl = _parent.Create(c, prefab);
-				}
-			}
             if(ctrl == null)
             {
-                var go = new GameObject();
-                if(prefab == null)
+                PrefabDelegate prefabCreator = null;
+                if(_prefabCreators.TryGetValue(c, out prefabCreator))
                 {
-                    prefab = c.ToString();
+                    prefab = prefabCreator();
+                    ctrl = CreateFromResource(prefab);
                 }
-                ctrl = (UIViewController)go.AddComponent(c);
+            }
+            if(ctrl == null)
+            {
+                if(_defaultPrefabCreator != null)
+                {
+                    prefab = _defaultPrefabCreator(c);
+                    ctrl = CreateFromResource(prefab);
+                }
+            }
+            return CreateEnd(c, prefab, ctrl);
+        }
+
+        private UIViewController CreateEnd(Type c, string prefab, UIViewController ctrl)
+        {
+            if(ctrl == null)
+            {
+                if(_parent != null)
+                {
+                    ctrl = _parent.Create(c, prefab);
+                }
+            }
+            if(ctrl == null)
+            {
+                throw new MissingComponentException(string.Format(
+                    "Could not find controller for type {0} and prefab {1}.", c, prefab)); 
             }
             if(prefab != null)
             {
                 ctrl.gameObject.name = prefab;
+            }
+            if(Filter != null)
+            {
+                Filter(ctrl, c);
             }
             return ctrl;
         }
