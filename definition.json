@@ -2,10 +2,10 @@
   "name": "SocialPoint/BaseGame",
   "paths": {
       "targets": {
-        "root": "Game/Assets",
-        "csharp": "Game/Assets/Libraries",
-        "plugins": "Game/Assets/Plugins",
-        "xcodemods": "Game/Assets/Editor/xcodemods"
+        "root": "Project/Assets",
+        "csharp": "Project/Assets/Libraries",
+        "plugins": "Project/Assets/Plugins",
+        "xcodemods": "Project/Assets/Editor/xcodemods"
       }
   },
   "require": {
@@ -19,6 +19,7 @@
     "SocialPoint/GUI": "master",
     "SocialPoint/Crash": "master",
     "SocialPoint/AppRater": "master",
+    "SocialPoint/Alert": "master",
     "SocialPoint/Tests": "master",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3"
