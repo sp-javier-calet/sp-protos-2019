@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using LitJson;
 using SocialPoint.Utils;
 
@@ -103,7 +104,20 @@ namespace SocialPoint.Attributes
             if(datastr.StartsWith(kQuoteString) && datastr.EndsWith(kQuoteString) && datastr.Length >= 2 * kQuoteString.Length)
             {
                 datastr = datastr.Substring(kQuoteString.Length, datastr.Length - 2 * kQuoteString.Length);
-                datastr = datastr.Replace(kEscapeString + kQuoteString, kQuoteString);
+                var i = 0;
+                while(true)
+                {
+                    i = datastr.IndexOf(kQuoteString, i+1);
+                    if(i == -1)
+                    {
+                        break;
+                    }
+                    if(datastr.Substring(i-kEscapeString.Length, kEscapeString.Length) != kEscapeString)
+                    {
+                        throw new SerializationException("Invalid string value.");
+                    }
+                }
+                datastr = datastr.Replace(kEscapeString, string.Empty);
                 return new AttrString(datastr);
             }
             try
@@ -147,7 +161,7 @@ namespace SocialPoint.Attributes
             {
                 return new AttrEmpty();
             }
-            throw new InvalidOperationException("Error reading data.");
+            throw new SerializationException("Error reading data.");
         }
     }
 }

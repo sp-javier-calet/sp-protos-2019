@@ -184,15 +184,12 @@ namespace SocialPoint.IO {
                 Directory.Delete(path, true);
                 return true;
             }
-            if((attributes & FileAttributes.Archive) == FileAttributes.Archive)
+            else
             {
                 File.Delete(path);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
         }
 
         private static void CheckWritablePath(string path)

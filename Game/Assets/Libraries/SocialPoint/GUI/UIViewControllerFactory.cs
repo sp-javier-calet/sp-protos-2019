@@ -8,25 +8,29 @@ namespace SocialPoint.GUI
     public class UIViewControllerFactory
     {
         public delegate UIViewController Delegate();
+
         public delegate UIViewController DefaultDelegate(Type t);
+
         public delegate string PrefabDelegate();
+
         public delegate string DefaultPrefabDelegate(Type t);
-        public delegate void FilterDelegate(UIViewController ctrl, Type t);
+
+        public delegate void FilterDelegate(UIViewController ctrl,Type t);
 
         private IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
         private IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
         private DefaultDelegate _defaultCreator;
         private DefaultPrefabDelegate _defaultPrefabCreator;
-		private UIViewControllerFactory _parent;
+        private UIViewControllerFactory _parent;
 
         public event FilterDelegate Filter;
 
-		public UIViewControllerFactory(UIViewControllerFactory parent=null)
-		{
-			_parent = parent;
-		}
+        public UIViewControllerFactory(UIViewControllerFactory parent=null)
+        {
+            _parent = parent;
+        }
 
-		public void Define(DefaultPrefabDelegate dlg)
+        public void Define(DefaultPrefabDelegate dlg)
         {
             _defaultPrefabCreator = dlg;
         }
@@ -72,18 +76,17 @@ namespace SocialPoint.GUI
         {
             return (C)Create(typeof(C), name);
         }
-
-		
-		public static UIViewController CreateFromResource(string prefab=null)
-		{
-			var robj = Resources.Load(prefab);
-			if(robj != null)
-			{
-				var go = (GameObject)GameObject.Instantiate(robj);
-				return go.GetComponent<UIViewController>();
-			}
-			return null;
-		}
+        
+        public static UIViewController CreateFromResource(string prefab=null)
+        {
+            var robj = Resources.Load(prefab);
+            if(robj != null)
+            {
+                var go = (GameObject)GameObject.Instantiate(robj);
+                return go.GetComponent<UIViewController>();
+            }
+            return null;
+        }
 
         public UIViewController CreateFromResource(Type c, string prefab=null)
         {
@@ -93,7 +96,7 @@ namespace SocialPoint.GUI
                 var go = (GameObject)GameObject.Instantiate(robj);
                 return (UIViewController)go.GetComponent(c);
             }
-			return null;
+            return null;
         }
 
         public UIViewController Create(Type c, string prefab)
