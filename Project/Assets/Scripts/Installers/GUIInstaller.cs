@@ -56,20 +56,6 @@ public class GUIInstaller : MonoInstaller
         {
             Container.Bind<ScreensController>().ToInstance(screens);
         }
-
-        if(firstScreen != null)
-        {
-            Container.InjectGameObject(firstScreen);
-        }
-        if(popups != null)
-        {
-            Container.Inject(popups);
-        }
-        if(screens != null)
-        {
-            Container.Inject(screens);
-        }
-
 		
     }
     

@@ -3,17 +3,18 @@ using Zenject;
 using SocialPoint.GUI;
 using UnityEngine;
 
-public class ScreensController : UIStackController, IInitializable
+public class ScreensController : UIStackController
 {
     [InjectOptional("first_screen")]
     GameObject FirstScreen;
 
     [PostInject]
-    public void Initialize()
+    public void LoadFirstScreen()
     {
         if(FirstScreen != null)
         {
-            Push(FirstScreen);
+            ReplaceImmediate(FirstScreen);
         }
     }
+
 }

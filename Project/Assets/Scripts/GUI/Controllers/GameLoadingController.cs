@@ -22,7 +22,6 @@ public class GameLoadingController : UIViewController
     override protected void OnAppeared()
     {
         base.OnAppeared();
-
         Login.ErrorEvent += OnLoginError;
         Login.NewUserEvent += OnLoginNewUser;
         Login.Login();
@@ -31,6 +30,7 @@ public class GameLoadingController : UIViewController
     override protected void OnDisappearing()
     {
         Login.ErrorEvent -= OnLoginError;
+        Login.NewUserEvent -= OnLoginNewUser;
         base.OnDisappearing();
     }
 

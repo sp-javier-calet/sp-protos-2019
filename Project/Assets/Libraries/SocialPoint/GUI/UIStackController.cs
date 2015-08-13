@@ -134,11 +134,11 @@ namespace SocialPoint.GUI
         {
             if(FrontContainer != null && to != null)
             {
-                to.transform.SetParent(FrontContainer.transform);
+                to.SetParent(FrontContainer.transform);
             }
             if(BackContainer != null && from != null)
             {
-				from.transform.SetParent(BackContainer.transform);
+				from.SetParent(BackContainer.transform);
             }
             if(act == ActionType.Push)
             {
@@ -164,7 +164,12 @@ namespace SocialPoint.GUI
         }
 
         IEnumerator DoTransition(UIViewController from, UIViewController to, ActionType act)
-        {
+        {            
+            if(from == to)
+            {
+                // no need to transition to itself
+                yield break;
+            }
             DebugLog(string.Format("StartTransition {0} {1} -> {2}", SimultaneousAnimations ? "sim" : "con",
                                    from == null ? string.Empty : from.gameObject.name,
                                    to == null ? string.Empty : to.gameObject.name));
@@ -301,38 +306,29 @@ namespace SocialPoint.GUI
 
         
         #region Push
-        
-        public C Push<C>(GameObject go) where C : UIViewController
-        {
-            return (C)Push(typeof(C), go);   
-        }
 
         public UIViewController Push(GameObject go)
         {
-            return Push<UIViewController>(go);
-        }
-
-        public UIViewController Push(Type c, GameObject go)
-        {
-            var ctrl = (UIViewController)go.GetComponent(c);
+            var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return Push(c, ctrl);
+            return Push(ctrl);
         }
 
-        public C Push<C>(C ctrl=null) where C : UIViewController
+        public C Push<C>() where C : UIViewController
         {
-            return (C)Push(typeof(C), ctrl); 
+            return Push(typeof(C)) as C; 
         }
 
-        public UIViewController Push(Type c, UIViewController ctrl=null)
+        public UIViewController Push(Type c)
         {
-            if(ctrl == null)
-            {
-                ctrl = CreateChild(c);
-            }
+            return Push(CreateChild(c));
+        }
+
+        public UIViewController Push(UIViewController ctrl)
+        {
             var act = ActionType.Push;
             StartActionCoroutine(DoPushCoroutine(ctrl, act), act);
             return ctrl;
@@ -357,37 +353,28 @@ namespace SocialPoint.GUI
             }
         }
 
-        public C PushImmediate<C>(GameObject go) where C : UIViewController
-        {
-            return (C)PushImmediate(typeof(C), go);   
-        }
-        
         public UIViewController PushImmediate(GameObject go)
         {
-            return PushImmediate<UIViewController>(go);
-        }
-        
-        public UIViewController PushImmediate(Type c, GameObject go)
-        {
-            var ctrl = (UIViewController)go.GetComponent(c);
+            var ctrl = go.GetComponent<UIViewController>();
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return PushImmediate(c, ctrl);
+            return PushImmediate(ctrl);
         }
         
-        public C PushImmediate<C>(C ctrl=null) where C : UIViewController
+        public C PushImmediate<C>() where C : UIViewController
         {
-            return (C)PushImmediate(typeof(C), ctrl); 
+            return PushImmediate(typeof(C)) as C; 
+        }
+
+        public UIViewController PushImmediate(Type c)
+        {
+            return PushImmediate(CreateChild(c));
         }
         
-        public UIViewController PushImmediate(Type c, UIViewController ctrl=null)
+        public UIViewController PushImmediate(UIViewController ctrl)
         {
-            if(ctrl == null)
-            {
-                ctrl = CreateChild(c);
-            }
             DebugLog(string.Format("PushImmediate {0}", ctrl.gameObject.name));
             var top = Top;
             AddChild(ctrl);
@@ -405,25 +392,31 @@ namespace SocialPoint.GUI
 
         #region PushBehind
 
-        public C PushBehind<C>(GameObject go) where C : UIViewController
+        public UIViewController PushBehind(GameObject go)
         {
-            var ctrl = go.GetComponent<C>();
+            var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return PushBehind<C>(ctrl);
+            return PushBehind(ctrl);
+        }
+
+        public C PushBehind<C>() where C : UIViewController
+        {
+            return PushBehind(typeof(C)) as C; 
         }
         
-        public C PushBehind<C>(C ctrl=null) where C : UIViewController
+        public UIViewController PushBehind(Type c)
+        {
+            return PushBehind(CreateChild(c));
+        }
+        
+        public UIViewController PushBehind(UIViewController ctrl)
         {
             if(_stack.Count == 0)
             {
-                return Push<C>(ctrl);
-            }
-            if(ctrl == null)
-            {
-                ctrl = CreateChild<C>();
+                return Push(ctrl);
             }
             DebugLog(string.Format("PushBehind {0}", ctrl.gameObject.name));
             AddChild(ctrl);
@@ -439,58 +432,39 @@ namespace SocialPoint.GUI
         #endregion
 
         #region Replace
-        
-        public C Replace<C>(GameObject go, ActionType act = ActionType.Replace) where C : UIViewController
-        {
-            return (C)Replace(typeof(C), go, act);   
-        }
-        
+
         public UIViewController Replace(GameObject go, ActionType act = ActionType.Replace)
         {
-            return Replace<UIViewController>(go, act);
-        }
-        
-        public UIViewController Replace(Type c, GameObject go, ActionType act = ActionType.Replace)
-        {
-            var ctrl = (UIViewController)go.GetComponent(c);
+            var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return Replace(c, ctrl, act);
-        }
-        
-        public C Replace<C>(C ctrl, ActionType act = ActionType.Replace) where C : UIViewController
-        {
-            return (C)Replace(typeof(C), ctrl, act); 
+            return Replace(ctrl, act);
         }
         
         public C Replace<C>(ActionType act = ActionType.Replace) where C : UIViewController
         {
-            return (C)Replace(typeof(C), act); 
-        }
-        
-        public UIViewController Replace(Type c, UIViewController ctrl, ActionType act = ActionType.Replace)
-        {
-            if(ctrl == null)
-            {
-                ctrl = CreateChild(c);
-            }
-            StartActionCoroutine(DoReplaceCoroutine(ctrl), act);
-            return ctrl;
+            return Replace(typeof(C), act) as C; 
         }
         
         public UIViewController Replace(Type c, ActionType act = ActionType.Replace)
         {
-            return Replace(c, act);
+            return Replace(CreateChild(c), act);
+        }
+        
+        public UIViewController Replace(UIViewController ctrl, ActionType act = ActionType.Replace)
+        {
+            StartActionCoroutine(DoReplaceCoroutine(ctrl, act), act);
+            return ctrl;
         }
 
         public IEnumerator ReplaceCoroutine(UIViewController ctrl, ActionType act = ActionType.Replace)
         {
-            yield return StartActionCoroutine(DoReplaceCoroutine(ctrl), act);
+            yield return StartActionCoroutine(DoReplaceCoroutine(ctrl, act), act);
         }
         
-        IEnumerator DoReplaceCoroutine(UIViewController ctrl, ActionType act = ActionType.Replace)
+        IEnumerator DoReplaceCoroutine(UIViewController ctrl, ActionType act)
         {
             DebugLog(string.Format("Replace {0}", ctrl.gameObject.name));
             var enm = DoPushCoroutine(ctrl, act);
@@ -504,37 +478,29 @@ namespace SocialPoint.GUI
             }
         }
 
-        public C ReplaceImmediate<C>(GameObject go) where C : UIViewController
-        {
-            return (C)ReplaceImmediate(typeof(C), go);
-        }
         
         public UIViewController ReplaceImmediate(GameObject go)
         {
-            return ReplaceImmediate<UIViewController>(go);
-        }
-        
-        public UIViewController ReplaceImmediate(Type c, GameObject go)
-        {
-            var ctrl = (UIViewController)go.GetComponent(c);
+            var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return ReplaceImmediate(c, ctrl);
+            return ReplaceImmediate(ctrl);
         }
         
-        public C ReplaceImmediate<C>(C ctrl=null) where C : UIViewController
+        public C ReplaceImmediate<C>() where C : UIViewController
         {
-            return (C)ReplaceImmediate(typeof(C), ctrl); 
+            return ReplaceImmediate(typeof(C)) as C; 
         }
         
-        public UIViewController ReplaceImmediate(Type c, UIViewController ctrl=null)
+        public UIViewController ReplaceImmediate(Type c)
         {
-            if(ctrl == null)
-            {
-                ctrl = CreateChild(c);
-            }
+            return ReplaceImmediate(CreateChild(c));
+        }
+        
+        public UIViewController ReplaceImmediate(UIViewController ctrl)
+        {
             DebugLog(string.Format("ReplaceImmediate {0}", ctrl.gameObject.name));
             var top = Top;
             AddChild(ctrl);

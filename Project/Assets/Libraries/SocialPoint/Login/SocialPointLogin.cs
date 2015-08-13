@@ -350,6 +350,7 @@ namespace SocialPoint.Login
         public event LoginNewUserDelegate NewUserEvent = delegate{};
         public event LoginNewLinkDelegate NewLinkBeforeFriendsEvent = delegate{};
         public event LoginNewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
+        public event LoginProgressDelegate ProgressEvent = delegate{};
         public event LoginConfirmLinkDelegate ConfirmLinkEvent = delegate{};
         public event LoginErrorDelegate ErrorEvent = delegate {};
         public event RestartDelegate RestartEvent = delegate {};
@@ -538,6 +539,14 @@ namespace SocialPoint.Login
 
                 DebugLog("login\n----\n" + req.ToString() + "----\n");
                 _httpClient.Send(req, (resp) => OnLogin(resp, cbk, retry, filter));
+            }
+        }
+
+        void OnProgressNotify(int current, int total)
+        {
+            if(ProgressEvent != null)
+            {
+                ProgressEvent(current, total);
             }
         }
 

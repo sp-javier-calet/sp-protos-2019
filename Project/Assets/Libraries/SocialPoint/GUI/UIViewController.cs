@@ -30,16 +30,19 @@ namespace SocialPoint.GUI
         private ViewState _viewState = ViewState.Initial;
         private Coroutine _showCoroutine;
         private Coroutine _hideCoroutine;
+        private UIViewAnimation _animation;
 
         [HideInInspector]
         public event ViewDelegate ViewEvent;
 
         [HideInInspector]
-        public UIViewController Parent;
+        public UIViewController ParentController;
 
+        [HideInInspector]
         public static UIViewControllerFactory Factory = new UIViewControllerFactory();
+
+        [HideInInspector]
         public bool DestroyOnHide = false;
-        UIViewAnimation _animation;
 
         public UIViewAnimation Animation
         {
@@ -82,6 +85,11 @@ namespace SocialPoint.GUI
         void DebugLog(string msg)
         {
             Debug.Log(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
+        }
+
+        public void SetParent(Transform parent)
+        {
+            gameObject.transform.SetParent(parent, false);
         }
 
         public bool Load()

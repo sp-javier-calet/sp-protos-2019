@@ -77,7 +77,7 @@ namespace SocialPoint.GUI
             return (C)Create(typeof(C), name);
         }
         
-        public static UIViewController CreateFromResource(string prefab=null)
+        private static UIViewController CreateFromResource(string prefab)
         {
             var robj = Resources.Load(prefab);
             if(robj != null)
@@ -88,7 +88,7 @@ namespace SocialPoint.GUI
             return null;
         }
 
-        public UIViewController CreateFromResource(Type c, string prefab=null)
+        private static UIViewController CreateFromResource(Type c, string prefab)
         {
             var robj = Resources.Load(prefab);
             if(robj != null)

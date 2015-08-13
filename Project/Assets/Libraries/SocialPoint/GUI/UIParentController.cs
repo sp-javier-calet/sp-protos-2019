@@ -21,7 +21,7 @@ namespace SocialPoint.GUI
                 for(int i=0; i<ctrls.Length; ++i)
                 {
                     var elm = (UIViewController)ctrls[i];
-                    if(elm.Parent == null)
+                    if(elm.ParentController == null)
                     {
                         ctrl = elm;
                         break;
@@ -56,10 +56,8 @@ namespace SocialPoint.GUI
             {
                 throw new ArgumentException("Controller cannot be null.");
             }
-            RemoveChild(ctrl);
-            ctrl.Parent = this;
-            ctrl.transform.SetParent(transform);
-            ctrl.transform.localScale = Vector3.one;
+            ctrl.ParentController = this;
+            ctrl.SetParent(transform);
             ctrl.ViewEvent += OnChildViewStateChanged;
         }
 
@@ -69,7 +67,7 @@ namespace SocialPoint.GUI
             {
                 throw new ArgumentException("Controller cannot be null.");
             }
-            ctrl.transform.SetParent(null);
+            ctrl.SetParent(null);
             ctrl.ViewEvent -= OnChildViewStateChanged;
         }
 

@@ -50,7 +50,7 @@ namespace SocialPoint.Hardware
             {
                 if(_version == null)
                 {
-                    return DateTime.UtcNow.ToString("yyddMMhhmm");
+                    return DateTime.UtcNow.ToString("yyMMddHHmm");
                 }
                 return _version;
             }

@@ -1,19 +1,44 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
+using Zenject;
 
 public class AdminPanelButton : MonoBehaviour
 {
-    void Update()
+    [Inject]
+    ScreensController Screens;
+
+    public float WaitTime = 1.0f;
+    private bool _down = false;
+    private float _timeSinceDown = 0.0f;
+
+    public void OnPointerUp(BaseEventData data)
     {
-        if (Input.touchCount == 1)
+        _down = false;
+    }
+
+    public void OnPointerDown(BaseEventData data)
+    {
+        _down = true;
+        _timeSinceDown = 0.0f;
+    }
+
+    public void Update()
+    {
+        if(_down)
         {
-            Vector3 wp = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
-            Vector2 touchPos = new Vector2(wp.x, wp.y);
-            if (collider2D == Physics2D.OverlapPoint(touchPos))
+            _timeSinceDown += Time.deltaTime;
+            if(_timeSinceDown >= WaitTime)
             {
-                //your code
-                
+                _down = false;
+                OnActivation();
             }
         }
     }
+
+    private void OnActivation()
+    {
+        Screens.Push<AdminPanelController>();
+    }
+
 }

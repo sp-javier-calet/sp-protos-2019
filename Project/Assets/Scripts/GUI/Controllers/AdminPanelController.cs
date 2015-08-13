@@ -8,4 +8,9 @@ using UnityEngine;
 
 public class AdminPanelController : UIViewController
 {
+
+    public void OnCloseButtonClicked()
+    {
+        Hide();
+    }
 }
