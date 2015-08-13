@@ -20,6 +20,8 @@
     "SocialPoint/Crash": "master",
     "SocialPoint/AppRater": "master",
     "SocialPoint/Alert": "master",
+    "SocialPoint/TouchInput": "master",
+    "SocialPoint/ContolInput": "master",
     "SocialPoint/Tests": "master",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3"

@@ -14,6 +14,9 @@ public class GameLoadingController : UIViewController
     [Inject]
     public PopupsController Popups;
 
+    [Inject]
+    public IParser<GameModel> GameParser;
+
     public string SceneToLoad = "Main";
 
     override protected void OnAppeared()
@@ -40,8 +43,10 @@ public class GameLoadingController : UIViewController
     
     void OnLoginNewUser(Attr data)
     {
-        ZenUtil.LoadScene(SceneToLoad);
+        var model = GameParser.Parse(data);
+        ZenUtil.LoadScene(SceneToLoad, (DiContainer container) => {
+            container.BindInstance(model);
+        });
     }
-
 
 }

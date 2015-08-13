@@ -47,7 +47,7 @@ public class GUIInstaller : MonoInstaller
         {
             if(firstScreen.transform.IsPrefab())
             {
-                firstScreen = Instantiate(firstScreen);
+                firstScreen = GameObject.Instantiate(firstScreen);
             }
             Container.BindInstance("first_screen", firstScreen);
         }
