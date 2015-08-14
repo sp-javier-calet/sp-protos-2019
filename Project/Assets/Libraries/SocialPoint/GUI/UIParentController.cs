@@ -57,7 +57,6 @@ namespace SocialPoint.GUI
                 throw new ArgumentException("Controller cannot be null.");
             }
             ctrl.ParentController = this;
-            ctrl.SetParent(transform);
             ctrl.ViewEvent += OnChildViewStateChanged;
         }
 
@@ -67,7 +66,11 @@ namespace SocialPoint.GUI
             {
                 throw new ArgumentException("Controller cannot be null.");
             }
-            ctrl.SetParent(null);
+            if(ctrl.ParentController == this)
+            {
+                throw new ArgumentException("Controller is not my child.");
+            }
+            ctrl.ParentController = null;
             ctrl.ViewEvent -= OnChildViewStateChanged;
         }
 
