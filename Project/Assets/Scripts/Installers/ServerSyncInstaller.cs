@@ -25,7 +25,9 @@ public class ServerSyncInstaller : MonoInstaller
         Container.BindInstance("command_queue_timeout", Settings.Timeout);
         Container.BindInstance("command_queue_backoff_multiplier", Settings.BackoffMultiplier);
         Container.BindInstance("command_queue_ping_enabled", Settings.PingEnabled);
-        Container.BindAllInterfacesToSingle<CommandQueue>();
+
+        var queue = Container.Instantiate<CommandQueue>();
+        Container.Bind<ICommandQueue>().ToSingleInstance(queue);
 	}
 
 }

@@ -40,8 +40,14 @@ public class GUIInstaller : MonoInstaller
         var popups = GameObject.FindObjectOfType<PopupsController>();
         if(popups != null)
         {
-            Container.Bind<PopupsController>().ToInstance(popups);
+            Container.Bind<PopupsController>().ToSingleInstance(popups);
         }
+		var screens = GameObject.FindObjectOfType<ScreensController>();
+		if(screens != null)
+        {
+            Container.Bind<ScreensController>().ToSingleInstance(screens);
+        }
+
         var firstScreen = Settings.FirstScreen;
         if(firstScreen != null)
         {
@@ -50,11 +56,6 @@ public class GUIInstaller : MonoInstaller
                 firstScreen = GameObject.Instantiate(firstScreen);
             }
             Container.BindInstance("first_screen", firstScreen);
-        }
-		var screens = GameObject.FindObjectOfType<ScreensController>();
-		if(screens != null)
-        {
-            Container.Bind<ScreensController>().ToInstance(screens);
         }
 		
     }

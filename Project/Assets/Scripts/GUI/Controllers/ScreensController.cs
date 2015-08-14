@@ -9,7 +9,7 @@ public class ScreensController : UIStackController
     GameObject FirstScreen;
 
     [PostInject]
-    public void LoadFirstScreen()
+    public void PostInject()
     {
         if(FirstScreen != null)
         {

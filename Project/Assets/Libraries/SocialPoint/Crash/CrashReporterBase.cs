@@ -253,10 +253,12 @@ namespace SocialPoint.Crash
         public GetUserIdDelegate GetUserId;
 
         public const float DefaultSendInterval = 20.0f;
+        public const bool DefaultExceptionLogActive = true;
+        public const bool DefaultErrorLogActive = true;
 
         bool _wasActiveInLastSession = false;
-        bool _exceptionLogActive = true;
-        bool _errorLogActive = true;
+        bool _exceptionLogActive = DefaultExceptionLogActive;
+        bool _errorLogActive = DefaultErrorLogActive;
 
         public float SendInterval
         {

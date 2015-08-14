@@ -1,5 +1,6 @@
 ﻿using Zenject;
 using System;
+using SocialPoint.Events;
 
 public class EventsInstaller : MonoInstaller
 {
@@ -20,7 +21,7 @@ public class EventsInstaller : MonoInstaller
         Container.BindInstance("event_tracker_outofsync_interval", Settings.MaxOutOfSyncInterval);
         Container.BindInstance("event_tracker_send_interval", Settings.SendInterval);
         Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
-        Container.BindAllInterfacesToSingle<EventTracker>();
+        Container.Bind<IEventTracker>().ToSingle<EventTracker>();
 	}
 
 }

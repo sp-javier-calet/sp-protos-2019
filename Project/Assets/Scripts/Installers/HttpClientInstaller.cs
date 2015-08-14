@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Zenject;
+using SocialPoint.Network;
 
 public class HttpClientInstaller : MonoInstaller
 {
@@ -15,6 +16,6 @@ public class HttpClientInstaller : MonoInstaller
 	public override void InstallBindings()
 	{
     	Container.BindInstance("http_proxy", Settings.Proxy);
-        Container.BindAllInterfacesToSingle<HttpClient>();
+        Container.Bind<IHttpClient>().ToSingle<HttpClient>();
 	}
 }
