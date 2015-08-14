@@ -17,5 +17,6 @@ public class HttpClientInstaller : MonoInstaller
 	{
     	Container.BindInstance("http_proxy", Settings.Proxy);
         Container.Bind<IHttpClient>().ToSingle<HttpClient>();
+        Container.Bind<IDisposable>().ToSingle<HttpClient>();
 	}
 }

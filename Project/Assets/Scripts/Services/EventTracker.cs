@@ -4,6 +4,7 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.ServerSync;
 using SocialPoint.Attributes;
+using SocialPoint.Login;
 using UnityEngine;
 
 class EventTracker : SocialPointEventTracker
@@ -44,7 +45,7 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
-    [InjectOptional]
+    [Inject]
     public IHttpClient InjectHttpClient
     {
         set
@@ -53,7 +54,7 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
-    [InjectOptional]
+    [Inject]
     public IDeviceInfo InjectDeviceInfo
     {
         set
@@ -62,12 +63,24 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
-    [InjectOptional]
+    [Inject]
     public ICommandQueue InjectCommandQueue
     {
         set
         {
             CommandQueue = value;
+        }
+    }
+
+    
+    [Inject]
+    public ILogin InjectLogin
+    {
+        set
+        {
+            GetSessionId = () => {
+                return value.SessionId;
+            };
         }
     }
 

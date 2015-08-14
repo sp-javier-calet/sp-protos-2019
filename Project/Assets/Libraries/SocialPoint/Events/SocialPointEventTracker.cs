@@ -295,7 +295,7 @@ namespace SocialPoint.Events
             }
         }
 
-        public void Uninitialize()
+        public void Dispose()
         {
             Stop();
             Reset();
@@ -520,7 +520,7 @@ namespace SocialPoint.Events
         }
 
 
-        public bool TrackFunnel(FunnelOperation op)
+        public void TrackFunnel(FunnelOperation op)
         {
 
             var data = op.AdditionalData;
@@ -542,7 +542,6 @@ namespace SocialPoint.Events
             {
                 TrackEvent(EventNameFunnel, data);
             }
-            return true;
         }
 
         public void TrackPurchaseStart(PurchaseStartOperation op)

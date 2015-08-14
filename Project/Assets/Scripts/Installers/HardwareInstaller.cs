@@ -14,7 +14,6 @@ public class HardwareInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-        var devInfo = new SocialPointDeviceInfo();
-		Container.Bind<IDeviceInfo>().ToInstance(devInfo);
+        Container.Bind<IDeviceInfo>().ToSingle<SocialPointDeviceInfo>();
 	}
 }

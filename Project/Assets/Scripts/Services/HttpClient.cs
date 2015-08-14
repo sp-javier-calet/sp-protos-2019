@@ -16,7 +16,7 @@ public class HttpClient : CurlHttpClient
         }
     }
 
-    [InjectOptional]
+    [Inject]
     public IAppEvents AppEvents
     {
         set

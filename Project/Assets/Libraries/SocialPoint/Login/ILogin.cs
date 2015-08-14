@@ -21,8 +21,6 @@ namespace SocialPoint.Login
     
     public delegate void LoginNewLinkDelegate(ILink link);
     
-    public delegate void LoginProgressDelegate(int a, int b);
-    
     public delegate void LoginErrorDelegate(ErrorType error, string msg, Attr data);
     
     public delegate void RestartDelegate();
@@ -78,14 +76,15 @@ namespace SocialPoint.Login
         event LoginNewUserDelegate NewUserEvent;
         event LoginNewLinkDelegate NewLinkBeforeFriendsEvent;
         event LoginNewLinkDelegate NewLinkAfterFriendsEvent;
-        event LoginProgressDelegate ProgressEvent;
         event LoginConfirmLinkDelegate ConfirmLinkEvent;
         event LoginErrorDelegate ErrorEvent;
         event RestartDelegate RestartEvent;
 
         UInt64 UserId{ get; set; }
 
-        void SetupHttpRequest(HttpRequest req, string Uri);
+        string SessionId{ get; }
+
+        void SetupHttpRequest(HttpRequest req, string uri);
 
 		void Login(LoginDelegate cbk = null, LinkFilter filter = LinkFilter.Auto);
     }

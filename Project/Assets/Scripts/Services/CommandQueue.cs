@@ -61,7 +61,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
         }
     }
 
-    [InjectOptional]
+    [Inject]
     public IAppEvents InjectAppEvents
     {
         set
@@ -70,7 +70,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
         }
     }
 
-    [InjectOptional]
+    [Inject]
     public IEventTracker InjectEventTracker
     {
         set

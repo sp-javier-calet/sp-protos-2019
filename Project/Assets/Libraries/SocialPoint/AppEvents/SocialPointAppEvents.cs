@@ -6,18 +6,18 @@ namespace SocialPoint.AppEvents
     public class SocialPointAppEvents : IAppEvents
     {
         AppEventsBase _appEvents;
+        const string GameObjectName = "SocialPointAppEvents";
 
-        public SocialPointAppEvents(GameObject go)
+        public SocialPointAppEvents(MonoBehaviour behaviour=null)
         {
-            Setup(go);
-        }
-
-        public SocialPointAppEvents()
-        {
-            GameObject go = new GameObject();
-            go.name = "SocialPointAppEvents";
-            GameObject.DontDestroyOnLoad(go);
-            Setup(go);
+            if(behaviour != null)
+            {
+                Setup(behaviour.gameObject);
+            }
+            else
+            {
+                Setup(null);
+            }
         }
 
         ~SocialPointAppEvents()
@@ -32,6 +32,12 @@ namespace SocialPoint.AppEvents
 
         private void Setup(GameObject go)
         {
+            if(go == null)
+            {
+                go = new GameObject();
+                go.name = GameObjectName;
+                GameObject.DontDestroyOnLoad(go);
+            }
             DestroyAppEvents();
             #if UNITY_IOS && !UNITY_EDITOR
             _appEvents = go.AddComponent<IosAppEvents>();

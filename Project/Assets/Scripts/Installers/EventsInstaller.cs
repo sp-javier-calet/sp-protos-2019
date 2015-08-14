@@ -7,6 +7,7 @@ public class EventsInstaller : MonoInstaller
 	[Serializable]
 	public class SettingsData
 	{
+        public bool EnableEmpty = false;
         public int MaxOutOfSyncInterval = EventTracker.DefaultMaxOutOfSyncInterval;
         public int SendInterval = EventTracker.DefaultSendInterval;
         public float Timeout = EventTracker.DefaultTimeout;
@@ -21,7 +22,15 @@ public class EventsInstaller : MonoInstaller
         Container.BindInstance("event_tracker_outofsync_interval", Settings.MaxOutOfSyncInterval);
         Container.BindInstance("event_tracker_send_interval", Settings.SendInterval);
         Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
-        Container.Bind<IEventTracker>().ToSingle<EventTracker>();
+        if(Settings.EnableEmpty)
+        {
+            Container.Bind<IEventTracker>().ToSingle<EmptyEventTracker>();
+            Container.Bind<IDisposable>().ToSingle<EmptyEventTracker>();
+        }
+        else
+        {
+            Container.Bind<IEventTracker>().ToSingle<EventTracker>();
+            Container.Bind<IDisposable>().ToSingle<EventTracker>();
+        }
 	}
-
 }

@@ -7,7 +7,7 @@ using SocialPoint.Events;
 
 class Login : SocialPointLogin
 {
-    [InjectOptional]
+    [Inject]
     public IDeviceInfo InjectDeviceInfo
     {
         set
@@ -16,7 +16,7 @@ class Login : SocialPointLogin
         }
     }
 
-    [InjectOptional]
+    [Inject]
     public IEventTracker InjectEventTracker
     {
         set

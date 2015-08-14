@@ -1,6 +1,7 @@
 
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
+using System;
 
 namespace SocialPoint.Events
 {
@@ -77,7 +78,7 @@ namespace SocialPoint.Events
         public AttrDic AdditionalData;
     }
 
-    public interface IEventTracker
+    public interface IEventTracker : IDisposable
     {
 		event EventDataSetupDelegate DataSetup;
         event EventTrackerErrorDelegate GeneralError;
@@ -85,20 +86,13 @@ namespace SocialPoint.Events
         void Start();
         void Stop();
         void Reset();
-        void Uninitialize();
-
         bool Send();
 
         void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
-
         void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
-
-        bool TrackFunnel(FunnelOperation op);
-
+        void TrackFunnel(FunnelOperation op);
         void TrackPurchaseStart(PurchaseStartOperation op);
-
         void TrackLevelUp(int lvl, AttrDic data=null);
-
         void TrackResource(ResourceOperation op);
     }
 }

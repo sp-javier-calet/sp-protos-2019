@@ -9,16 +9,7 @@ using UnityEngine;
 class CrashReporter : SocialPointCrashReporter
 {
     
-    [InjectOptional("crash_reporter_send_interval")]
-    public int InjectSendInterval
-    {
-        set
-        {
-            SendInterval = value;
-        }
-    }
-
-    [InjectOptional]
+    [Inject]
     public ILogin InjectLogin
     {
         set
@@ -29,13 +20,22 @@ class CrashReporter : SocialPointCrashReporter
             };
         }
     }
-
-    [InjectOptional]
+    
+    [Inject]
     public IEventTracker InjectEventTracker
     {
         set
         {
             TrackEvent = value.TrackEvent;
+        }
+    }
+
+    [InjectOptional("crash_reporter_send_interval")]
+    public int InjectSendInterval
+    {
+        set
+        {
+            SendInterval = value;
         }
     }
 
@@ -55,29 +55,11 @@ class CrashReporter : SocialPointCrashReporter
         {
             ExceptionLogActive = value;
         }
-    }
-
-    private bool _autoEnable = false;
-    [InjectOptional("crash_reporter_autoenable")]
-    public bool InjectAutoEnable
-    {
-        set
-        {
-            _autoEnable = value;
-        }
-    }
+    }   
 
     public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs):
         base(behaviour, client, deviceInfo, breadcrumbs)
     {
     }
 
-    [PostInject]
-    public void PostInject()
-    {
-        if(_autoEnable)
-        {
-            Enable();
-        }
-    }
 }

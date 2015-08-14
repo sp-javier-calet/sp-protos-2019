@@ -3,6 +3,7 @@ using SocialPoint.GUI;
 using SocialPoint.Login;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
+using SocialPoint.Crash;
 using Zenject;
 using UnityEngine;
 
@@ -15,6 +16,9 @@ public class GameLoadingController : UIViewController
     public PopupsController Popups;
 
     [Inject]
+    public ICrashReporter CrashReporter;
+
+    [Inject]
     public IParser<GameModel> GameParser;
 
     public string SceneToLoad = "Main";
@@ -22,6 +26,9 @@ public class GameLoadingController : UIViewController
     override protected void OnAppeared()
     {
         base.OnAppeared();
+
+        CrashReporter.Enable();
+
         Login.ErrorEvent += OnLoginError;
         Login.NewUserEvent += OnLoginNewUser;
         Login.Login();

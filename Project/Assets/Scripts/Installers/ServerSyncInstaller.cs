@@ -7,6 +7,7 @@ public class ServerSyncInstaller : MonoInstaller
 	[Serializable]
 	public class SettingsData
 	{
+        public bool EnableEmpty = false;
         public bool IgnoreResponses = CommandQueue.DefaultIgnoreResponses;
         public int SendInterval = CommandQueue.DefaultSendInterval;
         public int MaxOutOfSyncInterval = CommandQueue.DefaultMaxOutOfSyncInterval;
@@ -26,8 +27,17 @@ public class ServerSyncInstaller : MonoInstaller
         Container.BindInstance("command_queue_backoff_multiplier", Settings.BackoffMultiplier);
         Container.BindInstance("command_queue_ping_enabled", Settings.PingEnabled);
 
-        var queue = Container.Instantiate<CommandQueue>();
-        Container.Bind<ICommandQueue>().ToSingleInstance(queue);
+        if(Settings.EnableEmpty)
+        {
+            Container.Bind<ICommandQueue>().ToSingle<EmptyCommandQueue>();
+            Container.Bind<IDisposable>().ToSingle<EmptyCommandQueue>();
+        }
+        else
+        {
+            Container.Bind<ICommandQueue>().ToSingle<CommandQueue>();
+            Container.Bind<IDisposable>().ToSingle<CommandQueue>();
+        }
+
 	}
 
 }
