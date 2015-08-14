@@ -282,6 +282,17 @@ namespace SocialPoint.IO {
 
         static public bool GlobMatch(string pattern, string value)
         {
+            var deepWildcard = string.Empty+WildcardMultiChar+WildcardMultiChar;
+            bool deep = pattern.Contains(deepWildcard);
+            if(deep)
+            {
+                pattern = pattern.Replace(deepWildcard, string.Empty+WildcardMultiChar);
+            }
+            else if(value.Split(Path.DirectorySeparatorChar).Length != pattern.Split(Path.DirectorySeparatorChar).Length)
+            {
+                return false;
+            }
+
             int pos = 0;
             while (pattern.Length != pos)
             {
@@ -293,7 +304,7 @@ namespace SocialPoint.IO {
                 case WildcardMultiChar:
                     for (int i = value.Length; i >= pos; i--)
                     {
-                        if (GlobMatch(value.Substring(i), pattern.Substring(pos + 1)))
+                        if(GlobMatch(pattern.Substring(pos + 1), value.Substring(i)))
                         {
                             return true;
                         }
@@ -310,7 +321,6 @@ namespace SocialPoint.IO {
                 
                 pos++;
             }
-            
             return value.Length == pos;
         }
         
@@ -386,28 +396,30 @@ namespace SocialPoint.IO {
         {
             return path.TrimEnd(new char[]{ Path.DirectorySeparatorChar });
         }
-        
-        static public void Copy(string src, string dst, OperationFilter each=null)
+
+        static public string[] Find(string src)
+        {
+            string dir;
+            return Find(src, out dir);
+        }
+
+        static public string[] Find(string src, out string dirOut)
         {
             CheckLocalPath(src);
-            CheckLocalPath(dst);
             string dir;
             string pattern;
-            bool isDir;
             SearchOption search;
             if(File.Exists(src))
             {
                 search = SearchOption.TopDirectoryOnly;
-                dir = Path.GetDirectoryName(src);
+                dir = null;
                 pattern = null;
-                isDir = false;
             }
             else if(Directory.Exists(src))
             {
                 search = SearchOption.AllDirectories;
                 dir = src;
-                pattern = null;
-                isDir = true;
+                pattern = string.Empty+WildcardMultiChar;
             }
             else
             {
@@ -423,37 +435,104 @@ namespace SocialPoint.IO {
                 }
                 dir = GetWildcardBasePath(src);
                 pattern = src;
-                isDir = true;
             }
 
-            dir = CleanPath(dir);
             string[] files;
-            if(isDir)
+            if(pattern != null && dir != null)
             {
-                files = Directory.GetFiles(dir, string.Empty + WildcardMultiChar, search);
+                files = Directory.GetFiles(dir, pattern, search);
+                dir = CleanPath(dir)+Path.DirectorySeparatorChar;
             }
             else
             {
-                files = new string[]{ src };
+                if(File.Exists(src))
+                {
+                    files = new string[]{ src };
+                }
+                else
+                {
+                    files = new string[0];
+                }
             }
-            dir += Path.DirectorySeparatorChar;
+
+            dirOut = dir;
+            return files;
+        }
+        
+        static public void Copy(string src, string dst, OperationFilter each=null)
+        {
+            CheckLocalPath(dst);
+            string dir;
+            var files = Find(src, out dir);
             foreach(var srcPath in files)
             {
-                if(srcPath.StartsWith(dir) && (pattern == null || GlobMatch(pattern, srcPath)))
+                string dstPath = dst;
+                if(dir != null && srcPath.StartsWith(dir))
                 {
-                    string dstPath = dst;
-                    if(isDir)
-                    {
-                        var srcRelPath = srcPath.Substring(dir.Length);
-                        dstPath = Path.Combine(dstPath, srcRelPath);
-                    }
+                    var srcRelPath = srcPath.Substring(dir.Length);
+                    dstPath = Path.Combine(dstPath, srcRelPath);
+                }
 
-                    if(each == null || each(srcPath, dstPath))
+                if(each == null || each(srcPath, dstPath))
+                {
+                    CopyFile(srcPath, dstPath, true);
+                }
+            }
+        }
+
+        static public Dictionary<string,string> Compare(string src, string dst)
+        {
+            return Compare(src, dst, (srcPath, dstPath) => {
+                return !CompareFiles(srcPath, dstPath);
+            });
+        }
+
+        static public Dictionary<string,string> Compare(string src, string dst, OperationFilter op)
+        {
+            var diffs = new Dictionary<string,string>();
+
+            string srcDir;
+            var srcFiles = Find(src, out srcDir);
+            foreach(var srcPath in srcFiles)
+            {
+                string dstPath = dst;
+                if(srcDir != null && srcPath.StartsWith(srcDir))
+                {
+                    var srcRelPath = srcPath.Substring(srcDir.Length);
+                    dstPath = Path.Combine(dstPath, srcRelPath);
+                }
+                if(op(srcPath, dstPath))
+                {
+                    diffs[srcPath] = dstPath;
+                }
+            }
+
+            if(srcDir != null)
+            {
+                string dstDir;
+                var dstFiles = Find(dst, out dstDir);
+                foreach(var dstPath in dstFiles)
+                {
+                    string srcPath = srcDir;
+                    if(dstDir != null && dstPath.StartsWith(dstDir))
                     {
-                        CopyFile(srcPath, dstPath, true);
+                        var dstRelPath = dstPath.Substring(dstDir.Length);
+                        srcPath = Path.Combine(srcPath, dstRelPath);
+                    }
+                    if(op(srcPath, dstPath))
+                    {
+                        diffs[srcPath] = dstPath;
                     }
                 }
             }
+
+            return diffs;
+        }
+
+        static public bool IsWildcard(string path)
+        {
+            var i = path.IndexOfAny(new char[]{ WildcardOneChar, WildcardMultiChar });
+            return i != -1;
         }
 
         static public string GetWildcardBasePath(string path)
