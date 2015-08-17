@@ -2,6 +2,7 @@
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Events;
+using SocialPoint.Login;
 using UnityEngine;
 
 class CommandQueue : SocialPoint.ServerSync.CommandQueue
@@ -76,6 +77,14 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
         set
         {
             TrackEvent = value.TrackEvent;
+        }
+    }
+
+    public ILogin InjectLogin
+    {
+        set
+        {
+            RequestSetup = value.SetupHttpRequest;
         }
     }
 

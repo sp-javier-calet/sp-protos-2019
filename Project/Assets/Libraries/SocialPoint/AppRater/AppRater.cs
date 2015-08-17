@@ -26,7 +26,7 @@ namespace SocialPoint.AppRater
         private const int DayInSeconds = 86400;
 
         IDeviceInfo _deviceInfo;
-        PersistentAttrStorage _storage;
+        IAttrStorage _storage;
         IAppEvents _appEvents;
         IAppRaterGUI _appRaterGUI;
 
@@ -47,7 +47,7 @@ namespace SocialPoint.AppRater
 
         public int MaxPromptsPerDay;
 
-        public AppRater(IDeviceInfo deviceInfo, PersistentAttrStorage storage, IAppEvents appEvents, IAppRaterGUI appRaterGUI)
+        public AppRater(IDeviceInfo deviceInfo, IAttrStorage storage, IAppEvents appEvents, IAppRaterGUI appRaterGUI)
         {
             _deviceInfo = deviceInfo;
             _storage = storage;

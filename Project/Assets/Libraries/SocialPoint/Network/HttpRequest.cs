@@ -115,6 +115,10 @@ namespace SocialPoint.Network
         {
             get
             {
+                if(Url == null || Url.Query == null)
+                {
+                    return null;
+                }
                 return new UrlQueryAttrParser().Parse(new Data(Url.Query)).AsDic;
             }
 
@@ -147,6 +151,10 @@ namespace SocialPoint.Network
         {
             get
             {
+                if(Url == null || Url.Query == null)
+                {
+                    return null;
+                }
                 return StringUtils.QueryToDictionary(Url.Query);
             }
         }
