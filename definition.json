@@ -21,6 +21,7 @@
     "SocialPoint/AppRater": "master",
     "SocialPoint/Alert": "master",
     "SocialPoint/Console": "master",
+    "SocialPoint/DeviceProfile": "master",
     "SocialPoint/Tests": "master",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3"

@@ -490,17 +490,16 @@ namespace SocialPoint.Login
                 try
                 {
                     var errData = parser.Parse(resp.Body);
-                    err = AttrUtils.GetError(errData);
-                    if(Error.IsNullOrEmpty(err))
+                    var bodyErr = AttrUtils.GetError(errData);
+                    if(!Error.IsNullOrEmpty(bodyErr))
                     {
-                        err = new Error(errData.ToString());
+                        err = bodyErr;
                     }
                 }
                 catch(Exception)
                 {
                 }
                 data.SetValue(AttrKeyHttpCode, resp.StatusCode);
-
                 NotifyError(typ, err, data);
             }
             return err;
@@ -1052,6 +1051,7 @@ namespace SocialPoint.Login
             {
                 data = new AttrDic();
             }
+            err.Code = (int)type;
             // add error signature
             var typeCode = string.Empty + (int)type;
             if(data.ContainsKey(AttrKeyHttpCode))

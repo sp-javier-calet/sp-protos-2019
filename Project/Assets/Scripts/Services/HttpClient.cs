@@ -2,19 +2,25 @@
 using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
+using SocialPoint.Hardware;
 
 public class HttpClient : CurlHttpClient
 {
     private string _httpProxy;
 
-    [InjectOptional("http_proxy")]
-    public string InjectHttpProxy
+    [InjectOptional("http_client_editor_proxy")]
+    public string InjectEditorHttpProxy
     {
         set
         {
+#if UNITY_EDITOR
             _httpProxy = value;
+#endif
         }
     }
+
+    [Inject]
+    public IDeviceInfo DeviceInfo;
 
     [Inject]
     public IAppEvents AppEvents
@@ -31,6 +37,10 @@ public class HttpClient : CurlHttpClient
         if(string.IsNullOrEmpty(req.Proxy))
         {
             req.Proxy = _httpProxy;
+        }
+        if(string.IsNullOrEmpty(req.Proxy))
+        {
+            req.Proxy = DeviceInfo.NetworkInfo.Proxy.ToString();
         }
     }
 

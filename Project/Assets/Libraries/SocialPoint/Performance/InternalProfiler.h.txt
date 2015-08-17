@@ -1,0 +1,75 @@
+#pragma once
+
+#define ENABLE_INTERNAL_PROFILER 1
+#define ENABLE_BLOCK_ON_GPU_PROFILER 0
+#define INCLUDE_OPENGLES_IN_RENDER_TIME 0
+
+void Profiler_InitProfiler();
+void Profiler_UninitProfiler();
+void Profiler_FrameStart();
+void Profiler_FrameEnd();
+void Profiler_FrameUpdate(const UnityFrameStats*);
+
+// TODO: enum? do we need more strange counters
+void Profiler_StartMSAAResolve();
+void Profiler_EndMSAAResolve();
+
+
+// Which platform we are on?
+#if _MSC_VER
+#define UNITY_WIN 1
+#else
+#define UNITY_OSX 1
+#endif
+
+// Attribute to make function be exported from a plugin
+#if UNITY_WIN
+#define EXPORT_API __declspec(dllexport)
+#else
+#define EXPORT_API
+#endif
+
+extern "C"
+{
+    struct SPUnityPerformanceGarbageInfo
+    {
+    	uint32_t usedHeapMem;
+        uint32_t allocatedHeapMem;
+        uint32_t maxNumberOfCollections;
+    	float stopWorldTime;
+    	float markTime;
+    	float reclaimTime;
+    	float startWorldTime;
+    	float collectionTime;
+    	float totalTime;
+    };
+
+    struct SPUnityPerformanceFrameInfo
+    {
+        float frameTime;
+    	float cpuPlayer;
+        float cpuOpenGlESDriver;
+        float cpuPresent;
+        float playerDetailPhysx;
+        float playerDetailAnimation;
+        float playerDetailCulling;
+        float playerDetailSkinning;
+        float playerDetailBatching;
+        float playerDetailRender;
+        float monoScriptsUpdate;
+        float monoScriptsFixedUpdate;
+        float monoScriptsCoroutines;
+        int drawCalls;
+        int batchedDrawCalls;
+        int tris;
+        int batchedTris;
+        int verts;
+        int batchedVerts;
+        int playerDetailFixedUpdateCountMin;
+        int playerDetailFixedUpdateCountMax;
+
+    };
+
+    EXPORT_API SPUnityPerformanceFrameInfo SPUnityPerformanceGetFrameInfo();
+    EXPORT_API SPUnityPerformanceGarbageInfo SPUnityPerformanceGetGarbageInfo();
+}

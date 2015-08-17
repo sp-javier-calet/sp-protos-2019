@@ -204,7 +204,7 @@ EXPORT_API char* SPUnityHardwareGetNetworkConnectivity()
         }
     }
     
-    return NO;
+    return SPUnityHardwareCreateString("");
 }
 
 const size_t kProxyBufferLength = 4096;

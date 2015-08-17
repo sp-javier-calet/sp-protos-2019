@@ -8,14 +8,15 @@ public class HttpClientInstaller : MonoInstaller
     [Serializable]
     public class SettingsData
     {
-        public string Proxy = string.Empty;
+        public string EditorProxy = string.Empty;
     };
     
     public SettingsData Settings;
 
 	public override void InstallBindings()
 	{
-    	Container.BindInstance("http_proxy", Settings.Proxy);
+
+        Container.BindInstance("http_client_editor_proxy", Settings.EditorProxy);
         Container.Bind<IHttpClient>().ToSingle<HttpClient>();
         Container.Bind<IDisposable>().ToSingle<HttpClient>();
 	}
