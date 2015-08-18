@@ -312,10 +312,6 @@ namespace SocialPoint.Network
         public void AddParam(string key, Attr value)
         {
             var parms = Params;
-            if(parms == null)
-            {
-                parms = new AttrDic();
-            }
             parms[key] = value;
             Params = parms;
         }
@@ -323,41 +319,25 @@ namespace SocialPoint.Network
         public void AddParam(string key, string value)
         {
             var parms = Params;
-            if(parms == null)
-            {
-                parms = new AttrDic();
-            }
             parms.SetValue(key, value);
             Params = parms;
         }
 
         public bool HasParam(string key)
         {
-            var parms = Params;
-            if(parms == null)
-            {
-                return false;
-            }
-            return parms.ContainsKey(key);
+            return Params.ContainsKey(key);
         }
 
         public void RemoveQueryParam(string key)
         {
             var parms = QueryParams;
-            if(parms != null)
-            {
-                parms.Remove(key);
-                QueryParams = parms;
-            }
+            parms.Remove(key);
+            QueryParams = parms;
         }
         
         public void AddQueryParam(string key, Attr value)
         {
             var parms = QueryParams;
-            if(parms == null)
-            {
-                parms = new AttrDic();
-            }
             parms[key] = value;
             QueryParams = parms;
         }
@@ -365,41 +345,25 @@ namespace SocialPoint.Network
         public void AddQueryParam(string key, string value)
         {
             var parms = QueryParams;
-            if(parms == null)
-            {
-                parms = new AttrDic();
-            }
             parms.SetValue(key, value);
             QueryParams = parms;
         }
         
         public bool HasQueryParam(string key)
         {
-            var parms = QueryParams;
-            if(parms == null)
-            {
-                return false;
-            }
-            return parms.ContainsKey(key);
+            return QueryParams.ContainsKey(key);
         }
         
         public void RemoveParam(string key)
         {
             var parms = QueryParams;
-            if(parms != null)
-            {
-                parms.Remove(key);
-                QueryParams = parms;
-            }
+            parms.Remove(key);
+            QueryParams = parms;
         }
 
         public void AddBodyParam(string key, Attr value)
         {
             var parms = BodyParams;
-            if(parms == null)
-            {
-                parms = new AttrDic();
-            }
             parms[key] = value;
             QueryParams = parms;
         }
@@ -407,32 +371,20 @@ namespace SocialPoint.Network
         public void AddBodyParam(string key, string value)
         {
             var parms = BodyParams;
-            if(parms == null)
-            {
-                parms = new AttrDic();
-            }
             parms.SetValue(key, value);
             QueryParams = parms;
         }
         
         public bool HasBodyParam(string key)
         {
-            var parms = BodyParams;
-            if(parms == null)
-            {
-                return false;
-            }
-            return parms.ContainsKey(key);
+            return BodyParams.ContainsKey(key);
         }
         
         public void RemoveBodyParam(string key)
         {
             var parms = BodyParams;
-            if(parms != null)
-            {
-                parms.Remove(key);
-                QueryParams = parms;
-            }
+            parms.Remove(key);
+            QueryParams = parms;
         }
 
         const string kHeaderSeparator = ": ";

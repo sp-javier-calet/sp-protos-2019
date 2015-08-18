@@ -187,6 +187,11 @@ Profiler_FrameUpdate(const UnityFrameStats* unityFrameStats)
         _spUnityFrame.verts = (uint32_t)(_vertCountPB.avgV / EachNthFrame);
         _spUnityFrame.batchedVerts = (uint32_t)((_dynamicBatchedVertCountPB.avgV  + _staticBatchedVertCountPB.avgV) / EachNthFrame);
         _spUnityFrame.fixedUpdates = (uint32_t)_fixedUpdateCountPB.avgV;
+
+        _spUnityGarbage.heapMem = (uint32_t)UnityScriptingGetHeapSize();
+        _spUnityGarbage.usedMem = (uint32_t)UnityScriptingGetUsedSize();
+        _spUnityGarbage.maxCollectionsNum = (uint32_t)_GCCountPB.avgV;
+        _spUnityGarbage.collectionTime = MachToMillisecondsDelta(_GCDurationPB.avgV);
 	}
 	ProfilerBlock_Update(&_framePB, frameDelta, (_frameId == 0));
 	ProfilerBlock_Update(&_presentPB, swapDelta, (_frameId == 0));
@@ -361,10 +366,6 @@ static void gc_event(void* profiler_, int event, int generation)
 		_spUnityGarbage.reclaimTime = profiler->gc_reclaim_time;
 		_spUnityGarbage.startWorldTime = profiler->gc_start_world_time;
 		_spUnityGarbage.totalTime = profiler->gc_total_time;
-        _spUnityGarbage.heapMem = (uint32_t)UnityScriptingGetHeapSize();
-        _spUnityGarbage.usedMem = (uint32_t)UnityScriptingGetUsedSize();
-        _spUnityGarbage.maxCollectionsNum = (uint32_t)_GCCountPB.avgV;
-        _spUnityGarbage.collectionTime = MachToMillisecondsDelta(_GCDurationPB.avgV);
 	}
 }
 

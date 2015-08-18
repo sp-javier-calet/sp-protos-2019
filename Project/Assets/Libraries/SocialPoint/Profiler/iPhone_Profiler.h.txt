@@ -1,4 +1,3 @@
-
 #ifndef _TRAMPOLINE_IPHONE_PROFILER_H_
 #define _TRAMPOLINE_IPHONE_PROFILER_H_
 
@@ -17,6 +16,7 @@ void Profiler_FrameUpdate(const struct UnityFrameStats*);
 
 void Profiler_StartMSAAResolve();
 void Profiler_EndMSAAResolve();
+
 
 
 #endif // _TRAMPOLINE_IPHONE_PROFILER_H_

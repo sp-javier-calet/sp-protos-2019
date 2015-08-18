@@ -123,6 +123,7 @@ namespace SocialPoint.Login
          */
         InvalidSecurityToken
     }
+    ;
     
     public enum LinkMode
     {
@@ -144,49 +145,7 @@ namespace SocialPoint.Login
          */
         Manual
     }
-
-    public enum LinkConfirmType
-    {
-        /**
-         * No need to confirm
-         */
-        None,
-        
-        /**
-         * The account is already linked, not to the actual external service, start new game?
-         */
-        LinkedToLoose,
-        
-        /**
-         * The account is already linked, not to the actual external service, load other game?
-         */
-        LinkedToLinked,
-        
-        /**
-         * The account is already linked, but the current user is not linked to anything,
-         * load the other game and loose the current state?
-         */
-        LooseToLinked
-    }
-    
-    public enum LinkConfirmDecision
-    {
-        /**
-         * Don't do anything
-         * 
-         */
-        Cancel,
-        
-        /**
-         * keep the current account
-         */
-        Keep,
-        
-        /**
-         * change to the new account
-         */
-        Change
-    }
+    ;
     
     public enum LinkFilter
     {
@@ -196,6 +155,7 @@ namespace SocialPoint.Login
         All,
         None
     }
+    ;
     
     public enum LinkState
     {
@@ -203,11 +163,12 @@ namespace SocialPoint.Login
         Disconnected,
         Unknown
     }
+    ;
 
     public enum UpgradeType
     {
         Suggested,
         Forced,
         None
-    }
+    };
 }

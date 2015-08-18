@@ -78,25 +78,50 @@ namespace SocialPoint.Base
             }
         }
 
+        static BuildOptions GetBuildOptions()
+        {
+            BuildOptions result = BuildOptions.None;
+            string[] buildOptions = GetCommandLineArgs("buildOptions");
+            if (buildOptions != null)
+            {
+                foreach(var option in buildOptions)
+                {
+                    try
+                    {
+                        BuildOptions parsedOption = (BuildOptions)Enum.Parse(typeof(BuildOptions), option);
+                        result = result | parsedOption;
+                    }
+                    catch
+                    {
+                        UnityEngine.Debug.LogError("Failed to parse build option: " + option);
+                    }
+                }
+            }
+            return result;
+        }
+
         [MenuItem("File/AutoBuilder/Mac OSX/Intel")]
         static void PerformOSXIntelBuild()
         {
             SetDefines(BuildTargetGroup.Standalone);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.StandaloneOSXIntel);
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/OSX-Intel/" + ProjectName + ".app", BuildTarget.StandaloneOSXIntel, BuildOptions.None);
+            BuildOptions buildOptions = GetBuildOptions();
+            BuildPipeline.BuildPlayer(ScenePaths, "Builds/OSX-Intel/" + ProjectName + ".app", BuildTarget.StandaloneOSXIntel, buildOptions);
+
         }
 
         [MenuItem("File/AutoBuilder/iOS")]
         static void PerformiOSBuild()
         {
+            BuildOptions buildOptions = GetBuildOptions();
 #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
             SetDefines(BuildTargetGroup.iPhone);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.iPhone);
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iPhone, BuildOptions.None);
+            BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iPhone, buildOptions);
 #else
             SetDefines(BuildTargetGroup.iOS);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.iOS);
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iOS, BuildOptions.None);
+            BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iOS, buildOptions);
 #endif
         }
 
@@ -112,7 +137,8 @@ namespace SocialPoint.Base
 #endif
 
             EditorPrefs.SetString("AndroidSdkRoot", System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal) + "/Development/android-sdk/");
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Android/" + ProjectName + ".apk", BuildTarget.Android, BuildOptions.None);
+            BuildOptions buildOptions = GetBuildOptions();
+            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Android/" + ProjectName + ".apk", BuildTarget.Android, buildOptions);
         }
 
         [MenuItem("File/AutoBuilder/Web/Standard")]
@@ -120,7 +146,8 @@ namespace SocialPoint.Base
         {
             SetDefines(BuildTargetGroup.WebPlayer);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.WebPlayer);
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Web", BuildTarget.WebPlayer, BuildOptions.None);
+            BuildOptions buildOptions = GetBuildOptions();
+            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Web", BuildTarget.WebPlayer, buildOptions);
         }
 
         [MenuItem("File/AutoBuilder/Web/Streamed")]
@@ -128,7 +155,8 @@ namespace SocialPoint.Base
         {
             SetDefines(BuildTargetGroup.WebPlayer);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.WebPlayerStreamed);
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Web-Streamed", BuildTarget.WebPlayerStreamed, BuildOptions.None);
+            BuildOptions buildOptions = GetBuildOptions();
+            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Web-Streamed", BuildTarget.WebPlayerStreamed, buildOptions);
         }
     }
 }

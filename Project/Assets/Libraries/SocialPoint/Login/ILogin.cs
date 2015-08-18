@@ -27,6 +27,49 @@ namespace SocialPoint.Login
     
     public delegate void AppRequestDelegate(List<AppRequest> reqs, Error err);
 
+    public enum LinkConfirmType
+    {
+        /**
+         * No need to confirm
+         */
+        None,
+        
+        /**
+         * The account is already linked, not to the actual external service, start new game?
+         */
+        LinkedToLoose,
+        
+        /**
+         * The account is already linked, not to the actual external service, load other game?
+         */
+        LinkedToLinked,
+        
+        /**
+         * The account is already linked, but the current user is not linked to anything,
+         * load the other game and loose the current state?
+         */
+        LooseToLinked
+    }
+    
+    public enum LinkConfirmDecision
+    {
+        /**
+         * Don't do anything
+         * 
+         */
+        Cancel,
+        
+        /**
+         * keep the current account
+         */
+        Keep,
+        
+        /**
+         * change to the new account
+         */
+        Change
+    };
+
     public interface ILogin : IDisposable
     {
         event LoginHttpRequestDelegate HttpRequestEvent;

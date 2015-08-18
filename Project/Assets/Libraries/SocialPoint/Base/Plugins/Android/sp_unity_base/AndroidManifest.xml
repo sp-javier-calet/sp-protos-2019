@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest 
-	xmlns:android="http://schemas.android.com/apk/res/android" 
-	android:installLocation="auto" 
-	package="es.socialpoint.unity.base" 
-	android:versionName="1.00" 
-	android:versionCode="1">
-	<supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true"/>
-</manifest>

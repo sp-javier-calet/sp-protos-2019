@@ -43,10 +43,11 @@ namespace SocialPoint.Network
                 BodyLength;
         };
 
-        #if UNITY_IOS && !UNITY_EDITOR
-        const string PluginModuleName = "__Internal";
-        #else
+        
+        #if UNITY_EDITOR || UNITY_ANDROID
         const string PluginModuleName = "sp_unity_curl";
+        #else
+        const string PluginModuleName = "__Internal";
         #endif
 
         [DllImport(PluginModuleName)]
