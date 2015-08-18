@@ -4,10 +4,6 @@
 #include <mach/mach_time.h>
 #include <stdio.h>
 
-#define ENABLE_DETAILED_GC_STATS 0
-
-#if ENABLE_INTERNAL_PROFILER
-
 struct UnityFrameStats
 {
 	typedef signed long long Timestamp;
@@ -188,6 +184,8 @@ namespace
 
 
 	struct UnityFrameStats _unityFrameStats;
+	SPUnityPerformanceFrameInfo _spUnityFrame;
+	SPUnityPerformanceGarbageInfo _spUnityGarbage;
 
 	MonoProfiler _monoProfiler;
 
@@ -233,16 +231,18 @@ namespace
 				break;
 		}
 
-#if ENABLE_DETAILED_GC_STATS
-		if (event == MONO_GC_EVENT_END)
-			printf_console("mono-gc>   stop time: %4.1f mark time: %4.1f reclaim time: %4.1f start time: %4.1f total time: %4.1f \n",
-				MachToMillisecondsDelta(profiler->gc_stop_world_time),
-				MachToMillisecondsDelta(profiler->gc_mark_time),
-				MachToMillisecondsDelta(profiler->gc_reclaim_time),
-				MachToMillisecondsDelta(profiler->gc_start_world_time),
-				MachToMillisecondsDelta(profiler->gc_total_time)
-				);
-#endif
+		if (event == SCRIPTING_GC_EVENT_END)
+		{
+			_spUnityGarbage.stopWorldTime = profiler->gc_stop_world_time;
+			_spUnityGarbage.markTime = profiler->gc_mark_time;
+			_spUnityGarbage.reclaimTime = profiler->gc_reclaim_time;
+			_spUnityGarbage.startWorldTime = profiler->gc_start_world_time;
+			_spUnityGarbage.totalTime = profiler->gc_total_time;
+			_spUnityGarbage.usedHeapMem = (uint32_t)mono_gc_get_used_size();
+	        _spUnityGarbage.allocatedHeapMem = (uint32_t)mono_gc_get_heap_size();
+	        _spUnityGarbage.maxNumberOfCollections = _GCCountPB.avgV;
+	        _spUnityGarbage.collectionTime = MachToMillisecondsDelta(_GCDurationPB.avgV);
+		}
 	}
 
 	static void
@@ -276,43 +276,6 @@ void
 Profiler_FrameStart()
 {
 	_frameStart = mach_absolute_time();
-}
-
-void Profiler_SendInformationToUnity(int eachNthFrame)
-{
-    char buffer[256];
-    sprintf(buffer, "%1.1f;%1.1f;%1.1f;%1.1f;%d;%d;%d;%d;%d;%d;%1.1f;%1.1f;%1.1f;%1.1f;%1.1f;%1.1f;%d;%d;%1.1f;%1.1f;%1.1f;%d;%d;%d;%1.1f",
-            MachToMillisecondsDelta(_playerPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta(_oglesPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta(_presentPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta(_framePB.avgV / eachNthFrame),
-            (int)(_drawCallCountPB.avgV / eachNthFrame),
-            (int)(_batchedDrawCallCountPB.avgV / eachNthFrame),
-            (int)(_triCountPB.avgV / eachNthFrame),
-            (int)(_batchedTriCountPB.avgV / eachNthFrame),
-            (int)(_vertCountPB.avgV / eachNthFrame),
-            (int)(_batchedVertCountPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta((int)_fixedPhysicsManagerPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta((int)_animationUpdatePB.avgV / eachNthFrame),
-            MachToMillisecondsDelta((int)_unityCullingPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta((int)_skinMeshUpdatePB.avgV / eachNthFrame),
-            MachToMillisecondsDelta((int)_batchPB.avgV / eachNthFrame),
-#if INCLUDE_OPENGLES_IN_RENDER_TIME
-            MachToMillisecondsDelta((int)(_unityRenderLoopPB.avgV - _batchPB.avgV - _unityCullingPB.avgV - _unityWaitsForGpuPB.avgV) / EachNthFrame),
-#else
-            MachToMillisecondsDelta((int)(_unityRenderLoopPB.avgV - _oglesPB.avgV - _batchPB.avgV - _unityCullingPB.avgV - _unityWaitsForGpuPB.avgV) / eachNthFrame),
-#endif
-            (int)_fixedUpdateCountPB.minV,
-            (int)_fixedUpdateCountPB.maxV,
-            MachToMillisecondsDelta(_dynamicBehaviourManagerPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta(_fixedBehaviourManagerPB.avgV / eachNthFrame),
-            MachToMillisecondsDelta(_coroutinePB.avgV / eachNthFrame),
-            (int)mono_gc_get_used_size(),
-            (int)mono_gc_get_heap_size(),
-            (int)_GCCountPB.avgV,
-            MachToMillisecondsDelta(_GCDurationPB.avgV)
-            );
-    UnitySendMessage("PerformanceTracker", "UpdatePerformanceStats", buffer);
 }
 
 void
@@ -356,7 +319,26 @@ Profiler_FrameUpdate(const struct UnityFrameStats* unityFrameStats)
 	if (_frameId == EachNthFrame)
 	{
 		_frameId = 0;
-        Profiler_SendInformationToUnity(EachNthFrame);
+		_spUnityFrame.playerTime = MachToMillisecondsDelta(_playerPB.avgV / eachNthFrame);
+        _spUnityFrame.openglTime = MachToMillisecondsDelta(_oglesPB.avgV / eachNthFrame);
+        _spUnityFrame.presentTime = MachToMillisecondsDelta(_presentPB.avgV / eachNthFrame);
+        _spUnityFrame.frameTime = MachToMillisecondsDelta(_framePB.avgV / eachNthFrame);
+        _spUnityFrame.physicsTime = MachToMillisecondsDelta(_fixedPhysicsManagerPB.avgV / eachNthFrame);
+        _spUnityFrame.animationTime = MachToMillisecondsDelta(_animationUpdatePB.avgV / eachNthFrame);
+        _spUnityFrame.cullingTime = MachToMillisecondsDelta(_unityCullingPB.avgV / eachNthFrame);
+        _spUnityFrame.skinningTime = MachToMillisecondsDelta(_skinMeshUpdatePB.avgV / eachNthFrame);
+        _spUnityFrame.batchingTime = MachToMillisecondsDelta(_batchPB.avgV / eachNthFrame);
+        _spUnityFrame.renderTime = MachToMillisecondsDelta((_unityRenderLoopPB.avgV - _oglesPB.avgV - _batchPB.avgV - _unityCullingPB.avgV - _unityWaitsForGpuPB.avgV) / eachNthFrame);
+        _spUnityFrame.scriptUpdateTime = MachToMillisecondsDelta(_dynamicBehaviourManagerPB.avgV / eachNthFrame);
+        _spUnityFrame.scriptFixedUpdateTime = MachToMillisecondsDelta(_fixedBehaviourManagerPB.avgV / eachNthFrame);
+        _spUnityFrame.scriptCoroutinesTime = MachToMillisecondsDelta(_coroutinePB.avgV / eachNthFrame);
+        _spUnityFrame.drawCalls = (uint32_t)(_drawCallCountPB.avgV / eachNthFrame);
+        _spUnityFrame.batchedDrawCalls = (uint32_t)(_batchedDrawCallCountPB.avgV / eachNthFrame);
+        _spUnityFrame.tris = (uint32_t)(_triCountPB.avgV / eachNthFrame);
+        _spUnityFrame.batchedTris = (uint32_t)(_batchedTriCountPB.avgV / eachNthFrame);
+        _spUnityFrame.verts = (uint32_t)(_vertCountPB.avgV / eachNthFrame);
+        _spUnityFrame.batchedVerts = (uint32_t)(_batchedVertCountPB.avgV / eachNthFrame);
+        _spUnityFrame.fixedUpdates = (uint32_t)_fixedUpdateCountPB.avgV;
 	}
     
 	ProfilerBlock_Update(&_framePB, frameDelta, (_frameId == 0));
@@ -411,4 +393,13 @@ void Profiler_EndMSAAResolve()
 	UnityEndProfilerCounter(_msaaResolveCounter);
 }
 
-#endif // ENABLE_INTERNAL_PROFILER
+SPUnityPerformanceFrameInfo SPUnityPerformanceGetFrameInfo()
+{
+    return _spUnityFrame;
+}
+
+SPUnityPerformanceGarbageInfo SPUnityPerformanceGetGarbageInfo()
+{
+    return _spUnityGarbage;
+}
+

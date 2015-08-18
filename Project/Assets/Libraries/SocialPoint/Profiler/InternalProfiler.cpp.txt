@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <mach/mach_time.h>
 
-
-#define ENABLE_DETAILED_GC_STATS 0
-
 namespace
 {
 	mach_timebase_info_data_t timebaseInfo;
@@ -98,8 +95,8 @@ namespace
 
 
 	UnityFrameStats	_unityFrameStats;
-	SPUnityPerformanceFrameInfo _spUnityFrame;
-	SPUnityPerformanceGarbageInfo _spUnityGarbage;
+	SPUnityProfilerFrameInfo _spUnityFrame;
+	SPUnityProfilerGarbageInfo _spUnityGarbage;
 }
 
 extern "C"	int64_t	UnityScriptingGetUsedSize();
@@ -170,31 +167,26 @@ Profiler_FrameUpdate(const UnityFrameStats* unityFrameStats)
 	if (_frameId == EachNthFrame)
 	{
 		_frameId = 0;
-		_spUnityFrame.cpuPlayer = MachToMillisecondsDelta(_playerPB.avgV / EachNthFrame);
-        _spUnityFrame.cpuOpenGlESDriver = MachToMillisecondsDelta(_oglesPB.avgV / EachNthFrame);
-        _spUnityFrame.cpuPresent = MachToMillisecondsDelta(_presentPB.avgV / EachNthFrame);
+		_spUnityFrame.playerTime = MachToMillisecondsDelta(_playerPB.avgV / EachNthFrame);
+        _spUnityFrame.openglTime = MachToMillisecondsDelta(_oglesPB.avgV / EachNthFrame);
+        _spUnityFrame.presentTime = MachToMillisecondsDelta(_presentPB.avgV / EachNthFrame);
         _spUnityFrame.frameTime = MachToMillisecondsDelta(_framePB.avgV / EachNthFrame);
-        _spUnityFrame.drawCalls = (int)(_drawCallCountPB.avgV / EachNthFrame);
-        _spUnityFrame.tris = (int)(_triCountPB.avgV / EachNthFrame);
-        _spUnityFrame.verts = (int)(_vertCountPB.avgV / EachNthFrame);
-        _spUnityFrame.batchedDrawCalls = (int)((_dynamicBatchedDrawCallCountPB.avgV  + _staticBatchedDrawCallCountPB.avgV)/ EachNthFrame);
-        _spUnityFrame.batchedTris = (int)((_dynamicBatchedTriCountPB.avgV  + _staticBatchedTriCountPB.avgV) / EachNthFrame);
-        _spUnityFrame.batchedVerts = (int)((_dynamicBatchedVertCountPB.avgV  + _staticBatchedVertCountPB.avgV) / EachNthFrame);
-        _spUnityFrame.playerDetailPhysx = MachToMillisecondsDelta((int)_fixedPhysicsManagerPB.avgV / EachNthFrame);
-        _spUnityFrame.playerDetailAnimation = MachToMillisecondsDelta((int)_animationUpdatePB.avgV / EachNthFrame);
-        _spUnityFrame.playerDetailCulling = MachToMillisecondsDelta((int)_unityCullingPB.avgV / EachNthFrame);
-        _spUnityFrame.playerDetailSkinning = MachToMillisecondsDelta((int)_skinMeshUpdatePB.avgV / EachNthFrame);
-        _spUnityFrame.playerDetailBatching = MachToMillisecondsDelta((int)_dynamicBatchDtPB.avgV / EachNthFrame);
-#if INCLUDE_OPENGLES_IN_RENDER_TIME
-        _spUnityFrame.playerDetailRender = MachToMillisecondsDelta((int)(_unityRenderLoopPB.avgV - _dynamicBatchDtPB.avgV - _unityCullingPB.avgV - _unityWaitsForGpuPB.avgV) / EachNthFrame);
-#else
-        _spUnityFrame.playerDetailRender = MachToMillisecondsDelta((int)(_unityRenderLoopPB.avgV - _oglesPB.avgV - _dynamicBatchDtPB.avgV - _unityCullingPB.avgV - _unityWaitsForGpuPB.avgV) / EachNthFrame);
-#endif
-        _spUnityFrame.playerDetailFixedUpdateCountMin = (int)_fixedUpdateCountPB.minV;
-        _spUnityFrame.playerDetailFixedUpdateCountMax = (int)_fixedUpdateCountPB.maxV;
-        _spUnityFrame.monoScriptsUpdate = MachToMillisecondsDelta(_dynamicBehaviourManagerPB.avgV / EachNthFrame);
-        _spUnityFrame.monoScriptsFixedUpdate = MachToMillisecondsDelta(_fixedBehaviourManagerPB.avgV / EachNthFrame);
-        _spUnityFrame.monoScriptsCoroutines = MachToMillisecondsDelta(_coroutinePB.avgV / EachNthFrame);
+        _spUnityFrame.physicsTime = MachToMillisecondsDelta(_fixedPhysicsManagerPB.avgV / EachNthFrame);
+        _spUnityFrame.animationTime = MachToMillisecondsDelta(_animationUpdatePB.avgV / EachNthFrame);
+        _spUnityFrame.cullingTime = MachToMillisecondsDelta(_unityCullingPB.avgV / EachNthFrame);
+        _spUnityFrame.skinningTime = MachToMillisecondsDelta(_skinMeshUpdatePB.avgV / EachNthFrame);
+        _spUnityFrame.batchingTime = MachToMillisecondsDelta(_dynamicBatchDtPB.avgV / EachNthFrame);
+        _spUnityFrame.renderTime = MachToMillisecondsDelta((_unityRenderLoopPB.avgV - _oglesPB.avgV - _dynamicBatchDtPB.avgV - _unityCullingPB.avgV - _unityWaitsForGpuPB.avgV) / EachNthFrame);
+        _spUnityFrame.scriptUpdateTime = MachToMillisecondsDelta(_dynamicBehaviourManagerPB.avgV / EachNthFrame);
+        _spUnityFrame.scriptFixedUpdateTime = MachToMillisecondsDelta(_fixedBehaviourManagerPB.avgV / EachNthFrame);
+        _spUnityFrame.scriptCoroutinesTime = MachToMillisecondsDelta(_coroutinePB.avgV / EachNthFrame);
+        _spUnityFrame.drawCalls = (uint32_t)(_drawCallCountPB.avgV / EachNthFrame);
+        _spUnityFrame.batchedDrawCalls = (uint32_t)((_dynamicBatchedDrawCallCountPB.avgV  + _staticBatchedDrawCallCountPB.avgV)/ EachNthFrame);
+        _spUnityFrame.tris = (uint32_t)(_triCountPB.avgV / EachNthFrame);
+        _spUnityFrame.batchedTris = (uint32_t)((_dynamicBatchedTriCountPB.avgV  + _staticBatchedTriCountPB.avgV) / EachNthFrame);
+        _spUnityFrame.verts = (uint32_t)(_vertCountPB.avgV / EachNthFrame);
+        _spUnityFrame.batchedVerts = (uint32_t)((_dynamicBatchedVertCountPB.avgV  + _staticBatchedVertCountPB.avgV) / EachNthFrame);
+        _spUnityFrame.fixedUpdates = (uint32_t)_fixedUpdateCountPB.avgV;
 	}
 	ProfilerBlock_Update(&_framePB, frameDelta, (_frameId == 0));
 	ProfilerBlock_Update(&_presentPB, swapDelta, (_frameId == 0));
@@ -362,20 +354,18 @@ static void gc_event(void* profiler_, int event, int generation)
 			break;
 	}
 
-#if ENABLE_DETAILED_GC_STATS
 	if (event == SCRIPTING_GC_EVENT_END)
 	{
-		_unityGarbageStats.stopWorldTime = profiler->gc_stop_world_time;
-		_unityGarbageStats.markTime = profiler->gc_mark_time;
-		_unityGarbageStats.reclaimTime = profiler->gc_reclaim_time;
-		_unityGarbageStats.startWorldTime = profiler->gc_start_world_time;
-		_unityGarbageStats.totalTime = profiler->gc_total_time;
-		_spUnityFrame.monoMemoryUsedHeap = mono_gc_get_used_size();
-        _spUnityFrame.monoMemoryAllocatedHeap = mono_gc_get_heap_size();
-        _spUnityFrame.monoMemoryMaxNumberOfCollections = _GCCountPB.avgV;
-        _spUnityFrame.monoMemoryCollectionTotalDuration = MachToMillisecondsDelta(_GCDurationPB.avgV);
+		_spUnityGarbage.stopWorldTime = profiler->gc_stop_world_time;
+		_spUnityGarbage.markTime = profiler->gc_mark_time;
+		_spUnityGarbage.reclaimTime = profiler->gc_reclaim_time;
+		_spUnityGarbage.startWorldTime = profiler->gc_start_world_time;
+		_spUnityGarbage.totalTime = profiler->gc_total_time;
+        _spUnityGarbage.heapMem = (uint32_t)UnityScriptingGetHeapSize();
+        _spUnityGarbage.usedMem = (uint32_t)UnityScriptingGetUsedSize();
+        _spUnityGarbage.maxCollectionsNum = (uint32_t)_GCCountPB.avgV;
+        _spUnityGarbage.collectionTime = MachToMillisecondsDelta(_GCDurationPB.avgV);
 	}
-#endif
 }
 
 static void gc_resize (void* profiler, int64_t new_size)
@@ -393,12 +383,12 @@ static void Profiler_SetupScriptingProfile()
 }
 
 
-SPUnityPerformanceFrameInfo SPUnityPerformanceGetFrameInfo()
+SPUnityProfilerFrameInfo SPUnityProfilerGetFrameInfo()
 {
     return _spUnityFrame;
 }
 
-SPUnityPerformanceGarbageInfo SPUnityPerformanceGetGarbageInfo()
+SPUnityProfilerGarbageInfo SPUnityProfilerGetGarbageInfo()
 {
     return _spUnityGarbage;
 }

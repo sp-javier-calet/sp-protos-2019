@@ -8,14 +8,12 @@ public class HttpClient : CurlHttpClient
 {
     private string _httpProxy;
 
-    [InjectOptional("http_client_editor_proxy")]
-    public string InjectEditorHttpProxy
+    [InjectOptional("http_client_proxy")]
+    public string InjectHttpProxy
     {
         set
         {
-#if UNITY_EDITOR
             _httpProxy = value;
-#endif
         }
     }
 

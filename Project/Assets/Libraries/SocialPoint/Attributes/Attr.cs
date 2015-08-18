@@ -245,9 +245,11 @@ namespace SocialPoint.Attributes
             return base.GetHashCode();
         }
 
+        const string NullString = "NULL";
+
         public override string ToString()
         {
-            return "NULL";
+            return NullString;
         }
     }
 
