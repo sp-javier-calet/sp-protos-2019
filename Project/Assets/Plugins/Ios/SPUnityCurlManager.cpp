@@ -7,7 +7,7 @@ SPUnityCurlGlobalInfo::SPUnityCurlGlobalInfo()
 {
 }
 
-SPUnityCurlConnInfo::SPUnityCurlConnInfo(intptr_t id)
+SPUnityCurlConnInfo::SPUnityCurlConnInfo(int id)
 : id(id)
 , easy(NULL)
 , responseCode(0)
@@ -26,13 +26,13 @@ SPUnityCurlManager& SPUnityCurlManager::getInstance()
     return instance;
 }
 
-void SPUnityCurlManager::addConn(intptr_t id)
+void SPUnityCurlManager::addConn(int id)
 {
     ConnInfo* conn = new ConnInfo(id);
     _clients.insert(std::make_pair(id, conn));
 }
 
-SPUnityCurlManager::ConnInfo* SPUnityCurlManager::getConnById(intptr_t id)
+SPUnityCurlManager::ConnInfo* SPUnityCurlManager::getConnById(int id)
 {
     MClients::iterator it =  _clients.find(id);
     if ( it != _clients.end())
@@ -42,7 +42,7 @@ SPUnityCurlManager::ConnInfo* SPUnityCurlManager::getConnById(intptr_t id)
     return NULL;
 }
 
-bool SPUnityCurlManager::removeConn(intptr_t id)
+bool SPUnityCurlManager::removeConn(int id)
 {
     MClients::iterator it =  _clients.find(id);
     if ( it == _clients.end())

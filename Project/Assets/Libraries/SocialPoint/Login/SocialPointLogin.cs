@@ -490,10 +490,10 @@ namespace SocialPoint.Login
                 try
                 {
                     var errData = parser.Parse(resp.Body);
-                    err = AttrUtils.GetError(errData);
-                    if(Error.IsNullOrEmpty(err))
+                    var bodyErr = AttrUtils.GetError(errData);
+                    if(!Error.IsNullOrEmpty(bodyErr))
                     {
-                        err = new Error(errData.ToString());
+                        err = bodyErr;
                     }
                 }
                 catch(Exception)

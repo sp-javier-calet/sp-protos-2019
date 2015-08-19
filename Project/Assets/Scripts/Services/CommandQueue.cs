@@ -80,6 +80,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
         }
     }
 
+    [Inject]
     public ILogin InjectLogin
     {
         set

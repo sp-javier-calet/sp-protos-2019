@@ -40,7 +40,7 @@ std::vector<std::string> split(const std::string& str, const std::string& sep, s
 
 SPUnityCurlGlobalInfo globalInfo;
 
-intptr_t SPUnityCurlRunning()
+int SPUnityCurlRunning()
 {
     return globalInfo.still_running;
 }
@@ -162,13 +162,34 @@ CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
     return curl;
 }
 
-EXPORT_API intptr_t SPUnityCurlSend(SPUnityCurlRequestStruct req)
+#ifdef SP_UNITY_CURL_DEBUG
+#include <fstream>
+#endif
+
+EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct req)
 {
+#ifdef SP_UNITY_CURL_DEBUG
+    std::ofstream ss;
+    ss.open("/tmp/sp_unity_curl.log");
+    ss << "request" << std::endl;
+    ss << "id " << req.id << std::endl;
+    ss << "url " << req.url << std::endl;
+    ss << "query  " << req.query << std::endl;
+    ss << "method " << req.method << std::endl;
+    ss << "timeout " << req.timeout << std::endl;
+    ss << "activityTimeout " << req.activityTimeout << std::endl;
+    ss << "proxy " << req.proxy << std::endl;
+    ss << "headers " << req.headers << std::endl;
+    ss << "bodyLength " << req.bodyLength << std::endl;
+    ss.close();
+#endif
+    
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(req.id);
     if (conn == NULL)
     {
         return 0;
     }
+    
     conn->easy = SPUnityCurlCreate(req);
     curl_easy_setopt(conn->easy, CURLOPT_HEADERFUNCTION, writeToString);
     curl_easy_setopt(conn->easy, CURLOPT_HEADERDATA, &conn->headersBuffer);
@@ -192,7 +213,7 @@ EXPORT_API intptr_t SPUnityCurlSend(SPUnityCurlRequestStruct req)
     return 1;
 }
 
-EXPORT_API intptr_t SPUnityCurlUpdate(intptr_t id)
+EXPORT_API int SPUnityCurlUpdate(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if(id != 0 && (conn == NULL || conn->responseCode != 0))
@@ -248,21 +269,21 @@ EXPORT_API intptr_t SPUnityCurlUpdate(intptr_t id)
     return finished;
 }
 
-static intptr_t counterConns = 1;
-EXPORT_API intptr_t SPUnityCurlCreateConn()
+static int counterConns = 1;
+EXPORT_API int SPUnityCurlCreateConn()
 {
-    intptr_t id = counterConns; // generate new Id
+    int id = counterConns; // generate new Id
     counterConns = (counterConns +1) % LONG_MAX;
     SPUnityCurlManager::getInstance().addConn(id);
     return id;
 }
 
-EXPORT_API void SPUnityCurlDestroyConn(intptr_t id)
+EXPORT_API void SPUnityCurlDestroyConn(int id)
 {
     SPUnityCurlManager::getInstance().removeConn(id); // remove conn to manager
 }
 
-EXPORT_API intptr_t SPUnityCurlGetCode(intptr_t id)
+EXPORT_API int SPUnityCurlGetCode(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
@@ -272,7 +293,7 @@ EXPORT_API intptr_t SPUnityCurlGetCode(intptr_t id)
     return 0;
 }
 
-EXPORT_API void SPUnityCurlGetError(intptr_t id, char* data)
+EXPORT_API void SPUnityCurlGetError(int id, char* data)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
@@ -281,7 +302,7 @@ EXPORT_API void SPUnityCurlGetError(intptr_t id, char* data)
     }
 }
 
-EXPORT_API void SPUnityCurlGetBody(intptr_t id, char* data)
+EXPORT_API void SPUnityCurlGetBody(int id, char* data)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
@@ -290,7 +311,7 @@ EXPORT_API void SPUnityCurlGetBody(intptr_t id, char* data)
     }
 }
 
-EXPORT_API void SPUnityCurlGetHeaders(intptr_t id, char* data)
+EXPORT_API void SPUnityCurlGetHeaders(int id, char* data)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
@@ -299,37 +320,37 @@ EXPORT_API void SPUnityCurlGetHeaders(intptr_t id, char* data)
     }
 }
 
-EXPORT_API intptr_t SPUnityCurlGetErrorLength(intptr_t id)
+EXPORT_API int SPUnityCurlGetErrorLength(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
     {
-        return conn->errorBuffer.length();
+        return (int)conn->errorBuffer.length();
     }
     return 0;
 }
 
-EXPORT_API intptr_t SPUnityCurlGetBodyLength(intptr_t id)
+EXPORT_API int SPUnityCurlGetBodyLength(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
     {
-        return conn->bodyBuffer.length();
+        return (int)conn->bodyBuffer.length();
     }
     return 0;
 }
 
-EXPORT_API intptr_t SPUnityCurlGetHeadersLength(intptr_t id)
+EXPORT_API int SPUnityCurlGetHeadersLength(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
     {
-        return conn->headersBuffer.length();
+        return (int)conn->headersBuffer.length();
     }
     return 0;
 }
 
-EXPORT_API intptr_t SPUnityCurlGetDownloadSize(intptr_t id)
+EXPORT_API int SPUnityCurlGetDownloadSize(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
@@ -339,7 +360,7 @@ EXPORT_API intptr_t SPUnityCurlGetDownloadSize(intptr_t id)
     return 0;
 }
 
-EXPORT_API intptr_t SPUnityCurlGetDownloadSpeed(intptr_t id)
+EXPORT_API int SPUnityCurlGetDownloadSpeed(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)

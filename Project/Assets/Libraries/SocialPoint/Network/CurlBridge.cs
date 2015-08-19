@@ -10,37 +10,25 @@ namespace SocialPoint.Network
 {
     public class CurlBridge
     {
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        [StructLayout(LayoutKind.Sequential)]
         public struct RequestStruct
         {
-            [MarshalAs(UnmanagedType.SysInt)]
-            public IntPtr
-                Id;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string
-                Url;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string
-                Query;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string
-                Method;
-            [MarshalAs(UnmanagedType.SysInt)]
-            public IntPtr
-                Timeout;
-            [MarshalAs(UnmanagedType.SysInt)]
-            public IntPtr
-                ActivityTimeout;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string
-                Proxy;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string
-                Headers;
+            public int Id;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Url;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Query;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Method;
+            public int Timeout;
+            public int ActivityTimeout;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Proxy;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Headers;
+            [MarshalAs(UnmanagedType.LPArray)]
             public byte[] Body;
-            [MarshalAs(UnmanagedType.SysInt)]
-            public IntPtr
-                BodyLength;
+            public int BodyLength;
         };
 
         

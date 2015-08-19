@@ -22,38 +22,39 @@ extern "C"
 {
     struct SPUnityCurlRequestStruct
     {
-        intptr_t id;
+        int id;
         const char* url;
         const char* query;
         const char* method;
-        intptr_t timeout;
-        intptr_t activityTimeout;
+        int timeout;
+        int activityTimeout;
         const char* proxy;
         const char* headers;
-        const char* body;
-        intptr_t bodyLength;
+        const uint8_t* body;
+        int bodyLength;
 
     };
 
-    EXPORT_API intptr_t SPUnityCurlRunning();
 
-    EXPORT_API intptr_t SPUnityCurlCreateConn();
-    EXPORT_API void SPUnityCurlDestroyConn(intptr_t id);
+    EXPORT_API int SPUnityCurlRunning();
 
-    EXPORT_API intptr_t SPUnityCurlSend(SPUnityCurlRequestStruct data);
-    EXPORT_API intptr_t SPUnityCurlUpdate(intptr_t id);
+    EXPORT_API int SPUnityCurlCreateConn();
+    EXPORT_API void SPUnityCurlDestroyConn(int id);
 
-    EXPORT_API intptr_t SPUnityCurlGetCode(intptr_t id);
+    EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct data);
+    EXPORT_API int SPUnityCurlUpdate(int id);
 
-    EXPORT_API void SPUnityCurlGetError(intptr_t id, char* data);
-    EXPORT_API void SPUnityCurlGetBody(intptr_t id, char* data);
-    EXPORT_API void SPUnityCurlGetHeaders(intptr_t id, char* data);
+    EXPORT_API int SPUnityCurlGetCode(int id);
 
-    EXPORT_API intptr_t SPUnityCurlGetErrorLength(intptr_t id);
-    EXPORT_API intptr_t SPUnityCurlGetBodyLength(intptr_t id);
-    EXPORT_API intptr_t SPUnityCurlGetHeadersLength(intptr_t id);
-    EXPORT_API intptr_t SPUnityCurlGetDownloadSize(intptr_t id);
-    EXPORT_API intptr_t SPUnityCurlGetDownloadSpeed(intptr_t id);
+    EXPORT_API void SPUnityCurlGetError(int id, char* data);
+    EXPORT_API void SPUnityCurlGetBody(int id, char* data);
+    EXPORT_API void SPUnityCurlGetHeaders(int id, char* data);
+
+    EXPORT_API int SPUnityCurlGetErrorLength(int id);
+    EXPORT_API int SPUnityCurlGetBodyLength(int id);
+    EXPORT_API int SPUnityCurlGetHeadersLength(int id);
+    EXPORT_API int SPUnityCurlGetDownloadSize(int id);
+    EXPORT_API int SPUnityCurlGetDownloadSpeed(int id);
 
     EXPORT_API void SPUnityCurlInit();
     EXPORT_API void SPUnityCurlDestroy();

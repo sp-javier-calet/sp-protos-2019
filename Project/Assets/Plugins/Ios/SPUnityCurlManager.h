@@ -20,23 +20,23 @@ struct SPUnityCurlGlobalInfo
 /* Information associated with a specific easy handle */
 struct SPUnityCurlConnInfo
 {
-    intptr_t id;
+    int id;
     CURL* easy;
-    intptr_t responseCode;
+    int responseCode;
     std::string bodyBuffer;
     std::string headersBuffer;
     std::string errorBuffer;
     double downloadSize;
     double downloadSpeed;
 
-    SPUnityCurlConnInfo(intptr_t id);
+    SPUnityCurlConnInfo(int id);
 };
 
 class SPUnityCurlManager
 {
     typedef SPUnityCurlConnInfo ConnInfo;
     typedef SPUnityCurlGlobalInfo GlobalInfo;
-    typedef std::map<intptr_t, ConnInfo*> MClients;
+    typedef std::map<int, ConnInfo*> MClients;
 
     MClients _clients;
 
@@ -47,9 +47,9 @@ private:
 public:
 
     static SPUnityCurlManager& getInstance();
-    void addConn(intptr_t id);
-    ConnInfo* getConnById(intptr_t id);
-    bool removeConn(intptr_t id);
+    void addConn(int id);
+    ConnInfo* getConnById(int id);
+    bool removeConn(int id);
 };
 
 #endif

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SocialPoint.Profiler
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct FrameInfo
     {
         public float FrameTime;
