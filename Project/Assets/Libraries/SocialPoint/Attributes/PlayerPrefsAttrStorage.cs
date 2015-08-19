@@ -40,6 +40,7 @@ namespace SocialPoint.Attributes
                 key = Prefix + key;
             }
             PlayerPrefs.SetString(key, data.String);
+            PlayerPrefs.Save();
         }
 
         public void Remove(string key)

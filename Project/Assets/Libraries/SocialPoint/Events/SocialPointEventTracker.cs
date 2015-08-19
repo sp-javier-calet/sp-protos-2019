@@ -9,6 +9,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.AppEvents;
+using SocialPoint.Crash;
 
 using SocialPoint.ServerSync;
 
@@ -139,6 +140,25 @@ namespace SocialPoint.Events
             }
         }
 
+
+        private BreadcrumbManager _breadcrumbManager;
+
+        public BreadcrumbManager BreadcrumbManager
+        {
+            get
+            {
+                return _breadcrumbManager;
+            }
+            set
+            {
+                if(value == null)
+                {
+                    throw new ArgumentNullException("_breadcrumbManager", "_breadcrumbManager cannot be null or empty!");
+                }
+                _breadcrumbManager = value;
+            }
+        }
+
         #region App Events
 
         private void ConnectAppEvents(IAppEvents appEvents)
@@ -245,6 +265,10 @@ namespace SocialPoint.Events
 
         public void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
+            if(BreadcrumbManager != null)
+            {
+                _breadcrumbManager.Log(string.Format("{0} {1}",eventName, data));
+            }
             if(IsLoggedIn && CommandQueue != null)
             {
                 TrackEventByCommand(eventName, data, del);
@@ -546,7 +570,7 @@ namespace SocialPoint.Events
 
         public void TrackPurchaseStart(PurchaseStartOperation op)
         {
-            AttrDic data = op.AdditionalData ?? new AttrDic();
+            AttrDic data = op.Info.AdditionalData ?? new AttrDic();
 
             AttrDic order = new AttrDic();
             data.Set("order", order);
@@ -554,9 +578,9 @@ namespace SocialPoint.Events
             order.SetValue("product_id", op.ProductId);
             order.SetValue("payment_provider", op.PaymentProvider);
             order.SetValue("amount_gross", op.AmountGross);
-            order.SetValue("offer", op.OfferName);
-            order.SetValue("resource_type", op.ResourceName);
-            order.SetValue("resource_amount", op.ResourceAmount);
+            order.SetValue("offer", op.Info.OfferName);
+            order.SetValue("resource_type", op.Info.ResourceName);
+            order.SetValue("resource_amount", op.Info.ResourceAmount);
 
             TrackSystemEvent(EventNameMonetizationTransactionStart, data);
         }

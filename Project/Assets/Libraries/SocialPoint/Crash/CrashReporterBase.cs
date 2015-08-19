@@ -751,7 +751,7 @@ namespace SocialPoint.Crash
         {
             if(_breadcrumbManager != null)
             {
-                _breadcrumbManager.Log(BreadcrumbType.AppMemoryWarning);
+                _breadcrumbManager.Log("Memory Warning");
             }
 
             // Store memory warning timestamp

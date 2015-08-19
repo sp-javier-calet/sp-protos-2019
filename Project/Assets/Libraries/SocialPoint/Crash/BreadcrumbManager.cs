@@ -1,51 +1,26 @@
 using System;
 using System.IO;
-using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.IO;
 using UnityEngine;
-using SPDebug = SocialPoint.Base.Debug;
 
 namespace SocialPoint.Crash
 {
-    public enum BreadcrumbType
-    {
-        AppEnterBackground,
-        AppEnterForeground,
-        AppBecomeActive,
-        AppResignActive,
-        AppWillTerminate,
-        AppMemoryWarning,
-        AppWillDestroy,
-        ConnectionReachable,
-        ConnectionNotReachable,
-        CommandError,
-        Custom,
-        GameOpened,
-        GameLoaded,
-        HttpResponseError,
-        IAP,
-        OpenedPopup,
-        RestartGame,
-        StartTutorial
-    }
 
     public struct Breadcrumb
     {
         long timestamp;
-        BreadcrumbType type;
         string info;
 
-        public Breadcrumb(BreadcrumbType type, string info = "")
+        public Breadcrumb(string info)
         {
             timestamp = TimeUtils.Timestamp;
-            this.type = type;
             this.info = info;
         }
 
         public override string ToString()
         {
-            return string.Format("{0} {1} \t{2}", TimeUtils.GetTime(timestamp).ToString("yyyy/MM/dd HH:mm:ss"), type, info);
+            return string.Format("{0} \t{1}", TimeUtils.GetTime(timestamp).ToString("yyyy/MM/dd HH:mm:ss"), info);
         }
     }
 
@@ -96,9 +71,9 @@ namespace SocialPoint.Crash
             InitializeBreadcrumbFile();
         }
 
-        public void Log(BreadcrumbType type, string info = "")
+        public void Log(string info)
         {
-            Breadcrumb breadcrumb = new Breadcrumb(type, info);
+            Breadcrumb breadcrumb = new Breadcrumb(info);
             using(StreamWriter file = new StreamWriter(BreadcrumbLogPath(), true))
             {
                 file.WriteLine(breadcrumb);

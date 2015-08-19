@@ -27,6 +27,8 @@ public class StorageInstaller : MonoInstaller
 #else
         var persistent = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, Settings.PersistentPrefix));
 #endif
-        Container.Bind<IAttrStorage>("persistent").ToSingleInstance(persistent);
+
+        var transition = new TransitionAttrStorage(vol, persistent);
+        Container.Bind<IAttrStorage>("persistent").ToSingleInstance(transition);
 	}
 }

@@ -5,6 +5,7 @@ using SocialPoint.Hardware;
 using SocialPoint.ServerSync;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
+using SocialPoint.Crash;
 using UnityEngine;
 
 class EventTracker : SocialPointEventTracker
@@ -72,6 +73,14 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
+    [Inject]
+    public BreadcrumbManager InjectBreadcrumbManager
+    {
+        set
+        {
+            BreadcrumbManager = value;
+        }
+    }
     
     [Inject]
     public ILogin InjectLogin

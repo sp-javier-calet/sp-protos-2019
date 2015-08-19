@@ -8,7 +8,7 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- * Copyright (C) 1998 - 2011, Daniel Stenberg, <daniel@haxx.se>, et al.
+ * Copyright (C) 1998 - 2012, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution. The terms
@@ -133,14 +133,14 @@
 
 /* Configure process defines this to 1 when it finds out that system */
 /* header file stdint.h must be included by the external interface.  */
-#define CURL_PULL_STDINT_H 1
+/* #undef CURL_PULL_STDINT_H */
 #ifdef CURL_PULL_STDINT_H
 #  include <stdint.h>
 #endif
 
 /* Configure process defines this to 1 when it finds out that system  */
 /* header file inttypes.h must be included by the external interface. */
-#define CURL_PULL_INTTYPES_H 1
+/* #undef CURL_PULL_INTTYPES_H */
 #ifdef CURL_PULL_INTTYPES_H
 #  include <inttypes.h>
 #endif
@@ -152,6 +152,12 @@
 #  include <sys/socket.h>
 #endif
 
+/* Configure process defines this to 1 when it finds out that system  */
+/* header file sys/poll.h must be included by the external interface. */
+/* #undef CURL_PULL_SYS_POLL_H */
+#ifdef CURL_PULL_SYS_POLL_H
+#  include <sys/poll.h>
+#endif
 
 #ifdef __LP64__
 
@@ -191,9 +197,7 @@ typedef CURL_TYPEOF_CURL_OFF_T curl_off_t;
 /* unsigned curl_off_t constant suffix. */
 #define CURL_SUFFIX_CURL_OFF_TU UL
 
-
 #else
-
 
 /* The size of `long', as computed by sizeof. */
 #define CURL_SIZEOF_LONG 4
@@ -231,9 +235,6 @@ typedef CURL_TYPEOF_CURL_OFF_T curl_off_t;
 /* unsigned curl_off_t constant suffix. */
 #define CURL_SUFFIX_CURL_OFF_TU ULL
 
-
-
 #endif
-
 
 #endif /* __CURL_CURLBUILD_H */

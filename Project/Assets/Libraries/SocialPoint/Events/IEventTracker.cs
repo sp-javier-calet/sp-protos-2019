@@ -72,6 +72,11 @@ namespace SocialPoint.Events
         public string ProductId;
         public string PaymentProvider;
         public float AmountGross;
+        public PurchaseGameInfo Info;
+    }
+
+    public class PurchaseGameInfo
+    {
         public string OfferName;
         public string ResourceName;
         public int ResourceAmount;
