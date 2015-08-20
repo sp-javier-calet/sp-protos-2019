@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
-#include "pthread/pthread.h"
+#include "pthread.h"
 
 extern "C" {
 #include "curl/curl.h"

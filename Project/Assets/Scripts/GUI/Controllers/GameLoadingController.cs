@@ -17,7 +17,7 @@ public class GameLoadingController : UIViewController
     [HideInInspector]
     public PopupsController Popups;
 
-    [Inject]
+    [InjectOptional]
     [HideInInspector]
     public ICrashReporter CrashReporter;
 
@@ -29,15 +29,28 @@ public class GameLoadingController : UIViewController
 
     public string SceneToLoad = "Main";
 
+    override protected void OnLoad()
+    {
+        base.OnLoad();
+                
+        if(CrashReporter != null)
+        {
+            CrashReporter.Enable();
+        }
+    }
+
     override protected void OnAppeared()
     {
         base.OnAppeared();
 
-        CrashReporter.Enable();
-
         Login.ErrorEvent += OnLoginError;
         Login.NewUserEvent += OnLoginNewUser;
         DoLogin();
+    }
+
+    void DebugLog(string msg)
+    {
+        Debug.Log(msg);
     }
 
     void DoLogin()
@@ -46,6 +59,7 @@ public class GameLoadingController : UIViewController
         {
             ProgressContainer.SetActive(true);
         }
+        DebugLog(string.Format("Start Login"));
         Login.Login(OnLoginEnd);
     }
 
@@ -58,7 +72,7 @@ public class GameLoadingController : UIViewController
 
     void OnLoginError(ErrorType error, string msg, Attr data)
     {
-        Debug.Log(string.Format("Login Error {0} {1} {2}", error, msg, data));
+        DebugLog(string.Format("Login Error {0} {1} {2}", error, msg, data));
     }
 
     void OnLoginEnd(Error err)
@@ -69,7 +83,7 @@ public class GameLoadingController : UIViewController
         }
         if(!Error.IsNullOrEmpty(err))
         {
-            Debug.Log(string.Format("Login End Error {0}", err));
+            DebugLog(string.Format("Login End Error {0}", err));
             var popup = Popups.CreateChild<GameLoadingErrorPopupController>();
             popup.Text = err.Msg;
             popup.Dismissed += OnErrorPopupDismissed;

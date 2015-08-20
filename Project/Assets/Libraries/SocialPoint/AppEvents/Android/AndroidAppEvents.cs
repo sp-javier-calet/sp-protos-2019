@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using SocialPoint.Base;
+using SocialPoint.Threading;
 
 namespace SocialPoint.AppEvents
 {
@@ -82,7 +83,7 @@ namespace SocialPoint.AppEvents
 
             public void onActivityPaused(AndroidJavaObject activity) 
             {
-                AndroidContext.RunOnMainThread(_appEvents.DispatchWillGoBackground);
+                MainThreadDispatcher.Dispatch(_appEvents.DispatchWillGoBackground);
             }
 
             public void onActivityResumed(AndroidJavaObject activity) 
@@ -92,11 +93,11 @@ namespace SocialPoint.AppEvents
                  */
                 if(WasStopped)
                 {
-                    AndroidContext.RunOnMainThread(_appEvents.DispatchWasOnBackground);
+                    MainThreadDispatcher.Dispatch(_appEvents.DispatchWasOnBackground);
                 }
                 else
                 {
-                    AndroidContext.RunOnMainThread(_appEvents.DispatchWasCovered);
+                    MainThreadDispatcher.Dispatch(_appEvents.DispatchWasCovered);
                 }
 
                 WasStopped = false;
@@ -137,7 +138,7 @@ namespace SocialPoint.AppEvents
             {                
                 if(level == LevelMemoryComplete)
                 {
-                    AndroidContext.RunOnMainThread(_appEvents.DispatchMemoryWarning);
+                    MainThreadDispatcher.Dispatch(_appEvents.DispatchMemoryWarning);
                 }
             }
         }

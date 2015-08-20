@@ -6,11 +6,11 @@ import java.util.Set;
 import android.content.Intent;
 import android.util.Log;
 import android.os.Bundle;
-import com.unity3d.player.UnityPlayerNativeActivity;
+import com.unity3d.player.UnityPlayerActivity;
 
 import java.lang.RuntimeException;
 
-public class SPUnityActivity extends UnityPlayerNativeActivity {
+public class SPUnityActivity extends UnityPlayerActivity {
 	
 	private static final String TAG = "SPUnityActivity";
 

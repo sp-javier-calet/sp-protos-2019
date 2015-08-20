@@ -16,7 +16,7 @@ public class StorageInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{		
-        PathsManager.Init(this, true);
+        PathsManager.Init();
 
         var vol = new PlayerPrefsAttrStorage();
         vol.Prefix = Settings.VolatilePrefix;

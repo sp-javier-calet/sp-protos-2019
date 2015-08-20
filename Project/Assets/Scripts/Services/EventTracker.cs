@@ -73,7 +73,7 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
-    [Inject]
+    [InjectOptional]
     public BreadcrumbManager InjectBreadcrumbManager
     {
         set

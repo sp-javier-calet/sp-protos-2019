@@ -5,7 +5,7 @@ using System.Collections;
 namespace SocialPoint.Base
 {
 #if UNITY_ANDROID
-    public class AndroidContext 
+    public static class AndroidContext 
     {
         private static AndroidJavaObject _currentActivity;
         public static AndroidJavaObject CurrentActivity
@@ -31,6 +31,20 @@ namespace SocialPoint.Base
                     _currentApplication = CurrentActivity.Call<AndroidJavaObject>("getApplication");
                 }
                 return _currentApplication;
+            }
+        }
+
+
+        private static AndroidJavaObject _contentResolver;
+        public static AndroidJavaObject ContentResolver
+        {
+            get
+            {
+                if(_contentResolver == null)
+                {
+                    _contentResolver = AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getContentResolver");
+                }
+                return _contentResolver;
             }
         }
 

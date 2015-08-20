@@ -1,6 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
-using System.Collections;
 using System.IO;
 
 namespace SocialPoint.IO
@@ -66,28 +65,12 @@ namespace SocialPoint.IO
             return Path.Combine(path1, path2);
         }
 
-        public static void Init(MonoBehaviour behaviour, bool inMainThread = true)
-        {
-            SocialPoint.Base.Debug.Assert(behaviour != null);
-
-            if(!inMainThread)
-            {
-                behaviour.StartCoroutine(CollectPaths());
-            }
-            else
-            {
-                CollectPaths();
-            }
-        }
-
-        private static IEnumerator CollectPaths()
+        public static void Init()
         {
             _dataPath = Application.dataPath;
             _persistentDataPath = Application.persistentDataPath;
             _streamingAssetsPath = Application.streamingAssetsPath;
             _temporaryCachePath = Application.temporaryCachePath;
-            return null;
         }
-    }
-    
+    }  
 }
