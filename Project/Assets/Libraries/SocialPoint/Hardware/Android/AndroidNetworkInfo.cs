@@ -36,6 +36,34 @@ namespace SocialPoint.Hardware
                             clsSettings = new AndroidJavaClass("android.provider.Settings$Global");
                             proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
                         }
+                        if(string.IsNullOrEmpty(proxyStr))
+                        {
+                            var sys = new AndroidJavaClass("java.lang.System");
+                            var host = sys.CallStatic<string>("getProperty", "http.proxyHost");
+                            if(!string.IsNullOrEmpty(host))
+                            {
+                                proxyStr = host;
+                                var port = sys.CallStatic<string>("getProperty", "http.proxyPort");
+                                if(!string.IsNullOrEmpty(port))
+                                {
+                                    proxyStr +=  ":" + port;
+                                }
+                            }
+                        }
+                        if(string.IsNullOrEmpty(proxyStr))
+                        {
+                            var proxy = new AndroidJavaClass("android.net.Proxy");
+                            var host = proxy.CallStatic<string>("getHost", AndroidContext.CurrentActivity);
+                            if(!string.IsNullOrEmpty(host))
+                            {
+                                proxyStr = host;
+                                var port = proxy.CallStatic<string>("getPort", AndroidContext.CurrentActivity);
+                                if(!string.IsNullOrEmpty(port))
+                                {
+                                    proxyStr +=  ":" + port;
+                                }
+                            }
+                        }
                         if(!string.IsNullOrEmpty(proxyStr))
                         {
                             _proxy = new Uri("http://"+proxyStr);
