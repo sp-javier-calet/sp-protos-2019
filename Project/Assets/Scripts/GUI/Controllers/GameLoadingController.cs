@@ -1,12 +1,13 @@
-﻿
+﻿using System.Collections;
+using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Crash;
 using SocialPoint.GUI;
 using SocialPoint.Login;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
-using SocialPoint.Locale;
 using Zenject;
-using UnityEngine;
 
 public class GameLoadingController : UIViewController
 {
@@ -27,8 +28,16 @@ public class GameLoadingController : UIViewController
     public Localization Localization;
 
     public GameObject ProgressContainer;
+    public LoadingBarController LoadingBar;
 
     public string SceneToLoad = "Main";
+
+    GameModel _model;
+
+    List<LoadingOperation> Operations = new List<LoadingOperation>();
+    LoadingOperation _loginOperation;
+    LoadingOperation _parseModelOperation;
+    LoadingOperation _aditionalFakeOperation;
 
     override protected void OnLoad()
     {
@@ -42,11 +51,28 @@ public class GameLoadingController : UIViewController
 
     override protected void OnAppeared()
     {
-        base.OnAppeared();
+        base.OnAppeared();        _
+        loginOperation = new LoadingOperation();
+        _parseModelOperation = new LoadingOperation();
+
+        //TODO: delete, only mock pourpose
+        _aditionalFakeOperation = new LoadingOperation();
+        Operations = new List<LoadingOperation>();
+        Operations.Add(_loginOperation);
+        Operations.Add(_parseModelOperation);
+        Operations.Add(_aditionalFakeOperation);
+        LoadingBar.RegisterLoadingOperation(Operations);
+
+        //TODO: delete, only mock pourpose
+        StartCoroutine(_aditionalFakeOperation.FakeLoadingProcess(UnityEngine.Random.Range(2, 6)));
+
+
+        StartCoroutine(CheckAllOperationsLoaded());
 
         Login.ErrorEvent += OnLoginError;
         Login.NewUserEvent += OnLoginNewUser;
         DoLogin();
+
     }
 
     void DebugLog(string msg)
@@ -56,6 +82,7 @@ public class GameLoadingController : UIViewController
 
     void DoLogin()
     {
+        _loginOperation.UpdateProgress(0.1f, "Logging into servers");
         if(ProgressContainer != null)
         {
             ProgressContainer.SetActive(true);
@@ -78,6 +105,7 @@ public class GameLoadingController : UIViewController
 
     void OnLoginEnd(Error err)
     {
+        _loginOperation.FinishProgress("login ready");
         if(ProgressContainer != null)
         {
             ProgressContainer.SetActive(false);
@@ -96,13 +124,26 @@ public class GameLoadingController : UIViewController
     {
         DoLogin();
     }
-    
+
     void OnLoginNewUser(Attr data)
     {
-        var model = GameParser.Parse(data);
-        ZenUtil.LoadScene(SceneToLoad, (DiContainer container) => {
-            container.BindInstance(model);
-        });
+        _parseModelOperation.UpdateProgress(0.1f, "parsing game model");
+        _model = GameParser.Parse(data);
+        _parseModelOperation.FinishProgress("game model parsed");
+    }
+
+    IEnumerator CheckAllOperationsLoaded()
+    {
+        while(Operations.Exists(o => o.Progress < 1))
+        {
+            yield return null;
+        }
+        OnAllOperationsLoaded();
+    }
+
+    void OnAllOperationsLoaded()
+    {
+        ZenUtil.LoadScene(SceneToLoad, (DiContainer container) => container.BindInstance(_model));
     }
 
 }
