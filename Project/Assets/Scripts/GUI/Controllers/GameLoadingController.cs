@@ -4,13 +4,13 @@ using SocialPoint.Login;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
+using SocialPoint.Locale;
 using Zenject;
 using UnityEngine;
 
 public class GameLoadingController : UIViewController
 {
     [Inject]
-    [HideInInspector]
     public ILogin Login;
 
     [Inject]
@@ -18,12 +18,13 @@ public class GameLoadingController : UIViewController
     public PopupsController Popups;
 
     [InjectOptional]
-    [HideInInspector]
     public ICrashReporter CrashReporter;
 
     [Inject]
-    [HideInInspector]
     public IParser<GameModel> GameParser;
+
+    [Inject]
+    public Localization Localization;
 
     public GameObject ProgressContainer;
 
