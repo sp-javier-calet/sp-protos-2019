@@ -164,7 +164,7 @@ namespace SocialPoint.IO {
             }
 
             string dirPath = Path.GetDirectoryName(path);
-            if(!Exists(dirPath))
+            if(!string.IsNullOrEmpty(dirPath) && !Exists(dirPath))
             {
                 CreateDirectory(dirPath);
             }
