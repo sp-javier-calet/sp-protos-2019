@@ -5,9 +5,9 @@ using SocialPoint.Crash;
 using SocialPoint.GUI;
 using SocialPoint.Login;
 using SocialPoint.Utils;
-using SocialPoint.Attributes;
-using SocialPoint.Crash;
+using SocialPoint.Locale;
 using Zenject;
+using UnityEngine;
 
 public class GameLoadingController : UIViewController
 {
@@ -51,8 +51,8 @@ public class GameLoadingController : UIViewController
 
     override protected void OnAppeared()
     {
-        base.OnAppeared();        _
-        loginOperation = new LoadingOperation();
+        base.OnAppeared();
+        _loginOperation = new LoadingOperation();
         _parseModelOperation = new LoadingOperation();
 
         //TODO: delete, only mock pourpose
