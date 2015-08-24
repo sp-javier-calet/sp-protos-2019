@@ -79,9 +79,4 @@ public class LoadingBarController : MonoBehaviour
         }
         Slider.value = percent;
     }
-
-    void SetPercentage(float percentage)
-    {
-        Slider.value = percentage;
-    }
 }
