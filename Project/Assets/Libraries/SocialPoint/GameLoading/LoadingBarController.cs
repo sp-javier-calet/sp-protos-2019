@@ -6,11 +6,10 @@ namespace SocialPoint.GameLoading
     public class LoadingBarController : MonoBehaviour
     {
         public Slider Slider;
-
-        public string[] funnyLogs;
-        public bool displayFunnyLogs;
-
         public Text log;
+
+        public bool displayFunnyLogs;
+        public string[] funnyLogs;
 
         public void UpdateProgress(float percent, string message)
         {

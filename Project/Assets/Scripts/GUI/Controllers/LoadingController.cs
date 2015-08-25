@@ -35,39 +35,27 @@ public class LoadingController : GameLoadingController
     }
 
     [InjectOptional]
-    public ICrashReporter CrashReporter;
+    public ICrashReporter InjectCrashReporter
+    {
+        set
+        {
+            CrashReporter = value;
+        }
+    }
 
     [Inject]
     public IParser<GameModel> GameParser;
 
     public string SceneToLoad = "Main";
 
-
     GameModel _model;
     LoadingOperation _parseModelOperation;
-    LoadingOperation _aditionalFakeOperation;
-
-    override protected void OnLoad()
-    {
-        base.OnLoad();
-                
-        if(CrashReporter != null)
-        {
-            CrashReporter.Enable();
-        }
-    }
 
     override protected void OnAppeared()
     {
         base.OnAppeared();
         _parseModelOperation = new LoadingOperation();
         RegisterLoadingOperation(_parseModelOperation);
-
-        //TODO: delete, only mock pourpose
-
-        _aditionalFakeOperation = new LoadingOperation();
-        RegisterLoadingOperation(_aditionalFakeOperation);
-        StartCoroutine(_aditionalFakeOperation.FakeLoadingProcess(UnityEngine.Random.Range(2, 6)));
 
         Login.NewUserEvent += OnLoginNewUser;
 

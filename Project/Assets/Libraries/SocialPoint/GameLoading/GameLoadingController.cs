@@ -6,6 +6,7 @@ using SocialPoint.Utils;
 using SocialPoint.GUI;
 using SocialPoint.Login;
 using SocialPoint.Locale;
+using SocialPoint.Crash;
 using UnityEngine;
 
 namespace SocialPoint.GameLoading
@@ -25,6 +26,7 @@ namespace SocialPoint.GameLoading
         public ILogin Login;
         public PopupsController Popups;
         public Localization Localization;
+        public ICrashReporter CrashReporter;
 
         public GameObject ProgressContainer;
         public LoadingBarController LoadingBar;
@@ -33,6 +35,16 @@ namespace SocialPoint.GameLoading
         protected LoadingOperation _loginOperation;
 
         public event Action AllOperationsLoaded;
+
+        override protected void OnLoad()
+        {
+            base.OnLoad();
+
+            if(CrashReporter != null)
+            {
+                CrashReporter.Enable();
+            }
+        }
 
         override protected void OnAppeared()
         {
@@ -60,7 +72,7 @@ namespace SocialPoint.GameLoading
             if(message != string.Empty)
                 Debug.Log(message);
             float progress = 0;
-            _operations.ForEach(p => progress += p.Progress);
+            _operations.ForEach(p => progress += p.progress);
             float percent = (progress / _operations.Count);
             LoadingBar.UpdateProgress(percent, message);
         }
@@ -118,7 +130,7 @@ namespace SocialPoint.GameLoading
 
         IEnumerator CheckAllOperationsLoaded()
         {
-            while(_operations.Exists(o => o.Progress < 1))
+            while(_operations.Exists(o => o.progress < 1))
             {
                 yield return null;
             }
