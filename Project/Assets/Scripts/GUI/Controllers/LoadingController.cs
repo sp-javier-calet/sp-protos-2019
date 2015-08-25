@@ -7,7 +7,7 @@ using Zenject;
 
 public class LoadingController : GameLoadingController
 {
-    [InjectOptional("loading_controller_login")]
+    [Inject]
     public ILogin InjectLogin
     {
         set
@@ -16,7 +16,7 @@ public class LoadingController : GameLoadingController
         }
     }
 
-    [InjectOptional("loading_controller_Popup")]
+    [Inject]
     public PopupsController InjectPopups
     {
         set
@@ -25,7 +25,7 @@ public class LoadingController : GameLoadingController
         }
     }
 
-    [InjectOptional("loading_controller_Localization")]
+    [Inject]
     public Localization InjectLocalization
     {
         set
@@ -45,7 +45,7 @@ public class LoadingController : GameLoadingController
 
     GameModel _model;
     LoadingOperation _parseModelOperation;
-    //LoadingOperation _aditionalFakeOperation;
+    LoadingOperation _aditionalFakeOperation;
 
     override protected void OnLoad()
     {
@@ -61,16 +61,14 @@ public class LoadingController : GameLoadingController
     {
         base.OnAppeared();
         _parseModelOperation = new LoadingOperation();
-        Operations.Add(_parseModelOperation);
-        LoadingBar.RegisterLoadingOperation(_parseModelOperation);
+        RegisterLoadingOperation(_parseModelOperation);
 
         //TODO: delete, only mock pourpose
-        /*
+
         _aditionalFakeOperation = new LoadingOperation();
-        Operations.Add(_aditionalFakeOperation);
-        LoadingBar.RegisterLoadingOperation(_aditionalFakeOperation);
+        RegisterLoadingOperation(_aditionalFakeOperation);
         StartCoroutine(_aditionalFakeOperation.FakeLoadingProcess(UnityEngine.Random.Range(2, 6)));
-        */
+
         Login.NewUserEvent += OnLoginNewUser;
 
         AllOperationsLoaded += OnAllOperationsLoaded;

@@ -29,7 +29,7 @@ namespace SocialPoint.GameLoading
         public GameObject ProgressContainer;
         public LoadingBarController LoadingBar;
 
-        protected List<LoadingOperation> Operations = new List<LoadingOperation>();
+        protected List<LoadingOperation> _operations = new List<LoadingOperation>();
         protected LoadingOperation _loginOperation;
 
         public event Action AllOperationsLoaded;
@@ -37,15 +37,32 @@ namespace SocialPoint.GameLoading
         override protected void OnAppeared()
         {
             base.OnAppeared();
-            Operations = new List<LoadingOperation>();
+            _operations = new List<LoadingOperation>();
 
             _loginOperation = new LoadingOperation();
-            Operations.Add(_loginOperation);
-            LoadingBar.RegisterLoadingOperation(_loginOperation);
+            RegisterLoadingOperation(_loginOperation);
             StartCoroutine(CheckAllOperationsLoaded());
 
             Login.ErrorEvent += OnLoginError;
             DoLogin();
+        }
+
+        public void RegisterLoadingOperation(LoadingOperation operation)
+        {
+            if(_operations == null)
+                _operations = new List<LoadingOperation>();
+            _operations.Add(operation);
+            operation.ProgressChangedEvent += OnProgressChanged;
+        }
+
+        public void OnProgressChanged(string message)
+        {
+            if(message != string.Empty)
+                Debug.Log(message);
+            float progress = 0;
+            _operations.ForEach(p => progress += p.Progress);
+            float percent = (progress / _operations.Count);
+            LoadingBar.UpdateProgress(percent, message);
         }
 
         void DebugLog(string msg)
@@ -101,7 +118,7 @@ namespace SocialPoint.GameLoading
 
         IEnumerator CheckAllOperationsLoaded()
         {
-            while(Operations.Exists(o => o.Progress < 1))
+            while(_operations.Exists(o => o.Progress < 1))
             {
                 yield return null;
             }
