@@ -1,8 +1,8 @@
 ﻿using SocialPoint.Attributes;
 using SocialPoint.Crash;
 using SocialPoint.GameLoading;
-using SocialPoint.Login;
 using SocialPoint.Locale;
+using SocialPoint.Login;
 using Zenject;
 
 public class LoadingController : GameLoadingController

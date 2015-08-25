@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
-
-namespace SocialPoint.GameLoading
+﻿namespace SocialPoint.GameLoading
 {
     public class LoadingOperation
     {

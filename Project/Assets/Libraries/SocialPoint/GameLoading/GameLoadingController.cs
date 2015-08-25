@@ -2,11 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
-using SocialPoint.GUI;
-using SocialPoint.Login;
-using SocialPoint.Locale;
 using SocialPoint.Crash;
+using SocialPoint.GUI;
+using SocialPoint.Locale;
+using SocialPoint.Login;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.GameLoading
