@@ -6,9 +6,13 @@ public class AdminPanelTestConnection : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	    AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler obj) => 
+	    AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
         {
-            obj.AddPanelGUI("System", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("System", new AdminPanelTestConnectionGUI());
+
+            handler.AddPanelGUI("Game", new AdminPanelTestConnectionGUI());
+
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
         };
 	}
 
@@ -16,7 +20,9 @@ public class AdminPanelTestConnection : MonoBehaviour {
     {
         public override void OnCreateGUI(AdminPanelLayout layout)
         {
-            AdminPanelGUIUtils.CreateButton(layout, "Test Connection", () => { });
+            AdminPanelGUIUtils.CreateButton(layout, "Test Connection", () => { 
+                Debug.Log("Test Connection");
+            });
         }
     }
 }

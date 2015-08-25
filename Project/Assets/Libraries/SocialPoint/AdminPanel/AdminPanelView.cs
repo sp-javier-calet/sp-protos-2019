@@ -7,11 +7,13 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelView : MonoBehaviour
     {
-        private Dictionary<string, AdminPanelGUILayout> categories;
-
+        private Dictionary<string, AdminPanelGUILayout> _categories;
+        private Stack<AdminPanelGUILayout> _activePanels;
+        private GameObject _canvasObject;
         void Awake()
         {
-            categories = new Dictionary<string, AdminPanelGUILayout>();
+            _categories = new Dictionary<string, AdminPanelGUILayout>();
+            _activePanels = new Stack<AdminPanelGUILayout>();
         }
 
         bool inflated = false;
@@ -20,84 +22,108 @@ namespace SocialPoint.AdminPanel
             if(!inflated && Input.GetKeyDown("a"))
             {
                 inflated = true;
+                // Load Layout data through handler
+                _categories = new Dictionary<string, AdminPanelGUILayout>();
+                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories));
                 InflateGUI();
+            }
+
+            if(inflated && Input.GetKeyDown("q"))
+            {
+                Close();
             }
         }
 
         void InflateGUI()
         {
-            // Load Layout data through handler
-            AdminPanelHandler.InitializeHandler(new AdminPanelHandler(categories));
-
             // Create GUI base
-            GameObject canvasObject = new GameObject("AdminPanel - Canvas");
-            RectTransform canvasRectTransform = canvasObject.AddComponent<RectTransform>();
-            Canvas canvas = canvasObject.AddComponent<Canvas>();
+            _canvasObject = new GameObject("AdminPanel - Canvas");
+            RectTransform canvasRectTransform = _canvasObject.AddComponent<RectTransform>();
+            Canvas canvas = _canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasObject.AddComponent<GraphicRaycaster>();
+            _canvasObject.AddComponent<GraphicRaycaster>();
+            var image = _canvasObject.AddComponent<Image>();
+            image.color = new Color(0.1f, .1f, .1f, .5f);
 
-
-            using(AdminPanelLayout mainLayout = new HorizontalLayout(canvasRectTransform))
+            AdminPanelLayout rootLayout = new AdminPanelLayout(canvasRectTransform);
+            using(AdminPanelLayout horizontalLayout = new HorizontalLayout(rootLayout))
             {
-                /*GameObject panelObject = new GameObject("AdminPanel - Category Panel");
-                var image = panelObject.AddComponent<Image>();
-                panelObject.transform.SetParent(mainLayout.Parent);
-                image.rectTransform.anchorMin = Vector2.zero;
-                image.rectTransform.anchorMax = Vector2.one;
-                image.rectTransform.pivot = new Vector2(0.0f, 1.0f);
-                image.rectTransform.anchoredPosition = Vector3.zero;
-                image.rectTransform.offsetMin = Vector2.zero;
-                image.rectTransform.offsetMax = Vector2.zero;
-                image.rectTransform.sizeDelta = new Vector2(-canvas.pixelRect.width * 0.7f, 0.0f);
-                image.color = new Color(1f, .3f, .3f, .5f);*/
+                RectTransform categoriesPanel = AdminPanelGUIUtils.CreatePanel(horizontalLayout, new Vector2(0.2f, 1.0f));
 
-                RectTransform panelTransform = AdminPanelGUIUtils.CreatePanel(mainLayout, new Vector2(0.3f, 0.0f));
-
-                using(AdminPanelLayout mainVerticalLayout = new VerticalLayout(panelTransform))
+                // Categories panel
+                using(AdminPanelLayout categoriesVerticalLayout = new VerticalLayout(new AdminPanelLayout(categoriesPanel)))
                 {
-                    AdminPanelGUIUtils.CreateLabel(mainVerticalLayout, "Admin Panel");
-                    AdminPanelGUIUtils.CreateMargin(mainVerticalLayout);
+                    AdminPanelGUIUtils.CreateLabel(categoriesVerticalLayout, "Admin Panel");
 
-                    using(AdminPanelLayout layout = new VerticalScrollLayout(mainVerticalLayout))
+                    AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
+
+                    using(AdminPanelLayout categoriesScrollLayout = new VerticalScrollLayout(categoriesVerticalLayout))
                     {
-                        AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(categories);
-                        rootPanel.OnCreateGUI(layout);
-
-                        AdminPanelGUIUtils.CreateMargin(layout);
-                        AdminPanelGUIUtils.CreateButton(layout, "Close", () => { Close(); });
+                        AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(this, _categories);
+                        rootPanel.OnCreateGUI(categoriesScrollLayout);
+                        
+                        AdminPanelGUIUtils.CreateMargin(categoriesScrollLayout);
                     }
+
+
+                    AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
+                    AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, "Close", () => { Close(); });
                 }
 
-
-
-                panelTransform = AdminPanelGUIUtils.CreatePanel(mainLayout, new Vector2(0.7f, 0.0f));
-                using(AdminPanelLayout mainVerticalLayout = new VerticalLayout(panelTransform))
+                AdminPanelGUIUtils.CreateMargin(horizontalLayout);
+                // Right side
+                using(AdminPanelLayout rightVerticalLayout = new VerticalLayout(horizontalLayout))
                 {
-                    AdminPanelGUIUtils.CreateLabel(mainVerticalLayout, "Admin Panel");
-                    AdminPanelGUIUtils.CreateMargin(mainVerticalLayout);
-                    
-                    using(AdminPanelLayout layout = new VerticalScrollLayout(mainVerticalLayout))
+                    RectTransform contentPanel = AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 0.6f));
+                    using(AdminPanelLayout contentVerticalLayout = new VerticalLayout(new AdminPanelLayout(contentPanel)))
                     {
-                        AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(categories);
-                        rootPanel.OnCreateGUI(layout);
-                        
-                        AdminPanelGUIUtils.CreateMargin(layout);
-                        AdminPanelGUIUtils.CreateButton(layout, "Close", () => { Close(); });
+                        if(_activePanels.Count > 0 )
+                        {
+                            _activePanels.Peek().OnCreateGUI(contentVerticalLayout);
+                        }
                     }
+
+                    AdminPanelGUIUtils.CreateMargin(rightVerticalLayout);
+                    AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 0.4f));
                 }
             }
         }
 
         private void Close()
         {
-            Debug.Log("Closing Admin Panel");
+            Destroy(_canvasObject);
+            inflated = false;
+        }
+
+        public void OpenPanel(AdminPanelGUILayout panelLayout)
+        {
+            _activePanels.Push(panelLayout);
+            RefreshPanel();
+        }
+
+        public void ClosePanel()
+        {
+            _activePanels.Pop();
+            RefreshPanel();
+        }
+
+        private void RefreshPanel()
+        {
+            Close();
+            InflateGUI();
+
+            // Check if console active. Draw right panel and
+            //_activePanels.Peek().OnCreateGUI();
         }
 
         private class AdminPanelCategoriesGUI : AdminPanelGUI
         {
             private Dictionary<string, AdminPanelGUILayout> _categories;
-            public AdminPanelCategoriesGUI(Dictionary<string, AdminPanelGUILayout> categories)
+            private AdminPanelView _view;
+
+            public AdminPanelCategoriesGUI(AdminPanelView view, Dictionary<string, AdminPanelGUILayout> categories)
             {
+                _view = view;
                 _categories = categories;
             }
 
@@ -113,11 +139,8 @@ namespace SocialPoint.AdminPanel
             private void InflateCategory(AdminPanelLayout layout, string categoryLabel, AdminPanelGUILayout panelLayout)
             {
                 AdminPanelGUIUtils.CreateButton(layout, categoryLabel, () => {
-                    Debug.Log("Opening category " + categoryLabel);
+                    _view.OpenPanel(panelLayout);
                 });
-
-                // Test
-                panelLayout.OnCreateGUI(layout);
             }
         }
     }
