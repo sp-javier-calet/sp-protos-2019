@@ -255,7 +255,7 @@ namespace SocialPoint.Events
             DataSetup(data);
             AddHardwareData(data);
             var eventCommand = new EventCommand(eventName, data);
-            CommandQueue.Add(eventCommand, del == null ? null : new PackedCommand.FinishDelegate(del));
+            CommandQueue.Add(eventCommand, del);
         }
 
         public void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
@@ -438,7 +438,7 @@ namespace SocialPoint.Events
             SendData(new JsonAttrSerializer().Serialize(data), auth, sentEvents, finish);
         }
 
-        void SendData(Data data, bool auth, List<Event> sentEvents, Action finish = null)
+        void SendData(byte[] data, bool auth, List<Event> sentEvents, Action finish = null)
         {
             HttpRequest req = new HttpRequest();
             var uri = auth ? TrackingAuthorizedUri : TrackingUnautorizedUri;

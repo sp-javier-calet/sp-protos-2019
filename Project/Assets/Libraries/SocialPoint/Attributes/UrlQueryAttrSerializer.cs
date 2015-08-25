@@ -1,4 +1,4 @@
-using SocialPoint.Utils;
+
 using System.IO;
 using System;
 using System.Text;
@@ -87,10 +87,14 @@ namespace SocialPoint.Attributes
             return str.ToString();
         }
 
-        public Data Serialize(Attr attr)
+        public byte[] Serialize(Attr attr)
         {
-            string str = Convert(attr, "");
-            return new Data(str);
+            return Encoding.UTF8.GetBytes(SerializeString(attr));
+        }
+
+        public string SerializeString(Attr attr)
+        {
+            return Convert(attr, string.Empty);
         }
     }
 }

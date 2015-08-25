@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Text;
 using LitJson;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
@@ -100,11 +100,16 @@ namespace SocialPoint.Attributes
             }
         }
 
-        static readonly string kNullString = "null";
+        static readonly string NullString = "null";
         static readonly string kQuoteString = "\"";
         static readonly string kEscapeString = "\\";
 
-        public Data Serialize(Attr attr)
+        public byte[] Serialize(Attr attr)
+        {
+            return Encoding.UTF8.GetBytes(SerializeString(attr));
+        }
+
+        public string SerializeString(Attr attr)
         {
             if(attr.AttrType == AttrType.VALUE)
             {
@@ -112,18 +117,18 @@ namespace SocialPoint.Attributes
                 if(attrval.AttrValueType == AttrValueType.STRING)
                 {
                     var str = attr.ToString().Replace(kQuoteString, kEscapeString + kQuoteString);
-                    return new Data(kQuoteString + str + kQuoteString);
+                    return kQuoteString + str + kQuoteString;
                 }
-                return new Data(attr.ToString());
+                return attr.ToString();
             }
             else if(attr.AttrType == AttrType.EMPTY)
             {
-                return new Data(kNullString);
+                return NullString;
             }
             var writer = new JsonWriter();
             writer.PrettyPrint = PrettyPrint;
             Serialize(attr, writer);
-            return new Data(writer.ToString());
+            return writer.ToString();
         }
     }
 }

@@ -3,12 +3,11 @@ using System.Collections.Generic;
 
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Login
 {
-    public delegate void StateChangeDelegate(LinkState state);
-
-    public delegate void ResultDelegate(Error err);
+    public delegate void StateChangeDelegate(LinkState state);   
 
     public abstract class ILink
     {
@@ -21,11 +20,11 @@ namespace SocialPoint.Login
 
         public abstract void AddStateChangeDelegate(StateChangeDelegate cbk);
 
-        public abstract void Login(ResultDelegate cbk);
+        public abstract void Login(ErrorDelegate cbk);
 
         public abstract void Logout();
 
-        public abstract void NotifyAppRequestRecipients(AppRequest req, ResultDelegate cbk);
+        public abstract void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk);
 
         public abstract void UpdateUser(User user);
 
@@ -35,7 +34,7 @@ namespace SocialPoint.Login
 
         public abstract void GetFriendsData(ref List<UserMapping> mappings);
 
-        public abstract void UpdateUserPhoto(User user, uint photoSize, ResultDelegate cbk);
+        public abstract void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk);
 
         public abstract bool IsFriend(User user);
     }

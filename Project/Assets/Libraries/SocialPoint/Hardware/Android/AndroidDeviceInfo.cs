@@ -133,7 +133,7 @@ namespace SocialPoint.Hardware
                     catch
                     {
                         _isGooglePlayServicesAvailable = false;
-                        Base.Debug.LogError("Error retrieving Google Play Services data");
+                        Debug.LogError("Error retrieving Google Play Services data");
                     }
                 }
                 return _isGooglePlayServicesAvailable.HasValue && (bool)_isGooglePlayServicesAvailable;

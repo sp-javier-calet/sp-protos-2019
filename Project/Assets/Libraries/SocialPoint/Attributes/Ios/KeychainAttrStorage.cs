@@ -1,5 +1,4 @@
 using UnityEngine;
-using SocialPoint.Utils;
 using SocialPoint.IosKeychain;
 
 namespace SocialPoint.Attributes
@@ -26,7 +25,7 @@ namespace SocialPoint.Attributes
                 key = Prefix + key;
             }
             var str = new KeychainItem(key, AccessGroup, Service).Value;
-            return Parser.Parse(new Data(str));
+            return Parser.ParseString(str);
         }
 
         public bool Has(string key)
@@ -44,8 +43,8 @@ namespace SocialPoint.Attributes
             {
                 key = Prefix + key;
             }
-            Data data = Serializer.Serialize(attr);
-            new KeychainItem(key, AccessGroup, Service).Value = data.String;
+            var data = Serializer.SerializeString(attr);
+            new KeychainItem(key, AccessGroup, Service).Value = data;
         }
 
         public void Remove(string key)

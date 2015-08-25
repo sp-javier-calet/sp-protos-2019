@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 using SocialPoint.Network;
 
 namespace SocialPoint.Login
 {
-    public delegate void LoginDelegate(Error err);
-    
+
     public delegate void LoginHttpRequestDelegate(HttpRequest req);
     
     public delegate void LoginUsersDelegate(List<User> users, Error err);
@@ -86,6 +86,6 @@ namespace SocialPoint.Login
 
         void SetupHttpRequest(HttpRequest req, string uri);
 
-		void Login(LoginDelegate cbk = null, LinkFilter filter = LinkFilter.Auto);
+		void Login(ErrorDelegate cbk = null, LinkFilter filter = LinkFilter.Auto);
     }
 }

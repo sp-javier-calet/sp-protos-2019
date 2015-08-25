@@ -1,10 +1,10 @@
 ﻿
 using SocialPoint.GUI;
 using SocialPoint.Login;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
 using SocialPoint.Locale;
+using SocialPoint.Base;
 using Zenject;
 using UnityEngine;
 

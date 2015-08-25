@@ -4,18 +4,19 @@ using System.Net;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.Network
 {
     public class WebRequestHttpConnection : BaseYieldHttpConnection
     {
-        private Data _requestBody;
+        private byte[] _requestBody;
         private HttpWebRequest _request;
 
         private event HttpResponseDelegate _delegate;
     
-        public WebRequestHttpConnection(HttpWebRequest request, HttpResponseDelegate rdelegate, Data reqBody)
+        public WebRequestHttpConnection(HttpWebRequest request, HttpResponseDelegate rdelegate, byte[] reqBody)
         {
             _request = request;
             _requestBody = reqBody;
@@ -38,7 +39,7 @@ namespace SocialPoint.Network
 
             if(_requestBody.Length > 0)
             {
-                IEnumerator enumeratorPostData = webAsync.SetPostData(_request, _requestBody.Bytes);
+                IEnumerator enumeratorPostData = webAsync.SetPostData(_request, _requestBody);
                 while(enumeratorPostData.MoveNext())
                 { 
                     yield return enumeratorPostData.Current; 
@@ -115,7 +116,7 @@ namespace SocialPoint.Network
             {
                 resp.Error = new Error(code, wresp.StatusDescription);
             }
-            resp.OriginalBody = new Data(responseBody);
+            resp.OriginalBody = responseBody;
 
             return resp;
         }

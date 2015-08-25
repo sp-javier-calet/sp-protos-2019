@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using UnityEngine;
-using SocialPoint.Utils;
 using SocialPoint.IO;
 
 namespace SocialPoint.Attributes
@@ -38,29 +36,22 @@ namespace SocialPoint.Attributes
 
         public Attr Load(string key)
         {
-            string str;
-            if(!FileUtils.Exists(GetPath(key)))
+            var path = GetPath(key);
+            if(!FileUtils.Exists(path))
             {
                 return null;
             }
-            using(StreamReader file = new StreamReader(GetPath(key)))
-            {
-                str = file.ReadToEnd();
-            }
-            return Parser.Parse(new Data(str));
+            var data = FileUtils.ReadAllBytes(path);
+            return Parser.Parse(data);
         }
 
         public void Save(string key, Attr attr)
         {
-            Data data = Serializer.Serialize(attr);
-            if(FileUtils.Exists(Root) == false)
-            {
-                FileUtils.CreateDirectory(Root);
-            }
-            using(StreamWriter file = new StreamWriter(GetPath(key)))
-            {
-                file.Write(data);
-            }
+            var data = Serializer.Serialize(attr);
+            var path = GetPath(key);
+            var dir = Path.GetDirectoryName(path);
+            FileUtils.CreateDirectory(dir);
+            FileUtils.WriteAllBytes(path, data);
         }
 
         public bool Has(string key)

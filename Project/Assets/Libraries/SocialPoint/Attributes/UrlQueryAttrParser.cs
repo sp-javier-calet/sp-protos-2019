@@ -1,8 +1,8 @@
 using System;
+using System.Linq;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Utils;
-using System.Linq;
 
 namespace SocialPoint.Attributes
 {
@@ -100,11 +100,16 @@ namespace SocialPoint.Attributes
                 return SetAttr(ref childAttr, childName, value);
             }
         }
+
+        public Attr Parse(byte[] data)
+        {
+            return ParseString(Encoding.UTF8.GetString(data));
+        }
         
-        public Attr Parse(Data data)
+        public Attr ParseString(string data)
         {
             Attr root = new AttrDic();
-            string str = data.String.TrimStart(TokenStart.ToCharArray());
+            string str = data.TrimStart(TokenStart.ToCharArray());
             List<string> tokens = str.Split(TokenSeparator.ToCharArray()).ToList();
             var enumList = tokens.GetEnumerator();
             while(enumList.MoveNext())

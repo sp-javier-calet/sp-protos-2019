@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using System;
 using System.Net;
+using System.Collections.Generic;
 using UnityEngine;
-using SPDebug = SocialPoint.Base.Debug;
-
 
 namespace SocialPoint.Network
 {
@@ -98,7 +96,7 @@ namespace SocialPoint.Network
 
         private void LogUnsupportedHeader(string name)
         {
-            SPDebug.Log(string.Format("HttpWebRequest does not support the '{0}' header", name));
+            Debug.Log(string.Format("HttpWebRequest does not support the '{0}' header", name));
         }
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)

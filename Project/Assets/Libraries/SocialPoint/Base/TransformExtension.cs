@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -49,6 +49,13 @@ namespace SocialPoint.Base
             float angle = kRadianToAngle * radians;
             
             return angle;
+        }
+
+        public static void ResetLocalTransform(this Transform transform)
+        {
+            transform.localScale = Vector3.one;
+            transform.localEulerAngles = Vector3.zero;
+            transform.localPosition = Vector3.zero;
         }
 
         public static Transform GetChildRecursive(this Transform trans, string name)

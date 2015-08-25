@@ -3,6 +3,7 @@ using System;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
@@ -156,9 +157,9 @@ namespace SocialPoint.ServerSync
             return data;
         }
 
-        public void Add(Command cmd, PackedCommand.FinishDelegate callback=null)
+        public void Add(Command cmd, ErrorDelegate callback=null)
         {
-            SocialPoint.Base.Debug.Assert(cmd != null);
+            DebugUtils.Assert(cmd != null);
 
             if(cmd.Unique)
             {
