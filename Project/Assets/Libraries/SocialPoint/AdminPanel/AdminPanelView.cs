@@ -41,6 +41,7 @@ namespace SocialPoint.AdminPanel
             RectTransform canvasRectTransform = _canvasObject.AddComponent<RectTransform>();
             Canvas canvas = _canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            _canvasObject.AddComponent<CanvasScaler>();
             _canvasObject.AddComponent<GraphicRaycaster>();
             var image = _canvasObject.AddComponent<Image>();
             image.color = new Color(0.1f, .1f, .1f, .5f);
@@ -48,29 +49,23 @@ namespace SocialPoint.AdminPanel
             AdminPanelLayout rootLayout = new AdminPanelLayout(canvasRectTransform);
             using(AdminPanelLayout horizontalLayout = new HorizontalLayout(rootLayout))
             {
-                RectTransform categoriesPanel = AdminPanelGUIUtils.CreatePanel(horizontalLayout, new Vector2(0.2f, 1.0f));
+                RectTransform categoriesPanel = AdminPanelGUIUtils.CreatePanel(horizontalLayout, new Vector2(0.25f, 1.0f));
 
                 // Categories panel
                 using(AdminPanelLayout categoriesVerticalLayout = new VerticalLayout(new AdminPanelLayout(categoriesPanel)))
                 {
                     AdminPanelGUIUtils.CreateLabel(categoriesVerticalLayout, "Admin Panel");
-
                     AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
 
                     using(AdminPanelLayout categoriesScrollLayout = new VerticalScrollLayout(categoriesVerticalLayout))
                     {
                         AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(this, _categories);
                         rootPanel.OnCreateGUI(categoriesScrollLayout);
-                        
-                        AdminPanelGUIUtils.CreateMargin(categoriesScrollLayout);
                     }
 
-
-                    AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
                     AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, "Close", () => { Close(); });
                 }
 
-                AdminPanelGUIUtils.CreateMargin(horizontalLayout);
                 // Right side
                 using(AdminPanelLayout rightVerticalLayout = new VerticalLayout(horizontalLayout))
                 {
@@ -83,7 +78,6 @@ namespace SocialPoint.AdminPanel
                         }
                     }
 
-                    AdminPanelGUIUtils.CreateMargin(rightVerticalLayout);
                     AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 0.4f));
                 }
             }

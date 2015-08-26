@@ -23,6 +23,22 @@ public class AdminPanelTestConnection : MonoBehaviour {
             AdminPanelGUIUtils.CreateButton(layout, "Test Connection", () => { 
                 Debug.Log("Test Connection");
             });
+
+            using(var scrollLayout = new VerticalScrollLayout(layout))
+            {
+                AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton1", () => {});
+                AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton2", () => {});
+                AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton3", () => {});
+                AdminPanelGUIUtils.CreateMargin(scrollLayout);
+                AdminPanelGUIUtils.CreateLabel(scrollLayout, "TestLabel");
+                AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton4", () => {});
+
+                using(var horizontalLayout = new HorizontalLayout(scrollLayout))
+                {
+                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1");
+                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2");
+                }
+            }
         }
     }
 }
