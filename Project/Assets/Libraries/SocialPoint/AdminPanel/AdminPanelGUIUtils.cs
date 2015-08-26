@@ -39,8 +39,12 @@ namespace SocialPoint.AdminPanel
             return rectTransform;
         }
         
-        private static Vector2 CreateButtonObject(AdminPanelLayout layout, string label, UnityAction onClickAction)
+        private static Vector2 CreateButtonObject(AdminPanelLayout layout, string label, UnityAction onClickAction, Vector2 relativeSize)
         {
+            if(relativeSize.y != 1.0f)
+            {
+                Debug.LogWarning("AdminPanel Button - Relative Y size is ignored");
+            }
             var buttonObject = new GameObject("AdminPanel - Button");
             buttonObject.transform.SetParent(layout.Parent);
 
@@ -49,8 +53,9 @@ namespace SocialPoint.AdminPanel
             rectTransform.offsetMin = Vector2.zero;
             rectTransform.offsetMax = Vector2.zero;
 
+            //rectTransform.anchorMin = new Vector2(0.05f, 1.0f);
             rectTransform.anchorMin = new Vector2(0.05f, 1.0f);
-            rectTransform.anchorMax = new Vector2(0.95f, 1.0f);
+            rectTransform.anchorMax = new Vector2(Mathf.Min(new float[] {0.95f, relativeSize.x, 0.95f*(0.95f*layout.Parent.rect.width - layout.Position.x) / (0.95f*layout.Parent.rect.width)}), 1.0f);
             rectTransform.sizeDelta = new Vector2(1.0f, DefaultButtonHeight);
 
             rectTransform.anchoredPosition = layout.Position;
@@ -64,13 +69,13 @@ namespace SocialPoint.AdminPanel
 
             using(AdminPanelLayout buttonLayout = new AdminPanelLayout(rectTransform))
             {
-                AdminPanelGUIUtils.CreateLabelObject(buttonLayout, label);
+                AdminPanelGUIUtils.CreateLabelObject(buttonLayout, label, Vector2.one);
             }
 
             return rectTransform.rect.size;
         }
 
-        private static Vector2 CreateLabelObject(AdminPanelLayout layout, string label)
+        private static Vector2 CreateLabelObject(AdminPanelLayout layout, string label, Vector2 relativeSize)
         {
             var textObject = new GameObject("Admin Panel - Label");
             textObject.transform.SetParent(layout.Parent);
@@ -80,9 +85,9 @@ namespace SocialPoint.AdminPanel
             rectTransform.offsetMin = Vector2.zero;
             rectTransform.offsetMax = Vector2.zero;
 
+            rectTransform.anchorMin = Vector2.up;
+            rectTransform.anchorMax = new Vector2(relativeSize.x, relativeSize.y);
             rectTransform.sizeDelta = new Vector2(1.0f, 25.0f);
-            rectTransform.anchorMin = new Vector2(0.0f, 1.0f);
-            rectTransform.anchorMax = new Vector2(1.0f, 1.0f);
 
             rectTransform.anchoredPosition = layout.Position;
             
@@ -104,14 +109,24 @@ namespace SocialPoint.AdminPanel
             return rectTransform;
         }
 
+        public static void CreateButton(AdminPanelLayout layout, string label, UnityAction onClickAction, Vector2 relativeSize)
+        {
+            layout.Advance(AdminPanelGUIUtils.CreateButtonObject(layout, label, onClickAction, relativeSize) + Margin);
+        }
+
         public static void CreateButton(AdminPanelLayout layout, string label, UnityAction onClickAction)
         {
-            layout.Advance(AdminPanelGUIUtils.CreateButtonObject(layout, label, onClickAction) + Margin);
+            layout.Advance(AdminPanelGUIUtils.CreateButtonObject(layout, label, onClickAction, Vector2.one) + Margin);
         }
-    
+        
+        public static void CreateLabel(AdminPanelLayout layout, string label, Vector2 relativeSize)
+        {
+            layout.Advance(AdminPanelGUIUtils.CreateLabelObject(layout, label, relativeSize) + Margin);
+        }
+
         public static void CreateLabel(AdminPanelLayout layout, string label)
         {
-            layout.Advance(AdminPanelGUIUtils.CreateLabelObject(layout, label) + Margin);
+            layout.Advance(AdminPanelGUIUtils.CreateLabelObject(layout, label, Vector2.one) + Margin);
         }
 
         public static void CreateMargin(AdminPanelLayout layout, float marginMultiplier = 2.0f)

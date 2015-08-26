@@ -56,7 +56,7 @@ namespace SocialPoint.AdminPanel
         {
             if(_parentLayout != null)
             {
-                _parentLayout.Advance(_currentPosition.x, -_currentPosition.y);
+               _parentLayout.Advance(_currentPosition.x, -_currentPosition.y);
             }
         }
     }
@@ -79,7 +79,7 @@ namespace SocialPoint.AdminPanel
                                               1 - (parentLayout.Position.y / parentLayout.Parent.rect.height));
             rectTrans.anchorMax = new Vector2(1.0f, 1.0f);
             rectTrans.sizeDelta = new Vector2(1.0f - (parentLayout.Position.y / parentLayout.Parent.rect.height), 
-                                              parentLayout.Parent.rect.height - parentLayout.Position.y);
+                                              parentLayout.Parent.rect.height + parentLayout.Position.y);
 
             // Position in set through anchor. Problems inside panel
             rectTrans.anchoredPosition = Vector2.zero;//parentLayout.Position;
@@ -115,7 +115,7 @@ namespace SocialPoint.AdminPanel
             // Left edge anchor and fill parent
             rectTrans.anchorMin = new Vector2(parentLayout.Position.x / parentLayout.Parent.rect.width , 1 - (parentLayout.Position.y / parentLayout.Parent.rect.height));
             rectTrans.anchorMax = Vector2.up;
-            rectTrans.sizeDelta = new Vector2(parentLayout.Parent.rect.width - parentLayout.Position.x, parentLayout.Parent.rect.height - parentLayout.Position.y);
+            rectTrans.sizeDelta = new Vector2(parentLayout.Parent.rect.width - parentLayout.Position.x, parentLayout.Parent.rect.height +- parentLayout.Position.y);
 
             // Position in set through anchor
             rectTrans.anchoredPosition = Vector2.zero;//parentLayout.Position;
@@ -152,7 +152,13 @@ namespace SocialPoint.AdminPanel
             scrollRectTrans.anchorMin = new Vector2(Mathf.Max(0.05f, parentLayout.Position.x / parentLayout.Parent.rect.width),
                                                     1.0f - Mathf.Clamp(parentLayout.Position.y / parentLayout.Parent.rect.height, 0.0f, 1.0f));
             scrollRectTrans.anchorMax = new Vector2(0.95f, 1.0f);
-            scrollRectTrans.sizeDelta = new Vector2(1.0f - (parentLayout.Position.y / parentLayout.Parent.rect.height), parentLayout.Parent.rect.height - parentLayout.Position.y);
+
+            float width = (relativeSize.x >= 1.0)? (1.0f - (parentLayout.Position.x / parentLayout.Parent.rect.width)) : // remaining space
+                                                    parentLayout.Parent.rect.width * relativeSize.x;
+            float height = (relativeSize.y >= 1.0)? parentLayout.Parent.rect.height + parentLayout.Position.y : // remaining space
+                                                    parentLayout.Parent.rect.height * relativeSize.y;
+                                                    
+            scrollRectTrans.sizeDelta = new Vector2(width, height);
 
             // Inside panel
             scrollRectTrans.anchoredPosition = parentLayout.Position;
@@ -168,14 +174,15 @@ namespace SocialPoint.AdminPanel
             
             GameObject scrollContentObject = new GameObject("AdminPanel - Scroll Content");
             scrollContentObject.transform.SetParent(scrollObject.transform);
-
+           
             RectTransform rectTrans = scrollContentObject.AddComponent<RectTransform>();
-            rectTrans.anchorMin = new Vector2(0.0f, 0.5f);
-            rectTrans.anchorMax = new Vector2(1.0f, 0.5f);
-            rectTrans.offsetMin = new Vector2(0.0f, -50.0f);
-            rectTrans.offsetMax = new Vector2(0.0f, 0.0f);
+            rectTrans.anchorMin = Vector2.zero;
+            rectTrans.anchorMax = Vector2.one;
+
+            rectTrans.offsetMin = Vector2.zero;
+            rectTrans.offsetMax = Vector2.zero;
             rectTrans.pivot = Vector2.up;
-            rectTrans.localPosition = Vector2.zero;
+            rectTrans.anchoredPosition = Vector2.zero;
 
             scroll.content = rectTrans;
 

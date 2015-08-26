@@ -13,6 +13,17 @@ public class AdminPanelTestConnection : MonoBehaviour {
             handler.AddPanelGUI("Game", new AdminPanelTestConnectionGUI());
 
             handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
         };
 	}
 
@@ -33,11 +44,35 @@ public class AdminPanelTestConnection : MonoBehaviour {
                 AdminPanelGUIUtils.CreateLabel(scrollLayout, "TestLabel");
                 AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton4", () => {});
 
+
                 using(var horizontalLayout = new HorizontalLayout(scrollLayout))
                 {
-                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1");
-                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2");
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/4, 1.0f));
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {}, new Vector2(1.0f/4, 1.0f));
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton3", () => {}, new Vector2(1.0f/4, 1.0f));
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton4", () => {});
                 }
+
+                using(var horizontalLayout = new HorizontalLayout(scrollLayout))
+                {
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/3, 1.0f));
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {});
+                }
+
+                using(var horizontalLayout = new HorizontalLayout(scrollLayout))
+                {
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/3, 1.0f));
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {}, new Vector2(1.0f/3, 1.0f));
+                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton3", () => {});
+                }
+
+                using(var horizontalLayout = new HorizontalLayout(scrollLayout))
+                {
+                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
+                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
+                }
+
+
             }
         }
     }
