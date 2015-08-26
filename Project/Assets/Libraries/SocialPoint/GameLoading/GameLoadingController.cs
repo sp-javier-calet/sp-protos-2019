@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Alert;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
 using SocialPoint.GUI;
@@ -34,11 +35,23 @@ namespace SocialPoint.GameLoading
         protected List<LoadingOperation> _operations = new List<LoadingOperation>();
         protected LoadingOperation _loginOperation;
 
-        public event Action AllOperationsLoaded;
+        protected virtual void AllOperationsLoaded()
+        {
+            Debug.Log("all operations loaded");
+        }
 
         override protected void OnLoad()
         {
             base.OnLoad();
+
+            AlertView.ShowDelegate = (GameObject go) => {
+                var viewController = go.GetComponent<UIViewController>();
+                Popups.Push(viewController);
+            };
+            AlertView.HideDelegate = (GameObject go) => {
+                var viewController = go.GetComponent<UIViewController>();
+                viewController.Hide(true);
+            };
 
             if(CrashReporter != null)
             {
@@ -101,6 +114,77 @@ namespace SocialPoint.GameLoading
         void OnLoginError(ErrorType error, string msg, Attr data)
         {
             DebugLog(string.Format("Login Error {0} {1} {2}", error, msg, data));
+            var alert = new AlertView();
+            var genericData = new LoginGenericData(data);
+            switch(error)
+            {
+            case ErrorType.ForceUpgrade:
+                if(genericData.Upgrade.Type == UpgradeType.Forced)
+                {
+                    alert.Title = "Force Upgrade";
+                    alert.Buttons =  new string[]{"UPGRADE"};
+                    alert.Show((int result) => {
+                        Application.OpenURL(genericData.StoreUrl);
+                    }  
+                    );
+                }
+                else //suggested
+                {
+                    alert.Title = "Suggested Upgrade";
+                    alert.Buttons =  new string[]{"UPGRADE", "LATER"};
+                    alert.Show((int result) => {
+                        if(result == 0)
+                        {
+                            Application.OpenURL(genericData.StoreUrl);
+                        }
+                        else
+                        {
+                            Debug.Log("will upgrade later");
+                        }
+                    }  
+                    );
+                }
+                alert.Message = genericData.Upgrade.Message;
+                break;
+
+            case ErrorType.InvalidPrivilegeToken:
+                alert.Title = "Invalid Privilege Token";
+                alert.Buttons = new string[]{ "RECONNECT" };
+                alert.Message = msg;
+                alert.Show((int result) => {
+                    DoLogin();
+                });
+                break;
+
+            case ErrorType.Connection:
+                alert.Title = "Connection Error";
+                alert.Buttons = new string[]{ "RECONNECT" };
+                alert.Message = msg;
+                alert.Show((int result) => {
+                    DoLogin();
+                });
+                break;
+
+            case ErrorType.MaintenanceMode:
+                alert.Title = "Maintenance Mode";
+                alert.Buttons = new string[]{ "RECONNECT" };
+                alert.Message = msg;
+                alert.Show((int result) => {
+                    DoLogin();
+                });
+                break;
+
+            case ErrorType.InvalidSecurityToken:
+                break;
+            default:
+                alert.Buttons = new string[]{ "OK", "CANCEL", "LATER" };
+                alert.Message = msg;
+                alert.Show((int result) => {
+                    Debug.Log(result);
+                }  
+                );
+                break;
+            }
         }
 
         void OnLoginEnd(Error err)
@@ -112,10 +196,12 @@ namespace SocialPoint.GameLoading
             if(!Error.IsNullOrEmpty(err))
             {
                 DebugLog(string.Format("Login End Error {0}", err));
+                /*
                 var popup = Popups.CreateChild<GameLoadingErrorPopupController>();
                 popup.Text = err.Msg;
                 popup.Dismissed += OnErrorPopupDismissed;
                 Popups.Push(popup);
+                */
             }
             else
             {

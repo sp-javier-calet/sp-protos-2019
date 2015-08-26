@@ -875,7 +875,7 @@ namespace SocialPoint.Login
                 GenericData = new LoginGenericData(datadic.Get(AttrKeyGenericData));
 
                 // Check for ForceUpdate
-                if(GenericData.Upgrade.Type == UpgradeType.Forced)
+                if(GenericData.Upgrade.Type == UpgradeType.Forced || GenericData.Upgrade.Type == UpgradeType.Suggested)
                 {
                     var err = new Error(GenericData.Upgrade.Message);
                     NotifyError(ErrorType.ForceUpgrade, err, datadic.Get(AttrKeyGenericData).AsDic);

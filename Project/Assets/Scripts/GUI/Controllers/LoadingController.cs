@@ -58,8 +58,6 @@ public class LoadingController : GameLoadingController
         RegisterLoadingOperation(_parseModelOperation);
 
         Login.NewUserEvent += OnLoginNewUser;
-
-        AllOperationsLoaded += OnAllOperationsLoaded;
     }
 
     void OnLoginNewUser(Attr data)
@@ -69,7 +67,7 @@ public class LoadingController : GameLoadingController
         _parseModelOperation.FinishProgress("game model parsed");
     }
 
-    void OnAllOperationsLoaded()
+    protected override void AllOperationsLoaded()
     {
         ZenUtil.LoadScene(SceneToLoad, (DiContainer container) => container.BindInstance(_model));
     }
