@@ -19,34 +19,48 @@ namespace SocialPoint.AdminPanel
     {
         public RectTransform Parent { get; protected set; }
 
-        protected Vector3 _currentPosition;
+        protected Vector2 _currentPosition;
+        protected Vector2 _aabb;
         private AdminPanelLayout _parentLayout ;
 
-        public Vector3 Position
+        public Vector2 Position
         {
             get { return _currentPosition;}
         }
 
-        public AdminPanelLayout(AdminPanelLayout parentLayout)
+        private AdminPanelLayout()
         {
-            _currentPosition = new Vector3();
+            _currentPosition = new Vector2();
+            _aabb = new Vector2();
+            _parentLayout = null;
+        }
+
+        public AdminPanelLayout(AdminPanelLayout parentLayout)
+            : this()
+        {
             _parentLayout = parentLayout;
             Parent = parentLayout.Parent;
         }
 
         public AdminPanelLayout(RectTransform rectTransform)
+            : this()
         {
-            _currentPosition = new Vector3();
-            _parentLayout = null;
             Parent = rectTransform;
         }
-        
+
         public void Advance(Vector2 offset)
         {
             Advance(offset.x, offset.y);
         }
 
-        public virtual void Advance(float x, float y)
+        public void Advance(float x, float y)
+        {
+            _aabb.x = Mathf.Max(_aabb.x, x);
+            _aabb.y = Mathf.Max(_aabb.y, y);
+            DoAdvance(x, y);
+        }
+
+        public virtual void DoAdvance(float x, float y)
         {
             _currentPosition.x += x;
             _currentPosition.y -= y;
@@ -58,6 +72,19 @@ namespace SocialPoint.AdminPanel
             {
                _parentLayout.Advance(_currentPosition.x, -_currentPosition.y);
             }
+        }
+
+        public void AdjustMinHeight()
+        {
+            Vector2 deltaSize = Parent.sizeDelta;
+            Vector2 size = Parent.rect.size;
+
+            float fitHeight = (deltaSize.y / size.y) * (-_aabb.y) / size.y;
+            Vector2 finalSize = new Vector2(size.x, _aabb.y);
+
+            Parent.sizeDelta = finalSize;
+            _currentPosition.y = -_aabb.y;
+
         }
     }
 
@@ -75,14 +102,27 @@ namespace SocialPoint.AdminPanel
             rectTrans.offsetMax = Vector2.zero;
 
             // Upper edge anchor
+            /*
             rectTrans.anchorMin = new Vector2(parentLayout.Position.x / parentLayout.Parent.rect.width, 
-                                              1 - (parentLayout.Position.y / parentLayout.Parent.rect.height));
+                                              Mathf.Clamp(1 - (parentLayout.Position.y / parentLayout.Parent.rect.height), 0, 1.0f));
             rectTrans.anchorMax = new Vector2(1.0f, 1.0f);
-            rectTrans.sizeDelta = new Vector2(1.0f - (parentLayout.Position.y / parentLayout.Parent.rect.height), 
+            */
+            rectTrans.anchorMin = Vector2.up;
+            rectTrans.anchorMax = Vector2.up;
+
+            rectTrans.sizeDelta = new Vector2(parentLayout.Position.x - parentLayout.Parent.rect.width, //1.0f - (parentLayout.Position.y / parentLayout.Parent.rect.height), 
                                               parentLayout.Parent.rect.height + parentLayout.Position.y);
+            ////////
+            float width = (relativeSize.x >= 1.0)?  parentLayout.Parent.rect.width - parentLayout.Position.x : // remaining space
+                                                    parentLayout.Parent.rect.width * relativeSize.x;
+            float height = (relativeSize.y >= 1.0)? parentLayout.Parent.rect.height + parentLayout.Position.y : // remaining space
+                                                    parentLayout.Parent.rect.height * relativeSize.y;
+            
+            rectTrans.sizeDelta = new Vector2(width, height);
 
             // Position in set through anchor. Problems inside panel
             rectTrans.anchoredPosition = Vector2.zero;//parentLayout.Position;
+            rectTrans.anchoredPosition = parentLayout.Position;
 
             Parent = rectTrans;
             parentLayout.Advance(rectTrans.rect.size);
@@ -93,7 +133,7 @@ namespace SocialPoint.AdminPanel
         {
         }
 
-        public override void Advance(float x, float y)
+        public override void DoAdvance(float x, float y)
         {
             _currentPosition.y -= y;
         }
@@ -113,16 +153,17 @@ namespace SocialPoint.AdminPanel
             rectTrans.offsetMax = Vector2.zero;
 
             // Left edge anchor and fill parent
-            rectTrans.anchorMin = new Vector2(parentLayout.Position.x / parentLayout.Parent.rect.width , 1 - (parentLayout.Position.y / parentLayout.Parent.rect.height));
+//            rectTrans.anchorMin = new Vector2(parentLayout.Position.x / parentLayout.Parent.rect.width , 1 - (parentLayout.Position.y / parentLayout.Parent.rect.height));
+            rectTrans.anchorMin = Vector2.up;
             rectTrans.anchorMax = Vector2.up;
-            rectTrans.sizeDelta = new Vector2(parentLayout.Parent.rect.width - parentLayout.Position.x, parentLayout.Parent.rect.height +- parentLayout.Position.y);
+            rectTrans.sizeDelta = new Vector2(parentLayout.Parent.rect.width - parentLayout.Position.x, parentLayout.Parent.rect.height - parentLayout.Position.y);
 
             // Position in set through anchor
             rectTrans.anchoredPosition = Vector2.zero;//parentLayout.Position;
             rectTrans.anchoredPosition = parentLayout.Position;
 
             Parent = rectTrans;
-            parentLayout.Advance(rectTrans.rect.size);
+            //parentLayout.Advance(rectTrans.rect.size);
         }
 
         public HorizontalLayout(AdminPanelLayout parentLayout) 
@@ -130,7 +171,7 @@ namespace SocialPoint.AdminPanel
         {
         }
 
-        public override void Advance(float x, float y)
+        public override void DoAdvance(float x, float y)
         {
             _currentPosition.x += x;
         }
@@ -153,13 +194,27 @@ namespace SocialPoint.AdminPanel
                                                     1.0f - Mathf.Clamp(parentLayout.Position.y / parentLayout.Parent.rect.height, 0.0f, 1.0f));
             scrollRectTrans.anchorMax = new Vector2(0.95f, 1.0f);
 
+            scrollRectTrans.anchorMax = Vector2.up;
+            scrollRectTrans.anchorMin = Vector2.up;
+
+            scrollRectTrans.offsetMin = new Vector2(parentLayout.Parent.rect.width * 0.05f, scrollRectTrans.offsetMin.y);
+            scrollRectTrans.offsetMax = new Vector2(parentLayout.Parent.rect.width * 0.05f, scrollRectTrans.offsetMax.y);
+            
+            /*
             float width = (relativeSize.x >= 1.0)? (1.0f - (parentLayout.Position.x / parentLayout.Parent.rect.width)) : // remaining space
                                                     parentLayout.Parent.rect.width * relativeSize.x;
             float height = (relativeSize.y >= 1.0)? parentLayout.Parent.rect.height + parentLayout.Position.y : // remaining space
                                                     parentLayout.Parent.rect.height * relativeSize.y;
                                                     
             scrollRectTrans.sizeDelta = new Vector2(width, height);
-
+*/
+            float width = (relativeSize.x >= 1.0)?  parentLayout.Parent.rect.width - parentLayout.Position.x : // remaining space
+                parentLayout.Parent.rect.width * relativeSize.x;
+            float height = (relativeSize.y >= 1.0)? parentLayout.Parent.rect.height + parentLayout.Position.y : // remaining space
+                parentLayout.Parent.rect.height * relativeSize.y;
+            
+            scrollRectTrans.sizeDelta = new Vector2(width, height);
+            
             // Inside panel
             scrollRectTrans.anchoredPosition = parentLayout.Position;
 
@@ -195,7 +250,7 @@ namespace SocialPoint.AdminPanel
         {
         }
 
-        public override void Advance(float x, float y)
+        public override void DoAdvance(float x, float y)
         {
             _currentPosition.y -= y;
         }
