@@ -10,6 +10,7 @@ namespace SocialPoint.AdminPanel
         private Dictionary<string, AdminPanelGUILayout> _categories;
         private Stack<AdminPanelGUILayout> _activePanels;
         private GameObject _canvasObject;
+        private bool _consoleEnabled;
         void Awake()
         {
             _categories = new Dictionary<string, AdminPanelGUILayout>();
@@ -43,8 +44,6 @@ namespace SocialPoint.AdminPanel
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _canvasObject.AddComponent<CanvasScaler>();
             _canvasObject.AddComponent<GraphicRaycaster>();
-            var image = _canvasObject.AddComponent<Image>();
-            image.color = new Color(0.1f, .1f, .1f, .5f);
 
             AdminPanelLayout rootLayout = new AdminPanelLayout(canvasRectTransform);
             using(AdminPanelLayout horizontalLayout = new HorizontalLayout(rootLayout))
@@ -57,28 +56,46 @@ namespace SocialPoint.AdminPanel
                     AdminPanelGUIUtils.CreateLabel(categoriesVerticalLayout, "Admin Panel");
                     AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
 
-                    using(AdminPanelLayout categoriesScrollLayout = new VerticalScrollLayout(categoriesVerticalLayout))
+                    using(AdminPanelLayout categoriesScrollLayout = new VerticalScrollLayout(categoriesVerticalLayout, new Vector2(1.0f, 0.5f)))
                     {
                         AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(this, _categories);
                         rootPanel.OnCreateGUI(categoriesScrollLayout);
                     }
 
+                    AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, 
+                                                    "Console", () => { 
+                                                        _consoleEnabled = !_consoleEnabled; RefreshPanel();
+                                                    });
+
                     AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, "Close", () => { Close(); });
                 }
 
                 // Right side
-                using(AdminPanelLayout rightVerticalLayout = new VerticalLayout(horizontalLayout))
+                if(_activePanels.Count > 0 || _consoleEnabled )
                 {
-                    RectTransform contentPanel = AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 0.6f));
-                    using(AdminPanelLayout contentVerticalLayout = new VerticalLayout(new AdminPanelLayout(contentPanel)))
+                    // Panel/Console sizes
+                    float mainPanelSize = (_consoleEnabled)? 0.6f : 1.0f;
+                    if(_activePanels.Count == 0)
                     {
-                        if(_activePanels.Count > 0 )
-                        {
-                            _activePanels.Peek().OnCreateGUI(contentVerticalLayout);
-                        }
+                        mainPanelSize = 0.0f;
                     }
 
-                    AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 0.4f));
+                    using(AdminPanelLayout rightVerticalLayout = new VerticalLayout(horizontalLayout))
+                    {
+                        if(_activePanels.Count > 0)
+                        {
+                            RectTransform contentPanel = AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, mainPanelSize));
+                            using(VerticalScrollLayout contentVerticalLayout = new VerticalScrollLayout(new AdminPanelLayout(contentPanel)))
+                            {
+                                _activePanels.Peek().OnCreateGUI(contentVerticalLayout);
+                            }
+                        }
+
+                        if(_consoleEnabled)
+                        {
+                            AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 1.0f - mainPanelSize));
+                        }
+                    }
                 }
             }
         }
