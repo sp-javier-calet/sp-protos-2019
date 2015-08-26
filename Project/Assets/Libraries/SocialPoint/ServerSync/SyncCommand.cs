@@ -17,7 +17,7 @@ namespace SocialPoint.ServerSync
         {
         }
         
-        public SyncCommand(Data value) :
+        public SyncCommand(byte[] value) :
             this(DefaultKey, value)
         {
         }
@@ -49,10 +49,10 @@ namespace SocialPoint.ServerSync
             args.SetValue(ValueKey, value);
         }
 
-        public SyncCommand(string key, Data value) : base(TypeName)
+        public SyncCommand(string key, byte[] value) : base(TypeName)
         {
             var args = Init(key);
-            args.SetValue(ValueKey, Convert.ToBase64String(value.Bytes));
+            args.SetValue(ValueKey, Convert.ToBase64String(value));
         }
     }
 

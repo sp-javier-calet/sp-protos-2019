@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
+using SocialPoint.Base;
 using SocialPoint.Network;
 
 namespace SocialPoint.Login
@@ -39,7 +39,7 @@ namespace SocialPoint.Login
             }
         }
 
-        public void Login(LoginDelegate cbk = null, LinkFilter filter = LinkFilter.Auto)
+        public void Login(ErrorDelegate cbk = null, LinkFilter filter = LinkFilter.Auto)
         {
         }
 

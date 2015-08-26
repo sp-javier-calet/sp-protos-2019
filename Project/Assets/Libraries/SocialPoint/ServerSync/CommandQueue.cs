@@ -1,4 +1,5 @@
 
+using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
@@ -216,8 +217,8 @@ namespace SocialPoint.ServerSync
 
         public CommandQueue(MonoBehaviour behaviour, IHttpClient client)
         {
-            SocialPoint.Base.Debug.Assert(behaviour != null);
-            SocialPoint.Base.Debug.Assert(client != null);
+            DebugUtils.Assert(behaviour != null);
+            DebugUtils.Assert(client != null);
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
             _behaviour = behaviour;
             _httpClient = client;
@@ -266,7 +267,7 @@ namespace SocialPoint.ServerSync
             });
         }
 
-        public void Add(Command cmd, PackedCommand.FinishDelegate callback = null)
+        public void Add(Command cmd, ErrorDelegate callback = null)
         {
             if(_currentPacket == null)
             {

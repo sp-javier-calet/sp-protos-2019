@@ -1,10 +1,10 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.IO;
-using System;
 using System.Linq;
-
 using SocialPoint.Base;
 using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
@@ -12,8 +12,6 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Utils;
 using SocialPoint.IO;
-
-using SPDebug = SocialPoint.Base.Debug;
 
 namespace SocialPoint.Crash
 {
@@ -578,7 +576,13 @@ namespace SocialPoint.Crash
                 var exceptionLogs = new AttrList();
                 foreach(var storedKey in storedKeys)
                 {
-                    exceptionLogs.Add(_exceptionStorage.Load(storedKey));
+                    try
+                    {
+                        exceptionLogs.Add(_exceptionStorage.Load(storedKey));
+                    }
+                    catch(SerializationException)
+                    {
+                    }
                 }
                 req.Body = new JsonAttrSerializer().Serialize(exceptionLogs);
                 req.CompressBody = true;

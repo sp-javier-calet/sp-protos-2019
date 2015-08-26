@@ -25,8 +25,6 @@ namespace SocialPoint.Network
         public const string ContentTypeUrlencoded = "application/x-www-form-urlencoded";
         public const string ContentTypeJson = "application/json";
 
-        public static DataCompression DefaultBodyCompression = DataCompression.Gzip;
-
         public class PriorityComparer : Comparer<HttpRequestPriority>
         {
             public override int Compare(HttpRequestPriority first, HttpRequestPriority second)
@@ -46,7 +44,7 @@ namespace SocialPoint.Network
         ;
 
 
-        public DataCompression BodyCompression;
+        public string BodyEncoding;
 
         public HttpRequestPriority Priority;
 
@@ -56,7 +54,7 @@ namespace SocialPoint.Network
 
         public Dictionary<string, string> Headers;
 
-        public Data Body;
+        public byte[] Body;
 
         public float Timeout;
 
@@ -72,7 +70,7 @@ namespace SocialPoint.Network
                 {
                     return false;
                 }
-                if(Body.Length == 0)
+                if(Body == null || Body.Length == 0)
                 {
                     return true;
                 }
@@ -119,13 +117,13 @@ namespace SocialPoint.Network
                 {
                     return null;
                 }
-                return new UrlQueryAttrParser().Parse(new Data(Url.Query)).AsDic;
+                return new UrlQueryAttrParser().ParseString(Url.Query).AsDic;
             }
 
             set
             {
                 var builder = new UriBuilder(Url);
-                builder.Query = new UrlQueryAttrSerializer().Serialize(value).ToString();
+                builder.Query = new UrlQueryAttrSerializer().SerializeString(value);
                 Url = builder.Uri;
             }
         }
@@ -134,12 +132,23 @@ namespace SocialPoint.Network
         {
             get
             {
+                if(Body == null)
+                {
+                    return null;
+                }
                 return new UrlQueryAttrParser().Parse(Body).AsDic;
             }
             
             set
             {
-                Body = new UrlQueryAttrSerializer().Serialize(value);
+                if(value == null)
+                {
+                    Body = null;
+                }
+                else
+                {
+                    Body = new UrlQueryAttrSerializer().Serialize(value);
+                }
                 if(!HasHeader(ContentTypeHeader))
                 {
                     AddHeader(ContentTypeHeader, ContentTypeUrlencoded);
@@ -161,7 +170,6 @@ namespace SocialPoint.Network
 
         public HttpRequest()
         {
-            BodyCompression = DataCompression.None;
             Priority = HttpRequestPriority.Normal;
             Headers = new Dictionary<string, string>();
             Timeout = 0.0f;
@@ -208,28 +216,26 @@ namespace SocialPoint.Network
             {
                 if(value)
                 {
-                    BodyCompression = DefaultBodyCompression;
+                    BodyEncoding = HttpEncoding.DefaultBodyCompression;
                 }
                 else
                 {
-                    BodyCompression = DataCompression.None;
+                    BodyEncoding = null;
                 }
             }
 
             get
             {
-                return BodyCompression != DataCompression.None;
+                return HttpEncoding.IsCompressed(BodyEncoding);
             }
         }
 
         public void BeforeSend()
         {
-
-            Body = Body.Compress(BodyCompression);
-            var encoding = BodyCompression.ToEncoding();
-            if(!string.IsNullOrEmpty(encoding) && !HasHeader(ContentEncodingHeader))
+            Body = HttpEncoding.Encode(Body, BodyEncoding);
+            if(!string.IsNullOrEmpty(BodyEncoding) && !HasHeader(ContentEncodingHeader))
             {
-                AddHeader(ContentEncodingHeader, encoding);
+                AddHeader(ContentEncodingHeader, BodyEncoding);
             }
             if(Timeout == 0.0f)
             {
@@ -247,7 +253,7 @@ namespace SocialPoint.Network
                     parts = new List<string>();
                 }
 
-                foreach(var part in DataCompressionExtension.Encodings)
+                foreach(var part in HttpEncoding.CompressedEncodings)
                 {
                     if(value)
                     {
@@ -283,7 +289,7 @@ namespace SocialPoint.Network
                 {
                     return false;
                 }
-                foreach(var part in DataCompressionExtension.Encodings)
+                foreach(var part in HttpEncoding.CompressedEncodings)
                 {
                     if(parts.Contains(part))
                     {
@@ -312,6 +318,10 @@ namespace SocialPoint.Network
         public void AddParam(string key, Attr value)
         {
             var parms = Params;
+            if(parms == null)
+            {
+                parms = new AttrDic();
+            }
             parms[key] = value;
             Params = parms;
         }
@@ -319,25 +329,51 @@ namespace SocialPoint.Network
         public void AddParam(string key, string value)
         {
             var parms = Params;
+            if(parms == null)
+            {
+                parms = new AttrDic();
+            }
             parms.SetValue(key, value);
             Params = parms;
         }
 
         public bool HasParam(string key)
         {
-            return Params.ContainsKey(key);
+            var parms = Params;
+            if(parms == null)
+            {
+                return false;
+            }
+            return parms.ContainsKey(key);
+        }
+
+        public void RemoveParam(string key)
+        {
+            var parms = Params;
+            if(parms != null)
+            {
+                parms.Remove(key);
+                Params = parms;
+            }
         }
 
         public void RemoveQueryParam(string key)
         {
             var parms = QueryParams;
-            parms.Remove(key);
-            QueryParams = parms;
+            if(parms != null)
+            {
+                parms.Remove(key);
+                QueryParams = parms;
+            }
         }
         
         public void AddQueryParam(string key, Attr value)
         {
             var parms = QueryParams;
+            if(parms == null)
+            {
+                parms = new AttrDic();
+            }
             parms[key] = value;
             QueryParams = parms;
         }
@@ -345,46 +381,64 @@ namespace SocialPoint.Network
         public void AddQueryParam(string key, string value)
         {
             var parms = QueryParams;
+            if(parms == null)
+            {
+                parms = new AttrDic();
+            }
             parms.SetValue(key, value);
             QueryParams = parms;
         }
         
         public bool HasQueryParam(string key)
         {
-            return QueryParams.ContainsKey(key);
-        }
-        
-        public void RemoveParam(string key)
-        {
             var parms = QueryParams;
-            parms.Remove(key);
-            QueryParams = parms;
+            if(parms == null)
+            {
+                return false;
+            }
+            return parms.ContainsKey(key);
         }
 
         public void AddBodyParam(string key, Attr value)
         {
             var parms = BodyParams;
+            if(parms == null)
+            {
+                parms = new AttrDic();
+            }
             parms[key] = value;
-            QueryParams = parms;
+            BodyParams = parms;
         }
         
         public void AddBodyParam(string key, string value)
         {
             var parms = BodyParams;
+            if(parms == null)
+            {
+                parms = new AttrDic();
+            }
             parms.SetValue(key, value);
-            QueryParams = parms;
+            BodyParams = parms;
         }
         
         public bool HasBodyParam(string key)
         {
-            return BodyParams.ContainsKey(key);
+            var parms = BodyParams;
+            if(parms == null)
+            {
+                return false;
+            }
+            return parms.ContainsKey(key);
         }
         
         public void RemoveBodyParam(string key)
         {
             var parms = BodyParams;
-            parms.Remove(key);
-            QueryParams = parms;
+            if(parms != null)
+            {
+                parms.Remove(key);
+                BodyParams = parms;
+            }
         }
 
         const string kHeaderSeparator = ": ";
@@ -451,9 +505,9 @@ namespace SocialPoint.Network
             {
                 hdrs.SetValue(itr.Current.Key, itr.Current.Value);
             }
-            if(Body.Bytes != null)
+            if(Body != null)
             {
-                data.SetValue(AttrKeyBody, Convert.ToBase64String(Body.Bytes));
+                data.SetValue(AttrKeyBody, Convert.ToBase64String(Body));
             }
             data.SetValue(AttrKeyTimeout, Timeout);
             data.SetValue(AttrKeyActivityTimeout, ActivityTimeout);
@@ -478,10 +532,10 @@ namespace SocialPoint.Network
             {
                 AddHeader(header.Key, header.Value.AsValue.ToString());
             }
-            Body = new Data();
+            Body = null;
             if(dataDic.ContainsKey(AttrKeyBody))
             {
-                Body = new Data(Convert.FromBase64String(dataDic.Get(AttrKeyBody).AsValue.ToString()));
+                Body = Convert.FromBase64String(dataDic.Get(AttrKeyBody).AsValue.ToString());
             }
             Timeout = dataDic.Get(AttrKeyTimeout).AsValue.ToInt();
             ActivityTimeout = dataDic.Get(AttrKeyActivityTimeout).AsValue.ToInt();

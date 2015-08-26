@@ -1,6 +1,7 @@
 ﻿
 using NUnit.Framework;
 using SocialPoint.Utils;
+using System.Text;
 using System.Runtime.Serialization;
 
 namespace SocialPoint.Attributes
@@ -15,11 +16,11 @@ namespace SocialPoint.Attributes
     	
             var parser = new JsonAttrParser();
 
-            var dic = parser.Parse(new Data("{}"));
+            var dic = parser.ParseString("{}");
             Assert.IsInstanceOf<AttrDic>(dic);
             Assert.AreEqual(0, (dic as AttrDic).Count);
 
-            var list = parser.Parse(new Data("[]"));
+			var list = parser.Parse(Encoding.UTF8.GetBytes("[]"));
             Assert.IsInstanceOf<AttrList>(list);
             Assert.AreEqual(0, (list as AttrList).Count);
 
@@ -29,20 +30,20 @@ namespace SocialPoint.Attributes
         [ExpectedException(typeof(SerializationException))]
         public void InvalidTest () {
             var parser = new JsonAttrParser();
-            parser.Parse(new Data("{{"));
+            parser.ParseString("{{");
         }
 
         [Test]
         [ExpectedException(typeof(SerializationException))]
         public void InvalidStringValueTest () {
             var parser = new JsonAttrParser();
-            parser.Parse(new Data("\"a\\\"a\"bb\""));
+			parser.ParseString("\"a\\\"a\"bb\"");
         }
 
         [Test]
         public void ValidStringValueTest () {
             var parser = new JsonAttrParser();
-            var val = parser.Parse(new Data("\"a\\\"a\\\"bb\""));
+			var val = parser.ParseString("\"a\\\"a\\\"bb\"");
             Assert.IsInstanceOf<AttrValue>(val);
         }
 
@@ -51,15 +52,15 @@ namespace SocialPoint.Attributes
 
             var parser = new JsonAttrParser();
 
-            var numval = parser.Parse(new Data("4444"));
+			var numval = parser.ParseString("4444");
             Assert.IsInstanceOf<AttrInt>(numval);
             Assert.AreEqual(4444, (numval as AttrValue).ToInt());
             
-            var fracval = parser.Parse(new Data("444.4444"));
+			var fracval = parser.ParseString("444.4444");
             Assert.IsInstanceOf<AttrDouble>(fracval);
             Assert.That(444.4444, Is.EqualTo((fracval as AttrValue).ToDouble()).Within(0.00001));
 
-            var strval = parser.Parse(new Data("\"44\\\"44\""));
+			var strval = parser.ParseString("\"44\\\"44\"");
             Assert.IsInstanceOf<AttrString>(strval);
             Assert.AreEqual("44\"44", (strval as AttrValue).ToString());
 

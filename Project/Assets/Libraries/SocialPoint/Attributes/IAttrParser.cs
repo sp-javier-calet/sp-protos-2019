@@ -1,10 +1,9 @@
 ﻿
-using SocialPoint.Utils;
-
 namespace SocialPoint.Attributes
 {
     public interface IAttrParser
     {
-        Attr Parse(Data data);
+        Attr Parse(byte[] data);
+        Attr ParseString(string data);
     }
 }

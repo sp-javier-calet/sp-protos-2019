@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Text;
 using System;
 
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Network
@@ -46,11 +47,11 @@ namespace SocialPoint.Network
 
         public Dictionary<string, string> Headers { get; set; }
 
-        public Data OriginalBody;
-        private Data _body;
+        public byte[] OriginalBody;
+        private byte[] _body;
         private bool _bodyLoaded = false;
 
-        public Data Body
+        public byte[] Body
         {
             get
             {
@@ -63,16 +64,7 @@ namespace SocialPoint.Network
                     else
                     {
                         var encoding = Headers[ContentEncodingHeader];
-                        var compression = DataCompressionExtension.FromEncoding(encoding);
-                        if(compression == DataCompression.None)
-                        {
-                            throw new NotSupportedException(
-                                string.Format("Content encoding '{0}' not supported", encoding));
-                        }
-                        else
-                        {
-                            _body = OriginalBody.Uncompress(compression);
-                        }
+                        _body = HttpEncoding.Decode(OriginalBody, encoding);
                     }
                     _bodyLoaded = true;
                 }
@@ -172,7 +164,7 @@ namespace SocialPoint.Network
 
             if(Body.Length > 0)
             {
-                str.Append(Body.ToString(0, 100));
+                str.Append(new ArraySegment<byte>(Body, 0, 100));
                 str.Append(kNewline);
             }
 

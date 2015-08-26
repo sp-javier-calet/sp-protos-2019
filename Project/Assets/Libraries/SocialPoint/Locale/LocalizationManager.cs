@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
+using System.Runtime.Serialization;
 using SocialPoint.Hardware;
 using SocialPoint.Network;
 using SocialPoint.Attributes;
@@ -273,6 +273,8 @@ namespace SocialPoint.Locale
                 {
                     var val = pair.Value.Get(key);
                     val = val.Replace("\"", "\\\"");
+                    val = val.Replace("\n", "\\\n");
+                    val = val.Replace("\t", "\\\t");
                     builder.Append("\"" + val + "\"");
                     builder.Append(CsvSeparator);
                 }
@@ -297,8 +299,19 @@ namespace SocialPoint.Locale
                 return false;
             }
             locale.Clear();
-            var data = new Data(FileUtils.ReadAllText(file));
-            var attr = new JsonAttrParser().Parse(data).AssertList;
+            var data = FileUtils.ReadAllBytes(file);
+            AttrList attr = null;
+            try
+            {
+                attr = new JsonAttrParser().Parse(data).AssertList;
+            }
+            catch(SerializationException)
+            {
+            }
+            if(attr == null)
+            {
+                return false;
+            }
             foreach(var elm in attr)
             {
                 foreach(var entry in elm.AssertDic)
@@ -369,8 +382,8 @@ namespace SocialPoint.Locale
             {
                 newEtag = newEtag.Replace("\"", "");
             }
-            var json = resp.Body.ToString();
-            if(string.IsNullOrEmpty(json) || string.IsNullOrEmpty(newEtag))
+            var json = resp.Body;
+            if(json == null || json.Length == 0 || string.IsNullOrEmpty(newEtag))
             {
                 if(finish != null)
                 {
@@ -381,7 +394,7 @@ namespace SocialPoint.Locale
             var prefix = GetLocalizationPathPrefix(lang);
             string newLocalPath = prefix + newEtag + JsonExtension;
             string oldLocalPath = prefix + oldEtag + JsonExtension;
-            FileUtils.WriteAllText(newLocalPath, json);
+            FileUtils.WriteAllBytes(newLocalPath, json);
 
             if(!string.IsNullOrEmpty(oldEtag) && oldEtag != newLocalPath && FileUtils.Exists(oldLocalPath))
             {

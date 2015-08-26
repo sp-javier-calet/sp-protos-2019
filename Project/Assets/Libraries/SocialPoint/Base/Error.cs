@@ -1,4 +1,4 @@
-namespace SocialPoint.Utils
+namespace SocialPoint.Base
 {
     public class Error
     {
@@ -9,7 +9,7 @@ namespace SocialPoint.Utils
         public Error()
         {
             Code = 0;
-            Msg = "";
+            Msg = string.Empty;
         }
 
         public Error(int code) : this()

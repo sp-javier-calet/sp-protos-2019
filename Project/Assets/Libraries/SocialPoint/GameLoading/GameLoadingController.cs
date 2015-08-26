@@ -6,7 +6,7 @@ using SocialPoint.Crash;
 using SocialPoint.GUI;
 using SocialPoint.Locale;
 using SocialPoint.Login;
-using SocialPoint.Utils;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.GameLoading

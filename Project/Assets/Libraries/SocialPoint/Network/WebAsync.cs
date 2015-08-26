@@ -64,7 +64,7 @@ namespace SocialPoint.Network
             }
             catch(WebException webException)
             {
-                SocialPoint.Base.Debug.Log("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
+                Debug.Log("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
                 ErrorMessage = webException.Message;
             }
         }
@@ -115,7 +115,7 @@ namespace SocialPoint.Network
             }
             catch(Exception ex)
             {
-                SocialPoint.Base.Debug.Log("[WebAsync] Error message while readingResponse '" + webRequest.ResponseUri.ToString() + "': " + ex.Message);
+                Debug.Log("[WebAsync] Error message while readingResponse '" + webRequest.ResponseUri.ToString() + "': " + ex.Message);
                 _readingResponse = false;
             }
         }

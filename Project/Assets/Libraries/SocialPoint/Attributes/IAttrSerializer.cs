@@ -1,11 +1,9 @@
 
-
-using SocialPoint.Utils;
-
 namespace SocialPoint.Attributes
 {
     public interface IAttrSerializer
     {
-        Data Serialize(Attr attr);  
+        byte[] Serialize(Attr attr);  
+        string SerializeString(Attr attr);
     }
 }

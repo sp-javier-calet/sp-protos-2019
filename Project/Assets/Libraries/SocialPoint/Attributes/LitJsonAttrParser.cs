@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Text;
 using System.Runtime.Serialization;
 using LitJson;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
@@ -97,32 +97,37 @@ namespace SocialPoint.Attributes
         static readonly string kQuoteString = "\"";
         static readonly string kEscapeString = "\\";
 
-        public Attr Parse(Data data)
+        public Attr Parse(byte[] data)
         {
-            var datastr = data.ToString().Trim();
+            return ParseString(Encoding.UTF8.GetString(data));
+        }
 
-            if(datastr.StartsWith(kQuoteString) && datastr.EndsWith(kQuoteString) && datastr.Length >= 2 * kQuoteString.Length)
+        public Attr ParseString(string data)
+        {
+            data = data.Trim();
+
+            if(data.StartsWith(kQuoteString) && data.EndsWith(kQuoteString) && data.Length >= 2 * kQuoteString.Length)
             {
-                datastr = datastr.Substring(kQuoteString.Length, datastr.Length - 2 * kQuoteString.Length);
+                data = data.Substring(kQuoteString.Length, data.Length - 2 * kQuoteString.Length);
                 var i = 0;
                 while(true)
                 {
-                    i = datastr.IndexOf(kQuoteString, i+1);
+                    i = data.IndexOf(kQuoteString, i+1);
                     if(i == -1)
                     {
                         break;
                     }
-                    if(datastr.Substring(i-kEscapeString.Length, kEscapeString.Length) != kEscapeString)
+                    if(data.Substring(i-kEscapeString.Length, kEscapeString.Length) != kEscapeString)
                     {
                         throw new SerializationException("Invalid string value.");
                     }
                 }
-                datastr = datastr.Replace(kEscapeString, string.Empty);
-                return new AttrString(datastr);
+                data = data.Replace(kEscapeString, string.Empty);
+                return new AttrString(data);
             }
             try
             {
-                var reader = new JsonReader(datastr);
+                var reader = new JsonReader(data);
                 if(reader.Read())
                 {
                     return Parse(reader);
@@ -133,31 +138,31 @@ namespace SocialPoint.Attributes
             }
         
             bool boolval;
-            if(bool.TryParse(datastr, out boolval))
+            if(bool.TryParse(data, out boolval))
             {
                 return new AttrBool(boolval);
             }
             int intval;
-            if(int.TryParse(datastr, out intval))
+            if(int.TryParse(data, out intval))
             {
                 return new AttrInt(intval);
             }
             long longval;
-            if(long.TryParse(datastr, out longval))
+            if(long.TryParse(data, out longval))
             {
                 return new AttrLong(longval);
             }
             float floatval;
-            if(float.TryParse(datastr, out floatval))
+            if(float.TryParse(data, out floatval))
             {
                 return new AttrDouble(floatval);
             }
             double doubleval;
-            if(double.TryParse(datastr, out doubleval))
+            if(double.TryParse(data, out doubleval))
             {
                 return new AttrDouble(doubleval);
             }
-            if(datastr.ToLower() == kNullString || datastr.Length == 0)
+            if(data.ToLower() == kNullString || data.Length == 0)
             {
                 return new AttrEmpty();
             }

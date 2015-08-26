@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using SocialPoint.Network;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Network
@@ -83,7 +84,7 @@ namespace SocialPoint.Network
             {
                 r.Error = new Error(_respCode, _error);
             }
-            r.OriginalBody = new Data(_body);
+            r.OriginalBody = _body;
             r.DownloadSize = _downloadSize;
             r.DownloadSpeed = _downloadSpeed;
 
@@ -139,8 +140,8 @@ namespace SocialPoint.Network
             data.ActivityTimeout = (int)request.ActivityTimeout;
             data.Proxy = request.Proxy;
             data.Headers = request.ToStringHeaders();
-            data.Body = request.Body.Bytes;
-            data.BodyLength = request.Body.Bytes != null ? request.Body.Bytes.Length : 0;
+            data.Body = request.Body;
+            data.BodyLength = request.Body != null ? request.Body.Length : 0;
             return data;
         }
 

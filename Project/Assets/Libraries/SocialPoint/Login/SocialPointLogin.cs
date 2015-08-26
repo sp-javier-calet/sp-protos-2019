@@ -366,12 +366,11 @@ namespace SocialPoint.Login
             // Ensure the URL always contains a trailing slash
             _baseUrl = baseUrl.EndsWith(UriSeparator.ToString()) ? baseUrl : baseUrl + UriSeparator;
         }
-
-        
+                
         [System.Diagnostics.Conditional("DEBUG_SPGUI")]
         void DebugLog(string msg)
         {
-            Debug.Log(string.Format("SocialPointLogin {0}", msg));
+            DebugUtils.Log(string.Format("SocialPointLogin {0}", msg));
         }
 
         private void Init()
@@ -414,9 +413,9 @@ namespace SocialPoint.Login
 
         void AddLinkInfo(LinkInfo info)
         {
-            Debug.Assert(info != null);
+            DebugUtils.Assert(info != null);
             info.Link.AddStateChangeDelegate((LinkState state) => OnLinkStateChanged(info, state));
-            Debug.Assert(_links.FirstOrDefault(item => item == info) == null);
+            DebugUtils.Assert(_links.FirstOrDefault(item => item == info) == null);
             _links.Add(info);
         }
 
@@ -518,7 +517,7 @@ namespace SocialPoint.Login
             return url;
         }
 
-        void DoLogin(LoginDelegate cbk, uint retry, LinkFilter filter)
+        void DoLogin(ErrorDelegate cbk, uint retry, LinkFilter filter)
         {
             _pendingLinkConfirms.Clear();
             if(retry > MaxLoginRetries)
@@ -541,7 +540,7 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnLogin(HttpResponse resp, LoginDelegate cbk, uint retry, LinkFilter filter)
+        void OnLogin(HttpResponse resp, ErrorDelegate cbk, uint retry, LinkFilter filter)
         {
             DebugLog("login\n----\n" + resp.ToString() + "----\n");
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
@@ -564,7 +563,7 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnLoginEnd(Error err, LoginDelegate cbk)
+        void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
             {
@@ -585,9 +584,9 @@ namespace SocialPoint.Login
             }
         }
         
-        void OnLinkLogin(LinkInfo info, Error err, LoginDelegate cbk, LinkFilter filter)
+        void OnLinkLogin(LinkInfo info, Error err, ErrorDelegate cbk, LinkFilter filter)
         {
-            Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(!Error.IsNullOrEmpty(err))
             {
                 var data = new AttrDic();
@@ -628,7 +627,7 @@ namespace SocialPoint.Login
             return _links[0];
         }
 
-        void NextLinkLogin(LinkInfo info, LoginDelegate cbk, LinkFilter filter)
+        void NextLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkFilter filter)
         {    
             
             info = GetNextLinkInfo(info, filter);
@@ -642,15 +641,15 @@ namespace SocialPoint.Login
             }
         }
 
-        void DoLinkLogin(LinkInfo info, LoginDelegate cbk, LinkFilter filter)
+        void DoLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkFilter filter)
         {
-            Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             info.Link.Login((err) => OnLinkLogin(info, err, cbk, filter));
         }
 
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
-            Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             
             if(state == LinkState.Disconnected)
             {
@@ -689,7 +688,7 @@ namespace SocialPoint.Login
 
         void OnNewLinkResponse(LinkInfo info, HttpResponse resp)
         {
-            Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             DebugLog("link\n----\n" + resp.ToString() + "----\n");
             var type = LinkConfirmType.None;
             switch(resp.StatusCode)
@@ -750,7 +749,7 @@ namespace SocialPoint.Login
             _pendingLinkConfirms.Add(info);
             if(!wait)
             {
-                Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+                DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
                 if(ConfirmLinkEvent != null)
                 {
                     ConfirmLinkEvent(info.Link, type, data, (LinkConfirmDecision decision) => OnConfirmLinkNotifyBack(info, type, linkToken, decision));
@@ -764,7 +763,7 @@ namespace SocialPoint.Login
 
         void OnConfirmLinkNotifyBack(LinkInfo info, LinkConfirmType type, string linkToken, LinkConfirmDecision decision)
         {
-            Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(info.Token == linkToken)
             {
                 ConfirmLink(linkToken, decision, (err) => OnConfirmLinkNotifyBackEnd(info));
@@ -914,7 +913,7 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnLinkConfirmResponse(LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, LoginDelegate cbk)
+        void OnLinkConfirmResponse(LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
             var err = HandleResponseErrors(resp, ErrorType.Link);
             bool restartNeeded = false;
@@ -1012,7 +1011,7 @@ namespace SocialPoint.Login
         
         void NotifyNewLink(LinkInfo info, bool beforeFriends)
         {   
-            Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(beforeFriends)
             {
                 NewLinkBeforeFriendsEvent(info.Link);
@@ -1086,7 +1085,7 @@ namespace SocialPoint.Login
             }
         }
         
-        void OnAppRequestResponse(HttpResponse resp, AppRequest req, LoginDelegate cbk)
+        void OnAppRequestResponse(HttpResponse resp, AppRequest req, ErrorDelegate cbk)
         {
             DebugLog("app req\n----\n" + resp.ToString() + "---\n");
             var err = HandleResponseErrors(resp, ErrorType.AppRequest);
@@ -1098,7 +1097,7 @@ namespace SocialPoint.Login
             OnAppRequestEnd(req, err, cbk);
         }
 
-        void OnAppRequestLinkNotified(LinkInfo info, AppRequest req, Error err, LoginDelegate cbk)
+        void OnAppRequestLinkNotified(LinkInfo info, AppRequest req, Error err, ErrorDelegate cbk)
         {
             DebugLog("app req\n----\n" + req.ToString() + "---\n");
             if(Error.IsNullOrEmpty(err))
@@ -1113,7 +1112,7 @@ namespace SocialPoint.Login
             OnAppRequestEnd(req, err, cbk);
         }
 
-        void OnAppRequestEnd(AppRequest req, Error err, LoginDelegate cbk)
+        void OnAppRequestEnd(AppRequest req, Error err, ErrorDelegate cbk)
         {
             if(cbk != null)
             {
@@ -1124,7 +1123,7 @@ namespace SocialPoint.Login
         void UpdateLinkData(LinkInfo info, bool disableUpdatingFriends)
         {
 
-            Debug.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             info.Link.UpdateLocalUser(_user);
 
             NotifyNewLink(info, true);
@@ -1520,7 +1519,7 @@ namespace SocialPoint.Login
          * @param callback to call when the login is finished
          * @param which links to also login, by default will login all auto links
          */
-        public void Login(LoginDelegate cbk = null, LinkFilter filter = LinkFilter.Auto)
+        public void Login(ErrorDelegate cbk = null, LinkFilter filter = LinkFilter.Auto)
         {
             if(TrackEvent != null)
             {
@@ -1532,7 +1531,7 @@ namespace SocialPoint.Login
         /**
          * Do the login of the links without autologin
          */
-        public void LoginLinks(LoginDelegate cbk = null)
+        public void LoginLinks(ErrorDelegate cbk = null)
         {
             NextLinkLogin(null, cbk, LinkFilter.Normal);
         }
@@ -1540,10 +1539,10 @@ namespace SocialPoint.Login
         /**
          * Login a single link
          */
-        public void LoginLink(ILink link, LoginDelegate cbk = null)
+        public void LoginLink(ILink link, ErrorDelegate cbk = null)
         {
             LinkInfo resultLinkInfo = _links.FirstOrDefault(item => item.Link == link);
-            Debug.Assert(resultLinkInfo != null);
+            DebugUtils.Assert(resultLinkInfo != null);
             DoLinkLogin(resultLinkInfo, cbk, LinkFilter.None);
         }
         
@@ -1580,7 +1579,7 @@ namespace SocialPoint.Login
          * @param result true if the link is confirmed, false if cancelled
          * @param callback called when the link is finished
          */
-        public void ConfirmLink(string linkToken, LinkConfirmDecision decision, LoginDelegate cbk = null)
+        public void ConfirmLink(string linkToken, LinkConfirmDecision decision, ErrorDelegate cbk = null)
         {
             LinkInfo linkInfo = _links.FirstOrDefault(item => item.Token == linkToken);
             var req = new HttpRequest();
@@ -1815,7 +1814,7 @@ namespace SocialPoint.Login
          * @param the request to send (will be deleted when finished)
          * @param callback when the request was sent
          */
-        public void SendAppRequest(AppRequest req, LoginDelegate cbk = null)
+        public void SendAppRequest(AppRequest req, ErrorDelegate cbk = null)
         {
             var httpReq = new HttpRequest();
             SetupHttpRequest(httpReq, AppRequestsUri);
@@ -1916,7 +1915,7 @@ namespace SocialPoint.Login
             }
         }
 
-        public void DeleteAppRequest(List<string> ids, LoginDelegate cbk)
+        public void DeleteAppRequest(List<string> ids, ErrorDelegate cbk)
         {
             var req = new HttpRequest();
             SetupHttpRequest(req, AppRequestsUri);
@@ -1925,7 +1924,7 @@ namespace SocialPoint.Login
             _httpClient.Send(req, (resp) => OnDeleteAppRequestResponse(resp, cbk));
         }
 
-        public void OnDeleteAppRequestResponse(HttpResponse resp, LoginDelegate cbk)
+        public void OnDeleteAppRequestResponse(HttpResponse resp, ErrorDelegate cbk)
         {
             var err = HandleResponseErrors(resp, ErrorType.ReceiveAppRequests);
             if(cbk!= null)

@@ -6,6 +6,7 @@ using UnityEngine;
 
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
 
 namespace SocialPoint.ServerSync
 {
@@ -70,7 +71,7 @@ namespace SocialPoint.ServerSync
         public void Add_cmd_finishDelegate()
         {
             Start();
-            CommandQueue.Add(Substitute.For<Command>("Test Command",null,false,true), Substitute.For<PackedCommand.FinishDelegate>());
+            CommandQueue.Add(Substitute.For<Command>("Test Command",null,false,true), Substitute.For<ErrorDelegate>());
             //todo: check number of packages?
         }
 

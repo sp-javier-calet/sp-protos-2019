@@ -6,6 +6,7 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.ServerSync;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
 
 namespace SocialPoint.Events
 {
@@ -67,7 +68,7 @@ namespace SocialPoint.Events
             Start();
             SocialPointEventTracker.GetSessionId().Returns("testID");
             SocialPointEventTracker.TrackEvent("Test event");
-            SocialPointEventTracker.CommandQueue.Received(1).Add(Arg.Any<Command>(),Arg.Any<PackedCommand.FinishDelegate>());
+            SocialPointEventTracker.CommandQueue.Received(1).Add(Arg.Any<Command>(),Arg.Any<ErrorDelegate>());
         }
 
         [Test]

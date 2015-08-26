@@ -1,5 +1,4 @@
 using UnityEngine;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
@@ -20,7 +19,7 @@ namespace SocialPoint.Attributes
                 key = Prefix + key;
             }
             string str = PlayerPrefs.GetString(key);
-            return Parser.Parse(new Data(str));
+            return Parser.ParseString(str);
         }
 
         public bool Has(string key)
@@ -34,12 +33,12 @@ namespace SocialPoint.Attributes
 
         public void Save(string key, Attr attr)
         {
-            Data data = Serializer.Serialize(attr);
+            var data = Serializer.SerializeString(attr);
             if(Prefix != null)
             {
                 key = Prefix + key;
             }
-            PlayerPrefs.SetString(key, data.String);
+            PlayerPrefs.SetString(key, data);
             PlayerPrefs.Save();
         }
 
