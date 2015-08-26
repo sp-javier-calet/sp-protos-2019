@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Runtime.Serialization;
+using SocialPoint.Base;
 using LitJson;
 
 namespace SocialPoint.Attributes
@@ -133,8 +134,9 @@ namespace SocialPoint.Attributes
                     return Parse(reader);
                 }
             }
-            catch(JsonException)
+            catch(JsonException e)
             {
+                throw new SerializationException(e.Message);
             }
         
             bool boolval;

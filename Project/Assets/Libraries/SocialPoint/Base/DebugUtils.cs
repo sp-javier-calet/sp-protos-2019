@@ -17,7 +17,7 @@ namespace SocialPoint.Base
     public interface IDebugLogger
     {
         void Log(string message);
-        void LogWarning(object message);
+        void LogWarning(string message);
         void LogError(string message);
         void LogException(Exception exception);
     }
@@ -30,7 +30,7 @@ namespace SocialPoint.Base
             UnityEngine.Debug.Log(message);
         }
         
-        public void LogWarning(object message)
+        public void LogWarning(string message)
         {
             UnityEngine.Debug.LogWarning(message);
         }
@@ -72,7 +72,9 @@ namespace SocialPoint.Base
                     sb.AppendLine(obj.ToString());
                 }
             }
+            #if UNITY
             UnityEngine.Debug.Log(sb.ToString());
+            #endif
         }
 
         [Conditional("DEBUG")]

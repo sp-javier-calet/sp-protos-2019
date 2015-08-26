@@ -205,7 +205,6 @@ namespace SocialPoint.Attributes
 
     public class AttrEmpty : Attr
     {
-        private static AttrEmpty instance;
 
         public AttrEmpty() : base(AttrType.EMPTY)
         {
