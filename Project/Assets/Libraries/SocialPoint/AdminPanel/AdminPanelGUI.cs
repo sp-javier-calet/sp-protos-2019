@@ -74,7 +74,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public void AdjustMinHeight()
+        protected void AdjustMinHeight()
         {
             Vector2 deltaSize = Parent.sizeDelta;
             Vector2 size = Parent.rect.size;
@@ -174,8 +174,14 @@ namespace SocialPoint.AdminPanel
         {
             _currentPosition.x += x;
         }
-    }
 
+        public override void Dispose()
+        {
+            AdjustMinHeight();
+            base.Dispose();
+        }
+    }
+    
     public class VerticalScrollLayout : AdminPanelLayout
     {
         public VerticalScrollLayout(AdminPanelLayout parentLayout, Vector2 relativeSize) : base(parentLayout)
@@ -205,7 +211,7 @@ namespace SocialPoint.AdminPanel
                                                     
             scrollRectTrans.sizeDelta = new Vector2(width, height);
 */
-            float width = (relativeSize.x >= 1.0)?  parentLayout.Parent.rect.width - parentLayout.Position.x : // remaining space
+            float width = (relativeSize.x >= 1.0)?  0.9f * parentLayout.Parent.rect.width - parentLayout.Position.x : // remaining space
                 parentLayout.Parent.rect.width * relativeSize.x;
             float height = (relativeSize.y >= 1.0)? Mathf.Max(parentLayout.Parent.rect.height + parentLayout.Position.y, 0) : // remaining space
                 parentLayout.Parent.rect.height * relativeSize.y;
@@ -213,7 +219,10 @@ namespace SocialPoint.AdminPanel
             scrollRectTrans.sizeDelta = new Vector2(width, height);
             
             // Inside panel
-            scrollRectTrans.anchoredPosition = parentLayout.Position;
+            Vector2 margin = new Vector2(parentLayout.Parent.rect.width * 0.05f, -5.0f); // FIXME MARGINS
+
+            scrollRectTrans.anchoredPosition = parentLayout.Position + margin;
+            parentLayout.Advance(margin);
 
             Image image = scrollObject.AddComponent<Image>();
             image.color = new Color(.2f, .2f, .2f, .5f);
@@ -243,6 +252,9 @@ namespace SocialPoint.AdminPanel
 
             Parent = rectTrans;
             parentLayout.Advance(scrollRectTrans.rect.size);
+
+            //Initial Margin
+            Advance(0, 5.0f);
         }
 
         public VerticalScrollLayout(AdminPanelLayout parentLayout) 

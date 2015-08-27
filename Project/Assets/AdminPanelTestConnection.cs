@@ -31,7 +31,6 @@ public class AdminPanelTestConnection : MonoBehaviour {
             {
                 AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
                 AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
-                horizontalLayout.AdjustMinHeight();
             }
 
             AdminPanelGUIUtils.CreateButton(layout, "TestButton", () => {});
@@ -62,21 +61,18 @@ public class AdminPanelTestConnection : MonoBehaviour {
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {}, new Vector2(1.0f/4, 1.0f));
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton3", () => {}, new Vector2(1.0f/4, 1.0f));
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton4", () => {});
-                    horizontalLayout.AdjustMinHeight();
                 }
 
                 using(var horizontalLayout = new HorizontalLayout(scrollLayout))
                 {
                     AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
                     AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
-                    horizontalLayout.AdjustMinHeight();
                 }
                 
                 using(var horizontalLayout = new HorizontalLayout(scrollLayout, new Vector2(1.0f, 0.0f)))
                 {
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/3, 1.0f));
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {});
-                    horizontalLayout.AdjustMinHeight();
                 }
 
                 using(var horizontalLayout = new HorizontalLayout(scrollLayout))
@@ -84,14 +80,12 @@ public class AdminPanelTestConnection : MonoBehaviour {
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/3, 1.0f));
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {}, new Vector2(1.0f/3, 1.0f));
                     AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton3", () => {});
-                    horizontalLayout.AdjustMinHeight();
                 }
 
                 using(var horizontalLayout = new HorizontalLayout(scrollLayout))
                 {
                     AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
                     AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
-                    horizontalLayout.AdjustMinHeight();
                 }
 
             }
