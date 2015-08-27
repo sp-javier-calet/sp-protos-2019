@@ -72,8 +72,8 @@ public class AdminPanelTestConnection : MonoBehaviour {
                 
                 using(var horizontalLayout = new HorizontalLayout(scrollLayout, new Vector2(1.0f, 0.0f)))
                 {
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/3, 1.0f));
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {});
+                    AdminPanelGUIUtils.CreateToggleButton(horizontalLayout, "LabeledToogle1", false, (value) => {}, new Vector2(0.5f, 1.0f));
+                    AdminPanelGUIUtils.CreateToggleButton(horizontalLayout, "LabeledToogle2", true, (value) => {});
                 }
 
                 using(var horizontalLayout = new HorizontalLayout(scrollLayout))

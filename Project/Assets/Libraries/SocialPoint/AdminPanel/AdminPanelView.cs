@@ -55,9 +55,9 @@ namespace SocialPoint.AdminPanel
                 {
                     AdminPanelGUIUtils.CreateLabel(categoriesVerticalLayout, "Admin Panel");
                     AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
-                    AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, 
-                                                    "Console", () => { 
-                        _consoleEnabled = !_consoleEnabled; RefreshPanel();
+                    AdminPanelGUIUtils.CreateToggleButton(categoriesVerticalLayout, "Console", _consoleEnabled, (value) => { 
+                        _consoleEnabled = value; 
+                        RefreshPanel();
                     });
 
                     AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
