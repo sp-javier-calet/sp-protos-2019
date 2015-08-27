@@ -9,12 +9,24 @@ namespace SocialPoint.AdminPanel
     {
         private Dictionary<string, AdminPanelGUILayout> _categories;
         private Stack<AdminPanelGUILayout> _activePanels;
+        private AdminPanelConsole _console;
+        private Text _consoleText;
         private GameObject _canvasObject;
         private bool _consoleEnabled;
         void Awake()
         {
             _categories = new Dictionary<string, AdminPanelGUILayout>();
             _activePanels = new Stack<AdminPanelGUILayout>();
+
+            // Move and set external console
+            _console = new AdminPanelConsole();
+            AdminPanelGUI.AdminPanelConsole = _console;
+            _console.OnContentChanged += () => {
+                if(_consoleText != null)
+                {
+                    _consoleText.text = _console.Content;
+                }
+            };
         }
 
         bool inflated = false;
@@ -25,7 +37,7 @@ namespace SocialPoint.AdminPanel
                 inflated = true;
                 // Load Layout data through handler
                 _categories = new Dictionary<string, AdminPanelGUILayout>();
-                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories));
+                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _console));
                 InflateGUI();
             }
 
@@ -115,19 +127,14 @@ namespace SocialPoint.AdminPanel
                                     rectTransform.anchoredPosition = contentVerticalLayout.Position + margin;
 
                                     var text = textAreaObject.AddComponent<Text>();
-
-                                    text.text = "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
-                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
-                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
-                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
-                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
-
+                                    text.text = _console.Content;
                                     text.font = Resources.FindObjectsOfTypeAll<Font>()[0];
                                     text.fontSize = 15;
                                     text.color = Color.white;
                                     text.alignment = TextAnchor.UpperLeft;
                                     text.resizeTextForBestFit = true;
 
+                                    _consoleText = text;
                                 }
 
                                 using(var promptLayout = new HorizontalLayout(consoleLayout))
@@ -143,9 +150,9 @@ namespace SocialPoint.AdminPanel
 
         private void Close()
         {
-            //_activePanels.Clear();
-            Destroy(_canvasObject);
             inflated = false;
+            _consoleText = null;
+            Destroy(_canvasObject);
         }
 
         public void ReplacePanel(AdminPanelGUILayout panelLayout)

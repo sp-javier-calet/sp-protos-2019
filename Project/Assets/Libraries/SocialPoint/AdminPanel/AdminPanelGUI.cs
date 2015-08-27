@@ -7,6 +7,10 @@ namespace SocialPoint.AdminPanel
 {
     public abstract class AdminPanelGUI
     {
+        public static AdminPanelConsole AdminPanelConsole { set; private get; }
+
+        public AdminPanelConsole Console { get { return AdminPanelGUI.AdminPanelConsole; }}
+
         public abstract void OnCreateGUI(AdminPanelLayout layout);
     }
 
@@ -17,6 +21,7 @@ namespace SocialPoint.AdminPanel
 
     public class AdminPanelLayout : IDisposable
     {
+
         public RectTransform Parent { get; protected set; }
 
         protected Vector2 _currentPosition;

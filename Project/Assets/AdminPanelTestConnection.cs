@@ -26,7 +26,7 @@ public class AdminPanelTestConnection : MonoBehaviour {
         {
             AdminPanelGUIUtils.CreateMargin(layout);
             AdminPanelGUIUtils.CreateLabel(layout, "TestLabel");
-            AdminPanelGUIUtils.CreateButton(layout, "TestButton", () => {});
+            AdminPanelGUIUtils.CreateButton(layout, "TestButton", TestAction);
 
             using(var horizontalLayout = new HorizontalLayout(layout))
             {
@@ -34,8 +34,13 @@ public class AdminPanelTestConnection : MonoBehaviour {
                 AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
             }
 
-            AdminPanelGUIUtils.CreateButton(layout, "TestButton", () => {});
-            AdminPanelGUIUtils.CreateButton(layout, "TestButton", () => {});
+            AdminPanelGUIUtils.CreateButton(layout, "TestButton", TestAction);
+            AdminPanelGUIUtils.CreateButton(layout, "TestButton", TestAction);
+        }
+
+        private void TestAction()
+        {
+            Console.Print("Test log");
         }
     }
 
