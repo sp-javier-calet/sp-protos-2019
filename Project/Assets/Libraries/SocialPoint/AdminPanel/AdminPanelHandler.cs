@@ -16,11 +16,9 @@ namespace SocialPoint.AdminPanel
         }
 
         private Dictionary<string, AdminPanelGUILayout> _categories;
-        private AdminPanelConsole _console;
-        internal AdminPanelHandler(Dictionary<string, AdminPanelGUILayout> categories, AdminPanelConsole console)
+        internal AdminPanelHandler(Dictionary<string, AdminPanelGUILayout> categories)
         {
             _categories = categories;
-            _console = console;
         }
 
         public void AddPanelGUI(string category, AdminPanelGUI panel)

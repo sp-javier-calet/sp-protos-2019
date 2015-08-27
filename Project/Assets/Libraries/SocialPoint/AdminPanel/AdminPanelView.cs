@@ -13,6 +13,7 @@ namespace SocialPoint.AdminPanel
         private Text _consoleText;
         private GameObject _canvasObject;
         private bool _consoleEnabled;
+
         void Awake()
         {
             _categories = new Dictionary<string, AdminPanelGUILayout>();
@@ -29,21 +30,12 @@ namespace SocialPoint.AdminPanel
             };
         }
 
-        bool inflated = false;
         void Update()
         {
-            if(!inflated && Input.GetKeyDown("a"))
+            // FIXME TEST
+            if(Input.GetMouseButtonDown(0) || (Input.touchCount == 1 && Input.touches[0].phase == TouchPhase.Began))
             {
-                inflated = true;
-                // Load Layout data through handler
-                _categories = new Dictionary<string, AdminPanelGUILayout>();
-                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _console));
-                InflateGUI();
-            }
-
-            if(inflated && Input.GetKeyDown("q"))
-            {
-                Close();
+                Open();
             }
         }
 
@@ -148,16 +140,27 @@ namespace SocialPoint.AdminPanel
             }
         }
 
+        private void Open()
+        {
+            if(_canvasObject == null)
+            {
+                // Load Layout data through handler
+                _categories = new Dictionary<string, AdminPanelGUILayout>();
+                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories));
+                InflateGUI();
+            }
+        }
+
         private void Close()
         {
-            inflated = false;
-            _consoleText = null;
             Destroy(_canvasObject);
+            _canvasObject = null;
+            _consoleText = null;
         }
 
         public void ReplacePanel(AdminPanelGUILayout panelLayout)
         {
-            _activePanels.Clear();
+            //_activePanels.Clear();
             OpenPanel(panelLayout);
         }
 

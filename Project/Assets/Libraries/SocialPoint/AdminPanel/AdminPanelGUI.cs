@@ -81,12 +81,7 @@ namespace SocialPoint.AdminPanel
 
         protected void AdjustMinHeight()
         {
-            Vector2 deltaSize = Parent.sizeDelta;
-            Vector2 size = Parent.rect.size;
-
-            float fitHeight = (deltaSize.y / size.y) * (-_aabb.y) / size.y;
-            Vector2 finalSize = new Vector2(size.x, _aabb.y);
-
+            Vector2 finalSize = new Vector2(Parent.rect.size.x, _aabb.y);
             Parent.sizeDelta = finalSize;
             _currentPosition.y = -_aabb.y;
         }
