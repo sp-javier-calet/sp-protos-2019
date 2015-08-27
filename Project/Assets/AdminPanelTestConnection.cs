@@ -16,7 +16,6 @@ public class AdminPanelTestConnection : MonoBehaviour {
             handler.AddPanelGUI("Backend", new AdminPanelTestConnectionSimpleGUI());
             handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
 
-            handler.AddPanelGUI("Game", new AdminPanelTestConnectionSimpleGUI());
         };
 	}
 
@@ -49,7 +48,7 @@ public class AdminPanelTestConnection : MonoBehaviour {
                 Debug.Log("Test Connection");
             });
 
-            using(var scrollLayout = new VerticalScrollLayout(layout))
+            using(var scrollLayout = new VerticalScrollLayout(layout, new Vector2(1.0f, 0.5f)))
             {
                 AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton1", () => {});
                 AdminPanelGUIUtils.CreateMargin(scrollLayout);

@@ -189,10 +189,10 @@ namespace SocialPoint.AdminPanel
             scrollRectTrans.offsetMax = Vector2.zero;
 
             // Upper edge anchor
-            scrollRectTrans.anchorMin = new Vector2(Mathf.Max(0.05f, parentLayout.Position.x / parentLayout.Parent.rect.width),
+            /*scrollRectTrans.anchorMin = new Vector2(Mathf.Max(0.05f, parentLayout.Position.x / parentLayout.Parent.rect.width),
                                                     1.0f - Mathf.Clamp(parentLayout.Position.y / parentLayout.Parent.rect.height, 0.0f, 1.0f));
             scrollRectTrans.anchorMax = new Vector2(0.95f, 1.0f);
-
+*/
 
             scrollRectTrans.anchorMax = Vector2.up;
             scrollRectTrans.anchorMin = Vector2.up;
@@ -207,7 +207,7 @@ namespace SocialPoint.AdminPanel
 */
             float width = (relativeSize.x >= 1.0)?  parentLayout.Parent.rect.width - parentLayout.Position.x : // remaining space
                 parentLayout.Parent.rect.width * relativeSize.x;
-            float height = (relativeSize.y >= 1.0)? parentLayout.Parent.rect.height + parentLayout.Position.y : // remaining space
+            float height = (relativeSize.y >= 1.0)? Mathf.Max(parentLayout.Parent.rect.height + parentLayout.Position.y, 0) : // remaining space
                 parentLayout.Parent.rect.height * relativeSize.y;
             
             scrollRectTrans.sizeDelta = new Vector2(width, height);
@@ -235,7 +235,9 @@ namespace SocialPoint.AdminPanel
             rectTrans.offsetMax = Vector2.zero;
             rectTrans.pivot = Vector2.up;
             rectTrans.anchoredPosition = Vector2.zero;
-            rectTrans.sizeDelta = Vector2.right;
+
+            // Set initial content size to fit parent. It will be adjusted on Dispose
+            rectTrans.sizeDelta = new Vector2(1.0f, height);
 
             scroll.content = rectTrans;
 
@@ -256,6 +258,7 @@ namespace SocialPoint.AdminPanel
         public override void Dispose()
         {
             base.Dispose();
+            // Adjust content size to set scroll size
             Parent.sizeDelta = new Vector2(Parent.sizeDelta.x, -Position.y); 
         }
     }
