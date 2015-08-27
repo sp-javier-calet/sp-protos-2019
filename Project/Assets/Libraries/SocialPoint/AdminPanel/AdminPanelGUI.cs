@@ -66,7 +66,7 @@ namespace SocialPoint.AdminPanel
             _currentPosition.y -= y;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if(_parentLayout != null)
             {
@@ -84,7 +84,6 @@ namespace SocialPoint.AdminPanel
 
             Parent.sizeDelta = finalSize;
             _currentPosition.y = -_aabb.y;
-
         }
     }
 
@@ -194,12 +193,10 @@ namespace SocialPoint.AdminPanel
                                                     1.0f - Mathf.Clamp(parentLayout.Position.y / parentLayout.Parent.rect.height, 0.0f, 1.0f));
             scrollRectTrans.anchorMax = new Vector2(0.95f, 1.0f);
 
+
             scrollRectTrans.anchorMax = Vector2.up;
             scrollRectTrans.anchorMin = Vector2.up;
 
-            scrollRectTrans.offsetMin = new Vector2(parentLayout.Parent.rect.width * 0.05f, scrollRectTrans.offsetMin.y);
-            scrollRectTrans.offsetMax = new Vector2(parentLayout.Parent.rect.width * 0.05f, scrollRectTrans.offsetMax.y);
-            
             /*
             float width = (relativeSize.x >= 1.0)? (1.0f - (parentLayout.Position.x / parentLayout.Parent.rect.width)) : // remaining space
                                                     parentLayout.Parent.rect.width * relativeSize.x;
@@ -231,13 +228,14 @@ namespace SocialPoint.AdminPanel
             scrollContentObject.transform.SetParent(scrollObject.transform);
            
             RectTransform rectTrans = scrollContentObject.AddComponent<RectTransform>();
-            rectTrans.anchorMin = Vector2.zero;
+            rectTrans.anchorMin = Vector2.up;
             rectTrans.anchorMax = Vector2.one;
 
             rectTrans.offsetMin = Vector2.zero;
             rectTrans.offsetMax = Vector2.zero;
             rectTrans.pivot = Vector2.up;
             rectTrans.anchoredPosition = Vector2.zero;
+            rectTrans.sizeDelta = Vector2.right;
 
             scroll.content = rectTrans;
 
@@ -253,6 +251,12 @@ namespace SocialPoint.AdminPanel
         public override void DoAdvance(float x, float y)
         {
             _currentPosition.y -= y;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            Parent.sizeDelta = new Vector2(Parent.sizeDelta.x, -Position.y); 
         }
     }
 }

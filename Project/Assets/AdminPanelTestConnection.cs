@@ -10,12 +10,36 @@ public class AdminPanelTestConnection : MonoBehaviour {
         {
             handler.AddPanelGUI("System", new AdminPanelTestConnectionGUI());
 
-            handler.AddPanelGUI("Game", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Game", new AdminPanelTestConnectionSimpleGUI());
+            handler.AddPanelGUI("Game", new AdminPanelTestConnectionSimpleGUI());
 
+            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionSimpleGUI());
             handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
-            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+
+            handler.AddPanelGUI("Game", new AdminPanelTestConnectionSimpleGUI());
         };
 	}
+
+    private class AdminPanelTestConnectionSimpleGUI : AdminPanelGUI
+    {
+        public override void OnCreateGUI(AdminPanelLayout layout)
+        {
+            AdminPanelGUIUtils.CreateMargin(layout);
+            AdminPanelGUIUtils.CreateLabel(layout, "TestLabel");
+            AdminPanelGUIUtils.CreateButton(layout, "TestButton", () => {});
+
+            using(var horizontalLayout = new HorizontalLayout(layout))
+            {
+                AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
+                AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
+                horizontalLayout.AdjustMinHeight();
+            }
+
+            AdminPanelGUIUtils.CreateButton(layout, "TestButton", () => {});
+            AdminPanelGUIUtils.CreateButton(layout, "TestButton", () => {});
+        }
+    }
+
 
     private class AdminPanelTestConnectionGUI : AdminPanelGUI
     {
@@ -70,6 +94,7 @@ public class AdminPanelTestConnection : MonoBehaviour {
                     AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
                     horizontalLayout.AdjustMinHeight();
                 }
+
             }
         }
     }
