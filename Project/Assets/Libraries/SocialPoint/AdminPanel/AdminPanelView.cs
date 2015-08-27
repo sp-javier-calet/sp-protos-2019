@@ -148,6 +148,12 @@ namespace SocialPoint.AdminPanel
             inflated = false;
         }
 
+        public void ReplacePanel(AdminPanelGUILayout panelLayout)
+        {
+            _activePanels.Clear();
+            OpenPanel(panelLayout);
+        }
+
         public void OpenPanel(AdminPanelGUILayout panelLayout)
         {
             _activePanels.Push(panelLayout);
@@ -189,7 +195,7 @@ namespace SocialPoint.AdminPanel
             private void InflateCategory(AdminPanelLayout layout, string categoryLabel, AdminPanelGUILayout panelLayout)
             {
                 AdminPanelGUIUtils.CreateButton(layout, categoryLabel, () => {
-                    _view.OpenPanel(panelLayout);
+                    _view.ReplacePanel(panelLayout);
                 });
             }
         }
