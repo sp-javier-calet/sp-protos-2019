@@ -45,6 +45,7 @@ namespace SocialPoint.AdminPanel
             {
                 Debug.LogWarning("AdminPanel Button - Relative Y size is ignored");
             }
+
             var buttonObject = new GameObject("AdminPanel - Button");
             buttonObject.transform.SetParent(layout.Parent);
 
@@ -72,6 +73,37 @@ namespace SocialPoint.AdminPanel
                 AdminPanelGUIUtils.CreateLabelObject(buttonLayout, label, Vector2.one);
             }
 
+            return rectTransform.rect.size;
+        }
+
+        private static Vector2 CreateCloseButtonObject(AdminPanelLayout layout, UnityAction onClickAction)
+        {
+            var buttonObject = new GameObject("AdminPanel - Back Button");
+            buttonObject.transform.SetParent(layout.Parent);
+            
+            RectTransform rectTransform = buttonObject.AddComponent<RectTransform>();
+            rectTransform.pivot = Vector2.up;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+
+            rectTransform.anchorMin = Vector2.up;
+            rectTransform.anchorMax = Vector2.up;
+            rectTransform.sizeDelta = new Vector2(DefaultButtonHeight, DefaultButtonHeight);
+            
+            rectTransform.anchoredPosition = Vector2.zero;
+            
+            var image = buttonObject.AddComponent<Image>();
+            image.color = new Color(.5f, .5f, .5f, .0f);
+            
+            var button = buttonObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.onClick.AddListener(onClickAction);
+            
+            using(AdminPanelLayout buttonLayout = new AdminPanelLayout(rectTransform))
+            {
+                AdminPanelGUIUtils.CreateLabelObject(buttonLayout, "<", Vector2.one);
+            }
+            
             return rectTransform.rect.size;
         }
 
@@ -109,6 +141,16 @@ namespace SocialPoint.AdminPanel
             return rectTransform;
         }
 
+        public static RectTransform CreatePanel(AdminPanelLayout layout, Vector2 relativeSize, UnityAction onCloseButton)
+        {
+            RectTransform rectTransform = AdminPanelGUIUtils.CreatePanelObject(layout, relativeSize);
+            AdminPanelGUIUtils.CreateCloseButtonObject(layout, onCloseButton);
+
+            layout.Advance(rectTransform.rect.size + Margin);
+            
+            return rectTransform;
+        }
+        
         public static void CreateButton(AdminPanelLayout layout, string label, UnityAction onClickAction, Vector2 relativeSize)
         {
             layout.Advance(AdminPanelGUIUtils.CreateButtonObject(layout, label, onClickAction, relativeSize) + Margin);
@@ -118,7 +160,7 @@ namespace SocialPoint.AdminPanel
         {
             layout.Advance(AdminPanelGUIUtils.CreateButtonObject(layout, label, onClickAction, Vector2.one) + Margin);
         }
-        
+
         public static void CreateLabel(AdminPanelLayout layout, string label, Vector2 relativeSize)
         {
             layout.Advance(AdminPanelGUIUtils.CreateLabelObject(layout, label, relativeSize) + Margin);

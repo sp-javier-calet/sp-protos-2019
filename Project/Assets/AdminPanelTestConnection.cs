@@ -8,13 +8,14 @@ public class AdminPanelTestConnection : MonoBehaviour {
 	void Start () {
 	    AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
         {
-            handler.AddPanelGUI("System", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Test", new AdminPanelTestConnectionGUI());
 
-            handler.AddPanelGUI("Game", new AdminPanelTestConnectionSimpleGUI());
-            handler.AddPanelGUI("Game", new AdminPanelTestConnectionSimpleGUI());
+            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
+            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
 
-            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionSimpleGUI());
-            handler.AddPanelGUI("Backend", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Combined", new AdminPanelTestConnectionSimpleGUI());
+            handler.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
 
         };
 	}

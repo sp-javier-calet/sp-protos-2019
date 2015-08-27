@@ -48,26 +48,25 @@ namespace SocialPoint.AdminPanel
             AdminPanelLayout rootLayout = new AdminPanelLayout(canvasRectTransform);
             using(AdminPanelLayout horizontalLayout = new HorizontalLayout(rootLayout))
             {
-                RectTransform categoriesPanel = AdminPanelGUIUtils.CreatePanel(horizontalLayout, new Vector2(0.25f, 1.0f));
+                RectTransform categoriesPanel = AdminPanelGUIUtils.CreatePanel(horizontalLayout, new Vector2(0.25f, 1.0f), ()=>{Close();});
 
                 // Categories panel
                 using(AdminPanelLayout categoriesVerticalLayout = new VerticalLayout(new AdminPanelLayout(categoriesPanel)))
                 {
                     AdminPanelGUIUtils.CreateLabel(categoriesVerticalLayout, "Admin Panel");
                     AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
+                    AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, 
+                                                    "Console", () => { 
+                        _consoleEnabled = !_consoleEnabled; RefreshPanel();
+                    });
 
-                    using(AdminPanelLayout categoriesScrollLayout = new VerticalScrollLayout(categoriesVerticalLayout, new Vector2(1.0f, 0.5f)))
+                    AdminPanelGUIUtils.CreateMargin(categoriesVerticalLayout);
+                    
+                    using(AdminPanelLayout categoriesScrollLayout = new VerticalScrollLayout(categoriesVerticalLayout))
                     {
                         AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(this, _categories);
                         rootPanel.OnCreateGUI(categoriesScrollLayout);
                     }
-
-                    AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, 
-                                                    "Console", () => { 
-                                                        _consoleEnabled = !_consoleEnabled; RefreshPanel();
-                                                    });
-
-                    AdminPanelGUIUtils.CreateButton(categoriesVerticalLayout, "Close", () => { Close(); });
                 }
 
                 // Right side
@@ -84,7 +83,7 @@ namespace SocialPoint.AdminPanel
                     {
                         if(_activePanels.Count > 0)
                         {
-                            RectTransform contentPanel = AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, mainPanelSize));
+                            RectTransform contentPanel = AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, mainPanelSize), ()=>{ ClosePanel();});
                             using(VerticalScrollLayout contentVerticalLayout = new VerticalScrollLayout(new AdminPanelLayout(contentPanel)))
                             {
                                 _activePanels.Peek().OnCreateGUI(contentVerticalLayout);
@@ -93,7 +92,49 @@ namespace SocialPoint.AdminPanel
 
                         if(_consoleEnabled)
                         {
-                            AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 1.0f - mainPanelSize));
+                            RectTransform contentPanel = AdminPanelGUIUtils.CreatePanel(rightVerticalLayout, new Vector2(1.0f, 1.0f - mainPanelSize));
+                            using(var consoleLayout = new VerticalLayout(new AdminPanelLayout(contentPanel), new Vector2(1.0f, 0.8f)))
+                            {
+                                using(var contentVerticalLayout = new VerticalScrollLayout(consoleLayout))
+                                {
+                                    // Console
+                                    GameObject textAreaObject = new GameObject("AdminPanel - Text Area");
+                                    
+                                    var rectTransform = textAreaObject.AddComponent<RectTransform>();
+                                    textAreaObject.transform.SetParent(contentVerticalLayout.Parent);
+                                    
+                                    rectTransform.offsetMin = Vector2.zero;
+                                    rectTransform.offsetMax = Vector2.zero;
+                                    rectTransform.pivot = Vector2.up;
+                                    
+                                    rectTransform.anchorMin = Vector2.up;
+                                    rectTransform.anchorMax = Vector2.up;
+                                    rectTransform.sizeDelta = new Vector2(contentVerticalLayout.Parent.rect.width * 0.95f /* relativeSize.x*/, contentVerticalLayout.Parent.rect.height /* relativeSize.y*/);
+                                    
+                                    Vector2 margin = new Vector2(contentVerticalLayout.Parent.rect.width * 0.05f, -5.0f); // FIXME MARGINS
+                                    rectTransform.anchoredPosition = contentVerticalLayout.Position + margin;
+
+                                    var text = textAreaObject.AddComponent<Text>();
+
+                                    text.text = "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
+                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
+                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
+                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
+                                    text.text += "A Scroll Rect is usually used to scroll a large image or panel of another UI element\n, such as a list of buttons or large block of text. The Scroll Rect is most often used with a mask element, and is designed to work seamlessly with scrollbars. To scroll content, the input must be received from inside the bounds of the ScrollRect, not on the content itself. The Scroll Rect is commonly used with a mask element. Add an image script for the mask to use, and then add a mask script. The mask elements will use the image to create its mask. A specific image is not needed on the image script, but one can be added for additional control over the shape of the mask. Take care when using Unrestricted scrolling movement as it is possible to lose control of the content in an irretrievable way. When using Elastic or Constrained movement it is best to position the content so that it starts within the bounds of the ScrollRect, or undesirable behaviour may occur as the RectTransform tries to bring the content back within its bounds.";
+
+                                    text.font = Resources.FindObjectsOfTypeAll<Font>()[0];
+                                    text.fontSize = 15;
+                                    text.color = Color.white;
+                                    text.alignment = TextAnchor.UpperLeft;
+                                    text.resizeTextForBestFit = true;
+
+                                }
+
+                                using(var promptLayout = new HorizontalLayout(consoleLayout))
+                                {
+                                    AdminPanelGUIUtils.CreateButton(promptLayout, "Input", () => {});
+                                }
+                            }
                         }
                     }
                 }
@@ -102,6 +143,7 @@ namespace SocialPoint.AdminPanel
 
         private void Close()
         {
+            //_activePanels.Clear();
             Destroy(_canvasObject);
             inflated = false;
         }
@@ -122,9 +164,6 @@ namespace SocialPoint.AdminPanel
         {
             Close();
             InflateGUI();
-
-            // Check if console active. Draw right panel and
-            //_activePanels.Peek().OnCreateGUI();
         }
 
         private class AdminPanelCategoriesGUI : AdminPanelGUI
