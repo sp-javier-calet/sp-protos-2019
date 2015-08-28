@@ -21,6 +21,7 @@ namespace SocialPoint.AdminPanel
             
             LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
+            layoutElement.flexibleWidth = 1;
         }
     }
 }

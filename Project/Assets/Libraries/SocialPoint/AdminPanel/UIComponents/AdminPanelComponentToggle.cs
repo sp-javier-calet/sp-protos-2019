@@ -13,6 +13,7 @@ namespace SocialPoint.AdminPanel
 
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
+            layoutElement.flexibleWidth = 1;
 
             var toggleBackground = CreateUIObject("Admin Panel - Toggle Background", rectTransform);
             var image = toggleBackground.gameObject.AddComponent<Image>();
