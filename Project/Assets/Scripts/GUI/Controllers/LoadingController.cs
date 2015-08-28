@@ -3,6 +3,7 @@ using SocialPoint.Crash;
 using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Alert;
 using Zenject;
 
 public class LoadingController : GameLoadingController
@@ -31,6 +32,15 @@ public class LoadingController : GameLoadingController
         set
         {
             Localization = value;
+        }
+    }
+
+    [Inject]
+    public IAlertView InjectAlertView
+    {
+        set
+        {
+            AlertView = value;
         }
     }
 

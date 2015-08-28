@@ -15,6 +15,8 @@ namespace SocialPoint.Alert
             [MarshalAs(UnmanagedType.LPTStr)]
             public string Title;
             [MarshalAs(UnmanagedType.LPTStr)]
+            public string Signature;
+            [MarshalAs(UnmanagedType.LPTStr)]
             public string Buttons;
             [MarshalAs(UnmanagedType.LPTStr)]
             public string ObjectName;
@@ -106,6 +108,14 @@ namespace SocialPoint.Alert
             set
             {
                 _data.Title = value;
+            }
+        }
+
+        public string Signature
+        {
+            set
+            {
+                _data.Signature = value;
             }
         }
 

@@ -53,6 +53,15 @@ namespace SocialPoint.Alert
             }
         }
 
+        string _signature;
+        public string Signature
+        {
+            set
+            {
+                _signature = value;
+            }
+        }
+
         string[] _buttons;
         public string[] Buttons
         {

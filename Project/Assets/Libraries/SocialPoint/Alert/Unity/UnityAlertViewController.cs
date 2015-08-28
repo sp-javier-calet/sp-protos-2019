@@ -8,6 +8,7 @@ namespace SocialPoint.Alert
 
         public Text TitleLabel;
         public Text MessageLabel;
+        public Text SignatureLabel;
         public InputField InputLabel;
         public RectTransform Buttons;
         public GameObject ButtonPrefab;
@@ -60,6 +61,25 @@ namespace SocialPoint.Alert
                     {
                         TitleLabel.gameObject.SetActive(true);
                         TitleLabel.text = value;
+                    }
+                }
+            }
+        }
+
+        public override string Signature
+        {
+            set
+            {
+                if(SignatureLabel != null)
+                {
+                    if(value == null)
+                    {
+                        SignatureLabel.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        SignatureLabel.gameObject.SetActive(true);
+                        SignatureLabel.text = value;
                     }
                 }
             }

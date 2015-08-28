@@ -35,6 +35,8 @@ namespace SocialPoint.GameLoading
         protected List<LoadingOperation> _operations = new List<LoadingOperation>();
         protected LoadingOperation _loginOperation;
 
+        public IAlertView AlertView;
+
         protected virtual void AllOperationsLoaded()
         {
             Debug.Log("all operations loaded");
@@ -44,11 +46,11 @@ namespace SocialPoint.GameLoading
         {
             base.OnLoad();
 
-            AlertView.ShowDelegate = (GameObject go) => {
+            UnityAlertView.ShowDelegate = (GameObject go) => {
                 var viewController = go.GetComponent<UIViewController>();
                 Popups.Push(viewController);
             };
-            AlertView.HideDelegate = (GameObject go) => {
+            UnityAlertView.HideDelegate = (GameObject go) => {
                 var viewController = go.GetComponent<UIViewController>();
                 viewController.Hide(true);
             };
