@@ -31,6 +31,11 @@ namespace SocialPoint.AdminPanel
             rectTransform.anchorMax = Vector2.up;
             rectTransform.sizeDelta = new Vector2(layout.Parent.rect.width * relativeSize.x, layout.Parent.rect.height * relativeSize.y);
 
+            LayoutElement layoutElement = panelObject.AddComponent<LayoutElement>();
+            layoutElement.minWidth = layout.Parent.rect.width * relativeSize.x;
+            layoutElement.preferredWidth = relativeSize.x;
+            layoutElement.preferredHeight = relativeSize.y;
+
             rectTransform.anchoredPosition = layout.Position;
 
             var image = panelObject.AddComponent<Image>();
@@ -64,6 +69,9 @@ namespace SocialPoint.AdminPanel
 
             var image = buttonObject.AddComponent<Image>();
             image.color = new Color(.5f, .5f, .5f, .5f);
+
+            LayoutElement layoutElement = buttonObject.AddComponent<LayoutElement>();
+            layoutElement.preferredHeight = 25.0f;
 
             var button = buttonObject.AddComponent<Button>();
             button.targetGraphic = image;
@@ -100,6 +108,8 @@ namespace SocialPoint.AdminPanel
             rectTransform.anchoredPosition = layout.Position;
             
             var toggle = buttonObject.AddComponent<Toggle>();
+            LayoutElement layoutElement = buttonObject.AddComponent<LayoutElement>();
+            layoutElement.preferredHeight = 25.0f;
 
             var toggleBackground = new GameObject("AdminPanel - Toggle Background");
             RectTransform bgRectTransform = toggleBackground.AddComponent<RectTransform>();
@@ -213,6 +223,9 @@ namespace SocialPoint.AdminPanel
             text.color = Color.white;
             text.alignment = TextAnchor.MiddleCenter;
 
+            LayoutElement layoutElement = textObject.AddComponent<LayoutElement>();
+            layoutElement.preferredHeight = 25.0f;
+
             return rectTransform.rect.size;
         }
 
@@ -227,7 +240,7 @@ namespace SocialPoint.AdminPanel
         public static RectTransform CreatePanel(AdminPanelLayout layout, Vector2 relativeSize, UnityAction onCloseButton)
         {
             RectTransform rectTransform = AdminPanelGUIUtils.CreatePanelObject(layout, relativeSize);
-            AdminPanelGUIUtils.CreateCloseButtonObject(layout, onCloseButton);
+            //AdminPanelGUIUtils.CreateCloseButtonObject(layout, onCloseButton);
 
             layout.Advance(rectTransform.rect.size + Margin);
             

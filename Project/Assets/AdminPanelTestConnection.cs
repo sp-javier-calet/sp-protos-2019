@@ -8,10 +8,10 @@ public class AdminPanelTestConnection : MonoBehaviour {
 	void Start () {
 	    AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
         {
-            handler.AddPanelGUI("Test", new AdminPanelTestConnectionGUI());
+            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
+            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
 
-            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
-            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
+            handler.AddPanelGUI("Advanced", new AdminPanelTestConnectionGUI());
 
             handler.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
             handler.AddPanelGUI("Combined", new AdminPanelTestConnectionSimpleGUI());
@@ -24,18 +24,17 @@ public class AdminPanelTestConnection : MonoBehaviour {
     {
         public override void OnCreateGUI(AdminPanelLayout layout)
         {
-            AdminPanelGUIUtils.CreateMargin(layout);
-            AdminPanelGUIUtils.CreateLabel(layout, "TestLabel");
-            AdminPanelGUIUtils.CreateButton(layout, "TestButton", TestAction);
+            layout.CreateLabel( "TestLabel");
+            layout.CreateButton("TestButton", TestAction);
 
-            using(var horizontalLayout = new HorizontalLayout(layout))
+            using(var horizontalLayout = layout.CreateHorizontalLayout())
             {
-                AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
-                AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
+                horizontalLayout.CreateLabel("HLabel1");
+                horizontalLayout.CreateLabel("HLabel2");
             }
 
-            AdminPanelGUIUtils.CreateButton(layout, "TestButton", TestAction);
-            AdminPanelGUIUtils.CreateButton(layout, "TestButton", TestAction);
+            layout.CreateButton("TestButton", TestAction);
+            layout.CreateButton("TestButton", TestAction);
         }
 
         private void TestAction()
@@ -53,47 +52,45 @@ public class AdminPanelTestConnection : MonoBehaviour {
                 Debug.Log("Test Connection");
             });
 
-            using(var scrollLayout = new VerticalScrollLayout(layout, new Vector2(1.0f, 0.5f)))
+            using(var scrollLayout = layout.CreateVerticalScrollLayout())
             {
-                AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton1", () => {});
-                AdminPanelGUIUtils.CreateMargin(scrollLayout);
-                AdminPanelGUIUtils.CreateLabel(scrollLayout, "TestLabel");
-                AdminPanelGUIUtils.CreateButton(scrollLayout, "testButton2", () => {});
+                scrollLayout.CreateButton("TestButton1", () => {});
+                scrollLayout.CreateLabel("TestLabel");
+                scrollLayout.CreateButton("testButton2", () => {});
 
 
-                using(var horizontalLayout = new HorizontalLayout(scrollLayout, new Vector2(1.0f, 0.0f)))
+                using(var horizontalLayout = scrollLayout.CreateHorizontalLayout())
                 {
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/4, 1.0f));
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {}, new Vector2(1.0f/4, 1.0f));
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton3", () => {}, new Vector2(1.0f/4, 1.0f));
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton4", () => {});
+                    horizontalLayout.CreateButton("LabeledButton1", () => {});
+                    horizontalLayout.CreateButton("LabeledButton2", () => {});
+                    horizontalLayout.CreateButton("LabeledButton3", () => {});
+                    horizontalLayout.CreateButton("LabeledButton4", () => {});
                 }
 
-                using(var horizontalLayout = new HorizontalLayout(scrollLayout))
+                using(var horizontalLayout = scrollLayout.CreateHorizontalLayout())
                 {
-                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
-                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
+                    horizontalLayout.CreateLabel("HLabel1");
+                    horizontalLayout.CreateLabel("HLabel2");
                 }
                 
-                using(var horizontalLayout = new HorizontalLayout(scrollLayout, new Vector2(1.0f, 0.0f)))
+                using(var horizontalLayout = scrollLayout.CreateHorizontalLayout())
                 {
-                    AdminPanelGUIUtils.CreateToggleButton(horizontalLayout, "LabeledToogle1", false, (value) => {}, new Vector2(0.5f, 1.0f));
-                    AdminPanelGUIUtils.CreateToggleButton(horizontalLayout, "LabeledToogle2", true, (value) => {});
+                    horizontalLayout.CreateToggleButton("LabeledToogle1", false, (value) => {});
+                    horizontalLayout.CreateToggleButton("LabeledToogle2", true, (value) => {});
                 }
 
-                using(var horizontalLayout = new HorizontalLayout(scrollLayout))
+                using(var horizontalLayout = scrollLayout.CreateHorizontalLayout())
                 {
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton1", () => {}, new Vector2(1.0f/3, 1.0f));
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton2", () => {}, new Vector2(1.0f/3, 1.0f));
-                    AdminPanelGUIUtils.CreateButton(horizontalLayout, "LabeledButton3", () => {});
+                    horizontalLayout.CreateButton("LabeledButton1", () => {});
+                    horizontalLayout.CreateButton("LabeledButton2", () => {});
+                    horizontalLayout.CreateButton("LabeledButton3", () => {});
                 }
 
-                using(var horizontalLayout = new HorizontalLayout(scrollLayout))
+                using(var horizontalLayout = scrollLayout.CreateHorizontalLayout())
                 {
-                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel1", new Vector2(0.5f, 1.0f));
-                    AdminPanelGUIUtils.CreateLabel(horizontalLayout, "HLabel2", new Vector2(0.5f, 1.0f));
+                    horizontalLayout.CreateLabel("HLabel1");
+                    horizontalLayout.CreateLabel("HLabel2");
                 }
-
             }
         }
     }

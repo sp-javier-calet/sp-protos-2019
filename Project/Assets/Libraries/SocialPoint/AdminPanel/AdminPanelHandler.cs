@@ -5,6 +5,7 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelHandler
     {
+        // TODO React to connection if already opened
         public static event Action <AdminPanelHandler> OnAdminPanelInit;
 
         internal static void InitializeHandler(AdminPanelHandler handler)
