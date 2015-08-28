@@ -9,7 +9,9 @@ class DeviceInfo : SocialPointDeviceInfo
     {
         set
         {
+            #if UNITY_EDITOR
             AppInfo = value;
+            #endif
         }
     }
 

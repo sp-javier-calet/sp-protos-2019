@@ -42,11 +42,11 @@ MonoBehaviour:
   SettingsAppInfo:
     fakeAppData: 1
     SeedId: 1
-    Id: 1
+    Id: bg
     Version: 1508020000
     ShortVersion: 1.4
-    Language: en
-    Country: 1
+    Language: es
+    Country: eu
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
@@ -64,7 +64,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: SettingsAppInfo.Id
-      value: 1
+      value: bg
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: SettingsAppInfo.Version
@@ -76,11 +76,11 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: SettingsAppInfo.Language
-      value: en
+      value: es
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: SettingsAppInfo.Country
-      value: 1
+      value: eu
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
