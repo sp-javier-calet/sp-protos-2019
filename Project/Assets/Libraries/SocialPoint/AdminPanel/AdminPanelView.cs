@@ -44,9 +44,17 @@ namespace SocialPoint.AdminPanel
             // Create GUI base
             _canvasObject = new GameObject("AdminPanel - Canvas");
             RectTransform canvasRectTransform = _canvasObject.AddComponent<RectTransform>();
+
             Canvas canvas = _canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _canvasObject.AddComponent<CanvasScaler>();
+            canvas.pixelPerfect = true;
+
+            CanvasScaler scaler = _canvasObject.AddComponent<CanvasScaler>();
+            //FIXME Use scaler 
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+            scaler.referenceResolution = new Vector2(480, 320);
+
             _canvasObject.AddComponent<GraphicRaycaster>();
 
             AdminPanelLayout rootLayout = new AdminPanelLayout(canvasRectTransform);
@@ -121,11 +129,14 @@ namespace SocialPoint.AdminPanel
                                     var text = textAreaObject.AddComponent<Text>();
                                     text.text = _console.Content;
                                     text.font = Resources.FindObjectsOfTypeAll<Font>()[0];
-                                    text.fontSize = 15;
+                                    text.fontSize = 10;
                                     text.color = Color.white;
                                     text.alignment = TextAnchor.UpperLeft;
-                                    text.resizeTextForBestFit = true;
 
+                                    ContentSizeFitter fitter = textAreaObject.AddComponent<ContentSizeFitter>();
+                                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;;
+
+                                    // Set as current text field
                                     _consoleText = text;
                                 }
 
@@ -160,7 +171,7 @@ namespace SocialPoint.AdminPanel
 
         public void ReplacePanel(AdminPanelGUILayout panelLayout)
         {
-            //_activePanels.Clear();
+            _activePanels.Clear();
             OpenPanel(panelLayout);
         }
 

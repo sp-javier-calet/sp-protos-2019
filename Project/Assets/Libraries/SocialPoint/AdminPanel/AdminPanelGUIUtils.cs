@@ -148,7 +148,7 @@ namespace SocialPoint.AdminPanel
             toggle.onValueChanged.AddListener((value) => { 
                 //indImage.color = (value)? new Color(.3f, .8f, .3f, .8f) : new Color(.8f, .3f, .3f, .8f);
                 onToggle(value); 
-        });
+            });
 
             
             using(AdminPanelLayout buttonLayout = new AdminPanelLayout(rectTransform))
