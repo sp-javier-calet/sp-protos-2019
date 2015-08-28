@@ -879,7 +879,10 @@ namespace SocialPoint.Login
                 {
                     var err = new Error(GenericData.Upgrade.Message);
                     NotifyError(ErrorType.ForceUpgrade, err, datadic.Get(AttrKeyGenericData).AsDic);
-                    return;
+                    if(GenericData.Upgrade.Type == UpgradeType.Forced) //do not want to notify new user, login ends here.
+                    {
+                        return;
+                    }
                 }
 
                 // update server time
