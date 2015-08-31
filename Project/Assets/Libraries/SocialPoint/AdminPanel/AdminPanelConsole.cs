@@ -63,20 +63,7 @@ namespace SocialPoint.AdminPanel
 
             public override void OnCreateGUI(AdminPanelLayout layout)
             {
-                layout.CreateTextInput("Enter command", (value) => {
-
-                    Console.Print("$" + value);
-
-                    ConsoleCommand command = _consoleApplication.FindCommand(value);
-                    if(command != null)
-                    {
-                        command.Execute();
-                    }
-                    else
-                    {
-                        Console.Print("Command " + value + " not found");
-                    }
-                });
+                layout.CreateTextInput("Enter command", OnSubmitCommand, OnValueChange);
 
                 layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(_console));
 
@@ -86,6 +73,32 @@ namespace SocialPoint.AdminPanel
                     _console.FixedFocus = value; });
                 
                 layout.CreateButton("Clear console", () => { _console.Clear(); });
+            }
+
+            private void OnSubmitCommand(string command)
+            {
+                Console.Print("$" + command);
+                
+                ConsoleCommand consoleCommand = _consoleApplication.FindCommand(command);
+                if(consoleCommand != null)
+                {
+                    consoleCommand.Execute();
+                }
+                else
+                {
+                    Console.Print("Command " + command + " not found");
+                }
+            }
+
+            private void OnValueChange(AdminPanelLayout.InputStatus status)
+            {
+                status.Suggestion = status.Content;
+
+                ConsoleCommand currentCommand = _consoleApplication.FindCommand(status.Content);
+                if(currentCommand != null)
+                {
+                    status.Suggestion += " - " + currentCommand.Description;
+                }
             }
         }
 

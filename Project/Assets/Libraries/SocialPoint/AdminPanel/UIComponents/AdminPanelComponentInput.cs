@@ -7,7 +7,7 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public void CreateTextInput(string placeholder, Action<string> onSubmit, Action<string> onValueChange)
+        public void CreateTextInput(string placeholder, Action<string> onSubmit, Action<InputStatus> onValueChange)
         {
             var rectTransform = CreateUIObject("Admin Panel - Text Input", Parent);
             
@@ -20,23 +20,6 @@ namespace SocialPoint.AdminPanel
             
             var input = rectTransform.gameObject.AddComponent<InputField>();
             input.targetGraphic = image;
-
-            if(onSubmit != null)
-            {
-                input.onEndEdit.AddListener((value) => {
-                    if(value.Length > 0)
-                    {
-                        onSubmit(value);
-                    }
-                });
-            }
-
-            if(onValueChange != null)
-            {
-                input.onValueChange.AddListener((value) => {
-                    onValueChange(value); 
-                });
-            }
 
             // Placeholder
             var contentTransform = CreateUIObject("Admin Panel - Text Input Placeholder", rectTransform);
@@ -52,33 +35,68 @@ namespace SocialPoint.AdminPanel
             input.placeholder = text;
 
             // Suggestion
-            /*contentTransform = CreateUIObject("Admin Panel - Text Input Suggestion", rectTransform);
+            contentTransform = CreateUIObject("Admin Panel - Text Input Suggestion", rectTransform);
             contentTransform.anchoredPosition = new Vector2(DefaultMargin, -DefaultMargin);
             
-            text = contentTransform.gameObject.AddComponent<Text>();
-            text.text = "Suggested text";
-            text.font = DefaultFont;
-            text.fontSize = DefaultFontSize;
-            text.color = new Color(.7f, .7f, .7f, .7f);
-            text.alignment = TextAnchor.UpperLeft;
-            */
+            var suggestionText = contentTransform.gameObject.AddComponent<Text>();
+            suggestionText.text = "";
+            suggestionText.font = DefaultFont;
+            suggestionText.fontSize = DefaultFontSize;
+            suggestionText.color = new Color(.7f, .7f, .7f, .7f);
+            suggestionText.alignment = TextAnchor.UpperLeft;
 
             // Content
             contentTransform = CreateUIObject("Admin Panel - Text Input content", rectTransform);
             contentTransform.anchoredPosition = new Vector2(DefaultMargin, -DefaultMargin);
 
-            text = contentTransform.gameObject.AddComponent<Text>();
-            text.font = DefaultFont;
-            text.fontSize = DefaultFontSize;
-            text.color = Color.gray;
-            text.alignment = TextAnchor.UpperLeft;
+            var contentText = contentTransform.gameObject.AddComponent<Text>();
+            contentText.font = DefaultFont;
+            contentText.fontSize = DefaultFontSize;
+            contentText.color = Color.gray;
+            contentText.alignment = TextAnchor.UpperLeft;
 
-            input.textComponent = text;
+
+            // Configure input
+            if(onSubmit != null)
+            {
+                input.onEndEdit.AddListener((value) => {
+                    if(value.Length > 0)
+                    {
+                        onSubmit(value);
+                    }
+                });
+            }
+            
+            if(onValueChange != null)
+            {
+                input.onValueChange.AddListener((value) => {
+                    InputStatus status = new InputStatus(value, suggestionText.text);
+
+                    onValueChange(status); 
+
+                    contentText.text = status.Content;
+                    suggestionText.text = status.Suggestion;
+                });
+            }
+
+            input.textComponent = contentText;
         }
 
         public void CreateTextInput(string placeholder, Action<string> onSubmit)
         {
             CreateTextInput(placeholder, onSubmit, null);
+        }
+
+        public class InputStatus
+        {
+            public string Suggestion { get; set; }
+            public string Content { get; set; }
+            
+            public InputStatus(string content, string suggestion)
+            {
+                Content = content;
+                Suggestion = suggestion;
+            }
         }
     }
 }
