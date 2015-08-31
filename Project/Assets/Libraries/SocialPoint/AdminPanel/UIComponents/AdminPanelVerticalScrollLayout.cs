@@ -7,6 +7,13 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
+        public AdminPanelLayout CreateVerticalScrollLayout(out ScrollRect consoleScroll)
+        {
+            var layout =  new VerticalScrollLayout(this, DefaultLayoutWeight);
+            consoleScroll = layout.ScrollRect;
+            return layout;
+        }
+
         public AdminPanelLayout CreateVerticalScrollLayout(int weight)
         {
             return new VerticalScrollLayout(this, weight);
@@ -19,6 +26,9 @@ namespace SocialPoint.AdminPanel
 
         private class VerticalScrollLayout : AdminPanelLayout
         {
+            public  ScrollRect ScrollRect { get; private set; }
+
+
             public VerticalScrollLayout(AdminPanelLayout parentLayout, int weight) : base(parentLayout)
             {
                 // Scroll object
@@ -31,8 +41,8 @@ namespace SocialPoint.AdminPanel
                 Image image = rectTransform.gameObject.AddComponent<Image>();
                 image.color = BackgroundColor;
                 
-                ScrollRect scroll = rectTransform.gameObject.AddComponent<ScrollRect>();
-                scroll.horizontal = false;
+                ScrollRect = rectTransform.gameObject.AddComponent<ScrollRect>();
+                ScrollRect.horizontal = false;
                 
                 rectTransform.gameObject.AddComponent<Mask>();
 
@@ -48,7 +58,7 @@ namespace SocialPoint.AdminPanel
                 var sizeFitter = contentTransform.gameObject.AddComponent<ContentSizeFitter>();
                 sizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                 
-                scroll.content = contentTransform;
+                ScrollRect.content = contentTransform;
                 Parent = contentTransform;
             }
         }

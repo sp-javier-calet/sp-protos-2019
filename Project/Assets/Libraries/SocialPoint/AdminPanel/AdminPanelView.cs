@@ -82,40 +82,10 @@ namespace SocialPoint.AdminPanel
                         // Console panel
                         using(var panel = rightVerticalLayout.CreatePanelLayout())
                         {
-                            using(var scrollLayout = panel.CreateVerticalScrollLayout())
+                            using(var scrollLayout = panel.CreateVerticalScrollLayout(out _consoleScroll))
                             {
-                                _consoleScroll = scrollLayout.Parent.gameObject.transform.parent.gameObject.GetComponent<ScrollRect>(); // FIXME
                                 scrollLayout.CreateLabel("Console");
-
-                                // Console
-                                GameObject textAreaObject = new GameObject("AdminPanel - Text Area");
-                                
-                                var rectTransform = textAreaObject.AddComponent<RectTransform>();
-                                textAreaObject.transform.SetParent(scrollLayout.Parent);
-                                
-                                rectTransform.offsetMin = Vector2.zero;
-                                rectTransform.offsetMax = Vector2.zero;
-                                rectTransform.pivot = Vector2.up;
-                                
-                                rectTransform.anchorMin = Vector2.up;
-                                rectTransform.anchorMax = Vector2.up;
-                                rectTransform.sizeDelta = new Vector2(scrollLayout.Parent.rect.width * 0.95f , scrollLayout.Parent.rect.height );
-                                
-                                Vector2 margin = new Vector2(scrollLayout.Parent.rect.width * 0.05f, -5.0f); // FIXME MARGINS
-                                rectTransform.anchoredPosition = scrollLayout.Position + margin;
-                                
-                                var text = textAreaObject.AddComponent<Text>();
-                                text.text = _console.Content;
-                                text.font = Resources.FindObjectsOfTypeAll<Font>()[0];
-                                text.fontSize = 10;
-                                text.color = Color.white;
-                                text.alignment = TextAnchor.UpperLeft;
-                                
-                                ContentSizeFitter fitter = textAreaObject.AddComponent<ContentSizeFitter>();
-                                fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;;
-                                
-                                // Set as current text field
-                                _consoleText = text;
+                                scrollLayout.CreateTextArea("Texto", out _consoleText);
                             }
                         }
                     }

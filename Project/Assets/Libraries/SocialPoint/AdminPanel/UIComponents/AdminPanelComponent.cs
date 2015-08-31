@@ -10,6 +10,7 @@ namespace SocialPoint.AdminPanel
         protected const int DefaultPadding = 3;
         protected const int DefaultScrollPadding = 10;
         protected const int DefaultFontSize = 14;
+        protected const int TextAreaFontSize = 9;
         protected const int PanelTitleFontSize = 5;
         protected const int PanelHeaderHeight = 8;
         protected const int DefaultLabelHeight = 20;
