@@ -1,16 +1,26 @@
 ﻿using System;
 using UnityEngine.UI;
+using UnityEngine.Assertions;
+using SocialPoint.Locale;
 using SocialPoint.Utils;
 using SocialPoint.Alert;
 using SocialPoint.GUI;
 
 public class InvalidSecurityTokenPopupController : UIViewController
 {
+    private const string RestartGameKey = "restart_game";
+    private const string RestartGameMessageKey = "restart_game_message";
+    private const string YesKey = "yes";
+    private const string NoKey = "no";
+
+
     public Text TitleLabel;
     public Text MessageLabel;
     public Text SignatureLabel;
     public Button ContactButton;
     public Button RestartButton;
+
+    public Localization Localization;
 
     public string ContactEmail;
     public string Subject;
@@ -125,9 +135,12 @@ public class InvalidSecurityTokenPopupController : UIViewController
     public void OnRestartButtonPressed()
     {
         var restartAlert = new AlertView();
-        restartAlert.Title = "Restart Game";
-        restartAlert.Message = "This action will delete all your progress and data, are you sure you want to restart your game?";
-        restartAlert.Buttons = new string[]{ "YES", "NO"};
+        Assert.IsNotNull(Localization, "Localization is null");
+        restartAlert.Title = new LocalizedString(RestartGameKey, "Restart Game", Localization);
+        restartAlert.Message = new LocalizedString(RestartGameMessageKey, "This action will delete all your progress and data, are you sure you want to restart your game?", Localization);
+        var buttonYesLocalized = new LocalizedString(YesKey, "Yes", Localization);
+        var buttonNoLocalized = new LocalizedString(NoKey, "No", Localization);
+        restartAlert.Buttons = new string[]{ buttonYesLocalized, buttonNoLocalized};
         restartAlert.Show((int restartResult) => {
             if(restartResult == 0)
             {

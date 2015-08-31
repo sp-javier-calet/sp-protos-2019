@@ -208,7 +208,7 @@ namespace SocialPoint.GameLoading
                     var popup = Popups.CreateChild<InvalidSecurityTokenPopupController>();
                     popup.TitleText = new LocalizedString(InvalidSecurityTokenKey, "Invalid Security token", Localization);
                     popup.MessageText = new LocalizedString(InvalidSecurityTokenMessageKey, "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.", Localization).ToString().Replace("\\n", "\n");
-
+                    popup.Localization = Localization;
                     popup.ContactButtonText = new LocalizedString(ContactKey, "Contact", Localization);
                     popup.RestartButtonText = new LocalizedString(RestartKey, "Restart", Localization);
                     popup.Restart = () => {
