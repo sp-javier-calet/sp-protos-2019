@@ -24,20 +24,20 @@ namespace SocialPoint.GameLoading
     /// </summary>
     public class GameLoadingController : UIViewController
     {
-        const string upgradeKey = "upgrade";
-        const string forceUpgradeKey = "force_upgrade";
-        const string suggestedUpgradeKey = "suggested_upgrade";
-        const string laterKey = "later";
-        const string retryKey = "retry";
-        const string invalidPrivilegeTokenKey = "invalid_privilege_token";
-        const string connectionErrorKey = "connection_error";
-        const string maintenanceModeKey = "maintenance_mode";
-        const string maintenanceMessageKey = "maintenance_message";
-        const string invalidSecurityTokenKey = "invalid_security_token";
-        const string invalidSecurityTokenMessageKey = "invalid_security_message";
-        const string contactKey = "contact";
-        const string restartKey = "restart";
-        const string responseErrorKey = "response_error";
+        const string UpgradeKey = "upgrade";
+        const string ForceUpgradeKey = "force_upgrade";
+        const string SuggestedUpgradeKey = "suggested_upgrade";
+        const string LaterKey = "later";
+        const string RetryKey = "retry";
+        const string InvalidPrivilegeTokenKey = "invalid_privilege_token";
+        const string ConnectionErrorKey = "connection_error";
+        const string MaintenanceModeKey = "maintenance_mode";
+        const string MaintenanceMessageKey = "maintenance_message";
+        const string InvalidSecurityTokenKey = "invalid_security_token";
+        const string InvalidSecurityTokenMessageKey = "invalid_security_message";
+        const string ContactKey = "contact";
+        const string RestartKey = "restart";
+        const string ResponseErrorKey = "response_error";
 
         public ILogin Login;
         public PopupsController Popups;
@@ -143,9 +143,9 @@ namespace SocialPoint.GameLoading
             case ErrorType.ForceUpgrade:
                 if(genericData.Upgrade.Type == UpgradeType.Forced)
                 {
-                    alert.Title = new LocalizedString(forceUpgradeKey, "Force Upgrade", Localization);
+                    alert.Title = new LocalizedString(ForceUpgradeKey, "Force Upgrade", Localization);
                     ;
-                    textButton0 = new LocalizedString(upgradeKey, "Upgrade", Localization);
+                    textButton0 = new LocalizedString(UpgradeKey, "Upgrade", Localization);
                     alert.Buttons = new string[]{ textButton0 };
                     alert.Show((int result) => Application.OpenURL(genericData.StoreUrl)  
                     );
@@ -156,9 +156,9 @@ namespace SocialPoint.GameLoading
                     //because suggested does not fire an error that OnLoginEnd can catch
                     var auxOp = new LoadingOperation();
                     RegisterLoadingOperation(auxOp);
-                    alert.Title = new LocalizedString(suggestedUpgradeKey, "Suggested Upgrade", Localization);
-                    textButton0 = new LocalizedString(upgradeKey, "Upgrade", Localization);
-                    textButton1 = new LocalizedString(laterKey, "Later", Localization);
+                    alert.Title = new LocalizedString(SuggestedUpgradeKey, "Suggested Upgrade", Localization);
+                    textButton0 = new LocalizedString(UpgradeKey, "Upgrade", Localization);
+                    textButton1 = new LocalizedString(LaterKey, "Later", Localization);
                     alert.Buttons = new string[]{ textButton0, textButton1 };
                     alert.Show((int result) => {
                         if(result == 0)
@@ -175,16 +175,16 @@ namespace SocialPoint.GameLoading
                 break;
 
             case ErrorType.InvalidPrivilegeToken:
-                alert.Title = new LocalizedString(invalidPrivilegeTokenKey, "Invalid Privilege Token", Localization);
-                textButton0 = new LocalizedString(retryKey, "Retry", Localization);
+                alert.Title = new LocalizedString(InvalidPrivilegeTokenKey, "Invalid Privilege Token", Localization);
+                textButton0 = new LocalizedString(RetryKey, "Retry", Localization);
                 alert.Buttons = new string[]{ textButton0 };
                 alert.Message = msg;
                 alert.Show((int result) => DoLogin());
                 break;
 
             case ErrorType.Connection: 
-                alert.Title = new LocalizedString(connectionErrorKey, "Connection Error", Localization);
-                textButton0 = new LocalizedString(retryKey, "Retry", Localization);
+                alert.Title = new LocalizedString(ConnectionErrorKey, "Connection Error", Localization);
+                textButton0 = new LocalizedString(RetryKey, "Retry", Localization);
                 alert.Buttons = new string[]{ textButton0 };
                 alert.Message = msg;
                 alert.Show((int result) => DoLogin());
@@ -193,8 +193,8 @@ namespace SocialPoint.GameLoading
             case ErrorType.MaintenanceMode:
                 {
                     var popup = Popups.CreateChild<MaintenanceModePopupController>();
-                    popup.TitleText = new LocalizedString(maintenanceModeKey, "Maintenance Mode", Localization);
-                    popup.MessageText = new LocalizedString(maintenanceMessageKey, "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.", Localization).ToString().Replace("\\n", "\n");
+                    popup.TitleText = new LocalizedString(MaintenanceModeKey, "Maintenance Mode", Localization);
+                    popup.MessageText = new LocalizedString(MaintenanceMessageKey, "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.", Localization).ToString().Replace("\\n", "\n");
                     popup.Signature = data.AsDic.GetValue(SocialPointLogin.AttrKeySignature).ToString();
                     Popups.Push(popup);
                 }
@@ -203,11 +203,11 @@ namespace SocialPoint.GameLoading
             case ErrorType.InvalidSecurityToken:
                 {
                     var popup = Popups.CreateChild<InvalidSecurityTokenPopupController>();
-                    popup.TitleText = new LocalizedString(invalidSecurityTokenKey, "Invalid Security token", Localization);
-                    popup.MessageText = new LocalizedString(invalidSecurityTokenMessageKey, "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.", Localization).ToString().Replace("\\n", "\n");
+                    popup.TitleText = new LocalizedString(InvalidSecurityTokenKey, "Invalid Security token", Localization);
+                    popup.MessageText = new LocalizedString(InvalidSecurityTokenMessageKey, "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.", Localization).ToString().Replace("\\n", "\n");
 
-                    popup.ContactButtonText = new LocalizedString(contactKey, "Contact", Localization);
-                    popup.RestartButtonText = new LocalizedString(restartKey, "Restart", Localization);
+                    popup.ContactButtonText = new LocalizedString(ContactKey, "Contact", Localization);
+                    popup.RestartButtonText = new LocalizedString(RestartKey, "Restart", Localization);
                     popup.Restart = () => {
                         Login.ClearUserId();
                         Application.LoadLevel(0);
@@ -218,8 +218,8 @@ namespace SocialPoint.GameLoading
                 break;
 
             default:
-                alert.Title = new LocalizedString(responseErrorKey, "Response Error", Localization);
-                textButton0 = new LocalizedString(retryKey, "Retry", Localization);
+                alert.Title = new LocalizedString(ResponseErrorKey, "Response Error", Localization);
+                textButton0 = new LocalizedString(RetryKey, "Retry", Localization);
                 alert.Buttons = new string[]{ textButton0 };
                 alert.Message = msg;
                 alert.Show((int result) => {
