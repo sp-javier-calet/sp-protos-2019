@@ -25,6 +25,24 @@ namespace SocialPoint.AdminPanel
             CreateButtonLabel(label, rectTransform);
         }
 
+        public void CreateOpenPanelButton(string label, AdminPanelGUI panel)
+        {
+            var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
+            
+            var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
+            layoutElement.preferredHeight = DefaultLabelHeight;
+            layoutElement.flexibleWidth = 1;
+            
+            var image = rectTransform.gameObject.AddComponent<Image>();
+            image.color = ForegroundColor;
+            
+            var button = rectTransform.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            button.onClick.AddListener(() => { OpenPanel(panel); });
+            
+            CreateButtonLabel(label, rectTransform);
+        }
+
         private void CreateButtonLabel(string label, RectTransform buttonTransform)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button Label", buttonTransform);
@@ -41,4 +59,3 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
-

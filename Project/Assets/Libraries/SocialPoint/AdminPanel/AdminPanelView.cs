@@ -22,12 +22,16 @@ namespace SocialPoint.AdminPanel
 
             // Move and set external console
             _console = new AdminPanelConsole();
-            AdminPanelGUI.AdminPanelConsole = _console;
+            AdminPanelGUI.AdminPanelConsole = _console; // FIXME
+
             _console.OnContentChanged += () => {
                 if(_consoleText != null)
                 {
                     _consoleText.text = _console.Content;
-                    _consoleScroll.verticalNormalizedPosition = 0.0f;
+                    if(_console.FixedFocus)
+                    {
+                        _consoleScroll.verticalNormalizedPosition = 0.0f;
+                    }
                 }
             };
         }
@@ -43,7 +47,7 @@ namespace SocialPoint.AdminPanel
 
         void InflateGUI()
         {
-            AdminPanelLayout rootLayout = new AdminPanelRootLayout();
+            AdminPanelLayout rootLayout = new AdminPanelRootLayout(this);
             _canvasObject = rootLayout.Parent.gameObject;
 
             using(AdminPanelLayout horizontalLayout = rootLayout.CreateHorizontalLayout())
@@ -85,7 +89,7 @@ namespace SocialPoint.AdminPanel
                             using(var scrollLayout = panel.CreateVerticalScrollLayout(out _consoleScroll))
                             {
                                 scrollLayout.CreateLabel("Console");
-                                scrollLayout.CreateTextArea("Texto", out _consoleText);
+                                scrollLayout.CreateTextArea(_console.Content, out _consoleText);
                             }
                         }
                     }
@@ -115,6 +119,12 @@ namespace SocialPoint.AdminPanel
         {
             _activePanels.Clear();
             OpenPanel(panelLayout);
+        }
+
+        public void OpenPanel(AdminPanelGUI panel)
+        {
+            _activePanels.Push(new AdminPanelGUILayout(panel));
+            RefreshPanel();
         }
 
         public void OpenPanel(AdminPanelGUILayout panelLayout)

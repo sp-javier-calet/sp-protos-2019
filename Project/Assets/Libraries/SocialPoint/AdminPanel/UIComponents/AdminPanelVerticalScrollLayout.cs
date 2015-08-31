@@ -37,6 +37,9 @@ namespace SocialPoint.AdminPanel
                 LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
                 layoutElement.flexibleWidth = weight;
                 layoutElement.flexibleHeight = weight;
+
+                // It requires a minimal size or could result in a zero-sized layout
+                layoutElement.preferredHeight = DefaultLabelHeight * 4;
                 
                 Image image = rectTransform.gameObject.AddComponent<Image>();
                 image.color = BackgroundColor;

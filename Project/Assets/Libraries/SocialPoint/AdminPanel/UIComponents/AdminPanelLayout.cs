@@ -7,67 +7,37 @@ namespace SocialPoint.AdminPanel
     public partial class AdminPanelLayout : IDisposable
     {
         public RectTransform Parent { get; protected set; }
-        
-        protected Vector2 _currentPosition;
-        protected Vector2 _aabb;
-        private AdminPanelLayout _parentLayout ;
-        
-        public Vector2 Position
-        {
-            get { return _currentPosition;}
-        }
-        
-        protected AdminPanelLayout()
-        {
-            _currentPosition = new Vector2();
-            _aabb = new Vector2();
-            _parentLayout = null;
-        }
-        
+
+        private AdminPanelView _view;
+
         public AdminPanelLayout(AdminPanelLayout parentLayout)
-            : this()
         {
-            _parentLayout = parentLayout;
             Parent = parentLayout.Parent;
+            _view = parentLayout._view;
         }
         
         public AdminPanelLayout(RectTransform rectTransform)
-            : this()
         {
             Parent = rectTransform;
         }
-        
-        public void Advance(Vector2 offset)
+
+        protected AdminPanelLayout(AdminPanelView view)
         {
-            Advance(offset.x, offset.y);
+            _view = view;
         }
         
-        public void Advance(float x, float y)
+        protected void OpenPanel(AdminPanelGUI panel)
         {
-            _aabb.x = Mathf.Max(_aabb.x, x);
-            _aabb.y = Mathf.Max(_aabb.y, y);
-            //DoAdvance(x, y);
+            _view.OpenPanel(panel);
         }
-        
-        public virtual void DoAdvance(float x, float y)
+
+        protected void ClosePanel()
         {
-            _currentPosition.x += x;
-            _currentPosition.y -= y;
+            _view.ClosePanel();
         }
-        
+
         public virtual void Dispose()
         {
-            if(_parentLayout != null)
-            {
-                //_parentLayout.Advance(_currentPosition.x, -_currentPosition.y);
-            }
-        }
-        
-        protected void AdjustMinHeight()
-        {
-            Vector2 finalSize = new Vector2(Parent.rect.size.x, _aabb.y);
-            Parent.sizeDelta = finalSize;
-            _currentPosition.y = -_aabb.y;
         }
     }
 }

@@ -58,6 +58,11 @@ namespace SocialPoint.AdminPanel
         {
             panels = new List<AdminPanelGUI>();
         }
+
+        public AdminPanelGUILayout(AdminPanelGUI panel) : this()
+        {
+            panels.Add(panel);
+        }
         
         public void Add(AdminPanelGUI panel)
         {

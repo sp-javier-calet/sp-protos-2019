@@ -18,6 +18,7 @@ namespace SocialPoint.AdminPanel
 
         protected static readonly Color BackgroundColor = new Color(.3f, .3f, .3f, .5f);
         protected static readonly Color ForegroundColor = new Color(.5f, .5f, .5f, .7f);
+        protected static readonly Color InputColor = Color.white;
 
         protected static readonly Color StatusEnabledColor = new Color(.3f, .8f, .3f, .8f);
         protected static readonly Color StatusDisabledColor = new Color(.8f, .3f, .3f, .8f);
@@ -44,6 +45,13 @@ namespace SocialPoint.AdminPanel
 
             return rectTrans;
         }
-        
+
+        public void CreateMargin(int multiplier)
+        {
+            var rectTransform = CreateUIObject("Admin Panel - Margin", Parent);
+            var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
+            layoutElement.minHeight = DefaultMargin * multiplier;
+            layoutElement.minWidth = DefaultMargin * multiplier;
+        }
     }
 }
