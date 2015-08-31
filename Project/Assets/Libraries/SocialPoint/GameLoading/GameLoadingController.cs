@@ -9,6 +9,7 @@ using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Base;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace SocialPoint.GameLoading
 {
@@ -64,10 +65,12 @@ namespace SocialPoint.GameLoading
 
             UnityAlertView.ShowDelegate = (GameObject go) => {
                 var viewController = go.GetComponent<UIViewController>();
+                Assert.IsNotNull(viewController, "GameObject doesn't have a viewController");
                 Popups.Push(viewController);
             };
             UnityAlertView.HideDelegate = (GameObject go) => {
                 var viewController = go.GetComponent<UIViewController>();
+                Assert.IsNotNull(viewController, "GameObject doesn't have a viewController");
                 viewController.Hide(true);
             };
 
