@@ -14,7 +14,7 @@ namespace SocialPoint.AdminPanel
             
             var text = rectTransform.gameObject.AddComponent<Text>();
             text.text = label;
-            text.font = Resources.FindObjectsOfTypeAll<Font>()[0];
+            text.font = DefaultFont;
             text.fontSize = DefaultFontSize;
             text.color = Color.white;
             text.alignment = TextAnchor.UpperCenter;

@@ -33,8 +33,13 @@ public class AdminPanelTestConnection : MonoBehaviour {
                 horizontalLayout.CreateLabel("HLabel2");
             }
 
-            layout.CreateButton("TestButton", TestAction);
-            layout.CreateButton("TestButton", TestAction);
+            layout.CreateToggleButton("TestToggle", false, (value) => {});
+
+            using(var horizontalLayout = layout.CreateHorizontalLayout())
+            {
+                horizontalLayout.CreateToggleButton("TestToggle", false, (value) => {});
+                horizontalLayout.CreateButton("TestButton", TestAction);
+            }
         }
 
         private void TestAction()
@@ -48,7 +53,7 @@ public class AdminPanelTestConnection : MonoBehaviour {
     {
         public override void OnCreateGUI(AdminPanelLayout layout)
         {
-            AdminPanelGUIUtils.CreateButton(layout, "Test Connection", () => { 
+            layout.CreateButton("Test Connection", () => { 
                 Debug.Log("Test Connection");
             });
 

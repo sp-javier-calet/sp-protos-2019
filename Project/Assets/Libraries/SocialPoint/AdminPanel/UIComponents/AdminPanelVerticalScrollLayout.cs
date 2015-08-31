@@ -25,8 +25,8 @@ namespace SocialPoint.AdminPanel
                 var rectTransform = CreateUIObject("Admin Panel - Vertical Scroll Layout", parentLayout.Parent);
                 
                 LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
-                layoutElement.flexibleWidth = 1;
-                layoutElement.flexibleHeight = 1;
+                layoutElement.flexibleWidth = weight;
+                layoutElement.flexibleHeight = weight;
                 
                 Image image = rectTransform.gameObject.AddComponent<Image>();
                 image.color = BackgroundColor;
@@ -40,7 +40,7 @@ namespace SocialPoint.AdminPanel
                 var contentTransform = CreateUIObject("Admin Panel - Vertical Scroll Content", rectTransform);
                 
                 VerticalLayoutGroup layoutGroup = contentTransform.gameObject.AddComponent<VerticalLayoutGroup>();
-                layoutGroup.padding = new RectOffset(DefaultPadding, DefaultPadding, DefaultPadding, DefaultPadding);
+                layoutGroup.padding = new RectOffset(DefaultScrollPadding, DefaultScrollPadding, DefaultPadding, DefaultPadding);
                 layoutGroup.childForceExpandHeight = false;
                 layoutGroup.childForceExpandWidth = true;
                 layoutGroup.spacing = DefaultMargin;
