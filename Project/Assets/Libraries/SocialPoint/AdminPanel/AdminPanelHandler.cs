@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
@@ -17,9 +18,11 @@ namespace SocialPoint.AdminPanel
         }
 
         private Dictionary<string, AdminPanelGUILayout> _categories;
-        internal AdminPanelHandler(Dictionary<string, AdminPanelGUILayout> categories)
+        private ConsoleApplication _consoleApplication;
+        internal AdminPanelHandler(Dictionary<string, AdminPanelGUILayout> categories, ConsoleApplication consoleApplication)
         {
             _categories = categories;
+            _consoleApplication = consoleApplication;
         }
 
         public void AddPanelGUI(string category, AdminPanelGUI panel)
@@ -44,9 +47,17 @@ namespace SocialPoint.AdminPanel
             return layout;
         }
 
-        public void RegisterConsoleCommand(string command)
+        public void RegisterCommand(string commandName, string description, ConsoleCommandDelegate commandDelegate)
         {
-            //TODO
+            _consoleApplication
+                .AddCommand(commandName)
+                .WithDescription(description)
+                .WithDelegate(commandDelegate);
+        }
+
+        public void RegisterCommand(string commandName, ConsoleCommand command)
+        {
+            _consoleApplication.AddCommand(commandName, command);
         }
     }
 

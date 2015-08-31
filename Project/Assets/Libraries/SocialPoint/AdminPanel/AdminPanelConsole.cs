@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
@@ -11,15 +12,21 @@ namespace SocialPoint.AdminPanel
 
         public bool FixedFocus { get; protected set; }
 
-        public AdminPanelConsole()
+        protected ConsoleApplication _consoleApplication;
+
+        public AdminPanelConsole(ConsoleApplication consoleApplication)
         {
-            FixedFocus = true;
+            _consoleApplication = consoleApplication;
 
             AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
             {
-                handler.AddPanelGUI("Console", new AdminPanelConsoleConfiguration(this));
+                handler.AddPanelGUI("Console", new AdminPanelConsoleConfiguration(this, _consoleApplication));
+                handler.RegisterCommand("clear", "Clear console", (command) => {
+                    Clear();
+                });
             };
 
+            FixedFocus = true;
             Clear();
         }
 
@@ -46,16 +53,29 @@ namespace SocialPoint.AdminPanel
         private class AdminPanelConsoleConfiguration : AdminPanelGUI 
         {
             private AdminPanelConsole _console;
+            protected ConsoleApplication _consoleApplication;
 
-            public AdminPanelConsoleConfiguration(AdminPanelConsole console)
+            public AdminPanelConsoleConfiguration(AdminPanelConsole console, ConsoleApplication consoleApplication)
             {
                 _console = console;
+                _consoleApplication = consoleApplication;
             }
 
             public override void OnCreateGUI(AdminPanelLayout layout)
             {
                 layout.CreateTextInput("Enter command", (value) => {
-                    Console.Print("Entered command  " + value);
+
+                    Console.Print("$" + value);
+
+                    ConsoleCommand command = _consoleApplication.FindCommand(value);
+                    if(command != null)
+                    {
+                        command.Execute();
+                    }
+                    else
+                    {
+                        Console.Print("Command " + value + " not found");
+                    }
                 });
 
                 layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(_console));
@@ -81,6 +101,7 @@ namespace SocialPoint.AdminPanel
             public override void OnCreateGUI(AdminPanelLayout layout)
             {
                 layout.CreateLabel("Available commands");
+                // TODO
             }
         }
     }

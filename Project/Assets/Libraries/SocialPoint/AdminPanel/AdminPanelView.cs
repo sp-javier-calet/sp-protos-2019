@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
@@ -14,14 +15,16 @@ namespace SocialPoint.AdminPanel
         private Text _consoleText;
         private GameObject _canvasObject;
         private bool _consoleEnabled;
+        private ConsoleApplication _consoleApplication;
 
         void Awake()
         {
             _categories = new Dictionary<string, AdminPanelGUILayout>();
             _activePanels = new Stack<AdminPanelGUILayout>();
+            _consoleApplication = new ConsoleApplication();
 
             // Move and set external console
-            _console = new AdminPanelConsole();
+            _console = new AdminPanelConsole(_consoleApplication);
             AdminPanelGUI.AdminPanelConsole = _console; // FIXME
 
             _console.OnContentChanged += () => {
@@ -103,7 +106,7 @@ namespace SocialPoint.AdminPanel
             {
                 // Load Layout data through handler
                 _categories = new Dictionary<string, AdminPanelGUILayout>();
-                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories));
+                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _consoleApplication));
                 InflateGUI();
             }
         }
