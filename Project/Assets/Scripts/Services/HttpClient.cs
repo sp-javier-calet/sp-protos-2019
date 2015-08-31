@@ -3,9 +3,8 @@ using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
-using SocialPoint.QualityStats;
 
-public class HttpClient : QualityStatsHttpClient
+public class HttpClient : CurlHttpClient
 {
     private string _httpProxy;
 
@@ -32,11 +31,10 @@ public class HttpClient : QualityStatsHttpClient
     }
 
     public HttpClient(MonoBehaviour mono):
-    base(new CurlHttpClient(mono))
+    base(mono)
     {
         RequestSetup += OnRequestSetup;
     }
-
 
     private void OnRequestSetup(HttpRequest req)
     {

@@ -302,11 +302,7 @@ namespace SocialPoint.QualityStats
 
             dict.SetValue("size_cache_dir", Caching.spaceOccupied);
 
-            if(_loadingFinished.CompareTo(kNewDateTime) == 0)
-            {
-                throw new Exception("SocialPointQualityStats.OnGameLoaded is not being called.");
-            }
-            else
+            if(_loadingFinished.CompareTo(kNewDateTime) != 0)
             {
                 double timeToMap = (_loadingFinished - _loadingStarted).TotalSeconds;
 
