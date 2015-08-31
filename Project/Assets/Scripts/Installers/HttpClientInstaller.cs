@@ -18,7 +18,6 @@ public class HttpClientInstaller : MonoInstaller
 #if UNITY_EDITOR
         Container.BindInstance("http_client_proxy", Settings.EditorProxy);
 #endif
-        Container.Bind<IHttpClient>().ToSingle<HttpClient>();
-        Container.Bind<IDisposable>().ToSingle<HttpClient>();
+        Container.BindAllInterfacesToSingle<HttpClient>();
 	}
 }

@@ -44,6 +44,9 @@ extern "C"
     EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct data);
     EXPORT_API int SPUnityCurlUpdate(int id);
 
+    EXPORT_API double SPUnityCurlGetConnectTime(int id);
+    EXPORT_API double SPUnityCurlGetTotalTime(int id);
+    
     EXPORT_API int SPUnityCurlGetCode(int id);
 
     EXPORT_API void SPUnityCurlGetError(int id, char* data);

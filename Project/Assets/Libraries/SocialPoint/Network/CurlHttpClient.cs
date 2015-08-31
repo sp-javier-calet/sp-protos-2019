@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class CurlHttpClient  : BaseYieldHttpClient, IDisposable
+    public class CurlHttpClient  : BaseYieldHttpClient
     {
         static int _initCount = 0;
 
@@ -30,8 +30,9 @@ namespace SocialPoint.Network
             _initCount++;
         }
 
-        public void Dispose()
+        override public void Dispose()
         {
+            base.Dispose();
             _initCount--;
             if(_initCount <= 0)
             {

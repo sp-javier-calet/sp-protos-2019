@@ -3,8 +3,9 @@ using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
+using SocialPoint.QualityStats;
 
-public class HttpClient : CurlHttpClient
+public class HttpClient : QualityStatsHttpClient
 {
     private string _httpProxy;
 
@@ -30,6 +31,13 @@ public class HttpClient : CurlHttpClient
         }
     }
 
+    public HttpClient(MonoBehaviour mono):
+    base(new CurlHttpClient(mono))
+    {
+        RequestSetup += OnRequestSetup;
+    }
+
+
     private void OnRequestSetup(HttpRequest req)
     {
         if(string.IsNullOrEmpty(req.Proxy))
@@ -50,10 +58,5 @@ public class HttpClient : CurlHttpClient
     private void OnWasOnBackground()
     {
         OnApplicationPause(false);
-    }
-
-    public HttpClient(MonoBehaviour mono) : base(mono)
-    {
-        RequestSetup += OnRequestSetup;
-    }
+    }   
 }

@@ -66,9 +66,9 @@ namespace SocialPoint.Network
         {
         }
 
-        public void CancelAllConnections()
+        public virtual void Dispose()
         {
-            foreach(BaseYieldHttpConnection connection in Pending.All)
+            foreach(var connection in Pending.All)
             {
                 connection.Cancel();
             }
@@ -78,7 +78,7 @@ namespace SocialPoint.Network
         {
             SetupHttpRequest(req);
             req.BeforeSend();
-            BaseYieldHttpConnection conn = CreateConnection(req, del);
+            var conn = CreateConnection(req, del);
 
             Pending.Enqueue(req.Priority, conn);
             if(_update == null)
@@ -93,7 +93,7 @@ namespace SocialPoint.Network
             while(Pending.Count > 0)
             {
                 Current = Pending.Dequeue();
-                IEnumerator e = Current.Update();
+                var e = Current.Update();
                 while(e != null && e.MoveNext() && Current != null)
                 {
                     yield return e.Current;
