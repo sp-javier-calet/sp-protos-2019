@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using SocialPoint.Base;
 
 namespace SocialPoint.Hardware
 {
@@ -10,20 +11,6 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                try
-                {
-                    var sel = new AndroidJavaClass("java.net.ProxySelector").CallStatic<AndroidJavaObject>("getDefault");
-                    var proxies = sel.Call<AndroidJavaObject>("select", new AndroidJavaObject("java.net.URI", "http://www.socialpoint.es"));
-                    if(proxies.Call<int>("size") == 0)
-                    {
-                        return null;
-                    }
-                    return proxies.Call<AndroidJavaObject>("get", 0).Call<AndroidJavaObject>("address");
-                }
-                catch(Exception e)
-                {
-                    Debug.LogError("Device proxy could not be retrieved. " + e.Message);
-                }
 
                 return null;
             }
@@ -38,13 +25,55 @@ namespace SocialPoint.Hardware
             {
                 if(!_proxyLoaded)
                 {
-                    var addr = SocketAddress;
-                    if(addr != null)
+                    try
                     {
-                        var str = "http://" + addr.Call<string>("getHostName") + ":" + addr.Call<int>("getPort");
-                        _proxy = new Uri(str);
+                        var objResolver = AndroidContext.ContentResolver;
+                        var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure");
+                        var key = "http_proxy";
+                        var proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
+                        if(string.IsNullOrEmpty(proxyStr))
+                        {
+                            clsSettings = new AndroidJavaClass("android.provider.Settings$Global");
+                            proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
+                        }
+                        if(string.IsNullOrEmpty(proxyStr))
+                        {
+                            var sys = new AndroidJavaClass("java.lang.System");
+                            var host = sys.CallStatic<string>("getProperty", "http.proxyHost");
+                            if(!string.IsNullOrEmpty(host))
+                            {
+                                proxyStr = host;
+                                var port = sys.CallStatic<string>("getProperty", "http.proxyPort");
+                                if(!string.IsNullOrEmpty(port))
+                                {
+                                    proxyStr +=  ":" + port;
+                                }
+                            }
+                        }
+                        if(string.IsNullOrEmpty(proxyStr))
+                        {
+                            var proxy = new AndroidJavaClass("android.net.Proxy");
+                            var host = proxy.CallStatic<string>("getHost", AndroidContext.CurrentActivity);
+                            if(!string.IsNullOrEmpty(host))
+                            {
+                                proxyStr = host;
+                                var port = proxy.CallStatic<string>("getPort", AndroidContext.CurrentActivity);
+                                if(!string.IsNullOrEmpty(port))
+                                {
+                                    proxyStr +=  ":" + port;
+                                }
+                            }
+                        }
+                        if(!string.IsNullOrEmpty(proxyStr))
+                        {
+                            _proxy = new Uri("http://"+proxyStr);
+                        }
+                        _proxyLoaded = true;
                     }
-                    _proxyLoaded = true;
+                    catch(Exception e)
+                    {
+                        UnityEngine.Debug.LogError("Device proxy could not be retrieved. " + e.Message);
+                    }
                 }
                 return _proxy;
             }

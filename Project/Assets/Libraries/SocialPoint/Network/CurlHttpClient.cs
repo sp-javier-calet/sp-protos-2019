@@ -1,9 +1,9 @@
+
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using SocialPoint.Utils;
-using SPDebug = SocialPoint.Base.Debug;
-using System.Collections;
 
 namespace SocialPoint.Network
 {

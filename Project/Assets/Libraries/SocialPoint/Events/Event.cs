@@ -1,4 +1,5 @@
 ﻿using System;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
 

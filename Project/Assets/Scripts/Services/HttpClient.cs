@@ -36,7 +36,7 @@ public class HttpClient : CurlHttpClient
         {
             req.Proxy = _httpProxy;
         }
-        if(string.IsNullOrEmpty(req.Proxy))
+        if(string.IsNullOrEmpty(req.Proxy) && DeviceInfo.NetworkInfo.Proxy != null)
         {
             req.Proxy = DeviceInfo.NetworkInfo.Proxy.ToString();
         }

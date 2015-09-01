@@ -2,11 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
-
-using SocialPoint.Utils;
-using SocialPoint.Base;
 using System.Linq;
+using System.Text;
+using SocialPoint.Base;
 
 namespace SocialPoint.Attributes
 {
@@ -176,7 +174,7 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                Debug.Assert(IsValue);
+                DebugUtils.Assert(IsValue);
                 return AsValue;
             }
         }
@@ -185,7 +183,7 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                Debug.Assert(IsDic);
+                DebugUtils.Assert(IsDic);
                 return AsDic;
             }
         }
@@ -194,7 +192,7 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                Debug.Assert(IsList);
+                DebugUtils.Assert(IsList);
                 return AsList;
             }
         }
@@ -207,7 +205,6 @@ namespace SocialPoint.Attributes
 
     public class AttrEmpty : Attr
     {
-        private static AttrEmpty instance;
 
         public AttrEmpty() : base(AttrType.EMPTY)
         {
@@ -245,9 +242,11 @@ namespace SocialPoint.Attributes
             return base.GetHashCode();
         }
 
+        const string NullString = "NULL";
+
         public override string ToString()
         {
-            return "NULL";
+            return NullString;
         }
     }
 

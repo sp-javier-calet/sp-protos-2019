@@ -76,10 +76,9 @@ namespace SocialPoint.Hardware
             {
                 if(_uid == null)
                 {
-                    var objResolver = AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getContentResolver");
-                    var clsSecure = new AndroidJavaClass("android.provider.Settings$Secure");
-                    string ANDROID_ID = clsSecure.GetStatic<string>("ANDROID_ID");
-                    _uid = clsSecure.CallStatic<string>("getString", objResolver, ANDROID_ID);
+                    var objResolver = AndroidContext.ContentResolver;
+                    var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure");
+                    _uid = clsSettings.CallStatic<string>("getString", objResolver, "android_id");
                 }
                 return _uid;
             }
@@ -134,7 +133,7 @@ namespace SocialPoint.Hardware
                     catch
                     {
                         _isGooglePlayServicesAvailable = false;
-                        Base.Debug.LogError("Error retrieving Google Play Services data");
+                        Debug.LogError("Error retrieving Google Play Services data");
                     }
                 }
                 return _isGooglePlayServicesAvailable.HasValue && (bool)_isGooglePlayServicesAvailable;

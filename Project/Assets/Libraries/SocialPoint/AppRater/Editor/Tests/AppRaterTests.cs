@@ -17,7 +17,6 @@ namespace SocialPoint.AppRater
     internal class AppRaterTests {
 
         AppRater AppRater;
-        GameObject Go;
         PersistentAttrStorage storage;
         IAppRaterGUI AppRaterGUI;
 
@@ -31,9 +30,7 @@ namespace SocialPoint.AppRater
             var netWorkInfo = Substitute.For<INetworkInfo>();
             netWorkInfo.Connectivity.Returns(INetworkInfoStatus.ReachableViaWiFi);
             deviceInfo.NetworkInfo.Returns(netWorkInfo);
-            Go = new GameObject();
-            var monobh = Go.AddComponent<MonoBehaviour>();
-            PathsManager.Init(monobh);
+            PathsManager.Init();
             storage = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "AppRaterTests"));
             var appEvents = Substitute.For<IAppEvents>();
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
@@ -190,7 +187,6 @@ namespace SocialPoint.AppRater
         [TearDown]
         public void TearDown()
         {
-            UnityEngine.Object.DestroyImmediate(Go);
             storage.Remove(AppRaterInfoKey);
         }
 

@@ -146,6 +146,7 @@ namespace SocialPoint.GUI
         public void ShowImmediate()
         {
             DebugLog("ShowImmediate");
+            Load();
             StopShowCoroutine();
             StopHideCoroutine();
             Reset();
@@ -206,6 +207,7 @@ namespace SocialPoint.GUI
         public void HideImmediate(bool destroy=false)
         {
             DebugLog("HideImmediate");
+            Load();
             StopShowCoroutine();
             StopHideCoroutine();
             Reset();
@@ -246,6 +248,7 @@ namespace SocialPoint.GUI
         public IEnumerator DoHideCoroutine(bool destroy)
         {
             StopShowCoroutine();
+            Load();
             if(_viewState == ViewState.Initial)
             {
                 HideImmediate();

@@ -1890,7 +1890,7 @@ public class ReportGenerator
 
 		AssetList usedAssetsList = buildInfo.UsedAssets;
 
-		SizePart[] usedAssets = usedAssetsList.All;
+		SizePart[] usedAssets = usedAssetsList == null ? new SizePart[0] : usedAssetsList.All;
 
 		bool sizeWasChangedAtLeastOnce = false;
 

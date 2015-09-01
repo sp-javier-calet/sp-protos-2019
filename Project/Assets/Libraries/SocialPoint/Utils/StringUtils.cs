@@ -71,23 +71,37 @@ namespace SocialPoint.Utils
             return dict;
         }
 
-        public static string GetIsoTimeStr (DateTime dt)
+        public static string GetIsoTimeStr(DateTime dt)
         {
-            return dt.ToString ("yyyyMMddTHHmmssZ");
+            return dt.ToString("yyyyMMddTHHmmssZ");
         }
         
-        public static string GetIsoTimeStr (string dts)
+        public static string GetIsoTimeStr(string dts)
         {
-            DateTime dt = DateTime.ParseExact (dts, "yyyyMMdd", null);
-            return GetIsoTimeStr (new DateTime (dt.Year, dt.Month, dt.Day, 0, 0, 0));
+            DateTime dt = DateTime.ParseExact(dts, "yyyyMMdd", null);
+            return GetIsoTimeStr(new DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0));
         }
         
-        public static string GetJoinedUrlParams (KeyValuePair<string,string>[] parms)
+        public static string GetJoinedUrlParams(KeyValuePair<string,string>[] parms)
         {
             string result = "";
-            foreach (KeyValuePair<string,string> param in parms)
-                result += "&" + param.Key + "=" + Uri.EscapeDataString (param.Value);
+            foreach(KeyValuePair<string,string> param in parms)
+                result += "&" + param.Key + "=" + Uri.EscapeDataString(param.Value);
             return result;
+        }
+
+        public static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+        
+        public static string GetString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length / sizeof(char)];
+            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            return new string(chars);
         }
     }
 }

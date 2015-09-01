@@ -4,16 +4,12 @@ using System;
 
 public class HardwareInstaller : MonoInstaller
 {
-	[Serializable]
-	public class SettingsData
-	{
-
-	};
-	
-	public SettingsData Settings;
-
 	public override void InstallBindings()
 	{
         Container.Bind<IDeviceInfo>().ToSingle<SocialPointDeviceInfo>();
+        Container.Bind<IMemoryInfo>().ToGetter<IDeviceInfo>(x => x.MemoryInfo);
+        Container.Bind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
+        Container.Bind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
+        Container.Bind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
 	}
 }

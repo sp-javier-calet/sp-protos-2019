@@ -1,6 +1,6 @@
 
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Events
 {	

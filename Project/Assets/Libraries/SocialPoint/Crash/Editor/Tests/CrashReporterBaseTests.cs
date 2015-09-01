@@ -28,7 +28,7 @@ namespace SocialPoint.Crash
         {
             GO = new GameObject();
             var monobh = GO.AddComponent<MonoBehaviour>();
-            PathsManager.Init(monobh);
+            PathsManager.Init();
 
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();

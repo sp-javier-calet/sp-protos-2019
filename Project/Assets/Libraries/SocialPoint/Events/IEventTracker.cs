@@ -1,11 +1,11 @@
 
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
+using SocialPoint.Base;
 using System;
 
 namespace SocialPoint.Events
 {
-	public delegate void EventDataSetupDelegate(AttrDic data);
+    public delegate void EventDataSetupDelegate(AttrDic data);
 
     public enum EventTrackerErrorType
     {
@@ -46,6 +46,7 @@ namespace SocialPoint.Events
                 _potentialAmount = value;
             }
         }
+
         public bool IsExcessLost;
 
         public int LostAmount
@@ -85,7 +86,7 @@ namespace SocialPoint.Events
 
     public interface IEventTracker : IDisposable
     {
-		event EventDataSetupDelegate DataSetup;
+        event EventDataSetupDelegate DataSetup;
         event EventTrackerErrorDelegate GeneralError;
 
         void Start();
@@ -97,7 +98,7 @@ namespace SocialPoint.Events
         void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
         void TrackFunnel(FunnelOperation op);
         void TrackPurchaseStart(PurchaseStartOperation op);
-        void TrackLevelUp(int lvl, AttrDic data=null);
+        void TrackLevelUp(int lvl, AttrDic data = null);
         void TrackResource(ResourceOperation op);
     }
 }
