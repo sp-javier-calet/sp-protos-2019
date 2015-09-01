@@ -11,19 +11,21 @@ namespace SocialPoint.AdminPanel
     {
         private Dictionary<string, AdminPanelGUI> _categories;
         private Stack<AdminPanelGUI> _activePanels;
-        private AdminPanelConsole _console;
-        private ScrollRect _consoleScroll;
+
         private Text _consoleText;
         private GameObject _canvasObject;
-        private bool _consoleEnabled;
+        private ScrollRect _consoleScroll;
+
+        private AdminPanelConsole _console;
         private ConsoleApplication _consoleApplication;
 
         private AdminPanelLayout _mainPanel;
         private AdminPanelLayout _mainPanelContent;
         private AdminPanelLayout _categoriesPanelContent;
         private AdminPanelLayout _consolePanel;
-        private bool _mainPanelDirty;
 
+        private bool _consoleEnabled;
+        private bool _mainPanelDirty;
 
         protected override void OnLoad()
         {
@@ -145,7 +147,7 @@ namespace SocialPoint.AdminPanel
 
         private void RefreshPanel()
         {
-
+            // Categories panel
             foreach(Transform child in _categoriesPanelContent.Parent)
             {
                 Destroy(child.gameObject);
@@ -154,24 +156,27 @@ namespace SocialPoint.AdminPanel
             AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(_categories);
             rootPanel.OnCreateGUI(_categoriesPanelContent);
 
+            // Main panel content
             if(_mainPanelDirty)
             {
+                // Destroy current content and hide main panel
                 foreach(Transform child in _mainPanelContent.Parent)
                 {
                     Destroy(child.gameObject);
                 }
-
                 _mainPanel.SetActive(false);
 
+                // Inflate panel if needed
                 if(_activePanels.Count > 0)
                 {
-                    _mainPanel.SetActive(true);
                     _activePanels.Peek().OnCreateGUI(_mainPanelContent);
+                    _mainPanel.SetActive(true);
                 }
 
                 _mainPanelDirty = false;
             }
 
+            // Console
             _consolePanel.SetActive(_consoleEnabled);
         }
 

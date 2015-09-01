@@ -11,26 +11,26 @@ namespace SocialPoint.AdminPanel
         {
             return new HorizontalLayout(this, Vector2.one);
         }
-    }
 
-    public class HorizontalLayout : AdminPanelLayout
-    {
-        public HorizontalLayout(AdminPanelLayout parentLayout, Vector2 relativeSize) : base(parentLayout)
+        private class HorizontalLayout : AdminPanelLayout
         {
-            var rectTrans = CreateUIObject("AdminPanel - Horizontal Layout", parentLayout.Parent);
-
-            HorizontalLayoutGroup layoutGroup = rectTrans.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layoutGroup.padding = new RectOffset(DefaultPadding, DefaultPadding, DefaultPadding, DefaultPadding);
-            layoutGroup.spacing = DefaultMargin;
-            layoutGroup.childForceExpandHeight = true;
-            layoutGroup.childForceExpandWidth = false;
+            public HorizontalLayout(AdminPanelLayout parentLayout, Vector2 relativeSize) : base(parentLayout)
+            {
+                var rectTrans = CreateUIObject("AdminPanel - Horizontal Layout", parentLayout.Parent);
+                
+                HorizontalLayoutGroup layoutGroup = rectTrans.gameObject.AddComponent<HorizontalLayoutGroup>();
+                layoutGroup.padding = new RectOffset(DefaultPadding, DefaultPadding, DefaultPadding, DefaultPadding);
+                layoutGroup.spacing = DefaultMargin;
+                layoutGroup.childForceExpandHeight = true;
+                layoutGroup.childForceExpandWidth = false;
+                
+                Parent = rectTrans;
+            }
             
-            Parent = rectTrans;
-        }
-        
-        public HorizontalLayout(AdminPanelLayout parentLayout) 
-            : this(parentLayout, Vector2.one)
-        {
+            public HorizontalLayout(AdminPanelLayout parentLayout) 
+                : this(parentLayout, Vector2.one)
+            {
+            }
         }
     }
 }

@@ -16,25 +16,25 @@ namespace SocialPoint.AdminPanel
         {
             return CreateVerticalLayout(1);
         }
-    }
-    
-    public class VerticalLayout : AdminPanelLayout
-    {
-        public VerticalLayout(AdminPanelLayout parentLayout, int weight) : base(parentLayout)
+
+        private class VerticalLayout : AdminPanelLayout
         {
-            var rectTransform = CreateUIObject("AdminPanel - Vertical Layout", parentLayout.Parent);
-
-            var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
-            layoutElement.flexibleWidth = weight;
-            layoutElement.flexibleHeight = weight;
-
-            var layoutGroup = rectTransform.gameObject.AddComponent<VerticalLayoutGroup>();
-            layoutGroup.padding = new RectOffset(DefaultPadding, DefaultPadding, DefaultPadding, DefaultPadding);
-            layoutGroup.spacing = DefaultMargin;
-            layoutGroup.childForceExpandHeight = true;
-            layoutGroup.childForceExpandWidth = false;
-            
-            Parent = rectTransform;
+            public VerticalLayout(AdminPanelLayout parentLayout, int weight) : base(parentLayout)
+            {
+                var rectTransform = CreateUIObject("AdminPanel - Vertical Layout", parentLayout.Parent);
+                
+                var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
+                layoutElement.flexibleWidth = weight;
+                layoutElement.flexibleHeight = weight;
+                
+                var layoutGroup = rectTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+                layoutGroup.padding = new RectOffset(DefaultPadding, DefaultPadding, DefaultPadding, DefaultPadding);
+                layoutGroup.spacing = DefaultMargin;
+                layoutGroup.childForceExpandHeight = true;
+                layoutGroup.childForceExpandWidth = false;
+                
+                Parent = rectTransform;
+            }
         }
     }
 }
