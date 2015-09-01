@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Profiler
@@ -12,12 +12,17 @@ namespace SocialPoint.Profiler
         public Color Color = Color.green;
         public bool ShortText = false;
 
+        public SocialPoint.AdminPanel.AdminPanel AdminPanel
+        {
+            set
+            {
+                value.AddPanelGUI("System", new PerfInfoAdminGUI(this));
+            }
+        }
+
+
         void Start()
         {
-            AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => {
-                handler.AddPanelGUI("System", new PerfInfoAdminGUI(this));
-            };
-
             if(Info == null)
             {
                 Info = new PerfInfo(this);

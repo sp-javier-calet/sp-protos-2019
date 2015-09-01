@@ -1,23 +1,21 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using SocialPoint.AdminPanel;
 
 public class AdminPanelTestConnection : MonoBehaviour {
 
+    public AdminPanel AdminPanel;
+
 	// Use this for initialization
-	void Start () {
-	    AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
-        {
-            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
-            handler.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
+    void Start () {
+        AdminPanel.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
+        AdminPanel.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
 
-            handler.AddPanelGUI("Advanced", new AdminPanelTestConnectionGUI());
+        AdminPanel.AddPanelGUI("Advanced", new AdminPanelTestConnectionGUI());
 
-            handler.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
-            handler.AddPanelGUI("Combined", new AdminPanelTestConnectionSimpleGUI());
-            handler.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
-
-        };
+        AdminPanel.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
+        AdminPanel.AddPanelGUI("Combined", new AdminPanelTestConnectionSimpleGUI());
+        AdminPanel.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
 	}
 
     private class AdminPanelTestConnectionSimpleGUI : AdminPanelGUI
@@ -44,7 +42,7 @@ public class AdminPanelTestConnection : MonoBehaviour {
 
         private void TestAction()
         {
-            Console.Print("Test log");
+            AdminPanel.Console.Print("Test log");
         }
     }
 
@@ -54,7 +52,7 @@ public class AdminPanelTestConnection : MonoBehaviour {
         public override void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateButton("Test Connection", () => { 
-                Debug.Log("Test Connection");
+                AdminPanel.Console.Print("Test Connection");
             });
 
             using(var scrollLayout = layout.CreateVerticalScrollLayout())

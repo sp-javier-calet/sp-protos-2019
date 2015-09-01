@@ -9,14 +9,11 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelController : UIViewController
     {
-        private Dictionary<string, AdminPanelGUI> _categories;
         private Stack<AdminPanelGUI> _activePanels;
 
         private Text _consoleText;
         private GameObject _canvasObject;
         private ScrollRect _consoleScroll;
-
-        private AdminPanelConsole _console;
 
         private AdminPanelLayout _mainPanel;
         private AdminPanelLayout _mainPanelContent;
@@ -26,23 +23,20 @@ namespace SocialPoint.AdminPanel
         private bool _consoleEnabled;
         private bool _mainPanelDirty;
 
+        public AdminPanel AdminPanel;
+
         protected override void OnLoad()
         {
             base.OnLoad();
 
-            _categories = new Dictionary<string, AdminPanelGUI>();
             _activePanels = new Stack<AdminPanelGUI>();
             _mainPanelDirty = false;
-            
-            // Move and set external console
-            _console = new AdminPanelConsole();
-            AdminPanelGUI.AdminPanelConsole = _console; // FIXME
-            
-            _console.OnContentChanged += () => {
+
+            AdminPanel.Console.OnContentChanged += () => {
                 if(_consoleText != null)
                 {
-                    _consoleText.text = _console.Content;
-                    if(_console.FixedFocus)
+                    _consoleText.text = AdminPanel.Console.Content;
+                    if(AdminPanel.Console.FixedFocus)
                     {
                         _consoleScroll.verticalNormalizedPosition = 0.0f;
                     }
@@ -80,7 +74,7 @@ namespace SocialPoint.AdminPanel
             using(var scrollLayout = _consolePanel.CreateVerticalScrollLayout(out _consoleScroll))
             {
                 scrollLayout.CreateLabel("Console");
-                scrollLayout.CreateTextArea(_console.Content, out _consoleText);
+                scrollLayout.CreateTextArea(AdminPanel.Console.Content, out _consoleText);
             }
             _consolePanel.SetActive(false);
         }
@@ -93,9 +87,6 @@ namespace SocialPoint.AdminPanel
             }
             else
             {
-                // Load Layout data through handler
-                _categories = new Dictionary<string, AdminPanelGUI>();
-                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _console));
                 InflateGUI();
             }
 
@@ -151,7 +142,7 @@ namespace SocialPoint.AdminPanel
                 Destroy(child.gameObject);
             }
 
-            AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(_categories);
+            AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(AdminPanel.Categories);
             rootPanel.OnCreateGUI(_categoriesPanelContent);
 
             // Main panel content

@@ -372,6 +372,14 @@ namespace SocialPoint.Crash
             }
         }
 
+        public SocialPoint.AdminPanel.AdminPanel AdminPanel
+        {
+            set
+            {
+                value.AddPanelGUI("System", new AdminPanelCrashReporterGUI(this));
+            }
+        }
+
         public CrashReporterBase(MonoBehaviour behaviour, IHttpClient client, 
                                  IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
         {
@@ -388,11 +396,6 @@ namespace SocialPoint.Crash
             _uniqueExceptions = new HashSet<string>();
 
             _wasActiveInLastSession = !WasOnBackground && IsEnabled;
-
-            AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
-            {
-                handler.AddPanelGUI("System", new AdminPanelCrashReporterGUI(this));
-            };
         }
 
         public void Enable()

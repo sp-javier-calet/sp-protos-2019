@@ -8,9 +8,7 @@ namespace SocialPoint.AdminPanel
 {
     public abstract class AdminPanelGUI
     {
-        public static AdminPanelConsole AdminPanelConsole { set; private get; }
-        public AdminPanelConsole Console { get { return AdminPanelGUI.AdminPanelConsole; }}
-
+        public AdminPanel AdminPanel;
         public abstract void OnCreateGUI(AdminPanelLayout layout);
     }
     

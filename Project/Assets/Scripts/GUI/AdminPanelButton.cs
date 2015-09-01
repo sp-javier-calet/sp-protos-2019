@@ -9,6 +9,9 @@ public class AdminPanelButton : MonoBehaviour
     [Inject]
     ScreensController Screens;
 
+    [Inject]
+    AdminPanel AdminPanel;
+
     public float WaitTime = 1.0f;
     private bool _down = false;
     private float _timeSinceDown = 0.0f;
@@ -43,6 +46,7 @@ public class AdminPanelButton : MonoBehaviour
         if(_adminPanelController == null)
         {
             _adminPanelController = gameObject.AddComponent<AdminPanelController>();
+            _adminPanelController.AdminPanel = AdminPanel;
             Screens.Push(_adminPanelController);
         }
         else

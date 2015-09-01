@@ -15,18 +15,21 @@ namespace SocialPoint.AdminPanel
 
         public ConsoleApplication Application { get; private set; }
 
+
+        public AdminPanel AdminPanel
+        {
+            set
+            {
+                value.AddPanelGUI("Console", new AdminPanelConsoleConfiguration(this));
+                value.RegisterCommand("clear", "Clear console", (command) => {
+                    Clear();
+                });
+            }
+        }
+
         public AdminPanelConsole()
         {
             Application = new ConsoleApplication();
-
-            AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
-            {
-                handler.AddPanelGUI("Console", new AdminPanelConsoleConfiguration(this));
-                handler.RegisterCommand("clear", "Clear console", (command) => {
-                    Clear();
-                });
-            };
-
             FixedFocus = true;
             Clear();
         }
@@ -76,7 +79,7 @@ namespace SocialPoint.AdminPanel
 
             private void OnSubmitCommand(string command)
             {
-                Console.Print("$" + command);
+                AdminPanel.Console.Print("$" + command);
                 
                 ConsoleCommand consoleCommand = _console.Application.FindCommand(command);
                 if(consoleCommand != null)
@@ -85,7 +88,7 @@ namespace SocialPoint.AdminPanel
                 }
                 else
                 {
-                    Console.Print("Command " + command + " not found");
+                    AdminPanel.Console.Print("Command " + command + " not found");
                 }
             }
 
