@@ -26,9 +26,14 @@ namespace SocialPoint.AdminPanel
             _adminPanelController = view;
         }
         
-        protected void OpenPanel(AdminPanelGUI panel)
+        protected void OpenPanel(AdminPanelGUILayout panel)
         {
             _adminPanelController.OpenPanel(panel);
+        }
+
+        protected void ReplacePanel(AdminPanelGUILayout panel)
+        {
+            _adminPanelController.ReplacePanel(panel);
         }
 
         protected void ClosePanel()

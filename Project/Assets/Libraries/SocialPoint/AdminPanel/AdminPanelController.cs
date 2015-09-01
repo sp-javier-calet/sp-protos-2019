@@ -18,14 +18,11 @@ namespace SocialPoint.AdminPanel
         private bool _consoleEnabled;
         private ConsoleApplication _consoleApplication;
 
-
-
-        private AdminPanelLayout _rightSideLayout;
-        private AdminPanelLayout _mainHorizontalLayout;
         private AdminPanelLayout _mainPanel;
         private AdminPanelLayout _mainPanelContent;
-        private bool _mainPanelDirty;
+        private AdminPanelLayout _categoriesPanelContent;
         private AdminPanelLayout _consolePanel;
+        private bool _mainPanelDirty;
 
 
         protected override void OnLoad()
@@ -58,67 +55,56 @@ namespace SocialPoint.AdminPanel
         void InflateGUI()
         {
             AdminPanelLayout rootLayout = new AdminPanelRootLayout(this);
-            if(_canvasObject == null)
-            {
-                _canvasObject = rootLayout.Parent.gameObject;
 
-                AdminPanelLayout horizontalLayout = rootLayout.CreateHorizontalLayout();
-                
-                    var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", () => { Close(); });
+            _canvasObject = rootLayout.Parent.gameObject;
 
-                    using(var scrollLayout = panelLayout.CreateVerticalScrollLayout())
-                    {
-                        AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(this, _categories);
-                        rootPanel.OnCreateGUI(scrollLayout);
-                    }
+            AdminPanelLayout horizontalLayout = rootLayout.CreateHorizontalLayout();
+            
+            var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", () => { Close(); });
+            _categoriesPanelContent = panelLayout.CreateVerticalScrollLayout();
 
-                    panelLayout.CreateToggleButton("Console", _consoleEnabled, (value) => {
-                        _consoleEnabled = value;
-                        RefreshPanel();
-                    });
+            panelLayout.CreateToggleButton("Console", _consoleEnabled, (value) => {
+                _consoleEnabled = value;
+                RefreshPanel();
+            });
 
-                    _mainHorizontalLayout = horizontalLayout;
-            }
-
-            if(_rightSideLayout != null)
-            {
-                Destroy(_rightSideLayout.Parent.gameObject);
-            }
-            _rightSideLayout = _mainHorizontalLayout.CreateVerticalLayout(4);
+            var rightVerticalLayout = horizontalLayout.CreateVerticalLayout(4);
 
             // Content panel
-            _mainPanel = _rightSideLayout.CreatePanelLayout("Panel", () => { ClosePanel(); }, 2);
+            _mainPanel = rightVerticalLayout.CreatePanelLayout("Panel", () => { ClosePanel(); }, 2);
             _mainPanelContent = _mainPanel.CreateVerticalScrollLayout();
             _mainPanel.SetActive(false);
 
             // Console panel
-            _consolePanel = _rightSideLayout.CreatePanelLayout();
+            _consolePanel = rightVerticalLayout.CreatePanelLayout();
             using(var scrollLayout = _consolePanel.CreateVerticalScrollLayout(out _consoleScroll))
             {
                 scrollLayout.CreateLabel("Console");
                 scrollLayout.CreateTextArea(_console.Content, out _consoleText);
             }
             _consolePanel.SetActive(_consoleEnabled);
-
         }
 
-        private void Open()
+        public void Open()
         {
-            if(_canvasObject == null)
+            if(_canvasObject != null)
+            {
+                _canvasObject.SetActive(true);
+            }
+            else
             {
                 // Load Layout data through handler
                 _categories = new Dictionary<string, AdminPanelGUILayout>();
                 AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _consoleApplication));
                 InflateGUI();
             }
+
+            RefreshPanel();
         }
 
         private void Close()
         {
-            Hide(false);
-            //Destroy(_canvasObject);
-            //_canvasObject = null;
-            _consoleText = null;
+            _canvasObject.SetActive(false);
         }
 
         public void ReplacePanel(AdminPanelGUILayout panelLayout)
@@ -159,6 +145,15 @@ namespace SocialPoint.AdminPanel
 
         private void RefreshPanel()
         {
+
+            foreach(Transform child in _categoriesPanelContent.Parent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(this, _categories);
+            rootPanel.OnCreateGUI(_categoriesPanelContent);
+
             if(_mainPanelDirty)
             {
                 foreach(Transform child in _mainPanelContent.Parent)
@@ -195,7 +190,8 @@ namespace SocialPoint.AdminPanel
                 // Inflate categories panel
                 foreach(var category in _categories)
                 {
-                    InflateCategory(layout, category.Key, category.Value);
+                    //InflateCategory(layout, category.Key, category.Value);
+                    layout.CreateOpenPanelButton(category.Key, category.Value, true);
                 }
             }
 

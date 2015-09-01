@@ -24,10 +24,15 @@ namespace SocialPoint.AdminPanel
         protected static readonly Color StatusDisabledColor = new Color(.8f, .3f, .3f, .8f);
         protected static readonly Color CloseButtonColor = new Color(.8f, .3f, .3f, .8f);
 
+        private static Font _defaultFont;
         public static Font DefaultFont { 
             get 
             {
-                return Resources.FindObjectsOfTypeAll<Font>()[0];
+                if(_defaultFont == null)
+                {
+                    _defaultFont =  Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
+                }
+                return _defaultFont;
             }
         }
 

@@ -12,6 +12,7 @@ public class AdminPanelButton : MonoBehaviour
     public float WaitTime = 1.0f;
     private bool _down = false;
     private float _timeSinceDown = 0.0f;
+    private AdminPanelController _adminPanelController;
 
     public void OnPointerUp(BaseEventData data)
     {
@@ -39,7 +40,14 @@ public class AdminPanelButton : MonoBehaviour
 
     private void OnActivation()
     {
-        AdminPanelController controller = gameObject.AddComponent<AdminPanelController>();
-        Screens.Push(controller);
+        if(_adminPanelController == null)
+        {
+            _adminPanelController = gameObject.AddComponent<AdminPanelController>();
+            Screens.Push(_adminPanelController);
+        }
+        else
+        {
+            _adminPanelController.Open();
+        }
     }
 }
