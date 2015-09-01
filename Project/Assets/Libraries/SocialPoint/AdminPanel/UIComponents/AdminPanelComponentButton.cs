@@ -27,7 +27,7 @@ namespace SocialPoint.AdminPanel
 
         public void CreateOpenPanelButton(string label, AdminPanelGUI panel)
         {
-            var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
+            var rectTransform = CreateUIObject("Admin Panel - Open Panel Button", Parent);
             
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
@@ -41,6 +41,7 @@ namespace SocialPoint.AdminPanel
             button.onClick.AddListener(() => { OpenPanel(panel); });
             
             CreateButtonLabel(label, rectTransform);
+            CreateOpenPanelIndicator(rectTransform);
         }
 
         private void CreateButtonLabel(string label, RectTransform buttonTransform)
@@ -53,6 +54,25 @@ namespace SocialPoint.AdminPanel
             text.fontSize = DefaultFontSize;
             text.color = Color.white;
             text.alignment = TextAnchor.MiddleCenter;
+            
+            LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
+            layoutElement.preferredHeight = DefaultLabelHeight;
+        }
+
+        private void CreateOpenPanelIndicator(RectTransform buttonTransform)
+        {
+            var rectTransform = CreateUIObject("Admin Panel - Open Panel Indicator", buttonTransform);
+            rectTransform.anchorMin = Vector2.right;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.anchoredPosition = new Vector2(-DefaultFontSize * 1.5f, 0);
+            rectTransform.sizeDelta = new Vector2(DefaultFontSize, 1.0f);
+
+            var text = rectTransform.gameObject.AddComponent<Text>();
+            text.text = ">";
+            text.font = DefaultFont;
+            text.fontSize = DefaultFontSize;
+            text.color = Color.white;
+            text.alignment = TextAnchor.MiddleRight;
             
             LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;

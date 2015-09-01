@@ -9,8 +9,6 @@ namespace SocialPoint.AdminPanel
         public void CreateLabel(string label)
         {
             var rectTransform = CreateUIObject("Admin Panel - Label", Parent);
-
-            //rectTransform.sizeDelta = new Vector2(1.0f, 25.0f);
             
             var text = rectTransform.gameObject.AddComponent<Text>();
             text.text = label;

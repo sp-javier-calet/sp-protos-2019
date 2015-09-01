@@ -19,20 +19,29 @@ namespace SocialPoint.AdminPanel
             var image = toggleBackground.gameObject.AddComponent<Image>();
             image.color = ForegroundColor;
 
-            // Status indicators
-            Vector2 anchorMin = new Vector2(.9f,  .3f);
-            Vector2 anchorMax = new Vector2(.95f, .7f);
+            // Status indicators parameters
+            Vector2 anchorMin = Vector2.one;
+            Vector2 anchorMax = Vector2.one;
+            int indicatorSize = (int)Mathf.Round(DefaultLabelHeight / 3);
+            Vector2 anchoredPosition = new Vector2(-indicatorSize * 2, -indicatorSize - 1);
+            Vector2 indicatorSizeDelta = new Vector2(indicatorSize, indicatorSize);
 
-            var disableIndicator = CreateUIObject("Admin Panel - Toggle Enabled Graphic", rectTransform);
+            // Disabled indicator
+            var disableIndicator = CreateUIObject("Admin Panel - Toggle Disabled Graphic", rectTransform);
             disableIndicator.anchorMin = anchorMin;
             disableIndicator.anchorMax = anchorMax;
+            disableIndicator.anchoredPosition = anchoredPosition;
+            disableIndicator.sizeDelta = indicatorSizeDelta;
 
             var disImage = disableIndicator.gameObject.AddComponent<Image>();
             disImage.color = StatusDisabledColor;
-            
-            var toggleIndicator = CreateUIObject("Admin Panel - Toggle Disabled Graphic", rectTransform);
+
+            // Enabled indicator
+            var toggleIndicator = CreateUIObject("Admin Panel - Toggle Enabled Graphic", rectTransform);
             toggleIndicator.anchorMin = anchorMin;
             toggleIndicator.anchorMax = anchorMax;
+            toggleIndicator.anchoredPosition = anchoredPosition;
+            toggleIndicator.sizeDelta = indicatorSizeDelta;
 
             var indImage = toggleIndicator.gameObject.AddComponent<Image>();
             indImage.color = StatusEnabledColor;

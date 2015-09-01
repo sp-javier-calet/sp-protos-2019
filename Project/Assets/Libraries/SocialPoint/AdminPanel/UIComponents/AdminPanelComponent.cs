@@ -36,14 +36,15 @@ namespace SocialPoint.AdminPanel
             GameObject gObject = new GameObject(name);
             gObject.transform.SetParent(parent);
             
-            RectTransform rectTrans = gObject.AddComponent<RectTransform>();
-            rectTrans.pivot = Vector2.up;
-            rectTrans.offsetMin = Vector2.zero;
-            rectTrans.offsetMax = Vector2.zero;
-            rectTrans.anchorMin = Vector2.zero;
-            rectTrans.anchorMax = Vector2.one;
+            RectTransform rectTransform = gObject.AddComponent<RectTransform>();
+            rectTransform.pivot = Vector2.up;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.localScale = Vector3.one;
 
-            return rectTrans;
+            return rectTransform;
         }
 
         public void CreateMargin(int multiplier)

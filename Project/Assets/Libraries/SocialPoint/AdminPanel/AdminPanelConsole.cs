@@ -38,7 +38,7 @@ namespace SocialPoint.AdminPanel
 
         public void Clear()
         {
-            Content = "";
+            Content = string.Empty;
             ContentChanged();
         }
 

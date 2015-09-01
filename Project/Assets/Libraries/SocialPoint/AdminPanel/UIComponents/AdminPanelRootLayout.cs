@@ -6,7 +6,7 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelRootLayout : AdminPanelLayout
     {
-        public AdminPanelRootLayout(AdminPanelView view) : base(view)
+        public AdminPanelRootLayout(AdminPanelController controller) : base(controller)
         {
             var canvasObject = new GameObject("AdminPanel - Canvas");
             var rectTransform = canvasObject.AddComponent<RectTransform>();

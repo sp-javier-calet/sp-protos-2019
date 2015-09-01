@@ -8,12 +8,12 @@ namespace SocialPoint.AdminPanel
     {
         public RectTransform Parent { get; protected set; }
 
-        private AdminPanelView _view;
+        private AdminPanelController _adminPanelController;
 
         public AdminPanelLayout(AdminPanelLayout parentLayout)
         {
             Parent = parentLayout.Parent;
-            _view = parentLayout._view;
+            _adminPanelController = parentLayout._adminPanelController;
         }
         
         public AdminPanelLayout(RectTransform rectTransform)
@@ -21,19 +21,24 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        protected AdminPanelLayout(AdminPanelView view)
+        protected AdminPanelLayout(AdminPanelController view)
         {
-            _view = view;
+            _adminPanelController = view;
         }
         
         protected void OpenPanel(AdminPanelGUI panel)
         {
-            _view.OpenPanel(panel);
+            _adminPanelController.OpenPanel(panel);
         }
 
         protected void ClosePanel()
         {
-            _view.ClosePanel();
+            _adminPanelController.ClosePanel();
+        }
+
+        public void SetActive(bool active)
+        {
+            Parent.gameObject.SetActive(active);
         }
 
         public virtual void Dispose()
