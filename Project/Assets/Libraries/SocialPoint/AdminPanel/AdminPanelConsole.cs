@@ -13,15 +13,15 @@ namespace SocialPoint.AdminPanel
 
         public bool FixedFocus { get; protected set; }
 
-        protected ConsoleApplication _consoleApplication;
+        public ConsoleApplication Application { get; private set; }
 
-        public AdminPanelConsole(ConsoleApplication consoleApplication)
+        public AdminPanelConsole()
         {
-            _consoleApplication = consoleApplication;
+            Application = new ConsoleApplication();
 
             AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
             {
-                handler.AddPanelGUI("Console", new AdminPanelConsoleConfiguration(this, _consoleApplication));
+                handler.AddPanelGUI("Console", new AdminPanelConsoleConfiguration(this));
                 handler.RegisterCommand("clear", "Clear console", (command) => {
                     Clear();
                 });
@@ -54,12 +54,10 @@ namespace SocialPoint.AdminPanel
         private class AdminPanelConsoleConfiguration : AdminPanelGUI 
         {
             private AdminPanelConsole _console;
-            protected ConsoleApplication _consoleApplication;
 
-            public AdminPanelConsoleConfiguration(AdminPanelConsole console, ConsoleApplication consoleApplication)
+            public AdminPanelConsoleConfiguration(AdminPanelConsole console)
             {
                 _console = console;
-                _consoleApplication = consoleApplication;
             }
 
             public override void OnCreateGUI(AdminPanelLayout layout)
@@ -80,7 +78,7 @@ namespace SocialPoint.AdminPanel
             {
                 Console.Print("$" + command);
                 
-                ConsoleCommand consoleCommand = _consoleApplication.FindCommand(command);
+                ConsoleCommand consoleCommand = _console.Application.FindCommand(command);
                 if(consoleCommand != null)
                 {
                     consoleCommand.Execute();
@@ -95,7 +93,7 @@ namespace SocialPoint.AdminPanel
             {
                 status.Suggestion = status.Content;
 
-                ConsoleCommand currentCommand = _consoleApplication.FindCommand(status.Content);
+                ConsoleCommand currentCommand = _console.Application.FindCommand(status.Content);
                 if(currentCommand != null)
                 {
                     status.Suggestion += " - " + currentCommand.Description;
@@ -117,7 +115,7 @@ namespace SocialPoint.AdminPanel
                 layout.CreateLabel("Available commands");
 
                 string content = "";
-                foreach(KeyValuePair<string, ConsoleCommand> entry in _console._consoleApplication)
+                foreach(KeyValuePair<string, ConsoleCommand> entry in _console.Application)
                 {
                     content += entry.Key + " : " + entry.Value.Description + "\n";
                 }

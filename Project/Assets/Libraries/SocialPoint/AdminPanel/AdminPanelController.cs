@@ -17,7 +17,6 @@ namespace SocialPoint.AdminPanel
         private ScrollRect _consoleScroll;
 
         private AdminPanelConsole _console;
-        private ConsoleApplication _consoleApplication;
 
         private AdminPanelLayout _mainPanel;
         private AdminPanelLayout _mainPanelContent;
@@ -33,11 +32,10 @@ namespace SocialPoint.AdminPanel
 
             _categories = new Dictionary<string, AdminPanelGUI>();
             _activePanels = new Stack<AdminPanelGUI>();
-            _consoleApplication = new ConsoleApplication();
             _mainPanelDirty = false;
             
             // Move and set external console
-            _console = new AdminPanelConsole(_consoleApplication);
+            _console = new AdminPanelConsole();
             AdminPanelGUI.AdminPanelConsole = _console; // FIXME
             
             _console.OnContentChanged += () => {
@@ -97,7 +95,7 @@ namespace SocialPoint.AdminPanel
             {
                 // Load Layout data through handler
                 _categories = new Dictionary<string, AdminPanelGUI>();
-                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _consoleApplication));
+                AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _console));
                 InflateGUI();
             }
 

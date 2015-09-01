@@ -18,11 +18,11 @@ namespace SocialPoint.AdminPanel
         }
 
         private Dictionary<string, AdminPanelGUI> _categories;
-        private ConsoleApplication _consoleApplication;
-        internal AdminPanelHandler(Dictionary<string, AdminPanelGUI> categories, ConsoleApplication consoleApplication)
+        private AdminPanelConsole _console;
+        internal AdminPanelHandler(Dictionary<string, AdminPanelGUI> categories, AdminPanelConsole console)
         {
             _categories = categories;
-            _consoleApplication = consoleApplication;
+            _console = console;
         }
          
         public void AddPanelGUI(string category, AdminPanelGUI panel)
@@ -44,15 +44,14 @@ namespace SocialPoint.AdminPanel
 
         public void RegisterCommand(string commandName, string description, ConsoleCommandDelegate commandDelegate)
         {
-            _consoleApplication
-                .AddCommand(commandName)
-                .WithDescription(description)
-                .WithDelegate(commandDelegate);
+            _console.Application.AddCommand(commandName)
+                                .WithDescription(description)
+                                .WithDelegate(commandDelegate);
         }
 
         public void RegisterCommand(string commandName, ConsoleCommand command)
         {
-            _consoleApplication.AddCommand(commandName, command);
+            _console.Application.AddCommand(commandName, command);
         }
     }
 }
