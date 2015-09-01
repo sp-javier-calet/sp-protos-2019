@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Profiler
 {
@@ -13,10 +14,17 @@ namespace SocialPoint.Profiler
 
         void Start()
         {
+            AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => {
+                handler.AddPanelGUI("System", new PerfInfoAdminGUI(this));
+            };
+
             if(Info == null)
             {
                 Info = new PerfInfo(this);
             }
+
+            // Starts disabled
+            enabled = false;
         }
 
         void OnGUI()
@@ -41,6 +49,22 @@ namespace SocialPoint.Profiler
             UnityEngine.GUI.BeginGroup(rect);
             UnityEngine.GUI.Label(new Rect(0.0f, 0.0f, rect.width, rect.height), text, style);
             UnityEngine.GUI.EndGroup();
+        }
+
+        private class PerfInfoAdminGUI : AdminPanelGUI
+        {
+            private PerfInfoGUI _perfInfo;
+            public PerfInfoAdminGUI(PerfInfoGUI perfInfo)
+            {
+                _perfInfo = perfInfo;
+            }
+
+            public override void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("Performance Info");
+                layout.CreateToggleButton("Show performance info", _perfInfo.enabled, (value) => {
+                    _perfInfo.enabled = value; });
+            }
         }
     }
 }

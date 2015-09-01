@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.EventSystems;
+using SocialPoint.AdminPanel;
+using System.Collections;
 using Zenject;
 
 public class AdminPanelButton : MonoBehaviour
@@ -38,7 +39,7 @@ public class AdminPanelButton : MonoBehaviour
 
     private void OnActivation()
     {
-        Screens.Push<AdminPanelController>();
+        AdminPanelController controller = gameObject.AddComponent<AdminPanelController>();
+        Screens.Push(controller);
     }
-
 }
