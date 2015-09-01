@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using System.Linq;
 
+using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
@@ -388,6 +389,11 @@ namespace SocialPoint.Crash
             _uniqueExceptions = new HashSet<string>();
 
             _wasActiveInLastSession = !WasOnBackground && IsEnabled;
+
+            AdminPanelHandler.OnAdminPanelInit += (AdminPanelHandler handler) => 
+            {
+                handler.AddPanelGUI("System", new AdminPanelCrashReporterGUI(this));
+            };
         }
 
         public void Enable()
@@ -782,6 +788,40 @@ namespace SocialPoint.Crash
             if(HasExceptionLogs)
             {
                 SendExceptions(_exceptionStorage.StoredKeys);
+            }
+        }
+
+        #endregion
+
+        #region Admin Panel GUI
+
+        private class AdminPanelCrashReporterGUI : AdminPanelGUI
+        {
+            private CrashReporterBase _crashReporter;
+
+            public AdminPanelCrashReporterGUI(CrashReporterBase crashReporter)
+            {
+                _crashReporter = crashReporter;
+            }
+
+            public override void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("CrashReporter");
+
+                layout.CreateToggleButton("Enabled", _crashReporter.IsEnabled, (value) => {
+                    if(value)
+                    {
+                        _crashReporter.Enable();
+                    }
+                    else
+                    {
+                        _crashReporter.Disable();
+                    }
+                });
+
+                layout.CreateButton("Force crash", () => {
+                    _crashReporter.ForceCrash(); 
+                });
             }
         }
 
