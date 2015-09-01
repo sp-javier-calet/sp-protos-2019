@@ -7,22 +7,22 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public AdminPanelLayout CreatePanelLayout(string title, Action onClose, int weight)
+        public PanelLayout CreatePanelLayout(string title, Action onClose, int weight)
         {
             return new PanelLayout(this, title, onClose, weight);
         }
 
-        public AdminPanelLayout CreatePanelLayout(string title, Action onClose)
+        public PanelLayout CreatePanelLayout(string title, Action onClose)
         {
             return CreatePanelLayout(title, onClose, DefaultLayoutWeight);
         }
 
-        public AdminPanelLayout CreatePanelLayout(string title)
+        public PanelLayout CreatePanelLayout(string title)
         {
             return CreatePanelLayout(title, null, DefaultLayoutWeight);
         }
 
-        public AdminPanelLayout CreatePanelLayout()
+        public PanelLayout CreatePanelLayout()
         {
             return CreatePanelLayout(null, null, DefaultLayoutWeight);
         }
@@ -30,19 +30,6 @@ namespace SocialPoint.AdminPanel
     
     public class PanelLayout : AdminPanelLayout
     {
-        private Text _titleComponent;
-        public string Title 
-        {
-            get
-            {
-                return _titleComponent.text;
-            }
-            set
-            {
-                _titleComponent.text = value;
-            }
-        }
-
         public PanelLayout(AdminPanelLayout parentLayout, string title, Action onClose, int weight) : base(parentLayout)
         {
             var rectTransform = CreateUIObject("Admin Panel - Panel", parentLayout.Parent);
@@ -82,12 +69,12 @@ namespace SocialPoint.AdminPanel
             layoutElement.preferredHeight = PanelHeaderHeight;
             layoutElement.flexibleWidth = 1;
             
-            _titleComponent = rectTransform.gameObject.AddComponent<Text>();
-            _titleComponent.text = title;
-            _titleComponent.font = DefaultFont;
-            _titleComponent.fontSize = PanelTitleFontSize;
-            _titleComponent.color = Color.white;
-            _titleComponent.alignment = TextAnchor.UpperRight;
+            var text = rectTransform.gameObject.AddComponent<Text>();
+            text.text = title;
+            text.font = DefaultFont;
+            text.fontSize = PanelTitleFontSize;
+            text.color = Color.white;
+            text.alignment = TextAnchor.UpperRight;
         }
 
         private void CreateCloseButton(RectTransform panelTransform, Action onClose)

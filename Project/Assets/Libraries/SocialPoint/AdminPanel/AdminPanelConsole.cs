@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
@@ -114,7 +115,14 @@ namespace SocialPoint.AdminPanel
             public override void OnCreateGUI(AdminPanelLayout layout)
             {
                 layout.CreateLabel("Available commands");
-                // TODO
+
+                string content = "";
+                foreach(KeyValuePair<string, ConsoleCommand> entry in _console._consoleApplication)
+                {
+                    content += entry.Key + " : " + entry.Value.Description + "\n";
+                }
+
+                layout.CreateTextArea(content);
             }
         }
     }

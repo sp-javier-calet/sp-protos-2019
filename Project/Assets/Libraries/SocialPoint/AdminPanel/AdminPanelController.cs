@@ -9,8 +9,8 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelController : UIViewController
     {
-        private Dictionary<string, AdminPanelGUILayout> _categories;
-        private Stack<AdminPanelGUILayout> _activePanels;
+        private Dictionary<string, AdminPanelGUI> _categories;
+        private Stack<AdminPanelGUI> _activePanels;
         private AdminPanelConsole _console;
         private ScrollRect _consoleScroll;
         private Text _consoleText;
@@ -29,8 +29,8 @@ namespace SocialPoint.AdminPanel
         {
             base.OnLoad();
 
-            _categories = new Dictionary<string, AdminPanelGUILayout>();
-            _activePanels = new Stack<AdminPanelGUILayout>();
+            _categories = new Dictionary<string, AdminPanelGUI>();
+            _activePanels = new Stack<AdminPanelGUI>();
             _consoleApplication = new ConsoleApplication();
             _mainPanelDirty = false;
             
@@ -82,7 +82,7 @@ namespace SocialPoint.AdminPanel
                 scrollLayout.CreateLabel("Console");
                 scrollLayout.CreateTextArea(_console.Content, out _consoleText);
             }
-            _consolePanel.SetActive(_consoleEnabled);
+            _consolePanel.SetActive(false);
         }
 
         public void Open()
@@ -94,7 +94,7 @@ namespace SocialPoint.AdminPanel
             else
             {
                 // Load Layout data through handler
-                _categories = new Dictionary<string, AdminPanelGUILayout>();
+                _categories = new Dictionary<string, AdminPanelGUI>();
                 AdminPanelHandler.InitializeHandler(new AdminPanelHandler(_categories, _consoleApplication));
                 InflateGUI();
             }
@@ -107,29 +107,29 @@ namespace SocialPoint.AdminPanel
             _canvasObject.SetActive(false);
         }
 
-        public void ReplacePanel(AdminPanelGUILayout panelLayout)
+        public void ReplacePanel(AdminPanelGUI gui)
         {
-            AdminPanelGUILayout currentLayout = null;
+            AdminPanelGUI currentGUI = null;
             if(_activePanels.Count > 0)
             {
-                currentLayout = _activePanels.Peek();
+                currentGUI = _activePanels.Peek();
             }
 
-            if(currentLayout != panelLayout)
+            if(currentGUI != gui)
             {
                 _activePanels.Clear();
-                OpenPanel(panelLayout);
+                OpenPanel(gui);
             }
         }
 
         public void OpenPanel(AdminPanelGUI panel)
         {
-            _activePanels.Push(new AdminPanelGUILayout(panel));
+            _activePanels.Push(new AdminPanelGUIGroup(panel));
             _mainPanelDirty = true;
             RefreshPanel();
         }
 
-        public void OpenPanel(AdminPanelGUILayout panelLayout)
+        public void OpenPanel(AdminPanelGUIGroup panelLayout)
         {
             _activePanels.Push(panelLayout);
             _mainPanelDirty = true;
@@ -151,7 +151,7 @@ namespace SocialPoint.AdminPanel
                 Destroy(child.gameObject);
             }
 
-            AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(this, _categories);
+            AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(_categories);
             rootPanel.OnCreateGUI(_categoriesPanelContent);
 
             if(_mainPanelDirty)
@@ -168,6 +168,8 @@ namespace SocialPoint.AdminPanel
                     _mainPanel.SetActive(true);
                     _activePanels.Peek().OnCreateGUI(_mainPanelContent);
                 }
+
+                _mainPanelDirty = false;
             }
 
             _consolePanel.SetActive(_consoleEnabled);
@@ -176,12 +178,10 @@ namespace SocialPoint.AdminPanel
         // Categories Panel content
         private class AdminPanelCategoriesGUI : AdminPanelGUI
         {
-            private Dictionary<string, AdminPanelGUILayout> _categories;
-            private AdminPanelController _adminPanelController;
+            private Dictionary<string, AdminPanelGUI> _categories;
 
-            public AdminPanelCategoriesGUI(AdminPanelController controller, Dictionary<string, AdminPanelGUILayout> categories)
+            public AdminPanelCategoriesGUI(Dictionary<string, AdminPanelGUI> categories)
             {
-                _adminPanelController = controller;
                 _categories = categories;
             }
 
@@ -190,16 +190,8 @@ namespace SocialPoint.AdminPanel
                 // Inflate categories panel
                 foreach(var category in _categories)
                 {
-                    //InflateCategory(layout, category.Key, category.Value);
                     layout.CreateOpenPanelButton(category.Key, category.Value, true);
                 }
-            }
-
-            private void InflateCategory(AdminPanelLayout layout, string categoryLabel, AdminPanelGUILayout panelLayout)
-            {
-                layout.CreateButton(categoryLabel, () => {
-                    _adminPanelController.ReplacePanel(panelLayout);
-                });
             }
         }
     }

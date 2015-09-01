@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 
@@ -26,12 +26,12 @@ namespace SocialPoint.AdminPanel
             _adminPanelController = view;
         }
         
-        protected void OpenPanel(AdminPanelGUILayout panel)
+        protected void OpenPanel(AdminPanelGUIGroup panel)
         {
             _adminPanelController.OpenPanel(panel);
         }
 
-        protected void ReplacePanel(AdminPanelGUILayout panel)
+        protected void ReplacePanel(AdminPanelGUIGroup panel)
         {
             _adminPanelController.ReplacePanel(panel);
         }
@@ -44,6 +44,11 @@ namespace SocialPoint.AdminPanel
         public void SetActive(bool active)
         {
             Parent.gameObject.SetActive(active);
+        }
+
+        public void Inflate(AdminPanelGUI gui)
+        {
+            gui.OnCreateGUI(this);
         }
 
         public virtual void Dispose()

@@ -17,34 +17,29 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        private Dictionary<string, AdminPanelGUILayout> _categories;
+        private Dictionary<string, AdminPanelGUI> _categories;
         private ConsoleApplication _consoleApplication;
-        internal AdminPanelHandler(Dictionary<string, AdminPanelGUILayout> categories, ConsoleApplication consoleApplication)
+        internal AdminPanelHandler(Dictionary<string, AdminPanelGUI> categories, ConsoleApplication consoleApplication)
         {
             _categories = categories;
             _consoleApplication = consoleApplication;
         }
-
+         
         public void AddPanelGUI(string category, AdminPanelGUI panel)
         {
-            AddPanelGUI(category, panel, AdminPanelGUIOptions.None);
-        }
-         
-        public void AddPanelGUI(string category, AdminPanelGUI panel, AdminPanelGUIOptions options)
-        {
-            AdminPanelGUILayout layout = GetCategoryLayout(category);
-            layout.Add(panel);
+            AdminPanelGUIGroup group = GetCategoryLayout(category);
+            group.Add(panel);
         }
 
-        private AdminPanelGUILayout GetCategoryLayout(string category)
+        private AdminPanelGUIGroup GetCategoryLayout(string category)
         {
-            AdminPanelGUILayout layout;
-            if(!_categories.TryGetValue(category, out layout))
+            AdminPanelGUI group;
+            if(!_categories.TryGetValue(category, out group))
             {
-                layout = new AdminPanelGUILayout();
-                _categories.Add(category, layout);
+                group = new AdminPanelGUIGroup();
+                _categories.Add(category, group);
             }
-            return layout;
+            return (AdminPanelGUIGroup)group;
         }
 
         public void RegisterCommand(string commandName, string description, ConsoleCommandDelegate commandDelegate)
@@ -58,34 +53,6 @@ namespace SocialPoint.AdminPanel
         public void RegisterCommand(string commandName, ConsoleCommand command)
         {
             _consoleApplication.AddCommand(commandName, command);
-        }
-    }
-
-    public class AdminPanelGUILayout
-    {
-        private List<AdminPanelGUI> panels;
-        
-        public AdminPanelGUILayout()
-        {
-            panels = new List<AdminPanelGUI>();
-        }
-
-        public AdminPanelGUILayout(AdminPanelGUI panel) : this()
-        {
-            panels.Add(panel);
-        }
-        
-        public void Add(AdminPanelGUI panel)
-        {
-            panels.Add(panel);
-        }
-
-        public void OnCreateGUI(AdminPanelLayout layout)
-        {
-            foreach(AdminPanelGUI panel in panels)
-            {
-                panel.OnCreateGUI(layout);
-            }
         }
     }
 }
