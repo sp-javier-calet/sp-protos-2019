@@ -25,6 +25,7 @@
     "SocialPoint/Tests": "v1.0.*",
     "SocialPoint/Locale": "v1.0.*",
     "SocialPoint/QualityStats": "v1.0.*",
+    "SocialPoint/Purchase": "v1.0.*",
     "SocialPoint/GameLoading": "master",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3",

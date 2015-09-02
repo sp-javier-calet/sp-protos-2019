@@ -67,23 +67,6 @@ namespace SocialPoint.Events
         public AttrDic AdditionalData;
     }
 
-    public class PurchaseStartOperation
-    {
-        public string TransactionId;
-        public string ProductId;
-        public string PaymentProvider;
-        public float AmountGross;
-        public PurchaseGameInfo Info;
-    }
-
-    public class PurchaseGameInfo
-    {
-        public string OfferName;
-        public string ResourceName;
-        public int ResourceAmount;
-        public AttrDic AdditionalData;
-    }
-
     public interface IEventTracker : IDisposable
     {
         event EventDataSetupDelegate DataSetup;
@@ -97,7 +80,6 @@ namespace SocialPoint.Events
         void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
         void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
         void TrackFunnel(FunnelOperation op);
-        void TrackPurchaseStart(PurchaseStartOperation op);
         void TrackLevelUp(int lvl, AttrDic data = null);
         void TrackResource(ResourceOperation op);
     }
