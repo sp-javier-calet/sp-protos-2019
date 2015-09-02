@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 using System.Runtime.InteropServices;
 
 namespace SocialPoint.Alert
@@ -90,9 +89,6 @@ namespace SocialPoint.Alert
             {
                 throw new NotImplementedException("IosAlertView is only supported on Ios");
             }
-            var go = new GameObject();
-            go.name = kGameObjectName;
-            _bridge = go.AddComponent<IosAlertViewBridge>();
         }
 
         public string Message
@@ -146,6 +142,9 @@ namespace SocialPoint.Alert
 
         public void Show(ResultDelegate dlg)
         {
+            var go = new GameObject();
+            go.name = kGameObjectName;
+            _bridge = go.AddComponent<IosAlertViewBridge>();
             _bridge.Show(_data, (int result, string inputText) => {
                 _inputText = inputText;
                 if(dlg != null)
@@ -163,6 +162,7 @@ namespace SocialPoint.Alert
         public void Dispose()
         {
             _bridge.Hide();
+            GameObject.Destroy(_bridge.gameObject);
         }
 
         public object Clone()
