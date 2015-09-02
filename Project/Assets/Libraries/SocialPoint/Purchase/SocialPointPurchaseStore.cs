@@ -29,18 +29,19 @@ namespace SocialPoint.Purchase
         const string HttpParamPurchaseData = "purchaseData";
         const string HttpParamDataSignature = "dataSignature";
         const string AttrKeyStatus = "status";
-
         const string EventNameMonetizationTransactionStart = "monetization.transaction_start";
 
-        enum backEndResponse
+        enum BackendResponse
         {
             ORDER_INVALID = 480,
             ORDER_NOTSYNC = 264,
             ORDER_SYNCED = 265
         }
 
-        public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
-        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
+        public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt,PurchaseResponseType response);
+
+        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+
         public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
 
         /// <summary>
@@ -85,6 +86,12 @@ namespace SocialPoint.Purchase
             RegisterEvents();
         }
 
+        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
+        void DebugLog(string msg)
+        {
+            DebugUtils.Log(string.Format("IosPurchaseStore {0}", msg));
+        }
+
         /// <summary>
         /// SocialPoint validate purchase process.
         /// Connects with backend and to validate a purchase, then calls OnBackendResponse
@@ -97,13 +104,13 @@ namespace SocialPoint.Purchase
         {
             if(_purchaseStore is MockPurchaseStore)
             {
-                DebugUtils.Log("no validation for mockup purchase");
+                DebugLog("no validation for mockup purchase");
                 var purchaseGameInfo = PurchaseCompleted(receipt, PurchaseResponseType.Complete);
                 TrackPurchaseStart(receipt, purchaseGameInfo);
                 return;
             }
 
-            DebugUtils.Log("validating purchase with backend");
+            DebugLog("validating purchase with backend");
 
             HttpRequest req = new HttpRequest();
             //get it from SocialPointLogin
@@ -138,19 +145,19 @@ namespace SocialPoint.Purchase
             //parse response from backend and call response with the final decission
             //JsonAttrParser parser = new JsonAttrParser();
             //AttrDic Data = parser.Parse(resp.Body).AsDic;
-            DebugUtils.Log("parsing backend response");
+            DebugLog("parsing backend response");
 
             //switch(Data[AttrKeyStatus].AsValue.ToInt())
             switch(resp.StatusCode)
             {
-            case (int)backEndResponse.ORDER_INVALID:
+            case (int)BackendResponse.ORDER_INVALID:
                 //warn client
                 PurchaseCompleted(receipt, PurchaseResponseType.Error);
                 //consume purchase
                 response(PurchaseResponseType.Error);
                 break;
             case 200:
-            case (int)backEndResponse.ORDER_NOTSYNC:
+            case (int)BackendResponse.ORDER_NOTSYNC:
                 //notify the store about validation state
                 _purchaseStore.PurchaseStateChanged(PurchaseState.ValidateSuccess, receipt.ProductId);
 
@@ -164,7 +171,7 @@ namespace SocialPoint.Purchase
                 _commandQueue.Send();
                 break;
                 
-            case (int)backEndResponse.ORDER_SYNCED:
+            case (int)BackendResponse.ORDER_SYNCED:
                 //warn client
                 PurchaseCompleted(receipt, PurchaseResponseType.Duplicated);
                 //consume purchase
@@ -180,6 +187,10 @@ namespace SocialPoint.Purchase
 
         void TrackPurchaseStart(Receipt receipt, PurchaseGameInfo info)
         {
+            if(TrackEvent == null)
+            {
+                return;
+            }
             var data = info.AdditionalData ?? new AttrDic();            
             var order = new AttrDic();
             data.Set("order", order);
@@ -233,6 +244,8 @@ namespace SocialPoint.Purchase
                 return "purchase/google-play";
                 #elif UNITY_EDITOR
                 return "purchase/unity";
+                #else
+                return "purchase/unknown"
                 #endif
             }
         }
@@ -301,12 +314,12 @@ namespace SocialPoint.Purchase
         /// <summary>
         /// Autocompletes the pending purchases.
         /// </summary>
-        public void AutocompletePendingPurchases()
+        public void ForceFinishPendingTransactions()
         {
             _purchaseStore.ForceFinishPendingTransactions();
         }
 
-        public void Uninitialize()
+        public void Dispose()
         {
             UnregisterEvents();
             _commandQueue = null;

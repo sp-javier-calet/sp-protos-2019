@@ -1,9 +1,10 @@
 
 using System;
 using System.Collections.Generic;
-using SocialPoint.Utils;
+using SocialPoint.Base;
 using SocialPoint.Attributes;
 using UnityEngine;
+
 namespace SocialPoint.Purchase
 {
     public class IosPurchaseStore
@@ -34,9 +35,15 @@ namespace SocialPoint.Purchase
             }
         }
 
+        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
+        void DebugLog(string msg)
+        {
+            DebugUtils.Log(string.Format("IosPurchaseStore {0}", msg));
+        }
+        
         public void LoadProducts (string[] productIds)
         {
-            SocialPoint.Base.Debug.Log("requesting products");
+            DebugLog("requesting products");
             StoreKitBinding.requestProductData(productIds);
         }
 
@@ -44,11 +51,11 @@ namespace SocialPoint.Purchase
         {
             if(_products == null)
             {
-                //SocialPoint.Base.Debug.Log ("there are no products, load them first");
+                DebugLog ("there are no products, load them first");
                 PurchaseUpdated(PurchaseState.PurchaseFailed,productId);
                 return false;
             }
-            //SocialPoint.Base.Debug.Log ("buying product: " + productId);
+            DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
                 StoreKitBinding.purchaseProduct(productId, 1 );
@@ -58,7 +65,7 @@ namespace SocialPoint.Purchase
             }
             else
             {
-                //SocialPoint.Base.Debug.Log ("product doesn't exist: " + productId);
+                DebugLog("product doesn't exist: " + productId);
                 PurchaseUpdated(PurchaseState.PurchaseFailed,productId);
                 return false;
             }
@@ -66,7 +73,7 @@ namespace SocialPoint.Purchase
 
         public void ForceFinishPendingTransactions()
         {
-            //SocialPoint.Base.Debug.Log ("ForceFinishPendingTransactions: ");
+            DebugLog("ForceFinishPendingTransactions");
             StoreKitBinding.forceFinishPendingTransactions();
         }
 
@@ -109,55 +116,51 @@ namespace SocialPoint.Purchase
         private void ProductListReceived (List<StoreKitProduct> products)
         {
             _products = new List<Product> ();
-            //SocialPoint.Base.Debug.Log ("received total products: " + products.Count);
+            DebugLog ("received total products: " + products.Count);
             try
             {
                 foreach(StoreKitProduct product in products)
                 {
                     Product parsedProduct = new Product(product.productIdentifier, product.title, float.Parse(product.price), product.currencySymbol);
-                    SocialPoint.Base.Debug.Log (product.ToString());
+                    DebugLog (product.ToString());
                     _products.Add(parsedProduct);
                 }
 
             }
             catch (Exception ex)
             {
-                //SocialPoint.Base.Debug.Log ("parsing went wrong");
+                DebugLog ("parsing went wrong");
                 ProductsUpdated (LoadProductsState.Error,new Error(ex.Message));
             }
 
             _products.Sort((Product p1, Product p2) => p1.Price.CompareTo(p2.Price));
-            SocialPoint.Base.Debug.Log ("products sorted");
+            DebugLog ("products sorted");
             ProductsUpdated (LoadProductsState.Success);
         }
 
         private void PurchaseFailed(string error)
         {
-            //SocialPoint.Base.Debug.Log ("PurchaseFailed " + error);
+            DebugLog ("PurchaseFailed " + error);
             PurchaseUpdated (PurchaseState.PurchaseFailed, _purchasingProduct);
         }
 
         private void PurchaseCanceled(string error)
         {
-            //SocialPoint.Base.Debug.Log ("PurchaseCanceled " +error);
+            DebugLog ("PurchaseCanceled " +error);
             PurchaseUpdated (PurchaseState.PurchaseCanceled, _purchasingProduct);
         }
 
         private void PurchaseFinished(StoreKitTransaction transaction)
         {
-            SocialPoint.Base.Debug.Log(transaction);
-            PurchaseUpdated (PurchaseState.PurchaseFinished, transaction.productIdentifier);
-            //FIXME Tech revise if needed
-            /*
             if(_purchasingProduct == transaction.productIdentifier)//transaction finished, everything went ok
             {
-                //SocialPoint.Base.Debug.Log ("Purchase has finished: " + transaction.transactionIdentifier);
+                DebugLog ("Purchase has finished: " + transaction.transactionIdentifier);
                 PurchaseUpdated (PurchaseState.PurchaseFinished, transaction.productIdentifier);
             }
             else
             {
-                //different id's, something wrong happened
-            }*/
+                DebugLog ("Purchase error different transaction id: " + transaction.transactionIdentifier);
+            }
         }
 
         private void ProductPurchaseAwaitingConfirmation(StoreKitTransaction transaction)
@@ -172,9 +175,9 @@ namespace SocialPoint.Purchase
             if(_validatePurchase != null)
             {
                 Receipt receipt = new Receipt (data);
-                SocialPoint.Base.Debug.Log ("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
+                DebugLog ("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
                 _validatePurchase(receipt, (response) => {
-                    SocialPoint.Base.Debug.Log ("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + id);
+                    DebugLog ("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + id);
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
                         StoreKitBinding.finishPendingTransaction(id);
@@ -188,7 +191,7 @@ namespace SocialPoint.Purchase
 
         private void TransactionUpdated(StoreKitTransaction transaction)
         {
-            SocialPoint.Base.Debug.Log ("Transaction Updated: " + transaction.transactionState);
+            DebugLog ("Transaction Updated: " + transaction.transactionState);
         }
 
         void UnregisterEvents()

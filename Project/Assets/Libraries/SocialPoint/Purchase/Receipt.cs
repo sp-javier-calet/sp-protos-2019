@@ -5,9 +5,13 @@ namespace SocialPoint.Purchase
     public struct Receipt
     {
         public string OrderId{ get; private set; }
+
         public string ProductId{ get; private set; }
+
         public PurchaseState State{ get; private set; }
+
         public string OriginalJson{ get; private set; }
+
         public string Store { get; private set; }
         //TODO: add specific attributes for different platforms
         public string DataSignature { get; private set; }
@@ -19,20 +23,20 @@ namespace SocialPoint.Purchase
         public static readonly string StoreKey = "Store";
         public static readonly string DataSignatureKey = "DataSignature";
 
-        public Receipt (Attr data) : this()
+        public Receipt(Attr data) : this()
         {
             var dataDic = data.AssertDic;
-            OrderId = dataDic.GetValue (OrderIdKey).ToString ();
-            ProductId = dataDic.GetValue (ProductIdKey).ToString ();
-            State = (PurchaseState)dataDic.GetValue (PurchaseStateKey).ToInt ();
-            OriginalJson = dataDic.GetValue (OriginalJsonKey).ToString ();
+            OrderId = dataDic.GetValue(OrderIdKey).ToString();
+            ProductId = dataDic.GetValue(ProductIdKey).ToString();
+            State = (PurchaseState)dataDic.GetValue(PurchaseStateKey).ToInt();
+            OriginalJson = dataDic.GetValue(OriginalJsonKey).ToString();
             Store = dataDic.GetValue(StoreKey).ToString();
             DataSignature = dataDic.GetValue(DataSignatureKey).ToString();
         }
 
         public Attr ToAttr()
         {
-            var data = new AttrDic ();
+            var data = new AttrDic();
             data.SetValue(OrderIdKey, OrderId);
             data.SetValue(ProductIdKey, ProductId);
             data.SetValue(PurchaseStateKey, (int)State);

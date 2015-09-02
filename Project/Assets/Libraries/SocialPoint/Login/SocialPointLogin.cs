@@ -11,7 +11,7 @@ using SocialPoint.Base;
 namespace SocialPoint.Login
 {
     public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
-	    
+        
     public class LoginUpgradeData
     {
         public UpgradeType Type;

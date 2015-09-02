@@ -6,7 +6,6 @@ using SocialPoint.Attributes;
 namespace SocialPoint.Purchase
 {
     public class EmptyPurchaseStore : IPurchaseStore
- 
     {
         public EmptyPurchaseStore()
         {
@@ -15,7 +14,6 @@ namespace SocialPoint.Purchase
         #region IPurchaseStore implementation
 
         public event ProductsUpdatedDelegate ProductsUpdated;
-
         public event PurchaseUpdatedDelegate PurchaseUpdated;
 
         protected virtual void OnProductsUpdated(LoadProductsState state, Error error)

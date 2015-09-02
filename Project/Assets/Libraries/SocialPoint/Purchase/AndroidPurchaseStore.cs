@@ -128,7 +128,7 @@ namespace SocialPoint.Purchase
             OpenIAB.init(options);
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPANDROIDPURCHASE")]
+        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
             DebugUtils.Log(string.Format("AndroidPurchaseStore {0}", msg));
