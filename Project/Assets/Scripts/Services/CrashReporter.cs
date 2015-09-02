@@ -30,15 +30,6 @@ class CrashReporter : SocialPointCrashReporter
             TrackEvent = value.TrackEvent;
         }
     }
-
-    [Inject]
-    public AdminPanel InjectAdminPanel
-    {
-        set
-        {
-            AdminPanel = value;
-        }
-    } 
     
     [InjectOptional("crash_reporter_send_interval")]
     public int InjectSendInterval

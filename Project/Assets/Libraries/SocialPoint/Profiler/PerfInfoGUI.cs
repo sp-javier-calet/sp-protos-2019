@@ -16,7 +16,7 @@ namespace SocialPoint.Profiler
         {
             set
             {
-                value.AddPanelGUI("System", new PerfInfoAdminGUI(this));
+                value.RegisterGUI("System", new PerfInfoAdminGUI(this));
             }
         }
 
@@ -64,7 +64,11 @@ namespace SocialPoint.Profiler
                 _perfInfo = perfInfo;
             }
 
-            public override void OnCreateGUI(AdminPanelLayout layout)
+            public void OnConfigure(AdminPanel.AdminPanel adminPanel)
+            {
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
             {
                 layout.CreateLabel("Performance Info");
                 layout.CreateToggleButton("Show performance info", _perfInfo.enabled, (value) => {

@@ -9,17 +9,23 @@ namespace SocialPoint.AdminPanel
         public Dictionary<string, AdminPanelGUI> Categories { get; private set; }
         public AdminPanelConsole Console { get; private set; }
 
-        public AdminPanel()
+        public AdminPanel(List<AdminPanelConfigurer> configurers)
         {
             Categories = new Dictionary<string, AdminPanelGUI>();
+
             Console = new AdminPanelConsole();
+            Console.OnConfigure(this);
+
+            foreach(var config in configurers)
+            {
+                config.OnConfigure(this);
+            }
         }
          
-        public void AddPanelGUI(string category, AdminPanelGUI panel)
+        public void RegisterGUI(string category, AdminPanelGUI gui)
         {
             AdminPanelGUIGroup group = GetCategoryLayout(category);
-            group.Add(panel);
-            panel.AdminPanel = this;
+            group.Add(gui);
         }
 
         private AdminPanelGUIGroup GetCategoryLayout(string category)

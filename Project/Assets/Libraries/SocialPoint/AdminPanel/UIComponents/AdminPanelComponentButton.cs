@@ -27,11 +27,6 @@ namespace SocialPoint.AdminPanel
 
         public void CreateOpenPanelButton(string label, AdminPanelGUI panel, bool replacePanel = false)
         {
-            CreateOpenPanelButton(label, new AdminPanelGUIGroup(panel), replacePanel);
-        }
-
-        public void CreateOpenPanelButton(string label, AdminPanelGUIGroup panel, bool replacePanel = false)
-        {
             var rectTransform = CreateUIObject("Admin Panel - Open Panel Button", Parent);
             
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();

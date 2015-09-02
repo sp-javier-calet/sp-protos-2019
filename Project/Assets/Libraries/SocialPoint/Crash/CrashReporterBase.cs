@@ -6,7 +6,6 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.Linq;
 
-using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
@@ -301,13 +300,13 @@ namespace SocialPoint.Crash
             }
         }
 
-        private bool IsEnabled
+        public bool IsEnabled
         { 
             get
             {
                 return PlayerPrefs.GetInt(CrashReporterEnabledPreferencesKey) > 0;
             }
-            set
+            private set
             {
                 PlayerPrefs.SetInt(CrashReporterEnabledPreferencesKey, (value) ? 1 : 0);
                 PlayerPrefs.Save();
@@ -369,14 +368,6 @@ namespace SocialPoint.Crash
                 }
 
                 return _storedUserId;
-            }
-        }
-
-        public SocialPoint.AdminPanel.AdminPanel AdminPanel
-        {
-            set
-            {
-                value.AddPanelGUI("System", new AdminPanelCrashReporterGUI(this));
             }
         }
 
@@ -796,40 +787,6 @@ namespace SocialPoint.Crash
             if(HasExceptionLogs)
             {
                 SendExceptions(_exceptionStorage.StoredKeys);
-            }
-        }
-
-        #endregion
-
-        #region Admin Panel GUI
-
-        private class AdminPanelCrashReporterGUI : AdminPanelGUI
-        {
-            private CrashReporterBase _crashReporter;
-
-            public AdminPanelCrashReporterGUI(CrashReporterBase crashReporter)
-            {
-                _crashReporter = crashReporter;
-            }
-
-            public override void OnCreateGUI(AdminPanelLayout layout)
-            {
-                layout.CreateLabel("CrashReporter");
-
-                layout.CreateToggleButton("Enabled", _crashReporter.IsEnabled, (value) => {
-                    if(value)
-                    {
-                        _crashReporter.Enable();
-                    }
-                    else
-                    {
-                        _crashReporter.Disable();
-                    }
-                });
-
-                layout.CreateButton("Force crash", () => {
-                    _crashReporter.ForceCrash(); 
-                });
             }
         }
 

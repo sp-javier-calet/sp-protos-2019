@@ -6,12 +6,33 @@ using System.Collections.Generic;
 
 namespace SocialPoint.AdminPanel
 {
-    public abstract class AdminPanelGUI
+    public interface AdminPanelConfigurer
     {
-        public AdminPanel AdminPanel;
-        public abstract void OnCreateGUI(AdminPanelLayout layout);
+        void OnConfigure(AdminPanel adminPanel);
     }
-    
+
+    public interface AdminPanelGUI
+    {
+        void OnCreateGUI(AdminPanelLayout layout);
+    }
+
+    public class AdminPanelNestedGUI : AdminPanelGUI
+    {
+        private string _name;
+        private AdminPanelGUI _gui;
+
+        public AdminPanelNestedGUI(string name, AdminPanelGUI gui)
+        {
+            _name = name;
+            _gui = gui;
+        }
+
+        public void OnCreateGUI(AdminPanelLayout layout)
+        {
+            layout.CreateOpenPanelButton(_name, _gui);
+        }
+    }
+
     public class AdminPanelGUIGroup : AdminPanelGUI
     {
         private List<AdminPanelGUI> guiGroup;
@@ -30,8 +51,8 @@ namespace SocialPoint.AdminPanel
         {
             guiGroup.Add(gui);
         }
-        
-        public override void OnCreateGUI(AdminPanelLayout layout)
+
+        public void OnCreateGUI(AdminPanelLayout layout)
         {
             foreach(AdminPanelGUI gui in guiGroup)
             {

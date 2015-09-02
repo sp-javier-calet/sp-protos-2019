@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
@@ -179,7 +179,11 @@ namespace SocialPoint.AdminPanel
                 _categories = categories;
             }
 
-            public override void OnCreateGUI(AdminPanelLayout layout)
+            public void OnConfigure(AdminPanel adminPanel)
+            {
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
             {
                 // Inflate categories panel
                 foreach(var category in _categories)

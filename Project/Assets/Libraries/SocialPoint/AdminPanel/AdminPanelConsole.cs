@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelConsole {
-
+    public class AdminPanelConsole : AdminPanelConfigurer, AdminPanelGUI 
+    {
         public string Content { get; private set; }
 
         public event Action OnContentChanged;
@@ -14,18 +14,6 @@ namespace SocialPoint.AdminPanel
         public bool FixedFocus { get; protected set; }
 
         public ConsoleApplication Application { get; private set; }
-
-
-        public AdminPanel AdminPanel
-        {
-            set
-            {
-                value.AddPanelGUI("Console", new AdminPanelConsoleConfiguration(this));
-                value.RegisterCommand("clear", "Clear console", (command) => {
-                    Clear();
-                });
-            }
-        }
 
         public AdminPanelConsole()
         {
@@ -54,53 +42,51 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        private class AdminPanelConsoleConfiguration : AdminPanelGUI 
+        public void OnConfigure(AdminPanel adminPanel)
         {
-            private AdminPanelConsole _console;
+            adminPanel.RegisterGUI("Console", this);
+            adminPanel.RegisterCommand("clear", "Clear console", (command) => {
+                Clear();
+            });
+        }
 
-            public AdminPanelConsoleConfiguration(AdminPanelConsole console)
+        public void OnCreateGUI(AdminPanelLayout layout)
+        {
+            layout.CreateTextInput("Enter command", OnSubmitCommand, OnValueChange);
+            
+            layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(this));
+            
+            layout.CreateMargin(2);
+            
+            layout.CreateToggleButton("Lock console", FixedFocus, (value) => {
+                FixedFocus = value; });
+            
+            layout.CreateButton("Clear console", () => { Clear(); });
+        }
+        
+        private void OnSubmitCommand(string command)
+        {
+            Print("$" + command);
+            
+            ConsoleCommand consoleCommand = Application.FindCommand(command);
+            if(consoleCommand != null)
             {
-                _console = console;
+                consoleCommand.Execute();
             }
-
-            public override void OnCreateGUI(AdminPanelLayout layout)
+            else
             {
-                layout.CreateTextInput("Enter command", OnSubmitCommand, OnValueChange);
-
-                layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(_console));
-
-                layout.CreateMargin(2);
-
-                layout.CreateToggleButton("Lock console", _console.FixedFocus, (value) => {
-                    _console.FixedFocus = value; });
-                
-                layout.CreateButton("Clear console", () => { _console.Clear(); });
+                Print("Command " + command + " not found");
             }
-
-            private void OnSubmitCommand(string command)
+        }
+        
+        private void OnValueChange(AdminPanelLayout.InputStatus status)
+        {
+            status.Suggestion = status.Content;
+            
+            ConsoleCommand currentCommand = Application.FindCommand(status.Content);
+            if(currentCommand != null)
             {
-                AdminPanel.Console.Print("$" + command);
-                
-                ConsoleCommand consoleCommand = _console.Application.FindCommand(command);
-                if(consoleCommand != null)
-                {
-                    consoleCommand.Execute();
-                }
-                else
-                {
-                    AdminPanel.Console.Print("Command " + command + " not found");
-                }
-            }
-
-            private void OnValueChange(AdminPanelLayout.InputStatus status)
-            {
-                status.Suggestion = status.Content;
-
-                ConsoleCommand currentCommand = _console.Application.FindCommand(status.Content);
-                if(currentCommand != null)
-                {
-                    status.Suggestion += " - " + currentCommand.Description;
-                }
+                status.Suggestion += " - " + currentCommand.Description;
             }
         }
 
@@ -113,7 +99,14 @@ namespace SocialPoint.AdminPanel
                 _console = console;
             }
 
-            public override void OnCreateGUI(AdminPanelLayout layout)
+            public void OnConfigure(AdminPanel adminPanel)
+            {
+                adminPanel.RegisterCommand("clear", "Clear console", (command) => {
+                    _console.Clear();
+                });
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
             {
                 layout.CreateLabel("Available commands");
 

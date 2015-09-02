@@ -8,19 +8,24 @@ public class AdminPanelTestConnection : MonoBehaviour {
 
 	// Use this for initialization
     void Start () {
-        AdminPanel.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
-        AdminPanel.AddPanelGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
+        AdminPanel.RegisterGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
+        AdminPanel.RegisterGUI("Simple", new AdminPanelTestConnectionSimpleGUI());
 
-        AdminPanel.AddPanelGUI("Advanced", new AdminPanelTestConnectionGUI());
+        AdminPanel.RegisterGUI("Advanced", new AdminPanelTestConnectionGUI());
 
-        AdminPanel.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
-        AdminPanel.AddPanelGUI("Combined", new AdminPanelTestConnectionSimpleGUI());
-        AdminPanel.AddPanelGUI("Combined", new AdminPanelTestConnectionGUI());
+        AdminPanel.RegisterGUI("Combined", new AdminPanelTestConnectionGUI());
+        AdminPanel.RegisterGUI("Combined", new AdminPanelTestConnectionSimpleGUI());
+        AdminPanel.RegisterGUI("Combined", new AdminPanelTestConnectionGUI());
 	}
 
     private class AdminPanelTestConnectionSimpleGUI : AdminPanelGUI
     {
-        public override void OnCreateGUI(AdminPanelLayout layout)
+        public void OnConfigure(AdminPanel adminPanel)
+        {
+
+        }
+
+        public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel( "TestLabel");
             layout.CreateButton("TestButton", TestAction);
@@ -49,7 +54,12 @@ public class AdminPanelTestConnection : MonoBehaviour {
 
     private class AdminPanelTestConnectionGUI : AdminPanelGUI
     {
-        public override void OnCreateGUI(AdminPanelLayout layout)
+        public void OnConfigure(AdminPanel adminPanel)
+        {
+            
+        }
+
+        public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateButton("Test Connection", () => { 
                 AdminPanel.Console.Print("Test Connection");
