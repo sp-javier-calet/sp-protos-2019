@@ -1,1 +1,6 @@
-{"copyFiles":{"{ROOT_PATH}/../Project/Assets/Plugins/Ios/curl/*.h":"{XCODE_PROJECT_PATH}/../Libraries/curl"}}
+
+{
+    "copyFiles" : {
+        "{ROOT_PATH}/../Project/Assets/Plugins/Ios/curl/*.h" : "{XCODE_PROJECT_PATH}/../Libraries/curl"
+    }
+}
