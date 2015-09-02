@@ -62,7 +62,7 @@ namespace SocialPoint.Utils
             return null;
         }
         
-        public System.Collections.IEnumerable All
+        public IEnumerable<TValue> All
         {
             get
             {

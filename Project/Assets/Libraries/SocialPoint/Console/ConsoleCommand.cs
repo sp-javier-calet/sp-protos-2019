@@ -6,13 +6,13 @@ namespace SocialPoint.Console
 {
     public delegate void ConsoleCommandDelegate(ConsoleCommand cmd);
 
-    public class ConsoleCommand : IEnumerable<KeyValuePair<string, ConsoleCommandOption>>
+    public class ConsoleCommand : IEnumerable<ConsoleCommandOption>
     {
         public ConsoleCommandDelegate Delegate = null;
         public string Description = null;
-        private IDictionary<string, ConsoleCommandOption> _options = new Dictionary<string, ConsoleCommandOption>();
+        private IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
 
-        public IEnumerator<KeyValuePair<string, ConsoleCommandOption>> GetEnumerator()
+        public IEnumerator<ConsoleCommandOption> GetEnumerator()
         {
             return _options.GetEnumerator();
         }
@@ -22,15 +22,21 @@ namespace SocialPoint.Console
             return GetEnumerator();
         }
 
-        public ConsoleCommandOption this[string name]
+        public ConsoleCommandOption this[string value]
         {
             get
             {
-                return _options[name];
-            }
-            set
-            {
-                _options[name] = value;
+                foreach(var opt in _options)
+                {
+                    foreach(var name in opt.Names)
+                    {
+                        if(name == value)
+                        {
+                            return opt;
+                        }
+                    }
+                }
+                return null;
             }
         }
 
@@ -45,12 +51,7 @@ namespace SocialPoint.Console
 
         public ConsoleCommand WithOption(ConsoleCommandOption opt)
         {
-            var name = opt.Name;
-            if(name == null)
-            {
-                throw new ConsoleException("Invalid option name");
-            }
-            _options[name] = opt;
+            _options.Add(opt);
             return this;
         }
 
@@ -70,19 +71,49 @@ namespace SocialPoint.Console
         {
         }
 
-        private void SetOptionValue(string name, string value)
+        private int MatchRepeat(string all, string part)
         {
-            foreach(var pair in _options)
+            int f = all.Length / part.Length;
+            var parts = string.Empty;
+            for(int i = 0; i < f; i++)
             {
-                var parts = new List<string>(pair.Value.Config.Split(new char[]{'|'}));
-                if(parts.Contains(name))
+                parts += part;
+            }
+            if(all == parts)
+            {
+                return f;
+            }
+            return 0;
+        }
+
+        private bool SetOptionValue(string name, string value)
+        {
+            var option = this[name];
+            if(option != null)
+            {
+                option.Value = value;
+            }
+            if(option == null && string.IsNullOrEmpty(value))
+            {
+                foreach(var opt in _options)
                 {
-                    pair.Value.Value = value;
-                    return;
+                    foreach(var optName in opt.Names)
+                    {
+                        int i = MatchRepeat(name, optName);
+                        if(i > 0)
+                        {
+                            opt.Value = i.ToString();
+                        }
+                    }
                 }
             }
-            throw new ConsoleException(string.Format("Could not find option '{0}'.", name));
+            return option != null;
         }
+
+        const string WildcardString = "*";
+        const char OptionStartChar = '-';
+        const string OptionValueOperator = "=";
+        const string ArgSeparator = " ";
 
         public void SetOptionValues(IEnumerable<string> args)
         {
@@ -90,30 +121,26 @@ namespace SocialPoint.Console
             int i = 0;
 
             string defVal = null;
-            foreach(var pair in _options)
+            foreach(var opt in _options)
             {
-                var parts = new List<string>(pair.Value.Config.Split(new char[]{'|'}));
-                if(parts.Contains("*"))
+                var parts = new List<string>(opt.Names);
+                if(parts.Contains(WildcardString))
                 {
-                    defVal = "";
+                    defVal = string.Empty;
                     break;
                 }
             }
 
             foreach(var arg in args)
             {
-                if(arg.StartsWith("-"))
+                if(arg.Length > 0 && arg[0] == OptionStartChar)
                 {
                     lastOpt = null;
-                    var opt = arg.Trim(new char[]{'-'});
-                    var p = opt.IndexOf("=");
+                    var opt = arg.Trim(new char[]{OptionStartChar});
+                    var p = opt.IndexOf(OptionValueOperator);
                     if(p == -1)
                     {
-                        if(_options.ContainsKey(opt) && _options[opt].StringValue == false)
-                        {
-                            SetOptionValue(opt, "true");
-                        }
-                        else
+                        if(!SetOptionValue(opt, string.Empty))
                         {
                             lastOpt = opt;
                         }
@@ -138,7 +165,7 @@ namespace SocialPoint.Console
                     {
                         if(defVal.Length > 0)
                         {
-                            defVal += " ";
+                            defVal += ArgSeparator;
                         }
                         defVal += arg;
                     }
@@ -147,7 +174,7 @@ namespace SocialPoint.Console
             }
             if(defVal != null)
             {
-                SetOptionValue("*", defVal);
+                SetOptionValue(WildcardString, defVal);
             }
         }
 

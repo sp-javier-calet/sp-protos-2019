@@ -367,7 +367,7 @@ namespace SocialPoint.Login
             _baseUrl = baseUrl.EndsWith(UriSeparator.ToString()) ? baseUrl : baseUrl + UriSeparator;
         }
                 
-        [System.Diagnostics.Conditional("DEBUG_SPGUI")]
+        [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
         void DebugLog(string msg)
         {
             DebugUtils.Log(string.Format("SocialPointLogin {0}", msg));

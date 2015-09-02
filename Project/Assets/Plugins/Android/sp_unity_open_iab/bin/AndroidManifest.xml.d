@@ -1,0 +1,2 @@
+/Users/manuelalvarez/repositories/sp-unity-DragonStadium/DragonStadium/Assets/Plugins/Android/sp_unity_open_iab/bin/AndroidManifest.xml : \
+/Users/manuelalvarez/repositories/sp-unity-DragonStadium/DragonStadium/Assets/Plugins/Android/sp_unity_open_iab/AndroidManifest.xml \

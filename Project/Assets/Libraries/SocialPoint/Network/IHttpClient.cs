@@ -11,7 +11,7 @@ namespace SocialPoint.Network
         void Cancel();
     }
 
-    public interface IHttpClient
+    public interface IHttpClient : IDisposable
     {
         IHttpConnection Send(HttpRequest request, HttpResponseDelegate del = null);
 
@@ -22,6 +22,5 @@ namespace SocialPoint.Network
 
         void OnApplicationPause(bool pause);
 
-        void CancelAllConnections();
     }
 }
