@@ -47,5 +47,9 @@ namespace SocialPoint.Login
         {
             _baseUri = baseUri;
         }
+
+        public void ClearUserId()
+        {
+        }
     }
 }

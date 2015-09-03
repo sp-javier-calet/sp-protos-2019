@@ -1,7 +1,13 @@
 fileFormatVersion: 2
+<<<<<<< HEAD:Project/Assets/Plugins/Android/sp_unity_open_iab/gen/es.meta
 guid: 69a1d899d6afc48c5a692a9ed83d6778
 folderAsset: yes
 timeCreated: 1441193304
+=======
+guid: 8645bc3d9ed8d42ed96b0bae33f15fa7
+folderAsset: yes
+timeCreated: 1441294043
+>>>>>>> master:Project/Assets/Libraries/SocialPoint/Base/Plugins/Android/sp_unity_base/gen/es.meta
 licenseType: Pro
 DefaultImporter:
   userData: 

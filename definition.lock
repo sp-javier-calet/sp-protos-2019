@@ -4,6 +4,7 @@
         "BuildReport" : "73208b3ff931d97e6ec0f28ef4ace28f95cc523d",
         "Prime31/GoKit" : "ce0cbb616f3c3a17580df5f5c42123e7399f5a81",
         "ModestTree/Zenject" : "ce0cbb616f3c3a17580df5f5c42123e7399f5a81",
+<<<<<<< HEAD
         "SocialPoint/Locale" : "806227a0c583f19a216b2834b105bb7071032e0f",
         "SocialPoint/Attributes/Tests" : "806227a0c583f19a216b2834b105bb7071032e0f",
         "SocialPoint/ServerSync/Tests" : "806227a0c583f19a216b2834b105bb7071032e0f",
@@ -62,6 +63,60 @@
         "Prime31/Base"                   : "806227a0c583f19a216b2834b105bb7071032e0f",
         "SocialPoint/Purchase/Android"   : "806227a0c583f19a216b2834b105bb7071032e0f",
         "OpenIAB"                        : "a01cc12ee6d771bb82e6ef81baa79a732224e67c"
+=======
+        "SocialPoint/Locale" : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Attributes/Tests" : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/ServerSync/Tests" : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Events/Tests"     : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Crash/Tests"      : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/touchInput"       : "c9a83d3a7b1802b0f4e95159f9357377a1611b32",
+        "SocialPoint/AppRater/Tests"   : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/DeviceProfile"    : "140606309d543968f3b9d58564629393bae817cf",
+        "Unity/TestTools"              : "b4940124267d6f54cd567724c3c7f81f2e76882a",
+        "SocialPoint/AppEvents/Tests"  : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Tests"            : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Profiler"         : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Console"          : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Alert/Android"    : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Alert/Ios"        : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Alert"            : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Alert/Base"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/AppRater"         : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "Google/BreakPad/Android"      : "a01cc12ee6d771bb82e6ef81baa79a732224e67c",
+        "SocialPoint/Crash/Android"    : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Crash/Ios"        : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Crash/Base"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Crash"            : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/GUI"              : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Threading"        : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/AppEvents/Android" : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/AppEvents/Ios"     : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/AppEvents"         : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/AppEvents/Base"    : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Events"            : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "Google/PlayServices/Android"   : "a01cc12ee6d771bb82e6ef81baa79a732224e67c",
+        "SocialPoint/Hardware/Android"  : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Hardware/Ios"      : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Hardware"          : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/ServerSync"        : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Hardware/Base"     : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Login"             : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/IosKeychain"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Attributes/Ios"    : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/XCodeEditor"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "Ionic/Zlib"                    : "fe5e159cf0f3cb238d2e9a33a13d1f392bf192ae",
+        "SocialPoint/Utils"             : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/IO"                : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "LitJson"                       : "fe5e159cf0f3cb238d2e9a33a13d1f392bf192ae",
+        "SocialPoint/Attributes/LitJson" : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Attributes"         : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Network"            : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Base"               : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Base/Android"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Network/Curl"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/QualityStats"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Login/Tests"        : "bfb25c834f47bbf74626c57cef371d68760d0547"
+>>>>>>> master
     },
     "dependencies" : {
         "SocialPoint/BaseGame" : [
@@ -81,7 +136,10 @@
             "SocialPoint/Tests",
             "SocialPoint/Locale",
             "SocialPoint/QualityStats",
+<<<<<<< HEAD
             "SocialPoint/Purchase",
+=======
+>>>>>>> master
             "SocialPoint/GameLoading",
             "ModestTree/Zenject",
             "Prime31/GoKit",
@@ -119,12 +177,16 @@
             "SocialPoint/Login/Tests",
             "SocialPoint/ServerSync/Tests",
             "SocialPoint/Attributes/Tests",
+<<<<<<< HEAD
             "Unity/TestTools",
             "SocialPoint/Purchase/Ios",
             "SocialPoint/Purchase/Android",
             "Prime31/StoreKit",
             "Prime31/Base",
             "OpenIAB"
+=======
+            "Unity/TestTools"
+>>>>>>> master
         ],
         "SocialPoint/Network/Curl" : [
             "SocialPoint/Base/Android",
@@ -199,7 +261,12 @@
         ],
         "SocialPoint/Alert"              : [
             "SocialPoint/Alert/Ios",
+<<<<<<< HEAD
             "SocialPoint/Alert/Android"
+=======
+            "SocialPoint/Alert/Android",
+            "SocialPoint/Alert/Base"
+>>>>>>> master
         ],
         "SocialPoint/Tests"              : [
             "SocialPoint/AppEvents/Tests",
@@ -213,6 +280,7 @@
         ],
         "SocialPoint/AppEvents/Tests"    : [
             "Unity/TestTools"
+<<<<<<< HEAD
         ],
         "SocialPoint/Purchase/Ios"       : [
             "SocialPoint/Purchase",
@@ -226,6 +294,8 @@
         ],
         "SocialPoint/Purchase/Android"   : [
             "OpenIAB"
+=======
+>>>>>>> master
         ]
     }
 }
