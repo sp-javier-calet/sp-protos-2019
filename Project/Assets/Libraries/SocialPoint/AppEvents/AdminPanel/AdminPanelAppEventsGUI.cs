@@ -57,12 +57,16 @@ namespace SocialPoint.AppEvents
 
         private void RefreshContent()
         {
-            _textComponent.text = _eventsLog;
+            if(_textComponent)
+            {
+                _textComponent.text = _eventsLog;
+            }
         }
 
         private void AddEvent(string newEvent)
         {
             _eventsLog += newEvent + "\n";
+            RefreshContent();
         }
     }
 }

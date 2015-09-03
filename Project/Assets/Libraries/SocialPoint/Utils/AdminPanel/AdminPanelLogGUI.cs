@@ -12,9 +12,11 @@ namespace SocialPoint.Utils
         private List<LogEntry> _entries;
         private Dictionary<LogType, bool> _activeTypes;
         private Text _textComponent;
+        private bool _autoRefresh;
         
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
+            _autoRefresh = true;
             _entries = new List<LogEntry>();
             _activeTypes = new Dictionary<LogType, bool>();
 
@@ -42,6 +44,10 @@ namespace SocialPoint.Utils
                 RefreshContent();
             });
 
+            layout.CreateToggleButton("Auto Refresh", _autoRefresh, (value) => {
+                _autoRefresh = value;
+            });
+
             layout.CreateButton("Clear", () => {
                 _entries.Clear();
                 RefreshContent();
@@ -65,27 +71,34 @@ namespace SocialPoint.Utils
         private void ActivateLogType(LogType type, bool active)
         {
             _activeTypes[type] = active;
-            RefreshContent();
+            if(_autoRefresh)
+            {
+                RefreshContent();
+            }
         }
 
         private void RefreshContent()
         {
-            string logContent = string.Empty;
-
-            foreach(LogEntry entry in _entries)
+            if(_textComponent != null)
             {
-                if(_activeTypes[entry.Type] == true)
-                {
-                    logContent += entry.Content;
-                }
-            }
+                string logContent = string.Empty;
 
-            _textComponent.text = logContent;
+                foreach(LogEntry entry in _entries)
+                {
+                    if(_activeTypes[entry.Type] == true)
+                    {
+                        logContent += entry.Content;
+                    }
+                }
+
+                _textComponent.text = logContent;
+            }
         }
 
         private void HandleLog(string message, string stackTrace, LogType type)
         {
             _entries.Add(new LogEntry(type, message, stackTrace));
+            RefreshContent();
         }
 
         protected class LogEntry
