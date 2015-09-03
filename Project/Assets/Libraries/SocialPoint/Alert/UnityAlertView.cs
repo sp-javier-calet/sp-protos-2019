@@ -19,6 +19,7 @@ namespace SocialPoint.Alert
 
         public abstract string MessageText{ set; }
         public abstract string TitleText{ set; }
+        public abstract string Signature{ set;}
         public abstract bool InputEnabled{ set; }
         public abstract string InputText{ get; }
         public abstract string[] ButtonTitles{ set; }
@@ -106,6 +107,14 @@ namespace SocialPoint.Alert
             set
             {
                 _controller.TitleText = value;
+            }
+        }
+
+        public string Signature
+        {
+            set
+            {
+                _controller.Signature = value;
             }
         }
         

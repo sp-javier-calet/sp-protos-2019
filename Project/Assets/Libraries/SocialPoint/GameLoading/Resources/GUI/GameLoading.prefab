@@ -211,14 +211,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Slider: {fileID: 11461436}
+  log: {fileID: 11464682}
+  displayFunnyLogs: 0
   funnyLogs:
   - Welcome
   - Dragons are hungry
   - Winter is comming
   - Almost done
   - Here we go
-  displayFunnyLogs: 0
-  log: {fileID: 11464682}
 --- !u!114 &11446706
 MonoBehaviour:
   m_ObjectHideFlags: 1

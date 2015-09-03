@@ -9,6 +9,7 @@ namespace SocialPoint.Alert
         public Text Label;
         public int Position;
         public event UnityAlertViewButtonClicked Clicked;
+        public Button button;
 
         public string Text
         {
@@ -18,6 +19,11 @@ namespace SocialPoint.Alert
             }
         }
 
+        public void Start()
+        {
+            button.onClick.AddListener(OnClicked);
+        }
+
         public void OnClicked()
         {
             if(Clicked != null)
@@ -25,5 +31,6 @@ namespace SocialPoint.Alert
                 Clicked(Position);
             }
         }
+
     }
 }

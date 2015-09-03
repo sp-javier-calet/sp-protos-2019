@@ -13,6 +13,7 @@ typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
 
 -(id)initWithTitle:(NSString*)title
            message:(NSString*)message
+           signature:(NSString*)signature
            buttons:(NSArray*)buttons
              input:(BOOL)input
           callback:(SPAlertViewBlock)block;
@@ -26,6 +27,7 @@ typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
 
 -(id)initWithTitle:(NSString*)title
            message:(NSString*)message
+           signature:(NSString*)signature
            buttons:(NSArray*)buttons
              input:(BOOL)input
           callback:(SPAlertViewBlock)block;
@@ -36,7 +38,7 @@ typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
         if([UIAlertController class])
         {
             self.alertCtrl = [UIAlertController alertControllerWithTitle:title
-                                message:message
+                                 message:[NSString stringWithFormat:@"%@ (%@)",message,signature]
                          preferredStyle:UIAlertControllerStyleAlert];
             
             NSInteger buttonIndex = 0;
@@ -61,7 +63,7 @@ typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
         {
             self.alertView = [[UIAlertView alloc]
                               initWithTitle:title
-                              message:message
+                              message:[NSString stringWithFormat:@"%@ (%@)",message,signature]
                               delegate:self
                               cancelButtonTitle:nil
                               otherButtonTitles:nil];
@@ -136,11 +138,13 @@ EXPORT_API void SPUnityAlertViewShow(SPUnityAlertViewDataStruct data)
     NSString* objName = [NSString stringWithUTF8String:data.objectname];
     NSString* title = [NSString stringWithUTF8String:data.title];
     NSString* message = [NSString stringWithUTF8String:data.message];
+    NSString* signature = [NSString stringWithUTF8String:data.signature];
     
     
     s_spAlertView = [[SPAlertView alloc]
                                    initWithTitle:title
                                    message:message
+                                   signature:signature
                                    buttons:buttons
                                    input:data.input
                                    callback: ^(NSInteger buttonIndex, NSString* inputText)

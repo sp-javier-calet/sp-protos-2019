@@ -3,6 +3,7 @@ using SocialPoint.Crash;
 using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Alert;
 using Zenject;
 
 public class LoadingController : GameLoadingController
@@ -34,6 +35,15 @@ public class LoadingController : GameLoadingController
         }
     }
 
+    [Inject]
+    public IAlertView InjectAlertView
+    {
+        set
+        {
+            AlertView = value;
+        }
+    }
+
     [InjectOptional]
     public ICrashReporter InjectCrashReporter
     {
@@ -58,8 +68,6 @@ public class LoadingController : GameLoadingController
         RegisterLoadingOperation(_parseModelOperation);
 
         Login.NewUserEvent += OnLoginNewUser;
-
-        AllOperationsLoaded += OnAllOperationsLoaded;
     }
 
     void OnLoginNewUser(Attr data)
@@ -69,7 +77,7 @@ public class LoadingController : GameLoadingController
         _parseModelOperation.FinishProgress("game model parsed");
     }
 
-    void OnAllOperationsLoaded()
+    protected override void AllOperationsLoaded()
     {
         ZenUtil.LoadScene(SceneToLoad, (DiContainer container) => container.BindInstance(_model));
     }

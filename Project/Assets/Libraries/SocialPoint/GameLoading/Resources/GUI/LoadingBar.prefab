@@ -228,9 +228,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Slider: {fileID: 11466424}
-  funnyLogs: []
-  displayFunnyLogs: 0
   log: {fileID: 11416402}
+  displayFunnyLogs: 0
+  funnyLogs: []
 --- !u!114 &11495854
 MonoBehaviour:
   m_ObjectHideFlags: 1

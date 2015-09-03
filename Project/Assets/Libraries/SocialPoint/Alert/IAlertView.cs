@@ -18,6 +18,8 @@ namespace SocialPoint.Alert {
         /// <value>The title.</value>
         string Title { set; }
 
+        string Signature { set;}
+
         /// <summary>
         /// Set the button texts
         /// </summary>
