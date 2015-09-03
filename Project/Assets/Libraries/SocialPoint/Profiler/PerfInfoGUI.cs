@@ -12,15 +12,6 @@ namespace SocialPoint.Profiler
         public Color Color = Color.green;
         public bool ShortText = false;
 
-        public SocialPoint.AdminPanel.AdminPanel AdminPanel
-        {
-            set
-            {
-                value.RegisterGUI("System", new PerfInfoAdminGUI(this));
-            }
-        }
-
-
         void Start()
         {
             if(Info == null)
@@ -54,26 +45,6 @@ namespace SocialPoint.Profiler
             UnityEngine.GUI.BeginGroup(rect);
             UnityEngine.GUI.Label(new Rect(0.0f, 0.0f, rect.width, rect.height), text, style);
             UnityEngine.GUI.EndGroup();
-        }
-
-        private class PerfInfoAdminGUI : AdminPanelGUI
-        {
-            private PerfInfoGUI _perfInfo;
-            public PerfInfoAdminGUI(PerfInfoGUI perfInfo)
-            {
-                _perfInfo = perfInfo;
-            }
-
-            public void OnConfigure(AdminPanel.AdminPanel adminPanel)
-            {
-            }
-
-            public void OnCreateGUI(AdminPanelLayout layout)
-            {
-                layout.CreateLabel("Performance Info");
-                layout.CreateToggleButton("Show performance info", _perfInfo.enabled, (value) => {
-                    _perfInfo.enabled = value; });
-            }
         }
     }
 }

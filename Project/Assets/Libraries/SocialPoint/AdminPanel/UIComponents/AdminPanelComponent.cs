@@ -52,7 +52,7 @@ namespace SocialPoint.AdminPanel
             return rectTransform;
         }
 
-        public void CreateMargin(int multiplier)
+        public void CreateMargin(int multiplier = 1)
         {
             var rectTransform = CreateUIObject("Admin Panel - Margin", Parent);
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();

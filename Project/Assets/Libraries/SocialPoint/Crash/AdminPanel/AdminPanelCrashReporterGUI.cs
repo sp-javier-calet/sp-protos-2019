@@ -1,3 +1,4 @@
+using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Crash
@@ -7,6 +8,9 @@ namespace SocialPoint.Crash
         public ICrashReporter CrashReporter;
 
         public BreadcrumbManager BreadcrumbManager;
+
+        private Text _textAreaComponent;
+        private bool _showOldBreadcrumbs;
         
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
@@ -15,10 +19,23 @@ namespace SocialPoint.Crash
         
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            if(BreadcrumbManager != null)
+            {
+                layout.CreateLabel("Breadcrumbs");
+                layout.CreateVerticalScrollLayout()
+                    .CreateTextArea(BreadcrumbManager.CurrentBreadCrumb, out _textAreaComponent);
+                layout.CreateButton("Refresh", () => { UpdateBreadcrumbContent(); });
+                layout.CreateToggleButton("Last session breadcrumbs", _showOldBreadcrumbs, (value) => { 
+                    _showOldBreadcrumbs = value; 
+                    UpdateBreadcrumbContent();
+                });
+                layout.CreateMargin();
+            }
+
             if(CrashReporter != null)
             {
                 layout.CreateLabel("CrashReporter");
-            
+                
                 layout.CreateToggleButton("Enabled", CrashReporter.IsEnabled, (value) => {
                     if(value)
                     {
@@ -29,18 +46,20 @@ namespace SocialPoint.Crash
                         CrashReporter.Disable();
                     }
                 });
-            
+                
                 layout.CreateButton("Force crash", () => {
                     CrashReporter.ForceCrash();
-                    layout.AdminPanel.Console.Print("hola");
                 });
-
-                layout.CreateMargin();
             }
+        }
 
-            if(BreadcrumbManager != null)
+        private void UpdateBreadcrumbContent()
+        {
+            if(_textAreaComponent != null && BreadcrumbManager != null)
             {
-                layout.CreateLabel("Breadcrumbs");
+                _textAreaComponent.text = (_showOldBreadcrumbs)? 
+                                            BreadcrumbManager.OldBreadCrumb:
+                                            BreadcrumbManager.CurrentBreadCrumb;
             }
         }
     }

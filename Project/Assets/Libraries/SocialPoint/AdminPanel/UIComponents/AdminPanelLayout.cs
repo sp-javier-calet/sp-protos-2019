@@ -21,9 +21,9 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        protected AdminPanelLayout(AdminPanelController view)
+        protected AdminPanelLayout(AdminPanelController controller)
         {
-            _adminPanelController = view;
+            _adminPanelController = controller;
         }
         
         protected void OpenPanel(AdminPanelGUI panel)
@@ -39,6 +39,14 @@ namespace SocialPoint.AdminPanel
         protected void ClosePanel()
         {
             _adminPanelController.ClosePanel();
+        }
+
+        public MonoBehaviour Behaviour
+        {
+            get
+            {
+                return _adminPanelController;
+            }
         }
 
         public AdminPanel AdminPanel
