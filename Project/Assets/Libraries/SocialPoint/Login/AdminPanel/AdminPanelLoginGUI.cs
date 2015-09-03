@@ -38,7 +38,8 @@ namespace SocialPoint.Login
         public void OnCreateSocialPointLoginGUI(AdminPanelLayout layout, SocialPointLogin login)
         {
             // Collect and format login data
-            string loginInfo = "User Id: " + login.UserId + "\n" 
+            string loginInfo = "Base URL: " + login.GetUrl("") + "\n\n"
+                + "User Id: " + login.UserId + "\n" 
                 + "Session Id: " + login.SessionId + "\n"
                 + "Security token: " + login.SecurityToken + "\n"
                 + "Temp Id: " + login.User.TempId + "\n"
@@ -64,18 +65,17 @@ namespace SocialPoint.Login
             layout.CreateTextArea(loginInfo);
 
             layout.CreateLabel("Link Info");
-            layout.CreateTextArea(links);
+            layout.CreateTextArea((links.Length > 0)? links : "No links");
 
             layout.CreateLabel("Friends");
-            layout.CreateVerticalScrollLayout().CreateTextArea(friends);
+            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends : "No friends");
 
-
-            layout.CreateMargin(2);
-            layout.CreateButton("Clear User Id", () => {
+            layout.CreateMargin();
+            layout.CreateConfirmButton("Clear User Id", () => {
                 login.ClearUserId();
             });
 
-            layout.CreateButton("Clear Users Cache", () => {
+            layout.CreateConfirmButton("Clear Users Cache", () => {
                 login.ClearUsersCache();
             });
         }

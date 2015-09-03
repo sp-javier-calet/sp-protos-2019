@@ -46,10 +46,18 @@ namespace SocialPoint.Crash
                         CrashReporter.Disable();
                     }
                 });
-                
-                layout.CreateButton("Force crash", () => {
-                    CrashReporter.ForceCrash();
+
+                layout.CreateToggleButton("Error logs", CrashReporter.ErrorLogActive, (value) => { CrashReporter.ErrorLogActive = value; });
+                layout.CreateToggleButton("Exceptions logs", CrashReporter.ExceptionLogActive, (value) => { CrashReporter.ExceptionLogActive = value; });
+                layout.CreateButton("Clear unique exceptions", () => { 
+                    layout.AdminPanel.Console.Print("Removed pending unique exceptions");
+                    CrashReporter.ClearUniqueExceptions();
                 });
+                layout.CreateMargin(2);
+
+                layout.CreateConfirmButton("Force crash", () => {
+                    CrashReporter.ForceCrash();
+                }, ButtonColor.Red);
             }
         }
 

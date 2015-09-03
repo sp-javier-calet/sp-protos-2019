@@ -273,6 +273,11 @@ namespace SocialPoint.Crash
 
         public bool ExceptionLogActive
         {
+            get
+            {
+                return _exceptionLogActive;
+            }
+
             set
             {
                 _exceptionLogActive = value;
@@ -281,6 +286,11 @@ namespace SocialPoint.Crash
 
         public bool ErrorLogActive
         {
+            get
+            {
+                return _errorLogActive;
+            }
+
             set
             {
                 _errorLogActive = value;
