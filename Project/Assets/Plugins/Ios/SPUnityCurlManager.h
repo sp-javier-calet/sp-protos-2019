@@ -28,6 +28,8 @@ struct SPUnityCurlConnInfo
     std::string errorBuffer;
     double downloadSize;
     double downloadSpeed;
+    double connectTime;
+    double totalTime;
 
     SPUnityCurlConnInfo(int id);
 };

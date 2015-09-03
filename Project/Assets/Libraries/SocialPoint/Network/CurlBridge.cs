@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System;
 using System.Collections.Generic;
 
@@ -58,6 +58,12 @@ namespace SocialPoint.Network
 
         [DllImport(PluginModuleName)]
         public static extern int SPUnityCurlGetHeadersLength(int id);
+
+        [DllImport(PluginModuleName)]
+        public static extern double SPUnityCurlGetConnectTime(int id);
+        
+        [DllImport(PluginModuleName)]
+        public static extern double SPUnityCurlGetTotalTime(int id);
 
         [DllImport(PluginModuleName)]
         public static extern int SPUnityCurlGetDownloadSize(int id);

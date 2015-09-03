@@ -34,8 +34,6 @@ namespace SocialPoint.Locale
             } 
         }
 
-        public string DefaultString { private get; set; }
-    
         private Dictionary<string,string> _strings = new Dictionary<string,string>();
         public Dictionary<string,string> Strings
         {
@@ -47,15 +45,20 @@ namespace SocialPoint.Locale
 
         public Localization()
         {
-            DefaultString = string.Empty;
         }
 
-        public string Get(string key)
+        const string DefaultFormat = "<{0}>";
+
+        public string Get(string key, string defaultString=null)
         {
             string value;
             if(!_strings.TryGetValue(key, out value))
             {
-                value = DefaultString;
+                value = defaultString;
+            }
+            if(value == null)
+            {
+                value = string.Format(DefaultFormat, key);
             }
             return value;
         }

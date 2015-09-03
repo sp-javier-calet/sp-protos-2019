@@ -1,1 +1,6 @@
-{"frameworks":["Security.framework:weak"]}
+
+{
+    "frameworks" : [
+        "Security.framework:weak"
+    ]
+}

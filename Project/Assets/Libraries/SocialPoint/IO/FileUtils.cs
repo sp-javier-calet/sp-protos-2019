@@ -32,6 +32,19 @@ namespace SocialPoint.IO {
         private const char WildcardOneChar = '?';
 
         public delegate bool OperationFilter(string src, string dst);
+
+        public static bool IsBinary(string path)
+        {
+            var content = ReadAllBytes(path);
+            for (int i = 1; i < 512 && i < content.Length; i++)
+            {
+                if (content[i] == 0x00 && content[i-1] == 0x00)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         
         public static bool IsWritable(string path)
         {
@@ -58,13 +71,13 @@ namespace SocialPoint.IO {
             }
         }
         
-        public static void CopyFile(string from, string to, bool overwrite = false)
+        public static bool CopyFile(string from, string to, bool overwrite = false)
         {
             if(Exists(to)) 
             {
                 if (!overwrite) 
                 {
-                    throw new IOException("Destination exists.");
+                    return false;
                 }
             }
             
@@ -72,6 +85,7 @@ namespace SocialPoint.IO {
             
             var bytes = ReadAllBytes(from);
             WriteAllBytes(to, bytes);
+            return true;
         }
         
         public static bool Exists(string path)
@@ -434,11 +448,18 @@ namespace SocialPoint.IO {
                     search = SearchOption.TopDirectoryOnly;
                 }
                 dir = GetWildcardBasePath(src);
-                pattern = src;
+                if(src.Length > dir.Length)
+                {
+                    pattern = src.Substring(dir.Length+1);
+                }
+                else
+                {
+                    pattern = string.Empty+WildcardMultiChar;
+                }
             }
 
             string[] files;
-            if(pattern != null && dir != null)
+            if(!string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(dir) && Directory.Exists(dir))
             {
                 files = Directory.GetFiles(dir, pattern, search);
                 dir = CleanPath(dir)+Path.DirectorySeparatorChar;
@@ -489,6 +510,23 @@ namespace SocialPoint.IO {
 
         static public Dictionary<string,string> Compare(string src, string dst, OperationFilter op)
         {
+            return Compare(src, dst, true, op);
+        }
+
+        static public Dictionary<string,string> CompareSource(string src, string dst, OperationFilter op)
+        {            
+            return Compare(src, dst, false, op);
+        }
+        
+        static public Dictionary<string,string> CompareSource(string src, string dst)
+        {            
+            return Compare(src, dst, false, (srcPath, dstPath) => {
+                return !CompareFiles(srcPath, dstPath);
+            });
+        }
+
+        static public Dictionary<string,string> Compare(string src, string dst, bool checkDst, OperationFilter op)
+        {
             var diffs = new Dictionary<string,string>();
 
             string srcDir;
@@ -507,7 +545,7 @@ namespace SocialPoint.IO {
                 }
             }
 
-            if(srcDir != null)
+            if(checkDst && srcDir != null)
             {
                 string dstDir;
                 var dstFiles = Find(dst, out dstDir);
