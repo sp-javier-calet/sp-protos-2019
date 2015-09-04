@@ -94,11 +94,8 @@ namespace SocialPoint.Crash
                 {
                     return null;
                 }
-                
-                using(StreamReader stream = new StreamReader(path))
-                {
-                    return stream.ReadToEnd();
-                }
+
+                return FileUtils.ReadAllText(path);
             }
         }
 
@@ -111,10 +108,7 @@ namespace SocialPoint.Crash
                     return null;
                 }
 
-                using(StreamReader stream = new StreamReader(oldPath))
-                {
-                    return stream.ReadToEnd();
-                }
+                return FileUtils.ReadAllText(oldPath);
             }
         }
 
