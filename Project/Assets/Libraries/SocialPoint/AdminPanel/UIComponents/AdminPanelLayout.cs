@@ -9,6 +9,21 @@ namespace SocialPoint.AdminPanel
         public RectTransform Parent { get; protected set; }
 
         private AdminPanelController _adminPanelController;
+        public AdminPanel AdminPanel
+        {
+            get
+            {
+                return _adminPanelController.AdminPanel;
+            }
+        }
+
+        public MonoBehaviour Behaviour
+        {
+            get
+            {
+                return _adminPanelController;
+            }
+        }
 
         public AdminPanelLayout(AdminPanelLayout parentLayout)
         {
@@ -41,30 +56,9 @@ namespace SocialPoint.AdminPanel
             _adminPanelController.ClosePanel();
         }
 
-        public MonoBehaviour Behaviour
-        {
-            get
-            {
-                return _adminPanelController;
-            }
-        }
-
-        public AdminPanel AdminPanel
-        {
-            get
-            {
-                return _adminPanelController.AdminPanel;
-            }
-        }
-
         public void SetActive(bool active)
         {
             Parent.gameObject.SetActive(active);
-        }
-
-        public void Inflate(AdminPanelGUI gui)
-        {
-            gui.OnCreateGUI(this);
         }
 
         public virtual void Dispose()

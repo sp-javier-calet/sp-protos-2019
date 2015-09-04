@@ -35,6 +35,12 @@ namespace SocialPoint.Crash
             if(CrashReporter != null)
             {
                 layout.CreateLabel("CrashReporter");
+
+                CrashReporterBase crBase = CrashReporter as CrashReporterBase;
+                if(crBase != null)
+                {
+                    layout.CreateOpenPanelButton("CrashReporterBase Options", new AdminPanelCrashReporterBaseGUI(crBase));
+                }
                 
                 layout.CreateToggleButton("Enabled", CrashReporter.IsEnabled, (value) => {
                     if(value)
@@ -68,6 +74,26 @@ namespace SocialPoint.Crash
                 _textAreaComponent.text = (_showOldBreadcrumbs)? 
                                             BreadcrumbManager.OldBreadCrumb:
                                             BreadcrumbManager.CurrentBreadCrumb;
+            }
+        }
+
+
+        public class AdminPanelCrashReporterBaseGUI : AdminPanelGUI
+        {
+            private CrashReporterBase _crashReporter;
+
+            public AdminPanelCrashReporterBaseGUI(CrashReporterBase crashReporter)
+            {
+                _crashReporter = crashReporter;
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("CrashReporterBase");
+                string crashReporterInfo = "Send Interval: " + _crashReporter.SendInterval + "s\n"
+                    + "Pending Crashes: " + (_crashReporter.HasCrashLogs ? "Yes" : "No") + "\n"
+                    + "Pending Exceptions: " + (_crashReporter.HasExceptionLogs ? "Yes" : "No") + "\n";
+                layout.CreateTextArea(crashReporterInfo);
             }
         }
     }

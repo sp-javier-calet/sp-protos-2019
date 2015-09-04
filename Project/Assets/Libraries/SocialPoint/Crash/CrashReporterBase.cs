@@ -490,12 +490,12 @@ namespace SocialPoint.Crash
             req.CompressBody = true;
         }
 
-        private bool HasExceptionLogs
+        public bool HasExceptionLogs
         {
             get{ return (_exceptionStorage != null && _exceptionStorage.StoredKeys.Length > 0); }
         }
 
-        private bool HasCrashLogs
+        public bool HasCrashLogs
         {
             get{ return (_crashStorage != null && _crashStorage.StoredKeys.Length > 0); }
         }
