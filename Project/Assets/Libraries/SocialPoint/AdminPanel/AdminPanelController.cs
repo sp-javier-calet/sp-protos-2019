@@ -12,7 +12,7 @@ namespace SocialPoint.AdminPanel
         private Stack<IAdminPanelGUI> _activePanels;
 
         private Text _consoleText;
-        private GameObject _canvasObject;
+        private AdminPanelRootLayout _root;
         private ScrollRect _consoleScroll;
 
         private AdminPanelLayout _mainPanel;
@@ -48,11 +48,9 @@ namespace SocialPoint.AdminPanel
 
         void InflateGUI()
         {
-            AdminPanelLayout rootLayout = new AdminPanelRootLayout(this);
+            _root = new AdminPanelRootLayout(this);
 
-            _canvasObject = rootLayout.Parent.gameObject;
-
-            AdminPanelLayout horizontalLayout = rootLayout.CreateHorizontalLayout();
+            AdminPanelLayout horizontalLayout = _root.CreateHorizontalLayout();
             
             var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", () => { Close(); });
             _categoriesPanelContent = panelLayout.CreateVerticalScrollLayout();
@@ -81,9 +79,9 @@ namespace SocialPoint.AdminPanel
 
         public void Open()
         {
-            if(_canvasObject != null)
+            if(_root != null)
             {
-                _canvasObject.SetActive(true);
+                _root.SetActive(true);
             }
             else
             {
@@ -95,7 +93,7 @@ namespace SocialPoint.AdminPanel
 
         private void Close()
         {
-            _canvasObject.SetActive(false);
+            _root.SetActive(false);
         }
 
         public void ReplacePanel(IAdminPanelGUI gui)

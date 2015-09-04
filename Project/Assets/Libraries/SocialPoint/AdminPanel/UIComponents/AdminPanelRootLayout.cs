@@ -6,6 +6,7 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelRootLayout : AdminPanelLayout
     {
+        private AspectRatioFitter _aspectFitter;
         public AdminPanelRootLayout(AdminPanelController controller) : base(controller)
         {
             var canvasObject = new GameObject("AdminPanel - Canvas");
@@ -15,9 +16,9 @@ namespace SocialPoint.AdminPanel
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.pixelPerfect = true;
             
-            var aspectFitter = canvasObject.AddComponent<AspectRatioFitter>();
-            aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
-            aspectFitter.aspectRatio = 1.6f;
+            _aspectFitter = canvasObject.AddComponent<AspectRatioFitter>();
+            _aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
+            _aspectFitter.aspectRatio = (float)(Screen.width) / Screen.height;
             
             var canvasScaler = canvasObject.AddComponent<CanvasScaler>();
             canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -27,6 +28,15 @@ namespace SocialPoint.AdminPanel
             canvasObject.AddComponent<GraphicRaycaster>();
 
             Parent = rectTransform;
+        }
+
+        public void SetActive(bool active)
+        {
+            base.SetActive(active);
+            if(_aspectFitter != null)
+            {
+                _aspectFitter.aspectRatio = (float)(Screen.width) / Screen.height;
+            }
         }
     }
 }
