@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Zenject;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.AdminPanel
