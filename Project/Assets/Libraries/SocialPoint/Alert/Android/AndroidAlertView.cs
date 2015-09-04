@@ -53,6 +53,15 @@ namespace SocialPoint.Alert
             }
         }
 
+        string _signature;
+        public string Signature
+        {
+            set
+            {
+                _signature = value;
+            }
+        }
+
         string[] _buttons;
         public string[] Buttons
         {
@@ -116,6 +125,8 @@ namespace SocialPoint.Alert
         {
             var activity = CurrentActivity;
             var builder = new AndroidJavaObject("android.app.AlertDialog$Builder", activity);
+            builder.Call<AndroidJavaObject>("setCancelable", false);
+
             if(_title != null)
             {
                 var setTitle = AndroidJNI.GetMethodID(builder.GetRawClass(), "setTitle", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
@@ -129,7 +140,12 @@ namespace SocialPoint.Alert
                 var setMsg = AndroidJNI.GetMethodID(builder.GetRawClass(), "setMessage", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
                 jvalue[] setMsgParams =  new jvalue[1];
                 setMsgParams[0] = new jvalue();
-                setMsgParams[0].l = AndroidJNI.NewStringUTF(_message);
+                var msg = _message;
+                if(_signature != null)
+                {
+                    msg += " (" + _signature + ")";
+                }
+                setMsgParams[0].l = AndroidJNI.NewStringUTF(msg);
                 AndroidJNI.CallVoidMethod(builder.GetRawObject(), setMsg, setMsgParams);
             }
             
@@ -208,6 +224,7 @@ namespace SocialPoint.Alert
         {
             var clone = new AndroidAlertView();
             clone._message = _message;
+            clone._signature = _signature;
             clone._title = _title;
             clone._buttons = _buttons;
             clone._input = _input;

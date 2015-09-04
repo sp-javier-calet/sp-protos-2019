@@ -39,13 +39,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b08fb442b9dc8468ba83a768e7cfe525, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SettingsAppInfo:
+    fakeAppData: 1
+    SeedId: 1
+    Id: bg
+    Version: 1508020000
+    ShortVersion: 1.4
+    Language: es
+    Country: eu
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: SettingsAppInfo.fakeAppData
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: SettingsAppInfo.SeedId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: SettingsAppInfo.Id
+      value: bg
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: SettingsAppInfo.Version
+      value: 1508020000
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: SettingsAppInfo.ShortVersion
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: SettingsAppInfo.Language
+      value: es
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: SettingsAppInfo.Country
+      value: eu
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 197580}

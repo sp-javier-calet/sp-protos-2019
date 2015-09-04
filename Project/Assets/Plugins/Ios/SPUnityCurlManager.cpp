@@ -13,6 +13,8 @@ SPUnityCurlConnInfo::SPUnityCurlConnInfo(int id)
 , responseCode(0)
 , downloadSize(0.0)
 , downloadSpeed(0.0)
+, connectTime(0.0)
+, totalTime(0.0)
 {
 }
 

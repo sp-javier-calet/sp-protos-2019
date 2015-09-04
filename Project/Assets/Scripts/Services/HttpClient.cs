@@ -30,6 +30,12 @@ public class HttpClient : CurlHttpClient
         }
     }
 
+    public HttpClient(MonoBehaviour mono):
+    base(mono)
+    {
+        RequestSetup += OnRequestSetup;
+    }
+
     private void OnRequestSetup(HttpRequest req)
     {
         if(string.IsNullOrEmpty(req.Proxy))
@@ -50,10 +56,5 @@ public class HttpClient : CurlHttpClient
     private void OnWasOnBackground()
     {
         OnApplicationPause(false);
-    }
-
-    public HttpClient(MonoBehaviour mono) : base(mono)
-    {
-        RequestSetup += OnRequestSetup;
-    }
+    }   
 }

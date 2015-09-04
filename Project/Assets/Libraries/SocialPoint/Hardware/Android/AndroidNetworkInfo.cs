@@ -33,8 +33,12 @@ namespace SocialPoint.Hardware
                         var proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
                         if(string.IsNullOrEmpty(proxyStr))
                         {
-                            clsSettings = new AndroidJavaClass("android.provider.Settings$Global");
-                            proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
+                            try {
+                                clsSettings = new AndroidJavaClass("android.provider.Settings$Global");
+                                proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
+                            } catch (Exception) {
+                                
+                            }
                         }
                         if(string.IsNullOrEmpty(proxyStr))
                         {

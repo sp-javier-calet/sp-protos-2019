@@ -18,9 +18,8 @@ namespace SocialPoint.Network
         bool _dataReceived;
         double _downloadSize;
         double _downloadSpeed;
-        DateTime _startTime;
-        double _connectionTime;
-        double _transferTime;
+        double _connectTime;
+        double _totalTime;
         HttpRequest  _request;
         HttpResponseDelegate _delegate;
         string _error;
@@ -29,23 +28,16 @@ namespace SocialPoint.Network
 
         public override IEnumerator Update()
         {
-            _connectionTime = GetSecondsSinceStart();
             while(!_dataReceived)
             {
                 int isFinished = CurlBridge.SPUnityCurlUpdate(_connectionId);
                 if(isFinished == 1)
                 {
-                    _transferTime = GetSecondsSinceStart() - _connectionTime;
                     ReceiveData();
                     break;
                 }
                 yield return null;
             }
-        }
-
-        private double GetSecondsSinceStart()
-        {
-            return (TimeUtils.Now.ToLocalTime() - _startTime).TotalSeconds;
         }
 
         public CurlHttpConnection(int connectionId, HttpRequest req, HttpResponseDelegate del)
@@ -54,7 +46,6 @@ namespace SocialPoint.Network
             _request = req;
             _delegate = del;
             _dataReceived = false;
-            _startTime = TimeUtils.Now.ToLocalTime();
             Send(_connectionId, _request);
         }
  
@@ -88,8 +79,8 @@ namespace SocialPoint.Network
             r.DownloadSize = _downloadSize;
             r.DownloadSpeed = _downloadSpeed;
 
-            r.ConnectionDuration = _connectionTime;
-            r.TransferDuration = _transferTime;
+            r.ConnectionDuration = _connectTime;
+            r.TransferDuration = _totalTime - _connectTime;
             
             return r;
         }
@@ -102,7 +93,7 @@ namespace SocialPoint.Network
 
                 for(int k = 0; k < data.Length; k++)
                 {
-                    HttpResponseDelegate item = data[k] as HttpResponseDelegate;
+                    var item = data[k] as HttpResponseDelegate;
                     _delegate -= item;
                 }
             }
@@ -162,6 +153,8 @@ namespace SocialPoint.Network
             int errorLength = CurlBridge.SPUnityCurlGetErrorLength(_connectionId);
             int HeadersLength = CurlBridge.SPUnityCurlGetHeadersLength(_connectionId);
 
+            _connectTime = CurlBridge.SPUnityCurlGetConnectTime(_connectionId);
+            _totalTime = CurlBridge.SPUnityCurlGetTotalTime(_connectionId);
             _downloadSize = CurlBridge.SPUnityCurlGetDownloadSize(_connectionId);
             _downloadSpeed = CurlBridge.SPUnityCurlGetDownloadSpeed(_connectionId);
 
