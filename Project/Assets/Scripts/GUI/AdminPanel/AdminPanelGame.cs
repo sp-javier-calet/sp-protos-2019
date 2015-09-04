@@ -8,7 +8,6 @@ public class AdminPanelGame : IAdminPanelConfigurer {
     {
         adminPanel.RegisterGUI("Game", new AdminPanelGameControl());
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Model", new AdminPanelGameModel()));
-        adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Zenject", new AdminPanelZenject()));
     }
 
     private class AdminPanelGameControl : IAdminPanelGUI
@@ -41,22 +40,6 @@ public class AdminPanelGame : IAdminPanelConfigurer {
 
                 layout.CreateLabel("Config");
                 layout.CreateTextArea((GameModel.Config != null) ? GameModel.Config.ToString() : "No Config");
-            }
-        }
-    }
-
-    private class AdminPanelZenject : IAdminPanelGUI
-    {
-        [Inject]
-        DiContainer Container;
-
-        public void OnCreateGUI(AdminPanelLayout layout)
-        {
-            layout.CreateLabel("Zenject");
-            if(Container != null)
-            {
-                layout.CreateLabel("Container");
-                layout.CreateLabel(Container.ToString());
             }
         }
     }
