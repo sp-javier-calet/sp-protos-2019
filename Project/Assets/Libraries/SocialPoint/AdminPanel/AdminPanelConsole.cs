@@ -8,7 +8,8 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelConsole : IAdminPanelConfigurer, IAdminPanelGUI 
     {
-        public string Content { get; private set; }
+        public StringBuilder _contentBuilder;
+        public string Content { get { return _contentBuilder.ToString(); } }
 
         public event Action OnContentChanged;
 
@@ -19,19 +20,20 @@ namespace SocialPoint.AdminPanel
         public AdminPanelConsole()
         {
             Application = new ConsoleApplication();
+            _contentBuilder = new StringBuilder();
             FixedFocus = true;
             Clear();
         }
 
         public void Print(string text)
         {
-            Content += text + "\n";
+            _contentBuilder.AppendLine(text);
             ContentChanged();
         }
 
         public void Clear()
         {
-            Content = string.Empty;
+            _contentBuilder = new StringBuilder();
             ContentChanged();
         }
 
@@ -67,7 +69,7 @@ namespace SocialPoint.AdminPanel
         
         private void OnSubmitCommand(string command)
         {
-            Print("$" + command);
+            Print(String.Format("${0}", command));
             
             ConsoleCommand consoleCommand = Application.FindCommand(command);
             if(consoleCommand != null)
@@ -76,7 +78,7 @@ namespace SocialPoint.AdminPanel
             }
             else
             {
-                Print("Command " + command + " not found");
+                Print(String.Format("Command {0} not found", command));
             }
         }
         
