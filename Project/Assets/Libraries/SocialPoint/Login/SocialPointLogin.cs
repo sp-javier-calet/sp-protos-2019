@@ -38,12 +38,10 @@ namespace SocialPoint.Login
     public class LoginGenericData
     {
         public TimeSpan DeltaTime;
-        public string AssetsUrl;
         public string StoreUrl;
         public LoginUpgradeData Upgrade;
 
         private const string AttrKeyTimestamp = "ts";
-        private const string AttrKeyAssetsUrl = "assets_url";
         private const string AttrKeyStoreUrl = "store";
         private const string AttrKeyUpgradeSuggested = "suggested_upgrade";
         private const string AttrKeyUpgradeForced = "forced_upgrade";
@@ -53,7 +51,6 @@ namespace SocialPoint.Login
             var datadic = data.AsDic;
             var serverTime = TimeUtils.GetDateTime(datadic.Get(AttrKeyTimestamp).AsValue.ToLong());
             DeltaTime =  serverTime - DateTime.UtcNow;
-            AssetsUrl = datadic.Get(AttrKeyAssetsUrl).AsValue.ToString();
             StoreUrl = datadic.GetValue(AttrKeyStoreUrl).ToString();
 
             if(datadic.ContainsKey(AttrKeyUpgradeForced))
@@ -67,22 +64,6 @@ namespace SocialPoint.Login
             else
             {
                 Upgrade = new LoginUpgradeData(UpgradeType.None);
-            }
-        }
-
-        public DateTime CurrentTime
-        {
-            get
-            {
-                return DateTime.Now + DeltaTime;
-            }
-        }
-
-        public long CurrentTimestamp
-        {
-            get
-            {
-                return TimeUtils.GetTimestamp(CurrentTime);
             }
         }
 
