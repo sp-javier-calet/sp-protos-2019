@@ -41,18 +41,21 @@ namespace SocialPoint.Utils
 
             layout.CreateMargin();
 
-            layout.CreateButton("Refresh", () => {
-                RefreshContent();
-            });
+            using(var hLayout = layout.CreateHorizontalLayout())
+            {
+                hLayout.CreateToggleButton("Auto", _autoRefresh, (value) => {
+                    _autoRefresh = value;
+                });
 
-            layout.CreateToggleButton("Auto Refresh", _autoRefresh, (value) => {
-                _autoRefresh = value;
-            });
+                hLayout.CreateButton("Refresh", () => {
+                    RefreshContent();
+                });
 
-            layout.CreateButton("Clear", () => {
-                _entries.Clear();
-                RefreshContent();
-            });
+                hLayout.CreateButton("Clear", () => {
+                    _entries.Clear();
+                    RefreshContent();
+                });
+            }
 
             layout.CreateMargin();
             layout.CreateLabel("Log level");

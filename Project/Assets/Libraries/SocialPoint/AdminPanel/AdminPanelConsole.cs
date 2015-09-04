@@ -60,11 +60,15 @@ namespace SocialPoint.AdminPanel
             layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(this));
             
             layout.CreateMargin(2);
+
+            using(var hLayout = layout.CreateHorizontalLayout())
+            {
+                hLayout.CreateToggleButton("Lock", FixedFocus, (value) => {
+                    FixedFocus = value; });
             
-            layout.CreateToggleButton("Lock console", FixedFocus, (value) => {
-                FixedFocus = value; });
-            
-            layout.CreateButton("Clear console", () => { Clear(); });
+                hLayout.CreateButton("Clear", () => {
+                    Clear(); });
+            }
         }
         
         private void OnSubmitCommand(string command)

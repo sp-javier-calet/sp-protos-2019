@@ -1,23 +1,27 @@
 ﻿using Zenject;
+using UnityEngine;
 using SocialPoint.AdminPanel;
 
 public class AdminPanelGame : IAdminPanelConfigurer {
     
     public void OnConfigure(AdminPanel adminPanel)
     {
+        adminPanel.RegisterGUI("Game", new AdminPanelGameControl());
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Model", new AdminPanelGameModel()));
-        adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Control", new AdminPanelGameControl()));
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Zenject", new AdminPanelZenject()));
     }
 
     private class AdminPanelGameControl : IAdminPanelGUI
     {
-
-
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Game Control");
+            layout.CreateConfirmButton("Restart", () => {
+                // FIXME
+                ZenUtil.LoadScene(Application.loadedLevelName);
+            });
 
+            layout.CreateMargin(2);
         }
     }
 
@@ -51,6 +55,7 @@ public class AdminPanelGame : IAdminPanelConfigurer {
             layout.CreateLabel("Zenject");
             if(Container != null)
             {
+                layout.CreateLabel("Container");
                 layout.CreateLabel(Container.ToString());
             }
         }
