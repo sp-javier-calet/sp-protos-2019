@@ -84,7 +84,7 @@ namespace SocialPoint.AdminPanel
 
         public class ConfirmActionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
-            private static float TimeToCompletion = 2.0f;
+            private static float TimeToCompletion = 1.0f;
             private static float TimeToDisabled = 0.2f;
 
             public Action onSubmit;

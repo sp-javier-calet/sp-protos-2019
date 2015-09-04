@@ -52,7 +52,7 @@ namespace SocialPoint.AdminPanel
 
             AdminPanelLayout horizontalLayout = _root.CreateHorizontalLayout();
             
-            var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", () => { Close(); });
+            var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", Close);
             _categoriesPanelContent = panelLayout.CreateVerticalScrollLayout();
 
             panelLayout.CreateToggleButton("Console", _consoleEnabled, (value) => {
@@ -63,7 +63,7 @@ namespace SocialPoint.AdminPanel
             var rightVerticalLayout = horizontalLayout.CreateVerticalLayout(4);
 
             // Content panel
-            _mainPanel = rightVerticalLayout.CreatePanelLayout("Panel", () => { ClosePanel(); }, 2);
+            _mainPanel = rightVerticalLayout.CreatePanelLayout("Panel", ClosePanel, 2);
             _mainPanelContent = _mainPanel.CreateVerticalScrollLayout();
             _mainPanel.SetActive(false);
 
