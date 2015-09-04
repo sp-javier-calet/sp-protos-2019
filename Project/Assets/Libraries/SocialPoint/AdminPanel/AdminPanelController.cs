@@ -179,10 +179,6 @@ namespace SocialPoint.AdminPanel
                 _categories = categories;
             }
 
-            public void OnConfigure(AdminPanel adminPanel)
-            {
-            }
-
             public void OnCreateGUI(AdminPanelLayout layout)
             {
                 // Inflate categories panel
