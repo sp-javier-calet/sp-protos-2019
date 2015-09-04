@@ -12,14 +12,14 @@ namespace SocialPoint.AdminPanel
         public AdminPanel(List<AdminPanelConfigurer> configurers)
         {
             Categories = new Dictionary<string, AdminPanelGUI>();
-
             Console = new AdminPanelConsole();
-            Console.OnConfigure(this);
 
             foreach(var config in configurers)
             {
                 config.OnConfigure(this);
             }
+
+            Console.OnConfigure(this);
         }
          
         public void RegisterGUI(string category, AdminPanelGUI gui)
