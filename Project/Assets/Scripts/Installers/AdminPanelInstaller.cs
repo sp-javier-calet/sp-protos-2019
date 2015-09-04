@@ -11,13 +11,13 @@ public class AdminPanelInstaller : MonoInstaller
     {
         Container.Bind<AdminPanel>().ToSingle<AdminPanel>();
 
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelGame>();
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelLogin>();
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelProfilerGUI>();
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelHardware>();
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelLogGUI>();
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
-        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelApplicationGUI>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLogin>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfilerGUI>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelHardware>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLogGUI>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplicationGUI>();
     }
 }

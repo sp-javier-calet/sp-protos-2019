@@ -1,7 +1,7 @@
 ﻿using Zenject;
 using SocialPoint.AdminPanel;
 
-public class AdminPanelGame : AdminPanelConfigurer {
+public class AdminPanelGame : IAdminPanelConfigurer {
     
     public void OnConfigure(AdminPanel adminPanel)
     {
@@ -10,7 +10,7 @@ public class AdminPanelGame : AdminPanelConfigurer {
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Zenject", new AdminPanelZenject()));
     }
 
-    private class AdminPanelGameControl : AdminPanelGUI
+    private class AdminPanelGameControl : IAdminPanelGUI
     {
 
 
@@ -21,8 +21,7 @@ public class AdminPanelGame : AdminPanelConfigurer {
         }
     }
 
-
-    private class AdminPanelGameModel : AdminPanelGUI
+    private class AdminPanelGameModel : IAdminPanelGUI
     {
         [Inject]
         GameModel GameModel;
@@ -42,7 +41,7 @@ public class AdminPanelGame : AdminPanelConfigurer {
         }
     }
 
-    private class AdminPanelZenject : AdminPanelGUI
+    private class AdminPanelZenject : IAdminPanelGUI
     {
         [Inject]
         DiContainer Container;
@@ -50,8 +49,10 @@ public class AdminPanelGame : AdminPanelConfigurer {
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Zenject");
-
-            
+            if(Container != null)
+            {
+                layout.CreateLabel(Container.ToString());
+            }
         }
     }
 }

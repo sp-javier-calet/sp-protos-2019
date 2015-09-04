@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.AppEvents
 {
-    public class AdminPanelAppEventsGUI : AdminPanelGUI, AdminPanelConfigurer
+    public class AdminPanelAppEventsGUI : IAdminPanelGUI, IAdminPanelConfigurer
     {
         public IAppEvents AppEvents;
 

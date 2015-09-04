@@ -9,7 +9,7 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelController : UIViewController
     {
-        private Stack<AdminPanelGUI> _activePanels;
+        private Stack<IAdminPanelGUI> _activePanels;
 
         private Text _consoleText;
         private GameObject _canvasObject;
@@ -29,7 +29,7 @@ namespace SocialPoint.AdminPanel
         {
             base.OnLoad();
 
-            _activePanels = new Stack<AdminPanelGUI>();
+            _activePanels = new Stack<IAdminPanelGUI>();
             _mainPanelDirty = false;
 
             AdminPanel.Console.OnContentChanged += () => {
@@ -98,9 +98,9 @@ namespace SocialPoint.AdminPanel
             _canvasObject.SetActive(false);
         }
 
-        public void ReplacePanel(AdminPanelGUI gui)
+        public void ReplacePanel(IAdminPanelGUI gui)
         {
-            AdminPanelGUI currentGUI = null;
+            IAdminPanelGUI currentGUI = null;
             if(_activePanels.Count > 0)
             {
                 currentGUI = _activePanels.Peek();
@@ -113,7 +113,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public void OpenPanel(AdminPanelGUI panel)
+        public void OpenPanel(IAdminPanelGUI panel)
         {
             _activePanels.Push(new AdminPanelGUIGroup(panel));
             _mainPanelDirty = true;
@@ -142,7 +142,7 @@ namespace SocialPoint.AdminPanel
                 Destroy(child.gameObject);
             }
 
-            AdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(AdminPanel.Categories);
+            IAdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(AdminPanel.Categories);
             rootPanel.OnCreateGUI(_categoriesPanelContent);
 
             // Main panel content
@@ -170,11 +170,11 @@ namespace SocialPoint.AdminPanel
         }
 
         // Categories Panel content
-        private class AdminPanelCategoriesGUI : AdminPanelGUI
+        private class AdminPanelCategoriesGUI : IAdminPanelGUI
         {
-            private Dictionary<string, AdminPanelGUI> _categories;
+            private Dictionary<string, IAdminPanelGUI> _categories;
 
-            public AdminPanelCategoriesGUI(Dictionary<string, AdminPanelGUI> categories)
+            public AdminPanelCategoriesGUI(Dictionary<string, IAdminPanelGUI> categories)
             {
                 _categories = categories;
             }

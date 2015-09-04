@@ -6,22 +6,22 @@ using System.Collections.Generic;
 
 namespace SocialPoint.AdminPanel
 {
-    public interface AdminPanelConfigurer
+    public interface IAdminPanelConfigurer
     {
         void OnConfigure(AdminPanel adminPanel);
     }
 
-    public interface AdminPanelGUI
+    public interface IAdminPanelGUI
     {
         void OnCreateGUI(AdminPanelLayout layout);
     }
 
-    public class AdminPanelNestedGUI : AdminPanelGUI
+    public class AdminPanelNestedGUI : IAdminPanelGUI
     {
         private string _name;
-        private AdminPanelGUI _gui;
+        private IAdminPanelGUI _gui;
 
-        public AdminPanelNestedGUI(string name, AdminPanelGUI gui)
+        public AdminPanelNestedGUI(string name, IAdminPanelGUI gui)
         {
             _name = name;
             _gui = gui;
@@ -33,28 +33,28 @@ namespace SocialPoint.AdminPanel
         }
     }
 
-    public class AdminPanelGUIGroup : AdminPanelGUI
+    public class AdminPanelGUIGroup : IAdminPanelGUI
     {
-        private List<AdminPanelGUI> guiGroup;
+        private List<IAdminPanelGUI> guiGroup;
         
         public AdminPanelGUIGroup()
         {
-            guiGroup = new List<AdminPanelGUI>();
+            guiGroup = new List<IAdminPanelGUI>();
         }
         
-        public AdminPanelGUIGroup(AdminPanelGUI gui) : this()
+        public AdminPanelGUIGroup(IAdminPanelGUI gui) : this()
         {
             guiGroup.Add(gui);
         }
         
-        public void Add(AdminPanelGUI gui)
+        public void Add(IAdminPanelGUI gui)
         {
             guiGroup.Add(gui);
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
-            foreach(AdminPanelGUI gui in guiGroup)
+            foreach(IAdminPanelGUI gui in guiGroup)
             {
                 gui.OnCreateGUI(layout);
             }

@@ -1,13 +1,14 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Utils
 {
-    public class AdminPanelLogGUI : AdminPanelConfigurer, AdminPanelGUI
+    public class AdminPanelLogGUI : IAdminPanelConfigurer, IAdminPanelGUI
     {
         private List<LogEntry> _entries;
         private Dictionary<LogType, bool> _activeTypes;
@@ -81,17 +82,17 @@ namespace SocialPoint.Utils
         {
             if(_textComponent != null)
             {
-                string logContent = string.Empty;
+                StringBuilder logContent = new StringBuilder();
 
                 foreach(LogEntry entry in _entries)
                 {
                     if(_activeTypes[entry.Type] == true)
                     {
-                        logContent += entry.Content;
+                        logContent.Append(entry.Content);
                     }
                 }
 
-                _textComponent.text = logContent;
+                _textComponent.text = logContent.ToString();
             }
         }
 
@@ -119,7 +120,13 @@ namespace SocialPoint.Utils
                 Type = type;
                 string color = null;
                 LogColors.TryGetValue(type, out color);
-                Content = "<color=" + color + "><b> " + type.ToString() + "</b>: " + message + ((type == LogType.Exception)? "\n<b>Stack:</b>"+stackTrace : "") + "</color>\n";
+
+                StringBuilder contentBuilder = new StringBuilder();
+                contentBuilder.Append("<color=").Append(color).Append("><b> ").Append(type.ToString()).Append("</b>: ")
+                              .AppendLine(message)
+                              .Append(((type == LogType.Exception)? "<b>Stack:</b>"+stackTrace : ""))
+                              .AppendLine("</color>");
+                Content = contentBuilder.ToString();
             }
         }
     }

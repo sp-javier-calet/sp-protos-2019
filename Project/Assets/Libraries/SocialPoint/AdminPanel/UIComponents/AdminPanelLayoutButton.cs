@@ -150,17 +150,17 @@ namespace SocialPoint.AdminPanel
          * Open Panel Button
          */
 
-        public void CreateOpenPanelButton(string label, AdminPanelGUI panel, ButtonColor buttonColor)
+        public void CreateOpenPanelButton(string label, IAdminPanelGUI panel, ButtonColor buttonColor)
         {
             CreateOpenPanelButton(label, panel, false, ButtonColor.Default);
         }
 
-        public void CreateOpenPanelButton(string label, AdminPanelGUI panel, bool replacePanel = false)
+        public void CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel = false)
         {
             CreateOpenPanelButton(label, panel, replacePanel, ButtonColor.Default);
         }
 
-        public void CreateOpenPanelButton(string label, AdminPanelGUI panel, bool replacePanel, ButtonColor buttonColor)
+        public void CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel, ButtonColor buttonColor)
         {
             var rectTransform = CreateUIObject("Admin Panel - Open Panel Button", Parent);
             

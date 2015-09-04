@@ -1,11 +1,12 @@
 using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelConsole : AdminPanelConfigurer, AdminPanelGUI 
+    public class AdminPanelConsole : IAdminPanelConfigurer, IAdminPanelGUI 
     {
         public string Content { get; private set; }
 
@@ -90,7 +91,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        private class AdminPanelAvailableCommands : AdminPanelGUI 
+        private class AdminPanelAvailableCommands : IAdminPanelGUI 
         {
             private AdminPanelConsole _console;
             
@@ -110,13 +111,13 @@ namespace SocialPoint.AdminPanel
             {
                 layout.CreateLabel("Available commands");
 
-                string content = "";
+                StringBuilder content = new StringBuilder();
                 foreach(KeyValuePair<string, ConsoleCommand> entry in _console.Application)
                 {
-                    content += entry.Key + " : " + entry.Value.Description + "\n";
+                    content.Append(entry.Key).Append(" : ").AppendLine(entry.Value.Description);
                 }
 
-                layout.CreateTextArea(content);
+                layout.CreateTextArea(content.ToString());
             }
         }
     }

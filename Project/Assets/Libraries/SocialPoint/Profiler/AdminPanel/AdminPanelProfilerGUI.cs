@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Profiler
 {
-    public class AdminPanelProfilerGUI : AdminPanelGUI, AdminPanelConfigurer
+    public class AdminPanelProfilerGUI : IAdminPanelGUI, IAdminPanelConfigurer
     {
         private PerfInfoGUI _perfInfoGUI;
         private Text _frameText;

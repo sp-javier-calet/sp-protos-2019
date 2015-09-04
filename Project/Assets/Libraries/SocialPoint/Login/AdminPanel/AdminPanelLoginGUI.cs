@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
+using System.Text;
 using System.Collections;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Login
 {
-    public class AdminPanelLoginGUI : AdminPanelGUI, AdminPanelConfigurer {
+    public class AdminPanelLoginGUI : IAdminPanelGUI, IAdminPanelConfigurer {
 
         public ILogin Login;
 
@@ -30,31 +31,34 @@ namespace SocialPoint.Login
         {
             layout.CreateLabel(Login.GetType().Name);
             // Collect and format login data
-            string loginInfo = "User Id: " + login.UserId + "\n" 
-                             + "Session Id: " + login.SessionId + "\n";
-            layout.CreateTextArea(loginInfo);
+            StringBuilder loginInfo = new StringBuilder();
+            loginInfo.Append("User Id: ").AppendLine(login.UserId.ToString())
+                     .Append("Session Id: ").AppendLine(login.SessionId);
+            layout.CreateTextArea(loginInfo.ToString());
         }
 
         public void OnCreateSocialPointLoginGUI(AdminPanelLayout layout, SocialPointLogin login)
         {
             // Collect and format login data
-            string loginInfo = "Base URL: " + login.GetUrl("") + "\n\n"
-                + "User Id: " + login.UserId + "\n" 
-                + "Session Id: " + login.SessionId + "\n"
-                + "Security token: " + login.SecurityToken + "\n"
-                + "Temp Id: " + login.User.TempId + "\n"
-                + "User name" + login.User.Name + "\n";
 
-            string links = string.Empty;
+            StringBuilder loginInfo = new StringBuilder();
+            loginInfo.AppendLine("Base URL: ").AppendLine(login.GetUrl(""))
+                     .AppendLine("User Id: ").AppendLine(login.UserId.ToString())
+                     .AppendLine("Session Id: ").AppendLine(login.SessionId)
+                     .AppendLine("Security token: ").AppendLine(login.SecurityToken)
+                     .AppendLine("Temp Id: ").AppendLine(login.User.TempId)
+                     .AppendLine("User name").AppendLine(login.User.Name);
+
+            StringBuilder links = new StringBuilder();
             foreach(var link in login.User.Links)
             {
-                links += link.ToString();
+                links.AppendLine(link.ToString());
             }
 
-            string friends = string.Empty;
+            StringBuilder friends = new StringBuilder();
             foreach(var friend in login.Friends)
             {
-                friends += friend.ToString() + "\n";
+                friends.AppendLine(friend.ToString());
             }
 
             // Inflate layout
@@ -62,13 +66,13 @@ namespace SocialPoint.Login
             layout.CreateMargin();
 
             layout.CreateLabel("Login Info");
-            layout.CreateTextArea(loginInfo);
+            layout.CreateTextArea(loginInfo.ToString());
 
             layout.CreateLabel("Link Info");
-            layout.CreateTextArea((links.Length > 0)? links : "No links");
+            layout.CreateTextArea((links.Length > 0)? links.ToString() : "No links");
 
             layout.CreateLabel("Friends");
-            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends : "No friends");
+            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends.ToString() : "No friends");
 
             layout.CreateMargin();
             layout.CreateConfirmButton("Clear User Id", () => {

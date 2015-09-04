@@ -1,9 +1,10 @@
 using UnityEngine.UI;
+using System.Text;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Crash
 {
-    public class AdminPanelCrashReporterGUI : AdminPanelGUI, AdminPanelConfigurer
+    public class AdminPanelCrashReporterGUI : IAdminPanelGUI, IAdminPanelConfigurer
     {
         public ICrashReporter CrashReporter;
 
@@ -78,7 +79,7 @@ namespace SocialPoint.Crash
         }
 
 
-        public class AdminPanelCrashReporterBaseGUI : AdminPanelGUI
+        public class AdminPanelCrashReporterBaseGUI : IAdminPanelGUI
         {
             private CrashReporterBase _crashReporter;
 
@@ -90,10 +91,12 @@ namespace SocialPoint.Crash
             public void OnCreateGUI(AdminPanelLayout layout)
             {
                 layout.CreateLabel("CrashReporterBase");
-                string crashReporterInfo = "Send Interval: " + _crashReporter.SendInterval + "s\n"
-                    + "Pending Crashes: " + (_crashReporter.HasCrashLogs ? "Yes" : "No") + "\n"
-                    + "Pending Exceptions: " + (_crashReporter.HasExceptionLogs ? "Yes" : "No") + "\n";
-                layout.CreateTextArea(crashReporterInfo);
+
+                StringBuilder crashReporterInfo = new StringBuilder();
+                crashReporterInfo.Append("Send Interval: ").Append(_crashReporter.SendInterval.ToString()).AppendLine("s")
+                                 .Append("Pending Crashes: ").AppendLine(_crashReporter.HasCrashLogs ? "Yes" : "No")
+                                 .Append("Pending Exceptions: ").AppendLine(_crashReporter.HasExceptionLogs ? "Yes" : "No");
+                layout.CreateTextArea(crashReporterInfo.ToString());
             }
         }
     }

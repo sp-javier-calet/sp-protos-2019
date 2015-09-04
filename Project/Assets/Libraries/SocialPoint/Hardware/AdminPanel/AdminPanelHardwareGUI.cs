@@ -1,8 +1,8 @@
-﻿using SocialPoint.AdminPanel;
+using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Hardware
 {
-    public class AdminPanelHardwareGUI : AdminPanelConfigurer, AdminPanelGUI
+    public class AdminPanelHardwareGUI : IAdminPanelConfigurer, IAdminPanelGUI
     {   
         public IDeviceInfo DeviceInfo;
 

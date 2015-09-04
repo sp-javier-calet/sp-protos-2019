@@ -3,7 +3,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelApplicationGUI : AdminPanelGUI, AdminPanelConfigurer {
+    public class AdminPanelApplicationGUI : IAdminPanelGUI, IAdminPanelConfigurer {
 
         public void OnConfigure(AdminPanel adminPanel)
         {

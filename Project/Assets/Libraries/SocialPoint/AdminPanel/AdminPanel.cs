@@ -6,12 +6,12 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanel
     {
-        public Dictionary<string, AdminPanelGUI> Categories { get; private set; }
+        public Dictionary<string, IAdminPanelGUI> Categories { get; private set; }
         public AdminPanelConsole Console { get; private set; }
 
-        public AdminPanel(List<AdminPanelConfigurer> configurers)
+        public AdminPanel(List<IAdminPanelConfigurer> configurers)
         {
-            Categories = new Dictionary<string, AdminPanelGUI>();
+            Categories = new Dictionary<string, IAdminPanelGUI>();
             Console = new AdminPanelConsole();
 
             foreach(var config in configurers)
@@ -22,7 +22,7 @@ namespace SocialPoint.AdminPanel
             Console.OnConfigure(this);
         }
          
-        public void RegisterGUI(string category, AdminPanelGUI gui)
+        public void RegisterGUI(string category, IAdminPanelGUI gui)
         {
             AdminPanelGUIGroup group = GetCategoryLayout(category);
             group.Add(gui);
@@ -30,7 +30,7 @@ namespace SocialPoint.AdminPanel
 
         private AdminPanelGUIGroup GetCategoryLayout(string category)
         {
-            AdminPanelGUI group;
+            IAdminPanelGUI group;
             if(!Categories.TryGetValue(category, out group))
             {
                 group = new AdminPanelGUIGroup();
