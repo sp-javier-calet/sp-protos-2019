@@ -11,6 +11,7 @@ public class AdminPanelInstaller : MonoInstaller
     {
         Container.Bind<AdminPanel>().ToSingle<AdminPanel>();
 
+        Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelGame>();
         Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelLogin>();
         Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
         Container.Bind<AdminPanelConfigurer>().ToSingle<AdminPanelProfilerGUI>();
