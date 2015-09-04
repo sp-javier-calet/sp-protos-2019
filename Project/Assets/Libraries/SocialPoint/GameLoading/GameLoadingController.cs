@@ -65,12 +65,12 @@ namespace SocialPoint.GameLoading
 
             UnityAlertView.ShowDelegate = (GameObject go) => {
                 var viewController = go.GetComponent<UIViewController>();
-                Assert.IsNotNull(viewController, "GameObject doesn't have a viewController");
+                DebugUtils.Assert(viewController != null, "GameObject doesn't have a viewController");
                 Popups.Push(viewController);
             };
             UnityAlertView.HideDelegate = (GameObject go) => {
                 var viewController = go.GetComponent<UIViewController>();
-                Assert.IsNotNull(viewController, "GameObject doesn't have a viewController");
+                DebugUtils.Assert(viewController != null, "GameObject doesn't have a viewController");
                 viewController.Hide(true);
             };
 

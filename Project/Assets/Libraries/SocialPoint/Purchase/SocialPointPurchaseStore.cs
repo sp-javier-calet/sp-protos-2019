@@ -126,7 +126,7 @@ namespace SocialPoint.Purchase
             paramDic.Set(HttpParamPurchaseData, new AttrString(receipt.OriginalJson));
             paramDic.Set(HttpParamDataSignature, new AttrString(receipt.DataSignature));
             //encode it to base64
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(new JsonAttrSerializer().Serialize(paramDic).ToString());
+            var plainTextBytes = new JsonAttrSerializer().Serialize(paramDic);
             req.AddParam(HttpParamOrderData, System.Convert.ToBase64String(plainTextBytes));
             #endif
             _httpClient.Send(req, (_1) => OnBackendResponse(_1, response, receipt));
