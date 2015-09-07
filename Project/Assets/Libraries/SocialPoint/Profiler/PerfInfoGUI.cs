@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
+using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Profiler
 {
@@ -17,6 +18,9 @@ namespace SocialPoint.Profiler
             {
                 Info = new PerfInfo(this);
             }
+
+            // Starts disabled
+            enabled = false;
         }
 
         void OnGUI()

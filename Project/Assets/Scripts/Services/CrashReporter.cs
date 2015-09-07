@@ -1,4 +1,5 @@
 ﻿using Zenject;
+using SocialPoint.AdminPanel;
 using SocialPoint.Crash;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
@@ -29,7 +30,7 @@ class CrashReporter : SocialPointCrashReporter
             TrackEvent = value.TrackEvent;
         }
     }
-
+    
     [InjectOptional("crash_reporter_send_interval")]
     public int InjectSendInterval
     {
@@ -55,7 +56,7 @@ class CrashReporter : SocialPointCrashReporter
         {
             ExceptionLogActive = value;
         }
-    }   
+    }
 
     public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs):
         base(behaviour, client, deviceInfo, breadcrumbs)
