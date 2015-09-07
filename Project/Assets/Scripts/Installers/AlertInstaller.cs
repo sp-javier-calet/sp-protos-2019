@@ -2,7 +2,7 @@ using System;
 using Zenject;
 using SocialPoint.Alert;
 
-public class AlertViewInstaller : MonoInstaller
+public class AlertInstaller : MonoInstaller
 {
     [Serializable]
     public class SettingsData

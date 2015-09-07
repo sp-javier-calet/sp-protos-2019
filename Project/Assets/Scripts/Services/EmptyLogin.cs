@@ -7,7 +7,7 @@ using SocialPoint.Events;
 
 class EmptyLogin : SocialPoint.Login.EmptyLogin
 {   
-    public EmptyLogin([Inject("base_url")] string baseUrl=null) : base(baseUrl)
+    public EmptyLogin() : base(null)
     {
     }
 }

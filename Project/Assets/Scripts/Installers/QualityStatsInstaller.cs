@@ -9,12 +9,6 @@ using SocialPoint.Network;
 
 public class QualityStatsInstaller : MonoInstaller
 {
-    [Serializable]
-    public class SettingsData
-    {
-    };
-    
-    public SettingsData Settings;
 
     [Inject]
     IDeviceInfo DeviceInfo;

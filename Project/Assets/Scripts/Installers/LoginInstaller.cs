@@ -7,7 +7,6 @@ public class LoginInstaller : MonoInstaller
 	[Serializable]
 	public class SettingsData
 	{
-        public bool EnableEmpty = false;
 		public string BaseUrl = "http://int-ds.socialpointgames.com/ds4/web/index_dev.php/api/v3";
         public float Timeout = Login.DefaultTimeout;
         public float ActivityTimeout = Login.DefaultActivityTimeout;
@@ -33,16 +32,8 @@ public class LoginInstaller : MonoInstaller
         Container.BindInstance("login_max_retries", Settings.MaxRetries);
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
 
-        if(Settings.EnableEmpty)
-        {
-            Container.Bind<ILogin>().ToSingle<EmptyLogin>();
-            Container.Bind<IDisposable>().ToSingle<EmptyLogin>();
-        }
-        else
-        {
-            Container.Bind<ILogin>().ToSingle<Login>();
-            Container.Bind<IDisposable>().ToSingle<Login>();
-        }
+        Container.Bind<ILogin>().ToSingle<Login>();
+        Container.Bind<IDisposable>().ToSingle<Login>();
 	}
 
 }
