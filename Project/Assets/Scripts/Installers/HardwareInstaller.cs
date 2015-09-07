@@ -20,6 +20,10 @@ public class HardwareInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
+        if(Container.HasBinding<IDeviceInfo>())
+        {
+            return;
+        }
         if(SettingsAppInfo.fakeAppData)
         {
             var appInfo = new EmptyAppInfo();

@@ -25,16 +25,26 @@ public class LocaleInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{	
+        if(Container.HasBinding<Localization>())
+        {
+            return;
+        }
         Container.Bind<Localization>().ToSingle();
         Container.BindInstance("locale_project_id", Settings.ProjectId);
         Container.BindInstance("locale_env_id", Settings.EnvironmentId.ToString());
         string secretKey;
         if(Settings.EnvironmentId == EnvironmentID.dev)
+        {
             secretKey = Settings.SecretKeyDev;
+        }
         else if(Settings.EnvironmentId == EnvironmentID.loc)
+        {
             secretKey = Settings.SecretKeyLoc;
+        }
         else
+        {
             secretKey = Settings.SecretKeyProd;
+        }
         Container.BindInstance("locale_secret_key", secretKey);
         Container.BindInstance("locale_supported_langs", Settings.SupportedLanguages);
         Container.BindInstance("locale_timeout", Settings.Timeout);

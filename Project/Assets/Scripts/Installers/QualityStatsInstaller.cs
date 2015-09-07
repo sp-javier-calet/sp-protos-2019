@@ -30,6 +30,10 @@ public class QualityStatsInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        if(Container.HasBinding<SocialPointQualityStats>())
+        {
+            return;
+        }
         var httpClient = new QualityStatsHttpClient(HttpClient);
         Container.Rebind<IHttpClient>().ToInstance(httpClient);
 

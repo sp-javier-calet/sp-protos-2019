@@ -20,6 +20,10 @@ public class ServerSyncInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
+        if(Container.HasBinding<ICommandQueue>())
+        {
+            return;
+        }
         Container.BindInstance("command_queue_ignore_responses", Settings.IgnoreResponses);
         Container.BindInstance("command_queue_send_interval", Settings.SendInterval);
         Container.BindInstance("command_queue_outofsync_interval", Settings.MaxOutOfSyncInterval);

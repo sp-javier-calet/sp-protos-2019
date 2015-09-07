@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Zenject;
 using SocialPoint.Alert;
 
@@ -15,6 +15,10 @@ public class AlertViewInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        if(Container.HasBinding<IAlertView>())
+        {
+            return;
+        }
         if(Settings.UseNativeAlert)
         {
             Container.Bind<IAlertView>().ToSingle<AlertView>();
