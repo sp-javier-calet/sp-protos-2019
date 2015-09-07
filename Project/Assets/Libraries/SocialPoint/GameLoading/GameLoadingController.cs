@@ -56,7 +56,7 @@ namespace SocialPoint.GameLoading
 
         protected virtual void AllOperationsLoaded()
         {
-            Debug.Log("all operations loaded");
+            DebugLog("all operations loaded");
         }
 
         override protected void OnLoad()
@@ -104,7 +104,7 @@ namespace SocialPoint.GameLoading
         public void OnProgressChanged(string message)
         {
             if(message != string.Empty)
-                Debug.Log(message);
+                DebugLog(message);
             float progress = 0;
             _operations.ForEach(p => progress += p.progress);
             float percent = (progress / _operations.Count);
@@ -113,7 +113,7 @@ namespace SocialPoint.GameLoading
 
         void DebugLog(string msg)
         {
-            Debug.Log(msg);
+            DebugUtils.Log(string.Format("GameLoadingController {0}", msg));
         }
 
         void DoLogin()
