@@ -178,7 +178,10 @@ EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct req)
     ss << "method " << req.method << std::endl;
     ss << "timeout " << req.timeout << std::endl;
     ss << "activityTimeout " << req.activityTimeout << std::endl;
-    ss << "proxy " << req.proxy << std::endl;
+    if(req.proxy != nullptr)
+    {
+        ss << "proxy " << req.proxy << std::endl;
+    }
     ss << "headers " << req.headers << std::endl;
     ss << "bodyLength " << req.bodyLength << std::endl;
     ss.close();
@@ -253,6 +256,8 @@ EXPORT_API int SPUnityCurlUpdate(int id)
                 conn->responseCode = (int)code;
             }
 
+            curl_easy_getinfo(easy, CURLINFO_CONNECT_TIME, &conn->connectTime);
+            curl_easy_getinfo(easy, CURLINFO_TOTAL_TIME, &conn->totalTime);
             curl_easy_getinfo(easy, CURLINFO_SIZE_DOWNLOAD, &conn->downloadSize);
             curl_easy_getinfo(easy, CURLINFO_SPEED_DOWNLOAD, &conn->downloadSpeed);
 
@@ -281,6 +286,26 @@ EXPORT_API int SPUnityCurlCreateConn()
 EXPORT_API void SPUnityCurlDestroyConn(int id)
 {
     SPUnityCurlManager::getInstance().removeConn(id); // remove conn to manager
+}
+
+EXPORT_API double SPUnityCurlGetConnectTime(int id)
+{    
+    SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
+    if (conn)
+    {
+        return conn->connectTime;
+    }
+    return 0;
+}
+
+EXPORT_API double SPUnityCurlGetTotalTime(int id)
+{
+    SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
+    if (conn)
+    {
+        return conn->totalTime;
+    }
+    return 0;
 }
 
 EXPORT_API int SPUnityCurlGetCode(int id)

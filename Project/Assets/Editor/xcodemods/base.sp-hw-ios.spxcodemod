@@ -1,1 +1,8 @@
-{"frameworks":["CoreTelephony.framework:weak","AdSupport.framework:weak","Security.framework:weak"]}
+
+{
+    "frameworks" : [
+        "CoreTelephony.framework:weak",
+        "AdSupport.framework:weak",
+        "Security.framework:weak"
+    ]
+}

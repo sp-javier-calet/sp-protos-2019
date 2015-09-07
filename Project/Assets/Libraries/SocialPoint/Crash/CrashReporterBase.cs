@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Linq;
+
 using SocialPoint.Base;
 using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
@@ -272,6 +273,11 @@ namespace SocialPoint.Crash
 
         public bool ExceptionLogActive
         {
+            get
+            {
+                return _exceptionLogActive;
+            }
+
             set
             {
                 _exceptionLogActive = value;
@@ -280,6 +286,11 @@ namespace SocialPoint.Crash
 
         public bool ErrorLogActive
         {
+            get
+            {
+                return _errorLogActive;
+            }
+
             set
             {
                 _errorLogActive = value;
@@ -299,13 +310,13 @@ namespace SocialPoint.Crash
             }
         }
 
-        private bool IsEnabled
+        public bool IsEnabled
         { 
             get
             {
                 return PlayerPrefs.GetInt(CrashReporterEnabledPreferencesKey) > 0;
             }
-            set
+            private set
             {
                 PlayerPrefs.SetInt(CrashReporterEnabledPreferencesKey, (value) ? 1 : 0);
                 PlayerPrefs.Save();
@@ -479,12 +490,12 @@ namespace SocialPoint.Crash
             req.CompressBody = true;
         }
 
-        private bool HasExceptionLogs
+        public bool HasExceptionLogs
         {
             get{ return (_exceptionStorage != null && _exceptionStorage.StoredKeys.Length > 0); }
         }
 
-        private bool HasCrashLogs
+        public bool HasCrashLogs
         {
             get{ return (_crashStorage != null && _crashStorage.StoredKeys.Length > 0); }
         }
