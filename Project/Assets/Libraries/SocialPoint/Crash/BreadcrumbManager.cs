@@ -86,6 +86,19 @@ namespace SocialPoint.Crash
             FileUtils.Delete(BreadcrumbLogPath(LastSessionBreadcrumbsName));
         }
 
+        public string CurrentBreadCrumb
+        {
+            get{
+                string path = BreadcrumbLogPath();
+                if(!FileUtils.Exists(path))
+                {
+                    return null;
+                }
+
+                return FileUtils.ReadAllText(path);
+            }
+        }
+
         public string OldBreadCrumb
         {
             get{
@@ -95,10 +108,7 @@ namespace SocialPoint.Crash
                     return null;
                 }
 
-                using(StreamReader stream = new StreamReader(oldPath))
-                {
-                    return stream.ReadToEnd();
-                }
+                return FileUtils.ReadAllText(oldPath);
             }
         }
 

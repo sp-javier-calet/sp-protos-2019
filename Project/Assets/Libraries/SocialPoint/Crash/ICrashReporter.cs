@@ -8,9 +8,11 @@ namespace SocialPoint.Crash
     {
         void ForceCrash();
 
-        bool ErrorLogActive{ set; }
+        bool ErrorLogActive{ get; set; }
 
-        bool ExceptionLogActive{ set; }
+        bool ExceptionLogActive{ get; set; }
+
+        bool IsEnabled { get; }
 
         void Enable();
 
