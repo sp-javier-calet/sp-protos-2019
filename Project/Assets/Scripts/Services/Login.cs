@@ -4,6 +4,7 @@ using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.Events;
+using System.Collections.Generic;
 
 class Login : SocialPointLogin
 {
@@ -24,8 +25,20 @@ class Login : SocialPointLogin
             TrackEvent = value.TrackEvent;
         }
     }
+
+    [InjectOptional]
+    public List<ILink> InjectLinks
+    {
+        set
+        {
+            foreach(var link in value)
+            {
+                AddLink(link);
+            }
+        }
+    }
     
-    [InjectOptional("persistent")]
+    [Inject("persistent")]
     public IAttrStorage InjectStorage
     {
         set

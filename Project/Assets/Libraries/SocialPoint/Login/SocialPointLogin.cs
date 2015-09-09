@@ -173,7 +173,7 @@ namespace SocialPoint.Login
             }
         }
 
-        public List<SocialPoint.Login.User> Friends { get; private set; }
+        public List<User> Friends { get; private set; }
 
         public IDeviceInfo DeviceInfo { private get; set; }
 
@@ -320,7 +320,7 @@ namespace SocialPoint.Login
         string _baseUrl;
         List<LinkInfo> _links;
         List<LinkInfo> _pendingLinkConfirms;
-        List<SocialPoint.Login.User> _users;
+        List<User> _users;
         bool _restartLogin;
         UInt64 _userId;
         bool _userHasRegistered;
@@ -359,7 +359,7 @@ namespace SocialPoint.Login
             _userId = 0;
             _userHasRegistered = false;
             _userHasRegisteredLoaded = false;
-            Friends = new List<SocialPoint.Login.User>();
+            Friends = new List<User>();
             User = new LocalUser();
             Timeout = DefaultTimeout;
             ActivityTimeout = DefaultActivityTimeout;
@@ -548,7 +548,7 @@ namespace SocialPoint.Login
         {
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
             {
-                GetUsersPhotos(new List<SocialPoint.Login.User>(){ User }, AutoUpdateFriendsPhotosSize, (users, err2) =>
+                GetUsersPhotos(new List<User>(){ User }, AutoUpdateFriendsPhotosSize, (users, err2) =>
                 {
                     if(cbk != null)
                     {
@@ -1107,7 +1107,7 @@ namespace SocialPoint.Login
             if(!disableUpdatingFriends && AutoUpdateFriends)
             {
                 var data = new List<UserMapping>();
-                info.Link.GetFriendsData(ref data);
+                info.Link.GetFriendsData(data);
                 UpdateFriends(data, (users, err) => NotifyNewLink(info, false));
             }
             else
@@ -1127,7 +1127,7 @@ namespace SocialPoint.Login
                     return;
                 }
                 var tmpFriends = Friends;
-                err = ParseUsersResponse(resp, ref tmpFriends);
+                err = ParseUsersResponse(resp, tmpFriends);
                 if(!Error.IsNullOrEmpty(err))
                 {
                     OnUpdateFriendsEnd(mappings, err, cbk);
@@ -1164,7 +1164,7 @@ namespace SocialPoint.Login
             }
         }
         
-        void OnUserPhotoLink(LinkInfo info, SocialPoint.Login.User user, List<SocialPoint.Login.User> users, uint photoSize, Error err, LoginUsersDelegate cbk)
+        void OnUserPhotoLink(LinkInfo info, User user, List<User> users, uint photoSize, Error err, LoginUsersDelegate cbk)
         {
             if(user == null)
             {
@@ -1182,7 +1182,7 @@ namespace SocialPoint.Login
                 // try to get user from cache
                 if(user.AppInstalled)
                 {
-                    GetCachedUserById(user.Id, ref user);
+                    GetCachedUserById(user.Id, user);
                 }
                 info = GetNextLinkInfo(info, LinkFilter.All);
                 if(info != null)
@@ -1221,13 +1221,13 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnUsersPhotosEnd(List<SocialPoint.Login.User> users, Error err, LoginUsersDelegate cbk)
+        void OnUsersPhotosEnd(List<User> users, Error err, LoginUsersDelegate cbk)
         {
             UpdateUsersCache(users);
             OnUsersEnd(users, err, cbk);
         }
 
-        void OnUsersEnd(List<SocialPoint.Login.User> users, Error err, LoginUsersDelegate cbk)
+        void OnUsersEnd(List<User> users, Error err, LoginUsersDelegate cbk)
         {
             if(cbk != null)
             {
@@ -1235,7 +1235,7 @@ namespace SocialPoint.Login
             }
         }
         
-        void OnGetUsersByIdResponse(HttpResponse resp, List<UserMapping> mappings, uint block, uint photoSize, List<SocialPoint.Login.User> users, LoginUsersDelegate cbk)
+        void OnGetUsersByIdResponse(HttpResponse resp, List<UserMapping> mappings, uint block, uint photoSize, List<User> users, LoginUsersDelegate cbk)
         {
             var err = resp.Error;
             if(Error.IsNullOrEmpty(err) && block > 0)
@@ -1244,7 +1244,7 @@ namespace SocialPoint.Login
             }
             if(Error.IsNullOrEmpty(err) && block > 0)
             {
-                err = ParseUsersResponse(resp, ref users);
+                err = ParseUsersResponse(resp, users);
             }
             if(Error.IsNullOrEmpty(err))
             {
@@ -1260,7 +1260,7 @@ namespace SocialPoint.Login
             OnGetUsersByIdEnd(photoSize, users, err, cbk);
         }
 
-        void OnGetUsersByIdEnd(uint photoSize, List<SocialPoint.Login.User> users, Error err, LoginUsersDelegate cbk)
+        void OnGetUsersByIdEnd(uint photoSize, List<User> users, Error err, LoginUsersDelegate cbk)
         {
             UpdateUsersCache(users);
             if(Error.IsNullOrEmpty(err) && photoSize > 0)
@@ -1273,7 +1273,7 @@ namespace SocialPoint.Login
             }
         }
 
-        Error ParseUsersResponse(HttpResponse resp, ref List<SocialPoint.Login.User> users)
+        Error ParseUsersResponse(HttpResponse resp, List<User> users)
         {
             if(resp.Body.Length > 0)
             {
@@ -1306,7 +1306,7 @@ namespace SocialPoint.Login
             return null;
         }
         
-        bool GetCachedUserById(UInt64 userId, ref SocialPoint.Login.User user)
+        bool GetCachedUserById(UInt64 userId, User user)
         {
             if(User.Id == userId)
             {
@@ -1314,7 +1314,7 @@ namespace SocialPoint.Login
                 return true;
             }
 
-            SocialPoint.Login.User resultUser = _users.FirstOrDefault(item => item.Id == userId);
+            User resultUser = _users.FirstOrDefault(item => item.Id == userId);
 
             if(resultUser != null)
             {
@@ -1324,7 +1324,7 @@ namespace SocialPoint.Login
             return (resultUser != null);
         }
 
-        bool GetCachedUserByTempId(string tempId, ref SocialPoint.Login.User user)
+        bool GetCachedUserByTempId(string tempId, User user)
         {
             if(User.TempId == tempId)
             {
@@ -1332,7 +1332,7 @@ namespace SocialPoint.Login
                 return true;
             }
             
-            SocialPoint.Login.User resultUser = _users.FirstOrDefault(item => item.TempId == tempId);
+            User resultUser = _users.FirstOrDefault(item => item.TempId == tempId);
 
             if(resultUser != null)
             {
@@ -1342,7 +1342,7 @@ namespace SocialPoint.Login
             return (resultUser != null);
         }
 
-        void UpdateUsersCache(List<SocialPoint.Login.User> tmpUsers)
+        void UpdateUsersCache(List<User> tmpUsers)
         {
             foreach(var user in tmpUsers)
             {
@@ -1351,13 +1351,13 @@ namespace SocialPoint.Login
                     User.Combine(user);
                 }
 
-                SocialPoint.Login.User resultFriend = Friends.FirstOrDefault(item => item == user);
+                User resultFriend = Friends.FirstOrDefault(item => item == user);
                 if(resultFriend != null)
                 {
                     resultFriend.Combine(user);
                 }
 
-                SocialPoint.Login.User resultUser = _users.FirstOrDefault(item => item == user);
+                User resultUser = _users.FirstOrDefault(item => item == user);
                 if(resultUser != null)
                 {
                     resultUser.Combine(user);
@@ -1617,7 +1617,7 @@ namespace SocialPoint.Login
         /**
          * Find friends by id
          */
-        public void GetFriendsByTempId(List<string> userIds, List<SocialPoint.Login.User> users)
+        public void GetFriendsByTempId(List<string> userIds, List<User> users)
         {
             foreach(var friend in Friends)
             {
@@ -1658,7 +1658,7 @@ namespace SocialPoint.Login
             var mappings = new List<UserMapping>();
             foreach(var linkInfo in _links)
             {
-                linkInfo.Link.GetFriendsData(ref mappings);
+                linkInfo.Link.GetFriendsData(mappings);
             }
             UpdateFriends(mappings, cbk);
         }
@@ -1680,7 +1680,7 @@ namespace SocialPoint.Login
         /**
          * Will update the photos of a sublist of friends
          */
-        public void GetUsersPhotos(List<SocialPoint.Login.User> users, uint photoSize, LoginUsersDelegate cbk = null)
+        public void GetUsersPhotos(List<User> users, uint photoSize, LoginUsersDelegate cbk = null)
         {
             if(users.Count == 0)
             {
@@ -1699,12 +1699,12 @@ namespace SocialPoint.Login
 
         public void GetUsersPhotosByTempId(List<string> userIds, uint photoSize, LoginUsersDelegate cbk = null)
         {
-            var users = new List<SocialPoint.Login.User>();
+            var users = new List<User>();
 
             foreach(var userId in userIds)
             {
-                SocialPoint.Login.User u = new SocialPoint.Login.User();
-                if(GetCachedUserByTempId(userId, ref u))
+                User u = new User();
+                if(GetCachedUserByTempId(userId, u))
                 {
                     users.Add(u);
                 }
@@ -1724,13 +1724,13 @@ namespace SocialPoint.Login
 
         public void GetUsersById(List<UInt64> userIds, uint photoSize, LoginUsersDelegate cbk = null)
         {
-            var users = new List<SocialPoint.Login.User>();
+            var users = new List<User>();
             var mappings = new List<UserMapping>();
 
             foreach(var userId in userIds)
             {
-                var cacheUser = new SocialPoint.Login.User();
-                if(GetCachedUserById(userId, ref cacheUser))
+                var cacheUser = new User();
+                if(GetCachedUserById(userId, cacheUser))
                 {
                     users.Add(cacheUser);
                 }
@@ -1749,24 +1749,24 @@ namespace SocialPoint.Login
          * @param the ids to search
          * @param the list to write
          */
-        public void GetCachedUsersById(List<UInt64> userIds, ref List<SocialPoint.Login.User> users)
+        public void GetCachedUsersById(List<UInt64> userIds, List<User> users)
         {
             foreach(var userId in userIds)
             {
-                var u = new SocialPoint.Login.User();
-                if(GetCachedUserById(userId, ref u))
+                var u = new User();
+                if(GetCachedUserById(userId, u))
                 {
                     users.Add(u);
                 }
             }
         }
 
-        public void GetCachedUsersByTempId(List<string> userIds, ref List<SocialPoint.Login.User> users)
+        public void GetCachedUsersByTempId(List<string> userIds, List<User> users)
         {
             foreach(var userId in userIds)
             {
-                var u = new SocialPoint.Login.User();
-                if(GetCachedUserByTempId(userId, ref u))
+                var u = new User();
+                if(GetCachedUserByTempId(userId, u))
                 {
                     users.Add(u);
                 }

@@ -58,6 +58,7 @@ namespace SocialPoint.Alert
             {
                 throw new MissingComponentException("Prefab does not have a BaseUnityAlertViewController component.");
             }
+            UnityEngine.Object.DontDestroyOnLoad(_controller.gameObject);
             Setup();
         }
 

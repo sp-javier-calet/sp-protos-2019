@@ -12,6 +12,8 @@
     "SocialPoint/Network/Curl": "v1.0.*",
     "SocialPoint/Attributes/Ios": "v1.0.*",
     "SocialPoint/Login": "v1.0.*",
+    "SocialPoint/Login/Facebook": "v1.0.*",
+    "SocialPoint/Login/GameCenter": "v1.0.*",
     "SocialPoint/ServerSync": "v1.0.*",
     "SocialPoint/Hardware": "v1.0.*",
     "SocialPoint/Events": "v1.0.*",

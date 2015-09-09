@@ -32,7 +32,7 @@ namespace SocialPoint.Login
 
         public abstract AttrDic GetLinkData();
 
-        public abstract void GetFriendsData(ref List<UserMapping> mappings);
+        public abstract void GetFriendsData(List<UserMapping> mappings);
 
         public abstract void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk);
 

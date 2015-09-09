@@ -20,6 +20,11 @@ namespace SocialPoint.Login
             Id = id;
             Provider = provider;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[UserMapping: Id={0}, Provider={1}]", Id, Provider);
+        }
     }
 
     public class User

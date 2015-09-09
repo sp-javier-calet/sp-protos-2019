@@ -51,7 +51,7 @@ namespace SocialPoint.Base
         {
             get
             {
-                return Code != 0 || Msg.Length > 0;
+                return Code != 0 || !string.IsNullOrEmpty(Msg);
             }
         }
 
