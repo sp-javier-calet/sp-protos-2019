@@ -75,13 +75,9 @@ namespace SocialPoint.Login
             layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends.ToString() : "No friends");
 
             layout.CreateMargin();
-            layout.CreateConfirmButton("Clear User Id", () => {
-                login.ClearUserId();
-            });
+            layout.CreateConfirmButton("Clear User Id", login.ClearUserId);
 
-            layout.CreateConfirmButton("Clear Users Cache", () => {
-                login.ClearUsersCache();
-            });
+            layout.CreateConfirmButton("Clear Users Cache", login.ClearUsersCache);
         }
     }
 }

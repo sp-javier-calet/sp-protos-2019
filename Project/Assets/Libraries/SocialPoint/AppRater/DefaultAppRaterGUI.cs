@@ -30,7 +30,7 @@ namespace SocialPoint.AppRater
                 {
                     alert.Buttons = new string[]{ "Ok", "Cancel" };
                 } 
-                alert.Input = true;
+                alert.Input = false;
                 alert.Show((int result) => {
                     switch(result)
                     {

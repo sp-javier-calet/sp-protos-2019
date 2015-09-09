@@ -4,35 +4,33 @@ using UnityEngine;
 using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
-
 using SocialPoint.AppEvents;
 
 namespace SocialPoint.AppRater
 {
     public class AppRater
     {
-        private const string AppRaterInfoKey = "AppRaterInfo";
-        private const string CurrentVersionKey = "CurrentVersion";
-        private const string UsesUntilPromptKey = "usesUntilPrompt";
-        private const string EventsUntilPromptKey = "eventsUntilPrompt";
-        private const string FirstUseDateKey = "firstUseDate";
-        private const string RatedCurrentVersionKey = "ratedCurrentVersion";
-        private const string RatedAnyVersionKey = "ratedAnyVersion";
-        private const string DeclineToRateKey = "declineToRate";
-        private const string ReminderRequestDateKey = "reminderRequestDate";
-        private const string PromptsLastDayKey = "promptsLastDay";
-        private const string DateStartLastDayKey = "dateStartLastDay";
+        const string AppRaterInfoKey = "AppRaterInfo";
+        const string CurrentVersionKey = "CurrentVersion";
+        const string UsesUntilPromptKey = "usesUntilPrompt";
+        const string EventsUntilPromptKey = "eventsUntilPrompt";
+        const string FirstUseDateKey = "firstUseDate";
+        const string RatedCurrentVersionKey = "ratedCurrentVersion";
+        const string RatedAnyVersionKey = "ratedAnyVersion";
+        const string DeclineToRateKey = "declineToRate";
+        const string ReminderRequestDateKey = "reminderRequestDate";
+        const string PromptsLastDayKey = "promptsLastDay";
+        const string DateStartLastDayKey = "dateStartLastDay";
 
-        private const int DayInSeconds = 86400;
+        const int DayInSeconds = 86400;
 
         IDeviceInfo _deviceInfo;
         IAttrStorage _storage;
         IAppEvents _appEvents;
-        IAppRaterGUI _appRaterGUI;
 
-        public string StoreUrl;
+        public IAppRaterGUI AppRaterGUI { private get; set; }
 
-        public string ID{ protected set; get; }
+        public string StoreUrl = "http://www.socialpoint.es/";
 
         public int UsesUntilPrompt;
         public int EventsUntilPrompt;
@@ -40,30 +38,24 @@ namespace SocialPoint.AppRater
         public long DaysBeforeReminding;
         public int UserLevelUntilPrompt;
         public int CurrentUserLevel;
+        public int MaxPromptsPerDay;
         /// <summary>
         /// if any version is rated will skip rating others
         /// </summary>
         public bool AnyVersionRateIsValid;
 
-        public int MaxPromptsPerDay;
 
-        public AppRater(IDeviceInfo deviceInfo, IAttrStorage storage, IAppEvents appEvents, IAppRaterGUI appRaterGUI)
+        public AppRater(IDeviceInfo deviceInfo, IAttrStorage storage, IAppEvents appEvents)
         {
             _deviceInfo = deviceInfo;
             _storage = storage;
             _appEvents = appEvents;
-            _appRaterGUI = appRaterGUI;
-            _appRaterGUI.setAppRater(this);
-            Init();
         }
 
         public void Init()
         {
-            ID = _deviceInfo.AppInfo.Id;
-
-            CheckDayReset();
-
-            //Default values, expected to be customized by developers
+            //Default values, expected to be customized by developers or loaded from backend
+            /*
             UsesUntilPrompt = 20;
             EventsUntilPrompt = -1;
             DaysUntilPrompt = 30;
@@ -71,12 +63,16 @@ namespace SocialPoint.AppRater
             UserLevelUntilPrompt = 20;
             CurrentUserLevel = 0;
             MaxPromptsPerDay = -1;
+            */
+            CheckDayReset();
         }
 
         private void CheckDayReset()
         {
             if(!_storage.Has(AppRaterInfoKey))
+            {
                 return;
+            }
             var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
             if((TimeUtils.Timestamp - appRaterInfo.GetValue(DateStartLastDayKey).ToDouble()) > DayInSeconds)
             {
@@ -93,7 +89,7 @@ namespace SocialPoint.AppRater
             appRaterInfo.SetValue(PromptsLastDayKey, appRaterInfo.GetValue(PromptsLastDayKey).ToInt() + 1);
             _storage.Save(AppRaterInfoKey, appRaterInfo);
          
-            _appRaterGUI.Show(true);
+            AppRaterGUI.Show(true);
         }
 
         private void IncrementUsesAndRate(bool canPromptForRating)
@@ -184,7 +180,7 @@ namespace SocialPoint.AppRater
 
         private bool preRatingConditionsHaveBeenMet
         {
-            get 
+            get
             {
                 // Check if the days passed from first use has passed
                 var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
@@ -296,6 +292,16 @@ namespace SocialPoint.AppRater
             var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
             appRaterInfo.SetValue(ReminderRequestDateKey, TimeUtils.Timestamp);
             _storage.Save(AppRaterInfoKey, appRaterInfo);
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "Config:\n" +
+                "[UsesUntilPrompt={0}, EventsUntilPrompt={1}, DaysUntilPrompt={2}, DaysBeforeReminding={3}, UserLevelUntilPrompt={4}, CurrentUserLevel={5}, MaxPromptsPerDay={6}, AnyVersionRateIsValid={7}]\n" +
+                "Statistics:\n" +
+                "[{8}]",
+                UsesUntilPrompt, EventsUntilPrompt, DaysUntilPrompt, DaysBeforeReminding, UserLevelUntilPrompt, CurrentUserLevel, MaxPromptsPerDay, AnyVersionRateIsValid, _storage.Load(AppRaterInfoKey).AsDic);
         }
 
         /*

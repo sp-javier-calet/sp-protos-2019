@@ -33,8 +33,10 @@ namespace SocialPoint.AppRater
             PathsManager.Init();
             storage = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "AppRaterTests"));
             var appEvents = Substitute.For<IAppEvents>();
+            AppRater = new AppRater(deviceInfo, storage, appEvents);
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
-            AppRater = new AppRater(deviceInfo, storage, appEvents, AppRaterGUI);
+            AppRaterGUI.setAppRater(AppRater);
+            AppRater.AppRaterGUI = AppRaterGUI;
             //default test values
             AppRater.UsesUntilPrompt = -1;
             AppRater.EventsUntilPrompt = -1;
@@ -42,7 +44,7 @@ namespace SocialPoint.AppRater
             AppRater.DaysBeforeReminding = 0;
             AppRater.UserLevelUntilPrompt = -1;
             AppRater.MaxPromptsPerDay = 2;
-
+            AppRater.Init();
             storage.Remove(AppRaterInfoKey);
             storage.Remove(CurrentVersionKey);
             storage.Remove(UsesUntilPromptKey);
