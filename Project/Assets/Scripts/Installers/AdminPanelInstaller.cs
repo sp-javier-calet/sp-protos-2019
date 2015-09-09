@@ -23,5 +23,6 @@ public class AdminPanelInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLogGUI>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplicationGUI>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppRater>();
     }
 }

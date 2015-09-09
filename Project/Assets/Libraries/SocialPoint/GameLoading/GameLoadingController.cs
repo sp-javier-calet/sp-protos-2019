@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Alert;
@@ -56,23 +56,12 @@ namespace SocialPoint.GameLoading
 
         protected virtual void AllOperationsLoaded()
         {
-            Debug.Log("all operations loaded");
+            DebugLog("all operations loaded");
         }
 
         override protected void OnLoad()
         {
             base.OnLoad();
-
-            UnityAlertView.ShowDelegate = (GameObject go) => {
-                var viewController = go.GetComponent<UIViewController>();
-                DebugUtils.Assert(viewController != null, "GameObject doesn't have a viewController");
-                Popups.Push(viewController);
-            };
-            UnityAlertView.HideDelegate = (GameObject go) => {
-                var viewController = go.GetComponent<UIViewController>();
-                DebugUtils.Assert(viewController != null, "GameObject doesn't have a viewController");
-                viewController.Hide(true);
-            };
 
             if(CrashReporter != null)
             {
@@ -104,7 +93,7 @@ namespace SocialPoint.GameLoading
         public void OnProgressChanged(string message)
         {
             if(message != string.Empty)
-                Debug.Log(message);
+                DebugLog(message);
             float progress = 0;
             _operations.ForEach(p => progress += p.progress);
             float percent = (progress / _operations.Count);
@@ -113,7 +102,7 @@ namespace SocialPoint.GameLoading
 
         void DebugLog(string msg)
         {
-            Debug.Log(msg);
+            DebugUtils.Log(string.Format("GameLoadingController {0}", msg));
         }
 
         void DoLogin()
@@ -137,13 +126,13 @@ namespace SocialPoint.GameLoading
             DebugLog(string.Format("Login Error {0} {1} {2}", error, msg, data));
             var alert = (IAlertView)AlertView.Clone();
             alert.Signature = data.AsDic.GetValue(SocialPointLogin.AttrKeySignature).ToString();
-            var genericData = new LoginGenericData(data);
             string textButton0;
             string textButton1;
 
             switch(error)
             {
             case ErrorType.ForceUpgrade:
+                var genericData = new LoginGenericData(data);
                 if(genericData.Upgrade.Type == UpgradeType.Forced)
                 {
                     alert.Title = new LocalizedString(ForceUpgradeKey, "Force Upgrade", Localization);
@@ -176,6 +165,19 @@ namespace SocialPoint.GameLoading
                 }
                 alert.Message = genericData.Upgrade.Message;
                 break;
+                
+            case ErrorType.MaintenanceMode:
+                {
+                    var popup = Popups.CreateChild<MaintenanceModePopupController>();
+                    var maintenanceData = new MaintenanceData(data);
+                    string title = !String.IsNullOrEmpty(maintenanceData.Title) ? maintenanceData.Title : new LocalizedString(MaintenanceModeKey, "Maintenance Mode", Localization);
+                    string message = !string.IsNullOrEmpty(maintenanceData.Message) ? maintenanceData.Message : new LocalizedString(MaintenanceMessageKey, "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.", Localization).ToString().Replace("\\n", "\n");
+                    popup.TitleText = title;
+                    popup.MessageText = message; 
+                    popup.Signature = data.AsDic.GetValue(SocialPointLogin.AttrKeySignature).ToString();
+                    Popups.Push(popup);
+                }
+                break;
 
             case ErrorType.InvalidPrivilegeToken:
                 alert.Title = new LocalizedString(InvalidPrivilegeTokenKey, "Invalid Privilege Token", Localization);
@@ -191,16 +193,6 @@ namespace SocialPoint.GameLoading
                 alert.Buttons = new string[]{ textButton0 };
                 alert.Message = msg;
                 alert.Show((int result) => DoLogin());
-                break;
-
-            case ErrorType.MaintenanceMode:
-                {
-                    var popup = Popups.CreateChild<MaintenanceModePopupController>();
-                    popup.TitleText = new LocalizedString(MaintenanceModeKey, "Maintenance Mode", Localization);
-                    popup.MessageText = new LocalizedString(MaintenanceMessageKey, "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.", Localization).ToString().Replace("\\n", "\n");
-                    popup.Signature = data.AsDic.GetValue(SocialPointLogin.AttrKeySignature).ToString();
-                    Popups.Push(popup);
-                }
                 break;
 
             case ErrorType.InvalidSecurityToken:
