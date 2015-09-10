@@ -8,19 +8,13 @@ namespace SocialPoint.AdminPanel
     {
         public AdminPanelRootLayout(AdminPanelController controller) : base(controller)
         {
-            var canvasObject = new GameObject("AdminPanel - Canvas");
+            var canvasObject = new GameObject("AdminPanel");
+            canvasObject.transform.SetParent(controller.transform);
             var rectTransform = canvasObject.AddComponent<RectTransform>();
-            
-            var canvas = canvasObject.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.pixelPerfect = true;
-
-            var canvasScaler = canvasObject.AddComponent<CanvasScaler>();
-            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            canvasScaler.referenceResolution = new Vector2(480, 320);
-            
-            canvasObject.AddComponent<GraphicRaycaster>();
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMax = Vector2.zero;
+            rectTransform.offsetMin = Vector2.zero;
 
             Parent = rectTransform;
         }

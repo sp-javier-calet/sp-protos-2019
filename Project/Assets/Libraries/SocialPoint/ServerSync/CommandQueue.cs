@@ -336,6 +336,8 @@ namespace SocialPoint.ServerSync
         {
             Stop();
             Reset();
+            _autoSync = null;
+            TrackEvent = null;
         } 
 
         IEnumerator UpdateCoroutine()

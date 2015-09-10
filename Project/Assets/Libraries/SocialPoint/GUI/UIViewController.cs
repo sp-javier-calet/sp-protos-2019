@@ -1,7 +1,7 @@
 using System;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUI
 {
@@ -20,6 +20,9 @@ namespace SocialPoint.GUI
         ;
         
         public delegate void ViewDelegate(UIViewController ctrl,ViewState state);
+        public delegate void FilterDelegate(UIViewController ctrl);
+        
+        public static event FilterDelegate AwakeFilter;
 
         public delegate UIViewController CreationDelegate();
         public delegate UIViewController DefaultCreationDelegate(Type t);
@@ -92,6 +95,27 @@ namespace SocialPoint.GUI
             gameObject.transform.SetParent(parent, false);
         }
 
+        void Awake()
+        {
+            if(AwakeFilter != null)
+            {
+                AwakeFilter(this);
+            }
+        }
+
+        void Start()
+        {
+            OnStart();
+        }
+
+        virtual protected void OnStart()
+        {
+            if(isActiveAndEnabled && transform.parent != null)
+            {
+                ShowImmediate();
+            }
+        }
+
         public bool Load()
         {
             if(!_loaded)
@@ -101,6 +125,48 @@ namespace SocialPoint.GUI
                 return true;
             }
             return false;
+        }
+
+        void Setup()
+        {
+            if(ParentController == null)
+            {
+                ParentController = FindParentController();
+            }
+            if(transform.parent == null)
+            {
+                if(ParentController != null)
+                {
+                    SetParent(ParentController.transform);
+                }
+                if(Canvas != null)
+                {
+                    SetParent(Canvas.transform);
+                }
+            }
+        }
+
+        UIViewController FindParentController()
+        {
+            if(transform.parent == null)
+            {
+                return null;
+            }
+            GameObject parent = transform.parent.gameObject;
+            while(parent != null)
+            {
+                var ctrl = parent.GetComponent(typeof(UIViewController)) as UIViewController;
+                if(ctrl != null)
+                {
+                    return ctrl;
+                }
+                if(parent.transform.parent == null)
+                {
+                    break;
+                }
+                parent = parent.transform.parent.gameObject;
+            }
+            return null;
         }
         
         virtual protected void OnLoad()
@@ -147,6 +213,7 @@ namespace SocialPoint.GUI
         {
             DebugLog("ShowImmediate");
             Load();
+            Setup();
             StopShowCoroutine();
             StopHideCoroutine();
             Reset();
@@ -164,6 +231,8 @@ namespace SocialPoint.GUI
         public bool Show()
         {
             DebugLog("Show");
+            Load();
+            Setup();
             StopHideCoroutine();
             var enm = DoShowCoroutine();
             if(enm != null)
@@ -180,6 +249,8 @@ namespace SocialPoint.GUI
         public IEnumerator ShowCoroutine()
         {
             DebugLog("ShowCoroutine");
+            Load();
+            Setup();
             yield return StartShowCoroutine(DoShowCoroutine());
         }
 
@@ -208,6 +279,7 @@ namespace SocialPoint.GUI
         {
             DebugLog("HideImmediate");
             Load();
+            Setup();
             StopShowCoroutine();
             StopHideCoroutine();
             Reset();
@@ -226,6 +298,8 @@ namespace SocialPoint.GUI
         public bool Hide(bool destroy=false)
         {
             DebugLog("Hide");
+            Load();
+            Setup();
             StopShowCoroutine();
             var enm = DoHideCoroutine(destroy);
             if(enm != null)
@@ -242,10 +316,12 @@ namespace SocialPoint.GUI
         public IEnumerator HideCoroutine(bool destroy=false)
         {
             DebugLog("HideCoroutine");
+            Load();
+            Setup();
             yield return StartHideCoroutine(DoHideCoroutine(destroy));
         }
 
-        public IEnumerator DoHideCoroutine(bool destroy)
+        IEnumerator DoHideCoroutine(bool destroy)
         {
             StopShowCoroutine();
             Load();
@@ -407,6 +483,19 @@ namespace SocialPoint.GUI
             else
             {
                 cam.rect = viewport;
+            }
+        }
+
+        static Canvas _canvas;
+        public static Canvas Canvas
+        {
+            get
+            {
+                if(_canvas == null)
+                {
+                    _canvas = FindObjectOfType<Canvas>();
+                }
+                return _canvas;
             }
         }
     }

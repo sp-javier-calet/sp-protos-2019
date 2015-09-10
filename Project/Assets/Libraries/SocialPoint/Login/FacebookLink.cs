@@ -21,7 +21,7 @@ namespace SocialPoint.Login
         public FacebookLink(MonoBehaviour behaviour, bool loginWithUi = true)
         {
             _loginWithUi = loginWithUi;
-            _facebook = new PlatformFacebook(behaviour);
+            _facebook = new UnityFacebook(behaviour);
             Init();
         }
         

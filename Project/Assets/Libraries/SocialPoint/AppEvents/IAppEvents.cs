@@ -2,7 +2,7 @@ using System;
 
 namespace SocialPoint.AppEvents
 {
-    public interface IAppEvents
+    public interface IAppEvents : IDisposable
     {
         // Native events
         event Action WillGoBackground;

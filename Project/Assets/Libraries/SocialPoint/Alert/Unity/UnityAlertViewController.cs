@@ -125,15 +125,11 @@ namespace SocialPoint.Alert
                     throw new MissingComponentException("Could not load button prefab.");
                 }
 
-                //float diffY = 0.0f;
-
-                //float y = 0;
                 for(int i=0; i<value.Length; ++i)
                 {
                     var btnGo = ((GameObject)Instantiate(ButtonPrefab));
                     btnGo.name = string.Format("{0} ({1})", ButtonPrefab, value[i]);
-                    btnGo.transform.parent = Buttons.transform;
-                    //btnGo.transform.localScale = Vector3.one;
+                    btnGo.transform.SetParent(Buttons.transform);
 
                     var btn = btnGo.GetComponent<UnityAlertViewButton>();
                     if(btn != null)
@@ -142,28 +138,8 @@ namespace SocialPoint.Alert
                         btn.Position = i;
                         btn.Clicked += OnButtonClicked;
                     }
-                    /*
-                    var trans = btn.GetComponent<RectTransform>();
-                    if(trans != null)
-                    {
-                        float sy = trans.sizeDelta.y;
-
-
-                        y += sy;
-                        if(i < value.Length - 1)
-                        {
-                            y += ButtonSeparation;
-                        }
-                    }
-                    */
                 }
                 Buttons.gameObject.SetActive(true);
-                /*
-                diffY = y - Buttons.sizeDelta.y;
-                var size = Buttons.sizeDelta;
-                size.y += diffY;
-                Buttons.sizeDelta = size;
-                */
             }
         }
     }

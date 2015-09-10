@@ -21,7 +21,7 @@ namespace SocialPoint.AdminPanel
         {
             public VerticalLayout(AdminPanelLayout parentLayout, int weight) : base(parentLayout)
             {
-                var rectTransform = CreateUIObject("AdminPanel - Vertical Layout", parentLayout.Parent);
+                var rectTransform = CreateUIObject("Vertical Layout", parentLayout.Parent);
                 
                 var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
                 layoutElement.flexibleWidth = weight;

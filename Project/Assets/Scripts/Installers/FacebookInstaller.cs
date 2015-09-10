@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Zenject;
 using System;
 using SocialPoint.Social;
@@ -26,7 +26,7 @@ public class FacebookInstaller : MonoInstaller
         }
         else
         {
-            Container.Bind<IFacebook>().ToSingle<PlatformFacebook>();
+            Container.Bind<IFacebook>().ToSingle<UnityFacebook>();
         }
     }
 }

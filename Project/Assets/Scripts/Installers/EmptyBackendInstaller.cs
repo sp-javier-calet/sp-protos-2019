@@ -17,8 +17,8 @@ public class EmptyBackendInstaller : MonoInstaller
         }
         if(!Container.HasBinding<ILogin>())
         {
-            Container.Bind<ILogin>().ToSingleMethod<EmptyLogin>(CreateEmptyLogin);
-            Container.Bind<IDisposable>().ToSingleMethod<EmptyLogin>(CreateEmptyLogin);
+            Container.Bind<ILogin>().ToMethod(CreateEmptyLogin);
+            Container.Bind<IDisposable>().ToMethod(CreateEmptyLogin);
         }
         if(!Container.HasBinding<ICommandQueue>())
         {
@@ -27,8 +27,13 @@ public class EmptyBackendInstaller : MonoInstaller
         }
     }
 
+    EmptyLogin _emptyLogin = null;
     EmptyLogin CreateEmptyLogin(InjectContext ctx)
     {
-        return new EmptyLogin();
+        if(_emptyLogin == null)
+        {
+            _emptyLogin = new EmptyLogin();
+        }
+        return _emptyLogin;
     }
 }

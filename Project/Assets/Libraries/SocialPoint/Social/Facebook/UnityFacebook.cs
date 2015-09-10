@@ -12,7 +12,7 @@ namespace SocialPoint.Social
 {
     public delegate void PlatformBridgeSessionDelegate(string session,string status,string error);
 
-    public class PlatformFacebook : BaseFacebook
+    public class UnityFacebook : BaseFacebook
     {
         static string GraphApiVersion = "v2.0";
 
@@ -54,7 +54,7 @@ namespace SocialPoint.Social
 
         private event ErrorDelegate _eventCallback;
 
-        public PlatformFacebook(MonoBehaviour behaviour)
+        public UnityFacebook(MonoBehaviour behaviour)
         {
             _behaviour = behaviour;
         }
@@ -228,7 +228,7 @@ namespace SocialPoint.Social
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                if(_loginRetries < _maxLoginRetries)
+                if(err.Code != FacebookErrors.DialogCancelled &&  _loginRetries < _maxLoginRetries)
                 {
                     _loginRetries++;
                     FB.Logout();
@@ -477,18 +477,6 @@ namespace SocialPoint.Social
                 {
                     err = new Error(FacebookErrors.DialogCancelled, "Login cancelled.");
                 }
-                if(Error.IsNullOrEmpty(err))
-                {
-                    SessionCompletionHandler(err);
-                }
-                else
-                {
-                    if(cbk != null)
-                    {
-                        cbk(err);
-                    }
-                }
-
                 SessionCompletionHandler(err);
             });
         }

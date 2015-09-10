@@ -309,6 +309,8 @@ PlayerSettings:
   spritePackerPolicy: 
   scriptingDefineSymbols:
     1: 
+    4: 
+    7: 
   metroPackageName: Game
   metroPackageLogo: 
   metroPackageLogo140: 

@@ -11,7 +11,7 @@ public class AppEventsInstaller : MonoInstaller
         {
             return;
         }
-        Container.Bind<IAppEvents>().ToSingle<SocialPointAppEvents>();
+        Container.BindAllInterfacesToSingle<SocialPointAppEvents>();
 	}
 
 }

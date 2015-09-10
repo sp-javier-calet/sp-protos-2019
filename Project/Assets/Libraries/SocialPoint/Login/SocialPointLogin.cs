@@ -10,92 +10,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Login
 {
-    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
-        
-    public class LoginUpgradeData
-    {
-        public UpgradeType Type;
-        public string Message;
-        public string Version;
-
-        private const string AttrKeyUpgradeMessage = "message";
-        private const string AttrKeyUpgradeVersion = "version";
-
-        public LoginUpgradeData(UpgradeType type, Attr data = null)
-        {
-            Type = type;
-
-            if(data != null && data.AttrType == AttrType.DICTIONARY)
-            {
-                var datadic = data.AsDic;
-                Message = datadic.Get(AttrKeyUpgradeMessage).AsValue.ToString();
-                Version = datadic.GetValue(AttrKeyUpgradeVersion).AsValue.ToString();
-
-            }
-        }
-    }
-
-    public class LoginGenericData
-    {
-        public TimeSpan DeltaTime;
-        public string StoreUrl;
-        public LoginUpgradeData Upgrade;
-
-        private const string AttrKeyTimestamp = "ts";
-        private const string AttrKeyStoreUrl = "store";
-        private const string AttrKeyUpgradeSuggested = "suggested_upgrade";
-        private const string AttrKeyUpgradeForced = "forced_upgrade";
-
-        public LoginGenericData(Attr data)
-        {
-            var datadic = data.AsDic;
-            var serverTime = TimeUtils.GetDateTime(datadic.Get(AttrKeyTimestamp).AsValue.ToLong());
-            DeltaTime = serverTime - DateTime.UtcNow;
-            StoreUrl = datadic.GetValue(AttrKeyStoreUrl).ToString();
-
-            if(datadic.ContainsKey(AttrKeyUpgradeForced))
-            {
-                Upgrade = new LoginUpgradeData(UpgradeType.Forced, datadic.Get(AttrKeyUpgradeForced));
-            }
-            else
-            if(datadic.ContainsKey(AttrKeyUpgradeSuggested))
-            {
-                Upgrade = new LoginUpgradeData(UpgradeType.Suggested, datadic.Get(AttrKeyUpgradeSuggested));
-            }
-            else
-            {
-                Upgrade = new LoginUpgradeData(UpgradeType.None);
-            }
-        }
-
-        [Obsolete("Use Upgrade.Type")]
-        public bool ForcedUpgradeRequired
-        {
-            get
-            {
-                return Upgrade.Type == UpgradeType.Forced;
-            }
-        }
-    }
-
-    public class MaintenanceData
-    {
-        public string Title;
-        public string Message;
-
-        private const string AttrKeyMaintenanceMessage = "message";
-        private const string AttrKeyMaintenanceTitle = "title";
-
-        public MaintenanceData(Attr data = null)
-        {
-            if(data != null && data.AttrType == AttrType.DICTIONARY)
-            {
-                var datadic = data.AsDic;
-                Message = datadic.Get(AttrKeyMaintenanceMessage).AsValue.ToString();
-                Title = datadic.GetValue(AttrKeyMaintenanceTitle).AsValue.ToString();
-            }
-        }
-    }
+    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);        
 
     public class SocialPointLogin : ILogin
     {
@@ -116,7 +31,6 @@ namespace SocialPoint.Login
         private const string HttpParamDeviceModel = "device_model";
         private const string HttpParamSecurityToken = "security_token";
         private const string HttpParamClientVersion = "client_version";
-
         private const string HttpParamPlatform = "platform";
         private const string HttpParamClientLanguage = "client_language";
         private const string HttpParamDeviceLanguage = "device_language";
@@ -127,14 +41,13 @@ namespace SocialPoint.Login
         private const string HttpParamPlatformVersion = "device_os";
         private const string HttpParamDeviceAid = "device_adid";
         private const string HttpParamDeviceAidEnabled = "device_adid_enabled";
-        private const string HttpParamDeviceRooted = "device_rooted";
-
+        private const string HttpParamDeviceRooted = "device_rooted";     
         private const string HttpParamClientBuild = "client_build";
         private const string HttpParamLinkConfirmToken = "confirm_link_token";
         private const string HttpParamLinkDecision = "decision";
-
         private const string HttpParamLinkType = "provider_type";
         private const string HttpParamRequestIds = "request_ids";
+        private const string HttpParamPrivilegeToken = "privileged_session_token";
 
         private const string AttrKeySessionId = "session_id";
         private const string AttrKeyLinksData = "linked_accounts";
@@ -147,11 +60,6 @@ namespace SocialPoint.Login
         private const string AttrKeyGenericData = "generic_data";
         private const string AttrKeyMaintenanceData = "maintenance_data";
         public const string AttrKeyData = "data";
-        public const string AttrKeyHttpCode = "http_code";
-        public const string AttrKeySignature = "signature";
-
-        private const string EventNameLoading = "game.loading";
-        private const string EventNameError = "errors.login_error";
         private const string AttrKeyEventError = "error";
         private const string AttrKeyEventLogin = "login";
         private const string AttrKeyEventErrorType = "error_type";
@@ -159,6 +67,11 @@ namespace SocialPoint.Login
         private const string AttrKeyEventErrorMessage = "error_desc";
         private const string AttrKeyEventErrorHttpCode = "error_code";
         private const string AttrKeyEventErrorData = "data";
+        public const string AttrKeyHttpCode = "http_code";
+        public const string AttrKeySignature = "signature";
+                
+        private const string EventNameLoading = "game.loading";
+        private const string EventNameError = "errors.login_error";
 
         private const string SignatureSeparator = ":";
         private const string SignatureCodeSeparator = "-";
@@ -216,7 +129,9 @@ namespace SocialPoint.Login
 
         public string Language { private get; set; }
 
-        public LoginGenericData GenericData { get; private set; }
+        public GenericData GenericData { get; private set; }
+
+        public string PrivilegeToken { get; set; }
 
         public UInt64 UserId
         {
@@ -245,6 +160,7 @@ namespace SocialPoint.Login
 
                 return _userId;
             }
+
             set
             {
                 _userId = value;
@@ -322,7 +238,14 @@ namespace SocialPoint.Login
                 _securityToken = value;
                 if(Storage != null)
                 {
-                    Storage.Save(SecurityTokenStorageKey, new AttrString(_securityToken));
+                    if(_securityToken != null)
+                    {
+                        Storage.Save(SecurityTokenStorageKey, new AttrString(_securityToken));
+                    }
+                    else
+                    {
+                        Storage.Remove(SecurityTokenStorageKey);
+                    }
                 }
             }
         }
@@ -350,12 +273,13 @@ namespace SocialPoint.Login
         bool _userHasRegisteredLoaded;
         string _securityToken;
 
-        public event LoginHttpRequestDelegate HttpRequestEvent = delegate{};
-        public event LoginNewUserDelegate NewUserEvent = delegate{};
-        public event LoginNewLinkDelegate NewLinkBeforeFriendsEvent = delegate{};
-        public event LoginNewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
-        public event LoginConfirmLinkDelegate ConfirmLinkEvent = delegate{};
+        public event HttpRequestDelegate HttpRequestEvent = delegate{};
+        public event NewUserDelegate NewUserEvent = delegate{};
+        public event NewLinkDelegate NewLinkBeforeFriendsEvent = delegate{};
+        public event NewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
+        public event ConfirmLinkDelegate ConfirmLinkEvent = delegate{};
         public event LoginErrorDelegate ErrorEvent = delegate {};
+        public event UpgradeDelegate UpgradeEvent = null;
         public event RestartDelegate RestartEvent = delegate {};
 
         public SocialPointLogin(IHttpClient client, string baseUrl = null)
@@ -606,7 +530,7 @@ namespace SocialPoint.Login
             DebugLog("login\n----\n" + resp.ToString() + "----\n");
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
-                ClearUserId();
+                ClearStoredUser();
                 DoLogin(cbk, retry + 1, filter);
             }
             else
@@ -936,16 +860,19 @@ namespace SocialPoint.Login
             GenericData = null;
             if(datadic.ContainsKey(AttrKeyGenericData))
             {
-                GenericData = new LoginGenericData(datadic.Get(AttrKeyGenericData));
+                GenericData = new GenericData(datadic.Get(AttrKeyGenericData));
 
-                // Check for ForceUpdate
-                if(GenericData.Upgrade.Type == UpgradeType.Forced || GenericData.Upgrade.Type == UpgradeType.Suggested)
+                // Check for Update
+                if(GenericData.Upgrade.Type != UpgradeType.None)
                 {
                     var err = new Error(GenericData.Upgrade.Message);
-                    NotifyError(ErrorType.ForceUpgrade, err, datadic.Get(AttrKeyGenericData).AsDic);
-                    if(GenericData.Upgrade.Type == UpgradeType.Forced) //do not want to notify new user, login ends here.
+                    if(UpgradeEvent != null)
                     {
-                        return;
+                        UpgradeEvent(GenericData);
+                    }
+                    else if(GenericData.Upgrade.Type == UpgradeType.Forced)
+                    {
+                        NotifyError(ErrorType.ForceUpgrade, err, datadic);
                     }
                 }
 
@@ -969,7 +896,7 @@ namespace SocialPoint.Login
                     NotifyNewUser(gameData);
                 }
             }
-            else
+            else if(GenericData == null || GenericData.Upgrade == null || GenericData.Upgrade.Type == UpgradeType.None)
             {
                 var err = new Error("Could not load the user.");
                 var errData = new AttrDic();
@@ -1019,7 +946,7 @@ namespace SocialPoint.Login
                             }
                             else
                             {
-                                ClearUserId();
+                                ClearStoredUser();
                                 restartNeeded = true;
                             }
                         }
@@ -1209,7 +1136,7 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnUpdateFriendsResponse(HttpResponse resp, List<UserMapping> mappings, uint block, LoginUsersDelegate cbk)
+        void OnUpdateFriendsResponse(HttpResponse resp, List<UserMapping> mappings, uint block, UsersDelegate cbk)
         {
             if(block > 0)
             {
@@ -1241,7 +1168,7 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnUpdateFriendsEnd(List<UserMapping> mappings, Error err, LoginUsersDelegate cbk)
+        void OnUpdateFriendsEnd(List<UserMapping> mappings, Error err, UsersDelegate cbk)
         {
             var friendsSelection = Friends.Where(u => (mappings.Where(map => u.HasLink(map.Id)).Count() > 0)).ToList();
 
@@ -1257,7 +1184,7 @@ namespace SocialPoint.Login
             }
         }
         
-        void OnUserPhotoLink(LinkInfo info, User user, List<User> users, uint photoSize, Error err, LoginUsersDelegate cbk)
+        void OnUserPhotoLink(LinkInfo info, User user, List<User> users, uint photoSize, Error err, UsersDelegate cbk)
         {
             if(user == null)
             {
@@ -1314,13 +1241,13 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnUsersPhotosEnd(List<User> users, Error err, LoginUsersDelegate cbk)
+        void OnUsersPhotosEnd(List<User> users, Error err, UsersDelegate cbk)
         {
             UpdateUsersCache(users);
             OnUsersEnd(users, err, cbk);
         }
 
-        void OnUsersEnd(List<User> users, Error err, LoginUsersDelegate cbk)
+        void OnUsersEnd(List<User> users, Error err, UsersDelegate cbk)
         {
             if(cbk != null)
             {
@@ -1328,7 +1255,7 @@ namespace SocialPoint.Login
             }
         }
         
-        void OnGetUsersByIdResponse(HttpResponse resp, List<UserMapping> mappings, uint block, uint photoSize, List<User> users, LoginUsersDelegate cbk)
+        void OnGetUsersByIdResponse(HttpResponse resp, List<UserMapping> mappings, uint block, uint photoSize, List<User> users, UsersDelegate cbk)
         {
             var err = resp.Error;
             if(Error.IsNullOrEmpty(err) && block > 0)
@@ -1353,7 +1280,7 @@ namespace SocialPoint.Login
             OnGetUsersByIdEnd(photoSize, users, err, cbk);
         }
 
-        void OnGetUsersByIdEnd(uint photoSize, List<User> users, Error err, LoginUsersDelegate cbk)
+        void OnGetUsersByIdEnd(uint photoSize, List<User> users, Error err, UsersDelegate cbk)
         {
             UpdateUsersCache(users);
             if(Error.IsNullOrEmpty(err) && photoSize > 0)
@@ -1571,6 +1498,10 @@ namespace SocialPoint.Login
                 {
                     req.AddParam(HttpParamDeviceRooted, DeviceInfo.Rooted ? "1" : "0");
                 }
+                if(!req.HasParam(HttpParamPrivilegeToken) && !string.IsNullOrEmpty(PrivilegeToken))
+                {
+                    req.AddParam(HttpParamPrivilegeToken, PrivilegeToken);
+                }
             }
         }
 
@@ -1661,23 +1592,9 @@ namespace SocialPoint.Login
         }
 
         /**
-         * Clear the client token
-         * Will also clear the user id since using the same client token
-         * with a different user would produce a server error
+         * Clear all the user information
          */
-        public void ClearClientToken()
-        {
-            SecurityToken = "";
-            if(Storage != null)
-            {
-                Storage.Remove(SecurityTokenStorageKey);
-            }
-        }
-
-        /**
-         * Clear the user id
-         */
-        public void ClearUserId()
+        public void ClearStoredUser()
         {
             _userId = 0;
             _userHasRegistered = false;
@@ -1746,7 +1663,7 @@ namespace SocialPoint.Login
         /**
          * Will update the local user friends list
          */
-        public void UpdateFriends(LoginUsersDelegate cbk = null)
+        public void UpdateFriends(UsersDelegate cbk = null)
         {
             var mappings = new List<UserMapping>();
             foreach(var linkInfo in _links)
@@ -1756,7 +1673,7 @@ namespace SocialPoint.Login
             UpdateFriends(mappings, cbk);
         }
 
-        public void UpdateFriends(List<UserMapping> mappings, LoginUsersDelegate cbk = null)
+        public void UpdateFriends(List<UserMapping> mappings, UsersDelegate cbk = null)
         {
             if(mappings.Count > 0)
             {
@@ -1773,7 +1690,7 @@ namespace SocialPoint.Login
         /**
          * Will update the photos of a sublist of friends
          */
-        public void GetUsersPhotos(List<User> users, uint photoSize, LoginUsersDelegate cbk = null)
+        public void GetUsersPhotos(List<User> users, uint photoSize, UsersDelegate cbk = null)
         {
             if(users.Count == 0)
             {
@@ -1785,12 +1702,12 @@ namespace SocialPoint.Login
             }
         }
 
-        public void GetUsersPhotosById(List<UInt64> userIds, uint photoSize, LoginUsersDelegate cbk = null)
+        public void GetUsersPhotosById(List<UInt64> userIds, uint photoSize, UsersDelegate cbk = null)
         {
             GetUsersById(userIds, photoSize, cbk);
         }
 
-        public void GetUsersPhotosByTempId(List<string> userIds, uint photoSize, LoginUsersDelegate cbk = null)
+        public void GetUsersPhotosByTempId(List<string> userIds, uint photoSize, UsersDelegate cbk = null)
         {
             var users = new List<User>();
 
@@ -1810,12 +1727,12 @@ namespace SocialPoint.Login
          * Will get a list of users by id
          * The users returned by the callback will be deleted just after it, so you need to copy them!
          */
-        public void GetUsersById(List<UInt64> userIds, LoginUsersDelegate cbk = null)
+        public void GetUsersById(List<UInt64> userIds, UsersDelegate cbk = null)
         {
             GetUsersById(userIds, 0, cbk);
         }
 
-        public void GetUsersById(List<UInt64> userIds, uint photoSize, LoginUsersDelegate cbk = null)
+        public void GetUsersById(List<UInt64> userIds, uint photoSize, UsersDelegate cbk = null)
         {
             var users = new List<User>();
             var mappings = new List<UserMapping>();

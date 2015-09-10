@@ -3,12 +3,40 @@ using System;
 using SocialPoint.Login;
 using SocialPoint.Social;
 
+public enum BackendEnvironment
+{
+    Develpoment,
+    Production,
+    Test
+};
+
+public static class BackendEnvironmentExtensions
+{
+    const string DevelopmentUrl = "http://int-ds.socialpointgames.com/ds4/web/index_dev.php/api/v3";
+    const string ProductionUrl = "http://int-ds.socialpointgames.com/ds4/web/index_dev.php/api/v3";
+    const string TestUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
+
+    public static string GetUrl(this BackendEnvironment env)
+    {
+        switch(env)
+        {
+        case BackendEnvironment.Develpoment:
+            return DevelopmentUrl;
+        case BackendEnvironment.Production:
+            return ProductionUrl;
+        case BackendEnvironment.Test:
+            return TestUrl;
+        }
+        return null;
+    }
+}
+
 public class LoginInstaller : MonoInstaller
 {
 	[Serializable]
 	public class SettingsData
 	{
-		public string BaseUrl = "http://int-ds.socialpointgames.com/ds4/web/index_dev.php/api/v3";
+        public BackendEnvironment Environment = BackendEnvironment.Develpoment;
         public float Timeout = Login.DefaultTimeout;
         public float ActivityTimeout = Login.DefaultActivityTimeout;
         public bool AutoupdateFriends = Login.DefaultAutoUpdateFriends;
@@ -40,7 +68,7 @@ public class LoginInstaller : MonoInstaller
 
         if(!Container.HasBinding<ILogin>())
         {
-            Container.BindInstance("base_url", Settings.BaseUrl);
+            Container.BindInstance("backend_env", Settings.Environment);
             Container.BindInstance("login_timeout", Settings.Timeout);
             Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
             Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);

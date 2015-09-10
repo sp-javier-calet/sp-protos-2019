@@ -110,7 +110,7 @@ class Login : SocialPointLogin
         }
     }
     
-    public Login(IHttpClient client, [Inject("base_url")] string baseUrl=null) : base(client, baseUrl)
+    public Login(IHttpClient client, [Inject("backend_env")] BackendEnvironment env) : base(client, env.GetUrl())
     {
     }
 }

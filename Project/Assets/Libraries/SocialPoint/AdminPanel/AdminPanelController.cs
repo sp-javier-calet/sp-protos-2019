@@ -42,8 +42,6 @@ namespace SocialPoint.AdminPanel
                     }
                 }
             };
-
-            Open();
         }
 
         void InflateGUI()
@@ -52,7 +50,9 @@ namespace SocialPoint.AdminPanel
 
             AdminPanelLayout horizontalLayout = _root.CreateHorizontalLayout();
             
-            var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", Close);
+            var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", () => {
+                Hide(false);
+            });
             _categoriesPanelContent = panelLayout.CreateVerticalScrollLayout();
 
             panelLayout.CreateToggleButton("Console", _consoleEnabled, (value) => {
@@ -77,23 +77,14 @@ namespace SocialPoint.AdminPanel
             _consolePanel.SetActive(false);
         }
 
-        public void Open()
+        protected override void OnAppearing()
         {
-            if(_root != null)
-            {
-                _root.SetActive(true);
-            }
-            else
+            base.OnAppearing();
+            if(_root == null)
             {
                 InflateGUI();
             }
-
             RefreshPanel();
-        }
-
-        private void Close()
-        {
-            _root.SetActive(false);
         }
 
         public void ReplacePanel(IAdminPanelGUI gui)

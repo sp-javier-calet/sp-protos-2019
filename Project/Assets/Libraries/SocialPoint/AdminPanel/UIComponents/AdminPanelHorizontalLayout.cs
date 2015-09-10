@@ -16,7 +16,7 @@ namespace SocialPoint.AdminPanel
         {
             public HorizontalLayout(AdminPanelLayout parentLayout, Vector2 relativeSize) : base(parentLayout)
             {
-                var rectTrans = CreateUIObject("AdminPanel - Horizontal Layout", parentLayout.Parent);
+                var rectTrans = CreateUIObject("Horizontal Layout", parentLayout.Parent);
                 
                 HorizontalLayoutGroup layoutGroup = rectTrans.gameObject.AddComponent<HorizontalLayoutGroup>();
                 layoutGroup.padding = new RectOffset(DefaultPadding, DefaultPadding, DefaultPadding, DefaultPadding);

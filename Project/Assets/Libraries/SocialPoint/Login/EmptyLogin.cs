@@ -9,17 +9,20 @@ namespace SocialPoint.Login
 {
     public class EmptyLogin : ILogin
     {
-        public event LoginHttpRequestDelegate HttpRequestEvent;
-        public event LoginNewUserDelegate NewUserEvent;
-        public event LoginNewLinkDelegate NewLinkBeforeFriendsEvent;
-        public event LoginNewLinkDelegate NewLinkAfterFriendsEvent;
-        public event LoginConfirmLinkDelegate ConfirmLinkEvent;
+        public event HttpRequestDelegate HttpRequestEvent;
+        public event NewUserDelegate NewUserEvent;
+        public event NewLinkDelegate NewLinkBeforeFriendsEvent;
+        public event NewLinkDelegate NewLinkAfterFriendsEvent;
+        public event ConfirmLinkDelegate ConfirmLinkEvent;
         public event LoginErrorDelegate ErrorEvent;
+        public event UpgradeDelegate UpgradeEvent;
         public event RestartDelegate RestartEvent;
 
         public UInt64 UserId{ get; set; }
 
         public string SessionId{ get{ return null; } }
+
+        public string PrivilegeToken{ set{} }
 
         private string _baseUri;
 
@@ -48,7 +51,7 @@ namespace SocialPoint.Login
             _baseUri = baseUri;
         }
 
-        public void ClearUserId()
+        public void ClearStoredUser()
         {
         }
     }
