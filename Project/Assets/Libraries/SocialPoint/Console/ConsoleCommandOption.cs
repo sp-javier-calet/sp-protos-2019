@@ -9,8 +9,12 @@ namespace SocialPoint.Console
         public string Config;
         public string Description;
         public string DefaultValue;
-        public bool StringValue = true;
         private string _value;
+
+        const char NameSeparatorChar = '|';
+        const char ValueSeparatorChar = ',';
+        const string TwoString = "2";
+        const string FalseString = "false";
 
         public string Value
         {
@@ -25,7 +29,33 @@ namespace SocialPoint.Console
 
             set
             {
-                _value = value;
+                if(_value == null)
+                {
+                    _value = value;
+                    return;
+                }
+                else if(_value == string.Empty && string.IsNullOrEmpty(value))
+                {
+                    _value = TwoString;
+                    return;
+                }
+                int i, j;
+                if(int.TryParse(_value, out i))
+                {
+                    if(string.IsNullOrEmpty(value))
+                    {
+                        i++;
+                        _value = i.ToString();
+                        return;
+                    }
+                    else if(int.TryParse(value, out j))
+                    {
+                        i += j;
+                        _value = i.ToString();
+                        return;
+                    }
+                }
+                _value += ValueSeparatorChar+value;
             }
         }
 
@@ -33,12 +63,20 @@ namespace SocialPoint.Console
         {
             get
             {
-                var parts = Config.Split(new char[]{'|'});
-                if(parts.Length > 0)
+                var names = Names;
+                if(names.Length > 0)
                 {
-                    return parts[parts.Length - 1];
+                    return names[names.Length - 1];
                 }
                 return null;
+            }
+        }
+
+        public string[] Names
+        {
+            get
+            {
+                return Config.Split(new char[]{NameSeparatorChar});
             }
         }
 
@@ -50,7 +88,12 @@ namespace SocialPoint.Console
                 {
                     return 0;
                 }
-                return int.Parse(Value);
+                int i;
+                if(int.TryParse(Value, out i))
+                {
+                    return i;
+                }
+                return 1;
             }
         }
 
@@ -58,15 +101,15 @@ namespace SocialPoint.Console
         {
             get
             {
-                if(Value == "yes" || Value == "true" || Value == "1")
+                if(Value == null || Value.ToLower() == FalseString)
                 {
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             }
         }
         
-        public IList<string> ListValue
+        public List<string> ListValue
         {
             get
             {
@@ -74,19 +117,13 @@ namespace SocialPoint.Console
                 {
                     return null;
                 }
-                return new List<string>(Value.Split(new char[]{','}));
+                return new List<string>(Value.Split(new char[]{ValueSeparatorChar}));
             }
         }
 
         public ConsoleCommandOption(string config)
         {
             Config = config;
-        }
-
-        public ConsoleCommandOption withStringValue(bool enabled)
-        {
-            StringValue = enabled;
-            return this;
         }
 
         public ConsoleCommandOption withDescription(string desc)

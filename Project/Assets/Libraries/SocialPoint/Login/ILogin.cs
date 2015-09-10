@@ -1,93 +1,31 @@
 using System;
 using System.Collections.Generic;
-
-using SocialPoint.Attributes;
-using SocialPoint.Utils;
-using SocialPoint.Base;
 using SocialPoint.Network;
+using SocialPoint.Base;
 
 namespace SocialPoint.Login
 {
-
-    public delegate void LoginHttpRequestDelegate(HttpRequest req);
-    
-    public delegate void LoginUsersDelegate(List<User> users, Error err);
-    
-    public delegate void LoginConfirmBackLinkDelegate(LinkConfirmDecision decision);
-    
-    public delegate void LoginConfirmLinkDelegate(ILink link, LinkConfirmType type, Attr data,LoginConfirmBackLinkDelegate cbk);
-    
-    public delegate void LoginNewUserDelegate(Attr data);
-    
-    public delegate void LoginNewLinkDelegate(ILink link);
-    
-    public delegate void LoginErrorDelegate(ErrorType error, string msg, Attr data);
-    
-    public delegate void RestartDelegate();
-    
-    public delegate void AppRequestDelegate(List<AppRequest> reqs, Error err);
-
-    public enum LinkConfirmType
-    {
-        /**
-         * No need to confirm
-         */
-        None,
-        
-        /**
-         * The account is already linked, not to the actual external service, start new game?
-         */
-        LinkedToLoose,
-        
-        /**
-         * The account is already linked, not to the actual external service, load other game?
-         */
-        LinkedToLinked,
-        
-        /**
-         * The account is already linked, but the current user is not linked to anything,
-         * load the other game and loose the current state?
-         */
-        LooseToLinked
-    }
-    
-    public enum LinkConfirmDecision
-    {
-        /**
-         * Don't do anything
-         * 
-         */
-        Cancel,
-        
-        /**
-         * keep the current account
-         */
-        Keep,
-        
-        /**
-         * change to the new account
-         */
-        Change
-    };
-
     public interface ILogin : IDisposable
     {
-        event LoginHttpRequestDelegate HttpRequestEvent;
-        event LoginNewUserDelegate NewUserEvent;
-        event LoginNewLinkDelegate NewLinkBeforeFriendsEvent;
-        event LoginNewLinkDelegate NewLinkAfterFriendsEvent;
-        event LoginConfirmLinkDelegate ConfirmLinkEvent;
+        event HttpRequestDelegate HttpRequestEvent;
+        event NewUserDelegate NewUserEvent;
+        event NewLinkDelegate NewLinkBeforeFriendsEvent;
+        event NewLinkDelegate NewLinkAfterFriendsEvent;
+        event ConfirmLinkDelegate ConfirmLinkEvent;
         event LoginErrorDelegate ErrorEvent;
         event RestartDelegate RestartEvent;
+        event UpgradeDelegate UpgradeEvent;
 
-        UInt64 UserId{ get; set; }
+        UInt64 UserId{ get; }
 
         string SessionId{ get; }
+
+        string PrivilegeToken{ set; }
 
         void SetupHttpRequest(HttpRequest req, string uri);
 
 		void Login(ErrorDelegate cbk = null, LinkFilter filter = LinkFilter.Auto);
 
-        void ClearUserId();
+        void ClearStoredUser();
     }
 }

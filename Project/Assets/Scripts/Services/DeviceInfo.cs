@@ -5,7 +5,7 @@ using Zenject;
 class DeviceInfo : SocialPointDeviceInfo
 {
     [InjectOptional("hardware_fake_app_info")]
-    public EmptyAppInfo InjectAppInfo
+    EmptyAppInfo injectFakeAppInfo
     {
         set
         {

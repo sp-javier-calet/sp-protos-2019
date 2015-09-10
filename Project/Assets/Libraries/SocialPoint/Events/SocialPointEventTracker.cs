@@ -32,7 +32,6 @@ namespace SocialPoint.Events
         private const string EventNameGameBackground = "game.background";
         private const string EventNameResourceEarning = "economy.{0}_earning";
         private const string EventNameResourceSpending = "economy.{0}_spending";
-        private const string EventNameMonetizationTransactionStart = "monetization.transaction_start";
 
         private const int MinServerErrorStatusCode = 500;
         private const int SessionLostErrorStatusCode = 482;
@@ -566,23 +565,6 @@ namespace SocialPoint.Events
             {
                 TrackEvent(EventNameFunnel, data);
             }
-        }
-
-        public void TrackPurchaseStart(PurchaseStartOperation op)
-        {
-            AttrDic data = op.Info.AdditionalData ?? new AttrDic();
-
-            AttrDic order = new AttrDic();
-            data.Set("order", order);
-            order.SetValue("transaction_id", op.TransactionId);
-            order.SetValue("product_id", op.ProductId);
-            order.SetValue("payment_provider", op.PaymentProvider);
-            order.SetValue("amount_gross", op.AmountGross);
-            order.SetValue("offer", op.Info.OfferName);
-            order.SetValue("resource_type", op.Info.ResourceName);
-            order.SetValue("resource_amount", op.Info.ResourceAmount);
-
-            TrackSystemEvent(EventNameMonetizationTransactionStart, data);
         }
 
         public void TrackLevelUp(int lvl, AttrDic data = null)

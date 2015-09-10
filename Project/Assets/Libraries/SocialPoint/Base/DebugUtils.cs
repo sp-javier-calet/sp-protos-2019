@@ -80,6 +80,7 @@ namespace SocialPoint.Base
         [Conditional("DEBUG")]
         public static void Assert(bool condition, string msg = "")
         {
+#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
             if(!condition)
             {
 #if UNITY_EDITOR
@@ -87,6 +88,9 @@ namespace SocialPoint.Base
 #endif
                 LogError(msg);
             }
+#else
+            UnityEngine.Assertions.Assert.IsTrue(condition, msg);
+#endif
         }
 
         public static IDebugLogger Logger;

@@ -15,15 +15,11 @@ namespace SocialPoint.GUI
 
         public delegate string DefaultPrefabDelegate(Type t);
 
-        public delegate void FilterDelegate(UIViewController ctrl,Type t);
-
         private IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
         private IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
         private DefaultDelegate _defaultCreator;
         private DefaultPrefabDelegate _defaultPrefabCreator;
         private UIViewControllerFactory _parent;
-
-        public event FilterDelegate Filter;
 
         public UIViewControllerFactory(UIViewControllerFactory parent=null)
         {
@@ -168,10 +164,6 @@ namespace SocialPoint.GUI
             if(prefab != null)
             {
                 ctrl.gameObject.name = prefab;
-            }
-            if(Filter != null)
-            {
-                Filter(ctrl, c);
             }
             return ctrl;
         }

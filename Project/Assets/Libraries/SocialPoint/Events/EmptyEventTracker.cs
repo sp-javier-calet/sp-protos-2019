@@ -42,10 +42,6 @@ namespace SocialPoint.Events
         {
         }
 
-        public void TrackPurchaseStart(PurchaseStartOperation op)
-        {
-        }
-
         public void TrackLevelUp(int lvl, AttrDic data=null)
         {
         }

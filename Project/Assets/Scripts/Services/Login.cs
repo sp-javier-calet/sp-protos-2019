@@ -4,11 +4,12 @@ using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.Events;
+using System.Collections.Generic;
 
 class Login : SocialPointLogin
 {
     [Inject]
-    public IDeviceInfo InjectDeviceInfo
+    IDeviceInfo injectDeviceInfo
     {
         set
         {
@@ -17,16 +18,28 @@ class Login : SocialPointLogin
     }
 
     [Inject]
-    public IEventTracker InjectEventTracker
+    IEventTracker injectEventTracker
     {
         set
         {
             TrackEvent = value.TrackEvent;
         }
     }
+
+    [InjectOptional]
+    List<ILink> injectLinks
+    {
+        set
+        {
+            foreach(var link in value)
+            {
+                AddLink(link);
+            }
+        }
+    }
     
-    [InjectOptional("persistent")]
-    public IAttrStorage InjectStorage
+    [Inject("persistent")]
+    IAttrStorage injectStorage
     {
         set
         {
@@ -35,7 +48,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_timeout")]
-    public float InjectTimeout
+    float injectTimeout
     {
         set
         {
@@ -44,7 +57,7 @@ class Login : SocialPointLogin
     }
         
     [InjectOptional("login_activity_timeout")]
-    public float InjectActivityTimeout
+    float injectActivityTimeout
     {
         set
         {
@@ -53,7 +66,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_autoupdate_friends")]
-    public bool InjectAutoUpdateFriends
+    bool injectAutoUpdateFriends
     {
         set
         {
@@ -62,7 +75,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_autoupdate_friends_photo_size")]
-    public uint InjectAutoUpdateFriendsPhotosSize
+    uint injectAutoUpdateFriendsPhotosSize
     {
         set
         {
@@ -71,7 +84,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_max_retries")]
-    public uint InjectMaxLoginRetries
+    uint injectMaxLoginRetries
     {
         set
         {
@@ -80,7 +93,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_user_mappings_block")]
-    public uint InjectUserMappingsBlock
+    uint injectUserMappingsBlock
     {
         set
         {
@@ -89,7 +102,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("language")]
-    public string InjectLanguage
+    string injectLanguage
     {
         set
         {
@@ -97,7 +110,7 @@ class Login : SocialPointLogin
         }
     }
     
-    public Login(IHttpClient client, [Inject("base_url")] string baseUrl=null) : base(client, baseUrl)
+    public Login(IHttpClient client, [Inject("backend_env")] BackendEnvironment env) : base(client, env.GetUrl())
     {
     }
 }

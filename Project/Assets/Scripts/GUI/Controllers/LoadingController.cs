@@ -3,6 +3,7 @@ using SocialPoint.Crash;
 using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Purchase;
 using SocialPoint.Alert;
 using Zenject;
 

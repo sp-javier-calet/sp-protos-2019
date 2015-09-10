@@ -1,13 +1,15 @@
-﻿using Zenject;
+using Zenject;
 using System;
 using SocialPoint.AppEvents;
 
 public class AppEventsInstaller : MonoInstaller
 {
-
 	public override void InstallBindings()
 	{
-        Container.Bind<IAppEvents>().ToSingle<SocialPointAppEvents>();
+        if(Container.HasBinding<IAppEvents>())
+        {
+            return;
+        }
+        Container.BindAllInterfacesToSingle<SocialPointAppEvents>();
 	}
-
 }

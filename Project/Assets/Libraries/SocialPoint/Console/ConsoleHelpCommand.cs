@@ -69,7 +69,7 @@ namespace SocialPoint.Console
                     System.Console.WriteLine("----");
                     foreach(var opt in cmd)
                     {
-                        WriteOptionInfo(opt.Value);
+                        WriteOptionInfo(opt);
                     }
                 }
             }

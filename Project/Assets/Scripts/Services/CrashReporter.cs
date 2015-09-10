@@ -11,7 +11,7 @@ class CrashReporter : SocialPointCrashReporter
 {
     
     [Inject]
-    public ILogin InjectLogin
+    ILogin injectLogin
     {
         set
         {
@@ -23,7 +23,7 @@ class CrashReporter : SocialPointCrashReporter
     }
     
     [Inject]
-    public IEventTracker InjectEventTracker
+    IEventTracker injectEventTracker
     {
         set
         {
@@ -32,7 +32,7 @@ class CrashReporter : SocialPointCrashReporter
     }
     
     [InjectOptional("crash_reporter_send_interval")]
-    public int InjectSendInterval
+    int injectSendInterval
     {
         set
         {
@@ -41,7 +41,7 @@ class CrashReporter : SocialPointCrashReporter
     }
 
     [InjectOptional("crash_reporter_error_log_active")]
-    public bool InjectErrorLogActive
+    bool injectErrorLogActive
     {
         set
         {
@@ -50,7 +50,7 @@ class CrashReporter : SocialPointCrashReporter
     }
     
     [InjectOptional("crash_reporter_exception_log_active")]
-    public bool InjectExceptionLogActive
+    bool injectExceptionLogActive
     {
         set
         {

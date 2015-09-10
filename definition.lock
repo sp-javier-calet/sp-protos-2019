@@ -55,7 +55,12 @@
         "SocialPoint/Base/Android"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
         "SocialPoint/Network/Curl"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
         "SocialPoint/QualityStats"       : "bfb25c834f47bbf74626c57cef371d68760d0547",
-        "SocialPoint/Login/Tests"        : "bfb25c834f47bbf74626c57cef371d68760d0547"
+        "SocialPoint/Login/Tests"        : "bfb25c834f47bbf74626c57cef371d68760d0547",
+        "SocialPoint/Login/Facebook"     : "35cfa97c1955d62c144df324770face4917edd7c",
+        "SocialPoint/Facebook"           : "35cfa97c1955d62c144df324770face4917edd7c",
+        "Facebook"                       : "2fe38929ae873d03e307c00e878b1e13e6a9e3ba",
+        "SocialPoint/Login/GameCenter"   : "35cfa97c1955d62c144df324770face4917edd7c",
+        "SocialPoint/GameCenter"         : "35cfa97c1955d62c144df324770face4917edd7c"
     },
     "dependencies" : {
         "SocialPoint/BaseGame" : [
@@ -75,6 +80,7 @@
             "SocialPoint/Tests",
             "SocialPoint/Locale",
             "SocialPoint/QualityStats",
+            "SocialPoint/Purchase",
             "SocialPoint/GameLoading",
             "ModestTree/Zenject",
             "Prime31/GoKit",
@@ -112,7 +118,18 @@
             "SocialPoint/Login/Tests",
             "SocialPoint/ServerSync/Tests",
             "SocialPoint/Attributes/Tests",
-            "Unity/TestTools"
+            "Unity/TestTools",
+            "SocialPoint/Purchase/Ios",
+            "SocialPoint/Purchase/Android",
+            "Prime31/StoreKit",
+            "Prime31/Base",
+            "OpenIAB",
+            "Unity/TestTools",
+            "SocialPoint/Login/Facebook",
+            "SocialPoint/Login/GameCenter",
+            "SocialPoint/Facebook",
+            "Facebook",
+            "SocialPoint/GameCenter"
         ],
         "SocialPoint/Network/Curl" : [
             "SocialPoint/Base/Android",
@@ -202,6 +219,29 @@
         ],
         "SocialPoint/AppEvents/Tests"    : [
             "Unity/TestTools"
+        ],
+        "SocialPoint/Purchase/Ios"       : [
+            "SocialPoint/Purchase",
+            "Prime31/StoreKit",
+            "Prime31/Base",
+            "SocialPoint/XCodeEditor"
+        ],
+        "Prime31/StoreKit"               : [
+            "Prime31/Base",
+            "SocialPoint/XCodeEditor"
+        ],
+        "SocialPoint/Purchase/Android"   : [
+            "OpenIAB"
+        ],
+        "SocialPoint/Login/Facebook"     : [
+            "SocialPoint/Facebook",
+            "Facebook"
+        ],
+        "SocialPoint/Facebook"           : [
+            "Facebook"
+        ],
+        "SocialPoint/Login/GameCenter"   : [
+            "SocialPoint/GameCenter"
         ]
     }
 }

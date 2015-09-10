@@ -9,7 +9,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
 {
 
     [InjectOptional("command_queue_ignore_responses")]
-    public bool InjectIgnoreResponses
+    bool injectIgnoreResponses
     {
         set
         {
@@ -18,7 +18,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [InjectOptional("command_queue_send_interval")]
-    public int InjectSendInterval
+    int injectSendInterval
     {
         set
         {
@@ -27,7 +27,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [InjectOptional("command_queue_outofsync_interval")]
-    public int InjectMaxOutOfSyncInterval
+    int injectMaxOutOfSyncInterval
     {
         set
         {
@@ -36,7 +36,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [InjectOptional("command_queue_timeout")]
-    public float InjectTimeout
+    float injectTimeout
     {
         set
         {
@@ -45,7 +45,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [InjectOptional("command_queue_backoff_multiplier")]
-    public float InjectBackoffMultiplier
+    float injectBackoffMultiplier
     {
         set
         {
@@ -54,7 +54,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [InjectOptional("command_queue_ping_enabled")]
-    public bool InjectPingEnabled
+    bool injectPingEnabled
     {
         set
         {
@@ -63,7 +63,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [Inject]
-    public IAppEvents InjectAppEvents
+    IAppEvents injectAppEvents
     {
         set
         {
@@ -72,7 +72,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [Inject]
-    public IEventTracker InjectEventTracker
+    IEventTracker injectEventTracker
     {
         set
         {
@@ -81,7 +81,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [Inject]
-    public ILogin InjectLogin
+    ILogin injectLogin
     {
         set
         {

@@ -11,7 +11,6 @@ public class GUIInstaller : MonoInstaller
 	[Serializable]
 	public class SettingsData
 	{
-        public GameObject FirstScreen;
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
 	};
 
@@ -19,8 +18,8 @@ public class GUIInstaller : MonoInstaller
     
     public override void InstallBindings()
     {
-		UIViewController.Factory.Define((Type type) => {
-			var name = type.ToString();
+		UIViewController.Factory.Define((type) => {
+            var name = type.Name;
 			if(name.EndsWith(UIViewControllerSuffix))
 			{
 				name = name.Substring(0, name.Length-UIViewControllerSuffix.Length);
@@ -28,11 +27,8 @@ public class GUIInstaller : MonoInstaller
 			return string.Format("GUI/{0}", name);
 		});
 
-        UIViewController.Factory.Filter += (ctrl, t) => {
-            if(ctrl != null)
-            {
-                Container.Inject(ctrl);
-            }
+        UIViewController.AwakeFilter += (ctrl) => {
+            Container.Inject(ctrl);
         };
 
         Container.BindInstance("popup_fade_speed", Settings.PopupFadeSpeed);
@@ -46,18 +42,7 @@ public class GUIInstaller : MonoInstaller
 		if(screens != null)
         {
             Container.Bind<ScreensController>().ToSingleInstance(screens);
-        }
-
-        var firstScreen = Settings.FirstScreen;
-        if(firstScreen != null)
-        {
-            if(firstScreen.transform.IsPrefab())
-            {
-                firstScreen = GameObject.Instantiate(firstScreen);
-            }
-            Container.BindInstance("first_screen", firstScreen);
-        }
-		
+        }		
     }
     
 }

@@ -6,7 +6,13 @@ public class BaseInstaller : MonoInstaller
 {   
     public override void InstallBindings()
     {
-        Container.Bind<MonoBehaviour>().ToSingleGameObject();
-        Container.BindAllInterfacesToSingle<GameParser>();
+        if(!Container.HasBinding<MonoBehaviour>())
+        {
+            Container.Bind<MonoBehaviour>().ToSingleGameObject();
+        }
+        if(!Container.HasBinding<GameParser>())
+        {
+            Container.BindAllInterfacesToSingle<GameParser>();
+        }
     }
 }

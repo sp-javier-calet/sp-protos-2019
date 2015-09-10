@@ -266,6 +266,13 @@ namespace SocialPoint.GUI
 
         #region UIParentController overrides
 
+        
+        override protected void OnStart()
+        {
+            // prevent the stack controller
+            // from appearing when the scene is loaded
+        }
+
         override protected void OnAppearing()
         {
             base.OnAppearing();

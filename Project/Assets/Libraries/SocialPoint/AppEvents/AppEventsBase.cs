@@ -10,6 +10,18 @@ namespace SocialPoint.AppEvents
     {
         #region IAppEvents implementation
 
+        public void Dispose()
+        {
+            WillGoBackground = null;
+            GoBackground = null;
+            WasOnBackground = null;
+            WasCovered = null;
+            ReceivedMemoryWarning = null;
+            OpenedFromSource = null;
+            ApplicationQuit = null;
+            LevelWasLoaded = null;
+        }
+
         #region Native Events
         public event Action WillGoBackground;
         

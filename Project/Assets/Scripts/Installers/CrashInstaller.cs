@@ -1,4 +1,4 @@
-﻿using Zenject;
+using Zenject;
 using System;
 using SocialPoint.Crash;
 
@@ -16,12 +16,17 @@ public class CrashInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-        Container.BindInstance("crash_reporter_send_interval", Settings.SendInterval);
-        Container.BindInstance("crash_reporter_error_log_active", Settings.ErrorLogActive);
-        Container.BindInstance("crash_reporter_exception_log_active", Settings.ExceptionLogActive);
-
-        Container.Bind<BreadcrumbManager>().ToSingle();
-        Container.Bind<ICrashReporter>().ToSingle<CrashReporter>();
+        if(!Container.HasBinding<BreadcrumbManager>())
+        {
+            Container.Bind<BreadcrumbManager>().ToSingle();
+        }
+        if(!Container.HasBinding<ICrashReporter>())
+        {
+            Container.BindInstance("crash_reporter_send_interval", Settings.SendInterval);
+            Container.BindInstance("crash_reporter_error_log_active", Settings.ErrorLogActive);
+            Container.BindInstance("crash_reporter_exception_log_active", Settings.ExceptionLogActive);
+            Container.Bind<ICrashReporter>().ToSingle<CrashReporter>();
+        }
 	}
 
 }

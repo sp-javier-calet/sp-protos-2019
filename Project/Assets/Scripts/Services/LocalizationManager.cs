@@ -7,7 +7,7 @@ using SocialPoint.Locale;
 class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {
     [Inject("locale_project_id")]
-    public string InjectProjectId
+    string injectProjectId
     {
         set
         {
@@ -16,7 +16,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
     }
 
     [Inject("locale_env_id")]
-    public string InjectEnvironmentId
+    string injectEnvironmentId
     {
         set
         {
@@ -25,7 +25,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
     }
 
     [Inject("locale_secret_key")]
-    public string InjectSecretKey
+    string injectSecretKey
     {
         set
         {
@@ -34,7 +34,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
     }
     
     [Inject("locale_supported_langs")]
-    public string[] InjectSupportedLanguages
+    string[] injectSupportedLanguages
     {
         set
         {
@@ -43,7 +43,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
     }
 
     [Inject("locale_timeout")]
-    public float InjectTimeout
+    float injectTimeout
     {
         set
         {
@@ -53,7 +53,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
 
     
     [Inject("locale_bundle_dir")]
-    public string InjectBundleDir
+    string injectBundleDir
     {
         set
         {
@@ -62,7 +62,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
     }
 
     [Inject]
-    public Localization InjectLocalization
+    Localization injectLocalization
     {
         set
         {
@@ -76,7 +76,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
     }
 
     [PostInject]
-    public void PostInject()
+    void PostInject()
     {
         Start();
     }

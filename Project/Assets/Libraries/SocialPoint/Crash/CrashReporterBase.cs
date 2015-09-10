@@ -214,7 +214,7 @@ namespace SocialPoint.Crash
 
         public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         public delegate UInt64 GetUserIdDelegate();
 

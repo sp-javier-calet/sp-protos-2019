@@ -11,7 +11,7 @@ using UnityEngine;
 class EventTracker : SocialPointEventTracker
 {
     [InjectOptional("event_tracker_timeout")]
-    public float InjectTimeout
+    float injectTimeout
     {
         set
         {
@@ -20,7 +20,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [InjectOptional("event_tracker_outofsync_interval")]
-    public int InjectMaxOutOfSyncInterval
+    int injectMaxOutOfSyncInterval
     {
         set
         {
@@ -29,7 +29,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [InjectOptional("event_tracker_send_interval")]
-    public int InjectSendInterval
+    int injectSendInterval
     {
         set
         {
@@ -38,7 +38,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [InjectOptional("event_tracker_backoff_multiplier")]
-    public float InjectBackoffMultiplier
+    float injectBackoffMultiplier
     {
         set
         {
@@ -47,7 +47,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [Inject]
-    public IHttpClient InjectHttpClient
+    IHttpClient injectHttpClient
     {
         set
         {
@@ -56,7 +56,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [Inject]
-    public IDeviceInfo InjectDeviceInfo
+    IDeviceInfo injectDeviceInfo
     {
         set
         {
@@ -65,7 +65,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [Inject]
-    public ICommandQueue InjectCommandQueue
+    ICommandQueue injectCommandQueue
     {
         set
         {
@@ -74,7 +74,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [InjectOptional]
-    public BreadcrumbManager InjectBreadcrumbManager
+    BreadcrumbManager injectBreadcrumbManager
     {
         set
         {
@@ -83,7 +83,7 @@ class EventTracker : SocialPointEventTracker
     }
     
     [Inject]
-    public ILogin InjectLogin
+    ILogin injectLogin
     {
         set
         {

@@ -31,6 +31,7 @@ namespace SocialPoint.Alert
 
     public class UnityAlertView : IAlertView {
 
+        GameObject _prefab;
         BaseUnityAlertViewController _controller;
         ResultDelegate _delegate;
 
@@ -39,35 +40,16 @@ namespace SocialPoint.Alert
         public static UnityAlertViewGameObjectDelegate ShowDelegate;
         public static UnityAlertViewGameObjectDelegate HideDelegate;
         
-        public UnityAlertView(string prefab = null)
+        public UnityAlertView(GameObject prefab = null)
         {
             if(prefab == null)
             {
-                prefab = DefaultPrefab;
+                prefab = Resources.Load(DefaultPrefab) as GameObject;
             }
-
-            var res = Resources.Load(prefab);
-            if(res == null)
+            _prefab = prefab;
+            if(_prefab == null)
             {
                 throw new MissingComponentException("Could not load prefab.");
-            }
-            var go = (GameObject)GameObject.Instantiate(res);
-            go.name = prefab;
-            _controller = go.GetComponent(typeof(BaseUnityAlertViewController)) as BaseUnityAlertViewController;
-            if(_controller == null)
-            {
-                throw new MissingComponentException("Prefab does not have a BaseUnityAlertViewController component.");
-            }
-            Setup();
-        }
-
-        private void Setup()
-        {
-            _controller.Result += OnControllerResult;
-            Input = false;
-            if(SetupDelegate != null)
-            {
-                SetupDelegate(_controller.gameObject);
             }
         }
 
@@ -94,43 +76,48 @@ namespace SocialPoint.Alert
             }
         }
 
+        string _message;
         public string Message
         {
             set
             {
-                _controller.MessageText = value;
+                _message = value;
             }
         }
-        
+
+        string _title;
         public string Title
         {
             set
             {
-                _controller.TitleText = value;
+                _title = value;
             }
         }
 
+        string _signature;
         public string Signature
         {
             set
             {
-                _controller.Signature = value;
+                _signature = value;
             }
         }
-        
+
+        string[] _buttons;
         public string[] Buttons
         {
             set
             {
-                _controller.ButtonTitles = value;
+                _buttons = value;
             }
         }
-        
+
+        bool _input = false;
         public bool Input
         {
             set
             {
-                _controller.InputEnabled = value;
+                _input = value;
             }
         }
         
@@ -138,12 +125,39 @@ namespace SocialPoint.Alert
         {
             get
             {
-                return _controller.InputText;
+                if(_controller != null)
+                {
+                    return _controller.InputText;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
         
         public void Show(ResultDelegate dlg)
         {
+            if(_controller == null)
+            {
+                var go = GameObject.Instantiate(_prefab);
+                go.name = _prefab.name;
+                if(SetupDelegate != null)
+                {
+                    SetupDelegate(go);
+                }
+                _controller = go.GetComponent(typeof(BaseUnityAlertViewController)) as BaseUnityAlertViewController;
+            }
+            if(_controller == null)
+            {
+                throw new MissingComponentException("Prefab does not have a BaseUnityAlertViewController component.");
+            }
+            _controller.MessageText = _message;
+            _controller.TitleText = _title;
+            _controller.Signature = _signature;
+            _controller.ButtonTitles = _buttons;
+            _controller.InputEnabled = _input;
+            _controller.Result += OnControllerResult;
             _delegate += dlg;
             if(ShowDelegate != null)
             {
@@ -157,10 +171,7 @@ namespace SocialPoint.Alert
 
         public object Clone()
         {
-            var clone = new UnityAlertView();
-            clone._controller = GameObject.Instantiate(_controller) as BaseUnityAlertViewController;
-            clone.Setup();
-            return clone;
+            return new UnityAlertView(_prefab);
         }
     }
 
