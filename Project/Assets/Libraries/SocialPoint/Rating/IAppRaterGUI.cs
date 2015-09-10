@@ -1,10 +1,10 @@
-﻿
 
-namespace SocialPoint.AppRater
+
+namespace SocialPoint.Rating
 {
     public interface IAppRaterGUI
     {
         void Show(bool showLaterButton);
-        void setAppRater(AppRater appRater);
+        void SetAppRater(IAppRater appRater);
     }
 }

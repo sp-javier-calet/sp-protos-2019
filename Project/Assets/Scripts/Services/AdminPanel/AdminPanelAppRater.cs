@@ -1,10 +1,10 @@
 ﻿using Zenject;
-using SocialPoint.AppRater;
+using SocialPoint.Rating;
 
-public class AdminPanelAppRater :AdminPanelAppRaterGUI
+public class AdminPanelAppRater : AdminPanelAppRaterGUI
 {
     [Inject]
-    public AppRater InjectAppRater
+    public IAppRater InjectAppRater
     {
         set
         {

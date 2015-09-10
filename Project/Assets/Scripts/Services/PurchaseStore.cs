@@ -9,7 +9,7 @@ using UnityEngine;
 class PurchaseStore : SocialPointPurchaseStore
 {
     [Inject]
-    public IEventTracker InjectEventTracker
+    IEventTracker injectEventTracker
     {
         set
         {
@@ -18,7 +18,7 @@ class PurchaseStore : SocialPointPurchaseStore
     }
 
     [Inject]
-    public ILogin InjectLogin
+    ILogin injectLogin
     {
         set
         {

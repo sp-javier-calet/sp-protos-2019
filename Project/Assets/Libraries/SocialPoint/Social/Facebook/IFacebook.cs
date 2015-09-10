@@ -184,6 +184,8 @@ namespace SocialPoint.Social
                 ResultUrl = Encoding.UTF8.GetString(value);
             }
         }
+
+        const int DialogButtonCancelled = 4201;
         
         public AttrDic Result
         {
@@ -196,7 +198,7 @@ namespace SocialPoint.Social
                     RequestId = ResultParams.GetValue(RequestIdResultParam).ToString();
                 }
                 RequestCancelled = ResultParams.GetValue(RequestCancelledParam).ToBool()
-                    || ResultParams.GetValue(RequestErrorMesageParam).ToLong() == FacebookErrors.DialogButtonCancelled;
+                    || ResultParams.GetValue(RequestErrorMesageParam).ToLong() == DialogButtonCancelled;
             }
         }
         
@@ -357,7 +359,6 @@ namespace SocialPoint.Social
     {
         public const int LoginNeedsUI = 100;
         public const int DialogCancelled = 101;
-        public const int DialogButtonCancelled = 4201;
     }
 
     public interface IFacebook

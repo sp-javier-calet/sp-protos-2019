@@ -1,11 +1,11 @@
-﻿
+
 using SocialPoint.Alert;
 
-namespace SocialPoint.AppRater
+namespace SocialPoint.Rating
 {
     public class DefaultAppRaterGUI : IAppRaterGUI
     {
-        AppRater _appRater;
+        IAppRater _appRater;
         IAlertView _prototype;
         
         public DefaultAppRaterGUI(IAlertView proto)
@@ -35,20 +35,20 @@ namespace SocialPoint.AppRater
                     switch(result)
                     {
                     case 0:
-                        _appRater.RequestAccepted();
+                        _appRater.OnRequestResult(RateRequestResult.Accept);
                         break;
                     case 1:
-                        _appRater.RequestDeclined();
+                        _appRater.OnRequestResult(RateRequestResult.Decline);
                         break;
                     case 2:
-                        _appRater.RequestDelayed();
+                        _appRater.OnRequestResult(RateRequestResult.Delay);
                         break;
                     }
                 });
             }
         }
 
-        public void setAppRater(AppRater appRater)
+        public void SetAppRater(IAppRater appRater)
         {
             _appRater = appRater;
         }

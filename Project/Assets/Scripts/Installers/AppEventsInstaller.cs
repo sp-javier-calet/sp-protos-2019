@@ -4,7 +4,6 @@ using SocialPoint.AppEvents;
 
 public class AppEventsInstaller : MonoInstaller
 {
-
 	public override void InstallBindings()
 	{
         if(Container.HasBinding<IAppEvents>())
@@ -13,5 +12,4 @@ public class AppEventsInstaller : MonoInstaller
         }
         Container.BindAllInterfacesToSingle<SocialPointAppEvents>();
 	}
-
 }

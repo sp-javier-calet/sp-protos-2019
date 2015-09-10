@@ -9,7 +9,7 @@ public class HttpClient : CurlHttpClient
     private string _httpProxy;
 
     [InjectOptional("http_client_proxy")]
-    public string InjectHttpProxy
+    string injectHttpProxy
     {
         set
         {
@@ -18,10 +18,10 @@ public class HttpClient : CurlHttpClient
     }
 
     [Inject]
-    public IDeviceInfo DeviceInfo;
+    IDeviceInfo deviceInfo;
 
     [Inject]
-    public IAppEvents AppEvents
+    IAppEvents appEvents
     {
         set
         {
@@ -42,9 +42,9 @@ public class HttpClient : CurlHttpClient
         {
             req.Proxy = _httpProxy;
         }
-        if(string.IsNullOrEmpty(req.Proxy) && DeviceInfo.NetworkInfo.Proxy != null)
+        if(string.IsNullOrEmpty(req.Proxy) && deviceInfo.NetworkInfo.Proxy != null)
         {
-            req.Proxy = DeviceInfo.NetworkInfo.Proxy.ToString();
+            req.Proxy = deviceInfo.NetworkInfo.Proxy.ToString();
         }
     }
 

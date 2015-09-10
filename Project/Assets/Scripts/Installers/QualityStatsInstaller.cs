@@ -9,31 +9,19 @@ using SocialPoint.Network;
 
 public class QualityStatsInstaller : MonoInstaller
 {
-
     [Inject]
-    IDeviceInfo DeviceInfo;
-
-    [Inject]
-    IAppEvents AppEvents;
-
-    [Inject]
-    IHttpClient HttpClient;
-        
-    [Inject]
-    public IEventTracker EventTracker;
+    IHttpClient _httpClient;
 
     public override void InstallBindings()
     {
-        if(Container.HasBinding<SocialPointQualityStats>())
+        if(Container.HasBinding<QualityStats>())
         {
             return;
         }
-        var httpClient = new QualityStatsHttpClient(HttpClient);
+        var httpClient = new QualityStatsHttpClient(_httpClient);
         Container.Rebind<IHttpClient>().ToInstance(httpClient);
-
-        var stats = new SocialPointQualityStats(DeviceInfo, AppEvents);
-        stats.TrackEvent = EventTracker.TrackEvent;
-        stats.AddQualityStatsHttpClient(httpClient);
-        Container.BindInstance(stats);
+        Container.Bind<QualityStatsHttpClient>().ToInstance(httpClient);
+        Container.Bind<QualityStats>().ToSingle<QualityStats>();
+        Container.Resolve<QualityStats>();
     }
 }

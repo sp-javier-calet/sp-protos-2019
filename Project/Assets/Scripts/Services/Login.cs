@@ -9,7 +9,7 @@ using System.Collections.Generic;
 class Login : SocialPointLogin
 {
     [Inject]
-    public IDeviceInfo InjectDeviceInfo
+    IDeviceInfo injectDeviceInfo
     {
         set
         {
@@ -18,7 +18,7 @@ class Login : SocialPointLogin
     }
 
     [Inject]
-    public IEventTracker InjectEventTracker
+    IEventTracker injectEventTracker
     {
         set
         {
@@ -27,7 +27,7 @@ class Login : SocialPointLogin
     }
 
     [InjectOptional]
-    public List<ILink> InjectLinks
+    List<ILink> injectLinks
     {
         set
         {
@@ -39,7 +39,7 @@ class Login : SocialPointLogin
     }
     
     [Inject("persistent")]
-    public IAttrStorage InjectStorage
+    IAttrStorage injectStorage
     {
         set
         {
@@ -48,7 +48,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_timeout")]
-    public float InjectTimeout
+    float injectTimeout
     {
         set
         {
@@ -57,7 +57,7 @@ class Login : SocialPointLogin
     }
         
     [InjectOptional("login_activity_timeout")]
-    public float InjectActivityTimeout
+    float injectActivityTimeout
     {
         set
         {
@@ -66,7 +66,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_autoupdate_friends")]
-    public bool InjectAutoUpdateFriends
+    bool injectAutoUpdateFriends
     {
         set
         {
@@ -75,7 +75,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_autoupdate_friends_photo_size")]
-    public uint InjectAutoUpdateFriendsPhotosSize
+    uint injectAutoUpdateFriendsPhotosSize
     {
         set
         {
@@ -84,7 +84,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_max_retries")]
-    public uint InjectMaxLoginRetries
+    uint injectMaxLoginRetries
     {
         set
         {
@@ -93,7 +93,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_user_mappings_block")]
-    public uint InjectUserMappingsBlock
+    uint injectUserMappingsBlock
     {
         set
         {
@@ -102,7 +102,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("language")]
-    public string InjectLanguage
+    string injectLanguage
     {
         set
         {

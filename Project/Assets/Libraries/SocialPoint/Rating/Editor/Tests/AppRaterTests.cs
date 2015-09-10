@@ -9,7 +9,7 @@ using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
 using SocialPoint.Utils;
 
-namespace SocialPoint.AppRater
+namespace SocialPoint.Rating
 {
 
     [TestFixture]
@@ -35,8 +35,7 @@ namespace SocialPoint.AppRater
             var appEvents = Substitute.For<IAppEvents>();
             AppRater = new AppRater(deviceInfo, storage, appEvents);
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
-            AppRaterGUI.setAppRater(AppRater);
-            AppRater.AppRaterGUI = AppRaterGUI;
+            AppRater.GUI = AppRaterGUI;
             //default test values
             AppRater.UsesUntilPrompt = -1;
             AppRater.EventsUntilPrompt = -1;
@@ -121,7 +120,7 @@ namespace SocialPoint.AppRater
         [Test]
         public void MissCondition_UserLevel_DoesntCall_ShowRateView()
         {
-            AppRater.CurrentUserLevel = 0;
+            AppRater.GetUserLevel = () => 0;
             AppRater.UserLevelUntilPrompt = 1;
             IncrementUses_Expected_Show(0);
         }
@@ -173,7 +172,7 @@ namespace SocialPoint.AppRater
         public void On_RequestDeclined_DoesntCall_ShowRateView()
         {
             IncrementUses_Expected_Show(1);
-            AppRater.RequestDeclined();
+			AppRater.OnRequestResult(RateRequestResult.Decline);
             IncrementUses_Expected_Show(1);
         }
 
@@ -182,7 +181,7 @@ namespace SocialPoint.AppRater
         {
             AppRater.DaysBeforeReminding = 1;
             IncrementUses_Expected_Show(1);
-            AppRater.RequestDelayed();
+			AppRater.OnRequestResult(RateRequestResult.Delay);
             IncrementUses_Expected_Show(1);
         }
 

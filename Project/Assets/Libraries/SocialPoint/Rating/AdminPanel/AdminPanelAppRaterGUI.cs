@@ -1,12 +1,12 @@
 ﻿using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 
-namespace SocialPoint.AppRater
+namespace SocialPoint.Rating
 {
     public class AdminPanelAppRaterGUI : IAdminPanelGUI, IAdminPanelConfigurer
     {
 
-        public AppRater AppRater;
+        public IAppRater AppRater;
         private Text _infoTextComponent;
 
         #region IAdminPanelConfigurer implementation
