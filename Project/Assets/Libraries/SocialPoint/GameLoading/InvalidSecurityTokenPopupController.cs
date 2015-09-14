@@ -1,17 +1,21 @@
 ﻿using System;
 using UnityEngine.UI;
-using UnityEngine.Assertions;
 using SocialPoint.Locale;
 using SocialPoint.Utils;
 using SocialPoint.Alert;
 using SocialPoint.GUI;
+using SocialPoint.Base;
 
 public class InvalidSecurityTokenPopupController : UIViewController
 {
     private const string RestartGameKey = "restart_game";
+    private const string RestartGameDef = "Restart Game";
     private const string RestartGameMessageKey = "restart_game_message";
+    private const string RestartGameMessageDef = "This action will delete all your progress and data, are you sure you want to restart your game?";
     private const string YesKey = "yes";
+    private const string YesDef = "Yes";
     private const string NoKey = "no";
+    private const string NoDef = "No";
 
 
     public Text TitleLabel;
@@ -22,11 +26,29 @@ public class InvalidSecurityTokenPopupController : UIViewController
 
     public Localization Localization;
 
+    IAlertView _alertView;
+    public IAlertView AlertView
+    {
+        get
+        {
+            if(_alertView == null)
+            {
+                _alertView = new AlertView();
+            }
+            return _alertView;
+        }
+
+        set
+        {
+            _alertView = value;
+        }
+    }
+
     public string ContactEmail;
     public string Subject;
     public string DefaultBody;
 
-    public Action Restart;
+    public Action Restart;   
 
     public InvalidSecurityTokenPopupController()
     {
@@ -134,12 +156,12 @@ public class InvalidSecurityTokenPopupController : UIViewController
 
     public void OnRestartButtonPressed()
     {
-        var restartAlert = new AlertView();
-        Assert.IsNotNull(Localization, "Localization is null");
-        restartAlert.Title = new LocalizedString(RestartGameKey, "Restart Game", Localization);
-        restartAlert.Message = new LocalizedString(RestartGameMessageKey, "This action will delete all your progress and data, are you sure you want to restart your game?", Localization);
-        var buttonYesLocalized = new LocalizedString(YesKey, "Yes", Localization);
-        var buttonNoLocalized = new LocalizedString(NoKey, "No", Localization);
+        var restartAlert = (IAlertView) AlertView.Clone();
+        DebugUtils.Assert(Localization != null, "Localization is null");
+        restartAlert.Title = Localization.Get(RestartGameKey, RestartGameDef);
+        restartAlert.Message = Localization.Get(RestartGameMessageKey, RestartGameMessageDef);
+        var buttonYesLocalized = Localization.Get(YesKey, YesDef);
+        var buttonNoLocalized = Localization.Get(NoKey, NoDef);
         restartAlert.Buttons = new string[]{ buttonYesLocalized, buttonNoLocalized};
         restartAlert.Show((int restartResult) => {
             if(restartResult == 0)

@@ -15,7 +15,6 @@ namespace SocialPoint.Login
         public event NewLinkDelegate NewLinkAfterFriendsEvent;
         public event ConfirmLinkDelegate ConfirmLinkEvent;
         public event LoginErrorDelegate ErrorEvent;
-        public event UpgradeDelegate UpgradeEvent;
         public event RestartDelegate RestartEvent;
 
         public UInt64 UserId{ get; set; }
@@ -23,6 +22,8 @@ namespace SocialPoint.Login
         public string SessionId{ get{ return null; } }
 
         public string PrivilegeToken{ set{} }
+
+        public GenericData Data{ get; set; }
 
         private string _baseUri;
 

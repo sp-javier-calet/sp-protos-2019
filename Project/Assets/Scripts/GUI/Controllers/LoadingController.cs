@@ -71,7 +71,7 @@ public class LoadingController : GameLoadingController
         Login.NewUserEvent += OnLoginNewUser;
     }
 
-    void OnLoginNewUser(Attr data)
+    void OnLoginNewUser(Attr data, bool changed)
     {
         _parseModelOperation.UpdateProgress(0.1f, "parsing game model");
         _model = GameParser.Parse(data);

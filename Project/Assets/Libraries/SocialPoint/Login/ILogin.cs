@@ -14,13 +14,14 @@ namespace SocialPoint.Login
         event ConfirmLinkDelegate ConfirmLinkEvent;
         event LoginErrorDelegate ErrorEvent;
         event RestartDelegate RestartEvent;
-        event UpgradeDelegate UpgradeEvent;
 
-        UInt64 UserId{ get; }
+        UInt64 UserId { get; }
 
-        string SessionId{ get; }
+        string SessionId { get; }
 
-        string PrivilegeToken{ set; }
+        string PrivilegeToken { set; }
+
+        GenericData Data { get; }
 
         void SetupHttpRequest(HttpRequest req, string uri);
 

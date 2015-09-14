@@ -4,7 +4,6 @@ using SocialPoint.Alert;
 using UnityEngine;
 using SocialPoint.GUI;
 using SocialPoint.Base;
-using UnityEngine.Assertions;
 
 public class AlertInstaller : MonoInstaller
 {

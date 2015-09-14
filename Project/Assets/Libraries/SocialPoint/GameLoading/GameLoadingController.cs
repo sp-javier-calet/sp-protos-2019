@@ -9,7 +9,6 @@ using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Base;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace SocialPoint.GameLoading
 {
@@ -59,7 +58,6 @@ namespace SocialPoint.GameLoading
         const string ProgressLoginEndDef = "Logged in";
         const string ProgressSuggestedUpdateSkipKey = "progress_suggested_update_skip";
         const string ProgressSuggestedUpdateSkipDef = "Will update later";
-
         public ILogin Login;
         public PopupsController Popups;
         public Localization Localization;
@@ -67,10 +65,8 @@ namespace SocialPoint.GameLoading
         public GameObject ProgressContainer;
         public LoadingBarController LoadingBar;
         public IAlertView AlertView;
-
         protected List<LoadingOperation> _operations = new List<LoadingOperation>();
         protected LoadingOperation _loginOperation;
-
         IAlertView _alert;
 
         protected virtual void AllOperationsLoaded()
@@ -104,7 +100,9 @@ namespace SocialPoint.GameLoading
         public void RegisterLoadingOperation(LoadingOperation operation)
         {
             if(_operations == null)
+            {
                 _operations = new List<LoadingOperation>();
+            }
             _operations.Add(operation);
             operation.ProgressChangedEvent += OnProgressChanged;
         }
@@ -112,7 +110,9 @@ namespace SocialPoint.GameLoading
         public void OnProgressChanged(string message)
         {
             if(message != string.Empty)
+            {
                 DebugLog(message);
+            }
             float progress = 0;
             _operations.ForEach(p => progress += p.progress);
             float percent = (progress / _operations.Count);
@@ -189,16 +189,18 @@ namespace SocialPoint.GameLoading
 
             switch(error)
             {
+            case ErrorType.Upgrade:
+                OnLoginUpgrade(Login.Data);
+                break;
             case ErrorType.MaintenanceMode:
                 {
                     var popup = Popups.CreateChild<MaintenanceModePopupController>();
-                    var maintenanceData = new MaintenanceData(data);
-                    var title = maintenanceData.Title;
+                    var title = Login.Data.Maintenance.Title;
                     if(string.IsNullOrEmpty(title))
                     {
                         title = Localization.Get(MaintenanceModeKey, MaintenanceModeDef);
                     }
-                    string message = maintenanceData.Message;
+                    string message = Login.Data.Maintenance.Message;
                     if(string.IsNullOrEmpty(message))
                     {
                         message = Localization.Get(MaintenanceMessageKey, MaintenanceMessageDef);
@@ -227,6 +229,7 @@ namespace SocialPoint.GameLoading
             case ErrorType.InvalidSecurityToken:
                 {
                     var popup = Popups.CreateChild<InvalidSecurityTokenPopupController>();
+                    popup.AlertView = AlertView;
                     popup.TitleText = Localization.Get(InvalidSecurityTokenKey, InvalidSecurityTokenDef);
                     popup.MessageText = Localization.Get(InvalidSecurityTokenMessageKey, InvalidSecurityTokenMessageDef);
                     popup.Localization = Localization;
