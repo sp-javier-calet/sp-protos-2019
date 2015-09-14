@@ -24,39 +24,34 @@ namespace SocialPoint.GameLoading
     /// </summary>
     public class GameLoadingController : UIViewController
     {
-        const string UpgradeKey = "upgrade";
-        const string UpgradeDef = "Upgrade";
-        const string ForceUpgradeKey = "force_upgrade";
-        const string ForceUpgradeDef = "Force Upgrade";
-        const string SuggestedUpgradeKey = "suggested_upgrade";
-        const string SuggestedUpgradeDef = "Suggested Upgrade";
-        const string LaterKey = "later";
-        const string LaterDef = "Later";
-        const string RetryKey = "retry";
-        const string RetryDef = "Retry";
-        const string InvalidPrivilegeTokenKey = "invalid_privilege_token";
-        const string InvalidPrivilegeTokenDef = "Invalid Privilege Token";
-        const string ConnectionErrorKey = "connection_error";
-        const string ConnectionErrorDef = "Connection Error";
-        const string MaintenanceModeKey = "maintenance_mode";
-        const string MaintenanceModeDef = "Maintenance Mode";
-        const string MaintenanceMessageKey = "maintenance_message";
-        const string MaintenanceMessageDef = "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.";
-        const string InvalidSecurityTokenKey = "invalid_security_token";
-        const string InvalidSecurityTokenDef = "Invalid Security token";
-        const string InvalidSecurityTokenMessageKey = "invalid_security_message";
-        const string InvalidSecurityTokenMessageDef = "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.";
-        const string ContactKey = "contact";
-        const string ContactDef = "Contact";
-        const string RestartKey = "restart";
-        const string RestartDef = "Restart";
-        const string ResponseErrorKey = "response_error";
-        const string ResponseErrorDef = "Response Error";
-        const string ProgressLoginStartKey = "progress_login_start";
+        const string UpgradeButtonKey = "gameloading.upgrade_button";
+        const string UpgradeButtonDef = "Upgrade";
+        const string ForceUpgradeTitleKey = "gameloading.force_upgrade_title";
+        const string ForceUpgradeTitleDef = "Force Upgrade";
+        const string SuggestedUpgradeTitleKey = "gameloading.suggested_upgrade_title";
+        const string SuggestedUpgradeTitleDef = "Suggested Upgrade";
+        const string UpgradeLaterButtonKey = "gameloading.upgrade_later_button";
+        const string UpgradeLaterButtonDef = "Later";
+        const string RetryButtonKey = "gameloading.retry_button";
+        const string RetryButtonDef = "Retry";
+        const string InvalidPrivilegeTokenTitleKey = "gameloading.invalid_privilege_token_title";
+        const string InvalidPrivilegeTokenTitleDef = "Invalid Privilege Token";
+        const string ConnectionErrorTitleKey = "gameloading.connection_error_title";
+        const string ConnectionErrorTitleDef = "Connection Error";
+        const string MaintenanceModeTitleKey = "gameloading.maintenance_mode_title";
+        const string MaintenanceModeTitleDef = "Maintenance Mode";
+        const string MaintenanceModeMessageKey = "gameloading.maintenance_mode_message";
+        const string MaintenanceModeMessageDef = "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.";
+
+        const string ResponseErrorTitleKey = "gameloading.response_error_title";
+        const string ResponseErrorTitleDef = "Login Error";
+        const string ResponseErrorMessageKey = "gameloading.response_error_message";
+        const string ResponseErrorMessageDef = "There was an unknown error logging in. Please try again later.";
+        const string ProgressLoginStartKey = "gameloading.progress_login_start";
         const string ProgressLoginStartDef = "Logging into servers";
-        const string ProgressLoginEndKey = "login_progress_end";
+        const string ProgressLoginEndKey = "gameloading.login_progress_end";
         const string ProgressLoginEndDef = "Logged in";
-        const string ProgressSuggestedUpdateSkipKey = "progress_suggested_update_skip";
+        const string ProgressSuggestedUpdateSkipKey = "gameloading.progress_suggested_update_skip";
         const string ProgressSuggestedUpdateSkipDef = "Will update later";
         public ILogin Login;
         public PopupsController Popups;
@@ -77,6 +72,11 @@ namespace SocialPoint.GameLoading
         override protected void OnLoad()
         {
             base.OnLoad();
+
+            if(Localization == null)
+            {
+                Localization = new Localization();
+            }
 
             if(CrashReporter != null)
             {
@@ -109,7 +109,7 @@ namespace SocialPoint.GameLoading
 
         public void OnProgressChanged(string message)
         {
-            if(message != string.Empty)
+            if(!string.IsNullOrEmpty(message))
             {
                 DebugLog(message);
             }
@@ -119,6 +119,7 @@ namespace SocialPoint.GameLoading
             LoadingBar.UpdateProgress(percent, message);
         }
 
+        [System.Diagnostics.Conditional("DEBUG_SPGAMELOADING")]
         void DebugLog(string msg)
         {
             DebugUtils.Log(string.Format("GameLoadingController {0}", msg));
@@ -151,8 +152,8 @@ namespace SocialPoint.GameLoading
             _alert.Message = data.Upgrade.Message;
             if(data.Upgrade.Type == UpgradeType.Forced)
             {
-                _alert.Title = Localization.Get(ForceUpgradeKey, ForceUpgradeDef);
-                _alert.Buttons = new string[]{ Localization.Get(UpgradeKey, UpgradeDef) };
+                _alert.Title = Localization.Get(ForceUpgradeTitleKey, ForceUpgradeTitleDef);
+                _alert.Buttons = new string[]{ Localization.Get(UpgradeButtonKey, UpgradeButtonDef) };
                 _alert.Show((int result) => {
                     Application.OpenURL(data.StoreUrl);
                 });
@@ -163,10 +164,10 @@ namespace SocialPoint.GameLoading
                 //because suggested does not fire an error that OnLoginEnd can catch
                 var auxOp = new LoadingOperation();
                 RegisterLoadingOperation(auxOp);
-                _alert.Title = Localization.Get(SuggestedUpgradeKey, SuggestedUpgradeDef);
+                _alert.Title = Localization.Get(SuggestedUpgradeTitleKey, SuggestedUpgradeTitleDef);
                 _alert.Buttons = new string[]{
-                    Localization.Get(UpgradeKey, UpgradeDef),
-                    Localization.Get(LaterKey, LaterDef)
+                    Localization.Get(UpgradeButtonKey, UpgradeButtonDef),
+                    Localization.Get(UpgradeLaterButtonKey, UpgradeLaterButtonDef)
                 };
                 _alert.Show((int result) => {
                     if(result == 0)
@@ -198,12 +199,12 @@ namespace SocialPoint.GameLoading
                     var title = Login.Data.Maintenance.Title;
                     if(string.IsNullOrEmpty(title))
                     {
-                        title = Localization.Get(MaintenanceModeKey, MaintenanceModeDef);
+                        title = Localization.Get(MaintenanceModeTitleKey, MaintenanceModeTitleDef);
                     }
                     string message = Login.Data.Maintenance.Message;
                     if(string.IsNullOrEmpty(message))
                     {
-                        message = Localization.Get(MaintenanceMessageKey, MaintenanceMessageDef);
+                        message = Localization.Get(MaintenanceModeMessageKey, MaintenanceModeMessageDef);
                     }
                     popup.TitleText = title;
                     popup.MessageText = message; 
@@ -213,15 +214,15 @@ namespace SocialPoint.GameLoading
                 break;
 
             case ErrorType.InvalidPrivilegeToken:
-                _alert.Title = Localization.Get(InvalidPrivilegeTokenKey, InvalidPrivilegeTokenDef);
-                _alert.Buttons = new string[]{ Localization.Get(RetryKey, RetryDef) };
+                _alert.Title = Localization.Get(InvalidPrivilegeTokenTitleKey, InvalidPrivilegeTokenTitleDef);
+                _alert.Buttons = new string[]{ Localization.Get(RetryButtonKey, RetryButtonDef) };
                 _alert.Message = msg;
                 _alert.Show(OnInvalidPrivilegeTokenAlert);
                 break;
 
             case ErrorType.Connection: 
-                _alert.Title = Localization.Get(ConnectionErrorKey, ConnectionErrorDef);
-                _alert.Buttons = new string[]{ Localization.Get(RetryKey, RetryDef) };
+                _alert.Title = Localization.Get(ConnectionErrorTitleKey, ConnectionErrorTitleDef);
+                _alert.Buttons = new string[]{ Localization.Get(RetryButtonKey, RetryButtonDef) };
                 _alert.Message = msg;
                 _alert.Show(OnLoginErrorAlert);
                 break;
@@ -229,12 +230,7 @@ namespace SocialPoint.GameLoading
             case ErrorType.InvalidSecurityToken:
                 {
                     var popup = Popups.CreateChild<InvalidSecurityTokenPopupController>();
-                    popup.AlertView = AlertView;
-                    popup.TitleText = Localization.Get(InvalidSecurityTokenKey, InvalidSecurityTokenDef);
-                    popup.MessageText = Localization.Get(InvalidSecurityTokenMessageKey, InvalidSecurityTokenMessageDef);
                     popup.Localization = Localization;
-                    popup.ContactButtonText = Localization.Get(ContactKey, ContactDef);
-                    popup.RestartButtonText = Localization.Get(RestartKey, RestartDef);
                     popup.Restart = OnInvalidSecurityTokenRestart;
                     popup.Signature = data.AsDic.GetValue(SocialPointLogin.AttrKeySignature).ToString();
                     Popups.Push(popup);
@@ -242,8 +238,12 @@ namespace SocialPoint.GameLoading
                 break;
 
             default:
-                _alert.Title = Localization.Get(ResponseErrorKey, ResponseErrorDef);
-                _alert.Buttons = new string[]{ Localization.Get(RetryKey, RetryDef) };
+                _alert.Title = Localization.Get(ResponseErrorTitleKey, ResponseErrorTitleDef);
+                _alert.Buttons = new string[]{ Localization.Get(RetryButtonKey, RetryButtonDef) };
+                if(!Debug.isDebugBuild)
+                {
+                    Localization.Get(ResponseErrorMessageKey, ResponseErrorMessageDef);
+                }
                 _alert.Message = msg;
                 _alert.Show(OnLoginErrorAlert);
                 break;

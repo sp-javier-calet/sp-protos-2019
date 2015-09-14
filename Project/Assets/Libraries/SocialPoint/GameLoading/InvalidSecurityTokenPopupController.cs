@@ -8,15 +8,22 @@ using SocialPoint.Base;
 
 public class InvalidSecurityTokenPopupController : UIViewController
 {
-    private const string RestartGameKey = "restart_game";
-    private const string RestartGameDef = "Restart Game";
-    private const string RestartGameMessageKey = "restart_game_message";
-    private const string RestartGameMessageDef = "This action will delete all your progress and data, are you sure you want to restart your game?";
-    private const string YesKey = "yes";
-    private const string YesDef = "Yes";
-    private const string NoKey = "no";
-    private const string NoDef = "No";
-
+    const string RestartGameTitleKey = "gameloading.restart_game_title";
+    const string RestartGameTitleDef = "Restart Game";
+    const string RestartGameMessageKey = "gameloading.restart_game_message";
+    const string RestartGameMessageDef = "This action will delete all your progress and data, are you sure you want to restart your game?";
+    const string RestartGameYesButtonKey = "gameloading.restart_game_yes_button";
+    const string RestartGameYesButtonDef = "Yes";
+    const string RestartGameNoButtonKey = "gameloading.restart_game_no_button";
+    const string RestartGameNoButtonDef = "No";
+    const string TitleKey = "gameloading.invalid_security_token_title";
+    const string TitleDef = "Invalid Security token";
+    const string MessageKey = "gameloading.invalid_security_token_message";
+    const string MessageDef = "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.";
+    const string ContactButtonKey = "gameloading.invalid_security_token_contact_button";
+    const string ContactButtonDef = "Contact";
+    const string RestartButtonKey = "gameloading.invalid_security_token_restart_button";
+    const string RestartButtonDef = "Restart";
 
     public Text TitleLabel;
     public Text MessageLabel;
@@ -25,36 +32,15 @@ public class InvalidSecurityTokenPopupController : UIViewController
     public Button RestartButton;
 
     public Localization Localization;
-
-    IAlertView _alertView;
-    public IAlertView AlertView
-    {
-        get
-        {
-            if(_alertView == null)
-            {
-                _alertView = new AlertView();
-            }
-            return _alertView;
-        }
-
-        set
-        {
-            _alertView = value;
-        }
-    }
+    public IAlertView AlertView;
 
     public string ContactEmail;
     public string Subject;
     public string DefaultBody;
 
-    public Action Restart;   
+    public Action Restart;      
 
-    public InvalidSecurityTokenPopupController()
-    {
-    }
-
-    public string MessageText
+    string MessageText
     {
         set
         {
@@ -73,7 +59,7 @@ public class InvalidSecurityTokenPopupController : UIViewController
         }
     }
 
-    public string TitleText
+    string TitleText
     {
         set
         {
@@ -111,7 +97,7 @@ public class InvalidSecurityTokenPopupController : UIViewController
         }
     }
 
-    public string ContactButtonText
+    string ContactButtonText
     {
         set
         {
@@ -130,7 +116,7 @@ public class InvalidSecurityTokenPopupController : UIViewController
         }
     }
 
-    public string RestartButtonText
+    string RestartButtonText
     {
         set
         {
@@ -149,6 +135,19 @@ public class InvalidSecurityTokenPopupController : UIViewController
         }
     }
 
+    protected override void OnLoad()
+    {
+        base.OnLoad();
+        if(Localization == null)
+        {
+            Localization = new Localization();
+        }
+        TitleText = Localization.Get(TitleKey, TitleDef);
+        MessageText = Localization.Get(MessageKey, MessageDef);
+        ContactButtonText = Localization.Get(ContactButtonKey, ContactButtonDef);
+        RestartButtonText = Localization.Get(RestartButtonKey, RestartButtonDef);
+    }
+
     public void OnContactButtonPressed()
     {
         EmailUtils.SendEmail(ContactEmail, Subject, DefaultBody);
@@ -156,12 +155,11 @@ public class InvalidSecurityTokenPopupController : UIViewController
 
     public void OnRestartButtonPressed()
     {
-        var restartAlert = (IAlertView) AlertView.Clone();
-        DebugUtils.Assert(Localization != null, "Localization is null");
-        restartAlert.Title = Localization.Get(RestartGameKey, RestartGameDef);
+        var restartAlert = AlertView != null ? (IAlertView) AlertView.Clone() : new AlertView();
+        restartAlert.Title = Localization.Get(RestartGameTitleKey, RestartGameTitleDef);
         restartAlert.Message = Localization.Get(RestartGameMessageKey, RestartGameMessageDef);
-        var buttonYesLocalized = Localization.Get(YesKey, YesDef);
-        var buttonNoLocalized = Localization.Get(NoKey, NoDef);
+        var buttonYesLocalized = Localization.Get(RestartGameYesButtonKey, RestartGameYesButtonDef);
+        var buttonNoLocalized = Localization.Get(RestartGameNoButtonKey, RestartGameNoButtonDef);
         restartAlert.Buttons = new string[]{ buttonYesLocalized, buttonNoLocalized};
         restartAlert.Show((int restartResult) => {
             if(restartResult == 0)

@@ -126,6 +126,7 @@ namespace SocialPoint.Attributes
                 data = data.Replace(kEscapeString, string.Empty);
                 return new AttrString(data);
             }
+            string parseErrMsg = string.Empty;
             try
             {
                 var reader = new JsonReader(data);
@@ -136,7 +137,7 @@ namespace SocialPoint.Attributes
             }
             catch(JsonException e)
             {
-                throw new SerializationException(e.Message);
+                parseErrMsg = e.Message;
             }
         
             bool boolval;
@@ -168,7 +169,7 @@ namespace SocialPoint.Attributes
             {
                 return new AttrEmpty();
             }
-            throw new SerializationException("Error reading data.");
+            throw new SerializationException(string.Format("Error reading data: {0}.", parseErrMsg));
         }
     }
 }

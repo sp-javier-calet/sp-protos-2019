@@ -20,7 +20,7 @@
     "SocialPoint/AppEvents": "v1.0.*",
     "SocialPoint/GUI": "v1.0.*",
     "SocialPoint/Crash": "v1.0.*",
-    "SocialPoint/AppRater": "v1.0.*",
+    "SocialPoint/Rating": "v1.0.*",
     "SocialPoint/Alert": "v1.0.*",
     "SocialPoint/Console": "v1.0.*",
     "SocialPoint/Profiler": "v1.0.*",
