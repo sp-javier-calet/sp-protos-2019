@@ -2,6 +2,7 @@
 using NUnit.Framework;
 
 using System;
+using SocialPoint.Attributes;
 
 [TestFixture]
 [Category("BaseGame.Resources")]
@@ -19,13 +20,26 @@ public class ResourceManagerTests
     [Test]
     public void Loads_From_Attr()
     {
-        Assert.Fail();
+        AttrDic data = new AttrDic();
+        AttrDic product1 = new AttrDic();
+        product1.Set("name", new AttrString("product 1"));
+        data.Set("1", product1);
+        AttrDic product2 = new AttrDic();
+        product2.Set("name", new AttrString("product 2"));
+        data.Set("2", product2);
+        var resourcesParser = new ResourcesParser();
+        ResourceManager.Resources = resourcesParser.Parse(data);
+
+        Assert.That(ResourceManager.GetResourceByID("1").Name == "product 1");
+        Assert.That(ResourceManager.GetResourceByID("2").Name == "product 2");
     }
 
     [Test]
     public void Converts_To_Attr()
     {
-        Assert.Fail();
+        Register_Resource_With_Ammount();
+        var data = ResourceManager.ToAttr();
+        Assert.That(data.AsDic.Get("TestID").AsValue == 10);
     }
 
     [Test]

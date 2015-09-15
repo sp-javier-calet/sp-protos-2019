@@ -3,10 +3,24 @@ using System.Collections.Generic;
 
 using UnityEngine.Assertions;
 using SocialPoint.Events;
+using SocialPoint.Attributes;
 
 public class ResourceManager
 {
     List<Resource> _resources;
+
+    public List<Resource> Resources
+    {
+        get
+        {
+            return _resources;
+        }
+        set
+        {
+            _resources = value;
+        }
+    }
+
     Dictionary<Resource,int> _resourcesAmounts;
 
     public delegate void ResourceModifiedDelegate(ResourceOperation op);
@@ -82,5 +96,15 @@ public class ResourceManager
         //TODO: trackResource 
         var op = new ResourceOperation();
         ResourceModified(op);
+    }
+
+    public Attr ToAttr()
+    {
+        var data = new AttrDic();
+        foreach(var kvp in _resourcesAmounts)
+        {
+            data.Set(kvp.Key.ID, new AttrInt(kvp.Value));
+        }
+        return data;
     }
 }
