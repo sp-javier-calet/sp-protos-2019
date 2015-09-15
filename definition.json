@@ -29,7 +29,8 @@
     "SocialPoint/QualityStats": "v1.0.*",
     "SocialPoint/Purchase/Ios": "v1.0.*",
     "SocialPoint/Purchase/Android": "v1.0.*",
-    "SocialPoint/GameLoading": "master",
+    "SocialPoint/GameLoading": "!feature/game-loading",
+    "SocialPoint/AdminPanel": "!feature/admin-panel",
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3",
     "BuildReport": "v3.0.*"
