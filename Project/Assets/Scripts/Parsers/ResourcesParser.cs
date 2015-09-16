@@ -1,26 +1,26 @@
 ﻿using SocialPoint.Attributes;
 using System.Collections.Generic;
 
-public class ResourceParser : IParser<Resource>
+public class ResourceParser : IParser<ResourceType>
 {
+    const string AttrNameKey = "name";
     #region IParser implementation
-    public Resource Parse(Attr data)
+    public ResourceType Parse(Attr data)
     {
-        const string AttrNameKey = "name";
         var dataDic = data.AsDic;
-        return new Resource("", dataDic.GetValue(AttrNameKey).ToString());
+        return new ResourceType("", dataDic.GetValue(AttrNameKey).ToString());
     }
     #endregion
 
 }
 
-public class ResourcesParser : IParser<List<Resource>>
+public class ResourcesParser : IParser<List<ResourceType>>
 {
     #region IParser implementation
 
-    public List<Resource> Parse(Attr data)
+    public List<ResourceType> Parse(Attr data)
     {
-        var resources = new List<Resource>();
+        var resources = new List<ResourceType>();
         var dataDic = data.AsDic;
         foreach(var kvp in dataDic)
         {
