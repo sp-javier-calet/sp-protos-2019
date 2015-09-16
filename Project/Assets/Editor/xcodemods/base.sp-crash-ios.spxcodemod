@@ -1,6 +1,6 @@
 
 {
     "files" : [
-        "{ROOT_PATH}/../Project/Assets/Libraries/SocialPoint/Crash/Ios/CrashReporter.framework"
+        "{ROOT_PATH}/..//Project/Assets/Libraries/SocialPoint/Crash/Ios/CrashReporter.framework"
     ]
 }

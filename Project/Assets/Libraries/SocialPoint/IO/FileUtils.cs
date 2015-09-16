@@ -28,8 +28,8 @@ namespace SocialPoint.IO {
         }
 #endif
 
-        private const char WildcardMultiChar = '*';
-        private const char WildcardOneChar = '?';
+        public const char WildcardMultiChar = '*';
+        public const char WildcardOneChar = '?';
 
         public delegate bool OperationFilter(string src, string dst);
 

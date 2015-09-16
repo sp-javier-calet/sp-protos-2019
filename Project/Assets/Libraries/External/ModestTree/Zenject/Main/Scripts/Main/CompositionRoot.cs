@@ -23,7 +23,7 @@ namespace Zenject
 
         [SerializeField]
         public MonoInstaller[] Installers = new MonoInstaller[0];
-                
+
         DiContainer _container;
         IDependencyRoot _dependencyRoot = null;
 

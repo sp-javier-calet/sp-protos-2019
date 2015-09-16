@@ -1,4 +1,4 @@
-﻿using SocialPoint.Hardware;
+using SocialPoint.Hardware;
 using SocialPoint.Network;
 using SocialPoint.IO;
 

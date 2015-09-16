@@ -21,7 +21,7 @@ namespace SocialPoint.Social
         
         private readonly static string PhotosCacheFolder = "GameCenter";
         private GameCenterUser _user;
-        
+
         public override GameCenterUser User
         {
             get
@@ -31,13 +31,13 @@ namespace SocialPoint.Social
         }
         
         public Dictionary<string, double> Achievements { get; private set; }
-        
+
         public bool ShowLoginWindow { get; private set; }
-        
+
         public bool PlayerVerification { get; private set; }
         
         private States _state;
-        
+
         public States State
         {
             get
@@ -55,7 +55,7 @@ namespace SocialPoint.Social
         }
         
         private List<GameCenterUser> _friends;
-        
+
         public override List<GameCenterUser> Friends
         {
             get
@@ -79,7 +79,7 @@ namespace SocialPoint.Social
                 cbk(err);
             }
         }
-        
+
         void LoginLoadPlayerData(ErrorDelegate cbk = null)
         {
             var localUser = UnityEngine.Social.Active.localUser;
@@ -88,7 +88,7 @@ namespace SocialPoint.Social
                 _friends.Clear();
                 _user = new GameCenterUser();
                 State = States.LoggedOut;
-                
+
                 if(cbk != null)
                 {
                     cbk(new Error("Could not login."));
@@ -100,14 +100,14 @@ namespace SocialPoint.Social
                                                          localUser.userName,
                                                          localUser.userName,
                                                          localUser.underage ? GameCenterUser.AgeGroup.Underage : GameCenterUser.AgeGroup.Adult
-                                                         );
+                );
                 if(_user != user)
                 {
                     State = States.LoggingIn;
                 }
                 
                 _user = user;
-                
+
                 if(cbk != null)
                 {
                     cbk(null);
@@ -120,9 +120,9 @@ namespace SocialPoint.Social
             var localUser = UnityEngine.Social.Active.localUser;
             if((localUser.friends == null || localUser.friends.Length == 0) && initial)
             {
-                
+
                 localUser.LoadFriends((bool success) =>
-                                      {
+                {
                     if(success)
                     {
                         LoginDownloadFriends(cbk, false);
@@ -181,7 +181,7 @@ namespace SocialPoint.Social
             if(Achievements[achiId] < achi.Percent && achi.Percent <= 100)
             {
                 UnityEngine.Social.Active.ReportProgress(achiId, Achievements[achiId], (bool success) =>
-                                                         {
+                {
                     if(cbk != null)
                     {
                         Error err = null;
@@ -211,7 +211,7 @@ namespace SocialPoint.Social
             }
             
             UnityEngine.Social.Active.LoadAchievements((IAchievement[] achievements) =>
-                                                       {
+            {
                 if(achievements != null)
                 {
                     Achievements = new Dictionary<string, double>();
@@ -292,9 +292,9 @@ namespace SocialPoint.Social
             }
             
             State = States.LoggingIn;
-            
+
             UnityEngine.Social.Active.localUser.Authenticate((bool success) =>
-                                                             {
+            {
                 if(success)
                 {
                     LoginLoadPlayerData((err) => {
@@ -336,9 +336,9 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            
+
             UnityEngine.Social.Active.ReportScore(score.Value, score.Category, (bool success) =>
-                                                  {
+            {
                 if(cbk != null)
                 {
                     Error err = null;
@@ -362,7 +362,7 @@ namespace SocialPoint.Social
                 return;
             }
             UnityEngine.SocialPlatforms.GameCenter.GameCenterPlatform.ResetAllAchievements((bool success) =>
-                                                                                           {
+            {
                 if(cbk != null)
                 {
                     Error err = null;
@@ -374,7 +374,7 @@ namespace SocialPoint.Social
                 }
             });
         }
-        
+                
         public override void UpdateAchievement(GameCenterAchievement achi, GameCenterAchievementDelegate cbk = null)
         {
             if (State != States.LoggedIn)
@@ -385,7 +385,7 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            
+
             DownloadAchievements((err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
@@ -411,7 +411,7 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            
+
             string tmpFilePath = Application.temporaryCachePath + "/" + PhotosCacheFolder + "/" + userId + "_" + photoSize.ToString() + ".png";
             UnityEngine.Social.Active.LoadUsers(new string[]{ userId }, (users) =>
             {

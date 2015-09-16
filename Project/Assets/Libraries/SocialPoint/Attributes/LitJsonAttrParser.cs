@@ -169,7 +169,7 @@ namespace SocialPoint.Attributes
             {
                 return new AttrEmpty();
             }
-            throw new SerializationException(string.Format("Error reading data: {0}.", parseErrMsg));
+            throw new SerializationException(string.Format("Error reading data: {0}", parseErrMsg));
         }
     }
 }

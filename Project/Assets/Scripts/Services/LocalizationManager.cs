@@ -70,8 +70,8 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
         }
     }
 
-    public LocalizationManager(IHttpClient client, IAppInfo appInfo, MonoBehaviour behaviour):
-        base(client, appInfo, behaviour)
+    public LocalizationManager(IHttpClient client, IAppInfo appInfo):
+        base(client, appInfo)
     {
     }
 

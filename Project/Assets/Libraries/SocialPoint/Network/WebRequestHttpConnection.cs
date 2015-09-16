@@ -37,7 +37,7 @@ namespace SocialPoint.Network
             }
             var webAsync = new WebAsync(timeout / 1000.0f);
 
-            if(_requestBody.Length > 0)
+            if(_requestBody != null && _requestBody.Length > 0)
             {
                 IEnumerator enumeratorPostData = webAsync.SetPostData(_request, _requestBody);
                 while(enumeratorPostData.MoveNext())

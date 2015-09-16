@@ -541,7 +541,7 @@ namespace SocialPoint.Crash
              * cleaned (as in any clean stop. See OnApplicationQuit())
              * */
             if(_breadcrumbManager != null &&
-               _breadcrumbManager.OldBreadCrumb != null &&
+               _breadcrumbManager.OldBreadcrumb != null &&
                _wasActiveInLastSession)
             {
                 memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp);
@@ -710,7 +710,7 @@ namespace SocialPoint.Crash
             string oldBreadcrumbs = "";
             if(_breadcrumbManager != null)
             {
-                oldBreadcrumbs = _breadcrumbManager.OldBreadCrumb;
+                oldBreadcrumbs = _breadcrumbManager.OldBreadcrumb;
             }
 
             var crashLog = new SocialPointCrashLog(report, _deviceInfo, UserId, oldBreadcrumbs);

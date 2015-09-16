@@ -1,21 +1,19 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Net;
 using System.IO;
-using System.Text;
 using System.Threading;
 
 namespace SocialPoint.Network
 {
-
-
     /// <summary>
     /// Simplify getting web requests asynchronously
     /// </summary>
     public class WebAsync
     {
-        private float _timeout; // seconds
+        private float _timeout;
+        // seconds
         private bool _readingResponse = false;
 
         public bool IsResponseTimeOut = false;
@@ -171,7 +169,7 @@ namespace SocialPoint.Network
                     {
                         uri = webRequest.RequestUri.ToString();
                     }
-                    SocialPoint.Base.Debug.Log("[WebAsync] Error message while getting response from request '" + uri + "': " + requestState.errorMessage);
+                    DebugUtils.Log("[WebAsync] Error message while getting response from request '" + uri + "': " + requestState.errorMessage);
                 }
             }
 #endif

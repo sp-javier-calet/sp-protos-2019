@@ -11,6 +11,7 @@ namespace SocialPoint.Profiler
         public Vector2 Border = new Vector2(5.0f, 5.0f);
         public Color Color = Color.green;
         public bool ShortText = false;
+        public bool StartEnabled = false;
 
         void Start()
         {
@@ -19,8 +20,7 @@ namespace SocialPoint.Profiler
                 Info = new PerfInfo(this);
             }
 
-            // Starts disabled
-            enabled = false;
+            enabled = StartEnabled;
         }
 
         void OnGUI()

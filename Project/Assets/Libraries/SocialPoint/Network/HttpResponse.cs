@@ -70,7 +70,6 @@ namespace SocialPoint.Network
                 }
                 return _body;
             }
-
         }
 
         public HttpResponse(int code = 0)

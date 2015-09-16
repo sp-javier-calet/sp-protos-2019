@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Utils
 {
-    public interface IState
+    public interface IState : ICloneable
     {
         void OnStateLoad();
 
@@ -18,27 +18,27 @@ namespace SocialPoint.Utils
         void FixedUpdate();
     }
     
-    public class StateMachine<TIdState, TIdTransition, TState> where TIdState : IConvertible where TIdTransition : IConvertible where TState : IState
+    public class StateMachine<Transition, StateType, State> : IDisposable where State : IState
     {
         private class StateTransition
         {
-            public TIdTransition transition;
-            public TIdState state;
+            public Transition Transition;
+            public StateType StateType;
             
-            public StateTransition(TIdTransition t, TIdState s)
+            public StateTransition(Transition t, StateType s)
             {
-                transition = t;
-                state = s;
+                Transition = t;
+                StateType = s;
             }
             
             public override string ToString()
             {
-                return transition.ToString() + "," + state.ToString();
+                return Transition.ToString() + "," + StateType.ToString();
             }
             
             public bool Equals(StateTransition other)
             {
-                return other.transition.Equals(transition) && other.state.Equals(state);
+                return other.Transition.Equals(Transition) && other.StateType.Equals(StateType);
             }
             
             public override bool Equals(object other)
@@ -55,150 +55,167 @@ namespace SocialPoint.Utils
             
             public override int GetHashCode()
             {
-                return transition.GetHashCode() ^ state.GetHashCode();
+                return Transition.GetHashCode() ^ StateType.GetHashCode();
             }
         }
-        
-        
-        private TState currentState;
-        
-        public TState CurrentState
+
+        private float _nextStateDeltaTime = 0.0f;
+        private StateType _nextStateType;
+        private State _nextState;
+
+        private Dictionary<StateTransition, StateType> _stateTransitions = new Dictionary<StateTransition, StateType>();
+        private Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>();
+        private Dictionary<StateType, State> _states = new Dictionary<StateType, State>();
+
+        private StateType _currentStateType;
+        private State _currentState;
+        public State CurrentState
         {
-            get { return currentState; }
+            get
+            {
+                return _currentState;
+            }
         }
+
         
-        public TState GetState(TIdState state)
+        public bool IsInTransition
         {
-            return states[state];
-        }
-        
-        protected TIdState currentStateId;
-        
-        public TIdState CurrentStateId
-        {
-            get { return currentStateId; }
-        }
-        
-        protected float nextStateDeltaTime = 0.0f;
-        protected TState nextState;
-        protected TIdState nextStateId;
-        private Dictionary<TIdState, TState> states;
-        private Dictionary<StateTransition, TIdState> transitionTable;
-        private Dictionary<TIdTransition, TIdState> defaultTransitionTable;
-        
+            get
+            {
+                return _nextState != null;
+            }
+        }        
+
         public StateMachine()
         {
-            states = new Dictionary<TIdState, TState>();
-            transitionTable = new Dictionary<StateTransition, TIdState>();
-            defaultTransitionTable = new Dictionary<TIdTransition, TIdState>();
-        }
-        
-        public bool AddState(TIdState id, TState state)
-        {
-            states.Add(id, state);
-            return true;
         }
         
         public void Update()
         {
-            nextStateDeltaTime -= UnityEngine.Time.deltaTime;
-            if(nextState != null && nextStateDeltaTime <= 0.0f)
+            _nextStateDeltaTime -= UnityEngine.Time.deltaTime;
+            if(_nextState != null && _nextStateDeltaTime <= 0.0f)
             {
-                TState oldState = currentState;
-                currentState = nextState;
-                currentStateId = nextStateId;
-                nextState = default(TState);
+                var oldState = _currentState;
+                _currentState = _nextState;
+                _currentStateType = _nextStateType;
+                _nextState = default(State);
                 if(oldState != null)
                 {
                     oldState.OnStateExit();
                 }
-                currentState.OnStateEnter();
+                _currentState.OnStateEnter();
             }
-            if(currentState != null)
+            if(_currentState != null)
             {
-                currentState.Update();
+                _currentState.Update();
             }
         }
 
         public void FixedUpdate()
         {
-            if(currentState != null)
+            if(_currentState != null)
             {
-                currentState.FixedUpdate();
+                _currentState.FixedUpdate();
             }
         }
-        
-        public void SetTransition(TIdTransition trans, TIdState current, TIdState next)
-        {
-            transitionTable[new StateTransition(trans, current)] = next;
-        }
-        
-        public void SetTransition(TIdTransition trans, TIdState next)
-        {
-            defaultTransitionTable[trans] = next;
-        }
-        
-        public bool ChangeToState(TIdState id, float deltaTime)
-        {
-            if(!states.TryGetValue(id, out nextState))
-            {
-                return false;
-            }
 
-            if(currentState != null)
-            {
-                currentState.OnStateUnload();
-            }
+        public void DefineState(StateType type, State state)
+        {
+            _states[type] = state;
+        }
+        
+        public void DefineTransition(StateType from, Transition trans, StateType to)
+        {
+            _stateTransitions[new StateTransition(trans, from)] = to;
+        }
+        
+        public void DefineTransition(Transition trans, StateType to)
+        {
+            _transitions[trans] = to;
+        }
 
-            nextStateDeltaTime = deltaTime;
-            nextStateId = id;
-            nextState.OnStateLoad();
+        public bool ChangeToState(StateType type, float deltaTime=0.0f)
+        {
+            State proto;
+            if(_states.TryGetValue(type, out proto))
+            {
+                return ChangeToState(type, (State)proto.Clone(), deltaTime);
+            }
+            return false;
+        }
+
+        public bool ChangeToState(StateType type, State state, float deltaTime=0.0f)
+        {
+            if(_currentState != null)
+            {
+                _currentState.OnStateUnload();
+            }
+            _nextStateDeltaTime = deltaTime;
+            _nextState = state;
+            _nextStateType = type;
+            _nextState.OnStateLoad();
             return true;
         }
         
-        public bool ChangeToState(TIdState id)
+        public bool ChangeToStateWithTransition(Transition trans, float deltaTime=0.0f)
         {
-            return ChangeToState(id, 0.0f);
-        }
-        
-        public bool IsInTransition
-        {
-            get { return nextState != null; }
-        }
-        
-        public bool ChangeToStateWithTransition(TIdTransition trans, float deltaTime)
-        {
-            TIdState current = CurrentStateId;
-            TIdState next = default(TIdState);
-            if(!transitionTable.TryGetValue(new StateTransition(trans, current), out next))
+            StateType type;
+            if(!_stateTransitions.TryGetValue(new StateTransition(trans, _currentStateType), out type))
             {
-                if(!defaultTransitionTable.TryGetValue(trans, out next))
+                if(!_transitions.TryGetValue(trans, out type))
                 {
                     return false;
                 }
             }
-            return ChangeToState(next, deltaTime);
-        }
-        
-        public bool ChangeToStateWithTransition(TIdTransition trans)
-        {
-            return ChangeToStateWithTransition(trans, 0.0f);
+            return ChangeToState(type, deltaTime);
         }
 
         public void Dispose()
         {
-            states.Clear();
-            nextState = default (TState);
-            if(currentState != null)
+            _nextState = default(State);
+            if(_currentState != null)
             {
-                currentState.OnStateUnload();
-                currentState.OnStateExit();
-                currentState = default (TState);
+                _currentState.OnStateUnload();
+                _currentState.OnStateExit();
+                _currentState = default(State);
             }
         }
     }
     
-    public class StateMachine<TIdState, TIdTransition> : StateMachine<TIdState, TIdTransition, IState> where TIdState : IConvertible where TIdTransition : IConvertible
+    public class StateMachine<Transition, State> : StateMachine<Transition, Type, State> where State : IState
+    {
+        public void DefineState<S>(State state) where S : State
+        {
+            DefineState(typeof(S), state);
+        }
+
+        public void DefineState(State state)
+        {
+            DefineState(state.GetType(), state);
+        }
+        
+        public void DefineTransition<F,T>(Transition trans) where F : State where T : State
+        {
+            DefineTransition(typeof(F), trans, typeof(T));
+        }
+        
+        public void DefineTransition<T>(Transition trans) where T : State
+        {
+            DefineTransition(trans, typeof(T));
+        }
+        
+        public bool ChangeToState<S>(float deltaTime=0.0f) where S : State
+        {
+            return ChangeToState(typeof(S), deltaTime);
+        }
+        
+        public bool ChangeToState<S>(State state, float deltaTime=0.0f) where S : State
+        {
+            return ChangeToState(typeof(S), state, deltaTime);
+        }
+    }
+        
+    public class StateMachine<Transition> : StateMachine<Transition, IState>
     {
     }
 }

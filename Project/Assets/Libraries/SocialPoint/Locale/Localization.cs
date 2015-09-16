@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text;
-using SocialPoint.IO;
 
 namespace SocialPoint.Locale
 {
@@ -22,19 +20,24 @@ namespace SocialPoint.Locale
         public const string CatalanIdentifier = "ca";
         public const string ChineseIdentifier = "zh";
 
-        /* 
-         * Static default instance
-         */
-        private static Localization _defaultLocalization = new Localization();
+        private static Localization _defaultLocalization = null;
+
         public static Localization Default
         { 
             get
             {
+                if(_defaultLocalization == null)
+                {
+                    _defaultLocalization = new Localization();
+                }
                 return _defaultLocalization;
-            } 
+            }
         }
 
+        public Localization Fallback;
+
         private Dictionary<string,string> _strings = new Dictionary<string,string>();
+
         public Dictionary<string,string> Strings
         {
             get
@@ -47,18 +50,28 @@ namespace SocialPoint.Locale
         {
         }
 
-        const string DefaultFormat = "<{0}>";
+        private string _language = "";
 
-        public string Get(string key, string defaultString=null)
+        public string Language
         {
-            string value;
+            get
+            {
+                return _language;
+            }
+            set
+            {
+                _language = value;
+            }
+        }
+
+        string DefaultFormat = "{0}<{1}>";
+
+        public string Get(string key, string defaultString = null)
+        {
+            string value = "";
             if(!_strings.TryGetValue(key, out value))
             {
-                value = defaultString;
-            }
-            if(value == null)
-            {
-                value = string.Format(DefaultFormat, key);
+                value = Fallback != null ? Fallback.Get(key) : string.Format(DefaultFormat, Language, key);
             }
             return value;
         }
@@ -88,7 +101,7 @@ namespace SocialPoint.Locale
 
         public override string ToString()
         {
-            return base.ToString()+string.Format(" ({0} elements)", _strings.Count);
+            return base.ToString() + string.Format(" ({0} elements)", _strings.Count);
         }
     }
 }

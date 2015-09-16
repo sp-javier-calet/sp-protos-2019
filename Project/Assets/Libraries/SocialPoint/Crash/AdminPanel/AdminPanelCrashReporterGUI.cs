@@ -24,7 +24,7 @@ namespace SocialPoint.Crash
             {
                 layout.CreateLabel("Breadcrumbs");
                 layout.CreateVerticalScrollLayout()
-                    .CreateTextArea(BreadcrumbManager.CurrentBreadCrumb, out _textAreaComponent);
+                    .CreateTextArea(BreadcrumbManager.CurrentBreadcrumb, out _textAreaComponent);
                 layout.CreateButton("Refresh", () => { UpdateBreadcrumbContent(); });
                 layout.CreateToggleButton("Last session breadcrumbs", _showOldBreadcrumbs, (value) => { 
                     _showOldBreadcrumbs = value; 
@@ -73,8 +73,8 @@ namespace SocialPoint.Crash
             if(_textAreaComponent != null && BreadcrumbManager != null)
             {
                 _textAreaComponent.text = (_showOldBreadcrumbs)? 
-                                            BreadcrumbManager.OldBreadCrumb:
-                                            BreadcrumbManager.CurrentBreadCrumb;
+                                            BreadcrumbManager.OldBreadcrumb:
+                                            BreadcrumbManager.CurrentBreadcrumb;
             }
         }
 

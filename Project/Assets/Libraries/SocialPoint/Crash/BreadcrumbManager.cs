@@ -86,7 +86,7 @@ namespace SocialPoint.Crash
             FileUtils.Delete(BreadcrumbLogPath(LastSessionBreadcrumbsName));
         }
 
-        public string CurrentBreadCrumb
+        public string CurrentBreadcrumb
         {
             get{
                 string path = BreadcrumbLogPath();
@@ -99,7 +99,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        public string OldBreadCrumb
+        public string OldBreadcrumb
         {
             get{
                 string oldPath = BreadcrumbLogPath(LastSessionBreadcrumbsName);

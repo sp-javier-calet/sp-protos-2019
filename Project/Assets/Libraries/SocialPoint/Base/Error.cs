@@ -29,15 +29,11 @@ namespace SocialPoint.Base
         
         public override string ToString()
         {
-            return Code + ": " + Msg;
+            return string.Format("{0}:{1}", Code, Msg);
         }
 
         public void SetData(int code = 0, string msg = null)
         {
-            if(msg == null)
-            {
-                msg = string.Empty;
-            }
             Code = code;
             Msg = msg;
         }
@@ -55,10 +51,10 @@ namespace SocialPoint.Base
             }
         }
 
-		public static bool IsNullOrEmpty(Error err)
-		{
-			return err == null || !err.HasError;
-		}
+        public static bool IsNullOrEmpty(Error err)
+        {
+            return err == null || !err.HasError;
+        }
     }
 
     public delegate void ErrorDelegate(Error err);

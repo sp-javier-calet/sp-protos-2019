@@ -1,15 +1,13 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Runtime.Serialization;
-using SocialPoint.Hardware;
-using SocialPoint.Network;
+using System.Text;
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
+using SocialPoint.Hardware;
 using SocialPoint.IO;
+using SocialPoint.Network;
 
 namespace SocialPoint.Locale
 {
@@ -17,14 +15,17 @@ namespace SocialPoint.Locale
     {
         public class LocationData
         {
+            public const string DevEnvironmentId = "dev";
+            public const string ProdEnvironmentId = "prod";
+
             public const string DefaultProjectId = "dc";
             
             // Android uses iOS json too
             public const string DefaultPlatform = "ios";
             
-            //public const string DefaultEnvironmentId = "dev";
+            //public const string DefaultEnvironmentId = DevEnvironmentId;
             //public const string DefaultSecretKey = "5TgemMFH4yj7RJ3d";
-            public const string DefaultEnvironmentId = "prod";
+            public const string DefaultEnvironmentId = ProdEnvironmentId;
             public const string DefaultSecretKey = "wetd46pWuR8J5CmS";
                         
             private const string UrlFormat = "http://sp-translations.socialpointgames.com/deploy/<PROJ>/<PLAT>/<ENV>/<PROJ>_<PLAT>_<LANG>_<ENV>_<KEY>.json";
@@ -38,7 +39,7 @@ namespace SocialPoint.Locale
             public string EnvironmentId = DefaultEnvironmentId;
             public string SecretKey = DefaultSecretKey;
             public string Platform = DefaultPlatform;
-            
+
             public string Format(string pattern, string lang)
             {
                 pattern = pattern.Replace(ProjectIdPlaceholder, ProjectId);
@@ -48,7 +49,7 @@ namespace SocialPoint.Locale
                 pattern = pattern.Replace(LanguagePlaceholder, lang);
                 return pattern;
             }
-            
+
             public string GetUrl(string lang)
             {
                 return Format(UrlFormat, lang);
@@ -56,8 +57,8 @@ namespace SocialPoint.Locale
         }
 
         private const string JsonExtension = ".json";
-        private const string kEtagHeader = "Etag";
-        private const string kIfNoneMatchHeader = "If-None-Match";
+        private const string EtagHeader = "Etag";
+        private const string IfNoneMatchHeader = "If-None-Match";
         private const string FilePrefixFormat = "<PROJ>_localization_<PLAT>_<ENV>_<LANG>_";
         private const string CsvSeparator = ",";
 
@@ -66,13 +67,24 @@ namespace SocialPoint.Locale
         public const string SimplifiedChineseIdentifier = "zh-Hans";
         public const string TraditionalChineseIdentifier = "zh-Hant";
 
-        private string _localizationUrl;
+        // CultureInfo identifiers
+        // http://www.localeplanet.com/dotnet/
+        public const string EnglishUSIdentifier = "en-US";
+        public const string SpanishESIdentifier = "es-ES";
+        public const string PortugueseBRIdentifier = "pt-BR";
+        public const string FrenchFRIdentifier = "fr-FR";
+        public const string TurkishTRIdentifier = "tr-TR";
+        public const string ItalianITIdentifier = "it-IT";
+        public const string JapaneseJPIdentifier = "jp-JP";
+        public const string KoreanKRIdentifier = "ko-KR";
+        public const string RussianRUIdentifier = "ru-RU";
+        public const string GermanDEIdentifier = "de-DE";
+        public const string ChineseCNIdentifier = "zh-CN";
+
         private string _cachePath;
         private string _bundlePath;
         private IHttpClient _httpClient;
         private IAppInfo _appInfo;
-        private MonoBehaviour _monobehavior;
-        private IEnumerator _loadLanguagesCoroutine;
         private bool _running = false;
 
         public bool WriteCsv = true;
@@ -82,6 +94,7 @@ namespace SocialPoint.Locale
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
+        public string FallbackLocalization;
 
         public static readonly string[] DefaultSupportedLanguages = {
             Localization.EnglishIdentifier,
@@ -101,23 +114,35 @@ namespace SocialPoint.Locale
         };
         public string[] SupportedLanguages = DefaultSupportedLanguages;
 
-        LocationData _location = new LocationData();
+        public static CultureInfo CurrentCultureInfo{ get; private set; }
+
+        public delegate void CsvLoadedDelegate(byte[] bytes);
+
+        public CsvLoadedDelegate CsvLoaded = null;
+
+        LocationData _location = null;
+
         public LocationData Location
         {
             get
             {
+                if(_location == null)
+                {
+                    _location = new LocationData();
+                }
                 return _location;
             }
         }
 
         Localization _localization;
+
         public Localization Localization
         {
             get
             {
                 if(_localization == null)
                 {
-                    return Localization.Default;
+                    _localization = Localization.Default;
                 }
                 return _localization;
             }
@@ -127,8 +152,9 @@ namespace SocialPoint.Locale
                 _localization = value;
             }
         }
-                
+
         private string _currentLanguage;
+
         public string CurrentLanguage
         {
             get
@@ -146,17 +172,16 @@ namespace SocialPoint.Locale
                 _currentLanguage = GetSupportedLanguage(value);
                 if(_running && oldLang != _currentLanguage)
                 {
-                    LoadCurrentLanguage();
-                    DownloadCurrentLanguage();
+                    LoadLanguage(_currentLanguage);
+                    DownloadLanguage(_currentLanguage);
                 }
             }
         }
 
-        public LocalizationManager(IHttpClient client, IAppInfo appInfo, MonoBehaviour monobehavior)
+        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo)
         {
-            _httpClient = client;
+            _httpClient = httpClient;
             _appInfo = appInfo;
-            _monobehavior = monobehavior;
 
             if(_httpClient == null)
             {
@@ -165,10 +190,6 @@ namespace SocialPoint.Locale
             if(_appInfo == null)
             {
                 throw new ArgumentNullException("appInfo", "appInfo cannot be null or empty!");
-            }
-            if(_monobehavior == null)
-            {
-                throw new ArgumentNullException("monobehavior", "monobehavior cannot be null or empty!");
             }
         }
 
@@ -179,14 +200,14 @@ namespace SocialPoint.Locale
             FileUtils.CreateDirectory(_cachePath);
             _bundlePath = Path.Combine(PathsManager.StreamingAssetsPath, BundleDir);
 
-            LoadCurrentLanguage();
+            LoadFallbackLanguage();
+
+            LoadLanguage(CurrentLanguage);
             
             #if UNITY_EDITOR
-            DownloadSupportedLanguages(() => {
-                LoadCurrentLanguage();
-            });
+            DownloadSupportedLanguages(() => LoadLanguage(CurrentLanguage));
             #else
-            DownloadCurrentLanguage();
+            DownloadLanguage(CurrentLanguage);
             #endif
         }
 
@@ -195,7 +216,22 @@ namespace SocialPoint.Locale
             _running = false;
         }
 
-        void DownloadSupportedLanguages(Action finish, IDictionary<string,Localization> locales =null)
+        void LoadFallbackLanguage()
+        {
+            if(Localization.Fallback != null)
+            {
+                Localization.Fallback.Clear();
+                Localization.Fallback = null;
+            }
+            if(string.Equals(Location.EnvironmentId, LocationData.ProdEnvironmentId))
+            {
+                FallbackLocalization = Localization.EnglishIdentifier;
+                LoadLanguage(FallbackLocalization);
+                DownloadLanguage(FallbackLocalization);
+            }
+        }
+
+        void DownloadSupportedLanguages(Action finish, IDictionary<string,Localization> locales = null)
         {
             if(locales == null)
             {
@@ -206,9 +242,13 @@ namespace SocialPoint.Locale
                 if(WriteCsv)
                 {
                     var csv = LocalizationsToCsv(locales);
+                    OnCsvLoaded(csv);
+
+                    #if UNITY_EDITOR
                     var resDir = Path.Combine(PathsManager.DataPath, "Resources");
                     var localFile = Path.Combine(resDir, "Localization.csv");
                     FileUtils.WriteAllText(localFile, csv);
+                    #endif
                 }
                 if(finish != null)
                 {
@@ -225,27 +265,50 @@ namespace SocialPoint.Locale
             });
         }
 
-        bool LoadCurrentLanguage()
+        void OnCsvLoaded(string csv)
         {
-            if(LoadLocalizationData(Localization, CurrentLanguage))
+            if(CsvLoaded != null)
             {
+                byte[] csvData = Encoding.UTF8.GetBytes(csv);
+                CsvLoaded(csvData);
+            }
+        }
+
+        bool LoadLanguage(string lang)
+        {
+            // load fallback localization
+            if(!string.IsNullOrEmpty(FallbackLocalization) && Localization.Fallback == null)
+            {
+                var fallback = new Localization();
+                if(LoadLocalizationData(fallback, FallbackLocalization))
+                {
+                    Localization.Fallback = fallback;
+                }
+            }
+
+            if(LoadLocalizationData(Localization, lang))
+            {
+                var locales = new Dictionary<string, Localization>();
+                locales[lang] = Localization;
+                var csv = LocalizationsToCsv(locales);
+                OnCsvLoaded(csv);
+
                 if(Loaded != null)
                 {
                     Loaded();
                 }
                 return true;
             }
+
             return false;
         }
-        
-        void DownloadCurrentLanguage()
+
+        void DownloadLanguage(string lang)
         {
-            DownloadLocalization(CurrentLanguage, () => {
-                LoadCurrentLanguage();
-            });
+            DownloadLocalization(lang, () => LoadLanguage(lang));
         }
 
-        string LocalizationsToCsv(IDictionary<string,Localization> locales)
+        static string LocalizationsToCsv(IDictionary<string,Localization> locales)
         {
             List<string> keys = null;
             var builder = new StringBuilder();
@@ -260,6 +323,16 @@ namespace SocialPoint.Locale
                 if(keys == null)
                 {
                     keys = new List<string>(pair.Value.Strings.Keys);
+                    if(pair.Value.Fallback != null)
+                    {
+                        foreach(var fkey in pair.Value.Fallback.Strings.Keys)
+                        {
+                            if(!keys.Contains(fkey))
+                            {
+                                keys.Add(fkey);
+                            }
+                        }
+                    }
                 }
             }
             builder.Remove(builder.Length - 1, 1);
@@ -289,6 +362,9 @@ namespace SocialPoint.Locale
 
         bool LoadLocalizationData(Localization locale, string lang)
         {
+            locale.Clear();
+            locale.Language = lang;
+
             var file = FindLocalizationFile(lang);
             if(string.IsNullOrEmpty(file))
             {
@@ -298,7 +374,6 @@ namespace SocialPoint.Locale
             {
                 return false;
             }
-            locale.Clear();
             var data = FileUtils.ReadAllBytes(file);
             AttrList attr = null;
             try
@@ -319,6 +394,12 @@ namespace SocialPoint.Locale
                     locale.Set(entry.Key, entry.Value.AsValue.ToString());
                 }
             }
+
+            #if UNITY_EDITOR
+            var localFile = Path.Combine(_bundlePath, lang + JsonExtension);
+            FileUtils.WriteAllBytes(localFile, data);
+            #endif
+
             return true;
         }
 
@@ -359,12 +440,12 @@ namespace SocialPoint.Locale
             var etag = FindLanguageEtag(lang);
             if(!string.IsNullOrEmpty(etag))
             {
-                request.AddHeader(kIfNoneMatchHeader, "\"" + etag + "\"");
+                request.AddHeader(IfNoneMatchHeader, "\"" + etag + "\"");
             }
             request.AcceptCompressed = true;
             request.Timeout = Timeout;
 
-            _httpClient.Send(request, (HttpResponse resp) => OnLocalizationDownload(resp, lang, etag, finish));
+            _httpClient.Send(request, resp => OnLocalizationDownload(resp, lang, etag, finish));
         }
 
         void OnLocalizationDownload(HttpResponse resp, string lang, string oldEtag, Action finish)
@@ -378,7 +459,7 @@ namespace SocialPoint.Locale
                 return;
             }
             string newEtag = null;
-            if(resp.Headers.TryGetValue(kEtagHeader, out newEtag))
+            if(resp.Headers.TryGetValue(EtagHeader, out newEtag))
             {
                 newEtag = newEtag.Replace("\"", "");
             }
@@ -409,24 +490,19 @@ namespace SocialPoint.Locale
 
         static string FixLanguage(string lang)
         {
-            if(Localization.CatalanIdentifier == lang || Localization.BasqueIdentifier == lang || Localization.GalicianIdentifier == lang)
+            switch(lang)
             {
+            case Localization.CatalanIdentifier:
+            case Localization.BasqueIdentifier:
+            case Localization.GalicianIdentifier:
                 return Localization.SpanishIdentifier;
-            }
-            else if(Localization.PortugueseIdentifier == lang)
-            {
+            case Localization.PortugueseIdentifier:
                 return Localization.BrasilianIdentifier;
-            }
-            else if(TraditionalChineseIdentifier == lang)  
-            {
-                return TraditionalChineseServerIdentifier; // It's prepared to check it, but it has to be added to the supportedLanguages vector above in order to work
-            }
-            else if(SimplifiedChineseIdentifier == lang)
-            {
-                return SimplifiedChineseServerIdentifier; // Conversion needed cause SP server did not support "zh-Hans" as Chinese identifier
-            }
-            else
-            {
+            case TraditionalChineseIdentifier:
+                return TraditionalChineseServerIdentifier;
+            case SimplifiedChineseIdentifier:
+                return SimplifiedChineseServerIdentifier;
+            default:
                 return lang;
             }
         }
@@ -461,7 +537,44 @@ namespace SocialPoint.Locale
             {
                 slang = Localization.EnglishIdentifier;
             }
+
+            CurrentCultureInfo = GetCultureInfo(slang);
+
             return slang;
+        }
+
+        static CultureInfo GetCultureInfo(string lang)
+        {
+            switch(lang)
+            {
+            case Localization.EnglishIdentifier:
+                return new CultureInfo(EnglishUSIdentifier);
+            case Localization.FrenchIdentifier:
+                return new CultureInfo(FrenchFRIdentifier);
+            case Localization.TurkishIdentifier:
+                return new CultureInfo(TurkishTRIdentifier);
+            case Localization.ItalianIdentifier:
+                return new CultureInfo(ItalianITIdentifier);
+            case Localization.JapaneseIdentifier:
+                return new CultureInfo(JapaneseJPIdentifier);
+            case Localization.KoreanIdentifier:
+                return new CultureInfo(KoreanKRIdentifier);
+            case Localization.RussianIdentifier:
+                return new CultureInfo(RussianRUIdentifier);
+            case Localization.SpanishIdentifier:
+            case Localization.CatalanIdentifier:
+            case Localization.GalicianIdentifier:
+            case Localization.BasqueIdentifier:
+                return new CultureInfo(SpanishESIdentifier);
+            case Localization.GermanIdentifier:
+                return new CultureInfo(GermanDEIdentifier);
+            case Localization.PortugueseIdentifier:
+                return new CultureInfo(PortugueseBRIdentifier);
+            case Localization.ChineseIdentifier:
+                return new CultureInfo(ChineseCNIdentifier);
+            default:
+                return CultureInfo.CurrentCulture;
+            }
         }
 
         string FindLanguageEtag(string lang)
