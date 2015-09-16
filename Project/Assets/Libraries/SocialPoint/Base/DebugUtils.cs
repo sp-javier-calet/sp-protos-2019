@@ -88,8 +88,10 @@ namespace SocialPoint.Base
 #endif
                 LogError(msg);
             }
-#else
+#elif UNITY
             UnityEngine.Assertions.Assert.IsTrue(condition, msg);
+#else
+            LogError(msg);
 #endif
         }
 
