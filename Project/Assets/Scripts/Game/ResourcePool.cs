@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 using SocialPoint.Events;
 using SocialPoint.Attributes;
 
-public class ResourcePool : Dictionary<string,int>
+public class ResourcePool : Dictionary<string,long>
 {
 
     public delegate void ResourceModifiedDelegate(ResourceOperation op);
@@ -54,7 +54,7 @@ public class ResourcePool : Dictionary<string,int>
     /// Gets or sets the amount of the specified resource.
     /// </summary>
     /// <param name="resource">Resource.</param>
-    public int this[string resource]
+    public long this[string resource]
     {
         get
         {
@@ -72,7 +72,7 @@ public class ResourcePool : Dictionary<string,int>
             //TODO: fill with more data
             var op = new ResourceOperation();
             op.Resource = resource;
-            op.Amount = this[resource];
+            op.Amount = (int)this[resource];
             ResourceModified(op);
         }
     }
@@ -118,7 +118,7 @@ public class ResourcePool : Dictionary<string,int>
         var data = new AttrDic();
         foreach(var kvp in this)
         {
-            data.Set(kvp.Key, new AttrInt(kvp.Value));
+            data.Set(kvp.Key, new AttrLong(kvp.Value));
         }
         return data;
     }
