@@ -29,6 +29,7 @@ namespace SocialPoint.IO {
 #endif
 
         public const char WildcardMultiChar = '*';
+        public const string WildcardDeep = "**";
         public const char WildcardOneChar = '?';
 
         public delegate bool OperationFilter(string src, string dst);
@@ -296,11 +297,10 @@ namespace SocialPoint.IO {
 
         static public bool GlobMatch(string pattern, string value)
         {
-            var deepWildcard = string.Empty+WildcardMultiChar+WildcardMultiChar;
-            bool deep = pattern.Contains(deepWildcard);
+            bool deep = pattern.Contains(WildcardDeep);
             if(deep)
             {
-                pattern = pattern.Replace(deepWildcard, string.Empty+WildcardMultiChar);
+                pattern = pattern.Replace(WildcardDeep, WildcardMultiChar.ToString());
             }
             else if(value.Split(Path.DirectorySeparatorChar).Length != pattern.Split(Path.DirectorySeparatorChar).Length)
             {
@@ -437,10 +437,9 @@ namespace SocialPoint.IO {
             }
             else
             {
-                var deepWildcard = string.Empty+WildcardMultiChar+WildcardMultiChar;
-                if(src.Contains(deepWildcard))
+                if(src.Contains(WildcardDeep))
                 {
-                    src = src.Replace(deepWildcard, string.Empty+WildcardMultiChar);
+                    src = src.Replace(WildcardDeep, WildcardMultiChar.ToString());
                     search = SearchOption.AllDirectories;
                 }
                 else
@@ -454,7 +453,7 @@ namespace SocialPoint.IO {
                 }
                 else
                 {
-                    pattern = string.Empty+WildcardMultiChar;
+                    pattern = WildcardMultiChar.ToString();
                 }
             }
 
@@ -547,8 +546,19 @@ namespace SocialPoint.IO {
 
             if(checkDst && srcDir != null)
             {
+                if(Directory.Exists(dst))
+                {
+                    if(src.Contains(WildcardDeep))
+                    {
+                        dst = Path.Combine(dst, WildcardDeep);
+                    }
+                    else if(src.IndexOf(WildcardMultiChar) >= 0)
+                    {
+                        dst = Path.Combine(dst, WildcardMultiChar.ToString());
+                    }
+                }
                 string dstDir;
-                var dstFiles = Find(dst, out dstDir);
+                var dstFiles = Find(dst, out dstDir); 
                 foreach(var dstPath in dstFiles)
                 {
                     string srcPath = srcDir;
