@@ -1,6 +1,4 @@
 ﻿
-using System;
-
 public struct ResourceType
 {
     public string ID;

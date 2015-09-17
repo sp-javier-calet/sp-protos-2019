@@ -1,14 +1,26 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
-using UnityEngine.Assertions;
 using SocialPoint.Events;
 using SocialPoint.Attributes;
 
+public class ResourceException :Exception
+{
+    public ResourceException()
+    {
+    }
+
+    public ResourceException(string message) : base(message)
+    {
+    }
+
+    public ResourceException(string message, Exception inner) : base(message, inner)
+    {
+    }
+}
+
 public class ResourcePool : Dictionary<string,long>
 {
-
     public delegate void ResourceModifiedDelegate(ResourceOperation op);
 
     /// <summary>
@@ -19,7 +31,7 @@ public class ResourcePool : Dictionary<string,long>
     /// <summary>
     /// Initializes a new instance of the <see cref="ResourcePool"/> class.
     /// </summary>
-    public ResourcePool():base()
+    public ResourcePool() : base()
     {
     }
 
@@ -30,7 +42,7 @@ public class ResourcePool : Dictionary<string,long>
     ///     "gold": 20000
     ///  }
     /// </summary>
-    public ResourcePool(AttrDic data):this()
+    public ResourcePool(AttrDic data) : this()
     {
         Init(data);
     }
@@ -67,7 +79,10 @@ public class ResourcePool : Dictionary<string,long>
 
         set
         {
-            Assert.IsTrue(value >= 0, "value can't be negative");
+            if(value < 0)
+            {
+                throw new ResourceException("Value can't be negative");
+            }
             base[resource] = value;
             //TODO: fill with more data
             var op = new ResourceOperation();

@@ -66,7 +66,7 @@ public class ResourcePoolTests
         Assert.That(rp1["food"] == 15);
         rp1 -= rp2;
         Assert.That(rp1["food"] == 10);
-        Assert.Throws<UnityEngine.Assertions.AssertionException>(() => rp2 -= rp1);
+        Assert.Throws<ResourceException>(() => rp2 -= rp1);
     }
 
     [Test]
@@ -85,7 +85,7 @@ public class ResourcePoolTests
     {
         Loads_From_Attr();
         ResourcePool["food"] = 10;
-        Assert.Throws<UnityEngine.Assertions.AssertionException>(() => ResourcePool["food"] -= 20);
+        Assert.Throws<ResourceException>(() => ResourcePool["food"] -= 20);
     }
 
     [Test]
