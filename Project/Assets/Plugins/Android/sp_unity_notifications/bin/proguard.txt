@@ -1,0 +1,6 @@
+# view AndroidManifest.xml #generated:16
+-keep class es.socialpoint.androidnotifications.Notification { <init>(...); }
+
+# view AndroidManifest.xml #generated:17
+-keep class es.socialpoint.androidnotifications.Receiver { <init>(...); }
+

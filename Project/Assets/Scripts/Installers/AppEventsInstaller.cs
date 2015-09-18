@@ -1,6 +1,7 @@
 using Zenject;
 using System;
 using SocialPoint.AppEvents;
+using SocialPoint.AdminPanel;
 
 public class AppEventsInstaller : MonoInstaller
 {
@@ -11,5 +12,6 @@ public class AppEventsInstaller : MonoInstaller
             return;
         }
         Container.BindAllInterfacesToSingle<SocialPointAppEvents>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
 	}
 }

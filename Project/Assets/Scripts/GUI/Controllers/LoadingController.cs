@@ -10,7 +10,7 @@ using Zenject;
 public class LoadingController : GameLoadingController
 {
     [Inject]
-    public ILogin InjectLogin
+    ILogin injectLogin
     {
         set
         {
@@ -19,7 +19,7 @@ public class LoadingController : GameLoadingController
     }
 
     [Inject]
-    public PopupsController InjectPopups
+    PopupsController injectPopups
     {
         set
         {
@@ -28,7 +28,7 @@ public class LoadingController : GameLoadingController
     }
 
     [Inject]
-    public Localization InjectLocalization
+    Localization injectLocalization
     {
         set
         {
@@ -37,7 +37,7 @@ public class LoadingController : GameLoadingController
     }
 
     [Inject]
-    public IAlertView InjectAlertView
+    IAlertView injectAlertView
     {
         set
         {
@@ -46,7 +46,7 @@ public class LoadingController : GameLoadingController
     }
 
     [InjectOptional]
-    public ICrashReporter InjectCrashReporter
+    ICrashReporter injectCrashReporter
     {
         set
         {
@@ -55,7 +55,7 @@ public class LoadingController : GameLoadingController
     }
 
     [Inject]
-    public IParser<GameModel> GameParser;
+    IParser<GameModel> _gameParser;
 
     public string SceneToLoad = "Main";
 
@@ -74,7 +74,7 @@ public class LoadingController : GameLoadingController
     void OnLoginNewUser(Attr data, bool changed)
     {
         _parseModelOperation.UpdateProgress(0.1f, "parsing game model");
-        _model = GameParser.Parse(data);
+        _model = _gameParser.Parse(data);
         _parseModelOperation.FinishProgress("game model parsed");
     }
 

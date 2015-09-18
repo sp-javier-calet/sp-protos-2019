@@ -196,12 +196,17 @@ namespace SocialPoint.GameLoading
             case ErrorType.MaintenanceMode:
                 {
                     var popup = Popups.CreateChild<MaintenanceModePopupController>();
-                    var title = Login.Data.Maintenance.Title;
+                    string title = null;
+                    string message = null;
+                    if(Login.Data != null && Login.Data.Maintenance != null)
+                    {
+                        title = Login.Data.Maintenance.Title;
+                        message = Login.Data.Maintenance.Message;
+                    }
                     if(string.IsNullOrEmpty(title))
                     {
                         title = Localization.Get(MaintenanceModeTitleKey, MaintenanceModeTitleDef);
                     }
-                    string message = Login.Data.Maintenance.Message;
                     if(string.IsNullOrEmpty(message))
                     {
                         message = Localization.Get(MaintenanceModeMessageKey, MaintenanceModeMessageDef);

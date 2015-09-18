@@ -1,6 +1,7 @@
 ﻿using Zenject;
-using SocialPoint.Hardware;
 using System;
+using SocialPoint.Hardware;
+using SocialPoint.AdminPanel;
 
 public class HardwareInstaller : MonoInstaller
 {
@@ -41,5 +42,7 @@ public class HardwareInstaller : MonoInstaller
         Container.Bind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
         Container.Bind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
         Container.Bind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelHardware>();
 	}
 }
