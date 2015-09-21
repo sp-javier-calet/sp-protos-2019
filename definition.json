@@ -45,7 +45,8 @@
     "BuildReport": "v3.0.*"
   },
   "require_dev": {
-      "SocialPoint/Notifications/Ios": "fix/notifications",
-      "SocialPoint/Notifications/Android": "fix/notifications"
+      "SocialPoint/Notifications/Ios": "fix/definitions",
+      "SocialPoint/Notifications/Android": "fix/definitions",
+      "SocialPoint/Profiler": "fix/definitions"
   }
 }

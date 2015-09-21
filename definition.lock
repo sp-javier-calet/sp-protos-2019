@@ -44,7 +44,7 @@
         "SocialPoint/Alert/Ios"          : "5536eec36e505d7bc373a6025bc42ce1db506e8c",
         "SocialPoint/Alert/Android"      : "5536eec36e505d7bc373a6025bc42ce1db506e8c",
         "SocialPoint/Console"            : "806227a0c583f19a216b2834b105bb7071032e0f",
-        "SocialPoint/Profiler"           : "5536eec36e505d7bc373a6025bc42ce1db506e8c",
+        "SocialPoint/Profiler"           : "74534797c3292d7aa174e75e9eebc500630d1405",
         "SocialPoint/Tests"              : "ace2e6c7d0061ce7aef15aef830ad5e526ca4bc9",
         "SocialPoint/AppEvents/Tests"    : "806227a0c583f19a216b2834b105bb7071032e0f",
         "Unity/TestTools"                : "b4940124267d6f54cd567724c3c7f81f2e76882a",
