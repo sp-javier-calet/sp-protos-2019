@@ -130,7 +130,7 @@ namespace SocialPoint.Social
             {
                 foreach(var group in req.FilterGroups)
                 {
-                    filters.Add(new FBAppRequestFilterGroup(group.Name, group.UserIds));
+                    filters.Add(new FBAppRequestsFilterGroup(group.Name, group.UserIds));
                 }
             }
 

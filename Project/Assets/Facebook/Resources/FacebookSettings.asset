@@ -13,11 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectedAppIndex: 0
   appIds:
-  - 552673158114597
-  - 182473845211109
+  - 0
   appLabels:
-  - HelloSocialPoint
-  - Everyplay
+  - App Name
   cookie: 1
   logging: 1
   status: 1

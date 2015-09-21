@@ -11,8 +11,10 @@ namespace SocialPoint.Notifications
     public abstract class NotificationManager : IDisposable
     {
         public INotificationServices Services{ private set; get; }
+
         private IAppEvents _appEvents;
         private List<Notification> _notifications = new List<Notification>();
+
 
         public NotificationManager(MonoBehaviour behaviour, IAppEvents appEvents, ICommandQueue commandQueue)
         {
@@ -68,8 +70,11 @@ namespace SocialPoint.Notifications
             _appEvents.WasOnBackground -= OnComeFromBackground;
         }
 
-        protected abstract void AddGameNotifications();
+        protected virtual void AddGameNotifications()
+        {
+        }
 
+        [Obsolete("Use AddNotification(Notification notification)")]
         protected void AddNotification(string action, string message, DateTime dateTime, int numBadge = 0)
         {
             var ln = new Notification();
@@ -80,6 +85,7 @@ namespace SocialPoint.Notifications
             ln.IconBadgeNumber = numBadge;
         }
 
+        [Obsolete("Use AddNotification(Notification notification)")]
         protected void AddNotification(string action, string message, long timeStamp, int numBadge = 0)
         {
             AddNotification(action, message, TimeUtils.ToDateTime(timeStamp), numBadge);
