@@ -7,17 +7,17 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public AdminPanelLayout CreateVerticalLayout(int weight)
+        public VerticalLayout CreateVerticalLayout(int weight)
         {
             return new VerticalLayout(this, weight);
         }
 
-        public AdminPanelLayout CreateVerticalLayout()
+        public VerticalLayout CreateVerticalLayout()
         {
             return CreateVerticalLayout(1);
         }
 
-        private class VerticalLayout : AdminPanelLayout
+        public class VerticalLayout : AdminPanelLayout
         {
             public VerticalLayout(AdminPanelLayout parentLayout, int weight) : base(parentLayout)
             {

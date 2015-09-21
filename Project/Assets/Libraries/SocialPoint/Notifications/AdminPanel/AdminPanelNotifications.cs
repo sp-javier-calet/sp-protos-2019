@@ -9,6 +9,7 @@ namespace SocialPoint.Notifications
     public class AdminPanelNotifications : IAdminPanelConfigurer, IAdminPanelGUI
     {
         private INotificationServices _services;
+        AdminPanel.AdminPanel _adminPanel;
 
         public AdminPanelNotifications(INotificationServices services)
         {
@@ -21,6 +22,7 @@ namespace SocialPoint.Notifications
             {
                 return;
             }
+            _adminPanel = adminPanel;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Notifications", this));
 
             var cmd = new ConsoleCommand()
@@ -55,32 +57,41 @@ namespace SocialPoint.Notifications
         {
             layout.CreateLabel("Notification Services");
 
-            layout.CreateConfirmButton("Clear Local Notifications", () => {
+            layout.CreateButton("Clear Local Notifications", () => {
                 _services.ClearLocalNotifications();
             });
 
-            layout.CreateConfirmButton("Cancel Local Notifications", () => {
+            layout.CreateButton("Cancel Local Notifications", () => {
                 _services.CancelAllLocalNotifications();
             });
 
-            layout.CreateConfirmButton("Register Remote Notifications", () => {
+            layout.CreateButton("Register Remote Notifications", () => {
                 _services.RegisterForRemoteNotificationTypes();
             });
 
-            layout.CreateConfirmButton("Unregister Remote Notifications", () => {
+            layout.CreateButton("Unregister Remote Notifications", () => {
                 _services.UnregisterForRemoteNotifications();
             });
 
-            layout.CreateConfirmButton("Clear Remote Notifications", () => {
+            layout.CreateButton("Clear Remote Notifications", () => {
                 _services.ClearRemoteNotifications();
             });
 
-            layout.CreateConfirmButton("Register Local Notifications", () => {
+            layout.CreateButton("Register Local Notifications", () => {
                 _services.RegisterForLocalNotificationTypes();
             });
 
-            layout.CreateConfirmButton("Reset Badge Number", () => {
+            layout.CreateButton("Reset Badge Number", () => {
                 _services.ResetIconBadgeNumber();
+            });
+            layout.CreateButton("Set Test Notification", () => {
+                _adminPanel.Console.Print("A test notification should appear in 10 seconds.");
+                var notif = new Notification();
+                notif.AlertBody = "This is a test notification";
+                notif.AlertAction = "Test Action";
+                notif.IconBadgeNumber = 2;
+                notif.FireDate = DateTime.Now.AddSeconds(10);
+                _services.ScheduleLocalNotification(notif);
             });
         }
     }

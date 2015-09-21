@@ -16,7 +16,7 @@ namespace SocialPoint.Login
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
-            adminPanel.RegisterGUI("Login", this);
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Login", this));
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)

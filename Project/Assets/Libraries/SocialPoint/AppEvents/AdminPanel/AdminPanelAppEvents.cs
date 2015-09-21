@@ -33,7 +33,7 @@ namespace SocialPoint.AppEvents
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("App Events");
-            layout.CreateVerticalScrollLayout().CreateTextArea(_eventsLog, out _textComponent);
+            _textComponent = layout.CreateVerticalScrollLayout().CreateTextArea(_eventsLog);
             layout.CreateButton("Refresh", () => {
                 RefreshContent(); 
             });

@@ -6,7 +6,7 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public void CreateLabel(string label)
+        public Text CreateLabel(string label)
         {
             var rectTransform = CreateUIObject("Admin Panel - Label", Parent);
             
@@ -17,9 +17,11 @@ namespace SocialPoint.AdminPanel
             text.color = Color.white;
             text.alignment = TextAnchor.UpperCenter;
             
-            LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
+            var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;
             layoutElement.flexibleWidth = 1;
+
+            return text;
         }
     }
 }

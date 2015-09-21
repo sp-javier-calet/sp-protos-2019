@@ -22,7 +22,6 @@ namespace SocialPoint.Social
             LoggingIn,
             LoggedOut,
             LoggingOut,
-            LoginCancelled,
             Error
         }
 
@@ -107,14 +106,40 @@ namespace SocialPoint.Social
             }
         }
 
+        const string AppUsersValue = "app_users";
+        const string AppNonUsersValue = "app_non_users";
+
         public override void SendAppRequest(FacebookAppRequest req, FacebookAppRequestDelegate cbk = null)
         {
+#pragma warning disable 0618
+            var filters = req.Filters;
+#pragma warning restore 0618
+            if(filters == null)
+            {
+                filters = new List<object>();
+            }
+            if(req.Filter == FacebookAppRequest.FilterType.AppUsers)
+            {
+                filters.Add(AppUsersValue);
+            }
+            else if(req.Filter == FacebookAppRequest.FilterType.AppNonUsers)
+            {
+                filters.Add(AppNonUsersValue);
+            }
+            if(req.FilterGroups != null)
+            {
+                foreach(var group in req.FilterGroups)
+                {
+                    filters.Add(new FBAppRequestFilterGroup(group.Name, group.UserIds));
+                }
+            }
+
             FB.AppRequest
             (
                 req.Message,
                 req.To.Count > 0 ? req.To.ToArray() : null,
-                req.Filters,
-                req.ExcludeIds,
+                filters,
+                req.ExcludeIds == null ? null : req.ExcludeIds.ToArray(),
                 null,
                 req.AdditionalDataToString(),
                 req.Title,
@@ -459,17 +484,23 @@ namespace SocialPoint.Social
 
         void DoLogin(ErrorDelegate cbk, bool withUi)
         {
-            if(!withUi && FB.AccessToken == null)
+            if(!withUi && string.IsNullOrEmpty(FB.AccessToken))
             {
                 if(cbk != null)
                 {
                     var err = new Error(FacebookErrors.LoginNeedsUI, "Login needs ui.");
+                    State = States.LoggedOut;
                     cbk(err);
                 }
                 return;
             }
 
             _eventCallback += (epet) => OnLoginEnd(epet, cbk);
+
+
+            #if UNITY_EDITOR
+            _behaviour.StartCoroutine(CheckEditorLoginFail());
+            #endif
 
             FB.Login(string.Join(",", _loginPermissions.ToArray()), (FBResult response) => {
                 var err = new Error(response.Error);
@@ -479,6 +510,28 @@ namespace SocialPoint.Social
                 }
                 SessionCompletionHandler(err);
             });
+        }
+
+        IEnumerator CheckEditorLoginFail()
+        {
+            bool loaded = false;
+            while(_state == States.LoggingIn)
+            {
+                var token = GameObject.FindObjectOfType<EditorFacebookAccessToken>();
+                if(token == null)
+                {
+                    if(loaded)
+                    {
+                        var err = new Error(FacebookErrors.DialogCancelled, "Invalid editor login access token.");
+                        SessionCompletionHandler(err);
+                    }
+                    else
+                    {
+                        loaded = true;
+                    }
+                }
+                yield return new WaitForSeconds(0.5f);
+            }
         }
 
         public override void QueryGraph(FacebookGraphQuery query, FacebookGraphQueryDelegate cbk = null)

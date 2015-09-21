@@ -29,12 +29,12 @@ namespace SocialPoint.AdminPanel
          * Generic Button
          */
 
-        public void CreateButton(string label, Action onClick)
+        public Button CreateButton(string label, Action onClick)
         {
-            CreateButton(label, onClick, ButtonColor.Default);
+            return CreateButton(label, ButtonColor.Default, onClick);
         }
 
-        public void CreateButton(string label, Action onClick, ButtonColor buttonColor)
+        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
           
@@ -50,6 +50,8 @@ namespace SocialPoint.AdminPanel
             button.onClick.AddListener(() => { onClick(); });
             
             CreateButtonLabel(label, rectTransform);
+
+            return button;
         }
 
 
@@ -57,12 +59,12 @@ namespace SocialPoint.AdminPanel
          * Confirm Button
          */
 
-        public void CreateConfirmButton(string label, Action onClick)
+        public ConfirmActionButton CreateConfirmButton(string label, Action onClick)
         {
-            CreateConfirmButton(label, onClick, ButtonColor.Default);
+            return CreateConfirmButton(label, ButtonColor.Default, onClick);
         }
 
-        public void CreateConfirmButton(string label, Action onClick, ButtonColor buttonColor)
+        public ConfirmActionButton CreateConfirmButton(string label, ButtonColor buttonColor, Action onClick)
         {
             var rectTransform = CreateUIObject("Admin Panel - Confirm Button", Parent);
             
@@ -73,13 +75,15 @@ namespace SocialPoint.AdminPanel
             var image = rectTransform.gameObject.AddComponent<Image>();
             image.color = buttonColor.Color;
 
-            ConfirmActionButton confirm = rectTransform.gameObject.AddComponent<ConfirmActionButton>();
+            var confirm = rectTransform.gameObject.AddComponent<ConfirmActionButton>();
             confirm.ButtonImage = image;
             confirm.onSubmit = onClick;
 
             rectTransform.gameObject.AddComponent<EventTrigger>();
             
             CreateButtonLabel(label, rectTransform);
+
+            return confirm;
         }
 
         public class ConfirmActionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
@@ -150,17 +154,17 @@ namespace SocialPoint.AdminPanel
          * Open Panel Button
          */
 
-        public void CreateOpenPanelButton(string label, IAdminPanelGUI panel, ButtonColor buttonColor)
+        public Button CreateOpenPanelButton(string label, IAdminPanelGUI panel, ButtonColor buttonColor)
         {
-            CreateOpenPanelButton(label, panel, false, ButtonColor.Default);
+            return CreateOpenPanelButton(label, panel, false, ButtonColor.Default);
         }
 
-        public void CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel = false)
+        public Button CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel = false)
         {
-            CreateOpenPanelButton(label, panel, replacePanel, ButtonColor.Default);
+            return CreateOpenPanelButton(label, panel, replacePanel, ButtonColor.Default);
         }
 
-        public void CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel, ButtonColor buttonColor)
+        public Button CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel, ButtonColor buttonColor)
         {
             var rectTransform = CreateUIObject("Admin Panel - Open Panel Button", Parent);
             
@@ -186,6 +190,8 @@ namespace SocialPoint.AdminPanel
             
             CreateButtonLabel(label, rectTransform);
             CreateOpenPanelIndicator(rectTransform);
+
+            return button;
         }
 
 
@@ -194,12 +200,12 @@ namespace SocialPoint.AdminPanel
          * Toggle Button
          */
 
-        public void CreateToggleButton(string label, bool status, Action<bool> onToggle)
+        public Toggle CreateToggleButton(string label, bool status, Action<bool> onToggle)
         {
-            CreateToggleButton(label, status, onToggle, ButtonColor.Default);
+            return CreateToggleButton(label, status, ButtonColor.Default, onToggle);
         }
 
-        public void CreateToggleButton(string label, bool status, Action<bool> onToggle, ButtonColor buttonColor)
+        public Toggle CreateToggleButton(string label, bool status, ButtonColor buttonColor, Action<bool> onToggle)
         {
             var rectTransform = CreateUIObject("Admin Panel - Toggle Button", Parent);
             
@@ -249,6 +255,8 @@ namespace SocialPoint.AdminPanel
             });
             
             CreateButtonLabel(label, rectTransform);
+
+            return toggle;
         }
 
         /*

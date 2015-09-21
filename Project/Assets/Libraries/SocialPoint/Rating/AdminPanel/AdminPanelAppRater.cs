@@ -17,7 +17,7 @@ namespace SocialPoint.Rating
 
         public void OnConfigure(SocialPoint.AdminPanel.AdminPanel adminPanel)
         {
-            adminPanel.RegisterGUI("App Rater", this);
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("App Rater", this));
         }
 
         #endregion
@@ -29,7 +29,7 @@ namespace SocialPoint.Rating
             layout.CreateLabel("App Rater");
             layout.CreateMargin();
             layout.CreateLabel("App Rater Info");
-            layout.CreateTextArea(_appRater.ToString(), out _infoTextComponent);
+            _infoTextComponent = layout.CreateTextArea(_appRater.ToString());
             layout.CreateMargin();
             layout.CreateButton("Show rate view", () => {
                 _appRater.ShowRateView();

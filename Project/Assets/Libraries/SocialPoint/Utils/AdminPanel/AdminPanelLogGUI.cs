@@ -34,7 +34,7 @@ namespace SocialPoint.Utils
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("System Log");
-            layout.CreateVerticalScrollLayout().CreateTextArea(string.Empty, out _textComponent);
+            _textComponent = layout.CreateVerticalScrollLayout().CreateTextArea();
 
             // Configure text component for rich text
             _textComponent.supportRichText = true;

@@ -2,6 +2,7 @@ using UnityEngine;
 using Zenject;
 using System;
 using SocialPoint.Social;
+using SocialPoint.AdminPanel;
 
 public class FacebookInstaller : MonoInstaller
 {
@@ -28,5 +29,6 @@ public class FacebookInstaller : MonoInstaller
         {
             Container.Bind<IFacebook>().ToSingle<UnityFacebook>();
         }
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelFacebook>();
     }
 }

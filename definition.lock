@@ -66,7 +66,7 @@
         "SocialPoint/Notifications"      : "7cdd7cd443b4763445d39350bd055dd19fe9d1e5",
         "SocialPoint/Notifications/Android" : "7cdd7cd443b4763445d39350bd055dd19fe9d1e5",
         "SocialPoint/GameLoading"           : "7cdd7cd443b4763445d39350bd055dd19fe9d1e5",
-        "SocialPoint/AdminPanel"            : "7cdd7cd443b4763445d39350bd055dd19fe9d1e5",
+        "SocialPoint/AdminPanel"            : "9cab709eb5311fe3f970b06a370bd5394448f7bb",
         "SocialPoint/AppEvents/AdminPanel"  : "7cdd7cd443b4763445d39350bd055dd19fe9d1e5",
         "SocialPoint/Crash/AdminPanel"      : "7cdd7cd443b4763445d39350bd055dd19fe9d1e5",
         "SocialPoint/Hardware/AdminPanel"   : "7cdd7cd443b4763445d39350bd055dd19fe9d1e5",
@@ -280,6 +280,10 @@
         ],
         "SocialPoint/Notifications/Ios"  : [
             "SocialPoint/Notifications"
+        ],
+        "SocialPoint/AdminPanel"         : [
+            "SocialPoint/Console",
+            "SocialPoint/GUI"
         ]
     }
 }

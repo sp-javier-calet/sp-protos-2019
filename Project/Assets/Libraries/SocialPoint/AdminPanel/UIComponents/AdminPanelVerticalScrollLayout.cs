@@ -7,27 +7,26 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public AdminPanelLayout CreateVerticalScrollLayout(out ScrollRect consoleScroll)
+        public VerticalScrollLayout CreateVerticalScrollLayout(out ScrollRect consoleScroll)
         {
             var layout =  new VerticalScrollLayout(this, DefaultLayoutWeight);
             consoleScroll = layout.ScrollRect;
             return layout;
         }
 
-        public AdminPanelLayout CreateVerticalScrollLayout(int weight)
+        public VerticalScrollLayout CreateVerticalScrollLayout(int weight)
         {
             return new VerticalScrollLayout(this, weight);
         }
         
-        public AdminPanelLayout CreateVerticalScrollLayout()
+        public VerticalScrollLayout CreateVerticalScrollLayout()
         {
             return CreateVerticalScrollLayout(1);
         }
 
-        private class VerticalScrollLayout : AdminPanelLayout
+        public class VerticalScrollLayout : AdminPanelLayout
         {
             public  ScrollRect ScrollRect { get; private set; }
-
 
             public VerticalScrollLayout(AdminPanelLayout parentLayout, int weight) : base(parentLayout)
             {

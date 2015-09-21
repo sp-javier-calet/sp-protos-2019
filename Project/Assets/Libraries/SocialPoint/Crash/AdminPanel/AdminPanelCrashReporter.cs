@@ -27,8 +27,8 @@ namespace SocialPoint.Crash
             if(_breadcrumbs != null)
             {
                 layout.CreateLabel("Breadcrumbs");
-                layout.CreateVerticalScrollLayout()
-                    .CreateTextArea(_breadcrumbs.CurrentBreadcrumb, out _textAreaComponent);
+                _textAreaComponent = layout.CreateVerticalScrollLayout()
+                    .CreateTextArea(_breadcrumbs.CurrentBreadcrumb);
                 layout.CreateButton("Refresh", () => { UpdateBreadcrumbContent(); });
                 layout.CreateToggleButton("Last session breadcrumbs", _showOldBreadcrumbs, (value) => { 
                     _showOldBreadcrumbs = value; 
@@ -66,9 +66,9 @@ namespace SocialPoint.Crash
                 });
                 layout.CreateMargin(2);
 
-                layout.CreateConfirmButton("Force crash", () => {
+                layout.CreateConfirmButton("Force crash", ButtonColor.Red, () => {
                     _reporter.ForceCrash();
-                }, ButtonColor.Red);
+                });
             }
         }
 
