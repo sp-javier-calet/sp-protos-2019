@@ -28,12 +28,12 @@ namespace SocialPoint.Notifications
             }
             _appEvents = appEvents;
 
-#if UNITY_IOS
+#if UNITY_IOS && !UNITY_EDITOR
             Services = new IosNotificationServices(behaviour, commandQueue);
-#elif UNITY_ANDROID
-            _services = new AndroidNotificationServices();
+#elif UNITY_ANDROID && !UNITY_EDITOR
+            Services = new AndroidNotificationServices();
 #else
-            _services = new EmptyNotificationServices();
+            Services = new EmptyNotificationServices();
 #endif
             Init();
         }
@@ -103,7 +103,6 @@ namespace SocialPoint.Notifications
         private void OnGoToBackground()
         {
             AddGameNotifications();
-
             int numBadge = 0;
             foreach(var notif in _notifications)
             {

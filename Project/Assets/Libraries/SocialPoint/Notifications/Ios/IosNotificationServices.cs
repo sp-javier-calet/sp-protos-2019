@@ -4,12 +4,15 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.ServerSync;
 
+#if UNITY_IOS
 using LocalNotification = UnityEngine.iOS.LocalNotification;
 using NotificationServices = UnityEngine.iOS.NotificationServices;
 using NotificationType = UnityEngine.iOS.NotificationType;
+#endif
 
 namespace SocialPoint.Notifications
 {
+#if UNITY_IOS
     public class IosNotificationServices : INotificationServices
     {
         public delegate void DeviceTokenReceived();
@@ -21,8 +24,8 @@ namespace SocialPoint.Notifications
         private string _stringToken = null;
         private MonoBehaviour _behaviour;
         private ICommandQueue _commandQueue;                
-        private const NotificationType _notifyTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
         private const string TokenSeparator = "-";
+        private const NotificationType _notifyTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
 
         public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandQueue=null)
         {
@@ -113,4 +116,10 @@ namespace SocialPoint.Notifications
             NotificationServices.PresentLocalNotificationNow(unotif);
         }
     }
+
+#else
+    public class IosNotificationServices : EmptyNotificationServices
+    {
+    }
+#endif
 }

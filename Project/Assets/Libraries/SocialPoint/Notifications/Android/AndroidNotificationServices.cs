@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
+#if UNITY_ANDROID
     public class AndroidNotificationServices : INotificationServices
     {
         private const string PlayerNotificationId = "AndroidNotificationId";
@@ -14,16 +15,11 @@ namespace SocialPoint.Notifications
         private const string FullClassName = "es.socialpoint.androidnotifications.NotificationsManager";
 
         private List<int> _notifications = new List<int>();
-
-#if UNITY_ANDROID
         private AndroidJavaClass _notifClass = null;
-#endif
 
         public AndroidNotificationServices()
         {
-#if UNITY_ANDROID
             _notifClass = new AndroidJavaClass(FullClassName);
-#endif
             LoadPlayerPrefs();
         }
 
@@ -68,7 +64,6 @@ namespace SocialPoint.Notifications
         // Schedules a local notification
         public void Schedule(Notification notif)
         {
-#if UNITY_ANDROID
             var localTime = DateTime.Now.ToLocalTime();
             double delayTime = notif.FireDate.Subtract(localTime).TotalSeconds;
             delayTime = delayTime < 0 ? 0 : delayTime;
@@ -80,10 +75,9 @@ namespace SocialPoint.Notifications
                     notifId = id+1;
                 }
             }
-            _notifClass.CallStatic("CreateLocalNotification", AndroidContext.CurrentActivity, notif.AlertAction, notif.AlertBody, (long)delayTime, id, notif.RepeatingSeconds);
+            _notifClass.CallStatic("CreateLocalNotification", AndroidContext.CurrentActivity, notif.AlertAction, notif.AlertBody, (long)delayTime, notifId, notif.RepeatingSeconds);
             _notifications.Add(notifId);
             SavePlayerPrefs();
-#endif
         }
 
         // Discards of all received local notifications
@@ -92,21 +86,24 @@ namespace SocialPoint.Notifications
             _notifications.Clear();
             SavePlayerPrefs();
             // TODO TECH
-            //_notifClass.CallStatic("ClearRemoteNotifications", AndroidContext.CurrentActivity);
+            //_notifClass.CallStatic("ClearReceivedRemote", AndroidContext.CurrentActivity);
         }
 
         public void CancelPending()
         {
-#if UNITY_ANDROID
             var intArr = _notifications.ToArray();
             _notifClass.CallStatic("CancelAllLocalNotifications", AndroidContext.CurrentActivity, intArr);
-#endif
         }
 
         public void RegisterForRemote()
         {
             // TODO TECH
-            //_notifClass.CallStatic("RegisterForRemoteNotifications", AndroidContext.CurrentActivity, "AppName", "Email");
+            //_notifClass.CallStatic("RegisterForRemote", AndroidContext.CurrentActivity, "AppName", "Email");
         }
     }
+#else
+    public class AndroidNotificationServices : EmptyNotificationServices
+    {
+    }
+#endif
 }
