@@ -55,6 +55,15 @@ public class LoadingController : GameLoadingController
     }
 
     [Inject]
+    ILocalizationManager injectLocalizationManager
+    {
+        set
+        {
+            LocalizationManager = value;
+        }
+    }
+
+    [Inject]
     IParser<GameModel> _gameParser;
 
     public string SceneToLoad = "Main";
@@ -80,6 +89,7 @@ public class LoadingController : GameLoadingController
 
     protected override void AllOperationsLoaded()
     {
+        base.AllOperationsLoaded();
         ZenUtil.LoadScene(SceneToLoad, (DiContainer container) => container.BindInstance(_model));
     }
 

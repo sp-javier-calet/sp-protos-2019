@@ -11,7 +11,7 @@ using SocialPoint.Network;
 
 namespace SocialPoint.Locale
 {
-    public class LocalizationManager
+    public class LocalizationManager : ILocalizationManager
     {
         public class LocationData
         {
@@ -86,11 +86,12 @@ namespace SocialPoint.Locale
         private IHttpClient _httpClient;
         private IAppInfo _appInfo;
         private bool _running = false;
+        private IHttpConnection _httpConn;
 
         public bool WriteCsv = true;
         public const float DefaultTimeout = 20.0f;
         public float Timeout = DefaultTimeout;
-        public Action Loaded = null;
+        public event Action Loaded = delegate{};
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
@@ -191,19 +192,21 @@ namespace SocialPoint.Locale
             {
                 throw new ArgumentNullException("appInfo", "appInfo cannot be null or empty!");
             }
+            PathsManager.CallOnLoaded(Init);
         }
 
-        public void Start()
+        private void Init()
         {
             _running = true;
             _cachePath = Path.Combine(PathsManager.TemporaryCachePath, "localization");
             FileUtils.CreateDirectory(_cachePath);
             _bundlePath = Path.Combine(PathsManager.StreamingAssetsPath, BundleDir);
-
             LoadFallbackLanguage();
-
             LoadLanguage(CurrentLanguage);
-            
+        }
+
+        public void Load()
+        {
             #if UNITY_EDITOR
             DownloadSupportedLanguages(() => LoadLanguage(CurrentLanguage));
             #else
@@ -211,8 +214,19 @@ namespace SocialPoint.Locale
             #endif
         }
 
+        [Obsolete("Use Load()")]
+        public void Start()
+        {
+            Load();
+        }
+
         public void Stop()
         {
+            if(_httpConn != null)
+            {
+                _httpConn.Cancel();
+                _httpConn = null;
+            }
             _running = false;
         }
 
@@ -445,11 +459,12 @@ namespace SocialPoint.Locale
             request.AcceptCompressed = true;
             request.Timeout = Timeout;
 
-            _httpClient.Send(request, resp => OnLocalizationDownload(resp, lang, etag, finish));
+            _httpConn = _httpClient.Send(request, resp => OnLocalizationDownload(resp, lang, etag, finish));
         }
 
         void OnLocalizationDownload(HttpResponse resp, string lang, string oldEtag, Action finish)
         {
+            _httpConn = null;
             if(resp.StatusCode == (int)HttpResponse.StatusCodeType.NotModified || resp.HasError)
             {
                 if(finish != null)

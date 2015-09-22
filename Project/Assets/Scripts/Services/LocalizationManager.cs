@@ -4,7 +4,7 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
 
-class LocalizationManager : SocialPoint.Locale.LocalizationManager
+public class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {
     [Inject("locale_project_id")]
     string injectProjectId
@@ -73,12 +73,6 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
     public LocalizationManager(IHttpClient client, IAppInfo appInfo):
         base(client, appInfo)
     {
-    }
-
-    [PostInject]
-    void PostInject()
-    {
-        Start();
     }
 
 }
