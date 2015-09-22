@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SocialPoint.Base
@@ -10,7 +9,7 @@ namespace SocialPoint.Base
 
         public static void RotateYToDir(this Transform transform, Vector3 dir, float stepSize)
         {
-            float angle = TransformExtension.GetYAngleToDir(transform, dir.normalized);
+            float angle = transform.GetYAngleToDir(dir.normalized);
 
             RotateY(transform, angle * stepSize);
         }
@@ -18,7 +17,7 @@ namespace SocialPoint.Base
         public static void RotateYToPoint(this Transform transform, Vector3 point, float stepSize)
         {
             Vector3 dir = point - transform.position;
-            float angle = TransformExtension.GetYAngleToDir(transform, dir.normalized);
+            float angle = transform.GetYAngleToDir(dir.normalized);
             
             RotateY(transform, angle * stepSize);
         }
@@ -33,7 +32,7 @@ namespace SocialPoint.Base
         public static float GetYAngleToPoint(this Transform transform, Vector3 point)
         {
             Vector3 dir = point - transform.position;
-            float angle = TransformExtension.GetYAngleToDir(transform, dir.normalized);
+            float angle = transform.GetYAngleToDir(dir.normalized);
 
             return angle;
         }
@@ -64,7 +63,7 @@ namespace SocialPoint.Base
 
             for(int k = 0; k < transforms.Count(); k++)
             {
-                Transform atrans = transforms[k] as Transform;
+                var atrans = transforms[k] as Transform;
                 if(atrans.name == name)
                 {
                     return atrans;
