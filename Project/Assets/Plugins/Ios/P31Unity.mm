@@ -18,7 +18,11 @@ extern "C" {
 }
 #endif
 
+#if UNITY_VERSION < 500
 void UnityPause( bool pause );
+#else
+void UnityPause( int pause );
+#endif
 
 
 @implementation P31Unity

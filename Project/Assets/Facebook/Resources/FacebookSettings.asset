@@ -13,9 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectedAppIndex: 0
   appIds:
-  - 0
+  - 552673158114597
   appLabels:
-  - App Name
+  - HelloSocialPoint
   cookie: 1
   logging: 1
   status: 1
