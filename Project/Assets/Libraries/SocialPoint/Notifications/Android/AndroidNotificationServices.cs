@@ -66,7 +66,7 @@ namespace SocialPoint.Notifications
         }
                 
         // Schedules a local notification
-        public void ScheduleLocalNotification(Notification notif)
+        public void Schedule(Notification notif)
         {
 #if UNITY_ANDROID
             var localTime = DateTime.Now.ToLocalTime();
@@ -87,22 +87,15 @@ namespace SocialPoint.Notifications
         }
 
         // Discards of all received local notifications
-        public void ClearLocalNotifications()
+        public void ClearReceived()
         {
             _notifications.Clear();
             SavePlayerPrefs();
+            // TODO TECH
+            //_notifClass.CallStatic("ClearRemoteNotifications", AndroidContext.CurrentActivity);
         }
 
-        // Cancels the delivery of the specified scheduled local notification
-        public void CancelLocalNotification(Notification notif)
-        {
-#if UNITY_ANDROID
-            _notifClass.CallStatic("CancelLocalNotification", AndroidContext.CurrentActivity, 0);
-#endif
-        }
-        
-        // Cancels the delivery of all scheduled local notifications
-        public void CancelAllLocalNotifications()
+        public void CancelPending()
         {
 #if UNITY_ANDROID
             var intArr = _notifications.ToArray();
@@ -110,30 +103,10 @@ namespace SocialPoint.Notifications
 #endif
         }
 
-        public void RegisterForRemoteNotificationTypes()
+        public void RegisterForRemote()
         {
             // TODO TECH
             //_notifClass.CallStatic("RegisterForRemoteNotifications", AndroidContext.CurrentActivity, "AppName", "Email");
-        }
-
-        public void UnregisterForRemoteNotifications()
-        {
-            // TODO TECH
-            //_notifClass.CallStatic("UnregisterForRemoteNotifications", AndroidContext.CurrentActivity, "AppName");
-        }
-
-        public void ClearRemoteNotifications()
-        {
-            // TODO TECH
-            //_notifClass.CallStatic("ClearRemoteNotifications", AndroidContext.CurrentActivity);
-        }
-
-        public void RegisterForLocalNotificationTypes()
-        {
-        }
-
-        public void ResetIconBadgeNumber()
-        {
         }
     }
 }

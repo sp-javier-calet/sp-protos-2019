@@ -103,9 +103,9 @@ namespace SocialPoint.Social
             AdditionalData = new AttrDic();
         }
         
-        public string AdditionalDataToString()
+        public string AdditionalDataJson()
         {
-            return AdditionalData.ToString();
+            return new JsonAttrSerializer().SerializeString(AdditionalData);
         }
     }
 
@@ -293,7 +293,7 @@ namespace SocialPoint.Social
                 return string.Empty;
             }
             
-            AttrList list = new AttrList();
+            var list = new AttrList();
             for(int k = 0; k < Actions.Count; k++)
             {
                 FacebookWallPostAction data = Actions[k];
@@ -303,7 +303,7 @@ namespace SocialPoint.Social
                 list.Add(dic);
             }
             
-            return list.ToString();
+            return new JsonAttrSerializer().SerializeString(list);
         }
 
         public override string ToString()

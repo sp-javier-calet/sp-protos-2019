@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
@@ -9,7 +10,10 @@ namespace SocialPoint.Notifications
     public class AdminPanelNotifications : IAdminPanelConfigurer, IAdminPanelGUI
     {
         private INotificationServices _services;
-        AdminPanel.AdminPanel _adminPanel;
+        private AdminPanel.AdminPanel _adminPanel;
+        private InputField _messageInput;
+        private InputField _actionInput;
+        private InputField _secondsInput;
 
         public AdminPanelNotifications(INotificationServices services)
         {
@@ -57,41 +61,42 @@ namespace SocialPoint.Notifications
         {
             layout.CreateLabel("Notification Services");
 
-            layout.CreateButton("Clear Local Notifications", () => {
-                _services.ClearLocalNotifications();
+            layout.CreateButton("Clear Received", () => {
+                _services.ClearReceived();
             });
 
-            layout.CreateButton("Cancel Local Notifications", () => {
-                _services.CancelAllLocalNotifications();
+            layout.CreateButton("Cancel Pending", () => {
+                _services.CancelPending();
             });
 
-            layout.CreateButton("Register Remote Notifications", () => {
-                _services.RegisterForRemoteNotificationTypes();
+            layout.CreateButton("Register For Remote", () => {
+                _services.RegisterForRemote();
             });
 
-            layout.CreateButton("Unregister Remote Notifications", () => {
-                _services.UnregisterForRemoteNotifications();
-            });
+            layout.CreateMargin();
 
-            layout.CreateButton("Clear Remote Notifications", () => {
-                _services.ClearRemoteNotifications();
-            });
+            layout.CreateLabel("Test Notification");
 
-            layout.CreateButton("Register Local Notifications", () => {
-                _services.RegisterForLocalNotificationTypes();
-            });
+            var flayout = layout.CreateHorizontalLayout();
+            flayout.CreateFormLabel("Message");
+            _messageInput = flayout.CreateTextInput("This is a test notification.");
+            flayout = layout.CreateHorizontalLayout();
+            flayout.CreateFormLabel("Action");
+            _actionInput = flayout.CreateTextInput("Test Action");
+            flayout = layout.CreateHorizontalLayout();
+            flayout.CreateFormLabel("Fire seconds");
+            _secondsInput = flayout.CreateTextInput("10");
 
-            layout.CreateButton("Reset Badge Number", () => {
-                _services.ResetIconBadgeNumber();
-            });
-            layout.CreateButton("Set Test Notification", () => {
-                _adminPanel.Console.Print("A test notification should appear in 10 seconds.");
+            layout.CreateButton("Set Notification", () => {
                 var notif = new Notification();
-                notif.AlertBody = "This is a test notification";
-                notif.AlertAction = "Test Action";
-                notif.IconBadgeNumber = 2;
-                notif.FireDate = DateTime.Now.AddSeconds(10);
-                _services.ScheduleLocalNotification(notif);
+                notif.AlertBody = _messageInput.text;
+                notif.AlertAction = _actionInput.text;
+                notif.IconBadgeNumber = 1;
+                int secs = 10;
+                int.TryParse(_secondsInput.text, out secs);
+                notif.FireDate = DateTime.Now.AddSeconds(secs);
+                _services.Schedule(notif);
+                _adminPanel.Console.Print(string.Format("A test notification should appear in {0} seconds.", secs));
             });
         }
     }

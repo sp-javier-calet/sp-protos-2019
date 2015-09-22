@@ -23,5 +23,12 @@ namespace SocialPoint.AdminPanel
 
             return text;
         }
+
+        public Text CreateFormLabel(string label)
+        {
+            var text = CreateLabel(label);
+            text.GetComponent<LayoutElement>().flexibleWidth = 0;
+            return text;
+        }
     }
 }

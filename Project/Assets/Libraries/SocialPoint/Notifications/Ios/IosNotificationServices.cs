@@ -20,7 +20,9 @@ namespace SocialPoint.Notifications
         private byte[] _byteToken = null;
         private string _stringToken = null;
         private MonoBehaviour _behaviour;
-        private ICommandQueue _commandQueue;
+        private ICommandQueue _commandQueue;                
+        private const NotificationType _notifyTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
+        private const string TokenSeparator = "-";
 
         public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandQueue=null)
         {
@@ -30,9 +32,10 @@ namespace SocialPoint.Notifications
             }
             _behaviour = behaviour;
             _commandQueue = commandQueue;
+            RegisterForLocal();
         }
 
-        public void ScheduleLocalNotification(Notification notif)
+        public void Schedule(Notification notif)
         {
             var unotif = new LocalNotification();
             unotif.fireDate = notif.FireDate;
@@ -52,17 +55,23 @@ namespace SocialPoint.Notifications
             }
         }
 
-        public void ClearLocalNotifications()
-        {
-            NotificationServices.ClearLocalNotifications();
-        }
-
-        public void CancelAllLocalNotifications()
+        public void CancelPending()
         {
             NotificationServices.CancelAllLocalNotifications();
         }
 
-        const string TokenSeparator = "-";
+        public void RegisterForRemote()
+        {
+            NotificationServices.RegisterForNotifications(_notifyTypes, true);
+            _behaviour.StartCoroutine(CheckDeviceToken());
+        }
+        
+        public void ClearReceived()
+        {
+            NotificationServices.ClearRemoteNotifications();
+            NotificationServices.ClearLocalNotifications();
+            ResetIconBadgeNumber();
+        }       
 
         private IEnumerator CheckDeviceToken()
         {
@@ -88,30 +97,13 @@ namespace SocialPoint.Notifications
             }
         }
 
-        const NotificationType _notifyTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
 
-        public void RegisterForRemoteNotificationTypes()
-        {
-            NotificationServices.RegisterForNotifications(_notifyTypes, true);
-            _behaviour.StartCoroutine(CheckDeviceToken());
-        }
-
-        public void UnregisterForRemoteNotifications()
-        {
-            NotificationServices.UnregisterForRemoteNotifications();
-        }
-
-        public void ClearRemoteNotifications()
-        {
-            NotificationServices.ClearRemoteNotifications();
-        }
-
-        public void RegisterForLocalNotificationTypes()
+        private void RegisterForLocal()
         {
             NotificationServices.RegisterForNotifications(_notifyTypes, false);
         }
 
-        public void ResetIconBadgeNumber()
+        private void ResetIconBadgeNumber()
         {
             //This is supposed to  remove the Icon Badge Number: http://forum.unity3d.com/threads/using-the-new-notification-system.127016/
             var unotif = new LocalNotification();

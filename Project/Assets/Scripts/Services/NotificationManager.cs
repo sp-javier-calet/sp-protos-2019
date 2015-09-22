@@ -15,7 +15,7 @@ public class NotificationManager : SocialPoint.Notifications.NotificationManager
     override protected void AddGameNotifications()
     {
         var notify = new Notification();
-        notify.AlertBody = "Hello this is a test notification.";
+        notify.AlertBody = "This is a notification manager notification.";
         notify.FireDate = DateTime.Now.AddSeconds(10);
         AddNotification(notify);
     }

@@ -108,15 +108,13 @@ std::queue<std::string> _pendingEvents;
 
     [self clearSource];
 
-    if (&UIApplicationLaunchOptionsLocalNotificationKey != nil)
+
+    UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    if (notification)
     {
-        UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-        if (notification)
-        {
-            /* Notice that all event processing must be synchronous,
-             * since the Source could change if there are any other  notification event */
-            [self storeSourceOptions:notification.userInfo withScheme:@"local"];
-        }
+        /* Notice that all event processing must be synchronous,
+         * since the Source could change if there are any other  notification event */
+        [self storeSourceOptions:notification.userInfo withScheme:@"local"];
     }
 
     [self notifyStatus:kStatusUpdateSource];
@@ -168,12 +166,8 @@ std::queue<std::string> _pendingEvents;
 - (void)applicationWillResignActive:(UIApplication*)application
 {
     [self notifyStatus:kStatusWillGoBackground];
-
     //aditional game loop to allow scripts response before being paused
-    if(_unityAppReady)
-    {
-        UnityPlayerLoop();
-    }
+    UnityBatchPlayerLoop();
     [super applicationWillResignActive:application];
 }
 

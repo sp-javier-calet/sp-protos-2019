@@ -57,15 +57,11 @@ namespace SocialPoint.Notifications
             }
             _appEvents.WillGoBackground += OnGoToBackground;
             _appEvents.WasOnBackground += OnComeFromBackground;
-            
-            Services.RegisterForLocalNotificationTypes();
-            Services.RegisterForRemoteNotificationTypes();            
-            ResetAllLocalNotifications();
+            Reset();
         }
 
         public void Dispose()
         {
-            Services.UnregisterForRemoteNotifications();
             _appEvents.WillGoBackground -= OnGoToBackground;
             _appEvents.WasOnBackground -= OnComeFromBackground;
         }
@@ -96,21 +92,16 @@ namespace SocialPoint.Notifications
             _notifications.Add(notification);
         }
 
-        private void ResetAllLocalNotifications()
+        private void Reset()
         {
-            //Cancel all notifications
-            Services.CancelAllLocalNotifications();
-            //Clear all notifications
-            Services.ClearLocalNotifications();
+            Services.CancelPending();
+            Services.ClearReceived();
         }
 
         #region App Events
 
         private void OnGoToBackground()
         {
-            // Reset icon badge. This avoids conflict with app source
-            Services.ResetIconBadgeNumber();
-
             AddGameNotifications();
 
             int numBadge = 0;
@@ -119,14 +110,14 @@ namespace SocialPoint.Notifications
                 //Using the previous seted Number, I know wether I have to add a +1 to this notification or not
                 numBadge += notif.IconBadgeNumber;
                 notif.IconBadgeNumber = numBadge;
-                Services.ScheduleLocalNotification(notif);
+                Services.Schedule(notif);
             }
             _notifications.Clear();
         }
 
         private void OnComeFromBackground()
         {
-            ResetAllLocalNotifications();
+            Reset();
         }
 
         #endregion

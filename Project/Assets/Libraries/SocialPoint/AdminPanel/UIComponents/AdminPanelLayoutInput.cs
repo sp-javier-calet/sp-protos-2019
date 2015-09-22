@@ -83,7 +83,7 @@ namespace SocialPoint.AdminPanel
             return input;
         }
 
-        public InputField CreateTextInput(string placeholder, Action<string> onSubmit)
+        public InputField CreateTextInput(string placeholder, Action<string> onSubmit = null)
         {
             return CreateTextInput(placeholder, onSubmit, null);
         }

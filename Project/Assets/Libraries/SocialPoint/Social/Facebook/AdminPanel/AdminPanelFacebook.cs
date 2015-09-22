@@ -158,7 +158,6 @@ namespace SocialPoint.Social
 
             layout.CreateButton("Send App Request", () => {
                 var req = new FacebookAppRequest();
-                req.Message = "test app request";
                 _facebook.SendAppRequest(req, (_, err) => {
                     PrintError("sending app request", err);
                 });
@@ -166,7 +165,6 @@ namespace SocialPoint.Social
 
             layout.CreateButton("Post on Wall", () => {
                 var post = new FacebookWallPost();
-                post.Message = "test wall post";
                 _facebook.PostOnWallWithDialog(post, (_, err) => {
                     PrintError("posting on wall", err);
                 });

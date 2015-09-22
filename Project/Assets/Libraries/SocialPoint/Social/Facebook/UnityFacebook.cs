@@ -136,13 +136,13 @@ namespace SocialPoint.Social
 
             FB.AppRequest
             (
-                req.Message,
+                req.Message == null ? string.Empty : req.Message,
                 req.To.Count > 0 ? req.To.ToArray() : null,
                 filters,
                 req.ExcludeIds == null ? null : req.ExcludeIds.ToArray(),
                 null,
-                req.AdditionalDataToString(),
-                req.Title,
+                req.AdditionalDataJson(),
+                req.Title == null ? string.Empty : req.Title,
                 (FBResult response) =>
             {
                 Error err = null;
@@ -170,7 +170,7 @@ namespace SocialPoint.Social
         public override void PostOnWallWithDialog(FacebookWallPost post, FacebookWallPostDelegate cbk = null)
         {
             string userId = post.To;
-            if(userId == "me")
+            if(userId == "me" || userId == null)
             {
                 userId = string.Empty;
             }
@@ -178,11 +178,11 @@ namespace SocialPoint.Social
             FB.Feed
             (
                 userId,
-                post.Link,
-                post.Name,
-                post.Caption,
-                post.Description,
-                post.Picture,
+                post.Link == null ? string.Empty : post.Link,
+                post.Name == null ? string.Empty : post.Name,
+                post.Caption == null ? string.Empty : post.Caption,
+                post.Description == null ? string.Empty : post.Description,
+                post.Picture == null ? string.Empty : post.Picture,
                 string.Empty,
                 post.GetActionsJson(),
                 string.Empty,

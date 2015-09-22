@@ -15,7 +15,6 @@ namespace SocialPoint.AdminPanel
             layoutElement.preferredHeight = size.y;           
             var image = rectTransform.gameObject.AddComponent<RawImage>();
             image.texture = texture;
-            image.color = BackgroundColor;
             return image;
         }
 
