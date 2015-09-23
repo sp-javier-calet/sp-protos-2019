@@ -28,12 +28,12 @@ namespace SocialPoint.Locale
             public const string DefaultEnvironmentId = ProdEnvironmentId;
             public const string DefaultSecretKey = "wetd46pWuR8J5CmS";
                         
-            private const string UrlFormat = "http://sp-translations.socialpointgames.com/deploy/<PROJ>/<PLAT>/<ENV>/<PROJ>_<PLAT>_<LANG>_<ENV>_<KEY>.json";
-            private const string ProjectIdPlaceholder = "<PROJ>";
-            private const string PlatformPlaceholder = "<PLAT>";
-            private const string EnvionmentIdPlaceholder = "<ENV>";
-            private const string SecretKeyPlaceholder = "<KEY>";
-            private const string LanguagePlaceholder = "<LANG>";
+            const string UrlFormat = "http://sp-translations.socialpointgames.com/deploy/<PROJ>/<PLAT>/<ENV>/<PROJ>_<PLAT>_<LANG>_<ENV>_<KEY>.json";
+            const string ProjectIdPlaceholder = "<PROJ>";
+            const string PlatformPlaceholder = "<PLAT>";
+            const string EnvionmentIdPlaceholder = "<ENV>";
+            const string SecretKeyPlaceholder = "<KEY>";
+            const string LanguagePlaceholder = "<LANG>";
             
             public string ProjectId = DefaultProjectId;
             public string EnvironmentId = DefaultEnvironmentId;
@@ -56,11 +56,11 @@ namespace SocialPoint.Locale
             }
         }
 
-        private const string JsonExtension = ".json";
-        private const string EtagHeader = "Etag";
-        private const string IfNoneMatchHeader = "If-None-Match";
-        private const string FilePrefixFormat = "<PROJ>_localization_<PLAT>_<ENV>_<LANG>_";
-        private const string CsvSeparator = ",";
+        const string JsonExtension = ".json";
+        const string EtagHeader = "Etag";
+        const string IfNoneMatchHeader = "If-None-Match";
+        const string FilePrefixFormat = "<PROJ>_localization_<PLAT>_<ENV>_<LANG>_";
+        const string CsvSeparator = ",";
 
         public const string SimplifiedChineseServerIdentifier = "zh";
         public const string TraditionalChineseServerIdentifier = "tw";
