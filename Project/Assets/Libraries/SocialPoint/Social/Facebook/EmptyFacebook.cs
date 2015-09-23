@@ -54,14 +54,6 @@ namespace SocialPoint.Social
             }
         }
 
-        public override bool HasError
-        {
-            get
-            {
-                return false;
-            }
-        }
-
         public override string AppId
         {   
             set

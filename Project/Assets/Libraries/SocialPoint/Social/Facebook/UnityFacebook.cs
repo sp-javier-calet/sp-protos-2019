@@ -16,33 +16,7 @@ namespace SocialPoint.Social
     {
         static string GraphApiVersion = "v2.0";
 
-        public enum States
-        {
-            LoggedIn,
-            LoggingIn,
-            LoggedOut,
-            LoggingOut,
-            Error
-        }
-
-        private States _state = States.LoggedOut;
-
-        public States State
-        {
-            get
-            {
-                return _state;
-            }
-            private set
-            {
-                if(_state != value)
-                {
-                    _state = value;
-                    NotifyStateChanged();
-                }
-            }
-        }
-
+        private bool _connecting = false;
         private FacebookUser _user;
         private uint _loginRetries;
         private uint _maxLoginRetries = 3;
@@ -50,8 +24,6 @@ namespace SocialPoint.Social
         private List<string> _loginPermissions = new List<string>();
         private Dictionary<string, string> _userPermissions;
         private MonoBehaviour _behaviour;
-
-        private event ErrorDelegate _eventCallback;
 
         public UnityFacebook(MonoBehaviour behaviour)
         {
@@ -70,7 +42,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return State == States.LoggedIn;
+                return FB.IsLoggedIn;
             }
         }
 
@@ -78,15 +50,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return State == States.LoggingIn || State == States.LoggingOut;
-            }
-        }
-
-        public override bool HasError
-        {
-            get
-            {
-                return State == States.Error;
+                return _connecting;
             }
         }
 
@@ -109,8 +73,19 @@ namespace SocialPoint.Social
         const string AppUsersValue = "app_users";
         const string AppNonUsersValue = "app_non_users";
 
+        public uint UserPhotoSize = 100;
+
         public override void SendAppRequest(FacebookAppRequest req, FacebookAppRequestDelegate cbk = null)
         {
+            if(!IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(req, new Error("Facebook is not logged in"));
+                }
+                return;
+            }
+
 #pragma warning disable 0618
             var filters = req.Filters;
 #pragma warning restore 0618
@@ -169,6 +144,14 @@ namespace SocialPoint.Social
 
         public override void PostOnWallWithDialog(FacebookWallPost post, FacebookWallPostDelegate cbk = null)
         {
+            if(!IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(post, new Error("Facebook is not logged in"));
+                }
+                return;
+            }
             string userId = post.To;
             if(userId == "me" || userId == null)
             {
@@ -224,6 +207,14 @@ namespace SocialPoint.Social
        
         public override void AskForPermissions(List<string> permissions, FacebookPermissionsDelegate cbk = null)
         {
+            if(!IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(new Dictionary<string,string>(), new Error("Facebook is not logged in"));
+                }
+                return;
+            }
             var allPermissions = _userPermissions;
             Error err = null;
             if(!HasPermissions(permissions))
@@ -236,19 +227,6 @@ namespace SocialPoint.Social
             }
         }
 
-        void SessionCompletionHandler(Error err)
-        {
-            if(State == States.LoggingIn)
-            {
-                DidLogin(err, _eventCallback);
-            }
-            else if(State == States.LoggingOut)
-            {
-                DidLogout(err, _eventCallback);
-            }
-            _eventCallback = null;
-        }
-
         void DidLogin(Error err, ErrorDelegate cbk)
         {
             if(!Error.IsNullOrEmpty(err))
@@ -258,15 +236,10 @@ namespace SocialPoint.Social
                     _loginRetries++;
                     FB.Logout();
                     DoLogin(cbk, true);
-                    return;
                 }
                 else
                 {
-                    State = States.Error;
-                }
-                if(cbk != null)
-                {
-                    cbk(err);
+                    OnLoginEnd(err, cbk);
                 }
             }
             else
@@ -277,15 +250,11 @@ namespace SocialPoint.Social
 
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
-            if(!Error.IsNullOrEmpty(err))
+            _connecting = false;
+            if(IsConnected)
             {
-                State = States.Error;
+                NotifyStateChanged();
             }
-            else
-            {
-                State = States.LoggedIn;
-            }
-
             if(cbk != null)
             {
                 cbk(err);
@@ -296,13 +265,9 @@ namespace SocialPoint.Social
         {
             _user = new FacebookUser();
             _friends.Clear();
-            if(!Error.IsNullOrEmpty(err))
+            if(!IsConnected)
             {
-                State = States.Error;
-            }
-            else
-            {
-                State = States.LoggedOut;
+                NotifyStateChanged();
             }
             if(cbk != null)
             {
@@ -413,7 +378,6 @@ namespace SocialPoint.Social
 
         void GetLoginFriendsInfo(string path, ErrorDelegate cbk)
         {
-
             var s = UserPhotoSize;
             var uri = GraphApiVersion + path;
             uri += "?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
@@ -444,35 +408,7 @@ namespace SocialPoint.Social
 
         public override void Login(ErrorDelegate cbk = null, bool withUi = true)
         {
-            if(State == States.LoggedIn)
-            {
-                if(cbk != null)
-                {
-                    cbk(null);
-                }
-                return;
-            }
-            else if(State != States.LoggedOut && State != States.Error)
-            {
-                if(cbk != null)
-                {
-                    Error err = null;
-                    if(State == States.LoggingIn)
-                    {
-                        err = new Error("Currently logging in.");
-                    }
-                    if(State == States.LoggingOut)
-                    {
-                        err = new Error("Currently logging out.");
-                    }
-                    cbk(err);
-                }
-                return;
-            }
-
-            State = States.LoggingIn;
-
-            if(!string.IsNullOrEmpty(FB.AppId))
+            if(FB.IsInitialized)
             {
                 DoLogin(cbk, withUi);
             }
@@ -484,22 +420,28 @@ namespace SocialPoint.Social
 
         void DoLogin(ErrorDelegate cbk, bool withUi)
         {
+            if(IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(null);
+                }
+                return;
+            }
             if(!withUi && string.IsNullOrEmpty(FB.AccessToken))
             {
                 if(cbk != null)
                 {
                     var err = new Error(FacebookErrors.LoginNeedsUI, "Login needs ui.");
-                    State = States.LoggedOut;
                     cbk(err);
                 }
                 return;
             }
 
-            _eventCallback += (epet) => OnLoginEnd(epet, cbk);
-
+            _connecting = true;
 
             #if UNITY_EDITOR
-            _behaviour.StartCoroutine(CheckEditorLoginFail());
+            _behaviour.StartCoroutine(CheckEditorLoginFail(cbk));
             #endif
 
             FB.Login(string.Join(",", _loginPermissions.ToArray()), (FBResult response) => {
@@ -508,14 +450,14 @@ namespace SocialPoint.Social
                 {
                     err = new Error(FacebookErrors.DialogCancelled, "Login cancelled.");
                 }
-                SessionCompletionHandler(err);
+                DidLogin(err, cbk);
             });
         }
 
-        IEnumerator CheckEditorLoginFail()
+        IEnumerator CheckEditorLoginFail(ErrorDelegate cbk)
         {
             bool loaded = false;
-            while(_state == States.LoggingIn)
+            while(_connecting)
             {
                 var token = GameObject.FindObjectOfType<EditorFacebookAccessToken>();
                 if(token == null)
@@ -523,7 +465,7 @@ namespace SocialPoint.Social
                     if(loaded)
                     {
                         var err = new Error(FacebookErrors.DialogCancelled, "Invalid editor login access token.");
-                        SessionCompletionHandler(err);
+                        DidLogin(err, cbk);
                     }
                     else
                     {
@@ -571,35 +513,11 @@ namespace SocialPoint.Social
 
         public override void Logout(ErrorDelegate cbk = null)
         {
-            if(State == States.LoggedOut)
+            if(FB.IsLoggedIn)
             {
-                if(cbk != null)
-                {
-                    cbk(null);
-                }
-                return;
+                FB.Logout();
             }
-            else if(State != States.LoggedIn && State != States.Error)
-            {
-                if(cbk != null)
-                {
-                    Error err = null;
-                    if(State == States.LoggingIn)
-                    {
-                        err = new Error("Currently logging in.");
-                    }
-                    if(State == States.LoggingOut)
-                    {
-                        err = new Error("Currently logging out.");
-                    }
-                    cbk(err);
-                }
-                return;
-            }
-            State = States.LoggingOut;
-            _eventCallback = cbk;
-            FB.Logout();
-            SessionCompletionHandler(null);
+            DidLogout(null, cbk);
         }
 
         public override string AppId
@@ -610,7 +528,7 @@ namespace SocialPoint.Social
             }
         }
 
-        private IEnumerator LoadPhotoFromUrlCorroutine(string url, FacebookPhotoDelegate cbk = null)
+        private IEnumerator LoadPhotoFromUrlCoroutine(string url, FacebookPhotoDelegate cbk = null)
         {
             var www = new WWW(url);
             yield return www;
@@ -622,7 +540,7 @@ namespace SocialPoint.Social
 
         private void LoadPhotoFromUrl(string url, FacebookPhotoDelegate cbk = null)
         {
-            _behaviour.StartCoroutine(LoadPhotoFromUrlCorroutine(url, cbk));
+            _behaviour.StartCoroutine(LoadPhotoFromUrlCoroutine(url, cbk));
         }
 
         public override void LoadPhoto(string userId, FacebookPhotoDelegate cbk = null)

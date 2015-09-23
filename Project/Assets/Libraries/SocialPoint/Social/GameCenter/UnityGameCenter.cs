@@ -11,14 +11,6 @@ namespace SocialPoint.Social
 {
     public class UnityGameCenter : BaseGameCenter
     {
-        public enum States
-        {
-            LoggedIn,
-            LoggingIn,
-            LoggedOut,
-            Error
-        }
-        
         private readonly static string PhotosCacheFolder = "GameCenter";
         private GameCenterUser _user;
 
@@ -36,24 +28,8 @@ namespace SocialPoint.Social
 
         public bool PlayerVerification { get; private set; }
         
-        private States _state;
-
-        public States State
-        {
-            get
-            {
-                return _state;
-            }
-            private set
-            {
-                if(_state != value)
-                {
-                    _state = value;
-                    NotifyStateChanged();
-                }
-            }
-        }
-        
+        private bool _connecting = false;
+        private GameCenterPlatform _platform;
         private List<GameCenterUser> _friends;
 
         public override List<GameCenterUser> Friends
@@ -64,15 +40,11 @@ namespace SocialPoint.Social
             }
         }
         
-        void LoginFinish(Error err, ErrorDelegate cbk = null)
+        void OnLoginEnd(Error err, ErrorDelegate cbk = null)
         {
-            if(!Error.IsNullOrEmpty(err))
+            if(IsConnected)
             {
-                State = States.Error;
-            }
-            else
-            {
-                State = States.LoggedIn;
+                NotifyStateChanged();
             }
             if(cbk != null)
             {
@@ -82,13 +54,11 @@ namespace SocialPoint.Social
 
         void LoginLoadPlayerData(ErrorDelegate cbk = null)
         {
-            var localUser = UnityEngine.Social.Active.localUser;
+            var localUser = _platform.localUser;
             if(!localUser.authenticated)
             {
                 _friends.Clear();
                 _user = new GameCenterUser();
-                State = States.LoggedOut;
-
                 if(cbk != null)
                 {
                     cbk(new Error("Could not login."));
@@ -100,14 +70,8 @@ namespace SocialPoint.Social
                                                          localUser.userName,
                                                          localUser.userName,
                                                          localUser.underage ? GameCenterUser.AgeGroup.Underage : GameCenterUser.AgeGroup.Adult
-                );
-                if(_user != user)
-                {
-                    State = States.LoggingIn;
-                }
-                
+                );                
                 _user = user;
-
                 if(cbk != null)
                 {
                     cbk(null);
@@ -117,7 +81,7 @@ namespace SocialPoint.Social
         
         void LoginDownloadFriends(ErrorDelegate cbk, bool initial = true)
         {
-            var localUser = UnityEngine.Social.Active.localUser;
+            var localUser = _platform.localUser;
             if((localUser.friends == null || localUser.friends.Length == 0) && initial)
             {
 
@@ -180,7 +144,7 @@ namespace SocialPoint.Social
             
             if(Achievements[achiId] < achi.Percent && achi.Percent <= 100)
             {
-                UnityEngine.Social.Active.ReportProgress(achiId, Achievements[achiId], (bool success) =>
+                _platform.ReportProgress(achiId, Achievements[achiId], (bool success) =>
                 {
                     if(cbk != null)
                     {
@@ -210,7 +174,7 @@ namespace SocialPoint.Social
                 return;
             }
             
-            UnityEngine.Social.Active.LoadAchievements((IAchievement[] achievements) =>
+            _platform.LoadAchievements((IAchievement[] achievements) =>
             {
                 if(achievements != null)
                 {
@@ -241,15 +205,16 @@ namespace SocialPoint.Social
             _friends = new List<GameCenterUser>();
             _user = new GameCenterUser();
             ShowLoginWindow = false;
-            State = States.LoggedOut;
             PlayerVerification = playerVerification;
+            _platform = new GameCenterPlatform();
+            UnityEngine.Social.Active = _platform;
         }
         
         public override bool IsConnected
         {
             get
             {
-                return State == States.LoggedIn;
+                return _platform.localUser.authenticated;
             }
         }
         
@@ -257,62 +222,41 @@ namespace SocialPoint.Social
         {
             get
             {
-                return State == States.LoggingIn;
-            }
-        }
-        
-        public override bool HasError
-        {
-            get
-            {
-                return State == States.Error;
+                return _connecting;
             }
         }
         
         public override void Login(ErrorDelegate cbk)
         {
-            UnityEngine.Social.Active = new GameCenterPlatform();
-            
-            if(State != States.LoggedOut && State != States.Error)
+            if(IsConnected)
             {
                 if(cbk != null)
                 {
-                    Error err = null;
-                    if(State == States.LoggingIn)
-                    {
-                        err = new Error("Currently logging in.");
-                    }
-                    else
-                    {
-                        err = new Error("Invalid game center state.");
-                    }
-                    cbk(err);
+                    cbk(null);
                 }
                 return;
             }
-            
-            State = States.LoggingIn;
 
-            UnityEngine.Social.Active.localUser.Authenticate((bool success) =>
+            _platform.localUser.Authenticate((bool success) =>
             {
                 if(success)
                 {
                     LoginLoadPlayerData((err) => {
                         if(!Error.IsNullOrEmpty(err))
                         {
-                            LoginFinish(err, cbk);
+                            OnLoginEnd(err, cbk);
                         }
                         else
                         {
                             LoginDownloadFriends((err2) => {
                                 if(!Error.IsNullOrEmpty(err2))
                                 {
-                                    LoginFinish(err2, cbk);
+                                    OnLoginEnd(err2, cbk);
                                 }
                                 else
                                 {
                                     DownloadAchievements((err3) => {
-                                        LoginFinish(err3, cbk);
+                                        OnLoginEnd(err3, cbk);
                                     });
                                 }
                             });
@@ -321,14 +265,14 @@ namespace SocialPoint.Social
                 }
                 else
                 {
-                    LoginFinish(new Error("Could not login"), cbk);
+                    OnLoginEnd(new Error("Could not login"), cbk);
                 }
             });
         }
         
         public override void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk = null)
         {
-            if (State != States.LoggedIn)
+            if(!IsConnected)
             {
                 if(cbk != null)
                 {
@@ -337,7 +281,7 @@ namespace SocialPoint.Social
                 return;
             }
 
-            UnityEngine.Social.Active.ReportScore(score.Value, score.Category, (bool success) =>
+            _platform.ReportScore(score.Value, score.Category, (bool success) =>
             {
                 if(cbk != null)
                 {
@@ -353,7 +297,7 @@ namespace SocialPoint.Social
         
         public override void ResetAchievements(ErrorDelegate cbk = null)
         {
-            if (State != States.LoggedIn)
+            if(!IsConnected)
             {
                 if(cbk != null)
                 {
@@ -377,7 +321,7 @@ namespace SocialPoint.Social
                 
         public override void UpdateAchievement(GameCenterAchievement achi, GameCenterAchievementDelegate cbk = null)
         {
-            if (State != States.LoggedIn)
+            if(!IsConnected)
             {
                 if(cbk != null)
                 {
@@ -403,7 +347,7 @@ namespace SocialPoint.Social
         
         public override void LoadPhoto(string userId, uint photoSize, GameCenterPhotoDelegate cbk = null)
         {
-            if (State != States.LoggedIn)
+            if(!IsConnected)
             {
                 if(cbk != null)
                 {
@@ -413,7 +357,7 @@ namespace SocialPoint.Social
             }
 
             string tmpFilePath = Application.temporaryCachePath + "/" + PhotosCacheFolder + "/" + userId + "_" + photoSize.ToString() + ".png";
-            UnityEngine.Social.Active.LoadUsers(new string[]{ userId }, (users) =>
+            _platform.LoadUsers(new string[]{ userId }, (users) =>
             {
                 Error err = null;
                 if(users == null || users.Length == 0)
