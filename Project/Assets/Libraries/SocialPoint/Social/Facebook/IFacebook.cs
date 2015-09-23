@@ -399,7 +399,6 @@ namespace SocialPoint.Social
 
         bool IsConnected{ get; }
         bool IsConnecting{ get; }
-        bool HasError{ get; }
         string AppId{ set; }
         FacebookUser User{ get; }
         List<FacebookUser> Friends{ get; }
