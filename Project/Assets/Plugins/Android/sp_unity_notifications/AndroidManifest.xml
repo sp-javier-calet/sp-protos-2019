@@ -11,8 +11,7 @@
 	<application>
 
 		<!-- Local Notifications service-->
-		<service android:enabled="true" android:name="es.socialpoint.androidnotifications.Notification" />
-		<receiver android:name="es.socialpoint.androidnotifications.Receiver" />
+		<receiver android:name="es.socialpoint.unity.notifications.NotificationBridge" />
 
 		<!-- Remote Notifications service-->
 		<!-- <receiver android:name=".Receiver" android:permission="com.google.android.c2dm.permission.SEND" >

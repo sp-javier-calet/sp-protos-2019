@@ -19,6 +19,8 @@ namespace UnityEditor.FacebookEditor
 
         public const string ApplicationIdMetaDataName = "com.facebook.sdk.ApplicationId";
 
+		public const string MainActivityName = "com.unity3d.player.UnityPlayerActivity";
+
 #if UNITY_5
 		public const string EditorManifestPath = "PlaybackEngines/androidplayer/Apk/AndroidManifest.xml";
 #else
@@ -142,6 +144,13 @@ namespace UnityEditor.FacebookEditor
             }
 
             string ns = dict.GetNamespaceOfPrefix("android");
+
+            //SocialPoint: remove the main activity, as it is already defined in SocialPoint/Base/Android
+            XmlElement mainElement = FindElementWithAndroidName("activity", "name", ns, MainActivityName, dict);
+            if(mainElement != null)
+            {
+                dict.RemoveChild(mainElement);
+            }
 
             //add the unity login activity
             XmlElement unityLoginElement = FindElementWithAndroidName("activity", "name", ns, UnityLoginActivityName, dict);

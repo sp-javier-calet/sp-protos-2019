@@ -41,14 +41,12 @@ namespace SocialPoint.Notifications
         public void Schedule(Notification notif)
         {
             var unotif = new LocalNotification();
-            unotif.fireDate = notif.FireDate;
+            unotif.fireDate = DateTime.Now.ToLocalTime().AddSeconds(notif.FireDelay);
             unotif.applicationIconBadgeNumber = notif.IconBadgeNumber;
             unotif.alertBody = notif.AlertBody;
             unotif.alertAction = notif.AlertAction;
-            var localTime = DateTime.Now.ToLocalTime();
-            int result = DateTime.Compare(notif.FireDate, localTime);
             
-            if (result > 0)
+            if (notif.FireDelay > 0)
             {
                 NotificationServices.ScheduleLocalNotification(unotif);
             }

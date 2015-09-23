@@ -10,9 +10,8 @@ namespace SocialPoint.Notifications
 #if UNITY_ANDROID
     public class AndroidNotificationServices : INotificationServices
     {
-        private const string PlayerNotificationId = "AndroidNotificationId";
-        private const string PlayerNotificationScheduledList = "AndroidNotificationScheduledList";
-        private const string FullClassName = "es.socialpoint.androidnotifications.NotificationsManager";
+        private const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
+        private const string FullClassName = "es.socialpoint.unity.notifications.NotificationBridge";
 
         private List<int> _notifications = new List<int>();
         private AndroidJavaClass _notifClass = null;
@@ -27,9 +26,9 @@ namespace SocialPoint.Notifications
         {
             if(_notifications.Count == 0)
             {
-                if(PlayerPrefs.HasKey(PlayerNotificationScheduledList))
+                if(PlayerPrefs.HasKey(PlayerPrefsIdsKey))
                 {
-                    PlayerPrefs.DeleteKey(PlayerNotificationScheduledList);
+                    PlayerPrefs.DeleteKey(PlayerPrefsIdsKey);
                 }
             }
             else
@@ -43,7 +42,7 @@ namespace SocialPoint.Notifications
                         sb.Append("|");
                     }
                 }
-                PlayerPrefs.SetString(PlayerNotificationScheduledList, sb.ToString());
+                PlayerPrefs.SetString(PlayerPrefsIdsKey, sb.ToString());
             }
 
             PlayerPrefs.Save();
@@ -51,22 +50,18 @@ namespace SocialPoint.Notifications
 
         private void LoadPlayerPrefs()
         {
-            if(PlayerPrefs.HasKey(PlayerNotificationScheduledList))
+            if(PlayerPrefs.HasKey(PlayerPrefsIdsKey))
             {
-                string[] strArray = PlayerPrefs.GetString(PlayerNotificationScheduledList).Split("|"[0]);
+                string[] strArray = PlayerPrefs.GetString(PlayerPrefsIdsKey).Split("|"[0]);
                 for(int i = 0; i < strArray.Length; i++)
                 {
                     _notifications.Add(int.Parse(strArray[i]));
                 }
             }
         }
-                
-        // Schedules a local notification
+
         public void Schedule(Notification notif)
         {
-            var localTime = DateTime.Now.ToLocalTime();
-            double delayTime = notif.FireDate.Subtract(localTime).TotalSeconds;
-            delayTime = delayTime < 0 ? 0 : delayTime;
             var notifId = 0;
             foreach(var id in _notifications)
             {
@@ -75,30 +70,35 @@ namespace SocialPoint.Notifications
                     notifId = id+1;
                 }
             }
-            _notifClass.CallStatic("CreateLocalNotification", AndroidContext.CurrentActivity, notif.AlertAction, notif.AlertBody, (long)delayTime, notifId, notif.RepeatingSeconds);
             _notifications.Add(notifId);
             SavePlayerPrefs();
+
+            long delayTime = notif.FireDelay;
+            string title = notif.AlertAction;
+            string message = notif.AlertBody;
+            string ticker = string.Empty;
+            long rep = notif.RepeatingSeconds;
+            string largeIcon = "notify_icon_big";
+            string smallIcon = "notify_icon_small";
+
+            _notifClass.CallStatic("Schedule", notifId, delayTime, title, message, ticker, rep, largeIcon, smallIcon);
         }
 
-        // Discards of all received local notifications
         public void ClearReceived()
         {
             _notifications.Clear();
             SavePlayerPrefs();
-            // TODO TECH
-            //_notifClass.CallStatic("ClearReceivedRemote", AndroidContext.CurrentActivity);
+            _notifClass.CallStatic("ClearReceived");
         }
 
         public void CancelPending()
         {
-            var intArr = _notifications.ToArray();
-            _notifClass.CallStatic("CancelAllLocalNotifications", AndroidContext.CurrentActivity, intArr);
+            _notifClass.CallStatic("CancelPending", _notifications.ToArray());
         }
 
         public void RegisterForRemote()
         {
-            // TODO TECH
-            //_notifClass.CallStatic("RegisterForRemote", AndroidContext.CurrentActivity, "AppName", "Email");
+            _notifClass.CallStatic("RegisterForRemote");
         }
     }
 #else

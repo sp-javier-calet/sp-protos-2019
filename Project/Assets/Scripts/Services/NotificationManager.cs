@@ -16,7 +16,7 @@ public class NotificationManager : SocialPoint.Notifications.NotificationManager
     {
         var notify = new Notification();
         notify.AlertBody = "This is a notification manager notification.";
-        notify.FireDate = DateTime.Now.AddSeconds(10);
+        notify.FireDelay = 10;
         AddNotification(notify);
     }
 }

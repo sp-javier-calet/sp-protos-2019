@@ -51,9 +51,7 @@ namespace SocialPoint.Notifications
             notify.AlertAction = cmd["action"].Value;
             notify.AlertBody = cmd["body"].Value;
             notify.IconBadgeNumber = cmd["number"].IntValue;
-
-            var ts = TimeUtils.GetTimestamp(DateTime.Now) + cmd["time"].IntValue;
-            notify.FireDate = TimeUtils.GetDateTime(ts);
+            notify.FireDelay = cmd["time"].IntValue;
             notify.RepeatingSeconds = cmd["repeat"].IntValue;
         }
 
@@ -79,22 +77,25 @@ namespace SocialPoint.Notifications
 
             var flayout = layout.CreateHorizontalLayout();
             flayout.CreateFormLabel("Message");
-            _messageInput = flayout.CreateTextInput("This is a test notification.");
+            _messageInput = flayout.CreateTextInput();
+            _messageInput.text = "This is a test notification.";
             flayout = layout.CreateHorizontalLayout();
             flayout.CreateFormLabel("Action");
-            _actionInput = flayout.CreateTextInput("Test Action");
+            _actionInput = flayout.CreateTextInput();
+            _actionInput.text = "Test Action";
             flayout = layout.CreateHorizontalLayout();
             flayout.CreateFormLabel("Fire seconds");
-            _secondsInput = flayout.CreateTextInput("10");
+            _secondsInput = flayout.CreateTextInput();
+            _secondsInput.text = "2";
 
             layout.CreateButton("Set Notification", () => {
                 var notif = new Notification();
                 notif.AlertBody = _messageInput.text;
                 notif.AlertAction = _actionInput.text;
                 notif.IconBadgeNumber = 1;
-                int secs = 10;
+                int secs = 0;
                 int.TryParse(_secondsInput.text, out secs);
-                notif.FireDate = DateTime.Now.AddSeconds(secs);
+                notif.FireDelay = secs;
                 _services.Schedule(notif);
                 _adminPanel.Console.Print(string.Format("A test notification should appear in {0} seconds.", secs));
             });

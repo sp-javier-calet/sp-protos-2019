@@ -28,9 +28,26 @@ namespace SocialPoint.Notifications
         public int IconBadgeNumber = 0;
 
         /**
-         * the date and time when the system should deliver the notification 
+         * the delay in seconds from now when the system should deliver the notification
          */
-        public DateTime FireDate = DateTime.Now.ToLocalTime();
+        public long FireDelay = 0;
+
+        /**
+         * the local date and time when the system should deliver the notification 
+         */
+        [Obsolete("Use FireDelay")]
+        public DateTime FireDate
+        {
+            get
+            {
+                return DateTime.Now.ToLocalTime().AddSeconds(FireDelay);
+            }
+
+            set
+            {
+               FireDelay = (long)value.Subtract(DateTime.Now.ToLocalTime()).TotalSeconds;
+            }
+        }
 
         /**
          * an amount of seconds after which the notification will be repeated
@@ -39,7 +56,7 @@ namespace SocialPoint.Notifications
 
         public override string ToString()
         {
-            return string.Format("Notification: -- Action: {0} -- FireDate: {1} -- AlertBody: {2} -- IconBadgeNumber: {3}", AlertAction, FireDate.ToLongTimeString(), AlertBody, IconBadgeNumber);
+            return string.Format("Notification: -- Action: {0} -- FireDelay: {1} -- AlertBody: {2} -- IconBadgeNumber: {3}", AlertAction, FireDelay, AlertBody, IconBadgeNumber);
         }
     }
        

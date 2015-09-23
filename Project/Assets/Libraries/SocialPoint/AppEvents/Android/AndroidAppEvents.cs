@@ -32,30 +32,60 @@ namespace SocialPoint.AppEvents
         
         #region Events dispatch
 
-        private void DispatchWasCovered()
+        
+        void DispatchMainThread(Action action)
         {
-            OnWasCovered();
-        }
-
-        private void DispatchWasOnBackground()
-        {
-            OnWasOnBackground();
-
-            /* After come from background, check the application source and send source event.
-             * Android platform retrieve the application source on demand */
-            UpdateSource();
-            OnOpenedFromSource(Source);
+            StartCoroutine(DispatchedMainThread(action));
         }
         
-        private void DispatchWillGoBackground()
+        IEnumerator DispatchedMainThread(Action action)
+        {
+            yield return new WaitForEndOfFrame();
+            if(action != null)
+            {
+                action();
+            }
+        }
+
+        public void OnActivityResumed(bool stopped)
+        {
+            DispatchMainThread(() => OnActivityResumedDispatched(stopped));
+        }
+
+        private void OnActivityResumedDispatched(bool stopped)
+        {
+            if(stopped)
+            {
+                OnWasOnBackground();
+
+                /* After come from background, check the application source and send source event.
+                 * Android platform retrieve the application source on demand */
+                UpdateSource();
+                OnOpenedFromSource(Source);
+            }
+            else
+            {
+                /* If Application was paused but not stopped, 
+                 * it means that it was covered by another app in front
+                 */
+                OnWasCovered();
+            }
+        }
+
+        public void OnActivityPaused()
+        {
+            DispatchMainThread(OnActivityPausedDispatched);
+        }
+        
+        private void OnActivityPausedDispatched()
         {
             OnWillGoBackground();
             OnGoBackground();
         }
 
-        private void DispatchMemoryWarning()
+        public void OnMemoryWarning()
         {
-            OnReceivedMemoryWarning();
+            DispatchMainThread(OnReceivedMemoryWarning);
         }
 
     #endregion
@@ -81,25 +111,15 @@ namespace SocialPoint.AppEvents
             {
             }
 
+
             public void onActivityPaused(AndroidJavaObject activity) 
             {
-                MainThreadDispatcher.Dispatch(_appEvents.DispatchWillGoBackground);
+                _appEvents.OnActivityPaused();
             }
 
             public void onActivityResumed(AndroidJavaObject activity) 
             {
-                /* If Application was paused but not stopped, 
-                 * it means that it was covered by another app in front
-                 */
-                if(WasStopped)
-                {
-                    MainThreadDispatcher.Dispatch(_appEvents.DispatchWasOnBackground);
-                }
-                else
-                {
-                    MainThreadDispatcher.Dispatch(_appEvents.DispatchWasCovered);
-                }
-
+                _appEvents.OnActivityResumed(WasStopped);
                 WasStopped = false;
             }
 
@@ -138,7 +158,7 @@ namespace SocialPoint.AppEvents
             {                
                 if(level == LevelMemoryComplete)
                 {
-                    MainThreadDispatcher.Dispatch(_appEvents.DispatchMemoryWarning);
+                    _appEvents.OnMemoryWarning();
                 }
             }
         }
@@ -149,7 +169,7 @@ namespace SocialPoint.AppEvents
 	}
 
 #else
-	public class AndroidNetworkInfo : AppEventsBase
+    public class AndroidAppEvents : AppEventsBase
 	{
 	}
 #endif
