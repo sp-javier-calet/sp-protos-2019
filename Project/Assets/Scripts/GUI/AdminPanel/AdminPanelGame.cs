@@ -1,6 +1,6 @@
-﻿using Zenject;
+﻿using SocialPoint.AdminPanel;
 using UnityEngine;
-using SocialPoint.AdminPanel;
+using Zenject;
 
 public class AdminPanelGame : IAdminPanelConfigurer {
     

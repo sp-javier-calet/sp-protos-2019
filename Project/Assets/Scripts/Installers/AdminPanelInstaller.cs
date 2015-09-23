@@ -1,9 +1,7 @@
-﻿using Zenject;
-using System;
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
 using SocialPoint.Profiler;
 using SocialPoint.Utils;
-using SocialPoint.AppEvents;
+using Zenject;
 
 public class AdminPanelInstaller : MonoInstaller
 {
@@ -24,5 +22,6 @@ public class AdminPanelInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplicationGUI>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppRater>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
     }
 }
