@@ -1583,6 +1583,11 @@ namespace SocialPoint.Attributes
         {
             return Add(new AttrString(val));
         }
+                
+        public bool AddValue(bool val)
+        {
+            return Add(new AttrBool(val));
+        }
 
         public void Clear()
         {
