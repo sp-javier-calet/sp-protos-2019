@@ -10,11 +10,7 @@ namespace SocialPoint.Social
         private bool _isConnected = false;
         private GameCenterUser _user = new GameCenterUser("user1");
         private List<GameCenterUser> _friends = new List<GameCenterUser>();
-        
-        public EmptyGameCenter()
-        {
-        }
-        
+
         #region implemented abstract members of IGameCenter
 
         public override void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk)
@@ -90,14 +86,7 @@ namespace SocialPoint.Social
                 return false;
             }
         }
-        
-        public override bool HasError
-        {
-            get
-            {
-                return false;
-            }
-        }
+
         
         #endregion
     }

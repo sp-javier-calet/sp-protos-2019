@@ -75,8 +75,7 @@ namespace SocialPoint.Login
         }
         
         void OnStateChanged()
-        {
-            
+        {            
             if(_eventStateChange != null && _facebook != null && !_facebook.IsConnecting)
             {
                 if(_facebook.IsConnected)
