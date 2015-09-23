@@ -8,7 +8,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Utils
 {
-    public class AdminPanelLogGUI : IAdminPanelConfigurer, IAdminPanelGUI
+    public class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
     {
         private List<LogEntry> _entries;
         private Dictionary<LogType, bool> _activeTypes;

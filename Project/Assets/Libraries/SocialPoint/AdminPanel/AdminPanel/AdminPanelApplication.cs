@@ -2,7 +2,7 @@
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelApplicationGUI : IAdminPanelGUI, IAdminPanelConfigurer {
+    public class AdminPanelApplication : IAdminPanelGUI, IAdminPanelConfigurer {
 
         public void OnConfigure(AdminPanel adminPanel)
         {
