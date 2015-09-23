@@ -1,4 +1,4 @@
-﻿using SocialPoint.Hardware;
+using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using Zenject;

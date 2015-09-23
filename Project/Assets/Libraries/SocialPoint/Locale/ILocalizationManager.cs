@@ -4,8 +4,12 @@ namespace SocialPoint.Locale
 {
     public interface ILocalizationManager
     {
-        event Action Loaded;
+        string[] SupportedLanguages{ get; set; }
+        string CurrentLanguage{ get; set; }
         Localization Localization{ get; set; }
-        void Load();        
+
+        event Action Loaded;
+
+        void Load();
     }
 }

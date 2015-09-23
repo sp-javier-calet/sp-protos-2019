@@ -81,7 +81,7 @@ namespace SocialPoint.GUI
                 _actionCoroutine = null;
             }
             _action = act;
-            if(gameObject.activeSelf)
+            if(gameObject.activeInHierarchy)
             {
                 _actionCoroutine = StartCoroutine(DoActionCoroutine(enm));
                 return _actionCoroutine;

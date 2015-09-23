@@ -113,7 +113,19 @@ namespace SocialPoint.Locale
             Localization.GalicianIdentifier,
             Localization.BasqueIdentifier
         };
-        public string[] SupportedLanguages = DefaultSupportedLanguages;
+        string[] _supportedLanguages = DefaultSupportedLanguages;
+        public string[] SupportedLanguages
+        {
+            get
+            {
+                return _supportedLanguages;
+            }
+
+            set
+            {
+                _supportedLanguages = value;
+            }
+        }
 
         public static CultureInfo CurrentCultureInfo{ get; private set; }
 
@@ -251,7 +263,7 @@ namespace SocialPoint.Locale
             {
                 locales = new Dictionary<string, Localization>();
             }
-            if(_running == false || locales.Count >= SupportedLanguages.Length)
+            if(_running == false || locales.Count >= _supportedLanguages.Length)
             {
                 if(WriteCsv)
                 {
@@ -270,7 +282,7 @@ namespace SocialPoint.Locale
                 }
                 return;
             }
-            var lang = SupportedLanguages[locales.Count];
+            var lang = _supportedLanguages[locales.Count];
             DownloadLocalization(lang, () => {
                 var locale = new Localization();
                 LoadLocalizationData(locale, lang);
@@ -529,7 +541,7 @@ namespace SocialPoint.Locale
             {
                 lang = _appInfo.Language;
             }
-            var supported = new List<string>(SupportedLanguages);
+            var supported = new List<string>(_supportedLanguages);
             var fixlang = FixLanguage(lang);
             if(supported.Contains(lang) || supported.Contains(fixlang))
             {

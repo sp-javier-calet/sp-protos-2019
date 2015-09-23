@@ -1,14 +1,16 @@
 ﻿using SocialPoint.AdminPanel;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
+using System.Collections.Generic;
 
 namespace SocialPoint.Locale
 {
     public class AdminPanelLocale : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        LocalizationManager _manager;
+        ILocalizationManager _manager;
 
-        AdminPanelLocale(LocalizationManager manager)
+        AdminPanelLocale(ILocalizationManager manager)
         {
             _manager = manager;
         }
@@ -24,15 +26,35 @@ namespace SocialPoint.Locale
 
         #region IAdminPanelGUI implementation
 
+        Dictionary<string,Toggle> _langButtons;
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Change Language");
-
+            _langButtons = new Dictionary<string,Toggle>();
             foreach(var lang in _manager.SupportedLanguages)
             {
-                layout.CreateConfirmButton(lang, ButtonColor.Gray, () => {
-                    _manager.CurrentLanguage = lang;
+                var blang = lang;
+                _langButtons[lang] = layout.CreateToggleButton(blang, false, (enabled) => {
+                    _manager.CurrentLanguage = blang;
+                    UpdateLangButtons();
                 });
+            }
+            UpdateLangButtons();
+        }
+
+        void UpdateLangButtons()
+        {
+            foreach(var lang in _manager.SupportedLanguages)
+            {
+                Toggle button;
+                if(_langButtons.TryGetValue(lang, out button))
+                {
+                    var action = button.onValueChanged;
+                    button.onValueChanged = new Toggle.ToggleEvent();
+                    button.isOn = lang == _manager.CurrentLanguage;
+                    button.onValueChanged = action;
+                }
             }
         }
 
