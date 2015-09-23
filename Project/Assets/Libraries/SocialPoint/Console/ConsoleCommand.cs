@@ -86,7 +86,7 @@ namespace SocialPoint.Console
             return 0;
         }
 
-        private bool SetOptionValue(string name, string value)
+        private bool AddOptionValue(string name, string value)
         {
             var option = this[name];
             if(option != null)
@@ -102,7 +102,7 @@ namespace SocialPoint.Console
                         int i = MatchRepeat(name, optName);
                         if(i > 0)
                         {
-                            opt.Value = i.ToString();
+                            opt.AddValue(i.ToString());
                         }
                     }
                 }
@@ -129,6 +129,7 @@ namespace SocialPoint.Console
                     defVal = string.Empty;
                     break;
                 }
+                opt.Value = null;
             }
 
             foreach(var arg in args)
@@ -140,26 +141,26 @@ namespace SocialPoint.Console
                     var p = opt.IndexOf(OptionValueOperator);
                     if(p == -1)
                     {
-                        if(!SetOptionValue(opt, string.Empty))
+                        if(!AddOptionValue(opt, string.Empty))
                         {
                             lastOpt = opt;
                         }
                     }
                     else
                     {
-                        SetOptionValue(opt.Substring(0, p), opt.Substring(p + 1));
+                        AddOptionValue(opt.Substring(0, p), opt.Substring(p + 1));
                     }
                 }
                 else if(lastOpt != null)
                 {
-                    SetOptionValue(lastOpt, arg);
+                    AddOptionValue(lastOpt, arg);
                     lastOpt = null;
                 }
                 else
                 {
                     if(defVal == null)
                     {
-                        SetOptionValue(i.ToString(), arg);
+                        AddOptionValue(i.ToString(), arg);
                     }
                     else
                     {
@@ -174,7 +175,7 @@ namespace SocialPoint.Console
             }
             if(defVal != null)
             {
-                SetOptionValue(WildcardString, defVal);
+                AddOptionValue(WildcardString, defVal);
             }
         }
 

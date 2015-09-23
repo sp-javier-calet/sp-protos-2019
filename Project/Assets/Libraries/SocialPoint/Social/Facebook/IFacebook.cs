@@ -73,7 +73,7 @@ namespace SocialPoint.Social
                 return false;
             }
             
-            FacebookUser p = obj as FacebookUser;
+            var p = obj as FacebookUser;
             if((System.Object)p == null)
             {
                 return false;
@@ -84,9 +84,7 @@ namespace SocialPoint.Social
         
         public override int GetHashCode()
         {
-            int hash = 0;
-            int.TryParse(UserId, out hash);
-            return hash;
+            return UserId.GetHashCode();
         }
         
         public override string ToString()
@@ -105,14 +103,27 @@ namespace SocialPoint.Social
             AdditionalData = new AttrDic();
         }
         
-        public string AdditionalDataToString()
+        public string AdditionalDataJson()
         {
-            return AdditionalData.ToString();
+            return new JsonAttrSerializer().SerializeString(AdditionalData);
         }
+    }
+
+    public class FacebookAppRequestFilterGroup
+    {
+        public string Name;
+        public List<string> UserIds;
     }
     
     public class FacebookAppRequest : FacebookRequest
     {
+        public enum FilterType
+        {
+            Everybody,
+            AppUsers,
+            AppNonUsers
+        };
+
         public string RequestId { get; set; }
         
         public bool RequestCancelled { get; set; }
@@ -133,9 +144,14 @@ namespace SocialPoint.Social
         
         public string ObjectId { get; private set; }
         
-        public string [] ExcludeIds { get; set; }
-        
-        public List<object> Filters { get; set; }
+        public List<string> ExcludeIds { get; set; }
+
+        public FilterType Filter { get; set; }
+
+        public List<FacebookAppRequestFilterGroup> FilterGroups { get; set; }
+
+        [Obsolete("Use Filter and FilterGroups")]
+        public List<object> Filters{ get; set; }       
         
         const string RequestIdResultParam = "request";
         const string RequestCancelledParam = "cancelled";
@@ -150,7 +166,6 @@ namespace SocialPoint.Social
             To = new List<string>();
             Processed = new List<string>();
             ExcludeIds = null;
-            Filters = null;
         }
         
         public FacebookAppRequest(string message) : this()
@@ -213,42 +228,29 @@ namespace SocialPoint.Social
             ActionType = ActionTypeAskFor;
             ObjectId = objectId;
         }
+        public override string ToString()
+        {
+            return string.Format("[FacebookAppRequest: RequestId={0}, Cancelled={1}, To={2}, Processed={3}, " +
+                "Message={4}, Title={5}, ResultParams={6}, FrictionLess={7}, ActionType={8}, ObjectId={9}, ExcludeIds={10}, " +
+                "Filter={11}]", RequestId, RequestCancelled, To, Processed,
+                 Message, Title, ResultParams, FrictionLess, ActionType, ObjectId, ExcludeIds, Filter);
+        }
     }
     
     public struct FacebookWallPostAction
     {
-        private string name;
-        
-        public string Name
-        {
-            get
-            {
-                return name;
-            }
-            set
-            {
-                name = value;
-            }
-        }
-        
-        private string link;
-        
-        public string Link
-        {
-            get
-            {
-                return link;
-            }
-            set
-            {
-                link = value;
-            }
-        }
+        public string Name;
+        public string Link;
         
         public FacebookWallPostAction(string name, string link)
         {
-            this.name = name;
-            this.link = link;
+            Name = name;
+            Link = link;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[FacebookWallPostAction: Name={0}, Link={1}]", Name, Link);
         }
     }
     
@@ -291,7 +293,7 @@ namespace SocialPoint.Social
                 return string.Empty;
             }
             
-            AttrList list = new AttrList();
+            var list = new AttrList();
             for(int k = 0; k < Actions.Count; k++)
             {
                 FacebookWallPostAction data = Actions[k];
@@ -301,7 +303,20 @@ namespace SocialPoint.Social
                 list.Add(dic);
             }
             
-            return list.ToString();
+            return new JsonAttrSerializer().SerializeString(list);
+        }
+
+        public override string ToString()
+        {
+            var actions = new string[Actions.Count];
+            var i = 0;
+            foreach(var action in Actions)
+            {
+                actions[i++] = action.ToString();
+            }
+            return string.Format("[FacebookWallPost: To={0}, Picture={1}, Link={2}, Name={3}, Caption={4}, " +
+                "Message={5}, Description={6}, PostId={7}, Actions={8}]", To, Picture, Link, Name, Caption,
+                 Message, Description, PostId, string.Join(", ", actions));
         }
     }
     
@@ -352,6 +367,12 @@ namespace SocialPoint.Social
         public bool HasResponse()
         {
             return Response.Count > 0;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[FacebookGraphQuery: Path={0}, Method={1}, Response={2}," +
+                "Params={3}]", Path, Method, Response, Params);
         }
     }
 

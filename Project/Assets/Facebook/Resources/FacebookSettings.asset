@@ -14,10 +14,8 @@ MonoBehaviour:
   selectedAppIndex: 0
   appIds:
   - 552673158114597
-  - 182473845211109
   appLabels:
   - HelloSocialPoint
-  - Everyplay
   cookie: 1
   logging: 1
   status: 1

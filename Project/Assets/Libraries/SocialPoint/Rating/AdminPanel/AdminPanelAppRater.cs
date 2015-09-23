@@ -1,0 +1,52 @@
+﻿using UnityEngine.UI;
+using SocialPoint.AdminPanel;
+
+namespace SocialPoint.Rating
+{
+    public class AdminPanelAppRater : IAdminPanelGUI, IAdminPanelConfigurer
+    {
+        private IAppRater _appRater;
+        private Text _infoTextComponent;
+
+        public AdminPanelAppRater(IAppRater appRater)
+        {
+            _appRater = appRater;
+        }
+
+        #region IAdminPanelConfigurer implementation
+
+        public void OnConfigure(SocialPoint.AdminPanel.AdminPanel adminPanel)
+        {
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("App Rater", this));
+        }
+
+        #endregion
+
+        #region IAdminPanelGUI implementation
+
+        public void OnCreateGUI(AdminPanelLayout layout)
+        {
+            layout.CreateLabel("App Rater");
+            layout.CreateMargin();
+            layout.CreateLabel("App Rater Info");
+            _infoTextComponent = layout.CreateTextArea(_appRater.ToString());
+            layout.CreateMargin();
+            layout.CreateButton("Show rate view", () => {
+                _appRater.ShowRateView();
+                UpdateInfo();
+            });
+            layout.CreateButton("Restart", () => {
+                _appRater.ResetStatistics();
+                UpdateInfo();
+            });
+        }
+
+        #endregion
+
+        private void UpdateInfo()
+        {
+            _infoTextComponent.text = _appRater.ToString();
+        }
+    }
+}
+

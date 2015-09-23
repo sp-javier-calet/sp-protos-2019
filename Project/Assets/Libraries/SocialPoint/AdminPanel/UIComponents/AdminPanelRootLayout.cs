@@ -15,7 +15,7 @@ namespace SocialPoint.AdminPanel
             rectTransform.anchorMax = Vector2.one;
             rectTransform.offsetMax = Vector2.zero;
             rectTransform.offsetMin = Vector2.zero;
-
+            rectTransform.localScale = Vector3.one;
             Parent = rectTransform;
         }
     }

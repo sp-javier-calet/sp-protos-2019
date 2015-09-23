@@ -1,6 +1,7 @@
 using Zenject;
 using System;
 using SocialPoint.Crash;
+using SocialPoint.AdminPanel;
 
 public class CrashInstaller : MonoInstaller
 {
@@ -26,6 +27,8 @@ public class CrashInstaller : MonoInstaller
             Container.BindInstance("crash_reporter_error_log_active", Settings.ErrorLogActive);
             Container.BindInstance("crash_reporter_exception_log_active", Settings.ExceptionLogActive);
             Container.Bind<ICrashReporter>().ToSingle<CrashReporter>();
+
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
         }
 	}
 

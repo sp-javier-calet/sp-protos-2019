@@ -61,7 +61,7 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        private void CreatePanelTitle(RectTransform panelTransform, string title)
+        private Text CreatePanelTitle(RectTransform panelTransform, string title)
         {
             var rectTransform = CreateUIObject("Admin Panel - Panel title", panelTransform);
             
@@ -75,9 +75,11 @@ namespace SocialPoint.AdminPanel
             text.fontSize = PanelTitleFontSize;
             text.color = Color.white;
             text.alignment = TextAnchor.UpperRight;
+
+            return text;
         }
 
-        private void CreateCloseButton(RectTransform panelTransform, Action onClose)
+        private Button CreateCloseButton(RectTransform panelTransform, Action onClose)
         {
             // Close button decorator
             var rectTransform = CreateUIObject("Admin Panel - Close panel button decorator", panelTransform);
@@ -110,6 +112,8 @@ namespace SocialPoint.AdminPanel
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             button.onClick.AddListener(() => { onClose(); });
+
+            return button;
         }
     }
 }

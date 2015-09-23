@@ -1,7 +1,6 @@
-﻿using SocialPoint.AdminPanel;
-using SocialPoint.Profiler;
-using SocialPoint.Utils;
 using Zenject;
+using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 
 public class AdminPanelInstaller : MonoInstaller
 {
@@ -11,17 +10,9 @@ public class AdminPanelInstaller : MonoInstaller
         {
             return;
         }
-        Container.Bind<AdminPanel>().ToSingle<AdminPanel>();
-
+        Container.Bind<AdminPanel>().ToSingle<AdminPanel>();       
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLogin>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfilerGUI>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelHardware>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLogGUI>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplicationGUI>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppRater>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
     }
 }

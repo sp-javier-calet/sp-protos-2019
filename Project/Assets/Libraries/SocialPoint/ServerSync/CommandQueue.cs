@@ -160,6 +160,7 @@ namespace SocialPoint.ServerSync
         public event CommandErrorDelegate CommandError = delegate {};
         public event ResponseDelegate ResponseReceive = delegate {};
 
+        private int _lastAutoSyncDataHash;
         private SyncDelegate _autoSync;
         public SyncDelegate AutoSync
         {
@@ -433,8 +434,14 @@ namespace SocialPoint.ServerSync
         {
             if(_autoSyncEnabled && _autoSync != null)
             {
-                Add(new SyncCommand(_autoSync()));
-                Flush();
+                var data = _autoSync();
+                var hash = data.GetHashCode();
+                if(hash != _lastAutoSyncDataHash)
+                {
+                    _lastAutoSyncDataHash = hash;
+                    Add(new SyncCommand(data));
+                    Flush();
+                }
             }
             if(!_sending)
             {

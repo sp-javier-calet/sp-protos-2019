@@ -2,6 +2,7 @@
 using System;
 using SocialPoint.Login;
 using SocialPoint.Social;
+using SocialPoint.AdminPanel;
 
 public enum BackendEnvironment
 {
@@ -78,6 +79,8 @@ public class LoginInstaller : MonoInstaller
             
             Container.Bind<ILogin>().ToSingle<Login>();
             Container.Bind<IDisposable>().ToSingle<Login>();
+
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLogin>();
         }
 	}
 

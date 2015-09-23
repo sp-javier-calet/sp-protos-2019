@@ -25,7 +25,7 @@ namespace SocialPoint.Login
 
         void SetupHttpRequest(HttpRequest req, string uri);
 
-		void Login(ErrorDelegate cbk = null, LinkFilter filter = LinkFilter.Auto);
+		void Login(ErrorDelegate cbk = null);
 
         void ClearStoredUser();
     }

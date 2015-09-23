@@ -6,9 +6,10 @@ using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelConsole : IAdminPanelConfigurer, IAdminPanelGUI 
+    public class AdminPanelConsole : IAdminPanelConfigurer, IAdminPanelGUI
     {
         public StringBuilder _contentBuilder;
+
         public string Content { get { return _contentBuilder.ToString(); } }
 
         public event Action OnContentChanged;
@@ -74,13 +75,11 @@ namespace SocialPoint.AdminPanel
         private void OnSubmitCommand(string command)
         {
             Print(String.Format("${0}", command));
-            
-            ConsoleCommand consoleCommand = Application.FindCommand(command);
-            if(consoleCommand != null)
+            try
             {
-                consoleCommand.Execute();
+                Application.Run(command.Split(new char[]{' '}));
             }
-            else
+            catch(ConsoleException)
             {
                 Print(String.Format("Command {0} not found", command));
             }
@@ -97,7 +96,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        private class AdminPanelAvailableCommands : IAdminPanelGUI 
+        private class AdminPanelAvailableCommands : IAdminPanelGUI
         {
             private AdminPanelConsole _console;
             

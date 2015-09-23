@@ -63,7 +63,7 @@ namespace SocialPoint.Utils
                 {
                     dict[Uri.UnescapeDataString(part[0])] = Uri.UnescapeDataString(part[1]);
                 }
-                else
+                else if(!string.IsNullOrEmpty(part[0]))
                 {
                     dict[Uri.UnescapeDataString(part[0])] = string.Empty;
                 }

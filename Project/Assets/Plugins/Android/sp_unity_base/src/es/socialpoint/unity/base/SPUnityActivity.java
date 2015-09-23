@@ -11,7 +11,7 @@ import com.unity3d.player.UnityPlayerActivity;
 import java.lang.RuntimeException;
 
 public class SPUnityActivity extends UnityPlayerActivity {
-	
+
 	private static final String TAG = "SPUnityActivity";
 
 	private String mApplicationSource;
@@ -32,8 +32,8 @@ public class SPUnityActivity extends UnityPlayerActivity {
 	}
 
 	public String collectApplicationSource() {
-		/* Application source is cleaned after collect. 
-		 * Otherwise, the source will be repeated when the app comes to foreground 
+		/* Application source is cleaned after collect.
+		 * Otherwise, the source will be repeated when the app comes to foreground
 		 * from task manager or screen block */
 		String currentSource = mApplicationSource;
 		mApplicationSource = "";
@@ -81,7 +81,7 @@ public class SPUnityActivity extends UnityPlayerActivity {
 				    {
 				        extrasStr += urlEncode(key) + "=" + urlEncode(extras.get(key).toString()) + "&";
 				    }
-				    
+
 				    mApplicationSource = extrasStr;
 				}
 			}

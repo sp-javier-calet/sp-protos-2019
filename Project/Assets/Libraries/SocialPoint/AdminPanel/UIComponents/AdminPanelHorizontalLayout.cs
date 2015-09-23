@@ -7,12 +7,12 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public AdminPanelLayout CreateHorizontalLayout()
+        public HorizontalLayout CreateHorizontalLayout()
         {
             return new HorizontalLayout(this, Vector2.one);
         }
 
-        private class HorizontalLayout : AdminPanelLayout
+        public class HorizontalLayout : AdminPanelLayout
         {
             public HorizontalLayout(AdminPanelLayout parentLayout, Vector2 relativeSize) : base(parentLayout)
             {

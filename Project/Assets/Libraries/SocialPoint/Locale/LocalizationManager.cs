@@ -11,7 +11,7 @@ using SocialPoint.Network;
 
 namespace SocialPoint.Locale
 {
-    public class LocalizationManager
+    public class LocalizationManager : ILocalizationManager
     {
         public class LocationData
         {
@@ -86,11 +86,12 @@ namespace SocialPoint.Locale
         private IHttpClient _httpClient;
         private IAppInfo _appInfo;
         private bool _running = false;
+        private IHttpConnection _httpConn;
 
         public bool WriteCsv = true;
         public const float DefaultTimeout = 20.0f;
         public float Timeout = DefaultTimeout;
-        public Action Loaded = null;
+        public event Action Loaded = delegate{};
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
@@ -112,7 +113,19 @@ namespace SocialPoint.Locale
             Localization.GalicianIdentifier,
             Localization.BasqueIdentifier
         };
-        public string[] SupportedLanguages = DefaultSupportedLanguages;
+        string[] _supportedLanguages = DefaultSupportedLanguages;
+        public string[] SupportedLanguages
+        {
+            get
+            {
+                return _supportedLanguages;
+            }
+
+            set
+            {
+                _supportedLanguages = value;
+            }
+        }
 
         public static CultureInfo CurrentCultureInfo{ get; private set; }
 
@@ -191,19 +204,21 @@ namespace SocialPoint.Locale
             {
                 throw new ArgumentNullException("appInfo", "appInfo cannot be null or empty!");
             }
+            PathsManager.CallOnLoaded(Init);
         }
 
-        public void Start()
+        private void Init()
         {
             _running = true;
             _cachePath = Path.Combine(PathsManager.TemporaryCachePath, "localization");
             FileUtils.CreateDirectory(_cachePath);
             _bundlePath = Path.Combine(PathsManager.StreamingAssetsPath, BundleDir);
-
             LoadFallbackLanguage();
-
             LoadLanguage(CurrentLanguage);
-            
+        }
+
+        public void Load()
+        {
             #if UNITY_EDITOR
             DownloadSupportedLanguages(() => LoadLanguage(CurrentLanguage));
             #else
@@ -211,8 +226,19 @@ namespace SocialPoint.Locale
             #endif
         }
 
+        [Obsolete("Use Load()")]
+        public void Start()
+        {
+            Load();
+        }
+
         public void Stop()
         {
+            if(_httpConn != null)
+            {
+                _httpConn.Cancel();
+                _httpConn = null;
+            }
             _running = false;
         }
 
@@ -237,7 +263,7 @@ namespace SocialPoint.Locale
             {
                 locales = new Dictionary<string, Localization>();
             }
-            if(_running == false || locales.Count >= SupportedLanguages.Length)
+            if(_running == false || locales.Count >= _supportedLanguages.Length)
             {
                 if(WriteCsv)
                 {
@@ -256,7 +282,7 @@ namespace SocialPoint.Locale
                 }
                 return;
             }
-            var lang = SupportedLanguages[locales.Count];
+            var lang = _supportedLanguages[locales.Count];
             DownloadLocalization(lang, () => {
                 var locale = new Localization();
                 LoadLocalizationData(locale, lang);
@@ -445,11 +471,12 @@ namespace SocialPoint.Locale
             request.AcceptCompressed = true;
             request.Timeout = Timeout;
 
-            _httpClient.Send(request, resp => OnLocalizationDownload(resp, lang, etag, finish));
+            _httpConn = _httpClient.Send(request, resp => OnLocalizationDownload(resp, lang, etag, finish));
         }
 
         void OnLocalizationDownload(HttpResponse resp, string lang, string oldEtag, Action finish)
         {
+            _httpConn = null;
             if(resp.StatusCode == (int)HttpResponse.StatusCodeType.NotModified || resp.HasError)
             {
                 if(finish != null)
@@ -514,7 +541,7 @@ namespace SocialPoint.Locale
             {
                 lang = _appInfo.Language;
             }
-            var supported = new List<string>(SupportedLanguages);
+            var supported = new List<string>(_supportedLanguages);
             var fixlang = FixLanguage(lang);
             if(supported.Contains(lang) || supported.Contains(fixlang))
             {

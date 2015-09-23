@@ -47,7 +47,7 @@ std::queue<std::string> _pendingEvents;
         {
             const std::string& status = _pendingEvents.front();
             _pendingEvents.pop();
-            
+
             UnitySendMessage(_gameObjectName.c_str(), kNotifyMethod.c_str(), status.c_str());
         }
     }
@@ -85,7 +85,7 @@ std::queue<std::string> _pendingEvents;
                               [self urlEncode:value]];
             [parts addObject: part];
         }
-        
+
         NSString* url;
         if(scheme != nil)
         {
@@ -93,7 +93,7 @@ std::queue<std::string> _pendingEvents;
         } else {
             url = [parts componentsJoinedByString: @"&"];
         }
-        
+
         [self storeSource:url];
     }
     else
@@ -105,22 +105,20 @@ std::queue<std::string> _pendingEvents;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-    
+
     [self clearSource];
-    
-    if (&UIApplicationLaunchOptionsLocalNotificationKey != nil)
+
+
+    UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    if (notification)
     {
-        UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-        if (notification)
-        {
-            /* Notice that all event processing must be synchronous, 
-             * since the Source could change if there are any other  notification event */
-            [self storeSourceOptions:notification.userInfo withScheme:@"local"];
-        }
+        /* Notice that all event processing must be synchronous,
+         * since the Source could change if there are any other  notification event */
+        [self storeSourceOptions:notification.userInfo withScheme:@"local"];
     }
-    
+
     [self notifyStatus:kStatusUpdateSource];
-    
+
     return YES;
 }
 
@@ -168,9 +166,8 @@ std::queue<std::string> _pendingEvents;
 - (void)applicationWillResignActive:(UIApplication*)application
 {
     [self notifyStatus:kStatusWillGoBackground];
-    
     //aditional game loop to allow scripts response before being paused
-    UnityPlayerLoop();
+    UnityBatchPlayerLoop();
     [super applicationWillResignActive:application];
 }
 
@@ -194,7 +191,7 @@ extern "C" {
         SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
         [delegate setGameObjectName:gameObjectName];
     }
-    
+
     void SPUnityAppEvents_Flush()
     {
         SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];

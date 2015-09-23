@@ -1,4 +1,4 @@
-﻿using SocialPoint.Hardware;
+using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using Zenject;
@@ -72,12 +72,6 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
     public LocalizationManager(IHttpClient client, IAppInfo appInfo) :
         base(client, appInfo)
     {
-    }
-
-    [PostInject]
-    void PostInject()
-    {
-        Start();
     }
 
 }

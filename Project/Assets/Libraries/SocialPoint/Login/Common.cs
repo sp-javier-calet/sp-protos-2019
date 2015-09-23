@@ -192,7 +192,7 @@ namespace SocialPoint.Login
          * @see SocialPointLogin::login
          */
         Auto,
-        
+
         /**
          * Links with this mode will be logged in when calling SocialPointLogin::loginLinks method
          * @see SocialPointLogin::loginLinks
@@ -204,15 +204,6 @@ namespace SocialPoint.Login
          * they have to login manually
          */
         Manual
-    }
-    
-    public enum LinkFilter
-    {
-        Auto,
-        Normal,
-        AutoAndNormal,
-        All,
-        None
     }
     
     public enum LinkState

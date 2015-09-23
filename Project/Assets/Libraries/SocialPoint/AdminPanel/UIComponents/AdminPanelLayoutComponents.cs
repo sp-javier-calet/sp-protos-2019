@@ -6,13 +6,13 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout {
         
-        protected const int DefaultMargin = 3;
-        protected const int DefaultPadding = 3;
+        protected const int DefaultMargin = 5;
+        protected const int DefaultPadding = 5;
         protected const int DefaultScrollPadding = 10;
         protected const int DefaultFontSize = 14;
-        protected const int TextAreaFontSize = 9;
-        protected const int PanelTitleFontSize = 5;
-        protected const int PanelHeaderHeight = 8;
+        protected const int TextAreaFontSize = 10;
+        protected const int PanelTitleFontSize = 10;
+        protected const int PanelHeaderHeight = 12;
         protected const int DefaultLabelHeight = 20;
         protected const int DefaultLayoutWeight = 1;
 
@@ -38,10 +38,10 @@ namespace SocialPoint.AdminPanel
 
         protected RectTransform CreateUIObject(string name, RectTransform parent)
         {
-            GameObject gObject = new GameObject(name);
+            var gObject = new GameObject(name);
             gObject.transform.SetParent(parent);
             
-            RectTransform rectTransform = gObject.AddComponent<RectTransform>();
+            var rectTransform = gObject.AddComponent<RectTransform>();
             rectTransform.pivot = Vector2.up;
             rectTransform.offsetMin = Vector2.zero;
             rectTransform.offsetMax = Vector2.zero;
