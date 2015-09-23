@@ -93,15 +93,25 @@ public class BaseCameraController : MonoBehaviour
         OnScrollWheel(eventData);
     }
 
-    protected virtual void OnDragTwoTouches(Touch touch0, Touch touch1){}
+    protected virtual void OnDragTwoTouches(Touch touch0, Touch touch1)
+    {
+    }
 
-    protected virtual void OnDragOneTouch(Touch touch0){}
+    protected virtual void OnDragOneTouch(Touch touch0)
+    {
+    }
 
-    protected virtual void OnDragLeftMouse(PointerEventData eventData){}
+    protected virtual void OnDragLeftMouse(PointerEventData eventData)
+    {
+    }
 
-    protected virtual void OnDragRightMouse(PointerEventData eventData){}
+    protected virtual void OnDragRightMouse(PointerEventData eventData)
+    {
+    }
 
-    protected virtual void OnScrollWheel(PointerEventData eventData){}
+    protected virtual void OnScrollWheel(PointerEventData eventData)
+    {
+    }
 
     float _camSinAngle;
     float _originalOrthoSize;
@@ -127,7 +137,7 @@ public class BaseCameraController : MonoBehaviour
 
     [SerializeField]
     [Range(0.0f, 0.9f)]
-    float IntertiaRatio = 0.75f;
+    float InertiaRatio = 0.75f;
 
     float AccumZoom
     {
@@ -154,6 +164,18 @@ public class BaseCameraController : MonoBehaviour
         get { return MaxStaticZoom; }
     }
 
+    Vector2 GetWorldUnitsPerScreenUnit
+    {
+        get
+        {
+            float cameraHeight;
+            float cameraWitdh;
+            CalculateCurrentCameraWidthAndHeight(out cameraWitdh, out cameraHeight);
+
+            var ratio = new Vector2(cameraWitdh / Screen.width, cameraHeight / Screen.height);
+            return ratio;
+        }
+    }
 
     void Awake()
     {
@@ -174,7 +196,7 @@ public class BaseCameraController : MonoBehaviour
         if(_usingInertia)
         {
             MovePosition(_velocity * Time.deltaTime);
-            _velocity *= IntertiaRatio;
+            _velocity *= InertiaRatio;
 
             _usingInertia &= _velocity.magnitude > 0.0f;
         }
@@ -197,7 +219,7 @@ public class BaseCameraController : MonoBehaviour
 
     Vector3 ScreenDelta2CameraDelta(Vector2 deltaScreen)
     {
-        Vector2 cameraDeltaPerScreenDelta = GetWorldUnitsPerScreenUnit();
+        Vector2 cameraDeltaPerScreenDelta = GetWorldUnitsPerScreenUnit;
 
         // move horizontal
         float xDeltaScaled = deltaScreen.x * cameraDeltaPerScreenDelta.x;
@@ -222,16 +244,6 @@ public class BaseCameraController : MonoBehaviour
         _camera.transform.position = newPosition;
 
         _velocity = cameraDeltaPos / Time.deltaTime;
-    }
-
-    Vector2 GetWorldUnitsPerScreenUnit()
-    {
-        float cameraHeight;
-        float cameraWitdh;
-        CalculateCurrentCameraWidthAndHeight(out cameraWitdh, out cameraHeight);
-
-        var ratio = new Vector2(cameraWitdh / Screen.width, cameraHeight / Screen.height);
-        return ratio;
     }
 
     void CalculateCurrentCameraWidthAndHeight(out float oCameraWitdh, out float oCameraHeight)
@@ -299,7 +311,7 @@ public class BaseCameraController : MonoBehaviour
         deltaMiddlePos.y = deltaMiddlePos.y - ((float)Screen.height * 0.5f);
 
         // camera delta pos
-        Vector2 cameraUnitsPerPixel = GetWorldUnitsPerScreenUnit();
+        Vector2 cameraUnitsPerPixel = GetWorldUnitsPerScreenUnit;
         var deltaMiddlePosCameraUnits = new Vector2(deltaMiddlePos.x * cameraUnitsPerPixel.x, deltaMiddlePos.y * cameraUnitsPerPixel.y);
         deltaMiddlePosCameraUnits = deltaMiddlePosCameraUnits * (zoom - 1.0f);
 
