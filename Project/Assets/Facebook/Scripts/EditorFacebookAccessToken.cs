@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Facebook;
 using UnityEngine;
@@ -50,7 +50,7 @@ public class EditorFacebookAccessToken : MonoBehaviour
         {
             greyButton = GUI.skin.button;
         }
-        GUI.Window(GetHashCode(), new Rect(windowLeft, windowTop, windowWidth, windowHeight), OnGUIDialog, "Unity Editor Facebook Login");
+        GUI.ModalWindow(GetHashCode(), new Rect(windowLeft, windowTop, windowWidth, windowHeight), OnGUIDialog, "Unity Editor Facebook Login");
     }
 
     private void OnGUIDialog(int windowId)

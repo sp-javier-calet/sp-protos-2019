@@ -28,10 +28,10 @@ namespace SocialPoint.Profiler
                 layout.CreateMargin();
 
                 layout.CreateLabel("Frame Info");
-                layout.CreateVerticalScrollLayout().CreateTextArea(_perfInfoGUI.Info.Frame.ToString(), out _frameText);
+                _frameText = layout.CreateVerticalScrollLayout().CreateTextArea(_perfInfoGUI.Info.Frame.ToString());
 
                 layout.CreateLabel("Garbage Info");
-                layout.CreateVerticalScrollLayout().CreateTextArea(_perfInfoGUI.Info.Garbage.ToString(), out _garbageText);
+                _garbageText = layout.CreateVerticalScrollLayout().CreateTextArea(_perfInfoGUI.Info.Garbage.ToString());
             }
         }
 

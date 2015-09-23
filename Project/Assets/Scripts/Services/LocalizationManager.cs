@@ -1,10 +1,9 @@
-﻿using Zenject;
-using UnityEngine;
-using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
+using SocialPoint.Network;
+using Zenject;
 
-class LocalizationManager : SocialPoint.Locale.LocalizationManager
+public class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {
     [Inject("locale_project_id")]
     string injectProjectId
@@ -32,7 +31,7 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
             Location.SecretKey = value;
         }
     }
-    
+
     [Inject("locale_supported_langs")]
     string[] injectSupportedLanguages
     {
@@ -70,15 +69,9 @@ class LocalizationManager : SocialPoint.Locale.LocalizationManager
         }
     }
 
-    public LocalizationManager(IHttpClient client, IAppInfo appInfo):
+    public LocalizationManager(IHttpClient client, IAppInfo appInfo) :
         base(client, appInfo)
     {
-    }
-
-    [PostInject]
-    void PostInject()
-    {
-        Start();
     }
 
 }

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Threading
 {
-    public class MainThreadDispatcher : MonoBehaviour {
+    public class MainThreadDispatcher : MonoBehaviour
+    {
 
         private static MainThreadDispatcher _instance = null;
-
         private static IList<Action> _pendingActions = new List<Action>();
         
         public static void Init()
@@ -23,6 +23,10 @@ namespace SocialPoint.Threading
 
         public static void Dispatch(Action action)
         {
+            if(_instance == null)
+            {
+                throw new InvalidOperationException("MainThreadDispatcher not initialized.");
+            }
             lock(_pendingActions)
             {
                 _pendingActions.Add(action);
@@ -41,7 +45,7 @@ namespace SocialPoint.Threading
             }
         }
 
-        void LateUpdate ()
+        void LateUpdate()
         {
             RunPendingActions();
         }

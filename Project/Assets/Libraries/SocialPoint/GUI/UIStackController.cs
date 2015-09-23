@@ -81,8 +81,12 @@ namespace SocialPoint.GUI
                 _actionCoroutine = null;
             }
             _action = act;
-            _actionCoroutine = StartCoroutine(DoActionCoroutine(enm));
-            return _actionCoroutine;
+            if(gameObject.activeInHierarchy)
+            {
+                _actionCoroutine = StartCoroutine(DoActionCoroutine(enm));
+                return _actionCoroutine;
+            }
+            return null;
         }
 
         IEnumerator DoActionCoroutine(IEnumerator enm)

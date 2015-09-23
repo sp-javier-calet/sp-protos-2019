@@ -1,12 +1,16 @@
-﻿using System;
-using SocialPoint.Attributes;
-using SocialPoint.IO;
+using System;
 using SocialPoint.Locale;
+using SocialPoint.AdminPanel;
 using Zenject;
 
 public class LocaleInstaller : MonoInstaller
 {
-    public enum EnvironmentID {dev,loc,prod};
+    public enum EnvironmentID
+    {
+        dev,
+        loc,
+        prod
+    }
 
     [Serializable]
     public class SettingsData
@@ -20,11 +24,11 @@ public class LocaleInstaller : MonoInstaller
         public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
         public float Timeout = LocalizationManager.DefaultTimeout;
     };
-    
+
     public SettingsData Settings;
 
-	public override void InstallBindings()
-	{	
+    public override void InstallBindings()
+    {	
         if(Container.HasBinding<Localization>())
         {
             return;
@@ -49,8 +53,7 @@ public class LocaleInstaller : MonoInstaller
         Container.BindInstance("locale_supported_langs", Settings.SupportedLanguages);
         Container.BindInstance("locale_timeout", Settings.Timeout);
         Container.BindInstance("locale_bundle_dir", Settings.BundleDir);
-
-        var mng = Container.Instantiate<LocalizationManager>();
-        Container.BindInstance(mng);
-	}
+        Container.Bind<ILocalizationManager>().ToSingle<LocalizationManager>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
+    }
 }

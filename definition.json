@@ -29,6 +29,8 @@
     "SocialPoint/QualityStats": "v1.0.*",
     "SocialPoint/Purchase/Ios": "v1.0.*",
     "SocialPoint/Purchase/Android": "v1.0.*",
+    "SocialPoint/Notifications/Ios": "v1.0.*",
+    "SocialPoint/Notifications/Android": "v1.0.*",
     "SocialPoint/GameLoading": "v1.0.*",
     "SocialPoint/AdminPanel": "v1.0.*",
     "SocialPoint/AppEvents/AdminPanel": "v1.0.*",
@@ -41,5 +43,10 @@
     "ModestTree/Zenject": "v2.5",
     "Prime31/GoKit": "v0.3",
     "BuildReport": "v3.0.*"
+  },
+  "require_dev": {
+      "SocialPoint/Notifications/Ios": "fix/definitions",
+      "SocialPoint/Notifications/Android": "fix/definitions",
+      "SocialPoint/Profiler": "fix/definitions"
   }
 }

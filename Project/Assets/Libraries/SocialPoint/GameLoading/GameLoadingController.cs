@@ -53,29 +53,41 @@ namespace SocialPoint.GameLoading
         const string ProgressLoginEndDef = "Logged in";
         const string ProgressSuggestedUpdateSkipKey = "gameloading.progress_suggested_update_skip";
         const string ProgressSuggestedUpdateSkipDef = "Will update later";
+
         public ILogin Login;
         public PopupsController Popups;
         public Localization Localization;
+        public ILocalizationManager LocalizationManager;
         public ICrashReporter CrashReporter;
         public GameObject ProgressContainer;
         public LoadingBarController LoadingBar;
         public IAlertView AlertView;
-        protected List<LoadingOperation> _operations = new List<LoadingOperation>();
-        protected LoadingOperation _loginOperation;
-        IAlertView _alert;
+
+        private List<LoadingOperation> _operations = new List<LoadingOperation>();
+        private LoadingOperation _loginOperation;
+        private IAlertView _alert;
 
         protected virtual void AllOperationsLoaded()
         {
             DebugLog("all operations loaded");
+            if(LocalizationManager != null)
+            {
+                LocalizationManager.Load();
+            }
         }
 
         override protected void OnLoad()
         {
             base.OnLoad();
 
+            if(Localization == null && LocalizationManager != null)
+            {
+                Localization = LocalizationManager.Localization;
+            }
+
             if(Localization == null)
             {
-                Localization = new Localization();
+                Localization = Localization.Default;
             }
 
             if(CrashReporter != null)
@@ -196,12 +208,17 @@ namespace SocialPoint.GameLoading
             case ErrorType.MaintenanceMode:
                 {
                     var popup = Popups.CreateChild<MaintenanceModePopupController>();
-                    var title = Login.Data.Maintenance.Title;
+                    string title = null;
+                    string message = null;
+                    if(Login.Data != null && Login.Data.Maintenance != null)
+                    {
+                        title = Login.Data.Maintenance.Title;
+                        message = Login.Data.Maintenance.Message;
+                    }
                     if(string.IsNullOrEmpty(title))
                     {
                         title = Localization.Get(MaintenanceModeTitleKey, MaintenanceModeTitleDef);
                     }
-                    string message = Login.Data.Maintenance.Message;
                     if(string.IsNullOrEmpty(message))
                     {
                         message = Localization.Get(MaintenanceModeMessageKey, MaintenanceModeMessageDef);

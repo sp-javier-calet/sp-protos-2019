@@ -29,34 +29,39 @@ namespace SocialPoint.Console
 
             set
             {
-                if(_value == null)
-                {
-                    _value = value;
-                    return;
-                }
-                else if(_value == string.Empty && string.IsNullOrEmpty(value))
-                {
-                    _value = TwoString;
-                    return;
-                }
-                int i, j;
-                if(int.TryParse(_value, out i))
-                {
-                    if(string.IsNullOrEmpty(value))
-                    {
-                        i++;
-                        _value = i.ToString();
-                        return;
-                    }
-                    else if(int.TryParse(value, out j))
-                    {
-                        i += j;
-                        _value = i.ToString();
-                        return;
-                    }
-                }
-                _value += ValueSeparatorChar+value;
+                _value = value;
             }
+        }
+
+        public void AddValue(string value)
+        {
+            if(_value == null)
+            {
+                _value = value;
+                return;
+            }
+            else if(_value == string.Empty && string.IsNullOrEmpty(value))
+            {
+                _value = TwoString;
+                return;
+            }
+            int i, j;
+            if(int.TryParse(_value, out i))
+            {
+                if(string.IsNullOrEmpty(value))
+                {
+                    i++;
+                    _value = i.ToString();
+                    return;
+                }
+                else if(int.TryParse(value, out j))
+                {
+                    i += j;
+                    _value = i.ToString();
+                    return;
+                }
+            }
+            _value += ValueSeparatorChar+value;
         }
 
         public string Name

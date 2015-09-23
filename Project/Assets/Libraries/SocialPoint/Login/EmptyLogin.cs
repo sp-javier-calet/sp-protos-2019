@@ -43,7 +43,7 @@ namespace SocialPoint.Login
             }
         }
 
-        public void Login(ErrorDelegate cbk = null, LinkFilter filter = LinkFilter.Auto)
+        public void Login(ErrorDelegate cbk = null)
         {
         }
 

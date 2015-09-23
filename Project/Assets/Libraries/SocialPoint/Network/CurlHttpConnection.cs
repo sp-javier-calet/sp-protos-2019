@@ -23,6 +23,7 @@ namespace SocialPoint.Network
         HttpRequest  _request;
         HttpResponseDelegate _delegate;
         string _error;
+        bool _cancelled;
         const char kHeaderEnd = '\n';
         const char kHeaderSeparator = ':';
 
@@ -71,7 +72,11 @@ namespace SocialPoint.Network
             }
 
             HttpResponse r = new HttpResponse(_respCode, headersData);
-            if(r.HasError)
+            if(_cancelled)
+            {
+                r.Error = new Error((int)HttpResponse.StatusCodeType.CancelledError, "Connection was cancelled");
+            }
+            else if(r.HasError)
             {
                 r.Error = new Error(_respCode, _error);
             }
@@ -87,16 +92,8 @@ namespace SocialPoint.Network
 
         public override void Cancel()
         {
-            if(_delegate != null)
-            {
-                Delegate[] data = _delegate.GetInvocationList();
-
-                for(int k = 0; k < data.Length; k++)
-                {
-                    var item = data[k] as HttpResponseDelegate;
-                    _delegate -= item;
-                }
-            }
+            _cancelled = true;
+            ReceiveData();
         }
 
         static CurlBridge.RequestStruct CreateRequestStruct(HttpRequest request, int id=0)

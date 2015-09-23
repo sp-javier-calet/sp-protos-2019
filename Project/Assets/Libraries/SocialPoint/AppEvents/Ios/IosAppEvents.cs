@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
 namespace SocialPoint.AppEvents
-{ 
+{    
     /// <summary>
     /// In order to receive events in Unity from Ios we use UnitySendMessage("IosAppEvents","NotifyStatus","ACTIVE")
     /// we need to create a persistant gameObject Containig this script
@@ -27,11 +27,21 @@ namespace SocialPoint.AppEvents
         private List<Status> EventStatus = new List<Status> {Status.MEMORYWARNING, Status.UPDATEDSOURCE};
         private Status _previousStatus = Status.FIRSTBOOT;
 
+#if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Init(string name);
 
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Flush();
+#else
+        private static  void SPUnityAppEvents_Init(string name)
+        {
+        }
+
+        private static void SPUnityAppEvents_Flush()
+        {
+        }
+#endif
 
         void Awake()
         {
@@ -122,5 +132,6 @@ namespace SocialPoint.AppEvents
             UpdateStatus(status);
         }
     }
+
 }
 

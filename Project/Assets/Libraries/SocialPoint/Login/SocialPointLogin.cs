@@ -458,7 +458,7 @@ namespace SocialPoint.Login
             return url;
         }
 
-        void DoLogin(ErrorDelegate cbk, uint retry, LinkFilter filter)
+        void DoLogin(ErrorDelegate cbk, uint retry)
         {
             _pendingLinkConfirms.Clear();
             if(retry > MaxLoginRetries)
@@ -477,41 +477,38 @@ namespace SocialPoint.Login
                 }
 
                 DebugLog("login\n----\n" + req.ToString() + "----\n");
-                _httpClient.Send(req, (resp) => OnLogin(resp, cbk, retry, filter));
+                _httpClient.Send(req, (resp) => OnLogin(resp, cbk, retry));
             }
         }
 
-        void OnLogin(HttpResponse resp, ErrorDelegate cbk, uint retry, LinkFilter filter)
+        void OnLogin(HttpResponse resp, ErrorDelegate cbk, uint retry)
         {
             DebugLog("login\n----\n" + resp.ToString() + "----\n");
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearStoredUser();
-                DoLogin(cbk, retry + 1, filter);
+                DoLogin(cbk, retry + 1);
+                return;
             }
-            else
+
+            Data = null;
+            Error err = null;
+            if(Error.IsNullOrEmpty(err))
             {
-                Data = null;
-                Error err = null;
-                if(Error.IsNullOrEmpty(err))
-                {
-                    err = HandleLoginErrors(resp, ErrorType.Login);
-                }
-                if(Error.IsNullOrEmpty(err))
-                {
-                    err = HandleResponseErrors(resp, ErrorType.Login);
-                }
-                if(!Error.IsNullOrEmpty(err))
-                {
-                    OnLoginEnd(err, cbk);
-                }
-                else
-                {
-                    if(OnNewLocalUser(resp))
-                    {
-                        NextLinkLogin(null, cbk, filter);
-                    }
-                }
+                err = HandleLoginErrors(resp, ErrorType.Login);
+            }
+            if(Error.IsNullOrEmpty(err))
+            {
+                err = HandleResponseErrors(resp, ErrorType.Login);
+            }
+            if(Error.IsNullOrEmpty(err))
+            {
+                err = OnNewLocalUser(resp);
+            }
+            OnLoginEnd(err, cbk);
+            if(Error.IsNullOrEmpty(err))
+            {
+                NextLinkLogin(null, null, LinkInfo.Filter.Auto);
             }
         }
 
@@ -561,7 +558,7 @@ namespace SocialPoint.Login
             }
         }
 
-        void OnLinkLogin(LinkInfo info, Error err, ErrorDelegate cbk, LinkFilter filter)
+        void OnLinkLogin(LinkInfo info, Error err, ErrorDelegate cbk, LinkInfo.Filter filter)
         {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(!Error.IsNullOrEmpty(err))
@@ -573,7 +570,7 @@ namespace SocialPoint.Login
             NextLinkLogin(info, cbk, filter);
         }
 
-        LinkInfo GetNextLinkInfo(LinkInfo info, LinkFilter filter)
+        LinkInfo GetNextLinkInfo(LinkInfo info, LinkInfo.Filter filter)
         {
             if(info != null)
             {
@@ -602,7 +599,7 @@ namespace SocialPoint.Login
             return null;
         }
 
-        void NextLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkFilter filter)
+        void NextLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkInfo.Filter filter)
         {    
             
             info = GetNextLinkInfo(info, filter);
@@ -616,7 +613,7 @@ namespace SocialPoint.Login
             }
         }
 
-        void DoLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkFilter filter)
+        void DoLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkInfo.Filter filter)
         {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             info.Link.Login((err) => OnLinkLogin(info, err, cbk, filter));
@@ -820,7 +817,7 @@ namespace SocialPoint.Login
             return new LocalUser(user.Id, sessionId, user.Links);
         }
 
-        bool OnNewLocalUser(HttpResponse resp)
+        Error OnNewLocalUser(HttpResponse resp)
         {    
             AttrDic json = null;
             Error err = null;
@@ -868,15 +865,15 @@ namespace SocialPoint.Login
                 {
                     NewUserEvent(gameData, changed);
                 }
-                return true;
+
             }
             else
             {
                 var errData = new AttrDic();
                 errData.Set(AttrKeyData, json);
                 NotifyError(errType, err, errData);
-                return false;
             }
+            return err;
         }
 
         void OnLinkConfirmResponse(LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
@@ -1067,7 +1064,7 @@ namespace SocialPoint.Login
             DebugLog("app req\n----\n" + req.ToString() + "---\n");
             if(Error.IsNullOrEmpty(err))
             {
-                info = GetNextLinkInfo(info, LinkFilter.All);
+                info = GetNextLinkInfo(info, LinkInfo.Filter.All);
                 if(info != null)
                 {
                     info.Link.NotifyAppRequestRecipients(req, (err2) => OnAppRequestLinkNotified(info, req, err2, cbk));
@@ -1171,7 +1168,7 @@ namespace SocialPoint.Login
                 {
                     GetCachedUserById(user.Id, user);
                 }
-                info = GetNextLinkInfo(info, LinkFilter.All);
+                info = GetNextLinkInfo(info, LinkInfo.Filter.All);
                 if(info != null)
                 {
                     info.Link.UpdateUserPhoto(user, photoSize, (err2) => OnUserPhotoLink(info, user, users, photoSize, err2, cbk));
@@ -1480,13 +1477,13 @@ namespace SocialPoint.Login
          * @param callback to call when the login is finished
          * @param which links to also login, by default will login all auto links
          */
-        public void Login(ErrorDelegate cbk = null, LinkFilter filter = LinkFilter.Auto)
+        public void Login(ErrorDelegate cbk = null)
         {
             if(TrackEvent != null)
             {
                 TrackEvent(EventNameLoading, new AttrDic());
             }
-            DoLogin(cbk, 0, filter);
+            DoLogin(cbk, 0);
         }
 
         /**
@@ -1494,7 +1491,7 @@ namespace SocialPoint.Login
          */
         public void LoginLinks(ErrorDelegate cbk = null)
         {
-            NextLinkLogin(null, cbk, LinkFilter.Normal);
+            NextLinkLogin(null, cbk, LinkInfo.Filter.Normal);
         }
 
         /**
@@ -1504,7 +1501,7 @@ namespace SocialPoint.Login
         {
             LinkInfo resultLinkInfo = _links.FirstOrDefault(item => item.Link == link);
             DebugUtils.Assert(resultLinkInfo != null);
-            DoLinkLogin(resultLinkInfo, cbk, LinkFilter.None);
+            DoLinkLogin(resultLinkInfo, cbk, LinkInfo.Filter.None);
         }
 
         /**
@@ -1871,7 +1868,15 @@ namespace SocialPoint.Login
     }
 
     public class LinkInfo
-    {
+    {        
+        public enum Filter
+        {
+            Auto,
+            Normal,
+            All,
+            None
+        }
+
         public ILink Link { get; private set; }
 
         public LinkMode Mode { get; private set; }
@@ -1898,20 +1903,20 @@ namespace SocialPoint.Login
             Mode = mode;
         }
 
-        public bool MatchesFilter(LinkFilter filter)
+        public bool MatchesFilter(Filter filter)
         {
             bool result = false;
 
             switch(Mode)
             {
             case LinkMode.Auto:
-                result = filter != LinkFilter.None && filter != LinkFilter.Normal;
+                result = filter != Filter.None && filter != Filter.Normal;
                 break;
             case LinkMode.Normal:
-                result = filter != LinkFilter.None && filter != LinkFilter.Auto;
+                result = filter != Filter.None && filter != Filter.Auto;
                 break;
             case LinkMode.Manual:
-                result = filter == LinkFilter.All;
+                result = filter == Filter.All;
                 break;
             }
 

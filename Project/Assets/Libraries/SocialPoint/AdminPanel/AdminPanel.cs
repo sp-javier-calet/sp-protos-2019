@@ -22,10 +22,11 @@ namespace SocialPoint.AdminPanel
             Console.OnConfigure(this);
         }
          
-        public void RegisterGUI(string category, IAdminPanelGUI gui)
+        public AdminPanelGUIGroup RegisterGUI(string category, IAdminPanelGUI gui)
         {
-            AdminPanelGUIGroup group = GetCategoryLayout(category);
+            var group = GetCategoryLayout(category);
             group.Add(gui);
+            return group;
         }
 
         private AdminPanelGUIGroup GetCategoryLayout(string category)

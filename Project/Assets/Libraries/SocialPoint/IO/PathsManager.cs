@@ -11,6 +11,7 @@ namespace SocialPoint.IO
         private static string _persistentDataPath;
         private static string _streamingAssetsPath;
         private static string _temporaryCachePath;
+        private static Action _loaded;
 
         public static string DataPath
         {
@@ -71,6 +72,23 @@ namespace SocialPoint.IO
             _persistentDataPath = Application.persistentDataPath;
             _streamingAssetsPath = Application.streamingAssetsPath;
             _temporaryCachePath = Application.temporaryCachePath;
+            if(_loaded != null)
+            {
+                _loaded();
+            }
+            _loaded = null;
+        }
+
+        public static void CallOnLoaded(Action action)
+        {
+            if(_dataPath != null)
+            {
+                action();
+            }
+            else
+            {
+                _loaded += action;
+            }
         }
     }  
 }

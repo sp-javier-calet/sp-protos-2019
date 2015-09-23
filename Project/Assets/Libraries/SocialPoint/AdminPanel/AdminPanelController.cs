@@ -72,7 +72,7 @@ namespace SocialPoint.AdminPanel
             using(var scrollLayout = _consolePanel.CreateVerticalScrollLayout(out _consoleScroll))
             {
                 scrollLayout.CreateLabel("Console");
-                scrollLayout.CreateTextArea(AdminPanel.Console.Content, out _consoleText);
+                _consoleText = scrollLayout.CreateTextArea(AdminPanel.Console.Content);
             }
             _consolePanel.SetActive(false);
         }

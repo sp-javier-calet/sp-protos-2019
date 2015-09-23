@@ -39,11 +39,11 @@ namespace SocialPoint.AppEvents
                 GameObject.DontDestroyOnLoad(go);
             }
             DestroyAppEvents();
-            #if UNITY_IOS && !UNITY_EDITOR
+            #if UNITY_IOS
             _appEvents = go.AddComponent<IosAppEvents>();
-            #elif UNITY_ANDROID && !UNITY_EDITOR
+            #elif UNITY_ANDROID
             _appEvents = go.AddComponent<AndroidAppEvents>();
-            #elif UNITY_EDITOR
+            #else
             _appEvents = go.AddComponent<UnityAppEvents>();
             #endif
         }

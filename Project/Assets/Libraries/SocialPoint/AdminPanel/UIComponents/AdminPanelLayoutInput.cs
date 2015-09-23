@@ -7,7 +7,7 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public void CreateTextInput(string placeholder, Action<string> onSubmit, Action<InputStatus> onValueChange)
+        public InputField CreateTextInput(string placeholder, Action<string> onSubmit, Action<InputStatus> onValueChange)
         {
             var rectTransform = CreateUIObject("Admin Panel - Text Input", Parent);
             
@@ -80,11 +80,17 @@ namespace SocialPoint.AdminPanel
             }
 
             input.textComponent = contentText;
+            return input;
         }
 
-        public void CreateTextInput(string placeholder, Action<string> onSubmit)
+        public InputField CreateTextInput(string placeholder, Action<string> onSubmit = null)
         {
-            CreateTextInput(placeholder, onSubmit, null);
+            return CreateTextInput(placeholder, onSubmit, null);
+        }
+
+        public InputField CreateTextInput(Action<string> onSubmit = null)
+        {
+            return CreateTextInput(string.Empty, onSubmit, null);
         }
 
         public class InputStatus

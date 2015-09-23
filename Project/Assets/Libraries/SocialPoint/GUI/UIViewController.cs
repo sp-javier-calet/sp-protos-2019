@@ -108,6 +108,11 @@ namespace SocialPoint.GUI
             OnStart();
         }
 
+        void OnDestroy()
+        {
+            HideImmediate();
+        }
+
         virtual protected void OnStart()
         {
             if(isActiveAndEnabled && transform.parent != null)
