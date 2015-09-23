@@ -64,7 +64,7 @@ public class NotificationBridge extends BroadcastReceiver
         Log.d(TAG, "showing notification "+id+" ...");
 
         Resources res = context.getResources();
-        Intent notificationIntent = new Intent(context, UnityPlayerActivity.class);
+        Intent notificationIntent = new Intent(context, UnityPlayer.currentActivity.getClass());
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 
@@ -112,7 +112,7 @@ public class NotificationBridge extends BroadcastReceiver
     {
         Activity currentActivity = UnityPlayer.currentActivity;
         AlarmManager am = (AlarmManager)currentActivity.getSystemService("alarm");
-        Intent intent = new Intent(currentActivity, NotificationBridge.class);
+        Intent intent = new Intent(currentActivity, UnityPlayerActivity.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, id, intent, 0);
         am.cancel(pendingIntent);
     }

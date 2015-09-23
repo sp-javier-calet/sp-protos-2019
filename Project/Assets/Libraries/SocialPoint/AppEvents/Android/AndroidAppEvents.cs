@@ -6,7 +6,7 @@ using SocialPoint.Threading;
 
 namespace SocialPoint.AppEvents
 {
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 
 	public class AndroidAppEvents : AppEventsBase
     {
@@ -18,6 +18,11 @@ namespace SocialPoint.AppEvents
         }
 
         void Start()
+        {
+            DispatchMainThread(StartDispatched);
+        }
+
+        void StartDispatched()
         {
             // Trigger OpenFromSource at startup
             UpdateSource();

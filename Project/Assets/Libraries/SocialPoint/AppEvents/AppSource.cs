@@ -38,7 +38,7 @@ namespace SocialPoint.AppEvents
         { 
             get
             {
-                return (_uri != null) ? _uri.ToString() : "";
+                return (_uri != null) ? _uri.ToString() : string.Empty;
             }
         }
 
@@ -46,7 +46,7 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                return (_uri != null) ? _uri.Scheme : "";
+                return (_uri != null) ? _uri.Scheme : string.Empty;
             }
         }
 
@@ -54,7 +54,7 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                return (_uri != null) ? _uri.Query : "";
+                return (_uri != null) ? _uri.Query : string.Empty;
             }
         }
 
