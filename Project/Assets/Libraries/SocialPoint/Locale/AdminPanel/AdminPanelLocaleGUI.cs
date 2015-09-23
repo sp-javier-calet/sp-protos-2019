@@ -28,8 +28,6 @@ namespace SocialPoint.Locale
             {
                 layout.CreateConfirmButton(lang, () => {
                     LocalizationManager.CurrentLanguage = lang;
-                    // FIXME
-                    ZenUtil.LoadScene(Application.loadedLevelName);
                 }, ButtonColor.Gray);
             }
         }
