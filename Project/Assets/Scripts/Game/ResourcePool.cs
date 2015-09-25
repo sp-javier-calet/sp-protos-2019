@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-
 using SocialPoint.Events;
 using SocialPoint.Attributes;
 
@@ -19,7 +19,7 @@ public class ResourceException :Exception
     }
 }
 
-public class ResourcePool : Dictionary<string,long>
+public class ResourcePool : IEnumerable<KeyValuePair<string,long>>
 {
     public delegate void ResourceModifiedDelegate(ResourceOperation op);
 
@@ -28,11 +28,15 @@ public class ResourcePool : Dictionary<string,long>
     /// </summary>
     public event ResourceModifiedDelegate ResourceModified = delegate {};
 
+
+    Dictionary<string,long> _data;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ResourcePool"/> class.
     /// </summary>
-    public ResourcePool() : base()
+    public ResourcePool()
     {
+        _data = new Dictionary<string,long>();
     }
 
     /// <summary>
@@ -47,6 +51,21 @@ public class ResourcePool : Dictionary<string,long>
         Init(data);
     }
 
+    public IEnumerator<KeyValuePair<string, long>> GetEnumerator()
+    {
+        return _data.GetEnumerator();
+    }
+    
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    bool ContainsKey(string name)
+    {
+        return _data.ContainsKey(name);
+    }
+
     /// <summary>
     /// Init the resources ammount dictionary.
     /// </summary>
@@ -57,7 +76,7 @@ public class ResourcePool : Dictionary<string,long>
         {
             if(!ContainsKey(kvp.Key))
             {
-                Add(kvp.Key, kvp.Value.AsValue.ToInt());
+                this[kvp.Key] = kvp.Value.AsValue.ToInt();
             }
         }
     }
@@ -72,9 +91,9 @@ public class ResourcePool : Dictionary<string,long>
         {
             if(!ContainsKey(resource))
             {
-                Add(resource, 0);
+                _data.Add(resource, 0);
             }
-            return base[resource];
+            return _data[resource];
         }
 
         set
@@ -83,7 +102,7 @@ public class ResourcePool : Dictionary<string,long>
             {
                 throw new ResourceException("Value can't be negative");
             }
-            base[resource] = value;
+            _data[resource] = value;
             //TODO: fill with more data
             var op = new ResourceOperation();
             op.Resource = resource;
@@ -96,14 +115,7 @@ public class ResourcePool : Dictionary<string,long>
     {
         foreach(var kvp in b)
         {
-            if(!a.ContainsKey(kvp.Key))
-            {
-                a.Add(kvp.Key, kvp.Value);
-            }
-            else
-            {
-                a[kvp.Key] += kvp.Value;
-            }
+            a[kvp.Key] += kvp.Value;
         }
         return a;
     }
@@ -112,14 +124,7 @@ public class ResourcePool : Dictionary<string,long>
     {
         foreach(var kvp in b)
         {
-            if(!a.ContainsKey(kvp.Key))
-            {
-                a.Add(kvp.Key, kvp.Value);
-            }
-            else
-            {
-                a[kvp.Key] -= kvp.Value;
-            }
+            a[kvp.Key] -= kvp.Value;
         }
         return a;
     }
