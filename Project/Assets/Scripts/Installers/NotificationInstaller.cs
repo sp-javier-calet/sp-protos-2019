@@ -1,5 +1,6 @@
 ﻿using Zenject;
 using UnityEngine;
+using System;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;
@@ -7,14 +8,13 @@ using SocialPoint.Notifications;
 
 public class NotificationInstaller : MonoInstaller
 {
-    [Inject]
-    MonoBehaviour _behaviour;
-
-    [Inject]
-    IAppEvents _appEvents;
-
-    [Inject]
-    ICommandQueue _commandQueue;
+    [Serializable]
+    public class SettingsData
+    {
+        public bool AutoRegisterForRemote = true;
+    };
+    
+    public SettingsData Settings;
 
     public override void InstallBindings()
     {
@@ -23,9 +23,15 @@ public class NotificationInstaller : MonoInstaller
             return;
         }
 
-        var mng = new NotificationManager(_behaviour, _appEvents, _commandQueue);
-        Container.BindInstance(mng);
-        Container.BindInstance(mng.Services);
+        Container.Bind<NotificationManager>().ToSingle<NotificationManager>();
+        Container.Bind<INotificationServices>().ToGetter<NotificationManager>((mng) => mng.Services);
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
+        Container.Resolve<NotificationManager>();
+
+        if(Settings.AutoRegisterForRemote)
+        {
+            var services = Container.Resolve<INotificationServices>();
+            services.RegisterForRemote();
+        }
     }
 }
