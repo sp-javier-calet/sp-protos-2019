@@ -10,6 +10,7 @@ namespace SocialPoint.Console
     {
         public ConsoleCommandDelegate Delegate = null;
         public string Description = null;
+        public IEnumerable<string> Arguments = null;
         private IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
 
         public IEnumerator<ConsoleCommandOption> GetEnumerator()
@@ -86,7 +87,7 @@ namespace SocialPoint.Console
             return 0;
         }
 
-        private bool AddOptionValue(string name, string value)
+        private bool SetOptionValue(string name, string value)
         {
             var option = this[name];
             if(option != null)
@@ -102,7 +103,7 @@ namespace SocialPoint.Console
                         int i = MatchRepeat(name, optName);
                         if(i > 0)
                         {
-                            opt.AddValue(i.ToString());
+                            opt.Value = i.ToString();
                         }
                     }
                 }
@@ -117,6 +118,7 @@ namespace SocialPoint.Console
 
         public void SetOptionValues(IEnumerable<string> args)
         {
+            Arguments = args;
             string lastOpt = null;
             int i = 0;
 
@@ -129,7 +131,6 @@ namespace SocialPoint.Console
                     defVal = string.Empty;
                     break;
                 }
-                opt.Value = null;
             }
 
             foreach(var arg in args)
@@ -141,26 +142,26 @@ namespace SocialPoint.Console
                     var p = opt.IndexOf(OptionValueOperator);
                     if(p == -1)
                     {
-                        if(!AddOptionValue(opt, string.Empty))
+                        if(!SetOptionValue(opt, string.Empty))
                         {
                             lastOpt = opt;
                         }
                     }
                     else
                     {
-                        AddOptionValue(opt.Substring(0, p), opt.Substring(p + 1));
+                        SetOptionValue(opt.Substring(0, p), opt.Substring(p + 1));
                     }
                 }
                 else if(lastOpt != null)
                 {
-                    AddOptionValue(lastOpt, arg);
+                    SetOptionValue(lastOpt, arg);
                     lastOpt = null;
                 }
                 else
                 {
                     if(defVal == null)
                     {
-                        AddOptionValue(i.ToString(), arg);
+                        SetOptionValue(i.ToString(), arg);
                     }
                     else
                     {
@@ -175,7 +176,7 @@ namespace SocialPoint.Console
             }
             if(defVal != null)
             {
-                AddOptionValue(WildcardString, defVal);
+                SetOptionValue(WildcardString, defVal);
             }
         }
 

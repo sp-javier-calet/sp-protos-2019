@@ -68,10 +68,17 @@ namespace SocialPoint.Locale
 
         public string Get(string key, string defaultString = null)
         {
-            string value = "";
+            string value = string.Empty;
             if(!_strings.TryGetValue(key, out value))
             {
-                value = Fallback != null ? Fallback.Get(key) : string.Format(DefaultFormat, Language, key);
+                if(Fallback != null && Fallback.ContainsKey(key))
+                {
+                    value = Fallback.Get(key);
+                }
+                else
+                {
+                    value = string.Format(DefaultFormat, Language, key);
+                }
             }
             return value;
         }

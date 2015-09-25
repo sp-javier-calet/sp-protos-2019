@@ -95,7 +95,25 @@ namespace SocialPoint.Locale
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
-        public string FallbackLocalization;
+
+
+        private string _fallbackLanguage;
+        public string FallbackLanguage
+        {
+            get
+            {
+                if(_fallbackLanguage == null && Location.EnvironmentId == LocationData.ProdEnvironmentId)
+                {
+                    return Localization.EnglishIdentifier;
+                }
+                return _fallbackLanguage;
+            }
+
+            set
+            {
+                _fallbackLanguage = value;
+            }
+        }
 
         public static readonly string[] DefaultSupportedLanguages = {
             Localization.EnglishIdentifier,
@@ -153,16 +171,16 @@ namespace SocialPoint.Locale
         {
             get
             {
-                if(_localization == null)
-                {
-                    _localization = Localization.Default;
-                }
                 return _localization;
             }
 
             set
             {
-                _localization = value;
+                if(_localization != value)
+                {
+                    _localization = value;
+                    UpdateCurrentLanguage();
+                }
             }
         }
 
@@ -172,10 +190,6 @@ namespace SocialPoint.Locale
         {
             get
             {
-                if(string.IsNullOrEmpty(_currentLanguage))
-                {
-                    _currentLanguage = GetSupportedLanguage();
-                }
                 return _currentLanguage;
             }
             
@@ -183,15 +197,14 @@ namespace SocialPoint.Locale
             {
                 var oldLang = _currentLanguage;
                 _currentLanguage = GetSupportedLanguage(value);
-                if(_running && oldLang != _currentLanguage)
+                if(oldLang != _currentLanguage)
                 {
-                    LoadLanguage(_currentLanguage);
-                    DownloadLanguage(_currentLanguage);
+                    UpdateCurrentLanguage();
                 }
             }
         }
 
-        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo)
+        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo, Localization locale=null)
         {
             _httpClient = httpClient;
             _appInfo = appInfo;
@@ -204,25 +217,30 @@ namespace SocialPoint.Locale
             {
                 throw new ArgumentNullException("appInfo", "appInfo cannot be null or empty!");
             }
+            _localization = locale;
+            _currentLanguage = GetSupportedLanguage(_currentLanguage);
             PathsManager.CallOnLoaded(Init);
         }
 
         private void Init()
         {
-            _running = true;
             _cachePath = Path.Combine(PathsManager.TemporaryCachePath, "localization");
             FileUtils.CreateDirectory(_cachePath);
             _bundlePath = Path.Combine(PathsManager.StreamingAssetsPath, BundleDir);
-            LoadFallbackLanguage();
-            LoadLanguage(CurrentLanguage);
+            if(_localization == null)
+            {
+                _localization = Localization.Default;
+            }
+            UpdateCurrentLanguage();
         }
 
         public void Load()
         {
+            _running = true;
             #if UNITY_EDITOR
-            DownloadSupportedLanguages(() => LoadLanguage(CurrentLanguage));
+            DownloadSupportedLanguages(() => LoadCurrentLanguage());
             #else
-            DownloadLanguage(CurrentLanguage);
+            DownloadCurrentLanguage();
             #endif
         }
 
@@ -242,19 +260,17 @@ namespace SocialPoint.Locale
             _running = false;
         }
 
-        void LoadFallbackLanguage()
+        void UpdateCurrentLanguage()
         {
-            if(Localization.Fallback != null)
+            if(_running)
             {
-                Localization.Fallback.Clear();
-                Localization.Fallback = null;
+                DownloadCurrentLanguage();
             }
-            if(string.Equals(Location.EnvironmentId, LocationData.ProdEnvironmentId))
+            else
             {
-                FallbackLocalization = Localization.EnglishIdentifier;
-                LoadLanguage(FallbackLocalization);
-                DownloadLanguage(FallbackLocalization);
+                LoadCurrentLanguage();
             }
+
         }
 
         void DownloadSupportedLanguages(Action finish, IDictionary<string,Localization> locales = null)
@@ -265,17 +281,7 @@ namespace SocialPoint.Locale
             }
             if(_running == false || locales.Count >= _supportedLanguages.Length)
             {
-                if(WriteCsv)
-                {
-                    var csv = LocalizationsToCsv(locales);
-                    OnCsvLoaded(csv);
-
-                    #if UNITY_EDITOR
-                    var resDir = Path.Combine(PathsManager.DataPath, "Resources");
-                    var localFile = Path.Combine(resDir, "Localization.csv");
-                    FileUtils.WriteAllText(localFile, csv);
-                    #endif
-                }
+                OnLanguagesLoaded(locales);
                 if(finish != null)
                 {
                     finish();
@@ -291,47 +297,68 @@ namespace SocialPoint.Locale
             });
         }
 
-        void OnCsvLoaded(string csv)
+        void OnLanguagesLoaded(IDictionary<string, Localization> locales)
         {
-            if(CsvLoaded != null)
+            if(WriteCsv)
             {
-                byte[] csvData = Encoding.UTF8.GetBytes(csv);
-                CsvLoaded(csvData);
+                foreach(var slang in SupportedLanguages)
+                {
+                    if(!locales.ContainsKey(slang))
+                    {
+                        var slocale = new Localization();
+                        if(LoadLocalizationData(slocale, slang))
+                        {
+                            locales[slang] = slocale;
+                        }
+                    }
+                }
+                var csv = LocalizationsToCsv(locales);
+                if(CsvLoaded != null)
+                {
+                    byte[] csvData = Encoding.UTF8.GetBytes(csv);
+                    CsvLoaded(csvData);
+                }
+                
+                #if UNITY_EDITOR
+                var resDir = Path.Combine(PathsManager.DataPath, "Resources");
+                var localFile = Path.Combine(resDir, "Localization.csv");
+                FileUtils.WriteAllText(localFile, csv);
+                #endif
             }
         }
-
-        bool LoadLanguage(string lang)
+                
+        void DownloadCurrentLanguage()
         {
-            // load fallback localization
-            if(!string.IsNullOrEmpty(FallbackLocalization) && Localization.Fallback == null)
-            {
-                var fallback = new Localization();
-                if(LoadLocalizationData(fallback, FallbackLocalization))
-                {
-                    Localization.Fallback = fallback;
-                }
-            }
+            DownloadLocalization(FallbackLanguage, () => {
+                DownloadLocalization(CurrentLanguage, () => {
+                    LoadCurrentLanguage();
+                });
+            });
+        }
 
-            if(LoadLocalizationData(Localization, lang))
+        void LoadCurrentLanguage()
+        {
+            if(_localization == null)
+            {
+                return;
+            }
+            // load fallback localization
+            var flang = FallbackLanguage;
+            if(flang != null)
+            {
+                _localization.Fallback = new Localization();
+                LoadLocalizationData(_localization.Fallback, flang);
+            }
+            if(LoadLocalizationData(_localization, CurrentLanguage))
             {
                 var locales = new Dictionary<string, Localization>();
-                locales[lang] = Localization;
-                var csv = LocalizationsToCsv(locales);
-                OnCsvLoaded(csv);
-
+                locales[CurrentLanguage] = _localization;
+                OnLanguagesLoaded(locales);
                 if(Loaded != null)
                 {
                     Loaded();
                 }
-                return true;
             }
-
-            return false;
-        }
-
-        void DownloadLanguage(string lang)
-        {
-            DownloadLocalization(lang, () => LoadLanguage(lang));
         }
 
         static string LocalizationsToCsv(IDictionary<string,Localization> locales)
@@ -371,9 +398,8 @@ namespace SocialPoint.Locale
                 foreach(var pair in locales)
                 {
                     var val = pair.Value.Get(key);
-                    val = val.Replace("\"", "\\\"");
-                    val = val.Replace("\n", "\\\n");
-                    val = val.Replace("\t", "\\\t");
+                    val = val.Replace("\n", @"\n");
+                    val = val.Replace("\t", @"\t");
                     builder.Append("\"" + val + "\"");
                     builder.Append(CsvSeparator);
                 }
@@ -417,7 +443,10 @@ namespace SocialPoint.Locale
             {
                 foreach(var entry in elm.AssertDic)
                 {
-                    locale.Set(entry.Key, entry.Value.AsValue.ToString());
+                    var val = entry.Value.AsValue.ToString();
+                    val = val.Replace(@"\n", "\n");
+                    val = val.Replace(@"\t", "\t");
+                    locale.Set(entry.Key, val);
                 }
             }
 
@@ -460,6 +489,14 @@ namespace SocialPoint.Locale
 
         void DownloadLocalization(string lang, Action finish)
         {
+            if(string.IsNullOrEmpty(lang))
+            {
+                if(finish != null)
+                {
+                    finish();
+                }
+                return;
+            }
             var url = _location.GetUrl(lang);
             var request = new HttpRequest(url, HttpRequest.MethodType.GET);
 
