@@ -3,12 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 using System.Collections.Generic;
+using SocialPoint.Console;
 
 namespace SocialPoint.Locale
 {
     public class AdminPanelLocale : IAdminPanelGUI, IAdminPanelConfigurer
     {
         ILocalizationManager _manager;
+        AdminPanel.AdminPanel _adminPanel;
 
         AdminPanelLocale(ILocalizationManager manager)
         {
@@ -17,9 +19,14 @@ namespace SocialPoint.Locale
 
         #region IAdminPanelConfigurer implementation
 
-        public void OnConfigure(SocialPoint.AdminPanel.AdminPanel adminPanel)
+        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
+            _adminPanel = adminPanel;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Locale", this));
+            var cmd = new ConsoleCommand()
+                .WithDescription("get a localized string")
+                .WithDelegate(OnTranslateCommand);
+            adminPanel.RegisterCommand("translate", cmd);
         }
 
         #endregion
@@ -60,6 +67,21 @@ namespace SocialPoint.Locale
 
         #endregion
 
+        void OnTranslateCommand(ConsoleCommand cmd)
+        {
+            var list = new List<string>(cmd.Arguments);
+            if(list.Count == 0)
+            {
+                throw new ConsoleException("Need at least a key argument");
+            }
+            var trans = _manager.Localization.Get(list[0]);
+            list.RemoveAt(0);
+            if(list.Count > 0)
+            {
+                trans = string.Format(trans, list.ToArray());
+            }
+            _adminPanel.Console.Print(trans);
+        }
     }
 
 }

@@ -60,17 +60,8 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
         }
     }
 
-    [Inject]
-    Localization injectLocalization
-    {
-        set
-        {
-            Localization = value;
-        }
-    }
-
-    public LocalizationManager(IHttpClient client, IAppInfo appInfo) :
-        base(client, appInfo)
+    public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale) :
+        base(client, appInfo, locale)
     {
     }
 
