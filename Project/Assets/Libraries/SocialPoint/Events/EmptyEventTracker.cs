@@ -49,5 +49,9 @@ namespace SocialPoint.Events
         public void TrackResource(ResourceOperation op)
         {
         }
+
+        public void TrackGameLoaded()
+        {
+        }
     }
 }

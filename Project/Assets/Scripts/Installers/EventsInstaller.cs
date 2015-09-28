@@ -27,5 +27,7 @@ public class EventsInstaller : MonoInstaller
         Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
         Container.Bind<IEventTracker>().ToSingle<EventTracker>();
         Container.Bind<IDisposable>().ToSingle<EventTracker>();
+
+        Container.Resolve<IEventTracker>().Start();
 	}
 }

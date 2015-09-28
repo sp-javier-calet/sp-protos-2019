@@ -5,6 +5,7 @@ using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Purchase;
 using SocialPoint.Alert;
+using SocialPoint.Events;
 using Zenject;
 
 public class LoadingController : GameLoadingController
@@ -45,7 +46,7 @@ public class LoadingController : GameLoadingController
         }
     }
 
-    [InjectOptional]
+    [Inject]
     ICrashReporter injectCrashReporter
     {
         set
@@ -65,6 +66,9 @@ public class LoadingController : GameLoadingController
 
     [Inject]
     IParser<GameModel> _gameParser;
+
+    [Inject]
+    IEventTracker _eventTracker;
 
     public string SceneToLoad = "Main";
 
@@ -90,7 +94,17 @@ public class LoadingController : GameLoadingController
     protected override void AllOperationsLoaded()
     {
         base.AllOperationsLoaded();
-        ZenUtil.LoadScene(SceneToLoad, (DiContainer container) => container.BindInstance(_model));
+        ZenUtil.LoadScene(SceneToLoad, BeforeSceneLoaded, AfterSceneLoaded);
+    }
+
+    void BeforeSceneLoaded(DiContainer container)
+    {
+        container.BindInstance(_model);
+    }
+
+    void AfterSceneLoaded(DiContainer container)
+    {
+        _eventTracker.TrackGameLoaded();
     }
 
     override protected void OnDisappearing()

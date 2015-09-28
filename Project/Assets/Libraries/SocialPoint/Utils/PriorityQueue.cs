@@ -6,48 +6,64 @@ using UnityEngine;
 
 namespace SocialPoint.Utils
 {
-    public class PriorityQueue<TPriority, TValue> 
-        where TPriority : struct, IComparable, IConvertible, IFormattable 
-        where TValue : class
+    
+    class ReverseComparer<TPriority> : IComparer<TPriority> 
+    {
+        IComparer<TPriority> _comparer;
+
+        public ReverseComparer():
+        this(Comparer<TPriority>.Default)
+        {
+        }
+
+        public ReverseComparer(IComparer<TPriority> comparer)
+        {
+            _comparer = comparer;
+        }
+
+        public int Compare(TPriority x, TPriority y)
+        {
+            return -1 * _comparer.Compare(x, y);
+        }
+    }
+
+    public class PriorityQueue<TPriority, TValue>  : ICloneable, IEnumerable<TValue>
     {
         private SortedList<TPriority, Queue<TValue>> _queues;
         
-        public PriorityQueue()
+        public PriorityQueue():
+        this(new ReverseComparer<TPriority>())
         {
-            _queues = new SortedList<TPriority, Queue<TValue>>();
-            InitializeQueues();
         }
         
-        public PriorityQueue(Comparer<TPriority> comparer)
+        public PriorityQueue(IComparer<TPriority> comparer)
         {
             _queues = new SortedList<TPriority, Queue<TValue>>(comparer);
-            InitializeQueues();
         }
         
         public PriorityQueue(PriorityQueue<TPriority, TValue> other)
         {
-            _queues = new SortedList<TPriority, Queue<TValue>>(other._queues);
+            _queues = new SortedList<TPriority, Queue<TValue>>(other._queues.Comparer);
+            foreach(var pair in other._queues)
+            {
+                _queues[pair.Key] = new Queue<TValue>(pair.Value);
+            }
         }
-        
-        private void InitializeQueues()
+
+        public object Clone()
         {
-            if(typeof(TPriority).IsEnum)
-            {
-                var priorityValues = Enum.GetValues(typeof(TPriority)).Cast<TPriority>();
-                foreach(var priority in priorityValues)
-                {
-                    _queues[priority] = new Queue<TValue>();
-                }
-            }
-            else
-            {
-                throw new ArgumentException("TPriority must be an enum type");
-            }
+            return new PriorityQueue<TPriority, TValue>(this);
         }
         
         public void Enqueue(TPriority priority, TValue obj)
         {
-            _queues[priority].Enqueue(obj);
+            Queue<TValue> queue;
+            if(!_queues.TryGetValue(priority, out queue))
+            {
+                queue = new Queue<TValue>();
+                _queues.Add(priority, queue);
+            }
+            queue.Enqueue(obj);
         }
         
         public TValue Dequeue()
@@ -59,20 +75,54 @@ namespace SocialPoint.Utils
                     return currQueue.Value.Dequeue();
                 }
             }
-            return null;
+            return default(TValue);
+        }
+
+        public bool Dequeue(TValue value)
+        {
+            bool found = false;
+            foreach(var key in _queues.Keys)
+            {
+                var currQueue = _queues[key];
+                if(currQueue.Contains(value))
+                {
+                    found = true;
+                    var newQueue = new Queue<TValue>();
+                    foreach(var elm in currQueue)
+                    {
+                        if(!EqualityComparer<TValue>.Default.Equals(elm, value))
+                        {
+                            newQueue.Enqueue(value);
+                        }
+                    }
+                    _queues[key] = newQueue;
+                }
+            }
+            return found;
+        }
+
+        public IEnumerator<TValue> GetEnumerator()
+        {
+            foreach(var currQueue in _queues)
+            {
+                foreach(var obj in currQueue.Value)
+                {
+                    yield return obj;
+                }
+            }
         }
         
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        [Obsolete("iterate over the queue")]
         public IEnumerable<TValue> All
         {
             get
             {
-                foreach(var currQueue in _queues)
-                {
-                    foreach(TValue obj in currQueue.Value)
-                    {
-                        yield return obj;
-                    }
-                }
+                return (IEnumerable<TValue>)GetEnumerator();
             }
         }
 
@@ -98,5 +148,28 @@ namespace SocialPoint.Utils
             }
         }
     };
+
+    public class PriorityAction : PriorityQueue<int, Action>
+    {
+        public PriorityAction():base()
+        {
+        }
+
+        public PriorityAction(PriorityAction other):base(other)
+        {
+        }
+
+        public void Run()
+        {
+            var queue = new PriorityAction(this);
+            foreach(var action in queue)
+            {
+                if(action != null)
+                {
+                    action();
+                }
+            }
+        }
+    }
 }
 

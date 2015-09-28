@@ -19,8 +19,6 @@ namespace SocialPoint.Events
     {
         public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
-        public delegate string GetSessionIdDelegate();
-
         private const string TrackingAuthorizedUri = "track";
         private const string TrackingUnautorizedUri = "unauthorized/track";
         
@@ -28,7 +26,8 @@ namespace SocialPoint.Events
         private const string EventNameLevel = "game.level_up";
         private const string EventNameGameOpen = "game.open";
         private const string EventNameGameStart = "game.start";
-        private const string EventNameLoading = "game.loading";
+        private const string EventNameGameLoading = "game.loading";
+        private const string EventNameGameLoaded = "game.loaded";
         private const string EventNameGameBackground = "game.background";
         private const string EventNameResourceEarning = "economy.{0}_earning";
         private const string EventNameResourceSpending = "economy.{0}_spending";
@@ -40,7 +39,8 @@ namespace SocialPoint.Events
             EventNameGameStart,
             EventNameGameOpen,
             EventNameGameBackground,
-            EventNameLoading,
+            EventNameGameLoading,
+            EventNameGameLoaded,
             "errors.*"
         };
 
@@ -50,7 +50,6 @@ namespace SocialPoint.Events
         public const float DefaultBackoffMultiplier = 1.1f;
 
         public RequestSetupDelegate RequestSetup;
-        public GetSessionIdDelegate GetSessionId;
 
         public event EventDataSetupDelegate DataSetup = delegate {};
         public event Action SyncChange = delegate {};
@@ -77,27 +76,8 @@ namespace SocialPoint.Events
         float _currentTimeout;
         float _currentSendInterval;
         bool _gameStartTracked;
+        bool _gameLoadedTracked;
         IHttpConnection _httpConn;
-
-        private string SessionId
-        {
-            get
-            {
-                if(GetSessionId == null)
-                {
-                    return null;
-                }
-                return GetSessionId();
-            }
-        }
-
-        private bool IsLoggedIn
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(SessionId);
-            }
-        }
 
         public DateTime SyncTime
         {
@@ -126,16 +106,15 @@ namespace SocialPoint.Events
 
             set
             {
-                if(value == null)
-                {
-                    throw new ArgumentNullException("_appEvents", "_appEvents cannot be null or empty!");
-                }
                 if(_appEvents != null)
                 {
                     DisconnectAppEvents(_appEvents);
                 }
                 _appEvents = value;
-                ConnectAppEvents(_appEvents);
+                if(_appEvents != null)
+                {
+                    ConnectAppEvents(_appEvents);
+                }
             }
         }
 
@@ -163,17 +142,15 @@ namespace SocialPoint.Events
         private void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource += OnOpenedFromSource;
-            appEvents.WillGoBackground += OnAppWillGoBackground;
-            appEvents.GoBackground += OnAppGoBackground;
-
+            appEvents.WillGoBackground.Enqueue(0, OnAppWillGoBackground);
+            appEvents.WillGoBackground.Enqueue(-100, OnAppGoBackground);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource -= OnOpenedFromSource;
-            appEvents.WillGoBackground -= OnAppWillGoBackground;
-            appEvents.GoBackground -= OnAppGoBackground;
-
+            appEvents.WillGoBackground.Dequeue(OnAppWillGoBackground);
+            appEvents.WillGoBackground.Dequeue(OnAppGoBackground);
         }
 
         void OnOpenedFromSource(AppSource source)
@@ -188,6 +165,7 @@ namespace SocialPoint.Events
 
         void OnAppGoBackground()
         {
+            Debug.Log("Event tracket go background");
             Send();
         }
 
@@ -268,7 +246,7 @@ namespace SocialPoint.Events
             {
                 _breadcrumbManager.Log(string.Format("{0} {1}",eventName, data));
             }
-            if(IsLoggedIn && CommandQueue != null)
+            if(CommandQueue != null)
             {
                 TrackEventByCommand(eventName, data, del);
             }
@@ -297,10 +275,6 @@ namespace SocialPoint.Events
 
         public void Start()
         {
-            if(RequestSetup == null)
-            {
-                throw new MissingComponentException("Request setup callback not assigned.");
-            }
             if(_updateCoroutine == null)
             {
                 SetStartValues();
@@ -441,7 +415,10 @@ namespace SocialPoint.Events
         {
             HttpRequest req = new HttpRequest();
             var uri = auth ? TrackingAuthorizedUri : TrackingUnautorizedUri;
-            RequestSetup(req, uri);
+            if(RequestSetup != null)
+            {
+                RequestSetup(req, uri);
+            }
             req.Body = data;
             if(req.Timeout == 0.0f)
             {
@@ -587,6 +564,15 @@ namespace SocialPoint.Events
             {
                 _gameStartTracked = true;
                 TrackSystemEvent(EventNameGameStart);
+            }
+        }
+
+        public void TrackGameLoaded()
+        {
+            if(!_gameLoadedTracked)
+            {
+                _gameLoadedTracked = true;
+                TrackSystemEvent(EventNameGameLoaded);
             }
         }
 

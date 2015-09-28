@@ -105,8 +105,11 @@ namespace SocialPoint.GameLoading
             RegisterLoadingOperation(_loginOperation);
             StartCoroutine(CheckAllOperationsLoaded());
 
-            Login.ErrorEvent += OnLoginError;
-            DoLogin();
+            if(Login != null)
+            {
+                Login.ErrorEvent += OnLoginError;
+                DoLogin();
+            }
         }
 
         public void RegisterLoadingOperation(LoadingOperation operation)

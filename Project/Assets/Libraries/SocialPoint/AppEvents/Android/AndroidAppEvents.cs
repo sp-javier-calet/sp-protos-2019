@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using SocialPoint.Base;
@@ -8,7 +8,7 @@ namespace SocialPoint.AppEvents
 {
 #if UNITY_ANDROID && !UNITY_EDITOR
 
-	public class AndroidAppEvents : AppEventsBase
+	public class AndroidAppEvents : BaseAppEvents
     {
         void Awake()
         {
@@ -37,19 +37,20 @@ namespace SocialPoint.AppEvents
         
         #region Events dispatch
 
+        Action _dispatched;
+                
+        void LateUpdate()
+        {
+            if(_dispatched != null)
+            {
+                _dispatched();
+                _dispatched = null;
+            }
+        }
         
         void DispatchMainThread(Action action)
         {
-            StartCoroutine(DispatchedMainThread(action));
-        }
-        
-        IEnumerator DispatchedMainThread(Action action)
-        {
-            yield return new WaitForEndOfFrame();
-            if(action != null)
-            {
-                action();
-            }
+            _dispatched += action;
         }
 
         public void OnActivityResumed(bool stopped)
@@ -85,7 +86,6 @@ namespace SocialPoint.AppEvents
         private void OnActivityPausedDispatched()
         {
             OnWillGoBackground();
-            OnGoBackground();
         }
 
         public void OnMemoryWarning()
@@ -174,7 +174,7 @@ namespace SocialPoint.AppEvents
 	}
 
 #else
-    public class AndroidAppEvents : AppEventsBase
+    public class AndroidAppEvents : BaseAppEvents
 	{
 	}
 #endif

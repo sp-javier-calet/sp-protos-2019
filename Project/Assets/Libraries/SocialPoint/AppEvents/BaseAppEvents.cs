@@ -1,19 +1,18 @@
 using System;
 using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.AppEvents
 {
     /// <summary>
     /// Manage interface events and provides a common base implementation for all platform-dependent classes
     /// </summary>
-    public abstract class AppEventsBase : MonoBehaviour, IAppEvents 
+    public abstract class BaseAppEvents : MonoBehaviour, IAppEvents 
     {
         #region IAppEvents implementation
 
         public void Dispose()
         {
-            WillGoBackground = null;
-            GoBackground = null;
             WasOnBackground = null;
             WasCovered = null;
             ReceivedMemoryWarning = null;
@@ -22,33 +21,34 @@ namespace SocialPoint.AppEvents
             LevelWasLoaded = null;
         }
 
+        public void TriggerMemoryWarning()
+        {
+            OnReceivedMemoryWarning();
+        }
+
+        public void TriggerWillGoBackground()
+        {
+            OnWillGoBackground();
+        }
+
         #region Native Events
-        public event Action WillGoBackground;
+
+        PriorityAction _willGoBackground = new PriorityAction();
+
+        public PriorityAction WillGoBackground
+        {
+            get
+            {
+                return _willGoBackground;
+            }
+        }
         
         /// <summary>
         /// Occurs when setup going to background.
         /// </summary>
         protected  void OnWillGoBackground()
         {
-            var handler = WillGoBackground;
-            if(handler != null)
-            {
-                handler();
-            }
-        }
-
-        public event Action GoBackground;
-
-        /// <summary>
-        /// Occurs when going to background.
-        /// </summary>
-        protected  void OnGoBackground()
-        {
-            var handler = GoBackground;
-            if(handler != null)
-            {
-                handler();
-            }
+            _willGoBackground.Run();
         }
         
         /// <summary>

@@ -4,12 +4,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SocialPoint.Utils;
+using SocialPoint.AppEvents;
 
 namespace SocialPoint.Network
 {
     public class CurlHttpClient  : BaseYieldHttpClient
     {
         static int _initCount = 0;
+
+        IAppEvents _appEvents;
+        public IAppEvents AppEvents
+        {
+            set
+            {
+                DisconnectAppEvents();
+                _appEvents = value;
+                if(_appEvents != null)
+                {
+                    _appEvents.WillGoBackground.Enqueue(-1000, OnWillGoBackground);
+                    _appEvents.WasOnBackground += WasOnBackground;
+                }
+            }
+        }
+
+        void DisconnectAppEvents()
+        {
+            if(_appEvents != null)
+            {
+                _appEvents.WillGoBackground.Dequeue(OnWillGoBackground);
+                _appEvents.WasOnBackground -= WasOnBackground;
+            }
+        }
 
         public CurlHttpClient(MonoBehaviour mono) : base(mono)
         {
@@ -33,6 +58,7 @@ namespace SocialPoint.Network
         override public void Dispose()
         {
             base.Dispose();
+            DisconnectAppEvents();
             _initCount--;
             if(_initCount <= 0)
             {
@@ -40,17 +66,19 @@ namespace SocialPoint.Network
             }
         }
 
-        public override void OnApplicationPause(bool pause)
+        void OnWillGoBackground()
         {
-            if(pause)
+            if(Current != null)
             {
-                if(Current != null)
-                {
-                    IEnumerator e = Current.Update();
-                    e.MoveNext();
-                }
+                IEnumerator e = Current.Update();
+                e.MoveNext();
             }
-            CurlBridge.SPUnityCurlOnApplicationPause(pause);
+            CurlBridge.SPUnityCurlOnApplicationPause(true);
+        }
+
+        void WasOnBackground()
+        {
+            CurlBridge.SPUnityCurlOnApplicationPause(false);
         }
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)

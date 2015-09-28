@@ -60,15 +60,11 @@ namespace SocialPoint.Network
             {
                 RequestSetup(req);
             }
-        }
-
-        public virtual void OnApplicationPause(bool pause)
-        {
-        }
+        }       
 
         public virtual void Dispose()
         {
-            foreach(var connection in Pending.All)
+            foreach(var connection in Pending)
             {
                 connection.Cancel();
             }
@@ -79,7 +75,6 @@ namespace SocialPoint.Network
             SetupHttpRequest(req);
             req.BeforeSend();
             var conn = CreateConnection(req, del);
-
             Pending.Enqueue(req.Priority, conn);
             if(_update == null)
             {

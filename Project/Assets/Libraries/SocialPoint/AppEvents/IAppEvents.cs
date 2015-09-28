@@ -1,12 +1,13 @@
 using System;
+using SocialPoint.Utils;
 
 namespace SocialPoint.AppEvents
 {
     public interface IAppEvents : IDisposable
     {
         // Native events
-        event Action WillGoBackground;
-        event Action GoBackground;
+        PriorityAction WillGoBackground{ get; }
+
         event Action WasOnBackground;
         event Action WasCovered;
         event Action ReceivedMemoryWarning;
@@ -17,5 +18,9 @@ namespace SocialPoint.AppEvents
         // Unity events
         event Action ApplicationQuit;
         event Action<int> LevelWasLoaded;
+
+        // testing
+        void TriggerMemoryWarning();
+        void TriggerWillGoBackground();
     }
 }

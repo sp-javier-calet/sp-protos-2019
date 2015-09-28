@@ -6,6 +6,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Crash;
+using SocialPoint.AppEvents;
 using UnityEngine;
 
 class EventTracker : SocialPointEventTracker
@@ -73,7 +74,7 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
-    [InjectOptional]
+    [Inject]
     BreadcrumbManager injectBreadcrumbManager
     {
         set
@@ -81,19 +82,28 @@ class EventTracker : SocialPointEventTracker
             BreadcrumbManager = value;
         }
     }
+
     
+    [Inject]
+    IAppEvents injectAppEvents
+    {
+        set
+        {
+            AppEvents = value;
+        }
+    }
+
     [Inject]
     ILogin injectLogin
     {
         set
         {
-            GetSessionId = () => {
-                return value.SessionId;
-            };
+            RequestSetup = value.SetupHttpRequest;
         }
     }
 
     public EventTracker(MonoBehaviour behaviour):base(behaviour)
     {
     }
+
 }

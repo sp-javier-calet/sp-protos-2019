@@ -21,12 +21,11 @@ public class HttpClient : CurlHttpClient
     IDeviceInfo deviceInfo;
 
     [Inject]
-    IAppEvents appEvents
+    IAppEvents injectAppEvents
     {
         set
         {
-            value.WillGoBackground += OnWillGoBackground;
-            value.WasOnBackground += OnWasOnBackground;
+            AppEvents = value;
         }
     }
 
@@ -47,14 +46,4 @@ public class HttpClient : CurlHttpClient
             req.Proxy = deviceInfo.NetworkInfo.Proxy.ToString();
         }
     }
-
-    private void OnWillGoBackground()
-    {
-        OnApplicationPause(true);
-    }
-    
-    private void OnWasOnBackground()
-    {
-        OnApplicationPause(false);
-    }   
 }

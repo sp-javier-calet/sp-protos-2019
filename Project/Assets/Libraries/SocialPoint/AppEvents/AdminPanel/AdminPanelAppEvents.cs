@@ -25,7 +25,7 @@ namespace SocialPoint.AppEvents
             _appEvents.OpenedFromSource += (source) => { AddEvent("OpenedFromSource: " + source); };;
             _appEvents.WasCovered += () => { AddEvent("WasCovered"); };
             _appEvents.WasOnBackground += () => { AddEvent("WasOnBackground"); };
-            _appEvents.WillGoBackground += () => { AddEvent("WillGoBackground"); };
+            _appEvents.WillGoBackground.Enqueue(0, () => { AddEvent("WillGoBackground"); });
             _appEvents.LevelWasLoaded += (value) => { AddEvent("LevelWasLoaded: " + value); };
             _appEvents.ReceivedMemoryWarning += () => { AddEvent("ReceivedMemoryWarning"); };
         }
@@ -38,25 +38,16 @@ namespace SocialPoint.AppEvents
                 RefreshContent(); 
             });
 
-            SocialPointAppEvents spAppEvents = _appEvents as SocialPointAppEvents;
-            if(spAppEvents != null)
-            {
-                layout.CreateMargin();
-                layout.CreateLabel(spAppEvents.GetType().Name);
-                layout.CreateButton("Send Memory Warning", () => {
+            layout.CreateMargin();
+            layout.CreateButton("Trigger Memory Warning", () => {
+                _appEvents.TriggerMemoryWarning();
+                RefreshContent();
+            });
 
-                    /* Invoke AppEventsBase OnReceivedMemoryWarning through reflection.
-                     * This code is coupled to SocialPointAppEvents and AppEventsBase implementation */ 
-                    var eventsBaseField = spAppEvents.GetType().GetField("_appEvents", BindingFlags.NonPublic | BindingFlags.Instance);
-                    var eventsBase = eventsBaseField.GetValue(spAppEvents);
-
-                    MethodInfo dynMethod = eventsBase.GetType().GetMethod("OnReceivedMemoryWarning", 
-                                                                    BindingFlags.NonPublic | BindingFlags.Instance);
-                    dynMethod.Invoke(eventsBase, null);
-
-                    RefreshContent();
-                });
-            }
+            layout.CreateButton("Trigger Go Background", () => {                
+                _appEvents.TriggerWillGoBackground();                
+                RefreshContent();
+            });
         }
 
         private void RefreshContent()

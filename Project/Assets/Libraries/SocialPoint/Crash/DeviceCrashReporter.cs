@@ -120,7 +120,7 @@ namespace SocialPoint.Crash
         const string PluginModuleName = "sp_unity_crash_reporter";
         #else
         const string PluginModuleName = "__Internal";
-#endif
+        #endif
 
         /* Native plugin interface */
         [DllImport(PluginModuleName)]

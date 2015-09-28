@@ -28,11 +28,6 @@ namespace SocialPoint.QualityStats
             });
         }
 
-        public void OnApplicationPause(bool pause)
-        {
-            _client.OnApplicationPause(pause);
-        }
-
         public void Dispose()
         {
             _client.Dispose();

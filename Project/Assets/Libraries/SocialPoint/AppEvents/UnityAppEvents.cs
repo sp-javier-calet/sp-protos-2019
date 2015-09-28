@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
-    public class UnityAppEvents : AppEventsBase
+    public class UnityAppEvents : BaseAppEvents
     {
         private void Awake()
         {
@@ -41,7 +41,6 @@ namespace SocialPoint.AppEvents
             else
             {
                 OnWillGoBackground();
-                OnGoBackground();
             }
         }
     }

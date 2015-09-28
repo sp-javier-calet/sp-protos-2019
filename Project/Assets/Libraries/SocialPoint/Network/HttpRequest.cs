@@ -13,7 +13,6 @@ namespace SocialPoint.Network
         Normal  = 1,
         High    = 2
     }
-    ;
 
     public class HttpRequest
     {
@@ -41,7 +40,6 @@ namespace SocialPoint.Network
             HEAD,
             DELETE
         }
-        ;
 
 
         public string BodyEncoding;

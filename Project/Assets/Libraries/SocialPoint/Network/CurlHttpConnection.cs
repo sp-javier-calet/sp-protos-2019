@@ -99,25 +99,30 @@ namespace SocialPoint.Network
         static CurlBridge.RequestStruct CreateRequestStruct(HttpRequest request, int id=0)
         {
             var data = new CurlBridge.RequestStruct();
-            // Separate the path and the query string
-            string urlPath = request.Url.GetLeftPart(UriPartial.Path);
-            string queryParamsStr = request.Url.Query;
+            var urlPath = string.Empty;
+            var queryParamsStr = string.Empty;
+            if(request.Url != null)
+            {
+                // Separate the path and the query string
+                urlPath = request.Url.GetLeftPart(UriPartial.Path);
+                queryParamsStr = request.Url.Query;
 
-            // Uri.GetLeftPart(UriPartial.Path) returns a path with a trailing
-            // slash that  we need to remove
-            if(!string.IsNullOrEmpty(urlPath)
-                && urlPath.EndsWith(@"/"))
-            {
-                urlPath = urlPath.Substring(0, urlPath.Length - 1);
-            }
-            // Uri.Query returns the query string with a leading '?'
-            // Curl automatically appends a '?' between the path and the
-            // query string so we need to remove it to avoid ending with
-            // a  '??'' in the query string
-            if(!string.IsNullOrEmpty(queryParamsStr)
-                && queryParamsStr.StartsWith(@"?"))
-            {
-                queryParamsStr = queryParamsStr.Substring(1);
+                // Uri.GetLeftPart(UriPartial.Path) returns a path with a trailing
+                // slash that  we need to remove
+                if(!string.IsNullOrEmpty(urlPath)
+                    && urlPath.EndsWith(@"/"))
+                {
+                    urlPath = urlPath.Substring(0, urlPath.Length - 1);
+                }
+                // Uri.Query returns the query string with a leading '?'
+                // Curl automatically appends a '?' between the path and the
+                // query string so we need to remove it to avoid ending with
+                // a  '??'' in the query string
+                if(!string.IsNullOrEmpty(queryParamsStr)
+                    && queryParamsStr.StartsWith(@"?"))
+                {
+                    queryParamsStr = queryParamsStr.Substring(1);
+                }
             }
 
             data.Id = id;

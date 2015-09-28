@@ -20,7 +20,5 @@ namespace SocialPoint.Network
 
         event HttpRequestDelegate RequestSetup;
 
-        void OnApplicationPause(bool pause);
-
     }
 }

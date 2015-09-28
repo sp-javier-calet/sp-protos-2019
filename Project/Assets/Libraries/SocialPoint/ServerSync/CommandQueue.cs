@@ -101,16 +101,15 @@ namespace SocialPoint.ServerSync
             }
             set
             {
-                if(value == null)
-                {
-                    throw new ArgumentNullException("_appEvents", "_appEvents cannot be null or empty!");
-                }
                 if(_appEvents != null)
                 {
                     DisconnectAppEvents(_appEvents);
                 }
                 _appEvents = value;
-                ConnectAppEvents(_appEvents);
+                if(_appEvents != null)
+                {
+                    ConnectAppEvents(_appEvents);
+                }
             }
         }
 
@@ -118,12 +117,12 @@ namespace SocialPoint.ServerSync
 
         private void ConnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.WillGoBackground += OnAppWillGoBackground;
+            appEvents.WillGoBackground.Enqueue(-25, OnAppWillGoBackground);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.WillGoBackground -= OnAppWillGoBackground;
+            appEvents.WillGoBackground.Dequeue(OnAppWillGoBackground);
         }
 
         void OnAppWillGoBackground()

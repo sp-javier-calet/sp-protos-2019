@@ -26,7 +26,6 @@ namespace SocialPoint.Events
             SocialPointEventTracker.HttpClient = Substitute.For<IHttpClient>();
             SocialPointEventTracker.DeviceInfo = Substitute.For<IDeviceInfo>();
             SocialPointEventTracker.RequestSetup = Substitute.For<SocialPointEventTracker.RequestSetupDelegate>();
-            SocialPointEventTracker.GetSessionId = Substitute.For<SocialPointEventTracker.GetSessionIdDelegate>();
             SocialPointEventTracker.CommandQueue = Substitute.For<ICommandQueue>();
             SocialPointEventTracker.AppEvents = Substitute.For<IAppEvents>();
         }
@@ -66,7 +65,6 @@ namespace SocialPoint.Events
         public void TrackEvent_Through_CommandQueue()
         {
             Start();
-            SocialPointEventTracker.GetSessionId().Returns("testID");
             SocialPointEventTracker.TrackEvent("Test event");
             SocialPointEventTracker.CommandQueue.Received(1).Add(Arg.Any<Command>(),Arg.Any<ErrorDelegate>());
         }

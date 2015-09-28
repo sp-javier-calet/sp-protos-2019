@@ -1,11 +1,12 @@
 using System;
 using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.AppEvents
 {
     public class SocialPointAppEvents : IAppEvents
     {
-        AppEventsBase _appEvents;
+        BaseAppEvents _appEvents;
         const string GameObjectName = "SocialPointAppEvents";
 
         public SocialPointAppEvents(MonoBehaviour behaviour=null)
@@ -59,27 +60,21 @@ namespace SocialPoint.AppEvents
 
         #region IAppEvents implementation
 
-        public event Action WillGoBackground
+        public void TriggerMemoryWarning()
         {
-            add
-            {
-                _appEvents.WillGoBackground += value;
-            }
-            remove
-            {
-                _appEvents.WillGoBackground -= value;
-            }
+            _appEvents.TriggerMemoryWarning();
+        }
+        
+        public void TriggerWillGoBackground()
+        {
+            _appEvents.TriggerWillGoBackground();
         }
 
-        public event Action GoBackground
+        public PriorityAction WillGoBackground
         {
-            add
+            get
             {
-                _appEvents.GoBackground += value;
-            }
-            remove
-            {
-                _appEvents.GoBackground -= value;
+                return _appEvents.WillGoBackground;
             }
         }
 

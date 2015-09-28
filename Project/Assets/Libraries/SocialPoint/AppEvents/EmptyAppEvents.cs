@@ -2,7 +2,7 @@ using System;
 
 namespace SocialPoint.AppEvents
 {
-    public class EmptyAppEvents: AppEventsBase
+    public class EmptyAppEvents: BaseAppEvents
     {
         public EmptyAppEvents()
         {
