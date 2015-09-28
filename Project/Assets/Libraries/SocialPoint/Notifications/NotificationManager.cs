@@ -74,11 +74,9 @@ namespace SocialPoint.Notifications
         protected void AddNotification(string action, string message, DateTime dateTime, int numBadge = 0)
         {
             var ln = new Notification();
-            ln.AlertAction = action;
+            ln.Title = action;
+            ln.Message = message;
             ln.FireDate = dateTime;
-            ln.AlertBody = message;
-            //I'm using this to know if it has to show a +1 on the badge, but I really set up it later
-            ln.IconBadgeNumber = numBadge;
         }
 
         [Obsolete("Use AddNotification(Notification notification)")]
@@ -103,12 +101,8 @@ namespace SocialPoint.Notifications
         private void OnGoToBackground()
         {
             AddGameNotifications();
-            int numBadge = 0;
             foreach(var notif in _notifications)
             {
-                //Using the previous seted Number, I know wether I have to add a +1 to this notification or not
-                numBadge += notif.IconBadgeNumber;
-                notif.IconBadgeNumber = numBadge;
                 Services.Schedule(notif);
             }
             _notifications.Clear();

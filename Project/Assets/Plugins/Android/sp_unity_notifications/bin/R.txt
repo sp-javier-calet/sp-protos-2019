@@ -1,2 +1,2 @@
-int drawable notify_icon_big 0x7f020000
-int drawable notify_icon_small 0x7f020001
+int drawable default_notify_icon_large 0x7f020000
+int drawable default_notify_icon_small 0x7f020001

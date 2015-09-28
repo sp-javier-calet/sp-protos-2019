@@ -43,6 +43,7 @@ namespace SocialPoint.Login
         private const string HttpParamDeviceAidEnabled = "device_adid_enabled";
         private const string HttpParamDeviceRooted = "device_rooted";     
         private const string HttpParamClientBuild = "client_build";
+        private const string HttpParamClientAppId = "client_appid";
         private const string HttpParamLinkConfirmToken = "confirm_link_token";
         private const string HttpParamLinkDecision = "decision";
         private const string HttpParamLinkType = "provider_type";
@@ -1445,6 +1446,10 @@ namespace SocialPoint.Login
                 if(!req.HasParam(HttpParamClientBuild))
                 {
                     req.AddParam(HttpParamClientBuild, DeviceInfo.AppInfo.Version);
+                }
+                if(!req.HasParam(HttpParamClientAppId))
+                {
+                    req.AddParam(HttpParamClientAppId, DeviceInfo.AppInfo.Id);
                 }
                 if(!req.HasParam(HttpParamPlatformVersion))
                 {

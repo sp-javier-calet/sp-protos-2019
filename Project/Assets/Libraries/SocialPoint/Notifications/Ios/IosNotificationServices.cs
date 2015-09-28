@@ -42,11 +42,10 @@ namespace SocialPoint.Notifications
         {
             var unotif = new LocalNotification();
             unotif.fireDate = DateTime.Now.ToLocalTime().AddSeconds(notif.FireDelay);
-            unotif.applicationIconBadgeNumber = notif.IconBadgeNumber;
-            unotif.alertBody = notif.AlertBody;
-            unotif.alertAction = notif.AlertAction;
-            
-            if (notif.FireDelay > 0)
+            unotif.alertBody = notif.Message;
+            unotif.alertAction = notif.Title;
+            unotif.applicationIconBadgeNumber = 1;
+            if(notif.FireDelay > 0)
             {
                 NotificationServices.ScheduleLocalNotification(unotif);
             }
@@ -71,7 +70,10 @@ namespace SocialPoint.Notifications
         {
             NotificationServices.ClearRemoteNotifications();
             NotificationServices.ClearLocalNotifications();
-            ResetIconBadgeNumber();
+            var unotif = new LocalNotification();
+            unotif.fireDate = DateTime.Now.ToLocalTime();
+            unotif.applicationIconBadgeNumber = -1;
+            NotificationServices.PresentLocalNotificationNow(unotif);
         }       
 
         private IEnumerator CheckDeviceToken()
@@ -104,15 +106,6 @@ namespace SocialPoint.Notifications
             NotificationServices.RegisterForNotifications(_notifyTypes, false);
         }
 
-        private void ResetIconBadgeNumber()
-        {
-            //This is supposed to  remove the Icon Badge Number: http://forum.unity3d.com/threads/using-the-new-notification-system.127016/
-            var unotif = new LocalNotification();
-            unotif.fireDate = DateTime.Now.ToLocalTime();
-            unotif.applicationIconBadgeNumber = -1;
-            unotif.alertBody = string.Empty;
-            NotificationServices.PresentLocalNotificationNow(unotif);
-        }
     }
 
 #else

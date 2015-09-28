@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System;
 using SocialPoint.AdminPanel;
@@ -31,16 +31,12 @@ namespace SocialPoint.Notifications
 
             var cmd = new ConsoleCommand()
                 .WithDescription("set a local notification")
-                .WithOption(new ConsoleCommandOption("a|action")
-                    .withDescription("action text to show under the notification"))
-                .WithOption(new ConsoleCommandOption("b|body")
-                    .withDescription("notification main text"))
-                .WithOption(new ConsoleCommandOption("n|number")
-                    .withDescription("number to show over the app icon"))
-                .WithOption(new ConsoleCommandOption("t|time")
-                    .withDescription("seconds after now when to show the notification"))
-                .WithOption(new ConsoleCommandOption("r|repeat")
-                    .withDescription("repeat notification after given seconds"))
+                .WithOption(new ConsoleCommandOption("t|title")
+                    .withDescription("title of the notification"))
+                .WithOption(new ConsoleCommandOption("m|message")
+                    .withDescription("message of the notification"))
+                .WithOption(new ConsoleCommandOption("d|delay")
+                    .withDescription("seconds after now when to show"))
                 .WithDelegate(OnNotifyCommand);
             adminPanel.RegisterCommand("notify", cmd);
         }
@@ -48,11 +44,9 @@ namespace SocialPoint.Notifications
         void OnNotifyCommand(ConsoleCommand cmd)
         {
             var notify = new Notification();
-            notify.AlertAction = cmd["action"].Value;
-            notify.AlertBody = cmd["body"].Value;
-            notify.IconBadgeNumber = cmd["number"].IntValue;
-            notify.FireDelay = cmd["time"].IntValue;
-            notify.RepeatingSeconds = cmd["repeat"].IntValue;
+            notify.Title = cmd["title"].Value;
+            notify.Message = cmd["message"].Value;
+            notify.FireDelay = cmd["delay"].IntValue;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -90,9 +84,8 @@ namespace SocialPoint.Notifications
 
             layout.CreateButton("Set Notification", () => {
                 var notif = new Notification();
-                notif.AlertBody = _messageInput.text;
-                notif.AlertAction = _actionInput.text;
-                notif.IconBadgeNumber = 1;
+                notif.Message = _messageInput.text;
+                notif.Title = _actionInput.text;
                 int secs = 0;
                 int.TryParse(_secondsInput.text, out secs);
                 notif.FireDelay = secs;

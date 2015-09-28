@@ -7,15 +7,26 @@ using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
+    public partial class AndroidNotificationServices
+    {
+        public const string DefaultLargeIcon = "default_notify_icon_large";
+        public const string DefaultSmallIcon = "default_notify_icon_small";
+        public static readonly Color DefaultIconBackgroundColor = Color.grey;
+
+        public string LargeIcon = DefaultLargeIcon;
+        public string SmallIcon = DefaultSmallIcon;
+        public Color IconBrackgroundColor = DefaultIconBackgroundColor;
+    }
+
 #if UNITY_ANDROID
-    public class AndroidNotificationServices : INotificationServices
+    public partial class AndroidNotificationServices : INotificationServices
     {
         private const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
         private const string FullClassName = "es.socialpoint.unity.notifications.NotificationBridge";
 
         private List<int> _notifications = new List<int>();
-        private AndroidJavaClass _notifClass = null;
-
+        private AndroidJavaClass _notifClass = null;               
+        
         public AndroidNotificationServices()
         {
             _notifClass = new AndroidJavaClass(FullClassName);
@@ -60,6 +71,11 @@ namespace SocialPoint.Notifications
             }
         }
 
+        int ColorToInt(Color c)
+        {
+            return (((int)(c.r * 255)) << 16) + ((int)(c.g * 255) << 8) + (int)(c.b * 255);
+        }
+
         public void Schedule(Notification notif)
         {
             var notifId = 0;
@@ -74,14 +90,10 @@ namespace SocialPoint.Notifications
             SavePlayerPrefs();
 
             long delayTime = notif.FireDelay;
-            string title = notif.AlertAction;
-            string message = notif.AlertBody;
-            string ticker = string.Empty;
-            long rep = notif.RepeatingSeconds;
-            string largeIcon = "notify_icon_big";
-            string smallIcon = "notify_icon_small";
-
-            _notifClass.CallStatic("Schedule", notifId, delayTime, title, message, ticker, rep, largeIcon, smallIcon);
+            string title = notif.Title;
+            string message = notif.Message;
+            int color = ColorToInt(IconBrackgroundColor);
+            _notifClass.CallStatic("Schedule", notifId, delayTime, title, message, LargeIcon, SmallIcon, color);
         }
 
         public void ClearReceived()
@@ -102,7 +114,7 @@ namespace SocialPoint.Notifications
         }
     }
 #else
-    public class AndroidNotificationServices : EmptyNotificationServices
+    public partial class AndroidNotificationServices : EmptyNotificationServices
     {
     }
 #endif

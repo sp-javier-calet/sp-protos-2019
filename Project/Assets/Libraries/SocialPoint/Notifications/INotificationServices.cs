@@ -28,6 +28,5 @@ namespace SocialPoint.Notifications
          */
         void RegisterForRemote();
 
-    }
-   
+    }   
 }

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 
@@ -15,16 +15,46 @@ namespace SocialPoint.Notifications
         /**
          * the title of the action button or slider
          */
-        public string AlertAction = string.Empty; 
+        public string Title = string.Empty; 
 
         /**
          * he message displayed in the notification alert
          */
-        public string AlertBody = string.Empty;
+        public string Message = string.Empty;
+
+
+        [Obsolete("Use Title")]
+        public string AlertAction
+        {
+            set
+            {
+                Title = value;
+            }
+
+            get
+            {
+                return Title;
+            }
+        }
+        
+        [Obsolete("Use Message")]
+        public string AlertBody
+        {
+            set
+            {
+                Message = value;
+            }
+            
+            get
+            {
+                return Message;
+            }
+        }
 
         /**
          * the number to display as the application's icon badge (used for IOs compatibility)
          */
+        [Obsolete("Not supported anymore")]
         public int IconBadgeNumber = 0;
 
         /**
@@ -52,11 +82,12 @@ namespace SocialPoint.Notifications
         /**
          * an amount of seconds after which the notification will be repeated
          */
+        [Obsolete("Not supported anymore")]
         public long RepeatingSeconds;
 
         public override string ToString()
         {
-            return string.Format("Notification: -- Action: {0} -- FireDelay: {1} -- AlertBody: {2} -- IconBadgeNumber: {3}", AlertAction, FireDelay, AlertBody, IconBadgeNumber);
+            return string.Format("Notification: -- Title: {0}-- Message: {2}  -- FireDelay: {1} -- IconBadgeNumber: {3}", Title, Message, FireDelay);
         }
     }
        
