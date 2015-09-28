@@ -1,4 +1,4 @@
-﻿using Zenject;
+using Zenject;
 using UnityEngine;
 using System;
 using SocialPoint.AppEvents;
