@@ -57,15 +57,14 @@ const int SPUnityCurlGetHttpResponseErrorCode(int code)
         case CURLE_COULDNT_RESOLVE_HOST:
         case CURLE_COULDNT_CONNECT:
         case CURLE_REMOTE_ACCESS_DENIED:
-            return 475;
         case CURLE_HTTP_RETURNED_ERROR:
         case CURLE_TOO_MANY_REDIRECTS:
-        case CURLE_OUT_OF_MEMORY:
         case CURLE_REMOTE_FILE_EXISTS:
         case CURLE_REMOTE_DISK_FULL:
         case CURLE_RECV_ERROR:
+        case CURLE_SEND_ERROR:
         case CURLE_GOT_NOTHING:
-            return 474;
+            return 475;
         case CURLE_SSL_ENGINE_NOTFOUND:
         case CURLE_SSL_CERTPROBLEM:
         case CURLE_SSL_CIPHER:
@@ -79,7 +78,7 @@ const int SPUnityCurlGetHttpResponseErrorCode(int code)
         case CURLE_ABORTED_BY_CALLBACK:
             return 409;
         default:
-            return 500;
+            return 470;
     }
 }
 size_t writeToString(void *contents, size_t size, size_t nmemb, void *userp)
@@ -186,13 +185,13 @@ EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct req)
     ss << "bodyLength " << req.bodyLength << std::endl;
     ss.close();
 #endif
-    
+
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(req.id);
     if (conn == NULL)
     {
         return 0;
     }
-    
+
     conn->easy = SPUnityCurlCreate(req);
     curl_easy_setopt(conn->easy, CURLOPT_HEADERFUNCTION, writeToString);
     curl_easy_setopt(conn->easy, CURLOPT_HEADERDATA, &conn->headersBuffer);
@@ -289,7 +288,7 @@ EXPORT_API void SPUnityCurlDestroyConn(int id)
 }
 
 EXPORT_API double SPUnityCurlGetConnectTime(int id)
-{    
+{
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
     {
