@@ -21,7 +21,7 @@ namespace SocialPoint.Network
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    _appEvents.WillGoBackground.Add(-1000, OnWillGoBackground);
+                    _appEvents.RegisterWillGoBackground(-1000, OnWillGoBackground);
                     _appEvents.WasOnBackground += WasOnBackground;
                 }
             }
@@ -31,7 +31,7 @@ namespace SocialPoint.Network
         {
             if(_appEvents != null)
             {
-                _appEvents.WillGoBackground.Remove(OnWillGoBackground);
+                _appEvents.UnregisterWillGoBackground(OnWillGoBackground);
                 _appEvents.WasOnBackground -= WasOnBackground;
             }
         }

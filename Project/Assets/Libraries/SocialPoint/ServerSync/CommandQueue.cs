@@ -117,12 +117,12 @@ namespace SocialPoint.ServerSync
 
         private void ConnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.WillGoBackground.Add(-25, OnAppWillGoBackground);
+            appEvents.RegisterWillGoBackground(-25, OnAppWillGoBackground);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
+            appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
         }
 
         void OnAppWillGoBackground()

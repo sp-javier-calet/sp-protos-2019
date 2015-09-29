@@ -50,7 +50,7 @@ namespace SocialPoint.AppEvents
         [Test]
         public void OnApplicationPause_True_WillGoBackground_Raised()
         {
-            UnityAppEvent.WillGoBackground.Add(0, action);
+            UnityAppEvent.RegisterWillGoBackground(0, action);
             UnityAppEvent.SendMessage("OnApplicationPause", true);
             action.ReceivedWithAnyArgs(1).Invoke();
         }

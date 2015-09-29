@@ -25,7 +25,10 @@ namespace SocialPoint.Notifications
         private const string FullClassName = "es.socialpoint.unity.notifications.NotificationBridge";
 
         private List<int> _notifications = new List<int>();
-        private AndroidJavaClass _notifClass = null;               
+
+#if !UNITY_EDITOR
+        private AndroidJavaClass _notifClass = null;
+#endif
         
         public AndroidNotificationServices()
         {

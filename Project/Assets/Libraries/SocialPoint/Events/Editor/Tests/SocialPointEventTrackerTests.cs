@@ -75,7 +75,7 @@ namespace SocialPoint.Events
             Start();
             SocialPointEventTracker.TrackEvent("Test event");
             SocialPointEventTracker.Send();
-            SocialPointEventTracker.HttpClient.Received(2).Send(Arg.Any<HttpRequest>(),Arg.Any<HttpResponseDelegate>());
+            SocialPointEventTracker.HttpClient.Received(1).Send(Arg.Any<HttpRequest>(),Arg.Any<HttpResponseDelegate>());
         }
         
         [TearDown]

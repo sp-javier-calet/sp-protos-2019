@@ -142,15 +142,15 @@ namespace SocialPoint.Events
         private void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource += OnOpenedFromSource;
-            appEvents.WillGoBackground.Add(0, OnAppWillGoBackground);
-            appEvents.WillGoBackground.Add(-100, OnAppGoBackground);
+            appEvents.RegisterWillGoBackground(0, OnAppWillGoBackground);
+            appEvents.RegisterWillGoBackground(-100, OnAppGoBackground);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource -= OnOpenedFromSource;
-            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
-            appEvents.WillGoBackground.Remove(OnAppGoBackground);
+            appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
+            appEvents.UnregisterWillGoBackground(OnAppGoBackground);
         }
 
         void OnOpenedFromSource(AppSource source)

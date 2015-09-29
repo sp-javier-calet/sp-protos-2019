@@ -81,12 +81,12 @@ namespace SocialPoint.QualityStats
 
         private void ConnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.WillGoBackground.Add(100, OnAppWillGoBackground);
+            appEvents.RegisterWillGoBackground(100, OnAppWillGoBackground);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
+            appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
         }
 
         private void OnApplicationDidFinishLaunching()

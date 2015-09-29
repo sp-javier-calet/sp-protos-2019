@@ -4,15 +4,16 @@ using SocialPoint.Utils;
 namespace SocialPoint.AppEvents
 {
     public interface IAppEvents : IDisposable
-    {
+    {   
         // Native events
-        PriorityAction WillGoBackground{ get; }
+        void RegisterWillGoBackground(int priority, Action action);
+        void UnregisterWillGoBackground(Action action);
 
         event Action WasOnBackground;
         event Action WasCovered;
         event Action ReceivedMemoryWarning;
-
         event Action<AppSource> OpenedFromSource;
+
         AppSource Source { get; }
 
         // Unity events

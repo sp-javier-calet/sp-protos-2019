@@ -70,12 +70,14 @@ namespace SocialPoint.AppEvents
             _appEvents.TriggerWillGoBackground();
         }
 
-        public PriorityAction WillGoBackground
+        public void RegisterWillGoBackground(int priority, Action action)
         {
-            get
-            {
-                return _appEvents.WillGoBackground;
-            }
+            _appEvents.RegisterWillGoBackground(priority, action);
+        }
+
+        public void UnregisterWillGoBackground(Action action)
+        {
+            _appEvents.UnregisterWillGoBackground(action);
         }
 
         public event Action WasOnBackground
