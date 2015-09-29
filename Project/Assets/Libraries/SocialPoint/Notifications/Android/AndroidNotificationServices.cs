@@ -29,7 +29,9 @@ namespace SocialPoint.Notifications
         
         public AndroidNotificationServices()
         {
+#if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
+#endif
             LoadPlayerPrefs();
         }
 
@@ -89,28 +91,36 @@ namespace SocialPoint.Notifications
             _notifications.Add(notifId);
             SavePlayerPrefs();
 
+#if !UNITY_EDITOR
             long delayTime = notif.FireDelay;
             string title = notif.Title;
             string message = notif.Message;
             int color = ColorToInt(IconBrackgroundColor);
             _notifClass.CallStatic("Schedule", notifId, delayTime, title, message, LargeIcon, SmallIcon, color);
+#endif
         }
 
         public void ClearReceived()
         {
             _notifications.Clear();
             SavePlayerPrefs();
+#if !UNITY_EDITOR
             _notifClass.CallStatic("ClearReceived");
+#endif
         }
 
         public void CancelPending()
         {
+#if !UNITY_EDITOR
             _notifClass.CallStatic("CancelPending", _notifications.ToArray());
+#endif
         }
 
         public void RegisterForRemote()
         {
+#if !UNITY_EDITOR
             _notifClass.CallStatic("RegisterForRemote");
+#endif
         }
     }
 #else

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using NSubstitute;
 using UnityEngine;
@@ -50,7 +50,7 @@ namespace SocialPoint.AppEvents
         [Test]
         public void OnApplicationPause_True_WillGoBackground_Raised()
         {
-            UnityAppEvent.WillGoBackground.Enqueue(0, action);
+            UnityAppEvent.WillGoBackground.Add(0, action);
             UnityAppEvent.SendMessage("OnApplicationPause", true);
             action.ReceivedWithAnyArgs(1).Invoke();
         }

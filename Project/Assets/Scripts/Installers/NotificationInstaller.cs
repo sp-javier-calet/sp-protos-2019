@@ -26,9 +26,9 @@ public class NotificationInstaller : MonoInstaller
             return;
         }
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID 
         Container.Bind<INotificationServices>().ToSingleMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
-#elif UNITY_IOS && !UNITY_EDITOR
+#elif UNITY_IOS
         Container.Bind<INotificationServices>().ToSingle<IosNotificationServices>();
 #else
         Container.Bind<INotificationServices>().ToSingle<EmptyNotificationServices>();

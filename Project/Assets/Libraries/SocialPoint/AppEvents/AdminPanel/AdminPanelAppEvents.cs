@@ -25,7 +25,7 @@ namespace SocialPoint.AppEvents
             _appEvents.OpenedFromSource += (source) => { AddEvent("OpenedFromSource: " + source); };;
             _appEvents.WasCovered += () => { AddEvent("WasCovered"); };
             _appEvents.WasOnBackground += () => { AddEvent("WasOnBackground"); };
-            _appEvents.WillGoBackground.Enqueue(0, () => { AddEvent("WillGoBackground"); });
+            _appEvents.WillGoBackground.Add(0, () => { AddEvent("WillGoBackground"); });
             _appEvents.LevelWasLoaded += (value) => { AddEvent("LevelWasLoaded: " + value); };
             _appEvents.ReceivedMemoryWarning += () => { AddEvent("ReceivedMemoryWarning"); };
         }

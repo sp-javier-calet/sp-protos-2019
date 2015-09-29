@@ -747,7 +747,7 @@ namespace SocialPoint.Crash
         private void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.ReceivedMemoryWarning += OnMemoryWarning;
-            appEvents.WillGoBackground.Enqueue(0, OnWillGoBackground);
+            appEvents.WillGoBackground.Add(0, OnWillGoBackground);
             appEvents.WasOnBackground += OnWillGoForeground;
             appEvents.LevelWasLoaded += OnLevelWasLoaded;
             appEvents.ApplicationQuit += OnApplicationQuit;
@@ -756,7 +756,7 @@ namespace SocialPoint.Crash
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.ReceivedMemoryWarning -= OnMemoryWarning;
-            appEvents.WillGoBackground.Dequeue(OnWillGoBackground);
+            appEvents.WillGoBackground.Remove(OnWillGoBackground);
             appEvents.WasOnBackground -= OnWillGoForeground;
             appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             appEvents.ApplicationQuit -= OnApplicationQuit;

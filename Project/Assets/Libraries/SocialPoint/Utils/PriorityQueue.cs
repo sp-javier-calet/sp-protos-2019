@@ -55,7 +55,7 @@ namespace SocialPoint.Utils
             return new PriorityQueue<TPriority, TValue>(this);
         }
         
-        public void Enqueue(TPriority priority, TValue obj)
+        public void Add(TPriority priority, TValue obj)
         {
             Queue<TValue> queue;
             if(!_queues.TryGetValue(priority, out queue))
@@ -65,8 +65,14 @@ namespace SocialPoint.Utils
             }
             queue.Enqueue(obj);
         }
+
+        [Obsolete("Use Add")]
+        public void Enqueue(TPriority priority, TValue obj)
+        {
+            Add(priority, obj);
+        }
         
-        public TValue Dequeue()
+        public TValue Remove()
         {
             foreach(var currQueue in _queues)
             {
@@ -78,7 +84,13 @@ namespace SocialPoint.Utils
             return default(TValue);
         }
 
-        public bool Dequeue(TValue value)
+        [Obsolete("Use Remove")]
+        public TValue Dequeue()
+        {
+            return Remove();
+        }
+
+        public bool Remove(TValue value)
         {
             bool found = false;
             foreach(var key in _queues.Keys)
@@ -161,8 +173,7 @@ namespace SocialPoint.Utils
 
         public void Run()
         {
-            var queue = new PriorityAction(this);
-            foreach(var action in queue)
+            foreach(var action in this)
             {
                 if(action != null)
                 {

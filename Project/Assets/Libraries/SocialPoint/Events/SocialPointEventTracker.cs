@@ -142,15 +142,15 @@ namespace SocialPoint.Events
         private void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource += OnOpenedFromSource;
-            appEvents.WillGoBackground.Enqueue(0, OnAppWillGoBackground);
-            appEvents.WillGoBackground.Enqueue(-100, OnAppGoBackground);
+            appEvents.WillGoBackground.Add(0, OnAppWillGoBackground);
+            appEvents.WillGoBackground.Add(-100, OnAppGoBackground);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource -= OnOpenedFromSource;
-            appEvents.WillGoBackground.Dequeue(OnAppWillGoBackground);
-            appEvents.WillGoBackground.Dequeue(OnAppGoBackground);
+            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
+            appEvents.WillGoBackground.Remove(OnAppGoBackground);
         }
 
         void OnOpenedFromSource(AppSource source)
@@ -165,7 +165,6 @@ namespace SocialPoint.Events
 
         void OnAppGoBackground()
         {
-            Debug.Log("Event tracket go background");
             Send();
         }
 

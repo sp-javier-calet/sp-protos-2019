@@ -75,7 +75,7 @@ namespace SocialPoint.Network
             SetupHttpRequest(req);
             req.BeforeSend();
             var conn = CreateConnection(req, del);
-            Pending.Enqueue(req.Priority, conn);
+            Pending.Add(req.Priority, conn);
             if(_update == null)
             {
                 _update = _behaviour.StartCoroutine(Update());
@@ -87,7 +87,7 @@ namespace SocialPoint.Network
         {
             while(Pending.Count > 0)
             {
-                Current = Pending.Dequeue();
+                Current = Pending.Remove();
                 var e = Current.Update();
                 while(e != null && e.MoveNext() && Current != null)
                 {
