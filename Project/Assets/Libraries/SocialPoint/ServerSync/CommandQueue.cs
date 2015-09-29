@@ -338,6 +338,8 @@ namespace SocialPoint.ServerSync
             Reset();
             _autoSync = null;
             TrackEvent = null;
+            if (AppEvents != null)
+                DisconnectAppEvents(AppEvents);
         } 
 
         IEnumerator UpdateCoroutine()

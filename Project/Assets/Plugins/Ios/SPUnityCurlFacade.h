@@ -16,7 +16,7 @@
 #endif
 
 #include <stdlib.h>
-
+#include <cstdint>
 
 extern "C"
 {

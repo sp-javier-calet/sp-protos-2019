@@ -44,8 +44,8 @@ namespace SocialPoint.AppEvents
                 RefreshContent();
             });
 
-            layout.CreateButton("Trigger Go Background", () => {                
-                _appEvents.TriggerWillGoBackground();                
+            layout.CreateButton("Trigger Go Background", () => {
+                _appEvents.TriggerWillGoBackground();
                 RefreshContent();
             });
         }

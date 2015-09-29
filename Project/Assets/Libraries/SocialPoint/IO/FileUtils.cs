@@ -162,12 +162,14 @@ namespace SocialPoint.IO {
         public static string [] GetFilesInDirectory(string path)
         {
             CheckLocalPath(path);
+            path = Path.GetFullPath(path);
             return Directory.GetFiles(path);
         }
 
         public static void CreateDirectory(string path)
         {
             CheckLocalPath(path);
+            path = Path.GetFullPath(path);
             Directory.CreateDirectory(path);
         }
 
@@ -548,13 +550,15 @@ namespace SocialPoint.IO {
             {
                 if(Directory.Exists(dst))
                 {
-                    if(src.Contains(WildcardDeep))
+                    if(IsWildcard(src))
                     {
-                        dst = Path.Combine(dst, WildcardDeep);
-                    }
-                    else if(src.IndexOf(WildcardMultiChar) >= 0)
-                    {
-                        dst = Path.Combine(dst, WildcardMultiChar.ToString());
+                        var srcBase = GetWildcardBasePath(src);
+                        var srcWild = WildcardOneChar.ToString();
+                        if(src.Length > srcBase.Length)
+                        {
+                            srcWild = src.Substring(srcBase.Length+1);
+                        }
+                        dst = Path.Combine(dst, srcWild);
                     }
                 }
                 string dstDir;

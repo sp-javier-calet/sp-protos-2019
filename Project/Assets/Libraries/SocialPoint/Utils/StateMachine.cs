@@ -68,6 +68,14 @@ namespace SocialPoint.Utils
         private Dictionary<StateType, State> _states = new Dictionary<StateType, State>();
 
         private StateType _currentStateType;
+        public StateType CurrentStateType
+        {
+            get
+            {
+                return _currentStateType;
+            }
+        }
+
         private State _currentState;
         public State CurrentState
         {

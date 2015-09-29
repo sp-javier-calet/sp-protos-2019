@@ -47,17 +47,11 @@
          This file is an integral part of the build system for your
          application and should be checked into Version Control Systems. -->
     <loadproperties srcFile="project.properties" />
-    <loadproperties srcFile="unity.properties" />
 
     <!-- quick check on sdk.dir -->
     <fail
             message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through the ANDROID_HOME environment variable."
             unless="sdk.dir"
-    />
-
-        <fail
-            message="unity.dir is missing."
-            unless="unity.dir"
     />
 
     <!--
@@ -99,7 +93,6 @@
         <path id="project.all.jars.path.tmp">
                 <path path="${toString:project.all.jars.path}"/>
                 <path path="${sdk.dir}/extras/android/support/v4/android-support-v4.jar"/>
-                <path path="${unity.dir}/Unity.app/Contents/PlaybackEngines/AndroidPlayer/release/bin/classes.jar"/>
         </path>
 
         <path id="project.all.jars.path">

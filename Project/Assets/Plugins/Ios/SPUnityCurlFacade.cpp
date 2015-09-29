@@ -4,14 +4,13 @@
 #include <vector>
 #include <string>
 #include <cassert>
-#include "pthread.h"
+#include <mutex>
 
 extern "C" {
 #include "curl/curl.h"
 }
 
-pthread_mutex_t curlUpdateLock;
-bool curlUpdateLockInitialized = false;
+std::mutex curlUpdateLock;
 
 std::vector<std::string> split(const std::string& str, const std::string& sep, size_t max=std::string::npos)
 {
@@ -57,12 +56,13 @@ const int SPUnityCurlGetHttpResponseErrorCode(int code)
         case CURLE_COULDNT_RESOLVE_HOST:
         case CURLE_COULDNT_CONNECT:
         case CURLE_REMOTE_ACCESS_DENIED:
+		case CURLE_RECV_ERROR:
+		case CURLE_SEND_ERROR:
+			return 475;
         case CURLE_HTTP_RETURNED_ERROR:
         case CURLE_TOO_MANY_REDIRECTS:
         case CURLE_REMOTE_FILE_EXISTS:
         case CURLE_REMOTE_DISK_FULL:
-        case CURLE_RECV_ERROR:
-        case CURLE_SEND_ERROR:
         case CURLE_GOT_NOTHING:
             return 475;
         case CURLE_SSL_ENGINE_NOTFOUND:
@@ -223,13 +223,8 @@ EXPORT_API int SPUnityCurlUpdate(int id)
         return 1;
     }
 
-    if (!curlUpdateLockInitialized)
-    {
-        pthread_mutex_init(&curlUpdateLock, NULL);
-        curlUpdateLockInitialized = true;
-    }
 
-    pthread_mutex_lock(&curlUpdateLock);
+	curlUpdateLock.lock();
     curl_multi_perform(globalInfo.multi, &globalInfo.still_running);
 
     int msgs_left;
@@ -269,7 +264,7 @@ EXPORT_API int SPUnityCurlUpdate(int id)
         }
     }
 
-    pthread_mutex_unlock(&curlUpdateLock);
+	curlUpdateLock.unlock();
     return finished;
 }
 

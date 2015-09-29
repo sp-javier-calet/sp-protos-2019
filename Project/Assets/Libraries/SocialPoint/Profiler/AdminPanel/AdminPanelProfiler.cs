@@ -4,19 +4,19 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Profiler
 {
-    public class AdminPanelProfilerGUI : IAdminPanelGUI, IAdminPanelConfigurer
+    public class AdminPanelProfiler : IAdminPanelGUI, IAdminPanelConfigurer
     {
         private PerfInfoGUI _perfInfoGUI;
         private Text _frameText;
         private Text _garbageText;
-        
+
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
             _perfInfoGUI = GameObject.FindObjectOfType<PerfInfoGUI>();
 
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Profiler", this));
         }
-        
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             if(_perfInfoGUI != null)

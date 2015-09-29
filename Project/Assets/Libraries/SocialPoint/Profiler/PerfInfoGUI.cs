@@ -1,5 +1,4 @@
 using UnityEngine;
-using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Profiler
 {

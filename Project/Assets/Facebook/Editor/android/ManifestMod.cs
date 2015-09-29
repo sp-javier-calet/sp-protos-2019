@@ -19,12 +19,12 @@ namespace UnityEditor.FacebookEditor
 
         public const string ApplicationIdMetaDataName = "com.facebook.sdk.ApplicationId";
 
-		public const string MainActivityName = "com.unity3d.player.UnityPlayerActivity";
+        public const string MainActivityName = "com.unity3d.player.UnityPlayerActivity";
 
 #if UNITY_5
-		public const string EditorManifestPath = "PlaybackEngines/androidplayer/Apk/AndroidManifest.xml";
+        public const string EditorManifestPath = "PlaybackEngines/androidplayer/Apk/AndroidManifest.xml";
 #else
-		public const string EditorManifestPath = "PlaybackEngines/androidplayer/AndroidManifest.xml";
+        public const string EditorManifestPath = "PlaybackEngines/androidplayer/AndroidManifest.xml";
 #endif
 
         public static void GenerateManifest()
@@ -34,7 +34,7 @@ namespace UnityEditor.FacebookEditor
             // only copy over a fresh copy of the AndroidManifest if one does not exist
             if (!File.Exists(outputFile))
             {
-				var inputFile = Path.Combine(EditorApplication.applicationContentsPath, EditorManifestPath);
+                var inputFile = Path.Combine(EditorApplication.applicationContentsPath, EditorManifestPath);
                 File.Copy(inputFile, outputFile);
             }
             UpdateManifest(outputFile);

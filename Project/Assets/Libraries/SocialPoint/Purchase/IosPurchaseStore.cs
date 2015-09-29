@@ -8,13 +8,14 @@ using UnityEngine;
 namespace SocialPoint.Purchase
 {
     public class IosPurchaseStore
-#if UNITY_IOS
+    #if UNITY_IOS
         : IPurchaseStore
-#endif
+    #endif
     {
         #if UNITY_IOS
         private List<Product> _products;
         private string _purchasingProduct;
+        private List<Receipt> _pendingPurchases;
 
         #region IPurchaseStore implementationcategoryModel
 
@@ -23,6 +24,7 @@ namespace SocialPoint.Purchase
         public event PurchaseUpdatedDelegate PurchaseUpdated = delegate {};
 
         private ValidatePurchaseDelegate _validatePurchase;
+
         public ValidatePurchaseDelegate ValidatePurchase
         {
             set
@@ -40,33 +42,33 @@ namespace SocialPoint.Purchase
         {
             DebugUtils.Log(string.Format("IosPurchaseStore {0}", msg));
         }
-        
-        public void LoadProducts (string[] productIds)
+
+        public void LoadProducts(string[] productIds)
         {
             DebugLog("requesting products");
             StoreKitBinding.requestProductData(productIds);
         }
 
-        public bool Purchase (string productId)
+        public bool Purchase(string productId)
         {
             if(_products == null)
             {
-                DebugLog ("there are no products, load them first");
-                PurchaseUpdated(PurchaseState.PurchaseFailed,productId);
+                DebugLog("there are no products, load them first");
+                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
                 return false;
             }
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                StoreKitBinding.purchaseProduct(productId, 1 );
+                StoreKitBinding.purchaseProduct(productId, 1);
                 _purchasingProduct = productId;
-                PurchaseUpdated(PurchaseState.PurchaseStarted,productId);
+                PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
                 return true;
             }
             else
             {
                 DebugLog("product doesn't exist: " + productId);
-                PurchaseUpdated(PurchaseState.PurchaseFailed,productId);
+                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
                 return false;
             }
         }
@@ -78,7 +80,8 @@ namespace SocialPoint.Purchase
         }
 
 
-        public Product[] ProductList{
+        public Product[] ProductList
+        {
             get
             {
                 return _products.ToArray();
@@ -104,7 +107,7 @@ namespace SocialPoint.Purchase
             }
 
             StoreKitManager.autoConfirmTransactions = false;
-            
+
             StoreKitManager.productListReceivedEvent += ProductListReceived;
             StoreKitManager.purchaseFailedEvent += PurchaseFailed;
             StoreKitManager.purchaseCancelledEvent += PurchaseCanceled;
@@ -113,85 +116,100 @@ namespace SocialPoint.Purchase
             StoreKitManager.productPurchaseAwaitingConfirmationEvent += ProductPurchaseAwaitingConfirmation;
         }
 
-        private void ProductListReceived (List<StoreKitProduct> products)
+        private void ProductListReceived(List<StoreKitProduct> products)
         {
-            _products = new List<Product> ();
-            DebugLog ("received total products: " + products.Count);
+            _products = new List<Product>();
+            DebugLog("received total products: " + products.Count);
             try
             {
                 foreach(StoreKitProduct product in products)
                 {
                     Product parsedProduct = new Product(product.productIdentifier, product.title, float.Parse(product.price), product.currencySymbol);
-                    DebugLog (product.ToString());
+                    DebugLog(product.ToString());
                     _products.Add(parsedProduct);
                 }
 
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                DebugLog ("parsing went wrong");
-                ProductsUpdated (LoadProductsState.Error,new Error(ex.Message));
+                DebugLog("parsing went wrong");
+                ProductsUpdated(LoadProductsState.Error, new Error(ex.Message));
             }
 
             _products.Sort((Product p1, Product p2) => p1.Price.CompareTo(p2.Price));
-            DebugLog ("products sorted");
-            ProductsUpdated (LoadProductsState.Success);
+            DebugLog("products sorted");
+            ProductsUpdated(LoadProductsState.Success);
+            if(_pendingPurchases != null)
+            {
+                FinishPendingPurchases();
+            }
+        }
+
+        private void FinishPendingPurchases()
+        {
+            if(_validatePurchase != null && _pendingPurchases.Count > 0)
+            {
+                Receipt receipt = _pendingPurchases[0];
+                DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
+                _validatePurchase(receipt, (response) => {
+                    DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
+                    if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
+                    {
+                        StoreKitBinding.finishPendingTransaction(receipt.OrderId);
+                        PurchaseUpdated(PurchaseState.PurchaseConsumed, receipt.ProductId);
+                        _pendingPurchases.Remove(receipt);
+                        FinishPendingPurchases();
+                    }
+                    //itunes api can only confirm a purchase(can't cancel) so we call nothing unless our backend says it's complete.
+                });
+            }
+            else
+            {
+                DebugLog("All pending purchases finished");
+            }
         }
 
         private void PurchaseFailed(string error)
         {
-            DebugLog ("PurchaseFailed " + error);
-            PurchaseUpdated (PurchaseState.PurchaseFailed, _purchasingProduct);
+            DebugLog("PurchaseFailed " + error);
+            PurchaseUpdated(PurchaseState.PurchaseFailed, _purchasingProduct);
         }
 
         private void PurchaseCanceled(string error)
         {
-            DebugLog ("PurchaseCanceled " +error);
-            PurchaseUpdated (PurchaseState.PurchaseCanceled, _purchasingProduct);
+            DebugLog("PurchaseCanceled " + error);
+            PurchaseUpdated(PurchaseState.PurchaseCanceled, _purchasingProduct);
         }
 
         private void PurchaseFinished(StoreKitTransaction transaction)
         {
-            if(_purchasingProduct == transaction.productIdentifier)//transaction finished, everything went ok
-            {
-                DebugLog ("Purchase has finished: " + transaction.transactionIdentifier);
-                PurchaseUpdated (PurchaseState.PurchaseFinished, transaction.productIdentifier);
-            }
-            else
-            {
-                DebugLog ("Purchase error different transaction id: " + transaction.transactionIdentifier);
-            }
+            DebugLog("Purchase has finished: " + transaction.transactionIdentifier);
+            PurchaseUpdated(PurchaseState.PurchaseFinished, transaction.productIdentifier);
         }
 
         private void ProductPurchaseAwaitingConfirmation(StoreKitTransaction transaction)
         {
-            string id = transaction.transactionIdentifier;
-            var data = new AttrDic ();
+            var data = new AttrDic();
             data.SetValue(Receipt.OrderIdKey, transaction.transactionIdentifier);
             data.SetValue(Receipt.ProductIdKey, transaction.productIdentifier);
             data.SetValue(Receipt.PurchaseStateKey, (int)PurchaseState.ValidateSuccess);
             data.SetValue(Receipt.OriginalJsonKey, transaction.base64EncodedTransactionReceipt);
             data.SetValue(Receipt.StoreKey, "itunes");
-            if(_validatePurchase != null)
-            {
-                Receipt receipt = new Receipt (data);
-                DebugLog ("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
-                _validatePurchase(receipt, (response) => {
-                    DebugLog ("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + id);
-                    if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
-                    {
-                        StoreKitBinding.finishPendingTransaction(id);
-                        PurchaseUpdated (PurchaseState.PurchaseConsumed, transaction.productIdentifier);
-                    }
-                    //itunes api can only confirm a purchase(can't cancel) so we call nothing unless our backend says it's complete.
-                });
-            }
 
+            if(_pendingPurchases == null)
+                _pendingPurchases = new List<Receipt>();
+
+            _pendingPurchases.Add(new Receipt(data));
+
+            if(_products != null && _products.Count > 0)
+            {
+                FinishPendingPurchases();
+            }
         }
 
         private void TransactionUpdated(StoreKitTransaction transaction)
         {
-            DebugLog ("Transaction Updated: " + transaction.transactionState);
+            DebugLog("Transaction Updated: " + transaction.transactionState);
         }
 
         void UnregisterEvents()
@@ -212,6 +230,6 @@ namespace SocialPoint.Purchase
                 handler(state, productID);
             }
         }
-    #endif
+        #endif
     }
 }
