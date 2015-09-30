@@ -4,7 +4,7 @@ using System;
 using SocialPoint.Events;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
-using SocialPoint.Social;
+using SocialPoint.Crash;
 
 public class EmptyBackendInstaller : MonoInstaller
 {
@@ -24,6 +24,10 @@ public class EmptyBackendInstaller : MonoInstaller
         {
             Container.Bind<ICommandQueue>().ToSingle<EmptyCommandQueue>();
             Container.Bind<IDisposable>().ToSingle<EmptyCommandQueue>();
+        }
+        if(!Container.HasBinding<ICrashReporter>())
+        {
+            Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
         }
     }
 

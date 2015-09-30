@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Alert;
 using SocialPoint.Attributes;
-using SocialPoint.Crash;
+using SocialPoint.AppEvents;
 using SocialPoint.GUI;
 using SocialPoint.Locale;
 using SocialPoint.Login;
@@ -58,7 +58,7 @@ namespace SocialPoint.GameLoading
         public PopupsController Popups;
         public Localization Localization;
         public ILocalizationManager LocalizationManager;
-        public ICrashReporter CrashReporter;
+        public IAppEvents AppEvents;
         public GameObject ProgressContainer;
         public LoadingBarController LoadingBar;
         public IAlertView AlertView;
@@ -74,6 +74,11 @@ namespace SocialPoint.GameLoading
             {
                 LocalizationManager.Load();
             }
+
+            if(AppEvents != null)
+            {
+                AppEvents.TriggerGameWasLoaded();
+            }
         }
 
         override protected void OnLoad()
@@ -88,11 +93,6 @@ namespace SocialPoint.GameLoading
             if(Localization == null)
             {
                 Localization = Localization.Default;
-            }
-
-            if(CrashReporter != null)
-            {
-                CrashReporter.Enable();
             }
         }
 

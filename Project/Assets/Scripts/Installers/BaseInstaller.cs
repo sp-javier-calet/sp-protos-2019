@@ -1,6 +1,7 @@
 ﻿using System;
 using Zenject;
 using UnityEngine;
+using SocialPoint.Crash;
 
 public class BaseInstaller : MonoInstaller
 {   
@@ -13,6 +14,10 @@ public class BaseInstaller : MonoInstaller
         if(!Container.HasBinding<GameParser>())
         {
             Container.BindAllInterfacesToSingle<GameParser>();
+        }
+        if(!Container.HasBinding<BreadcrumbManager>())
+        {
+            Container.Bind<BreadcrumbManager>().ToSingle();
         }
     }
 }

@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace SocialPoint.Crash
 {
-    public class DeviceCrashReporter : CrashReporterBase
+    public class DeviceCrashReporter : BaseCrashReporter
     {
         private class DeviceReport : Report
         {

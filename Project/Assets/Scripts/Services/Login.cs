@@ -22,7 +22,7 @@ class Login : SocialPointLogin
     {
         set
         {
-            TrackEvent = value.TrackEvent;
+            TrackEvent = value.TrackSystemEvent;
         }
     }
 

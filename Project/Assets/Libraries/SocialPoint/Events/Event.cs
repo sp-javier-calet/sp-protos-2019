@@ -12,7 +12,7 @@ namespace SocialPoint.Events
         const string AttrKeyData = "data";
         const string AttrKeyNum = "num";
 		public ErrorDelegate ResponseDelegate;
-        public string Type;
+        public string Name;
         public long Timestamp;
         public AttrDic Data;
         public const int NoNum = -1;
@@ -24,9 +24,9 @@ namespace SocialPoint.Events
         /// <param name="type">Name.</param>
         /// <param name="data">Data.</param>
         /// <param name="responseDelegate">Response delegate that will be called when the request is finished.</param>
-        public Event(string type, AttrDic data, ErrorDelegate responseDelegate = null)
+        public Event(string name, AttrDic data, ErrorDelegate responseDelegate = null)
         {
-            Type = type;
+            Name = name;
             Data = data;
             Timestamp = TimeUtils.Timestamp;
             ResponseDelegate = responseDelegate;
@@ -35,7 +35,7 @@ namespace SocialPoint.Events
         public void FromAttr(Attr data)
         {
             var datadic = data.AssertDic;
-            Type = datadic.GetValue(AttrKeyType).ToString();
+            Name = datadic.GetValue(AttrKeyType).ToString();
             Timestamp = datadic.GetValue(AttrKeyTimestamp).ToLong();
             if(datadic.ContainsKey(AttrKeyNum))
             {
@@ -51,7 +51,7 @@ namespace SocialPoint.Events
         public Attr ToAttr()
         {
             AttrDic dic = new AttrDic();
-            dic.SetValue(AttrKeyType, Type);
+            dic.SetValue(AttrKeyType, Name);
             dic.SetValue(AttrKeyTimestamp, Timestamp);
             dic.Set(AttrKeyData, Data);
             if(Num != NoNum)

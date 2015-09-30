@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace SocialPoint.Crash
 {
-
     public struct Breadcrumb
     {
         long timestamp;

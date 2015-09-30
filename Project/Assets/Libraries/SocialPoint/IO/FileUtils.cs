@@ -13,6 +13,7 @@ using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.IO {
 
@@ -27,10 +28,6 @@ namespace SocialPoint.IO {
             return www;
         }
 #endif
-
-        public const char WildcardMultiChar = '*';
-        public const string WildcardDeep = "**";
-        public const char WildcardOneChar = '?';
 
         public delegate bool OperationFilter(string src, string dst);
 
@@ -299,45 +296,7 @@ namespace SocialPoint.IO {
 
         static public bool GlobMatch(string pattern, string value)
         {
-            bool deep = pattern.Contains(WildcardDeep);
-            if(deep)
-            {
-                pattern = pattern.Replace(WildcardDeep, WildcardMultiChar.ToString());
-            }
-            else if(value.Split(Path.DirectorySeparatorChar).Length != pattern.Split(Path.DirectorySeparatorChar).Length)
-            {
-                return false;
-            }
-
-            int pos = 0;
-            while (pattern.Length != pos)
-            {
-                switch (pattern[pos])
-                {
-                case WildcardOneChar:
-                    break;
-                    
-                case WildcardMultiChar:
-                    for (int i = value.Length; i >= pos; i--)
-                    {
-                        if(GlobMatch(pattern.Substring(pos + 1), value.Substring(i)))
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                    
-                default:
-                    if (value.Length == pos || char.ToUpper(pattern[pos]) != char.ToUpper(value[pos]))
-                    {
-                        return false;
-                    }
-                    break;
-                }
-                
-                pos++;
-            }
-            return value.Length == pos;
+            return StringUtils.GlobMatch(pattern, value);
         }
         
         static public void ReplaceFileNames(string path, string pattern, IDictionary<string,string> repls, OperationFilter dlg=null)
@@ -435,13 +394,13 @@ namespace SocialPoint.IO {
             {
                 search = SearchOption.AllDirectories;
                 dir = src;
-                pattern = string.Empty+WildcardMultiChar;
+                pattern = StringUtils.WildcardMultiChar.ToString();
             }
             else
             {
-                if(src.Contains(WildcardDeep))
+                if(src.Contains(StringUtils.WildcardDeep))
                 {
-                    src = src.Replace(WildcardDeep, WildcardMultiChar.ToString());
+                    src = src.Replace(StringUtils.WildcardDeep, StringUtils.WildcardMultiChar.ToString());
                     search = SearchOption.AllDirectories;
                 }
                 else
@@ -455,7 +414,7 @@ namespace SocialPoint.IO {
                 }
                 else
                 {
-                    pattern = WildcardMultiChar.ToString();
+                    pattern = StringUtils.WildcardMultiChar.ToString();
                 }
             }
 
@@ -553,7 +512,7 @@ namespace SocialPoint.IO {
                     if(IsWildcard(src))
                     {
                         var srcBase = GetWildcardBasePath(src);
-                        var srcWild = WildcardOneChar.ToString();
+                        var srcWild = StringUtils.WildcardOneChar.ToString();
                         if(src.Length > srcBase.Length)
                         {
                             srcWild = src.Substring(srcBase.Length+1);
@@ -583,14 +542,13 @@ namespace SocialPoint.IO {
 
         static public bool IsWildcard(string path)
         {
-            var i = path.IndexOfAny(new char[]{ WildcardOneChar, WildcardMultiChar });
-            return i != -1;
+            return StringUtils.IsWildcard(path);
         }
 
         static public string GetWildcardBasePath(string path)
         {
             path = CleanPath(path);
-            var i = path.IndexOfAny(new char[]{ WildcardOneChar, WildcardMultiChar });
+            var i = path.IndexOfAny(new char[]{ StringUtils.WildcardOneChar, StringUtils.WildcardMultiChar });
             if(i == -1)
             {
                 return path;

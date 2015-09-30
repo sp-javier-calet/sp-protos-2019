@@ -31,6 +31,11 @@ namespace SocialPoint.AppEvents
             OnWillGoBackground();
         }
 
+        public void TriggerGameWasLoaded()
+        {
+            OnGameWasLoaded();
+        }
+
         #region Native Events
 
         PriorityAction _willGoBackground = new PriorityAction();
@@ -44,13 +49,33 @@ namespace SocialPoint.AppEvents
         {
             _willGoBackground.Remove(action);
         }
-        
+
         /// <summary>
-        /// Occurs when setup going to background.
+        /// Occurs before going to background.
         /// </summary>
         protected  void OnWillGoBackground()
         {
             _willGoBackground.Run();
+        }
+
+        PriorityAction _gameWasLoaded = new PriorityAction();
+
+        public void RegisterGameWasLoaded(int priority, Action action)
+        {
+            _gameWasLoaded.Add(priority, action);
+        }
+
+        public void UnregisterGameWasLoaded(Action action)
+        {
+            _gameWasLoaded.Remove(action);
+        }
+        
+        /// <summary>
+        /// Occurs after the game is loaded.
+        /// </summary>
+        protected  void OnGameWasLoaded()
+        {
+            _gameWasLoaded.Run();
         }
         
         /// <summary>

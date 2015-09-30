@@ -82,6 +82,5 @@ namespace SocialPoint.Events
         void TrackFunnel(FunnelOperation op);
         void TrackLevelUp(int lvl, AttrDic data = null);
         void TrackResource(ResourceOperation op);
-        void TrackGameLoaded();
     }
 }

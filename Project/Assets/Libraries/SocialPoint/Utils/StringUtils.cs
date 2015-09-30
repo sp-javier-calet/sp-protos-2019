@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.IO;
 
 namespace SocialPoint.Utils
 {
@@ -102,6 +103,60 @@ namespace SocialPoint.Utils
             char[] chars = new char[bytes.Length / sizeof(char)];
             System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
             return new string(chars);
+        }
+
+        public const char WildcardMultiChar = '*';
+        public const string WildcardDeep = "**";
+        public const char WildcardOneChar = '?';
+
+        
+        static public bool IsWildcard(string path)
+        {
+            var i = path.IndexOfAny(new char[]{ WildcardOneChar, WildcardMultiChar });
+            return i != -1;
+        }
+
+        public static  bool GlobMatch(string pattern, string value)
+        {
+            bool deep = pattern.Contains(WildcardDeep);
+            if(deep)
+            {
+                pattern = pattern.Replace(WildcardDeep, WildcardMultiChar.ToString());
+            }
+            else if(value.Split(Path.DirectorySeparatorChar).Length != pattern.Split(Path.DirectorySeparatorChar).Length)
+            {
+                return false;
+            }
+            
+            int pos = 0;
+            while (pattern.Length != pos)
+            {
+                switch (pattern[pos])
+                {
+                case WildcardOneChar:
+                    break;
+                    
+                case WildcardMultiChar:
+                    for (int i = value.Length; i >= pos; i--)
+                    {
+                        if(GlobMatch(pattern.Substring(pos + 1), value.Substring(i)))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                    
+                default:
+                    if (value.Length == pos || char.ToUpper(pattern[pos]) != char.ToUpper(value[pos]))
+                    {
+                        return false;
+                    }
+                    break;
+                }
+                
+                pos++;
+            }
+            return value.Length == pos;
         }
     }
 }

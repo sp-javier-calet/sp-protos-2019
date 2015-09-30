@@ -17,10 +17,6 @@ public class CrashInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-        if(!Container.HasBinding<BreadcrumbManager>())
-        {
-            Container.Bind<BreadcrumbManager>().ToSingle();
-        }
         if(!Container.HasBinding<ICrashReporter>())
         {
             Container.BindInstance("crash_reporter_send_interval", Settings.SendInterval);
@@ -29,6 +25,8 @@ public class CrashInstaller : MonoInstaller
             Container.Bind<ICrashReporter>().ToSingle<CrashReporter>();
 
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
+
+            Container.Resolve<ICrashReporter>();
         }
 	}
 

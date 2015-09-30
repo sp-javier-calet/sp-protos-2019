@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using System;
 using System.Collections;
@@ -19,7 +20,7 @@ namespace SocialPoint.Crash
     /*
      * Crash reporter Base implementation
      */
-    public class CrashReporterBase : ICrashReporter
+    public class BaseCrashReporter : ICrashReporter
     {
         #region Stored logs
 
@@ -120,7 +121,7 @@ namespace SocialPoint.Crash
         /* 
          * Internal report class
          */
-        protected abstract class Report
+        protected class Report
         {
             public string Uuid { get; set; }
 
@@ -145,11 +146,11 @@ namespace SocialPoint.Crash
 
             public virtual long Timestamp      { get { return  0; } }
 
-            public virtual string CrashVersion { get { return ""; } }
+            public virtual string CrashVersion { get { return string.Empty; } }
 
-            public virtual string StackTrace   { get { return ""; } }
+            public virtual string StackTrace   { get { return string.Empty; } }
 
-            public virtual string Log          { get { return ""; } }
+            public virtual string Log          { get { return string.Empty; } }
         }
 
         protected class OutOfMemoryReport : Report
@@ -193,19 +194,28 @@ namespace SocialPoint.Crash
 #if CRASH_REPORTER_TEST_EVENTS
         private class TestReport : Report
         {
-            public override long GetTimestamp()
+            public override long Timestamp
             {
-                return TimeUtils.Timestamp;
+                get
+                {
+                    return TimeUtils.Timestamp;
+                }
             }
             
-            public override string GetStackTrace()
+            public override string StackTrace
             {
-                return "test stacktrace";
+                get
+                {
+                    return "test stacktrace";
+                }
             }
             
-            public override string GetLog()
+            public override string Log
             {
-                return "test log";
+                get
+                {
+                    return "test log";
+                }
             }
         }
 #endif
@@ -310,7 +320,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        public bool IsEnabled
+        public bool WasEnabled
         { 
             get
             {
@@ -346,16 +356,15 @@ namespace SocialPoint.Crash
             }
             set
             {
-                if(value == null)
-                {
-                    throw new ArgumentNullException("_appEvents", "_appEvents cannot be null or empty!");
-                }
                 if(_appEvents != null)
                 {
                     DisconnectAppEvents(_appEvents);
                 }
                 _appEvents = value;
-                ConnectAppEvents(_appEvents);
+                if(_appEvents != null)
+                {
+                    ConnectAppEvents(_appEvents);
+                }
             }
         }
 
@@ -381,7 +390,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        public CrashReporterBase(MonoBehaviour behaviour, IHttpClient client, 
+        public BaseCrashReporter(MonoBehaviour behaviour, IHttpClient client, 
                                  IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
         {
             _behaviour = behaviour;
@@ -396,12 +405,12 @@ namespace SocialPoint.Crash
 
             _uniqueExceptions = new HashSet<string>();
 
-            _wasActiveInLastSession = !WasOnBackground && IsEnabled;
+            _wasActiveInLastSession = !WasOnBackground && WasEnabled;
         }
 
         public void Enable()
         {
-            IsEnabled = true;
+            WasEnabled = true;
             LogCallbackHandler.RegisterLogCallback(HandleLog);
             OnEnable();
             Check();
@@ -412,7 +421,7 @@ namespace SocialPoint.Crash
             }
 
 #if CRASH_REPORTER_TEST_EVENTS
-            TrackException(RandomUtils.GetUuid(), "testing exception");
+            TrackException("testing exception log", "testing exception stack");
             TrackCrash(new TestReport());
 #endif
         }
@@ -423,7 +432,7 @@ namespace SocialPoint.Crash
 
         public void Disable()
         {
-            IsEnabled = false;
+            WasEnabled = false;
             if(_updateCoroutine != null)
             {
                 _behaviour.StopCoroutine(_updateCoroutine);
@@ -648,21 +657,22 @@ namespace SocialPoint.Crash
             
             if(doHandleLog)
             {
-                string exceptionHashSource = logString + stackTrace;
-                if(!_uniqueExceptions.Contains(exceptionHashSource))
-                {
-                    string uuid = RandomUtils.GetUuid();
-                    var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
-                    _exceptionStorage.Save(uuid, exception);
-                    TrackException(uuid, logString);
-                    
-                    _uniqueExceptions.Add(exceptionHashSource);
-                }
+                TrackException(logString, stackTrace);
             }
         }
 
-        private void TrackException(string uuid, string logString)
+        private bool TrackException(string logString, string stackTrace)
         {
+            string exceptionHashSource = logString + stackTrace;
+            if(_uniqueExceptions.Contains(exceptionHashSource))
+            {
+                return false;
+            }
+            string uuid = RandomUtils.GetUuid();
+            var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
+            _exceptionStorage.Save(uuid, exception);            
+            _uniqueExceptions.Add(exceptionHashSource);
+
             if(TrackEvent != null)
             {
                 var data = new AttrDic();
@@ -676,6 +686,8 @@ namespace SocialPoint.Crash
 
                 TrackEvent(ExceptionEventName, data);
             }
+
+            return true;
         }
 
         private void TrackCrash(Report report)
@@ -692,10 +704,7 @@ namespace SocialPoint.Crash
                 mobile.SetValue(AttrKeyType, report.OutOfMemory ? 1 : 0);
 
                 TrackEvent(CrashEventName, data, (Error err) => {
-                    if(err == null || !err.HasError)
-                    {
-                        CreateCrashLog(report);
-                    }
+                    CreateCrashLog(report);
                 });
             }
             else
@@ -751,6 +760,7 @@ namespace SocialPoint.Crash
             appEvents.WasOnBackground += OnWillGoForeground;
             appEvents.LevelWasLoaded += OnLevelWasLoaded;
             appEvents.ApplicationQuit += OnApplicationQuit;
+            appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
@@ -760,6 +770,7 @@ namespace SocialPoint.Crash
             appEvents.WasOnBackground -= OnWillGoForeground;
             appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             appEvents.ApplicationQuit -= OnApplicationQuit;
+            appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
         }
 
         private void OnMemoryWarning()
@@ -776,6 +787,14 @@ namespace SocialPoint.Crash
         private void OnLevelWasLoaded(int level)
         {
             ClearUniqueExceptions();
+        }
+
+        private void OnGameWasLoaded()
+        {
+            if(_updateCoroutine == null)
+            {
+                Enable();
+            }
         }
 
         private void OnApplicationQuit()

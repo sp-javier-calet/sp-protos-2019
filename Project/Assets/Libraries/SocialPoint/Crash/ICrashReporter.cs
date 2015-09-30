@@ -12,7 +12,7 @@ namespace SocialPoint.Crash
 
         bool ExceptionLogActive{ get; set; }
 
-        bool IsEnabled { get; }
+        bool WasEnabled { get; }
 
         void Enable();
 

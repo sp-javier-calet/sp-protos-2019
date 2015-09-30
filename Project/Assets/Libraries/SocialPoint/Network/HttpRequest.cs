@@ -120,6 +120,10 @@ namespace SocialPoint.Network
 
             set
             {
+                if(Url == null)
+                {
+                    Url = new Uri("///");
+                }
                 var builder = new UriBuilder(Url);
                 builder.Query = new UrlQueryAttrSerializer().SerializeString(value);
                 Url = builder.Uri;

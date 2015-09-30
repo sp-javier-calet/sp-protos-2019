@@ -41,13 +41,13 @@ namespace SocialPoint.Crash
             {
                 layout.CreateLabel("CrashReporter");
 
-                var crBase = _reporter as CrashReporterBase;
+                var crBase = _reporter as BaseCrashReporter;
                 if(crBase != null)
                 {
                     layout.CreateOpenPanelButton("CrashReporterBase Options", new AdminPanelCrashReporterBaseGUI(crBase));
                 }
                 
-                layout.CreateToggleButton("Enabled", _reporter.IsEnabled, (value) => {
+                layout.CreateToggleButton("Enabled", _reporter.WasEnabled, (value) => {
                     if(value)
                     {
                         _reporter.Enable();
@@ -85,9 +85,9 @@ namespace SocialPoint.Crash
 
         public class AdminPanelCrashReporterBaseGUI : IAdminPanelGUI
         {
-            private CrashReporterBase _crashReporter;
+            private BaseCrashReporter _crashReporter;
 
-            public AdminPanelCrashReporterBaseGUI(CrashReporterBase crashReporter)
+            public AdminPanelCrashReporterBaseGUI(BaseCrashReporter crashReporter)
             {
                 _crashReporter = crashReporter;
             }

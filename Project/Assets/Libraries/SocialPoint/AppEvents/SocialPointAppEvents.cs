@@ -62,32 +62,85 @@ namespace SocialPoint.AppEvents
 
         public void TriggerMemoryWarning()
         {
+            if(_appEvents == null)
+            {
+                return;
+            }
             _appEvents.TriggerMemoryWarning();
         }
         
         public void TriggerWillGoBackground()
         {
+            if(_appEvents == null)
+            {
+                return;
+            }
             _appEvents.TriggerWillGoBackground();
+        }
+
+        
+        public void TriggerGameWasLoaded()
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.TriggerGameWasLoaded();
         }
 
         public void RegisterWillGoBackground(int priority, Action action)
         {
+            if(_appEvents == null)
+            {
+                return;
+            }
             _appEvents.RegisterWillGoBackground(priority, action);
         }
 
         public void UnregisterWillGoBackground(Action action)
         {
+            if(_appEvents == null)
+            {
+                return;
+            }
             _appEvents.UnregisterWillGoBackground(action);
+        }
+
+        
+        public void RegisterGameWasLoaded(int priority, Action action)
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.RegisterGameWasLoaded(priority, action);
+        }
+        
+        public void UnregisterGameWasLoaded(Action action)
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.UnregisterGameWasLoaded(action);
         }
 
         public event Action WasOnBackground
         {
             add
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.WasOnBackground += value;
             }
             remove
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.WasOnBackground -= value;
             }
         }
@@ -96,10 +149,18 @@ namespace SocialPoint.AppEvents
         {
             add
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.WasCovered += value;
             }
             remove
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.WasOnBackground -= value;
             }
         }
@@ -108,10 +169,18 @@ namespace SocialPoint.AppEvents
         {
             add
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.ReceivedMemoryWarning += value;
             }
             remove
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.ReceivedMemoryWarning -= value;
             }
         }
@@ -120,6 +189,10 @@ namespace SocialPoint.AppEvents
         {
             get
             {
+                if(_appEvents == null)
+                {
+                    return null;
+                }
                 return _appEvents.Source;
             }
         }
@@ -128,10 +201,18 @@ namespace SocialPoint.AppEvents
         {
             add
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.OpenedFromSource += value;
             }
             remove
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.OpenedFromSource -= value;
             }
         }
@@ -140,10 +221,18 @@ namespace SocialPoint.AppEvents
         {
             add
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.ApplicationQuit += value;
             }
             remove
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.ApplicationQuit -= value;
             }
         }
@@ -152,10 +241,18 @@ namespace SocialPoint.AppEvents
         {
             add
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.LevelWasLoaded += value;
             }
             remove
             {
+                if(_appEvents == null)
+                {
+                    return;
+                }
                 _appEvents.LevelWasLoaded -= value;
             }
         }

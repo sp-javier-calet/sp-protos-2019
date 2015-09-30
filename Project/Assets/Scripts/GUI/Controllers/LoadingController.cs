@@ -1,11 +1,11 @@
-﻿using SocialPoint.Attributes;
-using SocialPoint.Crash;
+﻿
 using SocialPoint.GameLoading;
+using SocialPoint.Attributes;
 using SocialPoint.Locale;
 using SocialPoint.Login;
-using SocialPoint.Purchase;
 using SocialPoint.Alert;
 using SocialPoint.Events;
+using SocialPoint.AppEvents;
 using Zenject;
 
 public class LoadingController : GameLoadingController
@@ -47,11 +47,11 @@ public class LoadingController : GameLoadingController
     }
 
     [Inject]
-    ICrashReporter injectCrashReporter
+    IAppEvents injectAppEvents
     {
         set
         {
-            CrashReporter = value;
+            AppEvents = value;
         }
     }
 
@@ -66,9 +66,6 @@ public class LoadingController : GameLoadingController
 
     [Inject]
     IParser<GameModel> _gameParser;
-
-    [Inject]
-    IEventTracker _eventTracker;
 
     public string SceneToLoad = "Main";
 
@@ -104,7 +101,6 @@ public class LoadingController : GameLoadingController
 
     void AfterSceneLoaded(DiContainer container)
     {
-        _eventTracker.TrackGameLoaded();
     }
 
     override protected void OnDisappearing()

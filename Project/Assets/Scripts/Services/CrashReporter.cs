@@ -5,6 +5,7 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Login;
 using SocialPoint.Events;
+using SocialPoint.AppEvents;
 using UnityEngine;
 
 class CrashReporter : SocialPointCrashReporter
@@ -31,6 +32,15 @@ class CrashReporter : SocialPointCrashReporter
         }
     }
     
+    [Inject]
+    IAppEvents injectAppEvents
+    {
+        set
+        {
+            AppEvents = value;
+        }
+    }
+
     [InjectOptional("crash_reporter_send_interval")]
     int injectSendInterval
     {

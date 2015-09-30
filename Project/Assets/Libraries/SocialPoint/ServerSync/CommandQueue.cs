@@ -118,11 +118,21 @@ namespace SocialPoint.ServerSync
         private void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.RegisterWillGoBackground(-25, OnAppWillGoBackground);
+            appEvents.RegisterGameWasLoaded(-1000, OnGameWasLoaded);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
+            appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+        }
+
+        void OnGameWasLoaded()
+        {
+            if(_updateCoroutine == null)
+            {
+                Start();
+            }
         }
 
         void OnAppWillGoBackground()
@@ -243,7 +253,7 @@ namespace SocialPoint.ServerSync
 
         void SetStartValues()
         {
-            _lastSendTimestamp = CurrentTimestamp;
+            _lastSendTimestamp = CurrentTimestamp - SendInterval;
             _currentTimeout = Timeout;
             _currentSendInterval = SendInterval;
             _syncTimestamp = CurrentTimestamp;
@@ -338,8 +348,10 @@ namespace SocialPoint.ServerSync
             Reset();
             _autoSync = null;
             TrackEvent = null;
-            if (AppEvents != null)
-                DisconnectAppEvents(AppEvents);
+            if(_appEvents != null)
+            {
+                DisconnectAppEvents(_appEvents);
+            }
         } 
 
         IEnumerator UpdateCoroutine()
@@ -441,8 +453,8 @@ namespace SocialPoint.ServerSync
                 {
                     _lastAutoSyncDataHash = hash;
                     Add(new SyncCommand(data));
-                    Flush();
                 }
+                Flush();
             }
             if(!_sending)
             {

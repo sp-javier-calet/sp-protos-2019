@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using NSubstitute;
 
 using UnityEngine;
@@ -20,7 +20,7 @@ namespace SocialPoint.Crash
     internal class CrashReporterBaseTests
     {
         
-        CrashReporterBase CrashReporterBase;
+        BaseCrashReporter CrashReporterBase;
         IHttpClient HttpClient;
         GameObject GO;
         [SetUp]
@@ -32,8 +32,8 @@ namespace SocialPoint.Crash
 
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
-            CrashReporterBase = new CrashReporterBase(monobh, HttpClient, DeviceInfo);
-            CrashReporterBase.RequestSetup = Substitute.For<CrashReporterBase.RequestSetupDelegate>();
+            CrashReporterBase = new BaseCrashReporter(monobh, HttpClient, DeviceInfo);
+            CrashReporterBase.RequestSetup = Substitute.For<BaseCrashReporter.RequestSetupDelegate>();
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SocialPoint.Crash
         public void TrackEvent_Called_If_Exception()
         {
             CrashReporterBase.Enable();
-            CrashReporterBase.TrackEvent = Substitute.For<CrashReporterBase.TrackEventDelegate>();
+            CrashReporterBase.TrackEvent = Substitute.For<BaseCrashReporter.TrackEventDelegate>();
             Debug.LogException(new System.Exception("test exception"));
             CrashReporterBase.TrackEvent.ReceivedWithAnyArgs(1);
         }

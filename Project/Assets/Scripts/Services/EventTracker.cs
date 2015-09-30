@@ -82,7 +82,6 @@ class EventTracker : SocialPointEventTracker
             BreadcrumbManager = value;
         }
     }
-
     
     [Inject]
     IAppEvents injectAppEvents

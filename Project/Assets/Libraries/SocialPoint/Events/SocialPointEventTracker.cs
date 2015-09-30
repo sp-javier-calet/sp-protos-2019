@@ -129,10 +129,6 @@ namespace SocialPoint.Events
             }
             set
             {
-                if(value == null)
-                {
-                    throw new ArgumentNullException("_breadcrumbManager", "_breadcrumbManager cannot be null or empty!");
-                }
                 _breadcrumbManager = value;
             }
         }
@@ -144,6 +140,7 @@ namespace SocialPoint.Events
             appEvents.OpenedFromSource += OnOpenedFromSource;
             appEvents.RegisterWillGoBackground(0, OnAppWillGoBackground);
             appEvents.RegisterWillGoBackground(-100, OnAppGoBackground);
+            appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
@@ -151,6 +148,12 @@ namespace SocialPoint.Events
             appEvents.OpenedFromSource -= OnOpenedFromSource;
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
             appEvents.UnregisterWillGoBackground(OnAppGoBackground);
+            appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+        }
+
+        void OnGameWasLoaded()
+        {
+            TrackGameLoaded();
         }
 
         void OnOpenedFromSource(AppSource source)
@@ -241,17 +244,17 @@ namespace SocialPoint.Events
 
         public void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
-            if(BreadcrumbManager != null)
+            if(_breadcrumbManager != null)
             {
                 _breadcrumbManager.Log(string.Format("{0} {1}",eventName, data));
             }
-            if(CommandQueue != null)
+            if(CommandQueue == null || IsEventUnauthorized(eventName))
             {
-                TrackEventByCommand(eventName, data, del);
+                TrackEventByRequest(eventName, data, del);
             }
             else
             {
-                TrackEventByRequest(eventName, data, del);
+                TrackEventByCommand(eventName, data, del);
             }
         }
 
@@ -350,23 +353,16 @@ namespace SocialPoint.Events
             mobile.SetValue("os", DeviceInfo.PlatformVersion);
         }
 
-        private bool WildcardMatch(string s, string wildcard)
-        {
-            var pattern = "^" + Regex.Escape(wildcard).Replace(@"\*", ".*").Replace(@"\?", ".") + "$";
-            var regex = new Regex(pattern, RegexOptions.IgnoreCase);
-            return regex.IsMatch(s);
-        }
-
-        bool IsEventAuthorized(Event ev)
+        bool IsEventUnauthorized(string evName)
         {
             foreach(var pattern in UnauthorizedEvents)
             {
-                if(WildcardMatch(ev.Type, pattern))
+                if(StringUtils.GlobMatch(pattern, evName))
                 {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         void DoSend(bool auth, Action finish = null)
@@ -375,7 +371,7 @@ namespace SocialPoint.Events
             List<Event> sentEvents = new List<Event>();
             foreach(var ev in _pendingEvents)
             {
-                var evauth = IsEventAuthorized(ev);
+                var evauth = !IsEventUnauthorized(ev.Name);
                 if(auth == evauth)
                 {
                     if(auth && ev.Num == Event.NoNum)
@@ -566,7 +562,7 @@ namespace SocialPoint.Events
             }
         }
 
-        public void TrackGameLoaded()
+        void TrackGameLoaded()
         {
             if(!_gameLoadedTracked)
             {
