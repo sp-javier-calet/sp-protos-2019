@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.Locale
 {
@@ -46,8 +47,13 @@ namespace SocialPoint.Locale
             }
         }
 
+        public bool Debug = false;
+
         public Localization()
         {
+#if UNITY_5
+            Debug = UnityEngine.Debug.isDebugBuild;
+#endif
         }
 
         private string _language = "";
@@ -68,19 +74,47 @@ namespace SocialPoint.Locale
 
         public string Get(string key, string defaultString = null)
         {
-            string value = string.Empty;
-            if(!_strings.TryGetValue(key, out value))
+            string value;
+            if(_strings.TryGetValue(key, out value))
             {
-                if(Fallback != null && Fallback.ContainsKey(key))
-                {
-                    value = Fallback.Get(key);
-                }
-                else
-                {
-                    value = string.Format(DefaultFormat, Language, key);
-                }
+                return value;
             }
-            return value;
+            else if(Fallback != null && Fallback.ContainsKey(key))
+            {
+                return Fallback.Get(key);
+            }
+            else
+            {
+                return GetDefault(defaultString, key);
+            }
+        }
+
+        public string Get(Error err, string defaultString = null)
+        {
+            if(!string.IsNullOrEmpty(err.ClientLocalize) && ContainsKey(err.ClientLocalize))
+            {
+                return Get(err.ClientLocalize, err.ClientMsg);
+            }
+            else if(!Debug && !string.IsNullOrEmpty(err.ClientMsg))
+            {
+                return err.ClientMsg;
+            }
+            else
+            {
+                return GetDefault(defaultString, err.ClientLocalize);
+            }
+        }
+
+        string GetDefault(string defaultString, string key=null)
+        {
+            if(Debug && !string.IsNullOrEmpty(key))
+            {
+                return string.Format(DefaultFormat, Language, key);
+            }
+            else
+            {
+                return defaultString;
+            }
         }
 
         public void Clear()

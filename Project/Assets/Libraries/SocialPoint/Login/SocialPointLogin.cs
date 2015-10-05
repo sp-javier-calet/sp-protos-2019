@@ -353,26 +353,37 @@ namespace SocialPoint.Login
             ErrorType typ = def;
             Error err = null;
             AttrDic data = new AttrDic();
-
+            AttrDic json = null;
+            if(resp.HasError)
+            {
+                try
+                {
+                    json = new JsonAttrParser().Parse(resp.Body).AsDic;
+                }
+                catch(Exception)
+                {
+                }
+            }
             if(resp.StatusCode == ForceUpgradeError)
             {
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
-                LoadGenericData(resp.Body);
+                LoadGenericData(json);
             }
-            else
-            if(resp.StatusCode == InvalidSecurityTokenError)
+            else if(resp.StatusCode == InvalidSecurityTokenError)
             {
                 err = new Error("The user cannot be recovered.");
                 typ = ErrorType.InvalidSecurityToken;
             }
-            else
-            if(resp.StatusCode == InvalidPrivilegeTokenError)
+            else if(resp.StatusCode == InvalidPrivilegeTokenError)
             {
                 err = new Error("Privilege token is invalid.");
                 typ = ErrorType.InvalidPrivilegeToken;
             }
-
+            else
+            {
+                err = AttrUtils.GetError(json);
+            }
             if(!Error.IsNullOrEmpty(err))
             {
                 data.SetValue(AttrKeyHttpCode, resp.StatusCode);
@@ -392,8 +403,7 @@ namespace SocialPoint.Login
                 err = new Error("Link data is invalid.");
                 typ = ErrorType.InvalidLinkData;
             }
-            else
-            if(resp.StatusCode == InvalidProviderTokenError)
+            else if(resp.StatusCode == InvalidProviderTokenError)
             {
                 err = new Error("Provider token is invalid.");
                 typ = ErrorType.InvalidProviderToken;
@@ -1044,7 +1054,7 @@ namespace SocialPoint.Login
             }
             if(ErrorEvent != null)
             {
-                ErrorEvent(type, err.ToString(), data);
+                ErrorEvent(type, err, data);
             }
         }
 

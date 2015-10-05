@@ -8,6 +8,8 @@ namespace SocialPoint.Attributes
         private const string ErrorKey = "error";
         private const string ErrorCodeKey = "code";
         private const string ErrorMessageKey = "message";
+        private const string ErrorClientMessageKey = "client_message";
+        private const string ErrorClientLocalizeKey = "client_localize";
 
         public static Error GetError(Attr data)
         {
@@ -29,6 +31,14 @@ namespace SocialPoint.Attributes
             if(errdic.ContainsKey(ErrorCodeKey))
             {
                 err.Code = errdic.GetValue(ErrorCodeKey).ToInt();
+            }
+            if(errdic.ContainsKey(ErrorClientMessageKey))
+            {
+                err.ClientMsg = errdic.GetValue(ErrorClientMessageKey).ToString();
+            }
+            if(errdic.ContainsKey(ErrorClientLocalizeKey))
+            {
+                err.ClientLocalize = errdic.GetValue(ErrorClientLocalizeKey).ToString();
             }
             return err;
         }

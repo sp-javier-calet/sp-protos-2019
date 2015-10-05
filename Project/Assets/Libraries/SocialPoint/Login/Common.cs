@@ -18,7 +18,7 @@ namespace SocialPoint.Login
     
     public delegate void NewLinkDelegate(ILink link);
     
-    public delegate void LoginErrorDelegate(ErrorType error, string msg, Attr data);
+    public delegate void LoginErrorDelegate(ErrorType type, Error err, Attr data);
     
     public delegate void RestartDelegate();
     

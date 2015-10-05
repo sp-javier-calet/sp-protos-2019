@@ -36,8 +36,12 @@ namespace SocialPoint.GameLoading
         const string RetryButtonDef = "Retry";
         const string InvalidPrivilegeTokenTitleKey = "gameloading.invalid_privilege_token_title";
         const string InvalidPrivilegeTokenTitleDef = "Invalid Privilege Token";
+        const string InvalidPrivilegeTokenMessageKey = "gameloading.invalid_privilege_token_message";
+        const string InvalidPrivilegeTokenMessageDef = "The game will restart without privilege token.";
         const string ConnectionErrorTitleKey = "gameloading.connection_error_title";
         const string ConnectionErrorTitleDef = "Connection Error";
+        const string ConnectionErrorMessageKey = "gameloading.connection_error_message";
+        const string ConnectionErrorMessageDef = "Could not reach the server. Please check your connection and try again.";
         const string MaintenanceModeTitleKey = "gameloading.maintenance_mode_title";
         const string MaintenanceModeTitleDef = "Maintenance Mode";
         const string MaintenanceModeMessageKey = "gameloading.maintenance_mode_message";
@@ -62,6 +66,7 @@ namespace SocialPoint.GameLoading
         public GameObject ProgressContainer;
         public LoadingBarController LoadingBar;
         public IAlertView AlertView;
+        public bool Debug;
 
         private List<LoadingOperation> _operations = new List<LoadingOperation>();
         private LoadingOperation _loginOperation;
@@ -84,6 +89,8 @@ namespace SocialPoint.GameLoading
         override protected void OnLoad()
         {
             base.OnLoad();
+
+            Debug = UnityEngine.Debug.isDebugBuild;
 
             if(Localization == null && LocalizationManager != null)
             {
@@ -197,13 +204,13 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        void OnLoginError(ErrorType error, string msg, Attr data)
+        void OnLoginError(ErrorType type, Error err, Attr data)
         {
-            DebugLog(string.Format("Login Error {0} {1} {2}", error, msg, data));
+            DebugLog(string.Format("Login Error {0} {1} {2}", type, err, data));
             _alert = (IAlertView)AlertView.Clone();
             _alert.Signature = data.AsDic.GetValue(SocialPointLogin.AttrKeySignature).ToString();
 
-            switch(error)
+            switch(type)
             {
             case ErrorType.Upgrade:
                 OnLoginUpgrade(Login.Data);
@@ -236,14 +243,14 @@ namespace SocialPoint.GameLoading
             case ErrorType.InvalidPrivilegeToken:
                 _alert.Title = Localization.Get(InvalidPrivilegeTokenTitleKey, InvalidPrivilegeTokenTitleDef);
                 _alert.Buttons = new string[]{ Localization.Get(RetryButtonKey, RetryButtonDef) };
-                _alert.Message = msg;
+                _alert.Message = GetErrorMessage(err, InvalidPrivilegeTokenMessageKey, InvalidPrivilegeTokenMessageDef);
                 _alert.Show(OnInvalidPrivilegeTokenAlert);
                 break;
 
             case ErrorType.Connection: 
                 _alert.Title = Localization.Get(ConnectionErrorTitleKey, ConnectionErrorTitleDef);
                 _alert.Buttons = new string[]{ Localization.Get(RetryButtonKey, RetryButtonDef) };
-                _alert.Message = msg;
+                _alert.Message = GetErrorMessage(err, ConnectionErrorMessageKey, ConnectionErrorMessageDef);
                 _alert.Show(OnLoginErrorAlert);
                 break;
 
@@ -260,14 +267,24 @@ namespace SocialPoint.GameLoading
             default:
                 _alert.Title = Localization.Get(ResponseErrorTitleKey, ResponseErrorTitleDef);
                 _alert.Buttons = new string[]{ Localization.Get(RetryButtonKey, RetryButtonDef) };
-                if(!Debug.isDebugBuild)
-                {
-                    msg = Localization.Get(ResponseErrorMessageKey, ResponseErrorMessageDef);
-                }
-                _alert.Message = msg;
+                _alert.Message = GetErrorMessage(err, ResponseErrorMessageKey, ResponseErrorMessageDef);
                 _alert.Show(OnLoginErrorAlert);
                 break;
             }
+        }
+
+        string GetErrorMessage(Error err, string key, string def)
+        {
+            if(Debug)
+            {
+                return err.ToString();
+            }
+            var msg = Localization.Get(err);
+            if(string.IsNullOrEmpty(msg))
+            {
+                msg = Localization.Get(key, def);
+            }
+            return msg;
         }
 
         void OnInvalidPrivilegeTokenAlert(int result)

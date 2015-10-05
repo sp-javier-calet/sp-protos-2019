@@ -4,6 +4,10 @@ namespace SocialPoint.Base
     {
         public string Msg { get; set; }
 
+        public string ClientMsg { get; set; }
+
+        public string ClientLocalize { get; set; }
+
         public int Code { get; set; }
 
         public Error()
@@ -29,7 +33,7 @@ namespace SocialPoint.Base
         
         public override string ToString()
         {
-            return string.Format("{0}:{1}", Code, Msg);
+            return string.Format("{0}: {1}", Code, Msg);
         }
 
         public void SetData(int code = 0, string msg = null)
