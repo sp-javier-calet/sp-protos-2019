@@ -80,11 +80,16 @@ namespace SocialPoint.IosKeychain
             }
         }
 
+        static string _defaultAccessGroup;
         static public string DefaultAccessGroup
         {
             get
             {
-                return KeychainBridge.SPUnityKeychainGetDefaultAccessGroup();
+                if(_defaultAccessGroup == null)
+                {
+                    _defaultAccessGroup = KeychainBridge.SPUnityKeychainGetDefaultAccessGroup();
+                }
+                return _defaultAccessGroup;
             }
         }
 

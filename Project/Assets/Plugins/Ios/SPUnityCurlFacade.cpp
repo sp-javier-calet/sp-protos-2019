@@ -56,9 +56,8 @@ const int SPUnityCurlGetHttpResponseErrorCode(int code)
         case CURLE_COULDNT_RESOLVE_HOST:
         case CURLE_COULDNT_CONNECT:
         case CURLE_REMOTE_ACCESS_DENIED:
-		case CURLE_RECV_ERROR:
-		case CURLE_SEND_ERROR:
-			return 475;
+        case CURLE_RECV_ERROR:
+        case CURLE_SEND_ERROR:
         case CURLE_HTTP_RETURNED_ERROR:
         case CURLE_TOO_MANY_REDIRECTS:
         case CURLE_REMOTE_FILE_EXISTS:
@@ -224,7 +223,7 @@ EXPORT_API int SPUnityCurlUpdate(int id)
     }
 
 
-	curlUpdateLock.lock();
+    curlUpdateLock.lock();
     curl_multi_perform(globalInfo.multi, &globalInfo.still_running);
 
     int msgs_left;
@@ -264,7 +263,7 @@ EXPORT_API int SPUnityCurlUpdate(int id)
         }
     }
 
-	curlUpdateLock.unlock();
+    curlUpdateLock.unlock();
     return finished;
 }
 

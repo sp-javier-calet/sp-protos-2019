@@ -8,14 +8,18 @@ KeychainItemWrapper* SPUnityKeychainCreateWrapper(SPUnityKeychainItemStruct item
     NSString* identifier = [NSString stringWithUTF8String:item.id];
     NSString* service = [NSString stringWithUTF8String:item.service];
     return [[KeychainItemWrapper alloc]
-	initWithIdentifier:identifier
-	           service:service
-	       accessGroup:accessGroup
-	             error:status];
+    initWithIdentifier:identifier
+               service:service
+           accessGroup:accessGroup
+                 error:status];
 }
 
 char* SPUnityKeychainCreateString(const char* str)
 {
+    if(str == nullptr)
+    {
+        return nullptr;
+    }
     char* nstr = (char*)malloc(sizeof(char)*(strlen(str)+1));
     strcpy(nstr, str);
     return nstr;
@@ -23,30 +27,30 @@ char* SPUnityKeychainCreateString(const char* str)
 
 EXPORT_API int SPUnityKeychainSet(SPUnityKeychainItemStruct item, const char* value)
 {
-	OSStatus status;
-	KeychainItemWrapper* wrapper = SPUnityKeychainCreateWrapper(item, &status);
-	if(status != noErr)
-	{
-	return status;
+    OSStatus status;
+    KeychainItemWrapper* wrapper = SPUnityKeychainCreateWrapper(item, &status);
+    if(status != noErr)
+    {
+        return status;
     }
     [wrapper setObject:[NSString stringWithUTF8String:value]
-	        forKey:(__bridge id)kSecValueData
-	         error:&status];
+            forKey:(__bridge id)kSecValueData
+             error:&status];
     return status;
 }
 
 EXPORT_API char* SPUnityKeychainGet(SPUnityKeychainItemStruct item)
 {
-	OSStatus status;
-	KeychainItemWrapper* wrapper = SPUnityKeychainCreateWrapper(item, &status);
-	if(status != noErr)
-	{
-        return SPUnityKeychainCreateString("");
+    OSStatus status;
+    KeychainItemWrapper* wrapper = SPUnityKeychainCreateWrapper(item, &status);
+    if(status != noErr)
+    {
+        return SPUnityKeychainCreateString(nullptr);
     }
     id value = [wrapper objectForKey:(__bridge id)kSecValueData];
     if(value == nil || ![value isKindOfClass:[NSString class]])
     {
-        return SPUnityKeychainCreateString("");
+        return SPUnityKeychainCreateString(nullptr);
     }
     else
     {
@@ -56,13 +60,17 @@ EXPORT_API char* SPUnityKeychainGet(SPUnityKeychainItemStruct item)
 
 EXPORT_API int SPUnityKeychainClear(SPUnityKeychainItemStruct item)
 {
-	OSStatus status;
-	KeychainItemWrapper* wrapper = SPUnityKeychainCreateWrapper(item, &status);
-	if(status != noErr)
-	{
-	return status;
+    OSStatus status;
+    KeychainItemWrapper* wrapper = SPUnityKeychainCreateWrapper(item, &status);
+    if(status != noErr)
+    {
+        return status;
     }
     [wrapper resetKeychainItemWithError:&status];
+    if(status == errSecItemNotFound)
+    {
+        status = noErr;
+    }
     return status;
 }
 
@@ -85,14 +93,14 @@ EXPORT_API char* SPUnityKeychainGetDefaultAccessGroup()
     }
     if (status != errSecSuccess)
     {
-        return SPUnityKeychainCreateString("");
+        return SPUnityKeychainCreateString(nullptr);
     }
     NSString* accessGroup = [NSString stringWithString:[(__bridge NSDictionary*)result
                                                         objectForKey:(__bridge id)kSecAttrAccessGroup]];
     CFRelease(result);
     if(accessGroup == nil)
     {
-        return SPUnityKeychainCreateString("");
+        return SPUnityKeychainCreateString(nullptr);
     }
     else
     {

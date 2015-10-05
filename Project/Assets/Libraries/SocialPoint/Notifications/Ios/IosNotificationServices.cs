@@ -5,9 +5,17 @@ using System.Collections.Generic;
 using SocialPoint.ServerSync;
 
 #if UNITY_IOS
+#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
+using LocalNotification = UnityEngine.LocalNotification;
+using NotificationServices = UnityEngine.NotificationServices;
+using LocalNotificationType = UnityEngine.LocalNotificationType;
+using RemoteNotificationType = UnityEngine.RemoteNotificationType;
+#else
 using LocalNotification = UnityEngine.iOS.LocalNotification;
 using NotificationServices = UnityEngine.iOS.NotificationServices;
-using NotificationType = UnityEngine.iOS.NotificationType;
+using LocalNotificationType = UnityEngine.iOS.NotificationType;
+using RemoteNotificationType = UnityEngine.iOS.NotificationType;
+#endif
 #endif
 
 namespace SocialPoint.Notifications
@@ -25,7 +33,8 @@ namespace SocialPoint.Notifications
         private MonoBehaviour _behaviour;
         private ICommandQueue _commandQueue;                
         private const string TokenSeparator = "-";
-        private const NotificationType _notifyTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
+        private const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
+        private const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
 
         public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandQueue=null)
         {
@@ -62,7 +71,11 @@ namespace SocialPoint.Notifications
 
         public void RegisterForRemote()
         {
-            NotificationServices.RegisterForNotifications(_notifyTypes, true);
+#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
+            NotificationServices.RegisterForRemoteNotificationTypes(_remoteNotifyTypes);
+#else
+            NotificationServices.RegisterForNotifications(_remoteNotifyTypes, true);
+#endif
             _behaviour.StartCoroutine(CheckDeviceToken());
         }
         
@@ -103,7 +116,11 @@ namespace SocialPoint.Notifications
 
         private void RegisterForLocal()
         {
-            NotificationServices.RegisterForNotifications(_notifyTypes, false);
+#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
+            NotificationServices.RegisterForLocalNotificationTypes(_localNotifyTypes);
+#else
+            NotificationServices.RegisterForNotifications(_localNotifyTypes, false);
+#endif
         }
 
     }

@@ -262,7 +262,7 @@ namespace SocialPoint.GameLoading
                 _alert.Buttons = new string[]{ Localization.Get(RetryButtonKey, RetryButtonDef) };
                 if(!Debug.isDebugBuild)
                 {
-                    Localization.Get(ResponseErrorMessageKey, ResponseErrorMessageDef);
+                    msg = Localization.Get(ResponseErrorMessageKey, ResponseErrorMessageDef);
                 }
                 _alert.Message = msg;
                 _alert.Show(OnLoginErrorAlert);

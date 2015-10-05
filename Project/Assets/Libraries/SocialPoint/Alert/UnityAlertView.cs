@@ -140,13 +140,16 @@ namespace SocialPoint.Alert
         {
             if(_controller == null)
             {
-                var go = GameObject.Instantiate(_prefab);
-                go.name = _prefab.name;
-                if(SetupDelegate != null)
+                var go = (GameObject) GameObject.Instantiate(_prefab);
+                if(go != null)
                 {
-                    SetupDelegate(go);
+                    go.name = _prefab.name;
+                    if(SetupDelegate != null)
+                    {
+                        SetupDelegate(go);
+                    }
+                    _controller = go.GetComponent(typeof(BaseUnityAlertViewController)) as BaseUnityAlertViewController;
                 }
-                _controller = go.GetComponent(typeof(BaseUnityAlertViewController)) as BaseUnityAlertViewController;
             }
             if(_controller == null)
             {
