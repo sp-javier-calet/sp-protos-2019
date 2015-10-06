@@ -6,6 +6,7 @@ using SocialPoint.Login;
 using SocialPoint.Alert;
 using SocialPoint.Events;
 using SocialPoint.AppEvents;
+using SocialPoint.AdminPanel;
 using Zenject;
 
 public class LoadingController : GameLoadingController
@@ -67,6 +68,9 @@ public class LoadingController : GameLoadingController
     [Inject]
     IParser<GameModel> _gameParser;
 
+    [Inject]
+    AdminPanel _adminPanel;
+
     public string SceneToLoad = "Main";
 
     GameModel _model;
@@ -79,6 +83,15 @@ public class LoadingController : GameLoadingController
         RegisterLoadingOperation(_parseModelOperation);
 
         Login.NewUserEvent += OnLoginNewUser;
+        if(_adminPanel != null)
+        {
+            _adminPanel.Appear += OnAdminPanelChange;
+        }
+    }
+
+    void OnAdminPanelChange()
+    {
+        Paused = _adminPanel.Shown;
     }
 
     void OnLoginNewUser(Attr data, bool changed)
@@ -88,9 +101,9 @@ public class LoadingController : GameLoadingController
         _parseModelOperation.FinishProgress("game model parsed");
     }
 
-    protected override void AllOperationsLoaded()
+    protected override void OnAllOperationsLoaded()
     {
-        base.AllOperationsLoaded();
+        base.OnAllOperationsLoaded();
         ZenUtil.LoadScene(SceneToLoad, BeforeSceneLoaded, AfterSceneLoaded);
     }
 

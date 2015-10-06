@@ -68,11 +68,32 @@ namespace SocialPoint.GameLoading
         public IAlertView AlertView;
         public bool Debug;
 
+        bool _paused = false;
+        public bool Paused
+        {
+            get
+            {
+                return _paused;
+            }
+
+            set
+            {
+                if(_paused != value)
+                {
+                    _paused = value;
+                    if(!_paused && AllOperationsLoaded)
+                    {
+                        OnAllOperationsLoaded();
+                    }
+                }
+            }
+        }
+
         private List<LoadingOperation> _operations = new List<LoadingOperation>();
         private LoadingOperation _loginOperation;
         private IAlertView _alert;
 
-        protected virtual void AllOperationsLoaded()
+        protected virtual void OnAllOperationsLoaded()
         {
             DebugLog("all operations loaded");
             if(LocalizationManager != null)
@@ -319,13 +340,24 @@ namespace SocialPoint.GameLoading
             }
         }
 
+        public bool AllOperationsLoaded
+        {
+            get
+            {
+                return !_operations.Exists(o => o.progress < 1);
+            }
+        }
+
         IEnumerator CheckAllOperationsLoaded()
         {
-            while(_operations.Exists(o => o.progress < 1))
+            while(!AllOperationsLoaded)
             {
                 yield return null;
             }
-            AllOperationsLoaded();
+            if(!_paused)
+            {
+                OnAllOperationsLoaded();
+            }
         }
     }
 }

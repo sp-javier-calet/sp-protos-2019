@@ -8,6 +8,8 @@ namespace SocialPoint.AdminPanel
     {
         public Dictionary<string, IAdminPanelGUI> Categories { get; private set; }
         public AdminPanelConsole Console { get; private set; }
+        public event Action Appear;
+        public bool Shown{ get; private set; }
 
         public AdminPanel(List<IAdminPanelConfigurer> configurers)
         {
@@ -20,6 +22,24 @@ namespace SocialPoint.AdminPanel
             }
 
             Console.OnConfigure(this);
+        }
+
+        public void OnAppearing()
+        {
+            Shown = true;
+            if(Appear != null)
+            {
+                Appear();
+            }
+        }
+
+        public void OnDisappeared()
+        {
+            Shown = false;
+            if(Appear != null)
+            {
+                Appear();
+            }
         }
          
         public AdminPanelGUIGroup RegisterGUI(string category, IAdminPanelGUI gui)

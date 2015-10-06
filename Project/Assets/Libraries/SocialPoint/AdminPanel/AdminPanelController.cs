@@ -85,6 +85,13 @@ namespace SocialPoint.AdminPanel
                 InflateGUI();
             }
             RefreshPanel();
+            AdminPanel.OnAppearing();
+        }
+
+        protected override void OnDisappeared()
+        {
+            base.OnDisappeared();
+            AdminPanel.OnDisappeared();
         }
 
         public void ReplacePanel(IAdminPanelGUI gui)
