@@ -8,9 +8,6 @@ using Zenject;
 public class AdminPanelButton : MonoBehaviour
 {
     [Inject]
-    ScreensController Screens;
-
-    [Inject]
     AdminPanel AdminPanel;
 
     public float WaitTime = 1.0f;
@@ -48,11 +45,8 @@ public class AdminPanelButton : MonoBehaviour
         {
             _adminPanelController = UIViewController.Factory.Create<AdminPanelController>();
             _adminPanelController.AdminPanel = AdminPanel;
-            Screens.Push(_adminPanelController);
+            _adminPanelController.transform.SetParent(transform.parent, false);
         }
-        else
-        {
-            _adminPanelController.Show();
-        }
+        _adminPanelController.Show();
     }
 }
