@@ -380,9 +380,13 @@ namespace SocialPoint.Login
                 err = new Error("Privilege token is invalid.");
                 typ = ErrorType.InvalidPrivilegeToken;
             }
-            else
+            else if(json != null)
             {
                 err = AttrUtils.GetError(json);
+            }
+            if(Error.IsNullOrEmpty(err) && resp.HasError)
+            {
+                err = resp.Error;
             }
             if(!Error.IsNullOrEmpty(err))
             {
@@ -408,7 +412,21 @@ namespace SocialPoint.Login
                 err = new Error("Provider token is invalid.");
                 typ = ErrorType.InvalidProviderToken;
             }
-            
+            if(Error.IsNullOrEmpty(err) && resp.HasError)
+            {
+                try
+                {
+                    var json = new JsonAttrParser().Parse(resp.Body).AsDic;
+                    err = AttrUtils.GetError(json);
+                }
+                catch(Exception)
+                {
+                }
+            }
+            if(Error.IsNullOrEmpty(err) && resp.HasError)
+            {
+                err = resp.Error;
+            }
             if(!Error.IsNullOrEmpty(err))
             {
                 data.SetValue(AttrKeyHttpCode, resp.StatusCode);
@@ -422,11 +440,22 @@ namespace SocialPoint.Login
             ErrorType typ = def;
             Error err = null;
             AttrDic data = new AttrDic();
+            AttrDic json = null;
+            if(resp.HasError)
+            {
+                try
+                {
+                    json = new JsonAttrParser().Parse(resp.Body).AsDic;
+                }
+                catch(Exception)
+                {
+                }
+            }
             if(resp.StatusCode == MaintenanceMode)
             {
                 err = new Error("Game is under maintenance.");
                 typ = ErrorType.MaintenanceMode;
-                LoadGenericData(resp.Body);
+                LoadGenericData(json);
             }
             else if(resp.StatusCode == InvalidSessionError)
             {
@@ -444,7 +473,11 @@ namespace SocialPoint.Login
                     err = new Error("The connection could not be established.");
                 }
                 typ = ErrorType.Connection;
-            }            
+            }
+            else if(json != null)
+            {
+                err = AttrUtils.GetError(json);
+            }
             if(Error.IsNullOrEmpty(err) && resp.HasError)
             {
                 err = resp.Error;
@@ -523,21 +556,9 @@ namespace SocialPoint.Login
             }
         }
 
-        void LoadGenericData(byte[] body)
-        {
-            try
-            {
-                var json = new JsonAttrParser().Parse(body).AsDic;
-                LoadGenericData(json);
-            }
-            catch(Exception)
-            {
-            }
-        }
-
         void LoadGenericData(AttrDic json)
         {
-            if(json.ContainsKey(AttrKeyGenericData))
+            if(json != null && json.ContainsKey(AttrKeyGenericData))
             {
                 if(Data == null)
                 {
@@ -843,7 +864,7 @@ namespace SocialPoint.Login
             {
                 err = new Error(e.ToString());
             }
-            if(Error.IsNullOrEmpty(err))
+            if(Error.IsNullOrEmpty(err) && json != null)
             {
                 LoadGenericData(json);                
                 var userData = json.Get(AttrKeyLoginData);

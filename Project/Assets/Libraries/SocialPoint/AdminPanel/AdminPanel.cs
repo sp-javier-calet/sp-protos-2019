@@ -8,8 +8,8 @@ namespace SocialPoint.AdminPanel
     {
         public Dictionary<string, IAdminPanelGUI> Categories { get; private set; }
         public AdminPanelConsole Console { get; private set; }
-        public event Action Appear;
-        public bool Shown{ get; private set; }
+        public event Action ChangedVisibility;
+        public bool Visible { get; private set; }
 
         public AdminPanel(List<IAdminPanelConfigurer> configurers)
         {
@@ -20,25 +20,24 @@ namespace SocialPoint.AdminPanel
             {
                 config.OnConfigure(this);
             }
-
             Console.OnConfigure(this);
         }
 
         public void OnAppearing()
         {
-            Shown = true;
-            if(Appear != null)
+            Visible = true;
+            if(ChangedVisibility != null)
             {
-                Appear();
+                ChangedVisibility();
             }
         }
 
         public void OnDisappeared()
         {
-            Shown = false;
-            if(Appear != null)
+            Visible = false;
+            if(ChangedVisibility != null)
             {
-                Appear();
+                ChangedVisibility();
             }
         }
          

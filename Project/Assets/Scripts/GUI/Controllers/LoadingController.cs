@@ -1,4 +1,4 @@
-﻿
+
 using SocialPoint.GameLoading;
 using SocialPoint.Attributes;
 using SocialPoint.Locale;
@@ -85,13 +85,13 @@ public class LoadingController : GameLoadingController
         Login.NewUserEvent += OnLoginNewUser;
         if(_adminPanel != null)
         {
-            _adminPanel.Appear += OnAdminPanelChange;
+            _adminPanel.ChangedVisibility += OnAdminPanelChange;
         }
     }
 
     void OnAdminPanelChange()
     {
-        Paused = _adminPanel.Shown;
+        Paused = _adminPanel.Visible;
     }
 
     void OnLoginNewUser(Attr data, bool changed)
