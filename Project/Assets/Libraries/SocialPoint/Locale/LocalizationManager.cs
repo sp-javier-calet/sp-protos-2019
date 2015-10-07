@@ -75,7 +75,7 @@ namespace SocialPoint.Locale
         public const string FrenchFRIdentifier = "fr-FR";
         public const string TurkishTRIdentifier = "tr-TR";
         public const string ItalianITIdentifier = "it-IT";
-        public const string JapaneseJPIdentifier = "jp-JP";
+        public const string JapaneseJPIdentifier = "ja-JP";
         public const string KoreanKRIdentifier = "ko-KR";
         public const string RussianRUIdentifier = "ru-RU";
         public const string GermanDEIdentifier = "de-DE";
