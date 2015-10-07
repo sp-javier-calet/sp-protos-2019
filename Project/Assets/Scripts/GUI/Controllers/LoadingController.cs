@@ -119,6 +119,10 @@ public class LoadingController : GameLoadingController
     override protected void OnDisappearing()
     {
         Login.NewUserEvent -= OnLoginNewUser;
+        if(_adminPanel != null)
+        {
+            _adminPanel.ChangedVisibility -= OnAdminPanelChange;
+        }
         base.OnDisappearing();
     }
 
