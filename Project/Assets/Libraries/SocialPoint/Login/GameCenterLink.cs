@@ -52,7 +52,7 @@ namespace SocialPoint.Login
         GameCenterUser GetGameCenterUser(User user)
         {
             List<string> userIds = user.GetExternalIds(LinkName);
-            if(userIds.Contains(_gameCenter.User.UserId))
+            if(_gameCenter.User != null && userIds.Contains(_gameCenter.User.UserId))
             {
                 return _gameCenter.User;
             }

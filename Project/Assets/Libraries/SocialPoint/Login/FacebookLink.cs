@@ -40,7 +40,7 @@ namespace SocialPoint.Login
         FacebookUser GetFacebookUser(User user)
         {
             List<string> userIds = user.GetExternalIds(LinkName);
-            if(userIds.Contains(_facebook.User.UserId))
+            if(_facebook.User != null && userIds.Contains(_facebook.User.UserId))
             {
                 return _facebook.User;
             }
