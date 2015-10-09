@@ -2,7 +2,7 @@ using System;
 
 namespace SocialPoint.Attributes
 {
-    class TransitionAttrStorage : IAttrStorage
+    public class TransitionAttrStorage : IAttrStorage
     {
         public IAttrStorage From;
         public IAttrStorage To;
@@ -16,16 +16,18 @@ namespace SocialPoint.Attributes
 
         public Attr Load(string key)
         {
-            Attr attr = null;
-            if(From.Has(key))
+            var attr = From.Load(key);
+            if(attr != null)
             {
-                attr = From.Load(key);
                 To.Save(key, attr);
             }
-            if(attr == null && To.Has(key))
+            else
             {
                 attr = To.Load(key);
-                From.Save(key, attr);
+                if(attr != null)
+                {
+                    From.Save(key, attr);
+                }
             }
             return attr;
         }
@@ -37,14 +39,42 @@ namespace SocialPoint.Attributes
 
         public void Save(string key, Attr attr)
         {
+            var old = From.Load(key);
             From.Save(key, attr);
-            To.Save(key, attr);
+            try
+            {
+                To.Save(key, attr);
+            }
+            catch(Exception e)
+            {
+                if(old == null)
+                {
+                    From.Remove(key);
+                }
+                else
+                {
+                    From.Save(key, old);
+                }
+                throw e;
+            }
         }
 
         public void Remove(string key)
         {
+            var old = From.Load(key);
             From.Remove(key);
-            To.Remove(key);
+            try
+            {
+                To.Remove(key);
+            }
+            catch(Exception e)
+            {
+                if(old != null)
+                {
+                    From.Save(key, old);
+                }
+                throw e;
+            }
         }
     }
 }

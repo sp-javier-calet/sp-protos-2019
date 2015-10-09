@@ -38,6 +38,7 @@ namespace SocialPoint.Login
         private const string HttpParamSocialPointUserIds = "sp";
         private const string HttpParamAppRequestUserIds = "to";
         private const string HttpParamAppRequestType = "type";
+        private const string HttpParamTimestamp = "ts";
         private const string HttpParamPlatformVersion = "device_os";
         private const string HttpParamDeviceAid = "device_adid";
         private const string HttpParamDeviceAidEnabled = "device_adid_enabled";
@@ -1451,6 +1452,10 @@ namespace SocialPoint.Login
             if(!req.HasParam(HttpParamSecurityToken) && !string.IsNullOrEmpty(clientToken))
             {
                 req.AddParam(HttpParamSecurityToken, clientToken);
+            }
+            if(!req.HasParam(HttpParamTimestamp))
+            {
+                req.AddParam(HttpParamTimestamp, TimeUtils.GetTimestamp(DateTime.UtcNow).ToString());
             }
             if(DeviceInfo != null)
             {

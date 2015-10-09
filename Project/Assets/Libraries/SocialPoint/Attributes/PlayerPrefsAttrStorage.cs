@@ -18,7 +18,11 @@ namespace SocialPoint.Attributes
             {
                 key = Prefix + key;
             }
-            string str = PlayerPrefs.GetString(key);
+            var str = PlayerPrefs.GetString(key, null);
+            if(str == null)
+            {
+                return null;
+            }
             return Parser.ParseString(str);
         }
 

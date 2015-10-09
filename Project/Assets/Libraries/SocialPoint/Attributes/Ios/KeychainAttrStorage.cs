@@ -25,6 +25,10 @@ namespace SocialPoint.Attributes
                 key = Prefix + key;
             }
             var str = new KeychainItem(key, AccessGroup, Service).Value;
+            if(str == null)
+            {
+                return null;
+            }
             return Parser.ParseString(str);
         }
 
