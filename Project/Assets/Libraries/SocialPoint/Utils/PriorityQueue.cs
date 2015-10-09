@@ -93,14 +93,15 @@ namespace SocialPoint.Utils
         public bool Remove(TValue value)
         {
             bool found = false;
-            foreach(var key in _queues.Keys)
+            for(int i = 0; i < _queues.Count; ++i)
             {
-                var currQueue = _queues[key];
-                if(currQueue.Contains(value))
+                var key = _queues.Keys[i];
+                if(_queues[key].Contains(value))
                 {
+                    // If queue contains the value, regenerate the entire queue without it
                     found = true;
                     var newQueue = new Queue<TValue>();
-                    foreach(var elm in currQueue)
+                    foreach(var elm in _queues[key])
                     {
                         if(!EqualityComparer<TValue>.Default.Equals(elm, value))
                         {
@@ -115,9 +116,11 @@ namespace SocialPoint.Utils
 
         public IEnumerator<TValue> GetEnumerator()
         {
-            foreach(var currQueue in _queues)
+            var queuesCopy = new SortedList<TPriority, Queue<TValue>>(_queues);
+            foreach(var currQueue in queuesCopy)
             {
-                foreach(var obj in currQueue.Value)
+                var currQueueCopy = new Queue<TValue>(currQueue.Value);
+                foreach(var obj in currQueueCopy)
                 {
                     yield return obj;
                 }

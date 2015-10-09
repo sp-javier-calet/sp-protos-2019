@@ -196,7 +196,23 @@ namespace SocialPoint.Profiler
 
         const string PluginModuleName = "__Internal";
 
-        #if !UNITY_EDITOR && UNITY_IOS
+        #if UNITY_EDITOR
+        public static FrameInfo SPUnityProfilerGetFrameInfo()
+        {
+            var stats = new FrameInfo();
+            stats.FrameTime = UnityEditor.UnityStats.frameTime;
+            if(stats.FrameTime == 0)
+            {
+                stats.FrameTime = Time.smoothDeltaTime*1000;
+            }
+            stats.RenderTime = UnityEditor.UnityStats.renderTime;
+            stats.DrawCalls = (uint)UnityEditor.UnityStats.drawCalls;
+            stats.BatchedDrawCalls = (uint)(UnityEditor.UnityStats.dynamicBatchedDrawCalls + UnityEditor.UnityStats.staticBatchedDrawCalls);
+            stats.Tris = (uint)UnityEditor.UnityStats.triangles;
+            stats.Verts = (uint)UnityEditor.UnityStats.vertices;
+            return stats;
+        }
+        #elif UNITY_IOS
         [DllImport(PluginModuleName)]
         public static extern FrameInfo SPUnityProfilerGetFrameInfo();
         #else

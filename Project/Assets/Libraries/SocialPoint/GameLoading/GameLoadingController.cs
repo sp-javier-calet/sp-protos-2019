@@ -45,7 +45,7 @@ namespace SocialPoint.GameLoading
         const string MaintenanceModeTitleKey = "gameloading.maintenance_mode_title";
         const string MaintenanceModeTitleDef = "Maintenance Mode";
         const string MaintenanceModeMessageKey = "gameloading.maintenance_mode_message";
-        const string MaintenanceModeMessageDef = "The game state has been corrupted and cannot recoverered automatically.\nPlease contact our support team or restart the game.";
+        const string MaintenanceModeMessageDef = "We are performing scheduled maintenance.\nWe should be back online shortly.";
 
         const string ResponseErrorTitleKey = "gameloading.response_error_title";
         const string ResponseErrorTitleDef = "Login Error";

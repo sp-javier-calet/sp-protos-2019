@@ -21,11 +21,6 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        ~SocialPointAppEvents()
-        {
-            DestroyAppEvents();
-        }
-
         public void Dispose()
         {
             DestroyAppEvents();
@@ -40,12 +35,12 @@ namespace SocialPoint.AppEvents
                 GameObject.DontDestroyOnLoad(go);
             }
             DestroyAppEvents();
-            #if UNITY_IOS
+            #if UNITY_EDITOR
+            _appEvents = go.AddComponent<UnityAppEvents>();
+            #elif UNITY_IOS
             _appEvents = go.AddComponent<IosAppEvents>();
             #elif UNITY_ANDROID
             _appEvents = go.AddComponent<AndroidAppEvents>();
-            #else
-            _appEvents = go.AddComponent<UnityAppEvents>();
             #endif
         }
 

@@ -124,7 +124,7 @@ namespace SocialPoint.Purchase
             {
                 foreach(StoreKitProduct product in products)
                 {
-                    Product parsedProduct = new Product(product.productIdentifier, product.title, float.Parse(product.price), product.currencySymbol);
+                    Product parsedProduct = new Product(product.productIdentifier, product.title, float.Parse(product.price), product.currencySymbol, product.formattedPrice);
                     DebugLog(product.ToString());
                     _products.Add(parsedProduct);
                 }

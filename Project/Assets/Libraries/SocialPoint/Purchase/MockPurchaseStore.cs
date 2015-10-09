@@ -17,6 +17,11 @@ namespace SocialPoint.Purchase
         public bool MakeTransationsFail { get; set; }
 
 
+        public MockPurchaseStore()
+        {
+            _allProducts = new List<Product>();
+        }
+
         #region IPurchaseStore implementation
 
         public void Dispose()

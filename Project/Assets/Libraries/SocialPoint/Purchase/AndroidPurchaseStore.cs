@@ -157,7 +157,7 @@ namespace SocialPoint.Purchase
                 _products = new List<Product>();
                 foreach(SkuDetails sk in inventory.GetAllAvailableSkus())
                 {
-                    Product parsedProduct = new Product(sk.Sku, sk.Title, float.Parse(sk.PriceValue), sk.CurrencyCode);
+                    Product parsedProduct = new Product(sk.Sku, sk.Title, float.Parse(sk.PriceValue), sk.CurrencyCode, sk.Price);
                     DebugLog(parsedProduct.ToString());
                     _products.Add(parsedProduct);
                 }

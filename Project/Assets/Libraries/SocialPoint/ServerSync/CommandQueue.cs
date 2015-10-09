@@ -137,7 +137,10 @@ namespace SocialPoint.ServerSync
 
         void OnAppWillGoBackground()
         {
-            SendUpdate();
+            if(_updateCoroutine != null)
+            {
+                SendUpdate();
+            }
         }
 
         #endregion

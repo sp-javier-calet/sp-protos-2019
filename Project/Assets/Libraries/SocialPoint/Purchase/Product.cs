@@ -11,18 +11,21 @@ namespace SocialPoint.Purchase
 
         public string Currency { get; private set; }
 
-        public Product(string id, string locale, float price, string currency) : this()
+        public string FormattedPrice { get; private set; }
+
+        public Product(string id, string locale, float price, string currency, string formattedPrice) : this()
         {
             Id = id;
             Locale = locale;
             Price = price;
             Currency = currency;
+            FormattedPrice = formattedPrice;
         }
 
         public override string ToString()
         {
-            return string.Format("[Product details: Id = {0}, Locale = {1}, Price = {2}, Currency = {3}]",
-                Id, Locale, Price, Currency);
+            return string.Format("[Product details: Id = {0}, Locale = {1}, Price = {2}, Currency = {3}, FormattedPrice = {4}]",
+                Id, Locale, Price, Currency, FormattedPrice);
         }
     }
 }
