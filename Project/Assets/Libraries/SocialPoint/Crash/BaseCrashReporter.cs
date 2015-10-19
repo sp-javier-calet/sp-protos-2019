@@ -20,7 +20,7 @@ namespace SocialPoint.Crash
     /*
      * Crash reporter Base implementation
      */
-    public class BaseCrashReporter : ICrashReporter
+    public class BaseCrashReporter : ICrashReporter, IDisposable
     {
         #region Stored logs
 
@@ -447,9 +447,19 @@ namespace SocialPoint.Crash
         {
         }
 
+        [Obsolete("Use Dispose()")]
         public void Destroy()
         {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
+            if(_appEvents != null)
+            {
+                DisconnectAppEvents(_appEvents);
+            }
             OnDestroy();
         }
 

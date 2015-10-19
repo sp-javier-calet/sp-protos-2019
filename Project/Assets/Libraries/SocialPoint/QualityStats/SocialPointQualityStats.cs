@@ -11,7 +11,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.QualityStats
 {
-    public class SocialPointQualityStats
+    public class SocialPointQualityStats : IDisposable
     {
         private IDeviceInfo _deviceInfo;
         private List<QualityStatsHttpClient> _qualityStatsHttpClients;
@@ -49,6 +49,14 @@ namespace SocialPoint.QualityStats
             OnApplicationDidFinishLaunching();
         }
 
+        public void Dispose()
+        {
+            if(_appEvents != null)
+            {
+                DisconnectAppEvents(_appEvents);
+            }
+        }
+
         public void AddQualityStatsHttpClient(QualityStatsHttpClient client)
         {
             _qualityStatsHttpClients.Add(client);
@@ -73,7 +81,10 @@ namespace SocialPoint.QualityStats
                     DisconnectAppEvents(_appEvents);
                 }
                 _appEvents = value;
-                ConnectAppEvents(_appEvents);
+                if(_appEvents != null)
+                {
+                    ConnectAppEvents(_appEvents);
+                }
             }
         }
 
@@ -82,11 +93,13 @@ namespace SocialPoint.QualityStats
         private void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.RegisterWillGoBackground(100, OnAppWillGoBackground);
+            appEvents.RegisterGameWasLoaded(0, OnGameLoaded);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
+            appEvents.UnregisterGameWasLoaded(OnGameLoaded);
         }
 
         private void OnApplicationDidFinishLaunching()
@@ -94,20 +107,20 @@ namespace SocialPoint.QualityStats
             _loadingStarted = TimeUtils.Now.ToLocalTime();
         }
 
-        public void OnGameLoaded()
+        private void OnGameLoaded()
         {
             _loadingFinished = TimeUtils.Now.ToLocalTime();
         }
 
         private void OnAppWillGoBackground()
         {
-            AttrDic stats = GetStats();
+            var stats = GetStats();
             SendClientPerformance(stats, kClientPerformanceStats);
 
-            AttrList httpRequests = GetHttpRequests();
+            var httpRequests = GetHttpRequests();
             foreach(var request in httpRequests)
             {
-                AttrDic requestDic = request.AsDic;
+                var requestDic = request.AsDic;
                 SendClientPerformance(requestDic, kClientPerformanceHttpRequest);
             }
             ResetQualityStatsHttpClients();
@@ -133,8 +146,8 @@ namespace SocialPoint.QualityStats
 
         private AttrDic GetStats()
         {
-            AttrDic data = new AttrDic();
-            AttrDic client = new AttrDic();
+            var data = new AttrDic();
+            var client = new AttrDic();
 
             data.Set("client", client);
 
@@ -149,7 +162,7 @@ namespace SocialPoint.QualityStats
 
         private AttrList GetHttpRequests()
         {
-            AttrList requestList = new AttrList();
+            var requestList = new AttrList();
 
             var data = GetClientStats();
 
@@ -158,7 +171,7 @@ namespace SocialPoint.QualityStats
                 QualityStatsHttpClient.Stats stats = statsIt.Value;
                 foreach(var dataIt in stats.Requests)
                 {
-                    AttrDic request = GetPerformanceData(statsIt, dataIt);
+                    var request = GetPerformanceData(statsIt, dataIt);
                     requestList.Add(request);
                 }
             }
@@ -168,7 +181,7 @@ namespace SocialPoint.QualityStats
 
         private QualityStatsHttpClient.MStats GetClientStats()
         {
-            QualityStatsHttpClient.MStats data = new QualityStatsHttpClient.MStats();
+            var data = new QualityStatsHttpClient.MStats();
             foreach(var client in _qualityStatsHttpClients)
             {
                 QualityStatsHttpClient.MStats clientData = client.getStats();
@@ -207,21 +220,21 @@ namespace SocialPoint.QualityStats
 
         private AttrDic GetPerformanceData(KeyValuePair<string,QualityStatsHttpClient.Stats> statsIt, KeyValuePair<int,QualityStatsHttpClient.Data> dataIt)
         {
-            AttrDic data = new AttrDic();
-            AttrDic client = new AttrDic();
-            AttrDic performance = new AttrDic();
+            var data = new AttrDic();
+            var client = new AttrDic();
+            var performance = new AttrDic();
 
             data.Set("client", client);
             client.Set("performance", performance);
 
-            string url = statsIt.Key;
+            var url = statsIt.Key;
             performance.SetValue("url", url);
 
-            string code = dataIt.Key.ToString();
+            var code = dataIt.Key.ToString();
             performance.SetValue("code", code);
 
             QualityStatsHttpClient.Data requestData = dataIt.Value;
-            double dAmount = (double)requestData.Amount;
+            var dAmount = (double)requestData.Amount;
 
             performance.SetValue("number_of_calls", requestData.Amount);
             performance.SetValue("avg_time", requestData.SumTimes / dAmount);
@@ -234,13 +247,13 @@ namespace SocialPoint.QualityStats
 
         private AttrDic GetMemoryData()
         {
-            IMemoryInfo memory = _deviceInfo.MemoryInfo;
-            AttrDic dict = new AttrDic();
+            var memory = _deviceInfo.MemoryInfo;
+            var dict = new AttrDic();
 
-            double activeMemory = (double)memory.ActiveMemory * kByteConverter;
-            double freeMemory = (double)memory.FreeMemory * kByteConverter;
-            double totalMemory = (double)memory.TotalMemory * kByteConverter;
-            double usedMemory = (double)memory.UsedMemory * kByteConverter;
+            var activeMemory = (double)memory.ActiveMemory * kByteConverter;
+            var freeMemory = (double)memory.FreeMemory * kByteConverter;
+            var totalMemory = (double)memory.TotalMemory * kByteConverter;
+            var usedMemory = (double)memory.UsedMemory * kByteConverter;
 
             // max. two decimal places
             dict.SetValue("active_memory", activeMemory);
@@ -253,12 +266,12 @@ namespace SocialPoint.QualityStats
 
         private AttrDic getStorageData()
         {
-            IStorageInfo storage = _deviceInfo.StorageInfo;
-            AttrDic dict = new AttrDic();
+            var storage = _deviceInfo.StorageInfo;
+            var dict = new AttrDic();
 
-            double freeStorage = (double)storage.FreeStorage * kByteConverter;
-            double totalStorage = (double)storage.TotalStorage * kByteConverter;
-            double usedStorage = (double)storage.UsedStorage * kByteConverter;
+            var freeStorage = (double)storage.FreeStorage * kByteConverter;
+            var totalStorage = (double)storage.TotalStorage * kByteConverter;
+            var usedStorage = (double)storage.UsedStorage * kByteConverter;
 
             // max. two decimal places
             dict.SetValue("free_storage", freeStorage);
@@ -270,8 +283,8 @@ namespace SocialPoint.QualityStats
 
         private AttrDic GetAppData()
         {
-            IAppInfo appInfo = _deviceInfo.AppInfo;
-            AttrDic dict = new AttrDic();
+            var appInfo = _deviceInfo.AppInfo;
+            var dict = new AttrDic();
 
             dict.SetValue("seed_id", appInfo.SeedId);
             dict.SetValue("id", appInfo.Id);
@@ -286,8 +299,8 @@ namespace SocialPoint.QualityStats
 
         private AttrDic GetNetworkData()
         {
-            INetworkInfo network = _deviceInfo.NetworkInfo;
-            AttrDic dict = new AttrDic();
+            var network = _deviceInfo.NetworkInfo;
+            var dict = new AttrDic();
 
             dict.SetValue("connectivity", network.Connectivity.ToString());
             dict.SetValue("proxy_host", network.Proxy != null ? network.Proxy.Host : "");
@@ -298,13 +311,13 @@ namespace SocialPoint.QualityStats
 
         private AttrDic GetPerformanceData()
         {
-            AttrDic dict = new AttrDic();
+            var dict = new AttrDic();
 
             dict.SetValue("size_cache_dir", Caching.spaceOccupied);
 
             if(_loadingFinished.CompareTo(kNewDateTime) != 0)
             {
-                double timeToMap = (_loadingFinished - _loadingStarted).TotalSeconds;
+                var timeToMap = (_loadingFinished - _loadingStarted).TotalSeconds;
 
                 if(!_timeToMapSent && timeToMap > 0.0f)
                 {

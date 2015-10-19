@@ -298,6 +298,10 @@ namespace SocialPoint.Events
         {
             Stop();
             Reset();
+            if(_appEvents != null)
+            {
+                DisconnectAppEvents(_appEvents);
+            }
         }
 
         IEnumerator UpdateCoroutine()
