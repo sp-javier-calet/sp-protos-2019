@@ -1,6 +1,7 @@
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
+using SocialPoint.AppEvents;
 using Zenject;
 
 public class LocalizationManager : SocialPoint.Locale.LocalizationManager
@@ -57,6 +58,14 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
         set
         {
             BundleDir = value;
+        }
+    }
+
+    IAppEvents injectAppEvents
+    {
+        set
+        {
+            AppEvents = value;
         }
     }
 

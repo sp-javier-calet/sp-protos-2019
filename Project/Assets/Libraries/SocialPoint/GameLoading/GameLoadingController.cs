@@ -61,7 +61,6 @@ namespace SocialPoint.GameLoading
         public ILogin Login;
         public PopupsController Popups;
         public Localization Localization;
-        public ILocalizationManager LocalizationManager;
         public IAppEvents AppEvents;
         public GameObject ProgressContainer;
         public LoadingBarController LoadingBar;
@@ -96,10 +95,6 @@ namespace SocialPoint.GameLoading
         protected virtual void OnAllOperationsLoaded()
         {
             DebugLog("all operations loaded");
-            if(LocalizationManager != null)
-            {
-                LocalizationManager.Load();
-            }
 
             if(AppEvents != null)
             {
@@ -112,11 +107,6 @@ namespace SocialPoint.GameLoading
             base.OnLoad();
 
             Debug = UnityEngine.Debug.isDebugBuild;
-
-            if(Localization == null && LocalizationManager != null)
-            {
-                Localization = LocalizationManager.Localization;
-            }
 
             if(Localization == null)
             {

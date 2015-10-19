@@ -8,6 +8,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.AppEvents;
 
 namespace SocialPoint.Locale
 {
@@ -95,7 +96,6 @@ namespace SocialPoint.Locale
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
-
 
         private string _fallbackLanguage;
         public string FallbackLanguage
@@ -204,6 +204,28 @@ namespace SocialPoint.Locale
             }
         }
 
+        IAppEvents _appEvents;
+        public IAppEvents AppEvents
+        {
+            get
+            {
+                return _appEvents;
+            }
+
+            set
+            {
+                if(_appEvents != null)
+                {
+                    _appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+                }
+                _appEvents = value;
+                if(_appEvents != null)
+                {
+                    _appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
+                }
+            }
+        }
+
         public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo, Localization locale=null)
         {
             _httpClient = httpClient;
@@ -220,6 +242,11 @@ namespace SocialPoint.Locale
             _localization = locale;
             _currentLanguage = GetSupportedLanguage(_currentLanguage);
             PathsManager.CallOnLoaded(Init);
+        }
+
+        private void OnGameWasLoaded()
+        {
+            Load();
         }
 
         private void Init()

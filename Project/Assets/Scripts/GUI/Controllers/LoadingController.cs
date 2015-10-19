@@ -9,7 +9,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 using Zenject;
 
-public class LoadingController : GameLoadingController
+public class LoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     [Inject]
     ILogin injectLogin
@@ -53,15 +53,6 @@ public class LoadingController : GameLoadingController
         set
         {
             AppEvents = value;
-        }
-    }
-
-    [Inject]
-    ILocalizationManager injectLocalizationManager
-    {
-        set
-        {
-            LocalizationManager = value;
         }
     }
 
