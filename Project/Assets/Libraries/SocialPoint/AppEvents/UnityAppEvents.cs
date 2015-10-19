@@ -19,7 +19,6 @@ namespace SocialPoint.AppEvents
 
         private void Start()
         {
-            OnWasOnBackground();
             OnOpenedFromSource(Source);
         }
 

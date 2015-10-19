@@ -41,11 +41,6 @@ namespace SocialPoint.Network
             Init();
         }
 
-        ~CurlHttpClient()
-        {
-            Dispose();
-        }
-
         void Init()
         {
             if(_initCount == 0)

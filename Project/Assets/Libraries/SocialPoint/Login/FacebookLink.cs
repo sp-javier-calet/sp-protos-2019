@@ -16,7 +16,7 @@ namespace SocialPoint.Login
         
         private event StateChangeDelegate _eventStateChange;
         
-        readonly static string LinkName = "fb";
+        public readonly static string LinkName = "fb";
         
         public FacebookLink(MonoBehaviour behaviour, bool loginWithUi = true)
         {
@@ -100,12 +100,13 @@ namespace SocialPoint.Login
             {
                 err = null;
             }
+            
             if(cbk != null)
             {
                 cbk(err);
             }
         }
-
+        
         public void Logout(ErrorDelegate cbk)
         {
             _facebook.Logout((err) => {

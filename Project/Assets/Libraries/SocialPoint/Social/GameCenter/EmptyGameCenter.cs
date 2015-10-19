@@ -8,11 +8,16 @@ namespace SocialPoint.Social
     public class EmptyGameCenter : BaseGameCenter
     {        
         private bool _isConnected = false;
-        private GameCenterUser _user = new GameCenterUser("user1");
+        private GameCenterUser _user;
         private List<GameCenterUser> _friends = new List<GameCenterUser>();
-
+        
+        public EmptyGameCenter(string userName)
+        {
+            _user = new GameCenterUser(userName);
+        }
+        
         #region implemented abstract members of IGameCenter
-
+        
         public override void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk)
         {
             if(cbk != null)
@@ -46,7 +51,7 @@ namespace SocialPoint.Social
             }
             NotifyStateChanged();
         }
-
+        
         public override void LoadPhoto(string playerId, uint size, GameCenterPhotoDelegate cbk)
         {
             if(cbk != null)

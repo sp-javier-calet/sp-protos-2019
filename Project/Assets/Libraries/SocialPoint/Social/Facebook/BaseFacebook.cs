@@ -79,6 +79,7 @@ namespace SocialPoint.Social
         public abstract void Logout(ErrorDelegate cbk);
         public abstract void LoadPhoto(string userId, FacebookPhotoDelegate cbk);
         public abstract void AskForPermissions(List<string> permissions, FacebookPermissionsDelegate cbk = null);
+        public abstract void RefreshFriends(ErrorDelegate cbk = null);
         
         public abstract bool IsConnected{ get; }
         public abstract bool IsConnecting{ get; }

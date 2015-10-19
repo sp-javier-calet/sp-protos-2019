@@ -121,5 +121,13 @@ namespace SocialPoint.Social
             }
         }
 
+        public override void RefreshFriends(ErrorDelegate callback = null)
+        {
+            if(callback != null)
+            {
+                callback(null);
+            }
+        }
+
     }
 }

@@ -477,8 +477,8 @@ namespace SocialPoint.Crash
 
         private void Check()
         {
-            CheckPendingCrashes();
             CheckLogs();
+            CheckPendingCrashes();
         }
 
         private void SetupCrashHttpRequest(HttpRequest req, string log)

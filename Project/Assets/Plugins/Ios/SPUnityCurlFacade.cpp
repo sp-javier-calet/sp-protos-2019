@@ -4,13 +4,47 @@
 #include <vector>
 #include <string>
 #include <cassert>
-#include <mutex>
 
 extern "C" {
 #include "curl/curl.h"
 }
 
-std::mutex curlUpdateLock;
+#if defined(WIN32) || defined(WIN64)
+    #include <mutex>
+    typedef std::Mutex Mutex;
+#else
+    #include "pthread.h"
+    class Mutex
+    {
+    private:
+        pthread_mutex_t _mutex;
+        bool _initialized;
+    
+    public:
+        Mutex()
+        : _initialized(false)
+        {
+        }
+    
+        void lock()
+        {
+            if(!_initialized)
+            {
+                _initialized = true;
+                pthread_mutex_init(&_mutex, NULL);
+            }
+            pthread_mutex_lock(&_mutex);
+        }
+        
+        void unlock()
+        {
+            pthread_mutex_unlock(&_mutex);
+        }
+    };
+#endif
+
+
+Mutex curlUpdateLock;
 
 std::vector<std::string> split(const std::string& str, const std::string& sep, size_t max=std::string::npos)
 {
@@ -221,9 +255,9 @@ EXPORT_API int SPUnityCurlUpdate(int id)
     {
         return 1;
     }
-
-
+    
     curlUpdateLock.lock();
+    
     curl_multi_perform(globalInfo.multi, &globalInfo.still_running);
 
     int msgs_left;

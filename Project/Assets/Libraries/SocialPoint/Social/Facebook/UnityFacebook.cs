@@ -376,6 +376,11 @@ namespace SocialPoint.Social
             });
         }
 
+        public override void RefreshFriends(ErrorDelegate cbk = null)
+        {
+            GetLoginFriendsInfo("/me/friends", cbk);
+        }
+
         void GetLoginFriendsInfo(string path, ErrorDelegate cbk)
         {
             var s = UserPhotoSize;
