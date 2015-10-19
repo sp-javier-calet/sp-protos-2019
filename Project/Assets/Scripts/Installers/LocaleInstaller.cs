@@ -53,7 +53,7 @@ public class LocaleInstaller : MonoInstaller
         Container.BindInstance("locale_supported_langs", Settings.SupportedLanguages);
         Container.BindInstance("locale_timeout", Settings.Timeout);
         Container.BindInstance("locale_bundle_dir", Settings.BundleDir);
-        Container.Bind<ILocalizationManager>().ToSingle<LocalizationManager>();
+        Container.BindAllInterfacesToSingle<LocalizationManager>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
     }
 }

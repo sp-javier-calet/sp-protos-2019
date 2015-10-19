@@ -12,7 +12,7 @@ using SocialPoint.AppEvents;
 
 namespace SocialPoint.Locale
 {
-    public class LocalizationManager : ILocalizationManager
+    public class LocalizationManager : ILocalizationManager, IDisposable
     {
         public class LocationData
         {
@@ -261,6 +261,20 @@ namespace SocialPoint.Locale
             UpdateCurrentLanguage();
         }
 
+        public void Dispose()
+        {
+            if(_httpConn != null)
+            {
+                _httpConn.Cancel();
+                _httpConn = null;
+            }
+            if(_appEvents != null)
+            {
+                _appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+            }
+            _running = false;
+        }
+
         public void Load()
         {
             _running = true;
@@ -277,6 +291,7 @@ namespace SocialPoint.Locale
             Load();
         }
 
+        [Obsolete("Use Dispose()")]
         public void Stop()
         {
             if(_httpConn != null)
