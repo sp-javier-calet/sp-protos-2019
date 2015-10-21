@@ -8,8 +8,9 @@ using SocialPoint.Events;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 using Zenject;
+using UnityEngine;
 
-public class LoadingController : SocialPoint.GameLoading.GameLoadingController
+public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     [Inject]
     ILogin injectLogin
@@ -62,9 +63,12 @@ public class LoadingController : SocialPoint.GameLoading.GameLoadingController
     [Inject]
     AdminPanel _adminPanel;
 
-    public string SceneToLoad = "Main";
-
+    [Inject]
     GameModel _model;
+
+    [SerializeField]
+    string _sceneToLoad = "Main";
+
     LoadingOperation _parseModelOperation;
 
     override protected void OnAppeared()
@@ -88,14 +92,15 @@ public class LoadingController : SocialPoint.GameLoading.GameLoadingController
     void OnLoginNewUser(Attr data, bool changed)
     {
         _parseModelOperation.UpdateProgress(0.1f, "parsing game model");
-        _model = _gameParser.Parse(data);
+        var newModel = _gameParser.Parse(data);
+        _model.Assign(newModel);
         _parseModelOperation.FinishProgress("game model parsed");
     }
 
     protected override void OnAllOperationsLoaded()
     {
         base.OnAllOperationsLoaded();
-        ZenUtil.LoadScene(SceneToLoad, BeforeSceneLoaded, AfterSceneLoaded);
+        ZenUtil.LoadScene(_sceneToLoad, BeforeSceneLoaded, AfterSceneLoaded);
     }
 
     void BeforeSceneLoaded(DiContainer container)

@@ -379,8 +379,9 @@ MonoBehaviour:
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   Popups: {fileID: 0}
-  ProgressContainer: {fileID: 0}
+  ProgressContainer: {fileID: 186208}
   LoadingBar: {fileID: 11436530}
+  Debug: 0
 --- !u!114 &11484804
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -644,7 +645,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: ProgressContainer
+      value: 
+      objectReference: {fileID: 186208}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 117976}
