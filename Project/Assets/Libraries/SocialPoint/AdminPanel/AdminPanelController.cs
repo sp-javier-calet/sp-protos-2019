@@ -1,9 +1,7 @@
+using System.Collections.Generic;
+using SocialPoint.GUIControl;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
-using SocialPoint.Console;
-using SocialPoint.GUI;
 
 namespace SocialPoint.AdminPanel
 {

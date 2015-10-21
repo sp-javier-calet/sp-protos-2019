@@ -1,9 +1,8 @@
 using System;
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
-namespace SocialPoint.GUI
+namespace SocialPoint.GUIControl
 {
     public class UIViewControllerFactory
     {

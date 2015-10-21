@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Text;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Text;
 using UnityEngine;
 
-namespace SocialPoint.Profiler
+namespace SocialPoint.Profiling
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct FrameInfo

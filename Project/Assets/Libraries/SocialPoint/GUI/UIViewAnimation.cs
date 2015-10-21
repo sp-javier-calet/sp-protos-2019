@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections;
 
-namespace SocialPoint.GUI
+namespace SocialPoint.GUIControl
 {
     public interface UIViewAnimation : ICloneable
     {

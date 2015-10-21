@@ -1,5 +1,5 @@
 ﻿
-using SocialPoint.GUI;
+using SocialPoint.GUIControl;
 using Zenject;
 
 public class PopupsController : UIStackController

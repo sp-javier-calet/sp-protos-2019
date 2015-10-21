@@ -1,8 +1,5 @@
-﻿
-using System;
-using SocialPoint.GUI;
-using SocialPoint.Login;
-using SocialPoint.Utils;
+﻿using System;
+using SocialPoint.GUIControl;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -2,7 +2,7 @@ using System;
 using Zenject;
 using SocialPoint.Alert;
 using UnityEngine;
-using SocialPoint.GUI;
+using SocialPoint.GUIControl;
 using SocialPoint.Base;
 
 public class AlertInstaller : MonoInstaller

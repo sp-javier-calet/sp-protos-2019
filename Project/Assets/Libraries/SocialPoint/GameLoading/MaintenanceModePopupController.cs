@@ -1,5 +1,5 @@
-﻿using UnityEngine.UI;
-using SocialPoint.GUI;
+﻿using SocialPoint.GUIControl;
+using UnityEngine.UI;
 
 public class MaintenanceModePopupController : UIViewController
 {

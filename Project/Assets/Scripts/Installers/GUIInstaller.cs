@@ -1,7 +1,7 @@
 ﻿using System;
 using Zenject;
 using UnityEngine;
-using SocialPoint.GUI;
+using SocialPoint.GUIControl;
 using SocialPoint.Base;
 
 public class GUIInstaller : MonoInstaller

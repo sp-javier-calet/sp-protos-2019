@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using SocialPoint.GUI;
+using SocialPoint.GUIControl;
 using UnityEngine.UI;
 
 public class SlideAnimation : UIViewAnimation {

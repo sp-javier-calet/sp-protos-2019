@@ -1,9 +1,7 @@
-using UnityEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine;
 
-namespace SocialPoint.GUI
+namespace SocialPoint.GUIControl
 {
     public class UIParentController : UIViewController
     {

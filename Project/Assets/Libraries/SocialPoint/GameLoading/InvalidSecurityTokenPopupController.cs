@@ -1,10 +1,9 @@
 ﻿using System;
-using UnityEngine.UI;
+using SocialPoint.Alert;
+using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Utils;
-using SocialPoint.Alert;
-using SocialPoint.GUI;
-using SocialPoint.Base;
+using UnityEngine.UI;
 
 public class InvalidSecurityTokenPopupController : UIViewController
 {

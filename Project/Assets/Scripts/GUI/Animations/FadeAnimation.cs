@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using SocialPoint.GUI;
+using SocialPoint.GUIControl;
 
 public class FadeAnimation : UIViewAnimation {
 

@@ -1,6 +1,6 @@
 ﻿
 using Zenject;
-using SocialPoint.GUI;
+using SocialPoint.GUIControl;
 using UnityEngine;
 
 public class ScreensController : UIStackController

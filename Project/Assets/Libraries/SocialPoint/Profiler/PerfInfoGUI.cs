@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SocialPoint.Profiler
+namespace SocialPoint.Profiling
 {
     public class PerfInfoGUI : MonoBehaviour
     {

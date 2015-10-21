@@ -1,8 +1,8 @@
+using SocialPoint.AdminPanel;
 using UnityEngine;
 using UnityEngine.UI;
-using SocialPoint.AdminPanel;
 
-namespace SocialPoint.Profiler
+namespace SocialPoint.Profiling
 {
     public class AdminPanelProfiler : IAdminPanelGUI, IAdminPanelConfigurer
     {

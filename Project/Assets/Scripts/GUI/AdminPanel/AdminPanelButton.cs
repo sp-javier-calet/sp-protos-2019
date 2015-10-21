@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using SocialPoint.AdminPanel;
-using SocialPoint.GUI;
+using SocialPoint.GUIControl;
 using System.Collections;
 using System;
 using Zenject;
