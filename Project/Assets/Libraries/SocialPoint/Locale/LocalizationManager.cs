@@ -20,22 +20,22 @@ namespace SocialPoint.Locale
             public const string ProdEnvironmentId = "prod";
 
             public const string DefaultProjectId = "dc";
-            
+
             // Android uses iOS json too
             public const string DefaultPlatform = "ios";
-            
+
             //public const string DefaultEnvironmentId = DevEnvironmentId;
             //public const string DefaultSecretKey = "5TgemMFH4yj7RJ3d";
             public const string DefaultEnvironmentId = ProdEnvironmentId;
             public const string DefaultSecretKey = "wetd46pWuR8J5CmS";
-                        
+
             const string UrlFormat = "http://sp-translations.socialpointgames.com/deploy/<PROJ>/<PLAT>/<ENV>/<PROJ>_<PLAT>_<LANG>_<ENV>_<KEY>.json";
             const string ProjectIdPlaceholder = "<PROJ>";
             const string PlatformPlaceholder = "<PLAT>";
             const string EnvionmentIdPlaceholder = "<ENV>";
             const string SecretKeyPlaceholder = "<KEY>";
             const string LanguagePlaceholder = "<LANG>";
-            
+
             public string ProjectId = DefaultProjectId;
             public string EnvironmentId = DefaultEnvironmentId;
             public string SecretKey = DefaultSecretKey;
@@ -192,7 +192,7 @@ namespace SocialPoint.Locale
             {
                 return _currentLanguage;
             }
-            
+
             set
             {
                 var oldLang = _currentLanguage;
@@ -249,6 +249,20 @@ namespace SocialPoint.Locale
             Load();
         }
 
+        public void Dispose()
+        {
+            if(_httpConn != null)
+            {
+                _httpConn.Cancel();
+                _httpConn = null;
+            }
+            _running = false;
+            if(_appEvents != null)
+            {
+                _appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+            }
+        }
+
         private void Init()
         {
             _cachePath = Path.Combine(PathsManager.TemporaryCachePath, "localization");
@@ -259,20 +273,6 @@ namespace SocialPoint.Locale
                 _localization = Localization.Default;
             }
             UpdateCurrentLanguage();
-        }
-
-        public void Dispose()
-        {
-            if(_httpConn != null)
-            {
-                _httpConn.Cancel();
-                _httpConn = null;
-            }
-            if(_appEvents != null)
-            {
-                _appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
-            }
-            _running = false;
         }
 
         public void Load()
@@ -291,15 +291,10 @@ namespace SocialPoint.Locale
             Load();
         }
 
-        [Obsolete("Use Dispose()")]
+        [Obsolete("Use Dispose() and only once")]
         public void Stop()
         {
-            if(_httpConn != null)
-            {
-                _httpConn.Cancel();
-                _httpConn = null;
-            }
-            _running = false;
+            Dispose();
         }
 
         void UpdateCurrentLanguage()
@@ -360,7 +355,7 @@ namespace SocialPoint.Locale
                     byte[] csvData = Encoding.UTF8.GetBytes(csv);
                     CsvLoaded(csvData);
                 }
-                
+
                 #if UNITY_EDITOR
                 var resDir = Path.Combine(PathsManager.DataPath, "Resources");
                 var localFile = Path.Combine(resDir, "Localization.csv");
@@ -368,7 +363,7 @@ namespace SocialPoint.Locale
                 #endif
             }
         }
-                
+
         void DownloadCurrentLanguage()
         {
             DownloadLocalization(FallbackLanguage, () => {
@@ -407,7 +402,7 @@ namespace SocialPoint.Locale
         {
             List<string> keys = null;
             var builder = new StringBuilder();
-            
+
             builder.Append("KEY");
             builder.Append(CsvSeparator);
             foreach(var pair in locales)
@@ -432,7 +427,7 @@ namespace SocialPoint.Locale
             }
             builder.Remove(builder.Length - 1, 1);
             builder.AppendLine();
-            
+
             foreach(var key in keys)
             {
                 builder.Append(key);
@@ -450,7 +445,7 @@ namespace SocialPoint.Locale
             }
             builder.Remove(builder.Length - 1, 1);
             builder.AppendLine();
-            
+
             return builder.ToString();
         }
 
@@ -517,14 +512,14 @@ namespace SocialPoint.Locale
                 {
                     continue;
                 }
-                    
+
                 if(!file.Contains(prefix))
                 {
                     continue;
                 }
 
                 return file;
-                
+
             }
             return string.Empty;
         }
@@ -687,7 +682,7 @@ namespace SocialPoint.Locale
         {
             var file = FindLocalizationFile(lang);
             if(!string.IsNullOrEmpty(file))
-            {            
+            {
                 int start = file.LastIndexOf("_");
                 int end = file.LastIndexOf(".");
                 if(start != -1 && end != -1)

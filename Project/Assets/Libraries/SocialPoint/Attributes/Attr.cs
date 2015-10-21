@@ -15,7 +15,7 @@ namespace SocialPoint.Attributes
         VALUE,
         DICTIONARY,
         LIST
-    };
+    }
 
     public enum AttrValueType
     {
@@ -27,7 +27,7 @@ namespace SocialPoint.Attributes
         LONG,
         FLOAT,
         DOUBLE
-    };
+    }
 
     public class Attr : IDisposable
     {
@@ -57,16 +57,11 @@ namespace SocialPoint.Attributes
 
         public static bool operator ==(Attr la, Attr ra)
         {
-            if(System.Object.ReferenceEquals(la, null))
+            if(System.Object.ReferenceEquals(la, ra))
             {
-                if(System.Object.ReferenceEquals(ra, null))
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            else
-            if(System.Object.ReferenceEquals(ra, null))
+            if(((object)la == null) || ((object)ra == null))
             {
                 return false;
             }
@@ -103,7 +98,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
 
-            Attr p = obj as Attr;
+            var p = obj as Attr;
             if((System.Object)p == null)
             {
                 return false;
@@ -222,7 +217,6 @@ namespace SocialPoint.Attributes
 
         public override bool Equals(System.Object obj)
         {
-
             if(obj == null)
             {
                 return false;
@@ -407,16 +401,11 @@ namespace SocialPoint.Attributes
 
         public static bool operator ==(AttrValue la, AttrValue ra)
         {
-            if(System.Object.ReferenceEquals(la, null))
+            if(System.Object.ReferenceEquals(la, ra))
             {
-                if(System.Object.ReferenceEquals(ra, null))
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            else
-            if(System.Object.ReferenceEquals(ra, null))
+            if(((object)la == null) || ((object)ra == null))
             {
                 return false;
             }
@@ -457,7 +446,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrValue p = obj as AttrValue;
+            var p = obj as AttrValue;
             if((System.Object)p == null)
             {
                 return false;
@@ -490,28 +479,23 @@ namespace SocialPoint.Attributes
             {
                 return (T)Convert.ChangeType(ToInt(), typeof(T), CultureInfo.CurrentCulture);
             }
-            else
-            if(typeof(T) == typeof(bool))
+            else if(typeof(T) == typeof(bool))
             {
                 return (T)Convert.ChangeType(ToBool(), typeof(T), CultureInfo.CurrentCulture);
             }
-            else
-            if(typeof(T) == typeof(float))
+            else if(typeof(T) == typeof(float))
             {
                 return (T)Convert.ChangeType(ToFloat(), typeof(T), CultureInfo.CurrentCulture);
             }
-            else
-            if(typeof(T) == typeof(double))
+            else if(typeof(T) == typeof(double))
             {
                 return (T)Convert.ChangeType(ToDouble(), typeof(T), CultureInfo.CurrentCulture);
             }
-            else
-            if(typeof(T) == typeof(long))
+            else if(typeof(T) == typeof(long))
             {
                 return (T)Convert.ChangeType(ToLong(), typeof(T), CultureInfo.CurrentCulture);
             }
-            else
-            if(typeof(T) == typeof(string))
+            else if(typeof(T) == typeof(string))
             {
                 return (T)Convert.ChangeType(ToString(), typeof(T), CultureInfo.CurrentCulture);
             }
@@ -584,13 +568,11 @@ namespace SocialPoint.Attributes
             {
                 value = true;
             }
-            else
-            if(testVal == "false")
+            else if(testVal == "false")
             {
                 value = false;
             }
-            else
-            if(testVal == "0" || testVal.Length == 0)
+            else if(testVal == "0" || testVal.Length == 0)
             {
                 value = false;
             }
@@ -617,7 +599,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrBool p = obj as AttrBool;
+            var p = obj as AttrBool;
             if((System.Object)p == null)
             {
                 return false;
@@ -688,7 +670,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrInt p = obj as AttrInt;
+            var p = obj as AttrInt;
             if((System.Object)p == null)
             {
                 return false;
@@ -788,7 +770,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrLong p = obj as AttrLong;
+            var p = obj as AttrLong;
             if((System.Object)p == null)
             {
                 return false;
@@ -927,7 +909,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
 
-            AttrString p = obj as AttrString;
+            var p = obj as AttrString;
             if((System.Object)p == null)
             {
                 return false;
@@ -1007,7 +989,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrFloat p = obj as AttrFloat;
+            var p = obj as AttrFloat;
             if((System.Object)p == null)
             {
                 return false;
@@ -1107,7 +1089,7 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrDouble p = obj as AttrDouble;
+            var p = obj as AttrDouble;
             if((System.Object)p == null)
             {
                 return false;
@@ -1140,10 +1122,9 @@ namespace SocialPoint.Attributes
         {
             if(val != null)
             {
-                var itr = val.GetEnumerator();
-                while(itr.MoveNext())
+                foreach(var pair in val)
                 {
-                    Set(itr.Current.Key, Attr.Copy(itr.Current.Value));
+                    Set(pair.Key, Attr.Copy(pair.Value));
                 }
             }
         }
@@ -1156,10 +1137,9 @@ namespace SocialPoint.Attributes
         {
             if(val != null)
             {
-                var itr = val.GetEnumerator();
-                while(itr.MoveNext())
+                foreach(var pair in this)
                 {
-                    SetValue(itr.Current.Key, itr.Current.Value);
+                    Set(pair.Key, Attr.Copy(pair.Value));
                 }
             }
         }
@@ -1168,11 +1148,10 @@ namespace SocialPoint.Attributes
         {
             if(other != null)
             {
-                var itr = other.GetEnumerator();
                 var i = 0;
-                while(itr.MoveNext())
+                foreach(var val in other)
                 {
-                    Set(i.ToString(), Attr.Copy(itr.Current));
+                    Set(i.ToString(), Attr.Copy(val));
                     i++;
                 }
             }
@@ -1222,24 +1201,20 @@ namespace SocialPoint.Attributes
         public override string ToString()
         {
             var b = new StringBuilder();
-            using(var enumerator = GetEnumerator())
+            b.Append("{");
+            var i = 0;
+            foreach(var pair in this)
             {
-                while(enumerator.MoveNext())
+                b.Append(pair.Key);
+                b.Append(" = ");
+                b.Append(pair.Value);
+                if(i < Count - 1)
                 {
-                    var pair = enumerator.Current;
-                    if(pair.Key != null)
-                    {
-                        b.Append("[");
-                        b.Append(pair.Key);
-                        b.Append("] = ");
-                        if(pair.Value != null)
-                        {
-                            b.Append(pair.Value.ToString());
-                        }
-                        b.Append("\n");
-                    }
+                    b.Append(", ");
                 }
+                i++;
             }
+            b.Append("}");
             return b.ToString();
         }
 
@@ -1351,16 +1326,11 @@ namespace SocialPoint.Attributes
 
         public static bool operator ==(AttrDic la, AttrDic ra)
         {
-            if(System.Object.ReferenceEquals(la, null))
+            if(System.Object.ReferenceEquals(la, ra))
             {
-                if(System.Object.ReferenceEquals(ra, null))
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            else
-            if(System.Object.ReferenceEquals(ra, null))
+            if(((object)la == null) || ((object)ra == null))
             {
                 return false;
             }
@@ -1370,10 +1340,9 @@ namespace SocialPoint.Attributes
                 return false;
             }
 
-            var laItr = la.GetEnumerator();
-            while(laItr.MoveNext())
+            foreach(var pair in la)
             {
-                if(!ra.ContainsKey(laItr.Current.Key) || laItr.Current.Value != ra.Get(laItr.Current.Key))
+                if(!ra.ContainsKey(pair.Key) || !pair.Value.Equals(ra.Get(pair.Key)))
                 {
                     return false;
                 }
@@ -1394,13 +1363,23 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrDic p = obj as AttrDic;
+            var p = obj as AttrDic;
             if((System.Object)p == null)
             {
                 return false;
             }
             
             return this == p;
+        }
+
+        public bool Equals(AttrDic dic)
+        {
+            if((object)dic == null)
+            {
+                return false;
+            }
+                        
+            return this == dic;
         }
         
         public override int GetHashCode()
@@ -1411,10 +1390,9 @@ namespace SocialPoint.Attributes
         public Dictionary<string,V> ToDictionary<V>()
         {
             var dic = new Dictionary<string, V>();
-            var itr = GetEnumerator();
-            while(itr.MoveNext())
+            foreach(var pair in this)
             {
-                dic.Add(itr.Current.Key, itr.Current.Value.AsValue.ToValue<V>());
+                dic.Add(pair.Key, pair.Value.AsValue.ToValue<V>());
             }
 
             return dic;
@@ -1422,16 +1400,14 @@ namespace SocialPoint.Attributes
 
         public override void Dispose()
         {
-            var enumerator = GetEnumerator();
-            while(enumerator.MoveNext())
+            foreach(var pair in this)
             {
-                if(enumerator.Current.Value != null)
+                if(pair.Value != null)
                 {
-                    enumerator.Current.Value.Dispose();
+                    pair.Value.Dispose();
                 }
             }
             GC.SuppressFinalize(this);
-
         }
     }
   
@@ -1454,20 +1430,18 @@ namespace SocialPoint.Attributes
             AllowDuplicates = true;
             if(val != null)
             {
-                var itr = val.GetEnumerator();
-                while(itr.MoveNext())
+                foreach(var elm in val)
                 {
-                    Add(Attr.Copy(itr.Current));
+                    Add(Attr.Copy(elm));
                 }
             }
         }
 
         public AttrList(AttrDic otherDic) : this()
         {
-            var enumerator = otherDic.GetEnumerator();
-            while(enumerator.MoveNext())
+            foreach(var pair in otherDic)
             {
-                Add(enumerator.Current.Value);
+                Add(pair.Value);
             }
         }
 
@@ -1500,20 +1474,14 @@ namespace SocialPoint.Attributes
             var b = new StringBuilder();
             b.Append("[");
             var i = 0;
-            using(var itr = GetEnumerator())
+            foreach(var elm in this)
             {
-                while(itr.MoveNext())
+                b.Append(elm);
+                if(i != List.Count - 1)
                 {
-                    if(itr.Current != null)
-                    {
-                        b.Append(itr.Current.ToString());
-                    }
-                    if(i != List.Count - 1)
-                    {
-                        b.Append(",");
-                    }
-                    i++;
+                    b.Append(",");
                 }
+                i++;
             }
             b.Append("]");
             return b.ToString();
@@ -1642,16 +1610,11 @@ namespace SocialPoint.Attributes
 
         public static bool operator ==(AttrList la, AttrList ra)
         {
-            if(System.Object.ReferenceEquals(la, null))
+            if(System.Object.ReferenceEquals(la, ra))
             {
-                if(System.Object.ReferenceEquals(ra, null))
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            else
-            if(System.Object.ReferenceEquals(ra, null))
+            if(((object)la == null) || ((object)ra == null))
             {
                 return false;
             }
@@ -1661,13 +1624,15 @@ namespace SocialPoint.Attributes
                 return false;
             }
 
-            var laItr = la.GetEnumerator();
-            var raItr = ra.GetEnumerator();
-            while(laItr.MoveNext() && raItr.MoveNext())
+            using(var raItr = ra.GetEnumerator())
             {
-                if(laItr.Current != raItr.Current)
+                foreach(var elm in la)
                 {
-                    return false;
+                    if(elm != raItr.Current)
+                    {
+                        return false;
+                    }
+                    raItr.MoveNext();
                 }
             }
 
@@ -1686,13 +1651,22 @@ namespace SocialPoint.Attributes
                 return false;
             }
             
-            AttrList p = obj as AttrList;
+            var p = obj as AttrList;
             if((System.Object)p == null)
             {
                 return false;
             }
             
             return this == p;
+        }
+
+        public bool Equals(AttrList list)
+        {
+            if((object)list == null)
+            {
+                return false;
+            }
+            return this == list;
         }
         
         public override int GetHashCode()
@@ -1703,10 +1677,9 @@ namespace SocialPoint.Attributes
         public List<T> ToList<T>()
         {
             var list = new List<T>();
-            var itr = GetEnumerator();
-            while(itr.MoveNext())
+            foreach(var elm in this)
             {
-                list.Add(itr.Current.AsValue.ToValue<T>());
+                list.Add(elm.AsValue.ToValue<T>());
             }
             
             return list;
@@ -1714,12 +1687,11 @@ namespace SocialPoint.Attributes
 
         public override void Dispose()
         {
-            var enumerator = GetEnumerator();
-            while(enumerator.MoveNext())
+            foreach(var elm in this)
             {
-                if(enumerator.Current != null)
+                if(elm != null)
                 {
-                    enumerator.Current.Dispose();
+                    elm.Dispose();
                 }
             }
             GC.SuppressFinalize(this);

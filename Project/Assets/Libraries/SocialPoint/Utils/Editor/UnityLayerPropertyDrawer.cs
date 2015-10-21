@@ -6,7 +6,7 @@ namespace SocialPoint.Utils
     [CustomPropertyDrawer(typeof(UnityLayer))]
     public class UnityLayerPropertyDrawer : PropertyDrawer
     {
-        public override void OnGUI(Rect _position, SerializedProperty _property, GUIContent _label)
+        public override void OnGUI(UnityEngine.Rect _position, SerializedProperty _property, GUIContent _label)
         {
             EditorGUI.BeginProperty(_position, GUIContent.none, _property);
 
