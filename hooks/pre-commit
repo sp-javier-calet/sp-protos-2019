@@ -7,6 +7,8 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
+PROJECT_NAME="Project"
+
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
 	against=HEAD
@@ -17,8 +19,6 @@ fi
 
 # Redirect output to stderr.
 exec 1>&2
-
-PROJECT_NAME="Project"
 
 git diff --cached --name-only --diff-filter=A -z $against -- "$PROJECT_NAME/Assets" | while read -d $'\0' f; do
 	ext="${f##*.}"
