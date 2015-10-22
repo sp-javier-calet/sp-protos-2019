@@ -18,7 +18,9 @@ fi
 # Redirect output to stderr.
 exec 1>&2
 
-git diff --cached --name-only --diff-filter=A -z $against -- Assets | while read -d $'\0' f; do
+PROJECT_NAME="Project"
+
+git diff --cached --name-only --diff-filter=A -z $against -- "$PROJECT_NAME/Assets" | while read -d $'\0' f; do
 	ext="${f##*.}"
 	base="${f%.*}"
 
@@ -35,7 +37,7 @@ EOF
 		fi
 	else
 		p="$f"
-		while [ "$p" != "Assets" ]; do
+		while [ "$p" != "$PROJECT_NAME/Assets" ]; do
 			if [ $(git ls-files --cached -- "$p.meta" | wc -l) = 0 ]; then
 				cat <<EOF
 Error: Missing meta file(A).
@@ -56,7 +58,7 @@ if [ "$ret" != 0 ]; then
 	exit "$ret"
 fi
 
-git diff --cached --name-only --diff-filter=D -z $against -- Assets | while read -d $'\0' f; do
+git diff --cached --name-only --diff-filter=D -z $against -- "$PROJECT_NAME/Assets" | while read -d $'\0' f; do
 	ext="${f##*.}"
 	base="${f%.*}"
 
@@ -73,7 +75,7 @@ EOF
 		fi
 	else
 		p="$f"
-		while [ "$p" != "Assets" ]; do
+		while [ "$p" != "$PROJECT_NAME/Assets" ]; do
 			if [ $(git ls-files --cached -- "$p" | wc -l) = 0 ] && [ $(git ls-files --cached -- "$p.meta" | wc -l) != 0 ]; then
 				cat <<EOF
 Error: Missing meta file(D).
