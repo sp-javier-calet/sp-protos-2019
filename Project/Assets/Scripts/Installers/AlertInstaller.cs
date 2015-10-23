@@ -11,7 +11,7 @@ public class AlertInstaller : MonoInstaller
     public class SettingsData
     {
         public bool UseNativeAlert = false;
-        public GameObject Prefab;
+        public GameObject UnityAlertViewPrefab;
     }
 
     public SettingsData Settings;
@@ -33,7 +33,7 @@ public class AlertInstaller : MonoInstaller
         }
         else
         {
-            var unityAlertView = new UnityAlertView(Settings.Prefab);
+            var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
             Container.Bind<IAlertView>().ToSingleInstance(unityAlertView);
         }
     }
