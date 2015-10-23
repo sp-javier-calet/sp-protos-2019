@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Remove empty assets directory
+PROJECT_DIR=$(cd "Project" && pwd)
+ASSETS_DIR=$(cd "$PROJECT_DIR/Assets" && pwd)
+find $ASSETS_DIR -depth -type d -empty -delete
