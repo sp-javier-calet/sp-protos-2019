@@ -2,6 +2,7 @@
 using Zenject;
 using UnityEngine;
 using SocialPoint.Crash;
+using SocialPoint.Utils;
 
 public class BaseInstaller : MonoInstaller
 {   
@@ -14,6 +15,10 @@ public class BaseInstaller : MonoInstaller
         if(!Container.HasBinding<BreadcrumbManager>())
         {
             Container.Bind<BreadcrumbManager>().ToSingle();
+        }
+        if(!Container.HasBinding<SceneManager>())
+        {
+            Container.Bind<SceneManager>().ToInstance(SceneManager.Instance);
         }
     }
 }

@@ -69,6 +69,9 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [Inject]
     DiContainer _container;
 
+    [Inject]
+    SceneManager _sceneManager;
+
     [SerializeField]
     string _sceneToLoad = "Main";
 
@@ -108,7 +111,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         UnityEngine.Debug.Log("game model parsed");
         _parseModelOperation.FinishProgress("game model parsed");
 
-        SceneManager.Instance.ChangeSceneToAsync(_sceneToLoad, false, (SceneLoadingArgs obj) => {
+        _sceneManager.ChangeSceneToAsync(_sceneToLoad, false, (SceneLoadingArgs obj) => {
             _sceneLoadingArgs = obj;
             _loadSceneOperation.FinishProgress();
             UnityEngine.Debug.Log(Time.time);
