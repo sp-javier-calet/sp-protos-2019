@@ -63,11 +63,12 @@ namespace SocialPoint.GameLoading
         public Localization Localization;
         public IAppEvents AppEvents;
         public GameObject ProgressContainer;
-        public LoadingBarController LoadingBar;
+        public GameLoadingBarController LoadingBar;
         public IAlertView AlertView;
         public bool Debug;
 
         bool _paused = false;
+
         public bool Paused
         {
             get
@@ -80,7 +81,7 @@ namespace SocialPoint.GameLoading
                 if(_paused != value)
                 {
                     _paused = value;
-                    if(!_paused && AllOperationsLoaded)
+                    if(!_paused && AllOperationsLoaded && AllOperationsFakedLoaded)
                     {
                         OnAllOperationsLoaded();
                     }
@@ -119,7 +120,7 @@ namespace SocialPoint.GameLoading
             base.OnAppeared();
             _operations = new List<LoadingOperation>();
 
-            _loginOperation = new LoadingOperation();
+            _loginOperation = new LoadingOperation(6);
             RegisterLoadingOperation(_loginOperation);
             StartCoroutine(CheckAllOperationsLoaded());
 
@@ -146,10 +147,22 @@ namespace SocialPoint.GameLoading
             {
                 DebugLog(message);
             }
+        }
+
+        void Update()
+        {
             float progress = 0;
-            _operations.ForEach(p => progress += p.progress);
+            _operations.ForEach(p => {
+                p.Update(Time.deltaTime);
+                progress += p.FakeProgress;
+            });
             float percent = (progress / _operations.Count);
-            LoadingBar.UpdateProgress(percent, message);
+            LoadingBar.UpdateProgress(percent, "");
+            if(Math.Abs(percent - 1) < Mathf.Epsilon)
+            {
+                UnityEngine.Debug.Log("fake done");
+                OnAllOperationsLoaded();
+            }
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPGAMELOADING")]
@@ -160,7 +173,7 @@ namespace SocialPoint.GameLoading
 
         void DoLogin()
         {
-            _loginOperation.UpdateProgress(0.1f, Localization.Get(ProgressLoginStartKey, ProgressLoginStartDef));
+            _loginOperation.UpdateProgress(0, Localization.Get(ProgressLoginStartKey, ProgressLoginStartDef));
             if(ProgressContainer != null)
             {
                 ProgressContainer.SetActive(true);
@@ -198,7 +211,7 @@ namespace SocialPoint.GameLoading
                 var auxOp = new LoadingOperation();
                 RegisterLoadingOperation(auxOp);
                 _alert.Title = Localization.Get(SuggestedUpgradeTitleKey, SuggestedUpgradeTitleDef);
-                _alert.Buttons = new string[]{
+                _alert.Buttons = new string[] {
                     Localization.Get(UpgradeButtonKey, UpgradeButtonDef),
                     Localization.Get(UpgradeLaterButtonKey, UpgradeLaterButtonDef)
                 };
@@ -316,10 +329,12 @@ namespace SocialPoint.GameLoading
 
         void OnLoginEnd(Error err)
         {
+            /*
             if(ProgressContainer != null)
             {
                 ProgressContainer.SetActive(false);
             }
+            */
             if(!Error.IsNullOrEmpty(err))//errors are handled on OnLoginError when ErrorEvent is dispatched
             {
                 DebugLog(string.Format("Login End Error {0}", err));
@@ -334,13 +349,21 @@ namespace SocialPoint.GameLoading
         {
             get
             {
-                return !_operations.Exists(o => o.progress < 1);
+                return !_operations.Exists(o => o.Progress < 1);
+            }
+        }
+
+        public bool AllOperationsFakedLoaded
+        {
+            get
+            {
+                return !_operations.Exists(o => o.FakeProgress < 1);
             }
         }
 
         IEnumerator CheckAllOperationsLoaded()
         {
-            while(!AllOperationsLoaded)
+            while(!(AllOperationsLoaded && AllOperationsFakedLoaded))
             {
                 yield return null;
             }

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.GameLoading
 {
-    public class LoadingBarController : MonoBehaviour
+    public class GameLoadingBarController : MonoBehaviour
     {
         public Slider Slider;
         public Text log;
