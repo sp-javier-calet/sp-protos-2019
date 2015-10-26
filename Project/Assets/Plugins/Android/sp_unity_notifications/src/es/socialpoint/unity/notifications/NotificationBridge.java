@@ -13,10 +13,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 
 import com.unity3d.player.UnityPlayerActivity;
 import com.unity3d.player.UnityPlayer;
@@ -24,6 +29,8 @@ import com.unity3d.player.UnityPlayer;
 public class NotificationBridge extends BroadcastReceiver
 {
 	private static final String TAG = "NotificationBridge";
+
+    private static AsyncTask<Void, Void, Void> mRegisterTask;
 
     public static void Schedule(int id, long delay, String title, String message, String largeIcon, String smallIcon, int color)
     {
@@ -112,7 +119,58 @@ public class NotificationBridge extends BroadcastReceiver
         am.cancel(pendingIntent);
     }
 
-    public static void RegisterForRemote()
+    private static boolean isPlayServicesAvailable()
     {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(UnityPlayer.currentActivity);
+        return resultCode == ConnectionResult.SUCCESS;
+    }
+
+    public static void registerForRemote()
+    {
+        // Check play services availability 
+        if(!isPlayServicesAvailable()) {
+            return;
+        }
+        
+        // Cancel current register task, if exist
+        if(mRegisterTask != null) {
+            mRegisterTask.cancel(true);
+        }
+        
+        mRegisterTask = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        InstanceID instanceID = InstanceID.getInstance(UnityPlayer.currentActivity);
+                        String token = instanceID.getToken(getSenderId(),
+                                GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+                        Log.i(TAG, "GCM Registration Token: " + token);
+                        
+                        // Notify registered token
+                        setNotificationToken(token);
+                        
+                    } catch (Exception e) {
+                        Log.d(TAG, "Failed to complete token refresh", e);
+                        // If an exception happens while fetching the new token or updating our registration data
+                        // on a third-party server, this ensures that we'll attempt the update at a later time.
+                        // TODO Mark for retry
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void result) {
+                    mRegisterTask = null;
+                }
+            }.execute(null, null, null);
+    }
+
+    private static void setNotificationToken(String token)
+    {
+        // TODO send token to c#
+    }
+
+    private static String getSenderId() {
+        return ""; // TODO Retrieve sender id from...?
     }
 }
