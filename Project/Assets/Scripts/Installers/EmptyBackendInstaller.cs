@@ -10,7 +10,7 @@ using System.Text;
 public class EmptyBackendInstaller : MonoInstaller
 {
     [Inject]
-    GameModel _model;
+    GameLoader _gameLoader;
     
     [Inject]
     IParser<GameModel> _gameParser;
@@ -36,13 +36,7 @@ public class EmptyBackendInstaller : MonoInstaller
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
         }
-        if(_model.Player == null)
-        {
-            var defaultGame = (UnityEngine.Resources.Load("game") as UnityEngine.TextAsset).text;
-            var json = new JsonAttrParser().ParseString(defaultGame).AsDic;
-            var newModel = _gameParser.Parse(json);
-            _model.Assign(newModel);
-        }
+        _gameLoader.LoadInitial();
     }
     
     EmptyLogin _emptyLogin = null;

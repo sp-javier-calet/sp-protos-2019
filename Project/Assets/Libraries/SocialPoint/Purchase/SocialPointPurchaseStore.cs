@@ -245,7 +245,7 @@ namespace SocialPoint.Purchase
                 #elif UNITY_EDITOR
                 return "purchase/unity";
                 #else
-                return "purchase/unknown"
+                return "purchase/unknown";
                 #endif
             }
         }

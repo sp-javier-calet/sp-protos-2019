@@ -1,13 +1,25 @@
 ﻿using UnityEngine;
 using Zenject;
+using System;
 using SocialPoint.AdminPanel;
+using SocialPoint.Attributes;
 
 public class GameInstaller : MonoInstaller
-{
+{  
+    [Serializable]
+    public class SettingsData
+    {
+        public string InitialJsonResource = "game";
+    }
+
+    public SettingsData Settings;
+
     public override void InstallBindings()
     {
+        Container.BindInstance("game_initial_json_resource", Settings.InitialJsonResource);
+
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
-        
+
         if(!Container.HasBinding<GameParser>())
         {
             Container.BindAllInterfacesToSingle<GameParser>();
@@ -23,17 +35,21 @@ public class GameInstaller : MonoInstaller
         if(!Container.HasBinding<ConfigModel>())
         {
             Container.Bind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
+        }         
+        if(!Container.HasBinding<ISerializer<PlayerModel>>())
+        {
+            Container.Bind<ISerializer<PlayerModel>>()
+                .ToSingleMethod<PlayerParser>(CreatePlayerParser);
         }
-                
-        Container.Bind<ISerializer<PlayerModel>>()
-            .ToMethod(CreatePlayerParser);
-
+        if(!Container.HasBinding<GameLoader>())
+        {
+            Container.Bind<GameLoader>().ToSingle();
+        }
     }
     
     void OnGameModelAssigned()
     {
-    }
-
+    }        
     
     PlayerParser CreatePlayerParser(InjectContext ctx)
     {

@@ -58,13 +58,16 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     }
 
     [Inject]
-    IParser<GameModel> _gameParser;
+    GameLoader _gameLoader;
 
     [Inject]
     AdminPanel _adminPanel;
 
     [Inject]
     GameModel _model;
+
+    [Inject]
+    DiContainer _container;
 
     [SerializeField]
     string _sceneToLoad = "Main";
@@ -91,10 +94,9 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoginNewUser(Attr data, bool changed)
     {
-        _parseModelOperation.UpdateProgress(0.1f, "parsing game model");
-        var newModel = _gameParser.Parse(data);
-        _model.Assign(newModel);
-        _parseModelOperation.FinishProgress("game model parsed");
+        _parseModelOperation.UpdateProgress(0.1f, "loaded game model");
+        _gameLoader.Load(data);
+        _parseModelOperation.FinishProgress("game model loaded");
     }
 
     protected override void OnAllOperationsLoaded()

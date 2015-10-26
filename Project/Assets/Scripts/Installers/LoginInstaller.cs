@@ -13,8 +13,8 @@ public enum BackendEnvironment
 
 public static class BackendEnvironmentExtensions
 {
-    const string DevelopmentUrl = "http://int-ds.socialpointgames.com/ds4/web/index_dev.php/api/v3";
-    const string ProductionUrl = "http://int-ds.socialpointgames.com/ds4/web/index_dev.php/api/v3";
+    const string DevelopmentUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
+    const string ProductionUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
     const string TestUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
 
     public static string GetUrl(this BackendEnvironment env)

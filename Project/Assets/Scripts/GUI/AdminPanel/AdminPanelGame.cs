@@ -16,8 +16,7 @@ public class AdminPanelGame : IAdminPanelConfigurer {
         {
             layout.CreateLabel("Game Control");
             layout.CreateConfirmButton("Restart", () => {
-                // FIXME
-                ZenUtil.LoadScene(Application.loadedLevelName);
+                Application.LoadLevel(0);
             });
 
             layout.CreateMargin(2);
