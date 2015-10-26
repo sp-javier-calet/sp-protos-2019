@@ -1,28 +1,56 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
+using SocialPoint.Locale;
 
 namespace SocialPoint.GameLoading
 {
     public class GameLoadingBarController : MonoBehaviour
     {
-        public Slider Slider;
-        public Text log;
+        [SerializeField]
+        Slider _slider;
 
-        public bool displayFunnyLogs;
-        public string[] funnyLogs;
+        [SerializeField]
+        Text _log;
 
-        public void UpdateProgress(float percent, string message)
+        public string Message
         {
-            if(message != string.Empty)
+            get
             {
-                if(log != null)
-                    log.text = message;
+                if(_log != null)
+                {
+                    return _log.text;
+                }
+                return null;
             }
-            if(displayFunnyLogs && log != null)
+
+            set
             {
-                log.text = funnyLogs[Mathf.Min((int)(funnyLogs.Length * percent), funnyLogs.Length - 1)];   
+                if(_log != null)
+                {
+                    _log.text = value;
+                }
             }
-            Slider.value = percent;
         }
+
+        public float Percent
+        {
+            get
+            {
+                if(_slider != null)
+                {
+                    return _slider.normalizedValue;
+                }
+                return 0.0f;
+            }
+
+            set
+            {
+                if(_slider != null)
+                {
+                    _slider.normalizedValue = value;
+                }
+            }
+        }            
     }
 }

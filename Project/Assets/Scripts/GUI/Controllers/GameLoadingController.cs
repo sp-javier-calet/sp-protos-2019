@@ -7,6 +7,7 @@ using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 using Zenject;
 using UnityEngine;
 
@@ -75,24 +76,23 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [SerializeField]
     string _sceneToLoad = "Main";
 
-    LoadingOperation _parseModelOperation;
+    LoadingOperation _loadModelOperation;
     LoadingOperation _loadSceneOperation;
     SceneLoadingArgs _sceneLoadingArgs;
 
     override protected void OnAppeared()
     {
         base.OnAppeared();
-        _parseModelOperation = new LoadingOperation(5);
-        _loadSceneOperation = new LoadingOperation(5);
-        RegisterLoadingOperation(_parseModelOperation);
-        RegisterLoadingOperation(_loadSceneOperation);
+        _loadModelOperation = new LoadingOperation(1.0f);
+        _loadSceneOperation = new LoadingOperation(1.0f);
+        RegisterOperation(_loadModelOperation);
+        RegisterOperation(_loadSceneOperation);
 
         Login.NewUserEvent += OnLoginNewUser;
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility += OnAdminPanelChange;
         }
-
     }
 
     void OnAdminPanelChange()
@@ -100,19 +100,17 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         Paused = _adminPanel.Visible;
     }
 
-
     void OnLoginNewUser(Attr data, bool changed)
     {
-        _parseModelOperation.UpdateProgress(0.1f, "loaded game model");
+        _loadModelOperation.Message = "loading game model...";
         _gameLoader.Load(data);
-        _parseModelOperation.FinishProgress("game model loaded");
+        _loadModelOperation.Finish("game model loaded");
 
+        _loadSceneOperation.Message = "loading main scene...";
         _sceneManager.ChangeSceneToAsync(_sceneToLoad, false, (SceneLoadingArgs obj) => {
             _sceneLoadingArgs = obj;
-            _loadSceneOperation.FinishProgress();
-            UnityEngine.Debug.Log(Time.time);
+            _loadSceneOperation.Finish("main scene loaded");
         });
-
     }
 
 
@@ -129,9 +127,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     override protected void OnAllOperationsLoaded()
     {
         base.OnAllOperationsLoaded();
-
-        UnityEngine.Debug.Log("allowSceneActivation");
-        UnityEngine.Debug.Log(Time.time);
+        DebugUtils.Assert(_sceneLoadingArgs != null, "Real scene load not started");
         _sceneLoadingArgs.ActivateScene();
     }
 

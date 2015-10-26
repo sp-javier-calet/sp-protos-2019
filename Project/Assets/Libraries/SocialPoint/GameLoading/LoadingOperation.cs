@@ -3,62 +3,58 @@ using UnityEngine;
 
 namespace SocialPoint.GameLoading
 {
-    public class LoadingOperation
+    public interface ILoadingOperation
     {
-        public delegate void ProgressChanged(string message);
+        float Progress{ get; }
 
-        public event ProgressChanged ProgressChangedEvent;
+        string Message{ get; }
 
-        public float Progress { private set; get; }
+        float ExpectedDuration{ get; }
 
-        float _elapsed = 0;
-        float _finishedAt = 0;
-        float _fakeDuration;
-        float _speedUpTime;//time to end progress when real action is finished
-        
-        public float FakeProgress { private set; get; }
+        void Start();
+    }
 
-        public LoadingOperation(float fakeDuration = 2, float speedUpTime = 0.35f)
+    public class LoadingOperation : ILoadingOperation
+    {
+        public float Progress { set; get; }
+
+        public string Message { set; get; }
+
+        public float ExpectedDuration { private set; get; }
+
+        Action _start;
+
+        public LoadingOperation(float duration, Action start = null)
         {
-            FakeProgress = 0;
-            Progress = 0;
-            _fakeDuration = fakeDuration;
-            _speedUpTime = speedUpTime;
+            Progress = 0.0f;
+            ExpectedDuration = duration;
+            _start = start;
         }
 
-        public void UpdateProgress(float newProgress, string message = "")
+        public LoadingOperation(Action start = null): this(0.0f, start)
         {
-            Progress = newProgress;
-            ProgressChangedEvent(message);
-            if(Progress == 1)
+        }
+
+        public void Start()
+        {
+            if(_start != null)
             {
-                _finishedAt = _elapsed;
+                _start();
             }
         }
 
-        public void FinishProgress(string message = null)
+        public void Update(float progress, string message = null)
         {
-            UpdateProgress(1f, message);
+            Progress = progress;
+            if(!string.IsNullOrEmpty(message))
+            {
+                Message = message;
+            }
         }
 
-        public void Update(float elapsed)
+        public void Finish(string message = null)
         {
-            _elapsed += elapsed;
-            if(FakeProgress < 1)
-            {
-                if(_finishedAt != 0)
-                {
-                    FakeProgress = Mathf.Lerp(FakeProgress, 1, (_elapsed - _finishedAt) / _speedUpTime);
-                }
-                else
-                {   
-                    FakeProgress = _elapsed / _fakeDuration;
-                }
-            }
-            else
-            {
-                FakeProgress = 1;
-            }
-        }
+            Update(1.0f, message);
+        }            
     }
 }

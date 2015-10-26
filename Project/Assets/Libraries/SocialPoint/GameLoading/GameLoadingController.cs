@@ -51,21 +51,33 @@ namespace SocialPoint.GameLoading
         const string ResponseErrorTitleDef = "Login Error";
         const string ResponseErrorMessageKey = "gameloading.response_error_message";
         const string ResponseErrorMessageDef = "There was an unknown error logging in. Please try again later.";
-        const string ProgressLoginStartKey = "gameloading.progress_login_start";
-        const string ProgressLoginStartDef = "Logging into servers";
-        const string ProgressLoginEndKey = "gameloading.login_progress_end";
-        const string ProgressLoginEndDef = "Logged in";
-        const string ProgressSuggestedUpdateSkipKey = "gameloading.progress_suggested_update_skip";
-        const string ProgressSuggestedUpdateSkipDef = "Will update later";
+
+        const string ReleaseMessageKey = "gameloading.release_message_{0}";
+
+        const float FakeLoginDuration = 2.0f;
 
         public ILogin Login;
-        public PopupsController Popups;
         public Localization Localization;
         public IAppEvents AppEvents;
-        public GameObject ProgressContainer;
-        public GameLoadingBarController LoadingBar;
         public IAlertView AlertView;
+
         public bool Debug;
+
+        [HideInInspector]
+        public UIStackController Popups;
+
+        [SerializeField]
+        GameObject _progressContainer;
+
+        [SerializeField]
+        GameLoadingBarController _loadingBar;
+
+        [SerializeField]
+        int _releaseMessageAmount = 5;
+
+        // seconds to end progress when real action is finished
+        [SerializeField]
+        float _speedUpTime = 0.5f;
 
         bool _paused = false;
 
@@ -78,20 +90,119 @@ namespace SocialPoint.GameLoading
 
             set
             {
-                if(_paused != value)
+                _paused = value;
+            }
+        }
+
+        private List<ILoadingOperation> _operations = new List<ILoadingOperation>();
+        private int _finishedOperations = -1;
+        private float _currentOperationDuration;
+        private IAlertView _alert;
+
+        private LoadingOperation _loginOperation;
+
+        bool HasFinished(float progress)
+        {
+            return Math.Abs(progress - 1) < Mathf.Epsilon;
+        }
+
+        ILoadingOperation CurrentOperation
+        {
+            get
+            {
+                if(_finishedOperations >= 0 && _finishedOperations < _operations.Count)
                 {
-                    _paused = value;
-                    if(!_paused && AllOperationsLoaded && AllOperationsFakedLoaded)
+                    return _operations[_finishedOperations];
+                }
+                return null;
+            }
+        }
+
+        bool HasFinishedCurrentOperation
+        {
+            get
+            {
+                var op = CurrentOperation;
+                return op != null && HasFinished(op.Progress) && HasFinished(CurrentOperationProgress);
+            }
+        }
+
+        float CurrentOperationProgress
+        {
+            get
+            {
+                var op = CurrentOperation;
+                if(op == null)
+                {
+                    return 0.0f;
+                }
+                var expected = op.ExpectedDuration;
+                var duration = Mathf.Min(_currentOperationDuration, expected);
+                if(expected > 0)
+                {
+                    var opProgress = op.Progress;
+                    if(HasFinished(opProgress))
                     {
-                        OnAllOperationsLoaded();
+                        return Mathf.Lerp(opProgress, 1.0f, 1.0f - (expected - duration) / _speedUpTime);
                     }
+                    else
+                    {   
+                        return duration / expected;
+                    }
+                }
+                else
+                {
+                    return op.Progress;
                 }
             }
         }
 
-        private List<LoadingOperation> _operations = new List<LoadingOperation>();
-        private LoadingOperation _loginOperation;
-        private IAlertView _alert;
+        float Percent
+        {
+            get
+            {
+                return (_finishedOperations + CurrentOperationProgress) / _operations.Count;
+            }
+        }
+
+        string Message
+        {
+            get
+            {
+                string msg = null;
+                if(Debug)
+                {
+                    var op = CurrentOperation;
+                    if(op != null)
+                    {
+                        msg = op.Message;
+                    }
+                }
+                if(string.IsNullOrEmpty(msg))
+                {
+                    msg = ReleaseMessage;
+                }
+                return msg;
+            }
+        }
+
+        string ReleaseMessage
+        {
+            get
+            {
+                if(_releaseMessageAmount <= 0)
+                {
+                    return null;
+                }
+
+                var str = string.Format(ReleaseMessageKey, (int)Mathf.Floor(_releaseMessageAmount * Percent)); 
+                if(Localization != null)
+                {
+                    str = Localization.Get(str);
+                }
+                return str;
+            }
+        }
 
         protected virtual void OnAllOperationsLoaded()
         {
@@ -107,76 +218,102 @@ namespace SocialPoint.GameLoading
         {
             base.OnLoad();
 
+            #if !UNITY_EDITOR
             Debug = UnityEngine.Debug.isDebugBuild;
+            #endif
 
             if(Localization == null)
             {
                 Localization = Localization.Default;
             }
-        }
-
-        override protected void OnAppeared()
-        {
-            base.OnAppeared();
-            _operations = new List<LoadingOperation>();
-
-            _loginOperation = new LoadingOperation(6);
-            RegisterLoadingOperation(_loginOperation);
-            StartCoroutine(CheckAllOperationsLoaded());
-
+                
             if(Login != null)
             {
                 Login.ErrorEvent += OnLoginError;
-                DoLogin();
+                _loginOperation = new LoadingOperation(FakeLoginDuration, DoLogin);
+                RegisterOperation(_loginOperation);
             }
         }
 
-        public void RegisterLoadingOperation(LoadingOperation operation)
+        protected override void OnAppearing()
         {
-            if(_operations == null)
-            {
-                _operations = new List<LoadingOperation>();
-            }
+            base.OnAppearing();
+            _finishedOperations = -1;
+        }
+
+        public void RegisterOperation(ILoadingOperation operation)
+        {
             _operations.Add(operation);
-            operation.ProgressChangedEvent += OnProgressChanged;
-        }
-
-        public void OnProgressChanged(string message)
-        {
-            if(!string.IsNullOrEmpty(message))
-            {
-                DebugLog(message);
-            }
         }
 
         void Update()
         {
-            float progress = 0;
-            _operations.ForEach(p => {
-                p.Update(Time.deltaTime);
-                progress += p.FakeProgress;
-            });
-            float percent = (progress / _operations.Count);
-            LoadingBar.UpdateProgress(percent, "");
-            if(Math.Abs(percent - 1) < Mathf.Epsilon)
+            var percent = Percent;
+            var op = CurrentOperation;
+            if(_finishedOperations < 0 || HasFinishedCurrentOperation )
             {
-                UnityEngine.Debug.Log("fake done");
+                if(op != null)
+                {
+                    OnOperationEnd(op);
+                }
+                _finishedOperations++;
+                _currentOperationDuration = 0.0f;
+                op = CurrentOperation;
+                if(op != null)
+                {
+                    OnOperationStart(op);
+                }
+            }
+
+            _currentOperationDuration += Time.smoothDeltaTime;
+            percent = Percent;
+
+            _loadingBar.Percent = percent;
+            var msg = Message;
+            if(_loadingBar.Message != msg)
+            {
+                _loadingBar.Message = Message;
+                if(op != null)
+                {
+                    OnOperationChange(op);
+                }
+            }
+
+            if(!_paused && HasFinished(percent))
+            {
                 OnAllOperationsLoaded();
             }
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPGAMELOADING")]
+        virtual protected void OnOperationChange(ILoadingOperation operation)
+        {
+            DebugLog("op " + (_finishedOperations + 1) + " "+operation.Progress.ToString("0.00")+": "+operation.Message);
+        }
+
+        virtual protected void OnOperationEnd(ILoadingOperation operation)
+        {
+            DebugLog("op " + (_finishedOperations + 1) + " end");
+            operation.Start();
+        }
+
+        virtual protected void OnOperationStart(ILoadingOperation operation)
+        {
+            DebugLog("op " + (_finishedOperations + 1) + " start");
+            operation.Start();
+        }
+
+        // [System.Diagnostics.Conditional("DEBUG_SPGAMELOADING")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("GameLoadingController {0}", msg));
+            DebugUtils.Log(string.Format("GameLoadingController: {0}", msg));
         }
 
         void DoLogin()
         {
-            _loginOperation.UpdateProgress(0, Localization.Get(ProgressLoginStartKey, ProgressLoginStartDef));
-            if(ProgressContainer != null)
+            _loginOperation.Message = "logging in...";
+            if(_progressContainer != null)
             {
-                ProgressContainer.SetActive(true);
+                _progressContainer.SetActive(true);
             }
             Login.Login(OnLoginEnd);
         }
@@ -209,7 +346,7 @@ namespace SocialPoint.GameLoading
                 //used to block loading process until player chooses what to do,
                 //because suggested does not fire an error that OnLoginEnd can catch
                 var auxOp = new LoadingOperation();
-                RegisterLoadingOperation(auxOp);
+                RegisterOperation(auxOp);
                 _alert.Title = Localization.Get(SuggestedUpgradeTitleKey, SuggestedUpgradeTitleDef);
                 _alert.Buttons = new string[] {
                     Localization.Get(UpgradeButtonKey, UpgradeButtonDef),
@@ -222,7 +359,7 @@ namespace SocialPoint.GameLoading
                     }
                     else
                     {
-                        auxOp.FinishProgress(Localization.Get(ProgressSuggestedUpdateSkipKey, ProgressSuggestedUpdateSkipDef));
+                        auxOp.Finish();
                     }
                 });
             }
@@ -329,49 +466,25 @@ namespace SocialPoint.GameLoading
 
         void OnLoginEnd(Error err)
         {
-            /*
-            if(ProgressContainer != null)
-            {
-                ProgressContainer.SetActive(false);
-            }
-            */
+            string msg = null;
             if(!Error.IsNullOrEmpty(err))//errors are handled on OnLoginError when ErrorEvent is dispatched
             {
+                msg = "login finished with error";
                 DebugLog(string.Format("Login End Error {0}", err));
             }
             else
             {
-                _loginOperation.FinishProgress(Localization.Get(ProgressLoginEndKey, ProgressLoginEndDef));
+                msg = "login finished sucessfully";
             }
+            _loginOperation.Finish(msg);
         }
 
         public bool AllOperationsLoaded
         {
             get
             {
-                return !_operations.Exists(o => o.Progress < 1);
-            }
-        }
-
-        public bool AllOperationsFakedLoaded
-        {
-            get
-            {
-                return !_operations.Exists(o => o.FakeProgress < 1);
-            }
-        }
-
-        IEnumerator CheckAllOperationsLoaded()
-        {
-            while(!(AllOperationsLoaded && AllOperationsFakedLoaded))
-            {
-                yield return null;
-            }
-            if(!_paused)
-            {
-                OnAllOperationsLoaded();
+                return !_operations.Exists(o => !HasFinished(o.Progress));
             }
         }
     }
 }
-

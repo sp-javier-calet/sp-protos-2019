@@ -17,29 +17,25 @@ public class DebugProgressBarTest : MonoBehaviour
         _operations = new List<LoadingOperation>();
         var op0 = new LoadingOperation(10);
         _operations.Add(op0);
-        op0.ProgressChangedEvent += (message) => {};
 
-        Invoke("finish",5);
+        Invoke("finish", 5);
 
         var op1 = new LoadingOperation(2);
         _operations.Add(op1);
-        op1.ProgressChangedEvent += (message) => {};
 
         var op2 = new LoadingOperation(5);
         _operations.Add(op2);
-        Invoke("finish2",3);
-        op2.ProgressChangedEvent += (message) => {};
+        Invoke("finish2", 3);
     }
 
     void Update()
     {
         float progress = 0;
         _operations.ForEach(p => {
-            p.Update(Time.deltaTime);
-            progress += p.FakeProgress;
+            progress += p.Progress;
         });
         float percent = (progress / _operations.Count);
-        LoadingBar.UpdateProgress(percent, "");
+        LoadingBar.Percent = percent;
 
         if(System.Math.Abs(percent - 1) < 0.01f)
         {
@@ -50,11 +46,11 @@ public class DebugProgressBarTest : MonoBehaviour
 
     void finish()
     {
-        _operations[0].UpdateProgress(1,"");
+        _operations[0].Update(1);
     }
 
     void finish2()
     {
-        _operations[2].UpdateProgress(1,"");
+        _operations[2].Update(1);
     }
 }
