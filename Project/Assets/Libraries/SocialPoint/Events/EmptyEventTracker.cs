@@ -1,13 +1,23 @@
 
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using System;
 
 namespace SocialPoint.Events
 {	
     public class EmptyEventTracker : IEventTracker
     {
-        public event EventDataSetupDelegate DataSetup;
-        public event EventTrackerErrorDelegate GeneralError;
+        public event EventTrackerErrorDelegate GeneralError
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
+
+        public event EventDataSetupDelegate DataSetup
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
 
         public void Start()
         {

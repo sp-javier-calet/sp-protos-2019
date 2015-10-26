@@ -235,7 +235,11 @@ namespace SocialPoint.Utils
         ///     Raised periodically to notify the load progress when a scene is being
         ///     loaded asynchronous
         /// </summary>
-        public event EventHandler<SceneLoadingArgs> AsyncSceneLoadingProgress;
+        public event EventHandler<SceneLoadingArgs> AsyncSceneLoadingProgress
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
 
         /// <summary>
         ///     Returns the name of the scene used to initializea the game

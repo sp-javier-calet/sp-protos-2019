@@ -1,10 +1,11 @@
 using SocialPoint.Hardware;
 using SocialPoint.Network;
 using SocialPoint.IO;
+using System;
 
 namespace SocialPoint.Crash
 {
-    public interface ICrashReporter
+    public interface ICrashReporter : IDisposable
     {
         void ForceCrash();
 

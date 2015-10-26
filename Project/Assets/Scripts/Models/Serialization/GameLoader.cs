@@ -25,7 +25,10 @@ public class GameLoader
 
     public GameModel LoadInitial()
     {
-        _model.Assign(GetInitial());
+        if(_model.Config == null)
+        {
+            _model.Assign(GetInitial());
+        }
         return _model;
     }
 

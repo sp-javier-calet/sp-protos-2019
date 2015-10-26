@@ -29,9 +29,6 @@ namespace SocialPoint.Attributes
             case AttrType.VALUE:
                 SerializeValue((AttrValue)attr, writer);
                 break;
-            case AttrType.EMPTY:
-                writer.Write(null);
-                break;
             default:
                 throw new InvalidOperationException("Unsupported attr type.");
             }
@@ -113,17 +110,17 @@ namespace SocialPoint.Attributes
         {
             if(attr.AttrType == AttrType.VALUE)
             {
-                var attrval = attr as AttrValue;
+                var attrval = attr.AsValue;
                 if(attrval.AttrValueType == AttrValueType.STRING)
                 {
                     var str = attr.ToString().Replace(kQuoteString, kEscapeString + kQuoteString);
                     return kQuoteString + str + kQuoteString;
                 }
+                else if(attrval.AttrValueType == AttrValueType.EMPTY)
+                {
+                    return NullString;
+                }
                 return attr.ToString();
-            }
-            else if(attr.AttrType == AttrType.EMPTY)
-            {
-                return NullString;
             }
             var writer = new JsonWriter();
             writer.PrettyPrint = PrettyPrint;

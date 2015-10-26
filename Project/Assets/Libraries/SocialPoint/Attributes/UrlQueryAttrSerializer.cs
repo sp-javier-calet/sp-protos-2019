@@ -27,20 +27,17 @@ namespace SocialPoint.Attributes
             }
             switch(data.AttrType)
             {
-            case AttrType.EMPTY:
-                if(!string.IsNullOrEmpty(prefix))
-                {
-                    str.Append(prefix);
-                    str.Append(TokenAssign);
-                }
-                break;
             case AttrType.VALUE:
+                var dataval = data.AsValue;
                 if(!string.IsNullOrEmpty(prefix))
                 {
                     str.Append(prefix);
                     str.Append(TokenAssign);
                 }
-                str.Append(Uri.EscapeDataString(data.AsValue.ToString()));
+                if(dataval.AttrValueType != AttrValueType.EMPTY)
+                {
+                    str.Append(Uri.EscapeDataString(dataval.ToString()));
+                }
                 break;
             case AttrType.DICTIONARY:
                 first = true;

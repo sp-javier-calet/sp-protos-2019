@@ -28,6 +28,11 @@ namespace SocialPoint.Crash
         {
             WasEnabled = false;
         }
+
+        public void Dispose()
+        {
+            Disable();
+        }
         
         public void ClearUniqueExceptions()
         {

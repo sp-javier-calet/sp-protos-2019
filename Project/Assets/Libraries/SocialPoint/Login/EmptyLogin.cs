@@ -9,13 +9,47 @@ namespace SocialPoint.Login
 {
     public class EmptyLogin : ILogin
     {
-        public event HttpRequestDelegate HttpRequestEvent;
-        public event NewUserDelegate NewUserEvent;
-        public event NewLinkDelegate NewLinkBeforeFriendsEvent;
-        public event NewLinkDelegate NewLinkAfterFriendsEvent;
-        public event ConfirmLinkDelegate ConfirmLinkEvent;
-        public event LoginErrorDelegate ErrorEvent;
-        public event RestartDelegate RestartEvent;
+        public event HttpRequestDelegate HttpRequestEvent
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
+
+        public event NewUserDelegate NewUserEvent
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
+
+        public event NewLinkDelegate NewLinkBeforeFriendsEvent
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
+
+        public event NewLinkDelegate NewLinkAfterFriendsEvent
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
+
+        public event ConfirmLinkDelegate ConfirmLinkEvent
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
+
+        public event LoginErrorDelegate ErrorEvent
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
+
+        public event RestartDelegate RestartEvent
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
 
         public UInt64 UserId{ get; set; }
 

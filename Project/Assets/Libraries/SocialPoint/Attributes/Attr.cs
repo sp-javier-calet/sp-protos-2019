@@ -10,8 +10,6 @@ namespace SocialPoint.Attributes
 {
     public enum AttrType
     {
-        UNKNOWN,
-        EMPTY,
         VALUE,
         DICTIONARY,
         LIST
@@ -19,7 +17,6 @@ namespace SocialPoint.Attributes
 
     public enum AttrValueType
     {
-        UNKNOWN,
         EMPTY,
         STRING,
         BOOL,
@@ -29,31 +26,22 @@ namespace SocialPoint.Attributes
         DOUBLE
     }
 
-    public class Attr : IDisposable
+    public abstract class Attr : IDisposable, ICloneable
     {
         public AttrType AttrType { get; private set; }
 
-        public Attr(AttrType type = AttrType.UNKNOWN)
+        public Attr(AttrType type)
         {
             AttrType = type;
         }
 
+        [Obsolete("Use Clone()")]
         public static Attr Copy(Attr attr)
         {
-            switch(attr.AttrType)
-            {
-            case AttrType.EMPTY:
-                return new AttrEmpty();
-            case AttrType.DICTIONARY:
-                return new AttrDic((AttrDic)attr);
-            case AttrType.LIST:
-                return new AttrList((AttrList)attr);
-            case AttrType.VALUE:
-                return AttrValue.Copy((AttrValue)attr);
-            }
-
-            return new Attr(attr.AttrType);
+            return (Attr)attr.Clone();
         }
+
+        public abstract object Clone();
 
         public static bool operator ==(Attr la, Attr ra)
         {
@@ -73,8 +61,6 @@ namespace SocialPoint.Attributes
 
             switch(la.AttrType)
             {
-            case AttrType.EMPTY:
-                return (AttrEmpty)la == (AttrEmpty)ra;
             case AttrType.DICTIONARY:
                 return (AttrDic)la == (AttrDic)ra;
             case AttrType.LIST:
@@ -85,7 +71,7 @@ namespace SocialPoint.Attributes
             
             return false;
         }
-        
+
         public static bool operator !=(Attr la, Attr ra)
         {
             return !(la == ra);
@@ -148,7 +134,7 @@ namespace SocialPoint.Attributes
                 return AttrType == AttrType.VALUE;
             }
         }
-        
+
         public bool IsDic
         {
             get
@@ -156,7 +142,7 @@ namespace SocialPoint.Attributes
                 return AttrType == AttrType.DICTIONARY;
             }
         }
-        
+
         public bool IsList
         {
             get
@@ -173,7 +159,7 @@ namespace SocialPoint.Attributes
                 return AsValue;
             }
         }
-        
+
         public AttrDic AssertDic
         {
             get
@@ -182,7 +168,7 @@ namespace SocialPoint.Attributes
                 return AsDic;
             }
         }
-        
+
         public AttrList AssertList
         {
             get
@@ -198,53 +184,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrEmpty : Attr
-    {
-
-        public AttrEmpty() : base(AttrType.EMPTY)
-        {
-        }
-
-        public static bool operator ==(AttrEmpty la, AttrEmpty ra)
-        {
-            return true;
-        }
-        
-        public static bool operator !=(AttrEmpty la, AttrEmpty ra)
-        {
-            return false;
-        }
-
-        public override bool Equals(System.Object obj)
-        {
-            if(obj == null)
-            {
-                return false;
-            }
-            
-            var p = obj as AttrEmpty;
-            if((System.Object)p == null)
-            {
-                return false;
-            }
-            
-            return this == p;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        const string NullString = "NULL";
-
-        public override string ToString()
-        {
-            return NullString;
-        }
-    }
-
-    public class AttrValue : Attr
+    public abstract class AttrValue : Attr
     {
         public AttrValueType AttrValueType { get; private set; }
 
@@ -261,7 +201,7 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                return new AttrValue(AttrValueType.UNKNOWN);
+                return new AttrEmpty();
             }
         }
 
@@ -294,21 +234,21 @@ namespace SocialPoint.Attributes
         {
             SetInt((int)val);
         }
-        
+
         public virtual void SetInt(int val)
         {
         }
-        
+
         public virtual void SetBool(bool val)
         {
             SetInt(val ? 1 : 0);
         }
-        
+
         public virtual void SetLong(long val)
         {
             SetInt((int)val);
         }
-        
+
         public virtual void SetDouble(double val)
         {
             SetFloat((float)val);
@@ -318,25 +258,10 @@ namespace SocialPoint.Attributes
         {
         }
 
+        [Obsolete("Use Clone()")]
         public static AttrValue Copy(AttrValue attr)
         {
-            switch(attr.AttrValueType)
-            {
-            case AttrValueType.BOOL:
-                return new AttrBool((AttrBool)attr);
-            case AttrValueType.INT:
-                return new AttrInt((AttrInt)attr);
-            case AttrValueType.LONG:
-                return new AttrLong((AttrLong)attr);
-            case AttrValueType.FLOAT:
-                return new AttrFloat((AttrFloat)attr);
-            case AttrValueType.DOUBLE:
-                return new AttrDouble((AttrDouble)attr);
-            case AttrValueType.STRING:
-                return new AttrString((AttrString)attr);
-            }
-            
-            return new AttrValue(attr.AttrValueType);
+            return (AttrValue)attr.Clone();
         }
 
         public static bool operator ==(AttrValue la, bool ra)
@@ -373,27 +298,27 @@ namespace SocialPoint.Attributes
         {
             return !(la == ra);
         }
-        
+
         public static bool operator !=(AttrValue la, int ra)
         {
             return !(la == ra);
         }
-        
+
         public static bool operator !=(AttrValue la, long ra)
         {
             return !(la == ra);
         }
-        
+
         public static bool operator !=(AttrValue la, float ra)
         {
             return !(la == ra);
         }
-        
+
         public static bool operator !=(AttrValue la, double ra)
         {
             return !(la == ra);
         }
-        
+
         public static bool operator !=(AttrValue la, string ra)
         {
             return !(la == ra);
@@ -417,6 +342,8 @@ namespace SocialPoint.Attributes
             
             switch(la.AttrValueType)
             {
+            case AttrValueType.EMPTY:
+                return (AttrEmpty)la == (AttrEmpty)ra;
             case AttrValueType.BOOL:
                 return (AttrBool)la == (AttrBool)ra;
             case AttrValueType.INT:
@@ -433,7 +360,7 @@ namespace SocialPoint.Attributes
             
             return false;
         }
-        
+
         public static bool operator !=(AttrValue la, AttrValue ra)
         {
             return !(la == ra);
@@ -454,7 +381,7 @@ namespace SocialPoint.Attributes
             
             return this == p;
         }
-        
+
         public override int GetHashCode()
         {
             return (int)AttrValueType ^ ToInt();
@@ -503,6 +430,57 @@ namespace SocialPoint.Attributes
         }
     }
 
+    public class AttrEmpty : AttrValue
+    {
+
+        public AttrEmpty() : base(AttrValueType.EMPTY)
+        {
+        }
+
+        public override object Clone()
+        {
+            return new AttrEmpty();
+        }
+
+        public static bool operator ==(AttrEmpty la, AttrEmpty ra)
+        {
+            return true;
+        }
+
+        public static bool operator !=(AttrEmpty la, AttrEmpty ra)
+        {
+            return false;
+        }
+
+        public override bool Equals(System.Object obj)
+        {
+            if(obj == null)
+            {
+                return false;
+            }
+
+            var p = obj as AttrEmpty;
+            if((System.Object)p == null)
+            {
+                return false;
+            }
+
+            return this == p;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        const string NullString = "NULL";
+
+        public override string ToString()
+        {
+            return NullString;
+        }
+    }
+
     public class AttrBool : AttrValue
     {
         protected bool value;
@@ -514,6 +492,11 @@ namespace SocialPoint.Attributes
 
         public AttrBool(AttrBool attr) : this(attr.ToBool())
         {
+        }
+
+        public override object Clone()
+        {
+            return new AttrBool(this);
         }
 
         public override bool ToBool()
@@ -530,7 +513,7 @@ namespace SocialPoint.Attributes
         {
             return value ? 1.0f : 0.0f;
         }
-    
+
         public override int ToInt()
         {
             return value ? 1 : 0;
@@ -550,12 +533,12 @@ namespace SocialPoint.Attributes
         {
             value = val != 0.0f;
         }
-        
+
         public override void SetInt(int val)
         {
             value = val == 0 ? false : true;
         }
-        
+
         public override void SetBool(bool val)
         {
             value = val;
@@ -619,7 +602,7 @@ namespace SocialPoint.Attributes
         }
 
     }
-  
+
     public class AttrInt : AttrValue
     {
         protected int value;
@@ -633,6 +616,11 @@ namespace SocialPoint.Attributes
         {
         }
 
+        public override object Clone()
+        {
+            return new AttrInt(this);
+        }
+
         public override string ToString()
         {
             return value.ToString();
@@ -642,12 +630,12 @@ namespace SocialPoint.Attributes
         {
             return value;
         }
-    
+
         public override void SetInt(int val)
         {
             value = val;
         }
-        
+
         public override void SetString(string val)
         {
             int.TryParse(val, out value);
@@ -657,7 +645,7 @@ namespace SocialPoint.Attributes
         {
             return la.value == ra.value;
         }
-        
+
         public static bool operator !=(AttrInt la, AttrInt ra)
         {
             return !(la == ra);
@@ -678,7 +666,7 @@ namespace SocialPoint.Attributes
             
             return this == p;
         }
-        
+
         public override int GetHashCode()
         {
             return (int)AttrType ^ value.GetHashCode();
@@ -689,7 +677,7 @@ namespace SocialPoint.Attributes
             return value;
         }
     }
-  
+
     public class AttrLong : AttrValue
     {
         protected long value;
@@ -699,10 +687,15 @@ namespace SocialPoint.Attributes
             value = v;
         }
 
-        public AttrLong(AttrLong attr) : this(attr.ToLong ())
+        public AttrLong(AttrLong attr) : this(attr.ToLong())
         {
         }
-   
+
+        public override object Clone()
+        {
+            return new AttrLong(this);
+        }
+
         public override string ToString()
         {
             return value.ToString();
@@ -712,17 +705,17 @@ namespace SocialPoint.Attributes
         {
             return (float)value;
         }
-    
+
         public override int ToInt()
         {
             return (int)value;
         }
-    
+
         public override long ToLong()
         {
             return value;
         }
-    
+
         public override double ToDouble()
         {
             return (double)value;
@@ -732,22 +725,22 @@ namespace SocialPoint.Attributes
         {
             value = (long)val;
         }
-        
+
         public override void SetInt(int val)
         {
             value = (long)val;
         }
-        
+
         public override void SetLong(long val)
         {
             value = val;
         }
-        
+
         public override void SetDouble(double val)
         {
             value = (long)val;
         }
-        
+
         public override void SetString(string val)
         {
             long.TryParse(val, out value);
@@ -757,7 +750,7 @@ namespace SocialPoint.Attributes
         {
             return la.value == ra.value;
         }
-        
+
         public static bool operator !=(AttrLong la, AttrLong ra)
         {
             return !(la == ra);
@@ -778,7 +771,7 @@ namespace SocialPoint.Attributes
             
             return this == p;
         }
-        
+
         public override int GetHashCode()
         {
             return (int)AttrType ^ value.GetHashCode();
@@ -789,7 +782,7 @@ namespace SocialPoint.Attributes
             return value;
         }
     }
-  
+
     public class AttrString : AttrValue
     {
         protected string value;
@@ -803,8 +796,13 @@ namespace SocialPoint.Attributes
             value = v;
         }
 
-        public AttrString(AttrString attr) : this(attr.ToString ())
+        public AttrString(AttrString attr) : this(attr.ToString())
         {
+        }
+
+        public override object Clone()
+        {
+            return new AttrString(this);
         }
 
         public override string ToString()
@@ -821,7 +819,7 @@ namespace SocialPoint.Attributes
             }
             return 0.0f;
         }
-    
+
         public override int ToInt()
         {
             int r = 0;
@@ -831,7 +829,7 @@ namespace SocialPoint.Attributes
             }
             return 0;
         }
-    
+
         public override long ToLong()
         {
             long r = 0L;
@@ -841,7 +839,7 @@ namespace SocialPoint.Attributes
             }
             return 0L;
         }
-    
+
         public override double ToDouble()
         {
             double r = 0.0;
@@ -866,27 +864,27 @@ namespace SocialPoint.Attributes
         {
             value = val.ToString();
         }
-        
+
         public override void SetInt(int val)
         {
             value = val.ToString();
         }
-        
+
         public override void SetBool(bool val)
         {
             value = val.ToString();
         }
-        
+
         public override void SetLong(long val)
         {
             value = val.ToString();
         }
-        
+
         public override void SetDouble(double val)
         {
             value = val.ToString();
         }
-        
+
         public override void SetString(string val)
         {
             value = val.ToString();
@@ -896,7 +894,7 @@ namespace SocialPoint.Attributes
         {
             return la.value == ra.value;
         }
-        
+
         public static bool operator !=(AttrString la, AttrString ra)
         {
             return !(la == ra);
@@ -917,7 +915,7 @@ namespace SocialPoint.Attributes
             
             return this == p;
         }
-        
+
         public override int GetHashCode()
         {
             return (int)AttrType ^ value.GetHashCode();
@@ -928,7 +926,7 @@ namespace SocialPoint.Attributes
             return value;
         }
     }
-  
+
     public class AttrFloat : AttrValue
     {
         protected float value;
@@ -938,8 +936,13 @@ namespace SocialPoint.Attributes
             value = v;
         }
 
-        public AttrFloat(AttrFloat attr) : this(attr.ToFloat ())
+        public AttrFloat(AttrFloat attr) : this(attr.ToFloat())
         {
+        }
+
+        public override object Clone()
+        {
+            return new AttrFloat(this);
         }
 
         public override string ToString()
@@ -951,17 +954,17 @@ namespace SocialPoint.Attributes
         {
             return value;
         }
-    
+
         public override int ToInt()
         {
             return (int)value;
         }
-    
+
         public override void SetString(string val)
         {
             float.TryParse(val, out value);
         }
-    
+
         public override void SetInt(int val)
         {
             value = (float)val;
@@ -976,7 +979,7 @@ namespace SocialPoint.Attributes
         {
             return la.value == ra.value;
         }
-        
+
         public static bool operator !=(AttrFloat la, AttrFloat ra)
         {
             return !(la == ra);
@@ -997,7 +1000,7 @@ namespace SocialPoint.Attributes
             
             return this == p;
         }
-        
+
         public override int GetHashCode()
         {
             return (int)AttrType ^ value.GetHashCode();
@@ -1018,8 +1021,13 @@ namespace SocialPoint.Attributes
             value = v;
         }
 
-        public AttrDouble(AttrDouble attr) : this(attr.ToDouble ())
+        public AttrDouble(AttrDouble attr) : this(attr.ToDouble())
         {
+        }
+
+        public override object Clone()
+        {
+            return new AttrDouble(this);
         }
 
         public override string ToString()
@@ -1031,17 +1039,17 @@ namespace SocialPoint.Attributes
         {
             return (float)value;
         }
-    
+
         public override int ToInt()
         {
             return (int)value;
         }
-    
+
         public override long ToLong()
         {
             return (long)value;
         }
-    
+
         public override double ToDouble()
         {
             return value;
@@ -1051,7 +1059,7 @@ namespace SocialPoint.Attributes
         {
             value = (double)val;
         }
-        
+
         public override void SetInt(int val)
         {
             value = (double)val;
@@ -1061,12 +1069,12 @@ namespace SocialPoint.Attributes
         {
             value = (double)val;
         }
-        
+
         public override void SetDouble(double val)
         {
             value = val;
         }
-        
+
         public override void SetString(string val)
         {
             double.TryParse(val, out value);
@@ -1076,7 +1084,7 @@ namespace SocialPoint.Attributes
         {
             return la.value == ra.value;
         }
-        
+
         public static bool operator !=(AttrDouble la, AttrDouble ra)
         {
             return !(la == ra);
@@ -1108,7 +1116,7 @@ namespace SocialPoint.Attributes
             return value;
         }
     }
- 
+
     public class AttrDic : Attr, IEnumerable<KeyValuePair<string, Attr>>
     {
         public Dictionary<string, Attr> Dic = new Dictionary<string, Attr>();
@@ -1124,7 +1132,7 @@ namespace SocialPoint.Attributes
             {
                 foreach(var pair in val)
                 {
-                    Set(pair.Key, Attr.Copy(pair.Value));
+                    Set(pair.Key, (Attr)pair.Value.Clone());
                 }
             }
         }
@@ -1137,13 +1145,13 @@ namespace SocialPoint.Attributes
         {
             if(val != null)
             {
-                foreach(var pair in this)
+                foreach(var pair in val)
                 {
-                    Set(pair.Key, Attr.Copy(pair.Value));
+                    SetValue(pair.Key, pair.Value);
                 }
             }
         }
-        
+
         public AttrDic(AttrList other) : this()
         {
             if(other != null)
@@ -1151,10 +1159,15 @@ namespace SocialPoint.Attributes
                 var i = 0;
                 foreach(var val in other)
                 {
-                    Set(i.ToString(), Attr.Copy(val));
+                    Set(i.ToString(), (Attr)val.Clone());
                     i++;
                 }
             }
+        }
+
+        public override object Clone()
+        {
+            return new AttrDic(this);
         }
 
         public static AttrDic Invalid
@@ -1309,7 +1322,7 @@ namespace SocialPoint.Attributes
         {
             if(!ContainsKey(key))
             {
-                return new Attr();
+                return Invalid;
             }
             return Dic[key];
         }
@@ -1350,7 +1363,7 @@ namespace SocialPoint.Attributes
             
             return true;
         }
-        
+
         public static bool operator !=(AttrDic la, AttrDic ra)
         {
             return !(la == ra);
@@ -1381,7 +1394,7 @@ namespace SocialPoint.Attributes
                         
             return this == dic;
         }
-        
+
         public override int GetHashCode()
         {
             return Dic.GetHashCode();
@@ -1410,7 +1423,7 @@ namespace SocialPoint.Attributes
             GC.SuppressFinalize(this);
         }
     }
-  
+
     public class AttrList : Attr, IEnumerable<Attr>
     {
         public bool AllowDuplicates { get; set; }
@@ -1432,7 +1445,19 @@ namespace SocialPoint.Attributes
             {
                 foreach(var elm in val)
                 {
-                    Add(Attr.Copy(elm));
+                    Add((Attr)elm.Clone());
+                }
+            }
+        }
+
+        public AttrList(List<string> val) : base(AttrType.LIST)
+        {
+            AllowDuplicates = true;
+            if(val != null)
+            {
+                foreach(var elm in val)
+                {
+                    AddValue(elm);
                 }
             }
         }
@@ -1441,12 +1466,17 @@ namespace SocialPoint.Attributes
         {
             foreach(var pair in otherDic)
             {
-                Add(pair.Value);
+                Add((Attr)pair.Value.Clone());
             }
         }
 
         public AttrList(AttrList otherList) : this(otherList.List)
         {
+        }
+
+        public override object Clone()
+        {
+            return new AttrList(this);
         }
 
         public static AttrList Invalid
@@ -1496,7 +1526,7 @@ namespace SocialPoint.Attributes
         {
             return GetEnumerator();
         }
-        
+
         public bool Set(Attr attr, int idx)
         {
             if(AllowDuplicates || (!AllowDuplicates && !Contains(attr)))
@@ -1521,37 +1551,37 @@ namespace SocialPoint.Attributes
         {
             return Add(new AttrBool(val));
         }
-        
+
         public bool AddValue(int val)
         {
             return Add(new AttrInt(val));
         }
-        
+
         public bool AddValue(short val)
         {
             return Add(new AttrInt(val));
         }
-        
+
         public bool AddValue(float val)
         {
             return Add(new AttrFloat(val));
         }
-        
+
         public bool AddValue(double val)
         {
             return Add(new AttrDouble(val));
         }
-        
+
         public bool AddValue(long val)
         {
             return Add(new AttrLong(val));
         }
-        
+
         public bool AddValue(string val)
         {
             return Add(new AttrString(val));
         }
-                
+
         public bool AddValue(bool val)
         {
             return Add(new AttrBool(val));
@@ -1561,7 +1591,7 @@ namespace SocialPoint.Attributes
         {
             List.Clear();
         }
-        
+
         public Attr Get(int idx)
         {
             return List[idx];
@@ -1638,7 +1668,7 @@ namespace SocialPoint.Attributes
 
             return true;
         }
-        
+
         public static bool operator !=(AttrList la, AttrList ra)
         {
             return !(la == ra);
@@ -1668,7 +1698,7 @@ namespace SocialPoint.Attributes
             }
             return this == list;
         }
-        
+
         public override int GetHashCode()
         {
             return List.GetHashCode();

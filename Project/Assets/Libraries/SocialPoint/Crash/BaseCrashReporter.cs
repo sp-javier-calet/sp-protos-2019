@@ -20,7 +20,7 @@ namespace SocialPoint.Crash
     /*
      * Crash reporter Base implementation
      */
-    public class BaseCrashReporter : ICrashReporter, IDisposable
+    public class BaseCrashReporter : ICrashReporter
     {
         #region Stored logs
 

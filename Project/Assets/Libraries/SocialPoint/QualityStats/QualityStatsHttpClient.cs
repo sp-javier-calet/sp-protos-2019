@@ -17,6 +17,10 @@ namespace SocialPoint.QualityStats
 
         public IHttpConnection Send(HttpRequest request, HttpResponseDelegate del = null)
         {
+            if(RequestSetup != null)
+            {
+                RequestSetup(request);
+            }
             var start = TimeUtils.Now;
             var url = request.Url;
             return _client.Send(request, (response) => {

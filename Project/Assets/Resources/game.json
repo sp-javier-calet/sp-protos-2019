@@ -1,4 +1,9 @@
 {
+    "config": {
+        "globals": {
+            "example": "value"
+        }
+    }
     "user": {
         "level": 5
     }
