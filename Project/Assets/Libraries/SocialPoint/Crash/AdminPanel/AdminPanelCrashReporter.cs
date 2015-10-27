@@ -1,27 +1,27 @@
-using UnityEngine.UI;
 using System.Text;
 using SocialPoint.AdminPanel;
+using UnityEngine.UI;
 
 namespace SocialPoint.Crash
 {
     public class AdminPanelCrashReporter : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        private ICrashReporter _reporter;
-        private BreadcrumbManager _breadcrumbs;
-        private Text _textAreaComponent;
-        private bool _showOldBreadcrumbs;
+        ICrashReporter _reporter;
+        readonly BreadcrumbManager _breadcrumbs;
+        Text _textAreaComponent;
+        bool _showOldBreadcrumbs;
 
         public AdminPanelCrashReporter(ICrashReporter reporter, BreadcrumbManager breadcrumbs)
         {
             _reporter = reporter;
             _breadcrumbs = breadcrumbs;
         }
-        
+
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Crash Reporter", this));
         }
-        
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             if(_breadcrumbs != null)
@@ -29,8 +29,8 @@ namespace SocialPoint.Crash
                 layout.CreateLabel("Breadcrumbs");
                 _textAreaComponent = layout.CreateVerticalScrollLayout()
                     .CreateTextArea(_breadcrumbs.CurrentBreadcrumb);
-                layout.CreateButton("Refresh", () => { UpdateBreadcrumbContent(); });
-                layout.CreateToggleButton("Last session breadcrumbs", _showOldBreadcrumbs, (value) => { 
+                layout.CreateButton("Refresh", UpdateBreadcrumbContent);
+                layout.CreateToggleButton("Last session breadcrumbs", _showOldBreadcrumbs, value => { 
                     _showOldBreadcrumbs = value; 
                     UpdateBreadcrumbContent();
                 });
@@ -47,7 +47,7 @@ namespace SocialPoint.Crash
                     layout.CreateOpenPanelButton("CrashReporterBase Options", new AdminPanelCrashReporterBaseGUI(crBase));
                 }
                 
-                layout.CreateToggleButton("Enabled", _reporter.WasEnabled, (value) => {
+                layout.CreateToggleButton("Enabled", _reporter.WasEnabled, value => {
                     if(value)
                     {
                         _reporter.Enable();
@@ -58,26 +58,28 @@ namespace SocialPoint.Crash
                     }
                 });
 
-                layout.CreateToggleButton("Error logs", _reporter.ErrorLogActive, (value) => { _reporter.ErrorLogActive = value; });
-                layout.CreateToggleButton("Exceptions logs", _reporter.ExceptionLogActive, (value) => { _reporter.ExceptionLogActive = value; });
+                layout.CreateToggleButton("Error logs", _reporter.ErrorLogActive, value => {
+                    _reporter.ErrorLogActive = value;
+                });
+                layout.CreateToggleButton("Exceptions logs", _reporter.ExceptionLogActive, value => {
+                    _reporter.ExceptionLogActive = value;
+                });
                 layout.CreateButton("Clear unique exceptions", () => { 
                     layout.AdminPanel.Console.Print("Removed pending unique exceptions");
                     _reporter.ClearUniqueExceptions();
                 });
                 layout.CreateMargin(2);
 
-                layout.CreateConfirmButton("Force crash", ButtonColor.Red, () => {
-                    _reporter.ForceCrash();
-                });
+                layout.CreateConfirmButton("Force crash", ButtonColor.Red, _reporter.ForceCrash);
             }
         }
 
-        private void UpdateBreadcrumbContent()
+        void UpdateBreadcrumbContent()
         {
             if(_textAreaComponent != null && _breadcrumbs != null)
             {
-                _textAreaComponent.text = (_showOldBreadcrumbs)? 
-                    _breadcrumbs.OldBreadcrumb:
+                _textAreaComponent.text = (_showOldBreadcrumbs) ? 
+                    _breadcrumbs.OldBreadcrumb :
                         _breadcrumbs.CurrentBreadcrumb;
             }
         }
@@ -85,7 +87,7 @@ namespace SocialPoint.Crash
 
         public class AdminPanelCrashReporterBaseGUI : IAdminPanelGUI
         {
-            private BaseCrashReporter _crashReporter;
+            readonly BaseCrashReporter _crashReporter;
 
             public AdminPanelCrashReporterBaseGUI(BaseCrashReporter crashReporter)
             {
@@ -96,7 +98,7 @@ namespace SocialPoint.Crash
             {
                 layout.CreateLabel("CrashReporterBase");
 
-                StringBuilder crashReporterInfo = new StringBuilder();
+                var crashReporterInfo = new StringBuilder();
                 crashReporterInfo.Append("Send Interval: ").Append(_crashReporter.SendInterval.ToString()).AppendLine("s")
                                  .Append("Pending Crashes: ").AppendLine(_crashReporter.HasCrashLogs ? "Yes" : "No")
                                  .Append("Pending Exceptions: ").AppendLine(_crashReporter.HasExceptionLogs ? "Yes" : "No");

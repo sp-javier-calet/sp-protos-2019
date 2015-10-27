@@ -1,6 +1,3 @@
-using SocialPoint.Hardware;
-using SocialPoint.Network;
-using SocialPoint.IO;
 using System;
 
 namespace SocialPoint.Crash

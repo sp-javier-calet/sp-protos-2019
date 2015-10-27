@@ -1,19 +1,15 @@
-
-using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.IO;
-using System.Linq;
-
-using SocialPoint.Base;
-using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
-using SocialPoint.Network;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Hardware;
-using SocialPoint.Utils;
 using SocialPoint.IO;
+using SocialPoint.Network;
+using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.Crash
 {
@@ -47,13 +43,13 @@ namespace SocialPoint.Crash
                 Set(AttrKeyTimestamp, new AttrLong(TimeUtils.Timestamp));
                 Set(AttrKeyUserId, new AttrString(userId.ToString()));
 
-                AttrDic device = new AttrDic();
+                var device = new AttrDic();
                 device.Set(AttrKeyOS, new AttrString(deviceInfo.PlatformVersion));
                 device.Set(AttrKeyModel, new AttrString(deviceInfo.Model));
                 device.Set(AttrKeyLanguage, new AttrString(deviceInfo.Language));
                 Set(AttrKeyDevice, device);
 
-                AttrDic client = new AttrDic();
+                var client = new AttrDic();
                 client.Set(AttrKeyVersion, new AttrString(deviceInfo.AppInfo.Version));
                 client.Set(AttrKeyBundle, new AttrString(deviceInfo.AppInfo.ShortVersion + "-" + deviceInfo.AppInfo.Version));
                 client.Set(AttrKeyClientLanguage, new AttrString(deviceInfo.AppInfo.Language));
@@ -63,18 +59,18 @@ namespace SocialPoint.Crash
 
         protected class SocialPointCrashLog : SocialPointLog
         {
-            private const string AttrKeyCrash = "crash";
-            private const string AttrKeyUuid = "uuid";
-            private const string AttrKeyStacktrace = "stacktrace";
-            private const string AttrKeyBreadcrumb = "breadcrumb";
-            private const string AttrKeyLogcat = "logcat";
-            private const string AttrKeyCrashBuildId = "crash_build_id";
-            private const string AttrKeyRealCrashTime = "real_crash_time";
+            const string AttrKeyCrash = "crash";
+            const string AttrKeyUuid = "uuid";
+            const string AttrKeyStacktrace = "stacktrace";
+            const string AttrKeyBreadcrumb = "breadcrumb";
+            const string AttrKeyLogcat = "logcat";
+            const string AttrKeyCrashBuildId = "crash_build_id";
+            const string AttrKeyRealCrashTime = "real_crash_time";
 
             public SocialPointCrashLog(Report report, IDeviceInfo deviceInfo, UInt64 userId, string breadcrumb = null)
                 : base(deviceInfo, userId)
             {
-                AttrDic crash = new AttrDic();
+                var crash = new AttrDic();
                 crash.Set(AttrKeyUuid, new AttrString(report.Uuid));
 
                 crash.Set(AttrKeyStacktrace, new AttrString(report.StackTrace));
@@ -98,16 +94,16 @@ namespace SocialPoint.Crash
 
         protected class SocialPointExceptionLog : SocialPointLog
         {
-            private const string AttrKeyException = "exception";
-            private const string AttrKeyUuid = "uuid";
-            private const string AttrKeyLog = "log";
-            private const string AttrKeyStacktrace = "stacktrace";
-            private const string AttrKeyLoadedLevelName = "loadedlevel";
+            const string AttrKeyException = "exception";
+            const string AttrKeyUuid = "uuid";
+            const string AttrKeyLog = "log";
+            const string AttrKeyStacktrace = "stacktrace";
+            const string AttrKeyLoadedLevelName = "loadedlevel";
 
             public SocialPointExceptionLog(string uuid, string log, string stacktrace, IDeviceInfo deviceInfo, UInt64 userId)
                 : base(deviceInfo, userId)
             {
-                AttrDic exception = new AttrDic();
+                var exception = new AttrDic();
                 exception.Set(AttrKeyUuid, new AttrString(uuid));
                 exception.Set(AttrKeyLog, new AttrString(log));
                 exception.Set(AttrKeyStacktrace, new AttrString(stacktrace));
@@ -132,7 +128,7 @@ namespace SocialPoint.Crash
                 Uuid = RandomUtils.GetUuid();
             }
 
-            protected bool _outOfMemory = false;
+            protected bool _outOfMemory;
 
             public bool OutOfMemory
             {
@@ -157,8 +153,8 @@ namespace SocialPoint.Crash
 
         protected class OutOfMemoryReport : Report
         {
-            private long _timestamp;
-            private string _message = "APP KILLED IN FOREGROUND BECAUSE OF LOW MEMORY.";
+            long _timestamp;
+            readonly string _message = "APP KILLED IN FOREGROUND BECAUSE OF LOW MEMORY.";
 
             public OutOfMemoryReport(long timestamp)
             {
@@ -193,7 +189,7 @@ namespace SocialPoint.Crash
             }
         }
 
-#if CRASH_REPORTER_TEST_EVENTS
+        #if CRASH_REPORTER_TEST_EVENTS
         private class TestReport : Report
         {
             public override long Timestamp
@@ -226,39 +222,39 @@ namespace SocialPoint.Crash
 
         public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
 
-        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
 
         public delegate UInt64 GetUserIdDelegate();
 
-        private const string UriCrash = "crash";
-        private const string UriException = "exceptions";
-        private const string AttrKeyUuid = "uuid";
-        private const string AttrKeyBuildId = "build_id";
-        private const string AttrKeyContent = "content";
-        private const string AttrKeyBreadcrumb = "breadcrumb";
-        private const string AttrKeyLogcat = "logcat";
-        private const string AttrKeyError = "error";
-        private const string AttrKeyUnityException = "unity_exception";
-        private const string AttrKeyMobile = "mobile";
-        private const string AttrKeyMessage = "message";
-        private const string AttrKeyType = "type";
-        private const string AttrKeyTimestamp = "crash_timestamp";
+        const string UriCrash = "crash";
+        const string UriException = "exceptions";
+        const string AttrKeyCrashUuid = "uuid";
+        const string AttrKeyBuildId = "build_id";
+        const string AttrKeyContent = "content";
+        const string AttrKeyCrashBreadcrumb = "breadcrumb";
+        const string AttrKeyCrashLogcat = "logcat";
+        const string AttrKeyError = "error";
+        const string AttrKeyUnityException = "unity_exception";
+        const string AttrKeyMobile = "mobile";
+        const string AttrKeyMessage = "message";
+        const string AttrKeyType = "type";
+        const string AttrKeyCrashTimestamp = "crash_timestamp";
 
         // Player preferences keys
-        private const string WasOnBackgroundPreferencesKey = "app_gone_background";
-        private const string LastMemoryWarningPreferencesKey = "last_memory_warning";
-        private const string CrashReporterEnabledPreferencesKey = "crash_reporter_enabled";
+        const string WasOnBackgroundPreferencesKey = "app_gone_background";
+        const string LastMemoryWarningPreferencesKey = "last_memory_warning";
+        const string CrashReporterEnabledPreferencesKey = "crash_reporter_enabled";
 
         // Events
-        private const string ExceptionEventName = "errors.unity_exception";
-        private const string CrashEventName = "errors.mobile_crash_triggered";
+        const string ExceptionEventName = "errors.unity_exception";
+        const string CrashEventName = "errors.mobile_crash_triggered";
 
-        private IHttpClient _httpClient;
-        private IDeviceInfo _deviceInfo;
-        private PersistentAttrStorage _exceptionStorage;
-        private PersistentAttrStorage _crashStorage;
-        private BreadcrumbManager _breadcrumbManager;
-        private HashSet<string> _uniqueExceptions;
+        IHttpClient _httpClient;
+        IDeviceInfo _deviceInfo;
+        readonly PersistentAttrStorage _exceptionStorage;
+        PersistentAttrStorage _crashStorage;
+        BreadcrumbManager _breadcrumbManager;
+        HashSet<string> _uniqueExceptions;
         public RequestSetupDelegate RequestSetup;
         public TrackEventDelegate TrackEvent;
         public GetUserIdDelegate GetUserId;
@@ -267,7 +263,7 @@ namespace SocialPoint.Crash
         public const bool DefaultExceptionLogActive = true;
         public const bool DefaultErrorLogActive = true;
 
-        bool _wasActiveInLastSession = false;
+        bool _wasActiveInLastSession;
         bool _exceptionLogActive = DefaultExceptionLogActive;
         bool _errorLogActive = DefaultErrorLogActive;
 
@@ -309,7 +305,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        private long LastMemoryWarningTimestamp
+        static long LastMemoryWarningTimestamp
         {
             get
             {
@@ -335,7 +331,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        private bool WasOnBackground
+        static bool WasOnBackground
         {
             get
             {
@@ -348,7 +344,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        private IAppEvents _appEvents;
+        IAppEvents _appEvents;
 
         public IAppEvents AppEvents
         {
@@ -370,9 +366,9 @@ namespace SocialPoint.Crash
             }
         }
 
-        private UInt64 _storedUserId = 0;
+        UInt64 _storedUserId;
 
-        private UInt64 UserId
+        UInt64 UserId
         {
             get
             {
@@ -482,18 +478,18 @@ namespace SocialPoint.Crash
         public virtual void ForceCrash()
         {
             // Null object exception
-            GameObject go = new GameObject();
+            GameObject go;
             go = null;
             go.transform.position = Vector3.zero;
         }
 
-        private void Check()
+        void Check()
         {
             CheckLogs();
             CheckPendingCrashes();
         }
 
-        private void SetupCrashHttpRequest(HttpRequest req, string log)
+        void SetupCrashHttpRequest(HttpRequest req, string log)
         {
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             req.Body = new JsonAttrSerializer().Serialize(_crashStorage.Load(log));
@@ -504,7 +500,7 @@ namespace SocialPoint.Crash
             req.CompressBody = true;
         }
 
-        private void SetupExceptionHttpRequest(HttpRequest req, string log)
+        void SetupExceptionHttpRequest(HttpRequest req, string log)
         {
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             req.Body = new JsonAttrSerializer().Serialize(_exceptionStorage.Load(log));
@@ -521,7 +517,7 @@ namespace SocialPoint.Crash
             get{ return (_crashStorage != null && _crashStorage.StoredKeys.Length > 0); }
         }
 
-        private void CheckPendingCrashes()
+        void CheckPendingCrashes()
         {
             List<Report> pendingReports = GetPendingCrashes();
             if(pendingReports.Count > 0)
@@ -545,14 +541,14 @@ namespace SocialPoint.Crash
             ClearLastSessionInfo();
         }
 
-        private void ClearLastSessionInfo()
+        static void ClearLastSessionInfo()
         {
             // Clear last memory warning timestamp and set foreground status
             LastMemoryWarningTimestamp = 0;
             WasOnBackground = false;
         }
 
-        private Report CheckMemoryCrash()
+        Report CheckMemoryCrash()
         {
             Report memoryCrashReport = null;
             /* *
@@ -571,7 +567,7 @@ namespace SocialPoint.Crash
             return memoryCrashReport;
         }
 
-        private void CheckLogs()
+        void CheckLogs()
         {
             if(HasExceptionLogs)
             {
@@ -587,7 +583,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        private bool SendExceptions(string[] storedKeys)
+        bool SendExceptions(string[] storedKeys)
         {
             if(!_sending)
             {
@@ -598,43 +594,45 @@ namespace SocialPoint.Crash
             return false;
         }
 
-        private void DoSendExceptions(string[] storedKeys)
+        void DoSendExceptions(string[] storedKeys)
         {
-            HttpRequest req = new HttpRequest();
-            if(RequestSetup != null)
+            if(RequestSetup == null)
             {
-                RequestSetup(req, UriException);
-                req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
-                var exceptionLogs = new AttrList();
-                foreach(var storedKey in storedKeys)
+                return;
+            }
+            var req = new HttpRequest();
+            RequestSetup(req, UriException);
+            req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
+            var exceptionLogs = new AttrList();
+            foreach(var storedKey in storedKeys)
+            {
+                try
                 {
-                    try
-                    {
-                        exceptionLogs.Add(_exceptionStorage.Load(storedKey));
-                    }
-                    catch(SerializationException)
-                    {
-                    }
+                    exceptionLogs.Add(_exceptionStorage.Load(storedKey));
                 }
-                req.Body = new JsonAttrSerializer().Serialize(exceptionLogs);
-                req.CompressBody = true;
-                _httpClient.Send(req, (HttpResponse resp) => OnExceptionSend(resp, storedKeys));
-                _lastSendTimestamp = TimeUtils.Timestamp;
+                catch(SerializationException)
+                {
+                }
             }
+            req.Body = new JsonAttrSerializer().Serialize(exceptionLogs);
+            req.CompressBody = true;
+            _httpClient.Send(req, resp => OnExceptionSend(resp, storedKeys));
+            _lastSendTimestamp = TimeUtils.Timestamp;
         }
 
-        private void SendCrashLog(string log)
+        void SendCrashLog(string log)
         {
-            HttpRequest req = new HttpRequest();
-            if(RequestSetup != null)
+            if(RequestSetup == null)
             {
-                RequestSetup(req, UriCrash);
-                SetupCrashHttpRequest(req, log);
-                _httpClient.Send(req, (HttpResponse resp) => OnCrashSend(resp, log));
+                return;
             }
+            var req = new HttpRequest();
+            RequestSetup(req, UriCrash);
+            SetupCrashHttpRequest(req, log);
+            _httpClient.Send(req, resp => OnCrashSend(resp, log));
         }
 
-        private void OnExceptionSend(HttpResponse resp, string[] storedKeys)
+        void OnExceptionSend(HttpResponse resp, string[] storedKeys)
         {
             _sending = false;
             if(!resp.HasError)
@@ -646,7 +644,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        private void OnCrashSend(HttpResponse resp, string log)
+        void OnCrashSend(HttpResponse resp, string log)
         {
             if(!resp.HasError)
             {
@@ -654,18 +652,11 @@ namespace SocialPoint.Crash
             }
         }
 
-        private void HandleLog(string logString, string stackTrace, LogType type)
+        void HandleLog(string logString, string stackTrace, LogType type)
         {
-            bool doHandleLog = false;
-            if(type == LogType.Exception && _exceptionLogActive)
-            {
-                doHandleLog = true;
-            }
+            bool doHandleLog = false || type == LogType.Exception && _exceptionLogActive;
             
-            if(type == LogType.Error && _errorLogActive)
-            {
-                doHandleLog = true;
-            }
+            doHandleLog |= type == LogType.Error && _errorLogActive;
             
             if(doHandleLog)
             {
@@ -673,12 +664,12 @@ namespace SocialPoint.Crash
             }
         }
 
-        private bool TrackException(string logString, string stackTrace)
+        void TrackException(string logString, string stackTrace)
         {
             string exceptionHashSource = logString + stackTrace;
             if(_uniqueExceptions.Contains(exceptionHashSource))
             {
-                return false;
+                return;
             }
             string uuid = RandomUtils.GetUuid();
             var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
@@ -692,17 +683,15 @@ namespace SocialPoint.Crash
                 data.Set(AttrKeyError, error);
                 var mobile = new AttrDic();
                 error.Set(AttrKeyUnityException, mobile);
-                mobile.SetValue(AttrKeyUuid, uuid);
+                mobile.SetValue(AttrKeyCrashUuid, uuid);
                 mobile.SetValue(AttrKeyMessage, logString);
                 mobile.SetValue(AttrKeyType, 0);
 
                 TrackEvent(ExceptionEventName, data);
             }
-
-            return true;
         }
 
-        private void TrackCrash(Report report)
+        void TrackCrash(Report report)
         {
             if(TrackEvent != null)
             {
@@ -711,13 +700,11 @@ namespace SocialPoint.Crash
                 data.Set(AttrKeyError, error);
                 var mobile = new AttrDic();
                 error.Set(AttrKeyMobile, mobile);
-                mobile.SetValue(AttrKeyUuid, report.Uuid);
-                mobile.SetValue(AttrKeyTimestamp, report.Timestamp);
+                mobile.SetValue(AttrKeyCrashUuid, report.Uuid);
+                mobile.SetValue(AttrKeyCrashTimestamp, report.Timestamp);
                 mobile.SetValue(AttrKeyType, report.OutOfMemory ? 1 : 0);
 
-                TrackEvent(CrashEventName, data, (Error err) => {
-                    CreateCrashLog(report);
-                });
+                TrackEvent(CrashEventName, data, err => CreateCrashLog(report));
             }
             else
             {
@@ -725,7 +712,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        private void CreateCrashLog(Report report)
+        void CreateCrashLog(Report report)
         {
             // Create the log on our storage to be send
             string oldBreadcrumbs = "";
@@ -765,7 +752,7 @@ namespace SocialPoint.Crash
 
         #region App Events
 
-        private void ConnectAppEvents(IAppEvents appEvents)
+        void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.ReceivedMemoryWarning += OnMemoryWarning;
             appEvents.RegisterWillGoBackground(0, OnWillGoBackground);
@@ -775,7 +762,7 @@ namespace SocialPoint.Crash
             appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
         }
 
-        private void DisconnectAppEvents(IAppEvents appEvents)
+        void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.ReceivedMemoryWarning -= OnMemoryWarning;
             appEvents.UnregisterWillGoBackground(OnWillGoBackground);
@@ -785,7 +772,7 @@ namespace SocialPoint.Crash
             appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
         }
 
-        private void OnMemoryWarning()
+        void OnMemoryWarning()
         {
             if(_breadcrumbManager != null)
             {
@@ -796,12 +783,12 @@ namespace SocialPoint.Crash
             LastMemoryWarningTimestamp = TimeUtils.Timestamp;
         }
 
-        private void OnLevelWasLoaded(int level)
+        void OnLevelWasLoaded(int level)
         {
             ClearUniqueExceptions();
         }
 
-        private void OnGameWasLoaded()
+        void OnGameWasLoaded()
         {
             if(_updateCoroutine == null)
             {
@@ -809,7 +796,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        private void OnApplicationQuit()
+        void OnApplicationQuit()
         {
             if(_breadcrumbManager != null)
             {
@@ -817,12 +804,12 @@ namespace SocialPoint.Crash
             }
         }
 
-        private void OnWillGoBackground()
+        static void OnWillGoBackground()
         {
             WasOnBackground = true;
         }
 
-        private void OnWillGoForeground()
+        void OnWillGoForeground()
         {
             WasOnBackground = false;
             if(HasExceptionLogs)

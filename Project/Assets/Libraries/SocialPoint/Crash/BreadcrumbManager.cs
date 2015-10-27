@@ -1,15 +1,13 @@
-using System;
 using System.IO;
-using SocialPoint.Utils;
 using SocialPoint.IO;
-using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Crash
 {
     public struct Breadcrumb
     {
-        long timestamp;
-        string info;
+        readonly long timestamp;
+        readonly string info;
 
         public Breadcrumb(string info)
         {
@@ -25,22 +23,22 @@ namespace SocialPoint.Crash
 
     public class BreadcrumbManager
     {
-        private const string LastSessionBreadcrumbsName = "old";
-        private static bool _initialized = false;
+        const string LastSessionBreadcrumbsName = "old";
+        static bool _initialized;
 
         /*
          * InitializeBreadcrumbFile function ensures that every 
          * BreadcrumbManager instanced in the same game session  
          * uses the same breadcrumb file.
          */
-        private static void InitializeBreadcrumbFile()
+        static void InitializeBreadcrumbFile()
         {
             if(!_initialized)
             {
                 _initialized = true;
                 string breadCrumbDirectoryPath = PathsManager.PersistentDataPath + "/breadcrumb/";
 
-                if(Directory.Exists(breadCrumbDirectoryPath) == false)
+                if(!Directory.Exists(breadCrumbDirectoryPath))
                 {
                     Directory.CreateDirectory(breadCrumbDirectoryPath);
                 }
@@ -50,7 +48,7 @@ namespace SocialPoint.Crash
                     FileUtils.CopyFile(BreadcrumbLogPath(), BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
                 }
 
-                using(StreamWriter file = new StreamWriter(BreadcrumbLogPath(), false))
+                using(var file = new StreamWriter(BreadcrumbLogPath(), false))
                 {
                     file.WriteLine(string.Format("Breadcrumb log {0}", TimeUtils.GetTime(TimeUtils.Timestamp).ToString("yyyy/MM/dd HH:mm:ss")));
                 }
@@ -60,7 +58,7 @@ namespace SocialPoint.Crash
         public static string BreadcrumbLogPath(string uuid = "")
         {
             return string.Format("{0}/breadcrumb/Breadcrumb{1}.log", PathsManager.PersistentDataPath,
-                                                                        uuid != "" ? "-" + uuid : "");
+                uuid != "" ? "-" + uuid : "");
         }
 
         #region BreadcrumbManager implementation
@@ -72,8 +70,8 @@ namespace SocialPoint.Crash
 
         public void Log(string info)
         {
-            Breadcrumb breadcrumb = new Breadcrumb(info);
-            using(StreamWriter file = new StreamWriter(BreadcrumbLogPath(), true))
+            var breadcrumb = new Breadcrumb(info);
+            using(var file = new StreamWriter(BreadcrumbLogPath(), true))
             {
                 file.WriteLine(breadcrumb);
             }
@@ -87,27 +85,19 @@ namespace SocialPoint.Crash
 
         public string CurrentBreadcrumb
         {
-            get{
+            get
+            {
                 string path = BreadcrumbLogPath();
-                if(!FileUtils.Exists(path))
-                {
-                    return null;
-                }
-
-                return FileUtils.ReadAllText(path);
+                return !FileUtils.Exists(path) ? null : FileUtils.ReadAllText(path);
             }
         }
 
         public string OldBreadcrumb
         {
-            get{
+            get
+            {
                 string oldPath = BreadcrumbLogPath(LastSessionBreadcrumbsName);
-                if(!FileUtils.Exists(oldPath))
-                {
-                    return null;
-                }
-
-                return FileUtils.ReadAllText(oldPath);
+                return !FileUtils.Exists(oldPath) ? null : FileUtils.ReadAllText(oldPath);
             }
         }
 
