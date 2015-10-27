@@ -24,17 +24,9 @@ namespace SocialPoint.Network
         public const string ContentTypeUrlencoded = "application/x-www-form-urlencoded";
         public const string ContentTypeJson = "application/json";
 
-        public class PriorityComparer : Comparer<HttpRequestPriority>
-        {
-            public override int Compare(HttpRequestPriority first, HttpRequestPriority second)
-            {
-                return second - first;
-            }
-        };
-
         public enum MethodType
         {
-            GET,    
+            GET,
             POST,
             PUT,
             HEAD,

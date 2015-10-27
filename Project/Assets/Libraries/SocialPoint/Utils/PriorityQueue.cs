@@ -5,19 +5,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace SocialPoint.Utils
-{
-    
+{    
     class ReverseComparer<TPriority> : IComparer<TPriority> 
     {
         IComparer<TPriority> _comparer;
 
-        public ReverseComparer():
-        this(Comparer<TPriority>.Default)
+        public ReverseComparer(IComparer<TPriority> comparer=null)
         {
-        }
-
-        public ReverseComparer(IComparer<TPriority> comparer)
-        {
+            if(comparer == null)
+            {
+                comparer = Comparer<TPriority>.Default;
+            }
             _comparer = comparer;
         }
 
@@ -27,18 +25,13 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class PriorityQueue<TPriority, TValue>  : ICloneable, IEnumerable<TValue>
+    public class PriorityQueue<TPriority, TValue>  : IDisposable, ICloneable, IEnumerable<TValue>
     {
         private SortedList<TPriority, Queue<TValue>> _queues;
-        
-        public PriorityQueue():
-        this(new ReverseComparer<TPriority>())
+
+        public PriorityQueue(IComparer<TPriority> comparer=null)
         {
-        }
-        
-        public PriorityQueue(IComparer<TPriority> comparer)
-        {
-            _queues = new SortedList<TPriority, Queue<TValue>>(comparer);
+            _queues = new SortedList<TPriority, Queue<TValue>>(new ReverseComparer<TPriority>(comparer));
         }
         
         public PriorityQueue(PriorityQueue<TPriority, TValue> other)
@@ -50,7 +43,12 @@ namespace SocialPoint.Utils
             }
         }
 
-        public object Clone()
+        public void Dispose()
+        {
+            Clear();
+        }
+
+        public virtual object Clone()
         {
             return new PriorityQueue<TPriority, TValue>(this);
         }
@@ -118,8 +116,7 @@ namespace SocialPoint.Utils
         {
             foreach(var currQueue in _queues)
             {
-                var currQueueCopy = new Queue<TValue>(currQueue.Value);
-                foreach(var obj in currQueueCopy)
+                foreach(var obj in currQueue.Value)
                 {
                     yield return obj;
                 }
@@ -142,10 +139,7 @@ namespace SocialPoint.Utils
 
         public void Clear()
         {
-            foreach(var currQueue in _queues)
-            {
-                currQueue.Value.Clear();
-            }
+            _queues.Clear();
         }
 
         public int Count

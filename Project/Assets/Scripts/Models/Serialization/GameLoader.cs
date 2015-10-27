@@ -41,6 +41,7 @@ public class GameLoader
             newModel = new GameModel(newModel.Config, initialGame.Player);
         }
         _model.Assign(newModel);
+        data.Dispose();
         return _model;
     }
 }

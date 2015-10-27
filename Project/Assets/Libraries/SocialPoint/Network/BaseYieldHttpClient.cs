@@ -25,7 +25,7 @@ namespace SocialPoint.Network
         {
             _behaviour = behaviour;
             // Initialize queues for all available priorities
-            Pending = new PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection>(new HttpRequest.PriorityComparer());
+            Pending = new PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection>();
         }
         
         protected abstract BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del);
