@@ -41,7 +41,7 @@ namespace SocialPoint.GameLoading
             {
                 _start();
             }
-        }
+        }            
 
         public void Update(float progress, string message = null)
         {

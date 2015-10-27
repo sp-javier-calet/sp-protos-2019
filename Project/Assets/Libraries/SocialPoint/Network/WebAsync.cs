@@ -33,8 +33,18 @@ namespace SocialPoint.Network
 
         public IEnumerator SetPostData(HttpWebRequest webRequest, byte[] postData)
         {
+            IAsyncResult asyncResult = null;
 
-            IAsyncResult asyncResult = (IAsyncResult)webRequest.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), webRequest);
+            try
+            {
+                asyncResult = (IAsyncResult)webRequest.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), webRequest);
+            }
+            catch(WebException webException)
+            {
+                Debug.Log("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
+                ErrorMessage = webException.Message;
+                yield break;
+            }
 
             if(_timeout > 0)
             {

@@ -19,7 +19,7 @@ namespace SocialPoint.Attributes
                 key = Prefix + key;
             }
             var str = PlayerPrefs.GetString(key, null);
-            if(str == null)
+            if(string.IsNullOrEmpty(str))
             {
                 return null;
             }

@@ -116,8 +116,7 @@ namespace SocialPoint.Utils
 
         public IEnumerator<TValue> GetEnumerator()
         {
-            var queuesCopy = new SortedList<TPriority, Queue<TValue>>(_queues);
-            foreach(var currQueue in queuesCopy)
+            foreach(var currQueue in _queues)
             {
                 var currQueueCopy = new Queue<TValue>(currQueue.Value);
                 foreach(var obj in currQueueCopy)
@@ -174,13 +173,21 @@ namespace SocialPoint.Utils
         {
         }
 
+        public override object Clone()
+        {
+            return new PriorityAction(this);
+        }
+
         public void Run()
         {
-            foreach(var action in this)
+            using(var copy = new PriorityAction(this))
             {
-                if(action != null)
+                foreach(var action in copy)
                 {
-                    action();
+                    if(action != null)
+                    {
+                        action();
+                    }
                 }
             }
         }

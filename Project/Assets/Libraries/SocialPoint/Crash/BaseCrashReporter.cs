@@ -102,6 +102,7 @@ namespace SocialPoint.Crash
             private const string AttrKeyUuid = "uuid";
             private const string AttrKeyLog = "log";
             private const string AttrKeyStacktrace = "stacktrace";
+            private const string AttrKeyLoadedLevelName = "loadedlevel";
 
             public SocialPointExceptionLog(string uuid, string log, string stacktrace, IDeviceInfo deviceInfo, UInt64 userId)
                 : base(deviceInfo, userId)
@@ -110,6 +111,7 @@ namespace SocialPoint.Crash
                 exception.Set(AttrKeyUuid, new AttrString(uuid));
                 exception.Set(AttrKeyLog, new AttrString(log));
                 exception.Set(AttrKeyStacktrace, new AttrString(stacktrace));
+                exception.Set(AttrKeyLoadedLevelName, new AttrString(Application.loadedLevelName));
                 Set(AttrKeyException, exception);
             }
         }
