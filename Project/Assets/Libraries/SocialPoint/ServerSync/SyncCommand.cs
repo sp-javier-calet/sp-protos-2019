@@ -1,6 +1,4 @@
-
 using System;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
@@ -16,7 +14,7 @@ namespace SocialPoint.ServerSync
             this(DefaultKey, value)
         {
         }
-        
+
         public SyncCommand(byte[] value) :
             this(DefaultKey, value)
         {

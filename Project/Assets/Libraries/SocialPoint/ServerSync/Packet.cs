@@ -1,12 +1,8 @@
-
-using System;
-using System.Text;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using SocialPoint.Attributes;
-using SocialPoint.Network;
 
 namespace SocialPoint.ServerSync
 {
@@ -23,7 +19,7 @@ namespace SocialPoint.ServerSync
         static readonly string CommandsKey = "commands";
         static readonly string IdKey = "pid";
         static readonly string TimestampKey = "ts";
-        private IList<PackedCommand> _commands = new List<PackedCommand>();
+        readonly IList<PackedCommand> _commands = new List<PackedCommand>();
         public int Id = NoId;
         public long Timestamp;
         public FinishDelegate Finished = delegate {
@@ -74,7 +70,7 @@ namespace SocialPoint.ServerSync
         {
             return _commands.GetEnumerator();
         }
-        
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -90,7 +86,7 @@ namespace SocialPoint.ServerSync
             int count = 0;
             if(dlg != null)
             {
-                for(int i = _commands.Count-1; i >=0; i--)
+                for(int i = _commands.Count - 1; i >= 0; i--)
                 {
                     var pcmd = _commands[i];
                     if(dlg(pcmd))
@@ -157,13 +153,13 @@ namespace SocialPoint.ServerSync
             return data;
         }
 
-        public void Add(Command cmd, ErrorDelegate callback=null)
+        public void Add(Command cmd, ErrorDelegate callback = null)
         {
             DebugUtils.Assert(cmd != null);
 
             if(cmd.Unique)
             {
-                for(int i = _commands.Count-1; i >=0; i--)
+                for(int i = _commands.Count - 1; i >= 0; i--)
                 {
                     var pcmd = _commands[i];
                     if(pcmd.Command.Name == cmd.Name)

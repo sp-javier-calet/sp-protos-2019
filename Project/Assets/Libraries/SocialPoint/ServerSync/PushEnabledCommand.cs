@@ -1,6 +1,4 @@
-﻿using System;
-using SocialPoint.Utils;
-using SocialPoint.Attributes;
+﻿using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
@@ -8,7 +6,7 @@ namespace SocialPoint.ServerSync
     {
         static readonly string TypeName = "push_enabled";
         static readonly string TokenKey = "token";
-        
+
         public PushEnabledCommand(string token) : base(TypeName)
         {
             Atomic = true;

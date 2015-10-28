@@ -1,6 +1,3 @@
-
-using System;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
@@ -10,7 +7,7 @@ namespace SocialPoint.ServerSync
         static readonly string TypeName = "event";
         static readonly string NameKey = "type";
         static readonly string DataKey = "data";
-        
+
         public EventCommand(string name, Attr data) : base(TypeName)
         {
             Atomic = false;

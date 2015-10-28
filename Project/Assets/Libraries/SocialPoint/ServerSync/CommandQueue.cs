@@ -1,13 +1,12 @@
-
-using SocialPoint.Base;
-using SocialPoint.Utils;
-using SocialPoint.Attributes;
-using SocialPoint.Network;
-using SocialPoint.AppEvents;
-using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Network;
+using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.ServerSync
 {
@@ -19,7 +18,6 @@ namespace SocialPoint.ServerSync
         SessionLost,
         OutOfSync
     }
-    ;
 
     public class CommandQueue : ICommandQueue
     {
@@ -35,21 +33,21 @@ namespace SocialPoint.ServerSync
 
         public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
 
-        private const string Uri = "packet";
-        private const string AttrKeyPackets = "packets";
-        private const string AttrKeyCommands = "commands";
-        private const string AttrKeyAcks = "acks";
-        private const string ErrorEventName = "errors.sync";
-        private const string AttrKeyEventError = "error";
-        private const string AttrKeyEventSync = "sync";
-        private const string AttrKeyEventErrorType = "error_type";
-        private const string AttrKeyEventErrorMessage = "error_desc";
-        private const string AttrKeyEventErrorHttpCode = "error_code";
-        private const string HttpParamSessionId = "session_id";
+        const string Uri = "packet";
+        const string AttrKeyPackets = "packets";
+        const string AttrKeyCommands = "commands";
+        const string AttrKeyAcks = "acks";
+        const string ErrorEventName = "errors.sync";
+        const string AttrKeyEventError = "error";
+        const string AttrKeyEventSync = "sync";
+        const string AttrKeyEventErrorType = "error_type";
+        const string AttrKeyEventErrorMessage = "error_desc";
+        const string AttrKeyEventErrorHttpCode = "error_code";
+        const string HttpParamSessionId = "session_id";
 
-        private const int MinServerErrorStatusCode = 500;
-        private const int SessionLostErrorStatusCode = 482;
-        private const int StartPacketId = 1;
+        const int MinServerErrorStatusCode = 500;
+        const int SessionLostErrorStatusCode = 482;
+        const int StartPacketId = 1;
 
         public DateTime CurrentTime
         {
@@ -91,7 +89,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        private IAppEvents _appEvents;
+        IAppEvents _appEvents;
 
         public IAppEvents AppEvents
         {
@@ -115,13 +113,13 @@ namespace SocialPoint.ServerSync
 
         #region App Events
 
-        private void ConnectAppEvents(IAppEvents appEvents)
+        void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.RegisterWillGoBackground(-25, OnAppWillGoBackground);
             appEvents.RegisterGameWasLoaded(-1000, OnGameWasLoaded);
         }
 
-        private void DisconnectAppEvents(IAppEvents appEvents)
+        void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
             appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
@@ -172,8 +170,9 @@ namespace SocialPoint.ServerSync
         public event CommandErrorDelegate CommandError = delegate {};
         public event ResponseDelegate ResponseReceive = delegate {};
 
-        private int _lastAutoSyncDataHash;
-        private SyncDelegate _autoSync;
+        int _lastAutoSyncDataHash;
+        SyncDelegate _autoSync;
+
         public SyncDelegate AutoSync
         {
             set
@@ -182,7 +181,8 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        private bool _autoSyncEnabled = true;
+        bool _autoSyncEnabled = true;
+
         public bool AutoSyncEnabled
         {
             set
@@ -272,7 +272,7 @@ namespace SocialPoint.ServerSync
 
         public void Add(Command cmd, Action callback)
         {
-            Add(cmd, (Error err) => {
+            Add(cmd, err => {
                 if(callback != null)
                 {
                     callback();
@@ -301,7 +301,7 @@ namespace SocialPoint.ServerSync
 
         public void Flush(Action callback)
         {
-            Flush((Error err) => {
+            Flush(err => {
                 if(callback != null)
                 {
                     callback();
@@ -355,7 +355,8 @@ namespace SocialPoint.ServerSync
             {
                 DisconnectAppEvents(_appEvents);
             }
-        } 
+            TimeUtils.OffsetChanged -= OnTimeOffsetChanged;
+        }
 
         IEnumerator UpdateCoroutine()
         {
@@ -407,7 +408,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        void SendCurrent(Action finish=null)
+        void SendCurrent(Action finish = null)
         {
             var packet = PrepareNextPacket();
             DoSend(packet, () => {
@@ -529,7 +530,7 @@ namespace SocialPoint.ServerSync
             req.AcceptCompressed = true;
             req.CompressBody = true;
             req.Priority = HttpRequestPriority.High;
-            if(req.Timeout == 0.0f)
+            if(Math.Abs(req.Timeout) < Mathf.Epsilon)
             {
                 req.Timeout = _currentTimeout;
             }
@@ -550,7 +551,7 @@ namespace SocialPoint.ServerSync
             }
 
             _lastSendTimestamp = CurrentTimestamp;
-            _httpConn = _httpClient.Send(req, (HttpResponse resp) => {
+            _httpConn = _httpClient.Send(req, resp => {
                 ProcessResponse(resp, packet);
                 if(finish != null)
                 {
@@ -558,7 +559,7 @@ namespace SocialPoint.ServerSync
                 }
             });
         }
-        
+
         void ProcessResponse(HttpResponse resp, Packet packet)
         {
             ResponseReceive(resp);
@@ -676,8 +677,7 @@ namespace SocialPoint.ServerSync
                 }
                 return null;
             }
-            else
-            if(data == null)
+            else if(data == null)
             {
                 NotifyError(CommandQueueErrorType.InvalidJson, new Error(jsonerr));
             }
@@ -706,11 +706,7 @@ namespace SocialPoint.ServerSync
             {
                 return;
             }
-            Error err = null;
-            if(err == null)
-            {
-                err = AttrUtils.GetError(data);
-            }
+            Error err = AttrUtils.GetError(data);
             if(err == null && pcmd.Command != null)
             {
                 err = pcmd.Command.Validate(data);

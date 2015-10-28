@@ -1,14 +1,15 @@
 ﻿using System;
 using SocialPoint.Base;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
     public class EmptyCommandQueue : ICommandQueue
     {
-        public SyncDelegate AutoSync { set{} }
-        public bool AutoSyncEnabled { set{} }
-        public bool Synced { get{ return true; } }
+        public SyncDelegate AutoSync { set { } }
+
+        public bool AutoSyncEnabled { set { } }
+
+        public bool Synced { get { return true; } }
 
         public void Start()
         {
@@ -30,7 +31,7 @@ namespace SocialPoint.ServerSync
         {
         }
 
-        public void Add(Command cmd, ErrorDelegate callback=null)
+        public void Add(Command cmd, ErrorDelegate callback = null)
         {
         }
 
