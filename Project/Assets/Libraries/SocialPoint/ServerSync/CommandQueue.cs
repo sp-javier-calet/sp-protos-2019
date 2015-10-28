@@ -16,7 +16,8 @@ namespace SocialPoint.ServerSync
         InvalidJson,
         ResponseJson,
         SessionLost,
-        OutOfSync
+        OutOfSync,
+        Exception
     }
 
     public class CommandQueue : ICommandQueue
@@ -451,7 +452,15 @@ namespace SocialPoint.ServerSync
         {
             if(_autoSyncEnabled && _autoSync != null)
             {
-                var data = _autoSync();
+                Attr data = new AttrEmpty();
+                try
+                {
+                    data = _autoSync();
+                }
+                catch(Exception e)
+                {
+                    CatchException(e);
+                }
                 var hash = data.GetHashCode();
                 if(hash != _lastAutoSyncDataHash)
                 {
@@ -537,7 +546,14 @@ namespace SocialPoint.ServerSync
 
             if(RequestSetup != null)
             {
-                RequestSetup(req, Uri);
+                try
+                {
+                    RequestSetup(req, Uri);
+                }
+                catch(Exception e)
+                {
+                    CatchException(e);
+                }
             }
 
             if(!req.HasParam(HttpParamSessionId))
@@ -629,10 +645,8 @@ namespace SocialPoint.ServerSync
                 syncData.SetValue(AttrKeyEventErrorHttpCode, httpCode);
                 TrackEvent(ErrorEventName, data);
             }
-            if(GeneralError != null)
-            {
-                GeneralError(type, err);
-            }
+
+            GeneralError(type, err);
         }
 
         bool CheckSync(HttpResponse resp)
@@ -793,5 +807,16 @@ namespace SocialPoint.ServerSync
             }
             _sendingAcks.Clear();
         }
+
+        static void CatchException(Exception e)
+        {
+            Debug.LogException(e);
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            NotifyError(CommandQueueErrorType.Exception, new Error(e.ToString()));
+            #endif
+        }
+
     }
 }
