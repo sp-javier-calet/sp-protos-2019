@@ -4,5 +4,8 @@
         "CoreTelephony.framework:weak",
         "AdSupport.framework:weak",
         "Security.framework:weak"
+    ],
+    "keychainAccessGroups" : [
+        "$(AppIdentifierPrefix)es.socialpoint"
     ]
 }

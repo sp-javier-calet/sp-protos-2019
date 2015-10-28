@@ -6,17 +6,17 @@ namespace SocialPoint.Hardware
 {
     public class IosDeviceInfo : IDeviceInfo
     {
-        private static readonly string kUidKeychainItemId = "SPDeviceID";
+        // check: https://socialpoint.atlassian.net/wiki/display/MT/iOS+Keychain
+        const string UidKeychainItemId = "SPDeviceID";
+        const string UidKeychainAccessGroup = "es.socialpoint";
 
         IosMemoryInfo _memoryInfo;
         IosStorageInfo _storageInfo;
         IosAppInfo _appInfo;
         IosNetworkInfo _networkInfo;
-        string _keychainAccessGroup;
 
         public IosDeviceInfo()
         {
-            _keychainAccessGroup = "es.socialpoint";//check: https://socialpoint.atlassian.net/wiki/display/MT/iOS+Keychain
             _memoryInfo = new IosMemoryInfo();
             _storageInfo = new IosStorageInfo();
             _appInfo = new IosAppInfo();
@@ -43,7 +43,7 @@ namespace SocialPoint.Hardware
             {
                 if(_uid == null)
                 {
-                    var item = new KeychainItem(kUidKeychainItemId, _keychainAccessGroup);
+                    var item = new KeychainItem(UidKeychainItemId, UidKeychainAccessGroup);
                     _uid = item.Value;
                     if(string.IsNullOrEmpty(_uid))
                     {
@@ -184,4 +184,3 @@ namespace SocialPoint.Hardware
 
     }
 }
-
