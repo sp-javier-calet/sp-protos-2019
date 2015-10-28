@@ -63,11 +63,14 @@ namespace SocialPoint.Login
         public string StoreUrl;
         public UpgradeData Upgrade;
         public MaintenanceData Maintenance;
+        public int UserImportance;
+
         private const string AttrKeyTimestamp = "ts";
         private const string AttrKeyStoreUrl = "store";
         private const string AttrKeyUpgradeSuggested = "suggested_upgrade";
         private const string AttrKeyUpgradeForced = "forced_upgrade";
         private const string AttrKeyMaintenanceData = "maintenance_data";
+        private const string AttrKeyUserImportance = "user_importance";
         
         public GenericData(Attr data = null)
         {
@@ -88,7 +91,11 @@ namespace SocialPoint.Login
             if(datadic.ContainsKey(AttrKeyStoreUrl))
             {
                 StoreUrl = datadic.GetValue(AttrKeyStoreUrl).ToString();
-            }            
+            }
+            if(datadic.ContainsKey(AttrKeyUserImportance))
+            {
+                UserImportance = datadic.GetValue(AttrKeyUserImportance).ToInt();
+            } 
             if(datadic.ContainsKey(AttrKeyUpgradeForced))
             {
                 Upgrade = new UpgradeData(UpgradeType.Forced, datadic.Get(AttrKeyUpgradeForced));
@@ -110,8 +117,8 @@ namespace SocialPoint.Login
         public override string ToString()
         {
             return string.Format(
-                "[GenericData: DeltaTime={0}, StoreUrl={1}, Upgrade={2}, Maintenance={3}]",
-                DeltaTime, StoreUrl, Upgrade, Maintenance);
+                "[GenericData: DeltaTime={0}, StoreUrl={1}, UserImportance={2} Upgrade={3}, Maintenance={4}]",
+                DeltaTime, StoreUrl, UserImportance, Upgrade, Maintenance);
         }
         
         [Obsolete("Use Upgrade.Type")]

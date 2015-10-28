@@ -12,11 +12,13 @@ namespace SocialPoint.AppEvents
         void RegisterGameWasLoaded(int priority, Action action);
         void UnregisterGameWasLoaded(Action action);
 
+        void RegisterGameWillRestart(int priority, Action action);
+        void UnregisterGameWillRestart(Action action);
+
         event Action WasOnBackground;
         event Action WasCovered;
         event Action ReceivedMemoryWarning;
         event Action<AppSource> OpenedFromSource;
-
 
         AppSource Source { get; }
 
@@ -24,9 +26,10 @@ namespace SocialPoint.AppEvents
         event Action ApplicationQuit;
         event Action<int> LevelWasLoaded;
 
-        // testing
         void TriggerMemoryWarning();
         void TriggerWillGoBackground();
+
         void TriggerGameWasLoaded();
+        void RestartGame();
     }
 }

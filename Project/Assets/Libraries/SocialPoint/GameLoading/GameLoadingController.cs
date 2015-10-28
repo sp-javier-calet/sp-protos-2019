@@ -95,7 +95,7 @@ namespace SocialPoint.GameLoading
         }
 
         private List<ILoadingOperation> _operations = new List<ILoadingOperation>();
-        private int _finishedOperations = -1;
+        private int _currentOperationIndex = -1;
         private float _currentOperationDuration;
         private IAlertView _alert;
 
@@ -110,9 +110,9 @@ namespace SocialPoint.GameLoading
         {
             get
             {
-                if(_finishedOperations >= 0 && _finishedOperations < _operations.Count)
+                if(_currentOperationIndex >= 0 && _currentOperationIndex < _operations.Count)
                 {
-                    return _operations[_finishedOperations];
+                    return _operations[_currentOperationIndex];
                 }
                 return null;
             }
@@ -157,11 +157,45 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        float Percent
+        float Progress
         {
             get
             {
-                return (_finishedOperations + CurrentOperationProgress) / _operations.Count;
+                bool allOpsExpected = true;
+                float totalExpected = 0.0f;
+                float finishedExpected = 0.0f;
+                int i = 0;
+                foreach(var op in _operations)
+                {
+                    var opExpected = op.ExpectedDuration;
+                    if(opExpected == 0.0f)
+                    {
+                        allOpsExpected = false;
+                        break;
+                    }
+                    else
+                    {
+                        if(i == _currentOperationIndex)
+                        {
+                            finishedExpected += CurrentOperationProgress*opExpected;
+                        }
+                        else if(i < _currentOperationIndex)
+                        {
+                            finishedExpected += opExpected;
+                        }
+                        totalExpected += opExpected;
+                    }
+                    i++;
+                }
+
+                if(allOpsExpected)
+                {
+                    return finishedExpected / totalExpected;
+                }
+                else
+                {
+                    return (_currentOperationIndex + CurrentOperationProgress) / _operations.Count;
+                }
             }
         }
 
@@ -195,7 +229,7 @@ namespace SocialPoint.GameLoading
                     return null;
                 }
 
-                var str = string.Format(ReleaseMessageKey, (int)Mathf.Floor(_releaseMessageAmount * Percent)); 
+                var str = string.Format(ReleaseMessageKey, (int)Mathf.Floor(_releaseMessageAmount * Progress)); 
                 if(Localization != null)
                 {
                     str = Localization.Get(str);
@@ -238,7 +272,7 @@ namespace SocialPoint.GameLoading
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            _finishedOperations = -1;
+            Restart();
         }
 
         public void RegisterOperation(ILoadingOperation operation)
@@ -248,15 +282,15 @@ namespace SocialPoint.GameLoading
 
         void Update()
         {
-            var percent = Percent;
+            var percent = Progress;
             var op = CurrentOperation;
-            if(_finishedOperations < 0 || HasFinishedCurrentOperation )
+            if(_currentOperationIndex < 0 || HasFinishedCurrentOperation )
             {
                 if(op != null)
                 {
                     OnOperationEnd(op);
                 }
-                _finishedOperations++;
+                _currentOperationIndex++;
                 _currentOperationDuration = 0.0f;
                 op = CurrentOperation;
                 if(op != null)
@@ -266,7 +300,7 @@ namespace SocialPoint.GameLoading
             }
 
             _currentOperationDuration += Time.smoothDeltaTime;
-            percent = Percent;
+            percent = Progress;
 
             _loadingBar.Percent = percent;
             var msg = Message;
@@ -287,18 +321,17 @@ namespace SocialPoint.GameLoading
 
         virtual protected void OnOperationChange(ILoadingOperation operation)
         {
-            DebugLog("op " + (_finishedOperations + 1) + " "+operation.Progress.ToString("0.00")+": "+operation.Message);
+            DebugLog("op " + (_currentOperationIndex + 1) + " "+operation.Progress.ToString("0.00")+": "+operation.Message);
         }
 
         virtual protected void OnOperationEnd(ILoadingOperation operation)
         {
-            DebugLog("op " + (_finishedOperations + 1) + " end");
-            operation.Start();
+            DebugLog("op " + (_currentOperationIndex + 1) + " end");
         }
 
         virtual protected void OnOperationStart(ILoadingOperation operation)
         {
-            DebugLog("op " + (_finishedOperations + 1) + " start");
+            DebugLog("op " + (_currentOperationIndex + 1) + " start");
             operation.Start();
         }
 
@@ -326,7 +359,7 @@ namespace SocialPoint.GameLoading
 
         virtual protected void Restart()
         {
-            DoLogin();
+            _currentOperationIndex = -1;
         }
 
         void OnLoginUpgrade(GenericData data)

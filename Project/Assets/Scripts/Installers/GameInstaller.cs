@@ -49,7 +49,7 @@ public class GameInstaller : MonoInstaller
     
     void OnGameModelAssigned()
     {
-    }        
+    }
     
     PlayerParser CreatePlayerParser(InjectContext ctx)
     {

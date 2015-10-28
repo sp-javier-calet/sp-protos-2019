@@ -11,25 +11,9 @@ using System.Collections.Generic;
 
 namespace SocialPoint.ServerSync
 {
-    public enum CommandQueueErrorType
-    {
-        HttpResponse,
-        InvalidJson,
-        ResponseJson,
-        SessionLost,
-        OutOfSync
-    }
-    ;
-
     public class CommandQueue : ICommandQueue
     {
-        public delegate string StringDelegate();
-
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
-
-        public delegate void GeneralErrorDelegate(CommandQueueErrorType type,Error err);
-
-        public delegate void CommandErrorDelegate(Command cmd,Error err,Attr resp);
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
         public delegate void ResponseDelegate(HttpResponse resp);
 
@@ -161,26 +145,19 @@ namespace SocialPoint.ServerSync
         }
 
         [Obsolete("Use GeneralError event instead")]
-        public event GeneralErrorDelegate ErrorEvent
+        public event CommandQueueErrorDelegate ErrorEvent
         {
             add { GeneralError += value; }
             remove { GeneralError -= value; }
         }
 
         public event Action SyncChange = delegate {};
-        public event GeneralErrorDelegate GeneralError = delegate {};
+        public event CommandQueueErrorDelegate GeneralError = delegate {};
         public event CommandErrorDelegate CommandError = delegate {};
         public event ResponseDelegate ResponseReceive = delegate {};
 
         private int _lastAutoSyncDataHash;
-        private SyncDelegate _autoSync;
-        public SyncDelegate AutoSync
-        {
-            set
-            {
-                _autoSync = value;
-            }
-        }
+        public SyncDelegate AutoSync{ set; private get; }
 
         private bool _autoSyncEnabled = true;
         public bool AutoSyncEnabled
@@ -349,7 +326,7 @@ namespace SocialPoint.ServerSync
         {
             Stop();
             Reset();
-            _autoSync = null;
+            AutoSync = null;
             TrackEvent = null;
             if(_appEvents != null)
             {
@@ -446,11 +423,18 @@ namespace SocialPoint.ServerSync
             return null;
         }
 
+        Packet PreparePingPacket()
+        {
+            var packet = new Packet();            
+            _sendingPacket = packet;            
+            return packet;
+        }
+
         void SendUpdate()
         {
-            if(_autoSyncEnabled && _autoSync != null)
+            if(_autoSyncEnabled && AutoSync != null)
             {
-                var data = _autoSync();
+                var data = AutoSync();
                 var hash = data.GetHashCode();
                 if(hash != _lastAutoSyncDataHash)
                 {
@@ -465,7 +449,7 @@ namespace SocialPoint.ServerSync
                 var packet = PrepareNextPacket();
                 if(packet == null && PingEnabled)
                 {
-                    packet = new Packet();
+                    packet = PreparePingPacket();
                 }
                 DoSend(packet, AfterSend);
             }

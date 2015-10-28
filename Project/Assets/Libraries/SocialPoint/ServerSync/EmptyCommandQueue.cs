@@ -6,7 +6,10 @@ namespace SocialPoint.ServerSync
 {
     public class EmptyCommandQueue : ICommandQueue
     {
-        public SyncDelegate AutoSync { set{} }
+        public SyncDelegate AutoSync{ set; private get; }
+        public event CommandQueueErrorDelegate GeneralError;
+        public event CommandErrorDelegate CommandError;
+
         public bool AutoSyncEnabled { set{} }
         public bool Synced { get{ return true; } }
 

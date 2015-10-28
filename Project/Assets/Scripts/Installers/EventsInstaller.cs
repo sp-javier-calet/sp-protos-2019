@@ -17,16 +17,12 @@ public class EventsInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-        if(Container.HasBinding<IEventTracker>())
-        {
-            return;
-        }
         Container.BindInstance("event_tracker_timeout", Settings.Timeout);
         Container.BindInstance("event_tracker_outofsync_interval", Settings.MaxOutOfSyncInterval);
         Container.BindInstance("event_tracker_send_interval", Settings.SendInterval);
         Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
-        Container.Bind<IEventTracker>().ToSingle<EventTracker>();
-        Container.Bind<IDisposable>().ToSingle<EventTracker>();
+        Container.Rebind<IEventTracker>().ToSingle<EventTracker>();
+        Container.Rebind<IDisposable>().ToSingle<EventTracker>();
 
         Container.Resolve<IEventTracker>().Start();
 	}
