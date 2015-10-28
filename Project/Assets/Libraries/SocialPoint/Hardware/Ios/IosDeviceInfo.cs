@@ -14,9 +14,9 @@ namespace SocialPoint.Hardware
         IosNetworkInfo _networkInfo;
         string _keychainAccessGroup;
 
-        public IosDeviceInfo(string keychainAccessGroup = null)
+        public IosDeviceInfo()
         {
-            _keychainAccessGroup = keychainAccessGroup;
+            _keychainAccessGroup = "es.socialpoint";//check: https://socialpoint.atlassian.net/wiki/display/MT/iOS+Keychain
             _memoryInfo = new IosMemoryInfo();
             _storageInfo = new IosStorageInfo();
             _appInfo = new IosAppInfo();
