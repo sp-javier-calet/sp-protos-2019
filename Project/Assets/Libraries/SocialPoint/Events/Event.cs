@@ -1,7 +1,6 @@
-﻿using System;
+﻿using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.Events
 {
@@ -11,7 +10,7 @@ namespace SocialPoint.Events
         const string AttrKeyTimestamp = "ts";
         const string AttrKeyData = "data";
         const string AttrKeyNum = "num";
-		public ErrorDelegate ResponseDelegate;
+        public ErrorDelegate ResponseDelegate;
         public string Name;
         public long Timestamp;
         public AttrDic Data;
@@ -21,7 +20,7 @@ namespace SocialPoint.Events
         /// <summary>
         /// Initializes a new instance of the <see cref="SocialPoint.Events.Event"/> class.
         /// </summary>
-        /// <param name="type">Name.</param>
+        /// <param name="name">Event name.</param>
         /// <param name="data">Data.</param>
         /// <param name="responseDelegate">Response delegate that will be called when the request is finished.</param>
         public Event(string name, AttrDic data, ErrorDelegate responseDelegate = null)
@@ -37,20 +36,13 @@ namespace SocialPoint.Events
             var datadic = data.AssertDic;
             Name = datadic.GetValue(AttrKeyType).ToString();
             Timestamp = datadic.GetValue(AttrKeyTimestamp).ToLong();
-            if(datadic.ContainsKey(AttrKeyNum))
-            {
-                Num = datadic.GetValue(AttrKeyNum).ToInt();
-            }
-            else
-            {
-                Num = -1;
-            }
+            Num = datadic.ContainsKey(AttrKeyNum) ? datadic.GetValue(AttrKeyNum).ToInt() : -1;
             Data = datadic.Get(AttrKeyData).AsDic;
         }
 
         public Attr ToAttr()
         {
-            AttrDic dic = new AttrDic();
+            var dic = new AttrDic();
             dic.SetValue(AttrKeyType, Name);
             dic.SetValue(AttrKeyTimestamp, Timestamp);
             dic.Set(AttrKeyData, Data);

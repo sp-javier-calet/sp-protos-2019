@@ -1,10 +1,9 @@
-
+using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using System;
 
 namespace SocialPoint.Events
-{	
+{
     public class EmptyEventTracker : IEventTracker
     {
         public event EventTrackerErrorDelegate GeneralError
@@ -52,7 +51,7 @@ namespace SocialPoint.Events
         {
         }
 
-        public void TrackLevelUp(int lvl, AttrDic data=null)
+        public void TrackLevelUp(int lvl, AttrDic data = null)
         {
         }
 
