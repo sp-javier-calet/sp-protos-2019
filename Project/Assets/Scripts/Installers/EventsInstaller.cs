@@ -22,7 +22,7 @@ public class EventsInstaller : MonoInstaller
         Container.BindInstance("event_tracker_send_interval", Settings.SendInterval);
         Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
         Container.Rebind<IEventTracker>().ToSingle<EventTracker>();
-        Container.Rebind<IDisposable>().ToSingle<EventTracker>();
+        Container.Bind<IDisposable>().ToLookup<IEventTracker>();
 
         Container.Resolve<IEventTracker>();
 	}

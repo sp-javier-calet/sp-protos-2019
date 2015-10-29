@@ -18,10 +18,15 @@ public class QualityStatsInstaller : MonoInstaller
         {
             return;
         }
-        var httpClient = new QualityStatsHttpClient(_httpClient);
-        Container.Rebind<IHttpClient>().ToInstance(httpClient);
-        Container.Bind<QualityStatsHttpClient>().ToInstance(httpClient);
-        Container.Bind<QualityStats>().ToSingle<QualityStats>();
+        if(!(_httpClient is QualityStatsHttpClient))
+        {
+            var httpClient = new QualityStatsHttpClient(_httpClient);
+            Container.Rebind<IHttpClient>().ToInstance(httpClient);
+            Container.Rebind<QualityStatsHttpClient>().ToInstance(httpClient);
+            Container.Bind<IDisposable>().ToInstance(httpClient);
+        }
+        Container.Rebind<QualityStats>().ToSingle<QualityStats>();
+        Container.Bind<IDisposable>().ToLookup<QualityStats>();
         Container.Resolve<QualityStats>();
     }
 }

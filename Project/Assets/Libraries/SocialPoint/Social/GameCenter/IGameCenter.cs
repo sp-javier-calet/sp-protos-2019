@@ -54,7 +54,6 @@ namespace SocialPoint.Social
             Underage,
             Adult
         }
-        ;
         
         public string UserId { get; private set; }
         

@@ -27,7 +27,7 @@ public class ServerSyncInstaller : MonoInstaller
         Container.BindInstance("command_queue_ping_enabled", Settings.PingEnabled);
 
         Container.Rebind<ICommandQueue>().ToSingle<CommandQueue>();
-        Container.Rebind<IDisposable>().ToSingle<CommandQueue>();
+        Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
 
 	}
 

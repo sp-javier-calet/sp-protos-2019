@@ -20,32 +20,24 @@ public class EmptyBackendInstaller : MonoInstaller
         if(!Container.HasBinding<IEventTracker>())
         {
             Container.Bind<IEventTracker>().ToSingle<EmptyEventTracker>();
-            Container.Bind<IDisposable>().ToSingle<EmptyEventTracker>();
+            Container.Bind<IDisposable>().ToLookup<IEventTracker>();
         }
         if(!Container.HasBinding<ILogin>())
         {
-            Container.Bind<ILogin>().ToMethod(CreateEmptyLogin);
-            Container.Bind<IDisposable>().ToMethod(CreateEmptyLogin);
+            Container.Bind<ILogin>().ToSingle<EmptyLogin>();
+            Container.Bind<IDisposable>().ToLookup<ILogin>();
         }
         if(!Container.HasBinding<ICommandQueue>())
         {
             Container.Bind<ICommandQueue>().ToSingle<EmptyCommandQueue>();
-            Container.Bind<IDisposable>().ToSingle<EmptyCommandQueue>();
+            Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
         }
         if(!Container.HasBinding<ICrashReporter>())
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
+            Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
         }
         _gameLoader.LoadInitial();
     }
-    
-    EmptyLogin _emptyLogin = null;
-    EmptyLogin CreateEmptyLogin(InjectContext ctx)
-    {
-        if(_emptyLogin == null)
-        {
-            _emptyLogin = new EmptyLogin();
-        }
-        return _emptyLogin;
-    }
+
 }

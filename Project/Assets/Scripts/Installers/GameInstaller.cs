@@ -18,33 +18,12 @@ public class GameInstaller : MonoInstaller
     {
         Container.BindInstance("game_initial_json_resource", Settings.InitialJsonResource);
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
-
-        if(!Container.HasBinding<GameParser>())
-        {
-            Container.BindAllInterfacesToSingle<GameParser>();
-        }
-        if(!Container.HasBinding<GameModel>())
-        {
-            Container.Bind<GameModel>().ToSingleMethod<GameModel>(CreateGameModel);
-        }
-        if(!Container.HasBinding<PlayerModel>())
-        {
-            Container.Bind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
-        }
-        if(!Container.HasBinding<ConfigModel>())
-        {
-            Container.Bind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
-        }         
-        if(!Container.HasBinding<ISerializer<PlayerModel>>())
-        {
-            Container.Bind<ISerializer<PlayerModel>>()
-                .ToSingleMethod<PlayerParser>(CreatePlayerParser);
-        }
-        if(!Container.HasBinding<GameLoader>())
-        {
-            Container.Bind<GameLoader>().ToSingle();
-        }
+        Container.Rebind<IParser<GameModel>>().ToSingle<GameParser>();
+        Container.Rebind<GameModel>().ToSingleMethod<GameModel>(CreateGameModel);
+        Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
+        Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
+        Container.Rebind<ISerializer<PlayerModel>>().ToSingleMethod<PlayerParser>(CreatePlayerParser);
+        Container.Rebind<GameLoader>().ToSingle();
     }
     
     void OnGameModelAssigned()

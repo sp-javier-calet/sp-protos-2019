@@ -22,18 +22,14 @@ public class RatingInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        if(Container.HasBinding<IAppRater>())
-        {
-            return;
-        }
         Container.BindInstance("apprater_uses_until_prompt", Settings.UsesUntilPrompt);
         Container.BindInstance("apprater_events_until_prompt", Settings.EventsUntilPrompt);
         Container.BindInstance("apprater_days_until_prompt", Settings.DaysUntilPrompt);
         Container.BindInstance("apprater_days_before_reminding", Settings.DaysBeforeReminding);
         Container.BindInstance("apprater_user_level_until_prompt", Settings.UserLevelUntilPrompt);
         Container.BindInstance("apprater_max_prompts_per_day", Settings.MaxPromptsPerDay);
-        Container.Bind<IAppRater>().ToSingle<AppRater>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppRater>();
+        Container.Rebind<IAppRater>().ToSingle<AppRater>();
+        Container.Bind<IDisposable>().ToSingle<AppRater>();
         Container.Resolve<IAppRater>();
     }
 }

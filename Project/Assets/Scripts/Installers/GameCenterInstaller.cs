@@ -13,21 +13,16 @@ public class GameCenterInstaller : MonoInstaller
     };
     
     public SettingsData Settings;
-    
-    
+        
     public override void InstallBindings()
     {
-        if(Container.HasBinding<IGameCenter>())
-        {
-            return;
-        }
         if(Settings.UseEmpty)
         {
-            Container.Bind<IGameCenter>().ToSingle<EmptyGameCenter>();
+            Container.Rebind<IGameCenter>().ToSingle<EmptyGameCenter>();
         }
         else
         {
-            Container.Bind<IGameCenter>().ToSingleMethod<UnityGameCenter>(CreateUnityGameCenter);
+            Container.Rebind<IGameCenter>().ToSingleMethod<UnityGameCenter>(CreateUnityGameCenter);
         }
     }
 

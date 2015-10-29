@@ -36,12 +36,12 @@ public class GUIInstaller : MonoInstaller
         var popups = GameObject.FindObjectOfType<PopupsController>();
         if(popups != null)
         {
-            Container.Bind<PopupsController>().ToSingleInstance(popups);
+            Container.Rebind<PopupsController>().ToSingleInstance(popups);
         }
 		var screens = GameObject.FindObjectOfType<ScreensController>();
 		if(screens != null)
         {
-            Container.Bind<ScreensController>().ToSingleInstance(screens);
+            Container.Rebind<ScreensController>().ToSingleInstance(screens);
         }		
     }
     

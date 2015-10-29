@@ -21,7 +21,7 @@ public class CrashInstaller : MonoInstaller
         Container.BindInstance("crash_reporter_error_log_active", Settings.ErrorLogActive);
         Container.BindInstance("crash_reporter_exception_log_active", Settings.ExceptionLogActive);
         Container.Rebind<ICrashReporter>().ToSingle<CrashReporter>();
-
+        Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
         Container.Resolve<ICrashReporter>();
 	}
 

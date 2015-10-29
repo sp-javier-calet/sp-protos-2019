@@ -67,7 +67,6 @@ public class LoginInstaller : MonoInstaller
             Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateGameCenterLink);
         }
 
-
         Container.BindInstance("backend_env", Settings.Environment);
         Container.BindInstance("login_timeout", Settings.Timeout);
         Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
@@ -77,15 +76,14 @@ public class LoginInstaller : MonoInstaller
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
         
         Container.Rebind<ILogin>().ToSingle<Login>();
-        Container.Rebind<IDisposable>().ToSingle<Login>();
+        Container.Bind<IDisposable>().ToLookup<ILogin>();
 	}
 
     FacebookLink CreateFacebookLink(InjectContext ctx)
     {
         return new FacebookLink(Facebook, Settings.FacebookLoginWithUi);
     }
-
-    
+        
     GameCenterLink CreateGameCenterLink(InjectContext ctx)
     {
         return new GameCenterLink(GameCenter);

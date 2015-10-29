@@ -18,24 +18,17 @@ public class StorageInstaller : MonoInstaller
 	{		
         PathsManager.Init();
 
-        if(!Container.HasBinding<IAttrStorage>("volatile"))
-        {
-            var vol = new PlayerPrefsAttrStorage();
-            vol.Prefix = Settings.VolatilePrefix;
-            Container.Bind<IAttrStorage>("volatile").ToSingleInstance(vol);
-        }
+        var vol = new PlayerPrefsAttrStorage();
+        vol.Prefix = Settings.VolatilePrefix;
+        Container.Bind<IAttrStorage>("volatile").ToSingleInstance(vol);
 
-        if(!Container.HasBinding<IAttrStorage>("persistent"))
-        {
-            #if UNITY_IOS && !UNITY_EDITOR
-            var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
-            #else
-            var persistent = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, Settings.PersistentPrefix));
-            #endif
+        #if UNITY_IOS && !UNITY_EDITOR
+        var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
+        #else
+        var persistent = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, Settings.PersistentPrefix));
+        #endif
 
-            var vol = Container.Resolve<IAttrStorage>("volatile");
-            var transition = new TransitionAttrStorage(vol, persistent);
-            Container.Bind<IAttrStorage>("persistent").ToSingleInstance(transition);
-        }
+        var transition = new TransitionAttrStorage(vol, persistent);
+        Container.Bind<IAttrStorage>("persistent").ToSingleInstance(transition);
 	}
 }
