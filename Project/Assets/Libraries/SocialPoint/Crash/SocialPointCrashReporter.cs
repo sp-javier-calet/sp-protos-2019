@@ -1,6 +1,5 @@
 ﻿using SocialPoint.Hardware;
 using SocialPoint.Network;
-using SocialPoint.IO;
 using UnityEngine;
 
 namespace SocialPoint.Crash

@@ -1,7 +1,6 @@
-
+using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using System;
 
 namespace SocialPoint.Events
 {
@@ -12,9 +11,9 @@ namespace SocialPoint.Events
         OutOfSync,
         HttpResponse,
         SessionLost
-    };
+    }
 
-    public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type, Error err);
+    public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type,Error err);
 
     public class ResourceOperation
     {
@@ -24,20 +23,14 @@ namespace SocialPoint.Events
         public string Subcategory;
         public AttrDic AdditionalData;
 
-        bool _potentialAmountSet = false;
-        int _potentialAmount = 0;
+        bool _potentialAmountSet;
+        int _potentialAmount;
+
         public int PotentialAmount
         {
             get
             {
-                if(_potentialAmountSet)
-                {
-                    return _potentialAmount;
-                }
-                else
-                {
-                    return Amount;
-                }
+                return _potentialAmountSet ? _potentialAmount : Amount;
             }
 
             set
@@ -62,8 +55,8 @@ namespace SocialPoint.Events
     {
         public string Step;
         public string Type;
-        public bool AutoCompleted = false;
-        public bool System = false;
+        public bool AutoCompleted;
+        public bool System;
         public AttrDic AdditionalData;
     }
 
@@ -73,14 +66,21 @@ namespace SocialPoint.Events
         event EventTrackerErrorDelegate GeneralError;
 
         void Start();
+
         void Stop();
+
         void Reset();
+
         bool Send();
 
         void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
+
         void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
+
         void TrackFunnel(FunnelOperation op);
+
         void TrackLevelUp(int lvl, AttrDic data = null);
+
         void TrackResource(ResourceOperation op);
     }
 }

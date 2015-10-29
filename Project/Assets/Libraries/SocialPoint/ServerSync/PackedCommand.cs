@@ -1,10 +1,4 @@
-
-using System;
-using System.Text;
-using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.Attributes;
-using SocialPoint.Network;
 
 namespace SocialPoint.ServerSync
 {

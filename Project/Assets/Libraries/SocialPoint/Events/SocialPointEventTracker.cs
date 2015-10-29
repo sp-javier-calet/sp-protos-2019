@@ -1,27 +1,25 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using UnityEngine;
-using SocialPoint.Base;
-using SocialPoint.Utils;
-using SocialPoint.Attributes;
-using SocialPoint.Network;
-using SocialPoint.Hardware;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Crash;
-
+using SocialPoint.Hardware;
+using SocialPoint.Network;
 using SocialPoint.ServerSync;
+using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.Events
 {
     public class SocialPointEventTracker : IEventTracker
     {
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
+        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
 
-        private const string TrackingAuthorizedUri = "track";
-        private const string TrackingUnautorizedUri = "unauthorized/track";
-        
+        const string TrackingAuthorizedUri = "track";
+        const string TrackingUnautorizedUri = "unauthorized/track";
+
         private const string EventNameFunnel = "game.funnel";
         private const string EventNameLevel = "game.level_up";
         private const string EventNameGameStart = "game.start";
@@ -67,7 +65,7 @@ namespace SocialPoint.Events
         public IDeviceInfo DeviceInfo;
         public ICommandQueue CommandQueue;
 
-        List<Events.Event> _pendingEvents;
+        List<Event> _pendingEvents;
         MonoBehaviour _behaviour;
         Coroutine _updateCoroutine;
         bool _sending;
@@ -97,7 +95,7 @@ namespace SocialPoint.Events
             }
         }
 
-        private IAppEvents _appEvents;
+        IAppEvents _appEvents;
 
         public IAppEvents AppEvents
         {
@@ -120,24 +118,15 @@ namespace SocialPoint.Events
             }
         }
 
-
-        private BreadcrumbManager _breadcrumbManager;
-
         public BreadcrumbManager BreadcrumbManager
         {
-            get
-            {
-                return _breadcrumbManager;
-            }
-            set
-            {
-                _breadcrumbManager = value;
-            }
+            get;
+            set;
         }
 
         #region App Events
 
-        private void ConnectAppEvents(IAppEvents appEvents)
+        void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource += OnOpenedFromSource;
             appEvents.RegisterWillGoBackground(0, OnAppWillGoBackground);
@@ -147,7 +136,7 @@ namespace SocialPoint.Events
             appEvents.RegisterGameWillRestart(-100, OnGameRestart);
         }
 
-        private void DisconnectAppEvents(IAppEvents appEvents)
+        void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource -= OnOpenedFromSource;
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
@@ -242,7 +231,7 @@ namespace SocialPoint.Events
             _syncTimestamp += dt;
         }
 
-        private void TrackEventByRequest(string eventName, AttrDic data, ErrorDelegate del = null)
+        void TrackEventByRequest(string eventName, AttrDic data, ErrorDelegate del = null)
         {
             if(data == null)
             {
@@ -254,7 +243,7 @@ namespace SocialPoint.Events
         }
 
 
-        private void TrackEventByCommand(string eventName, AttrDic data, ErrorDelegate del = null)
+        void TrackEventByCommand(string eventName, AttrDic data, ErrorDelegate del = null)
         {
             if(data == null)
             {
@@ -273,9 +262,9 @@ namespace SocialPoint.Events
 
         public void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
-            if(_breadcrumbManager != null)
+            if(BreadcrumbManager != null)
             {
-                _breadcrumbManager.Log(string.Format("{0} {1}",eventName, data));
+                BreadcrumbManager.Log(string.Format("{0} {1}", eventName, data));
             }
             if(CommandQueue == null || IsEventUnauthorized(eventName))
             {
@@ -366,10 +355,7 @@ namespace SocialPoint.Events
                 int count = 2;
                 Action step = () => {
                     count--;
-                    if(count == 0)
-                    {
-                        _sending = false;
-                    }
+                    _sending &= count != 0;
                 };
                 DoSend(false, step);
                 DoSend(true, step);
@@ -409,7 +395,7 @@ namespace SocialPoint.Events
         void DoSend(bool auth, Action finish = null)
         {
             var evs = new AttrList();
-            List<Event> sentEvents = new List<Event>();
+            var sentEvents = new List<Event>();
             foreach(var ev in _pendingEvents)
             {
                 var evauth = !IsEventUnauthorized(ev.Name);
@@ -434,7 +420,7 @@ namespace SocialPoint.Events
                 return;
             }
 
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
             var common = new AttrDic();
             data.Set("common", common);
             common.SetValue("plat", DeviceInfo.Platform);
@@ -449,20 +435,20 @@ namespace SocialPoint.Events
 
         void SendData(byte[] data, bool auth, List<Event> sentEvents, Action finish = null)
         {
-            HttpRequest req = new HttpRequest();
+            var req = new HttpRequest();
             var uri = auth ? TrackingAuthorizedUri : TrackingUnautorizedUri;
             if(RequestSetup != null)
             {
                 RequestSetup(req, uri);
             }
             req.Body = data;
-            if(req.Timeout == 0.0f)
+            if(Math.Abs(req.Timeout) < Mathf.Epsilon)
             {
                 req.Timeout = Timeout;
             }
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             req.CompressBody = true;
-            _httpConn = HttpClient.Send(req, (HttpResponse resp) => {
+            _httpConn = HttpClient.Send(req, resp => {
                 OnHttpResponse(resp, sentEvents);
                 if(finish != null)
                 {
@@ -558,12 +544,7 @@ namespace SocialPoint.Events
 
         public void TrackFunnel(FunnelOperation op)
         {
-
-            var data = op.AdditionalData;
-            if(data == null)
-            {
-                data = new AttrDic();
-            }
+            var data = op.AdditionalData ?? new AttrDic();
             var funnel = new AttrDic();
             data.Set("funnel", funnel);
             funnel.SetValue("step", op.Step);
@@ -624,7 +605,7 @@ namespace SocialPoint.Events
 
         void TrackGameOpen(AppSource source)
         {
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
             var origin = new AttrDic();
             data.Set("origin", origin);
 
@@ -651,21 +632,10 @@ namespace SocialPoint.Events
         public void TrackResource(ResourceOperation op)
         {
             string name;
-            if(op.Amount >= 0)
-            {
-                name = EventNameResourceEarning;
-            }
-            else
-            {
-                name = EventNameResourceSpending;
-            }
+            name = op.Amount >= 0 ? EventNameResourceEarning : EventNameResourceSpending;
             name = string.Format(name, op.Resource);
 
-            var data = op.AdditionalData;
-            if(data == null)
-            {
-                data = new AttrDic();
-            }
+            var data = op.AdditionalData ?? new AttrDic();
             var operation = new AttrDic();
             data.Set("operation", operation);
             operation.SetValue("category", op.Category);

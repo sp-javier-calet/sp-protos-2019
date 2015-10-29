@@ -1,8 +1,6 @@
-
-using System;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
@@ -21,7 +19,7 @@ namespace SocialPoint.ServerSync
         static readonly string AttrKeyUnique = "unique";
         static readonly string AttrKeyAtomic = "atomic";
 
-        public Command(string name, Attr args=null, bool unique=false, bool atomic=true)
+        public Command(string name, Attr args = null, bool unique = false, bool atomic = true)
         {
             Id = RandomUtils.GetUuid();
             Name = name;

@@ -1,21 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
 using SocialPoint.Hardware;
-using SocialPoint.Network;
 using SocialPoint.IO;
+using SocialPoint.Network;
 using UnityEngine;
 
 namespace SocialPoint.Crash
 {
     public class DeviceCrashReporter : BaseCrashReporter
     {
-        private class DeviceReport : Report
+        class DeviceReport : Report
         {
-            private string CrashPath  { get; set; }
+            string CrashPath  { get; set; }
 
-            private string LogPath { get; set; }
+            string LogPath { get; set; }
 
             public DeviceReport(string fullCrashPath)
             {
@@ -32,7 +32,7 @@ namespace SocialPoint.Crash
                 LogPath = logPath;
             }
 
-            private bool TryReadFile(string filePath, out string content)
+            static bool TryReadFile(string filePath, out string content)
             {
                 bool success = false;
                 try
@@ -118,33 +118,34 @@ namespace SocialPoint.Crash
 
         #if UNITY_ANDROID
         const string PluginModuleName = "sp_unity_crash_reporter";
-        #else
+        
+#else
         const string PluginModuleName = "__Internal";
         #endif
 
         /* Native plugin interface */
         [DllImport(PluginModuleName)]
-        private static extern bool native_crashReporter_enable(UIntPtr ctx);
+        static extern bool native_crashReporter_enable(UIntPtr ctx);
 
         [DllImport(PluginModuleName)]
-        private static extern bool native_crashReporter_disable(UIntPtr ctx);
+        static extern bool native_crashReporter_disable(UIntPtr ctx);
 
         [DllImport(PluginModuleName)]
-        private static extern void native_crashReporter_forceCrash();
+        static extern void native_crashReporter_forceCrash();
 
         [DllImport(PluginModuleName)]
-        private static extern UIntPtr native_crashReporter_create(string path, string version, string separator, string crashExtension, string logExtension);
+        static extern UIntPtr native_crashReporter_create(string path, string version, string separator, string crashExtension, string logExtension);
 
         [DllImport(PluginModuleName)]
-        private static extern void native_crashReporter_destroy(UIntPtr ctx);
+        static extern void native_crashReporter_destroy(UIntPtr ctx);
 
         public const string CrashesFolder = "/crashes/";
         public const string CrashExtension = ".crash";
         public const string LogExtension = ".logcat";
         public const string FileSeparator = "-";
 
-        private string _crashesBasePath;
-        private UIntPtr _nativeObject;
+        readonly string _crashesBasePath;
+        UIntPtr _nativeObject;
 
         public DeviceCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
             : base(behaviour, client, deviceInfo, breadcrumbManager)
@@ -188,10 +189,10 @@ namespace SocialPoint.Crash
 
         protected override List<Report> GetPendingCrashes()
         {
-            List<Report> reports = new List<Report>();
+            var reports = new List<Report>();
 
             // Iterates over all files in the crashes folder
-            DirectoryInfo dir = new DirectoryInfo(_crashesBasePath);
+            var dir = new DirectoryInfo(_crashesBasePath);
             FileInfo[] info = dir.GetFiles();
 
             foreach(FileInfo f in info)

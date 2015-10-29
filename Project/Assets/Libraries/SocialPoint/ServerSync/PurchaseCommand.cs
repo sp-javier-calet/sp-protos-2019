@@ -1,6 +1,3 @@
-
-using System;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
