@@ -6,6 +6,8 @@ namespace SocialPoint.AppEvents
 {
     public class UnityAppEvents : BaseAppEvents
     {
+        bool _openedFromSource = false;
+
         private void Awake()
         {
             // Set the GameObject name to the class name for easy access from native plugin
@@ -19,7 +21,11 @@ namespace SocialPoint.AppEvents
 
         private void Start()
         {
-            OnOpenedFromSource(Source);
+            if(!_openedFromSource)
+            {
+                OnOpenedFromSource(Source);
+                _openedFromSource = true;
+            }
         }
 
         void OnApplicationFocus(bool focusStatus)
@@ -35,7 +41,11 @@ namespace SocialPoint.AppEvents
             if(!pauseStatus)
             {
                 OnWasOnBackground();
-                OnOpenedFromSource(Source);
+                if(!_openedFromSource)
+                {
+                    OnOpenedFromSource(Source);
+                    _openedFromSource = true;
+                }
             }
             else
             {

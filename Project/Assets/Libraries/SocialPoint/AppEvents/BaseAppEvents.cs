@@ -55,6 +55,22 @@ namespace SocialPoint.AppEvents
         {
             _gameWillRestart.Remove(action);
         }
+                
+        /// <summary>
+        /// Occurs after the game is loaded.
+        /// </summary>
+        protected  void OnGameWasLoaded()
+        {
+            _gameWasLoaded.Run();
+        }
+        
+        /// <summary>
+        /// Occurs before game is restarted
+        /// </summary>
+        protected  void OnGameWillRestart()
+        {
+            _gameWillRestart.Run();
+        }
 
         #endregion
 
@@ -88,22 +104,6 @@ namespace SocialPoint.AppEvents
         protected  void OnWillGoBackground()
         {
             _willGoBackground.Run();
-        }
-        
-        /// <summary>
-        /// Occurs after the game is loaded.
-        /// </summary>
-        protected  void OnGameWasLoaded()
-        {
-            _gameWasLoaded.Run();
-        }
-
-        /// <summary>
-        /// Occurs before game is restarted
-        /// </summary>
-        protected  void OnGameWillRestart()
-        {
-            _gameWillRestart.Run();
         }
         
         /// <summary>

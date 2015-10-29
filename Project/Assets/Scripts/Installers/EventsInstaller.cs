@@ -24,6 +24,6 @@ public class EventsInstaller : MonoInstaller
         Container.Rebind<IEventTracker>().ToSingle<EventTracker>();
         Container.Rebind<IDisposable>().ToSingle<EventTracker>();
 
-        Container.Resolve<IEventTracker>().Start();
+        Container.Resolve<IEventTracker>();
 	}
 }

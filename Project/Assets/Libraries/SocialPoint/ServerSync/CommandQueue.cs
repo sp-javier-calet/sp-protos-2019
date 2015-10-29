@@ -102,26 +102,38 @@ namespace SocialPoint.ServerSync
         private void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.RegisterWillGoBackground(-25, OnAppWillGoBackground);
+            appEvents.RegisterGameWillRestart(-25, OnGameWillRestart);
             appEvents.RegisterGameWasLoaded(-1000, OnGameWasLoaded);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
+            appEvents.UnregisterGameWillRestart(OnGameWillRestart);
             appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
         }
 
         void OnGameWasLoaded()
         {
-            if(_updateCoroutine == null)
+            if(!Running)
             {
                 Start();
             }
         }
 
+        void OnGameWillRestart()
+        {
+            if(Running)
+            {
+                Stop();
+                Send();
+            }
+            Reset();
+        }
+
         void OnAppWillGoBackground()
         {
-            if(_updateCoroutine != null)
+            if(Running)
             {
                 SendUpdate();
             }
@@ -322,6 +334,14 @@ namespace SocialPoint.ServerSync
             }
         }
 
+        public bool Running
+        {
+            get
+            {
+                return _updateCoroutine != null;
+            }
+        }
+
         public void Dispose()
         {
             Stop();
@@ -386,7 +406,7 @@ namespace SocialPoint.ServerSync
 
         void SendCurrent(Action finish=null)
         {
-            var packet = PrepareNextPacket();
+            var packet = PrepareNextPacket(false);
             DoSend(packet, () => {
                 if(finish != null)
                 {
@@ -407,7 +427,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        Packet PrepareNextPacket()
+        Packet PrepareNextPacket(bool withPing)
         {
             if(_sendingPacket != null)
             {
@@ -420,14 +440,12 @@ namespace SocialPoint.ServerSync
                 _currentPacket = null;
                 return _sendingPacket;
             }
+            else if(withPing && PingEnabled)
+            {
+                _sendingPacket = new Packet();
+                return _sendingPacket;
+            }
             return null;
-        }
-
-        Packet PreparePingPacket()
-        {
-            var packet = new Packet();            
-            _sendingPacket = packet;            
-            return packet;
         }
 
         void SendUpdate()
@@ -446,11 +464,7 @@ namespace SocialPoint.ServerSync
             if(!_sending)
             {
                 _sending = true;
-                var packet = PrepareNextPacket();
-                if(packet == null && PingEnabled)
-                {
-                    packet = PreparePingPacket();
-                }
+                var packet = PrepareNextPacket(true);
                 DoSend(packet, AfterSend);
             }
         }

@@ -24,11 +24,12 @@ namespace SocialPoint.Events
         
         private const string EventNameFunnel = "game.funnel";
         private const string EventNameLevel = "game.level_up";
-        private const string EventNameGameOpen = "game.open";
         private const string EventNameGameStart = "game.start";
+        private const string EventNameGameOpen = "game.open";
         private const string EventNameGameLoading = "game.loading";
         private const string EventNameGameLoaded = "game.loaded";
-        private const string EventNameGameBackground = "game.background";
+        private const string EventNameGameBackground = "game.background";       
+        private const string EventNameGameRestart = "game.restart";
         private const string EventNameResourceEarning = "economy.{0}_earning";
         private const string EventNameResourceSpending = "economy.{0}_spending";
 
@@ -41,6 +42,7 @@ namespace SocialPoint.Events
             EventNameGameBackground,
             EventNameGameLoading,
             EventNameGameLoaded,
+            EventNameGameRestart,
             "errors.*"
         };
 
@@ -141,6 +143,8 @@ namespace SocialPoint.Events
             appEvents.RegisterWillGoBackground(0, OnAppWillGoBackground);
             appEvents.RegisterWillGoBackground(-100, OnAppGoBackground);
             appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
+            appEvents.RegisterGameWillRestart(0, OnGameWillRestart);
+            appEvents.RegisterGameWillRestart(-100, OnGameRestart);
         }
 
         private void DisconnectAppEvents(IAppEvents appEvents)
@@ -149,10 +153,31 @@ namespace SocialPoint.Events
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
             appEvents.UnregisterWillGoBackground(OnAppGoBackground);
             appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+            appEvents.UnregisterGameWillRestart(OnGameWillRestart);
+            appEvents.UnregisterGameWillRestart(OnGameRestart);
+        }
+
+        void OnGameWillRestart()
+        {
+            TrackGameRestart();
+        }
+
+        void OnGameRestart()
+        {
+            if(Running)
+            {
+                Send();
+                Stop();
+                Reset();
+            }
         }
 
         void OnGameWasLoaded()
         {
+            if(!Running)
+            {
+                Start();
+            }
             TrackGameLoaded();
         }
 
@@ -173,13 +198,17 @@ namespace SocialPoint.Events
 
         #endregion
 
-        public SocialPointEventTracker(MonoBehaviour behaviour)
+        public SocialPointEventTracker(MonoBehaviour behaviour, bool autoStart=true)
         {
             _behaviour = behaviour;
             UnauthorizedEvents = new List<string>(DefaultUnauthorizedEvents);
             _pendingEvents = new List<Event>();
             Reset();
             SetStartValues();
+            if(autoStart)
+            {
+                Start();
+            }
         }
 
         public void Reset()
@@ -291,6 +320,14 @@ namespace SocialPoint.Events
             {
                 _behaviour.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
+            }
+        }
+
+        bool Running
+        {
+            get
+            {
+                return _updateCoroutine != null;
             }
         }
 
@@ -573,6 +610,11 @@ namespace SocialPoint.Events
                 _gameLoadedTracked = true;
                 TrackSystemEvent(EventNameGameLoaded);
             }
+        }
+
+        void TrackGameRestart()
+        {
+            TrackSystemEvent(EventNameGameRestart);
         }
 
         public void TrackGameBackground()
