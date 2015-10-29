@@ -209,7 +209,7 @@ namespace SocialPoint.Events
             }
             if(_httpConn != null)
             {
-                _httpConn.Cancel();
+                _httpConn.Release();
                 _httpConn = null;
             }
         }

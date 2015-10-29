@@ -21,7 +21,6 @@ namespace SocialPoint.Network
         double _connectTime;
         double _totalTime;
         HttpRequest  _request;
-        HttpResponseDelegate _delegate;
         string _error;
         bool _cancelled;
         const char kHeaderEnd = '\n';
@@ -41,11 +40,11 @@ namespace SocialPoint.Network
             }
         }
 
-        public CurlHttpConnection(int connectionId, HttpRequest req, HttpResponseDelegate del)
+        public CurlHttpConnection(int connectionId, HttpRequest req, HttpResponseDelegate del):
+            base(del)
         {
             _connectionId = connectionId;
             _request = req;
-            _delegate = del;
             _dataReceived = false;
             Send(_connectionId, _request);
         }
@@ -203,10 +202,7 @@ namespace SocialPoint.Network
                 return;
             }
             
-            if(_delegate != null)
-            {
-                _delegate(resp);
-            }
+            OnResponse(resp);
         }
     }
 }

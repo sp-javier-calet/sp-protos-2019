@@ -12,6 +12,26 @@ namespace SocialPoint.Network
     {
         public abstract IEnumerator Update();
         public abstract void Cancel();
+
+        HttpResponseDelegate _callback;
+
+        public BaseYieldHttpConnection(HttpResponseDelegate callback)
+        {
+            _callback = callback;
+        }
+
+        protected void OnResponse(HttpResponse resp)
+        {
+            if(_callback != null)
+            {
+                _callback(resp);
+            }
+        }
+
+        public void Release()
+        {
+            _callback = null;
+        }
     }
 
     public abstract class BaseYieldHttpClient : IHttpClient

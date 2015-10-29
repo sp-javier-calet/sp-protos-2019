@@ -13,14 +13,11 @@ namespace SocialPoint.Network
     {
         private byte[] _requestBody;
         private HttpWebRequest _request;
-
-        private event HttpResponseDelegate _delegate;
     
-        public WebRequestHttpConnection(HttpWebRequest request, HttpResponseDelegate rdelegate, byte[] reqBody)
+        public WebRequestHttpConnection(HttpWebRequest request, HttpResponseDelegate del, byte[] reqBody):base(del)
         {
             _request = request;
             _requestBody = reqBody;
-            _delegate = rdelegate;
         }
     
         public override void Cancel()
@@ -78,23 +75,16 @@ namespace SocialPoint.Network
             { 
                 yield return enumeratorText.Current; 
             }
-            
-            if(_delegate != null)
-            {
-                var resp = ConvertResponse(response, webAsync.ResponseBody.ToArray());
-                _delegate(resp);
-            }
+
+            var resp = ConvertResponse(response, webAsync.ResponseBody.ToArray());
+            OnResponse(resp);
         }
         
         void NotifyError(HttpResponse.StatusCodeType statusCode, string errorMessage)
         {
-            if(_delegate != null)
-            {
-                var resp = new HttpResponse((int)statusCode);
-                resp.Error = new Error((int)statusCode, errorMessage);
-
-                _delegate(resp);
-            }
+            var resp = new HttpResponse((int)statusCode);
+            resp.Error = new Error((int)statusCode, errorMessage);
+            OnResponse(resp);
         }
 
         private HttpResponse ConvertResponse(HttpWebResponse wresp, byte[] responseBody)

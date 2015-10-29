@@ -8,7 +8,15 @@ namespace SocialPoint.Network
 
     public interface IHttpConnection
     {
+        /// <summary>
+        /// Should cancel the connection and call the callback with an error response
+        /// </summary>
         void Cancel();
+
+        /// <summary>
+        /// Will maintain the connection but not call the callback
+        /// </summary>
+        void Release();
     }
 
     public interface IHttpClient : IDisposable

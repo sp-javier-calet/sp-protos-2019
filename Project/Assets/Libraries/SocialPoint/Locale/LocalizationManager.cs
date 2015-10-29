@@ -253,7 +253,7 @@ namespace SocialPoint.Locale
         {
             if(_httpConn != null)
             {
-                _httpConn.Cancel();
+                _httpConn.Release();
                 _httpConn = null;
             }
             _running = false;

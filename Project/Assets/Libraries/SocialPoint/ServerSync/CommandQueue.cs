@@ -239,7 +239,7 @@ namespace SocialPoint.ServerSync
             _sendingAcks = new List<string>();
             if(_httpConn != null)
             {
-                _httpConn.Cancel();
+                _httpConn.Release();
             }
         }
 
