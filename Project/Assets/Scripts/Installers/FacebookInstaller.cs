@@ -25,5 +25,7 @@ public class FacebookInstaller : MonoInstaller
         {
             Container.Rebind<IFacebook>().ToSingle<UnityFacebook>();
         }
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelFacebook>();
     }
 }

@@ -24,7 +24,7 @@ public class EmptyBackendInstaller : MonoInstaller
         }
         if(!Container.HasBinding<ILogin>())
         {
-            Container.Bind<ILogin>().ToSingle<EmptyLogin>();
+            Container.Bind<ILogin>().ToSingleMethod<EmptyLogin>(CreateEmptyLogin);
             Container.Bind<IDisposable>().ToLookup<ILogin>();
         }
         if(!Container.HasBinding<ICommandQueue>())
@@ -38,6 +38,11 @@ public class EmptyBackendInstaller : MonoInstaller
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
         }
         _gameLoader.LoadInitial();
+    }
+
+    EmptyLogin CreateEmptyLogin(InjectContext ctx)
+    {
+        return new EmptyLogin();
     }
 
 }

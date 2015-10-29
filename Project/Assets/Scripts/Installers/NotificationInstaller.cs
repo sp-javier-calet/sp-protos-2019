@@ -31,7 +31,7 @@ public class NotificationInstaller : MonoInstaller
 #endif
 
         Container.Rebind<NotificationManager>().ToSingle<NotificationManager>();
-        Container.Bind<IDisposable>().ToLookup<NotificationManager>();
+        Container.Bind<IDisposable>().ToSingle<NotificationManager>();
         Container.Resolve<NotificationManager>();
 
         if(Settings.AutoRegisterForRemote)
@@ -39,6 +39,8 @@ public class NotificationInstaller : MonoInstaller
             var services = Container.Resolve<INotificationServices>();
             services.RegisterForRemote();
         }
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
     }
 
     AndroidNotificationServices CreateAndroidNotificationServices(InjectContext ctx)

@@ -26,7 +26,7 @@ public class QualityStatsInstaller : MonoInstaller
             Container.Bind<IDisposable>().ToInstance(httpClient);
         }
         Container.Rebind<QualityStats>().ToSingle<QualityStats>();
-        Container.Bind<IDisposable>().ToLookup<QualityStats>();
+        Container.Bind<IDisposable>().ToSingle<QualityStats>();
         Container.Resolve<QualityStats>();
     }
 }

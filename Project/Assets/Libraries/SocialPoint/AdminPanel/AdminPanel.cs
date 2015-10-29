@@ -11,15 +11,13 @@ namespace SocialPoint.AdminPanel
         public event Action ChangedVisibility;
         public bool Visible { get; private set; }
 
+        List<IAdminPanelConfigurer> _configurers = new List<IAdminPanelConfigurer>();
+
         public AdminPanel(List<IAdminPanelConfigurer> configurers)
         {
             Categories = new Dictionary<string, IAdminPanelGUI>();
             Console = new AdminPanelConsole();
-
-            foreach(var config in configurers)
-            {
-                config.OnConfigure(this);
-            }
+            RegisterConfigurers(configurers);
             Console.OnConfigure(this);
         }
 
@@ -38,6 +36,23 @@ namespace SocialPoint.AdminPanel
             if(ChangedVisibility != null)
             {
                 ChangedVisibility();
+            }
+        }
+
+        public void RegisterConfigurers(List<IAdminPanelConfigurer> configurers)
+        {
+            foreach(var config in configurers)
+            {
+                RegisterConfigurer(config);
+            }
+        }
+
+        public void RegisterConfigurer(IAdminPanelConfigurer config)
+        {
+            if(!_configurers.Contains(config))
+            {
+                config.OnConfigure(this);
+                _configurers.Add(config);
             }
         }
          

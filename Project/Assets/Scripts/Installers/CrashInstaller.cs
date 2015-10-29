@@ -23,6 +23,8 @@ public class CrashInstaller : MonoInstaller
         Container.Rebind<ICrashReporter>().ToSingle<CrashReporter>();
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
         Container.Resolve<ICrashReporter>();
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
 	}
 
 }

@@ -74,9 +74,11 @@ public class LoginInstaller : MonoInstaller
         Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
         Container.BindInstance("login_max_retries", Settings.MaxRetries);
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
-        
+
         Container.Rebind<ILogin>().ToSingle<Login>();
-        Container.Bind<IDisposable>().ToLookup<ILogin>();
+        Container.Bind<IDisposable>().ToSingle<Login>();
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLogin>();
 	}
 
     FacebookLink CreateFacebookLink(InjectContext ctx)

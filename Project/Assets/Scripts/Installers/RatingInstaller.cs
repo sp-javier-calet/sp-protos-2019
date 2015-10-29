@@ -31,6 +31,8 @@ public class RatingInstaller : MonoInstaller
         Container.Rebind<IAppRater>().ToSingle<AppRater>();
         Container.Bind<IDisposable>().ToSingle<AppRater>();
         Container.Resolve<IAppRater>();
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppRater>();
     }
 }
 

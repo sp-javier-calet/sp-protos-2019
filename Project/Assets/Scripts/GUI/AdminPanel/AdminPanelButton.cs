@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using SocialPoint.AdminPanel;
 using SocialPoint.GUIControl;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using Zenject;
 
@@ -10,6 +11,9 @@ public class AdminPanelButton : MonoBehaviour
 {
     [Inject]
     AdminPanel AdminPanel;
+
+    [Inject]
+    List<IAdminPanelConfigurer> _configurers;
 
     public float WaitTime = 1.0f;
     private bool _down = false;
@@ -27,7 +31,12 @@ public class AdminPanelButton : MonoBehaviour
         _timeSinceDown = 0.0f;
     }
 
-    public void Update()
+    void Start()
+    {
+        AdminPanel.RegisterConfigurers(_configurers);
+    }
+
+    void Update()
     {
         if(_down)
         {
