@@ -8,17 +8,8 @@ public class BaseInstaller : MonoInstaller
 {   
     public override void InstallBindings()
     {
-        if(!Container.HasBinding<MonoBehaviour>())
-        {
-            Container.Bind<MonoBehaviour>().ToSingleGameObject();
-        }
-        if(!Container.HasBinding<BreadcrumbManager>())
-        {
-            Container.Bind<BreadcrumbManager>().ToSingle();
-        }
-        if(!Container.HasBinding<SceneManager>())
-        {
-            Container.Bind<SceneManager>().ToInstance(SceneManager.Instance);
-        }
+        Container.Rebind<MonoBehaviour>().ToSingleGameObject();
+        Container.Rebind<BreadcrumbManager>().ToSingle();
+        Container.Rebind<SceneManager>().ToSingleInstance(SceneManager.Instance);
     }
 }
