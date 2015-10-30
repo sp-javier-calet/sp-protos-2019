@@ -16,7 +16,7 @@ namespace SocialPoint.ServerSync
 
         public delegate void ResponseDelegate(HttpResponse resp);
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         const string Uri = "packet";
         const string AttrKeyPackets = "packets";
@@ -167,7 +167,8 @@ namespace SocialPoint.ServerSync
         public event CommandErrorDelegate CommandError = delegate {};
         public event ResponseDelegate ResponseReceive = delegate {};
 
-        private int _lastAutoSyncDataHash;
+        int _lastAutoSyncDataHash;
+
         public SyncDelegate AutoSync{ set; private get; }
 
         bool _autoSyncEnabled = true;
@@ -453,7 +454,15 @@ namespace SocialPoint.ServerSync
         {
             if(_autoSyncEnabled && AutoSync != null)
             {
-                var data = AutoSync();
+                Attr data = new AttrEmpty();
+                try
+                {
+                    data = AutoSync();
+                }
+                catch(Exception e)
+                {
+                    CatchException(e);
+                }
                 var hash = data.GetHashCode();
                 if(hash != _lastAutoSyncDataHash)
                 {
@@ -535,7 +544,14 @@ namespace SocialPoint.ServerSync
 
             if(RequestSetup != null)
             {
-                RequestSetup(req, Uri);
+                try
+                {
+                    RequestSetup(req, Uri);
+                }
+                catch(Exception e)
+                {
+                    CatchException(e);
+                }
             }
 
             if(!req.HasParam(HttpParamSessionId))
@@ -627,10 +643,7 @@ namespace SocialPoint.ServerSync
                 syncData.SetValue(AttrKeyEventErrorHttpCode, httpCode);
                 TrackEvent(ErrorEventName, data);
             }
-            if(GeneralError != null)
-            {
-                GeneralError(type, err);
-            }
+            GeneralError(type, err);
         }
 
         bool CheckSync(HttpResponse resp)
@@ -791,5 +804,16 @@ namespace SocialPoint.ServerSync
             }
             _sendingAcks.Clear();
         }
+
+        static void CatchException(Exception e)
+        {
+            Debug.LogException(e);
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            NotifyError(CommandQueueErrorType.Exception, new Error(e.ToString()));
+            #endif
+        }
+
     }
 }

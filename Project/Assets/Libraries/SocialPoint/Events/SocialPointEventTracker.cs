@@ -439,7 +439,14 @@ namespace SocialPoint.Events
             var uri = auth ? TrackingAuthorizedUri : TrackingUnautorizedUri;
             if(RequestSetup != null)
             {
-                RequestSetup(req, uri);
+                try
+                {
+                    RequestSetup(req, uri);
+                }
+                catch(Exception e)
+                {
+                    CatchException(e);
+                }
             }
             req.Body = data;
             if(Math.Abs(req.Timeout) < Mathf.Epsilon)
@@ -648,5 +655,14 @@ namespace SocialPoint.Events
             TrackEvent(name, data);
         }
 
+        static void CatchException(Exception e)
+        {
+            Debug.LogException(e);
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            GeneralError(EventTrackerErrorType.Exception, new Error(e.ToString()));
+            #endif
+        }
     }
 }

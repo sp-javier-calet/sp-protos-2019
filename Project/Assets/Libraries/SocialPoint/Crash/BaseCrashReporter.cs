@@ -601,7 +601,14 @@ namespace SocialPoint.Crash
                 return;
             }
             var req = new HttpRequest();
-            RequestSetup(req, UriException);
+            try
+            {
+                RequestSetup(req, UriException);
+            }
+            catch(Exception e)
+            {
+                CatchException(e);
+            }
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             var exceptionLogs = new AttrList();
             foreach(var storedKey in storedKeys)
@@ -627,7 +634,14 @@ namespace SocialPoint.Crash
                 return;
             }
             var req = new HttpRequest();
-            RequestSetup(req, UriCrash);
+            try
+            {
+                RequestSetup(req, UriCrash);
+            }
+            catch(Exception e)
+            {
+                CatchException(e);
+            }
             SetupCrashHttpRequest(req, log);
             _httpClient.Send(req, resp => OnCrashSend(resp, log));
         }
@@ -819,5 +833,13 @@ namespace SocialPoint.Crash
         }
 
         #endregion
+
+        static void CatchException(Exception e)
+        {
+            Debug.LogException(e);
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #endif
+        }
     }
 }
