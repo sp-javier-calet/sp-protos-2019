@@ -17,18 +17,15 @@ public class FacebookInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        if(Container.HasBinding<IFacebook>())
-        {
-            return;
-        }
         if(Settings.UseEmpty)
         {
-            Container.Bind<IFacebook>().ToSingle<EmptyFacebook>();
+            Container.Rebind<IFacebook>().ToSingle<EmptyFacebook>();
         }
         else
         {
-            Container.Bind<IFacebook>().ToSingle<UnityFacebook>();
+            Container.Rebind<IFacebook>().ToSingle<UnityFacebook>();
         }
+
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelFacebook>();
     }
 }

@@ -72,7 +72,6 @@ namespace SocialPoint.AppEvents
             }
             _appEvents.TriggerWillGoBackground();
         }
-
         
         public void TriggerGameWasLoaded()
         {
@@ -81,6 +80,15 @@ namespace SocialPoint.AppEvents
                 return;
             }
             _appEvents.TriggerGameWasLoaded();
+        }
+                
+        public void RestartGame()
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.RestartGame();
         }
 
         public void RegisterWillGoBackground(int priority, Action action)
@@ -100,8 +108,7 @@ namespace SocialPoint.AppEvents
             }
             _appEvents.UnregisterWillGoBackground(action);
         }
-
-        
+                
         public void RegisterGameWasLoaded(int priority, Action action)
         {
             if(_appEvents == null)
@@ -118,6 +125,24 @@ namespace SocialPoint.AppEvents
                 return;
             }
             _appEvents.UnregisterGameWasLoaded(action);
+        }
+        
+        public void RegisterGameWillRestart(int priority, Action action)
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.RegisterGameWillRestart(priority, action);
+        }
+        
+        public void UnregisterGameWillRestart(Action action)
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.UnregisterGameWillRestart(action);
         }
 
         public event Action WasOnBackground
@@ -231,7 +256,7 @@ namespace SocialPoint.AppEvents
                 _appEvents.ApplicationQuit -= value;
             }
         }
-
+        
         public event Action<int> LevelWasLoaded
         {
             add

@@ -22,11 +22,14 @@ namespace SocialPoint.AppEvents
 
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("App Events", this));
 
-            _appEvents.OpenedFromSource += (source) => { AddEvent("OpenedFromSource: " + source); };;
+            _appEvents.OpenedFromSource += (source) => { AddEvent("OpenedFromSource: " + source); };
             _appEvents.WasCovered += () => { AddEvent("WasCovered"); };
             _appEvents.WasOnBackground += () => { AddEvent("WasOnBackground"); };
             _appEvents.RegisterWillGoBackground(0, () => { AddEvent("WillGoBackground"); });
+            _appEvents.RegisterGameWillRestart(0, () => { AddEvent("GameWillRestart"); });
+            _appEvents.RegisterGameWasLoaded(0, () => { AddEvent("GameWasLoaded"); });
             _appEvents.LevelWasLoaded += (value) => { AddEvent("LevelWasLoaded: " + value); };
+            _appEvents.ApplicationQuit += () =>  { AddEvent("ApplicationQuit"); };
             _appEvents.ReceivedMemoryWarning += () => { AddEvent("ReceivedMemoryWarning"); };
         }
 
@@ -47,6 +50,10 @@ namespace SocialPoint.AppEvents
             layout.CreateButton("Trigger Go Background", () => {
                 _appEvents.TriggerWillGoBackground();
                 RefreshContent();
+            });
+
+            layout.CreateConfirmButton("Restart Game", () => {
+                _appEvents.RestartGame();
             });
         }
 

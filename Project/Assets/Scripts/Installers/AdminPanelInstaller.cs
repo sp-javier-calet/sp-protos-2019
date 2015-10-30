@@ -6,12 +6,9 @@ public class AdminPanelInstaller : MonoInstaller
 {
     public override void InstallBindings()
     {
-        if(Container.HasBinding<AdminPanel>())
-        {
-            return;
-        }
-        Container.Bind<AdminPanel>().ToSingle<AdminPanel>();       
+        Container.Rebind<AdminPanel>().ToSingle<AdminPanel>();       
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
     }
 }

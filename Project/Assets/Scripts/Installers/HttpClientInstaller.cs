@@ -15,13 +15,10 @@ public class HttpClientInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-        if(Container.HasBinding<HttpClient>())
-        {
-            return;
-        }
 #if UNITY_EDITOR
         Container.BindInstance("http_client_proxy", Settings.EditorProxy);
 #endif
-        Container.BindAllInterfacesToSingle<HttpClient>();
+        Container.Rebind<IHttpClient>().ToSingle<HttpClient>();
+        Container.Bind<IDisposable>().ToLookup<IHttpClient>();
 	}
 }

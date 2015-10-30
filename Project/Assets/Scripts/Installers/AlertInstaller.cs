@@ -35,6 +35,7 @@ public class AlertInstaller : MonoInstaller
         {
             var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
             Container.Bind<IAlertView>().ToSingleInstance(unityAlertView);
+            Container.Bind<IDisposable>().ToLookup<IAlertView>();
         }
     }
 

@@ -29,11 +29,7 @@ public class LocaleInstaller : MonoInstaller
 
     public override void InstallBindings()
     {	
-        if(Container.HasBinding<Localization>())
-        {
-            return;
-        }
-        Container.Bind<Localization>().ToSingle();
+        Container.Rebind<Localization>().ToSingle();
         Container.BindInstance("locale_project_id", Settings.ProjectId);
         Container.BindInstance("locale_env_id", Settings.EnvironmentId.ToString());
         string secretKey;
@@ -53,7 +49,7 @@ public class LocaleInstaller : MonoInstaller
         Container.BindInstance("locale_supported_langs", Settings.SupportedLanguages);
         Container.BindInstance("locale_timeout", Settings.Timeout);
         Container.BindInstance("locale_bundle_dir", Settings.BundleDir);
-        Container.BindAllInterfacesToSingle<LocalizationManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
+        Container.Rebind<ILocalizationManager>().ToSingle<LocalizationManager>();
+        Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
     }
 }

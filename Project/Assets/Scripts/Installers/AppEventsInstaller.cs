@@ -7,11 +7,9 @@ public class AppEventsInstaller : MonoInstaller
 {
 	public override void InstallBindings()
 	{
-        if(Container.HasBinding<IAppEvents>())
-        {
-            return;
-        }
-        Container.BindAllInterfacesToSingle<SocialPointAppEvents>();
+        Container.Rebind<IAppEvents>().ToSingle<SocialPointAppEvents>();
+        Container.Bind<IDisposable>().ToLookup<IAppEvents>();
+
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
 	}
 }

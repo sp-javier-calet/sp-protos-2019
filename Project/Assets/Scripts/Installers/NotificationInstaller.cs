@@ -21,21 +21,17 @@ public class NotificationInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        if(Container.HasBinding<NotificationManager>())
-        {
-            return;
-        }
 
 #if UNITY_ANDROID 
-        Container.Bind<INotificationServices>().ToSingleMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
+        Container.Rebind<INotificationServices>().ToSingleMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
 #elif UNITY_IOS
-        Container.Bind<INotificationServices>().ToSingle<IosNotificationServices>();
+        Container.Rebind<INotificationServices>().ToSingle<IosNotificationServices>();
 #else
-        Container.Bind<INotificationServices>().ToSingle<EmptyNotificationServices>();
+        Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        Container.Bind<NotificationManager>().ToSingle<NotificationManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
+        Container.Rebind<NotificationManager>().ToSingle<NotificationManager>();
+        Container.Bind<IDisposable>().ToSingle<NotificationManager>();
         Container.Resolve<NotificationManager>();
 
         if(Settings.AutoRegisterForRemote)
@@ -43,6 +39,8 @@ public class NotificationInstaller : MonoInstaller
             var services = Container.Resolve<INotificationServices>();
             services.RegisterForRemote();
         }
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
     }
 
     AndroidNotificationServices CreateAndroidNotificationServices(InjectContext ctx)

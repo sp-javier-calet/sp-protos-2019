@@ -6,9 +6,25 @@ namespace SocialPoint.ServerSync
 {
     public delegate Attr SyncDelegate();
 
+    public enum CommandQueueErrorType
+    {
+        HttpResponse,
+        InvalidJson,
+        ResponseJson,
+        SessionLost,
+        OutOfSync,
+        Exception
+    }
+
+    public delegate void CommandQueueErrorDelegate(CommandQueueErrorType type,Error err);
+    public delegate void CommandErrorDelegate(Command cmd,Error err,Attr resp);
+
     public interface ICommandQueue : IDisposable
     {
-        SyncDelegate AutoSync { set; }
+        SyncDelegate AutoSync{ set; }
+
+        event CommandQueueErrorDelegate GeneralError;
+        event CommandErrorDelegate CommandError;
 
         bool AutoSyncEnabled { set; }
 

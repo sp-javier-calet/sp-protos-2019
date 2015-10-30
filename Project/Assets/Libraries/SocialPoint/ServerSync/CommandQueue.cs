@@ -10,25 +10,9 @@ using UnityEngine;
 
 namespace SocialPoint.ServerSync
 {
-    public enum CommandQueueErrorType
-    {
-        HttpResponse,
-        InvalidJson,
-        ResponseJson,
-        SessionLost,
-        OutOfSync,
-        Exception
-    }
-
     public class CommandQueue : ICommandQueue
     {
-        public delegate string StringDelegate();
-
         public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
-
-        public delegate void GeneralErrorDelegate(CommandQueueErrorType type,Error err);
-
-        public delegate void CommandErrorDelegate(Command cmd,Error err,Attr resp);
 
         public delegate void ResponseDelegate(HttpResponse resp);
 
@@ -117,26 +101,38 @@ namespace SocialPoint.ServerSync
         void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.RegisterWillGoBackground(-25, OnAppWillGoBackground);
+            appEvents.RegisterGameWillRestart(-25, OnGameWillRestart);
             appEvents.RegisterGameWasLoaded(-1000, OnGameWasLoaded);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
+            appEvents.UnregisterGameWillRestart(OnGameWillRestart);
             appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
         }
 
         void OnGameWasLoaded()
         {
-            if(_updateCoroutine == null)
+            if(!Running)
             {
                 Start();
             }
         }
 
+        void OnGameWillRestart()
+        {
+            if(Running)
+            {
+                Stop();
+                Send();
+            }
+            Reset();
+        }
+
         void OnAppWillGoBackground()
         {
-            if(_updateCoroutine != null)
+            if(Running)
             {
                 SendUpdate();
             }
@@ -160,27 +156,20 @@ namespace SocialPoint.ServerSync
         }
 
         [Obsolete("Use GeneralError event instead")]
-        public event GeneralErrorDelegate ErrorEvent
+        public event CommandQueueErrorDelegate ErrorEvent
         {
             add { GeneralError += value; }
             remove { GeneralError -= value; }
         }
 
         public event Action SyncChange = delegate {};
-        public event GeneralErrorDelegate GeneralError = delegate {};
+        public event CommandQueueErrorDelegate GeneralError = delegate {};
         public event CommandErrorDelegate CommandError = delegate {};
         public event ResponseDelegate ResponseReceive = delegate {};
 
         int _lastAutoSyncDataHash;
-        SyncDelegate _autoSync;
 
-        public SyncDelegate AutoSync
-        {
-            set
-            {
-                _autoSync = value;
-            }
-        }
+        public SyncDelegate AutoSync{ set; private get; }
 
         bool _autoSyncEnabled = true;
 
@@ -251,7 +240,7 @@ namespace SocialPoint.ServerSync
             _sendingAcks = new List<string>();
             if(_httpConn != null)
             {
-                _httpConn.Cancel();
+                _httpConn.Release();
             }
         }
 
@@ -346,11 +335,19 @@ namespace SocialPoint.ServerSync
             }
         }
 
+        public bool Running
+        {
+            get
+            {
+                return _updateCoroutine != null;
+            }
+        }
+
         public void Dispose()
         {
             Stop();
             Reset();
-            _autoSync = null;
+            AutoSync = null;
             TrackEvent = null;
             if(_appEvents != null)
             {
@@ -411,7 +408,7 @@ namespace SocialPoint.ServerSync
 
         void SendCurrent(Action finish = null)
         {
-            var packet = PrepareNextPacket();
+            var packet = PrepareNextPacket(false);
             DoSend(packet, () => {
                 if(finish != null)
                 {
@@ -432,7 +429,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        Packet PrepareNextPacket()
+        Packet PrepareNextPacket(bool withPing)
         {
             if(_sendingPacket != null)
             {
@@ -445,17 +442,22 @@ namespace SocialPoint.ServerSync
                 _currentPacket = null;
                 return _sendingPacket;
             }
+            else if(withPing && PingEnabled)
+            {
+                _sendingPacket = new Packet();
+                return _sendingPacket;
+            }
             return null;
         }
 
         void SendUpdate()
         {
-            if(_autoSyncEnabled && _autoSync != null)
+            if(_autoSyncEnabled && AutoSync != null)
             {
                 Attr data = new AttrEmpty();
                 try
                 {
-                    data = _autoSync();
+                    data = AutoSync();
                 }
                 catch(Exception e)
                 {
@@ -472,11 +474,7 @@ namespace SocialPoint.ServerSync
             if(!_sending)
             {
                 _sending = true;
-                var packet = PrepareNextPacket();
-                if(packet == null && PingEnabled)
-                {
-                    packet = new Packet();
-                }
+                var packet = PrepareNextPacket(true);
                 DoSend(packet, AfterSend);
             }
         }
@@ -645,7 +643,6 @@ namespace SocialPoint.ServerSync
                 syncData.SetValue(AttrKeyEventErrorHttpCode, httpCode);
                 TrackEvent(ErrorEventName, data);
             }
-
             GeneralError(type, err);
         }
 

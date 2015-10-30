@@ -19,26 +19,28 @@ namespace SocialPoint.Events
 
         const string TrackingAuthorizedUri = "track";
         const string TrackingUnautorizedUri = "unauthorized/track";
-        
-        const string EventNameFunnel = "game.funnel";
-        const string EventNameLevel = "game.level_up";
-        const string EventNameGameOpen = "game.open";
-        const string EventNameGameStart = "game.start";
-        const string EventNameGameLoading = "game.loading";
-        const string EventNameGameLoaded = "game.loaded";
-        const string EventNameGameBackground = "game.background";
-        const string EventNameResourceEarning = "economy.{0}_earning";
-        const string EventNameResourceSpending = "economy.{0}_spending";
 
-        const int MinServerErrorStatusCode = 500;
-        const int SessionLostErrorStatusCode = 482;
-        const int StartEventNum = 1;
-        static readonly string[] DefaultUnauthorizedEvents = {
+        private const string EventNameFunnel = "game.funnel";
+        private const string EventNameLevel = "game.level_up";
+        private const string EventNameGameStart = "game.start";
+        private const string EventNameGameOpen = "game.open";
+        private const string EventNameGameLoading = "game.loading";
+        private const string EventNameGameLoaded = "game.loaded";
+        private const string EventNameGameBackground = "game.background";       
+        private const string EventNameGameRestart = "game.restart";
+        private const string EventNameResourceEarning = "economy.{0}_earning";
+        private const string EventNameResourceSpending = "economy.{0}_spending";
+
+        private const int MinServerErrorStatusCode = 500;
+        private const int SessionLostErrorStatusCode = 482;
+        private const int StartEventNum = 1;
+        private static readonly string[] DefaultUnauthorizedEvents = {
             EventNameGameStart,
             EventNameGameOpen,
             EventNameGameBackground,
             EventNameGameLoading,
             EventNameGameLoaded,
+            EventNameGameRestart,
             "errors.*"
         };
 
@@ -130,6 +132,8 @@ namespace SocialPoint.Events
             appEvents.RegisterWillGoBackground(0, OnAppWillGoBackground);
             appEvents.RegisterWillGoBackground(-100, OnAppGoBackground);
             appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
+            appEvents.RegisterGameWillRestart(0, OnGameWillRestart);
+            appEvents.RegisterGameWillRestart(-100, OnGameRestart);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
@@ -138,10 +142,31 @@ namespace SocialPoint.Events
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
             appEvents.UnregisterWillGoBackground(OnAppGoBackground);
             appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+            appEvents.UnregisterGameWillRestart(OnGameWillRestart);
+            appEvents.UnregisterGameWillRestart(OnGameRestart);
+        }
+
+        void OnGameWillRestart()
+        {
+            TrackGameRestart();
+        }
+
+        void OnGameRestart()
+        {
+            if(Running)
+            {
+                Send();
+                Stop();
+                Reset();
+            }
         }
 
         void OnGameWasLoaded()
         {
+            if(!Running)
+            {
+                Start();
+            }
             TrackGameLoaded();
         }
 
@@ -162,13 +187,17 @@ namespace SocialPoint.Events
 
         #endregion
 
-        public SocialPointEventTracker(MonoBehaviour behaviour)
+        public SocialPointEventTracker(MonoBehaviour behaviour, bool autoStart=true)
         {
             _behaviour = behaviour;
             UnauthorizedEvents = new List<string>(DefaultUnauthorizedEvents);
             _pendingEvents = new List<Event>();
             Reset();
             SetStartValues();
+            if(autoStart)
+            {
+                Start();
+            }
         }
 
         public void Reset()
@@ -180,7 +209,7 @@ namespace SocialPoint.Events
             }
             if(_httpConn != null)
             {
-                _httpConn.Cancel();
+                _httpConn.Release();
                 _httpConn = null;
             }
         }
@@ -280,6 +309,14 @@ namespace SocialPoint.Events
             {
                 _behaviour.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
+            }
+        }
+
+        bool Running
+        {
+            get
+            {
+                return _updateCoroutine != null;
             }
         }
 
@@ -561,6 +598,11 @@ namespace SocialPoint.Events
                 _gameLoadedTracked = true;
                 TrackSystemEvent(EventNameGameLoaded);
             }
+        }
+
+        void TrackGameRestart()
+        {
+            TrackSystemEvent(EventNameGameRestart);
         }
 
         public void TrackGameBackground()

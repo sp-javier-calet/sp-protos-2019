@@ -61,6 +61,7 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
         }
     }
 
+    [Inject]
     IAppEvents injectAppEvents
     {
         set

@@ -21,10 +21,6 @@ public class HardwareInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-        if(Container.HasBinding<IDeviceInfo>())
-        {
-            return;
-        }
         if(SettingsAppInfo.fakeAppData)
         {
             var appInfo = new EmptyAppInfo();
@@ -37,11 +33,11 @@ public class HardwareInstaller : MonoInstaller
             Container.BindInstance("hardware_fake_app_info", appInfo);
         }
 
-        Container.Bind<IDeviceInfo>().ToSingle<DeviceInfo>();
-        Container.Bind<IMemoryInfo>().ToGetter<IDeviceInfo>(x => x.MemoryInfo);
-        Container.Bind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
-        Container.Bind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
-        Container.Bind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
+        Container.Rebind<IDeviceInfo>().ToSingle<DeviceInfo>();
+        Container.Rebind<IMemoryInfo>().ToGetter<IDeviceInfo>(x => x.MemoryInfo);
+        Container.Rebind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
+        Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
+        Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelHardware>();
 	}
