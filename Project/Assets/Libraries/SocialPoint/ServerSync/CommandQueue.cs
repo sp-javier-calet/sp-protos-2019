@@ -12,11 +12,11 @@ namespace SocialPoint.ServerSync
 {
     public class CommandQueue : ICommandQueue
     {
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
         public delegate void ResponseDelegate(HttpResponse resp);
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         const string Uri = "packet";
         const string AttrKeyPackets = "packets";
