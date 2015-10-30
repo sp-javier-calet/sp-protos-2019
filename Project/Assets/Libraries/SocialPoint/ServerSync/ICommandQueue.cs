@@ -16,8 +16,8 @@ namespace SocialPoint.ServerSync
         Exception
     }
 
-    public delegate void CommandQueueErrorDelegate(CommandQueueErrorType type,Error err);
-    public delegate void CommandErrorDelegate(Command cmd,Error err,Attr resp);
+    public delegate void CommandQueueErrorDelegate(CommandQueueErrorType type, Error err);
+    public delegate void CommandErrorDelegate(Command cmd, Error err, Attr resp);
 
     public interface ICommandQueue : IDisposable
     {
