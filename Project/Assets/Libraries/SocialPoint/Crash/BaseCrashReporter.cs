@@ -437,7 +437,7 @@ namespace SocialPoint.Crash
                 _updateCoroutine = null;
             }
 
-            LogCallbackHandler.RegisterLogCallback(HandleLog);
+            LogCallbackHandler.UnregisterLogCallback(HandleLog);
             OnDisable();
         }
 
@@ -453,7 +453,7 @@ namespace SocialPoint.Crash
 
         public void Dispose()
         {
-            LogCallbackHandler.UnregisterLogCallback(HandleLog);
+            Disable();
             if(_appEvents != null)
             {
                 DisconnectAppEvents(_appEvents);
