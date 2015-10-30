@@ -805,7 +805,7 @@ namespace SocialPoint.ServerSync
             _sendingAcks.Clear();
         }
 
-        static void CatchException(Exception e)
+        void CatchException(Exception e)
         {
             Debug.LogException(e);
             #if UNITY_EDITOR

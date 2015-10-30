@@ -655,7 +655,7 @@ namespace SocialPoint.Events
             TrackEvent(name, data);
         }
 
-        static void CatchException(Exception e)
+        void CatchException(Exception e)
         {
             Debug.LogException(e);
             #if UNITY_EDITOR
