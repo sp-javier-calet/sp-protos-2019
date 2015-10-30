@@ -12,7 +12,7 @@ using SocialPoint.AppEvents;
 
 namespace SocialPoint.Locale
 {
-    public class LocalizationManager : ILocalizationManager, IDisposable
+    public class LocalizationManager : ILocalizationManager
     {
         public class LocationData
         {
