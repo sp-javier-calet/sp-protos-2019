@@ -237,7 +237,7 @@ namespace SocialPoint.Utils
         /// </summary>
         public event EventHandler<SceneLoadingArgs> AsyncSceneLoadingProgress
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 

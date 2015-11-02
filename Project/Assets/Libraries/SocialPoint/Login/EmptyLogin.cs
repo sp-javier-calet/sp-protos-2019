@@ -11,43 +11,43 @@ namespace SocialPoint.Login
     {
         public event HttpRequestDelegate HttpRequestEvent
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event NewUserDelegate NewUserEvent
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event NewLinkDelegate NewLinkBeforeFriendsEvent
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event NewLinkDelegate NewLinkAfterFriendsEvent
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event ConfirmLinkDelegate ConfirmLinkEvent
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event LoginErrorDelegate ErrorEvent
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event RestartDelegate RestartEvent
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 

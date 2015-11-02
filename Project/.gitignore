@@ -23,3 +23,8 @@ sysinfo.txt
 
 /Assets/Resources/Localization.csv
 /Assets/Resources/Localization.csv.meta
+
+# Zenject
+Zenject-editor.csproj.meta
+Zenject.csproj.meta
+Zenject.csproj.user.meta

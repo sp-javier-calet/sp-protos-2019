@@ -8,13 +8,13 @@ namespace SocialPoint.Events
     {
         public event EventTrackerErrorDelegate GeneralError
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event EventDataSetupDelegate DataSetup
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 

@@ -9,13 +9,20 @@ namespace SocialPoint.ServerSync
 
         public event CommandQueueErrorDelegate GeneralError
         {
-            add { throw new NotSupportedException(); }
+            add { }
             remove { }
         }
 
         public event CommandErrorDelegate CommandError
         {
-            add { throw new NotSupportedException(); }
+            add { }
+            remove { }
+        }
+
+        
+        public event Action SyncChange
+        {
+            add { }
             remove { }
         }
 

@@ -25,6 +25,7 @@ namespace SocialPoint.ServerSync
 
         event CommandQueueErrorDelegate GeneralError;
         event CommandErrorDelegate CommandError;
+        event Action SyncChange;
 
         bool AutoSyncEnabled { set; }
 
