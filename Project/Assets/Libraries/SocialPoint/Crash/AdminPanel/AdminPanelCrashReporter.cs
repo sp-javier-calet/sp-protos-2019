@@ -30,8 +30,8 @@ namespace SocialPoint.Crash
                 _textAreaComponent = layout.CreateVerticalScrollLayout()
                     .CreateTextArea(_breadcrumbs.CurrentBreadcrumb);
                 layout.CreateButton("Refresh", UpdateBreadcrumbContent);
-                layout.CreateToggleButton("Last session breadcrumbs", _showOldBreadcrumbs, value => { 
-                    _showOldBreadcrumbs = value; 
+                layout.CreateToggleButton("Last session breadcrumbs", _showOldBreadcrumbs, value => {
+                    _showOldBreadcrumbs = value;
                     UpdateBreadcrumbContent();
                 });
                 layout.CreateMargin();
@@ -46,7 +46,7 @@ namespace SocialPoint.Crash
                 {
                     layout.CreateOpenPanelButton("CrashReporterBase Options", new AdminPanelCrashReporterBaseGUI(crBase));
                 }
-                
+
                 layout.CreateToggleButton("Enabled", _reporter.WasEnabled, value => {
                     if(value)
                     {
@@ -64,7 +64,7 @@ namespace SocialPoint.Crash
                 layout.CreateToggleButton("Exceptions logs", _reporter.ExceptionLogActive, value => {
                     _reporter.ExceptionLogActive = value;
                 });
-                layout.CreateButton("Clear unique exceptions", () => { 
+                layout.CreateButton("Clear unique exceptions", () => {
                     layout.AdminPanel.Console.Print("Removed pending unique exceptions");
                     _reporter.ClearUniqueExceptions();
                 });
@@ -78,7 +78,7 @@ namespace SocialPoint.Crash
         {
             if(_textAreaComponent != null && _breadcrumbs != null)
             {
-                _textAreaComponent.text = (_showOldBreadcrumbs) ? 
+                _textAreaComponent.text = (_showOldBreadcrumbs) ?
                     _breadcrumbs.OldBreadcrumb :
                         _breadcrumbs.CurrentBreadcrumb;
             }
@@ -87,7 +87,7 @@ namespace SocialPoint.Crash
 
         public class AdminPanelCrashReporterBaseGUI : IAdminPanelGUI
         {
-            readonly BaseCrashReporter _crashReporter;
+            BaseCrashReporter _crashReporter;
 
             public AdminPanelCrashReporterBaseGUI(BaseCrashReporter crashReporter)
             {
