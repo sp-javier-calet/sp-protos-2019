@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System;
 using Zenject;
 
-public class AdminPanelButton : MonoBehaviour
+public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [Inject]
     AdminPanel AdminPanel;
@@ -20,12 +20,12 @@ public class AdminPanelButton : MonoBehaviour
     private float _timeSinceDown = 0.0f;
     private AdminPanelController _adminPanelController;
 
-    public void OnPointerUp(BaseEventData data)
+    public void OnPointerUp(PointerEventData data)
     {
         _down = false;
     }
 
-    public void OnPointerDown(BaseEventData data)
+    public void OnPointerDown(PointerEventData data)
     {
         _down = true;
         _timeSinceDown = 0.0f;

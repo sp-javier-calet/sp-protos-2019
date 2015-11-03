@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using Zenject;
 using SocialPoint.ServerSync;
 
-public class SyncIndicator : MonoBehaviour
+public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [Inject]
     ICommandQueue _commandQueue;
@@ -23,5 +24,21 @@ public class SyncIndicator : MonoBehaviour
     {
         gameObject.SetActive(!_commandQueue.Synced);
     }
+
+    #region IPointerDownHandler implementation
+    
+    public void OnPointerDown(PointerEventData eventData)
+    {
+    }
+    
+    #endregion
 		
+    #region IPointerUpHandler implementation
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _commandQueue.Send();
+    }
+
+    #endregion
 }
