@@ -1,32 +1,30 @@
-using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
-using SocialPoint.Hardware;
-using SocialPoint.IO;
-using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.Hardware;
+using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.QualityStats
 {
     public class SocialPointQualityStats : IDisposable
     {
-        private IDeviceInfo _deviceInfo;
-        private List<QualityStatsHttpClient> _qualityStatsHttpClients;
+        IDeviceInfo _deviceInfo;
+        List<QualityStatsHttpClient> _qualityStatsHttpClients;
 
-        private DateTime _loadingStarted;
-        private DateTime _loadingFinished;
-        private bool _timeToMapSent;
+        DateTime _loadingStarted;
+        DateTime _loadingFinished;
+        bool _timeToMapSent;
 
-        private static readonly float kByteConverter = 1.0f / 1024.0f;
-        private static readonly DateTime kNewDateTime = new DateTime();
+        static readonly float kByteConverter = 1.0f / 1024.0f;
+        static readonly DateTime kNewDateTime = new DateTime();
 
-        private const string kClientPerformanceStats = "client_performance.stats";
-        private const string kClientPerformanceHttpRequest = "client_performance.http_request";
+        const string kClientPerformanceStats = "client_performance.stats";
+        const string kClientPerformanceHttpRequest = "client_performance.http_request";
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null, ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
 
         public TrackEventDelegate TrackEvent{ private get; set; }
 
@@ -62,9 +60,9 @@ namespace SocialPoint.QualityStats
             _qualityStatsHttpClients.Add(client);
         }
 
-        private IAppEvents _appEvents;
+        IAppEvents _appEvents;
 
-        private IAppEvents AppEvents
+        IAppEvents AppEvents
         {
             get
             {
@@ -90,29 +88,29 @@ namespace SocialPoint.QualityStats
 
         #region App Events
 
-        private void ConnectAppEvents(IAppEvents appEvents)
+        void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.RegisterWillGoBackground(100, OnAppWillGoBackground);
             appEvents.RegisterGameWasLoaded(0, OnGameLoaded);
         }
 
-        private void DisconnectAppEvents(IAppEvents appEvents)
+        void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
             appEvents.UnregisterGameWasLoaded(OnGameLoaded);
         }
 
-        private void OnApplicationDidFinishLaunching()
+        void OnApplicationDidFinishLaunching()
         {
             _loadingStarted = TimeUtils.Now.ToLocalTime();
         }
 
-        private void OnGameLoaded()
+        void OnGameLoaded()
         {
             _loadingFinished = TimeUtils.Now.ToLocalTime();
         }
 
-        private void OnAppWillGoBackground()
+        void OnAppWillGoBackground()
         {
             var stats = GetStats();
             SendClientPerformance(stats, kClientPerformanceStats);
@@ -136,7 +134,7 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        private void SendClientPerformance(AttrDic data, string eventName)
+        void SendClientPerformance(AttrDic data, string eventName)
         {
             if(TrackEvent != null)
             {
@@ -144,7 +142,7 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        private AttrDic GetStats()
+        AttrDic GetStats()
         {
             var data = new AttrDic();
             var client = new AttrDic();
@@ -160,7 +158,7 @@ namespace SocialPoint.QualityStats
             return data;
         }
 
-        private AttrList GetHttpRequests()
+        AttrList GetHttpRequests()
         {
             var requestList = new AttrList();
 
@@ -179,7 +177,7 @@ namespace SocialPoint.QualityStats
             return requestList;
         }
 
-        private QualityStatsHttpClient.MStats GetClientStats()
+        QualityStatsHttpClient.MStats GetClientStats()
         {
             var data = new QualityStatsHttpClient.MStats();
             foreach(var client in _qualityStatsHttpClients)
@@ -218,7 +216,7 @@ namespace SocialPoint.QualityStats
 
         #region AttrDic Data
 
-        private AttrDic GetPerformanceData(KeyValuePair<string,QualityStatsHttpClient.Stats> statsIt, KeyValuePair<int,QualityStatsHttpClient.Data> dataIt)
+        static AttrDic GetPerformanceData(KeyValuePair<string,QualityStatsHttpClient.Stats> statsIt, KeyValuePair<int,QualityStatsHttpClient.Data> dataIt)
         {
             var data = new AttrDic();
             var client = new AttrDic();
@@ -245,7 +243,7 @@ namespace SocialPoint.QualityStats
             return data;
         }
 
-        private AttrDic GetMemoryData()
+        AttrDic GetMemoryData()
         {
             var memory = _deviceInfo.MemoryInfo;
             var dict = new AttrDic();
@@ -264,7 +262,7 @@ namespace SocialPoint.QualityStats
             return dict;
         }
 
-        private AttrDic getStorageData()
+        AttrDic getStorageData()
         {
             var storage = _deviceInfo.StorageInfo;
             var dict = new AttrDic();
@@ -281,7 +279,7 @@ namespace SocialPoint.QualityStats
             return dict;
         }
 
-        private AttrDic GetAppData()
+        AttrDic GetAppData()
         {
             var appInfo = _deviceInfo.AppInfo;
             var dict = new AttrDic();
@@ -297,7 +295,7 @@ namespace SocialPoint.QualityStats
             return dict;
         }
 
-        private AttrDic GetNetworkData()
+        AttrDic GetNetworkData()
         {
             var network = _deviceInfo.NetworkInfo;
             var dict = new AttrDic();
@@ -309,7 +307,7 @@ namespace SocialPoint.QualityStats
             return dict;
         }
 
-        private AttrDic GetPerformanceData()
+        AttrDic GetPerformanceData()
         {
             var dict = new AttrDic();
 

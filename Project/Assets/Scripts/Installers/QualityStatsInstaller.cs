@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
-using Zenject;
-using SocialPoint.QualityStats;
-using SocialPoint.Hardware;
-using SocialPoint.AppEvents;
-using SocialPoint.Events;
 using SocialPoint.Network;
+using SocialPoint.QualityStats;
+using Zenject;
 
 public class QualityStatsInstaller : MonoInstaller
 {

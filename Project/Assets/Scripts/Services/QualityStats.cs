@@ -1,13 +1,11 @@
-﻿using Zenject;
-using UnityEngine;
-using SocialPoint.Network;
-using SocialPoint.AppEvents;
+﻿using SocialPoint.AppEvents;
 using SocialPoint.Events;
 using SocialPoint.Hardware;
 using SocialPoint.QualityStats;
+using Zenject;
 
-public class QualityStats : SocialPoint.QualityStats.SocialPointQualityStats
-{    
+public class QualityStats : SocialPointQualityStats
+{
     [Inject]
     QualityStatsHttpClient injectQualityStatsHttpClient
     {
@@ -16,7 +14,7 @@ public class QualityStats : SocialPoint.QualityStats.SocialPointQualityStats
             AddQualityStatsHttpClient(value);
         }
     }
-    
+
     [Inject]
     IEventTracker injectEventTracker
     {
@@ -26,9 +24,8 @@ public class QualityStats : SocialPoint.QualityStats.SocialPointQualityStats
         }
     }
 
-
-    public QualityStats(IDeviceInfo devInfo, IAppEvents appEvents):
-    base(devInfo, appEvents)
+    public QualityStats(IDeviceInfo devInfo, IAppEvents appEvents) :
+        base(devInfo, appEvents)
     {
     }
 }

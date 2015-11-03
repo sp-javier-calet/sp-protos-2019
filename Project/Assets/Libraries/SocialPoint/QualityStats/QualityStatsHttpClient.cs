@@ -1,10 +1,7 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using SocialPoint.Network;
-using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.QualityStats
@@ -23,7 +20,7 @@ namespace SocialPoint.QualityStats
             }
             var start = TimeUtils.Now;
             var url = request.Url;
-            return _client.Send(request, (response) => {
+            return _client.Send(request, response => {
                 NewTrace(url, start, response);
                 if(del != null)
                 {
@@ -77,12 +74,12 @@ namespace SocialPoint.QualityStats
         {
             public override string ToString()
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 foreach(var item in this)
                 {
                     string s = string.Format(
                                    "[Request: key={0}, Value={1}]",
-                                   item.Key.ToString(), item.Value.ToString());
+                                   item.Key, item.Value);
                     sb.Append(s);
                 }
                 return sb.ToString();
@@ -116,20 +113,20 @@ namespace SocialPoint.QualityStats
         {
             public override string ToString()
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 foreach(var item in this)
                 {
                     string s = string.Format(
                                    "[Request: key={0}, Value={1}]",
-                                   item.Key, item.Value.ToString());
+                                   item.Key, item.Value);
                     sb.Append(s);
                 }
                 return sb.ToString();
             }
         }
 
-        private IHttpClient _client = null;
-        private MStats _data = null;
+        IHttpClient _client;
+        MStats _data;
 
         public QualityStatsHttpClient(IHttpClient client)
         {
@@ -152,7 +149,7 @@ namespace SocialPoint.QualityStats
             _data.Clear();
         }
 
-        private void NewTrace(Uri url, DateTime start, HttpResponse response)
+        void NewTrace(Uri url, DateTime start, HttpResponse response)
         {
             Stats stats;
             if(!_data.TryGetValue(url.ToString(), out stats))
