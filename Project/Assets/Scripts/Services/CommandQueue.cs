@@ -115,12 +115,14 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
 
     void OnGeneralError(CommandQueueErrorType type, Error err)
     {
+        Stop();
         var signature = string.Format("{0}-{1}", (int) type, err.Code);
         ShowError(signature, err);
     }
     
     void OnCommandError(Command cmd, Error err, Attr resp)
     {
+        Stop();
         var signature = string.Format("{0}-{1}", cmd.Id, err.Code);
         ShowError(signature, err);
     }
