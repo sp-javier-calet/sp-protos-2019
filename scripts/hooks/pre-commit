@@ -22,7 +22,12 @@ exec 1>&2
 
 git diff --cached --name-only --diff-filter=A -z $against -- "$PROJECT_NAME/Assets" | while read -d $'\0' f; do
 	ext="${f##*.}"
+	file="${f##*/}"
 	base="${f%.*}"
+
+	if [[ "$file" =~ ^\. ]]; then
+		continue
+	fi
 
 	if [ "$ext" = "meta" ]; then
 		if [ $(git ls-files --cached -- "$base" | wc -l) = 0 ]; then

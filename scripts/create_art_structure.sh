@@ -12,6 +12,7 @@ function create_folder
 function create_3d_asset_type_folders
 {
 	create_folder "Gfx3D/$1/Materials"
+	create_folder "Gfx3D/$1/Meshes"
 	create_folder "Gfx3D/$1/Textures"
 	create_folder "Gfx3D/$1/Animations"
 	create_folder "Gfx3D/$1/Prefabs"
