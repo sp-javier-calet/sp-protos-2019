@@ -1,5 +1,5 @@
 ﻿using Zenject;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.ServerSync;

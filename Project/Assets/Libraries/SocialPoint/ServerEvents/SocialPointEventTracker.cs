@@ -11,7 +11,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.Utils;
 using UnityEngine;
 
-namespace SocialPoint.Events
+namespace SocialPoint.ServerEvents
 {
     public class SocialPointEventTracker : IEventTracker
     {

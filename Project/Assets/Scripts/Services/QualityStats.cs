@@ -1,5 +1,5 @@
 ﻿using SocialPoint.AppEvents;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 using SocialPoint.Hardware;
 using SocialPoint.QualityStats;
 using Zenject;
