@@ -1,7 +1,7 @@
 ﻿using Zenject;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Alert;

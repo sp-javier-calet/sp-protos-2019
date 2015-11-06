@@ -8,7 +8,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
 
-namespace SocialPoint.Events
+namespace SocialPoint.ServerEvents
 {
 
     [TestFixture]

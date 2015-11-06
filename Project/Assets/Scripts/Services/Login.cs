@@ -3,7 +3,7 @@ using SocialPoint.Login;
 using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 using System.Collections.Generic;
 
 class Login : SocialPointLogin

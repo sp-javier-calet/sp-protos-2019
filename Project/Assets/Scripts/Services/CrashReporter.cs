@@ -4,7 +4,7 @@ using SocialPoint.Crash;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Login;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 using SocialPoint.AppEvents;
 using UnityEngine;
 

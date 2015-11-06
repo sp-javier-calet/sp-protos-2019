@@ -2,7 +2,7 @@
 using SocialPoint.Base;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Events
+namespace SocialPoint.ServerEvents
 {
     public class Event
     {
