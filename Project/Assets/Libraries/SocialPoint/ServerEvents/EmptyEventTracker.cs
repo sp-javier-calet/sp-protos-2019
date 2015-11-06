@@ -6,6 +6,12 @@ namespace SocialPoint.ServerEvents
 {
     public class EmptyEventTracker : IEventTracker
     {
+        public event EventTrackedDelegate EventTracked
+        {
+            add { }
+            remove { }
+        }
+
         public event EventTrackerErrorDelegate GeneralError
         {
             add { }

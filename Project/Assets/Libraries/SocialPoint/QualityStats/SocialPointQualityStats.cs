@@ -90,14 +90,14 @@ namespace SocialPoint.QualityStats
 
         void ConnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.RegisterWillGoBackground(100, OnAppWillGoBackground);
-            appEvents.RegisterGameWasLoaded(0, OnGameLoaded);
+            appEvents.WillGoBackground.Add(100, OnAppWillGoBackground);
+            appEvents.GameWasLoaded.Add(0, OnGameLoaded);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
-            appEvents.UnregisterGameWasLoaded(OnGameLoaded);
+            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
+            appEvents.GameWasLoaded.Remove(OnGameLoaded);
         }
 
         void OnApplicationDidFinishLaunching()

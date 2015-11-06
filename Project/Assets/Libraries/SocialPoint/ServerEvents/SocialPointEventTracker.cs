@@ -15,7 +15,7 @@ namespace SocialPoint.ServerEvents
 {
     public class SocialPointEventTracker : IEventTracker
     {
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
         const string TrackingAuthorizedUri = "track";
         const string TrackingUnautorizedUri = "unauthorized/track";
@@ -51,9 +51,10 @@ namespace SocialPoint.ServerEvents
 
         public RequestSetupDelegate RequestSetup;
 
-        public event EventDataSetupDelegate DataSetup = delegate {};
-        public event Action SyncChange = delegate {};
-        public event EventTrackerErrorDelegate GeneralError = delegate {};
+        public event EventTrackedDelegate EventTracked;
+        public event EventDataSetupDelegate DataSetup;
+        public event Action SyncChange;
+        public event EventTrackerErrorDelegate GeneralError;
 
         public int MaxOutOfSyncInterval = DefaultMaxOutOfSyncInterval;
         public int SendInterval = DefaultSendInterval;
@@ -129,21 +130,21 @@ namespace SocialPoint.ServerEvents
         void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource += OnOpenedFromSource;
-            appEvents.RegisterWillGoBackground(0, OnAppWillGoBackground);
-            appEvents.RegisterWillGoBackground(-100, OnAppGoBackground);
-            appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
-            appEvents.RegisterGameWillRestart(0, OnGameWillRestart);
-            appEvents.RegisterGameWillRestart(-100, OnGameRestart);
+            appEvents.WillGoBackground.Add(0, OnAppWillGoBackground);
+            appEvents.WillGoBackground.Add(-100, OnAppGoBackground);
+            appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
+            appEvents.GameWillRestart.Add(0, OnGameWillRestart);
+            appEvents.GameWillRestart.Add(-100, OnGameRestart);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.OpenedFromSource -= OnOpenedFromSource;
-            appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
-            appEvents.UnregisterWillGoBackground(OnAppGoBackground);
-            appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
-            appEvents.UnregisterGameWillRestart(OnGameWillRestart);
-            appEvents.UnregisterGameWillRestart(OnGameRestart);
+            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
+            appEvents.WillGoBackground.Remove(OnAppGoBackground);
+            appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
+            appEvents.GameWillRestart.Remove(OnGameWillRestart);
+            appEvents.GameWillRestart.Remove(OnGameRestart);
         }
 
         void OnGameWillRestart()
@@ -237,7 +238,10 @@ namespace SocialPoint.ServerEvents
             {
                 data = new AttrDic();
             }
-            DataSetup(data);
+            if(DataSetup != null)
+            {
+                DataSetup(data);
+            }
             var e = new Event(eventName, data, del);
             _pendingEvents.Add(e);
         }
@@ -249,7 +253,10 @@ namespace SocialPoint.ServerEvents
             {
                 data = new AttrDic();
             }
-            DataSetup(data);
+            if(DataSetup != null)
+            {
+                DataSetup(data);
+            }
             AddHardwareData(data);
             var eventCommand = new EventCommand(eventName, data);
             CommandQueue.Add(eventCommand, del);
@@ -477,10 +484,13 @@ namespace SocialPoint.ServerEvents
             if(oldconn != _synced)
             {
                 _syncTimestamp = CurrentTimestamp;
-                SyncChange();
+                if(SyncChange != null)
+                {
+                    SyncChange();
+                }
             }
             
-            if(!_synced && MaxOutOfSyncInterval > 0 && _syncTimestamp + MaxOutOfSyncInterval < CurrentTimestamp)
+            if(!_synced && MaxOutOfSyncInterval > 0 && _syncTimestamp + MaxOutOfSyncInterval < CurrentTimestamp && GeneralError != null)
             {
                 GeneralError(EventTrackerErrorType.OutOfSync, new Error("Too much time passed without sync."));
             }
@@ -517,7 +527,7 @@ namespace SocialPoint.ServerEvents
                         ev.ResponseDelegate(error);
                     }
 
-                    if(error != null && error.HasError)
+                    if(error != null && error.HasError && GeneralError != null)
                     {
                         if(error.Code == SessionLostErrorStatusCode)
                         {
@@ -661,7 +671,10 @@ namespace SocialPoint.ServerEvents
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #else
-            GeneralError(EventTrackerErrorType.Exception, new Error(e.ToString()));
+            if(GeneralError != null)
+            {
+                GeneralError(EventTrackerErrorType.Exception, new Error(e.ToString()));
+            }
             #endif
         }
     }

@@ -2,7 +2,7 @@
 using System;
 using SocialPoint.ServerEvents;
 
-public class EventsInstaller : MonoInstaller
+public class ServerEventsInstaller : MonoInstaller
 {
 	[Serializable]
 	public class SettingsData

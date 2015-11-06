@@ -9,6 +9,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Locale;
 using UnityEngine;
+using System;
 
 class CommandQueue : SocialPoint.ServerSync.CommandQueue
 {
@@ -106,6 +107,9 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     [Inject]
     GameModel _gameModel;
 
+    [Inject("sync_error")]
+    Action<string,Error> _syncError;
+
     public CommandQueue(MonoBehaviour behaviour, IHttpClient client):base(behaviour, client)
     {
         AutoSync = OnAutoSync;
@@ -116,37 +120,21 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     void OnGeneralError(CommandQueueErrorType type, Error err)
     {
         Stop();
-        var signature = string.Format("{0}-{1}", (int) type, err.Code);
-        ShowError(signature, err);
+        if(_syncError != null)
+        {
+            _syncError("queue-"+(int)type, err);
+        }
     }
     
     void OnCommandError(Command cmd, Error err, Attr resp)
     {
         Stop();
-        var signature = string.Format("{0}-{1}", cmd.Id, err.Code);
-        ShowError(signature, err);
-    }
-    
-    void ShowError(string signature, Error err)
-    {
-        var alert = (IAlertView)_alertView.Clone();
-        alert.Buttons = new string[]{ 
-            _localization.Get("command_queue.general_error_popup_retry_button", "Retry")
-        };
-        alert.Title = _localization.Get("command_queue.general_error_popup_title", "Syncronization Error");
-        var msg = _localization.Get(err);
-        if(string.IsNullOrEmpty(msg))
+        if(_syncError != null)
         {
-            msg = _localization.Get("command_queue.general_error_popup_message", "There was a problem trying to syncronize your game state with the server.");
+            _syncError("cmd-"+cmd.Id, err);
         }
-        alert.Message = msg;
-        alert.Signature = signature;
-        alert.Show((i) => {
-            alert.Dispose();
-            AppEvents.RestartGame();
-        });
     }
-    
+
     public Attr OnAutoSync()
     {
         if(_gameModel == null || _gameModel.Player == null)

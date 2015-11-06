@@ -20,21 +20,16 @@ public class AlertInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        if(Container.HasBinding<IAlertView>())
-        {
-            return;
-        }
-
         UnityAlertView.ShowDelegate = ShowUnityAlert;
         UnityAlertView.HideDelegate = HideUnityAlert;
         if(Settings.UseNativeAlert)
         {
-            Container.Bind<IAlertView>().ToSingle<AlertView>();
+            Container.Rebind<IAlertView>().ToSingle<AlertView>();
         }
         else
         {
             var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
-            Container.Bind<IAlertView>().ToSingleInstance(unityAlertView);
+            Container.Rebind<IAlertView>().ToSingleInstance(unityAlertView);
             Container.Bind<IDisposable>().ToLookup<IAlertView>();
         }
     }

@@ -769,21 +769,21 @@ namespace SocialPoint.Crash
         void ConnectAppEvents(IAppEvents appEvents)
         {
             appEvents.ReceivedMemoryWarning += OnMemoryWarning;
-            appEvents.RegisterWillGoBackground(0, OnWillGoBackground);
+            appEvents.WillGoBackground.Add(0, OnWillGoBackground);
             appEvents.WasOnBackground += OnWillGoForeground;
             appEvents.LevelWasLoaded += OnLevelWasLoaded;
             appEvents.ApplicationQuit += OnApplicationQuit;
-            appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
+            appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
         {
             appEvents.ReceivedMemoryWarning -= OnMemoryWarning;
-            appEvents.UnregisterWillGoBackground(OnWillGoBackground);
+            appEvents.WillGoBackground.Remove(OnWillGoBackground);
             appEvents.WasOnBackground -= OnWillGoForeground;
             appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             appEvents.ApplicationQuit -= OnApplicationQuit;
-            appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+            appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
         }
 
         void OnMemoryWarning()

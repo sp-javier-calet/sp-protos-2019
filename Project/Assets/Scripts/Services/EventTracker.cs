@@ -7,7 +7,9 @@ using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Crash;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
 using UnityEngine;
+using System;
 
 class EventTracker : SocialPointEventTracker
 {
@@ -101,8 +103,24 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
+    [Inject("sync_error")]
+    Action<string,Error> _syncError;
+
     public EventTracker(MonoBehaviour behaviour):base(behaviour)
     {
+        GeneralError += OnGeneralError;
+    }
+
+    void OnGeneralError(EventTrackerErrorType type, Error err)
+    {
+        if(type == EventTrackerErrorType.SessionLost)
+        {
+            Stop();
+            if(_syncError != null)
+            {
+                _syncError("track-"+(int)type, err);
+            }
+        }
     }
 
 }

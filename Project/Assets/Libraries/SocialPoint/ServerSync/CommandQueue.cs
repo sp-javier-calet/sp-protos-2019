@@ -100,16 +100,16 @@ namespace SocialPoint.ServerSync
 
         void ConnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.RegisterWillGoBackground(-25, OnAppWillGoBackground);
-            appEvents.RegisterGameWillRestart(-25, OnGameWillRestart);
-            appEvents.RegisterGameWasLoaded(-1000, OnGameWasLoaded);
+            appEvents.WillGoBackground.Add(-25, OnAppWillGoBackground);
+            appEvents.GameWillRestart.Add(-25, OnGameWillRestart);
+            appEvents.GameWasLoaded.Add(-1000, OnGameWasLoaded);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
-            appEvents.UnregisterGameWillRestart(OnGameWillRestart);
-            appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
+            appEvents.GameWillRestart.Remove(OnGameWillRestart);
+            appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
         }
 
         void OnGameWasLoaded()

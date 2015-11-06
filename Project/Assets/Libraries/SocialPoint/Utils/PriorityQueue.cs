@@ -27,7 +27,7 @@ namespace SocialPoint.Utils
 
     public class PriorityQueue<TPriority, TValue>  : IDisposable, ICloneable, IEnumerable<TValue>
     {
-        private SortedList<TPriority, Queue<TValue>> _queues;
+        protected SortedList<TPriority, Queue<TValue>> _queues;
 
         public PriorityQueue(IComparer<TPriority> comparer=null)
         {
@@ -36,11 +36,17 @@ namespace SocialPoint.Utils
         
         public PriorityQueue(PriorityQueue<TPriority, TValue> other)
         {
-            _queues = new SortedList<TPriority, Queue<TValue>>(other._queues.Comparer);
-            foreach(var pair in other._queues)
+            _queues = other.CopyQueues();
+        }
+
+        protected SortedList<TPriority, Queue<TValue>> CopyQueues()
+        {
+            var queues = new SortedList<TPriority, Queue<TValue>>(_queues.Comparer);
+            foreach(var pair in _queues)
             {
-                _queues[pair.Key] = new Queue<TValue>(pair.Value);
+                queues[pair.Key] = new Queue<TValue>(pair.Value);
             }
+            return queues;
         }
 
         public void Dispose()
@@ -157,26 +163,43 @@ namespace SocialPoint.Utils
         }
     };
 
-    public class PriorityAction : PriorityQueue<int, Action>
+    public class PriorityAction<T> : PriorityQueue<T, Action>
     {
+        Action<T> _defaultAction;
+
         public PriorityAction():base()
         {
         }
 
-        public PriorityAction(PriorityAction other):base(other)
+        public PriorityAction(PriorityAction<T> other):base(other)
         {
         }
 
         public override object Clone()
         {
-            return new PriorityAction(this);
+            return new PriorityAction<T>(this);
+        }
+
+        public void Add(Action<T> action)
+        {
+            _defaultAction += action;
+        }
+        
+        public void Remove(Action<T> action)
+        {
+            _defaultAction -= action;
         }
 
         public void Run()
         {
-            using(var copy = new PriorityAction(this))
+            var queues = CopyQueues();
+            foreach(var kvp in queues)
             {
-                foreach(var action in copy)
+                if(_defaultAction != null)
+                {
+                    _defaultAction(kvp.Key);
+                }
+                foreach(var action in kvp.Value)
                 {
                     if(action != null)
                     {
@@ -184,6 +207,17 @@ namespace SocialPoint.Utils
                     }
                 }
             }
+        }
+    }
+
+    public class PriorityAction : PriorityAction<int>
+    {
+        public PriorityAction():base()
+        {
+        }
+        
+        public PriorityAction(PriorityAction other):base(other)
+        {
         }
     }
 }
