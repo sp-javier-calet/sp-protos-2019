@@ -87,7 +87,10 @@ namespace SocialPoint.Notifications
 
         public override string ToString()
         {
-            return string.Format("Notification: -- Title: {0}-- Message: {2}  -- FireDelay: {1} -- IconBadgeNumber: {3}", Title, Message, FireDelay);
+            return string.Format("Notification: -- Title: {0}-- Message: {1}  -- FireDelay: {2}", 
+                Title, 
+                Message, 
+                FireDelay);
         }
     }
        

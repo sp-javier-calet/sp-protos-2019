@@ -125,9 +125,8 @@ namespace SocialPoint.Purchase
             var paramDic = new AttrDic();
             paramDic.Set(HttpParamPurchaseData, new AttrString(receipt.OriginalJson));
             paramDic.Set(HttpParamDataSignature, new AttrString(receipt.DataSignature));
-            //encode it to base64
-            var plainTextBytes = new JsonAttrSerializer().Serialize(paramDic);
-            req.AddParam(HttpParamOrderData, System.Convert.ToBase64String(plainTextBytes));
+            var orderData = new JsonAttrSerializer().SerializeString(paramDic);
+            req.AddParam(HttpParamOrderData, orderData);
             #endif
             _httpClient.Send(req, (_1) => OnBackendResponse(_1, response, receipt));
         }
@@ -241,7 +240,7 @@ namespace SocialPoint.Purchase
                 #if UNITY_IOS && !UNITY_EDITOR
                 return "purchase/itunes";
                 #elif UNITY_ANDROID && !UNITY_EDITOR
-                return "purchase/google-play";
+                return "purchase/google_play";
                 #elif UNITY_EDITOR
                 return "purchase/unity";
                 #else

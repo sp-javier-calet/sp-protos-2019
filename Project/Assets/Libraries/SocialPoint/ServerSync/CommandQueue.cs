@@ -454,7 +454,7 @@ namespace SocialPoint.ServerSync
         {
             if(_autoSyncEnabled && AutoSync != null)
             {
-                Attr data = new AttrEmpty();
+                Attr data = null;
                 try
                 {
                     data = AutoSync();
@@ -463,13 +463,16 @@ namespace SocialPoint.ServerSync
                 {
                     CatchException(e);
                 }
-                var hash = data.GetHashCode();
-                if(hash != _lastAutoSyncDataHash)
+                if(data != null)
                 {
-                    _lastAutoSyncDataHash = hash;
-                    Add(new SyncCommand(data));
+                    var hash = data.GetHashCode();
+                    if(hash != _lastAutoSyncDataHash)
+                    {
+                        _lastAutoSyncDataHash = hash;
+                        Add(new SyncCommand(data));
+                    }
+                    Flush();
                 }
-                Flush();
             }
             if(!_sending)
             {
