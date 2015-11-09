@@ -8,29 +8,6 @@ using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
-    public struct AndroidNotificationSettings 
-    {
-        public const string DefaultLargeIcon = "default_notify_icon_large";
-        public const string DefaultSmallIcon = "default_notify_icon_small";
-        public static readonly Color DefaultIconBackgroundColor = Color.grey;
-
-        public string LargeIcon;
-        public string SmallIcon;
-        public Color IconBackgroundColor;
-
-
-        public static AndroidNotificationSettings Default
-        {
-            get
-            {
-                return new AndroidNotificationSettings{
-                    LargeIcon = DefaultLargeIcon,
-                    SmallIcon = DefaultSmallIcon,
-                    IconBackgroundColor = DefaultIconBackgroundColor
-                };
-            }
-        }
-    }
 
 #if UNITY_ANDROID
     public partial class AndroidNotificationServices : BaseNotificationServices
@@ -41,15 +18,13 @@ namespace SocialPoint.Notifications
         private List<int> _notifications = new List<int>();
 
         private AndroidJavaClass _notifClass = null;
-        private AndroidNotificationSettings _settings;
         
-        public AndroidNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue, AndroidNotificationSettings settings)
+        public AndroidNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
         : base(behaviour, commandqueue)
         {
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
 #endif
-            _settings = settings;
             LoadPlayerPrefs();
         }
 
@@ -109,13 +84,9 @@ namespace SocialPoint.Notifications
             _notifications.Add(notifId);
             SavePlayerPrefs();
 
-            long delayTime = notif.FireDelay;
-            string title = notif.Title;
-            string message = notif.Message;
-            int color = ColorToInt(_settings.IconBackgroundColor);
             if(_notifClass != null)
             {
-                _notifClass.CallStatic("schedule", notifId, delayTime, title, message, _settings.LargeIcon, _settings.SmallIcon, color);
+                _notifClass.CallStatic("schedule", notifId, notif.FireDelay, notif.Title, notif.Message);
             }
         }
 

@@ -27,7 +27,7 @@ public class NotificationBridge {
     private static String mPushNotificationToken;
     private static String mSenderId;
 
-    public static void schedule(int id, long delay, String title, String text, String largeIcon, String smallIcon, int color) {
+    public static void schedule(int id, long delay, String title, String text) {
         Activity currentActivity = UnityPlayer.currentActivity;
         Intent intent = new Intent(currentActivity, AlarmReceiver.class);
         intent.putExtra(IntentParameters.EXTRA_ID, id);

@@ -12,9 +12,6 @@ public class NotificationInstaller : MonoInstaller
     public class SettingsData
     {
         public bool AutoRegisterForRemote = true;
-        public string AndroidLargeIcon = AndroidNotificationSettings.DefaultLargeIcon;
-        public string AndroidSmallIcon = AndroidNotificationSettings.DefaultSmallIcon;
-        public Color AndroidIconBackgroundColor = AndroidNotificationSettings.DefaultIconBackgroundColor;
     };
     
     public SettingsData Settings;
@@ -23,11 +20,6 @@ public class NotificationInstaller : MonoInstaller
     {
 
 #if UNITY_ANDROID 
-        Container.Rebind<AndroidNotificationSettings>().ToSingleInstance(new AndroidNotificationSettings{
-            LargeIcon = Settings.AndroidLargeIcon,
-            SmallIcon = Settings.AndroidSmallIcon,
-            IconBackgroundColor = Settings.AndroidIconBackgroundColor
-        });
         Container.Rebind<INotificationServices>().ToSingle<AndroidNotificationServices>();
 #elif UNITY_IOS
         Container.Rebind<INotificationServices>().ToSingle<IosNotificationServices>();
