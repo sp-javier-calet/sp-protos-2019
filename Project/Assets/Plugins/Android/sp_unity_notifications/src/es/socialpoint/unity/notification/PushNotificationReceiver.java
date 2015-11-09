@@ -17,7 +17,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
         
         Bundle intentExtras = intent.getExtras();
         NotificationShower shower = NotificationShower
-                .create(context)
+                .create(context, intentExtras)
                 .setOrigin(Origin.PUSH_NOTIFICATION);
         
         if(intentExtras.containsKey(IntentParameters.EXTRA_TITLE)) {

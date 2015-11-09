@@ -1,5 +1,6 @@
 package es.socialpoint.unity.notification;
 
+import android.os.Bundle;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -26,19 +27,20 @@ public class NotificationShower {
     private static int DEFAULT_COLOR = 0xff704b92;
     
     private Context mContext;
-    private int mNotificationId;
     private int mAlarmId;
     private String mText;
     private String mTitle;
     private Origin mOrigin;
-    
-    private NotificationShower(Context context) {
+    private Bundle mExtras;
+
+    private NotificationShower(Context context, Bundle extras) {
         mContext = context;
         mAlarmId = 0;
+        mExtras = extras;
     }
     
-    public static NotificationShower create(Context context) {
-        return new NotificationShower(context);
+    public static NotificationShower create(Context context, Bundle extras) {
+        return new NotificationShower(context, extras);
     }
     
     public NotificationShower setOrigin(Origin origin) {
@@ -58,11 +60,6 @@ public class NotificationShower {
     
     public NotificationShower setAlarmId(int alarmId) {
         mAlarmId = alarmId;
-        return this;
-    }
-    
-    public NotificationShower setId(int id) {
-        mNotificationId = id;
         return this;
     }
     
@@ -110,8 +107,8 @@ public class NotificationShower {
             Intent resultIntent;
             try {
                 resultIntent = new Intent(mContext, Class.forName(gameClass));
+                resultIntent.putExtras(mExtras);
                 resultIntent.putExtra(IntentParameters.EXTRA_ORIGIN, mOrigin.getName());
-                resultIntent.putExtra(IntentParameters.NOTIFICATION_ID_KEY, mNotificationId);
                 
                 PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 mBuilder.setContentIntent(contentIntent);

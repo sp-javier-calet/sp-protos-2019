@@ -13,8 +13,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         NotificationShower
-            .create(context)
-            .setId(intent.getIntExtra(IntentParameters.EXTRA_ID, 0))
+            .create(context, intent.getExtras())
             .setTitle(intent.getStringExtra(IntentParameters.EXTRA_TITLE))
             .setText(intent.getStringExtra(IntentParameters.EXTRA_TEXT))
             .setOrigin(Origin.LOCAL_NOTIFICATION)

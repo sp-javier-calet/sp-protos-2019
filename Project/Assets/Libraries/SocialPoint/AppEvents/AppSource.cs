@@ -16,6 +16,8 @@ namespace SocialPoint.AppEvents
         public const string SchemeSeparator = "://";
         public const string QuerySeparator = "?";
 
+        private const string SourceTitleKey = "title";
+        private const string SourceTextKey = "text";
         private const string SourceKeyOrigin = "sp_origin";
         private const string SourceKeyFacebookLink = "applink_data";
         private const string SourceValueLocalNotification = "local_notification";
@@ -43,8 +45,8 @@ namespace SocialPoint.AppEvents
         // Parameter filter per scheme
         private static readonly Dictionary<string, string[]> SourceFilters = new Dictionary<string, string[]>
         {
-            { LocalNotificationScheme, new string[]{SourceKeyOrigin} },
-            { PushNotificationScheme, new string[]{SourceKeyOrigin} },
+            { LocalNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey, "android.intent.extra.ALARM_COUNT" } },
+            { PushNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey } },
             { WidgetScheme, new string[]{SourceKeyOrigin} },
             { FacebookScheme, new string[]{} },
             { OthersScheme, new string[] {"profile"} }
@@ -156,14 +158,7 @@ namespace SocialPoint.AppEvents
                 }
             }
 
-            /* Return null if there is no parameters after apply filters. 
-             * Otherwise, add parameters and generate a valid URI */
-            Uri uri = null;
-            if(sourceParameters.Count > 0)
-            {
-                uri = new Uri(scheme + SchemeSeparator + QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters));
-            }
-
+            Uri uri = new Uri(scheme + SchemeSeparator + QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters));
             return uri;
         }
 
