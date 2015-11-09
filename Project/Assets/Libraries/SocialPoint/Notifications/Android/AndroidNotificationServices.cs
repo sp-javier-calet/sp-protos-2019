@@ -3,38 +3,53 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.ServerSync;
 using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
-    public partial class AndroidNotificationServices
+    public struct AndroidNotificationSettings 
     {
         public const string DefaultLargeIcon = "default_notify_icon_large";
         public const string DefaultSmallIcon = "default_notify_icon_small";
         public static readonly Color DefaultIconBackgroundColor = Color.grey;
 
-        public string LargeIcon = DefaultLargeIcon;
-        public string SmallIcon = DefaultSmallIcon;
-        public Color IconBrackgroundColor = DefaultIconBackgroundColor;
+        public string LargeIcon;
+        public string SmallIcon;
+        public Color IconBackgroundColor;
+
+
+        public static AndroidNotificationSettings Default
+        {
+            get
+            {
+                return new AndroidNotificationSettings{
+                    LargeIcon = DefaultLargeIcon,
+                    SmallIcon = DefaultSmallIcon,
+                    IconBackgroundColor = DefaultIconBackgroundColor
+                };
+            }
+        }
     }
 
 #if UNITY_ANDROID
-    public partial class AndroidNotificationServices : INotificationServices
+    public partial class AndroidNotificationServices : BaseNotificationServices
     {
         private const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
-        private const string FullClassName = "es.socialpoint.unity.notifications.NotificationBridge";
+        private const string FullClassName = "es.socialpoint.unity.notification.NotificationBridge";
 
         private List<int> _notifications = new List<int>();
 
-#if !UNITY_EDITOR
         private AndroidJavaClass _notifClass = null;
-#endif
+        private AndroidNotificationSettings _settings;
         
-        public AndroidNotificationServices()
+        public AndroidNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue, AndroidNotificationSettings settings)
+        : base(behaviour, commandqueue)
         {
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
 #endif
+            _settings = settings;
             LoadPlayerPrefs();
         }
 
@@ -81,7 +96,7 @@ namespace SocialPoint.Notifications
             return (((int)(c.r * 255)) << 16) + ((int)(c.g * 255) << 8) + (int)(c.b * 255);
         }
 
-        public void Schedule(Notification notif)
+        public override void Schedule(Notification notif)
         {
             var notifId = 0;
             foreach(var id in _notifications)
@@ -94,41 +109,49 @@ namespace SocialPoint.Notifications
             _notifications.Add(notifId);
             SavePlayerPrefs();
 
-#if !UNITY_EDITOR
             long delayTime = notif.FireDelay;
             string title = notif.Title;
             string message = notif.Message;
-            int color = ColorToInt(IconBrackgroundColor);
-            _notifClass.CallStatic("Schedule", notifId, delayTime, title, message, LargeIcon, SmallIcon, color);
-#endif
+            int color = ColorToInt(_settings.IconBackgroundColor);
+            if(_notifClass != null)
+            {
+                _notifClass.CallStatic("schedule", notifId, delayTime, title, message, _settings.LargeIcon, _settings.SmallIcon, color);
+            }
         }
 
-        public void ClearReceived()
+        public override void ClearReceived()
         {
             _notifications.Clear();
             SavePlayerPrefs();
-#if !UNITY_EDITOR
-            _notifClass.CallStatic("ClearReceived");
-#endif
+            if(_notifClass != null)
+            {
+                _notifClass.CallStatic("clearReceived");
+            }
         }
 
-        public void CancelPending()
+        public override void CancelPending()
         {
-#if !UNITY_EDITOR
-            _notifClass.CallStatic("CancelPending", _notifications.ToArray());
-#endif
+            if(_notifClass != null)
+            {
+                _notifClass.CallStatic("cancelPending", _notifications.ToArray());
+            }
         }
 
-        public void RegisterForRemote()
+        public override void RegisterForRemote()
         {
-#if !UNITY_EDITOR
-            _notifClass.CallStatic("RegisterForRemote");
-#endif
+            if(_notifClass != null)
+            {
+                _notifClass.CallStatic("registerForRemote");
+
+                WaitForRemoteToken(() => {
+                    return _notifClass.CallStatic<string>("getNotificationToken");
+                });
+            }
         }
     }
 #else
     public partial class AndroidNotificationServices : EmptyNotificationServices
     {
     }
-#endif
+#endif // UNITY_ANDROID
 }

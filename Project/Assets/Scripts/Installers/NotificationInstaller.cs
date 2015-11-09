@@ -12,9 +12,9 @@ public class NotificationInstaller : MonoInstaller
     public class SettingsData
     {
         public bool AutoRegisterForRemote = true;
-        public string AndroidLargeIcon = AndroidNotificationServices.DefaultLargeIcon;
-        public string AndroidSmallIcon = AndroidNotificationServices.DefaultSmallIcon;
-        public Color AndroidIconBackgroundColor = AndroidNotificationServices.DefaultIconBackgroundColor;
+        public string AndroidLargeIcon = AndroidNotificationSettings.DefaultLargeIcon;
+        public string AndroidSmallIcon = AndroidNotificationSettings.DefaultSmallIcon;
+        public Color AndroidIconBackgroundColor = AndroidNotificationSettings.DefaultIconBackgroundColor;
     };
     
     public SettingsData Settings;
@@ -23,7 +23,12 @@ public class NotificationInstaller : MonoInstaller
     {
 
 #if UNITY_ANDROID 
-        Container.Rebind<INotificationServices>().ToSingleMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
+        Container.Rebind<AndroidNotificationSettings>().ToSingleInstance(new AndroidNotificationSettings{
+            LargeIcon = Settings.AndroidLargeIcon,
+            SmallIcon = Settings.AndroidSmallIcon,
+            IconBackgroundColor = Settings.AndroidIconBackgroundColor
+        });
+        Container.Rebind<INotificationServices>().ToSingle<AndroidNotificationServices>();
 #elif UNITY_IOS
         Container.Rebind<INotificationServices>().ToSingle<IosNotificationServices>();
 #else
@@ -43,12 +48,5 @@ public class NotificationInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
     }
 
-    AndroidNotificationServices CreateAndroidNotificationServices(InjectContext ctx)
-    {
-        var services = new AndroidNotificationServices();
-        services.LargeIcon = Settings.AndroidLargeIcon;
-        services.SmallIcon = Settings.AndroidSmallIcon;
-        services.IconBrackgroundColor = Settings.AndroidIconBackgroundColor;
-        return services;
-    }
+
 }

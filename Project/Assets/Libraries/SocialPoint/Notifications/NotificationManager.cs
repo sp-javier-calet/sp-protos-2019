@@ -31,7 +31,7 @@ namespace SocialPoint.Notifications
 #if UNITY_IOS && !UNITY_EDITOR
             Services = new IosNotificationServices(behaviour, commandQueue);
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            Services = new AndroidNotificationServices();
+            Services = new AndroidNotificationServices(behaviour, commandQueue, AndroidNotificationSettings.Default);
 #else
             Services = new EmptyNotificationServices();
 #endif

@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.ServerSync;
 
 #if UNITY_IOS
 #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
@@ -21,33 +20,18 @@ using RemoteNotificationType = UnityEngine.iOS.NotificationType;
 namespace SocialPoint.Notifications
 {
 #if UNITY_IOS
-    public class IosNotificationServices : INotificationServices
+    public class IosNotificationServices : BaseNotificationServices
     {
-        public delegate void DeviceTokenReceived();
-
-        // Event fired when the device token is returned by Apple Push Service
-        public event DeviceTokenReceived OnDeviceTokenReceived;
-             
-        private byte[] _byteToken = null;
-        private string _stringToken = null;
-        private MonoBehaviour _behaviour;
-        private ICommandQueue _commandQueue;                
         private const string TokenSeparator = "-";
         private const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
         private const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
 
-        public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandQueue=null)
+        public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandQueue = null)
         {
-            if(behaviour == null)
-            {
-                throw new ArgumentNullException("behaviour", "behaviour cannot be null or empty!");
-            }
-            _behaviour = behaviour;
-            _commandQueue = commandQueue;
             RegisterForLocal();
         }
 
-        public void Schedule(Notification notif)
+        public override void Schedule(Notification notif)
         {
             var unotif = new LocalNotification();
             unotif.fireDate = DateTime.Now.ToLocalTime().AddSeconds(notif.FireDelay);
@@ -64,22 +48,31 @@ namespace SocialPoint.Notifications
             }
         }
 
-        public void CancelPending()
+        public override void CancelPending()
         {
             NotificationServices.CancelAllLocalNotifications();
         }
 
-        public void RegisterForRemote()
+        public override void RegisterForRemote()
         {
 #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
             NotificationServices.RegisterForRemoteNotificationTypes(_remoteNotifyTypes);
 #else
             NotificationServices.RegisterForNotifications(_remoteNotifyTypes, true);
 #endif
-            _behaviour.StartCoroutine(CheckDeviceToken());
+
+            WaitForRemoteToken(()=> {
+                string token = null;
+                byte[] byteToken = NotificationServices.deviceToken;
+                if(byteToken != null)
+                {
+                    token = BitConverter.ToString(byteToken).Replace(TokenSeparator, string.Empty).ToLower();
+                }
+                return token;
+            });
         }
         
-        public void ClearReceived()
+        public override void ClearReceived()
         {
             NotificationServices.ClearRemoteNotifications();
             NotificationServices.ClearLocalNotifications();
@@ -87,32 +80,7 @@ namespace SocialPoint.Notifications
             unotif.fireDate = DateTime.Now.ToLocalTime();
             unotif.applicationIconBadgeNumber = -1;
             NotificationServices.PresentLocalNotificationNow(unotif);
-        }       
-
-        private IEnumerator CheckDeviceToken()
-        {
-            while(_byteToken == null)
-            {
-                _byteToken = NotificationServices.deviceToken;
-                yield return null;
-            }
-
-            _stringToken = BitConverter.ToString(_byteToken).Replace(TokenSeparator, string.Empty).ToLower();
-            SendPushToken();
-            if(OnDeviceTokenReceived != null)
-            {
-                OnDeviceTokenReceived();
-            }
         }
-
-        private void SendPushToken()
-        {
-            if(_commandQueue != null && !string.IsNullOrEmpty(_stringToken))
-            {
-                _commandQueue.Add(new PushEnabledCommand(_stringToken));
-            }
-        }
-
 
         private void RegisterForLocal()
         {
