@@ -18,8 +18,8 @@ fi
 
 mkdir -p $2/res
 
-# Remove all .meta files
-find $2 -name "*.meta" -type f -delete
+# Remove all .meta files in Plugins/Android (for project references)
+find $2/.. -name "*.meta" -type f -delete
 
 # Update and build
 android update lib-project -p $2
