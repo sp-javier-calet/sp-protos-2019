@@ -10,7 +10,7 @@ namespace SocialPoint.Notifications
 {
 
 #if UNITY_ANDROID
-    public partial class AndroidNotificationServices : BaseNotificationServices
+    public class AndroidNotificationServices : BaseNotificationServices
     {
         private const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
         private const string FullClassName = "es.socialpoint.unity.notification.NotificationBridge";
@@ -121,7 +121,7 @@ namespace SocialPoint.Notifications
         }
     }
 #else
-    public partial class AndroidNotificationServices : EmptyNotificationServices
+    public class AndroidNotificationServices : EmptyNotificationServices
     {
     }
 #endif // UNITY_ANDROID
