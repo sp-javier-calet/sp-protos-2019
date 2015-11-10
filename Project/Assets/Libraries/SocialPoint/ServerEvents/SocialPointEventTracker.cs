@@ -502,47 +502,45 @@ namespace SocialPoint.ServerEvents
         {
             bool success = CheckSync(resp);
             ApplyBackoff(success);
-            if(success)
+            if(!success)
             {
-                var error = resp.Error;
-                if(resp.HasError)
+                return;
+            }
+            var error = resp.Error;
+            if(resp.HasError)
+            {
+                try
                 {
-                    try
+                    var data = new JsonAttrParser().Parse(resp.Body).AsDic;
+                    var dataErr = AttrUtils.GetError(data);
+                    if(dataErr != null)
                     {
-                        var data = new JsonAttrParser().Parse(resp.Body).AsDic;
-                        var dataErr = AttrUtils.GetError(data);
-                        if(dataErr != null)
-                        {
-                            error = dataErr;
-                        }
-                    }
-                    catch(Exception)
-                    {
+                        error = dataErr;
                     }
                 }
-                foreach(var ev in sentEvents)
+                catch(Exception)
                 {
-                    if(ev != null && ev.ResponseDelegate != null)
-                    {
-                        ev.ResponseDelegate(error);
-                    }
-
-                    if(error != null && error.HasError && GeneralError != null)
-                    {
-                        if(error.Code == SessionLostErrorStatusCode)
-                        {
-                            GeneralError(EventTrackerErrorType.SessionLost, error);
-                        }
-                        else
-                        {
-                            GeneralError(EventTrackerErrorType.HttpResponse, error);
-                        }
-                    }
-
-                    _pendingEvents.Remove(ev);
                 }
             }
-            sentEvents.Clear();
+            foreach(var ev in sentEvents)
+            {
+                if(ev != null && ev.ResponseDelegate != null)
+                {
+                    ev.ResponseDelegate(error);
+                }                   
+                _pendingEvents.Remove(ev);
+            }
+            if(error != null && error.HasError && GeneralError != null)
+            {
+                if(error.Code == SessionLostErrorStatusCode)
+                {
+                    GeneralError(EventTrackerErrorType.SessionLost, error);
+                }
+                else
+                {
+                    GeneralError(EventTrackerErrorType.HttpResponse, error);
+                }
+            }
         }
 
         void ApplyBackoff(bool success)

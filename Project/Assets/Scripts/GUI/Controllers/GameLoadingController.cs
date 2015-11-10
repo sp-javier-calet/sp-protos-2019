@@ -8,6 +8,9 @@ using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.Crash;
+using SocialPoint.ServerEvents;
+using SocialPoint.QualityStats;
 using Zenject;
 using UnityEngine;
 
@@ -23,29 +26,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     }
 
     [Inject]
-    PopupsController injectPopups
-    {
-        set
-        {
-            Popups = value;
-        }
-    }
-
-    [Inject]
     Localization injectLocalization
     {
         set
         {
             Localization = value;
-        }
-    }
-
-    [Inject]
-    IAlertView injectAlertView
-    {
-        set
-        {
-            AlertView = value;
         }
     }
 
@@ -59,6 +44,15 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     }
 
     [Inject]
+    IGameErrorHandler injectGameErrorHandler
+    {
+        set
+        {
+            ErrorHandler = value;
+        }
+    }
+
+    [Inject]
     GameLoader _gameLoader;
 
     [Inject]
@@ -68,24 +62,38 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     GameModel _model;
 
     [Inject]
-    DiContainer _container;
+    SceneManager _sceneManager;
+
+    #region services that need to be loaded when the game starts
 
     [Inject]
-    SceneManager _sceneManager;
+    ICrashReporter _crashReporter;
+
+    [Inject]
+    IEventTracker _eventTracker;
+
+    [Inject]
+    QualityStats _qualityStats;
+
+    #endregion
 
     [SerializeField]
     string _sceneToLoad = "Main";
 
     LoadingOperation _loadModelOperation;
     LoadingOperation _loadSceneOperation;
-    SceneLoadingArgs _sceneLoadingArgs;
+
+    const float ExpectedLoadModelDuration = 1.0f;
+    const float ExpectedLoadSceneDuration = 2.0f;
 
     override protected void OnAppeared()
     {
         base.OnAppeared();
-        _loadModelOperation = new LoadingOperation(1.0f);
-        _loadSceneOperation = new LoadingOperation(1.0f);
+        _loadModelOperation = new LoadingOperation(ExpectedLoadModelDuration);
+        _loadModelOperation.Message = "loading game model...";
         RegisterOperation(_loadModelOperation);
+        _loadSceneOperation = new LoadingOperation(ExpectedLoadSceneDuration, OnLoadSceneStart);
+        _loadSceneOperation.Message = "loading main scene...";
         RegisterOperation(_loadSceneOperation);
 
         Login.NewUserEvent += OnLoginNewUser;
@@ -95,6 +103,14 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         }
     }
 
+    void OnLoadSceneStart()
+    {
+        _sceneManager.ChangeSceneToAsync(_sceneToLoad, false, (SceneLoadingArgs args) => {
+            args.ActivateScene();
+            _loadSceneOperation.Finish("main scene loaded");
+        });
+    }
+
     void OnAdminPanelChange()
     {
         Paused = _adminPanel.Visible;
@@ -102,17 +118,9 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoginNewUser(Attr data, bool changed)
     {
-        _loadModelOperation.Message = "loading game model...";
         _gameLoader.Load(data);
         _loadModelOperation.Finish("game model loaded");
-
-        _loadSceneOperation.Message = "loading main scene...";
-        _sceneManager.ChangeSceneToAsync(_sceneToLoad, false, (SceneLoadingArgs obj) => {
-            _sceneLoadingArgs = obj;
-            _loadSceneOperation.Finish("main scene loaded");
-        });
     }
-
 
     override protected void OnDisappearing()
     {
@@ -122,13 +130,6 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
             _adminPanel.ChangedVisibility -= OnAdminPanelChange;
         }
         base.OnDisappearing();
-    }
-
-    override protected void OnAllOperationsLoaded()
-    {
-        base.OnAllOperationsLoaded();
-        DebugUtils.Assert(_sceneLoadingArgs != null, "Real scene load not started");
-        _sceneLoadingArgs.ActivateScene();
     }
 
 }

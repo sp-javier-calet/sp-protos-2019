@@ -23,6 +23,5 @@ public class QualityStatsInstaller : MonoInstaller
         }
         Container.Rebind<QualityStats>().ToSingle<QualityStats>();
         Container.Bind<IDisposable>().ToSingle<QualityStats>();
-        Container.Resolve<QualityStats>();
     }
 }

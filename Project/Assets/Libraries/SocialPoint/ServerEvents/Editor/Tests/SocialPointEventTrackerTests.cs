@@ -7,6 +7,7 @@ using SocialPoint.Hardware;
 using SocialPoint.ServerSync;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.ServerEvents
 {
@@ -27,7 +28,12 @@ namespace SocialPoint.ServerEvents
             SocialPointEventTracker.DeviceInfo = Substitute.For<IDeviceInfo>();
             SocialPointEventTracker.RequestSetup = Substitute.For<SocialPointEventTracker.RequestSetupDelegate>();
             SocialPointEventTracker.CommandQueue = Substitute.For<ICommandQueue>();
-            SocialPointEventTracker.AppEvents = Substitute.For<IAppEvents>();
+
+			var appEvents = Substitute.For<IAppEvents>();
+			appEvents.WillGoBackground.Returns(new PriorityAction());
+			appEvents.GameWasLoaded.Returns(new PriorityAction());
+			appEvents.GameWillRestart.Returns(new PriorityAction());
+			SocialPointEventTracker.AppEvents = appEvents;
         }
 
         [Test]

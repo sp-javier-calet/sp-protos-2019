@@ -9,6 +9,8 @@ namespace SocialPoint.GameLoading
 
         string Message{ get; }
 
+        bool HasExpectedDuration{ get; }
+
         float ExpectedDuration{ get; }
 
         void Start();
@@ -22,6 +24,16 @@ namespace SocialPoint.GameLoading
 
         public float ExpectedDuration { private set; get; }
 
+        public bool HasExpectedDuration
+        {
+
+            get
+            {
+                return ExpectedDuration >= 0.0f;
+            }
+        
+        }
+
         Action _start;
 
         public LoadingOperation(float duration, Action start = null)
@@ -31,7 +43,7 @@ namespace SocialPoint.GameLoading
             _start = start;
         }
 
-        public LoadingOperation(Action start = null): this(0.0f, start)
+        public LoadingOperation(Action start = null): this(-1.0f, start)
         {
         }
 

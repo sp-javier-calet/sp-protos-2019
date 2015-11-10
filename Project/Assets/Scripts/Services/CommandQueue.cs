@@ -8,6 +8,7 @@ using SocialPoint.Alert;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Locale;
+using SocialPoint.GameLoading;
 using UnityEngine;
 using System;
 
@@ -97,18 +98,12 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
 
     [Inject]
     ISerializer<PlayerModel> _playerSerializer;
-        
-    [Inject]
-    IAlertView _alertView;
-    
-    [Inject]
-    Localization _localization;
 
     [Inject]
     GameModel _gameModel;
 
-    [Inject("sync_error")]
-    Action<string,Error> _syncError;
+    [Inject]
+    IGameErrorHandler _errorHandler;
 
     public CommandQueue(MonoBehaviour behaviour, IHttpClient client):base(behaviour, client)
     {
@@ -120,18 +115,20 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     void OnGeneralError(CommandQueueErrorType type, Error err)
     {
         Stop();
-        if(_syncError != null)
+        if(_errorHandler != null)
         {
-            _syncError("queue-"+(int)type, err);
+            _errorHandler.Signature = "queue-"+(int)type;
+            _errorHandler.ShowSync(err);
         }
     }
     
     void OnCommandError(Command cmd, Error err, Attr resp)
     {
         Stop();
-        if(_syncError != null)
+        if(_errorHandler != null)
         {
-            _syncError("cmd-"+cmd.Id, err);
+            _errorHandler.Signature = "cmd-"+cmd.Id;
+            _errorHandler.ShowSync(err);
         }
     }
 
