@@ -158,13 +158,18 @@ namespace SocialPoint.AppEvents
                 }
             }
 
-            string parametersString = string.Empty;
-            if(sourceParameters.Count > 0)
+            // If there is no parameters for an Others sources, returns a null uri.
+            Uri uri = null;
+            if(scheme != OthersScheme || sourceParameters.Count > 0)
             {
-                parametersString = QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters);
-            }
+                string parametersString = string.Empty;
+                if(sourceParameters.Count > 0)
+                {
+                    parametersString = QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters);
+                }
 
-            Uri uri = new Uri(scheme + SchemeSeparator + parametersString);
+                uri = new Uri(scheme + SchemeSeparator + parametersString);
+            }
 
             return uri;
         }
