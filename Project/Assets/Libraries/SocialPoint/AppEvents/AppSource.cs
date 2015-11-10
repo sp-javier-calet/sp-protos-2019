@@ -158,7 +158,14 @@ namespace SocialPoint.AppEvents
                 }
             }
 
-            Uri uri = new Uri(scheme + SchemeSeparator + QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters));
+            string parametersString = string.Empty;
+            if(sourceParameters.Count > 0)
+            {
+                parametersString = QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters);
+            }
+
+            Uri uri = new Uri(scheme + SchemeSeparator + parametersString);
+
             return uri;
         }
 
