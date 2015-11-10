@@ -7,7 +7,6 @@ public class ScriptEventsInstaller : MonoInstaller
     [Serializable]
     public class SettingsData
     {
-
     }
 
     public SettingsData Settings;
@@ -16,6 +15,8 @@ public class ScriptEventsInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        Container.Bind<IEventsBridge>().ToSingle<AppEventsBridge>();
+        Container.Bind<IEventsBridge>().ToSingle<ServerEventsBridge>();
         Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
     }
 

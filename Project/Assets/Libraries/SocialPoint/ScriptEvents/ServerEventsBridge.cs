@@ -10,21 +10,39 @@ namespace SocialPoint.ScriptEvents
         public Attr Arguments;    	
     }
 
-    public class EventDispatcherEventTrackerBridge : IDisposable
+    public class ServerEventsBridge : IEventsBridge, ISerializer<ServerEvent>
     {
         IEventDispatcher _dispatcher;
         IEventTracker _tracker;
 
-        public EventDispatcherEventTrackerBridge(IEventDispatcher dispatcher, IEventTracker tracker)
+        public ServerEventsBridge(IEventTracker tracker)
+        {
+            _tracker = tracker;
+            _tracker.EventTracked += OnEventTracked;
+        }
+
+        const string AttrKeyName = "name";
+        const string AttrKeyArguments = "args";
+
+        public Attr Serialize(ServerEvent ev)
+        {
+            var data = new AttrDic();
+            data.SetValue(AttrKeyName, ev.Name);
+            data.Set(AttrKeyArguments, (Attr)ev.Arguments.Clone());
+            return data;
+        }
+
+        public void Load(IEventDispatcher dispatcher)
         {
             _dispatcher = dispatcher;
-            _tracker = tracker;
-
-            _tracker.EventTracked += OnEventTracked;
         }
 
         void OnEventTracked(string name, Attr args)
         {
+            if(_dispatcher == null)
+            {
+                return;
+            }
             _dispatcher.Raise(new ServerEvent{
                 Name = name,
                 Arguments = args
