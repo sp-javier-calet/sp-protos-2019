@@ -54,7 +54,7 @@ public class NotificationBridge {
     public static void cancelPending(int id) {
         Activity currentActivity = UnityPlayer.currentActivity;
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(currentActivity, UnityPlayerActivity.class);
+        Intent intent = new Intent(currentActivity, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, id, intent, 0);
         am.cancel(pendingIntent);
     }
