@@ -373,7 +373,7 @@ namespace SocialPoint.ServerEvents
 
         void AddHardwareData(AttrDic data)
         {
-            var client = new AttrDic();
+            var client = data.ContainsKey("client") ? data.Get("client").AssertDic : new AttrDic();
             data.Set("client", client);
             var mobile = new AttrDic();
             client.Set("mobile", mobile);

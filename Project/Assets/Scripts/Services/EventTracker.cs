@@ -85,7 +85,7 @@ class EventTracker : SocialPointEventTracker
             BreadcrumbManager = value;
         }
     }
-    
+
     [Inject]
     IAppEvents injectAppEvents
     {
@@ -109,20 +109,7 @@ class EventTracker : SocialPointEventTracker
 
     public EventTracker(MonoBehaviour behaviour):base(behaviour)
     {
-        GeneralError += OnGeneralError;
-    }
-
-    void OnGeneralError(EventTrackerErrorType type, Error err)
-    {
-        if(type == EventTrackerErrorType.SessionLost)
-        {
-            Stop();
-            if(_errorHandler != null)
-            {
-                _errorHandler.Signature = "track-"+(int)type;
-                _errorHandler.ShowSync(err);
-            }
-        }
+        _errorHandler.Setup(this);
     }
 
 }

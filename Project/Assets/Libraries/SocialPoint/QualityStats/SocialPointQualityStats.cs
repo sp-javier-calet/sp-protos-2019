@@ -15,11 +15,10 @@ namespace SocialPoint.QualityStats
         List<QualityStatsHttpClient> _qualityStatsHttpClients;
 
         DateTime _loadingStarted;
-        DateTime _loadingFinished;
+        double _timeToMap;
         bool _timeToMapSent;
 
         static readonly float kByteConverter = 1.0f / 1024.0f;
-        static readonly DateTime kNewDateTime = new DateTime();
 
         const string kClientPerformanceStats = "client_performance.stats";
         const string kClientPerformanceHttpRequest = "client_performance.http_request";
@@ -39,8 +38,8 @@ namespace SocialPoint.QualityStats
             AppEvents = appEvents;
 
             _loadingStarted = new DateTime();
-            _loadingFinished = new DateTime();
             _timeToMapSent = false;
+            _timeToMap = 0.0;
 
             _qualityStatsHttpClients = new List<QualityStatsHttpClient>();
 
@@ -107,7 +106,8 @@ namespace SocialPoint.QualityStats
 
         void OnGameLoaded()
         {
-            _loadingFinished = TimeUtils.Now.ToLocalTime();
+            var loadingFinished = TimeUtils.Now.ToLocalTime();
+            _timeToMap = (loadingFinished - _loadingStarted).TotalSeconds;
         }
 
         void OnAppWillGoBackground()
@@ -121,7 +121,6 @@ namespace SocialPoint.QualityStats
                 var requestDic = request.AsDic;
                 SendClientPerformance(requestDic, kClientPerformanceHttpRequest);
             }
-            ResetQualityStatsHttpClients();
         }
 
         #endregion
@@ -150,7 +149,7 @@ namespace SocialPoint.QualityStats
             data.Set("client", client);
 
             client.Set("memory_stats", GetMemoryData());
-            client.Set("storage_stats", getStorageData());
+            client.Set("storage_stats", GetStorageData());
             client.Set("app_info", GetAppData());
             client.Set("network_stats", GetNetworkData());
             client.Set("performance", GetPerformanceData());
@@ -169,7 +168,7 @@ namespace SocialPoint.QualityStats
                 QualityStatsHttpClient.Stats stats = statsIt.Value;
                 foreach(var dataIt in stats.Requests)
                 {
-                    var request = GetPerformanceData(statsIt, dataIt);
+                    var request = GetPerformanceRequest(statsIt, dataIt);
                     requestList.Add(request);
                 }
             }
@@ -211,12 +210,13 @@ namespace SocialPoint.QualityStats
                     }
                 }
             }
+            ResetQualityStatsHttpClients();
             return data;
         }
 
         #region AttrDic Data
 
-        static AttrDic GetPerformanceData(KeyValuePair<string,QualityStatsHttpClient.Stats> statsIt, KeyValuePair<int,QualityStatsHttpClient.Data> dataIt)
+        static AttrDic GetPerformanceRequest(KeyValuePair<string,QualityStatsHttpClient.Stats> statsIt, KeyValuePair<int,QualityStatsHttpClient.Data> dataIt)
         {
             var data = new AttrDic();
             var client = new AttrDic();
@@ -232,6 +232,13 @@ namespace SocialPoint.QualityStats
             performance.SetValue("code", code);
 
             QualityStatsHttpClient.Data requestData = dataIt.Value;
+            GetPerformanceData(performance, requestData);
+
+            return data;
+        }
+
+        static void GetPerformanceData(AttrDic performance, QualityStatsHttpClient.Data requestData)
+        {
             var dAmount = (double)requestData.Amount;
 
             performance.SetValue("number_of_calls", requestData.Amount);
@@ -239,8 +246,6 @@ namespace SocialPoint.QualityStats
             performance.SetValue("avg_wait_time", requestData.SumWaitTimes / dAmount);
             performance.SetValue("avg_conn_time", requestData.SumConnectionTimes / dAmount);
             performance.SetValue("avg_trans_time", requestData.SumTransferTimes / dAmount);
-
-            return data;
         }
 
         AttrDic GetMemoryData()
@@ -262,7 +267,7 @@ namespace SocialPoint.QualityStats
             return dict;
         }
 
-        AttrDic getStorageData()
+        AttrDic GetStorageData()
         {
             var storage = _deviceInfo.StorageInfo;
             var dict = new AttrDic();
@@ -311,20 +316,24 @@ namespace SocialPoint.QualityStats
         {
             var dict = new AttrDic();
 
-            dict.SetValue("size_cache_dir", Caching.spaceOccupied);
-
-            if(_loadingFinished.CompareTo(kNewDateTime) != 0)
-            {
-                var timeToMap = (_loadingFinished - _loadingStarted).TotalSeconds;
-
-                if(!_timeToMapSent && timeToMap > 0.0f)
-                {
-                    dict.SetValue("time_to_map", timeToMap);
-                    _timeToMapSent = true;
-                }
-            }
+            AddSizeCacheDir(dict);
+            AddTimeToMap(dict);
 
             return dict;
+        }
+
+        static void AddSizeCacheDir(AttrDic dict)
+        {
+            dict.SetValue("size_cache_dir", Caching.spaceOccupied);
+        }
+
+        void AddTimeToMap(AttrDic dict)
+        {
+            if(!_timeToMapSent && _timeToMap > 0.0f)
+            {
+                dict.SetValue("time_to_map", _timeToMap);
+                _timeToMapSent = true;
+            }
         }
 
         #endregion

@@ -13,7 +13,7 @@ public class ServerEventsInstaller : MonoInstaller
         public float Timeout = EventTracker.DefaultTimeout;
         public float BackoffMultiplier = EventTracker.DefaultBackoffMultiplier;
 	};
-	
+
 	public SettingsData Settings;
 
 	public override void InstallBindings()

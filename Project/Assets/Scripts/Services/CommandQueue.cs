@@ -108,28 +108,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     public CommandQueue(MonoBehaviour behaviour, IHttpClient client):base(behaviour, client)
     {
         AutoSync = OnAutoSync;
-        GeneralError += OnGeneralError;
-        CommandError += OnCommandError;
-    }
-
-    void OnGeneralError(CommandQueueErrorType type, Error err)
-    {
-        Stop();
-        if(_errorHandler != null)
-        {
-            _errorHandler.Signature = "queue-"+(int)type;
-            _errorHandler.ShowSync(err);
-        }
-    }
-    
-    void OnCommandError(Command cmd, Error err, Attr resp)
-    {
-        Stop();
-        if(_errorHandler != null)
-        {
-            _errorHandler.Signature = "cmd-"+cmd.Id;
-            _errorHandler.ShowSync(err);
-        }
+        _errorHandler.Setup(this);
     }
 
     public Attr OnAutoSync()

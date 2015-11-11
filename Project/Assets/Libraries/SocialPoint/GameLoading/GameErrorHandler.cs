@@ -6,6 +6,8 @@ using SocialPoint.Locale;
 using SocialPoint.AppEvents;
 using SocialPoint.GUIControl;
 using SocialPoint.Attributes;
+using SocialPoint.ServerSync;
+using SocialPoint.ServerEvents;
 using UnityEngine;
 using System;
 
@@ -21,6 +23,55 @@ namespace SocialPoint.GameLoading
         void ShowConnection(Error err, Action finished);
         void ShowInvalidSecurityToken(Action restart);
         void ShowLogin( Error err, Action finished);
+    }
+
+    public static class GameErrorHandlerExtensions
+    {
+        const string SignatureFormat = "{0}-{1}";
+        const string CommandQueueGeneralErrorPrefix = "queue";
+        const string CommandQueueCommandErrorPrefix = "cmd";
+        const string EventTrackerGeneralErrorPrefix = "track";
+
+        public static string GetSignature(string prefix, object obj)
+        {
+            return string.Format(SignatureFormat, prefix, obj);
+        }
+
+        public static void Setup(this IGameErrorHandler handler, ICommandQueue queue)
+        {
+            queue.GeneralError += (CommandQueueErrorType type, Error err) => {
+                queue.Stop();
+                if(handler != null)
+                {
+                    handler.Signature = GetSignature(CommandQueueGeneralErrorPrefix, (int)type);
+                    handler.ShowSync(err);
+                }
+            };
+
+            queue.CommandError += (Command cmd, Error err, Attr resp) => {
+                queue.Stop();
+                if(handler != null)
+                {
+                    handler.Signature = GetSignature(CommandQueueCommandErrorPrefix, cmd.Id);
+                    handler.ShowSync(err);
+                }
+            };
+        }
+
+        public static void Setup(this IGameErrorHandler handler, IEventTracker tracker)
+        {
+            tracker.GeneralError += (EventTrackerErrorType type, Error err) => {
+                if(type == EventTrackerErrorType.SessionLost)
+                {
+                    tracker.Stop();
+                    if(handler != null)
+                    {
+                        handler.Signature = GetSignature(EventTrackerGeneralErrorPrefix, (int)type);
+                        handler.ShowSync(err);
+                    }
+                }
+            };
+        }
     }
 
     public class GameErrorHandler : IGameErrorHandler
