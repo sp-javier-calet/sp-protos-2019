@@ -28,7 +28,6 @@ public class ServerSyncInstaller : MonoInstaller
 
         Container.Rebind<ICommandQueue>().ToSingle<CommandQueue>();
         Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
-
 	}
 
 }

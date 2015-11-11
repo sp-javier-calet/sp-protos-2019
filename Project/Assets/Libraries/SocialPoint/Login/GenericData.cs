@@ -37,8 +37,10 @@ namespace SocialPoint.Login
     {
         public string Title;
         public string Message;
+        public string Button;
         private const string AttrKeyMaintenanceMessage = "message";
         private const string AttrKeyMaintenanceTitle = "title";
+        private const string AttrKeyMaintenanceButton = "button";
         
         public MaintenanceData(Attr data = null)
         {
@@ -47,13 +49,14 @@ namespace SocialPoint.Login
                 var datadic = data.AsDic;
                 Message = datadic.Get(AttrKeyMaintenanceMessage).AsValue.ToString();
                 Title = datadic.GetValue(AttrKeyMaintenanceTitle).AsValue.ToString();
+                Button = datadic.GetValue(AttrKeyMaintenanceButton).AsValue.ToString();
             }
         }
         
         public override string ToString()
         {
-            return string.Format("[MaintentanceData: Title={0}, Message={1}]",
-                Title, Message);
+            return string.Format("[MaintentanceData: Title={0}, Message={1} Button={2}]",
+                Title, Message, Button);
         }
     }
     

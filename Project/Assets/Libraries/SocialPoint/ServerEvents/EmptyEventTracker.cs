@@ -2,7 +2,7 @@ using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 
-namespace SocialPoint.Events
+namespace SocialPoint.ServerEvents
 {
     public class EmptyEventTracker : IEventTracker
     {

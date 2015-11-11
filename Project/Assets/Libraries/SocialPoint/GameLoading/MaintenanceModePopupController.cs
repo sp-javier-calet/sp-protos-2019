@@ -1,14 +1,26 @@
 ﻿using SocialPoint.GUIControl;
 using UnityEngine.UI;
+using System;
 
 public class MaintenanceModePopupController : UIViewController
 {
     public Text TitleLabel;
     public Text MessageLabel;
     public Text SignatureLabel;
+    public Text ButtonLabel;
+    public Action Dismissed;  
 
     public MaintenanceModePopupController()
     {
+    }
+
+    public void OnButtonClicked()
+    {
+        Hide();
+        if(Dismissed != null)
+        {
+            Dismissed();
+        }
     }
 
     public string MessageText
@@ -17,15 +29,8 @@ public class MaintenanceModePopupController : UIViewController
         {
             if(MessageLabel != null)
             {
-                if(value == null)
-                {
-                    MessageLabel.gameObject.SetActive(false);
-                }
-                else
-                {
-                    MessageLabel.gameObject.SetActive(true);
-                    MessageLabel.text = value;
-                }
+                MessageLabel.gameObject.SetActive(value == null);
+                MessageLabel.text = value;
             }
         }
     }
@@ -36,15 +41,24 @@ public class MaintenanceModePopupController : UIViewController
         {
             if(TitleLabel != null)
             {
-                if(value == null)
+                TitleLabel.gameObject.SetActive(value == null);
+                TitleLabel.text = value;
+            }
+        }
+    }
+
+    public string ButtonText
+    {
+        set
+        {
+            if(ButtonLabel != null)
+            {
+                var button = ButtonLabel.GetComponentInParent<Button>();
+                if(button != null && button.gameObject != null)
                 {
-                    TitleLabel.gameObject.SetActive(false);
+                    button.gameObject.SetActive(value == null);
                 }
-                else
-                {
-                    TitleLabel.gameObject.SetActive(true);
-                    TitleLabel.text = value;
-                }
+                ButtonLabel.text = value;
             }
         }
     }

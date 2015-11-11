@@ -1,5 +1,5 @@
 ﻿using Zenject;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 using SocialPoint.Purchase;
 using SocialPoint.Login;
 using SocialPoint.Network;

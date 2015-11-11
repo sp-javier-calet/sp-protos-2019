@@ -1,6 +1,6 @@
 ﻿using Zenject;
 using System;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 
 public class EventsInstaller : MonoInstaller
 {

@@ -1,5 +1,5 @@
 ﻿using Zenject;
-using SocialPoint.Events;
+using SocialPoint.ServerEvents;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.ServerSync;
@@ -7,7 +7,10 @@ using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Crash;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
+using SocialPoint.GameLoading;
 using UnityEngine;
+using System;
 
 class EventTracker : SocialPointEventTracker
 {
@@ -101,8 +104,12 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
+    [Inject]
+    IGameErrorHandler _errorHandler;
+
     public EventTracker(MonoBehaviour behaviour):base(behaviour)
     {
+        _errorHandler.Setup(this);
     }
 
 }

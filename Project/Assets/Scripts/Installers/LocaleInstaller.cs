@@ -23,13 +23,14 @@ public class LocaleInstaller : MonoInstaller
         public string BundleDir = LocalizationManager.DefaultBundleDir;
         public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
         public float Timeout = LocalizationManager.DefaultTimeout;
+        public bool EditorDebug = true;
     };
 
     public SettingsData Settings;
 
     public override void InstallBindings()
     {	
-        Container.Rebind<Localization>().ToSingle();
+        Container.Rebind<Localization>().ToSingleMethod<Localization>(CreateLocalization);
         Container.BindInstance("locale_project_id", Settings.ProjectId);
         Container.BindInstance("locale_env_id", Settings.EnvironmentId.ToString());
         string secretKey;
@@ -51,5 +52,14 @@ public class LocaleInstaller : MonoInstaller
         Container.BindInstance("locale_bundle_dir", Settings.BundleDir);
         Container.Rebind<ILocalizationManager>().ToSingle<LocalizationManager>();
         Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
+    }
+
+    Localization CreateLocalization(InjectContext ctx)
+    {
+        var locale = new Localization();
+#if UNITY_EDITOR
+        locale.Debug = Settings.EditorDebug;
+#endif
+        return locale;
     }
 }
