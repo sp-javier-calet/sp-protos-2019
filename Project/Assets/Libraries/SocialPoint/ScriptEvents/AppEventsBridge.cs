@@ -1,4 +1,4 @@
-﻿using SocialPoint.AppEvents;
+using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using System;
 
@@ -45,12 +45,108 @@ namespace SocialPoint.ScriptEvents
         public int Level;
     }
 
-    public class AppEventsBridge : IEventsBridge,
-        ISerializer<AppWillGoBackgroundEvent>,
-        ISerializer<AppGameWasLoadedEvent>,
-        ISerializer<AppGameWillRestartEvent>,
-        ISerializer<AppOpenedFromSourceEvent>,
-        ISerializer<AppLevelWasLoadedEvent>
+    public class AppWillGoBackgroundEventConverter : BaseScriptEventConverter<AppWillGoBackgroundEvent>
+    {
+        public AppWillGoBackgroundEventConverter(): base("app.will_go_background")
+        {
+        }
+
+        override protected AppWillGoBackgroundEvent ParseEvent(Attr data)
+        {
+            return new AppWillGoBackgroundEvent{ Priority = data.AsValue.ToInt() };
+        }
+
+        override protected Attr SerializeEvent(AppWillGoBackgroundEvent ev)
+        {
+            return new AttrInt(ev.Priority);
+        }
+    }
+
+    public class AppGameWasLoadedEventConverter : BaseScriptEventConverter<AppGameWasLoadedEvent>
+    {
+        public AppGameWasLoadedEventConverter(): base("app.game_was_loaded")
+        {
+        }
+
+        override protected AppGameWasLoadedEvent ParseEvent(Attr data)
+        {
+            return new AppGameWasLoadedEvent{ Priority = data.AsValue.ToInt() };
+        }
+        
+        override protected Attr SerializeEvent(AppGameWasLoadedEvent ev)
+        {
+            return new AttrInt(ev.Priority);
+        }
+    }
+    
+    public class AppGameWillRestartEventConverter : BaseScriptEventConverter<AppGameWillRestartEvent>
+    {
+        public AppGameWillRestartEventConverter(): base("app.game_will_restart")
+        {
+        }
+
+        override protected AppGameWillRestartEvent ParseEvent(Attr data)
+        {
+            return new AppGameWillRestartEvent{ Priority = data.AsValue.ToInt() };
+        }
+        
+        override protected Attr SerializeEvent(AppGameWillRestartEvent ev)
+        {
+            return new AttrInt(ev.Priority);
+        }
+    }
+
+    public class AppLevelWasLoadedEventConverter : BaseScriptEventConverter<AppLevelWasLoadedEvent>
+    {
+        public AppLevelWasLoadedEventConverter(): base("app.level_was_loaded")
+        {
+        }
+
+        override protected AppLevelWasLoadedEvent ParseEvent(Attr data)
+        {
+            return new AppLevelWasLoadedEvent{ Level = data.AsValue.ToInt() };
+        }
+        
+        override protected Attr SerializeEvent(AppLevelWasLoadedEvent ev)
+        {
+            return new AttrInt(ev.Level);
+        }
+    }
+    
+    public class AppOpenedFromSourceEventConverter : BaseScriptEventConverter<AppOpenedFromSourceEvent>
+    {
+        const string AttrKeyUri = "uri";
+        const string AttrKeyScheme = "scheme";
+        const string AttrKeyParameters = "params";
+
+        public AppOpenedFromSourceEventConverter(): base("app.opened_from_source")
+        {
+        }
+
+        override protected AppOpenedFromSourceEvent ParseEvent(Attr data)
+        {
+            var source = new AppSource(data.AsDic[AttrKeyUri].AsValue.ToString());
+            return new AppOpenedFromSourceEvent{ Source = source };
+        }
+        
+        override protected Attr SerializeEvent(AppOpenedFromSourceEvent ev)
+        {
+            var data = new AttrDic();
+            data.SetValue(AttrKeyUri, ev.Source.Uri.ToString());
+            data.SetValue(AttrKeyScheme, ev.Source.Scheme);
+            var parms = new AttrDic();
+            data.Set(AttrKeyParameters, parms);
+            foreach(var kvp in ev.Source.Parameters)
+            {
+                parms.SetValue(kvp.Key, kvp.Value);
+            }
+            return data;
+        }
+    }
+
+    public class AppEventsBridge :
+        IEventsBridge,
+        IScriptEventsBridge
     {
         IEventDispatcher _dispatcher;
         IAppEvents _appEvents;
@@ -68,42 +164,20 @@ namespace SocialPoint.ScriptEvents
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
         }
 
-        public Attr Serialize(AppWillGoBackgroundEvent ev)
-        {
-            return new AttrInt(ev.Priority);
-        }
-        
-        public Attr Serialize(AppGameWasLoadedEvent ev)
-        {
-            return new AttrInt(ev.Priority);
-        }
-        
-        public Attr Serialize(AppGameWillRestartEvent ev)
-        {
-            return new AttrInt(ev.Priority);
-        }
+        const string AppWasOnBackgroundEventName = "app.was_on_background";
+        const string AppWasCoveredEventName = "app.was_covered";
+        const string AppReceivedMemoryWarningEventName = "app.received_memory_warning";
 
-        public Attr Serialize(AppLevelWasLoadedEvent ev)
+        public void Load(IScriptEventDispatcher dispatcher)
         {
-            return new AttrInt(ev.Level);
-        }
-
-        const string AttrKeyUri = "uri";
-        const string AttrKeyScheme = "scheme";
-        const string AttrKeyParameters = "params";
-                
-        public Attr Serialize(AppOpenedFromSourceEvent ev)
-        {
-            var data = new AttrDic();
-            data.SetValue(AttrKeyUri, ev.Source.Uri.ToString());
-            data.SetValue(AttrKeyScheme, ev.Source.Scheme);
-            var parms = new AttrDic();
-            data.Set(AttrKeyParameters, parms);
-            foreach(var kvp in ev.Source.Parameters)
-            {
-                parms.SetValue(kvp.Key, kvp.Value);
-            }
-            return data;
+            dispatcher.AddConverter(new AppWillGoBackgroundEventConverter());
+            dispatcher.AddConverter(new AppGameWasLoadedEventConverter());
+            dispatcher.AddConverter(new AppGameWillRestartEventConverter());
+            dispatcher.AddConverter(new AppLevelWasLoadedEventConverter());
+            dispatcher.AddConverter(new AppOpenedFromSourceEventConverter());
+            dispatcher.AddConverter(new ScriptEventConverter<AppWasOnBackgroundEvent>(AppWasOnBackgroundEventName));
+            dispatcher.AddConverter(new ScriptEventConverter<AppWasCoveredEvent>(AppWasCoveredEventName));
+            dispatcher.AddConverter(new ScriptEventConverter<AppReceivedMemoryWarningEvent>(AppReceivedMemoryWarningEventName));
         }
 
         public void Load(IEventDispatcher dispatcher)

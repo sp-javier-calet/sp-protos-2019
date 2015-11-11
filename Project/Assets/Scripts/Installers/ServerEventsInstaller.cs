@@ -1,6 +1,7 @@
 ﻿using Zenject;
 using System;
 using SocialPoint.ServerEvents;
+using SocialPoint.ScriptEvents;
 
 public class ServerEventsInstaller : MonoInstaller
 {
@@ -23,5 +24,8 @@ public class ServerEventsInstaller : MonoInstaller
         Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
         Container.Rebind<IEventTracker>().ToSingle<EventTracker>();
         Container.Bind<IDisposable>().ToLookup<IEventTracker>();
+
+        Container.Bind<IEventsBridge>().ToSingle<ServerEventsBridge>();
+        Container.Bind<IScriptEventsBridge>().ToSingle<ServerEventsBridge>();
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Zenject;
 using SocialPoint.ScriptEvents;
 
@@ -15,9 +16,22 @@ public class ScriptEventsInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.Bind<IEventsBridge>().ToSingle<AppEventsBridge>();
-        Container.Bind<IEventsBridge>().ToSingle<ServerEventsBridge>();
-        Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
+        Container.Rebind<IEventDispatcher>().ToSingleMethod<EventDispatcher>(CreateEventDispatcher);
+        Container.Rebind<IScriptEventDispatcher>().ToSingleMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
+    }
+
+    public EventDispatcher CreateEventDispatcher(InjectContext ctx)
+    {
+        var dispatcher = Container.Instantiate<EventDispatcher>();
+        dispatcher.AddBridges(Container.Resolve<List<IEventsBridge>>());
+        return dispatcher;
+    }
+
+    public ScriptEventDispatcher CreateScriptEventDispatcher(InjectContext ctx)
+    {
+        var dispatcher = Container.Instantiate<ScriptEventDispatcher>();
+        dispatcher.AddBridges(Container.Resolve<List<IScriptEventsBridge>>());
+        return dispatcher;
     }
 
 }
