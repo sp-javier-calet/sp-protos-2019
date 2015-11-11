@@ -9,8 +9,9 @@ namespace SocialPoint.ScriptEvents
     {
         void AddListener(string name, Action<Attr> listener);
         void AddListener(Action<string, Attr> listener);
+        void AddListener(IScriptCondition condition, Action<string, Attr> listener);
         bool RemoveListener(Action<Attr> listener);
-        void RemoveListener(Action<string, Attr> listener);
+        bool RemoveListener(Action<string, Attr> listener);
         void AddConverter(IScriptEventConverter config);
         void Raise(string name, Attr args);
     }
@@ -90,14 +91,28 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
+    public interface IScriptCondition
+    {
+        bool Matches(string evName, Attr evArguments);
+    }
+
 
     public class ScriptEventDispatcher : IScriptEventDispatcher
     {
-        readonly Dictionary<string, List<Action<Attr>>> _delegates = new Dictionary<string, List<Action<Attr>>>();
-        readonly List<Action<string, Attr>> _defaultDelegates = new List<Action<string, Attr>>();
+        public struct ConditionListener
+        {
+            public IScriptCondition Condition;
+            public Action<string, Attr> Action;
+        }
+
+        readonly Dictionary<string, List<Action<Attr>>> _listeners = new Dictionary<string, List<Action<Attr>>>();
+        readonly List<Action<string, Attr>> _defaultListeners = new List<Action<string, Attr>>();
         readonly List<IScriptEventConverter> _converters = new List<IScriptEventConverter>();
         readonly List<IScriptEventsBridge> _bridges = new List<IScriptEventsBridge>();
+        readonly List<ConditionListener> _conditionListeners = new List<ConditionListener>();
         IEventDispatcher _dispatcher;
+
+        public event Action<Exception> ExceptionThrown;
 
         public ScriptEventDispatcher(IEventDispatcher dispatcher)
         {
@@ -117,8 +132,8 @@ namespace SocialPoint.ScriptEvents
         
         public void Clear()
         {
-            _delegates.Clear();
-            _defaultDelegates.Clear();
+            _listeners.Clear();
+            _defaultListeners.Clear();
             _converters.Clear();
             _bridges.Clear();
         }
@@ -143,26 +158,35 @@ namespace SocialPoint.ScriptEvents
         public void AddListener(string name, Action<Attr> listener)
         {
             List<Action<Attr>> d;
-            if(!_delegates.TryGetValue(name, out d))
+            if(!_listeners.TryGetValue(name, out d))
             {
                 d = new List<Action<Attr>>();
-                _delegates[name] = d;
+                _listeners[name] = d;
             }
             d.Add(listener);
         }
 
+        public void AddListener(IScriptCondition condition, Action<string, Attr> action)
+        {
+            var listener = new ConditionListener{ Condition = condition, Action = action };
+            if(!_conditionListeners.Contains(listener))
+            {
+                _conditionListeners.Add(listener);
+            }
+        }
+
         public void AddListener(Action<string, Attr> listener)
         {
-            if(!_defaultDelegates.Contains(listener))
+            if(!_defaultListeners.Contains(listener))
             {
-                _defaultDelegates.Add(listener);
+                _defaultListeners.Add(listener);
             }
         }
 
         public bool RemoveListener(Action<Attr> listener)
         {
             bool found = false;
-            foreach(var kvp in _delegates)
+            foreach(var kvp in _listeners)
             {
                 if(kvp.Value.Remove(listener))
                 {
@@ -172,9 +196,18 @@ namespace SocialPoint.ScriptEvents
             return found;
         }
         
-        public void RemoveListener(Action<string, Attr> listener)
-        {
-            _defaultDelegates.Remove(listener);
+        public bool RemoveListener(Action<string, Attr> listener)
+        {           
+            bool found = false;
+            if(_defaultListeners.Remove(listener))
+            {
+                found = true;
+            }
+            if(_conditionListeners.RemoveAll(l => l.Action == listener) > 0)
+            {
+                found = true;
+            }
+            return found;
         }
 
         public void AddConverter(IScriptEventConverter serializer)
@@ -216,27 +249,82 @@ namespace SocialPoint.ScriptEvents
                 return;
             }
 
-            // default script delegates
-            var sddlgList = new List<Action<string, Attr>>(_defaultDelegates);
-            foreach(var dlg in sddlgList)
+            // default  listeners
+            var ddlgList = new List<Action<string, Attr>>(_defaultListeners);
+            foreach(var dlg in ddlgList)
             {
                 if(dlg != null)
                 {
-                    dlg(name, data);
-                }
-            }
-            // script delegates
-            List<Action<Attr>> sdlgList;
-            if(_delegates.TryGetValue(name, out sdlgList))
-            {
-                foreach(var dlg in sdlgList)
-                {
-                    if(dlg != null)
+                    try
                     {
-                        dlg(data);                            
+                        dlg(name, data);
+                    }
+                    catch(Exception ex)
+                    {
+                        if(ExceptionThrown != null)
+                        {
+                            ExceptionThrown(ex);
+                        }
+                        else
+                        {
+                            throw ex;
+                        }
                     }
                 }
             }
+
+            // event listeners
+            List<Action<Attr>> dlgList;
+            if(_listeners.TryGetValue(name, out dlgList))
+            {
+                dlgList = new List<Action<Attr>>(dlgList);
+                foreach(var dlg in dlgList)
+                {
+                    if(dlg != null)
+                    {
+                        try
+                        {
+                            dlg(data);
+                        }
+                        catch(Exception ex)
+                        {
+                            if(ExceptionThrown != null)
+                            {
+                                ExceptionThrown(ex);
+                            }
+                            else
+                            {
+                                throw ex;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // condition listeners
+            var cdlgList = new List<ConditionListener>(_conditionListeners);
+            foreach(var listener in cdlgList)
+            {
+                if(listener.Condition != null && listener.Action != null&& listener.Condition.Matches(name, data))
+                {
+                    try
+                    {
+                        listener.Action(name, data);
+                    }
+                    catch(Exception ex)
+                    {
+                        if(ExceptionThrown != null)
+                        {
+                            ExceptionThrown(ex);
+                        }
+                        else
+                        {
+                            throw ex;
+                        }
+                    }
+                }
+            }
+
         }
 
     }

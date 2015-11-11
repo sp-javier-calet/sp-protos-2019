@@ -10,6 +10,11 @@ namespace SocialPoint.ScriptEvents
 		public string Value;
 	}
 
+	internal struct OtherScriptTestEvent
+	{
+		public int Value;
+	}
+
 	class ScriptTestEventConverter : BaseScriptEventConverter<ScriptTestEvent>
 	{
 		public ScriptTestEventConverter(): base("test")
@@ -26,6 +31,25 @@ namespace SocialPoint.ScriptEvents
 		override protected Attr SerializeEvent(ScriptTestEvent ev)
 		{
 			return new AttrString(ev.Value);
+		}
+	}
+
+	class OtherScriptTestEventConverter : BaseScriptEventConverter<OtherScriptTestEvent>
+	{
+		public OtherScriptTestEventConverter(): base("other")
+		{
+		}
+		
+		override protected OtherScriptTestEvent ParseEvent(Attr data)
+		{
+			return new OtherScriptTestEvent{
+				Value = data.AsValue.ToInt()
+			};
+		}
+		
+		override protected Attr SerializeEvent(OtherScriptTestEvent ev)
+		{
+			return new AttrInt(ev.Value);
 		}
 	}
 
@@ -105,6 +129,49 @@ namespace SocialPoint.ScriptEvents
 			bridge.Received().Dispose();
 		}
 
+		[Test]
+		public void NameCondition_Works()
+		{
+			string evName = null;
+			_scriptDispatcher.AddListener(new NameCondition("te*"), (name, args) => {
+				evName = name;
+			});
+
+			_dispatcher.Raise(new OtherScriptTestEvent{ Value = 1 });
+			Assert.IsNull(evName);
+			_dispatcher.Raise(new ScriptTestEvent{ Value = "lala" });
+			Assert.AreEqual("test", evName);
+		}
+
+		[Test]
+		public void ArgumentCondition_Works()
+		{
+			string evName = null;
+			_scriptDispatcher.AddListener(new ArgumentsCondition(_testArgs), (name, args) => {
+				evName = name;
+			});
+			
+			_dispatcher.Raise(new OtherScriptTestEvent{ Value = 1 });
+			Assert.IsNull(evName);
+			_dispatcher.Raise(new ScriptTestEvent{ Value = "lala" });
+			Assert.IsNull(evName);
+			_dispatcher.Raise(_testEvent);
+			Assert.AreEqual("test", evName);
+		}
+
+		[Test]
+		public void NotCondition_Works()
+		{
+			string evName = null;
+			_scriptDispatcher.AddListener(new NotCondition(new ArgumentsCondition(_testArgs)), (name, args) => {
+				evName = name;
+			});
+			
+			_dispatcher.Raise(_testEvent);
+			Assert.IsNull(evName);
+			_dispatcher.Raise(new ScriptTestEvent{ Value = "lala" });
+			Assert.AreEqual("test", evName);
+		}
 
 	}
 

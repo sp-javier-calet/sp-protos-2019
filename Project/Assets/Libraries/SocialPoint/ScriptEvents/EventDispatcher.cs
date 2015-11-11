@@ -21,10 +21,10 @@ namespace SocialPoint.ScriptEvents
 
     public class EventDispatcher : IEventDispatcher
     {
-        readonly Dictionary<Type, List<Delegate>> _delegates = new Dictionary<Type, List<Delegate>>();
+        readonly Dictionary<Type, List<Delegate>> _listeners = new Dictionary<Type, List<Delegate>>();
         readonly List<IEventDispatcher> _dispatchers = new List<IEventDispatcher>();
         readonly List<IEventsBridge> _bridges = new List<IEventsBridge>();
-        readonly List<Action<object>> _defaultDelegates = new List<Action<object>>();
+        readonly List<Action<object>> _defaultListeners = new List<Action<object>>();
 
         public event Action<Exception> ExceptionThrown;
 
@@ -39,10 +39,10 @@ namespace SocialPoint.ScriptEvents
 
         public void Clear()
         {
-            _delegates.Clear();
+            _listeners.Clear();
             _dispatchers.Clear();
             _bridges.Clear();
-            _defaultDelegates.Clear();
+            _defaultListeners.Clear();
         }
 
         public void AddBridges(IEnumerable<IEventsBridge> bridges)
@@ -79,10 +79,10 @@ namespace SocialPoint.ScriptEvents
         {
             List<Delegate> d;
             var ttype = typeof(T);
-            if(!_delegates.TryGetValue(ttype, out d))
+            if(!_listeners.TryGetValue(ttype, out d))
             {
                 d = new List<Delegate>();
-                _delegates[ttype] = d;
+                _listeners[ttype] = d;
             }
             if(!d.Contains(listener))
             {
@@ -93,7 +93,7 @@ namespace SocialPoint.ScriptEvents
         public bool RemoveListener<T>(Action<T> listener)
         {
             List<Delegate> d;
-            if(_delegates.TryGetValue(typeof(T), out d))
+            if(_listeners.TryGetValue(typeof(T), out d))
             {
                 d.Remove(listener);
                 return true;
@@ -103,15 +103,15 @@ namespace SocialPoint.ScriptEvents
         
         public void AddDefaultListener(Action<object> listener)
         {
-            if(!_defaultDelegates.Contains(listener))
+            if(!_defaultListeners.Contains(listener))
             {
-                _defaultDelegates.Add(listener);
+                _defaultListeners.Add(listener);
             }
         }
         
         public void RemoveDefaultListener(Action<object> listener)
         {
-            _defaultDelegates.Remove(listener);
+            _defaultListeners.Remove(listener);
         }
 
         public void Raise(object ev)
@@ -121,8 +121,8 @@ namespace SocialPoint.ScriptEvents
                 throw new ArgumentNullException("e");
             }
 
-            // default delegates
-            var ddlgList = new List<Action<object>>(_defaultDelegates);
+            // default listeners
+            var ddlgList = new List<Action<object>>(_defaultListeners);
             foreach(var action in ddlgList)
             {
                 if(action != null)
@@ -147,9 +147,9 @@ namespace SocialPoint.ScriptEvents
 
             var evType = ev.GetType();
 
-            // event delegates
+            // event listeners
             List<Delegate> dlgList;
-            if(_delegates.TryGetValue(evType, out dlgList))
+            if(_listeners.TryGetValue(evType, out dlgList))
             {
                 // You need to create a copy of the delegates because TryGetValue returns a reference to the internal list
                 // of delegates, so if an event listener modifies the delegate list while you are iterating it you'll run
