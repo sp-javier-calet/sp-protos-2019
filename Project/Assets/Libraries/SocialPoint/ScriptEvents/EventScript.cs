@@ -43,7 +43,7 @@ namespace SocialPoint.ScriptEvents
             _callback = null;
         }
 
-        public bool Running
+        public bool IsRunning
         {
             get
             {
@@ -53,7 +53,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Run(Action<string, Attr> finished)
         {
-            if(Running)
+            if(IsRunning)
             {
                 throw new InvalidOperationException("Step already running.");
             }
@@ -80,7 +80,7 @@ namespace SocialPoint.ScriptEvents
         {
             get
             {
-                if(Running)
+                if(IsRunning)
                 {
                     return _steps[CurrentStepNum];
                 }
@@ -96,11 +96,19 @@ namespace SocialPoint.ScriptEvents
             }
         }
                 
-        public bool Running
+        public bool IsRunning
         {
             get
             {
                 return CurrentStepNum >= 0 && CurrentStepNum < _steps.Count;
+            }
+        }
+
+        public bool IsFinished
+        {
+            get
+            {
+                return CurrentStepNum >= _steps.Count;
             }
         }
 
@@ -135,7 +143,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Run(Action finished)
         {
-            if(Running)
+            if(IsRunning)
             {
                 throw new InvalidOperationException("Already running.");
             }
