@@ -8,7 +8,9 @@ using SocialPoint.Alert;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Locale;
+using SocialPoint.GameLoading;
 using UnityEngine;
+using System;
 
 class CommandQueue : SocialPoint.ServerSync.CommandQueue
 {
@@ -96,15 +98,12 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
 
     [Inject]
     ISerializer<PlayerModel> _playerSerializer;
-        
-    [Inject]
-    IAlertView _alertView;
-    
-    [Inject]
-    Localization _localization;
 
     [Inject]
     GameModel _gameModel;
+
+    [Inject]
+    IGameErrorHandler _errorHandler;
 
     public CommandQueue(MonoBehaviour behaviour, IHttpClient client):base(behaviour, client)
     {
@@ -116,37 +115,23 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     void OnGeneralError(CommandQueueErrorType type, Error err)
     {
         Stop();
-        var signature = string.Format("{0}-{1}", (int) type, err.Code);
-        ShowError(signature, err);
+        if(_errorHandler != null)
+        {
+            _errorHandler.Signature = "queue-"+(int)type;
+            _errorHandler.ShowSync(err);
+        }
     }
     
     void OnCommandError(Command cmd, Error err, Attr resp)
     {
         Stop();
-        var signature = string.Format("{0}-{1}", cmd.Id, err.Code);
-        ShowError(signature, err);
-    }
-    
-    void ShowError(string signature, Error err)
-    {
-        var alert = (IAlertView)_alertView.Clone();
-        alert.Buttons = new string[]{ 
-            _localization.Get("command_queue.general_error_popup_retry_button", "Retry")
-        };
-        alert.Title = _localization.Get("command_queue.general_error_popup_title", "Syncronization Error");
-        var msg = _localization.Get(err);
-        if(string.IsNullOrEmpty(msg))
+        if(_errorHandler != null)
         {
-            msg = _localization.Get("command_queue.general_error_popup_message", "There was a problem trying to syncronize your game state with the server.");
+            _errorHandler.Signature = "cmd-"+cmd.Id;
+            _errorHandler.ShowSync(err);
         }
-        alert.Message = msg;
-        alert.Signature = signature;
-        alert.Show((i) => {
-            alert.Dispose();
-            AppEvents.RestartGame();
-        });
     }
-    
+
     public Attr OnAutoSync()
     {
         if(_gameModel == null || _gameModel.Player == null)

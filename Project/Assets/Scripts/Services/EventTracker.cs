@@ -7,7 +7,10 @@ using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Crash;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
+using SocialPoint.GameLoading;
 using UnityEngine;
+using System;
 
 class EventTracker : SocialPointEventTracker
 {
@@ -101,8 +104,25 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
+    [Inject]
+    IGameErrorHandler _errorHandler;
+
     public EventTracker(MonoBehaviour behaviour):base(behaviour)
     {
+        GeneralError += OnGeneralError;
+    }
+
+    void OnGeneralError(EventTrackerErrorType type, Error err)
+    {
+        if(type == EventTrackerErrorType.SessionLost)
+        {
+            Stop();
+            if(_errorHandler != null)
+            {
+                _errorHandler.Signature = "track-"+(int)type;
+                _errorHandler.ShowSync(err);
+            }
+        }
     }
 
 }

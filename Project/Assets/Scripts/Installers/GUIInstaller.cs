@@ -42,7 +42,9 @@ public class GUIInstaller : MonoInstaller
 		if(screens != null)
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
-        }		
+        }
+
     }
-    
+
+
 }
