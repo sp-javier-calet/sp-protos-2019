@@ -1,84 +1,26 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using NSubstitute;
 using System;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.ScriptEvents
 {
-	internal struct ScriptTestEvent
-	{
-		public string Value;
-	}
-
-	internal struct OtherScriptTestEvent
-	{
-		public int Value;
-	}
-
-	class ScriptTestEventConverter : BaseScriptEventConverter<ScriptTestEvent>
-	{
-		public ScriptTestEventConverter(): base("test")
-		{
-		}
-		
-		override protected ScriptTestEvent ParseEvent(Attr data)
-		{
-			return new ScriptTestEvent{
-				Value = data.AsValue.ToString()
-			};
-		}
-		
-		override protected Attr SerializeEvent(ScriptTestEvent ev)
-		{
-			return new AttrString(ev.Value);
-		}
-	}
-
-	class OtherScriptTestEventConverter : BaseScriptEventConverter<OtherScriptTestEvent>
-	{
-		public OtherScriptTestEventConverter(): base("other")
-		{
-		}
-		
-		override protected OtherScriptTestEvent ParseEvent(Attr data)
-		{
-			return new OtherScriptTestEvent{
-				Value = data.AsValue.ToInt()
-			};
-		}
-		
-		override protected Attr SerializeEvent(OtherScriptTestEvent ev)
-		{
-			return new AttrInt(ev.Value);
-		}
-	}
-
 	[TestFixture]
 	[Category("SocialPoint.ScriptEvents")]
-	internal class ScriptEventDispatcherTests
+	internal class ScriptEventDispatcherTests : BaseScriptEventsTests
 	{
 
-		EventDispatcher _dispatcher;
-		ScriptEventDispatcher _scriptDispatcher;
-		ScriptTestEvent _testEvent;
-		Attr _testArgs;
-
 		[SetUp]
-		public void SetUp()
+		override public void SetUp()
 		{
-			_dispatcher = new EventDispatcher();
-			_scriptDispatcher = new ScriptEventDispatcher(_dispatcher);
-			var testConv = new ScriptTestEventConverter();
-			_scriptDispatcher.AddConverter(testConv);
-			_testEvent = new ScriptTestEvent{ Value = "test_value" };
-			_testArgs = testConv.Serialize(_testEvent);
+			base.SetUp ();
 		}
 
 		[Test]
 		public void Script_Raise_Calls_Listener()
 		{
 			string val = null;
-			_dispatcher.AddListener<ScriptTestEvent>((ev) => {
+			_dispatcher.AddListener<TestEvent>((ev) => {
 				val = ev.Value;
 			});
 			_scriptDispatcher.Raise("test", _testArgs);			
@@ -133,13 +75,14 @@ namespace SocialPoint.ScriptEvents
 		public void NameCondition_Works()
 		{
 			string evName = null;
-			_scriptDispatcher.AddListener(new NameCondition("te*"), (name, args) => {
+			var cond = new NameCondition("te*");
+			_scriptDispatcher.AddListener(cond, (name, args) => {
 				evName = name;
 			});
 
-			_dispatcher.Raise(new OtherScriptTestEvent{ Value = 1 });
+			_dispatcher.Raise(new OtherTestEvent{ Value = 1 });
 			Assert.IsNull(evName);
-			_dispatcher.Raise(new ScriptTestEvent{ Value = "lala" });
+			_dispatcher.Raise(new TestEvent{ Value = "lala" });
 			Assert.AreEqual("test", evName);
 		}
 
@@ -147,13 +90,14 @@ namespace SocialPoint.ScriptEvents
 		public void ArgumentCondition_Works()
 		{
 			string evName = null;
-			_scriptDispatcher.AddListener(new ArgumentsCondition(_testArgs), (name, args) => {
+			var cond = new ArgumentsCondition(_testArgs);
+			_scriptDispatcher.AddListener(cond, (name, args) => {
 				evName = name;
 			});
 			
-			_dispatcher.Raise(new OtherScriptTestEvent{ Value = 1 });
+			_dispatcher.Raise(new OtherTestEvent{ Value = 1 });
 			Assert.IsNull(evName);
-			_dispatcher.Raise(new ScriptTestEvent{ Value = "lala" });
+			_dispatcher.Raise(new TestEvent{ Value = "lala" });
 			Assert.IsNull(evName);
 			_dispatcher.Raise(_testEvent);
 			Assert.AreEqual("test", evName);
@@ -163,13 +107,54 @@ namespace SocialPoint.ScriptEvents
 		public void NotCondition_Works()
 		{
 			string evName = null;
-			_scriptDispatcher.AddListener(new NotCondition(new ArgumentsCondition(_testArgs)), (name, args) => {
+			var cond = new NotCondition(new ArgumentsCondition(_testArgs));
+			_scriptDispatcher.AddListener(cond, (name, args) => {
 				evName = name;
 			});
 			
 			_dispatcher.Raise(_testEvent);
 			Assert.IsNull(evName);
-			_dispatcher.Raise(new ScriptTestEvent{ Value = "lala" });
+			_dispatcher.Raise(new TestEvent{ Value = "lala" });
+			Assert.AreEqual("test", evName);
+		}
+
+		[Test]
+		public void AndCondition_Works()
+		{
+			string evName = null;
+			var cond = new AndCondition(new IScriptCondition[]{
+				new ArgumentsCondition(new AttrString("1")),
+				new NameCondition("??st")
+			});
+			_scriptDispatcher.AddListener(cond, (name, args) => {
+				evName = name;
+			});
+			
+			_dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+			Assert.IsNull(evName);
+			_dispatcher.Raise(_testEvent);
+			Assert.IsNull(evName);
+			_dispatcher.Raise(new TestEvent{ Value = "1" });
+			Assert.AreEqual("test", evName);
+		}
+
+		[Test]
+		public void OrCondition_Works()
+		{
+			string evName = null;
+			var cond = new OrCondition(new IScriptCondition[]{
+				new ArgumentsCondition(new AttrString("1")),
+				new NameCondition("??st")
+			});
+			_scriptDispatcher.AddListener(cond, (name, args) => {
+				evName = name;
+			});
+
+			_dispatcher.Raise(new OtherTestEvent{ Value = 2 });
+			Assert.IsNull(evName);
+			_dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+			Assert.AreEqual("other", evName);
+			_dispatcher.Raise(new TestEvent{ Value = "1" });
 			Assert.AreEqual("test", evName);
 		}
 

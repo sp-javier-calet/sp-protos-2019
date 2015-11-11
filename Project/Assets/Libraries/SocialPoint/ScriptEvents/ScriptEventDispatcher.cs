@@ -93,7 +93,7 @@ namespace SocialPoint.ScriptEvents
 
     public interface IScriptCondition
     {
-        bool Matches(string evName, Attr evArguments);
+        bool Matches(string name, Attr arguments);
     }
 
 
@@ -305,7 +305,7 @@ namespace SocialPoint.ScriptEvents
             var cdlgList = new List<ConditionListener>(_conditionListeners);
             foreach(var listener in cdlgList)
             {
-                if(listener.Condition != null && listener.Action != null&& listener.Condition.Matches(name, data))
+                if(listener.Action != null && (listener.Condition == null || listener.Condition.Matches(name, data)))
                 {
                     try
                     {

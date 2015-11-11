@@ -7,16 +7,21 @@ namespace SocialPoint.ScriptEvents
 {
     public class NameCondition : IScriptCondition
     {
-        string _evNamePattern;
+        string _pattern;
 
-        public NameCondition(string evNamePattern)
+        public NameCondition(string pattern)
         {
-            _evNamePattern = evNamePattern;
+            _pattern = pattern;
         }
 
-        public bool Matches(string evName, Attr evArguments)
+        public bool Matches(string name, Attr arguments)
         {
-            return StringUtils.GlobMatch(_evNamePattern, evName);
+            return StringUtils.GlobMatch(_pattern, name);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[NameCondition:{0}]", _pattern);
         }
     }
 
@@ -37,16 +42,21 @@ namespace SocialPoint.ScriptEvents
 
     public class ArgumentsCondition : IScriptCondition
     {
-        Attr _evArguments;
+        Attr _arguments;
 
-        public ArgumentsCondition(Attr evArguments)
+        public ArgumentsCondition(Attr arguments)
         {
-            _evArguments = evArguments;
+            _arguments = arguments;
         }
 
-        public bool Matches(string evName, Attr evArguments)
+        public bool Matches(string name, Attr arguments)
         {
-            return evArguments == _evArguments;
+            return arguments == _arguments;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[ArgumentsCondition:{0}]", _arguments);
         }
     }
 
@@ -67,23 +77,39 @@ namespace SocialPoint.ScriptEvents
 
     public class AndCondition : IScriptCondition
     {
-        List<IScriptCondition> _conditions;
+        readonly List<IScriptCondition> _conditions;
+
+        public AndCondition(IScriptCondition[] conditions):
+            this(new List<IScriptCondition>(conditions))
+        {
+        }
 
         public AndCondition(List<IScriptCondition> conditions)
         {
             _conditions = conditions;
         }
         
-        public bool Matches(string evName, Attr evArguments)
+        public bool Matches(string name, Attr arguments)
         {
             foreach(var cond in _conditions)
             {
-                if(!cond.Matches(evName, evArguments))
+                if(!cond.Matches(name, arguments))
                 {
                     return false;
                 }
             }
             return true;
+        }
+
+        public override string ToString()
+        {
+            var str = new string[_conditions.Count];
+            var i = 0;
+            foreach(var cond in _conditions)
+            {
+                str[i] = cond.ToString();
+            }
+            return string.Format("[AndCondition:{0}]", string.Join(", ", str));
         }
     }
         
@@ -112,23 +138,39 @@ namespace SocialPoint.ScriptEvents
 
     public class OrCondition : IScriptCondition
     {
-        List<IScriptCondition> _conditions;
+        readonly List<IScriptCondition> _conditions;
+
+        public OrCondition(IScriptCondition[] conditions):
+            this(new List<IScriptCondition>(conditions))
+        {
+        }
         
         public OrCondition(List<IScriptCondition> conditions)
         {
             _conditions = conditions;
         }
         
-        public bool Matches(string evName, Attr evArguments)
+        public bool Matches(string name, Attr arguments)
         {
             foreach(var cond in _conditions)
             {
-                if(cond.Matches(evName, evArguments))
+                if(cond.Matches(name, arguments))
                 {
                     return true;
                 }
             }
             return false;
+        }
+                
+        public override string ToString()
+        {
+            var str = new string[_conditions.Count];
+            var i = 0;
+            foreach(var cond in _conditions)
+            {
+                str[i] = cond.ToString();
+            }
+            return string.Format("[OrCondition:{0}]", string.Join(", ", str));
         }
     }
 
@@ -157,16 +199,21 @@ namespace SocialPoint.ScriptEvents
 
     public class NotCondition : IScriptCondition
     {
-        IScriptCondition _condition;
+        readonly IScriptCondition _condition;
         
         public NotCondition(IScriptCondition condition)
         {
             _condition = condition;
         }
         
-        public bool Matches(string evName, Attr evArguments)
+        public bool Matches(string name, Attr arguments)
         {
-            return !_condition.Matches(evName, evArguments);
+            return !_condition.Matches(name, arguments);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[NotCondition:{0}]", _condition);
         }
     }
         

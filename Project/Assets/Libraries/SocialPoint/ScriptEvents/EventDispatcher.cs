@@ -14,6 +14,25 @@ namespace SocialPoint.ScriptEvents
         void Raise(object e);
     }
 
+    public static class EventDispatcherExtensions
+    {
+        public static Action<F> Connect<F,T>(this IEventDispatcher dispatcher, Func<F, T> conversion=null)
+        {
+            Action<F> action = (from) => {
+                if(conversion == null)
+                {
+                    dispatcher.Raise(default(T));
+                }
+                else
+                {
+                    dispatcher.Raise(conversion(from));
+                }
+            };
+            dispatcher.AddListener<F>(action);
+            return action;
+        }
+    }
+
     public interface IEventsBridge : IDisposable
     {
         void Load(IEventDispatcher dispatcher);

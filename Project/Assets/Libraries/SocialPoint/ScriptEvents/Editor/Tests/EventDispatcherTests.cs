@@ -1,28 +1,17 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using NSubstitute;
 using System;
 
 namespace SocialPoint.ScriptEvents
 {
-	internal struct TestEvent
-	{
-		public string Value;
-	}
-
-
 	[TestFixture]
 	[Category("SocialPoint.ScriptEvents")]
-	internal class EventDispatcherTests
+	internal class EventDispatcherTests : BaseScriptEventsTests
 	{
-
-		EventDispatcher _dispatcher;
-        TestEvent _testEvent;
-
 		[SetUp]
-		public void SetUp()
+		override public void SetUp()
 		{
-			_dispatcher = new EventDispatcher();
-            _testEvent = new TestEvent{ Value = "test" };
+			base.SetUp();
 		}
 
 		[Test]
@@ -32,11 +21,25 @@ namespace SocialPoint.ScriptEvents
 			_dispatcher.AddListener<TestEvent>((ev) => {
                 val = ev.Value;
 			});
-
-
+			_dispatcher.Raise(new OtherTestEvent{ Value = 2 });
+			Assert.IsNull(val);
             _dispatcher.Raise(_testEvent);
-
             Assert.AreEqual(_testEvent.Value, val);
+		}
+
+		[Test]
+		public void Connect_Works()
+		{
+			_dispatcher.Connect<OtherTestEvent, TestEvent>((ev) => {
+				return new TestEvent{ Value = ev.Value.ToString() };
+			});
+			string val = null;
+			_dispatcher.AddListener<TestEvent>((ev) => {
+				val = ev.Value;
+			});
+			_dispatcher.Raise(new OtherTestEvent{ Value = 2 });
+			
+			Assert.AreEqual("2", val);
 		}
 
         [Test]
