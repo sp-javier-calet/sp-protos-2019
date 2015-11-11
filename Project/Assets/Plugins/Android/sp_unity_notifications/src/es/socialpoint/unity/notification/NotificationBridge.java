@@ -26,6 +26,7 @@ public class NotificationBridge {
     private static AsyncTask<Void, Void, Void> mRegisterTask;
     private static String mPushNotificationToken;
     private static String mSenderId;
+    private static int mAlarmIdCounter = 0;
 
     public static void schedule(int id, long delay, String title, String text) {
         Activity currentActivity = UnityPlayer.currentActivity;
@@ -34,29 +35,30 @@ public class NotificationBridge {
         intent.putExtra(IntentParameters.EXTRA_TITLE, title);
         intent.putExtra(IntentParameters.EXTRA_TEXT, text);
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
-        Log.d(TAG, "scheduling notification " + id + " for delay " + delay + " ...");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, id, intent, 0);
+        Log.d(TAG, "Scheduling notification " + id + " [ " + title + " : " + text + "] with delay " + delay);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, ++mAlarmIdCounter, intent, 0);
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000, pendingIntent);
     }
 
     public static void clearReceived() {
+        Log.d(TAG, "Clearing received notifications");
         Activity currentActivity = UnityPlayer.currentActivity;
         NotificationManager mng = (NotificationManager)currentActivity.getSystemService(Context.NOTIFICATION_SERVICE);
         mng.cancelAll();
     }
 
-    public static void cancelPending(int[] ids) {
-        for(int i = 0; i < ids.length; i++) {
-            cancelPending(ids[i]);
-        }
-    }
-
-    public static void cancelPending(int id) {
+    public static void cancelPending() {
+        Log.d(TAG, "Cancelling pending notifications");
         Activity currentActivity = UnityPlayer.currentActivity;
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(currentActivity, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, id, intent, 0);
-        am.cancel(pendingIntent);
+        
+        for(int i = 0; i <= mAlarmIdCounter; i++) {
+            Intent intent = new Intent(currentActivity, AlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, i, intent, 0);
+            am.cancel(pendingIntent);
+        }
+
+        mAlarmIdCounter = 0;
     }
 
     private static boolean isPlayServicesAvailable() {

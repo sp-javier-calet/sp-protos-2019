@@ -25,45 +25,6 @@ namespace SocialPoint.Notifications
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
 #endif
-            LoadPlayerPrefs();
-        }
-
-        private void SavePlayerPrefs()
-        {
-            if(_notifications.Count == 0)
-            {
-                if(PlayerPrefs.HasKey(PlayerPrefsIdsKey))
-                {
-                    PlayerPrefs.DeleteKey(PlayerPrefsIdsKey);
-                }
-            }
-            else
-            {
-                var sb = new StringBuilder();
-                for(int i = 0; i < _notifications.Count; i++)
-                {
-                    sb.Append(_notifications[i]);
-                    if(i < (_notifications.Count - 1))
-                    {
-                        sb.Append("|");
-                    }
-                }
-                PlayerPrefs.SetString(PlayerPrefsIdsKey, sb.ToString());
-            }
-
-            PlayerPrefs.Save();
-        }
-
-        private void LoadPlayerPrefs()
-        {
-            if(PlayerPrefs.HasKey(PlayerPrefsIdsKey))
-            {
-                string[] strArray = PlayerPrefs.GetString(PlayerPrefsIdsKey).Split("|"[0]);
-                for(int i = 0; i < strArray.Length; i++)
-                {
-                    _notifications.Add(int.Parse(strArray[i]));
-                }
-            }
         }
 
         int ColorToInt(Color c)
@@ -73,27 +34,15 @@ namespace SocialPoint.Notifications
 
         public override void Schedule(Notification notif)
         {
-            var notifId = 0;
-            foreach(var id in _notifications)
-            {
-                if(id >= notifId)
-                {
-                    notifId = id+1;
-                }
-            }
-            _notifications.Add(notifId);
-            SavePlayerPrefs();
-
             if(_notifClass != null)
             {
-                _notifClass.CallStatic("schedule", notifId, notif.FireDelay, notif.Title, notif.Message);
+                _notifClass.CallStatic("schedule", 0, notif.FireDelay, notif.Title, notif.Message);
             }
         }
 
         public override void ClearReceived()
         {
             _notifications.Clear();
-            SavePlayerPrefs();
             if(_notifClass != null)
             {
                 _notifClass.CallStatic("clearReceived");
@@ -104,7 +53,7 @@ namespace SocialPoint.Notifications
         {
             if(_notifClass != null)
             {
-                _notifClass.CallStatic("cancelPending", _notifications.ToArray());
+                _notifClass.CallStatic("cancelPending");
             }
         }
 

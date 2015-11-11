@@ -26,8 +26,8 @@ public class PushNotificationReceiver extends BroadcastReceiver {
         
         if(intentExtras.containsKey(IntentParameters.EXTRA_TEXT)) {
             shower.setText(intentExtras.getString(IntentParameters.EXTRA_TEXT));
-        }        
-            
+        }
+        
         shower.show();
     }
 }
