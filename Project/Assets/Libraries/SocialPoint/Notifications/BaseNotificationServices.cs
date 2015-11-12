@@ -9,6 +9,7 @@ namespace SocialPoint.Notifications
 
         protected delegate string PollPushNotificationToken();
 
+        private const string kPushTokenKey = "notifications_push_token";
         private MonoBehaviour _behaviour;
         private ICommandQueue _commandQueue;
         private string _pushToken = null;
@@ -41,9 +42,12 @@ namespace SocialPoint.Notifications
         
         private void SendPushToken(string pushToken)
         {
-            if(_commandQueue != null && !string.IsNullOrEmpty(pushToken))
+            string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
+            if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && pushToken != currentPushToken)
             {
-                _commandQueue.Add(new PushEnabledCommand(pushToken));
+                _commandQueue.Add(new PushEnabledCommand(pushToken), () => {
+                    PlayerPrefs.SetString(kPushTokenKey, pushToken);
+                });
             }
         }
 
