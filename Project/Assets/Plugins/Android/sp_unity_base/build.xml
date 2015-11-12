@@ -89,6 +89,10 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
+    <target name="-pre-build">
+        <exec executable="../build_plugin_copy_dependencies.sh" failonerror="true"/>
+    </target>
+    
     <target name="-pre-compile">
         <path id="project.all.jars.path.tmp">
                 <path path="${toString:project.all.jars.path}"/>
