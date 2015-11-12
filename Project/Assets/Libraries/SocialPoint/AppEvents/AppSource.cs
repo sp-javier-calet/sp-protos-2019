@@ -45,7 +45,7 @@ namespace SocialPoint.AppEvents
         // Parameter filter per scheme
         private static readonly Dictionary<string, string[]> SourceFilters = new Dictionary<string, string[]>
         {
-            { LocalNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey, "android.intent.extra.ALARM_COUNT" } },
+            { LocalNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey, "alarmId", "android.intent.extra.ALARM_COUNT" } },
             { PushNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey } },
             { WidgetScheme, new string[]{SourceKeyOrigin} },
             { FacebookScheme, new string[]{} },
