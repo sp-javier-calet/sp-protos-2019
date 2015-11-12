@@ -32,7 +32,7 @@ namespace SocialPoint.ScriptEvents
                 Name = data.AsDic[AttrKeyName].AsValue.ToString(),
                 Arguments = (AttrDic)data.AsDic[AttrKeyArguments].Clone()
             };
-        }       
+        }
     }
 
     public class ServerCommandResponseEventSerializer : BaseScriptEventSerializer<ServerCommandResponseEvent>

@@ -63,10 +63,11 @@ namespace SocialPoint.ScriptEvents
 				new ScriptStepModel{
 					Name = "other",
 					Arguments = new AttrString("1"),
-					Forward = new ArgumentsCondition(_testArgs)
+					Forward = new ArgumentsCondition(_testArgs),
+					Backward = new FixedCondition(true)
 				},
 			});
-			
+							
 			TestScript(script);
 		}
 
@@ -87,7 +88,10 @@ namespace SocialPoint.ScriptEvents
 	""forward"": {
 		""type"": ""args"",
 		""value"": ""test_value""
-	}
+	},
+	""backward"": {
+        ""type"": ""all""
+    }
 }]
 ";
 			var data = new JsonAttrParser().ParseString(json);

@@ -174,29 +174,38 @@ namespace SocialPoint.ScriptEvents
                 var ev = parser.Parse(args);
                 _dispatcher.Raise(ev);
             }
+            else
+            {
+                OnRaised(name, args);
+            }
         }
 
-        public void OnRaised(object ev)
+        void OnRaised(object ev)
         {
-            Attr data = null;
+            Attr args = null;
             string name = null;
             foreach(var serializer in _serializers)
             {
                 if(serializer != null)
                 {
-                    data = serializer.Serialize(ev);
-                    if(data != null)
+                    args = serializer.Serialize(ev);
+                    if(args != null)
                     {
                         name = serializer.Name;
                         break;
                     }
                 }
             }
-            if(data == null || string.IsNullOrEmpty(name))
+            if(args == null || string.IsNullOrEmpty(name))
             {
                 return;
             }
 
+            OnRaised(name, args);
+        }
+
+        void OnRaised(string name, Attr args)
+        {
             // default  listeners
             var ddlgList = new List<Action<string, Attr>>(_defaultListeners);
             foreach(var dlg in ddlgList)
@@ -205,7 +214,7 @@ namespace SocialPoint.ScriptEvents
                 {
                     try
                     {
-                        dlg(name, data);
+                        dlg(name, args);
                     }
                     catch(Exception ex)
                     {
@@ -220,7 +229,7 @@ namespace SocialPoint.ScriptEvents
                     }
                 }
             }
-
+            
             // event listeners
             List<Action<Attr>> dlgList;
             if(_listeners.TryGetValue(name, out dlgList))
@@ -232,7 +241,7 @@ namespace SocialPoint.ScriptEvents
                     {
                         try
                         {
-                            dlg(data);
+                            dlg(args);
                         }
                         catch(Exception ex)
                         {
@@ -248,16 +257,16 @@ namespace SocialPoint.ScriptEvents
                     }
                 }
             }
-
+            
             // condition listeners
             var cdlgList = new List<ConditionListener>(_conditionListeners);
             foreach(var listener in cdlgList)
             {
-                if(listener.Action != null && (listener.Condition == null || listener.Condition.Matches(name, data)))
+                if(listener.Action != null && (listener.Condition == null || listener.Condition.Matches(name, args)))
                 {
                     try
                     {
-                        listener.Action(name, data);
+                        listener.Action(name, args);
                     }
                     catch(Exception ex)
                     {
@@ -272,7 +281,6 @@ namespace SocialPoint.ScriptEvents
                     }
                 }
             }
-
         }
 
     }

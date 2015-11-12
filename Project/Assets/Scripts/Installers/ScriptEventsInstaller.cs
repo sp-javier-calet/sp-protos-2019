@@ -26,8 +26,7 @@ public class ScriptEventsInstaller : MonoInstaller
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NotConditionParser>();
 
         Container.Rebind<IParser<IScriptCondition>>().ToSingleMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
-        Container.Rebind<IParser<List<ScriptStepModel>>>().ToSingleMethod<ScriptStepModelsParser>(CreateScriptStepModelsParser);
-        Container.Rebind<IParser<Script>>().ToSingleMethod<ScriptParser>(CreateScriptParser);
+        Container.Rebind<IParser<ScriptModel>>().ToSingleMethod<ScriptModelParser>(CreateScriptModelParser);
 
         Container.Rebind<IEventDispatcher>().ToSingleMethod<EventDispatcher>(CreateEventDispatcher);
         Container.Rebind<IScriptEventDispatcher>().ToSingleMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
@@ -41,17 +40,10 @@ public class ScriptEventsInstaller : MonoInstaller
         return new FamilyParser<IScriptCondition>(children);
     }
 
-    public ScriptStepModelsParser CreateScriptStepModelsParser(InjectContext ctx)
+    public ScriptModelParser CreateScriptModelParser(InjectContext ctx)
     {
         var condParser = Container.Resolve<IParser<IScriptCondition>>();
-        return new ScriptStepModelsParser(condParser);
-    }
-
-    public ScriptParser CreateScriptParser(InjectContext ctx)
-    {
-        var stepsParser = Container.Resolve<IParser<List<ScriptStepModel>>>();
-        var dispatcher = Container.Resolve<IScriptEventDispatcher>();
-        return new ScriptParser(stepsParser, dispatcher);
+        return new ScriptModelParser(condParser);
     }
 
     public EventDispatcher CreateEventDispatcher(InjectContext ctx)

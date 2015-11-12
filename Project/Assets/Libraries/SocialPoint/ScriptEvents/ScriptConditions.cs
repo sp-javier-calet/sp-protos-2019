@@ -14,6 +14,8 @@ namespace SocialPoint.ScriptEvents
             {
                 return new IChildParser<IScriptCondition>[]{
                     new FixedConditionParser(),
+                    new AllConditionParser(),
+                    new NoneConditionParser(),
                     new NameConditionParser(),
                     new ArgumentsConditionParser(),
                     new AndConditionParser(),
@@ -63,7 +65,37 @@ namespace SocialPoint.ScriptEvents
         {
         }
         
-        const string ConditionName = "fixed";      
+        const string ConditionName = "fixed";
+        public string Name { get{ return ConditionName; } }
+    }
+
+    public class AllConditionParser : IChildParser<IScriptCondition>
+    {
+        public IScriptCondition Parse(Attr data)
+        {
+            return new FixedCondition(true);
+        }
+        
+        public void Load(FamilyParser<IScriptCondition> parent)
+        {
+        }
+        
+        const string ConditionName = "all";
+        public string Name { get{ return ConditionName; } }
+    }
+
+    public class NoneConditionParser : IChildParser<IScriptCondition>
+    {
+        public IScriptCondition Parse(Attr data)
+        {
+            return new FixedCondition(false);
+        }
+        
+        public void Load(FamilyParser<IScriptCondition> parent)
+        {
+        }
+        
+        const string ConditionName = "none";
         public string Name { get{ return ConditionName; } }
     }
 
@@ -165,13 +197,7 @@ namespace SocialPoint.ScriptEvents
 
         public override string ToString()
         {
-            var str = new string[_conditions.Count];
-            var i = 0;
-            foreach(var cond in _conditions)
-            {
-                str[i] = cond.ToString();
-            }
-            return string.Format("[AndCondition:{0}]", string.Join(", ", str));
+            return string.Format("[AndCondition:{0}]", StringUtils.Join(_conditions));
         }
     }
         
@@ -226,13 +252,7 @@ namespace SocialPoint.ScriptEvents
                 
         public override string ToString()
         {
-            var str = new string[_conditions.Count];
-            var i = 0;
-            foreach(var cond in _conditions)
-            {
-                str[i] = cond.ToString();
-            }
-            return string.Format("[OrCondition:{0}]", string.Join(", ", str));
+            return string.Format("[OrCondition:{0}]", StringUtils.Join(_conditions));
         }
     }
 

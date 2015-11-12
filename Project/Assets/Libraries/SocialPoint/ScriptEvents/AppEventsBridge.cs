@@ -136,11 +136,12 @@ namespace SocialPoint.ScriptEvents
             _appEvents.OpenedFromSource += OnOpenedFromSource;
             _appEvents.ApplicationQuit += OnApplicationQuit;
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
+            _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
 
         const string AppWasOnBackgroundEventName = "event.app.was_on_background";
         const string AppWasCoveredEventName = "event.app.was_covered";
-        const string AppReceivedMemoryWarningEventName = "event.app.received_memory_warning";
+        const string AppReceivedMemoryWarningEventName = "event.app.memory_warning";
         const string AppQuitEventName = "event.app.quit";
 
         public void Load(IScriptEventDispatcher dispatcher)
@@ -171,6 +172,7 @@ namespace SocialPoint.ScriptEvents
             _appEvents.OpenedFromSource -= OnOpenedFromSource;
             _appEvents.ApplicationQuit -= OnApplicationQuit;
             _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
+            _appEvents.ReceivedMemoryWarning -= OnReceivedMemoryWarning;
         }
 
         void OnWillGoBackground(int priority)

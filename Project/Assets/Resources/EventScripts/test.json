@@ -6,7 +6,7 @@
 		}
 	},
 	{
-		"name": "action.server.track",
+		"name": "action.server.command",
 		"args": {
 			"name": "game.memory_warning",
 			"args": {

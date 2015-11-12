@@ -28,23 +28,21 @@ public class GameInstaller : MonoInstaller
         Container.Rebind<IGameErrorHandler>().ToSingle<GameErrorHandler>();
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        Container.Rebind<IParser<GameModel>>().ToSingle<GameParser>();
         Container.Rebind<GameModel>().ToSingleMethod<GameModel>(CreateGameModel);
         Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
         Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
-        Container.Rebind<ISerializer<PlayerModel>>().ToSingleMethod<PlayerParser>(CreatePlayerParser);
+
+        Container.Rebind<IParser<GameModel>>().ToSingle<GameParser>();
+        Container.Rebind<IParser<ConfigModel>>().ToSingle<ConfigParser>();
+        Container.Rebind<ISerializer<PlayerModel>>().ToSingle<PlayerParser>();
+        Container.Rebind<IParser<PlayerModel>>().ToSingle<PlayerParser>();
+
         Container.Rebind<GameLoader>().ToSingle();
     }
     
     void OnGameModelAssigned()
     {
-    }
-    
-    PlayerParser CreatePlayerParser(InjectContext ctx)
-    {
-        var model = Container.Resolve<GameModel>();
-        return new PlayerParser(model.Config);
-    }
+    }   
     
     GameModel CreateGameModel(InjectContext ctx)
     {

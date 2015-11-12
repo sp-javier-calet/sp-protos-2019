@@ -4,10 +4,16 @@ public class PlayerModel
 {
     public long Level{ get; private set; }
         
-    public PlayerModel(long level)
+    public PlayerModel(long level=0)
     {
         Level = level;
     }
+
+    public void Assign(PlayerModel other)
+    {
+        Level = other.Level;           
+    }
+
     
     override public string ToString()
     {

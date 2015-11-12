@@ -1,15 +1,25 @@
 ﻿using SocialPoint.Attributes;
+using SocialPoint.ScriptEvents;
 using System.Collections.Generic;
 
 public class ConfigParser : IParser<ConfigModel>
 {
     const string AttrKeyGlobals = "globals";
+    const string AttrKeyScripts = "scripts";
     const string AttrKeyGlobalKey = "key";
     const string AttrKeyGlobalValue = "value";
+
+    IParser<ScriptModel> _scriptParser;
+
+    public ConfigParser(IParser<ScriptModel> scriptParser)
+    {
+        _scriptParser = scriptParser;
+    }
 
     public ConfigModel Parse(Attr data)
     {
         var globals = new Dictionary<string, Attr>();
+        var scripts = new List<ScriptModel>();
         var gsAttr = data.AsDic[AttrKeyGlobals];
 
         if(gsAttr.AttrType == AttrType.DICTIONARY)
@@ -31,6 +41,10 @@ public class ConfigParser : IParser<ConfigModel>
                 }
             }
         }
-        return new ConfigModel(globals);
+        foreach(var script in data.AsDic[AttrKeyScripts].AsList)
+        {
+            scripts.Add(_scriptParser.Parse(script));
+        }
+        return new ConfigModel(globals, scripts);
     }
 }
