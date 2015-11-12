@@ -4,7 +4,34 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace SocialPoint.ScriptEvents
-{
+{    
+
+    public static class ScriptConditions
+    {
+        public static IChildParser<IScriptCondition>[] BasicParsers
+        {
+            get
+            {
+                return new IChildParser<IScriptCondition>[]{
+                    new FixedConditionParser(),
+                    new NameConditionParser(),
+                    new ArgumentsConditionParser(),
+                    new AndConditionParser(),
+                    new OrConditionParser(),
+                    new NotConditionParser()
+                };
+            }
+        }
+
+        public static IParser<IScriptCondition> BaseParser
+        {
+            get
+            {
+                return new FamilyParser<IScriptCondition>(BasicParsers);
+            }
+        }
+    }
+
     public class FixedCondition : IScriptCondition
     {
         bool _result;
@@ -95,7 +122,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ArgumentsConditionParser : IParser<IScriptCondition>
+    public class ArgumentsConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -148,7 +175,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
         
-    public class AndConditionParser : IParser<IScriptCondition>
+    public class AndConditionParser : IChildParser<IScriptCondition>
     {
         FamilyParser<IScriptCondition> _parent;
 
@@ -209,7 +236,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class OrConditionParser : IParser<IScriptCondition>
+    public class OrConditionParser : IChildParser<IScriptCondition>
     {
         FamilyParser<IScriptCondition> _parent;
         
@@ -223,7 +250,7 @@ namespace SocialPoint.ScriptEvents
             return new OrCondition(children);
         }
         
-        void Load(FamilyParser<IScriptCondition> parent)
+        public void Load(FamilyParser<IScriptCondition> parent)
         {
             _parent = parent;
         }
@@ -252,7 +279,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
         
-    public class NotConditionParser : IParser<IScriptCondition>
+    public class NotConditionParser : IChildParser<IScriptCondition>
     {
         FamilyParser<IScriptCondition> _parent;
         

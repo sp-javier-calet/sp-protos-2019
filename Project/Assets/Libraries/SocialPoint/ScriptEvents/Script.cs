@@ -18,31 +18,91 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptStepParser : IParser<ScriptStepModel>
+    public class ScriptStepModelParser : IParser<ScriptStepModel>
     {
-        const string AttrKeyEvent = "event";
-        const string AttrKeyName = "name";
-        const string AttrKeyArguments = "args";
+        const string AttrKeyEventName = "event_name";
+        const string AttrKeyEventArguments = "event_args";
         const string AttrKeyForward = "forward";
         const string AttrKeyBackward = "backward";
 
         IParser<IScriptCondition> _conditionParser;
 
-        ScriptStepParser(IParser<IScriptCondition> conditionParser)
+        public ScriptStepModelParser(IParser<IScriptCondition> conditionParser)
         {
             _conditionParser = conditionParser;
         }
 
+        public ScriptStepModelParser():
+            this(ScriptConditions.BaseParser)
+        {
+        }
+
         public ScriptStepModel Parse(Attr data)
         {
-            var evdata = data.AsDic[AttrKeyEvent].AsDic;
             return new ScriptStepModel
             {
-                EventName = evdata[AttrKeyName].ToString(),
-                EventArguments = (Attr)evdata[AttrKeyArguments].Clone(),
+                EventName = data.AsDic[AttrKeyEventName].ToString(),
+                EventArguments = (Attr)data.AsDic[AttrKeyEventArguments].Clone(),
                 Forward = _conditionParser.Parse(data.AsDic[AttrKeyForward]),
                 Backward = _conditionParser.Parse(data.AsDic[AttrKeyBackward])
             };
+        }
+    }
+
+    public class ScriptStepModelsParser : IParser<List<ScriptStepModel>>
+    {
+        IParser<ScriptStepModel> _stepParser;
+
+        public ScriptStepModelsParser():
+            this(ScriptConditions.BaseParser)
+        {
+        }
+
+        public ScriptStepModelsParser(IParser<IScriptCondition> conditionParser):
+            this(new ScriptStepModelParser(conditionParser))
+        {
+        }
+
+        public ScriptStepModelsParser(IParser<ScriptStepModel> stepParser)
+        {
+            _stepParser = stepParser;
+        }
+
+        public List<ScriptStepModel> Parse(Attr data)
+        {
+            var steps = new List<ScriptStepModel>();
+            foreach(var step in data.AsList)
+            {
+                steps.Add(_stepParser.Parse(step));
+            }
+            return steps;
+        }
+    }
+
+    public class ScriptParser : IParser<Script>
+    {
+        IParser<List<ScriptStepModel>> _stepsParser;
+        IScriptEventDispatcher _dispatcher;
+        
+        public ScriptParser(IScriptEventDispatcher dispatcher):
+            this(ScriptConditions.BaseParser, dispatcher)
+        {
+        }
+
+        public ScriptParser(IParser<IScriptCondition> conditionParser, IScriptEventDispatcher dispatcher):
+            this(new ScriptStepModelsParser(conditionParser), dispatcher)
+        {
+        }
+
+        public ScriptParser(IParser<List<ScriptStepModel>> stepsParser, IScriptEventDispatcher dispatcher)
+        {
+            _stepsParser = stepsParser;
+            _dispatcher = dispatcher;
+        }
+                
+        public Script Parse(Attr data)
+        {
+            return new Script(_dispatcher, _stepsParser.Parse(data));
         }
     }
 

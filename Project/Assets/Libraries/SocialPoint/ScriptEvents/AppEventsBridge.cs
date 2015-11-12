@@ -47,7 +47,7 @@ namespace SocialPoint.ScriptEvents
 
     public class AppWillGoBackgroundEventConverter : BaseScriptEventConverter<AppWillGoBackgroundEvent>
     {
-        public AppWillGoBackgroundEventConverter(): base("app.will_go_background")
+        public AppWillGoBackgroundEventConverter(): base("events.app.will_go_background")
         {
         }
 
@@ -64,7 +64,7 @@ namespace SocialPoint.ScriptEvents
 
     public class AppGameWasLoadedEventConverter : BaseScriptEventConverter<AppGameWasLoadedEvent>
     {
-        public AppGameWasLoadedEventConverter(): base("app.game_was_loaded")
+        public AppGameWasLoadedEventConverter(): base("events.app.game_was_loaded")
         {
         }
 
@@ -81,7 +81,7 @@ namespace SocialPoint.ScriptEvents
     
     public class AppGameWillRestartEventConverter : BaseScriptEventConverter<AppGameWillRestartEvent>
     {
-        public AppGameWillRestartEventConverter(): base("app.game_will_restart")
+        public AppGameWillRestartEventConverter(): base("events.app.game_will_restart")
         {
         }
 
@@ -98,7 +98,7 @@ namespace SocialPoint.ScriptEvents
 
     public class AppLevelWasLoadedEventConverter : BaseScriptEventConverter<AppLevelWasLoadedEvent>
     {
-        public AppLevelWasLoadedEventConverter(): base("app.level_was_loaded")
+        public AppLevelWasLoadedEventConverter(): base("events.app.level_was_loaded")
         {
         }
 
@@ -119,7 +119,7 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyScheme = "scheme";
         const string AttrKeyParameters = "params";
 
-        public AppOpenedFromSourceEventConverter(): base("app.opened_from_source")
+        public AppOpenedFromSourceEventConverter(): base("events.app.opened_from_source")
         {
         }
 
@@ -164,9 +164,9 @@ namespace SocialPoint.ScriptEvents
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
         }
 
-        const string AppWasOnBackgroundEventName = "app.was_on_background";
-        const string AppWasCoveredEventName = "app.was_covered";
-        const string AppReceivedMemoryWarningEventName = "app.received_memory_warning";
+        const string AppWasOnBackgroundEventName = "events.app.was_on_background";
+        const string AppWasCoveredEventName = "events.app.was_covered";
+        const string AppReceivedMemoryWarningEventName = "events.app.received_memory_warning";
 
         public void Load(IScriptEventDispatcher dispatcher)
         {

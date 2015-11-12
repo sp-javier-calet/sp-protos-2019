@@ -43,6 +43,19 @@ namespace SocialPoint.Attributes
 
         public abstract object Clone();
 
+        public static bool IsNullOrEmpty(Attr attr)
+        {
+            if(attr == null)
+            {
+                return true;
+            }
+            if(attr.IsValue && attr.AsValue.AttrValueType == AttrValueType.EMPTY)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static bool operator ==(Attr la, Attr ra)
         {
             if(System.Object.ReferenceEquals(la, ra))
@@ -108,7 +121,7 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                return AttrValue.Invalid;
+                return InvalidValue;
             }
         }
 
@@ -116,7 +129,7 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                return AttrDic.Invalid;
+                return InvalidDic;
             }
         }
 
@@ -124,7 +137,39 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                return AttrList.Invalid;
+                return InvalidList;
+            }
+        }
+
+        public static AttrDic InvalidDic
+        {
+            get
+            {
+                return new AttrDic();
+            }
+        }
+                
+        public static AttrList InvalidList
+        {
+            get
+            {
+                return new AttrList();
+            }
+        }
+
+        public static AttrValue InvalidValue
+        {
+            get
+            {
+                return new AttrEmpty();
+            }
+        }
+
+        public static Attr Invalid
+        {
+            get
+            {
+                return InvalidValue;
             }
         }
 
@@ -196,14 +241,6 @@ namespace SocialPoint.Attributes
 
         public AttrValue(AttrValue attr) : this(attr.AttrValueType)
         {
-        }
-
-        public static AttrValue Invalid
-        {
-            get
-            {
-                return new AttrEmpty();
-            }
         }
 
         public virtual float ToFloat()
@@ -474,11 +511,9 @@ namespace SocialPoint.Attributes
             return base.GetHashCode();
         }
 
-        const string NullString = "NULL";
-
         public override string ToString()
         {
-            return NullString;
+            return string.Empty;
         }
     }
 
@@ -1175,14 +1210,6 @@ namespace SocialPoint.Attributes
             return new AttrDic(this);
         }
 
-        public static AttrDic Invalid
-        {
-            get
-            {
-                return new AttrDic();
-            }
-        }
-
         public ICollection<string> Keys
         {
             get
@@ -1327,7 +1354,7 @@ namespace SocialPoint.Attributes
         {
             if(!ContainsKey(key))
             {
-                return Invalid;
+                return Attr.Invalid;
             }
             return _value[key];
         }
@@ -1484,23 +1511,15 @@ namespace SocialPoint.Attributes
             return new AttrList(this);
         }
 
-        public static AttrList Invalid
+        public Attr this[int idx]
         {
             get
             {
-                return new AttrList();
-            }
-        }
-
-        public Attr this[int index]
-        {
-            get
-            {
-                return _value[index];
+                return Get(idx);
             }
             set
             {
-                _value[index] = value;
+                Set(value, idx);
             }
         }
 
@@ -1599,6 +1618,10 @@ namespace SocialPoint.Attributes
 
         public Attr Get(int idx)
         {
+            if(idx >= Count)
+            {
+                return Attr.Invalid;
+            }
             return _value[idx];
         }
 

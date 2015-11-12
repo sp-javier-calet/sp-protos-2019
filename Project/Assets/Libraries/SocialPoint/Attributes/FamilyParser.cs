@@ -17,6 +17,11 @@ namespace SocialPoint.Attributes
         const string AttrKeyValue = "value";
         
         List<IChildParser<T>> _children;
+
+        public FamilyParser(IChildParser<T>[] children):
+            this(new List<IChildParser<T>>(children))
+        {
+        }
         
         public FamilyParser(List<IChildParser<T>> children)
         {
@@ -36,6 +41,10 @@ namespace SocialPoint.Attributes
         
         public T Parse(Attr data)
         {
+            if(Attr.IsNullOrEmpty(data))
+            {
+                return default(T);
+            }
             var datadic = data.AsDic;
             var type = datadic[AttrKeyType].AsValue.ToString();
             var child = GetChild(type);
