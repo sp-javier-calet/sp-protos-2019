@@ -5,6 +5,41 @@ using System.Linq;
 
 namespace SocialPoint.ScriptEvents
 {
+    public class FixedCondition : IScriptCondition
+    {
+        bool _result;
+        
+        public FixedCondition(bool result)
+        {
+            _result = result;
+        }
+        
+        public bool Matches(string name, Attr arguments)
+        {
+            return _result;
+        }
+        
+        public override string ToString()
+        {
+            return string.Format("[FixedCondition:{0}]", _result);
+        }
+    }
+    
+    public class FixedConditionParser : IChildParser<IScriptCondition>
+    {
+        public IScriptCondition Parse(Attr data)
+        {
+            return new FixedCondition(data.AsValue.ToBool());
+        }
+        
+        public void Load(FamilyParser<IScriptCondition> parent)
+        {
+        }
+        
+        const string ConditionName = "fixed";      
+        public string Name { get{ return ConditionName; } }
+    }
+
     public class NameCondition : IScriptCondition
     {
         string _pattern;
@@ -25,7 +60,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class EventNameConditionParser : IChildParser<IScriptCondition>
+    public class NameConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -60,7 +95,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class EventArgumentsConditionParser : IParser<IScriptCondition>
+    public class ArgumentsConditionParser : IParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {

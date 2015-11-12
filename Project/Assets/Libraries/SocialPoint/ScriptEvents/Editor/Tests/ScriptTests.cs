@@ -7,9 +7,9 @@ namespace SocialPoint.ScriptEvents
 {
 	[TestFixture]
 	[Category("SocialPoint.ScriptEvents")]
-	internal class EventScriptTests : BaseScriptEventsTests
+	internal class ScriptTests : BaseScriptEventsTests
 	{
-		EventScript _eventScript;
+		Script _eventScript;
 
 		[SetUp]
 		override public void SetUp()
@@ -20,7 +20,7 @@ namespace SocialPoint.ScriptEvents
 		[Test]
 		public void Empty_Finishes()
 		{
-			var script = new EventScript(_scriptDispatcher, new EventScriptStepModel[]{});
+			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{});
 			bool finished = false;
 			script.Run(() => {
 				finished = true;
@@ -31,8 +31,8 @@ namespace SocialPoint.ScriptEvents
 		[Test]
 		public void Simple_Finishes()
 		{
-			var script = new EventScript(_scriptDispatcher, new EventScriptStepModel[]{
-				new EventScriptStepModel{
+			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{
+				new ScriptStepModel{
 					EventName = "test",
 					EventArguments = new AttrString("lala")
 				}
@@ -54,16 +54,16 @@ namespace SocialPoint.ScriptEvents
 		[Test]
 		public void Multi_Finishes()
 		{
-			var script = new EventScript(_scriptDispatcher, new EventScriptStepModel[]{
-				new EventScriptStepModel{
+			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{
+				new ScriptStepModel{
 					EventName = "test",
 					EventArguments = new AttrString("lala"),
-					Condition = new NameCondition("other")
+					Forward = new NameCondition("other")
 				},
-				new EventScriptStepModel{
+				new ScriptStepModel{
 					EventName = "other",
-					EventArguments = new AttrInt(1),
-					Condition = new ArgumentsCondition(_testArgs)
+					EventArguments = new AttrString("1"),
+					Forward = new ArgumentsCondition(_testArgs)
 				},
 			});
 			
@@ -81,6 +81,11 @@ namespace SocialPoint.ScriptEvents
 
 			_dispatcher.Raise(new TestEvent{ Value = "lala" });
 			
+			Assert.AreEqual(0, script.CurrentStepNum);
+			Assert.IsTrue(script.IsRunning);
+
+			_dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+
 			Assert.AreEqual(1, script.CurrentStepNum);
 			Assert.IsTrue(script.IsRunning);
 

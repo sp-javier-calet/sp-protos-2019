@@ -77,7 +77,8 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -85,7 +86,7 @@ namespace SocialPoint.Attributes
             }
 
             var p = obj as Attr;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -366,7 +367,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -374,7 +375,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrValue;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -451,7 +452,7 @@ namespace SocialPoint.Attributes
             return false;
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -459,7 +460,7 @@ namespace SocialPoint.Attributes
             }
 
             var p = obj as AttrEmpty;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -579,7 +580,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -587,7 +588,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrBool;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -655,7 +656,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -663,7 +664,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrInt;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -760,7 +761,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -768,7 +769,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrLong;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -904,7 +905,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -912,7 +913,7 @@ namespace SocialPoint.Attributes
             }
 
             var p = obj as AttrString;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -989,7 +990,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -997,7 +998,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrFloat;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -1094,7 +1095,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -1102,7 +1103,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrDouble;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -1373,7 +1374,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -1381,7 +1382,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrDic;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
@@ -1678,7 +1679,7 @@ namespace SocialPoint.Attributes
             return !(la == ra);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
             if(obj == null)
             {
@@ -1686,7 +1687,7 @@ namespace SocialPoint.Attributes
             }
             
             var p = obj as AttrList;
-            if((System.Object)p == null)
+            if((object)p == null)
             {
                 return false;
             }
