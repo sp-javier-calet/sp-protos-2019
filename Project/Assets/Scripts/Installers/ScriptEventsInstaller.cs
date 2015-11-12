@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Zenject;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Attributes;
+using SocialPoint.AdminPanel;
 
 public class ScriptEventsInstaller : MonoInstaller
 {
@@ -16,8 +18,40 @@ public class ScriptEventsInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        Container.Bind<IChildParser<IScriptCondition>>().ToSingle<FixedConditionParser>();
+        Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NameConditionParser>();
+        Container.Bind<IChildParser<IScriptCondition>>().ToSingle<ArgumentsConditionParser>();
+        Container.Bind<IChildParser<IScriptCondition>>().ToSingle<AndConditionParser>();
+        Container.Bind<IChildParser<IScriptCondition>>().ToSingle<OrConditionParser>();
+        Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NotConditionParser>();
+
+        Container.Rebind<IParser<IScriptCondition>>().ToSingleMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
+        Container.Rebind<IParser<List<ScriptStepModel>>>().ToSingleMethod<ScriptStepModelsParser>(CreateScriptStepModelsParser);
+        Container.Rebind<IParser<Script>>().ToSingleMethod<ScriptParser>(CreateScriptParser);
+
         Container.Rebind<IEventDispatcher>().ToSingleMethod<EventDispatcher>(CreateEventDispatcher);
         Container.Rebind<IScriptEventDispatcher>().ToSingleMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelScriptEvents>();
+    }
+
+    public FamilyParser<IScriptCondition> CreateScriptConditionParser(InjectContext ctx)
+    {
+        var children = Container.Resolve<List<IChildParser<IScriptCondition>>>();
+        return new FamilyParser<IScriptCondition>(children);
+    }
+
+    public ScriptStepModelsParser CreateScriptStepModelsParser(InjectContext ctx)
+    {
+        var condParser = Container.Resolve<IParser<IScriptCondition>>();
+        return new ScriptStepModelsParser(condParser);
+    }
+
+    public ScriptParser CreateScriptParser(InjectContext ctx)
+    {
+        var stepsParser = Container.Resolve<IParser<List<ScriptStepModel>>>();
+        var dispatcher = Container.Resolve<IScriptEventDispatcher>();
+        return new ScriptParser(stepsParser, dispatcher);
     }
 
     public EventDispatcher CreateEventDispatcher(InjectContext ctx)

@@ -6,22 +6,22 @@ namespace SocialPoint.ScriptEvents
 {
     public struct ScriptStepModel
     {
-        public string EventName;
-        public Attr EventArguments;
+        public string Name;
+        public Attr Arguments;
         public IScriptCondition Forward;
         public IScriptCondition Backward;
 
         public override string ToString()
         {
             return string.Format("[ScriptStepModel: Event={0},{1} Forward={2} Backward={3}]",
-                                 EventName, EventArguments, Forward, Backward);
+                                 Name, Arguments, Forward, Backward);
         }
     }
 
     public class ScriptStepModelParser : IParser<ScriptStepModel>
     {
-        const string AttrKeyEventName = "event_name";
-        const string AttrKeyEventArguments = "event_args";
+        const string AttrKeyName = "name";
+        const string AttrKeyArguments = "args";
         const string AttrKeyForward = "forward";
         const string AttrKeyBackward = "backward";
 
@@ -41,8 +41,8 @@ namespace SocialPoint.ScriptEvents
         {
             return new ScriptStepModel
             {
-                EventName = data.AsDic[AttrKeyEventName].ToString(),
-                EventArguments = (Attr)data.AsDic[AttrKeyEventArguments].Clone(),
+                Name = data.AsDic[AttrKeyName].ToString(),
+                Arguments = (Attr)data.AsDic[AttrKeyArguments].Clone(),
                 Forward = _conditionParser.Parse(data.AsDic[AttrKeyForward]),
                 Backward = _conditionParser.Parse(data.AsDic[AttrKeyBackward])
             };
@@ -131,7 +131,7 @@ namespace SocialPoint.ScriptEvents
 
         public override string ToString()
         {
-            return string.Format("[ScriptStep: Event={0},{1} Forward={2} Backward={3}]", _model.EventName, _model.EventArguments, _model.Forward, _model.Backward);
+            return string.Format("[ScriptStep: Event={0},{1} Forward={2} Backward={3}]", _model.Name, _model.Arguments, _model.Forward, _model.Backward);
         }
 
         public void Reset()
@@ -161,7 +161,7 @@ namespace SocialPoint.ScriptEvents
 
         void OnEvent(string name, Attr args)
         {
-            bool raised = !_raiseReceived && name == _model.EventName && args.Equals(_model.EventArguments);
+            bool raised = !_raiseReceived && name == _model.Name && args.Equals(_model.Arguments);
             if(raised)
             {
                 _raiseReceived = true;
@@ -192,7 +192,7 @@ namespace SocialPoint.ScriptEvents
             {
                 _dispatcher.AddListener(OnEvent);
             }
-            _dispatcher.Raise(_model.EventName, _model.EventArguments);
+            _dispatcher.Raise(_model.Name, _model.Arguments);
             if(_model.Forward == null)
             {
                 Finish(Decision.Forward, null, null);

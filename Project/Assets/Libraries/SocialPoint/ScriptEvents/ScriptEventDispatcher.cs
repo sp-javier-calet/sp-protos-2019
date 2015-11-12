@@ -12,83 +12,15 @@ namespace SocialPoint.ScriptEvents
         void AddListener(IScriptCondition condition, Action<string, Attr> listener);
         bool RemoveListener(Action<Attr> listener);
         bool RemoveListener(Action<string, Attr> listener);
-        void AddConverter(IScriptEventConverter config);
+        void AddConverter(IScriptEventConverter converter);
+        void AddSerializer(IScriptEventSerializer serializer);
+        void AddParser(IScriptEventParser parser);
         void Raise(string name, Attr args);
     }
 
     public interface IScriptEventsBridge : IDisposable
     {
         void Load(IScriptEventDispatcher dispatcher);
-    }
-
-    public interface IScriptEventConverter : ISerializer<object>, IParser<object>
-    {
-        string Name { get; }
-    }
-
-    public abstract class BaseScriptEventConverter<T> : IScriptEventConverter
-    {
-        public string Name { get; private set; }
-
-        public BaseScriptEventConverter(string name)
-        {
-            Name = name;
-        }
-
-        public object Parse(Attr data)
-        {
-            return ParseEvent(data);
-        }
-
-        abstract protected T ParseEvent(Attr data);
-
-        public Attr Serialize(object ev)
-        {
-            if(ev is T)
-            {
-                return SerializeEvent((T)ev);
-            }
-            return null;
-        }
-
-        abstract protected Attr SerializeEvent(T ev);
-    }
-
-    public class ScriptEventConverter<T> : BaseScriptEventConverter<T>
-    {
-        ISerializer<T> _serializer;
-        IParser<T> _parser;
-
-        public ScriptEventConverter(string name, IParser<T> parser=null, ISerializer<T> serializer=null): base(name)
-        {
-            _serializer = serializer;
-            _parser = parser;
-        }
-
-        override protected T ParseEvent(Attr data)
-        {
-            if(_parser != null)
-            {
-                return _parser.Parse(data);
-            }
-            else
-            {
-                return default(T);
-            }
-        }
-
-        override protected Attr SerializeEvent(T ev)
-        {
-
-            if(_serializer != null)
-            {
-                return _serializer.Serialize((T)ev);
-            }
-            else
-            {
-                return new AttrEmpty();
-            }
-        }
     }
 
     public interface IScriptCondition
@@ -107,7 +39,8 @@ namespace SocialPoint.ScriptEvents
 
         readonly Dictionary<string, List<Action<Attr>>> _listeners = new Dictionary<string, List<Action<Attr>>>();
         readonly List<Action<string, Attr>> _defaultListeners = new List<Action<string, Attr>>();
-        readonly List<IScriptEventConverter> _converters = new List<IScriptEventConverter>();
+        readonly List<IScriptEventParser> _parsers = new List<IScriptEventParser>();
+        readonly List<IScriptEventSerializer> _serializers = new List<IScriptEventSerializer>();
         readonly List<IScriptEventsBridge> _bridges = new List<IScriptEventsBridge>();
         readonly List<ConditionListener> _conditionListeners = new List<ConditionListener>();
         IEventDispatcher _dispatcher;
@@ -134,7 +67,8 @@ namespace SocialPoint.ScriptEvents
         {
             _listeners.Clear();
             _defaultListeners.Clear();
-            _converters.Clear();
+            _serializers.Clear();
+            _parsers.Clear();
             _bridges.Clear();
         }
 
@@ -210,20 +144,34 @@ namespace SocialPoint.ScriptEvents
             return found;
         }
 
-        public void AddConverter(IScriptEventConverter serializer)
+        public void AddConverter(IScriptEventConverter converter)
         {
-            if(!_converters.Contains(serializer))
+            AddSerializer(converter);
+            AddParser(converter);
+        }
+                
+        public void AddSerializer(IScriptEventSerializer serializer)
+        {
+            if(!_serializers.Contains(serializer))
             {
-                _converters.Add(serializer);
+                _serializers.Add(serializer);
+            }
+        }
+        
+        public void AddParser(IScriptEventParser parser)
+        {
+            if(!_parsers.Contains(parser))
+            {
+                _parsers.Add(parser);
             }
         }
 
         public void Raise(string name, Attr args)
         {
-            var converter = _converters.FirstOrDefault(c => c.Name == name);
-            if(converter != null)
+            var parser = _parsers.FirstOrDefault(c => c.Name == name);
+            if(parser != null)
             {
-                var ev = converter.Parse(args);
+                var ev = parser.Parse(args);
                 _dispatcher.Raise(ev);
             }
         }
@@ -232,14 +180,14 @@ namespace SocialPoint.ScriptEvents
         {
             Attr data = null;
             string name = null;
-            foreach(var converter in _converters)
+            foreach(var serializer in _serializers)
             {
-                if(converter != null)
+                if(serializer != null)
                 {
-                    data = converter.Serialize(ev);
+                    data = serializer.Serialize(ev);
                     if(data != null)
                     {
-                        name = converter.Name;
+                        name = serializer.Name;
                         break;
                     }
                 }

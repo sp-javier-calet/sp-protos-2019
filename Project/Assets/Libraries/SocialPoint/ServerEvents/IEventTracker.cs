@@ -4,8 +4,6 @@ using SocialPoint.Base;
 
 namespace SocialPoint.ServerEvents
 {
-    public delegate void EventTrackedDelegate(string name, AttrDic data);
-
     public delegate void EventDataSetupDelegate(AttrDic data);
 
     public enum EventTrackerErrorType
@@ -65,7 +63,6 @@ namespace SocialPoint.ServerEvents
 
     public interface IEventTracker : IDisposable
     {
-        event EventTrackedDelegate EventTracked;
         event EventDataSetupDelegate DataSetup;
         event EventTrackerErrorDelegate GeneralError;
 

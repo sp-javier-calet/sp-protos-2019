@@ -1,6 +1,7 @@
 ﻿using Zenject;
 using System;
 using SocialPoint.ServerSync;
+using SocialPoint.ScriptEvents;
 
 public class ServerSyncInstaller : MonoInstaller
 {
@@ -28,6 +29,9 @@ public class ServerSyncInstaller : MonoInstaller
 
         Container.Rebind<ICommandQueue>().ToSingle<CommandQueue>();
         Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
+
+        Container.Bind<IEventsBridge>().ToSingle<ServerSyncBridge>();
+        Container.Bind<IScriptEventsBridge>().ToSingle<ServerSyncBridge>();
 	}
 
 }

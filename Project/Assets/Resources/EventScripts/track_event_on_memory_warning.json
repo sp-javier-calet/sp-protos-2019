@@ -1,0 +1,17 @@
+[
+	{
+		"forward": {
+			"type": "name",
+			"value": "event.app.memory_warning"
+		}
+	},
+	{
+		"name": "action.server.track",
+		"args": {
+			"name": "game.memory_warning",
+			"args": {
+				"test": "lala"
+			}
+		}
+	}
+]

@@ -8,7 +8,7 @@ using SocialPoint.Hardware;
 using SocialPoint.Base;
 
 [TestFixture]
-[Category("SocialPointLogin Tests")]
+[Category("SocialPoint.Login")]
 public class SocialPointLoginTests
 {
 

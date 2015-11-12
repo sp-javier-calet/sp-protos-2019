@@ -7,6 +7,12 @@ namespace SocialPoint.ServerSync
     {
         public SyncDelegate AutoSync{ set; private get; }
 
+        public event CommandResponseDelegate CommandResponse
+        {
+            add { }
+            remove { }
+        }
+
         public event CommandQueueErrorDelegate GeneralError
         {
             add { }

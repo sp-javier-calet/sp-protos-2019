@@ -51,7 +51,6 @@ namespace SocialPoint.ServerEvents
 
         public RequestSetupDelegate RequestSetup;
 
-        public event EventTrackedDelegate EventTracked;
         public event EventDataSetupDelegate DataSetup;
         public event Action SyncChange;
         public event EventTrackerErrorDelegate GeneralError;

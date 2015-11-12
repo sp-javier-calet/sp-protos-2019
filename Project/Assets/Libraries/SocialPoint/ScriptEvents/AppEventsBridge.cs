@@ -45,15 +45,10 @@ namespace SocialPoint.ScriptEvents
         public int Level;
     }
 
-    public class AppWillGoBackgroundEventConverter : BaseScriptEventConverter<AppWillGoBackgroundEvent>
+    public class AppWillGoBackgroundEventSerializer : BaseScriptEventSerializer<AppWillGoBackgroundEvent>
     {
-        public AppWillGoBackgroundEventConverter(): base("events.app.will_go_background")
+        public AppWillGoBackgroundEventSerializer(): base("event.app.will_go_background")
         {
-        }
-
-        override protected AppWillGoBackgroundEvent ParseEvent(Attr data)
-        {
-            return new AppWillGoBackgroundEvent{ Priority = data.AsValue.ToInt() };
         }
 
         override protected Attr SerializeEvent(AppWillGoBackgroundEvent ev)
@@ -62,71 +57,50 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppGameWasLoadedEventConverter : BaseScriptEventConverter<AppGameWasLoadedEvent>
+    public class AppGameWasLoadedEventSerializer : BaseScriptEventSerializer<AppGameWasLoadedEvent>
     {
-        public AppGameWasLoadedEventConverter(): base("events.app.game_was_loaded")
+        public AppGameWasLoadedEventSerializer(): base("event.app.game_was_loaded")
         {
         }
 
-        override protected AppGameWasLoadedEvent ParseEvent(Attr data)
-        {
-            return new AppGameWasLoadedEvent{ Priority = data.AsValue.ToInt() };
-        }
-        
         override protected Attr SerializeEvent(AppGameWasLoadedEvent ev)
         {
             return new AttrInt(ev.Priority);
         }
     }
     
-    public class AppGameWillRestartEventConverter : BaseScriptEventConverter<AppGameWillRestartEvent>
+    public class AppGameWillRestartEventSerializer : BaseScriptEventSerializer<AppGameWillRestartEvent>
     {
-        public AppGameWillRestartEventConverter(): base("events.app.game_will_restart")
+        public AppGameWillRestartEventSerializer(): base("event.app.game_will_restart")
         {
         }
 
-        override protected AppGameWillRestartEvent ParseEvent(Attr data)
-        {
-            return new AppGameWillRestartEvent{ Priority = data.AsValue.ToInt() };
-        }
-        
         override protected Attr SerializeEvent(AppGameWillRestartEvent ev)
         {
             return new AttrInt(ev.Priority);
         }
     }
 
-    public class AppLevelWasLoadedEventConverter : BaseScriptEventConverter<AppLevelWasLoadedEvent>
+    public class AppLevelWasLoadedEventSerializer : BaseScriptEventSerializer<AppLevelWasLoadedEvent>
     {
-        public AppLevelWasLoadedEventConverter(): base("events.app.level_was_loaded")
+        public AppLevelWasLoadedEventSerializer(): base("event.app.level_was_loaded")
         {
         }
 
-        override protected AppLevelWasLoadedEvent ParseEvent(Attr data)
-        {
-            return new AppLevelWasLoadedEvent{ Level = data.AsValue.ToInt() };
-        }
-        
         override protected Attr SerializeEvent(AppLevelWasLoadedEvent ev)
         {
             return new AttrInt(ev.Level);
         }
     }
     
-    public class AppOpenedFromSourceEventConverter : BaseScriptEventConverter<AppOpenedFromSourceEvent>
+    public class AppOpenedFromSourceEventSerializer : BaseScriptEventSerializer<AppOpenedFromSourceEvent>
     {
         const string AttrKeyUri = "uri";
         const string AttrKeyScheme = "scheme";
         const string AttrKeyParameters = "params";
 
-        public AppOpenedFromSourceEventConverter(): base("events.app.opened_from_source")
+        public AppOpenedFromSourceEventSerializer(): base("event.app.opened_from_source")
         {
-        }
-
-        override protected AppOpenedFromSourceEvent ParseEvent(Attr data)
-        {
-            var source = new AppSource(data.AsDic[AttrKeyUri].AsValue.ToString());
-            return new AppOpenedFromSourceEvent{ Source = source };
         }
         
         override protected Attr SerializeEvent(AppOpenedFromSourceEvent ev)
@@ -164,20 +138,22 @@ namespace SocialPoint.ScriptEvents
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
         }
 
-        const string AppWasOnBackgroundEventName = "events.app.was_on_background";
-        const string AppWasCoveredEventName = "events.app.was_covered";
-        const string AppReceivedMemoryWarningEventName = "events.app.received_memory_warning";
+        const string AppWasOnBackgroundEventName = "event.app.was_on_background";
+        const string AppWasCoveredEventName = "event.app.was_covered";
+        const string AppReceivedMemoryWarningEventName = "event.app.received_memory_warning";
+        const string AppQuitEventName = "event.app.quit";
 
         public void Load(IScriptEventDispatcher dispatcher)
         {
-            dispatcher.AddConverter(new AppWillGoBackgroundEventConverter());
-            dispatcher.AddConverter(new AppGameWasLoadedEventConverter());
-            dispatcher.AddConverter(new AppGameWillRestartEventConverter());
-            dispatcher.AddConverter(new AppLevelWasLoadedEventConverter());
-            dispatcher.AddConverter(new AppOpenedFromSourceEventConverter());
-            dispatcher.AddConverter(new ScriptEventConverter<AppWasOnBackgroundEvent>(AppWasOnBackgroundEventName));
-            dispatcher.AddConverter(new ScriptEventConverter<AppWasCoveredEvent>(AppWasCoveredEventName));
-            dispatcher.AddConverter(new ScriptEventConverter<AppReceivedMemoryWarningEvent>(AppReceivedMemoryWarningEventName));
+            dispatcher.AddSerializer(new AppWillGoBackgroundEventSerializer());
+            dispatcher.AddSerializer(new AppGameWasLoadedEventSerializer());
+            dispatcher.AddSerializer(new AppGameWillRestartEventSerializer());
+            dispatcher.AddSerializer(new AppLevelWasLoadedEventSerializer());
+            dispatcher.AddSerializer(new AppOpenedFromSourceEventSerializer());
+            dispatcher.AddSerializer(new ScriptEventSerializer<AppWasOnBackgroundEvent>(AppWasOnBackgroundEventName));
+            dispatcher.AddSerializer(new ScriptEventSerializer<AppWasCoveredEvent>(AppWasCoveredEventName));
+            dispatcher.AddSerializer(new ScriptEventSerializer<AppReceivedMemoryWarningEvent>(AppReceivedMemoryWarningEventName));
+            dispatcher.AddSerializer(new ScriptEventSerializer<AppQuitEvent>(AppQuitEventName));
         }
 
         public void Load(IEventDispatcher dispatcher)

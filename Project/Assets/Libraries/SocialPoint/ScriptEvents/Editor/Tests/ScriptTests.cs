@@ -33,8 +33,8 @@ namespace SocialPoint.ScriptEvents
 		{
 			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{
 				new ScriptStepModel{
-					EventName = "test",
-					EventArguments = new AttrString("lala")
+					Name = "test",
+					Arguments = new AttrString("lala")
 				}
 			});
 
@@ -56,13 +56,13 @@ namespace SocialPoint.ScriptEvents
 		{
 			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{
 				new ScriptStepModel{
-					EventName = "test",
-					EventArguments = new AttrString("lala"),
+					Name = "test",
+					Arguments = new AttrString("lala"),
 					Forward = new NameCondition("other")
 				},
 				new ScriptStepModel{
-					EventName = "other",
-					EventArguments = new AttrString("1"),
+					Name = "other",
+					Arguments = new AttrString("1"),
 					Forward = new ArgumentsCondition(_testArgs)
 				},
 			});
@@ -75,15 +75,15 @@ namespace SocialPoint.ScriptEvents
 		{
 			var json = @"
 [{
-	""event_name"": ""test"",
-	""event_args"": ""lala"",
+	""name"": ""test"",
+	""args"": ""lala"",
 	""forward"": {
 		""type"": ""name"",
 		""value"": ""other""
 	}
 },{
-	""event_name2"": ""other"",
-	""event_args"": ""1"",
+	""name"": ""other"",
+	""args"": ""1"",
 	""forward"": {
 		""type"": ""args"",
 		""value"": ""test_value""
