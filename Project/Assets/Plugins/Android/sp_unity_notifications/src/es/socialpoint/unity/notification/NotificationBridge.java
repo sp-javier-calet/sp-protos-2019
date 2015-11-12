@@ -30,13 +30,16 @@ public class NotificationBridge {
 
     public static void schedule(int id, long delay, String title, String text) {
         Activity currentActivity = UnityPlayer.currentActivity;
+        int alarmId = ++mAlarmIdCounter;
+
         Intent intent = new Intent(currentActivity, AlarmReceiver.class);
         intent.putExtra(IntentParameters.EXTRA_ID, id);
+        intent.putExtra(IntentParameters.EXTRA_ALARM_ID, alarmId);
         intent.putExtra(IntentParameters.EXTRA_TITLE, title);
         intent.putExtra(IntentParameters.EXTRA_TEXT, text);
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
-        Log.d(TAG, "Scheduling notification " + id + " [ " + title + " : " + text + "] with delay " + delay);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, ++mAlarmIdCounter, intent, 0);
+        Log.d(TAG, "Scheduling alarm " + alarmId + " [ " + id + " - " + title + " : " + text + "] with delay " + delay);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, 0);
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000, pendingIntent);
     }
 
@@ -48,7 +51,7 @@ public class NotificationBridge {
     }
 
     public static void cancelPending() {
-        Log.d(TAG, "Cancelling pending notifications");
+        Log.d(TAG, "Cancelling pending notifications (" + mAlarmIdCounter + ")");
         Activity currentActivity = UnityPlayer.currentActivity;
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
         

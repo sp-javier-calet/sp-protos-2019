@@ -2,6 +2,7 @@ package es.socialpoint.unity.notification;;
 
 public final class IntentParameters {
     public static final String EXTRA_ID = "nId";
+    public static final String EXTRA_ALARM_ID = "alarmId";
     public static final String EXTRA_ICON = "icon";
     public static final String EXTRA_TEXT = "text";
     public static final String EXTRA_TITLE = "title";

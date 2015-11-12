@@ -12,16 +12,16 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Received alarm " + intent.getIntExtra(IntentParameters.EXTRA_ID, 0) + 
+        Log.d(TAG, "Received alarm " + intent.getIntExtra(IntentParameters.EXTRA_ALARM_ID, 0) + 
             " [ " + intent.getStringExtra(IntentParameters.EXTRA_TITLE) + 
             " : " + intent.getStringExtra(IntentParameters.EXTRA_TEXT) + "]");
 
         NotificationShower
             .create(context, intent.getExtras())
-            .setAlarmId(intent.getIntExtra(IntentParameters.EXTRA_ID, 0))
+            .setOrigin(Origin.LOCAL_NOTIFICATION)
+            .setAlarmId(intent.getIntExtra(IntentParameters.EXTRA_ALARM_ID, 0))
             .setTitle(intent.getStringExtra(IntentParameters.EXTRA_TITLE))
             .setText(intent.getStringExtra(IntentParameters.EXTRA_TEXT))
-            .setOrigin(Origin.LOCAL_NOTIFICATION)
             .show();
     }
 }

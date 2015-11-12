@@ -81,6 +81,9 @@ public class NotificationShower {
     
     public void show() {
         Log.d(TAG, "Showing notification ID: " + mAlarmId + " [ " + mTitle + " : " + mText + "]");
+        if(mText == null && mTitle == null) {
+            Log.e(TAG, "Invalid notification shower");
+        }
 
         // Create notification builder and set default parameters and configuration
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext)
