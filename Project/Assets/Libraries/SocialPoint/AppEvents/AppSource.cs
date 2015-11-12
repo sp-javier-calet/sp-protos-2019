@@ -15,25 +15,44 @@ namespace SocialPoint.AppEvents
         public const string OthersScheme = "others";
         public const string SchemeSeparator = "://";
         public const string QuerySeparator = "?";
-        private const string SourceKeyLocalNotification = "sp_notification";
-        private const string SourceKeyWidget = "widget";
+
+        private const string SourceTitleKey = "title";
+        private const string SourceTextKey = "text";
+        private const string SourceKeyOrigin = "sp_origin";
         private const string SourceKeyFacebookLink = "applink_data";
-        private static readonly List<string> CustomSchemes = new List<string>{ LocalNotificationScheme, PushNotificationScheme, WidgetScheme, FacebookScheme, OthersScheme };
-        private static readonly Dictionary<string, string> SourceMapping = new Dictionary<string, string>
+        private const string SourceValueLocalNotification = "local_notification";
+        private const string SourceValuePushNotification = "push_notification";
+        private const string SourceValueWidget = "widget";
+
+        // Custom schemes to identify custom URLs
+        private static readonly List<string> CustomSchemes = new List<string>
         {
-            { SourceKeyLocalNotification, LocalNotificationScheme },
-            { SourceKeyWidget, WidgetScheme },
-            { SourceKeyFacebookLink, FacebookScheme }
+            LocalNotificationScheme, 
+            PushNotificationScheme, 
+            WidgetScheme, 
+            FacebookScheme, 
+            OthersScheme 
         };
+
+        // sp_origin->scheme mapping
+        private static readonly Dictionary<string, string> OriginMapping = new Dictionary<string, string>
+        {
+            { SourceValueLocalNotification, LocalNotificationScheme },
+            { SourceValuePushNotification, PushNotificationScheme },
+            { SourceValueWidget, WidgetScheme }
+        };
+
+        // Parameter filter per scheme
         private static readonly Dictionary<string, string[]> SourceFilters = new Dictionary<string, string[]>
         {
-            { LocalNotificationScheme, new string[]{} },
-            { WidgetScheme, new string[]{} },
+            { LocalNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey, "alarmId", "android.intent.extra.ALARM_COUNT" } },
+            { PushNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey } },
+            { WidgetScheme, new string[]{SourceKeyOrigin} },
             { FacebookScheme, new string[]{} },
             { OthersScheme, new string[] {"profile"} }
         };
-        private Uri _uri;
 
+        private Uri _uri;
         public string Uri
         { 
             get
@@ -117,14 +136,16 @@ namespace SocialPoint.AppEvents
         {
             string scheme = OthersScheme;
 
-            // Check source parameter for scheme mapping 
-            foreach(KeyValuePair<string, string> pair in SourceMapping)
+            // Check parameters for scheme mapping 
+            string spOrigin;
+            if(sourceParameters.TryGetValue(SourceKeyOrigin, out spOrigin))
             {
-                if(sourceParameters.ContainsKey(pair.Key))
-                {
-                    scheme = pair.Value;
-                    break;
-                }
+                // Map sp_origin parameter, if exists
+                scheme = OriginMapping[spOrigin];
+            }
+            else if(sourceParameters.ContainsKey(SourceKeyFacebookLink))
+            {
+                scheme = FacebookScheme;
             }
 
             // Apply filters
@@ -137,13 +158,17 @@ namespace SocialPoint.AppEvents
                 }
             }
 
-            /* Return null if there is no parameters after apply filters. 
-             * Otherwise, add parameters and generate a valid URI
-             */
+            // If there is no parameters for an Others sources, returns a null uri.
             Uri uri = null;
-            if(sourceParameters.Count > 0)
+            if(scheme != OthersScheme || sourceParameters.Count > 0)
             {
-                uri = new Uri(scheme + SchemeSeparator + QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters));
+                string parametersString = string.Empty;
+                if(sourceParameters.Count > 0)
+                {
+                    parametersString = QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters);
+                }
+
+                uri = new Uri(scheme + SchemeSeparator + parametersString);
             }
 
             return uri;
