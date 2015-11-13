@@ -95,7 +95,8 @@ namespace SocialPoint.ScriptEvents
 }]
 ";
 			var data = new JsonAttrParser().ParseString(json);
-			var script = new ScriptParser(_scriptDispatcher).Parse(data);
+			var scriptModel = new ScriptModelParser().Parse(data);
+			var script = new Script (_scriptDispatcher, scriptModel);
 			TestScript(script);
 		}
 

@@ -90,6 +90,7 @@ namespace SocialPoint.ScriptEvents
             {
                 _dispatcher.RemoveListener<ServerCommandAction>(OnCommandAction);
             }
+            _queue.CommandResponse -= OnCommandResponse;
         }
 
         void OnCommandResponse(Command cmd, Attr resp)

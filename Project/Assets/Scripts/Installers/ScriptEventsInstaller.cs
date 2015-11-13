@@ -25,6 +25,9 @@ public class ScriptEventsInstaller : MonoInstaller
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<OrConditionParser>();
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NotConditionParser>();
 
+        Container.Bind<IEventsBridge>().ToSingle<ScriptBridge>();
+        Container.Bind<IScriptEventsBridge>().ToSingle<ScriptBridge>();
+        
         Container.Rebind<IParser<IScriptCondition>>().ToSingleMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
         Container.Rebind<IParser<ScriptModel>>().ToSingleMethod<ScriptModelParser>(CreateScriptModelParser);
 

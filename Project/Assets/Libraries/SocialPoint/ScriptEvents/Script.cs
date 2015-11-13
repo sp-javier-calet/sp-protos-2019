@@ -90,33 +90,6 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptParser : IParser<Script>
-    {
-        IParser<ScriptModel> _modelParser;
-        IScriptEventDispatcher _dispatcher;
-        
-        public ScriptParser(IScriptEventDispatcher dispatcher):
-            this(ScriptConditions.BaseParser, dispatcher)
-        {
-        }
-
-        public ScriptParser(IParser<IScriptCondition> conditionParser, IScriptEventDispatcher dispatcher):
-            this(new ScriptModelParser(conditionParser), dispatcher)
-        {
-        }
-
-        public ScriptParser(IParser<ScriptModel> modelParser, IScriptEventDispatcher dispatcher)
-        {
-            _modelParser = modelParser;
-            _dispatcher = dispatcher;
-        }
-                
-        public Script Parse(Attr data)
-        {
-            return new Script(_dispatcher, _modelParser.Parse(data));
-        }
-    }
-
     public class ScriptStep
     {
         ScriptStepModel _model;
@@ -182,7 +155,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public void Run(Action<Decision, string, Attr> finished)
+        public void Run(Action<Decision, string, Attr> finished = null)
         {
             if(IsRunning)
             {
@@ -278,7 +251,7 @@ namespace SocialPoint.ScriptEvents
             CurrentStepNum = -1;
         }
 
-        public void Run(Action finished)
+        public void Run(Action finished=null)
         {
             if(IsRunning)
             {
