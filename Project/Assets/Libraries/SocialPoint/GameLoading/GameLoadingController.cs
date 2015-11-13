@@ -31,6 +31,7 @@ namespace SocialPoint.GameLoading
         public ILogin Login;
         public Localization Localization;
         public IAppEvents AppEvents;
+        public SocialPoint.Crash.ICrashReporter CrashReporter;
         public IGameErrorHandler ErrorHandler;
         public bool Paused = false;
 
@@ -47,10 +48,11 @@ namespace SocialPoint.GameLoading
         [SerializeField]
         float _speedUpTime = 0.5f;
 
-        private List<ILoadingOperation> _operations = new List<ILoadingOperation>();
-        private int _currentOperationIndex = -1;
-        private float _currentOperationDuration;
-        private LoadingOperation _loginOperation;
+        List<ILoadingOperation> _operations = new List<ILoadingOperation>();
+        int _currentOperationIndex = -1;
+        float _currentOperationDuration;
+        LoadingOperation _loginOperation;
+        LoadingOperation _sendCrashesBeforeLoginOperation;
 
         bool HasFinished(float progress)
         {
@@ -128,7 +130,7 @@ namespace SocialPoint.GameLoading
                         var opExpected = op.ExpectedDuration;
                         if(i == _currentOperationIndex)
                         {
-                            finishedExpected += CurrentOperationProgress*opExpected;
+                            finishedExpected += CurrentOperationProgress * opExpected;
                         }
                         else if(i < _currentOperationIndex)
                         {
@@ -207,6 +209,12 @@ namespace SocialPoint.GameLoading
             {
                 Localization = Localization.Default;
             }
+
+            if(CrashReporter != null)
+            {
+                _sendCrashesBeforeLoginOperation = new LoadingOperation(FakeLoginDuration, DoSendCrashesBeforeLoginOperation);
+                RegisterOperation(_sendCrashesBeforeLoginOperation);
+            }
                 
             if(Login != null)
             {
@@ -235,7 +243,7 @@ namespace SocialPoint.GameLoading
             }
             else
             {
-                _operations.Insert(_currentOperationIndex+1, operation);
+                _operations.Insert(_currentOperationIndex + 1, operation);
             }
         }
 
@@ -243,7 +251,7 @@ namespace SocialPoint.GameLoading
         {
             var percent = Progress;
             var op = CurrentOperation;
-            if(_currentOperationIndex < 0 || HasFinishedCurrentOperation )
+            if(_currentOperationIndex < 0 || HasFinishedCurrentOperation)
             {
                 if(op != null)
                 {
@@ -281,7 +289,7 @@ namespace SocialPoint.GameLoading
 
         virtual protected void OnOperationChange(ILoadingOperation operation)
         {
-            DebugLog("op " + (_currentOperationIndex + 1) + " "+operation.Progress.ToString("0.00")+": "+operation.Message);
+            DebugLog("op " + (_currentOperationIndex + 1) + " " + operation.Progress.ToString("0.00") + ": " + operation.Message);
         }
 
         virtual protected void OnOperationEnd(ILoadingOperation operation)
@@ -423,5 +431,15 @@ namespace SocialPoint.GameLoading
             }
         }
 
+        void DoSendCrashesBeforeLoginOperation()
+        {
+            _sendCrashesBeforeLoginOperation.Message = "sending crashes before login...";
+            if(_progressContainer != null)
+            {
+                _progressContainer.SetActive(true);
+            }
+
+            CrashReporter.SendCrashesBeforeLogin(() => _sendCrashesBeforeLoginOperation.Finish());
+        }
     }
 }
