@@ -44,6 +44,7 @@ public class LoginInstaller : MonoInstaller
         public uint AutoupdateFriendsPhotoSize = Login.DefaultAutoUpdateFriendsPhotoSize;
         public uint MaxSecurityTokenErrorRetries = Login.DefaultMaxSecurityTokenErrorRetries;
         public uint MaxConnectivityErrorRetries = Login.DefaultMaxConnectivityErrorRetries;
+        public bool EnableLinkConfirmRetries = Login.DefaultEnableLinkConfirmRetries;
         public uint UserMappingsBlock = Login.DefaultUserMappingsBlock;
         public bool FacebookLoginWithUi = false;
 	};
@@ -74,7 +75,8 @@ public class LoginInstaller : MonoInstaller
         Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
         Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
         Container.BindInstance("login_max_retries", new Login.LoginRetries { SecurityTokenErrorRetries = (int)Settings.MaxSecurityTokenErrorRetries, 
-                                                                             ConnectivityErrorRetries = (int)Settings.MaxConnectivityErrorRetries });
+                                                                             ConnectivityErrorRetries = (int)Settings.MaxConnectivityErrorRetries,
+                                                                             EnableLinkConfirmRetries = Settings.EnableLinkConfirmRetries });
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
 
         Container.Rebind<ILogin>().ToSingle<Login>();

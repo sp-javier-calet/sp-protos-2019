@@ -91,6 +91,7 @@ namespace SocialPoint.Login
 
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
+        public const bool DefaultEnableLinkConfirmRetries = false;
         public const float DefaultTimeout = 30.0f;
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
@@ -336,7 +337,8 @@ namespace SocialPoint.Login
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
             MaxLoginRetries = new LoginRetries { 
                 SecurityTokenErrorRetries = DefaultMaxSecurityTokenErrorRetries, 
-                ConnectivityErrorRetries = DefaultMaxConnectivityErrorRetries 
+                ConnectivityErrorRetries = DefaultMaxConnectivityErrorRetries,
+                EnableLinkConfirmRetries = DefaultEnableLinkConfirmRetries
             };
             _availableRetries = MaxLoginRetries;
             UserMappingsBlock = DefaultUserMappingsBlock;
