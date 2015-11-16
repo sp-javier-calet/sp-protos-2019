@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public abstract class DecoratorInstaller : MonoBehaviour
     {
         [Inject]

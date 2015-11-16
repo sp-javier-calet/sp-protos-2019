@@ -214,5 +214,23 @@ namespace ModestTree
 
             return numRemoved;
         }
+
+        // LINQ already has a method called "Contains" that does the same thing as this
+        // BUT it fails to work with Mono 3.5 in some cases.
+        // For example the following prints False, True in Mono 3.5 instead of True, True like it should:
+        //
+        // IEnumerable<string> args = new string[]
+        // {
+        //     "",
+        //     null,
+        // };
+
+        // Log.Info(args.ContainsItem(null));
+        // Log.Info(args.Where(x => x == null).Any());
+        public static bool ContainsItem<T>(this IEnumerable<T> list, T value)
+        {
+            // Use object.Equals to support null values
+            return list.Where(x => object.Equals(x, value)).Any();
+        }
     }
 }

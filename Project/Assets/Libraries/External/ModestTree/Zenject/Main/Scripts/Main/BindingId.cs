@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class BindingId : IEquatable<BindingId>
     {
         public readonly Type Type;

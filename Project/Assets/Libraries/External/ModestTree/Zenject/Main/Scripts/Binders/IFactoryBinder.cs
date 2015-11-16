@@ -9,6 +9,7 @@ using UnityEngine;
 namespace Zenject
 {
     ////////////////////////////// Zero parameters //////////////////////////////
+    [System.Diagnostics.DebuggerStepThrough]
     public class IFactoryBinder<TContract>
     {
         readonly DiContainer _container;
@@ -34,7 +35,8 @@ namespace Zenject
 
         public BindingConditionSetter ToFactory()
         {
-            Assert.That(!typeof(TContract).IsAbstract);
+            Assert.That(!typeof(TContract).IsAbstract,
+                "Unable to create abstract type '{0}' in Factory", typeof(TContract).Name());
             return _container.Bind<IFactory<TContract>>(_identifier)
                 .ToTransient<Factory<TContract>>();
         }
@@ -86,6 +88,7 @@ namespace Zenject
     }
 
     ////////////////////////////// One parameter //////////////////////////////
+    [System.Diagnostics.DebuggerStepThrough]
     public class IFactoryBinder<TParam1, TContract>
     {
         readonly DiContainer _container;
@@ -162,6 +165,7 @@ namespace Zenject
     }
 
     ////////////////////////////// Two parameters //////////////////////////////
+    [System.Diagnostics.DebuggerStepThrough]
     public class IFactoryBinder<TParam1, TParam2, TContract>
     {
         readonly DiContainer _container;
@@ -238,6 +242,7 @@ namespace Zenject
     }
 
     ////////////////////////////// Three parameters //////////////////////////////
+    [System.Diagnostics.DebuggerStepThrough]
     public class IFactoryBinder<TParam1, TParam2, TParam3, TContract>
     {
         readonly DiContainer _container;
@@ -315,6 +320,7 @@ namespace Zenject
 
 
     ////////////////////////////// Four parameters //////////////////////////////
+    [System.Diagnostics.DebuggerStepThrough]
     public class IFactoryBinder<TParam1, TParam2, TParam3, TParam4, TContract>
     {
         readonly DiContainer _container;

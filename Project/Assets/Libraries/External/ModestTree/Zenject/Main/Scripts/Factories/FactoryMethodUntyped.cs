@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Zenject
 {
     // Instantiate using a delegate
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryMethodUntyped<TContract> : IFactoryUntyped<TContract>
     {
         readonly DiContainer _container;

@@ -1,12 +1,15 @@
 #if !ZEN_NOT_UNITY3D
 
 using System;
+using System.Collections;
+using System.Linq;
 using ModestTree;
-using ModestTree.Util.Debugging;
+using ModestTree.Util;
 using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public sealed class SceneDecoratorCompositionRoot : MonoBehaviour
     {
         public string SceneName;
@@ -25,16 +28,36 @@ namespace Zenject
 
         public void Awake()
         {
-            DontDestroyOnLoad(gameObject);
+            StartCoroutine(Init());
+        }
 
-            _beforeInstallHooks = CompositionRoot.BeforeInstallHooks;
-            CompositionRoot.BeforeInstallHooks = null;
+        IEnumerator Init()
+        {
+#pragma warning disable 168
+            // Ensure the global comp root is initialized so that it doesn't get parented to us below
+            var globalRoot = GlobalCompositionRoot.Instance;
+#pragma warning restore 168
 
-            _afterInstallHooks = CompositionRoot.AfterInstallHooks;
-            CompositionRoot.AfterInstallHooks = null;
+            _beforeInstallHooks = SceneCompositionRoot.BeforeInstallHooks;
+            SceneCompositionRoot.BeforeInstallHooks = null;
 
-            ZenUtil.LoadScene(
+            _afterInstallHooks = SceneCompositionRoot.AfterInstallHooks;
+            SceneCompositionRoot.AfterInstallHooks = null;
+
+            var rootObjectsBeforeLoad = UnityUtil.GetRootGameObjects();
+
+            ZenUtil.LoadSceneAdditive(
                 SceneName, AddPreBindings, AddPostBindings);
+
+            // Wait one frame for objects to be added to the scene heirarchy
+            yield return null;
+
+            var newlyAddedObjects = UnityUtil.GetRootGameObjects().Except(rootObjectsBeforeLoad);
+
+            foreach (var obj in newlyAddedObjects)
+            {
+                obj.transform.SetParent(this.transform);
+            }
         }
 
         public void AddPreBindings(DiContainer container)
@@ -45,18 +68,14 @@ namespace Zenject
                 _beforeInstallHooks = null;
             }
 
-            // Make our scene graph a child of the new CompositionRoot so any monobehaviour's that are
-            // built into the scene get injected
-            transform.parent = container.Resolve<CompositionRoot>().transform;
-
-            CompositionRootHelper.InstallSceneInstallers(container, PreInstallers);
+            container.Install(PreInstallers);
 
             ProcessDecoratorInstallers(container, true);
         }
 
         public void AddPostBindings(DiContainer container)
         {
-            CompositionRootHelper.InstallSceneInstallers(container, PostInstallers);
+            container.Install(PostInstallers);
 
             ProcessDecoratorInstallers(container, false);
 
@@ -76,11 +95,7 @@ namespace Zenject
 
             foreach (var installer in DecoratorInstallers)
             {
-                if (installer == null)
-                {
-                    Log.Warn("Found null installer in composition root");
-                    continue;
-                }
+                Assert.IsNotNull(installer, "Found null installer in composition root");
 
                 if (installer.enabled)
                 {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public abstract class ProviderBase : IDisposable
     {
         string _identifier;

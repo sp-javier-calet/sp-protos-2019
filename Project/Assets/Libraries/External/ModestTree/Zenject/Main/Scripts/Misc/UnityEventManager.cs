@@ -2,11 +2,11 @@
 
 using System;
 using ModestTree.Util;
-using ModestTree.Util.Debugging;
 using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class UnityEventManager : MonoBehaviour, ITickable
     {
         public event Action ApplicationGainedFocus = delegate { };
@@ -35,6 +35,8 @@ namespace Zenject
 
         public event Action ScreenSizeChanged = delegate { };
 
+        public event Action Started = delegate { };
+
         Vector3 _lastMousePosition;
 
         int _lastWidth;
@@ -50,6 +52,7 @@ namespace Zenject
         {
             _lastWidth = Screen.width;
             _lastHeight = Screen.height;
+            Started();
         }
 
         public void Tick()

@@ -7,6 +7,7 @@ namespace Zenject
     // factory handles that for us
 
     // Zero parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TContract, TConcrete> : IFactory<TContract>
         where TConcrete : TContract
     {
@@ -24,6 +25,7 @@ namespace Zenject
     }
 
     // One parameter
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TContract, TConcrete> : IFactory<TParam1, TContract>
         where TConcrete : TContract
     {
@@ -41,6 +43,7 @@ namespace Zenject
     }
 
     // Two parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TContract, TConcrete> : IFactory<TParam1, TParam2, TContract>
         where TConcrete : TContract
     {
@@ -59,6 +62,7 @@ namespace Zenject
     }
 
     // Three parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TContract, TConcrete> : IFactory<TParam1, TParam2, TParam3, TContract>
         where TConcrete : TContract
     {
@@ -76,6 +80,7 @@ namespace Zenject
     }
 
     // Four parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TParam4, TContract, TConcrete> :
         IFactory<TParam1, TParam2, TParam3, TParam4, TContract>
         where TConcrete : TContract
@@ -95,6 +100,7 @@ namespace Zenject
     }
 
     // Five parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TParam4, TParam5, TContract, TConcrete> :
         IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>
         where TConcrete : TContract
@@ -114,6 +120,7 @@ namespace Zenject
     }
 
     // Six parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract, TConcrete> :
         IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>
         where TConcrete : TContract
@@ -133,6 +140,7 @@ namespace Zenject
     }
 
     // Seven parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TContract, TConcrete> :
         IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TContract>
         where TConcrete : TContract
@@ -152,6 +160,7 @@ namespace Zenject
     }
 
     // Eigth parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TContract, TConcrete> :
         IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TContract>
         where TConcrete : TContract
@@ -171,6 +180,7 @@ namespace Zenject
     }
 
     // Nine parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TContract, TConcrete> :
         IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TContract>
         where TConcrete : TContract
@@ -190,6 +200,7 @@ namespace Zenject
     }
 
     // Ten parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryNested<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract, TConcrete> :
         IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>
         where TConcrete : TContract

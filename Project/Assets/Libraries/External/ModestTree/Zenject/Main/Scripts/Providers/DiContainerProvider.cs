@@ -5,6 +5,7 @@ using System.Linq;
 namespace Zenject
 {
     // This provider can be used to create nested containers
+    [System.Diagnostics.DebuggerStepThrough]
     public class DiContainerProvider : ProviderBase
     {
         DiContainer _container;

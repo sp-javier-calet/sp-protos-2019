@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Zenject
 {
     // Zero parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<T> : IValidatableFactory, IFactory<T>
     {
         // Use inject rather than a constructor parameter so that
@@ -36,6 +37,7 @@ namespace Zenject
     }
 
     // One parameter
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TValue> : IValidatableFactory, IFactory<TParam1, TValue>
     {
         [Inject]
@@ -70,6 +72,7 @@ namespace Zenject
     }
 
     // Two parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TValue> : IValidatableFactory, IFactory<TParam1, TParam2, TValue>
     {
         [Inject]
@@ -105,6 +108,7 @@ namespace Zenject
     }
 
     // Three parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TValue> : IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TValue>
     {
         [Inject]
@@ -141,6 +145,7 @@ namespace Zenject
     }
 
     // Four parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TParam4, TValue> :
         IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TValue>
     {
@@ -180,6 +185,7 @@ namespace Zenject
     }
 
     // Five parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> :
         IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
     {
@@ -220,6 +226,7 @@ namespace Zenject
     }
 
     // Six parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> :
         IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue>
     {
@@ -261,6 +268,7 @@ namespace Zenject
     }
 
     // Seven parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue> :
         IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue>
     {
@@ -303,6 +311,7 @@ namespace Zenject
     }
 
     // Eigth parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TValue> :
         IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TValue>
     {
@@ -346,6 +355,7 @@ namespace Zenject
     }
 
     // Nine parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TValue> :
         IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TValue>
     {
@@ -390,6 +400,7 @@ namespace Zenject
     }
 
     // Ten parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public class Factory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TValue> :
         IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TValue>
     {

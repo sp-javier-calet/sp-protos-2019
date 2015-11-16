@@ -7,6 +7,7 @@ using ModestTree;
 namespace Zenject
 {
     // Instantiate given concrete class
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryUntyped<TContract, TConcrete> : IFactoryUntyped<TContract> where TConcrete : TContract
     {
         [Inject]
@@ -37,6 +38,7 @@ namespace Zenject
     }
 
     // Instantiate given contract class
+    [System.Diagnostics.DebuggerStepThrough]
     public class FactoryUntyped<TContract> : IFactoryUntyped<TContract>
     {
         [Inject]

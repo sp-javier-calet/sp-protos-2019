@@ -37,7 +37,7 @@ public class GameInstaller : MonoInstaller
         Container.Rebind<ISerializer<PlayerModel>>().ToSingle<PlayerParser>();
         Container.Rebind<IParser<PlayerModel>>().ToSingle<PlayerParser>();
 
-        Container.Rebind<GameLoader>().ToSingle();
+        Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
     }
     
     void OnGameModelAssigned()

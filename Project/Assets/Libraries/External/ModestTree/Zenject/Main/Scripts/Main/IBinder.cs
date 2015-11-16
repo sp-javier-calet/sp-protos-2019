@@ -39,78 +39,31 @@ namespace Zenject
 
         IFactoryUntypedBinder<TContract> BindIFactoryUntyped<TContract>(string identifier);
         IFactoryUntypedBinder<TContract> BindIFactoryUntyped<TContract>();
-    }
 
-    public static class BinderExtensions
-    {
-        public static BindingConditionSetter BindInstance<TContract>(this DiContainer container, string identifier, TContract obj)
-        {
-            return container.Bind<TContract>(identifier).ToInstance(obj);
-        }
+        BindingConditionSetter BindInstance<TContract>(string identifier, TContract obj);
 
-        public static BindingConditionSetter BindInstance<TContract>(this DiContainer container, TContract obj)
-        {
-            return container.Bind<TContract>().ToInstance(obj);
-        }
+        BindingConditionSetter BindInstance<TContract>(TContract obj);
 
-        public static BinderGeneric<TContract> Bind<TContract>(this DiContainer container)
-        {
-            return container.Bind<TContract>(null);
-        }
+        BinderGeneric<TContract> Bind<TContract>();
 
-        public static BinderUntyped Bind(this DiContainer container, Type contractType)
-        {
-            return container.Bind(contractType, null);
-        }
+        BinderUntyped Bind(Type contractType);
 
-        public static bool Unbind<TContract>(this DiContainer container)
-        {
-            return container.Unbind<TContract>(null);
-        }
+        bool Unbind<TContract>();
 
-        public static bool HasBinding<TContract>(this DiContainer container)
-        {
-            return container.HasBinding<TContract>(null);
-        }
+        bool HasBinding<TContract>();
 
-        public static bool HasBinding<TContract>(this DiContainer container, string identifier)
-        {
-            return container.HasBinding(
-                new InjectContext(container, typeof(TContract), identifier));
-        }
+        bool HasBinding<TContract>(string identifier);
 
-        public static void BindAllInterfacesToSingle<TConcrete>(this DiContainer container)
-        {
-            container.BindAllInterfacesToSingle(typeof(TConcrete));
-        }
+        void BindAllInterfacesToSingle<TConcrete>();
 
-        public static void BindAllInterfacesToSingle(this DiContainer container, Type concreteType)
-        {
-            foreach (var interfaceType in concreteType.GetInterfaces())
-            {
-                Assert.That(concreteType.DerivesFrom(interfaceType));
-                container.Bind(interfaceType).ToSingle(concreteType);
-            }
-        }
+        void BindAllInterfacesToSingle(Type concreteType);
 
 #if !ZEN_NOT_UNITY3D
-        public static BindingConditionSetter BindGameObjectFactory<T>(
-            this DiContainer container, GameObject prefab)
+        BindingConditionSetter BindGameObjectFactory<T>(
+            GameObject prefab)
             // This would be useful but fails with VerificationException's in webplayer builds for some reason
             //where T : GameObjectFactory
-            where T : class
-        {
-            if (prefab == null)
-            {
-                throw new ZenjectBindException(
-                    "Null prefab provided to BindGameObjectFactory for type '{0}'".Fmt(typeof(T).Name()));
-            }
-
-            // We could bind the factory ToSingle but doing it this way is better
-            // since it allows us to have multiple game object factories that
-            // use different prefabs and have them injected into different places
-            return container.Bind<T>().ToMethod((ctx) => ctx.Container.Instantiate<T>(prefab));
-        }
+            where T : class;
 #endif
     }
 }

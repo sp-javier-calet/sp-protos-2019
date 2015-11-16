@@ -22,215 +22,66 @@ namespace Zenject
         void InjectExplicit(
             object injectable, IEnumerable<TypeValuePair> extraArgs,
             bool shouldUseAll, ZenjectTypeInfo typeInfo, InjectContext context, string concreteIdentifier);
-    }
 
-    public static class ResolverExtensions
-    {
 #if !ZEN_NOT_UNITY3D
         // Inject dependencies into child game objects
-        public static void InjectGameObject(
-            this IResolver container, GameObject gameObject, bool recursive, bool includeInactive)
-        {
-            container.InjectGameObject(gameObject, recursive, includeInactive, Enumerable.Empty<object>());
-        }
+        void InjectGameObject(
+            GameObject gameObject, bool recursive, bool includeInactive);
 
-        public static void InjectGameObject(
-            this IResolver container, GameObject gameObject, bool recursive)
-        {
-            container.InjectGameObject(gameObject, recursive, false);
-        }
+        void InjectGameObject(
+            GameObject gameObject, bool recursive);
 
-        public static void InjectGameObject(
-            this IResolver container, GameObject gameObject)
-        {
-            container.InjectGameObject(gameObject, true, false);
-        }
+        void InjectGameObject(
+            GameObject gameObject);
 
-        public static void InjectGameObject(
-            this IResolver container, GameObject gameObject,
-            bool recursive, bool includeInactive, IEnumerable<object> extraArgs)
-        {
-            container.InjectGameObject(
-                gameObject, recursive, includeInactive, extraArgs, null);
-        }
+        void InjectGameObject(
+            GameObject gameObject,
+            bool recursive, bool includeInactive, IEnumerable<object> extraArgs);
 
-        public static void InjectGameObject(
-            this IResolver container, GameObject gameObject,
-            bool recursive, bool includeInactive, IEnumerable<object> extraArgs, InjectContext context)
-        {
-            IEnumerable<MonoBehaviour> components;
-
-            if (recursive)
-            {
-                components = UnityUtil.GetComponentsInChildrenBottomUp<MonoBehaviour>(gameObject, includeInactive);
-            }
-            else
-            {
-                if (!includeInactive && !gameObject.activeSelf)
-                {
-                    return;
-                }
-
-                components = gameObject.GetComponents<MonoBehaviour>();
-            }
-
-            foreach (var component in components)
-            {
-                // null if monobehaviour link is broken
-                if (component != null)
-                {
-                    container.Inject(component, extraArgs, false, context);
-                }
-            }
-        }
+        void InjectGameObject(
+            GameObject gameObject,
+            bool recursive, bool includeInactive, IEnumerable<object> extraArgs, InjectContext context);
 #endif
 
-        public static void Inject(this IResolver container, object injectable)
-        {
-            container.Inject(injectable, Enumerable.Empty<object>());
-        }
+        void Inject(object injectable);
+        void Inject(object injectable, IEnumerable<object> additional);
+        void Inject(object injectable, IEnumerable<object> additional, bool shouldUseAll);
+        void Inject(
+            object injectable, IEnumerable<object> additional, bool shouldUseAll, InjectContext context);
+        void Inject(
+            object injectable,
+            IEnumerable<object> additional, bool shouldUseAll, InjectContext context, ZenjectTypeInfo typeInfo);
 
-        public static void Inject(this IResolver container, object injectable, IEnumerable<object> additional)
-        {
-            container.Inject(injectable, additional, true);
-        }
+        void InjectExplicit(object injectable, List<TypeValuePair> additional);
+        void InjectExplicit(object injectable, List<TypeValuePair> additional, InjectContext context);
 
-        public static void Inject(this IResolver container, object injectable, IEnumerable<object> additional, bool shouldUseAll)
-        {
-            container.Inject(
-                injectable, additional, shouldUseAll, new InjectContext((DiContainer)container, injectable.GetType(), null));
-        }
+        List<Type> ResolveTypeAll(Type type);
 
-        internal static void Inject(
-            this IResolver container, object injectable, IEnumerable<object> additional, bool shouldUseAll, InjectContext context)
-        {
-            container.Inject(
-                injectable, additional, shouldUseAll, context, TypeAnalyzer.GetInfo(injectable.GetType()));
-        }
+        TContract Resolve<TContract>();
+        TContract Resolve<TContract>(string identifier);
 
-        internal static void Inject(
-            this IResolver container, object injectable,
-            IEnumerable<object> additional, bool shouldUseAll, InjectContext context, ZenjectTypeInfo typeInfo)
-        {
-            Assert.That(!additional.Contains(null),
-                "Null value given to injection argument list. In order to use null you must provide a List<TypeValuePair> and not just a list of objects");
+        TContract TryResolve<TContract>()
+            where TContract : class;
+        TContract TryResolve<TContract>(string identifier)
+            where TContract : class;
 
-            container.InjectExplicit(
-                injectable, InstantiateUtil.CreateTypeValueList(additional), shouldUseAll, typeInfo, context, null);
-        }
+        object TryResolve(Type contractType);
+        object TryResolve(Type contractType, string identifier);
 
-        public static void InjectExplicit(this IResolver container, object injectable, List<TypeValuePair> additional)
-        {
-            container.InjectExplicit(
-                injectable, additional, new InjectContext((DiContainer)container, injectable.GetType(), null));
-        }
+        object Resolve(Type contractType);
+        object Resolve(Type contractType, string identifier);
 
-        public static void InjectExplicit(this IResolver container, object injectable, List<TypeValuePair> additional, InjectContext context)
-        {
-            container.InjectExplicit(
-                injectable, additional, true,
-                TypeAnalyzer.GetInfo(injectable.GetType()), context, null);
-        }
+        TContract Resolve<TContract>(InjectContext context);
 
-        public static List<Type> ResolveTypeAll(this IResolver container, Type type)
-        {
-            return container.ResolveTypeAll(new InjectContext((DiContainer)container, type, null));
-        }
+        List<TContract> ResolveAll<TContract>();
+        List<TContract> ResolveAll<TContract>(bool optional);
+        List<TContract> ResolveAll<TContract>(string identifier);
+        List<TContract> ResolveAll<TContract>(string identifier, bool optional);
+        List<TContract> ResolveAll<TContract>(InjectContext context);
 
-        public static TContract Resolve<TContract>(this IResolver container)
-        {
-            return container.Resolve<TContract>((string)null);
-        }
-
-        public static TContract Resolve<TContract>(this IResolver container, string identifier)
-        {
-            return container.Resolve<TContract>(new InjectContext((DiContainer)container, typeof(TContract), identifier));
-        }
-
-        public static TContract TryResolve<TContract>(this IResolver container)
-            where TContract : class
-        {
-            return container.TryResolve<TContract>((string)null);
-        }
-
-        public static TContract TryResolve<TContract>(this IResolver container, string identifier)
-            where TContract : class
-        {
-            return (TContract)container.TryResolve(typeof(TContract), identifier);
-        }
-
-        public static object TryResolve(this IResolver container, Type contractType)
-        {
-            return container.TryResolve(contractType, null);
-        }
-
-        public static object TryResolve(this IResolver container, Type contractType, string identifier)
-        {
-            return container.Resolve(new InjectContext((DiContainer)container, contractType, identifier, true));
-        }
-
-        public static object Resolve(this IResolver container, Type contractType)
-        {
-            return container.Resolve(new InjectContext((DiContainer)container, contractType, null));
-        }
-
-        public static object Resolve(this IResolver container, Type contractType, string identifier)
-        {
-            return container.Resolve(new InjectContext((DiContainer)container, contractType, identifier));
-        }
-
-        public static TContract Resolve<TContract>(this IResolver container, InjectContext context)
-        {
-            Assert.IsEqual(context.MemberType, typeof(TContract));
-            return (TContract) container.Resolve(context);
-        }
-
-        public static List<TContract> ResolveAll<TContract>(this IResolver container)
-        {
-            return container.ResolveAll<TContract>((string)null);
-        }
-
-        public static List<TContract> ResolveAll<TContract>(this IResolver container, bool optional)
-        {
-            return container.ResolveAll<TContract>(null, optional);
-        }
-
-        public static List<TContract> ResolveAll<TContract>(this IResolver container, string identifier)
-        {
-            return container.ResolveAll<TContract>(identifier, false);
-        }
-
-        public static List<TContract> ResolveAll<TContract>(this IResolver container, string identifier, bool optional)
-        {
-            var context = new InjectContext((DiContainer)container, typeof(TContract), identifier, optional);
-            return container.ResolveAll<TContract>(context);
-        }
-
-        public static List<TContract> ResolveAll<TContract>(this IResolver container, InjectContext context)
-        {
-            Assert.IsEqual(context.MemberType, typeof(TContract));
-            return (List<TContract>) container.ResolveAll(context);
-        }
-
-        public static IList ResolveAll(this IResolver container, Type contractType)
-        {
-            return container.ResolveAll(contractType, null);
-        }
-
-        public static IList ResolveAll(this IResolver container, Type contractType, string identifier)
-        {
-            return container.ResolveAll(contractType, identifier, false);
-        }
-
-        public static IList ResolveAll(this IResolver container, Type contractType, bool optional)
-        {
-            return container.ResolveAll(contractType, null, optional);
-        }
-
-        public static IList ResolveAll(this IResolver container, Type contractType, string identifier, bool optional)
-        {
-            var context = new InjectContext((DiContainer)container, contractType, identifier, optional);
-            return container.ResolveAll(context);
-        }
+        IList ResolveAll(Type contractType);
+        IList ResolveAll(Type contractType, string identifier);
+        IList ResolveAll(Type contractType, bool optional);
+        IList ResolveAll(Type contractType, string identifier, bool optional);
     }
 }

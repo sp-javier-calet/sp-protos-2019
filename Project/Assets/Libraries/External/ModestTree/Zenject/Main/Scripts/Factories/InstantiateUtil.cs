@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class TypeValuePair
     {
         public Type Type;
@@ -17,11 +18,12 @@ namespace Zenject
         }
     }
 
+    [System.Diagnostics.DebuggerStepThrough]
     internal static class InstantiateUtil
     {
         public static List<TypeValuePair> CreateTypeValueList(IEnumerable<object> args)
         {
-            Assert.That(!args.Contains(null));
+            Assert.That(!args.ContainsItem(null));
             return args.Select(x => new TypeValuePair(x.GetType(), x)).ToList();
         }
 

@@ -4,6 +4,10 @@ using System.Reflection;
 using System.Linq;
 using ModestTree;
 
+#if !ZEN_NOT_UNITY3D
+using UnityEngine;
+#endif
+
 namespace Zenject
 {
     internal static class TypeAnalyzer
@@ -14,10 +18,15 @@ namespace Zenject
         {
             ZenjectTypeInfo info;
 
-            if (!_typeInfo.TryGetValue(type, out info))
+#if ZEN_MULTITHREADING
+            lock (_typeInfo)
+#endif
             {
-                info = CreateTypeInfo(type);
-                _typeInfo.Add(type, info);
+                if (!_typeInfo.TryGetValue(type, out info))
+                {
+                    info = CreateTypeInfo(type);
+                    _typeInfo.Add(type, info);
+                }
             }
 
             return info;
@@ -50,30 +59,35 @@ namespace Zenject
         static InjectableInfo CreateInjectableInfoForParam(
             Type parentType, ParameterInfo paramInfo)
         {
-            var injectAttributes = paramInfo.AllAttributes<InjectAttribute>().ToList();
-            var injectOptionalAttributes = paramInfo.AllAttributes<InjectOptionalAttribute>().ToList();
+            var injectAttributes = paramInfo.AllAttributes<InjectAttributeBase>().ToList();
+
+            Assert.That(injectAttributes.Count <= 1,
+                "Found multiple 'Inject' attributes on type parameter '{0}' of type '{1}'.  Parameter should only have one", paramInfo.Name, parentType.Name());
+
+            var injectAttr = injectAttributes.SingleOrDefault();
 
             string identifier = null;
+            bool isOptional = false;
+            bool localOnly = false;
 
-            Assert.That(injectAttributes.IsEmpty() || injectOptionalAttributes.IsEmpty(),
-                "Found both 'InjectOptional' and 'Inject' attributes on type parameter '{0}' of type '{1}'.  Parameter should only have one or the other.", paramInfo.Name, parentType.Name());
+            if (injectAttr != null)
+            {
+                identifier = injectAttr.Identifier;
+                isOptional = injectAttr.IsOptional;
+                localOnly = injectAttr.LocalOnly;
+            }
 
-            if (injectAttributes.Any())
-            {
-                identifier = injectAttributes.Single().Identifier;
-            }
-            else if (injectOptionalAttributes.Any())
-            {
-                identifier = injectOptionalAttributes.Single().Identifier;
-            }
+            bool isOptionalWithADefaultValue = (paramInfo.Attributes & ParameterAttributes.HasDefault) == ParameterAttributes.HasDefault;
 
             return new InjectableInfo(
-                injectOptionalAttributes.Any(),
+                isOptionalWithADefaultValue || isOptional,
                 identifier,
                 paramInfo.Name,
                 paramInfo.ParameterType,
                 parentType,
-                null);
+                null,
+                isOptionalWithADefaultValue ? paramInfo.DefaultValue : null,
+                localOnly);
         }
 
         static List<PostInjectableInfo> GetPostInjectMethods(Type type)
@@ -112,7 +126,7 @@ namespace Zenject
         {
             var propInfos = type.GetAllProperties(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.HasAttribute(typeof(InjectAttribute), typeof(InjectOptionalAttribute)));
+                .Where(x => x.HasAttribute(typeof(InjectAttributeBase)));
 
             foreach (var propInfo in propInfos)
             {
@@ -124,7 +138,7 @@ namespace Zenject
         {
             var fieldInfos = type.GetAllFields(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.HasAttribute(typeof(InjectAttribute), typeof(InjectOptionalAttribute)));
+                .Where(x => x.HasAttribute(typeof(InjectAttributeBase)));
 
             foreach (var fieldInfo in fieldInfos)
             {
@@ -134,21 +148,22 @@ namespace Zenject
 
         static InjectableInfo CreateForMember(MemberInfo memInfo, Type parentType)
         {
-            var injectAttributes = memInfo.AllAttributes<InjectAttribute>().ToList();
-            var injectOptionalAttributes = memInfo.AllAttributes<InjectOptionalAttribute>().ToList();
+            var injectAttributes = memInfo.AllAttributes<InjectAttributeBase>().ToList();
+
+            Assert.That(injectAttributes.Count <= 1,
+                "Found multiple 'Inject' attributes on type field '{0}' of type '{1}'.  Field should only container one Inject attribute", memInfo.Name, parentType.Name());
+
+            var injectAttr = injectAttributes.SingleOrDefault();
 
             string identifier = null;
+            bool isOptional = false;
+            bool localOnly = false;
 
-            Assert.That(injectAttributes.IsEmpty() || injectOptionalAttributes.IsEmpty(),
-                "Found both 'InjectOptional' and 'Inject' attributes on type field '{0}' of type '{1}'.  Field should only have one or the other.", memInfo.Name, parentType.Name());
-
-            if (injectAttributes.Any())
+            if (injectAttr != null)
             {
-                identifier = injectAttributes.Single().Identifier;
-            }
-            else if (injectOptionalAttributes.Any())
-            {
-                identifier = injectOptionalAttributes.Single().Identifier;
+                identifier = injectAttr.Identifier;
+                isOptional = injectAttr.IsOptional;
+                localOnly = injectAttr.LocalOnly;
             }
 
             Type memberType;
@@ -169,18 +184,29 @@ namespace Zenject
             }
 
             return new InjectableInfo(
-                injectOptionalAttributes.Any(),
+                isOptional,
                 identifier,
                 memInfo.Name,
                 memberType,
                 parentType,
-                setter);
+                setter,
+                null,
+                localOnly);
         }
 
         static ConstructorInfo GetInjectConstructor(Type parentType)
         {
             var constructors = parentType.GetConstructors(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+#if !ZEN_NOT_UNITY3D
+            if (Application.platform == RuntimePlatform.WP8Player)
+            {
+                // WP8 generates a dummy constructor with signature (internal Classname(UIntPtr dummy))
+                // So just ignore that
+                constructors = constructors.Where(c => !IsWp8GeneratedConstructor(c)).ToArray();
+            }
+#endif
 
             if (constructors.IsEmpty())
             {
@@ -194,6 +220,12 @@ namespace Zenject
             }
 
             return constructors[0];
+        }
+
+        static bool IsWp8GeneratedConstructor(ConstructorInfo c)
+        {
+            ParameterInfo[] args = c.GetParameters();
+            return args.Length == 1 && args[0].ParameterType == typeof(UIntPtr) && args[0].Name == "dummy";
         }
     }
 }

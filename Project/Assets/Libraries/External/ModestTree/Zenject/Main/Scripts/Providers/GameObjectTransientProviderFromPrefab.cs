@@ -8,31 +8,36 @@ using UnityEngine;
 
 namespace Zenject
 {
-    public class GameObjectTransientProviderFromPrefab<T> : ProviderBase where T : Component
+    public class GameObjectTransientProviderFromPrefab : ProviderBase
     {
-        DiContainer _container;
-        GameObject _template;
+        readonly Type _concreteType;
+        readonly DiContainer _container;
+        readonly GameObject _template;
 
-        public GameObjectTransientProviderFromPrefab(DiContainer container, GameObject template)
+        public GameObjectTransientProviderFromPrefab(Type concreteType, DiContainer container, GameObject template)
         {
+            // Don't do this because it might be an interface
+            //Assert.That(typeof(T).DerivesFrom<Component>());
+
+            _concreteType = concreteType;
             _container = container;
             _template = template;
         }
 
         public override Type GetInstanceType()
         {
-            return typeof(T);
+            return _concreteType;
         }
 
         public override object GetInstance(InjectContext context)
         {
-            Assert.That(typeof(T).DerivesFromOrEqual(context.MemberType));
-            return _container.InstantiatePrefabForComponent<T>(_template);
+            Assert.That(_concreteType.DerivesFromOrEqual(context.MemberType));
+            return _container.InstantiatePrefabForComponent(_concreteType, _template);
         }
 
         public override IEnumerable<ZenjectResolveException> ValidateBinding(InjectContext context)
         {
-            return BindingValidator.ValidateObjectGraph(_container, typeof(T), context, null);
+            return _container.ValidateObjectGraph(_concreteType, context);
         }
     }
 }

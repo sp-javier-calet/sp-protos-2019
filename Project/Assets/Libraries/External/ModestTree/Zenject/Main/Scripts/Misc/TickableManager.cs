@@ -3,28 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
 using ModestTree.Util;
-using ModestTree.Util.Debugging;
 
 namespace Zenject
 {
     public class TickableManager
     {
-        [InjectOptional]
+        [InjectLocalOptional]
         readonly List<ITickable> _tickables = null;
 
-        [InjectOptional]
+        [InjectLocalOptional]
         readonly List<IFixedTickable> _fixedTickables = null;
 
-        [InjectOptional]
+        [InjectLocalOptional]
         readonly List<ILateTickable> _lateTickables = null;
 
-        [InjectOptional]
+        [InjectLocalOptional]
         readonly List<ModestTree.Util.Tuple<Type, int>> _priorities = null;
 
-        [InjectOptional("Fixed")]
+        [InjectLocalOptional("Fixed")]
         readonly List<ModestTree.Util.Tuple<Type, int>> _fixedPriorities = null;
 
-        [InjectOptional("Late")]
+        [InjectLocalOptional("Late")]
         readonly List<ModestTree.Util.Tuple<Type, int>> _latePriorities = null;
 
         [Inject]
@@ -36,6 +35,14 @@ namespace Zenject
 
         [InjectOptional]
         bool _warnForMissing = false;
+
+        public IEnumerable<ITickable> Tickables
+        {
+            get
+            {
+                return _tickables;
+            }
+        }
 
         [PostInject]
         public void Initialize()

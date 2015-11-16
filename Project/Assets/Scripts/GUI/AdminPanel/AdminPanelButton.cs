@@ -31,7 +31,8 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         _timeSinceDown = 0.0f;
     }
 
-    void Start()
+    [PostInject]
+    void PostInject()
     {
         AdminPanel.RegisterConfigurers(_configurers);
     }

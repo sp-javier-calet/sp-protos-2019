@@ -20,7 +20,7 @@ namespace Zenject
             var rootContainer = GlobalCompositionRoot.Instance.Container;
             if(rootContainer != null)
             {
-                CompositionRootHelper.InstallSceneInstallers(rootContainer, new List<IInstaller>(RootInstallers));
+                rootContainer.Install(RootInstallers);
             }
         }
     }

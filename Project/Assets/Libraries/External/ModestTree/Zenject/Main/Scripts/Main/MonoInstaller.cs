@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public abstract class MonoInstaller : MonoBehaviour, IInstaller
     {
         [Inject]

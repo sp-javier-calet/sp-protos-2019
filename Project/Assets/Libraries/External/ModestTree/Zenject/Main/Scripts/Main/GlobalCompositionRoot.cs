@@ -10,17 +10,26 @@ using UnityEngine;
 
 namespace Zenject
 {
-    public sealed class GlobalCompositionRoot : MonoBehaviour
+    public sealed class GlobalCompositionRoot : CompositionRoot
     {
         static GlobalCompositionRoot _instance;
         DiContainer _container;
-        IDependencyRoot _dependencyRoot;
+        IFacade _rootFacade;
+        bool _hasInitialized;
 
-        public DiContainer Container
+        public override DiContainer Container
         {
             get
             {
                 return _container;
+            }
+        }
+
+        public override IFacade RootFacade
+        {
+            get
+            {
+                return _rootFacade;
             }
         }
 
@@ -37,48 +46,51 @@ namespace Zenject
             }
         }
 
-        public void Awake()
+        protected override void Initialize()
         {
             DontDestroyOnLoad(gameObject);
 
             // Is this a good idea?
             //go.hideFlags = HideFlags.HideInHierarchy;
 
-            _container = CreateContainer(false, gameObject);
-            _dependencyRoot = _container.Resolve<IDependencyRoot>();
+            _container = CreateContainer(false, this);
+            _rootFacade = _container.Resolve<IFacade>();
         }
 
-        // If we're destroyed manually somehow handle that
-        public void OnDestroy()
+        public void InitializeRootIfNecessary()
         {
-            _instance = null;
-            _dependencyRoot = null;
+            if (!_hasInitialized)
+            {
+                _hasInitialized = true;
+                _rootFacade.Initialize();
+            }
         }
 
-        public static DiContainer CreateContainer(bool allowNullBindings, GameObject gameObj)
+        public static DiContainer CreateContainer(bool allowNullBindings, GlobalCompositionRoot root)
         {
-            Assert.That(allowNullBindings || gameObj != null);
+            Assert.That(allowNullBindings || root != null);
 
-            var container = new DiContainer(gameObj == null ? null : gameObj.transform);
+            var container = new DiContainer(root == null ? null : root.transform);
 
             container.AllowNullBindings = allowNullBindings;
 
-            CompositionRootHelper.InstallStandardInstaller(container, gameObj);
-            CompositionRootHelper.InstallSceneInstallers(container, GetGlobalInstallers());
+            container.Bind<GlobalCompositionRoot>().ToInstance(root);
+            container.Bind<CompositionRoot>().ToInstance(root);
+
+            container.Install<StandardInstaller>();
+
+            container.Install(GetGlobalInstallers());
 
             return container;
         }
 
         static IEnumerable<IInstaller> GetGlobalInstallers()
         {
-            var installerConfig = (GlobalInstallerConfig)Resources.Load("ZenjectGlobalCompositionRoot", typeof(GlobalInstallerConfig));
+            // Allow either naming convention
+            var installerConfigs1 = Resources.LoadAll("ZenjectGlobalCompositionRoot", typeof(GlobalInstallerConfig));
+            var installerConfigs2 = Resources.LoadAll("ZenjectGlobalInstallers", typeof(GlobalInstallerConfig));
 
-            if (installerConfig == null)
-            {
-                return Enumerable.Empty<IInstaller>();
-            }
-
-            return installerConfig.Installers;
+            return installerConfigs1.Concat(installerConfigs2).Cast<GlobalInstallerConfig>().SelectMany(x => x.Installers).Cast<IInstaller>();
         }
     }
 }

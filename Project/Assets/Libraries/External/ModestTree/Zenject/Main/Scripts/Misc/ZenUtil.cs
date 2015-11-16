@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Diagnostics;
 using ModestTree;
+using ModestTree.Util;
 
 #if !ZEN_NOT_UNITY3D
 using UnityEngine;
@@ -13,6 +14,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class ZenUtil
     {
         // Due to the way that Unity overrides the Equals operator,
@@ -63,26 +65,32 @@ namespace Zenject
         {
             if (preBindings != null)
             {
-                CompositionRoot.BeforeInstallHooks += preBindings;
+                SceneCompositionRoot.BeforeInstallHooks += preBindings;
             }
 
             if (postBindings != null)
             {
-                CompositionRoot.AfterInstallHooks += postBindings;
+                SceneCompositionRoot.AfterInstallHooks += postBindings;
             }
 
             Assert.That(Application.CanStreamedLevelBeLoaded(levelName), "Unable to load level '{0}'", levelName);
 
-            if (isAdditive)
-            {
-                Application.LoadLevelAdditive(levelName);
-            }
-            else
-            {
-                Log.Debug("Starting to load scene '{0}'", levelName);
-                Application.LoadLevel(levelName);
-                Log.Debug("Finished loading scene '{0}'", levelName);
-            }
+#if UNITY_5_3
+            Log.Debug("Starting to load scene '{0}'", levelName);
+			SceneManager.LoadScene(levelName, isAdditive);
+            Log.Debug("Finished loading scene '{0}'", levelName);
+#else
+			if (isAdditive)
+			{
+				Application.LoadLevelAdditive(levelName);
+			}
+			else
+			{
+				Log.Debug("Starting to load scene '{0}'", levelName);
+				Application.LoadLevel(levelName);
+				Log.Debug("Finished loading scene '{0}'", levelName);
+			}
+#endif
         }
 
         // This method can be used to load the given scene and perform injection on its contents
@@ -91,18 +99,22 @@ namespace Zenject
         public static IEnumerator LoadSceneAdditiveWithContainer(
             string levelName, DiContainer parentContainer)
         {
-            var rootObjectsBeforeLoad = GameObject.FindObjectsOfType<Transform>().Where(x => x.parent == null).ToList();
+            var rootObjectsBeforeLoad = UnityUtil.GetRootGameObjects();
 
-            Application.LoadLevelAdditive(levelName);
+#if UNITY_5_3
+			SceneManager.LoadScene(levelName, true);
+#else
+			Application.LoadLevelAdditive(levelName);
+#endif
 
             // Wait one frame for objects to be added to the scene heirarchy
             yield return null;
 
-            var rootObjectsAfterLoad = GameObject.FindObjectsOfType<Transform>().Where(x => x.parent == null).ToList();
+            var rootObjectsAfterLoad = UnityUtil.GetRootGameObjects();
 
-            foreach (var newObject in rootObjectsAfterLoad.Except(rootObjectsBeforeLoad).Select(x => x.gameObject))
+            foreach (var newObject in rootObjectsAfterLoad.Except(rootObjectsBeforeLoad))
             {
-                Assert.That(newObject.GetComponent<CompositionRoot>() == null,
+                Assert.That(newObject.GetComponent<SceneCompositionRoot>() == null,
                     "LoadSceneAdditiveWithContainer does not expect a container to exist in the loaded scene");
 
                 parentContainer.InjectGameObject(newObject);

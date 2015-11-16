@@ -3,21 +3,17 @@
 namespace Zenject
 {
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class InjectOptionalAttribute : Attribute
+    public class InjectOptionalAttribute : InjectAttributeBase
     {
         public InjectOptionalAttribute(string identifier)
         {
             Identifier = identifier;
+            IsOptional = true;
         }
 
         public InjectOptionalAttribute()
         {
-        }
-
-        public string Identifier
-        {
-            get;
-            private set;
+            IsOptional = true;
         }
     }
 }

@@ -254,7 +254,7 @@ namespace ModestTree
                 return allAttributes;
             }
 
-            return allAttributes.Where(a => attributeTypes.Contains(a.GetType()));
+            return allAttributes.Where(a => attributeTypes.Any(x => a.GetType().DerivesFromOrEqual(x)));
         }
     }
 }
