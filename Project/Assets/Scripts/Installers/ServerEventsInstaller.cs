@@ -1,8 +1,9 @@
 ﻿using Zenject;
 using System;
 using SocialPoint.ServerEvents;
+using SocialPoint.ScriptEvents;
 
-public class EventsInstaller : MonoInstaller
+public class ServerEventsInstaller : MonoInstaller
 {
 	[Serializable]
 	public class SettingsData
@@ -12,7 +13,7 @@ public class EventsInstaller : MonoInstaller
         public float Timeout = EventTracker.DefaultTimeout;
         public float BackoffMultiplier = EventTracker.DefaultBackoffMultiplier;
 	};
-	
+
 	public SettingsData Settings;
 
 	public override void InstallBindings()
@@ -24,6 +25,7 @@ public class EventsInstaller : MonoInstaller
         Container.Rebind<IEventTracker>().ToSingle<EventTracker>();
         Container.Bind<IDisposable>().ToLookup<IEventTracker>();
 
-        Container.Resolve<IEventTracker>();
+        Container.Bind<IEventsBridge>().ToSingle<ServerEventsBridge>();
+        Container.Bind<IScriptEventsBridge>().ToSingle<ServerEventsBridge>();
 	}
 }

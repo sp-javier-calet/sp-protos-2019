@@ -100,16 +100,16 @@ namespace SocialPoint.ServerSync
 
         void ConnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.RegisterWillGoBackground(-25, OnAppWillGoBackground);
-            appEvents.RegisterGameWillRestart(-25, OnGameWillRestart);
-            appEvents.RegisterGameWasLoaded(-1000, OnGameWasLoaded);
+            appEvents.WillGoBackground.Add(-25, OnAppWillGoBackground);
+            appEvents.GameWillRestart.Add(-25, OnGameWillRestart);
+            appEvents.GameWasLoaded.Add(-1000, OnGameWasLoaded);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
         {
-            appEvents.UnregisterWillGoBackground(OnAppWillGoBackground);
-            appEvents.UnregisterGameWillRestart(OnGameWillRestart);
-            appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+            appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
+            appEvents.GameWillRestart.Remove(OnGameWillRestart);
+            appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
         }
 
         void OnGameWasLoaded()
@@ -162,10 +162,11 @@ namespace SocialPoint.ServerSync
             remove { GeneralError -= value; }
         }
 
-        public event Action SyncChange = delegate {};
-        public event CommandQueueErrorDelegate GeneralError = delegate {};
-        public event CommandErrorDelegate CommandError = delegate {};
-        public event ResponseDelegate ResponseReceive = delegate {};
+        public event Action SyncChange;
+        public event CommandQueueErrorDelegate GeneralError;
+        public event CommandErrorDelegate CommandError;
+        public event CommandResponseDelegate CommandResponse;
+        public event ResponseDelegate ResponseReceive;
 
         int _lastAutoSyncDataHash;
 
@@ -579,7 +580,10 @@ namespace SocialPoint.ServerSync
 
         void ProcessResponse(HttpResponse resp, Packet packet)
         {
-            ResponseReceive(resp);
+            if(ResponseReceive != null)
+            {
+                ResponseReceive(resp);
+            }
 
             if(IgnoreResponses)
             {
@@ -646,7 +650,10 @@ namespace SocialPoint.ServerSync
                 syncData.SetValue(AttrKeyEventErrorHttpCode, httpCode);
                 TrackEvent(ErrorEventName, data);
             }
-            GeneralError(type, err);
+            if(GeneralError != null)
+            {
+                GeneralError(type, err);
+            }
         }
 
         bool CheckSync(HttpResponse resp)
@@ -656,7 +663,10 @@ namespace SocialPoint.ServerSync
             if(oldconn != _synced)
             {
                 _syncTimestamp = CurrentTimestamp;
-                SyncChange();
+                if(SyncChange != null)
+                {
+                    SyncChange();
+                }
             }
 
             if(!_synced && MaxOutOfSyncInterval > 0 && _syncTimestamp + MaxOutOfSyncInterval < CurrentTimestamp)
@@ -720,6 +730,10 @@ namespace SocialPoint.ServerSync
             {
                 return;
             }
+            if(pcmd.Command != null && CommandResponse != null)
+            {
+                CommandResponse(pcmd.Command, data);
+            }
             Error err = AttrUtils.GetError(data);
             if(err == null && pcmd.Command != null)
             {
@@ -729,7 +743,7 @@ namespace SocialPoint.ServerSync
             {
                 pcmd.Finished(err);
             }
-            if(err != null)
+            if(err != null && CommandError != null)
             {
                 CommandError(pcmd.Command, err, data);
             }

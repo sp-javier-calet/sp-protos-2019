@@ -14,7 +14,7 @@ namespace SocialPoint.ServerEvents
         Exception
     }
 
-    public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type,Error err);
+    public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type, Error err);
 
     public class ResourceOperation
     {

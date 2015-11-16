@@ -1,35 +1,161 @@
 using System;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
     public interface IAppEvents : IDisposable
     {   
-        // Native events
-        void RegisterWillGoBackground(int priority, Action action);
-        void UnregisterWillGoBackground(Action action);
+        /// <summary>
+        /// Occurs before going to background.
+        /// </summary>
+        PriorityAction WillGoBackground{ get; }
 
-        void RegisterGameWasLoaded(int priority, Action action);
-        void UnregisterGameWasLoaded(Action action);
+        /// <summary>
+        /// Occurs after the game was loaded.
+        /// </summary>
+        PriorityAction GameWasLoaded{ get; }
 
-        void RegisterGameWillRestart(int priority, Action action);
-        void UnregisterGameWillRestart(Action action);
+        /// <summary>
+        /// Occurs before game is restarted
+        /// </summary>
+        PriorityAction GameWillRestart{ get; }
 
+        /// <summary>
+        /// Occurs when was on background.
+        /// </summary>
         event Action WasOnBackground;
+
+        /// <summary>
+        /// Occurs when the app was covered.
+        /// for example when a popup appears on top of the app
+        /// </summary>
         event Action WasCovered;
+
+        /// <summary>
+        /// Occurs when recieved memory warning.
+        /// </summary>
         event Action ReceivedMemoryWarning;
+
+        /// <summary>
+        /// Occurs when app is opened with source data
+        /// </summary>
         event Action<AppSource> OpenedFromSource;
 
-        AppSource Source { get; }
-
-        // Unity events
+        /// <summary>
+        /// Occurs when application quits.
+        /// </summary>
         event Action ApplicationQuit;
+
+        /// <summary>
+        /// Occurs when level is loaded non additive.
+        /// </summary>
         event Action<int> LevelWasLoaded;
 
+        /// <summary>
+        /// The source info
+        /// </summary>
+        AppSource Source { get; }
+
+        /// <summary>
+        /// Trigger ReceivedMemoryWarning by hand (for debug purposes)
+        /// </summary>
         void TriggerMemoryWarning();
+
+        /// <summary>
+        /// Trigger WillGoBackground by hand (for debug purposes)
+        /// </summary>
         void TriggerWillGoBackground();
 
+        /// <summary>
+        /// Trigger GameWasLoaded
+        /// </summary>
         void TriggerGameWasLoaded();
-        void RestartGame();
+
+        /// <summary>
+        /// Trigger GameWillRestart
+        /// </summary>
+        void TriggerGameWillRestart();
+    }
+
+    public static class AppEventsExtension
+    {        
+        public static void RestartGame(this IAppEvents events)
+        {
+            events.TriggerGameWillRestart();
+            Application.LoadLevel(0);
+        }
+
+        [Obsolete("Use WillGoBackground property")]
+        public static void RegisterWillGoBackground(this IAppEvents events, int priority, Action action)
+        {
+            events.WillGoBackground.Add(priority, action);
+        }
+
+        [Obsolete("Use WillGoBackground property")]
+        public static void RegisterWillGoBackground(this IAppEvents events, Action<int> action)
+        {
+            events.WillGoBackground.Add(action);
+        }
+
+        [Obsolete("Use WillGoBackground property")]
+        public static void UnregisterWillGoBackground(this IAppEvents events, Action action)
+        {
+            events.WillGoBackground.Remove(action);
+        }
+
+        [Obsolete("Use WillGoBackground property")]
+        public static void UnregisterWillGoBackground(this IAppEvents events, Action<int> action)
+        {
+            events.WillGoBackground.Remove(action);
+        }
+
+        [Obsolete("Use GameWasLoaded property")]
+        public static void RegisterGameWasLoaded(this IAppEvents events, int priority, Action action)
+        {
+            events.GameWasLoaded.Add(priority, action);
+        }
+
+        [Obsolete("Use GameWasLoaded property")]
+        public static void RegisterGameWasLoaded(this IAppEvents events, Action<int> action)
+        {
+            events.GameWasLoaded.Add(action);
+        }
+
+        [Obsolete("Use GameWasLoaded property")]
+        public static void UnregisterGameWasLoaded(this IAppEvents events, Action action)
+        {
+            events.GameWasLoaded.Remove(action);
+        }
+
+        [Obsolete("Use GameWasLoaded property")]
+        public static void UnregisterGameWasLoaded(this IAppEvents events, Action<int> action)
+        {
+            events.GameWasLoaded.Remove(action);
+        }
+
+        [Obsolete("Use GameWillRestart property")]
+        public static void RegisterGameWillRestart(this IAppEvents events, int priority, Action action)
+        {
+            events.GameWillRestart.Add(priority, action);
+        }
+
+        [Obsolete("Use GameWillRestart property")]
+        public static void RegisterGameWillRestart(this IAppEvents events, Action<int> action)
+        {
+            events.GameWillRestart.Add(action);
+        }
+
+        [Obsolete("Use GameWillRestart property")]
+        public static void UnregisterGameWillRestart(this IAppEvents events, Action action)
+        {
+            events.GameWillRestart.Remove(action);
+        }
+
+        [Obsolete("Use GameWillRestart property")]
+        public static void UnregisterGameWillRestart(this IAppEvents events, Action<int> action)
+        {
+            events.GameWillRestart.Remove(action);
+        }
     }
 }

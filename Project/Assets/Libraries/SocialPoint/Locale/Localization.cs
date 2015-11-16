@@ -51,9 +51,7 @@ namespace SocialPoint.Locale
 
         public Localization()
         {
-#if UNITY_5
             Debug = UnityEngine.Debug.isDebugBuild;
-#endif
         }
 
         private string _language = "";

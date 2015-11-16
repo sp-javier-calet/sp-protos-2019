@@ -18,6 +18,7 @@ namespace SocialPoint.ServerSync
 
     public delegate void CommandQueueErrorDelegate(CommandQueueErrorType type, Error err);
     public delegate void CommandErrorDelegate(Command cmd, Error err, Attr resp);
+    public delegate void CommandResponseDelegate(Command cmd, Attr resp);
 
     public interface ICommandQueue : IDisposable
     {
@@ -25,6 +26,7 @@ namespace SocialPoint.ServerSync
 
         event CommandQueueErrorDelegate GeneralError;
         event CommandErrorDelegate CommandError;
+        event CommandResponseDelegate CommandResponse;
         event Action SyncChange;
 
         bool AutoSyncEnabled { set; }

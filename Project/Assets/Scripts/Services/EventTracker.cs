@@ -7,7 +7,10 @@ using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Crash;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
+using SocialPoint.GameLoading;
 using UnityEngine;
+using System;
 
 class EventTracker : SocialPointEventTracker
 {
@@ -82,7 +85,7 @@ class EventTracker : SocialPointEventTracker
             BreadcrumbManager = value;
         }
     }
-    
+
     [Inject]
     IAppEvents injectAppEvents
     {
@@ -101,8 +104,12 @@ class EventTracker : SocialPointEventTracker
         }
     }
 
+    [Inject]
+    IGameErrorHandler _errorHandler;
+
     public EventTracker(MonoBehaviour behaviour):base(behaviour)
     {
+        _errorHandler.Setup(this);
     }
 
 }

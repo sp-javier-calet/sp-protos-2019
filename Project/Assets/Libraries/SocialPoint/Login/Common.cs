@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.Base;
+using LitJson;
 
 namespace SocialPoint.Login
 {

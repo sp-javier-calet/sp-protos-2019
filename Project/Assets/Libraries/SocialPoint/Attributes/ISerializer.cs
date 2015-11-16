@@ -1,4 +1,3 @@
-﻿using SocialPoint.Attributes;
 
 namespace SocialPoint.Attributes
 {

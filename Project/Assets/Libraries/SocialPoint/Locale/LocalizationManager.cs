@@ -216,12 +216,12 @@ namespace SocialPoint.Locale
             {
                 if(_appEvents != null)
                 {
-                    _appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+                    _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
                 }
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    _appEvents.RegisterGameWasLoaded(0, OnGameWasLoaded);
+                    _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
                 }
             }
         }
@@ -259,7 +259,7 @@ namespace SocialPoint.Locale
             _running = false;
             if(_appEvents != null)
             {
-                _appEvents.UnregisterGameWasLoaded(OnGameWasLoaded);
+                _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
             }
         }
 

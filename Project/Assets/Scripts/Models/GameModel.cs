@@ -10,14 +10,22 @@ public class GameModel
 
     public GameModel(ConfigModel config=null, PlayerModel player=null)
     {
+        if(config == null)
+        {
+            config = new ConfigModel();
+        }
         Config = config;
+        if(player == null)
+        {
+            player = new PlayerModel();
+        }
         Player = player;
     }
     
     public void Assign(GameModel other)
     {
-        Player = other.Player;
-        Config = other.Config;
+        Player.Assign(other.Player);
+        Config.Assign(other.Config);
         
         if(Assigned != null)
         {

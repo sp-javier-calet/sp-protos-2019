@@ -9,72 +9,47 @@ namespace SocialPoint.AppEvents
     /// </summary>
     public abstract class BaseAppEvents : MonoBehaviour, IAppEvents 
     {
-        #region IAppEvents implementation
+        public PriorityAction GameWasLoaded { get; private set; }
+        public PriorityAction GameWillRestart { get; private set; }
+        public PriorityAction WillGoBackground { get; private set; }
+
+        public BaseAppEvents()
+        {
+            GameWasLoaded = new PriorityAction();
+            GameWillRestart = new PriorityAction();
+            WillGoBackground = new PriorityAction();
+        }
 
         public void Dispose()
         {
+            GameWasLoaded.Clear();
+            GameWillRestart.Clear();
+            WillGoBackground.Clear();
             WasOnBackground = null;
             WasCovered = null;
             ReceivedMemoryWarning = null;
             OpenedFromSource = null;
         }
 
-        #region Game Events
-
         public void TriggerGameWasLoaded()
         {
             OnGameWasLoaded();
         }
-                
-        PriorityAction _gameWasLoaded = new PriorityAction();
-        
-        public void RegisterGameWasLoaded(int priority, Action action)
+
+        protected void OnGameWasLoaded()
         {
-            _gameWasLoaded.Add(priority, action);
+            GameWasLoaded.Run();
         }
-        
-        public void UnregisterGameWasLoaded(Action action)
-        {
-            _gameWasLoaded.Remove(action);
-        }
-                
-        public void RestartGame()
+
+        public void TriggerGameWillRestart()
         {
             OnGameWillRestart();
-            Application.LoadLevel(0);
         }
-        
-        PriorityAction _gameWillRestart = new PriorityAction();
-        
-        public void RegisterGameWillRestart(int priority, Action action)
-        {
-            _gameWillRestart.Add(priority, action);
-        }
-        
-        public void UnregisterGameWillRestart(Action action)
-        {
-            _gameWillRestart.Remove(action);
-        }
-                
-        /// <summary>
-        /// Occurs after the game is loaded.
-        /// </summary>
-        protected  void OnGameWasLoaded()
-        {
-            _gameWasLoaded.Run();
-        }
-        
-        /// <summary>
-        /// Occurs before game is restarted
-        /// </summary>
+
         protected  void OnGameWillRestart()
         {
-            _gameWillRestart.Run();
+            GameWillRestart.Run();
         }
-
-        #endregion
-
-        #region Native Events
         
         public void TriggerMemoryWarning()
         {
@@ -86,29 +61,11 @@ namespace SocialPoint.AppEvents
             OnWillGoBackground();
         }
 
-        PriorityAction _willGoBackground = new PriorityAction();
-
-        public void RegisterWillGoBackground(int priority, Action action)
-        {
-            _willGoBackground.Add(priority, action);
-        }
-
-        public void UnregisterWillGoBackground(Action action)
-        {
-            _willGoBackground.Remove(action);
-        }
-
-        /// <summary>
-        /// Occurs before going to background.
-        /// </summary>
         protected  void OnWillGoBackground()
         {
-            _willGoBackground.Run();
+            WillGoBackground.Run();
         }
-        
-        /// <summary>
-        /// Occurs when was on background.
-        /// </summary>
+
         public event Action WasOnBackground;
         
         protected void OnWasOnBackground()
@@ -119,10 +76,7 @@ namespace SocialPoint.AppEvents
                 handler();
             }
         }
-        
-        /// <summary>
-        /// Occurs when was covered.
-        /// </summary>
+
         public event Action WasCovered;
         
         protected void OnWasCovered()
@@ -133,10 +87,7 @@ namespace SocialPoint.AppEvents
                 handler();
             }
         }
-        
-        /// <summary>
-        /// Occurs when recieved memory warning.
-        /// </summary>
+
         public event Action ReceivedMemoryWarning;
         
         protected void OnReceivedMemoryWarning()
@@ -148,9 +99,6 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        /// <summary>
-        /// Occurs when app is opened with source data
-        /// </summary>
         public event Action<AppSource> OpenedFromSource;
         
         protected void OnOpenedFromSource(AppSource source)
@@ -164,13 +112,6 @@ namespace SocialPoint.AppEvents
 
         public AppSource Source { get; protected set;}
 
-        #endregion
-
-        #region Unity Events
-        
-        /// <summary>
-        /// Occurs when application quits.
-        /// </summary>
         public event Action ApplicationQuit;
         
         void OnApplicationQuit()
@@ -181,10 +122,7 @@ namespace SocialPoint.AppEvents
                 handler();
             }
         }
-        
-        /// <summary>
-        /// Occurs when level is loaded non additive.
-        /// </summary>
+
         public event Action<int> LevelWasLoaded;
         
         void OnLevelWasLoaded(int level)
@@ -195,9 +133,6 @@ namespace SocialPoint.AppEvents
                 handler(level);
             }
         }
-        
-        #endregion
 
-        #endregion
     }
 }
