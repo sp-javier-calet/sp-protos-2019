@@ -16,7 +16,7 @@ namespace SocialPoint.Network
         const string CompressDeflateContentEncoding = "deflate";
         public const string LastModifiedHeader = "Last-Modified";
         public const string LastModifiedHeaderFormat = "dddd, dd MMMM yyyy HH:mm:ss tt";
-        public const int kMinServerErrorStatusCode = 500;
+        public const int MinServerErrorStatusCode = 500;
 
         public enum StatusCodeType
         {

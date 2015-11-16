@@ -333,8 +333,10 @@ namespace SocialPoint.Login
             ActivityTimeout = DefaultActivityTimeout;
             AutoUpdateFriends = DefaultAutoUpdateFriends;
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
-            MaxLoginRetries = new LoginRetries { SecurityTokenErrorRetries = DefaultMaxSecurityTokenErrorRetries, 
-                ConnectivityErrorRetries = DefaultMaxConnectivityErrorRetries };
+            MaxLoginRetries = new LoginRetries { 
+                SecurityTokenErrorRetries = DefaultMaxSecurityTokenErrorRetries, 
+                ConnectivityErrorRetries = DefaultMaxConnectivityErrorRetries 
+            };
             _availableRetries = MaxLoginRetries;
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
@@ -558,14 +560,14 @@ namespace SocialPoint.Login
         void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
             DebugLog("login\n----\n" + resp.ToString() + "----\n");
-            if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered) // FIXME Check with 2d. Different behaviour.
+            if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearStoredUser();
                 _availableRetries.SecurityTokenErrorRetries--;
                 DoLogin(cbk);
                 return;
             }
-            else if(resp.HasConnectionError || resp.StatusCode >= HttpResponse.kMinServerErrorStatusCode)
+            else if(resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode)
             {
                 _availableRetries.ConnectivityErrorRetries--;
                 DoLogin(cbk);
@@ -736,7 +738,7 @@ namespace SocialPoint.Login
 
         void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
         {
-            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.kMinServerErrorStatusCode) &&
+            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
                _availableRetries.ConnectivityErrorRetries >= 0)
             {
                 _availableRetries.ConnectivityErrorRetries--;
@@ -966,7 +968,7 @@ namespace SocialPoint.Login
 
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
-            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.kMinServerErrorStatusCode) &&
+            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
                 _availableRetries.ConnectivityErrorRetries > 0)
             {
                 _availableRetries.ConnectivityErrorRetries--;
