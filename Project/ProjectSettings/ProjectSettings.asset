@@ -85,7 +85,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleIdentifier: es.parrotgames.BaseGame
+  bundleIdentifier: es.parrotgames.basegame
   bundleVersion: 1.4
   preloadedAssets: []
   metroEnableIndependentInputSource: 0
@@ -93,8 +93,8 @@ PlayerSettings:
   xboxOneDisableKinectGpuReservation: 0
   virtualRealitySupported: 0
   productGUID: 97d80f5dba237462dbf1ce81a74a9058
-  AndroidBundleVersionCode: 1506010000
-  AndroidMinSdkVersion: 9
+  AndroidBundleVersionCode: 2000000000
+  AndroidMinSdkVersion: 14
   AndroidPreferredInstallLocation: 1
   aotOptions: 
   apiCompatibilityLevel: 2

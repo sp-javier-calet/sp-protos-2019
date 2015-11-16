@@ -89,15 +89,15 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
-    <target name="-pre-compile">
-        <path id="project.all.jars.path.tmp">
-                <path path="${toString:project.all.jars.path}"/>
-                <path path="${sdk.dir}/extras/android/support/v4/android-support-v4.jar"/>
-        </path>
+    <target name="-pre-build">
+        <exec executable="../build_plugin_copy_dependencies.sh" failonerror="true">
+            <arg value="copy"/>
+        </exec>
+    </target>
 
-        <path id="project.all.jars.path">
-                <path path="${toString:project.all.jars.path.tmp}"/>
-        </path>
-
+    <target name="-post-build">
+        <exec executable="../build_plugin_copy_dependencies.sh" failonerror="true">
+            <arg value="clean"/>
+        </exec>
     </target>
 </project>

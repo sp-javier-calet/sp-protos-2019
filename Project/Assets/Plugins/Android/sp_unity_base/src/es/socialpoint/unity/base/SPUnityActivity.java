@@ -1,14 +1,14 @@
 package es.socialpoint.unity.base;
 
-import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Set;
-import android.content.Intent;
-import android.util.Log;
-import android.os.Bundle;
-import com.unity3d.player.UnityPlayerActivity;
 
-import java.lang.RuntimeException;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.unity3d.player.UnityPlayerActivity;
 
 public class SPUnityActivity extends UnityPlayerActivity {
 
