@@ -1,10 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Crash;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Login;
@@ -31,7 +30,7 @@ namespace SocialPoint.GameLoading
         public ILogin Login;
         public Localization Localization;
         public IAppEvents AppEvents;
-        public SocialPoint.Crash.ICrashReporter CrashReporter;
+        public ICrashReporter CrashReporter;
         public IGameErrorHandler ErrorHandler;
         public bool Paused = false;
 
@@ -54,7 +53,7 @@ namespace SocialPoint.GameLoading
         LoadingOperation _loginOperation;
         LoadingOperation _sendCrashesBeforeLoginOperation;
 
-        bool HasFinished(float progress)
+        static bool HasFinished(float progress)
         {
             return Math.Abs(progress - 1) < Mathf.Epsilon;
         }
@@ -249,7 +248,7 @@ namespace SocialPoint.GameLoading
 
         void Update()
         {
-            var percent = Progress;
+            float percent;
             var op = CurrentOperation;
             if(_currentOperationIndex < 0 || HasFinishedCurrentOperation)
             {
@@ -338,9 +337,7 @@ namespace SocialPoint.GameLoading
             switch(type)
             {
             case ErrorType.Upgrade:
-                ErrorHandler.ShowUpgrade(Login.Data.Upgrade, (success) => {
-                    Application.OpenURL(Login.Data.StoreUrl);
-                });
+                ErrorHandler.ShowUpgrade(Login.Data.Upgrade, success => Application.OpenURL(Login.Data.StoreUrl));
                 break;
             case ErrorType.MaintenanceMode:
                 ErrorHandler.ShowMaintenance(Login.Data.Maintenance, OnLoginErrorShown);
@@ -385,7 +382,7 @@ namespace SocialPoint.GameLoading
 
         void OnLoginEnd(Error err)
         {
-            string msg = null;
+            string msg;
             if(!Error.IsNullOrEmpty(err))//errors are handled on OnLoginError when ErrorEvent is dispatched
             {
                 msg = "login finished with error";
@@ -402,7 +399,7 @@ namespace SocialPoint.GameLoading
                     var op = new LoadingOperation(0.0f);
                     RegisterOperation(op);
                     op.Message = "suggesting upgrade...";
-                    ErrorHandler.ShowUpgrade(Login.Data.Upgrade, (success) => {
+                    ErrorHandler.ShowUpgrade(Login.Data.Upgrade, success => {
                         if(success)
                         {
                             Application.OpenURL(Login.Data.StoreUrl);
@@ -415,9 +412,7 @@ namespace SocialPoint.GameLoading
                     var op = new LoadingOperation(0.0f);
                     RegisterOperation(op);
                     op.Message = "showing maintenance message...";
-                    ErrorHandler.ShowMaintenance(Login.Data.Maintenance, () => {
-                        op.Finish();
-                    });
+                    ErrorHandler.ShowMaintenance(Login.Data.Maintenance, () => op.Finish());
                 }
             }
             _loginOperation.Finish(msg);

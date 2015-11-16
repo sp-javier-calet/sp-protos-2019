@@ -1,18 +1,14 @@
-
-using SocialPoint.GameLoading;
+using SocialPoint.AdminPanel;
+using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
+using SocialPoint.Crash;
+using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
-using SocialPoint.Alert;
-using SocialPoint.AppEvents;
-using SocialPoint.AdminPanel;
-using SocialPoint.Utils;
-using SocialPoint.Base;
-using SocialPoint.Crash;
 using SocialPoint.ServerEvents;
-using SocialPoint.QualityStats;
-using Zenject;
+using SocialPoint.Utils;
 using UnityEngine;
+using Zenject;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
@@ -22,6 +18,15 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         set
         {
             Login = value;
+        }
+    }
+
+    [Inject]
+    ICrashReporter injectCrashReporter
+    {
+        set
+        {
+            CrashReporter = value;
         }
     }
 
@@ -105,7 +110,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoadSceneStart()
     {
-        _sceneManager.ChangeSceneToAsync(_sceneToLoad, false, (SceneLoadingArgs args) => {
+        _sceneManager.ChangeSceneToAsync(_sceneToLoad, false, args => {
             args.ActivateScene();
             _loadSceneOperation.Finish("main scene loaded");
         });
