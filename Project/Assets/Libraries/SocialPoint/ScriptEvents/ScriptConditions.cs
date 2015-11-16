@@ -60,10 +60,8 @@ namespace SocialPoint.ScriptEvents
         {
             return new FixedCondition(data.AsValue.ToBool());
         }
-        
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-        }
+
+        public FamilyParser<IScriptCondition> Parent { set{} }
         
         const string ConditionName = "fixed";
         public string Name { get{ return ConditionName; } }
@@ -76,9 +74,7 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(true);
         }
         
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-        }
+        public FamilyParser<IScriptCondition> Parent { set{} }
         
         const string ConditionName = "all";
         public string Name { get{ return ConditionName; } }
@@ -91,9 +87,7 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(false);
         }
         
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-        }
+        public FamilyParser<IScriptCondition> Parent { set{} }
         
         const string ConditionName = "none";
         public string Name { get{ return ConditionName; } }
@@ -126,9 +120,7 @@ namespace SocialPoint.ScriptEvents
             return new NameCondition(data.ToString());
         }
 
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-        }
+        public FamilyParser<IScriptCondition> Parent { set{} }
 
         const string ConditionName = "name";      
         public string Name { get{ return ConditionName; } }
@@ -161,9 +153,7 @@ namespace SocialPoint.ScriptEvents
             return new ArgumentsCondition((Attr)data.Clone());
         }
                 
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-        }
+        public FamilyParser<IScriptCondition> Parent { set{} }
         
         const string ConditionName = "args";      
         public string Name { get{ return ConditionName; } }
@@ -203,22 +193,17 @@ namespace SocialPoint.ScriptEvents
         
     public class AndConditionParser : IChildParser<IScriptCondition>
     {
-        FamilyParser<IScriptCondition> _parent;
-
         public IScriptCondition Parse(Attr data)
         {
             var children = new List<IScriptCondition>();
             foreach(var elm in data.AsList)
             {
-                children.Add(_parent.Parse(elm));
+                children.Add(Parent.Parse(elm));
             }
             return new AndCondition(children);
         }
         
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-            _parent = parent;
-        }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
         
         const string ConditionName = "and";      
         public string Name { get{ return ConditionName; } }
@@ -258,22 +243,17 @@ namespace SocialPoint.ScriptEvents
 
     public class OrConditionParser : IChildParser<IScriptCondition>
     {
-        FamilyParser<IScriptCondition> _parent;
-        
         public IScriptCondition Parse(Attr data)
         {
             var children = new List<IScriptCondition>();
             foreach(var elm in data.AsList)
             {
-                children.Add(_parent.Parse(elm));
+                children.Add(Parent.Parse(elm));
             }
             return new OrCondition(children);
         }
         
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-            _parent = parent;
-        }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
         
         const string ConditionName = "or";      
         public string Name { get{ return ConditionName; } }
@@ -301,17 +281,12 @@ namespace SocialPoint.ScriptEvents
         
     public class NotConditionParser : IChildParser<IScriptCondition>
     {
-        FamilyParser<IScriptCondition> _parent;
-        
         public IScriptCondition Parse(Attr data)
         {
-            return new NotCondition(_parent.Parse(data));
-        }
+            return new NotCondition(Parent.Parse(data));
+        }        
         
-        public void Load(FamilyParser<IScriptCondition> parent)
-        {
-            _parent = parent;
-        }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
         
         const string ConditionName = "not";      
         public string Name { get{ return ConditionName; } }

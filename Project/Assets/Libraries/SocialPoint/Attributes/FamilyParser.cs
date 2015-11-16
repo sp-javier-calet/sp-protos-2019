@@ -8,7 +8,7 @@ namespace SocialPoint.Attributes
     {
         string Name { get; }
 
-        void Load(FamilyParser<T> parent);
+        FamilyParser<T> Parent { set; }
     }
     
     public class FamilyParser<T> : IParser<T>
@@ -28,7 +28,7 @@ namespace SocialPoint.Attributes
             _children = children;
             foreach(var child in _children)
             {
-                child.Load(this);
+                child.Parent = this;
             }
         }
 
