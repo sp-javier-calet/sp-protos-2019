@@ -14,7 +14,7 @@ public class GUIInstaller : MonoInstaller
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
 	};
 
-	public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
     
     public override void InstallBindings()
     {

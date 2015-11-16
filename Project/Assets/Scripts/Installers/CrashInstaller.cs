@@ -13,7 +13,7 @@ public class CrashInstaller : MonoInstaller
         public bool ExceptionLogActive = CrashReporter.DefaultExceptionLogActive;
 	};
 	
-	public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
 	public override void InstallBindings()
 	{

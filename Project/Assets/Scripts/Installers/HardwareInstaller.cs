@@ -6,30 +6,30 @@ using SocialPoint.AdminPanel;
 public class HardwareInstaller : MonoInstaller
 {
     [Serializable]
-    public class SettingsDataApp
+    public class SettingsData
     {
-        public bool fakeAppData = false;
-        public string SeedId;
-        public string Id;
-        public string Version;
-        public string ShortVersion;
-        public string Language;
-        public string Country;
+        public bool FakeAppData = false;
+        public string AppSeedId;
+        public string AppId;
+        public string AppVersion;
+        public string AppShortVersion;
+        public string AppLanguage;
+        public string AppCountry;
     }
 
-    public SettingsDataApp SettingsAppInfo;
+    public SettingsData Settings = new SettingsData();
 
 	public override void InstallBindings()
 	{
-        if(SettingsAppInfo.fakeAppData)
+        if(Settings.FakeAppData)
         {
             var appInfo = new EmptyAppInfo();
-            appInfo.SeedId = SettingsAppInfo.SeedId;
-            appInfo.Id = SettingsAppInfo.Id;
-            appInfo.Version = SettingsAppInfo.Version;
-            appInfo.ShortVersion = SettingsAppInfo.ShortVersion;
-            appInfo.Language = SettingsAppInfo.Language;
-            appInfo.Country = SettingsAppInfo.Country;
+            appInfo.SeedId = Settings.AppSeedId;
+            appInfo.Id = Settings.AppId;
+            appInfo.Version = Settings.AppVersion;
+            appInfo.ShortVersion = Settings.AppShortVersion;
+            appInfo.Language = Settings.AppLanguage;
+            appInfo.Country = Settings.AppCountry;
             Container.BindInstance("hardware_fake_app_info", appInfo);
         }
 

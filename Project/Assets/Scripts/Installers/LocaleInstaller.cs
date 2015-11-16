@@ -26,7 +26,7 @@ public class LocaleInstaller : MonoInstaller
         public bool EditorDebug = true;
     };
 
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {	

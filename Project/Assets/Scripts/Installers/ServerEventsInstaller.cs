@@ -14,7 +14,7 @@ public class ServerEventsInstaller : MonoInstaller
         public float BackoffMultiplier = EventTracker.DefaultBackoffMultiplier;
 	};
 
-	public SettingsData Settings;
+	public SettingsData Settings = new SettingsData();
 
 	public override void InstallBindings()
 	{

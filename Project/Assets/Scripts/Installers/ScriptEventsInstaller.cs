@@ -7,15 +7,6 @@ using SocialPoint.AdminPanel;
 
 public class ScriptEventsInstaller : MonoInstaller
 {
-    [Serializable]
-    public class SettingsData
-    {
-    }
-
-    public SettingsData Settings;
-
-    PopupsController _popups;
-
     public override void InstallBindings()
     {
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<FixedConditionParser>();

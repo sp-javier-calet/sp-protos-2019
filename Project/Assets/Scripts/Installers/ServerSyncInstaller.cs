@@ -16,7 +16,7 @@ public class ServerSyncInstaller : MonoInstaller
         public bool PingEnabled = CommandQueue.DefaultPingEnabled;
 	};
 	
-	public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
 	public override void InstallBindings()
 	{

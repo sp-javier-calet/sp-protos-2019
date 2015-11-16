@@ -47,7 +47,7 @@ public class LoginInstaller : MonoInstaller
         public bool FacebookLoginWithUi = false;
 	};
 	
-	public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
     [Inject]
     IFacebook Facebook;

@@ -12,7 +12,7 @@ public class StorageInstaller : MonoInstaller
         public string PersistentPrefix = string.Empty;
     };
     
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
 	public override void InstallBindings()
 	{		

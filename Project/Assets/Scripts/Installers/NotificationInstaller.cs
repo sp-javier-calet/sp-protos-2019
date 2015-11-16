@@ -14,7 +14,7 @@ public class NotificationInstaller : MonoInstaller
         public bool AutoRegisterForRemote = true;
     };
     
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
