@@ -29,6 +29,8 @@ namespace SocialPoint.ServerSync
         const string AttrKeyEventErrorMessage = "error_desc";
         const string AttrKeyEventErrorHttpCode = "error_code";
         const string HttpParamSessionId = "session_id";
+        const string SyncChangeEventName = "sync.change";
+        const string AttrKeySynced = "synced";
 
         const int MinServerErrorStatusCode = 500;
         const int SessionLostErrorStatusCode = 482;
@@ -226,6 +228,7 @@ namespace SocialPoint.ServerSync
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
             _behaviour = behaviour;
             _httpClient = client;
+            _synced = true;
             Reset();
         }
 
@@ -656,6 +659,20 @@ namespace SocialPoint.ServerSync
             }
         }
 
+        void NotifySyncChange()
+        {
+            if(TrackEvent != null)
+            {
+                var data = new AttrDic();             
+                data.SetValue(AttrKeySynced, _synced);
+                TrackEvent(SyncChangeEventName, data);
+            }
+            if(SyncChange != null)
+            {
+                SyncChange();
+            }
+        }
+
         bool CheckSync(HttpResponse resp)
         {
             bool oldconn = _synced;
@@ -663,10 +680,7 @@ namespace SocialPoint.ServerSync
             if(oldconn != _synced)
             {
                 _syncTimestamp = CurrentTimestamp;
-                if(SyncChange != null)
-                {
-                    SyncChange();
-                }
+                NotifySyncChange();
             }
 
             if(!_synced && MaxOutOfSyncInterval > 0 && _syncTimestamp + MaxOutOfSyncInterval < CurrentTimestamp)

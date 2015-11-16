@@ -505,7 +505,6 @@ namespace SocialPoint.Attributes
             return this == p;
         }
 
-
         public override int GetHashCode()
         {
             return base.GetHashCode();
@@ -1166,13 +1165,18 @@ namespace SocialPoint.Attributes
             get{ return _value.Count; }
         }
 
-        public AttrDic(Dictionary<string, Attr> val = null) : base(AttrType.DICTIONARY)
+        public AttrDic(Dictionary<string, Attr> other = null) : base(AttrType.DICTIONARY)
         {
-            if(val != null)
+            if(other != null)
             {
-                foreach(var pair in val)
+                foreach(var pair in other)
                 {
-                    Set(pair.Key, (Attr)pair.Value.Clone());
+                    Attr val = null;
+                    if(pair.Value != null)
+                    {
+                        val = (Attr)pair.Value.Clone();
+                    }
+                    Set(pair.Key, val);
                 }
             }
         }
@@ -1181,11 +1185,11 @@ namespace SocialPoint.Attributes
         {
         }
 
-        public AttrDic(Dictionary<string, string> val) : this()
+        public AttrDic(Dictionary<string, string> other) : this()
         {
-            if(val != null)
+            if(other != null)
             {
-                foreach(var pair in val)
+                foreach(var pair in other)
                 {
                     SetValue(pair.Key, pair.Value);
                 }
@@ -1437,7 +1441,12 @@ namespace SocialPoint.Attributes
             var dic = new Dictionary<string, V>();
             foreach(var pair in this)
             {
-                dic.Add(pair.Key, pair.Value.AsValue.ToValue<V>());
+                V val = default(V);
+                if(pair.Value != null)
+                {
+                    val = pair.Value.AsValue.ToValue<V>();
+                }
+                dic.Add(pair.Key, val);
             }
 
             return dic;
@@ -1470,39 +1479,49 @@ namespace SocialPoint.Attributes
             }
         }
 
-        public AttrList(List<Attr> val = null) : base(AttrType.LIST)
+        public AttrList(List<Attr> other = null) : base(AttrType.LIST)
         {
             AllowDuplicates = true;
-            if(val != null)
+            if(other != null)
             {
-                foreach(var elm in val)
+                foreach(var elm in other)
                 {
-                    Add((Attr)elm.Clone());
+                    Attr val = null;
+                    if(elm != null)
+                    {
+                        val = (Attr)elm.Clone();
+                    }
+                    Add(val);
                 }
             }
         }
 
-        public AttrList(List<string> val) : base(AttrType.LIST)
+        public AttrList(List<string> other) : base(AttrType.LIST)
         {
             AllowDuplicates = true;
-            if(val != null)
+            if(other != null)
             {
-                foreach(var elm in val)
+                foreach(var elm in other)
                 {
                     AddValue(elm);
                 }
             }
         }
 
-        public AttrList(AttrDic otherDic) : this()
+        public AttrList(AttrDic other) : this()
         {
-            foreach(var pair in otherDic)
+            foreach(var pair in other)
             {
-                Add((Attr)pair.Value.Clone());
+                Attr val = null;
+                if(pair.Value != null)
+                {
+                    val = (Attr)pair.Value.Clone();
+                }
+                Add(val);
             }
         }
 
-        public AttrList(AttrList otherList) : this(otherList._value)
+        public AttrList(AttrList other) : this(other._value)
         {
         }
 
@@ -1521,6 +1540,21 @@ namespace SocialPoint.Attributes
             {
                 Set(value, idx);
             }
+        }
+
+        public List<V> ToList<V>()
+        {
+            var list = new List<V>();
+            foreach(var elm in this)
+            {
+                V val = default(V);
+                if(elm != null)
+                {
+                    val = elm.AsValue.ToValue<V>();
+                }
+                list.Add(val);
+            }
+            return list;
         }
 
         public override string ToString()
@@ -1730,17 +1764,6 @@ namespace SocialPoint.Attributes
         public override int GetHashCode()
         {
             return base.GetHashCode() ^ _value.GetHashCode();
-        }
-
-        public List<T> ToList<T>()
-        {
-            var list = new List<T>();
-            foreach(var elm in this)
-            {
-                list.Add(elm.AsValue.ToValue<T>());
-            }
-            
-            return list;
         }
 
         public override void Dispose()

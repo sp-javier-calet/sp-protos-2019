@@ -3,7 +3,7 @@ using SocialPoint.Network;
 using SocialPoint.QualityStats;
 using Zenject;
 
-public class QualityStatsInstaller : MonoInstaller
+public class QualityStatsInstaller : Installer
 {
     [Inject]
     IHttpClient _httpClient;

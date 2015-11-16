@@ -3,7 +3,7 @@ using System;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
 
-public class CrashInstaller : MonoInstaller
+public class CrashInstaller : Installer
 {
 	[Serializable]
 	public class SettingsData

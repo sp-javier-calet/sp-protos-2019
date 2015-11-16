@@ -32,7 +32,7 @@ public static class BackendEnvironmentExtensions
     }
 }
 
-public class LoginInstaller : MonoInstaller
+public class LoginInstaller : Installer
 {
 	[Serializable]
 	public class SettingsData

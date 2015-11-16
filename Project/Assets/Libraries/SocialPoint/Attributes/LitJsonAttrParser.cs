@@ -111,7 +111,7 @@ namespace SocialPoint.Attributes
             {
                 data = data.Substring(kQuoteString.Length, data.Length - 2 * kQuoteString.Length);
                 var i = 0;
-                while(true)
+                while(true && i < data.Length)
                 {
                     i = data.IndexOf(kQuoteString, i+1);
                     if(i == -1)

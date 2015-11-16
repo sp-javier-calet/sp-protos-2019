@@ -1,6 +1,10 @@
 fileFormatVersion: 2
 guid: f763080ec966e41c8a5d81177ba052ae
+<<<<<<< HEAD:Project/Assets/Libraries/SocialPoint/Attributes/IParser.cs.meta
+timeCreated: 1446743628
+=======
 timeCreated: 1446797126
+>>>>>>> release/minimal:Project/Assets/Libraries/SocialPoint/Attributes/IParser.cs.meta
 licenseType: Pro
 MonoImporter:
   serializedVersion: 2

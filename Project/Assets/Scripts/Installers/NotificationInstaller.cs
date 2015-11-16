@@ -6,7 +6,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;
 using SocialPoint.Notifications;
 
-public class NotificationInstaller : MonoInstaller
+public class NotificationInstaller : Installer
 {
     [Serializable]
     public class SettingsData
