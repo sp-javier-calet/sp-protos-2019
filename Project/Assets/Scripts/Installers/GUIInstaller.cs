@@ -24,7 +24,7 @@ public class GUIInstaller : MonoInstaller
 			{
 				name = name.Substring(0, name.Length-UIViewControllerSuffix.Length);
 			}
-			return string.Format("{0}", name);
+			return string.Format("GUI_{0}", name);
 		});
 
         UIViewController.AwakeFilter += (ctrl) => {
