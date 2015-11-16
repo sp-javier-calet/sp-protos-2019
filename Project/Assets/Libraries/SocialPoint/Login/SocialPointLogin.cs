@@ -89,7 +89,8 @@ namespace SocialPoint.Login
         private const int LinkedToLinkedError = 267;
         private const int ForceUpgradeError = 485;
 
-        public const uint DefaultMaxLoginRetries = 5;
+        public const int DefaultMaxSecurityTokenErrorRetries = 5;
+        public const int DefaultMaxConnectivityErrorRetries = 0;
         public const float DefaultTimeout = 30.0f;
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
@@ -124,7 +125,27 @@ namespace SocialPoint.Login
 
         public uint AutoUpdateFriendsPhotosSize { private get; set; }
 
-        public uint MaxLoginRetries { private get; set; }
+        public struct LoginRetries
+        {
+            public int SecurityTokenErrorRetries;
+            public int ConnectivityErrorRetries;
+        }
+
+        private LoginRetries _maxLoginRetries;
+        private LoginRetries _availableRetries;
+
+        public LoginRetries MaxLoginRetries
+        {
+            private get 
+            {
+                return _maxLoginRetries;
+            }
+            set
+            { 
+                _maxLoginRetries = value; 
+                _availableRetries = _maxLoginRetries;
+            }
+        }
 
         public uint UserMappingsBlock { private get; set; }
 
@@ -312,7 +333,9 @@ namespace SocialPoint.Login
             ActivityTimeout = DefaultActivityTimeout;
             AutoUpdateFriends = DefaultAutoUpdateFriends;
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
-            MaxLoginRetries = DefaultMaxLoginRetries;
+            MaxLoginRetries = new LoginRetries { SecurityTokenErrorRetries = DefaultMaxSecurityTokenErrorRetries, 
+                ConnectivityErrorRetries = DefaultMaxConnectivityErrorRetries };
+            _availableRetries = MaxLoginRetries;
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
             Language = null;
@@ -503,13 +526,19 @@ namespace SocialPoint.Login
             return url;
         }
 
-        void DoLogin(ErrorDelegate cbk, uint retry)
+        void DoLogin(ErrorDelegate cbk)
         {
             _pendingLinkConfirms.Clear();
-            if(retry > MaxLoginRetries)
+            if(_availableRetries.SecurityTokenErrorRetries < 0)
             {
                 var err = new Error("Max amount of login retries reached.");
                 NotifyError(ErrorType.LoginMaxRetries, err);
+                OnLoginEnd(err, cbk);
+            }
+            else if(_availableRetries.ConnectivityErrorRetries < 0)
+            {
+                var err = new Error("There was an error with the connection.");
+                NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
             }
             else
@@ -522,17 +551,24 @@ namespace SocialPoint.Login
                 }
 
                 DebugLog("login\n----\n" + req.ToString() + "----\n");
-                _httpClient.Send(req, (resp) => OnLogin(resp, cbk, retry));
+                _httpClient.Send(req, (resp) => OnLogin(resp, cbk));
             }
         }
 
-        void OnLogin(HttpResponse resp, ErrorDelegate cbk, uint retry)
+        void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
             DebugLog("login\n----\n" + resp.ToString() + "----\n");
-            if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
+            if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered) // FIXME Check with 2d. Different behaviour.
             {
                 ClearStoredUser();
-                DoLogin(cbk, retry + 1);
+                _availableRetries.SecurityTokenErrorRetries--;
+                DoLogin(cbk);
+                return;
+            }
+            else if(resp.HasConnectionError || resp.StatusCode >= HttpResponse.kMinServerErrorStatusCode)
+            {
+                _availableRetries.ConnectivityErrorRetries--;
+                DoLogin(cbk);
                 return;
             }
 
@@ -573,6 +609,12 @@ namespace SocialPoint.Login
 
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
+            // Reset retry values
+            _availableRetries = (Error.IsNullOrEmpty(err))? 
+                MaxLoginRetries : 
+                new LoginRetries { SecurityTokenErrorRetries = Math.Max(_availableRetries.SecurityTokenErrorRetries, 0), 
+                               ConnectivityErrorRetries = Math.Max(_availableRetries.ConnectivityErrorRetries, 0)};
+
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
             {
                 GetUsersPhotos(new List<User>(){ User }, AutoUpdateFriendsPhotosSize, (users, err2) => {
@@ -671,24 +713,37 @@ namespace SocialPoint.Login
                 }
                 else
                 {
-                    // the user links have changed, we need to tell the server
-                    info.LinkData = info.Link.GetLinkData();
-                    var req = new HttpRequest();
-                    SetupHttpRequest(req, LinkUri);
-                    req.AddParam(HttpParamSecurityToken, SecurityToken);
-                    req.AddParam(HttpParamLinkType, info.Link.Name);
-                    foreach(var pair in info.LinkData)
-                    {
-                        req.AddParam(pair.Key, pair.Value);
-                    }
-                    DebugLog("link\n----\n" + req.ToString() + "----\n");
-                    _httpClient.Send(req, (resp) => OnNewLinkResponse(info, resp));
+                    OnNewLink(info, state);
                 }
             }
         }
 
-        void OnNewLinkResponse(LinkInfo info, HttpResponse resp)
+        void OnNewLink(LinkInfo info, LinkState state)
         {
+            // the user links have changed, we need to tell the server
+            info.LinkData = info.Link.GetLinkData();
+            var req = new HttpRequest();
+            SetupHttpRequest(req, LinkUri);
+            req.AddParam(HttpParamSecurityToken, SecurityToken);
+            req.AddParam(HttpParamLinkType, info.Link.Name);
+            foreach(var pair in info.LinkData)
+            {
+                req.AddParam(pair.Key, pair.Value);
+            }
+            DebugLog("link\n----\n" + req.ToString() + "----\n");
+            _httpClient.Send(req, (resp) => OnNewLinkResponse(info, state, resp));
+        }
+
+        void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
+        {
+            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.kMinServerErrorStatusCode) &&
+               _availableRetries.ConnectivityErrorRetries >= 0)
+            {
+                _availableRetries.ConnectivityErrorRetries--;
+                OnNewLink(info, state);
+                return;
+            }
+
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             DebugLog("link\n----\n" + resp.ToString() + "----\n");
             var type = LinkConfirmType.None;
@@ -909,8 +964,16 @@ namespace SocialPoint.Login
             return err;
         }
 
-        void OnLinkConfirmResponse(LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
+        void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
+            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.kMinServerErrorStatusCode) &&
+                _availableRetries.ConnectivityErrorRetries > 0)
+            {
+                _availableRetries.ConnectivityErrorRetries--;
+                ConfirmLink(linkToken, decision, cbk);
+                return;
+            }
+
             var err = HandleLinkErrors(resp, ErrorType.Link);
             if(Error.IsNullOrEmpty(err))
             {
@@ -1524,7 +1587,7 @@ namespace SocialPoint.Login
             {
                 TrackEvent(EventNameLoading, new AttrDic());
             }
-            DoLogin(cbk, 0);
+            DoLogin(cbk);
         }
 
         /**
@@ -1593,7 +1656,7 @@ namespace SocialPoint.Login
                 linkInfo.Token = "";
             }
             DebugLog("link confirm\n----\n" + req.ToString() + "----\n");
-            _httpClient.Send(req, (HttpResponse resp) => OnLinkConfirmResponse(linkInfo, decision, resp, cbk));
+            _httpClient.Send(req, (HttpResponse resp) => OnLinkConfirmResponse(linkToken, linkInfo, decision, resp, cbk));
         }
 
         /**

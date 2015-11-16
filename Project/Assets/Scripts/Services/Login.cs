@@ -84,7 +84,7 @@ class Login : SocialPointLogin
     }
     
     [InjectOptional("login_max_retries")]
-    uint injectMaxLoginRetries
+    LoginRetries injectMaxLoginRetries
     {
         set
         {
