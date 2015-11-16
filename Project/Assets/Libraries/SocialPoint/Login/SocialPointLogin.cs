@@ -129,6 +129,7 @@ namespace SocialPoint.Login
         {
             public int SecurityTokenErrorRetries;
             public int ConnectivityErrorRetries;
+            public bool EnableLinkConfirmRetries;
         }
 
         private LoginRetries _maxLoginRetries;
@@ -616,7 +617,8 @@ namespace SocialPoint.Login
                 MaxLoginRetries : 
                 new LoginRetries { 
                     SecurityTokenErrorRetries = Math.Max(_availableRetries.SecurityTokenErrorRetries, 0), 
-                    ConnectivityErrorRetries = Math.Max(_availableRetries.ConnectivityErrorRetries, 0)
+                    ConnectivityErrorRetries = Math.Max(_availableRetries.ConnectivityErrorRetries, 0),
+                    EnableLinkConfirmRetries = MaxLoginRetries.EnableLinkConfirmRetries
                 };
 
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
@@ -957,7 +959,6 @@ namespace SocialPoint.Login
                 {
                     NewUserEvent(gameData, changed);
                 }
-
             }
             else
             {
@@ -971,7 +972,8 @@ namespace SocialPoint.Login
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
             if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-                _availableRetries.ConnectivityErrorRetries > 0)
+                _availableRetries.ConnectivityErrorRetries > 0 && 
+                _availableRetries.EnableLinkConfirmRetries)
             {
                 _availableRetries.ConnectivityErrorRetries--;
                 ConfirmLink(linkToken, decision, cbk);
@@ -1654,11 +1656,6 @@ namespace SocialPoint.Login
             req.AddParam(HttpParamLinkConfirmToken, linkToken);
             req.AddParam(HttpParamLinkDecision, decision.ToString().ToLower());
 
-            if(linkInfo != null)
-            {
-                // unset link token to prevent multiple confirms
-                linkInfo.Token = "";
-            }
             DebugLog("link confirm\n----\n" + req.ToString() + "----\n");
             _httpClient.Send(req, (HttpResponse resp) => OnLinkConfirmResponse(linkToken, linkInfo, decision, resp, cbk));
         }
