@@ -614,8 +614,10 @@ namespace SocialPoint.Login
             // Reset retry values
             _availableRetries = (Error.IsNullOrEmpty(err))? 
                 MaxLoginRetries : 
-                new LoginRetries { SecurityTokenErrorRetries = Math.Max(_availableRetries.SecurityTokenErrorRetries, 0), 
-                               ConnectivityErrorRetries = Math.Max(_availableRetries.ConnectivityErrorRetries, 0)};
+                new LoginRetries { 
+                    SecurityTokenErrorRetries = Math.Max(_availableRetries.SecurityTokenErrorRetries, 0), 
+                    ConnectivityErrorRetries = Math.Max(_availableRetries.ConnectivityErrorRetries, 0)
+                };
 
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
             {
@@ -739,7 +741,7 @@ namespace SocialPoint.Login
         void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
         {
             if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-               _availableRetries.ConnectivityErrorRetries >= 0)
+               _availableRetries.ConnectivityErrorRetries > 0)
             {
                 _availableRetries.ConnectivityErrorRetries--;
                 OnNewLink(info, state);
