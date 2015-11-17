@@ -126,28 +126,17 @@ namespace SocialPoint.Login
 
         public uint AutoUpdateFriendsPhotosSize { private get; set; }
 
-        public struct LoginRetries
+        public struct LoginConfig
         {
+            public string BaseUrl;
             public int SecurityTokenErrors;
             public int ConnectivityErrors;
             public bool EnableOnLinkConfirm;
         }
 
-        private LoginRetries _maxLoginRetries;
-        private LoginRetries _availableRetries;
-
-        public LoginRetries MaxLoginRetries
-        {
-            private get 
-            {
-                return _maxLoginRetries;
-            }
-            set
-            { 
-                _maxLoginRetries = value; 
-                _availableRetries = _maxLoginRetries;
-            }
-        }
+        private LoginConfig _loginConfig;
+        private int _availableSecurityTokenErrorRetries;
+        private int _availableConnectivityErrorRetries;
 
         public uint UserMappingsBlock { private get; set; }
 
@@ -287,7 +276,6 @@ namespace SocialPoint.Login
         }
 
         IHttpClient _httpClient;
-        string _baseUrl;
         List<LinkInfo> _links;
         List<LinkInfo> _pendingLinkConfirms;
         List<User> _users;
@@ -305,17 +293,21 @@ namespace SocialPoint.Login
         public event LoginErrorDelegate ErrorEvent = delegate {};
         public event RestartDelegate RestartEvent = delegate {};
 
-        public SocialPointLogin(IHttpClient client, string baseUrl = null)
+        public SocialPointLogin(IHttpClient client, LoginConfig config)
         {
             Init();
-            if(baseUrl == null)
-            {
-                baseUrl = string.Empty;
-            }
             _httpClient = client;
+            _loginConfig = config;
+            _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
+            _availableConnectivityErrorRetries = config.ConnectivityErrors;
 
+            if(config.BaseUrl == null)
+            {
+                config.BaseUrl = string.Empty;
+            }
             // Ensure the URL always contains a trailing slash
-            _baseUrl = baseUrl.EndsWith(UriSeparator.ToString()) ? baseUrl : baseUrl + UriSeparator;
+            _loginConfig.BaseUrl = config.BaseUrl.EndsWith(UriSeparator.ToString()) ?
+                                   _loginConfig.BaseUrl : _loginConfig.BaseUrl + UriSeparator;
         }
                 
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
@@ -335,12 +327,6 @@ namespace SocialPoint.Login
             ActivityTimeout = DefaultActivityTimeout;
             AutoUpdateFriends = DefaultAutoUpdateFriends;
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
-            MaxLoginRetries = new LoginRetries { 
-                SecurityTokenErrors = DefaultMaxSecurityTokenErrorRetries, 
-                ConnectivityErrors = DefaultMaxConnectivityErrorRetries,
-                EnableOnLinkConfirm = DefaultEnableLinkConfirmRetries
-            };
-            _availableRetries = MaxLoginRetries;
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
             Language = null;
@@ -521,7 +507,7 @@ namespace SocialPoint.Login
 
         public string GetUrl(string uri)
         {
-            var url = _baseUrl + BaseUri + UriSeparator + uri.TrimStart(UriSeparator);
+            var url = _loginConfig.BaseUrl + BaseUri + UriSeparator + uri.TrimStart(UriSeparator);
             string deviceId = "0";
             if(DeviceInfo != null)
             {
@@ -534,13 +520,13 @@ namespace SocialPoint.Login
         void DoLogin(ErrorDelegate cbk)
         {
             _pendingLinkConfirms.Clear();
-            if(_availableRetries.SecurityTokenErrors < 0)
+            if(_availableSecurityTokenErrorRetries < 0)
             {
                 var err = new Error("Max amount of login retries reached.");
                 NotifyError(ErrorType.LoginMaxRetries, err);
                 OnLoginEnd(err, cbk);
             }
-            else if(_availableRetries.ConnectivityErrors < 0)
+            else if(_availableConnectivityErrorRetries < 0)
             {
                 var err = new Error("There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
@@ -566,13 +552,13 @@ namespace SocialPoint.Login
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearStoredUser();
-                _availableRetries.SecurityTokenErrors--;
+                _availableSecurityTokenErrorRetries--;
                 DoLogin(cbk);
                 return;
             }
             else if(resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode)
             {
-                _availableRetries.ConnectivityErrors--;
+                _availableConnectivityErrorRetries--;
                 DoLogin(cbk);
                 return;
             }
@@ -615,13 +601,18 @@ namespace SocialPoint.Login
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
             // Reset retry values
-            _availableRetries = (Error.IsNullOrEmpty(err))? 
-                MaxLoginRetries : 
-                new LoginRetries { 
-                    SecurityTokenErrors = Math.Max(_availableRetries.SecurityTokenErrors, 0), 
-                    ConnectivityErrors = Math.Max(_availableRetries.ConnectivityErrors, 0),
-                    EnableOnLinkConfirm = MaxLoginRetries.EnableOnLinkConfirm
-                };
+            if(Error.IsNullOrEmpty(err))
+            {
+                _availableConnectivityErrorRetries = _loginConfig.ConnectivityErrors;
+                _availableSecurityTokenErrorRetries = _loginConfig.SecurityTokenErrors;
+            }
+            else
+            {
+                _availableConnectivityErrorRetries = Math.Max(_loginConfig.ConnectivityErrors, 0);
+                _availableSecurityTokenErrorRetries = Math.Max(_loginConfig.SecurityTokenErrors, 0);
+
+            }
+
 
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
             {
@@ -745,9 +736,9 @@ namespace SocialPoint.Login
         void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
         {
             if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-               _availableRetries.ConnectivityErrors > 0)
+               _availableConnectivityErrorRetries > 0)
             {
-                _availableRetries.ConnectivityErrors--;
+                _availableConnectivityErrorRetries--;
                 OnNewLink(info, state);
                 return;
             }
@@ -974,10 +965,10 @@ namespace SocialPoint.Login
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
             if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-                _availableRetries.ConnectivityErrors > 0 && 
-                _availableRetries.EnableOnLinkConfirm)
+                _availableConnectivityErrorRetries > 0 && 
+                _loginConfig.EnableOnLinkConfirm)
             {
-                _availableRetries.ConnectivityErrors--;
+                _availableConnectivityErrorRetries--;
                 ConfirmLink(linkToken, decision, cbk);
                 return;
             }

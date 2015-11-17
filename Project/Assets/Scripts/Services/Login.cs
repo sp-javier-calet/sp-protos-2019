@@ -83,15 +83,6 @@ class Login : SocialPointLogin
         }
     }
     
-    [InjectOptional("login_max_retries")]
-    LoginRetries injectMaxLoginRetries
-    {
-        set
-        {
-            MaxLoginRetries = value;
-        }
-    }
-    
     [InjectOptional("login_user_mappings_block")]
     uint injectUserMappingsBlock
     {
@@ -110,7 +101,7 @@ class Login : SocialPointLogin
         }
     }
     
-    public Login(IHttpClient client, [Inject("backend_env")] BackendEnvironment env) : base(client, env.GetUrl())
+    public Login(IHttpClient client, LoginConfig config) : base(client, config)
     {
     }
 }
