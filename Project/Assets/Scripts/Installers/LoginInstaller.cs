@@ -74,9 +74,9 @@ public class LoginInstaller : MonoInstaller
         Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
         Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
         Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
-        Container.BindInstance("login_max_retries", new Login.LoginRetries { SecurityTokenErrorRetries = (int)Settings.MaxSecurityTokenErrorRetries, 
-                                                                             ConnectivityErrorRetries = (int)Settings.MaxConnectivityErrorRetries,
-                                                                             EnableLinkConfirmRetries = Settings.EnableLinkConfirmRetries });
+        Container.BindInstance("login_max_retries", new Login.LoginRetries { SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries, 
+                                                                             ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
+                                                                             EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries });
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
 
         Container.Rebind<ILogin>().ToSingle<Login>();

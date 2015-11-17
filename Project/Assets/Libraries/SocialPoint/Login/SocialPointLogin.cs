@@ -128,9 +128,9 @@ namespace SocialPoint.Login
 
         public struct LoginRetries
         {
-            public int SecurityTokenErrorRetries;
-            public int ConnectivityErrorRetries;
-            public bool EnableLinkConfirmRetries;
+            public int SecurityTokenErrors;
+            public int ConnectivityErrors;
+            public bool EnableOnLinkConfirm;
         }
 
         private LoginRetries _maxLoginRetries;
@@ -336,9 +336,9 @@ namespace SocialPoint.Login
             AutoUpdateFriends = DefaultAutoUpdateFriends;
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
             MaxLoginRetries = new LoginRetries { 
-                SecurityTokenErrorRetries = DefaultMaxSecurityTokenErrorRetries, 
-                ConnectivityErrorRetries = DefaultMaxConnectivityErrorRetries,
-                EnableLinkConfirmRetries = DefaultEnableLinkConfirmRetries
+                SecurityTokenErrors = DefaultMaxSecurityTokenErrorRetries, 
+                ConnectivityErrors = DefaultMaxConnectivityErrorRetries,
+                EnableOnLinkConfirm = DefaultEnableLinkConfirmRetries
             };
             _availableRetries = MaxLoginRetries;
             UserMappingsBlock = DefaultUserMappingsBlock;
@@ -534,13 +534,13 @@ namespace SocialPoint.Login
         void DoLogin(ErrorDelegate cbk)
         {
             _pendingLinkConfirms.Clear();
-            if(_availableRetries.SecurityTokenErrorRetries < 0)
+            if(_availableRetries.SecurityTokenErrors < 0)
             {
                 var err = new Error("Max amount of login retries reached.");
                 NotifyError(ErrorType.LoginMaxRetries, err);
                 OnLoginEnd(err, cbk);
             }
-            else if(_availableRetries.ConnectivityErrorRetries < 0)
+            else if(_availableRetries.ConnectivityErrors < 0)
             {
                 var err = new Error("There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
@@ -566,13 +566,13 @@ namespace SocialPoint.Login
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearStoredUser();
-                _availableRetries.SecurityTokenErrorRetries--;
+                _availableRetries.SecurityTokenErrors--;
                 DoLogin(cbk);
                 return;
             }
             else if(resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode)
             {
-                _availableRetries.ConnectivityErrorRetries--;
+                _availableRetries.ConnectivityErrors--;
                 DoLogin(cbk);
                 return;
             }
@@ -618,9 +618,9 @@ namespace SocialPoint.Login
             _availableRetries = (Error.IsNullOrEmpty(err))? 
                 MaxLoginRetries : 
                 new LoginRetries { 
-                    SecurityTokenErrorRetries = Math.Max(_availableRetries.SecurityTokenErrorRetries, 0), 
-                    ConnectivityErrorRetries = Math.Max(_availableRetries.ConnectivityErrorRetries, 0),
-                    EnableLinkConfirmRetries = MaxLoginRetries.EnableLinkConfirmRetries
+                    SecurityTokenErrors = Math.Max(_availableRetries.SecurityTokenErrors, 0), 
+                    ConnectivityErrors = Math.Max(_availableRetries.ConnectivityErrors, 0),
+                    EnableOnLinkConfirm = MaxLoginRetries.EnableOnLinkConfirm
                 };
 
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
@@ -745,9 +745,9 @@ namespace SocialPoint.Login
         void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
         {
             if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-               _availableRetries.ConnectivityErrorRetries > 0)
+               _availableRetries.ConnectivityErrors > 0)
             {
-                _availableRetries.ConnectivityErrorRetries--;
+                _availableRetries.ConnectivityErrors--;
                 OnNewLink(info, state);
                 return;
             }
@@ -974,10 +974,10 @@ namespace SocialPoint.Login
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
             if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-                _availableRetries.ConnectivityErrorRetries > 0 && 
-                _availableRetries.EnableLinkConfirmRetries)
+                _availableRetries.ConnectivityErrors > 0 && 
+                _availableRetries.EnableOnLinkConfirm)
             {
-                _availableRetries.ConnectivityErrorRetries--;
+                _availableRetries.ConnectivityErrors--;
                 ConfirmLink(linkToken, decision, cbk);
                 return;
             }
