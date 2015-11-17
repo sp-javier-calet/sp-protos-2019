@@ -119,7 +119,7 @@ namespace SocialPoint.Crash
         #if UNITY_ANDROID
         const string PluginModuleName = "sp_unity_crash_reporter";
         
-#else
+        #else
         const string PluginModuleName = "__Internal";
         #endif
 
@@ -152,11 +152,9 @@ namespace SocialPoint.Crash
         {
             _crashesBasePath = PathsManager.TemporaryCachePath + CrashesFolder;
 
-            // Create folder if needed
-            if(!Directory.Exists(_crashesBasePath))
-            {
-                Directory.CreateDirectory(_crashesBasePath);
-            }
+            FileUtils.CreateDirectory(_crashesBasePath);
+
+            ReadPendingCrashes();
 
             // Create native object
             _nativeObject = native_crashReporter_create(_crashesBasePath, deviceInfo.AppInfo.Version, FileSeparator, CrashExtension, LogExtension);
@@ -200,7 +198,9 @@ namespace SocialPoint.Crash
                 // Creates a report for each .crash/.logcat pair
                 if(f.Extension == CrashExtension)
                 {
-                    reports.Add(new DeviceReport(f.FullName));
+                    var report = new DeviceReport(f.FullName);
+                    report.Uuid = f.Name;
+                    reports.Add(report);
                 }
             }
 

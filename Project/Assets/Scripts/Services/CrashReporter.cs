@@ -65,6 +65,24 @@ class CrashReporter : SocialPointCrashReporter
         }
     }
 
+    [InjectOptional("crash_reporter_enable_sending_crashes_before_login")]
+    bool injectEnableSendingCrashesBeforeLogin
+    {
+        set
+        {
+            EnableSendingCrashesBeforeLogin = value;
+        }
+    }
+
+    [InjectOptional("crash_reporter_num_retries_before_sending_crash_before_login")]
+    int injectNumRetriesBeforeSendingCrashBeforeLogin
+    {
+        set
+        {
+            NumRetriesBeforeSendingCrashBeforeLogin = value;
+        }
+    }
+
     public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs) :
         base(behaviour, client, deviceInfo, breadcrumbs)
     {
