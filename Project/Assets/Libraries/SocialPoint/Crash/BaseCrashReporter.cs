@@ -549,10 +549,7 @@ namespace SocialPoint.Crash
 
         void SendCrashesAfterLogin(Action callback = null)
         {
-            Debug.Log("BaseCrashReporter-- SendCrashesAfterLogin");
-
             SendCrashes(ReportSendType.AfterLogin, () => {
-                Debug.Log("BaseCrashReporter-- SendCrashesAfterLogin callback called");
                 if(callback != null)
                 {
                     callback();
@@ -562,10 +559,7 @@ namespace SocialPoint.Crash
 
         public void SendCrashesBeforeLogin(Action callback)
         {
-            Debug.Log("BaseCrashReporter-- SendCrashesBeforeLogin");
-
             SendCrashes(ReportSendType.BeforeLogin, () => {
-                Debug.Log("BaseCrashReporter-- SendCrashesBeforeLogin callback called");
                 if(callback != null)
                 {
                     callback();
@@ -583,20 +577,13 @@ namespace SocialPoint.Crash
                     callback();
                 }
             };
-            SendTrackedCrashes(reportSendType, () => {
-                Debug.Log("BaseCrashReporter-- SendTrackedCrashes callback called: " + reportSendType);
-                step();
-            });
-            SendPendingCrashes(reportSendType, () => {
-                Debug.Log("BaseCrashReporter-- SendPendingCrashes callback called: " + reportSendType);
-                step();
-            });
+            SendTrackedCrashes(reportSendType, step);
+            SendPendingCrashes(reportSendType, step);
         }
 
         void SendTrackedCrashes(ReportSendType reportSendType, Action callback)
         {
             int trackedCrashesToSend = TrackedCrashesToSend(reportSendType);
-            Debug.Log("BaseCrashReporter-- SendTrackedCrashes trackedCrashesToSend: " + trackedCrashesToSend);
 
             if(trackedCrashesToSend > 0)
             {
@@ -627,7 +614,6 @@ namespace SocialPoint.Crash
         void SendPendingCrashes(ReportSendType reportSendType, Action callback)
         {
             int pendingCrashesToSend = PendingCrashesToSend(reportSendType);
-            Debug.Log("BaseCrashReporter-- SendPendingCrashes pendingCrashesToSend: " + pendingCrashesToSend);
 
             if(pendingCrashesToSend > 0)
             {
@@ -831,13 +817,11 @@ namespace SocialPoint.Crash
         {
             if(!resp.HasError)
             {
-                Debug.Log("BaseCrashReporter-- OnCrashSend OK");
                 _crashStorage.Remove(log);
                 EraseRetryKey(log);
             }
             else
             {
-                Debug.Log("BaseCrashReporter-- OnCrashSend KO");
                 SubtractRetry(log);
             }
 
@@ -902,8 +886,6 @@ namespace SocialPoint.Crash
                 TrackEvent(CrashEventName, data, err => {
                     if(!Error.IsNullOrEmpty(err))
                     {
-                        Debug.Log("BaseCrashReporter-- CreateCrashLog KO");
-                        Debug.Log("BaseCrashReporter-- error: " + err);
                         SubtractRetry(report.Uuid);
                         if(callback != null)
                         {
@@ -912,7 +894,6 @@ namespace SocialPoint.Crash
                     }
                     else
                     {
-                        Debug.Log("BaseCrashReporter-- CreateCrashLog OK");
                         CreateCrashLog(report, callback);
                     }
                 });
@@ -1060,34 +1041,25 @@ namespace SocialPoint.Crash
 
         static void AddRetry(string reportUuid, int retriesToAdd = 1)
         {
-            Debug.Log("BaseCrashReporter-- AddRetry reportUuid: " + reportUuid);
-
             var retriesKey = GetRetriesKey(reportUuid);
             var retries = GetRetries(reportUuid);
             PlayerPrefs.SetInt(retriesKey, retries + retriesToAdd);
             PlayerPrefs.Save(); 
-            Debug.Log("BaseCrashReporter-- retries: " + GetRetries(reportUuid));
         }
 
         static void SubtractRetry(string reportUuid, int retriesToRemove = 1)
         {
-            Debug.Log("BaseCrashReporter-- SubtractRetry reportUuid: " + reportUuid);
-
             var retriesKey = GetRetriesKey(reportUuid);
             var retries = GetRetries(reportUuid);
             PlayerPrefs.SetInt(retriesKey, Math.Max(retries - retriesToRemove, 0));
             PlayerPrefs.Save();
-            Debug.Log("BaseCrashReporter-- retries: " + GetRetries(reportUuid));
         }
 
         static void EraseRetryKey(string reportUuid)
         {
-            Debug.Log("BaseCrashReporter-- EraseRetryKey reportUuid: " + reportUuid);
-
             var retriesKey = GetRetriesKey(reportUuid);
             PlayerPrefs.DeleteKey(retriesKey);
             PlayerPrefs.Save();
-            Debug.Log("BaseCrashReporter-- retries: " + GetRetries(reportUuid));
         }
 
         #endregion
