@@ -14,7 +14,7 @@ namespace SocialPoint.ServerEvents
         Exception
     }
 
-    public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type,Error err);
+    public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type, Error err);
 
     public class ResourceOperation
     {
@@ -75,6 +75,8 @@ namespace SocialPoint.ServerEvents
         bool Send();
 
         void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
+
+        void TrackUrgentSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
 

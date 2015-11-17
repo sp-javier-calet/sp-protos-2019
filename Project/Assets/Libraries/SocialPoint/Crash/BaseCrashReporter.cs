@@ -1014,7 +1014,8 @@ namespace SocialPoint.Crash
                 var retriesKey = GetRetriesKey(reportUuid);
                 var retries = GetRetries(reportUuid);
                 PlayerPrefs.SetInt(retriesKey, retries + retriesToAdd);
-                PlayerPrefs.Save();
+                PlayerPrefs.Save(); 
+                Debug.Log("BaseCrashReporter-- retries: " + GetRetries(reportUuid));
             }
 
             public static void RemoveRetry(string reportUuid, int retriesToRemove = 1)
@@ -1025,6 +1026,7 @@ namespace SocialPoint.Crash
                 var retries = GetRetries(reportUuid);
                 PlayerPrefs.SetInt(retriesKey, retries - retriesToRemove);
                 PlayerPrefs.Save();
+                Debug.Log("BaseCrashReporter-- retries: " + GetRetries(reportUuid));
             }
 
             public static void EraseRetryKey(string reportUuid)
@@ -1034,6 +1036,7 @@ namespace SocialPoint.Crash
                 var retriesKey = GetRetriesKey(reportUuid);
                 PlayerPrefs.DeleteKey(retriesKey);
                 PlayerPrefs.Save();
+                Debug.Log("BaseCrashReporter-- retries: " + GetRetries(reportUuid));
             }
         };
     }

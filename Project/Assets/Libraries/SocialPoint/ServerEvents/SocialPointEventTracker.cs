@@ -15,26 +15,26 @@ namespace SocialPoint.ServerEvents
 {
     public class SocialPointEventTracker : IEventTracker
     {
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
         const string TrackingAuthorizedUri = "track";
         const string TrackingUnautorizedUri = "unauthorized/track";
 
-        private const string EventNameFunnel = "game.funnel";
-        private const string EventNameLevel = "game.level_up";
-        private const string EventNameGameStart = "game.start";
-        private const string EventNameGameOpen = "game.open";
-        private const string EventNameGameLoading = "game.loading";
-        private const string EventNameGameLoaded = "game.loaded";
-        private const string EventNameGameBackground = "game.background";       
-        private const string EventNameGameRestart = "game.restart";
-        private const string EventNameResourceEarning = "economy.{0}_earning";
-        private const string EventNameResourceSpending = "economy.{0}_spending";
+        const string EventNameFunnel = "game.funnel";
+        const string EventNameLevel = "game.level_up";
+        const string EventNameGameStart = "game.start";
+        const string EventNameGameOpen = "game.open";
+        const string EventNameGameLoading = "game.loading";
+        const string EventNameGameLoaded = "game.loaded";
+        const string EventNameGameBackground = "game.background";
+        const string EventNameGameRestart = "game.restart";
+        const string EventNameResourceEarning = "economy.{0}_earning";
+        const string EventNameResourceSpending = "economy.{0}_spending";
 
-        private const int MinServerErrorStatusCode = 500;
-        private const int SessionLostErrorStatusCode = 482;
-        private const int StartEventNum = 1;
-        private static readonly string[] DefaultUnauthorizedEvents = {
+        const int MinServerErrorStatusCode = 500;
+        const int SessionLostErrorStatusCode = 482;
+        const int StartEventNum = 1;
+        static readonly string[] DefaultUnauthorizedEvents = {
             EventNameGameStart,
             EventNameGameOpen,
             EventNameGameBackground,
@@ -72,6 +72,7 @@ namespace SocialPoint.ServerEvents
         int _lastEventNum;
         long _lastSendTimestamp;
         bool _synced;
+        bool _sendPending;
         long _syncTimestamp;
         float _currentTimeout;
         float _currentSendInterval;
@@ -187,7 +188,7 @@ namespace SocialPoint.ServerEvents
 
         #endregion
 
-        public SocialPointEventTracker(MonoBehaviour behaviour, bool autoStart=true)
+        public SocialPointEventTracker(MonoBehaviour behaviour, bool autoStart = true)
         {
             _behaviour = behaviour;
             UnauthorizedEvents = new List<string>(DefaultUnauthorizedEvents);
@@ -220,8 +221,9 @@ namespace SocialPoint.ServerEvents
             _currentTimeout = Timeout;
             _currentSendInterval = SendInterval;
             _syncTimestamp = CurrentTimestamp;
-            _synced = false;
+            _synced = true;
             _sending = false;
+            _sendPending = false;
         }
 
         void OnTimeOffsetChanged(TimeSpan diff)
@@ -231,7 +233,7 @@ namespace SocialPoint.ServerEvents
             _syncTimestamp += dt;
         }
 
-        void TrackEventByRequest(string eventName, AttrDic data, ErrorDelegate del = null)
+        void TrackEventByRequest(string eventName, bool isUrgent, AttrDic data, ErrorDelegate del = null)
         {
             if(data == null)
             {
@@ -239,6 +241,10 @@ namespace SocialPoint.ServerEvents
             }
             DataSetup(data);
             var e = new Event(eventName, data, del);
+            if(isUrgent)
+            {
+                e.Retries = 0;
+            }
             _pendingEvents.Add(e);
         }
 
@@ -257,7 +263,13 @@ namespace SocialPoint.ServerEvents
 
         public void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
-            TrackEventByRequest(eventName, data, del);
+            TrackEventByRequest(eventName, false, data, del);
+        }
+
+        public void TrackUrgentSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
+        {
+            TrackEventByRequest(eventName, true, data, del);
+            Send();
         }
 
         public void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
@@ -268,7 +280,7 @@ namespace SocialPoint.ServerEvents
             }
             if(CommandQueue == null || IsEventUnauthorized(eventName))
             {
-                TrackEventByRequest(eventName, data, del);
+                TrackEventByRequest(eventName, false, data, del);
             }
             else
             {
@@ -355,13 +367,30 @@ namespace SocialPoint.ServerEvents
                 int count = 2;
                 Action step = () => {
                     count--;
-                    _sending &= count != 0;
+                    if(count == 0)
+                    {
+                        AfterSend();
+                    }
                 };
                 DoSend(false, step);
                 DoSend(true, step);
                 return true;
             }
-            return false;
+            else
+            {
+                _sendPending = true;
+                return false;
+            }
+        }
+
+        void AfterSend()
+        {
+            _sending = false;
+            if(_sendPending)
+            {
+                _sendPending = false;
+                Send();
+            }
         }
 
         void AddHardwareData(AttrDic data)
@@ -407,6 +436,7 @@ namespace SocialPoint.ServerEvents
                         _lastEventNum++;
                     }
                     sentEvents.Add(ev);
+                    ev.OnStart();
                     evs.Add(ev.ToAttr());
                 }
             }
@@ -490,49 +520,48 @@ namespace SocialPoint.ServerEvents
 
         void OnHttpResponse(HttpResponse resp, List<Event> sentEvents)
         {
-            bool success = CheckSync(resp);
-            ApplyBackoff(success);
-            if(success)
+            bool synced = CheckSync(resp);
+            ApplyBackoff(synced);
+            var error = resp.Error;
+            if(resp.HasError)
             {
-                var error = resp.Error;
-                if(resp.HasError)
+                try
                 {
-                    try
+                    var data = new JsonAttrParser().Parse(resp.Body).AsDic;
+                    var dataErr = AttrUtils.GetError(data);
+                    if(dataErr != null)
                     {
-                        var data = new JsonAttrParser().Parse(resp.Body).AsDic;
-                        var dataErr = AttrUtils.GetError(data);
-                        if(dataErr != null)
-                        {
-                            error = dataErr;
-                        }
-                    }
-                    catch(Exception)
-                    {
+                        error = dataErr;
                     }
                 }
-                foreach(var ev in sentEvents)
+                catch(Exception)
+                {
+                }
+            }
+            foreach(var ev in sentEvents)
+            {
+                if(synced || ev != null && !ev.CanRetry)
                 {
                     if(ev != null && ev.ResponseDelegate != null)
                     {
                         ev.ResponseDelegate(error);
                     }
-
-                    if(error != null && error.HasError)
-                    {
-                        if(error.Code == SessionLostErrorStatusCode)
-                        {
-                            GeneralError(EventTrackerErrorType.SessionLost, error);
-                        }
-                        else
-                        {
-                            GeneralError(EventTrackerErrorType.HttpResponse, error);
-                        }
-                    }
-
                     _pendingEvents.Remove(ev);
                 }
             }
             sentEvents.Clear();
+
+            if(synced && error != null && error.HasError)
+            {
+                if(error.Code == SessionLostErrorStatusCode)
+                {
+                    GeneralError(EventTrackerErrorType.SessionLost, error);
+                }
+                else
+                {
+                    GeneralError(EventTrackerErrorType.HttpResponse, error);
+                }
+            }
         }
 
         void ApplyBackoff(bool success)

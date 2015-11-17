@@ -1,12 +1,11 @@
-﻿using Zenject;
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AppEvents;
 using SocialPoint.Crash;
-using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Login;
+using SocialPoint.Network;
 using SocialPoint.ServerEvents;
-using SocialPoint.AppEvents;
 using UnityEngine;
+using Zenject;
 
 class CrashReporter : SocialPointCrashReporter
 {
@@ -17,21 +16,19 @@ class CrashReporter : SocialPointCrashReporter
         set
         {
             RequestSetup = value.SetupHttpRequest;
-            GetUserId = () => {
-                return value.UserId;
-            };
+            GetUserId = () => value.UserId;
         }
     }
-    
+
     [Inject]
     IEventTracker injectEventTracker
     {
         set
         {
-            TrackEvent = value.TrackEvent;
+            TrackEvent = value.TrackUrgentSystemEvent;
         }
     }
-    
+
     [Inject]
     IAppEvents injectAppEvents
     {
@@ -58,7 +55,7 @@ class CrashReporter : SocialPointCrashReporter
             ErrorLogActive = value;
         }
     }
-    
+
     [InjectOptional("crash_reporter_exception_log_active")]
     bool injectExceptionLogActive
     {
@@ -68,7 +65,7 @@ class CrashReporter : SocialPointCrashReporter
         }
     }
 
-    public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs):
+    public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs) :
         base(behaviour, client, deviceInfo, breadcrumbs)
     {
     }

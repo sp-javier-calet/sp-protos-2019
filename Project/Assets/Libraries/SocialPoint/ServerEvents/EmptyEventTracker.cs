@@ -1,4 +1,3 @@
-using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 
@@ -40,6 +39,10 @@ namespace SocialPoint.ServerEvents
         }
 
         public void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
+        {
+        }
+
+        public void TrackUrgentSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
         }
 
