@@ -12,7 +12,7 @@ public class FacebookInstaller : MonoInstaller
         public bool UseEmpty = false;
     };
     
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
 
     public override void InstallBindings()

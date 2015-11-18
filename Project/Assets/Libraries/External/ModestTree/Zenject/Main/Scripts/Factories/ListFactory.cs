@@ -6,6 +6,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class ListFactory<T>
     {
         readonly DiContainer _container;

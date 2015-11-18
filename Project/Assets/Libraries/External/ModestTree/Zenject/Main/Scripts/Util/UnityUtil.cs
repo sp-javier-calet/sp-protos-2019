@@ -99,6 +99,11 @@ namespace ModestTree.Util
                     x == null ? int.MinValue : GetDepthLevel(x.transform));
         }
 
+        public static List<GameObject> GetRootGameObjects()
+        {
+            return GameObject.FindObjectsOfType<Transform>().Where(x => x.parent == null).Select(x => x.gameObject).ToList();
+        }
+
         // Returns more intuitive defaults
         // eg. An empty string rather than null
         // An empty collection (eg. List<>) rather than null

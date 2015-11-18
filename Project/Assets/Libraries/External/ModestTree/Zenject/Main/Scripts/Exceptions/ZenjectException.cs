@@ -2,6 +2,7 @@ using System;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class ZenjectException : Exception
     {
         public ZenjectException(string message)
@@ -16,6 +17,7 @@ namespace Zenject
         }
     }
 
+    [System.Diagnostics.DebuggerStepThrough]
     public class ZenjectResolveException : ZenjectException
     {
         public ZenjectResolveException(string message)
@@ -30,6 +32,7 @@ namespace Zenject
         }
     }
 
+    [System.Diagnostics.DebuggerStepThrough]
     public class ZenjectBindException : ZenjectException
     {
         public ZenjectBindException(string message)

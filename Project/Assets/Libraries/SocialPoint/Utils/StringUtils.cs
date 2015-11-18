@@ -116,6 +116,32 @@ namespace SocialPoint.Utils
             return i != -1;
         }
 
+        const string DefaultJoinSeparator = ", ";
+
+        public static string Join<T>(IList<T> objs, string sep=null)
+        {
+            if(objs == null)
+            {
+                return string.Empty;
+            }
+            if(sep == null)
+            {
+                sep = DefaultJoinSeparator;
+            }
+            var strs = new string[objs.Count];
+            var i = 0;
+            foreach(var obj in objs)
+            {
+                if(obj != null)
+                {
+                    strs[i] = obj.ToString();
+                }
+                i++;
+            }
+            return string.Join(sep, strs);
+        }
+
+
         public static  bool GlobMatch(string pattern, string value)
         {
             bool deep = pattern.Contains(WildcardDeep);

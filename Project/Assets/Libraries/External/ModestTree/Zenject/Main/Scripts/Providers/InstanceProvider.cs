@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class InstanceProvider : ProviderBase
     {
         readonly object _instance;

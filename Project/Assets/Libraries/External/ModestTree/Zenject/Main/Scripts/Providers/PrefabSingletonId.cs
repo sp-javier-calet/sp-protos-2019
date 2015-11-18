@@ -8,15 +8,19 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class PrefabSingletonId : IEquatable<PrefabSingletonId>
     {
         public readonly string Identifier;
         public readonly GameObject Prefab;
+        public readonly string ResourcePath;
 
-        public PrefabSingletonId(string identifier, GameObject prefab)
+        public PrefabSingletonId(string identifier, GameObject prefab, string resourcePath)
         {
+            Assert.That((resourcePath == null && prefab != null) || (resourcePath != null && prefab == null));
             Identifier = identifier;
             Prefab = prefab;
+            ResourcePath = resourcePath;
         }
 
         public override int GetHashCode()
@@ -26,6 +30,7 @@ namespace Zenject
                 int hash = 17;
                 hash = hash * 29 + (this.Identifier == null ? 0 : this.Identifier.GetHashCode());
                 hash = hash * 29 + (ZenUtil.IsNull(this.Prefab) ? 0 : this.Prefab.GetHashCode());
+                hash = hash * 29 + (this.ResourcePath == null ? 0 : this.ResourcePath.GetHashCode());
                 return hash;
             }
         }
@@ -50,7 +55,7 @@ namespace Zenject
 
         public static bool operator ==(PrefabSingletonId left, PrefabSingletonId right)
         {
-            return object.Equals(left.Prefab, right.Prefab) && object.Equals(left.Identifier, right.Identifier);
+            return object.Equals(left.Prefab, right.Prefab) && object.Equals(left.Identifier, right.Identifier) && object.Equals(left.ResourcePath, right.ResourcePath);
         }
 
         public static bool operator !=(PrefabSingletonId left, PrefabSingletonId right)

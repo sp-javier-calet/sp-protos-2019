@@ -109,6 +109,7 @@ namespace SocialPoint.GUIControl
 
         void OnDestroy()
         {
+            Reset();
             HideImmediate();
         }
 
@@ -122,13 +123,16 @@ namespace SocialPoint.GUIControl
 
         public bool Load()
         {
+            bool loaded = false;
             if(!_loaded)
             {
                 _loaded = true;
+                loaded = true;
                 OnLoad();
-                return true;
             }
-            return false;
+            Setup();
+            Reset();
+            return loaded;
         }
 
         void Setup()
@@ -191,36 +195,10 @@ namespace SocialPoint.GUIControl
             return _hideCoroutine;
         }
 
-        bool StopShowCoroutine()
-        {
-            if(_viewState == ViewState.Appearing && _showCoroutine != null)
-            {
-                StopCoroutine(_showCoroutine);
-                Reset();
-                return true;
-            }
-            return false;
-        }
-        
-        bool StopHideCoroutine()
-        {
-            if(_viewState == ViewState.Disappearing && _hideCoroutine != null)
-            {
-                StopCoroutine(_hideCoroutine);
-                Reset();
-                return true;
-            }
-            return false;
-        }
-
         public void ShowImmediate()
         {
             DebugLog("ShowImmediate");
             Load();
-            Setup();
-            StopShowCoroutine();
-            StopHideCoroutine();
-            Reset();
             if(_viewState != ViewState.Appearing && _viewState != ViewState.Shown)
             {
                 OnAppearing();
@@ -236,8 +214,6 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("Show");
             Load();
-            Setup();
-            StopHideCoroutine();
             var enm = DoShowCoroutine();
             if(enm != null)
             {
@@ -254,13 +230,11 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("ShowCoroutine");
             Load();
-            Setup();
             yield return StartShowCoroutine(DoShowCoroutine());
         }
 
         IEnumerator DoShowCoroutine()
         {
-            StopHideCoroutine();
             if(_viewState == ViewState.Appearing && _showCoroutine != null)
             {
                 yield return _showCoroutine;
@@ -283,10 +257,6 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("HideImmediate");
             Load();
-            Setup();
-            StopShowCoroutine();
-            StopHideCoroutine();
-            Reset();
             if(_viewState != ViewState.Disappearing && _viewState != ViewState.Hidden)
             {
                 OnDisappearing();
@@ -303,8 +273,6 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("Hide");
             Load();
-            Setup();
-            StopShowCoroutine();
             var enm = DoHideCoroutine(destroy);
             if(enm != null)
             {
@@ -321,14 +289,11 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("HideCoroutine");
             Load();
-            Setup();
             yield return StartHideCoroutine(DoHideCoroutine(destroy));
         }
 
         IEnumerator DoHideCoroutine(bool destroy)
         {
-            StopShowCoroutine();
-            Load();
             if(_viewState == ViewState.Initial)
             {
                 HideImmediate();
@@ -443,11 +408,20 @@ namespace SocialPoint.GUIControl
         virtual protected void Reset()
         {
             DebugLog("Reset");
+            if(_showCoroutine != null)
+            {
+                StopCoroutine(_showCoroutine);
+                _showCoroutine = null;
+            }
+            if(_hideCoroutine != null)
+            {
+                StopCoroutine(_hideCoroutine);
+                _hideCoroutine = null;
+            }
             if(Animation != null)
             {
                 Animation.Reset();
             }
-            Disable();
         }
 
         virtual protected void Disable()

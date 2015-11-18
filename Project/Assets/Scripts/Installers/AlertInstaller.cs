@@ -14,7 +14,7 @@ public class AlertInstaller : MonoInstaller
         public GameObject UnityAlertViewPrefab;
     }
 
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
     PopupsController _popups;
 

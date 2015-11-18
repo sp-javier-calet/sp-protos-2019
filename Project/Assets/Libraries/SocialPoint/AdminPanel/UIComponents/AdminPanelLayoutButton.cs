@@ -81,7 +81,7 @@ namespace SocialPoint.AdminPanel
 
             rectTransform.gameObject.AddComponent<EventTrigger>();
             
-            CreateButtonLabel(label, rectTransform);
+            CreateButtonLabel(label, rectTransform, FontStyle.BoldAndItalic);
 
             return confirm;
         }
@@ -263,7 +263,7 @@ namespace SocialPoint.AdminPanel
          * Internal
          */
 
-        private void CreateButtonLabel(string label, RectTransform buttonTransform)
+        private void CreateButtonLabel(string label, RectTransform buttonTransform, FontStyle style = FontStyle.Normal)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button Label", buttonTransform);
             
@@ -273,6 +273,7 @@ namespace SocialPoint.AdminPanel
             text.fontSize = DefaultFontSize;
             text.color = Color.white;
             text.alignment = TextAnchor.MiddleCenter;
+            text.fontStyle = style;
             
             LayoutElement layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultLabelHeight;

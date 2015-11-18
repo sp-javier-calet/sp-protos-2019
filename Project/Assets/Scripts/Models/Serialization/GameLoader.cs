@@ -1,7 +1,13 @@
 ﻿using SocialPoint.Attributes;
 using Zenject;
 
-public class GameLoader
+public interface IGameLoader
+{
+    GameModel LoadInitial();
+    GameModel Load(Attr data);
+}
+
+public class GameLoader : IGameLoader
 {
     string _jsonResource;
 

@@ -6,11 +6,12 @@ using ModestTree;
 namespace Zenject
 {
     // Update tasks once per frame based on a priority
+    [System.Diagnostics.DebuggerStepThrough]
     public class TaskUpdater<TTask>
     {
-        LinkedList<TaskInfo> _tasks = new LinkedList<TaskInfo>();
+        readonly LinkedList<TaskInfo> _tasks = new LinkedList<TaskInfo>();
+        readonly List<TaskInfo> _queuedTasks = new List<TaskInfo>();
 
-        List<TaskInfo> _queuedTasks = new List<TaskInfo>();
         Action<TTask> _updateFunc;
 
         IEnumerable<TaskInfo> AllTasks
@@ -41,7 +42,7 @@ namespace Zenject
 
         void AddTaskInternal(TTask task, int priority)
         {
-            Assert.That(!AllTasks.Select(x => x.Task).Contains(task),
+            Assert.That(!AllTasks.Select(x => x.Task).ContainsItem(task),
                 "Duplicate task added to kernel with name '" + task.GetType().FullName + "'");
 
             // Wait until next frame to add the task, otherwise whether it gets updated

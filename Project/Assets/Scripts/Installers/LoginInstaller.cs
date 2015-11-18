@@ -32,7 +32,7 @@ public static class BackendEnvironmentExtensions
     }
 }
 
-public class LoginInstaller : MonoInstaller
+public class LoginInstaller : Installer
 {
 	[Serializable]
 	public class SettingsData
@@ -47,7 +47,7 @@ public class LoginInstaller : MonoInstaller
         public bool FacebookLoginWithUi = false;
 	};
 	
-	public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
     [Inject]
     IFacebook Facebook;

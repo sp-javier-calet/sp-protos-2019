@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class PrefabSingletonProviderMap
     {
         Dictionary<PrefabSingletonId, PrefabSingletonLazyCreator> _creators = new Dictionary<PrefabSingletonId, PrefabSingletonLazyCreator>();
@@ -46,10 +47,11 @@ namespace Zenject
             return creator;
         }
 
-        public ProviderBase CreateProvider(string identifier, Type concreteType, GameObject prefab)
+        public ProviderBase CreateProvider(
+            string identifier, Type concreteType, GameObject prefab, string resourcePath)
         {
             return new PrefabSingletonProvider(
-                _container, concreteType, AddCreator(new PrefabSingletonId(identifier, prefab)));
+                _container, concreteType, AddCreator(new PrefabSingletonId(identifier, prefab, resourcePath)));
         }
     }
 }

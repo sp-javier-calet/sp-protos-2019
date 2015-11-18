@@ -16,6 +16,7 @@ namespace SocialPoint.Attributes
         {
             if(attr == null)
             {
+                writer.Write(null);
                 return;
             }
             switch(attr.AttrType)
@@ -38,11 +39,16 @@ namespace SocialPoint.Attributes
         {
             if(attr == null)
             {
+                writer.Write(null);
                 return;
             }
             writer.WriteObjectStart();
             foreach(var pair in attr)
             {
+                if(pair.Key == null)
+                {
+                    throw new InvalidOperationException("Dictionary key cannot be null.");
+                }
                 writer.WritePropertyName(pair.Key);
                 Serialize(pair.Value, writer);
             }
@@ -53,6 +59,7 @@ namespace SocialPoint.Attributes
         {
             if(attr == null)
             {
+                writer.Write(null);
                 return;
             }
             writer.WriteArrayStart();
@@ -67,6 +74,7 @@ namespace SocialPoint.Attributes
         {
             if(attr == (AttrValue)null)
             {
+                writer.Write(null);
                 return;
             }
             switch(attr.AttrValueType)

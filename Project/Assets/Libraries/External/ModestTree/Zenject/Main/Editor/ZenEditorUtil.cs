@@ -14,12 +14,12 @@ namespace Zenject
     {
         public static DiContainer GetContainerForCurrentScene()
         {
-            var compRoot = GameObject.FindObjectsOfType<CompositionRoot>().OnlyOrDefault();
+            var compRoot = GameObject.FindObjectsOfType<SceneCompositionRoot>().OnlyOrDefault();
 
             if (compRoot == null)
             {
                 throw new ZenjectException(
-                    "Unable to find CompositionRoot in current scene.");
+                    "Unable to find SceneCompositionRoot in current scene.");
             }
 
             return compRoot.Container;
@@ -35,33 +35,15 @@ namespace Zenject
         public static void ValidateAllScenesFromScript()
         {
             var activeScenes = UnityEditor.EditorBuildSettings.scenes.Where(x => x.enabled).Select(x => x.ToString()).ToList();
-            ValidateScenesThenExit(activeScenes, 25);
-        }
-
-        public static void ValidateScenesThenExit(List<string> sceneNames, int maxErrors)
-        {
-            var errors = ValidateScenes(sceneNames, maxErrors);
-
-            if (errors.IsEmpty())
-            {
-                // 0 = no errors
-                EditorApplication.Exit(0);
-            }
-            else
-            {
-                Log.Error("Found {0} validation errors!", errors.Count == maxErrors ? ("over " + maxErrors.ToString()) : errors.Count.ToString());
-
-                foreach (var err in errors)
-                {
-                    Log.ErrorException(err);
-                }
-
-                // 1 = errors occurred
-                EditorApplication.Exit(1);
-            }
+            ValidateScenes(activeScenes, 25, true);
         }
 
         public static List<ZenjectResolveException> ValidateScenes(List<string> sceneNames, int maxErrors)
+        {
+            return ValidateScenes(sceneNames, maxErrors, false);
+        }
+
+        public static List<ZenjectResolveException> ValidateScenes(List<string> sceneNames, int maxErrors, bool exitAfter)
         {
             var errors = new List<ZenjectResolveException>();
             var activeScenes = sceneNames
@@ -70,9 +52,24 @@ namespace Zenject
             foreach (var sceneInfo in activeScenes)
             {
                 Log.Trace("Validating Scene '{0}'", sceneInfo.Path);
-                EditorApplication.OpenScene(sceneInfo.Path);
+#if UNITY_5_3
+				EditorSceneManager.OpenScene(sceneInfo.Path, false);
+#else
+				EditorApplication.OpenScene(sceneInfo.Path);
+#endif
 
-                errors.AddRange(ValidateCurrentScene().Take(maxErrors - errors.Count));
+                var sceneErrors = ValidateCurrentScene().Take(maxErrors - errors.Count).ToList();
+
+                if (sceneErrors.Any())
+                {
+                    Log.Trace("Failed to validate scene '{0}'", sceneInfo.Path);
+                }
+                else
+                {
+                    Log.Trace("Scene '{0}' validated successfully", sceneInfo.Path);
+                }
+
+                errors.AddRange(sceneErrors);
 
                 if (errors.Count >= maxErrors)
                 {
@@ -83,6 +80,12 @@ namespace Zenject
             if (errors.IsEmpty())
             {
                 Log.Trace("Successfully validated all {0} scenes", activeScenes.Count);
+
+                if (exitAfter)
+                {
+                    // 0 = no errors
+                    EditorApplication.Exit(0);
+                }
             }
             else
             {
@@ -91,6 +94,12 @@ namespace Zenject
                 foreach (var err in errors)
                 {
                     Log.ErrorException(err);
+                }
+
+                if (exitAfter)
+                {
+                    // 1 = errors occurred
+                    EditorApplication.Exit(1);
                 }
             }
 
@@ -113,7 +122,7 @@ namespace Zenject
 
         public static IEnumerable<ZenjectResolveException> ValidateCurrentScene()
         {
-            var compRoot = GameObject.FindObjectsOfType<CompositionRoot>().OnlyOrDefault();
+            var compRoot = GameObject.FindObjectsOfType<SceneCompositionRoot>().OnlyOrDefault();
 
             if (compRoot == null || compRoot.Installers.IsEmpty())
             {
@@ -123,12 +132,12 @@ namespace Zenject
             return ZenEditorUtil.ValidateInstallers(compRoot);
         }
 
-        public static IEnumerable<ZenjectResolveException> ValidateInstallers(CompositionRoot compRoot)
+        public static IEnumerable<ZenjectResolveException> ValidateInstallers(SceneCompositionRoot compRoot)
         {
             var globalContainer = GlobalCompositionRoot.CreateContainer(true, null);
             var container = compRoot.CreateContainer(true, globalContainer, new List<IInstaller>());
 
-            foreach (var error in container.ValidateResolve(new InjectContext(container, typeof(IDependencyRoot), null)))
+            foreach (var error in container.ValidateResolve(new InjectContext(container, typeof(IFacade), null)))
             {
                 yield return error;
             }

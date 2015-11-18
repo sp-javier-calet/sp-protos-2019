@@ -55,14 +55,14 @@ namespace SocialPoint.Notifications
             {
                 throw new ArgumentNullException("appEvents", "appEvents cannot be null or empty!");
             }
-            _appEvents.RegisterWillGoBackground(-50, OnGoToBackground);
+            _appEvents.WillGoBackground.Add(-50, OnGoToBackground);
             _appEvents.WasOnBackground += OnComeFromBackground;
             Reset();
         }
 
         public void Dispose()
         {
-            _appEvents.UnregisterWillGoBackground(OnGoToBackground);
+            _appEvents.WillGoBackground.Remove(OnGoToBackground);
             _appEvents.WasOnBackground -= OnComeFromBackground;
         }
 

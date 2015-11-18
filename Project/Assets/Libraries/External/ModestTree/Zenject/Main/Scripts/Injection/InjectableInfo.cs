@@ -10,6 +10,8 @@ namespace Zenject
         public readonly bool Optional;
         public readonly string Identifier;
 
+        public readonly bool LocalOnly;
+
         // The field name or property name from source code
         public readonly string MemberName;
         // The field type or property type from source code
@@ -20,9 +22,11 @@ namespace Zenject
         // Null for constructor declared dependencies
         public readonly Action<object, object> Setter;
 
+        public readonly object DefaultValue;
+
         public InjectableInfo(
             bool optional, string identifier, string memberName,
-            Type memberType, Type objectType, Action<object, object> setter)
+            Type memberType, Type objectType, Action<object, object> setter, object defaultValue, bool localOnly)
         {
             Optional = optional;
             Setter = setter;
@@ -30,6 +34,8 @@ namespace Zenject
             MemberType = memberType;
             MemberName = memberName;
             Identifier = identifier;
+            DefaultValue = defaultValue;
+            LocalOnly = localOnly;
         }
 
         public InjectContext CreateInjectContext(
@@ -37,7 +43,7 @@ namespace Zenject
         {
             return new InjectContext(
                 container, MemberType, Identifier, Optional,
-                ObjectType, targetInstance, MemberName, currentContext, concreteIdentifier);
+                ObjectType, targetInstance, MemberName, currentContext, concreteIdentifier, DefaultValue, LocalOnly);
         }
     }
 }

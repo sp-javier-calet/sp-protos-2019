@@ -2,10 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
 using SocialPoint.AdminPanel;
+using System;
 
 namespace SocialPoint.AppEvents
 {
-    public class AdminPanelAppEvents : IAdminPanelGUI, IAdminPanelConfigurer
+    public class AdminPanelAppEvents : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
     {
         private IAppEvents _appEvents;
         private Text _textComponent;
@@ -22,15 +23,73 @@ namespace SocialPoint.AppEvents
 
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("App Events", this));
 
-            _appEvents.OpenedFromSource += (source) => { AddEvent("OpenedFromSource: " + source); };
-            _appEvents.WasCovered += () => { AddEvent("WasCovered"); };
-            _appEvents.WasOnBackground += () => { AddEvent("WasOnBackground"); };
-            _appEvents.RegisterWillGoBackground(0, () => { AddEvent("WillGoBackground"); });
-            _appEvents.RegisterGameWillRestart(0, () => { AddEvent("GameWillRestart"); });
-            _appEvents.RegisterGameWasLoaded(0, () => { AddEvent("GameWasLoaded"); });
-            _appEvents.LevelWasLoaded += (value) => { AddEvent("LevelWasLoaded: " + value); };
-            _appEvents.ApplicationQuit += () =>  { AddEvent("ApplicationQuit"); };
-            _appEvents.ReceivedMemoryWarning += () => { AddEvent("ReceivedMemoryWarning"); };
+            _appEvents.OpenedFromSource += OnOpenedFromSource;
+            _appEvents.WasCovered += OnWasCovered;
+            _appEvents.WasOnBackground += OnWasOnBackground;
+            _appEvents.WillGoBackground.Add(0, OnWillGoBackground);
+            _appEvents.GameWillRestart.Add(0, OnGameWillRestart);
+            _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
+            _appEvents.LevelWasLoaded += OnLevelWasLoaded;
+            _appEvents.ApplicationQuit += OnApplicationQuit;
+            _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
+        }
+
+        void OnOpenedFromSource(AppSource source)
+        {
+            AddEvent("OpenedFromSource: " + source);
+        }
+
+        void OnWasCovered()
+        {
+            AddEvent("WasCovered");
+        }
+
+        void OnWasOnBackground()
+        {
+            AddEvent("WasOnBackground");
+        }
+
+        void OnWillGoBackground()
+        {
+            AddEvent("WillGoBackground");
+        }
+
+        void OnGameWillRestart()
+        {
+            AddEvent("GameWillRestart");
+        }
+
+        void OnGameWasLoaded()
+        {
+            AddEvent("GameWasLoaded");
+        }
+
+        void OnLevelWasLoaded(int level)
+        {
+            AddEvent("LevelWasLoaded: " + level); 
+        }
+
+        void OnApplicationQuit()
+        {
+            AddEvent("ApplicationQuit");
+        }
+
+        void OnReceivedMemoryWarning()
+        {
+            AddEvent("ReceivedMemoryWarning");
+        }
+
+        public void Dispose()
+        {
+            _appEvents.OpenedFromSource -= OnOpenedFromSource;
+            _appEvents.WasCovered -= OnWasCovered;
+            _appEvents.WasOnBackground -= OnWasOnBackground;
+            _appEvents.WillGoBackground.Remove(OnWillGoBackground);
+            _appEvents.GameWillRestart.Remove(OnGameWillRestart);
+            _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
+            _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
+            _appEvents.ApplicationQuit -= OnApplicationQuit;
+            _appEvents.ReceivedMemoryWarning -= OnReceivedMemoryWarning;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)

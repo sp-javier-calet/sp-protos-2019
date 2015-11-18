@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public sealed class GlobalInstallerConfig : ScriptableObject
     {
         // We can refer directly to the prefabs in this case because the properties of the installers should not change

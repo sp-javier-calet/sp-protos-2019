@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class MethodProvider<T> : ProviderBase
     {
         readonly Func<InjectContext, T> _method;

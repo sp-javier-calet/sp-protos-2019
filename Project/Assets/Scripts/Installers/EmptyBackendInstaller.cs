@@ -9,11 +9,8 @@ using System.Text;
 
 public class EmptyBackendInstaller : MonoInstaller
 {
-    [Inject]
-    GameLoader _gameLoader;
-    
-    [Inject]
-    IParser<GameModel> _gameParser;
+    [InjectOptional]
+    IGameLoader _gameLoader;
     
     public override void InstallBindings()
     {
@@ -37,7 +34,10 @@ public class EmptyBackendInstaller : MonoInstaller
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
         }
-        _gameLoader.LoadInitial();
+        if(_gameLoader != null)
+        {
+            _gameLoader.LoadInitial();
+        }
     }
 
     EmptyLogin CreateEmptyLogin(InjectContext ctx)

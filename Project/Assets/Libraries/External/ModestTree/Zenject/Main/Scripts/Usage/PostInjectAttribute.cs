@@ -1,11 +1,10 @@
 ﻿using System;
-//using JetBrains.Annotations;
 
 namespace Zenject
 {
-    // Uncomment for use with ReSharper
-    // [AttributeUsage(AttributeTargets.Method), MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class PostInjectAttribute : Attribute
     {
     }
 }
+

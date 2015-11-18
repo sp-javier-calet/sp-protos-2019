@@ -25,7 +25,7 @@ namespace Zenject
             _owner = owner;
             _id = id;
 
-            Assert.IsNotNull(id.Prefab);
+            Assert.That(id.Prefab != null || id.ResourcePath != null);
         }
 
         public GameObject Prefab
@@ -61,11 +61,23 @@ namespace Zenject
 
         public IEnumerable<Type> GetAllComponentTypes()
         {
+            if (_id.Prefab == null)
+            {
+                // We don't know this when using resource path
+                return Enumerable.Empty<Type>();
+            }
+
             return _id.Prefab.GetComponentsInChildren<Component>(true).Where(x => x != null).Select(x => x.GetType());
         }
 
         public bool ContainsComponent(Type type)
         {
+            if (_id.Prefab == null)
+            {
+                // We don't know this when using resource path, so just assume true
+                return true;
+            }
+
             return !_id.Prefab.GetComponentsInChildren(type, true).IsEmpty();
         }
 
@@ -73,7 +85,17 @@ namespace Zenject
         {
             if (_rootObj == null)
             {
-                _rootObj = (GameObject)GameObject.Instantiate(_id.Prefab);
+                Assert.That((_id.ResourcePath == null && _id.Prefab != null) || (_id.ResourcePath != null && _id.Prefab == null));
+
+                var prefab = _id.Prefab;
+
+                if (prefab == null)
+                {
+                    prefab = (GameObject)Resources.Load(_id.ResourcePath);
+                    Assert.IsNotNull(prefab, "Could not find prefab at resource path '{0}'", _id.ResourcePath);
+                }
+
+                _rootObj = (GameObject)GameObject.Instantiate(prefab);
 
                 // Default parent to comp root
                 _rootObj.transform.SetParent(_container.Resolve<CompositionRoot>().transform, false);

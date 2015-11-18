@@ -7,6 +7,7 @@ using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.ServerSync
 {
@@ -35,7 +36,11 @@ namespace SocialPoint.ServerSync
                 req.Url = new Uri("http://"+Uri);
                 req.AddQueryParam("session_id",new SocialPoint.Attributes.AttrString("session_id_test"));
             };
-            CommandQueue.AppEvents = Substitute.For<IAppEvents>();
+			var appEvents = Substitute.For<IAppEvents>();
+			appEvents.WillGoBackground.Returns(new PriorityAction());
+			appEvents.GameWasLoaded.Returns(new PriorityAction());
+			appEvents.GameWillRestart.Returns(new PriorityAction());
+			CommandQueue.AppEvents = appEvents;
             CommandQueue.TrackEvent = Substitute.For<CommandQueue.TrackEventDelegate>();
         }
 

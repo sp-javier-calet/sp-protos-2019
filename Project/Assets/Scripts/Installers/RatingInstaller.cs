@@ -17,7 +17,7 @@ public class RatingInstaller : MonoInstaller
         public int MaxPromptsPerDay = AppRater.DefaultMaxPromptsPerDay;
     }
 
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
 
     public override void InstallBindings()

@@ -11,7 +11,7 @@ public class HttpClientInstaller : MonoInstaller
         public string EditorProxy = string.Empty;
     };
     
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
 	public override void InstallBindings()
 	{

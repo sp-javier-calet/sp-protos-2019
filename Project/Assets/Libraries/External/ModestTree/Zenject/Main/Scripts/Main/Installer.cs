@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public abstract class Installer : IInstaller
     {
         [Inject]

@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class IFactoryUntypedBinder<TContract>
     {
         readonly DiContainer _container;

@@ -5,7 +5,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
-using Debug=UnityEngine.Debug;
+using Debug = UnityEngine.Debug;
 using ModestTree;
 
 namespace Zenject
@@ -39,7 +39,11 @@ namespace Zenject
         [MenuItem("Edit/Zenject/Validate All Active Scenes")]
         public static bool ValidateAllActiveScenes()
         {
-            var startScene = EditorApplication.currentScene;
+#if UNITY_5_3
+			var startScene = EditorSceneManager.GetActiveScene().path;
+#else
+			var startScene = EditorApplication.currentScene;
+#endif
 
             var activeScenes = UnityEditor.EditorBuildSettings.scenes.Where(x => x.enabled)
                 .Select(x => new { Name = Path.GetFileNameWithoutExtension(x.path), Path = x.path }).ToList();
@@ -50,9 +54,13 @@ namespace Zenject
             {
                 Log.Trace("Validating scene '{0}'...", sceneInfo.Name);
 
-                EditorApplication.OpenScene(sceneInfo.Path);
+#if UNITY_5_3
+				EditorSceneManager.OpenScene(sceneInfo.Path, false);
+#else
+				EditorApplication.OpenScene(sceneInfo.Path);
+#endif
 
-                var compRoot = GameObject.FindObjectsOfType<CompositionRoot>().OnlyOrDefault();
+                var compRoot = GameObject.FindObjectsOfType<SceneCompositionRoot>().OnlyOrDefault();
 
                 // Do not validate if there is no comp root
                 if (compRoot != null)
@@ -65,7 +73,11 @@ namespace Zenject
                 }
             }
 
-            EditorApplication.OpenScene(startScene);
+#if UNITY_5_3
+			EditorSceneManager.OpenScene(startScene, false);
+#else
+			EditorApplication.OpenScene(startScene);
+#endif
 
             if (failedScenes.IsEmpty())
             {
@@ -75,7 +87,7 @@ namespace Zenject
             else
             {
                 Log.Error("Validated {0}/{1} scenes. Failed to validate the following: {2}",
-                    activeScenes.Count-failedScenes.Count, activeScenes.Count, failedScenes.Join(", "));
+                    activeScenes.Count - failedScenes.Count, activeScenes.Count, failedScenes.Join(", "));
                 return false;
             }
         }
@@ -84,7 +96,7 @@ namespace Zenject
         public static bool ValidateCurrentScene()
         {
             var startTime = DateTime.Now;
-            var compRoot = GameObject.FindObjectsOfType<CompositionRoot>().OnlyOrDefault();
+            var compRoot = GameObject.FindObjectsOfType<SceneCompositionRoot>().OnlyOrDefault();
 
             if (compRoot != null)
             {
@@ -113,9 +125,13 @@ namespace Zenject
             // Use finally to ensure we clean up the data added from EditorApplication.OpenSceneAdditive
             try
             {
-                EditorApplication.OpenSceneAdditive(scenePath);
+#if UNITY_5_3
+				EditorSceneManager.OpenScene(scenePath, true);
+#else
+				EditorApplication.OpenSceneAdditive(scenePath);
+#endif
 
-                compRoot = GameObject.FindObjectsOfType<CompositionRoot>().OnlyOrDefault();
+                compRoot = GameObject.FindObjectsOfType<SceneCompositionRoot>().OnlyOrDefault();
 
                 if (compRoot == null)
                 {
@@ -123,8 +139,8 @@ namespace Zenject
                     return false;
                 }
 
-                CompositionRoot.BeforeInstallHooks += decoratorCompRoot.AddPreBindings;
-                CompositionRoot.AfterInstallHooks += decoratorCompRoot.AddPostBindings;
+                SceneCompositionRoot.BeforeInstallHooks += decoratorCompRoot.AddPreBindings;
+                SceneCompositionRoot.AfterInstallHooks += decoratorCompRoot.AddPostBindings;
 
                 return ValidateCompRoot(compRoot, startTime);
             }
@@ -141,7 +157,7 @@ namespace Zenject
             }
         }
 
-        static bool ValidateCompRoot(CompositionRoot compRoot, DateTime startTime)
+        static bool ValidateCompRoot(SceneCompositionRoot compRoot, DateTime startTime)
         {
             if (compRoot.Installers.IsEmpty())
             {
@@ -197,4 +213,3 @@ namespace Zenject
         }
     }
 }
-

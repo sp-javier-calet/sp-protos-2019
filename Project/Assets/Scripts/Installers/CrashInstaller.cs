@@ -3,7 +3,7 @@ using System;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
 
-public class CrashInstaller : MonoInstaller
+public class CrashInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -15,8 +15,7 @@ public class CrashInstaller : MonoInstaller
         public int NumRetriesBeforeSendingCrashBeforeLogin = CrashReporter.DefaultNumRetriesBeforeSendingCrashBeforeLogin;
     };
 
-    public SettingsData Settings;
-
+    public SettingsData Settings = new SettingsData();
     public override void InstallBindings()
     {
         Container.BindInstance("crash_reporter_send_interval", Settings.SendInterval);
@@ -26,6 +25,7 @@ public class CrashInstaller : MonoInstaller
         Container.BindInstance("crash_reporter_num_retries_before_sending_crash_before_login", Settings.NumRetriesBeforeSendingCrashBeforeLogin);
         Container.Rebind<ICrashReporter>().ToSingle<CrashReporter>();
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
+
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
     }
 

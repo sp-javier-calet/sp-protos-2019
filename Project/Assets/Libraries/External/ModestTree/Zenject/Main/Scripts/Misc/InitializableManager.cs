@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
 using ModestTree.Util;
-using ModestTree.Util.Debugging;
 
 namespace Zenject
 {
@@ -16,9 +15,9 @@ namespace Zenject
         List<InitializableInfo> _initializables = new List<InitializableInfo>();
 
         public InitializableManager(
-            [InjectOptional]
+            [InjectLocalOptional]
             List<IInitializable> initializables,
-            [InjectOptional]
+            [InjectLocalOptional]
             List<ModestTree.Util.Tuple<Type, int>> priorities,
             DiContainer container,
             SingletonInstanceHelper singletonInstanceHelper)
@@ -60,7 +59,7 @@ namespace Zenject
 
             foreach (var initializable in _initializables)
             {
-                //Log.Info("Initializing initializable with type '" + initializable.GetType() + "'");
+                Log.Debug("Initializing '" + initializable.Initializable.GetType() + "'");
 
                 try
                 {

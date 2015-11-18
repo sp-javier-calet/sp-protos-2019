@@ -1,122 +1,76 @@
 #if !ZEN_NOT_UNITY3D
-
-#pragma warning disable 414
 using ModestTree;
-
-using System;
-using System.Collections.Generic;
-using ModestTree.Util.Debugging;
-using System.Linq;
+using ModestTree.Util;
 using UnityEngine;
 
 namespace Zenject
 {
-    // Define this class as a component of a top-level game object of your scene heirarchy
-    // Then any children will get injected during resolve stage
-    public sealed class CompositionRoot : MonoBehaviour
+    public abstract class CompositionRoot : MonoBehaviour
     {
-        public static Action<DiContainer> BeforeInstallHooks;
-        public static Action<DiContainer> AfterInstallHooks;
+        bool _isDisposed;
 
-        public bool OnlyInjectWhenActive = true;
-        public bool InjectFullScene = false;
-
-        [SerializeField]
-        public MonoInstaller[] Installers = new MonoInstaller[0];
-
-        DiContainer _container;
-        IDependencyRoot _dependencyRoot = null;
-
-        static List<IInstaller> _staticInstallers = new List<IInstaller>();
-
-        public DiContainer Container
+        public abstract DiContainer Container
         {
-            get
-            {
-                return _container;
-            }
+            get;
         }
 
-        // This method is used for cases where you need to create the CompositionRoot entirely in code
-        // Necessary because the Awake() method is called immediately after AddComponent<CompositionRoot>
-        // so there's no other way to add installers to it
-        public static CompositionRoot AddComponent(
-            GameObject gameObject, IInstaller rootInstaller)
+        public abstract IFacade RootFacade
         {
-            return AddComponent(gameObject, new List<IInstaller>() { rootInstaller });
-        }
-
-        public static CompositionRoot AddComponent(
-            GameObject gameObject, List<IInstaller> installers)
-        {
-            Assert.That(_staticInstallers.IsEmpty());
-            _staticInstallers.AddRange(installers);
-            return gameObject.AddComponent<CompositionRoot>();
+            get;
         }
 
         public void Awake()
         {
-            _container = CreateContainer(
-                false, GlobalCompositionRoot.Instance.Container, _staticInstallers);
-            _staticInstallers.Clear();
+            Assert.IsNull(Container);
+            Assert.IsNull(RootFacade);
 
-            if (InjectFullScene)
-            {
-                var rootGameObjects = GameObject.FindObjectsOfType<Transform>()
-                    .Where(x => x.parent == null && x.GetComponent<GlobalCompositionRoot>() == null && (x.GetComponent<CompositionRoot>() == null || x == this.transform))
-                    .Select(x => x.gameObject).ToList();
+            Initialize();
 
-                foreach (var rootObj in rootGameObjects)
-                {
-                    _container.InjectGameObject(rootObj, true, !OnlyInjectWhenActive);
-                }
-            }
-            else
-            {
-                _container.InjectGameObject(gameObject, true, !OnlyInjectWhenActive);
-            }
-
-            _dependencyRoot = _container.Resolve<IDependencyRoot>();
+            Assert.IsNotNull(Container);
+            Assert.IsNotNull(RootFacade);
         }
 
-        public DiContainer CreateContainer(
-            bool allowNullBindings, DiContainer parentContainer, List<IInstaller> extraInstallers)
+        public void OnApplicationQuit()
         {
-            var container = new DiContainer(this.transform);
-
-            container.AllowNullBindings = allowNullBindings;
-            container.FallbackProvider = new DiContainerProvider(parentContainer);
-            container.Bind<CompositionRoot>().ToInstance(this);
-
-            if (BeforeInstallHooks != null)
-            {
-                BeforeInstallHooks(container);
-                // Reset extra bindings for next time we change scenes
-                BeforeInstallHooks = null;
-            }
-
-            CompositionRootHelper.InstallStandardInstaller(container, this.gameObject);
-
-            var allInstallers = extraInstallers.Concat(Installers).ToList();
-
-            if (allInstallers.Where(x => x != null).IsEmpty())
-            {
-                Log.Warn("No installers found while initializing CompositionRoot");
-            }
-            else
-            {
-                CompositionRootHelper.InstallSceneInstallers(container, allInstallers);
-            }
-
-            if (AfterInstallHooks != null)
-            {
-                AfterInstallHooks(container);
-                // Reset extra bindings for next time we change scenes
-                AfterInstallHooks = null;
-            }
-
-            return container;
+            // In some cases we have monobehaviour's that are bound to IDisposable, and who have
+            // also been set with Application.DontDestroyOnLoad so that the Dispose() is always
+            // called instead of OnDestroy.  This is nice because we can actually reliably predict the
+            // order Dispose() is called in which is not the case for OnDestroy.
+            // However, when the user quits the app, OnDestroy is called even for objects that
+            // have been marked with Application.DontDestroyOnLoad, and so the destruction order
+            // changes.  So to address this case, dispose before the OnDestroy event below (OnApplicationQuit
+            // is always called before OnDestroy) and then don't call dispose in OnDestroy
+            Assert.IsNotNull(!_isDisposed);
+            RootFacade.Dispose();
+            _isDisposed = true;
         }
+
+        public void OnDestroy()
+        {
+            // See comment in OnApplicationQuit
+            if (!_isDisposed)
+            {
+                _isDisposed = true;
+                RootFacade.Dispose();
+            }
+        }
+
+        public void Update()
+        {
+            RootFacade.Tick();
+        }
+
+        public void FixedUpdate()
+        {
+            RootFacade.FixedTick();
+        }
+
+        public void LateUpdate()
+        {
+            RootFacade.LateTick();
+        }
+
+        protected abstract void Initialize();
     }
 }
 

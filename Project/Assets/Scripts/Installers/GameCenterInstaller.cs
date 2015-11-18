@@ -12,7 +12,7 @@ public class GameCenterInstaller : MonoInstaller
         public bool EnableVerification = true;
     };
     
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
         
     public override void InstallBindings()
     {

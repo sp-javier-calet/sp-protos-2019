@@ -1,13 +1,9 @@
 using System;
-//using JetBrains.Annotations;
 
 namespace Zenject
 {
-    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Parameter |
-                    AttributeTargets.Property | AttributeTargets.Field)]
-    // Uncomment for use with ReSharper
-    // MeansImplicitUse(ImplicitUseKindFlags.Assign)]
-    public class InjectAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    public class InjectAttribute : InjectAttributeBase
     {
         public InjectAttribute(string identifier)
         {
@@ -17,7 +13,6 @@ namespace Zenject
         public InjectAttribute()
         {
         }
-
-        public string Identifier { get; private set; }
     }
 }
+

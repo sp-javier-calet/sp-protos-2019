@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ModestTree;
 
 namespace Zenject
@@ -108,6 +109,7 @@ namespace Zenject
                     var concreteType = GetTypeToInstantiate(context.MemberType);
 
                     bool autoInject = false;
+
                     _instance = _container.InstantiateExplicit(
                         concreteType, new List<TypeValuePair>(), context, _id.Identifier, autoInject);
 
@@ -117,7 +119,9 @@ namespace Zenject
 
                     // Inject after we've instantiated and set the _hasInstance flag so that we can support circular dependencies
                     // as PostInject or field parameters
-                    _container.Inject(_instance);
+                    _container.InjectExplicit(
+                        _instance, Enumerable.Empty<TypeValuePair>(), true,
+                        TypeAnalyzer.GetInfo(_instance.GetType()), context, _id.Identifier);
                 }
             }
 

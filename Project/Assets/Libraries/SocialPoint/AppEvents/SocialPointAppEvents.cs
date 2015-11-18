@@ -55,6 +55,45 @@ namespace SocialPoint.AppEvents
 
         #region IAppEvents implementation
 
+
+        PriorityAction _default = new PriorityAction();
+
+        public PriorityAction WillGoBackground
+        {
+            get
+            {
+                if(_appEvents == null)
+                {
+                    return _default;
+                }
+                return _appEvents.WillGoBackground;
+            }
+        }
+        
+        public PriorityAction GameWasLoaded
+        {
+            get
+            {
+                if(_appEvents == null)
+                {
+                    return _default;
+                }
+                return _appEvents.GameWasLoaded;
+            }
+        }
+        
+        public PriorityAction GameWillRestart
+        {
+            get
+            {
+                if(_appEvents == null)
+                {
+                    return _default;
+                }
+                return _appEvents.GameWillRestart;
+            }
+        }
+
         public void TriggerMemoryWarning()
         {
             if(_appEvents == null)
@@ -82,67 +121,13 @@ namespace SocialPoint.AppEvents
             _appEvents.TriggerGameWasLoaded();
         }
                 
-        public void RestartGame()
+        public void TriggerGameWillRestart()
         {
             if(_appEvents == null)
             {
                 return;
             }
-            _appEvents.RestartGame();
-        }
-
-        public void RegisterWillGoBackground(int priority, Action action)
-        {
-            if(_appEvents == null)
-            {
-                return;
-            }
-            _appEvents.RegisterWillGoBackground(priority, action);
-        }
-
-        public void UnregisterWillGoBackground(Action action)
-        {
-            if(_appEvents == null)
-            {
-                return;
-            }
-            _appEvents.UnregisterWillGoBackground(action);
-        }
-                
-        public void RegisterGameWasLoaded(int priority, Action action)
-        {
-            if(_appEvents == null)
-            {
-                return;
-            }
-            _appEvents.RegisterGameWasLoaded(priority, action);
-        }
-        
-        public void UnregisterGameWasLoaded(Action action)
-        {
-            if(_appEvents == null)
-            {
-                return;
-            }
-            _appEvents.UnregisterGameWasLoaded(action);
-        }
-        
-        public void RegisterGameWillRestart(int priority, Action action)
-        {
-            if(_appEvents == null)
-            {
-                return;
-            }
-            _appEvents.RegisterGameWillRestart(priority, action);
-        }
-        
-        public void UnregisterGameWillRestart(Action action)
-        {
-            if(_appEvents == null)
-            {
-                return;
-            }
-            _appEvents.UnregisterGameWillRestart(action);
+            _appEvents.TriggerGameWillRestart();
         }
 
         public event Action WasOnBackground

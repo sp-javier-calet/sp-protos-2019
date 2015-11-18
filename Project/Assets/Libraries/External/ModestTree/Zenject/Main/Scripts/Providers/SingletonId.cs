@@ -5,6 +5,7 @@ using ModestTree;
 
 namespace Zenject
 {
+    [System.Diagnostics.DebuggerStepThrough]
     public class SingletonId : IEquatable<SingletonId>
     {
         public readonly Type Type;

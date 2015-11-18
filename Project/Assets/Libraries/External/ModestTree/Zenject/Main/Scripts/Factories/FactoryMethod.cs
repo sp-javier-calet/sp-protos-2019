@@ -5,6 +5,7 @@ using ModestTree.Util;
 namespace Zenject
 {
     // Zero parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public sealed class FactoryMethod<TValue> : IValidatableFactory, IFactory<TValue>
     {
         [Inject]
@@ -30,6 +31,7 @@ namespace Zenject
     }
 
     // One parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public sealed class FactoryMethod<TParam1, TValue> : IValidatableFactory, IFactory<TParam1, TValue>
     {
         [Inject]
@@ -55,6 +57,7 @@ namespace Zenject
     }
 
     // Two parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public sealed class FactoryMethod<TParam1, TParam2, TValue> : IValidatableFactory, IFactory<TParam1, TParam2, TValue>
     {
         [Inject]
@@ -80,6 +83,7 @@ namespace Zenject
     }
 
     // Three parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public sealed class FactoryMethod<TParam1, TParam2, TParam3, TValue> : IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TValue>
     {
         [Inject]
@@ -105,6 +109,7 @@ namespace Zenject
     }
 
     // Three parameters
+    [System.Diagnostics.DebuggerStepThrough]
     public sealed class FactoryMethod<TParam1, TParam2, TParam3, TParam4, TValue> : IValidatableFactory, IFactory<TParam1, TParam2, TParam3, TParam4, TValue>
     {
         [Inject]

@@ -7,6 +7,7 @@ namespace Zenject
 {
     public delegate bool BindingCondition(InjectContext c);
 
+    [System.Diagnostics.DebuggerStepThrough]
     public class BindingConditionSetter
     {
         readonly ProviderBase _provider;

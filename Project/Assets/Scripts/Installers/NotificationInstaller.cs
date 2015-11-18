@@ -6,7 +6,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;
 using SocialPoint.Notifications;
 
-public class NotificationInstaller : MonoInstaller
+public class NotificationInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -14,7 +14,7 @@ public class NotificationInstaller : MonoInstaller
         public bool AutoRegisterForRemote = true;
     };
     
-    public SettingsData Settings;
+    public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {

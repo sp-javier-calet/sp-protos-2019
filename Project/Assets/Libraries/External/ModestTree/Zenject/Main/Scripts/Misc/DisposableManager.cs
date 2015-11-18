@@ -9,13 +9,13 @@ namespace Zenject
     public class DisposableManager : IDisposable
     {
         readonly SingletonInstanceHelper _singletonInstanceHelper;
-        List<DisposableInfo> _disposables = new List<DisposableInfo>();
+        readonly List<DisposableInfo> _disposables = new List<DisposableInfo>();
         bool _disposed;
 
         public DisposableManager(
-            [InjectOptional]
+            [InjectLocalOptional]
             List<IDisposable> disposables,
-            [InjectOptional]
+            [InjectLocalOptional]
             List<ModestTree.Util.Tuple<Type, int>> priorities,
             SingletonInstanceHelper singletonInstanceHelper)
         {
@@ -34,22 +34,42 @@ namespace Zenject
             Log.Debug("Loaded {0} IDisposables to DisposablesHandler", _disposables.Count());
         }
 
+        public void Add(IDisposable disposable)
+        {
+            Add(disposable, 0);
+        }
+
+        public void Add(IDisposable disposable, int priority)
+        {
+            _disposables.Add(
+                new DisposableInfo(disposable, priority));
+        }
+
+        public void Remove(IDisposable disposable)
+        {
+            _disposables.RemoveWithConfirm(
+                _disposables.Where(x => x.Disposable == disposable).Single());
+        }
+
         public void Dispose()
         {
             Assert.That(!_disposed);
             _disposed = true;
 
-            _disposables = _disposables.OrderBy(x => x.Priority).ToList();
+            // Dispose in the reverse order that they are initialized in
+            var disposablesOrdered = _disposables.OrderBy(x => x.Priority).Reverse().ToList();
 
-            WarnForMissingBindings();
+            //WarnForMissingBindings();
 
-            foreach (var disposable in _disposables.Select(x => x.Disposable).GetDuplicates())
+            foreach (var disposable in disposablesOrdered.Select(x => x.Disposable).GetDuplicates())
             {
                 Assert.That(false, "Found duplicate IDisposable with type '{0}'".Fmt(disposable.GetType()));
             }
 
-            foreach (var disposable in _disposables)
+            foreach (var disposable in disposablesOrdered)
             {
+                Log.Debug("Disposing '" + disposable.Disposable.GetType() + "'");
+
                 try
                 {
                     disposable.Disposable.Dispose();
@@ -61,7 +81,7 @@ namespace Zenject
                 }
             }
 
-            Log.Debug("Disposed of {0} disposables in DisposablesHandler", _disposables.Count());
+            Log.Debug("Disposed of {0} disposables in DisposablesHandler", disposablesOrdered.Count());
         }
 
         void WarnForMissingBindings()
