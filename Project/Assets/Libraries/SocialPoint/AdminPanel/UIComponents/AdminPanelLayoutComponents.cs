@@ -9,11 +9,11 @@ namespace SocialPoint.AdminPanel
         protected const int DefaultMargin = 5;
         protected const int DefaultPadding = 5;
         protected const int DefaultScrollPadding = 10;
-        protected const int DefaultFontSize = 14;
+        protected const int DefaultFontSize = 22;
         protected const int TextAreaFontSize = 10;
         protected const int PanelTitleFontSize = 10;
         protected const int PanelHeaderHeight = 12;
-        protected const int DefaultLabelHeight = 20;
+        protected const int DefaultLabelHeight = 30;
         protected const int DefaultLayoutWeight = 1;
 
         protected static readonly Color BackgroundColor = new Color(.3f, .3f, .3f, .5f);
