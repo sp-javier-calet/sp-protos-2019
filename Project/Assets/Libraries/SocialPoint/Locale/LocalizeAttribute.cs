@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Utils;
 using UnityEngine;
@@ -18,7 +18,7 @@ namespace SocialPoint.Locale
         }
     }
 
-    public abstract class BaseLocalizeAttributeObserver<T> : BasePropertyAttributeObserver<T, LocalizeAttribute> where T : class
+    public abstract class BaseLocalizeAttributeObserver<T> : BaseMemberAttributeObserver<T, LocalizeAttribute> where T : class
     {
         protected Localization _locale;
         
@@ -72,9 +72,9 @@ namespace SocialPoint.Locale
         }
     }
 
-    public class LocalizeAttributeConfiguration : PropertyAttributeConfiguration<LocalizeAttribute>
+    public class LocalizeAttributeConfiguration : MemberAttributeConfiguration<LocalizeAttribute>
     {
-        LocalizeAttributeConfiguration(Localization locale, List<IPropertyAttributeObserver<LocalizeAttribute>> prototypes=null):
+        LocalizeAttributeConfiguration(Localization locale, List<IMemberAttributeObserver<LocalizeAttribute>> prototypes=null):
         base(prototypes)
         {
             AddObserver(new StringLocalizeAttributeObserver(locale));

@@ -18,19 +18,14 @@ namespace SocialPoint.GUIControl
         }
 
         public static event Action<UIViewController> AwakeEvent;
-
-        public delegate UIViewController CreationDelegate();
-        public delegate UIViewController DefaultCreationDelegate(Type t);
-        public delegate string StringCreationDelegate();
-        public delegate string StringDefaultCreationDelegate(Type t);
+        public event Action<UIViewController, ViewState> ViewEvent;
+        public event Action<UIViewController, GameObject> InstantiateEvent;
 
         private bool _loaded = false;
         private ViewState _viewState = ViewState.Initial;
         private Coroutine _showCoroutine;
         private Coroutine _hideCoroutine;
         private UIViewAnimation _animation;
-
-        public event Action<UIViewController, ViewState> ViewEvent;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -110,7 +105,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnStart()
         {
-            if(isActiveAndEnabled && transform.parent != null)
+            if(isActiveAndEnabled && transform.parent != null && _showCoroutine == null)
             {
                 ShowImmediate();
             }
@@ -171,7 +166,7 @@ namespace SocialPoint.GUIControl
             }
             return null;
         }
-        
+
         virtual protected void OnLoad()
         {
         }
@@ -182,7 +177,7 @@ namespace SocialPoint.GUIControl
             _showCoroutine = StartCoroutine(enm);
             return _showCoroutine;
         }
-        
+
         Coroutine StartHideCoroutine(IEnumerator enm)
         {
             gameObject.SetActive(true);
@@ -263,7 +258,7 @@ namespace SocialPoint.GUIControl
             }
             CheckDestroyOnHide(destroy);
         }
-        
+
         public bool Hide(bool destroy=false)
         {
             DebugLog("Hide");
@@ -289,9 +284,9 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoHideCoroutine(bool destroy)
         {
-            if(_viewState == ViewState.Initial)
+            if(_viewState == ViewState.Initial || _viewState == ViewState.Hidden)
             {
-                HideImmediate();
+                Disable();
             }
             else if(_viewState == ViewState.Disappearing && _hideCoroutine != null)
             {
@@ -338,13 +333,16 @@ namespace SocialPoint.GUIControl
             OnAppeared();
             _showCoroutine = null;
         }
-        
+
         virtual protected IEnumerator Appear()
         {
             if(Animation != null)
             {
-                _showCoroutine = StartCoroutine(Animation.Appear());
-                yield return _showCoroutine;
+                var enm = Animation.Appear();
+                while(enm.MoveNext())
+                {
+                    yield return enm.Current;
+                }
             }
         }
 
@@ -387,11 +385,12 @@ namespace SocialPoint.GUIControl
             _viewState = ViewState.Disappearing;
             NotifyViewEvent();
         }
-        
+
         virtual protected IEnumerator Disappear()
         {
             if(Animation != null)
             {
+                yield return new WaitForEndOfFrame();
                 var enm = Animation.Disappear();
                 while(enm.MoveNext())
                 {
@@ -431,7 +430,17 @@ namespace SocialPoint.GUIControl
             _viewState = ViewState.Hidden;
             NotifyViewEvent();
         }
-        
+
+        protected GameObject Instantiate(GameObject proto)
+        {
+            var go = GameObject.Instantiate(proto);
+            if(InstantiateEvent != null)
+            {
+                InstantiateEvent(this, go);
+            }
+            return go;
+        }
+
         public static Camera GetLayerCamera(int layer)
         {
             var cams = GameObject.FindObjectsOfType<Camera>();
@@ -445,7 +454,7 @@ namespace SocialPoint.GUIControl
             }
             return null;
         }
-        
+
         public static void SetViewportRect(Rect viewport, int layer)
         {
             Camera cam = GetLayerCamera(layer);

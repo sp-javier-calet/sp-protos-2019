@@ -118,7 +118,7 @@ namespace SocialPoint.Utils
 
         const string DefaultJoinSeparator = ", ";
 
-        public static string Join<T>(IList<T> objs, string sep=null)
+        public static string Join<T>(IEnumerable<T> objs, string sep=null)
         {
             if(objs == null)
             {
@@ -128,19 +128,16 @@ namespace SocialPoint.Utils
             {
                 sep = DefaultJoinSeparator;
             }
-            var strs = new string[objs.Count];
-            var i = 0;
+            var strs = new List<string>();
             foreach(var obj in objs)
             {
                 if(obj != null)
                 {
-                    strs[i] = obj.ToString();
+                    strs.Add(obj.ToString());
                 }
-                i++;
             }
-            return string.Join(sep, strs);
+            return string.Join(sep, strs.ToArray());
         }
-
 
         public static  bool GlobMatch(string pattern, string value)
         {

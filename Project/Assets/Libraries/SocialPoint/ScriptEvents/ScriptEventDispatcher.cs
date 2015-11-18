@@ -15,6 +15,7 @@ namespace SocialPoint.ScriptEvents
         void AddConverter(IScriptEventConverter converter);
         void AddSerializer(IScriptEventSerializer serializer);
         void AddParser(IScriptEventParser parser);
+        void AddBridge(IScriptEventsBridge bridge);
         void Raise(string name, Attr args);
     }
 

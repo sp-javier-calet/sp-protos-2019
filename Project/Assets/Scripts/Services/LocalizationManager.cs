@@ -87,13 +87,22 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
     void PostInject()
     {
         _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
+        _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }
     
     void OnViewControllerStateChangeEvent(UIViewControllerStateChangeEvent ev)
     {
-        if(ev.State == UIViewController.ViewState.Appearing)
+        if(ev.State == UIViewController.ViewState.Appearing || ev.State == UIViewController.ViewState.Shown)
         {
             _localizeAttributeConfig.Apply(ev.Controller);
+        }
+    }
+
+    void OnViewControllerInstantiateEvent(UIViewControllerInstantiateEvent ev)
+    {
+        foreach(var component in ev.Object.GetComponents<UnityEngine.MonoBehaviour>())
+        {
+            _localizeAttributeConfig.Apply(component);
         }
     }
     
@@ -101,6 +110,7 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
     {
         base.Dispose();
         _dispatcher.RemoveListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
+        _dispatcher.RemoveListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }
 
 }

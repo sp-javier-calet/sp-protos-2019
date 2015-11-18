@@ -6,34 +6,19 @@ using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
 
 
-public struct UIViewControllerAwakeEvent
-{
-    public UIViewController Controller;
-}
-
-public struct UIViewControllerStateChangeEvent
-{
-    public UIViewController Controller;
-    public UIViewController.ViewState State;
-}
-
-
 
 public class GUIInstaller : MonoInstaller, IDisposable
 {
 	const string UIViewControllerSuffix = "Controller";
 
 	[Serializable]
-	public class SettingsData
+    public class SettingsData
 	{
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
 	};
 
     public SettingsData Settings = new SettingsData();
 
-    [Inject]
-    IEventDispatcher _dispatcher;
-    
     public override void InstallBindings()
     {
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
@@ -51,23 +36,27 @@ public class GUIInstaller : MonoInstaller, IDisposable
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
         }
+
+        Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
+        Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
+    }
+
+    [PostInject]
+    void PostInject()
+    {
+        // add the event bridge by hand, since the dispatchers
+        // are created in the global container
+        var scriptDispatcher = Container.Resolve<IScriptEventDispatcher>();
+        var dispatcher = Container.Resolve<IEventDispatcher>();
+        var bridge = Container.Instantiate<GUIControlBridge>();
+
+        dispatcher.AddBridge(bridge);
+        scriptDispatcher.AddBridge(bridge);
     }
 
     void OnViewControllerAwake(UIViewController ctrl)
     {
         Container.Inject(ctrl);
-        ctrl.ViewEvent += OnViewControllerStateChange;
-        _dispatcher.Raise(new UIViewControllerAwakeEvent{ 
-            Controller = ctrl
-        });
-    }
-
-    void OnViewControllerStateChange(UIViewController ctrl, UIViewController.ViewState state)
-    {
-        _dispatcher.Raise(new UIViewControllerStateChangeEvent{ 
-            Controller = ctrl,
-            State = state
-        });
     }
 
     string GetControllerFactoryPrefabName(Type type)

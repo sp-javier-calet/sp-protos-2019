@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace SocialPoint.ScriptEvents
-{    
+{
 
     public static class ScriptConditions
     {
@@ -37,23 +37,23 @@ namespace SocialPoint.ScriptEvents
     public class FixedCondition : IScriptCondition
     {
         bool _result;
-        
+
         public FixedCondition(bool result)
         {
             _result = result;
         }
-        
+
         public bool Matches(string name, Attr arguments)
         {
             return _result;
         }
-        
+
         public override string ToString()
         {
             return string.Format("[FixedCondition:{0}]", _result);
         }
     }
-    
+
     public class FixedConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
@@ -62,7 +62,7 @@ namespace SocialPoint.ScriptEvents
         }
 
         public FamilyParser<IScriptCondition> Parent { set{} }
-        
+
         const string ConditionName = "fixed";
         public string Name { get{ return ConditionName; } }
     }
@@ -73,9 +73,9 @@ namespace SocialPoint.ScriptEvents
         {
             return new FixedCondition(true);
         }
-        
+
         public FamilyParser<IScriptCondition> Parent { set{} }
-        
+
         const string ConditionName = "all";
         public string Name { get{ return ConditionName; } }
     }
@@ -86,9 +86,9 @@ namespace SocialPoint.ScriptEvents
         {
             return new FixedCondition(false);
         }
-        
+
         public FamilyParser<IScriptCondition> Parent { set{} }
-        
+
         const string ConditionName = "none";
         public string Name { get{ return ConditionName; } }
     }
@@ -122,7 +122,7 @@ namespace SocialPoint.ScriptEvents
 
         public FamilyParser<IScriptCondition> Parent { set{} }
 
-        const string ConditionName = "name";      
+        const string ConditionName = "name";
         public string Name { get{ return ConditionName; } }
     }
 
@@ -152,10 +152,10 @@ namespace SocialPoint.ScriptEvents
         {
             return new ArgumentsCondition((Attr)data.Clone());
         }
-                
+
         public FamilyParser<IScriptCondition> Parent { set{} }
-        
-        const string ConditionName = "args";      
+
+        const string ConditionName = "args";
         public string Name { get{ return ConditionName; } }
     }
 
@@ -172,7 +172,7 @@ namespace SocialPoint.ScriptEvents
         {
             _conditions = conditions;
         }
-        
+
         public bool Matches(string name, Attr arguments)
         {
             foreach(var cond in _conditions)
@@ -190,7 +190,7 @@ namespace SocialPoint.ScriptEvents
             return string.Format("[AndCondition:{0}]", StringUtils.Join(_conditions));
         }
     }
-        
+
     public class AndConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
@@ -202,10 +202,10 @@ namespace SocialPoint.ScriptEvents
             }
             return new AndCondition(children);
         }
-        
+
         public FamilyParser<IScriptCondition> Parent { set; private get; }
-        
-        const string ConditionName = "and";      
+
+        const string ConditionName = "and";
         public string Name { get{ return ConditionName; } }
     }
 
@@ -217,12 +217,12 @@ namespace SocialPoint.ScriptEvents
             this(new List<IScriptCondition>(conditions))
         {
         }
-        
+
         public OrCondition(List<IScriptCondition> conditions)
         {
             _conditions = conditions;
         }
-        
+
         public bool Matches(string name, Attr arguments)
         {
             foreach(var cond in _conditions)
@@ -234,7 +234,7 @@ namespace SocialPoint.ScriptEvents
             }
             return false;
         }
-                
+
         public override string ToString()
         {
             return string.Format("[OrCondition:{0}]", StringUtils.Join(_conditions));
@@ -252,22 +252,22 @@ namespace SocialPoint.ScriptEvents
             }
             return new OrCondition(children);
         }
-        
+
         public FamilyParser<IScriptCondition> Parent { set; private get; }
-        
-        const string ConditionName = "or";      
+
+        const string ConditionName = "or";
         public string Name { get{ return ConditionName; } }
     }
 
     public class NotCondition : IScriptCondition
     {
         readonly IScriptCondition _condition;
-        
+
         public NotCondition(IScriptCondition condition)
         {
             _condition = condition;
         }
-        
+
         public bool Matches(string name, Attr arguments)
         {
             return !_condition.Matches(name, arguments);
@@ -278,17 +278,17 @@ namespace SocialPoint.ScriptEvents
             return string.Format("[NotCondition:{0}]", _condition);
         }
     }
-        
+
     public class NotConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
             return new NotCondition(Parent.Parse(data));
-        }        
-        
+        }
+
         public FamilyParser<IScriptCondition> Parent { set; private get; }
-        
-        const string ConditionName = "not";      
+
+        const string ConditionName = "not";
         public string Name { get{ return ConditionName; } }
     }
 }
