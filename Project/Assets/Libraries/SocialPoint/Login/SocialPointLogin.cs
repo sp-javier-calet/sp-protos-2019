@@ -331,7 +331,7 @@ namespace SocialPoint.Login
             }
         }
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             ClearUsersCache();
             _links.Clear();

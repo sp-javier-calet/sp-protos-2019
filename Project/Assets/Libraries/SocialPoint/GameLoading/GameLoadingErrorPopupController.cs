@@ -1,5 +1,6 @@
 ﻿using System;
 using SocialPoint.GUIControl;
+using SocialPoint.Locale;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,7 @@ public class GameLoadingErrorPopupController : UIViewController
 
     public event Action Dismissed;
 
+    [Localize]
     public Text Message;
 
     protected override void OnLoad()

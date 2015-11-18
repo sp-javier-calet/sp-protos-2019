@@ -326,7 +326,7 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             Stop();
             Reset();

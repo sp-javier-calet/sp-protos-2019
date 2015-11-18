@@ -2,6 +2,8 @@ using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
+using SocialPoint.ScriptEvents;
+using SocialPoint.GUIControl;
 using Zenject;
 
 public class LocalizationManager : SocialPoint.Locale.LocalizationManager
@@ -70,9 +72,35 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
         }
     }
 
+    [Inject]
+    IEventDispatcher _dispatcher;
+
+    [Inject]
+    LocalizeAttributeConfiguration _localizeAttributeConfig;
+
     public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale) :
         base(client, appInfo, locale)
     {
+    }
+    
+    [PostInject]
+    void PostInject()
+    {
+        _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
+    }
+    
+    void OnViewControllerStateChangeEvent(UIViewControllerStateChangeEvent ev)
+    {
+        if(ev.State == UIViewController.ViewState.Appearing)
+        {
+            _localizeAttributeConfig.Apply(ev.Controller);
+        }
+    }
+    
+    override public void Dispose()
+    {
+        base.Dispose();
+        _dispatcher.RemoveListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
     }
 
 }

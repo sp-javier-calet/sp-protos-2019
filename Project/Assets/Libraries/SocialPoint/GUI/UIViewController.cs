@@ -16,12 +16,8 @@ namespace SocialPoint.GUIControl
             Destroying,
             Destroyed
         }
-        ;
-        
-        public delegate void ViewDelegate(UIViewController ctrl,ViewState state);
-        public delegate void FilterDelegate(UIViewController ctrl);
-        
-        public static event FilterDelegate AwakeFilter;
+
+        public static event Action<UIViewController> AwakeEvent;
 
         public delegate UIViewController CreationDelegate();
         public delegate UIViewController DefaultCreationDelegate(Type t);
@@ -34,8 +30,7 @@ namespace SocialPoint.GUIControl
         private Coroutine _hideCoroutine;
         private UIViewAnimation _animation;
 
-        [HideInInspector]
-        public event ViewDelegate ViewEvent;
+        public event Action<UIViewController, ViewState> ViewEvent;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -96,9 +91,9 @@ namespace SocialPoint.GUIControl
 
         void Awake()
         {
-            if(AwakeFilter != null)
+            if(AwakeEvent != null)
             {
-                AwakeFilter(this);
+                AwakeEvent(this);
             }
         }
 

@@ -36,6 +36,11 @@ namespace SocialPoint.Login
         {
             _facebook.StateChangeEvent += OnStateChanged;
         }
+
+        public void Dispose()
+        {
+            _facebook.StateChangeEvent -= OnStateChanged;
+        }
         
         FacebookUser GetFacebookUser(User user)
         {
@@ -56,7 +61,7 @@ namespace SocialPoint.Login
             return null;
         }
         
-        public override string Name
+        public string Name
         {
             get
             {
@@ -64,12 +69,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void OnNewLocalUser(LocalUser user)
-        {
-            base.OnNewLocalUser(user);
-        }
-        
-        public override void AddStateChangeDelegate(StateChangeDelegate cbk)
+        public void AddStateChangeDelegate(StateChangeDelegate cbk)
         {
             _eventStateChange += cbk;
         }
@@ -89,7 +89,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void Login(ErrorDelegate cbk)
+        public void Login(ErrorDelegate cbk)
         {            
             _facebook.Login((err) => OnLogin(err, cbk), _loginWithUi);
         }
@@ -117,7 +117,7 @@ namespace SocialPoint.Login
             });
         }
         
-        public override void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk)
+        public void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk)
         {
             FacebookAppRequest fbReq = new FacebookAppRequest(req.Description);
             fbReq.FrictionLess = true;
@@ -143,7 +143,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void UpdateUser(User user)
+        public void UpdateUser(User user)
         {
             FacebookUser fbUser = GetFacebookUser(user);
             if(fbUser != null)
@@ -152,7 +152,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void UpdateLocalUser(LocalUser user)
+        public void UpdateLocalUser(LocalUser user)
         {
             if(_facebook.IsConnected && _facebook.User != null)
             {
@@ -161,7 +161,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override AttrDic GetLinkData()
+        public AttrDic GetLinkData()
         {
             FacebookUser user = _facebook.User;
             AttrDic data = new AttrDic();
@@ -170,7 +170,7 @@ namespace SocialPoint.Login
             return data;
         }
         
-        public override void GetFriendsData(List<UserMapping> mappings)
+        public void GetFriendsData(List<UserMapping> mappings)
         {
             foreach(var friend in _facebook.Friends)
             {
@@ -178,7 +178,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
+        public void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
         {
             List<string> userIds = user.GetExternalIds(LinkName);
             if(userIds.Count > 0 && userIds[0].Length > 0)
@@ -211,12 +211,12 @@ namespace SocialPoint.Login
             }
         }
         
-        public override bool IsFriend(User user)
+        public bool IsFriend(User user)
         {
             return GetFacebookUser(user) != null;
         }
         
-        public override void Logout()
+        public void Logout()
         {
             _facebook.Logout(null);
         }

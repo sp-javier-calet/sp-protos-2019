@@ -29,7 +29,7 @@ namespace SocialPoint.QualityStats
             });
         }
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             _client.Dispose();
         }

@@ -73,7 +73,7 @@ namespace SocialPoint.Purchase
 
         #region IDisposable implementation
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             return;
         }

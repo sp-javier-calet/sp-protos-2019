@@ -61,7 +61,7 @@ namespace SocialPoint.Login
 
         private string _baseUri;
 
-        public void Dispose()
+        virtual public void Dispose()
         {
         }
 

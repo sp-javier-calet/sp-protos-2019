@@ -60,7 +60,7 @@ namespace SocialPoint.Notifications
             Reset();
         }
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             _appEvents.WillGoBackground.Remove(OnGoToBackground);
             _appEvents.WasOnBackground -= OnComeFromBackground;

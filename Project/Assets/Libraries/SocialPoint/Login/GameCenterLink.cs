@@ -32,6 +32,11 @@ namespace SocialPoint.Login
         {
             _gameCenter.StateChangeEvent += OnStateChanged;
         }
+
+        public void Dispose()
+        {
+            _gameCenter.StateChangeEvent -= OnStateChanged;
+        }
         
         void GetUserIdsFromLinkData(Attr linkData, List<string> userIds)
         {
@@ -68,7 +73,7 @@ namespace SocialPoint.Login
             return null;
         }
         
-        public override string Name
+        public string Name
         {
             get
             {
@@ -76,12 +81,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void OnNewLocalUser(LocalUser user)
-        {
-            base.OnNewLocalUser(user);
-        }
-        
-        public override void AddStateChangeDelegate(StateChangeDelegate cbk)
+        public void AddStateChangeDelegate(StateChangeDelegate cbk)
         {
             _eventStateChange += cbk;
         }
@@ -102,7 +102,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void Login(ErrorDelegate cbk)
+        public void Login(ErrorDelegate cbk)
         {            
             _gameCenter.Login((err) => OnLogin(err, cbk));
         }
@@ -120,7 +120,7 @@ namespace SocialPoint.Login
             }
         }
 
-        public override void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk)
+        public void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk)
         {
             if(cbk != null)
             {
@@ -128,7 +128,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void UpdateUser(User user)
+        public void UpdateUser(User user)
         {
             GameCenterUser gcUser = GetGameCenterUser(user);
             if(gcUser != null)
@@ -137,7 +137,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void UpdateLocalUser(LocalUser user)
+        public void UpdateLocalUser(LocalUser user)
         {
             if(_gameCenter.IsConnected && _gameCenter.User != null)
             {
@@ -146,7 +146,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override AttrDic GetLinkData()
+        public AttrDic GetLinkData()
         {
             GameCenterUser user = _gameCenter.User;
             AttrDic data = new AttrDic();
@@ -184,7 +184,7 @@ namespace SocialPoint.Login
             return data;
         }
         
-        public override void GetFriendsData(List<UserMapping> mappings)
+        public void GetFriendsData(List<UserMapping> mappings)
         {
             foreach(var friend in _gameCenter.Friends)
             {
@@ -192,7 +192,7 @@ namespace SocialPoint.Login
             }
         }
         
-        public override void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
+        public void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
         {
             List<string> userIds = user.GetExternalIds(LinkName);
             if(userIds.Count > 0 && !string.IsNullOrEmpty(userIds[0]))
@@ -219,12 +219,12 @@ namespace SocialPoint.Login
             }
         }
         
-        public override bool IsFriend(User user)
+        public bool IsFriend(User user)
         {
             return GetGameCenterUser(user) != null;
         }
         
-        public override void Logout()
+        public void Logout()
         {
             return;
         }

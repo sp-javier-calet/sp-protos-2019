@@ -52,6 +52,8 @@ public class LocaleInstaller : MonoInstaller
         Container.BindInstance("locale_bundle_dir", Settings.BundleDir);
         Container.Rebind<ILocalizationManager>().ToSingle<LocalizationManager>();
         Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
+         
+        Container.Rebind<LocalizeAttributeConfiguration>().ToSingle();
     }
 
     Localization CreateLocalization(InjectContext ctx)

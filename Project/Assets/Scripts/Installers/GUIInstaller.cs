@@ -3,8 +3,23 @@ using Zenject;
 using UnityEngine;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
+using SocialPoint.ScriptEvents;
 
-public class GUIInstaller : MonoInstaller
+
+public struct UIViewControllerAwakeEvent
+{
+    public UIViewController Controller;
+}
+
+public struct UIViewControllerStateChangeEvent
+{
+    public UIViewController Controller;
+    public UIViewController.ViewState State;
+}
+
+
+
+public class GUIInstaller : MonoInstaller, IDisposable
 {
 	const string UIViewControllerSuffix = "Controller";
 
@@ -15,21 +30,14 @@ public class GUIInstaller : MonoInstaller
 	};
 
     public SettingsData Settings = new SettingsData();
+
+    [Inject]
+    IEventDispatcher _dispatcher;
     
     public override void InstallBindings()
     {
-		UIViewController.Factory.Define((type) => {
-            var name = type.Name;
-			if(name.EndsWith(UIViewControllerSuffix))
-			{
-				name = name.Substring(0, name.Length-UIViewControllerSuffix.Length);
-			}
-			return string.Format("GUI_{0}", name);
-		});
-
-        UIViewController.AwakeFilter += (ctrl) => {
-            Container.Inject(ctrl);
-        };
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
+        UIViewController.AwakeEvent += OnViewControllerAwake;
 
         Container.BindInstance("popup_fade_speed", Settings.PopupFadeSpeed);
 
@@ -43,7 +51,39 @@ public class GUIInstaller : MonoInstaller
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
         }
+    }
 
+    void OnViewControllerAwake(UIViewController ctrl)
+    {
+        Container.Inject(ctrl);
+        ctrl.ViewEvent += OnViewControllerStateChange;
+        _dispatcher.Raise(new UIViewControllerAwakeEvent{ 
+            Controller = ctrl
+        });
+    }
+
+    void OnViewControllerStateChange(UIViewController ctrl, UIViewController.ViewState state)
+    {
+        _dispatcher.Raise(new UIViewControllerStateChangeEvent{ 
+            Controller = ctrl,
+            State = state
+        });
+    }
+
+    string GetControllerFactoryPrefabName(Type type)
+    {
+        var name = type.Name;
+        if(name.EndsWith(UIViewControllerSuffix))
+        {
+            name = name.Substring(0, name.Length-UIViewControllerSuffix.Length);
+        }
+        return string.Format("GUI_{0}", name);
+    }
+
+    public void Dispose()
+    {
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
+        UIViewController.AwakeEvent -= OnViewControllerAwake;
     }
 
 
