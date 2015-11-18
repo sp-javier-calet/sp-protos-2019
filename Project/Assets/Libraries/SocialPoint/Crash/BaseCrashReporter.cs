@@ -189,40 +189,17 @@ namespace SocialPoint.Crash
             }
         }
 
-        #if CRASH_REPORTER_TEST_EVENTS
-        private class TestReport : Report
-        {
-            public override long Timestamp
-            {
-                get
-                {
-                    return TimeUtils.Timestamp;
-                }
-            }
-            
-            public override string StackTrace
-            {
-                get
-                {
-                    return "test stacktrace";
-                }
-            }
-            
-            public override string Log
-            {
-                get
-                {
-                    return "test log";
-                }
-            }
-        }
-#endif
-
         #endregion
 
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
+        enum ReportSendType
+        {
+            BeforeLogin,
+            AfterLogin
+        }
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
+
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         public delegate UInt64 GetUserIdDelegate();
 
@@ -253,6 +230,7 @@ namespace SocialPoint.Crash
         IDeviceInfo _deviceInfo;
         readonly PersistentAttrStorage _exceptionStorage;
         PersistentAttrStorage _crashStorage;
+        List<Report> _pendingReports;
         BreadcrumbManager _breadcrumbManager;
         HashSet<string> _uniqueExceptions;
         public RequestSetupDelegate RequestSetup;
@@ -262,10 +240,14 @@ namespace SocialPoint.Crash
         public const float DefaultSendInterval = 20.0f;
         public const bool DefaultExceptionLogActive = true;
         public const bool DefaultErrorLogActive = true;
+        public const bool DefaultEnableSendingCrashesBeforeLogin = false;
+        public const int DefaultNumRetriesBeforeSendingCrashBeforeLogin = 3;
 
         bool _wasActiveInLastSession;
         bool _exceptionLogActive = DefaultExceptionLogActive;
         bool _errorLogActive = DefaultErrorLogActive;
+        bool _enableSendingCrashesBeforeLogin = DefaultEnableSendingCrashesBeforeLogin;
+        int _numRetriesBeforeSendingCrashBeforeLogin = DefaultNumRetriesBeforeSendingCrashBeforeLogin;
 
         public float SendInterval
         {
@@ -302,6 +284,32 @@ namespace SocialPoint.Crash
             set
             {
                 _errorLogActive = value;
+            }
+        }
+
+        public bool EnableSendingCrashesBeforeLogin
+        {
+            get
+            {
+                return _enableSendingCrashesBeforeLogin;
+            }
+
+            set
+            {
+                _enableSendingCrashesBeforeLogin = value;
+            }
+        }
+
+        public int NumRetriesBeforeSendingCrashBeforeLogin
+        {
+            get
+            {
+                return _numRetriesBeforeSendingCrashBeforeLogin;
+            }
+
+            set
+            {
+                _numRetriesBeforeSendingCrashBeforeLogin = value;
             }
         }
 
@@ -403,25 +411,23 @@ namespace SocialPoint.Crash
 
             _uniqueExceptions = new HashSet<string>();
 
+            _pendingReports = new List<Report>();
+
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
         }
 
         public void Enable()
         {
+            if(_updateCoroutine != null)
+            {
+                return;
+            }
+
             WasEnabled = true;
             LogCallbackHandler.RegisterLogCallback(HandleLog);
             OnEnable();
-            Check();
 
-            if(_updateCoroutine == null)
-            {
-                _updateCoroutine = _behaviour.StartCoroutine(UpdateCoroutine());
-            }
-
-#if CRASH_REPORTER_TEST_EVENTS
-            TrackException("testing exception log", "testing exception stack");
-            TrackCrash(new TestReport());
-#endif
+            _updateCoroutine = _behaviour.StartCoroutine(UpdateCoroutine());
         }
 
         protected virtual void OnEnable()
@@ -483,12 +489,6 @@ namespace SocialPoint.Crash
             go.transform.position = Vector3.zero;
         }
 
-        void Check()
-        {
-            CheckLogs();
-            CheckPendingCrashes();
-        }
-
         void SetupCrashHttpRequest(HttpRequest req, string log)
         {
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
@@ -517,15 +517,15 @@ namespace SocialPoint.Crash
             get{ return (_crashStorage != null && _crashStorage.StoredKeys.Length > 0); }
         }
 
-        void CheckPendingCrashes()
+        protected void ReadPendingCrashes()
         {
-            List<Report> pendingReports = GetPendingCrashes();
-            if(pendingReports.Count > 0)
+            _pendingReports = GetPendingCrashes();
+
+            if(_pendingReports.Count > 0)
             {
-                foreach(Report report in pendingReports)
+                foreach(Report report in _pendingReports)
                 {
-                    //trackcrash will create the log if is success
-                    TrackCrash(report);
+                    AddRetry(report.Uuid);
                 }
             }
             else
@@ -534,11 +534,170 @@ namespace SocialPoint.Crash
                 Report memoryCrashReport = CheckMemoryCrash();
                 if(memoryCrashReport != null)
                 {
-                    TrackCrash(memoryCrashReport);
+                    AddRetry(memoryCrashReport.Uuid);
                 }
             }
 
+            if(HasCrashLogs)
+            {
+                foreach(var log in _crashStorage.StoredKeys)
+                {
+                    AddRetry(log);
+                }
+            }
+        }
+
+        void SendCrashesAfterLogin(Action callback = null)
+        {
+            SendCrashes(ReportSendType.AfterLogin, () => {
+                if(callback != null)
+                {
+                    callback();
+                }
+            });
+        }
+
+        public void SendCrashesBeforeLogin(Action callback)
+        {
+            SendCrashes(ReportSendType.BeforeLogin, () => {
+                if(callback != null)
+                {
+                    callback();
+                }
+            });
+        }
+
+        void SendCrashes(ReportSendType reportSendType, Action callback)
+        {
+            int count = 2;
+            Action step = () => {
+                count--;
+                if(count <= 0 && callback != null)
+                {
+                    callback();
+                }
+            };
+            SendTrackedCrashes(reportSendType, step);
+            SendPendingCrashes(reportSendType, step);
+        }
+
+        void SendTrackedCrashes(ReportSendType reportSendType, Action callback)
+        {
+            int trackedCrashesToSend = TrackedCrashesToSend(reportSendType);
+
+            if(trackedCrashesToSend > 0)
+            {
+                Action step = () => {
+                    --trackedCrashesToSend;
+                    if(trackedCrashesToSend == 0 && callback != null)
+                    {
+                        callback();
+                    }
+                };
+                if(HasCrashLogs)
+                {
+                    foreach(var log in _crashStorage.StoredKeys)
+                    {
+                        if(reportSendType == GetReportSendType(log))
+                        {
+                            SendCrashLog(log, step);
+                        }
+                    }
+                }
+            }
+            else if(callback != null)
+            {
+                callback();
+            }
+        }
+
+        void SendPendingCrashes(ReportSendType reportSendType, Action callback)
+        {
+            int pendingCrashesToSend = PendingCrashesToSend(reportSendType);
+
+            if(pendingCrashesToSend > 0)
+            {
+                Action step = () => {
+                    --pendingCrashesToSend;
+                    if(pendingCrashesToSend == 0 && callback != null)
+                    {
+                        callback();
+                    }
+                };
+                if(_pendingReports.Count > 0)
+                {
+                    foreach(Report report in _pendingReports)
+                    {
+                        if(reportSendType == GetReportSendType(report.Uuid))
+                        {
+                            //trackcrash will create the log if is success
+                            TrackCrash(report, step);
+                        }
+                    }
+                }
+                else
+                {
+                    // If there are no new crashes, we can check some saved status to detect a memory crash
+                    Report memoryCrashReport = CheckMemoryCrash();
+                    if(memoryCrashReport != null)
+                    {
+                        if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
+                        {
+                            TrackCrash(memoryCrashReport, step);
+                        }
+                    }
+                }
+            }
+            else if(callback != null)
+            {
+                callback();
+            }
+
             ClearLastSessionInfo();
+        }
+
+        int TrackedCrashesToSend(ReportSendType reportSendType)
+        {
+            int trackedCrashesToSend = 0;
+            if(HasCrashLogs)
+            {
+                foreach(var log in _crashStorage.StoredKeys)
+                {
+                    if(reportSendType == GetReportSendType(log))
+                    {
+                        ++trackedCrashesToSend;
+                    }
+                }
+            }
+            return trackedCrashesToSend;
+        }
+
+        int PendingCrashesToSend(ReportSendType reportSendType)
+        {
+            int pendingCrashesToSend = 0;
+            if(_pendingReports.Count > 0)
+            {
+                foreach(Report report in _pendingReports)
+                {
+                    if(reportSendType == GetReportSendType(report.Uuid))
+                    {
+                        ++pendingCrashesToSend;
+                    }
+                }
+            }
+            else
+            {
+                // If there are no new crashes, we can check some saved status to detect a memory crash
+                Report memoryCrashReport = CheckMemoryCrash();
+                if(memoryCrashReport != null)
+                {
+                    if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
+                    {
+                        ++pendingCrashesToSend;
+                    }
+                }
+            }
+            return pendingCrashesToSend;
         }
 
         static void ClearLastSessionInfo()
@@ -567,19 +726,11 @@ namespace SocialPoint.Crash
             return memoryCrashReport;
         }
 
-        void CheckLogs()
+        void SendExceptionLogs()
         {
             if(HasExceptionLogs)
             {
                 SendExceptions(_exceptionStorage.StoredKeys);
-            }
-
-            if(HasCrashLogs)
-            {
-                foreach(var log in _crashStorage.StoredKeys)
-                {
-                    SendCrashLog(log);
-                }
             }
         }
 
@@ -627,10 +778,14 @@ namespace SocialPoint.Crash
             _lastSendTimestamp = TimeUtils.Timestamp;
         }
 
-        void SendCrashLog(string log)
+        void SendCrashLog(string log, Action callback)
         {
             if(RequestSetup == null)
             {
+                if(callback != null)
+                {
+                    callback();
+                }
                 return;
             }
             var req = new HttpRequest();
@@ -643,7 +798,7 @@ namespace SocialPoint.Crash
                 CatchException(e);
             }
             SetupCrashHttpRequest(req, log);
-            _httpClient.Send(req, resp => OnCrashSend(resp, log));
+            _httpClient.Send(req, resp => OnCrashSend(resp, log, callback));
         }
 
         void OnExceptionSend(HttpResponse resp, string[] storedKeys)
@@ -658,11 +813,21 @@ namespace SocialPoint.Crash
             }
         }
 
-        void OnCrashSend(HttpResponse resp, string log)
+        void OnCrashSend(HttpResponse resp, string log, Action callback)
         {
             if(!resp.HasError)
             {
                 _crashStorage.Remove(log);
+                EraseRetryKey(log);
+            }
+            else
+            {
+                SubtractRetry(log);
+            }
+
+            if(callback != null)
+            {
+                callback();
             }
         }
 
@@ -687,7 +852,7 @@ namespace SocialPoint.Crash
             }
             string uuid = RandomUtils.GetUuid();
             var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
-            _exceptionStorage.Save(uuid, exception);            
+            _exceptionStorage.Save(uuid, exception);
             _uniqueExceptions.Add(exceptionHashSource);
 
             if(TrackEvent != null)
@@ -705,7 +870,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        void TrackCrash(Report report)
+        void TrackCrash(Report report, Action callback)
         {
             if(TrackEvent != null)
             {
@@ -718,15 +883,31 @@ namespace SocialPoint.Crash
                 mobile.SetValue(AttrKeyCrashTimestamp, report.Timestamp);
                 mobile.SetValue(AttrKeyType, report.OutOfMemory ? 1 : 0);
 
-                TrackEvent(CrashEventName, data, err => CreateCrashLog(report));
+                TrackEvent(CrashEventName, data, err => {
+                    if(!Error.IsNullOrEmpty(err))
+                    {
+                        SubtractRetry(report.Uuid);
+                        if(callback != null)
+                        {
+                            callback();
+                        }
+                    }
+                    else
+                    {
+                        CreateCrashLog(report, callback);
+                    }
+                });
             }
             else
             {
-                CreateCrashLog(report);
+                if(callback != null)
+                {
+                    callback();
+                }
             }
         }
 
-        void CreateCrashLog(Report report)
+        void CreateCrashLog(Report report, Action callback)
         {
             // Create the log on our storage to be send
             string oldBreadcrumbs = "";
@@ -737,15 +918,17 @@ namespace SocialPoint.Crash
 
             var crashLog = new SocialPointCrashLog(report, _deviceInfo, UserId, oldBreadcrumbs);
             _crashStorage.Save(report.Uuid, crashLog);
-            
+
             // Try to send current crash and remove crash data. 
             // The CrashLog is stored and can be sent again if fails
-            SendCrashLog(report.Uuid);
-            report.Remove();
+            SendCrashLog(report.Uuid, callback);
+
+            report.Remove(); // we remove the report in order to not track it again :)
         }
 
         IEnumerator UpdateCoroutine()
         {
+            SendExceptionLogs();
             while(true)
             {
                 Update();
@@ -757,10 +940,7 @@ namespace SocialPoint.Crash
         {
             if(_lastSendTimestamp + (long)_currentSendInterval < TimeUtils.Timestamp)
             {
-                if(HasExceptionLogs)
-                {
-                    SendExceptions(_exceptionStorage.StoredKeys);
-                }
+                SendExceptionLogs();
             }
         }
 
@@ -804,10 +984,8 @@ namespace SocialPoint.Crash
 
         void OnGameWasLoaded()
         {
-            if(_updateCoroutine == null)
-            {
-                Enable();
-            }
+            Enable();
+            SendCrashesAfterLogin();
         }
 
         void OnApplicationQuit()
@@ -826,10 +1004,7 @@ namespace SocialPoint.Crash
         void OnWillGoForeground()
         {
             WasOnBackground = false;
-            if(HasExceptionLogs)
-            {
-                SendExceptions(_exceptionStorage.StoredKeys);
-            }
+            SendExceptionLogs();
         }
 
         #endregion
@@ -841,5 +1016,52 @@ namespace SocialPoint.Crash
             UnityEditor.EditorApplication.isPlaying = false;
             #endif
         }
+
+        #region PlayerPrefss
+
+        ReportSendType GetReportSendType(string reportUuid)
+        {
+            var retries = GetRetries(reportUuid);
+            var reportSendType = (EnableSendingCrashesBeforeLogin && (retries >= NumRetriesBeforeSendingCrashBeforeLogin)) ? ReportSendType.BeforeLogin : ReportSendType.AfterLogin;
+            return reportSendType;
+        }
+
+        static string GetRetriesKey(string reportUuid)
+        {
+            string retriesKey = reportUuid + "_crash_retries";
+            return retriesKey;
+        }
+
+        static int GetRetries(string reportUuid)
+        {
+            var retriesKey = GetRetriesKey(reportUuid);
+            int retries = PlayerPrefs.GetInt(retriesKey);
+            return retries;
+        }
+
+        static void AddRetry(string reportUuid, int retriesToAdd = 1)
+        {
+            var retriesKey = GetRetriesKey(reportUuid);
+            var retries = GetRetries(reportUuid);
+            PlayerPrefs.SetInt(retriesKey, retries + retriesToAdd);
+            PlayerPrefs.Save(); 
+        }
+
+        static void SubtractRetry(string reportUuid, int retriesToRemove = 1)
+        {
+            var retriesKey = GetRetriesKey(reportUuid);
+            var retries = GetRetries(reportUuid);
+            PlayerPrefs.SetInt(retriesKey, Math.Max(retries - retriesToRemove, 0));
+            PlayerPrefs.Save();
+        }
+
+        static void EraseRetryKey(string reportUuid)
+        {
+            var retriesKey = GetRetriesKey(reportUuid);
+            PlayerPrefs.DeleteKey(retriesKey);
+            PlayerPrefs.Save();
+        }
+
+        #endregion
     }
 }

@@ -23,7 +23,7 @@ namespace SocialPoint.QualityStats
         const string kClientPerformanceStats = "client_performance.stats";
         const string kClientPerformanceHttpRequest = "client_performance.http_request";
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         public TrackEventDelegate TrackEvent{ private get; set; }
 
@@ -108,6 +108,10 @@ namespace SocialPoint.QualityStats
         {
             var loadingFinished = TimeUtils.Now.ToLocalTime();
             _timeToMap = (loadingFinished - _loadingStarted).TotalSeconds;
+            if(_appEvents != null)
+            {
+                _appEvents.GameWasLoaded.Remove(OnGameLoaded);
+            }
         }
 
         void OnAppWillGoBackground()
