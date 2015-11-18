@@ -110,7 +110,7 @@ namespace SocialPoint.QualityStats
             _timeToMap = (loadingFinished - _loadingStarted).TotalSeconds;
             if(_appEvents != null)
             {
-                _appEvents.UnregisterGameWasLoaded(OnGameLoaded);
+                _appEvents.GameWasLoaded.Remove(OnGameLoaded);
             }
         }
 

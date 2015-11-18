@@ -16,6 +16,7 @@ public class CrashInstaller : Installer
     };
 
     public SettingsData Settings = new SettingsData();
+
     public override void InstallBindings()
     {
         Container.BindInstance("crash_reporter_send_interval", Settings.SendInterval);
