@@ -15,35 +15,37 @@ using System.Text.RegularExpressions;
 using System.IO;
 using SocialPoint.Utils;
 
-namespace SocialPoint.IO {
+namespace SocialPoint.IO
+{
 
-    public class FileUtils 
+    public class FileUtils
     {
 
-#if UNITY
+        #if UNITY
         private static WWW Download(string path)
         {
             var www = new WWW(path);
-            while (!www.isDone);
+            while(!www.isDone)
+                ;
             return www;
         }
-#endif
+        #endif
 
         public delegate bool OperationFilter(string src, string dst);
 
         public static bool IsBinary(string path)
         {
             var content = ReadAllBytes(path);
-            for (int i = 1; i < 512 && i < content.Length; i++)
+            for(int i = 1; i < 512 && i < content.Length; i++)
             {
-                if (content[i] == 0x00 && content[i-1] == 0x00)
+                if(content[i] == 0x00 && content[i - 1] == 0x00)
                 {
                     return true;
                 }
             }
             return false;
         }
-        
+
         public static bool IsWritable(string path)
         {
             if(IsUrl(path))
@@ -68,12 +70,12 @@ namespace SocialPoint.IO {
                 return Path.Combine(basePath, relPath);
             }
         }
-        
+
         public static bool CopyFile(string from, string to, bool overwrite = false)
         {
-            if(Exists(to)) 
+            if(Exists(to))
             {
-                if (!overwrite) 
+                if(!overwrite)
                 {
                     return false;
                 }
@@ -85,10 +87,10 @@ namespace SocialPoint.IO {
             WriteAllBytes(to, bytes);
             return true;
         }
-        
+
         public static bool Exists(string path)
         {
-            if (IsUrl(path))
+            if(IsUrl(path))
             {
 #if UNITY
                 var www = Download(path);
@@ -102,15 +104,15 @@ namespace SocialPoint.IO {
                 return System.IO.File.Exists(path);
             }
         }
-        
+
         public static bool IsUrl(string path)
         {
             return path.Contains("://");
         }
-        
+
         public static string ReadAllText(string path)
         {
-            if (IsUrl(path))
+            if(IsUrl(path))
             {
 #if UNITY
                 var www = Download(path);
@@ -124,10 +126,10 @@ namespace SocialPoint.IO {
                 return System.IO.File.ReadAllText(path);
             }
         }
-        
+
         public static byte[] ReadAllBytes(string path)
         {
-            if (IsUrl(path))
+            if(IsUrl(path))
             {
 #if UNITY
                 var www = Download(path);
@@ -141,14 +143,14 @@ namespace SocialPoint.IO {
                 return System.IO.File.ReadAllBytes(path);
             }
         }
-        
+
         public static void WriteAllBytes(string path, byte[] bytes)
         {
             CheckWritablePath(path);
             CreateFile(path, true);
             File.WriteAllBytes(path, bytes);
         }
-        
+
         public static void WriteAllText(string path, string text)
         {
             CheckWritablePath(path);
@@ -165,16 +167,19 @@ namespace SocialPoint.IO {
 
         public static void CreateDirectory(string path)
         {
-            CheckLocalPath(path);
-            path = Path.GetFullPath(path);
-            Directory.CreateDirectory(path);
+            if(!Directory.Exists(path))
+            {
+                CheckLocalPath(path);
+                path = Path.GetFullPath(path);
+                Directory.CreateDirectory(path);
+            }
         }
 
         public static void CreateFile(string path, bool overwrite = false)
         {
-            if(Exists(path) && !overwrite) 
+            if(Exists(path) && !overwrite)
             {
-                throw new IOException ("File already exists.");
+                throw new IOException("File already exists.");
             }
 
             string dirPath = Path.GetDirectoryName(path);
@@ -184,7 +189,7 @@ namespace SocialPoint.IO {
             }
             File.Create(path).Close();
         }
-        
+
         public static bool Delete(string path)
         {
             if(!Exists(path))
@@ -283,7 +288,7 @@ namespace SocialPoint.IO {
             }
             return newpath.ToString();
         }
-        
+
         static public bool IsDirectoryEmpty(string path)
         {
             var folder = new DirectoryInfo(path);
@@ -298,8 +303,8 @@ namespace SocialPoint.IO {
         {
             return StringUtils.GlobMatch(pattern, value);
         }
-        
-        static public void ReplaceFileNames(string path, string pattern, IDictionary<string,string> repls, OperationFilter dlg=null)
+
+        static public void ReplaceFileNames(string path, string pattern, IDictionary<string,string> repls, OperationFilter dlg = null)
         {
             CheckLocalPath(path);
             var regexes = new Dictionary<Regex,string>();
@@ -356,7 +361,7 @@ namespace SocialPoint.IO {
                 ReplaceFileNames(dir, pattern, repls, dlg);
             }
         }
-        
+
         static public void ReplaceTextInFile(string path, IDictionary<string,string> repls)
         {
             string text = ReadAllText(path);
@@ -410,7 +415,7 @@ namespace SocialPoint.IO {
                 dir = GetWildcardBasePath(src);
                 if(src.Length > dir.Length)
                 {
-                    pattern = src.Substring(dir.Length+1);
+                    pattern = src.Substring(dir.Length + 1);
                 }
                 else
                 {
@@ -422,7 +427,7 @@ namespace SocialPoint.IO {
             if(!string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(dir) && Directory.Exists(dir))
             {
                 files = Directory.GetFiles(dir, pattern, search);
-                dir = CleanPath(dir)+Path.DirectorySeparatorChar;
+                dir = CleanPath(dir) + Path.DirectorySeparatorChar;
             }
             else
             {
@@ -439,8 +444,8 @@ namespace SocialPoint.IO {
             dirOut = dir;
             return files;
         }
-        
-        static public void Copy(string src, string dst, OperationFilter each=null)
+
+        static public void Copy(string src, string dst, OperationFilter each = null)
         {
             CheckLocalPath(dst);
             string dir;
@@ -477,7 +482,7 @@ namespace SocialPoint.IO {
         {            
             return Compare(src, dst, false, op);
         }
-        
+
         static public Dictionary<string,string> CompareSource(string src, string dst)
         {            
             return Compare(src, dst, false, (srcPath, dstPath) => {
@@ -515,7 +520,7 @@ namespace SocialPoint.IO {
                         var srcWild = StringUtils.WildcardOneChar.ToString();
                         if(src.Length > srcBase.Length)
                         {
-                            srcWild = src.Substring(srcBase.Length+1);
+                            srcWild = src.Substring(srcBase.Length + 1);
                         }
                         dst = Path.Combine(dst, srcWild);
                     }
@@ -553,14 +558,14 @@ namespace SocialPoint.IO {
             {
                 return path;
             }
-            i = path.LastIndexOf(Path.DirectorySeparatorChar, i, i+1);
+            i = path.LastIndexOf(Path.DirectorySeparatorChar, i, i + 1);
             if(i == -1)
             {
                 return string.Empty;
             }
             return path.Substring(0, i);
         }
-        
+
         static public string SetDefaultFileName(string path, string filename)
         {
             if(Directory.Exists(path) || path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
@@ -569,7 +574,7 @@ namespace SocialPoint.IO {
             }
             return path;
         }
-        
+
         static public bool CompareFiles(string path1, string path2)
         {
             CheckLocalPath(path1);

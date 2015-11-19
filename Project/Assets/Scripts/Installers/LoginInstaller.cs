@@ -42,7 +42,9 @@ public class LoginInstaller : Installer
         public float ActivityTimeout = Login.DefaultActivityTimeout;
         public bool AutoupdateFriends = Login.DefaultAutoUpdateFriends;
         public uint AutoupdateFriendsPhotoSize = Login.DefaultAutoUpdateFriendsPhotoSize;
-        public uint MaxRetries = Login.DefaultMaxLoginRetries;
+        public uint MaxSecurityTokenErrorRetries = Login.DefaultMaxSecurityTokenErrorRetries;
+        public uint MaxConnectivityErrorRetries = Login.DefaultMaxConnectivityErrorRetries;
+        public bool EnableLinkConfirmRetries = Login.DefaultEnableLinkConfirmRetries;
         public uint UserMappingsBlock = Login.DefaultUserMappingsBlock;
         public bool FacebookLoginWithUi = false;
 	};
@@ -67,12 +69,17 @@ public class LoginInstaller : Installer
             Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateGameCenterLink);
         }
 
-        Container.BindInstance("backend_env", Settings.Environment);
+        Container.Bind<Login.LoginConfig>().ToInstance<Login.LoginConfig>(new Login.LoginConfig {
+            BaseUrl = Settings.Environment.GetUrl(),
+            SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries, 
+            ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
+            EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries }
+        );
+
         Container.BindInstance("login_timeout", Settings.Timeout);
         Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
         Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
         Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
-        Container.BindInstance("login_max_retries", Settings.MaxRetries);
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
 
         Container.Rebind<ILogin>().ToSingle<Login>();

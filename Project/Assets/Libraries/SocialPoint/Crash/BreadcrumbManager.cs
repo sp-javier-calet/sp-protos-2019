@@ -38,10 +38,7 @@ namespace SocialPoint.Crash
                 _initialized = true;
                 string breadCrumbDirectoryPath = PathsManager.PersistentDataPath + "/breadcrumb/";
 
-                if(!Directory.Exists(breadCrumbDirectoryPath))
-                {
-                    Directory.CreateDirectory(breadCrumbDirectoryPath);
-                }
+                FileUtils.CreateDirectory(breadCrumbDirectoryPath);
                 
                 if(FileUtils.Exists(BreadcrumbLogPath()))
                 {

@@ -89,7 +89,9 @@ namespace SocialPoint.Login
         private const int LinkedToLinkedError = 267;
         private const int ForceUpgradeError = 485;
 
-        public const uint DefaultMaxLoginRetries = 5;
+        public const int DefaultMaxSecurityTokenErrorRetries = 5;
+        public const int DefaultMaxConnectivityErrorRetries = 0;
+        public const bool DefaultEnableLinkConfirmRetries = false;
         public const float DefaultTimeout = 30.0f;
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
@@ -124,7 +126,17 @@ namespace SocialPoint.Login
 
         public uint AutoUpdateFriendsPhotosSize { private get; set; }
 
-        public uint MaxLoginRetries { private get; set; }
+        public struct LoginConfig
+        {
+            public string BaseUrl;
+            public int SecurityTokenErrors;
+            public int ConnectivityErrors;
+            public bool EnableOnLinkConfirm;
+        }
+
+        private LoginConfig _loginConfig;
+        private int _availableSecurityTokenErrorRetries;
+        private int _availableConnectivityErrorRetries;
 
         public uint UserMappingsBlock { private get; set; }
 
@@ -264,7 +276,6 @@ namespace SocialPoint.Login
         }
 
         IHttpClient _httpClient;
-        string _baseUrl;
         List<LinkInfo> _links;
         List<LinkInfo> _pendingLinkConfirms;
         List<User> _users;
@@ -282,17 +293,21 @@ namespace SocialPoint.Login
         public event LoginErrorDelegate ErrorEvent = delegate {};
         public event RestartDelegate RestartEvent = delegate {};
 
-        public SocialPointLogin(IHttpClient client, string baseUrl = null)
+        public SocialPointLogin(IHttpClient client, LoginConfig config)
         {
             Init();
-            if(baseUrl == null)
-            {
-                baseUrl = string.Empty;
-            }
             _httpClient = client;
+            _loginConfig = config;
+            _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
+            _availableConnectivityErrorRetries = config.ConnectivityErrors;
 
+            if(config.BaseUrl == null)
+            {
+                config.BaseUrl = string.Empty;
+            }
             // Ensure the URL always contains a trailing slash
-            _baseUrl = baseUrl.EndsWith(UriSeparator.ToString()) ? baseUrl : baseUrl + UriSeparator;
+            _loginConfig.BaseUrl = config.BaseUrl.EndsWith(UriSeparator.ToString()) ?
+                                   _loginConfig.BaseUrl : _loginConfig.BaseUrl + UriSeparator;
         }
                 
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
@@ -312,7 +327,6 @@ namespace SocialPoint.Login
             ActivityTimeout = DefaultActivityTimeout;
             AutoUpdateFriends = DefaultAutoUpdateFriends;
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
-            MaxLoginRetries = DefaultMaxLoginRetries;
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
             Language = null;
@@ -493,7 +507,7 @@ namespace SocialPoint.Login
 
         public string GetUrl(string uri)
         {
-            var url = _baseUrl + BaseUri + UriSeparator + uri.TrimStart(UriSeparator);
+            var url = _loginConfig.BaseUrl + BaseUri + UriSeparator + uri.TrimStart(UriSeparator);
             string deviceId = "0";
             if(DeviceInfo != null)
             {
@@ -503,13 +517,19 @@ namespace SocialPoint.Login
             return url;
         }
 
-        void DoLogin(ErrorDelegate cbk, uint retry)
+        void DoLogin(ErrorDelegate cbk)
         {
             _pendingLinkConfirms.Clear();
-            if(retry > MaxLoginRetries)
+            if(_availableSecurityTokenErrorRetries < 0)
             {
                 var err = new Error("Max amount of login retries reached.");
                 NotifyError(ErrorType.LoginMaxRetries, err);
+                OnLoginEnd(err, cbk);
+            }
+            else if(_availableConnectivityErrorRetries < 0)
+            {
+                var err = new Error("There was an error with the connection.");
+                NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
             }
             else
@@ -522,17 +542,24 @@ namespace SocialPoint.Login
                 }
 
                 DebugLog("login\n----\n" + req.ToString() + "----\n");
-                _httpClient.Send(req, (resp) => OnLogin(resp, cbk, retry));
+                _httpClient.Send(req, (resp) => OnLogin(resp, cbk));
             }
         }
 
-        void OnLogin(HttpResponse resp, ErrorDelegate cbk, uint retry)
+        void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
             DebugLog("login\n----\n" + resp.ToString() + "----\n");
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearStoredUser();
-                DoLogin(cbk, retry + 1);
+                _availableSecurityTokenErrorRetries--;
+                DoLogin(cbk);
+                return;
+            }
+            else if(resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode)
+            {
+                _availableConnectivityErrorRetries--;
+                DoLogin(cbk);
                 return;
             }
 
@@ -573,6 +600,20 @@ namespace SocialPoint.Login
 
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
+            // Reset retry values
+            if(Error.IsNullOrEmpty(err))
+            {
+                _availableConnectivityErrorRetries = _loginConfig.ConnectivityErrors;
+                _availableSecurityTokenErrorRetries = _loginConfig.SecurityTokenErrors;
+            }
+            else
+            {
+                _availableConnectivityErrorRetries = Math.Max(_loginConfig.ConnectivityErrors, 0);
+                _availableSecurityTokenErrorRetries = Math.Max(_loginConfig.SecurityTokenErrors, 0);
+
+            }
+
+
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
             {
                 GetUsersPhotos(new List<User>(){ User }, AutoUpdateFriendsPhotosSize, (users, err2) => {
@@ -671,24 +712,37 @@ namespace SocialPoint.Login
                 }
                 else
                 {
-                    // the user links have changed, we need to tell the server
-                    info.LinkData = info.Link.GetLinkData();
-                    var req = new HttpRequest();
-                    SetupHttpRequest(req, LinkUri);
-                    req.AddParam(HttpParamSecurityToken, SecurityToken);
-                    req.AddParam(HttpParamLinkType, info.Link.Name);
-                    foreach(var pair in info.LinkData)
-                    {
-                        req.AddParam(pair.Key, pair.Value);
-                    }
-                    DebugLog("link\n----\n" + req.ToString() + "----\n");
-                    _httpClient.Send(req, (resp) => OnNewLinkResponse(info, resp));
+                    OnNewLink(info, state);
                 }
             }
         }
 
-        void OnNewLinkResponse(LinkInfo info, HttpResponse resp)
+        void OnNewLink(LinkInfo info, LinkState state)
         {
+            // the user links have changed, we need to tell the server
+            info.LinkData = info.Link.GetLinkData();
+            var req = new HttpRequest();
+            SetupHttpRequest(req, LinkUri);
+            req.AddParam(HttpParamSecurityToken, SecurityToken);
+            req.AddParam(HttpParamLinkType, info.Link.Name);
+            foreach(var pair in info.LinkData)
+            {
+                req.AddParam(pair.Key, pair.Value);
+            }
+            DebugLog("link\n----\n" + req.ToString() + "----\n");
+            _httpClient.Send(req, (resp) => OnNewLinkResponse(info, state, resp));
+        }
+
+        void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
+        {
+            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
+               _availableConnectivityErrorRetries > 0)
+            {
+                _availableConnectivityErrorRetries--;
+                OnNewLink(info, state);
+                return;
+            }
+
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             DebugLog("link\n----\n" + resp.ToString() + "----\n");
             var type = LinkConfirmType.None;
@@ -898,7 +952,6 @@ namespace SocialPoint.Login
                 {
                     NewUserEvent(gameData, changed);
                 }
-
             }
             else
             {
@@ -909,8 +962,17 @@ namespace SocialPoint.Login
             return err;
         }
 
-        void OnLinkConfirmResponse(LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
+        void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
+            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
+                _availableConnectivityErrorRetries > 0 && 
+                _loginConfig.EnableOnLinkConfirm)
+            {
+                _availableConnectivityErrorRetries--;
+                ConfirmLink(linkToken, decision, cbk);
+                return;
+            }
+
             var err = HandleLinkErrors(resp, ErrorType.Link);
             if(Error.IsNullOrEmpty(err))
             {
@@ -1524,7 +1586,7 @@ namespace SocialPoint.Login
             {
                 TrackEvent(EventNameLoading, new AttrDic());
             }
-            DoLogin(cbk, 0);
+            DoLogin(cbk);
         }
 
         /**
@@ -1587,13 +1649,8 @@ namespace SocialPoint.Login
             req.AddParam(HttpParamLinkConfirmToken, linkToken);
             req.AddParam(HttpParamLinkDecision, decision.ToString().ToLower());
 
-            if(linkInfo != null)
-            {
-                // unset link token to prevent multiple confirms
-                linkInfo.Token = "";
-            }
             DebugLog("link confirm\n----\n" + req.ToString() + "----\n");
-            _httpClient.Send(req, (HttpResponse resp) => OnLinkConfirmResponse(linkInfo, decision, resp, cbk));
+            _httpClient.Send(req, (HttpResponse resp) => OnLinkConfirmResponse(linkToken, linkInfo, decision, resp, cbk));
         }
 
         /**

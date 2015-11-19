@@ -17,5 +17,7 @@ namespace SocialPoint.Crash
         void Disable();
 
         void ClearUniqueExceptions();
+
+        void SendCrashesBeforeLogin(Action callback);
     }
 }

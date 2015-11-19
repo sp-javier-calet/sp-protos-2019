@@ -16,9 +16,10 @@ namespace SocialPoint.ServerEvents
         public AttrDic Data;
         public const int NoNum = -1;
         public int Num = NoNum;
+        public int Retries = -1;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SocialPoint.Events.Event"/> class.
+        /// Initializes a new instance of the <see cref="SocialPoint.ServerEvents.Event"/> class.
         /// </summary>
         /// <param name="name">Event name.</param>
         /// <param name="data">Data.</param>
@@ -40,6 +41,14 @@ namespace SocialPoint.ServerEvents
             Data = datadic.Get(AttrKeyData).AsDic;
         }
 
+        public void OnStart()
+        {
+            if(Retries > 0)
+            {
+                --Retries;
+            }
+        }
+
         public Attr ToAttr()
         {
             var dic = new AttrDic();
@@ -51,6 +60,14 @@ namespace SocialPoint.ServerEvents
                 dic.SetValue(AttrKeyNum, Num);
             }
             return dic;
+        }
+
+        public bool CanRetry
+        {
+            get
+            {
+                return Retries != 0;
+            }
         }
     }
 }

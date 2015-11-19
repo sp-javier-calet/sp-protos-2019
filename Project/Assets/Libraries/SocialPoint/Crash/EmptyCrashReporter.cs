@@ -1,3 +1,4 @@
+using System;
 
 namespace SocialPoint.Crash
 {
@@ -32,6 +33,10 @@ namespace SocialPoint.Crash
         }
 
         public void ClearUniqueExceptions()
+        {
+        }
+
+        public void SendCrashesBeforeLogin(Action callback)
         {
         }
     }

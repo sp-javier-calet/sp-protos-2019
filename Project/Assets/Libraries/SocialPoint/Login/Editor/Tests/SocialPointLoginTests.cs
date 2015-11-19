@@ -21,7 +21,11 @@ namespace SocialPoint.Login
 	    {
 	        HttpClient = Substitute.For<IHttpClient>();
 	        SocialPointLogin = new SocialPointLogin(HttpClient,
-	            "http://int-ds.socialpointgames.com/ds_tech/web/index_dev.php/api/v3/");
+                                                    new SocialPointLogin.LoginConfig {
+                                                        BaseUrl = "http://int-ds.socialpointgames.com/ds_tech/web/index_dev.php/api/v3/",
+                                                        SecurityTokenErrors = SocialPointLogin.DefaultMaxSecurityTokenErrorRetries,
+                                                        ConnectivityErrors = SocialPointLogin.DefaultMaxConnectivityErrorRetries,
+                                                        EnableOnLinkConfirm = SocialPointLogin.DefaultEnableLinkConfirmRetries });
 	        SocialPointLogin.Storage = Substitute.For<IAttrStorage>();
 	        SocialPointLogin.DeviceInfo = Substitute.For<IDeviceInfo>();
 	        SocialPointLogin.TrackEvent = Substitute.For<TrackEventDelegate>();

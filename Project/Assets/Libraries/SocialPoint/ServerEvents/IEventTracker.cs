@@ -76,6 +76,8 @@ namespace SocialPoint.ServerEvents
 
         void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
+        void TrackUrgentSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
+
         void TrackEvent(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         void TrackFunnel(FunnelOperation op);
