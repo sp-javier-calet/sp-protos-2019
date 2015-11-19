@@ -17,6 +17,16 @@ public class HttpClient : CurlHttpClient
         }
     }
 
+    [InjectOptional("pinn_ssl_certificate")]
+    byte[] certificate
+    {
+        set
+        {
+            CurlBridge.SPUnityCurlSetCertificate(value, value.Length);
+        }
+    }
+
+
     [Inject]
     IDeviceInfo deviceInfo;
 
