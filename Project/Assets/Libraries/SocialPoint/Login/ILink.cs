@@ -9,33 +9,36 @@ namespace SocialPoint.Login
 {
     public delegate void StateChangeDelegate(LinkState state);   
 
-    public abstract class ILink
+    public interface ILink : IDisposable
     {
-        public abstract string Name{ get; }
+        string Name{ get; }
 
-        public virtual void OnNewLocalUser(LocalUser user)
+        void AddStateChangeDelegate(StateChangeDelegate cbk);
+
+        void Login(ErrorDelegate cbk);
+
+        void Logout();
+
+        void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk);
+
+        void UpdateUser(User user);
+
+        void UpdateLocalUser(LocalUser user);
+
+        AttrDic GetLinkData();
+
+        void GetFriendsData(List<UserMapping> mappings);
+
+        void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk);
+
+        bool IsFriend(User user);
+    }
+
+    public static class LinkExtensions
+    {
+        public static void OnNewLocalUser(this ILink link, LocalUser user)
         {
-            UpdateLocalUser(user);
+            link.UpdateLocalUser(user);
         }
-
-        public abstract void AddStateChangeDelegate(StateChangeDelegate cbk);
-
-        public abstract void Login(ErrorDelegate cbk);
-
-        public abstract void Logout();
-
-        public abstract void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk);
-
-        public abstract void UpdateUser(User user);
-
-        public abstract void UpdateLocalUser(LocalUser user);
-
-        public abstract AttrDic GetLinkData();
-
-        public abstract void GetFriendsData(List<UserMapping> mappings);
-
-        public abstract void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk);
-
-        public abstract bool IsFriend(User user);
     }
 }
