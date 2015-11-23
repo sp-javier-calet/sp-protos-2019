@@ -19,7 +19,7 @@ namespace SocialPoint.EventSystems
             current = originalCurrent;
         }
 
-        bool _hasFocus;
+        bool _hasFocus = true;
 
         void OnApplicationFocus(bool focusStatus)
         {
