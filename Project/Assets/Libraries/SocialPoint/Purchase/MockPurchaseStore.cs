@@ -24,7 +24,7 @@ namespace SocialPoint.Purchase
 
         #region IPurchaseStore implementation
 
-        public void Dispose()
+        virtual public void Dispose()
         {
         }
 

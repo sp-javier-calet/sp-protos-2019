@@ -318,7 +318,7 @@ namespace SocialPoint.Purchase
             _purchaseStore.ForceFinishPendingTransactions();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             UnregisterEvents();
             _commandQueue = null;

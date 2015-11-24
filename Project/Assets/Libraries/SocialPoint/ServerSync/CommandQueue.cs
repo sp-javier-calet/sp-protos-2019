@@ -347,7 +347,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             Stop();
             Reset();

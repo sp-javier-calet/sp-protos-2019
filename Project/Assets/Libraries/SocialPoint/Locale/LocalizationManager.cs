@@ -249,7 +249,7 @@ namespace SocialPoint.Locale
             Load();
         }
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             if(_httpConn != null)
             {

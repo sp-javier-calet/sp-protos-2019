@@ -11,6 +11,7 @@ namespace SocialPoint.ScriptEvents
         void AddDefaultListener(Action<object> listener);
         bool RemoveListener<T>(Action<T> listener);
         void RemoveDefaultListener(Action<object> listener);
+        void AddBridge(IEventsBridge bridge);
         void Raise(object e);
     }
 

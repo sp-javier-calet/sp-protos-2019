@@ -79,7 +79,7 @@ namespace SocialPoint.Rating
             _appEvents.WasOnBackground += OnWasOnBackground;
         }
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             _appEvents.WasOnBackground -= OnWasOnBackground;
         }

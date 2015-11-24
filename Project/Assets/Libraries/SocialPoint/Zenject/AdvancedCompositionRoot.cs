@@ -13,14 +13,14 @@ namespace Zenject
     public sealed class AdvancedCompositionRoot : MonoBehaviour
     {
         [SerializeField]
-        public MonoInstaller[] RootInstallers = new MonoInstaller[0];
+        public MonoInstaller[] GlobalRootInstallers = new MonoInstaller[0];
 
         public void Awake()
         {
             var rootContainer = GlobalCompositionRoot.Instance.Container;
             if(rootContainer != null)
             {
-                rootContainer.Install(RootInstallers);
+                rootContainer.Install(GlobalRootInstallers);
             }
         }
     }
