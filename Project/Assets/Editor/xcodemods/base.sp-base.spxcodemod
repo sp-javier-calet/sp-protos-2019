@@ -1,0 +1,6 @@
+
+{
+    "headerpaths": [
+        "{ROOT_PATH}/../Project/Assets/Plugins/Ios"
+    ]
+}

@@ -6,8 +6,11 @@ namespace SocialPoint.Hardware
 {
     public class UnityNetworkInfo : INetworkInfo
     {
+        Uri _testUri;
+
         public UnityNetworkInfo()
         {
+            _testUri = new Uri("http://socialpoint.es");
         }
 
         public INetworkInfoStatus Connectivity
@@ -16,14 +19,14 @@ namespace SocialPoint.Hardware
             {
                 switch(Application.internetReachability)
                 {
-                    case NetworkReachability.ReachableViaCarrierDataNetwork:
-                        return INetworkInfoStatus.ReachableViaWWAN;
-                    case NetworkReachability.ReachableViaLocalAreaNetwork:
-                        return INetworkInfoStatus.ReachableViaWiFi;
-                    case NetworkReachability.NotReachable:
-                        return INetworkInfoStatus.NotReachable;
-                    default:
-                        return INetworkInfoStatus.Unknown;
+                case NetworkReachability.ReachableViaCarrierDataNetwork:
+                    return INetworkInfoStatus.ReachableViaWWAN;
+                case NetworkReachability.ReachableViaLocalAreaNetwork:
+                    return INetworkInfoStatus.ReachableViaWiFi;
+                case NetworkReachability.NotReachable:
+                    return INetworkInfoStatus.NotReachable;
+                default:
+                    return INetworkInfoStatus.Unknown;
                 }
             }
         }
@@ -32,7 +35,8 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                return HttpWebRequest.DefaultWebProxy.GetProxy(new Uri("http://socialpoint.es"));
+                var proxy = WebRequest.DefaultWebProxy.GetProxy(_testUri);
+                return proxy == _testUri ? null : proxy;
             }
         }
 
@@ -56,4 +60,3 @@ namespace SocialPoint.Hardware
         }
     }
 }
-

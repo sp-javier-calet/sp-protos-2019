@@ -5,6 +5,9 @@
 #include <string>
 #include <cassert>
 
+#include "SSLCertificate.h"
+#include "CurlHttpClientCallbacks.h"
+
 extern "C" {
 #include "curl/curl.h"
 }
@@ -43,6 +46,7 @@ extern "C" {
     };
 #endif
 
+SSLCertificate* _certificate;
 
 Mutex curlUpdateLock;
 
@@ -130,8 +134,6 @@ CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
     std::string url = (std::string(req.url)+"?"+ std::string(req.query)).c_str() ;
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -174,6 +176,15 @@ CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
         curl_easy_setopt(curl, CURLOPT_PROXY, req.proxy);
         curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
+    
+    SSLCertificate* certificate = getCertificate();
+    if (certificate)
+    {
+        curl_easy_setopt(curl, CURLOPT_SSL_CTX_DATA, getCertificate());
+        curl_easy_setopt(curl, CURLOPT_SSL_CTX_FUNCTION, *curlCallback);
+    }
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, certificate ? 1 : 0);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, certificate ? 1 : 0);
 
     if (req.bodyLength > 0)
     {
@@ -191,6 +202,10 @@ CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
         }
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     }
+    
+    // setting to print details about this
+    // curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
+    
     return curl;
 }
 
@@ -435,4 +450,18 @@ EXPORT_API void SPUnityCurlDestroy()
         curl_multi_cleanup(globalInfo.multi);
         globalInfo.multi = NULL;
     }
+}
+
+EXPORT_API void SPUnityCurlSetCertificate(char* data, int size)
+{
+    if(data != nullptr && size > 0)
+    {
+        _certificate = new SSLCertificate();
+        _certificate->initWithEncrypedPem(data, size, data, size);
+    }
+}
+
+SSLCertificate* getCertificate()
+{
+    return _certificate;
 }

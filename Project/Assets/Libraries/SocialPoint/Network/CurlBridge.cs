@@ -92,5 +92,7 @@ namespace SocialPoint.Network
         [DllImport(PluginModuleName)]
         public static extern void SPUnityCurlOnApplicationPause(bool pause);
 
+        [DllImport(PluginModuleName)]
+        public static extern void SPUnityCurlSetCertificate(byte[] data, int size);
     }
 }
