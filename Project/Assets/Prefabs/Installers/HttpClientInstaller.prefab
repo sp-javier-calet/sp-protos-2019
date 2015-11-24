@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Settings:
-    EditorProxy: 
+    EditorProxy: localhost:8888
     PinnSSLCertificate: 1
 --- !u!1001 &100100000
 Prefab:
@@ -55,7 +55,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: Settings.EditorProxy
-      value: 
+      value: localhost:8888
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: Settings.PinnSSLCertificate
