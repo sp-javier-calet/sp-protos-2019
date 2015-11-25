@@ -29,7 +29,7 @@ public class LocaleInstaller : MonoInstaller
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
-    {	
+    {
         Container.Rebind<Localization>().ToSingleMethod<Localization>(CreateLocalization);
         Container.BindInstance("locale_project_id", Settings.ProjectId);
         Container.BindInstance("locale_env_id", Settings.EnvironmentId.ToString());
@@ -54,6 +54,8 @@ public class LocaleInstaller : MonoInstaller
         Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
          
         Container.Rebind<LocalizeAttributeConfiguration>().ToSingle();
+
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
     }
 
     Localization CreateLocalization(InjectContext ctx)
