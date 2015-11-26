@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Zenject;
 using SocialPoint.Attributes;
 using SocialPoint.ServerEvents;
@@ -9,9 +9,12 @@ using System.Text;
 
 public class EmptyBackendInstaller : MonoInstaller
 {
-    [InjectOptional]
+    [Inject]
+    GameModel _model;
+
+    [Inject]
     IGameLoader _gameLoader;
-    
+
     public override void InstallBindings()
     {
         if(!Container.HasBinding<IEventTracker>())
@@ -40,9 +43,9 @@ public class EmptyBackendInstaller : MonoInstaller
         }
     }
 
+
     EmptyLogin CreateEmptyLogin(InjectContext ctx)
     {
         return new EmptyLogin();
     }
-
 }

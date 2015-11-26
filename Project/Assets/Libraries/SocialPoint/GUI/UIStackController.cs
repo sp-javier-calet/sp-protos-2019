@@ -10,8 +10,8 @@ namespace SocialPoint.GUIControl
     public class UIStackController : UIParentController
     {
         public GameObject Background;
-        public GameObject FrontContainer;
         public GameObject BackContainer;
+        public GameObject FrontContainer;
         public GameObject Blocker;
         public bool SimultaneousAnimations = true;
         public UIViewAnimation ChildUpAnimation;

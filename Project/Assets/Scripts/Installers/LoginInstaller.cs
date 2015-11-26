@@ -8,7 +8,8 @@ public enum BackendEnvironment
 {
     Develpoment,
     Production,
-    Test
+    Test,
+    Docker
 };
 
 public static class BackendEnvironmentExtensions
@@ -16,6 +17,7 @@ public static class BackendEnvironmentExtensions
     const string DevelopmentUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
     const string ProductionUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
     const string TestUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
+    const string DockerUrl = "http://localhost:4630/api/v3";
 
     public static string GetUrl(this BackendEnvironment env)
     {
@@ -27,6 +29,8 @@ public static class BackendEnvironmentExtensions
             return ProductionUrl;
         case BackendEnvironment.Test:
             return TestUrl;
+        case BackendEnvironment.Docker:
+            return DockerUrl;
         }
         return null;
     }
@@ -34,9 +38,9 @@ public static class BackendEnvironmentExtensions
 
 public class LoginInstaller : Installer
 {
-	[Serializable]
-	public class SettingsData
-	{
+    [Serializable]
+    public class SettingsData
+    {
         public BackendEnvironment Environment = BackendEnvironment.Develpoment;
         public float Timeout = Login.DefaultTimeout;
         public float ActivityTimeout = Login.DefaultActivityTimeout;
@@ -48,7 +52,7 @@ public class LoginInstaller : Installer
         public uint UserMappingsBlock = Login.DefaultUserMappingsBlock;
         public bool FacebookLoginWithUi = false;
 	};
-	
+
     public SettingsData Settings = new SettingsData();
 
     [Inject]
@@ -57,8 +61,8 @@ public class LoginInstaller : Installer
     [Inject]
     IGameCenter GameCenter;
 
-	public override void InstallBindings()
-	{
+    public override void InstallBindings()
+    {
         if(Facebook != null)
         {
             Container.Bind<ILink>().ToSingleMethod<FacebookLink>(CreateFacebookLink);
@@ -92,7 +96,7 @@ public class LoginInstaller : Installer
     {
         return new FacebookLink(Facebook, Settings.FacebookLoginWithUi);
     }
-        
+
     GameCenterLink CreateGameCenterLink(InjectContext ctx)
     {
         return new GameCenterLink(GameCenter);
