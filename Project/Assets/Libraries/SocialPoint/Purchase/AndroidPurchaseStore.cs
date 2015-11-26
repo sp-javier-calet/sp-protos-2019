@@ -11,9 +11,12 @@ namespace SocialPoint.Purchase
     public class AndroidPurchaseStore
         : IPurchaseStore
     {
+        const int RESULT_USER_CANCELED = 1;
+
         private bool _isInitialized;
         private List<Product> _products;
         bool _autoCompletePurchases = false;
+        string _productId = string.Empty;
 
         #region IPurchaseStore implementation
 
@@ -55,6 +58,7 @@ namespace SocialPoint.Purchase
 
         public bool Purchase(string productId)
         {
+            _productId = productId;
             if(_products == null)
             {
                 DebugLog("there are no products, load them first");
@@ -76,6 +80,14 @@ namespace SocialPoint.Purchase
             }
         }
 
+        public bool HasProductsLoaded
+        {
+            get
+            {
+                return (_products != null && _products.Count > 0);
+            }
+        }
+
         public Product[] ProductList
         {
             get
@@ -93,7 +105,7 @@ namespace SocialPoint.Purchase
 
         #region IDisposable implementation
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             UnregisterEvents();
         }
@@ -108,11 +120,14 @@ namespace SocialPoint.Purchase
             }
 
             OpenIABEventManager.billingSupportedEvent += BillingSupported;
+            OpenIABEventManager.billingNotSupportedEvent += BillingNotSupported;
             OpenIABEventManager.queryInventorySucceededEvent += QueryInventorySucceeded;
             OpenIABEventManager.queryInventoryFailedEvent += QueryInventoryFailed;
             OpenIABEventManager.purchaseSucceededEvent += PurchaseSucceeded;
-            //OpenIABEventManager.purchaseFailedEvent
-
+            OpenIABEventManager.purchaseFailedEvent += PurchaseFailed;
+            OpenIABEventManager.consumePurchaseSucceededEvent += consumePurchaseSucceeded;
+            OpenIABEventManager.consumePurchaseFailedEvent += consumePurchaseFailed;
+            
             OpenIAB.enableDebugLogging(true);
             Options options = new Options();
             options.checkInventoryTimeoutMs = Options.INVENTORY_CHECK_TIMEOUT_MS * 2;
@@ -194,17 +209,27 @@ namespace SocialPoint.Purchase
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
                         OpenIAB.consumeProduct(purchase);
-                        PurchaseUpdated(PurchaseState.PurchaseConsumed, receipt.ProductId);
+                        PurchaseUpdated(PurchaseState.PurchaseFinished, receipt.ProductId);
                     }
                 });
             }
         }
 
-        private void PurchaseFailedEvent(int errorCode, string error)
+        private void PurchaseFailed(int errorCode, string error)
         {
+            switch(errorCode)
+            {
+            case RESULT_USER_CANCELED:
+                PurchaseUpdated(PurchaseState.PurchaseCanceled, _productId);
+                break;
+            default:
+                PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
+                break;
+            }
+
             DebugLog(string.Format("Purchase failed : errorCode = {0}, error message = {1}",
                 errorCode, error));
-            PurchaseUpdated(PurchaseState.PurchaseFailed, null);
+            DebugLog(errorCode.ToString());
         }
 
         private void BillingSupported()
@@ -214,12 +239,33 @@ namespace SocialPoint.Purchase
             DebugLog("billingSupportedEvent");
         }
 
+        private void BillingNotSupported(string error)
+        {
+            DebugLog("BillingNotSupportedEvent" + error.ToString());
+        }
+
+        public void consumePurchaseSucceeded(OnePF.Purchase obj)
+        {
+            PurchaseUpdated(PurchaseState.PurchaseConsumed, obj.Sku);
+        }
+
+        private void consumePurchaseFailed( string error)
+        {
+            DebugLog(string.Format("Purchase Cancel : errorCode = {0}",
+                                    error));
+            PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
+        }
+
         void UnregisterEvents()
         {
             OpenIABEventManager.billingSupportedEvent -= BillingSupported;
+            OpenIABEventManager.billingNotSupportedEvent -= BillingNotSupported;
             OpenIABEventManager.queryInventorySucceededEvent -= QueryInventorySucceeded;
             OpenIABEventManager.queryInventoryFailedEvent -= QueryInventoryFailed;
             OpenIABEventManager.purchaseSucceededEvent -= PurchaseSucceeded;
+            OpenIABEventManager.purchaseFailedEvent -= PurchaseFailed;
+            OpenIABEventManager.consumePurchaseSucceededEvent -= consumePurchaseSucceeded;
+            OpenIABEventManager.consumePurchaseFailedEvent -= consumePurchaseFailed;
             OpenIAB.unbindService();
         }
 

@@ -79,6 +79,13 @@ namespace SocialPoint.Purchase
             StoreKitBinding.forceFinishPendingTransactions();
         }
 
+        public bool HasProductsLoaded
+        {
+            get
+            {
+                return (_products != null && _products.Count > 0);
+            }
+        }
 
         public Product[] ProductList
         {
