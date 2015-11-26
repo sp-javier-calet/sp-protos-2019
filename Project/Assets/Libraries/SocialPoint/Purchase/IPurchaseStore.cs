@@ -43,6 +43,8 @@ namespace SocialPoint.Purchase
     {
         Product[] ProductList{ get; }
 
+        bool HasProductsLoaded{ get; }
+
         void LoadProducts(string[] productIds);
 
         bool Purchase(string productId);

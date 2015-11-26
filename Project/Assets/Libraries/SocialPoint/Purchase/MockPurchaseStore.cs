@@ -109,6 +109,14 @@ namespace SocialPoint.Purchase
             _pendingPurchaseProduct = null;
         }
 
+        public bool HasProductsLoaded
+        {
+            get
+            {
+                return (_productList != null && _productList.Count > 0);
+            }
+        }
+
         public Product[] ProductList
         {
             get
