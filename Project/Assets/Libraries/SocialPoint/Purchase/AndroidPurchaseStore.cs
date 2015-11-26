@@ -209,7 +209,7 @@ namespace SocialPoint.Purchase
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
                         OpenIAB.consumeProduct(purchase);
-                        PurchaseUpdated(PurchaseState.PurchaseConsumed, receipt.ProductId);
+                        PurchaseUpdated(PurchaseState.PurchaseFinished, receipt.ProductId);
                     }
                 });
             }
