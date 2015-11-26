@@ -15,15 +15,15 @@ namespace SocialPoint.Social
         {
         }
 
-        public override void UpdateAchievement(GooglePlayAchievement achievement, GooglePlayAchievementDelegate cbk)
+        public override void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk)
         {
         }
 
-        public override void ResetAchievements(ErrorDelegate cbk)
+        public override void ShowAchievementsUI()
         {
         }
 
-        public override GooglePlayUser User
+        public override GoogleUser User
         {
             get
             {
@@ -46,6 +46,7 @@ namespace SocialPoint.Social
                 throw new System.NotImplementedException();
             }
         }
+
 
         #endregion
     }

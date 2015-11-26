@@ -8,14 +8,22 @@ namespace SocialPoint.Social
 
         public abstract void Logout(ErrorDelegate cbk);
 
-        public abstract void UpdateAchievement(GooglePlayAchievement achievement, GooglePlayAchievementDelegate cbk);
+        public abstract void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null);
 
-        public abstract void ResetAchievements(ErrorDelegate cbk);
-
-        public abstract GooglePlayUser User{ get; }
+        public abstract GoogleUser User{ get; }
 
         public abstract bool IsConnected{ get; }
 
         public abstract bool IsConnecting{ get; }
+
+        public abstract void ShowAchievementsUI();
+
+        public virtual System.Collections.Generic.IEnumerable<GoogleAchievement> Achievements
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+        }
     }
 }
