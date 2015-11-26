@@ -128,7 +128,7 @@ namespace SocialPoint.AdminPanel
             RefreshPanel();
         }
 
-        private void RefreshPanel()
+        public void RefreshPanel(bool force = false)
         {
             // Categories panel
             foreach(Transform child in _categoriesPanelContent.Parent)
@@ -140,7 +140,7 @@ namespace SocialPoint.AdminPanel
             rootPanel.OnCreateGUI(_categoriesPanelContent);
 
             // Main panel content
-            if(_mainPanelDirty)
+            if(_mainPanelDirty || force)
             {
                 // Destroy current content and hide main panel
                 foreach(Transform child in _mainPanelContent.Parent)
@@ -178,7 +178,7 @@ namespace SocialPoint.AdminPanel
                 // Inflate categories panel
                 foreach(var category in _categories)
                 {
-                    layout.CreateOpenPanelButton(category.Key, category.Value, true);
+                    layout.CreateOpenPanelButton(category.Key, category.Value, true, true);
                 }
             }
         }

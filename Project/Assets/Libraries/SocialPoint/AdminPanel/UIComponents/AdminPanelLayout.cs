@@ -9,6 +9,7 @@ namespace SocialPoint.AdminPanel
         public RectTransform Parent { get; protected set; }
 
         private AdminPanelController _adminPanelController;
+
         public AdminPanel AdminPanel
         {
             get
@@ -30,7 +31,7 @@ namespace SocialPoint.AdminPanel
             Parent = parentLayout.Parent;
             _adminPanelController = parentLayout._adminPanelController;
         }
-        
+
         public AdminPanelLayout(RectTransform rectTransform)
         {
             Parent = rectTransform;
@@ -40,7 +41,12 @@ namespace SocialPoint.AdminPanel
         {
             _adminPanelController = controller;
         }
-        
+
+        public void Refresh()
+        {
+            _adminPanelController.RefreshPanel(true);
+        }
+
         protected void OpenPanel(IAdminPanelGUI panel)
         {
             _adminPanelController.OpenPanel(panel);
