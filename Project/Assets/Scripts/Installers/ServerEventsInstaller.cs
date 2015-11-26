@@ -6,7 +6,7 @@ using SocialPoint.ScriptEvents;
 public class ServerEventsInstaller : Installer
 {
 	[Serializable]
-	public class SettingsData
+    public class SettingsData
 	{
         public int MaxOutOfSyncInterval = EventTracker.DefaultMaxOutOfSyncInterval;
         public int SendInterval = EventTracker.DefaultSendInterval;

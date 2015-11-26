@@ -15,7 +15,7 @@ public class GUIInstaller : MonoInstaller, IDisposable
     public class SettingsData
 	{
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
-	};
+	}
 
     public SettingsData Settings = new SettingsData();
 
@@ -36,22 +36,9 @@ public class GUIInstaller : MonoInstaller, IDisposable
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
         }
-
+                
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
-    }
-
-    [PostInject]
-    void PostInject()
-    {
-        // add the event bridge by hand, since the dispatchers
-        // are created in the global container
-        var scriptDispatcher = Container.Resolve<IScriptEventDispatcher>();
-        var dispatcher = Container.Resolve<IEventDispatcher>();
-        var bridge = Container.Instantiate<GUIControlBridge>();
-
-        dispatcher.AddBridge(bridge);
-        scriptDispatcher.AddBridge(bridge);
     }
 
     void OnViewControllerAwake(UIViewController ctrl)

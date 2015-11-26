@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+
 using Zenject;
 using System;
+using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.GameLoading;
 
 public class GameInstaller : MonoInstaller
-{  
+{
     [Serializable]
     public class SettingsData
     {
@@ -28,22 +29,26 @@ public class GameInstaller : MonoInstaller
         Container.Rebind<IGameErrorHandler>().ToSingle<GameErrorHandler>();
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
+        Container.Rebind<IParser<GameModel>>().ToSingle<GameParser>();
+        Container.Rebind<IParser<ConfigModel>>().ToSingle<ConfigParser>();
+        Container.Rebind<IParser<PlayerModel>>().ToSingle<PlayerParser>();
+        Container.Rebind<ISerializer<PlayerModel>>().ToSingle<PlayerParser>();
+
         Container.Rebind<GameModel>().ToSingleMethod<GameModel>(CreateGameModel);
         Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
         Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
 
-        Container.Rebind<IParser<GameModel>>().ToSingle<GameParser>();
-        Container.Rebind<IParser<ConfigModel>>().ToSingle<ConfigParser>();
-        Container.Rebind<ISerializer<PlayerModel>>().ToSingle<PlayerParser>();
-        Container.Rebind<IParser<PlayerModel>>().ToSingle<PlayerParser>();
-
         Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
     }
-    
+
     void OnGameModelAssigned()
     {
-    }   
-    
+        var game = Container.Resolve<GameModel>();
+        Container.Inject(game.Player);
+        Container.Inject(game.Config);
+    }
+
     GameModel CreateGameModel(InjectContext ctx)
     {
         var model = new GameModel();
