@@ -31,7 +31,6 @@ namespace SocialPoint.ServerEvents
         const string EventNameResourceEarning = "economy.{0}_earning";
         const string EventNameResourceSpending = "economy.{0}_spending";
 
-        const int MinServerErrorStatusCode = 500;
         const int SessionLostErrorStatusCode = 482;
         const int StartEventNum = 1;
         static readonly string[] DefaultUnauthorizedEvents = {
@@ -509,7 +508,7 @@ namespace SocialPoint.ServerEvents
         bool CheckSync(HttpResponse resp)
         {
             bool oldconn = _synced;
-            _synced = !resp.HasConnectionError && resp.StatusCode < MinServerErrorStatusCode;
+            _synced = !resp.HasRecoverableError;
             if(oldconn != _synced)
             {
                 _syncTimestamp = CurrentTimestamp;

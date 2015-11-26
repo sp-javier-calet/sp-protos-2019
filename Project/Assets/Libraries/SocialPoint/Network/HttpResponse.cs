@@ -10,13 +10,13 @@ namespace SocialPoint.Network
 {
     public class HttpResponse
     {
-        public const string ContentLengthHeader = "Content-Length";
-        public const string ContentEncodingHeader = "Content-Encoding";
+        const string ContentLengthHeader = "Content-Length";
+        const string ContentEncodingHeader = "Content-Encoding";
         const string CompressGzipContentEncoding = "gzip";
         const string CompressDeflateContentEncoding = "deflate";
-        public const string LastModifiedHeader = "Last-Modified";
-        public const string LastModifiedHeaderFormat = "dddd, dd MMMM yyyy HH:mm:ss tt";
-        public const int MinServerErrorStatusCode = 500;
+        const string LastModifiedHeader = "Last-Modified";
+        const string LastModifiedHeaderFormat = "dddd, dd MMMM yyyy HH:mm:ss tt";
+        const int MinServerErrorStatusCode = 500;
 
         public enum StatusCodeType
         {
@@ -98,6 +98,14 @@ namespace SocialPoint.Network
             get
             {
                 return StatusCode == (int)StatusCodeType.TimeOutError || StatusCode == (int)StatusCodeType.ConnectionFailedError || StatusCode == (int)StatusCodeType.NotAvailableError;
+            }
+        }
+
+        public bool HasRecoverableError
+        {
+            get
+            {
+                return HasConnectionError || StatusCode >= MinServerErrorStatusCode;
             }
         }
 

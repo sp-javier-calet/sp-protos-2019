@@ -556,7 +556,7 @@ namespace SocialPoint.Login
                 DoLogin(cbk);
                 return;
             }
-            else if(resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode)
+            else if(resp.HasRecoverableError)
             {
                 _availableConnectivityErrorRetries--;
                 DoLogin(cbk);
@@ -735,8 +735,7 @@ namespace SocialPoint.Login
 
         void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
         {
-            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-               _availableConnectivityErrorRetries > 0)
+            if((resp.HasRecoverableError) && _availableConnectivityErrorRetries > 0)
             {
                 _availableConnectivityErrorRetries--;
                 OnNewLink(info, state);
@@ -964,9 +963,7 @@ namespace SocialPoint.Login
 
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
-            if((resp.HasConnectionError || resp.StatusCode >= HttpResponse.MinServerErrorStatusCode) &&
-                _availableConnectivityErrorRetries > 0 && 
-                _loginConfig.EnableOnLinkConfirm)
+            if((resp.HasRecoverableError) &&_availableConnectivityErrorRetries > 0 && _loginConfig.EnableOnLinkConfirm)
             {
                 _availableConnectivityErrorRetries--;
                 ConfirmLink(linkToken, decision, cbk);
