@@ -39,6 +39,14 @@ namespace SocialPoint.Social
         {
         }
 
+        public override void IncrementEvent(string id, uint quantity = 1)
+        {
+        }
+
+        public override void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null)
+        {
+        }
+
         public override GoogleUser User
         {
             get

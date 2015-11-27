@@ -85,6 +85,14 @@ namespace SocialPoint.Social
         {
             Id = id;
             FriendsOnly = friendsOnly;
+            Scores = new List<GoogleLeaderboardScoreEntry>();
+        }
+
+        public GoogleLeaderboard(string id, long score)
+        {
+            Id = id;
+            UserScore = score;
+            Scores = new List<GoogleLeaderboardScoreEntry>();
         }
 
         public GoogleLeaderboard(string id, string title, long score, bool friendsOnly)
@@ -106,6 +114,56 @@ namespace SocialPoint.Social
         public long Score { get; set; }
     }
 
+    public class GoogleQuest
+    {
+        public string Id { get; private set; }
+
+        public GoogleQuest(string id)
+        {
+            Id = id;
+        }
+    }
+
+    public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt,Error err);
+    public class GoogleQuestEvent
+    {
+        public string QuestId  { get; private set; }
+
+        public string MilestoneId  { get; private set; }
+
+        public EventType Type { get; private set; }
+
+        public enum EventType
+        {
+            None,
+            Accept,
+            ClaimMilestone
+        }
+
+        GoogleQuestEvent()
+        {
+            Type = EventType.None;
+        }
+
+        public static GoogleQuestEvent Empty = new GoogleQuestEvent();
+
+        public static GoogleQuestEvent CreateAcceptEvent(string questId)
+        {
+            var evt = new GoogleQuestEvent();
+            evt.Type = EventType.Accept;
+            evt.QuestId = questId;
+            return evt;
+        }
+
+        public static GoogleQuestEvent CreateMilestoneEvent(string questId, string milestoneId)
+        {
+            var evt = new GoogleQuestEvent();
+            evt.Type = EventType.ClaimMilestone;
+            evt.QuestId = questId;
+            evt.MilestoneId = milestoneId;
+            return evt;
+        }
+    }
 
     public interface IGoogle
     {
@@ -143,6 +201,10 @@ namespace SocialPoint.Social
         void ShowLeaderboardsUI(string id = null);
 
         // Quests
+
+        void IncrementEvent(string id, uint quantity = 1);
+
+        void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null);
 
     }
 

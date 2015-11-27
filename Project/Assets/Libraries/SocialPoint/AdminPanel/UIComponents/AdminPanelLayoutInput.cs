@@ -84,6 +84,11 @@ namespace SocialPoint.AdminPanel
             return input;
         }
 
+        public InputField CreateTextInput(string placeholder, bool enabled)
+        {
+            return CreateTextInput(placeholder, null, null, enabled);
+        }
+
         public InputField CreateTextInput(string placeholder, Action<string> onSubmit = null, bool enabled = true)
         {
             return CreateTextInput(placeholder, onSubmit, null, enabled);

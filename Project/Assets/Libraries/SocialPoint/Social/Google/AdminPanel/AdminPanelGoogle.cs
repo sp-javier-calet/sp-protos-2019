@@ -53,6 +53,7 @@ namespace SocialPoint.Social
             });
 
             bool connected = _google.IsConnected;
+            AdminPanelLayout groupLayout;
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
@@ -61,18 +62,29 @@ namespace SocialPoint.Social
 
             layout.CreateMargin(2);
             layout.CreateLabel("Leaderboards");
-            var ldbInput = layout.CreateTextInput("leaderboard id", (text) => {
+
+            groupLayout = layout.CreateVerticalLayout();
+            var ldbInput = groupLayout.CreateTextInput("leaderboard id", (text) => {
                 _leaderboardId.Id = text;
             }, connected);
             ldbInput.text = _leaderboardId.Id;
+            groupLayout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelLeaderboard(_google, _leaderboardId), connected);
 
-            layout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelLeaderboard(_google, _leaderboardId), connected);
             layout.CreateConfirmButton("Show Leaderboards UI", _google.ShowLeaderboardsUI, connected);
 
             layout.CreateMargin(2);
             layout.CreateLabel("Quests");
 
+            groupLayout = layout.CreateHorizontalLayout();
+            var eventIdField = groupLayout.CreateTextInput("Event id", connected);
+            groupLayout.CreateButton("+", () => _google.IncrementEvent(eventIdField.text), connected);
+
+            layout.CreateConfirmButton("Show Quests UI", () => _google.ShowViewQuestsUI((evt, err) => {
+                layout.AdminPanel.Console.Print("Event " + evt + ". " + err);
+            }), connected);
         }
+
+        #region Achievements panels
 
         class AdminPanelAchievementList : IAdminPanelGUI
         {
@@ -140,6 +152,10 @@ namespace SocialPoint.Social
             }
             
         }
+
+        #endregion
+
+        #region Leaderboard panels
 
         class AdminPanelLeaderboard :IAdminPanelGUI
         {
@@ -217,5 +233,7 @@ namespace SocialPoint.Social
                 }
             }
         }
+
+        #endregion
     }
 }

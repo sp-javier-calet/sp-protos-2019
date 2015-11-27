@@ -26,6 +26,10 @@ namespace SocialPoint.Social
 
         public abstract void ShowLeaderboardsUI(string id = null);
 
+        public abstract void IncrementEvent(string id, uint quantity = 1);
+
+        public abstract void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null);
+
         public virtual System.Collections.Generic.IEnumerable<GoogleAchievement> Achievements
         {
             get

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
+using GooglePlayGames.BasicApi.Quests;
 using SocialPoint.Base;
 
 namespace SocialPoint.Social
@@ -297,7 +298,47 @@ namespace SocialPoint.Social
             board.id = ldb.Id;
             board.userScope = ldb.FriendsOnly ? UserScope.FriendsOnly : UserScope.Global;
 
-            _platform.LoadScores(board, (success) => {
+            _platform.LoadScores(board.id,
+                LeaderboardStart.PlayerCentered, 10, LeaderboardCollection.Public, LeaderboardTimeSpan.AllTime, // TODO FILTER
+                (scoredata) => {
+                    if(cbk != null)
+                    {
+                        if(scoredata.Valid)
+                        {
+                            var leaderboard = new GoogleLeaderboard(scoredata.Id, scoredata.Title, 
+                                                  scoredata.PlayerScore.value, board.userScope == UserScope.FriendsOnly);
+                            // Update scores for users
+                            var scores = new Dictionary<string, GoogleLeaderboardScoreEntry>();
+                            foreach(var score in scoredata.Scores)
+                            {
+                                var entry = new GoogleLeaderboardScoreEntry();
+                                entry.Score = score.value;
+                                entry.Rank = score.rank;
+                                scores.Add(score.userID, entry);
+                                leaderboard.Scores.Add(entry);
+                            }
+
+                            // Load user names
+                            _platform.LoadUsers(scores.Keys.ToArray(), (users) => {
+                                foreach(var user in users)
+                                {
+                                    scores[user.id].Name = user.userName;
+                                }
+
+                                if(cbk != null)
+                                {
+                                    cbk(leaderboard, null);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            cbk(null, new Error("Couldn't load leaderboad scores"));    
+                        }
+                    }
+                });
+            
+            /*(success) => {
                 if(cbk != null)
                 {
                     if(success)
@@ -333,7 +374,7 @@ namespace SocialPoint.Social
                         cbk(null, new Error("Couldn't load leaderboad scores"));    
                     }
                 }
-            });
+            });*/
         }
 
         public override void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
@@ -368,8 +409,99 @@ namespace SocialPoint.Social
 
         #region Quests
 
-        #endregion
+        public override void IncrementEvent(string id, uint quantity = 1)
+        {
+            if(IsConnected && !string.IsNullOrEmpty(id))
+            {
+                _platform.Events.IncrementEvent(id, quantity);
+            }
+        }
 
+        public override void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null)
+        {
+            if(!IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(GoogleQuestEvent.Empty, new Error("Google is not logged in"));
+                }
+                return;
+            }
+
+            _platform.Quests.ShowAllQuestsUI(
+                (QuestUiResult result, IQuest quest, IQuestMilestone milestone) => {
+                    switch(result)
+                    {
+                    case QuestUiResult.UserRequestsQuestAcceptance:
+                        AcceptQuest(quest, cbk);
+                        break;
+
+                    case QuestUiResult.UserRequestsMilestoneClaiming:
+                        ClaimMilestone(milestone, cbk);
+                        break;
+
+                    case QuestUiResult.UserCanceled:
+                        // Do Nothing
+                        break;
+
+                    default:
+                        if(cbk != null)
+                        {
+                            cbk(GoogleQuestEvent.Empty, new Error((int)result, "Quest view error: " + result.ToString()));
+                        }
+                        break;
+                    }
+                });
+        }
+
+        void AcceptQuest(IQuest toAccept, GoogleQuestEventDelegate cbk = null)
+        {
+            _platform.Quests.Accept(toAccept,
+                (QuestAcceptStatus status, IQuest quest) => {
+                    switch(status)
+                    {
+                    case QuestAcceptStatus.Success:
+                        if(cbk != null)
+                        {
+                            cbk(GoogleQuestEvent.CreateAcceptEvent(quest.Id), null);
+                        }
+                        break;
+
+                    default:
+                        if(cbk != null)
+                        {
+                            cbk(GoogleQuestEvent.Empty, new Error((int)status, "Error accepting quest"));
+                        }
+
+                        break;
+                    }
+                });
+        }
+
+        void ClaimMilestone(IQuestMilestone toClaim, GoogleQuestEventDelegate cbk = null)
+        {
+            _platform.Quests.ClaimMilestone(toClaim,
+                (QuestClaimMilestoneStatus status, IQuest quest, IQuestMilestone milestone) => {
+                    switch(status)
+                    {
+                    case  QuestClaimMilestoneStatus.Success:
+                        if(cbk != null)
+                        {
+                            cbk(GoogleQuestEvent.CreateMilestoneEvent(quest.Id, milestone.Id), null);
+                        }
+                        break;
+
+                    default:
+                        if(cbk != null)
+                        {
+                            cbk(GoogleQuestEvent.Empty, new Error((int)status, "Error claiming quest milestone"));
+                        }
+                        break;
+                    }
+                });
+        }
+
+        #endregion
 
         #endregion
     }
