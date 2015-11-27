@@ -10,6 +10,8 @@ namespace SocialPoint.Social
 
         public abstract void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null);
 
+        public abstract void ResetAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null);
+
         public abstract GoogleUser User{ get; }
 
         public abstract bool IsConnected{ get; }
@@ -17,6 +19,12 @@ namespace SocialPoint.Social
         public abstract bool IsConnecting{ get; }
 
         public abstract void ShowAchievementsUI();
+
+        public abstract void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
+
+        public abstract void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
+
+        public abstract void ShowLeaderboardsUI(string id = null);
 
         public virtual System.Collections.Generic.IEnumerable<GoogleAchievement> Achievements
         {

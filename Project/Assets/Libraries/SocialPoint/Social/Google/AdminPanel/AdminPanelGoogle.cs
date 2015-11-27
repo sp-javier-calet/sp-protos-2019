@@ -1,4 +1,5 @@
-﻿using UnityEngine.UI;
+﻿using UnityEngine;
+using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 using System.Text;
 
@@ -10,10 +11,12 @@ namespace SocialPoint.Social
         AdminPanel.AdminPanel _adminPanel;
 
         Toggle _toggleLogin;
+        LeaderboardIdHandler _leaderboardId;
 
         public AdminPanelGoogle(IGoogle google)
         {
             _google = google;
+            _leaderboardId = new LeaderboardIdHandler();
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -51,15 +54,25 @@ namespace SocialPoint.Social
 
             bool connected = _google.IsConnected;
 
-            layout.CreateMargin();
+            layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
             layout.CreateOpenPanelButton("Achievements", new AdminPanelAchievementList(_google), connected);
             layout.CreateConfirmButton("Show Achievements UI", _google.ShowAchievementsUI, connected);
 
-            layout.CreateMargin();
-            layout.CreateLabel("Quests");
-        }
+            layout.CreateMargin(2);
+            layout.CreateLabel("Leaderboards");
+            var ldbInput = layout.CreateTextInput("leaderboard id", (text) => {
+                _leaderboardId.Id = text;
+            }, connected);
+            ldbInput.text = _leaderboardId.Id;
 
+            layout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelLeaderboard(_google, _leaderboardId), connected);
+            layout.CreateConfirmButton("Show Leaderboards UI", _google.ShowLeaderboardsUI, connected);
+
+            layout.CreateMargin(2);
+            layout.CreateLabel("Quests");
+
+        }
 
         class AdminPanelAchievementList : IAdminPanelGUI
         {
@@ -119,8 +132,90 @@ namespace SocialPoint.Social
                         });
                     },
                     !_achievement.IsUnlocked);
+
+                layout.CreateButton("Reset", () => _google.ResetAchievement(_achievement, (achi, err) => {
+                    layout.AdminPanel.Console.Print(string.Format("Reset Achievement {0}. {1}", achi.Name, err));
+                    layout.Refresh();
+                }));
             }
             
+        }
+
+        class AdminPanelLeaderboard :IAdminPanelGUI
+        {
+            IGoogle _google;
+            GoogleLeaderboard _leaderboard;
+            LeaderboardIdHandler _idHandler;
+            Text _mainTitle;
+            bool _isFriendOnly;
+
+            public AdminPanelLeaderboard(IGoogle google, LeaderboardIdHandler idHandler)
+            {
+                _google = google;
+                _idHandler = idHandler;
+                _isFriendOnly = true;
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                _mainTitle = layout.CreateLabel("Leaderboard not found");
+                _google.LoadLeaderboard(new GoogleLeaderboard(_idHandler.Id, _isFriendOnly), (ldb, err) => {
+                    _leaderboard = ldb;
+                    if(_leaderboard != null)
+                    {
+                        _mainTitle.text = _leaderboard.Title;
+
+                        var info = new StringBuilder();
+                        info.Append("Id:").AppendLine(_leaderboard.Id);
+                        info.Append("Title:").AppendLine(_leaderboard.Title);
+                        info.Append("User score").AppendLine(_leaderboard.UserScore.ToString());
+
+                        foreach(var entry in _leaderboard.Scores)
+                        {
+                            info.AppendLine(string.Format("{0}: {1} - {2}", entry.Rank, entry.Name, entry.Score));
+                        }
+                        layout.CreateTextArea(info.ToString());
+
+                        layout.CreateMargin();
+                        layout.CreateToggleButton("Friends only", _isFriendOnly, (status) => {
+                            _isFriendOnly = status;
+                            layout.Refresh();
+                        });
+
+                        layout.CreateConfirmButton("Show Leaderboard UI", () => _google.ShowLeaderboardsUI(_leaderboard.Id));
+                    }
+                    else
+                    {
+                        layout.AdminPanel.Console.Print("Error loading leaderboard " + _idHandler.Id + ". Error:" + err);
+                        _mainTitle.text = "Leaderboard not found";
+                    }
+                });
+            }
+        }
+
+        class LeaderboardIdHandler
+        {
+            const string kLeaderboardIdKey = "admin_leaderboard_id";
+            string _id;
+
+            public LeaderboardIdHandler()
+            {
+                _id = PlayerPrefs.GetString(kLeaderboardIdKey, string.Empty);
+            }
+
+            public string Id
+            {
+                get
+                {
+                    return _id;
+                }
+                set
+                {
+                    _id = value;
+                    PlayerPrefs.SetString(kLeaderboardIdKey, _id);
+                    PlayerPrefs.Save();
+                }
+            }
         }
     }
 }

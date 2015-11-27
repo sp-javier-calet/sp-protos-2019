@@ -4,6 +4,7 @@ using SocialPoint.Base;
 namespace SocialPoint.Social
 {
     public delegate void GoogleAchievementDelegate(GoogleAchievement achi,Error err);
+    public delegate void GoogleLeaderboardDelegate(GoogleLeaderboard ldb,Error err);
 
 
 
@@ -45,6 +46,8 @@ namespace SocialPoint.Social
 
         public string Description { get; private set; }
 
+        public string ImageUrl { get; private set; }
+
         public bool IsIncremental { get; private set; }
 
         public bool IsUnlocked { get; private set; }
@@ -55,15 +58,54 @@ namespace SocialPoint.Social
             CurrentSteps = currentSteps;
         }
 
-        public void SetInfo(string name, string description, bool unlocked, int steps, bool incremental)
+        public void SetInfo(string name, string description, bool unlocked, int steps, bool incremental, string imageUrl)
         {
             Name = name;
             Description = description;
             IsUnlocked = unlocked;
             TotalSteps = steps;
             IsIncremental = incremental;
+            ImageUrl = imageUrl;
         }
     }
+
+    public class GoogleLeaderboard
+    {
+        public string Id { get; private set; }
+
+        public string Title { get; private set; }
+
+        public bool FriendsOnly { get; private set; }
+
+        public long UserScore { get; private set; }
+
+        public List<GoogleLeaderboardScoreEntry> Scores { get; private set; }
+
+        public GoogleLeaderboard(string id, bool friendsOnly)
+        {
+            Id = id;
+            FriendsOnly = friendsOnly;
+        }
+
+        public GoogleLeaderboard(string id, string title, long score, bool friendsOnly)
+        {
+            Id = id;
+            Title = title;
+            UserScore = score;
+            FriendsOnly = friendsOnly;
+            Scores = new List<GoogleLeaderboardScoreEntry>();
+        }
+    }
+
+    public class GoogleLeaderboardScoreEntry
+    {
+        public string Name { get; set; }
+
+        public long Rank { get; set; }
+
+        public long Score { get; set; }
+    }
+
 
     public interface IGoogle
     {
@@ -83,6 +125,8 @@ namespace SocialPoint.Social
 
         void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null);
 
+        void ResetAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null);
+
         IEnumerable<GoogleAchievement> Achievements { get; }
 
         void ShowAchievementsUI();
@@ -90,6 +134,13 @@ namespace SocialPoint.Social
         // Photo
         //void LoadPhoto(string playerId, uint size, GameCenterPhotoDelegate cbk);
 
+        // Leaderboards
+
+        void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
+
+        void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
+
+        void ShowLeaderboardsUI(string id = null);
 
         // Quests
 

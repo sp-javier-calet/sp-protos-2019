@@ -15,11 +15,27 @@ namespace SocialPoint.Social
         {
         }
 
-        public override void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk)
+        public override void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
+        {
+        }
+
+        public override void ResetAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
         {
         }
 
         public override void ShowAchievementsUI()
+        {
+        }
+
+        public override void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        {
+        }
+
+        public override void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        {
+        }
+
+        public override void ShowLeaderboardsUI(string id = null)
         {
         }
 

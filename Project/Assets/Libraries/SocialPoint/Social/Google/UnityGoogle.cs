@@ -11,7 +11,6 @@ namespace SocialPoint.Social
     {
         GoogleUser _user;
         PlayGamesPlatform _platform;
-
         Dictionary<string, GoogleAchievement> _achievements = null;
 
         #region IGoogle implementation
@@ -131,6 +130,20 @@ namespace SocialPoint.Social
 
         #region Achievements
 
+        public override void ResetAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
+        {
+            string uri = string.Format("https://www.googleapis.com/games/v1management/achievements/{0}/reset", achi.Id);
+            var form = new UnityEngine.WWWForm();
+            form.AddField("access_token", _platform.GetAccessToken());
+            var www = new UnityEngine.WWW(uri, form);
+            while(!www.isDone)
+                ;
+            if(cbk != null)
+            {
+                cbk(achi, string.IsNullOrEmpty(www.error) ? null : new Error(www.error));
+            }
+        }
+
         public override void UpdateAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
         {
             if(!IsConnected)
@@ -177,6 +190,7 @@ namespace SocialPoint.Social
                 {
                     if(currStatus.IsIncremental)
                     {
+                        // TODO SetStepAtLeast
                         _platform.IncrementAchievement(id, steps, (success) => {
                             _achievements[id] = GetAchievement(id);
                             if(cbk != null)
@@ -215,7 +229,9 @@ namespace SocialPoint.Social
             {
                 achi = new GoogleAchievement(googleAchievement.Id, googleAchievement.CurrentSteps);
                 achi.SetInfo(googleAchievement.Name, googleAchievement.Description, googleAchievement.IsUnlocked,
-                    googleAchievement.TotalSteps, googleAchievement.IsIncremental);
+                    googleAchievement.TotalSteps, googleAchievement.IsIncremental,
+                    googleAchievement.IsUnlocked ? googleAchievement.UnlockedImageUrl : googleAchievement.RevealedImageUrl);
+                
             }
             return achi;
         }
@@ -256,7 +272,95 @@ namespace SocialPoint.Social
 
         public override void ShowAchievementsUI()
         {
-            _platform.ShowAchievementsUI();
+            if(_platform != null)
+            {
+                _platform.ShowAchievementsUI();
+            }
+        }
+
+        #endregion
+
+        #region Leaderboards
+
+        public override void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        {
+            if(!IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(ldb, new Error("Google is not logged in"));
+                }
+                return;
+            }
+
+            var board = _platform.CreateLeaderboard();
+            board.id = ldb.Id;
+            board.userScope = ldb.FriendsOnly ? UserScope.FriendsOnly : UserScope.Global;
+
+            _platform.LoadScores(board, (success) => {
+                if(cbk != null)
+                {
+                    if(success)
+                    {
+                        var leaderboard = new GoogleLeaderboard(board.id, board.title, 
+                                              board.localUserScore.value, board.userScope == UserScope.FriendsOnly);
+                        // Update scores for users
+                        var scores = new Dictionary<string, GoogleLeaderboardScoreEntry>();
+                        foreach(IScore score in board.scores)
+                        {
+                            var entry = new GoogleLeaderboardScoreEntry();
+                            entry.Score = score.value;
+                            entry.Rank = score.rank;
+                            scores.Add(score.userID, entry);
+                            leaderboard.Scores.Add(entry);
+                        }
+
+                        // Load user names
+                        _platform.LoadUsers(scores.Keys.ToArray(), (users) => {
+                            foreach(var user in users)
+                            {
+                                scores[user.id].Name = user.userName;
+                            }
+
+                            if(cbk != null)
+                            {
+                                cbk(leaderboard, null);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        cbk(null, new Error("Couldn't load leaderboad scores"));    
+                    }
+                }
+            });
+        }
+
+        public override void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        {
+            if(!IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(ldb, new Error("Google is not logged in"));
+                }
+                return;
+            }
+
+            _platform.ReportScore(ldb.UserScore, ldb.Id, (success) => {
+                if(cbk != null)
+                {
+                    cbk(ldb, success ? null : new Error("Couldn't update leaderboard"));
+                }
+            });
+        }
+
+        public override void ShowLeaderboardsUI(string id = null)
+        {
+            if(_platform != null)
+            {
+                _platform.ShowLeaderboardUI(id);
+            }
         }
 
         #endregion
