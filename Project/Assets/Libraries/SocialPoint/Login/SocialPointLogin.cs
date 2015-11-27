@@ -10,7 +10,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Login
 {
-    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);        
+    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
     public class SocialPointLogin : ILogin
     {
@@ -42,7 +42,7 @@ namespace SocialPoint.Login
         private const string HttpParamPlatformVersion = "device_os";
         private const string HttpParamDeviceAid = "device_adid";
         private const string HttpParamDeviceAidEnabled = "device_adid_enabled";
-        private const string HttpParamDeviceRooted = "device_rooted";     
+        private const string HttpParamDeviceRooted = "device_rooted";
         private const string HttpParamClientBuild = "client_build";
         private const string HttpParamClientAppId = "client_appid";
         private const string HttpParamLinkConfirmToken = "confirm_link_token";
@@ -70,7 +70,7 @@ namespace SocialPoint.Login
         private const string AttrKeyEventErrorData = "data";
         public const string AttrKeyHttpCode = "http_code";
         public const string AttrKeySignature = "signature";
-                
+
         private const string EventNameLoading = "game.loading";
         private const string EventNameError = "errors.login_error";
 
@@ -309,7 +309,7 @@ namespace SocialPoint.Login
             _loginConfig.BaseUrl = config.BaseUrl.EndsWith(UriSeparator.ToString()) ?
                                    _loginConfig.BaseUrl : _loginConfig.BaseUrl + UriSeparator;
         }
-                
+
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
         void DebugLog(string msg)
         {
@@ -592,7 +592,7 @@ namespace SocialPoint.Login
                 {
                     Data = new GenericData();
                 }
-                Data.Load(json.Get(AttrKeyGenericData));                
+                Data.Load(json.Get(AttrKeyGenericData));
                 // update server time
                 TimeUtils.Offset = Data.DeltaTime;
             }
@@ -674,8 +674,8 @@ namespace SocialPoint.Login
         }
 
         void NextLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkInfo.Filter filter)
-        {    
-            
+        {
+
             info = GetNextLinkInfo(info, filter);
             if(info == null)
             {
@@ -696,7 +696,7 @@ namespace SocialPoint.Login
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
-            
+
             if(state == LinkState.Disconnected)
             {
                 CleanOldFriends();
@@ -904,7 +904,7 @@ namespace SocialPoint.Login
         }
 
         Error OnNewLocalUser(HttpResponse resp)
-        {    
+        {
             AttrDic json = null;
             Error err = null;
             ErrorType errType = ErrorType.UserParse;
@@ -920,7 +920,7 @@ namespace SocialPoint.Login
             }
             if(Error.IsNullOrEmpty(err) && json != null)
             {
-                LoadGenericData(json);                
+                LoadGenericData(json);
                 var userData = json.Get(AttrKeyLoginData);
                 _user = LoadLocalUser(userData);
                 if(Data != null && Data.Upgrade != null && Data.Upgrade.Type != UpgradeType.None)
@@ -1064,7 +1064,7 @@ namespace SocialPoint.Login
         }
 
         void NotifyNewLink(LinkInfo info, bool beforeFriends)
-        {   
+        {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(beforeFriends)
             {
@@ -1100,7 +1100,7 @@ namespace SocialPoint.Login
         }
 
         void NotifyError(ErrorType type, Error err, AttrDic data = null)
-        {   
+        {
             if(data == null)
             {
                 data = new AttrDic();
@@ -1212,7 +1212,7 @@ namespace SocialPoint.Login
                 }
                 Friends = tmpFriends;
             }
-            
+
             var req = new HttpRequest();
             SetupHttpRequest(req, UserMappingUri);
             if(SetupUserMappingsHttpRequest(req, mappings, block))
@@ -1239,7 +1239,7 @@ namespace SocialPoint.Login
                 cbk(Friends, err);
             }
         }
-        
+
         void OnUserPhotoLink(LinkInfo info, User user, List<User> users, uint photoSize, Error err, UsersDelegate cbk)
         {
             if(user == null)
@@ -1286,7 +1286,7 @@ namespace SocialPoint.Login
                     }
 
                     if(user != null)
-                    { 
+                    {
                         OnUserPhotoLink(null, user, users, photoSize, err, cbk);
                     }
                     else
@@ -1310,7 +1310,7 @@ namespace SocialPoint.Login
                 cbk(users, err);
             }
         }
-        
+
         void OnGetUsersByIdResponse(HttpResponse resp, List<UserMapping> mappings, uint block, uint photoSize, List<User> users, UsersDelegate cbk)
         {
             var err = resp.Error;
@@ -1381,7 +1381,7 @@ namespace SocialPoint.Login
             }
             return null;
         }
-        
+
         bool GetCachedUserById(UInt64 userId, User user)
         {
             if(User.Id == userId)
@@ -1407,14 +1407,14 @@ namespace SocialPoint.Login
                 user.Combine(User);
                 return true;
             }
-            
+
             User resultUser = _users.FirstOrDefault(item => item.TempId == tempId);
 
             if(resultUser != null)
             {
                 user.Combine(resultUser);
             }
-            
+
             return (resultUser != null);
         }
 
@@ -1506,7 +1506,7 @@ namespace SocialPoint.Login
             {
                 req.ActivityTimeout = ActivityTimeout;
             }
-            
+
             string clientToken = SecurityToken;
             if(!req.HasParam(HttpParamSecurityToken) && !string.IsNullOrEmpty(clientToken))
             {
@@ -1700,7 +1700,7 @@ namespace SocialPoint.Login
 
         /**
          * Minimun setup component http requests
-         */ 
+         */
         public void SetupHttpRequest(HttpRequest req, string Uri)
         {
             if(req.Timeout == 0)
@@ -1963,7 +1963,7 @@ namespace SocialPoint.Login
     }
 
     public class LinkInfo
-    {        
+    {
         public enum Filter
         {
             Auto,

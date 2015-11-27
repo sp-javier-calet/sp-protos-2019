@@ -41,6 +41,19 @@ namespace SocialPoint.AppEvents
                 
         void LateUpdate()
         {
+            DispatchPending();
+        }
+
+        void OnApplicationPause(bool pause)
+        {
+            /* Force dispatch when application is paused,
+             * since system pause events could arrive after LateUpdate, 
+             * and they would be processed when the app is back to foreground */
+            DispatchPending();
+        }
+
+        void DispatchPending()
+        {
             if(_dispatched != null)
             {
                 _dispatched();
@@ -50,6 +63,8 @@ namespace SocialPoint.AppEvents
         
         void DispatchMainThread(Action action)
         {
+            /* System events have to be dispatched to the current Unity Main Thread 
+             * since this changes between Development and Production builds. */
             _dispatched += action;
         }
 

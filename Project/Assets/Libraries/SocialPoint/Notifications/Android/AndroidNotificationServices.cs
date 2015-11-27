@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace SocialPoint.Notifications
         private List<int> _notifications = new List<int>();
 
         private AndroidJavaClass _notifClass = null;
-        
+
         public AndroidNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
         : base(behaviour, commandqueue)
         {
@@ -73,5 +73,6 @@ namespace SocialPoint.Notifications
     public class AndroidNotificationServices : EmptyNotificationServices
     {
     }
+
 #endif // UNITY_ANDROID
 }

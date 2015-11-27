@@ -105,7 +105,7 @@ namespace SocialPoint.Purchase
 
         #region IDisposable implementation
 
-        public void Dispose()
+        virtual public void Dispose()
         {
             UnregisterEvents();
         }
@@ -127,7 +127,7 @@ namespace SocialPoint.Purchase
             OpenIABEventManager.purchaseFailedEvent += PurchaseFailed;
             OpenIABEventManager.consumePurchaseSucceededEvent += consumePurchaseSucceeded;
             OpenIABEventManager.consumePurchaseFailedEvent += consumePurchaseFailed;
-            
+
             OpenIAB.enableDebugLogging(true);
             Options options = new Options();
             options.checkInventoryTimeoutMs = Options.INVENTORY_CHECK_TIMEOUT_MS * 2;
@@ -137,8 +137,8 @@ namespace SocialPoint.Purchase
             options.prefferedStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
             options.availableStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
             options.storeSearchStrategy = SearchStrategy.INSTALLER_THEN_BEST_FIT;
-            
-            
+
+
             DebugLog("setting options");
             OpenIAB.init(options);
         }
@@ -150,7 +150,7 @@ namespace SocialPoint.Purchase
         }
 
         private void QueryInventorySucceeded(Inventory inventory)
-        {            
+        {
             //revise all pending purchases
             DebugLog(inventory.ToString());
             foreach(var item in inventory.GetAllPurchases())
@@ -164,7 +164,7 @@ namespace SocialPoint.Purchase
                     DebugLog("pending purchase: " + item);
                     PurchaseSucceeded(item);
                 }
-            }  
+            }
 
             Debug.Log("received total products: " + inventory.GetAllAvailableSkus().Count);
             try
@@ -275,4 +275,3 @@ namespace SocialPoint.Purchase
         }
     }
 }
-
