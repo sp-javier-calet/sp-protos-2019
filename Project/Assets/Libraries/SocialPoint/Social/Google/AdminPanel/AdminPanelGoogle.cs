@@ -47,14 +47,26 @@ namespace SocialPoint.Social
                 }
                 else
                 {
-                    _google.Logout((err) => {
-                    });
+                    _google.Logout(null);
                 }
                 layout.Refresh();
             });
 
             bool connected = _google.IsConnected;
             AdminPanelLayout groupLayout;
+
+            layout.CreateMargin(2);
+            layout.CreateLabel("User");
+            var user = _google.User;
+            var info = new StringBuilder();
+            if(user != null)
+            {
+                info.Append("Id:").AppendLine(user.UserId);
+                info.Append("Name:").AppendLine(user.Name);
+                info.Append("Age:").AppendLine(user.Age.ToString());
+                info.Append("PhotoUrl:").AppendLine(user.PhotoUrl);
+            }
+            layout.CreateTextArea(info.ToString());
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
@@ -151,7 +163,6 @@ namespace SocialPoint.Social
                     layout.Refresh();
                 }));
             }
-            
         }
 
         #endregion
@@ -213,7 +224,7 @@ namespace SocialPoint.Social
                     else
                     {
                         layout.AdminPanel.Console.Print("Error loading leaderboard " + _idHandler.Id + ". Error:" + err);
-                        _mainTitle.text = "Leaderboard not found. " + err;
+                        _mainTitle.text = "Leaderboard not found";
                     }
                 });
             }

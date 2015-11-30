@@ -6,8 +6,7 @@ namespace SocialPoint.Social
 {
     public delegate void GoogleAchievementDelegate(GoogleAchievement achi,Error err);
     public delegate void GoogleLeaderboardDelegate(GoogleLeaderboard ldb,Error err);
-
-
+    public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt,Error err);
 
     public class GoogleUser
     {
@@ -133,7 +132,6 @@ namespace SocialPoint.Social
         }
     }
 
-    public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt,Error err);
     public class GoogleQuestEvent
     {
         public string QuestId  { get; private set; }
@@ -174,86 +172,70 @@ namespace SocialPoint.Social
         }
     }
 
-
     public interface IGoogle
     {
         // Login
 
-        void Login(ErrorDelegate cbk);
-
-        void Logout(ErrorDelegate cbk);
-
         GoogleUser User{ get; }
 
         bool IsConnected{ get; }
 
-        bool IsConnecting{ get; }
+        /// <summary>
+        /// Starts login with Google Play Games
+        /// </summary>
+        void Login(ErrorDelegate cbk);
+
+        /// <summary>
+        /// Clean Login information
+        /// </summary>
+        void Logout(ErrorDelegate cbk);
+
 
         // Achievements
 
+        /// <summary>
+        /// Update achievement steps
+        /// </summary>
         void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null);
 
+        /// <summary>
+        /// Reset achievement status
+        /// </summary>
         void ResetAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null);
 
         IEnumerable<GoogleAchievement> Achievements { get; }
 
+        /// <summary>
+        /// Show native Achievements view
+        /// </summary>
         void ShowAchievementsUI();
 
-        // Photo
-        //void LoadPhoto(string playerId, uint size, GameCenterPhotoDelegate cbk);
 
         // Leaderboards
 
+        /// <summary>
+        /// Async loading of Leaderboard data
+        /// </summary>
         void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk);
 
+        /// <summary>
+        /// Reports user score to a Leaderboard.
+        /// </summary>
         void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
 
         void ShowLeaderboardsUI(string id = null);
 
+
         // Quests
 
+        /// <summary>
+        /// Increment a quest event by id
+        /// </summary>
         void IncrementEvent(string id, uint quantity = 1);
 
+        /// <summary>
+        /// Show native Quest view and manage user actions
+        /// </summary>
         void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null);
-
     }
-
-    /*
-     * public interface ISocialLogin
-    {
-        // Login
-
-        void Login(ErrorDelegate cbk);
-
-        void Logout(ErrorDelegate cbk);
-
-        GoogleUser User{ get; }
-
-        bool IsConnected{ get; }
-
-        bool IsConnecting{ get; }
-    }
-
-    public interface ISocialAchievements
-    {
-        // Achievements
-
-        void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk);
-
-        void ResetAchievements(ErrorDelegate cbk);
-
-        void ShowAchievementsUI();
-    }
-
-    public interface ISocialQuests
-    {
-        // Quests
-
-    }
-
-    public interface IGoogle : ISocialLogin, ISocialAchievements, ISocialQuests
-    {
-
-    }
-*/
 }

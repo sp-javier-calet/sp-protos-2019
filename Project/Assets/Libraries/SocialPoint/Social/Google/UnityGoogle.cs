@@ -86,7 +86,6 @@ namespace SocialPoint.Social
 
         public override void Logout(ErrorDelegate cbk)
         {
-            // Logout is possible?
             _platform = null;
             _user = null;
             _achievements = null;
@@ -96,7 +95,6 @@ namespace SocialPoint.Social
                 cbk(null);
             }
         }
-
 
         public override GoogleUser User
         {
@@ -114,28 +112,42 @@ namespace SocialPoint.Social
             }
         }
 
-        public override bool IsConnecting
-        {
-            get
-            {
-                return _platform != null && !_platform.IsAuthenticated(); // FIXME
-            }
-        }
-
-
         #region Achievements
 
         public override void ResetAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
         {
-            string uri = string.Format("https://www.googleapis.com/games/v1management/achievements/{0}/reset", achi.Id);
-            var form = new UnityEngine.WWWForm();
-            form.AddField("access_token", _platform.GetAccessToken());
-            var www = new UnityEngine.WWW(uri, form);
-            while(!www.isDone)
-                ;
+            if(!IsConnected)
+            {
+                if(cbk != null)
+                {
+                    cbk(achi, new Error("Google is not logged in"));
+                }
+                return;
+            }
+
+            string accessToken = _platform.GetAccessToken();
+            Error err = null;
+            if(!string.IsNullOrEmpty(accessToken))
+            {
+                string uri = string.Format("https://www.googleapis.com/games/v1management/achievements/{0}/reset", achi.Id);
+                var form = new UnityEngine.WWWForm();
+                form.AddField("access_token", _platform.GetAccessToken());
+                var www = new UnityEngine.WWW(uri, form);
+                while(!www.isDone)
+                    ;
+                if(!string.IsNullOrEmpty(www.error))
+                {
+                    err = new Error(www.error);
+                }
+            }
+            else
+            {
+                err = new Error("Invalid access token. " + accessToken);
+            }
+
             if(cbk != null)
             {
-                cbk(achi, string.IsNullOrEmpty(www.error) ? null : new Error(www.error));
+                cbk(achi, err);
             }
         }
 

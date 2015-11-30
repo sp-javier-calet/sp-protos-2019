@@ -8,19 +8,34 @@ namespace SocialPoint.Social
 
         public override void Login(ErrorDelegate cbk)
         {
-            // TODO
+            if(cbk != null)
+            {
+                cbk(new Error("Empty Google implementation"));
+            }
         }
 
         public override void Logout(ErrorDelegate cbk)
         {
+            if(cbk != null)
+            {
+                cbk(new Error("Empty Google implementation"));
+            }
         }
 
         public override void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
         {
+            if(cbk != null)
+            {
+                cbk(achievement, new Error("Empty Google implementation"));
+            }
         }
 
         public override void ResetAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
         {
+            if(cbk != null)
+            {
+                cbk(achievement, new Error("Empty Google implementation"));
+            }
         }
 
         public override void ShowAchievementsUI()
@@ -29,10 +44,18 @@ namespace SocialPoint.Social
 
         public override void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk)
         {
+            if(cbk != null)
+            {
+                cbk(ldb, new Error("Empty Google implementation"));
+            }
         }
 
         public override void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
         {
+            if(cbk != null)
+            {
+                cbk(ldb, new Error("Empty Google implementation"));
+            }
         }
 
         public override void ShowLeaderboardsUI(string id = null)
@@ -45,13 +68,17 @@ namespace SocialPoint.Social
 
         public override void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null)
         {
+            if(cbk != null)
+            {
+                cbk(GoogleQuestEvent.Empty, new Error("Empty Google implementation"));
+            }
         }
 
         public override GoogleUser User
         {
             get
             {
-                throw new System.NotImplementedException();
+                return null;
             }
         }
 
@@ -59,15 +86,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public override bool IsConnecting
-        {
-            get
-            {
-                throw new System.NotImplementedException();
+                return false;
             }
         }
 
