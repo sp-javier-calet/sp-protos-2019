@@ -27,11 +27,6 @@ namespace SocialPoint.Social
                 return;
             }
 
-            _user = new GoogleUser();
-
-            // FIXME recommended for debugging:
-            PlayGamesPlatform.DebugLogEnabled = true;
-
             // Use Activate() instead to override Social.Active
             _platform = PlayGamesPlatform.Instance;
 
@@ -69,8 +64,7 @@ namespace SocialPoint.Social
             var localUser = _platform.localUser;
             if(!localUser.authenticated)
             {
-                //_friends.Clear();
-                _user = new GoogleUser();
+                _user = null;
                 if(cbk != null)
                 {
                     cbk(new Error("Could not login."));
@@ -283,7 +277,7 @@ namespace SocialPoint.Social
 
         #region Leaderboards
 
-        public override void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        public override void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk)
         {
             if(!IsConnected)
             {
@@ -294,19 +288,18 @@ namespace SocialPoint.Social
                 return;
             }
 
-            var board = _platform.CreateLeaderboard();
-            board.id = ldb.Id;
-            board.userScope = ldb.FriendsOnly ? UserScope.FriendsOnly : UserScope.Global;
-
-            _platform.LoadScores(board.id,
-                LeaderboardStart.PlayerCentered, 10, LeaderboardCollection.Public, LeaderboardTimeSpan.AllTime, // TODO FILTER
+            _platform.LoadScores(ldb.Id,
+                ldb.PlayerCentered ? LeaderboardStart.PlayerCentered : LeaderboardStart.TopScores, 
+                (int)rowCount, 
+                ldb.FriendsOnly ? LeaderboardCollection.Social : LeaderboardCollection.Public,
+                (LeaderboardTimeSpan)ldb.Scope,
                 (scoredata) => {
                     if(cbk != null)
                     {
                         if(scoredata.Valid)
                         {
                             var leaderboard = new GoogleLeaderboard(scoredata.Id, scoredata.Title, 
-                                                  scoredata.PlayerScore.value, board.userScope == UserScope.FriendsOnly);
+                                                  scoredata.PlayerScore.value, ldb.FriendsOnly, ldb.PlayerCentered, ldb.Scope);
                             // Update scores for users
                             var scores = new Dictionary<string, GoogleLeaderboardScoreEntry>();
                             foreach(var score in scoredata.Scores)
@@ -337,44 +330,6 @@ namespace SocialPoint.Social
                         }
                     }
                 });
-            
-            /*(success) => {
-                if(cbk != null)
-                {
-                    if(success)
-                    {
-                        var leaderboard = new GoogleLeaderboard(board.id, board.title, 
-                                              board.localUserScore.value, board.userScope == UserScope.FriendsOnly);
-                        // Update scores for users
-                        var scores = new Dictionary<string, GoogleLeaderboardScoreEntry>();
-                        foreach(IScore score in board.scores)
-                        {
-                            var entry = new GoogleLeaderboardScoreEntry();
-                            entry.Score = score.value;
-                            entry.Rank = score.rank;
-                            scores.Add(score.userID, entry);
-                            leaderboard.Scores.Add(entry);
-                        }
-
-                        // Load user names
-                        _platform.LoadUsers(scores.Keys.ToArray(), (users) => {
-                            foreach(var user in users)
-                            {
-                                scores[user.id].Name = user.userName;
-                            }
-
-                            if(cbk != null)
-                            {
-                                cbk(leaderboard, null);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        cbk(null, new Error("Couldn't load leaderboad scores"));    
-                    }
-                }
-            });*/
         }
 
         public override void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
@@ -438,10 +393,6 @@ namespace SocialPoint.Social
 
                     case QuestUiResult.UserRequestsMilestoneClaiming:
                         ClaimMilestone(milestone, cbk);
-                        break;
-
-                    case QuestUiResult.UserCanceled:
-                        // Do Nothing
                         break;
 
                     default:

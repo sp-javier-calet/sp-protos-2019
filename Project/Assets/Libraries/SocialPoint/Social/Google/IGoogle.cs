@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine.SocialPlatforms;
+using System.Collections.Generic;
 using SocialPoint.Base;
 
 namespace SocialPoint.Social
@@ -77,14 +78,20 @@ namespace SocialPoint.Social
 
         public bool FriendsOnly { get; private set; }
 
+        public bool PlayerCentered { get; private set; }
+
         public long UserScore { get; private set; }
+
+        public TimeScope Scope { get; private set; }
 
         public List<GoogleLeaderboardScoreEntry> Scores { get; private set; }
 
-        public GoogleLeaderboard(string id, bool friendsOnly)
+        public GoogleLeaderboard(string id, bool friendsOnly, bool playerCentered, TimeScope scope)
         {
             Id = id;
             FriendsOnly = friendsOnly;
+            playerCentered = playerCentered;
+            Scope = scope;
             Scores = new List<GoogleLeaderboardScoreEntry>();
         }
 
@@ -95,12 +102,14 @@ namespace SocialPoint.Social
             Scores = new List<GoogleLeaderboardScoreEntry>();
         }
 
-        public GoogleLeaderboard(string id, string title, long score, bool friendsOnly)
+        public GoogleLeaderboard(string id, string title, long score, bool friendsOnly, bool playerCentered, TimeScope scope)
         {
             Id = id;
             Title = title;
             UserScore = score;
             FriendsOnly = friendsOnly;
+            PlayerCentered = playerCentered;
+            Scope = scope;
             Scores = new List<GoogleLeaderboardScoreEntry>();
         }
     }
@@ -165,6 +174,7 @@ namespace SocialPoint.Social
         }
     }
 
+
     public interface IGoogle
     {
         // Login
@@ -194,7 +204,7 @@ namespace SocialPoint.Social
 
         // Leaderboards
 
-        void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
+        void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk);
 
         void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
 

@@ -20,7 +20,7 @@ namespace SocialPoint.Social
 
         public abstract void ShowAchievementsUI();
 
-        public abstract void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
+        public abstract void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk);
 
         public abstract void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null);
 

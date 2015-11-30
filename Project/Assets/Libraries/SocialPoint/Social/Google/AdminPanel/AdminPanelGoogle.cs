@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SocialPlatforms;
 using SocialPoint.AdminPanel;
 using System.Text;
 
@@ -164,18 +165,22 @@ namespace SocialPoint.Social
             LeaderboardIdHandler _idHandler;
             Text _mainTitle;
             bool _isFriendOnly;
+            bool _playerCentered;
+            TimeScope _scope;
 
             public AdminPanelLeaderboard(IGoogle google, LeaderboardIdHandler idHandler)
             {
                 _google = google;
                 _idHandler = idHandler;
                 _isFriendOnly = true;
+                _playerCentered = true;
+                _scope = TimeScope.Today;
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
             {
                 _mainTitle = layout.CreateLabel("Leaderboard not found");
-                _google.LoadLeaderboard(new GoogleLeaderboard(_idHandler.Id, _isFriendOnly), (ldb, err) => {
+                _google.LoadLeaderboard(new GoogleLeaderboard(_idHandler.Id, _isFriendOnly, _playerCentered, _scope), 10, (ldb, err) => {
                     _leaderboard = ldb;
                     if(_leaderboard != null)
                     {
@@ -198,12 +203,17 @@ namespace SocialPoint.Social
                             layout.Refresh();
                         });
 
+                        layout.CreateToggleButton("Player Centered", _playerCentered, (status) => {
+                            _playerCentered = status;
+                            layout.Refresh();
+                        });
+
                         layout.CreateConfirmButton("Show Leaderboard UI", () => _google.ShowLeaderboardsUI(_leaderboard.Id));
                     }
                     else
                     {
                         layout.AdminPanel.Console.Print("Error loading leaderboard " + _idHandler.Id + ". Error:" + err);
-                        _mainTitle.text = "Leaderboard not found";
+                        _mainTitle.text = "Leaderboard not found. " + err;
                     }
                 });
             }

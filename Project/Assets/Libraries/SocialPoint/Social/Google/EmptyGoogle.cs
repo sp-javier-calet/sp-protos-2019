@@ -27,7 +27,7 @@ namespace SocialPoint.Social
         {
         }
 
-        public override void LoadLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        public override void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk)
         {
         }
 
