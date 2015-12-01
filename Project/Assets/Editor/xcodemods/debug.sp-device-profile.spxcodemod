@@ -1,6 +1,0 @@
-{
-	"copyFiles":{
-		"{ROOT_PATH}/../Project/Assets/Libraries/iPhone_Profiler.h":"{XCODE_PROJECT_PATH}/../Classes/iPhone_Profiler.h",
-		"{ROOT_PATH}/../Project/Assets/Libraries/iPhone_Profiler.cpp":"{XCODE_PROJECT_PATH}/../Classes/iPhone_Profiler.cpp"
-	}
-}
