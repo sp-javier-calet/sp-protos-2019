@@ -134,8 +134,7 @@ namespace SocialPoint.AdminPanel
 
                     UpdateButtonColor();
                 }
-                else
-                if(_completion > 0)
+                else if(_completion > 0)
                 {
                     _completion -= Time.deltaTime / TimeToDisabled;
                     UpdateButtonColor();

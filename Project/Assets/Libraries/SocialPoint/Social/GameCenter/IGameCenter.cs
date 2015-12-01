@@ -4,11 +4,11 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public delegate void GameCenterScoreDelegate(GameCenterScore score,Error err);
+    public delegate void GameCenterScoreDelegate(GameCenterScore score, Error err);
     
-    public delegate void GameCenterAchievementDelegate(GameCenterAchievement achi,Error err);
+    public delegate void GameCenterAchievementDelegate(GameCenterAchievement achi, Error err);
     
-    public delegate void GameCenterPhotoDelegate(string path,Error err);
+    public delegate void GameCenterPhotoDelegate(string path, Error err);
 
 
     public static class GameCenterErrors
@@ -82,8 +82,7 @@ namespace SocialPoint.Social
                 }
                 return false;
             }
-            else
-            if(System.Object.ReferenceEquals(ru, null))
+            else if(System.Object.ReferenceEquals(ru, null))
             {
                 return false;
             }

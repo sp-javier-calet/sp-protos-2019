@@ -4,9 +4,9 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public delegate void GoogleAchievementDelegate(GoogleAchievement achi,Error err);
-    public delegate void GoogleLeaderboardDelegate(GoogleLeaderboard ldb,Error err);
-    public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt,Error err);
+    public delegate void GoogleAchievementDelegate(GoogleAchievement achi, Error err);
+    public delegate void GoogleLeaderboardDelegate(GoogleLeaderboard ldb, Error err);
+    public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt, Error err);
 
     public class GoogleUser
     {
