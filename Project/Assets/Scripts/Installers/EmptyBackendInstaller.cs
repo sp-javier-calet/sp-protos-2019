@@ -10,9 +10,6 @@ using System.Text;
 public class EmptyBackendInstaller : MonoInstaller
 {
     [Inject]
-    GameModel _model;
-
-    [Inject]
     IGameLoader _gameLoader;
 
     public override void InstallBindings()
