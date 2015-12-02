@@ -4,7 +4,12 @@ using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
 
-public class HttpClient : CurlHttpClient
+public class HttpClient : 
+    #if UNITY_EDITOR_WIN
+    WebRequestHttpClient
+        #else
+        CurlHttpClient
+        #endif
 {
     private string _httpProxy;
 
