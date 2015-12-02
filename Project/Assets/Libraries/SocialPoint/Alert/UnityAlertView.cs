@@ -4,15 +4,20 @@ using SocialPoint.GUIControl;
 
 namespace SocialPoint.Alert
 {
-	public abstract class BaseUnityAlertViewController : UIViewController
+    public abstract class BaseUnityAlertViewController : UIViewController
     {
         public abstract event ResultDelegate Result;
 
         public abstract string MessageText{ set; }
+
         public abstract string TitleText{ set; }
-        public abstract string Signature{ set;}
+
+        public abstract string Signature{ set; }
+
         public abstract bool InputEnabled{ set; }
+
         public abstract string InputText{ get; }
+
         public abstract string[] ButtonTitles{ set; }
     }
 
@@ -20,7 +25,8 @@ namespace SocialPoint.Alert
     public delegate void UnityAlertViewGameObjectDelegate(GameObject go);
 
 
-    public class UnityAlertView : IAlertView {
+    public class UnityAlertView : IAlertView
+    {
 
         GameObject _prefab;
         BaseUnityAlertViewController _controller;
@@ -30,7 +36,7 @@ namespace SocialPoint.Alert
         public static UnityAlertViewGameObjectDelegate SetupDelegate;
         public static UnityAlertViewGameObjectDelegate ShowDelegate;
         public static UnityAlertViewGameObjectDelegate HideDelegate;
-        
+
         public UnityAlertView(GameObject prefab = null)
         {
             if(prefab == null)
@@ -71,6 +77,7 @@ namespace SocialPoint.Alert
         }
 
         string _message;
+
         public string Message
         {
             set
@@ -80,6 +87,7 @@ namespace SocialPoint.Alert
         }
 
         string _title;
+
         public string Title
         {
             set
@@ -89,6 +97,7 @@ namespace SocialPoint.Alert
         }
 
         string _signature;
+
         public string Signature
         {
             set
@@ -98,6 +107,7 @@ namespace SocialPoint.Alert
         }
 
         string[] _buttons;
+
         public string[] Buttons
         {
             set
@@ -107,6 +117,7 @@ namespace SocialPoint.Alert
         }
 
         bool _input = false;
+
         public bool Input
         {
             set
@@ -114,7 +125,7 @@ namespace SocialPoint.Alert
                 _input = value;
             }
         }
-        
+
         public string InputText
         {
             get
@@ -129,12 +140,12 @@ namespace SocialPoint.Alert
                 }
             }
         }
-        
+
         public void Show(ResultDelegate dlg)
         {
             if(_controller == null)
             {
-                var go = (GameObject) GameObject.Instantiate(_prefab);
+                var go = (GameObject)GameObject.Instantiate(_prefab);
                 if(go != null)
                 {
                     go.name = _prefab.name;
