@@ -1,21 +1,12 @@
 using UnityEngine;
 using System;
+using SocialPoint.GUIControl;
 
 namespace SocialPoint.Alert
 {
-    public abstract class BaseUnityAlertViewController : MonoBehaviour
+	public abstract class BaseUnityAlertViewController : UIViewController
     {
         public abstract event ResultDelegate Result;
-
-        public virtual void Show()
-        {
-            gameObject.SetActive(true);
-        }
-
-        public virtual void Hide()
-        {
-            gameObject.SetActive(false);
-        }
 
         public abstract string MessageText{ set; }
         public abstract string TitleText{ set; }

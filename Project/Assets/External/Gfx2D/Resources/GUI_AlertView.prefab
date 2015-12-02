@@ -46,7 +46,6 @@ GameObject:
   - 114: {fileID: 11461008}
   - 225: {fileID: 22585472}
   - 114: {fileID: 11449706}
-  - 114: {fileID: 11451492}
   m_Layer: 5
   m_Name: GUI_AlertView
   m_TagString: Untagged
@@ -241,6 +240,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8c260557f5e4f0583327345e9e5860, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ParentController: {fileID: 0}
+  DestroyOnHide: 0
   TitleLabel: {fileID: 11421518}
   MessageLabel: {fileID: 11469964}
   SignatureLabel: {fileID: 11498246}
@@ -248,19 +249,6 @@ MonoBehaviour:
   Buttons: {fileID: 22477386}
   ButtonPrefab: {fileID: 142818, guid: 4c12edc1505f54b49a10faff1727c8c6, type: 2}
   ButtonSeparation: 30
---- !u!114 &11451492
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 114444}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f90e449b87b284325b703aa5bedeeb00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ParentController: {fileID: 0}
-  DestroyOnHide: 0
 --- !u!114 &11456852
 MonoBehaviour:
   m_ObjectHideFlags: 1
