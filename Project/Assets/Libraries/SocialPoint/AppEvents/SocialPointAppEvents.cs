@@ -9,7 +9,7 @@ namespace SocialPoint.AppEvents
         BaseAppEvents _appEvents;
         const string GameObjectName = "SocialPointAppEvents";
 
-        public SocialPointAppEvents(MonoBehaviour behaviour=null)
+        public SocialPointAppEvents(MonoBehaviour behaviour = null)
         {
             if(behaviour != null)
             {
@@ -69,7 +69,7 @@ namespace SocialPoint.AppEvents
                 return _appEvents.WillGoBackground;
             }
         }
-        
+
         public PriorityAction GameWasLoaded
         {
             get
@@ -81,7 +81,7 @@ namespace SocialPoint.AppEvents
                 return _appEvents.GameWasLoaded;
             }
         }
-        
+
         public PriorityAction GameWillRestart
         {
             get
@@ -102,7 +102,7 @@ namespace SocialPoint.AppEvents
             }
             _appEvents.TriggerMemoryWarning();
         }
-        
+
         public void TriggerWillGoBackground()
         {
             if(_appEvents == null)
@@ -111,7 +111,7 @@ namespace SocialPoint.AppEvents
             }
             _appEvents.TriggerWillGoBackground();
         }
-        
+
         public void TriggerGameWasLoaded()
         {
             if(_appEvents == null)
@@ -120,7 +120,7 @@ namespace SocialPoint.AppEvents
             }
             _appEvents.TriggerGameWasLoaded();
         }
-                
+
         public void TriggerGameWillRestart()
         {
             if(_appEvents == null)
@@ -166,7 +166,7 @@ namespace SocialPoint.AppEvents
                 {
                     return;
                 }
-                _appEvents.WasOnBackground -= value;
+                _appEvents.WasCovered -= value;
             }
         }
 
@@ -241,7 +241,7 @@ namespace SocialPoint.AppEvents
                 _appEvents.ApplicationQuit -= value;
             }
         }
-        
+
         public event Action<int> LevelWasLoaded
         {
             add
