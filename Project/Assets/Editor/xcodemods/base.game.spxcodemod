@@ -1,0 +1,35 @@
+{
+  "targetAttributes": {
+    "DevelopmentTeam": "MS5UR3KX42",
+    "SystemCapabilities": {
+      "com.apple.Keychain": {
+        "enabled": 1
+      }
+    }
+  },
+  "buildSettings": {
+    "IPHONEOS_DEPLOYMENT_TARGET": "5.1.1",
+    "GCC_OPTIMIZATION_LEVEL": "1"
+  },
+  "frameworks": [
+    "Security.framework:weak"
+  ],
+  "infoPlist": {
+    "CFBundleIdentifier":"basegame",
+    "CFBundleURLTypes":[{
+      "CFBundleURLName":"basegame",
+      "CFBundleURLSchemes":["basegame"]
+    }]
+  },
+  "keychainAccessGroups": [
+    "$(AppIdentifierPrefix)basegame"
+  ],
+  "copyFiles": {
+    "../Localizable.strings": [ "{XCODE_PROJECT_PATH}/en.lproj/" ]
+  },
+  "variantGroups": {
+    "Localizable.strings": {
+      "en": "{XCODE_PROJECT_PATH}/en.lproj/Localizable.strings"
+    }
+  }
+}
