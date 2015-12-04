@@ -1,12 +1,4 @@
 {
-  "targetAttributes": {
-    "DevelopmentTeam": "MS5UR3KX42",
-    "SystemCapabilities": {
-      "com.apple.Keychain": {
-        "enabled": 1
-      }
-    }
-  },
   "buildSettings": {
     "IPHONEOS_DEPLOYMENT_TARGET": "5.1.1",
     "GCC_OPTIMIZATION_LEVEL": "1"
