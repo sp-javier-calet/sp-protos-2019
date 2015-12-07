@@ -36,7 +36,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        protected RectTransform CreateUIObject(string name, RectTransform parent)
+        protected RectTransform CreateUIObject(string name, Transform parent)
         {
             var gObject = new GameObject(name);
             gObject.transform.SetParent(parent);

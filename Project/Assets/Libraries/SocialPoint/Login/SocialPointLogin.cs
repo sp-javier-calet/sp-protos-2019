@@ -135,6 +135,7 @@ namespace SocialPoint.Login
         }
 
         private LoginConfig _loginConfig;
+        private string _baseUrl;
         private int _availableSecurityTokenErrorRetries;
         private int _availableConnectivityErrorRetries;
 
@@ -275,6 +276,32 @@ namespace SocialPoint.Login
             }
         }
 
+        
+        public LoginConfig Config
+        {
+            get
+            {
+                return _loginConfig;
+            }
+
+            set
+            {
+                _loginConfig = value;
+                _availableSecurityTokenErrorRetries = value.SecurityTokenErrors;
+                _availableConnectivityErrorRetries = value.ConnectivityErrors;
+                _baseUrl = value.BaseUrl;
+                if(_baseUrl == null)
+                {
+                    _baseUrl = string.Empty;
+                }
+                // Ensure the URL always contains a trailing slash
+                if(!_baseUrl.EndsWith(UriSeparator.ToString()))
+                {
+                    _baseUrl += UriSeparator;
+                }
+            }
+        }
+
         IHttpClient _httpClient;
         List<LinkInfo> _links;
         List<LinkInfo> _pendingLinkConfirms;
@@ -297,17 +324,7 @@ namespace SocialPoint.Login
         {
             Init();
             _httpClient = client;
-            _loginConfig = config;
-            _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
-            _availableConnectivityErrorRetries = config.ConnectivityErrors;
-
-            if(config.BaseUrl == null)
-            {
-                config.BaseUrl = string.Empty;
-            }
-            // Ensure the URL always contains a trailing slash
-            _loginConfig.BaseUrl = config.BaseUrl.EndsWith(UriSeparator.ToString()) ?
-                                   _loginConfig.BaseUrl : _loginConfig.BaseUrl + UriSeparator;
+            Config = config;
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
@@ -507,7 +524,7 @@ namespace SocialPoint.Login
 
         public string GetUrl(string uri)
         {
-            var url = _loginConfig.BaseUrl + BaseUri + UriSeparator + uri.TrimStart(UriSeparator);
+            var url = _baseUrl + BaseUri + UriSeparator + uri.TrimStart(UriSeparator);
             string deviceId = "0";
             if(DeviceInfo != null)
             {
@@ -610,9 +627,7 @@ namespace SocialPoint.Login
             {
                 _availableConnectivityErrorRetries = Math.Max(_loginConfig.ConnectivityErrors, 0);
                 _availableSecurityTokenErrorRetries = Math.Max(_loginConfig.SecurityTokenErrors, 0);
-
             }
-
 
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
             {
