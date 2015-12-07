@@ -9,7 +9,7 @@ using Zenject;
 
 public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [Inject]
+    [InjectOptional]
     AdminPanel AdminPanel;
 
     [Inject]
@@ -34,7 +34,14 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     [PostInject]
     void PostInject()
     {
-        AdminPanel.RegisterConfigurers(_configurers);
+        if(AdminPanel != null)
+        {
+            AdminPanel.RegisterConfigurers(_configurers);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     void Update()
