@@ -9,6 +9,7 @@ namespace SocialPoint.Login
     {
         event HttpRequestDelegate HttpRequestEvent;
         event NewUserDelegate NewUserEvent;
+        event NewGenericDataDelegate NewGenericDataEvent;
         event NewLinkDelegate NewLinkBeforeFriendsEvent;
         event NewLinkDelegate NewLinkAfterFriendsEvent;
         event ConfirmLinkDelegate ConfirmLinkEvent;

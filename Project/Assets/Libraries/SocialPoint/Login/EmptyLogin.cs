@@ -21,6 +21,12 @@ namespace SocialPoint.Login
             remove { }
         }
 
+        public event NewGenericDataDelegate NewGenericDataEvent
+        {
+            add { }
+            remove { }
+        }
+
         public event NewLinkDelegate NewLinkBeforeFriendsEvent
         {
             add { }
