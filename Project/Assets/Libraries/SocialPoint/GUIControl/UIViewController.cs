@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SocialPoint.GUIControl
@@ -35,6 +36,14 @@ namespace SocialPoint.GUIControl
 
         [HideInInspector]
         public bool DestroyOnHide = false;
+
+        [HideInInspector]
+        public static UILayersController LayersController;
+
+        [SerializeField]
+        private List<GameObject> _3DContainers = new List<GameObject>();
+
+        private int _ui3DLayer;
 
         public UIViewAnimation Animation
         {
@@ -243,7 +252,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public void HideImmediate(bool destroy=false)
+        public void HideImmediate(bool destroy = false)
         {
             DebugLog("HideImmediate");
             Load();
@@ -259,7 +268,7 @@ namespace SocialPoint.GUIControl
             CheckDestroyOnHide(destroy);
         }
 
-        public bool Hide(bool destroy=false)
+        public bool Hide(bool destroy = false)
         {
             DebugLog("Hide");
             Load();
@@ -275,7 +284,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public IEnumerator HideCoroutine(bool destroy=false)
+        public IEnumerator HideCoroutine(bool destroy = false)
         {
             DebugLog("HideCoroutine");
             Load();
@@ -319,7 +328,60 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppearing");
             _viewState = ViewState.Appearing;
+            SetupLayersAppearing();
             NotifyViewEvent();
+        }
+
+        void SetupLayersAppearing()
+        {
+            if(LayersController != null)
+            {
+                LayersController.AddToCurrentUILayer(gameObject);
+
+                foreach(GameObject ui3DContainer in _3DContainers)
+                {
+                    Init3DContainer(ui3DContainer);
+                    _ui3DLayer = LayersController.AddToCurrent3DLayer(ui3DContainer);
+                }
+            }
+            else if(_3DContainers.Count > 0)
+            {
+                throw new Exception("You need to assign a UILayersController");
+            }
+        }
+
+        void Init3DContainer(GameObject container)
+        {
+            UI3DContainer containerComponent = container.GetComponent<UI3DContainer>();
+
+            if(containerComponent == null)
+            {
+                containerComponent = container.AddComponent<UI3DContainer>();
+            }
+
+            containerComponent.OnDestroyed += Remove3DContainer;
+        }
+
+        public void Add3DContainer(GameObject gameObject)
+        {
+            Init3DContainer(gameObject);
+
+            _3DContainers.Add(gameObject);
+
+            if(_ui3DLayer == 0)
+            {
+                _ui3DLayer = LayersController.AddToCurrent3DLayer(gameObject);
+            }
+            else
+            {
+                LayersController.AddTo3DLayer(gameObject, _ui3DLayer);
+            }
+        }
+
+        public void Remove3DContainer(GameObject gameObject)
+        {
+            _3DContainers.Remove(gameObject);
+            LayersController.RemoveElement(gameObject);
         }
 
         IEnumerator FullAppear()
@@ -386,6 +448,15 @@ namespace SocialPoint.GUIControl
             NotifyViewEvent();
         }
 
+        void SetupLayersDisappeared()
+        {
+            if(LayersController != null)
+            {
+                _3DContainers.ForEach(container => LayersController.RemoveElement(container));
+                LayersController.RemoveElement(gameObject);
+            }
+        }
+
         virtual protected IEnumerator Disappear()
         {
             if(Animation != null)
@@ -428,6 +499,7 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnDisappeared");
             _viewState = ViewState.Hidden;
+            SetupLayersDisappeared();
             NotifyViewEvent();
         }
 
@@ -469,6 +541,7 @@ namespace SocialPoint.GUIControl
         }
 
         static Canvas _canvas;
+
         public static Canvas Canvas
         {
             get
