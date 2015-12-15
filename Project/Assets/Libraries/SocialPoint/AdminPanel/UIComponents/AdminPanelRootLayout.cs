@@ -9,7 +9,7 @@ namespace SocialPoint.AdminPanel
         public AdminPanelRootLayout(AdminPanelController controller) : base(controller)
         {
             var canvasObject = new GameObject("AdminPanel");
-            canvasObject.transform.SetParent(controller.transform);
+            canvasObject.transform.SetParent(controller.transform, false);
             var rectTransform = canvasObject.AddComponent<RectTransform>();
             rectTransform.anchorMin = Vector2.zero;
             rectTransform.anchorMax = Vector2.one;
