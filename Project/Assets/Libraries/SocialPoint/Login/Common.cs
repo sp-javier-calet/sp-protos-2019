@@ -16,6 +16,8 @@ namespace SocialPoint.Login
     public delegate void ConfirmLinkDelegate(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk);
     
     public delegate void NewUserDelegate(Attr data, bool changed);
+
+    public delegate void NewGenericDataDelegate(Attr data);
     
     public delegate void NewLinkDelegate(ILink link);
     

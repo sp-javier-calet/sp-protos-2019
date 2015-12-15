@@ -314,6 +314,7 @@ namespace SocialPoint.Login
 
         public event HttpRequestDelegate HttpRequestEvent = delegate{};
         public event NewUserDelegate NewUserEvent = delegate{};
+        public event NewGenericDataDelegate NewGenericDataEvent = delegate{};
         public event NewLinkDelegate NewLinkBeforeFriendsEvent = delegate{};
         public event NewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
         public event ConfirmLinkDelegate ConfirmLinkEvent = delegate{};
@@ -943,6 +944,10 @@ namespace SocialPoint.Login
                     // Check for upgrade
                     err = new Error(Data.Upgrade.Message);
                     errType = ErrorType.Upgrade;
+                }
+                if(NewGenericDataEvent != null && json.ContainsKey(AttrKeyGenericData))
+                {
+                    NewGenericDataEvent(json.Get(AttrKeyGenericData));
                 }
             }
             if(Error.IsNullOrEmpty(err) && _user == null)
