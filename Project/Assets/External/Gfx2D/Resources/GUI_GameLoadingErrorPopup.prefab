@@ -47,6 +47,7 @@ GameObject:
   - 114: {fileID: 11412174}
   - 114: {fileID: 11463538}
   - 225: {fileID: 22571378}
+  - 223: {fileID: 22370900}
   m_Layer: 5
   m_Name: GUI_GameLoadingErrorPopup
   m_TagString: Untagged
@@ -192,6 +193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParentController: {fileID: 0}
   DestroyOnHide: 0
+  _3DContainers: []
   Text: 
   Message: {fileID: 11441140}
 --- !u!114 &11487294
@@ -335,6 +337,23 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 153516}
+--- !u!223 &22370900
+Canvas:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 149384}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_RenderMode: 1
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
 --- !u!224 &22404158
 RectTransform:
   m_ObjectHideFlags: 1
@@ -457,6 +476,10 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: m_Color.b
       value: .466666669
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_RenderMode
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

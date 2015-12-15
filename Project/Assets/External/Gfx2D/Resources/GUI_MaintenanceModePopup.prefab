@@ -29,6 +29,7 @@ GameObject:
   - 114: {fileID: 11461008}
   - 225: {fileID: 22585472}
   - 114: {fileID: 11467674}
+  - 223: {fileID: 22397286}
   m_Layer: 5
   m_Name: GUI_MaintenanceModePopup
   m_TagString: Untagged
@@ -142,6 +143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParentController: {fileID: 0}
   DestroyOnHide: 0
+  _3DContainers: []
   TitleLabel: {fileID: 11421518}
   MessageLabel: {fileID: 11469964}
   SignatureLabel: {fileID: 11494282}
@@ -234,6 +236,23 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 190864}
+--- !u!223 &22397286
+Canvas:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 114444}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_RenderMode: 1
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
 --- !u!224 &22418784
 RectTransform:
   m_ObjectHideFlags: 1
@@ -342,6 +361,10 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: m_Text
       value: The game is on maintenance, try connect again later.
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_RenderMode
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

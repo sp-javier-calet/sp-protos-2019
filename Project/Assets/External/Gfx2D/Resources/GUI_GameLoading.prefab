@@ -130,6 +130,7 @@ GameObject:
   - 222: {fileID: 22259108}
   - 114: {fileID: 11436866}
   - 114: {fileID: 11475862}
+  - 223: {fileID: 22366310}
   m_Layer: 5
   m_Name: GUI_GameLoading
   m_TagString: Untagged
@@ -442,6 +443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParentController: {fileID: 0}
   DestroyOnHide: 0
+  _3DContainers: []
   Paused: 0
   _progressContainer: {fileID: 167554}
   _loadingBar: {fileID: 11435362}
@@ -522,6 +524,23 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 179154}
+--- !u!223 &22366310
+Canvas:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 189856}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_RenderMode: 1
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
 --- !u!224 &22410884
 RectTransform:
   m_ObjectHideFlags: 1
@@ -689,7 +708,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: m_RenderMode
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 189856}
