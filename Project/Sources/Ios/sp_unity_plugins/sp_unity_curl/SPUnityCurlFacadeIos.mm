@@ -1,5 +1,6 @@
 #include "SPUnityCurlFacade.h"
 #include "SPUnityCurlManager.h"
+#import <UIKit/UIKit.h>
 
 UIBackgroundTaskIdentifier bgTask = UIBackgroundTaskInvalid;
 
@@ -38,7 +39,5 @@ EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
     {
         SPUnityCurlEndBackgroundTask();
     }
-
-
 }
 
