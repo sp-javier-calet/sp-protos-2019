@@ -228,8 +228,8 @@ namespace SocialPoint.Crash
 
         IHttpClient _httpClient;
         IDeviceInfo _deviceInfo;
-        readonly PersistentAttrStorage _exceptionStorage;
-        PersistentAttrStorage _crashStorage;
+        readonly FileAttrStorage _exceptionStorage;
+        FileAttrStorage _crashStorage;
         List<Report> _pendingReports;
         BreadcrumbManager _breadcrumbManager;
         HashSet<string> _uniqueExceptions;
@@ -403,8 +403,8 @@ namespace SocialPoint.Crash
             _httpClient = client;
             _deviceInfo = deviceInfo;
 
-            _exceptionStorage = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/exceptions"));
-            _crashStorage = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/crashes"));
+            _exceptionStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/exceptions"));
+            _crashStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/crashes"));
            
             //only used when crash detected
             _breadcrumbManager = breadcrumbManager;
@@ -851,8 +851,8 @@ namespace SocialPoint.Crash
                 return;
             }
             string uuid = RandomUtils.GetUuid();
-            var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
-            _exceptionStorage.Save(uuid, exception);
+                var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
+                _exceptionStorage.Save(uuid, exception);
             _uniqueExceptions.Add(exceptionHashSource);
 
             if(TrackEvent != null)

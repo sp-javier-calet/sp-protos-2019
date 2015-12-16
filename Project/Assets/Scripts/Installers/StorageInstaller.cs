@@ -1,10 +1,14 @@
 ﻿using System;
 using SocialPoint.Attributes;
 using SocialPoint.IO;
+using SocialPoint.Hardware;
 using Zenject;
 
 public class StorageInstaller : MonoInstaller
 {
+    [Inject]
+    IDeviceInfo _deviceInfo;
+
     [Serializable]
     public class SettingsData
     {
@@ -25,7 +29,7 @@ public class StorageInstaller : MonoInstaller
         #if UNITY_IOS && !UNITY_EDITOR
         var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
         #else
-        var persistent = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, Settings.PersistentPrefix));
+        var persistent = new PersistentAttrStorage(_deviceInfo.Uid, Settings.PersistentPrefix);
         #endif
 
         var transition = new TransitionAttrStorage(vol, persistent);

@@ -1,95 +1,193 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.IO;
+using UnityEngine;
 
 namespace SocialPoint.Attributes
 {
     public class PersistentAttrStorage : IAttrStorage
     {
-        private IAttrSerializer Serializer;
-        private IAttrParser Parser;
-        private string Root = string.Empty;
+        public event Action<Exception> ExceptionThrown;
 
-        public PersistentAttrStorage()
-            : this(new JsonAttrParser(), new JsonAttrSerializer(), PathsManager.PersistentDataPath)
-        {
-        }
+        readonly string _prefix;
+        readonly string _password;
+        readonly string _storageFilePath;
+        const string _storageFileName = ".spstorageUnity";
+        const string _passwordDefault = "ea37jm4nl2l0at15";
+        AttrDic _storage;
+        RijndaelManaged _cryptoAlg;
+        IAttrSerializer _serializer;
+        IAttrParser _parser;
 
-        public PersistentAttrStorage(string root)
-            : this(new JsonAttrParser(), new JsonAttrSerializer(), root)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PersistentAttrStorage"/> class.
+        /// This storage is shared between Unity Games.
+        /// </summary>
+        /// <param name="prefix">Prefix. Used to avoid same keys between games. Usually app ID</param>
+        /// <param name="cryptoKey">Crypto key. Usually the device UID</param>
+        public PersistentAttrStorage(string cryptoKey, string prefix = "")
+            : this(new JsonAttrParser(), new JsonAttrSerializer(), cryptoKey, prefix)
         {            
         }
 
-        public PersistentAttrStorage(IAttrParser parser, IAttrSerializer serializer, string root)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PersistentAttrStorage"/> class.
+        /// This storage is shared between Unity Games.
+        /// </summary>
+        /// <param name = "parser"></param>
+        /// <param name = "serializer"></param>
+        /// <param name="prefix">Prefix. Used to avoid same keys between games. Usually app ID</param>
+        /// <param name="cryptoKey">Crypto key. Usually the device UID</param>
+        public PersistentAttrStorage(IAttrParser parser, IAttrSerializer serializer, string cryptoKey, string prefix = "")
         {
-            Parser = parser;
-            Serializer = serializer;
-            Root = root;
+            _prefix = prefix;
+            _password = (cryptoKey + _passwordDefault).Substring(0, 16);
+            _storageFilePath = PersistentPath + "/" + _storageFileName;
+
+            DebugUtils.Log(string.Format("AndroidPersistentAttrStorage {0}", _storageFilePath));
+
+            _cryptoAlg = new RijndaelManaged();
+            _cryptoAlg.Mode = CipherMode.ECB;
+            _cryptoAlg.Key = Encoding.UTF8.GetBytes(_password);
+
+            _parser = parser;
+            _serializer = serializer;
+
+            byte[] data = LoadData();
+            var dataString = Encoding.UTF8.GetString(data);
+            dataString = dataString.TrimEnd('\0');//trim de padding added by the encryptor
+            _storage = _parser.ParseString(dataString).AsDic;
+
+            ExceptionThrown += (Exception obj) => {
+                DebugUtils.Log(obj.Message);
+            };
         }
 
-        private string GetPath(string key)
+        [System.Diagnostics.Conditional("DEBUG_SPPERSISTENT")]
+        void DebugLog(string msg)
         {
-            return string.Format("{0}/{1}", Root, key);
+            DebugUtils.Log(string.Format("AndroidPersistentAttrStorage {0}", msg));
+        }
+
+        string PersistentPath
+        {
+            get
+            {
+                #if UNITY_ANDROID && !UNITY_EDITOR
+                var env = new AndroidJavaClass("android.os.Environment");
+                return env.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").Call<string>("getAbsolutePath");
+                #else
+                return PathsManager.PersistentDataPath;
+                #endif
+            }
+        }
+
+        byte[] LoadData()
+        {
+            var data = new byte[0];
+            if(!FileUtils.Exists(_storageFilePath))
+            {
+                try
+                {
+                    FileUtils.CreateFile(_storageFilePath);
+                    data = FileUtils.ReadAllBytes(_storageFilePath);
+                }
+                catch(Exception ex)
+                {
+                    DebugLog(ex.Message);
+                    if(ExceptionThrown != null)
+                    {
+                        ExceptionThrown(ex);
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
+            }
+            else
+            {
+                data = Decrypt(FileUtils.ReadAllBytes(_storageFilePath));//FileUtils.ReadAllBytes(_storagePath);//
+            }
+            return data;
+        }
+
+        void StoreData()
+        {
+            byte[] encryptedData = Encrypt(_serializer.Serialize(_storage));//Serializer.Serialize(_storage);//
+            try
+            {
+                FileUtils.WriteAllBytes(_storageFilePath, encryptedData);
+            }
+            catch(Exception ex)
+            {
+                DebugLog(ex.Message);
+                if(ExceptionThrown != null)
+                {
+                    ExceptionThrown(ex);
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        byte[] Encrypt(byte[] data)
+        {
+            using(var stream = new MemoryStream())
+            {
+                using(var cs = new CryptoStream(stream, _cryptoAlg.CreateEncryptor(), CryptoStreamMode.Write))
+                {
+                    cs.Write(data, 0, data.Length);
+                    cs.FlushFinalBlock();
+                    return stream.ToArray();
+                }
+            }
+        }
+
+        byte[] Decrypt(byte[] encryptedData)
+        {
+            byte[] finalBytes = new byte[encryptedData.Length];
+            using(var stream = new MemoryStream(encryptedData))
+            {
+                using(var cs = new CryptoStream(stream, _cryptoAlg.CreateDecryptor(), CryptoStreamMode.Read))
+                {
+                    cs.Read(finalBytes, 0, encryptedData.Length);
+                }
+            }
+            return finalBytes;
         }
 
         #region IAttrStorage implementation
 
         public Attr Load(string key)
         {
-            var path = GetPath(key);
-            if(!FileUtils.Exists(path))
-            {
-                return null;
-            }
-            var data = FileUtils.ReadAllBytes(path);
-            return Parser.Parse(data);
+            return _storage[_prefix + key];
         }
 
         public void Save(string key, Attr attr)
         {
-            var data = Serializer.Serialize(attr);
-            var path = GetPath(key);
-            var dir = Path.GetDirectoryName(path);
-            FileUtils.CreateDirectory(dir);
-            FileUtils.WriteAllBytes(path, data);
-        }
-
-        public bool Has(string key)
-        {
-            return FileUtils.Exists(GetPath(key));
+            _storage.Set(_prefix + key, attr);
+            StoreData();
         }
 
         public void Remove(string key)
         {
-            FileUtils.Delete(GetPath(key));
+            _storage.Remove(key);
+            StoreData();
         }
 
-        public string[] StoredKeys
+        public bool Has(string key)
         {
-            get
-            {
-                string[] keys = new string[0];
-                if(Directory.Exists(Root) == false)
-                {
-                    //TODO: launch exception
-                    return keys;
-                }
-                DirectoryInfo info = new DirectoryInfo(Root);
-                var files = info.GetFiles();
-                keys = new string[files.Length];
-                if(files.Length > 0)
-                {
-                    for(int i = 0; i < files.Length; i++)
-                    {
-                        keys[i] = files[i].Name;
-                    }
-                }
-                return keys;
-            }
+            return _storage.ContainsKey(key);
         }
 
         #endregion
-
     }
 }
-
