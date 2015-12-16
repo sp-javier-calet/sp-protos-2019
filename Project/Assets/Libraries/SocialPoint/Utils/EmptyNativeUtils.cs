@@ -1,6 +1,4 @@
-﻿using SocialPoint.Utils;
-
-namespace SocialPoint.Utils
+﻿namespace SocialPoint.Utils
 {
     public class EmptyNativeUtils : INativeUtils
     {

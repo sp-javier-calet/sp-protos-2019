@@ -1,45 +1,45 @@
-﻿using UnityEngine;
-using SocialPoint.Utils;
-
-public class NativeUtils
+﻿namespace SocialPoint.Utils
 {
-    static INativeUtils _nativeUtils = null;
-
-    static INativeUtils Utils
+    public class NativeUtils
     {
-        get
+        static INativeUtils _nativeUtils = null;
+
+        static INativeUtils Utils
         {
-            if(_nativeUtils == null)
+            get
             {
+                if(_nativeUtils == null)
+                {
 #if UNITY_IPHONE && !UNITY_EDITOR
-                _nativeUtils = new IosNativeUtils();
+                    _nativeUtils = new IosNativeUtils();
 #elif UNITY_ANDROID && !UNITY_EDITOR
-                _nativeUtils = new AndroidNativeUtils();
+                    _nativeUtils = new AndroidNativeUtils();
 #else
-                _nativeUtils = new EmptyNativeUtils();
+                    _nativeUtils = new EmptyNativeUtils();
 #endif
+                }
+                return _nativeUtils;
             }
-            return _nativeUtils;
         }
-    }
 
-    static public bool IsInstalled(string appId)
-    {
-        return Utils.IsInstalled(appId);
-    }
+        static public bool IsInstalled(string appId)
+        {
+            return Utils.IsInstalled(appId);
+        }
     
-    static public void OpenApp(string appId)
-    {
-        Utils.OpenApp(appId);
-    }
+        static public void OpenApp(string appId)
+        {
+            Utils.OpenApp(appId);
+        }
     
-    static public void OpenStore(string appId)
-    {
-        Utils.OpenStore(appId);
-    }
+        static public void OpenStore(string appId)
+        {
+            Utils.OpenStore(appId);
+        }
     
-    static public void OpenUrl(string url)
-    {
-        Utils.OpenUrl(url);
+        static public void OpenUrl(string url)
+        {
+            Utils.OpenUrl(url);
+        }
     }
 }

@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
-using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.Utils
 {
