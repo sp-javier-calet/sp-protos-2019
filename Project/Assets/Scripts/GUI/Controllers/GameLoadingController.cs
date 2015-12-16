@@ -85,6 +85,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [SerializeField]
     string _sceneToLoad = "Main";
 
+    public string SceneToLoad { set { _sceneToLoad = value; } }
+
     LoadingOperation _loadModelOperation;
     LoadingOperation _loadSceneOperation;
 
