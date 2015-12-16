@@ -60,8 +60,10 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [Inject]
     IGameLoader _gameLoader;
 
+    #if ADMIN_PANEL
     [Inject]
-    AdminPanel _adminPanel;
+    #endif
+    AdminPanel _adminPanel = null;
 
     [Inject]
     GameModel _model;
