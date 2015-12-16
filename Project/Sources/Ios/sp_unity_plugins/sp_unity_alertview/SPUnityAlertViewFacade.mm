@@ -151,7 +151,7 @@ EXPORT_API void SPUnityAlertViewShow(SPUnityAlertViewDataStruct data)
         {
             NSString* msg = [NSString stringWithFormat:@"%ld %@", (long)buttonIndex, inputText];
             s_spAlertView = nil;
-            UnitySendMessage(objName.UTF8String, "ResultMessage", msg.UTF8String);
+            //UnitySendMessage(objName.UTF8String, "ResultMessage", msg.UTF8String);
         }];
 
     [s_spAlertView show];
