@@ -37,11 +37,25 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         if(AdminPanel != null)
         {
             AdminPanel.RegisterConfigurers(_configurers);
+            AdminPanel.ChangedVisibility += OnAdminPanelChangedVisibility;
         }
         else
         {
             gameObject.SetActive(false);
         }
+    }
+
+    void OnDisable()
+    {
+        if(AdminPanel != null)
+        {
+            AdminPanel.ChangedVisibility -= OnAdminPanelChangedVisibility;
+        }
+    }
+
+    void OnAdminPanelChangedVisibility()
+    {
+        GetComponent<CanvasGroup>().alpha = AdminPanel.Visible ? 0.0f : 1.0f;
     }
 
     void Update()

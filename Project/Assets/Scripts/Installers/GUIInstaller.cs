@@ -9,13 +9,13 @@ using SocialPoint.ScriptEvents;
 
 public class GUIInstaller : MonoInstaller, IDisposable
 {
-	const string UIViewControllerSuffix = "Controller";
+    const string UIViewControllerSuffix = "Controller";
 
-	[Serializable]
+    [Serializable]
     public class SettingsData
-	{
+    {
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
-	}
+    }
 
     public SettingsData Settings = new SettingsData();
 
@@ -31,10 +31,16 @@ public class GUIInstaller : MonoInstaller, IDisposable
         {
             Container.Rebind<PopupsController>().ToSingleInstance(popups);
         }
-		var screens = GameObject.FindObjectOfType<ScreensController>();
-		if(screens != null)
+        var screens = GameObject.FindObjectOfType<ScreensController>();
+        if(screens != null)
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
+        }
+
+        var uiLayerController = GameObject.FindObjectOfType<UILayersController>();
+        if(uiLayerController != null)
+        {
+            UIViewController.LayersController = uiLayerController;
         }
                 
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
@@ -51,7 +57,7 @@ public class GUIInstaller : MonoInstaller, IDisposable
         var name = type.Name;
         if(name.EndsWith(UIViewControllerSuffix))
         {
-            name = name.Substring(0, name.Length-UIViewControllerSuffix.Length);
+            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
         }
         return string.Format("GUI_{0}", name);
     }
