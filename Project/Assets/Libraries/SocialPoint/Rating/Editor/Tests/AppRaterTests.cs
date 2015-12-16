@@ -17,7 +17,7 @@ namespace SocialPoint.Rating
     internal class AppRaterTests {
 
         AppRater AppRater;
-        PersistentAttrStorage storage;
+        FileAttrStorage storage;
         IAppRaterGUI AppRaterGUI;
 
         [SetUp]
@@ -31,7 +31,7 @@ namespace SocialPoint.Rating
             netWorkInfo.Connectivity.Returns(INetworkInfoStatus.ReachableViaWiFi);
             deviceInfo.NetworkInfo.Returns(netWorkInfo);
             PathsManager.Init();
-            storage = new PersistentAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "AppRaterTests"));
+            storage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "AppRaterTests"));
             var appEvents = Substitute.For<IAppEvents>();
             AppRater = new AppRater(deviceInfo, storage, appEvents);
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
