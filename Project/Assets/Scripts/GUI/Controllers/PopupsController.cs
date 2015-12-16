@@ -11,7 +11,6 @@ public class PopupsController : UIStackController
 
     protected override void OnLoad()
     {
-        Animation = new FadeAnimation(FadeSpeed);
         ChildAnimation = new FadeAnimation(FadeSpeed);
         base.OnLoad();
     }
