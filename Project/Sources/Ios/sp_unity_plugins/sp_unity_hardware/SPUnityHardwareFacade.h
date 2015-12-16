@@ -1,6 +1,8 @@
 #ifndef __SPUnityHardwareFacade__
 #define __SPUnityHardwareFacade__
 
+#include <stdint.h>
+
 // Which platform we are on?
 #if _MSC_VER
 #define UNITY_WIN 1

@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #import <AdSupport/ASIdentifierManager.h>
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
 char* SPUnityHardwareCreateString(const char* str)
