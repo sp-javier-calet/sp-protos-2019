@@ -8,12 +8,23 @@ namespace SocialPoint.Login
     public interface ILogin : IDisposable
     {
         event HttpRequestDelegate HttpRequestEvent;
+
         event NewUserDelegate NewUserEvent;
+
+        event NewUserChangeDelegate NewUserChangeEvent;
+
+        event NewUserStreamDelegate NewUserStreamEvent;
+
         event NewGenericDataDelegate NewGenericDataEvent;
+
         event NewLinkDelegate NewLinkBeforeFriendsEvent;
+
         event NewLinkDelegate NewLinkAfterFriendsEvent;
+
         event ConfirmLinkDelegate ConfirmLinkEvent;
+
         event LoginErrorDelegate ErrorEvent;
+
         event RestartDelegate RestartEvent;
 
         UInt64 UserId { get; }

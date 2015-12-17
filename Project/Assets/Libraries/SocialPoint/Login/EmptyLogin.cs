@@ -21,6 +21,18 @@ namespace SocialPoint.Login
             remove { }
         }
 
+        public event NewUserChangeDelegate NewUserChangeEvent
+        {
+            add { }
+            remove { }
+        }
+
+        public event NewUserStreamDelegate NewUserStreamEvent
+        {
+            add { }
+            remove { }
+        }
+
         public event NewGenericDataDelegate NewGenericDataEvent
         {
             add { }

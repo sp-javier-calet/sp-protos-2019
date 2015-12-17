@@ -134,10 +134,19 @@ namespace SocialPoint.Login
             public bool EnableOnLinkConfirm;
         }
 
-        private LoginConfig _loginConfig;
-        private string _baseUrl;
-        private int _availableSecurityTokenErrorRetries;
-        private int _availableConnectivityErrorRetries;
+        LoginConfig _loginConfig;
+        int _availableSecurityTokenErrorRetries;
+        int _availableConnectivityErrorRetries;
+        IHttpClient _httpClient;
+        List<LinkInfo> _links;
+        List<LinkInfo> _pendingLinkConfirms;
+        List<User> _users;
+        bool _restartLogin;
+        UInt64 _userId;
+        bool _userHasRegistered;
+        bool _userHasRegisteredLoaded;
+        string _securityToken;
+        string _baseUrl;
 
         public uint UserMappingsBlock { private get; set; }
 
@@ -276,7 +285,6 @@ namespace SocialPoint.Login
             }
         }
 
-        
         public LoginConfig Config
         {
             get
@@ -302,30 +310,24 @@ namespace SocialPoint.Login
             }
         }
 
-        IHttpClient _httpClient;
-        List<LinkInfo> _links;
-        List<LinkInfo> _pendingLinkConfirms;
-        List<User> _users;
-        bool _restartLogin;
-        UInt64 _userId;
-        bool _userHasRegistered;
-        bool _userHasRegisteredLoaded;
-        string _securityToken;
-
-        public event HttpRequestDelegate HttpRequestEvent = delegate{};
-        public event NewUserDelegate NewUserEvent = delegate{};
-        public event NewGenericDataDelegate NewGenericDataEvent = delegate{};
-        public event NewLinkDelegate NewLinkBeforeFriendsEvent = delegate{};
-        public event NewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
-        public event ConfirmLinkDelegate ConfirmLinkEvent = delegate{};
-        public event LoginErrorDelegate ErrorEvent = delegate {};
-        public event RestartDelegate RestartEvent = delegate {};
+        public event HttpRequestDelegate HttpRequestEvent = null;
+        public event NewUserDelegate NewUserEvent = null;
+        public event NewUserChangeDelegate NewUserChangeEvent = null;
+        public event NewGenericDataDelegate NewGenericDataEvent = null;
+        public event NewUserStreamDelegate NewUserStreamEvent = null;
+        public event NewLinkDelegate NewLinkBeforeFriendsEvent = null;
+        public event NewLinkDelegate NewLinkAfterFriendsEvent = null;
+        public event ConfirmLinkDelegate ConfirmLinkEvent = null;
+        public event LoginErrorDelegate ErrorEvent = null;
+        public event RestartDelegate RestartEvent = null;
 
         public SocialPointLogin(IHttpClient client, LoginConfig config)
         {
             Init();
             _httpClient = client;
             Config = config;
+            _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
+            _availableConnectivityErrorRetries = config.ConnectivityErrors;           
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
@@ -602,18 +604,30 @@ namespace SocialPoint.Login
             }
         }
 
-        void LoadGenericData(AttrDic json)
+        void LoadGenericData(IStreamReader reader)
         {
-            if(json != null && json.ContainsKey(AttrKeyGenericData))
+            if(Data == null)
             {
-                if(Data == null)
-                {
-                    Data = new GenericData();
-                }
-                Data.Load(json.Get(AttrKeyGenericData));
-                // update server time
-                TimeUtils.Offset = Data.DeltaTime;
+                Data = new GenericData();
             }
+            Data.Load(reader);
+            // update server time
+            TimeUtils.Offset = Data.DeltaTime;
+        }
+
+        void LoadGenericData(Attr genericData)
+        {
+            if(NewGenericDataEvent != null)
+            {
+                NewGenericDataEvent(genericData);
+            }
+            if(Data == null)
+            {
+                Data = new GenericData();
+            }
+            Data.Load(genericData);
+            // update server time
+            TimeUtils.Offset = Data.DeltaTime;
         }
 
         void OnLoginEnd(Error err, ErrorDelegate cbk)
@@ -628,6 +642,7 @@ namespace SocialPoint.Login
             {
                 _availableConnectivityErrorRetries = Math.Max(_loginConfig.ConnectivityErrors, 0);
                 _availableSecurityTokenErrorRetries = Math.Max(_loginConfig.SecurityTokenErrors, 0);
+
             }
 
             if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
@@ -919,63 +934,122 @@ namespace SocialPoint.Login
             return new LocalUser(user.Id, sessionId, user.Links);
         }
 
+        Error ReadNewLocalUser(byte[] data, out ErrorType errType)
+        {
+            errType = ErrorType.UserParse;
+            var reader = new JsonStreamReader(data);            
+            if(!reader.Read() || reader.Token != StreamToken.ObjectStart)
+            {
+                return new Error("Empty login response");
+            }
+
+            Error err = null;
+            bool userIdChanged = false;
+            Attr gameData = null;
+            while(reader.Read() && reader.Token != StreamToken.ObjectEnd && Error.IsNullOrEmpty(err))
+            {
+                if(reader.Token != StreamToken.PropertyName)
+                {
+                    errType = ErrorType.UserParse;
+                    return new Error("Trying to parse object without property name.");
+                }
+                var key = (string)reader.Value;
+                reader.Read();
+                switch(key)
+                {
+                case AttrKeyLoginData:
+                {
+                    _user = LoadLocalUser(reader.ParseElement());
+                    if(_user == null)
+                    {
+                        errType = ErrorType.UserParse;
+                        err = new Error("Could not load the user.");
+                    }
+                    else
+                    {
+                        userIdChanged = UserId != _user.Id;
+                        UserId = _user.Id;
+                    }
+                    break;
+                }
+                case AttrKeyGameData:
+                {
+                    if(NewUserStreamEvent != null)
+                    {
+                        if(!NewUserStreamEvent(reader))
+                        {
+                            errType = ErrorType.GameDataParse;
+                            err = new Error("Could not load Game Data");
+                        }
+                    }
+                    else if(NewUserEvent != null)
+                    {
+                        gameData = reader.ParseElement();
+                    }
+                    else
+                    {
+                        reader.SkipElement();
+                    }
+                    break;
+                }
+                case AttrKeyGenericData:
+                {
+                    LoadGenericData(reader.ParseElement());
+                    if(Data != null && Data.Upgrade != null && Data.Upgrade.Type != UpgradeType.None)
+                    {
+                        // Check for upgrade
+                        err = new Error(Data.Upgrade.Message);
+                        errType = ErrorType.Upgrade;
+                    }
+                    break;
+                }
+                default:
+                    reader.SkipElement();
+                    break;
+                }
+            }
+            if(NewUserEvent != null)
+            {
+                NewUserEvent(gameData, userIdChanged);
+            }
+            if(NewUserChangeEvent != null)
+            {
+                NewUserChangeEvent(userIdChanged);
+            }
+
+            return err;
+        }
+
         Error OnNewLocalUser(HttpResponse resp)
         {
-            AttrDic json = null;
             Error err = null;
             ErrorType errType = ErrorType.UserParse;
             _user = null;
             try
             {
-                var parser = new JsonAttrParser();
-                json = parser.Parse(resp.Body).AsDic;
+                err = ReadNewLocalUser(resp.Body, out errType);
             }
             catch(Exception e)
             {
                 err = new Error(e.ToString());
             }
-            if(Error.IsNullOrEmpty(err) && json != null)
-            {
-                LoadGenericData(json);
-                var userData = json.Get(AttrKeyLoginData);
-                _user = LoadLocalUser(userData);
-                if(Data != null && Data.Upgrade != null && Data.Upgrade.Type != UpgradeType.None)
-                {
-                    // Check for upgrade
-                    err = new Error(Data.Upgrade.Message);
-                    errType = ErrorType.Upgrade;
-                }
-                if(NewGenericDataEvent != null && json.ContainsKey(AttrKeyGenericData))
-                {
-                    NewGenericDataEvent(json.Get(AttrKeyGenericData));
-                }
-            }
-            if(Error.IsNullOrEmpty(err) && _user == null)
-            {
-                err = new Error("Could not load the user.");
-            }
             if(Error.IsNullOrEmpty(err))
             {
-                var changed = UserId != _user.Id;
-                if(changed)
-                {
-                    UserId = _user.Id;
-                }
                 UserHasRegistered = true;
                 foreach(var linkInfo in _links)
                 {
                     linkInfo.Link.OnNewLocalUser(_user);
                 }
-                var gameData = json.Get(AttrKeyGameData);
-                if(NewUserEvent != null)
-                {
-                    NewUserEvent(gameData, changed);
-                }
             }
             else
             {
                 var errData = new AttrDic();
-                errData.Set(AttrKeyData, json);
+                // If the error is a parse error, we don't want to deserialize all the gameData.
+                if(errType != ErrorType.GameDataParse)
+                {
+                    var attrParser = new JsonAttrParser();
+                    errData.Set(AttrKeyData, attrParser.Parse(resp.Body));
+                }
                 NotifyError(errType, err, errData);
             }
             return err;
@@ -1068,14 +1142,17 @@ namespace SocialPoint.Login
             if(restartNeeded)
             {
                 info.Pending = true;
-                restart();
+                Restart();
             }
 
         }
 
-        void restart()
+        void Restart()
         {
-            RestartEvent();
+            if(RestartEvent != null)
+            {
+                RestartEvent();
+            }
 
             if(_restartLogin)
             {
@@ -1088,11 +1165,17 @@ namespace SocialPoint.Login
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(beforeFriends)
             {
-                NewLinkBeforeFriendsEvent(info.Link);
+                if(NewLinkBeforeFriendsEvent != null)
+                {
+                    NewLinkBeforeFriendsEvent(info.Link);
+                }
             }
             else
             {
-                NewLinkAfterFriendsEvent(info.Link);
+                if(NewLinkAfterFriendsEvent != null)
+                {
+                    NewLinkAfterFriendsEvent(info.Link);
+                }
             }
         }
 

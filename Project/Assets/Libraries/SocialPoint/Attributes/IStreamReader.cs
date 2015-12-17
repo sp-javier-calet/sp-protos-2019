@@ -33,21 +33,21 @@ namespace SocialPoint.Attributes
 
     public static class StreamReaderExtensions
     {       
-        public static void SkipToken(this IStreamReader reader)
+        public static void SkipElement(this IStreamReader reader)
         {
-            int pendingToCloseObjects = 0;
+            int count = 0;
             do
             {
                 var t = reader.Token;
                 if (t == StreamToken.ArrayStart || t == StreamToken.ObjectStart)
                 {
-                    pendingToCloseObjects++;
+                    count++;
                 }
                 else if (t == StreamToken.ArrayEnd || t == StreamToken.ObjectEnd)
                 {
-                    pendingToCloseObjects--;
+                    count--;
                 }
-                if (pendingToCloseObjects <= 0)
+                if (count <= 0)
                 {
                     break;
                 }
@@ -59,7 +59,7 @@ namespace SocialPoint.Attributes
         {
             while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
             {
-                reader.SkipToken();
+                reader.SkipElement();
             }
         }
 
@@ -191,7 +191,7 @@ namespace SocialPoint.Attributes
                 }
                 var key = (string)reader.Value;
                 reader.Read();
-                attr.Set(key, Parse(reader));
+                attr.Set(key, ParseElement(reader));
             }
             return attr;
         }
@@ -205,7 +205,7 @@ namespace SocialPoint.Attributes
                 {
                     break;
                 }
-                attr.Add(Parse(reader));
+                attr.Add(ParseElement(reader));
             }
             return attr;
         }
@@ -242,7 +242,7 @@ namespace SocialPoint.Attributes
             }
         }
         
-        public static Attr Parse(this IStreamReader reader)
+        public static Attr ParseElement(this IStreamReader reader)
         {
             if(reader.Token == StreamToken.ObjectStart)
             {
