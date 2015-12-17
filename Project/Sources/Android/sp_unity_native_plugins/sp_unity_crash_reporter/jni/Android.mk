@@ -21,5 +21,6 @@ $(call import-add-path,$(BASE_PATH)/../)
 
 ifeq ($(TARGET_ARCH),x86)
 else
+$(call import-add-path,$(BASE_PATH)/lib)
 $(call import-module,google-breakpad/android/google_breakpad)
 endif
