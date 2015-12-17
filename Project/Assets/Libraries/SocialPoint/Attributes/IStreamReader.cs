@@ -252,6 +252,10 @@ namespace SocialPoint.Attributes
             {
                 return ParseArray(reader);
             }
+            else if(reader.Token == StreamToken.None)
+            {
+                return null;
+            }
             else
             {
                 return ParseValue(reader);

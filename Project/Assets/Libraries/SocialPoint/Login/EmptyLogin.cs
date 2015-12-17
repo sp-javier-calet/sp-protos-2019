@@ -24,11 +24,7 @@ namespace SocialPoint.Login
             remove { }
         }
 
-        public event NewUserStreamDelegate NewUserStreamEvent
-        {
-            add { }
-            remove { }
-        }
+        public event NewUserStreamDelegate NewUserStreamEvent;
 
         public event NewGenericDataDelegate NewGenericDataEvent
         {
@@ -104,7 +100,11 @@ namespace SocialPoint.Login
 
         public void Login(ErrorDelegate cbk = null)
         {
-            if(NewUserEvent != null)
+            if(NewUserStreamEvent != null)
+            {
+                NewUserStreamEvent(new EmptyStreamReader());
+            }
+            else if(NewUserEvent != null)
             {
                 NewUserEvent(null, false);
             }
