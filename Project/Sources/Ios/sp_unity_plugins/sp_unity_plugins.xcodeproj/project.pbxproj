@@ -43,6 +43,7 @@
 		FEE5C1B41C2163D30020C4DB /* CrashReporter.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = FE4490181C1EF40700A10FEA /* CrashReporter.framework */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		FEE5C1C31C21B3380020C4DB /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FEE937451C231E2D005AAB65 /* SPUnityPlugins.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,10 +60,11 @@
 		FEE5C1B31C2163C40020C4DB /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
+			dstPath = "$(PROJECT_DIR)/../../../Assets/Plugins/Ios";
+			dstSubfolderSpec = 0;
 			files = (
 				FEE5C1B41C2163D30020C4DB /* CrashReporter.framework in CopyFiles */,
+				FEE937451C231E2D005AAB65 /* SPUnityPlugins.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
