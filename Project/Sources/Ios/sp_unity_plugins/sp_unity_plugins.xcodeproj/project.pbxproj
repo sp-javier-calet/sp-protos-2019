@@ -41,6 +41,8 @@
 		FEE21F3B1C2011BB00ECC3E2 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEE21F3A1C2011BB00ECC3E2 /* AdSupport.framework */; };
 		FEE21F3D1C2011E200ECC3E2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEE21F3C1C2011E200ECC3E2 /* SystemConfiguration.framework */; };
 		FEE5C1B41C2163D30020C4DB /* CrashReporter.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = FE4490181C1EF40700A10FEA /* CrashReporter.framework */; };
+		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
+		FEE5C1C31C21B3380020C4DB /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -185,6 +187,8 @@
 		FEE21F3C1C2011E200ECC3E2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		FEE21F661C20198100ECC3E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FEE21F681C201AAA00ECC3E2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
+		FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnityGameObject.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -427,6 +431,8 @@
 			children = (
 				FE4490461C1F205800A10FEA /* SPUnityPlugins.h */,
 				FE4490481C1F205800A10FEA /* Info.plist */,
+				FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */,
+				FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */,
 			);
 			path = SPUnityPlugins;
 			sourceTree = "<group>";
@@ -449,6 +455,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FEE5C1C31C21B3380020C4DB /* UnityGameObject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,6 +533,7 @@
 				FE4490A41C1F339100A10FEA /* SSLCertificate.cpp in Sources */,
 				FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */,
 				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
+				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
 				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
@@ -746,6 +754,7 @@
 				FEE5C1B21C2163BA0020C4DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

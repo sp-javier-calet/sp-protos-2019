@@ -3,6 +3,7 @@
 #import <UIKit/UIKit.h>
 #import <AdSupport/AdSupport.h>
 #include <queue>
+#import <SPUnityPlugins/UnityGameObject.h>
 
 @implementation SPUnityAppControllerSubClass
 {
@@ -30,6 +31,16 @@ std::queue<std::string> _pendingEvents;
 {
     extern const char* AppControllerClassName;
     AppControllerClassName = "SPUnityAppControllerSubClass";
+
+    /** 
+     * Initialize library components
+     */
+    UnityGameObject::setSendMessageDelegate(
+                                       [](const std::string& name,
+                                          const std::string& method,
+                                          const std::string& message ){
+        UnitySendMessage(name.c_str(), method.c_str(), message.c_str());
+    });
 }
 
 - (void) notifyStatus:( std::string ) status
