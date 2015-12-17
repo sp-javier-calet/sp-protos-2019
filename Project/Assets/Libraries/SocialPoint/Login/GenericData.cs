@@ -29,7 +29,7 @@ namespace SocialPoint.Login
         public UpgradeData(UpgradeType type, IStreamReader reader)
         {
             Type = type;
-            if (reader.Token != StreamToken.ObjectStart)
+            if(reader.Token != StreamToken.ObjectStart)
             {
                 reader.SkipElement();
             }
@@ -37,15 +37,15 @@ namespace SocialPoint.Login
             {
                 while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
                 {
-                    var key = (string)reader.Value;
+                    var key = reader.GetStringValue();
                     reader.Read();
                     switch(key)
                     {
                     case AttrKeyUpgradeMessage:
-                        Message = (string)reader.Value;
+                        Message = reader.GetStringValue();
                         break;
                     case AttrKeyUpgradeVersion:
-                        Version = (string)reader.Value;
+                        Version = reader.GetStringValue();
                         break;
                     }
                 }
@@ -71,7 +71,7 @@ namespace SocialPoint.Login
 
         public MaintenanceData(IStreamReader reader)
         {
-            if (reader.Token != StreamToken.ObjectStart)
+            if(reader.Token != StreamToken.ObjectStart)
             {
                 reader.SkipElement();
             }
@@ -79,15 +79,18 @@ namespace SocialPoint.Login
             {
                 while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
                 {
-                    var key = (string)reader.Value;
+                    var key = reader.GetStringValue();
                     reader.Read();
                     switch(key)
                     {
                     case AttrKeyMaintenanceMessage:
-                        Message = (string)reader.Value;
+                        Message = reader.GetStringValue();
                         break;
                     case AttrKeyMaintenanceTitle:
-                        Title = (string)reader.Value;
+                        Title = reader.GetStringValue();
+                        break;
+                    case AttrKeyMaintenanceButton:
+                        Button = reader.GetStringValue();
                         break;
                     }
                 }
@@ -119,7 +122,6 @@ namespace SocialPoint.Login
         public UpgradeData Upgrade;
         public int UserImportance;
         public MaintenanceData Maintenance;
-
         private const string AttrKeyTimestamp = "ts";
         private const string AttrKeyStoreUrl = "store";
         private const string AttrKeyUpgradeSuggested = "suggested_upgrade";
@@ -129,7 +131,7 @@ namespace SocialPoint.Login
         
         public void Load(IStreamReader reader)
         {
-            if (reader.Token != StreamToken.ObjectStart)
+            if(reader.Token != StreamToken.ObjectStart)
             {
                 reader.SkipElement();
             }
@@ -142,11 +144,11 @@ namespace SocialPoint.Login
                     switch(key)
                     {
                     case AttrKeyTimestamp:
-                        var serverTime = TimeUtils.GetDateTime(long.Parse(reader.Value.ToString()));
+                        var serverTime = TimeUtils.GetDateTime(reader.GetLongValue());
                         DeltaTime = serverTime - DateTime.UtcNow;
                         break;
                     case AttrKeyStoreUrl:
-                        StoreUrl = (string)reader.Value;
+                        StoreUrl = reader.GetStringValue();
                         break;
                     case AttrKeyUpgradeForced:
                         Upgrade = new UpgradeData(UpgradeType.Forced, reader);
@@ -162,7 +164,7 @@ namespace SocialPoint.Login
                         break;
                     }
                 }
-                if (Upgrade == null)
+                if(Upgrade == null)
                     Upgrade = new UpgradeData(UpgradeType.None);
             }
         }

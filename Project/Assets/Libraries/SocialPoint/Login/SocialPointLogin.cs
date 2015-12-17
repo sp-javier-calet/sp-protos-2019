@@ -403,7 +403,7 @@ namespace SocialPoint.Login
             {
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
-                LoadGenericData(json);
+                LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == InvalidSecurityTokenError)
             {
@@ -490,7 +490,7 @@ namespace SocialPoint.Login
             {
                 err = new Error("Game is under maintenance.");
                 typ = ErrorType.MaintenanceMode;
-                LoadGenericData(json);
+                LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == InvalidSessionError)
             {
@@ -604,28 +604,37 @@ namespace SocialPoint.Login
             }
         }
 
+        void LoadGenericData(Attr genericData)
+        {
+            if(Data == null)
+            {
+                Data = new GenericData();
+            }
+            if(NewGenericDataEvent != null)
+            {
+                NewGenericDataEvent(genericData);
+            }
+            Data.Load(genericData);
+            OnGenericDataLoaded();
+        }
+
         void LoadGenericData(IStreamReader reader)
         {
+            if(NewGenericDataEvent != null)
+            {
+                LoadGenericData(reader.ParseElement());
+                return;
+            }
             if(Data == null)
             {
                 Data = new GenericData();
             }
             Data.Load(reader);
-            // update server time
-            TimeUtils.Offset = Data.DeltaTime;
+            OnGenericDataLoaded();
         }
 
-        void LoadGenericData(Attr genericData)
+        void OnGenericDataLoaded()
         {
-            if(NewGenericDataEvent != null)
-            {
-                NewGenericDataEvent(genericData);
-            }
-            if(Data == null)
-            {
-                Data = new GenericData();
-            }
-            Data.Load(genericData);
             // update server time
             TimeUtils.Offset = Data.DeltaTime;
         }
@@ -950,10 +959,9 @@ namespace SocialPoint.Login
             {
                 if(reader.Token != StreamToken.PropertyName)
                 {
-                    errType = ErrorType.UserParse;
-                    return new Error("Trying to parse object without property name.");
+                    err = new Error("Trying to parse object without property name.");
                 }
-                var key = (string)reader.Value;
+                var key = reader.GetStringValue();
                 reader.Read();
                 switch(key)
                 {
@@ -962,7 +970,6 @@ namespace SocialPoint.Login
                     _user = LoadLocalUser(reader.ParseElement());
                     if(_user == null)
                     {
-                        errType = ErrorType.UserParse;
                         err = new Error("Could not load the user.");
                     }
                     else
@@ -994,7 +1001,7 @@ namespace SocialPoint.Login
                 }
                 case AttrKeyGenericData:
                 {
-                    LoadGenericData(reader.ParseElement());
+                    LoadGenericData(reader);
                     if(Data != null && Data.Upgrade != null && Data.Upgrade.Type != UpgradeType.None)
                     {
                         // Check for upgrade
