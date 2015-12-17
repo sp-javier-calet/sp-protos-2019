@@ -5,6 +5,8 @@ using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Crash;
+using SocialPoint.AdminPanel;
+using SocialPoint.AppEvents;
 using System.Text;
 
 public class EmptyBackendInstaller : MonoInstaller
@@ -21,8 +23,9 @@ public class EmptyBackendInstaller : MonoInstaller
         }
         if(!Container.HasBinding<ILogin>())
         {
-            Container.Bind<ILogin>().ToSingleMethod<EmptyLogin>(CreateEmptyLogin);
+            Container.Bind<ILogin>().ToSingle<EmptyLogin>();
             Container.Bind<IDisposable>().ToLookup<ILogin>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelLogin>(LoginInstaller.CreateAdminPanel);
         }
         if(!Container.HasBinding<ICommandQueue>())
         {
@@ -40,9 +43,4 @@ public class EmptyBackendInstaller : MonoInstaller
         }
     }
 
-
-    EmptyLogin CreateEmptyLogin(InjectContext ctx)
-    {
-        return new EmptyLogin();
-    }
 }

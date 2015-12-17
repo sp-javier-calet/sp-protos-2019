@@ -7,7 +7,6 @@ namespace SocialPoint.Login
 {
     public interface ILogin : IDisposable
     {
-        event HttpRequestDelegate HttpRequestEvent;
         event NewUserDelegate NewUserEvent;
         event NewGenericDataDelegate NewGenericDataEvent;
         event NewLinkDelegate NewLinkBeforeFriendsEvent;
@@ -15,6 +14,10 @@ namespace SocialPoint.Login
         event ConfirmLinkDelegate ConfirmLinkEvent;
         event LoginErrorDelegate ErrorEvent;
         event RestartDelegate RestartEvent;
+
+        LocalUser User { get; }
+
+        List<User> Friends { get; }
 
         UInt64 UserId { get; }
 
@@ -24,10 +27,13 @@ namespace SocialPoint.Login
 
         GenericData Data { get; }
 
-        void SetupHttpRequest(HttpRequest req, string uri);
-
 		void Login(ErrorDelegate cbk = null);
 
         void ClearStoredUser();
+
+        string BaseUrl { get; set; }
+        
+        void SetupHttpRequest(HttpRequest req, string uri);
     }
+
 }

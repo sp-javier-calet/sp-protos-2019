@@ -23,6 +23,13 @@ public class RealBackendInstaller : MonoInstaller
     
     public override void InstallBindings()
     {
+        var baseUrl = Settings.Login.Environment.GetUrl();
+        if(string.IsNullOrEmpty(baseUrl))
+        {
+            var installer = gameObject.AddComponent<EmptyBackendInstaller>();
+            Container.Install(installer);
+            return;
+        }
         {
             var installer = new ServerSyncInstaller();
             installer.Settings = Settings.Sync;

@@ -21,7 +21,6 @@ namespace SocialPoint.Login
         private const string LinkConfirmUri = "user/link/confirm";
         private const string UserMappingUri = "user/link/mapping";
         private const string AppRequestsUri = "requests";
-        private const char UriSeparator = '/';
 
         private const string SecurityTokenStorageKey = "SocialPointLoginClientToken";
         private const string UserIdStorageKey = "SocialPointLoginUserId";
@@ -98,7 +97,38 @@ namespace SocialPoint.Login
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
         public const uint DefaultUserMappingsBlock = 50;
 
-        private LocalUser _user;
+        
+        public struct LoginConfig
+        {
+            public string BaseUrl;
+            public int SecurityTokenErrors;
+            public int ConnectivityErrors;
+            public bool EnableOnLinkConfirm;
+        }
+
+        LocalUser _user;
+        LoginConfig _loginConfig;
+        string _baseUrl;
+        int _availableSecurityTokenErrorRetries;
+        int _availableConnectivityErrorRetries;        
+        IHttpClient _httpClient;
+        List<LinkInfo> _links;
+        List<LinkInfo> _pendingLinkConfirms;
+        List<User> _users;
+        bool _restartLogin;
+        UInt64 _userId;
+        bool _userHasRegistered;
+        bool _userHasRegisteredLoaded;
+        string _securityToken;
+        
+        public event HttpRequestDelegate HttpRequestEvent = delegate{};
+        public event NewUserDelegate NewUserEvent = delegate{};
+        public event NewGenericDataDelegate NewGenericDataEvent = delegate{};
+        public event NewLinkDelegate NewLinkBeforeFriendsEvent = delegate{};
+        public event NewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
+        public event ConfirmLinkDelegate ConfirmLinkEvent = delegate{};
+        public event LoginErrorDelegate ErrorEvent = delegate {};
+        public event RestartDelegate RestartEvent = delegate {};
 
         public LocalUser User
         {
@@ -124,20 +154,7 @@ namespace SocialPoint.Login
 
         public bool AutoUpdateFriends { private get; set; }
 
-        public uint AutoUpdateFriendsPhotosSize { private get; set; }
-
-        public struct LoginConfig
-        {
-            public string BaseUrl;
-            public int SecurityTokenErrors;
-            public int ConnectivityErrors;
-            public bool EnableOnLinkConfirm;
-        }
-
-        private LoginConfig _loginConfig;
-        private string _baseUrl;
-        private int _availableSecurityTokenErrorRetries;
-        private int _availableConnectivityErrorRetries;
+        public uint AutoUpdateFriendsPhotosSize { private get; set; }      
 
         public uint UserMappingsBlock { private get; set; }
 
@@ -277,55 +294,28 @@ namespace SocialPoint.Login
         }
 
         
-        public LoginConfig Config
+        public string BaseUrl
         {
             get
             {
-                return _loginConfig;
+                return _baseUrl;
             }
 
             set
             {
-                _loginConfig = value;
-                _availableSecurityTokenErrorRetries = value.SecurityTokenErrors;
-                _availableConnectivityErrorRetries = value.ConnectivityErrors;
-                _baseUrl = value.BaseUrl;
-                if(_baseUrl == null)
-                {
-                    _baseUrl = string.Empty;
-                }
-                // Ensure the URL always contains a trailing slash
-                if(!_baseUrl.EndsWith(UriSeparator.ToString()))
-                {
-                    _baseUrl += UriSeparator;
-                }
+
+                _baseUrl = StringUtils.FixBaseUri(value);
             }
         }
-
-        IHttpClient _httpClient;
-        List<LinkInfo> _links;
-        List<LinkInfo> _pendingLinkConfirms;
-        List<User> _users;
-        bool _restartLogin;
-        UInt64 _userId;
-        bool _userHasRegistered;
-        bool _userHasRegisteredLoaded;
-        string _securityToken;
-
-        public event HttpRequestDelegate HttpRequestEvent = delegate{};
-        public event NewUserDelegate NewUserEvent = delegate{};
-        public event NewGenericDataDelegate NewGenericDataEvent = delegate{};
-        public event NewLinkDelegate NewLinkBeforeFriendsEvent = delegate{};
-        public event NewLinkDelegate NewLinkAfterFriendsEvent = delegate{};
-        public event ConfirmLinkDelegate ConfirmLinkEvent = delegate{};
-        public event LoginErrorDelegate ErrorEvent = delegate {};
-        public event RestartDelegate RestartEvent = delegate {};
 
         public SocialPointLogin(IHttpClient client, LoginConfig config)
         {
             Init();
+            BaseUrl = config.BaseUrl;
             _httpClient = client;
-            Config = config;
+            _loginConfig = config;
+            _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
+            _availableConnectivityErrorRetries = config.ConnectivityErrors;
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
@@ -525,7 +515,7 @@ namespace SocialPoint.Login
 
         public string GetUrl(string uri)
         {
-            var url = _baseUrl + BaseUri + UriSeparator + uri.TrimStart(UriSeparator);
+            var url = StringUtils.CombineUri(_baseUrl + BaseUri, uri);
             string deviceId = "0";
             if(DeviceInfo != null)
             {

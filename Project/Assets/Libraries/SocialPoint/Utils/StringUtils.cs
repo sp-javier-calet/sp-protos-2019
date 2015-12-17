@@ -139,6 +139,27 @@ namespace SocialPoint.Utils
             return string.Join(sep, strs.ToArray());
         }
 
+        private const char UriSeparator = '/';
+
+        public static string FixBaseUri(string uri)
+        {
+            if(uri == null)
+            {
+                return string.Empty;
+            }
+            // Ensure the URL always contains a trailing slash
+            if(!uri.EndsWith(UriSeparator.ToString()))
+            {
+                uri += UriSeparator;
+            }
+            return uri;
+        }
+
+        public static string CombineUri(string baseUri, string relUri)
+        {
+            return FixBaseUri(baseUri) + UriSeparator + relUri.TrimStart(UriSeparator);
+        }
+
         public static  bool GlobMatch(string pattern, string value)
         {
             bool deep = pattern.Contains(WildcardDeep);

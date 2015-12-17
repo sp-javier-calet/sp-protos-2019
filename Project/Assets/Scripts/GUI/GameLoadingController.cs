@@ -79,7 +79,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [Inject]
     IEventTracker _eventTracker;
 
-    [Inject]
+    [InjectOptional]
     QualityStats _qualityStats;
 
     #endregion
