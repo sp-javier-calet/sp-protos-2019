@@ -49,7 +49,7 @@ namespace SocialPoint.Attributes
             _password = (cryptoKey + _passwordDefault).Substring(0, 16);
             _storageFilePath = PersistentPath + "/" + _storageFileName;
 
-            DebugUtils.Log(string.Format("AndroidPersistentAttrStorage {0}", _storageFilePath));
+            DebugLog(string.Format("AndroidPersistentAttrStorage {0}", _storageFilePath));
 
             _cryptoAlg = new RijndaelManaged();
             _cryptoAlg.Mode = CipherMode.ECB;

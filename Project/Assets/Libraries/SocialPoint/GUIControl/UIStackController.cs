@@ -26,8 +26,8 @@ namespace SocialPoint.GUIControl
             Pop,
             PopUntilType,
             PopUntilPos,
-            PopUntilCheck}
-        ;
+            PopUntilCheck
+        }
 
         protected enum PopActionType
         {
