@@ -26,8 +26,7 @@ namespace SocialPoint.GUIControl
             Pop,
             PopUntilType,
             PopUntilPos,
-            PopUntilCheck
-        }
+            PopUntilCheck}
         ;
 
         protected enum PopActionType
@@ -142,7 +141,7 @@ namespace SocialPoint.GUIControl
             }
             if(BackContainer != null && from != null)
             {
-				from.SetParent(BackContainer.transform);
+                from.SetParent(BackContainer.transform);
             }
             if(act == ActionType.Push)
             {
@@ -174,14 +173,16 @@ namespace SocialPoint.GUIControl
                 // no need to transition to itself
                 yield break;
             }
+
+            SetupTransition(from, to, act);
+
             DebugLog(string.Format("StartTransition {0} {1} -> {2}", SimultaneousAnimations ? "sim" : "con",
-                                   from == null ? string.Empty : from.gameObject.name,
-                                   to == null ? string.Empty : to.gameObject.name));
+                from == null ? string.Empty : from.gameObject.name,
+                to == null ? string.Empty : to.gameObject.name));
 
             // wait one frame to prevent overlapping transitions
             yield return null;
 
-            SetupTransition(from, to, act);
             if(SimultaneousAnimations)
             {
                 if(from != null && to != null && from.State == ViewState.Shown)
@@ -262,7 +263,7 @@ namespace SocialPoint.GUIControl
         {
             Debug.Log(string.Format("UIStackController | {0}", msg));
         }
-                
+
         public void SetCheckPoint(string name)
         {
             _checkpoints[name] = _stack.Count;
@@ -285,7 +286,7 @@ namespace SocialPoint.GUIControl
                 Background.SetActive(true);
             }
         }
-        
+
         override protected void OnDisappeared()
         {
             if(Background != null)
@@ -294,7 +295,7 @@ namespace SocialPoint.GUIControl
             }
             base.OnDisappeared();
         }
-        
+
         override protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
             if(_action == ActionType.None && state == ViewState.Disappearing && ctrl == Top)
@@ -303,7 +304,7 @@ namespace SocialPoint.GUIControl
             }
             else if(state == ViewState.Destroying)
             {
-                for(int i=_stack.Count - 1; i > -1; i--)
+                for(int i = _stack.Count - 1; i > -1; i--)
                 {
                     if(_stack[i] == ctrl)
                     {
@@ -373,7 +374,7 @@ namespace SocialPoint.GUIControl
             }
             return PushImmediate(ctrl);
         }
-        
+
         public C PushImmediate<C>() where C : UIViewController
         {
             return PushImmediate(typeof(C)) as C; 
@@ -383,7 +384,7 @@ namespace SocialPoint.GUIControl
         {
             return PushImmediate(CreateChild(c));
         }
-        
+
         public UIViewController PushImmediate(UIViewController ctrl)
         {
             DebugLog(string.Format("PushImmediate {0}", ctrl.gameObject.name));
@@ -417,12 +418,12 @@ namespace SocialPoint.GUIControl
         {
             return PushBehind(typeof(C)) as C; 
         }
-        
+
         public UIViewController PushBehind(Type c)
         {
             return PushBehind(CreateChild(c));
         }
-        
+
         public UIViewController PushBehind(UIViewController ctrl)
         {
             if(_stack.Count == 0)
@@ -453,17 +454,17 @@ namespace SocialPoint.GUIControl
             }
             return Replace(ctrl, act);
         }
-        
+
         public C Replace<C>(ActionType act = ActionType.Replace) where C : UIViewController
         {
             return Replace(typeof(C), act) as C; 
         }
-        
+
         public UIViewController Replace(Type c, ActionType act = ActionType.Replace)
         {
             return Replace(CreateChild(c), act);
         }
-        
+
         public UIViewController Replace(UIViewController ctrl, ActionType act = ActionType.Replace)
         {
             StartActionCoroutine(DoReplaceCoroutine(ctrl, act), act);
@@ -474,7 +475,7 @@ namespace SocialPoint.GUIControl
         {
             yield return StartActionCoroutine(DoReplaceCoroutine(ctrl, act), act);
         }
-        
+
         IEnumerator DoReplaceCoroutine(UIViewController ctrl, ActionType act)
         {
             DebugLog(string.Format("Replace {0}", ctrl.gameObject.name));
@@ -499,17 +500,17 @@ namespace SocialPoint.GUIControl
             }
             return ReplaceImmediate(ctrl);
         }
-        
+
         public C ReplaceImmediate<C>() where C : UIViewController
         {
             return ReplaceImmediate(typeof(C)) as C; 
         }
-        
+
         public UIViewController ReplaceImmediate(Type c)
         {
             return ReplaceImmediate(CreateChild(c));
         }
-        
+
         public UIViewController ReplaceImmediate(UIViewController ctrl)
         {
             DebugLog(string.Format("ReplaceImmediate {0}", ctrl.gameObject.name));
@@ -590,12 +591,12 @@ namespace SocialPoint.GUIControl
         }
 
         private delegate bool PopCondition(UIViewController ctrl);
-        
-        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act, bool checkTop=false)
+
+        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act, bool checkTop = false)
         {
             UIViewController top = null;
             UIViewController ctrl = null;
-            for(var i=_stack.Count-1; i>=0; i--)
+            for(var i = _stack.Count - 1; i >= 0; i--)
             {
                 var elm = _stack[i];
                 if(top == null)
@@ -628,7 +629,7 @@ namespace SocialPoint.GUIControl
         {
             PopUntil(typeof(C));
         }
-        
+
         public IEnumerator PopUntilCoroutine<C>() where C : UIViewController
         {
             return PopUntilCoroutine(typeof(C));
