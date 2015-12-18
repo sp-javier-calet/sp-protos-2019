@@ -16,7 +16,3 @@ android {
         }
     }
 }
-
-dependencies {
-    provided files('/Applications/Unity/Unity.app/Contents/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar')
-}

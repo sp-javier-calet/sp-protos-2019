@@ -19,6 +19,5 @@ android {
 
 dependencies {
     compile project(':sp_unity_base')
-    provided files('/Applications/Unity/Unity.app/Contents/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar')
     compile 'com.google.android.gms:play-services:+'
 }
