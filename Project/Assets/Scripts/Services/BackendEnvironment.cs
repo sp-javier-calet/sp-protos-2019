@@ -1,5 +1,6 @@
 ﻿public enum BackendEnvironment
 {
+    None,
     Develpoment,
     Production,
     Test,
@@ -17,6 +18,8 @@ public static class BackendEnvironmentExtensions
     {
         switch(env)
         {
+        case BackendEnvironment.None:
+            return null;
         case BackendEnvironment.Develpoment:
             return DevelopmentUrl;
         case BackendEnvironment.Production:

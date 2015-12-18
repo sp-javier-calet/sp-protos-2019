@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
@@ -15,11 +16,15 @@ namespace SocialPoint.Login
             remove { }
         }
 
-        public event NewUserDelegate NewUserEvent
+        public event NewUserDelegate NewUserEvent;
+
+        public event NewUserChangeDelegate NewUserChangeEvent
         {
             add { }
             remove { }
         }
+
+        public event NewUserStreamDelegate NewUserStreamEvent;
 
         public event NewGenericDataDelegate NewGenericDataEvent
         {
@@ -57,6 +62,10 @@ namespace SocialPoint.Login
             remove { }
         }
 
+        public List<User> Friends { get; private set; }
+
+        public LocalUser User { get; private set; }
+
         public UInt64 UserId{ get; set; }
 
         public string SessionId{ get{ return null; } }
@@ -65,7 +74,20 @@ namespace SocialPoint.Login
 
         public GenericData Data{ get; set; }
 
-        private string _baseUri;
+        string _baseUrl;
+        public string BaseUrl
+        {
+            get
+            {
+                return _baseUrl;
+            }
+            
+            set
+            {
+                
+                _baseUrl = StringUtils.FixBaseUri(value);
+            }
+        }
 
         virtual public void Dispose()
         {
@@ -73,23 +95,30 @@ namespace SocialPoint.Login
 
         public void SetupHttpRequest(HttpRequest req, string uri)
         {
-            if(_baseUri != null)
-            {
-                req.Url = new Uri(new Uri(_baseUri), uri);
-            }
-            else
-            {
-                req.Url = new Uri(uri);
-            }
+            req.Url = new Uri(StringUtils.CombineUri(BaseUrl, uri));
         }
 
         public void Login(ErrorDelegate cbk = null)
         {
+            if(NewUserStreamEvent != null)
+            {
+                NewUserStreamEvent(new EmptyStreamReader());
+            }
+            else if(NewUserEvent != null)
+            {
+                NewUserEvent(null, false);
+            }
+            if(cbk != null)
+            {
+                cbk(null);
+            }
         }
 
         public EmptyLogin(string baseUri = null)
         {
-            _baseUri = baseUri;
+            BaseUrl = baseUri;
+            User = new LocalUser();
+            Friends = new List<User>();
         }
 
         public void ClearStoredUser()

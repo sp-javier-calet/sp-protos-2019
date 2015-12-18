@@ -79,7 +79,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [Inject]
     IEventTracker _eventTracker;
 
-    [Inject]
+    [InjectOptional]
     QualityStats _qualityStats;
 
     #endregion
@@ -105,7 +105,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _loadSceneOperation.Message = "loading main scene...";
         RegisterOperation(_loadSceneOperation);
 
-        Login.NewUserEvent += OnLoginNewUser;
+        Login.NewUserStreamEvent += OnLoginNewUser;
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility += OnAdminPanelChange;
@@ -125,15 +125,17 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         Paused = _adminPanel.Visible;
     }
 
-    void OnLoginNewUser(Attr data, bool changed)
+    bool OnLoginNewUser(IStreamReader reader)
     {
+        var data = reader.ParseElement();
         _gameLoader.Load(data);
         _loadModelOperation.Finish("game model loaded");
+        return true;
     }
 
     override protected void OnDisappearing()
     {
-        Login.NewUserEvent -= OnLoginNewUser;
+        Login.NewUserStreamEvent -= OnLoginNewUser;
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility -= OnAdminPanelChange;

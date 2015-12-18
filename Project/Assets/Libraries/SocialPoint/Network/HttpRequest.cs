@@ -444,7 +444,14 @@ namespace SocialPoint.Network
             var str = new StringBuilder();
             str.Append(Method);
             str.Append(kLineSeparator);
-            str.Append(Url);
+            if(Url != null)
+            {
+                str.Append(Url);
+            }
+            else
+            {
+                str.Append("[null]");
+            }
             str.Append(kNewline);
 
             if(Headers.Count > 0)
@@ -453,7 +460,7 @@ namespace SocialPoint.Network
                 str.Append(kNewline);
             }
 
-            if(Body.Length > 0)
+            if(Body != null && Body.Length > 0)
             {
                 str.Append(Body);
                 str.Append(kNewline);

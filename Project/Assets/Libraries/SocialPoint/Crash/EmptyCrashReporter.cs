@@ -38,6 +38,10 @@ namespace SocialPoint.Crash
 
         public void SendCrashesBeforeLogin(Action callback)
         {
+            if(callback != null)
+            {
+                callback();
+            }
         }
     }
 }
