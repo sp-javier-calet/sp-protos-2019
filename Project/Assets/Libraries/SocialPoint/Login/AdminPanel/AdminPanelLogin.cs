@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
@@ -47,7 +48,8 @@ namespace SocialPoint.Login
                 foreach(var kvp in _environments)
                 {
                     envNames[i++] = kvp.Key;
-                    if(envInfo == null && _login.BaseUrl == kvp.Value)
+                    var envUrl = StringUtils.FixBaseUri(kvp.Value);
+                    if(envInfo == null && _login.BaseUrl == envUrl)
                     {
                         envInfo = new StringBuilder();
                         envInfo.Append("Name: ").AppendLine(kvp.Key);
@@ -74,15 +76,15 @@ namespace SocialPoint.Login
             layout.CreateMargin();
             
             var loginInfo = new StringBuilder();
-            loginInfo.AppendLine("Base URL: ").AppendLine(_login.BaseUrl)
-                .AppendLine("User Id: ").AppendLine(_login.UserId.ToString())
-                .AppendLine("Session Id: ").AppendLine(_login.SessionId)
-                .AppendLine("Temp Id: ").AppendLine(_login.User.TempId)
-                .AppendLine("User name").AppendLine(_login.User.Name);
+            loginInfo.Append("Base URL: ").AppendLine(_login.BaseUrl)
+                .Append("User Id: ").AppendLine(_login.UserId.ToString())
+                .Append("Session Id: ").AppendLine(_login.SessionId)
+                .Append("Temp Id: ").AppendLine(_login.User.TempId)
+                .Append("User name").AppendLine(_login.User.Name);
 
             if(spLogin != null)
             {
-                loginInfo.AppendLine("Security token: ").AppendLine(spLogin.SecurityToken);
+                loginInfo.Append("Security token: ").AppendLine(spLogin.SecurityToken);
             }
 
             var links = new StringBuilder();

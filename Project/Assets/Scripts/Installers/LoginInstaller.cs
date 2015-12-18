@@ -53,33 +53,20 @@ public class LoginInstaller : Installer
 
     void InstallLogin()
     {
-        var baseUrl = Settings.Environment.GetUrl();
-        if(string.IsNullOrEmpty(baseUrl))
-        {
-            Container.Rebind<ILogin>().ToSingleMethod<EmptyLogin>(CreateEmptyLogin);
-        }
-        else
-        {
-            Container.Rebind<Login.LoginConfig>().ToInstance<Login.LoginConfig>(new Login.LoginConfig {
-                BaseUrl = baseUrl,
-                SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries, 
-                ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
-                EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries }
-            );
-            Container.BindInstance("login_timeout", Settings.Timeout);
-            Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
-            Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
-            Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
-            Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
-            
-            Container.Rebind<ILogin>().ToSingle<Login>();
-        };
+        Container.Rebind<Login.LoginConfig>().ToInstance<Login.LoginConfig>(new Login.LoginConfig {
+            BaseUrl = Settings.Environment.GetUrl(),
+            SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries, 
+            ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
+            EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries }
+        );
+        Container.BindInstance("login_timeout", Settings.Timeout);
+        Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
+        Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
+        Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
+        Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
+        
+        Container.Rebind<ILogin>().ToSingle<Login>();
         Container.Bind<IDisposable>().ToLookup<ILogin>();
-    }
-
-    EmptyLogin CreateEmptyLogin(InjectContext ctx)
-    {
-        return new EmptyLogin(Settings.Environment.GetUrl());
     }
 
     public static AdminPanelLogin CreateAdminPanel(InjectContext ctx)

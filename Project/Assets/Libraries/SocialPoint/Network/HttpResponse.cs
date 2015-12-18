@@ -170,7 +170,7 @@ namespace SocialPoint.Network
                 str.Append(kNewline);
             }
 
-            if(Body.Length > 0)
+            if(Body != null && Body.Length > 0)
             {
                 str.Append(new ArraySegment<byte>(Body, 0, 100));
                 str.Append(kNewline);

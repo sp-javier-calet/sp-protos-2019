@@ -157,7 +157,7 @@ namespace SocialPoint.Utils
 
         public static string CombineUri(string baseUri, string relUri)
         {
-            return FixBaseUri(baseUri) + UriSeparator + relUri.TrimStart(UriSeparator);
+            return FixBaseUri(baseUri) + relUri.TrimStart(UriSeparator);
         }
 
         public static  bool GlobMatch(string pattern, string value)

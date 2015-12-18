@@ -43,6 +43,7 @@ namespace SocialPoint.AdminPanel
             var template = CreateUIObject("Template", dropdown.transform);
             var item = CreateUIObject("Item", template);
             var itemLabel = CreateUIObject("Item Label", item);
+            template.gameObject.layer = Behaviour.gameObject.layer;
             var toggle = item.gameObject.AddComponent<Toggle>();
             toggle.image = item.gameObject.AddComponent<Image>();
             toggle.colors = GetToggleColors();
@@ -52,11 +53,12 @@ namespace SocialPoint.AdminPanel
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = DefaultFontSize;
             layoutElement.flexibleWidth = 1;
-
+            dropdown.value = 0;
             dropdown.captionText.text = currentKey;
             if(options != null)
             {
                 dropdown.options = new List<Dropdown.OptionData>();
+                dropdown.options.Add(new Dropdown.OptionData(currentKey));
                 foreach(var option in options)
                 {
                     dropdown.options.Add(new Dropdown.OptionData(option));
@@ -68,7 +70,7 @@ namespace SocialPoint.AdminPanel
                 {
                     if(options != null && pos > 0 && pos < options.Length)
                     {
-                        onChange(options[pos]);
+                        onChange(options[pos-1]);
                     }
                     else
                     {

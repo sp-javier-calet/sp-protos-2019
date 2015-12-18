@@ -30,13 +30,13 @@ public class ScriptEventsInstaller : MonoInstaller
 
     public FamilyParser<IScriptCondition> CreateScriptConditionParser(InjectContext ctx)
     {
-        var children = Container.Resolve<List<IChildParser<IScriptCondition>>>();
+        var children = ctx.Container.Resolve<List<IChildParser<IScriptCondition>>>();
         return new FamilyParser<IScriptCondition>(children);
     }
 
     public ScriptModelParser CreateScriptModelParser(InjectContext ctx)
     {
-        var condParser = Container.Resolve<IParser<IScriptCondition>>();
+        var condParser = ctx.Container.Resolve<IParser<IScriptCondition>>();
         return new ScriptModelParser(condParser);
     }
 

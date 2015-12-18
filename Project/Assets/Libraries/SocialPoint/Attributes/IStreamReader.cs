@@ -26,7 +26,9 @@ namespace SocialPoint.Attributes
     public interface IStreamReader
     {
         StreamToken Token { get; }
+
         bool Read();
+
         object Value { get; }
 
     }
@@ -39,15 +41,15 @@ namespace SocialPoint.Attributes
             do
             {
                 var t = reader.Token;
-                if (t == StreamToken.ArrayStart || t == StreamToken.ObjectStart)
+                if(t == StreamToken.ArrayStart || t == StreamToken.ObjectStart)
                 {
                     count++;
                 }
-                else if (t == StreamToken.ArrayEnd || t == StreamToken.ObjectEnd)
+                else if(t == StreamToken.ArrayEnd || t == StreamToken.ObjectEnd)
                 {
                     count--;
                 }
-                if (count <= 0)
+                if(count <= 0)
                 {
                     break;
                 }
@@ -86,7 +88,7 @@ namespace SocialPoint.Attributes
         }
 
         public static double GetDoubleValue(this IStreamReader reader, double defaultValue = 0)
-		{
+        {
             var v = reader.Value;
             if(reader.Token == StreamToken.Double)
             {
@@ -105,32 +107,32 @@ namespace SocialPoint.Attributes
                 }
             }
             return defaultValue;
-		}
+        }
 
         public static long GetLongValue(this IStreamReader reader, long defaultValue = 0)
-		{
+        {
             var v = reader.Value;
             if(reader.Token == StreamToken.Long)
             {
                 return (long)v;
             }
-			else
-			{
+            else
+            {
                 if(v == null || reader.Token == StreamToken.Null)
                 {
-					return defaultValue;
+                    return defaultValue;
                 }
-				long result;
-				if(long.TryParse(v.ToString(), out result))
+                long result;
+                if(long.TryParse(v.ToString(), out result))
                 {
-					return result;
+                    return result;
                 }
-			}
-			return defaultValue;
-		}
+            }
+            return defaultValue;
+        }
 
         public static float GetFloatValue(this IStreamReader reader, float defaultValue = 0.0f)
-		{
+        {
             var v = reader.Value;
             if(reader.Token == StreamToken.Long)
             {
@@ -149,11 +151,11 @@ namespace SocialPoint.Attributes
                 }
                 return defaultValue;
             }
-		}
+        }
 
         public static bool GetBoolValue(this IStreamReader reader)
         {
-            if (reader.Token == StreamToken.Boolean)
+            if(reader.Token == StreamToken.Boolean)
             {
                 return (bool)reader.Value;
             }

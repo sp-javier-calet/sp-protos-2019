@@ -14,6 +14,7 @@ namespace SocialPoint.Login
 
     public class SocialPointLogin : ILogin
     {
+        private const string DefaultBaseUrl = "http://localhost/";
         private const string BaseUri = "{0}/{1}";
         // UserId, DeviceId
         private const string LoginUri = "user/login";
@@ -310,6 +311,14 @@ namespace SocialPoint.Login
             }
         }
 
+        bool FakeEnvironment
+        {
+            get
+            {
+                return string.IsNullOrEmpty(_baseUrl);
+            }
+        }
+
         public SocialPointLogin(IHttpClient client, LoginConfig config)
         {
             Init();
@@ -318,6 +327,19 @@ namespace SocialPoint.Login
             _loginConfig = config;
             _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
             _availableConnectivityErrorRetries = config.ConnectivityErrors;
+        }
+                
+        bool CheckFakeEnvironment(ErrorDelegate cbk)
+        {
+            if(FakeEnvironment)
+            {
+                if(cbk != null)
+                {
+                    cbk(new Error("Not supported"));
+                }
+                return true;
+            }
+            return false;
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
@@ -513,11 +535,16 @@ namespace SocialPoint.Login
                 NotifyError(typ, err, data);
             }
             return err;
-        }
+        }      
 
         public string GetUrl(string uri)
         {
-            var url = StringUtils.CombineUri(_baseUrl + BaseUri, uri);
+            var baseUrl = _baseUrl;
+            if(string.IsNullOrEmpty(baseUrl))
+            {
+                baseUrl = DefaultBaseUrl;
+            }
+            var url = StringUtils.CombineUri(baseUrl + BaseUri, uri);
             string deviceId = "0";
             if(DeviceInfo != null)
             {
@@ -525,6 +552,19 @@ namespace SocialPoint.Login
             }
             url = string.Format(url, UserId.ToString(), deviceId);
             return url;
+        }
+
+        void DoFakeLogin(ErrorDelegate cbk)
+        {
+            if(NewUserStreamEvent != null)
+            {
+                NewUserStreamEvent(new EmptyStreamReader());
+            }
+            else if(NewUserEvent != null)
+            {
+                NewUserEvent(null, false);
+            }
+            OnLoginEnd(null, cbk);
         }
 
         void DoLogin(ErrorDelegate cbk)
@@ -541,6 +581,10 @@ namespace SocialPoint.Login
                 var err = new Error("There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
+            }
+            else if(FakeEnvironment)
+            {
+                DoFakeLogin(cbk);
             }
             else
             {
@@ -588,10 +632,6 @@ namespace SocialPoint.Login
                 err = OnNewLocalUser(resp);
             }
             OnLoginEnd(err, cbk);
-            if(Error.IsNullOrEmpty(err))
-            {
-                NextLinkLogin(null, null, LinkInfo.Filter.Auto);
-            }
         }
 
         void LoadGenericData(Attr genericData)
@@ -632,33 +672,15 @@ namespace SocialPoint.Login
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
             // Reset retry values
+            _availableConnectivityErrorRetries = _loginConfig.ConnectivityErrors;
+            _availableSecurityTokenErrorRetries = _loginConfig.SecurityTokenErrors;
+            if(cbk != null)
+            {
+                cbk(err);
+            }
             if(Error.IsNullOrEmpty(err))
             {
-                _availableConnectivityErrorRetries = _loginConfig.ConnectivityErrors;
-                _availableSecurityTokenErrorRetries = _loginConfig.SecurityTokenErrors;
-            }
-            else
-            {
-                _availableConnectivityErrorRetries = Math.Max(_loginConfig.ConnectivityErrors, 0);
-                _availableSecurityTokenErrorRetries = Math.Max(_loginConfig.SecurityTokenErrors, 0);
-
-            }
-
-            if(Error.IsNullOrEmpty(err) && AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
-            {
-                GetUsersPhotos(new List<User>(){ User }, AutoUpdateFriendsPhotosSize, (users, err2) => {
-                    if(cbk != null)
-                    {
-                        cbk(err2);
-                    }
-                });
-            }
-            else
-            {
-                if(cbk != null)
-                {
-                    cbk(err);
-                }
+                NextLinkLogin(null, null, LinkInfo.Filter.Auto);
             }
         }
 
@@ -705,11 +727,22 @@ namespace SocialPoint.Login
 
         void NextLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkInfo.Filter filter)
         {
-
             info = GetNextLinkInfo(info, filter);
             if(info == null)
             {
-                OnLoginEnd(null, cbk);
+                if(AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
+                {
+                    GetUsersPhotos(new List<User>(){ User }, AutoUpdateFriendsPhotosSize, (users, err) => {
+                        if(cbk != null)
+                        {
+                            cbk(err);
+                        }
+                    });
+                }
+                else if(cbk != null)
+                {
+                    cbk(null);
+                }
             }
             else
             {
@@ -751,6 +784,12 @@ namespace SocialPoint.Login
         {
             // the user links have changed, we need to tell the server
             info.LinkData = info.Link.GetLinkData();
+            if(FakeEnvironment)
+            {
+                UpdateLinkData(info, false);
+                return;
+            }
+
             var req = new HttpRequest();
             SetupHttpRequest(req, LinkUri);
             req.AddParam(HttpParamSecurityToken, SecurityToken);
@@ -1451,7 +1490,7 @@ namespace SocialPoint.Login
 
         Error ParseUsersResponse(HttpResponse resp, List<User> users)
         {
-            if(resp.Body.Length > 0)
+            if(resp.Body != null && resp.Body.Length > 0)
             {
                 var data = new AttrList();
                 try
@@ -1739,6 +1778,10 @@ namespace SocialPoint.Login
          */
         public void ConfirmLink(string linkToken, LinkConfirmDecision decision, ErrorDelegate cbk = null)
         {
+            if(CheckFakeEnvironment(cbk))
+            {
+                return;
+            }
             LinkInfo linkInfo = _links.FirstOrDefault(item => item.Token == linkToken);
             var req = new HttpRequest();
             SetupHttpRequest(req, LinkConfirmUri);
@@ -1834,6 +1877,14 @@ namespace SocialPoint.Login
 
         public void UpdateFriends(List<UserMapping> mappings, UsersDelegate cbk = null)
         {
+            if(FakeEnvironment)
+            {
+                if(cbk != null)
+                {
+                    cbk(new List<User>(), null);
+                }
+                return;
+            }
             if(mappings.Count > 0)
             {
                 HttpResponse resp = new HttpResponse();
@@ -1948,6 +1999,10 @@ namespace SocialPoint.Login
          */
         public void SendAppRequest(AppRequest req, ErrorDelegate cbk = null)
         {
+            if(CheckFakeEnvironment(cbk))
+            {
+                return;
+            }
             var httpReq = new HttpRequest();
             SetupHttpRequest(httpReq, AppRequestsUri);
 
@@ -1982,13 +2037,21 @@ namespace SocialPoint.Login
 
         public void GetReceivedAppRequests(AppRequestDelegate cbk = null)
         {
+            if(FakeEnvironment)
+            {
+                if(cbk != null)
+                {
+                    cbk(new List<AppRequest>(), null);
+                }
+                return;
+            }
             var httpReq = new HttpRequest();
             SetupHttpRequest(httpReq, AppRequestsUri);
             httpReq.Method = HttpRequest.MethodType.GET;
             _httpClient.Send(httpReq, (resp) => OnReceivedAppRequestResponse(resp, cbk));
         }
 
-        public void OnReceivedAppRequestResponse(HttpResponse resp, AppRequestDelegate cbk)
+        void OnReceivedAppRequestResponse(HttpResponse resp, AppRequestDelegate cbk)
         {
             var err = HandleResponseErrors(resp, ErrorType.ReceiveAppRequests);
             var reqs = new List<AppRequest>();
@@ -2045,6 +2108,10 @@ namespace SocialPoint.Login
 
         public void DeleteAppRequest(List<string> ids, ErrorDelegate cbk)
         {
+            if(CheckFakeEnvironment(cbk))
+            {
+                return;
+            }
             var req = new HttpRequest();
             SetupHttpRequest(req, AppRequestsUri);
             req.Method = HttpRequest.MethodType.DELETE;
@@ -2052,7 +2119,7 @@ namespace SocialPoint.Login
             _httpClient.Send(req, (resp) => OnDeleteAppRequestResponse(resp, cbk));
         }
 
-        public void OnDeleteAppRequestResponse(HttpResponse resp, ErrorDelegate cbk)
+        void OnDeleteAppRequestResponse(HttpResponse resp, ErrorDelegate cbk)
         {
             var err = HandleResponseErrors(resp, ErrorType.ReceiveAppRequests);
             if(cbk != null)
