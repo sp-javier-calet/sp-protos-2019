@@ -2,14 +2,27 @@
 using System.Collections;
 using Zenject;
 using SocialPoint.Network;
+using UnityEngine;
+using UnityEditor;
+using SocialPoint.IO;
+using SocialPoint.Base;
+
+[CustomEditor(typeof(HttpClientInstaller))]
+public class HttpClientInstallerEditor: Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        EditorGUILayout.HelpBox("To setup a editor http proxy, create a \"Project/.proxy\" file containing server and port. This file is ignored so it won't affect other developers.", MessageType.Info, true);
+    }
+}
 
 public class HttpClientInstaller : MonoInstaller
 {
     [Serializable]
     public class SettingsData
     {
-        public string EditorProxy = string.Empty;
-        public bool PinnSSLCertificate = true;
+        public bool PinSSLCertificate = true;
     };
 
     //TODO: add url to confluence with info on how to obtain it
@@ -22,11 +35,17 @@ public class HttpClientInstaller : MonoInstaller
 	public override void InstallBindings()
 	{
 #if UNITY_EDITOR
-        Container.BindInstance("http_client_proxy", Settings.EditorProxy);
-#endif
-        if(Settings.PinnSSLCertificate)
+        var proxyPath = FileUtils.Combine(Application.dataPath, "../.proxy");
+        if(FileUtils.Exists(proxyPath))
         {
-            Container.BindInstance("pinn_ssl_certificate", _SSLCertificate);
+            var proxy = FileUtils.ReadAllText(proxyPath);
+            DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
+            Container.BindInstance("http_client_proxy", proxy);
+        }
+#endif
+        if(Settings.PinSSLCertificate)
+        {
+            Container.BindInstance("pin_ssl_certificate", _SSLCertificate);
         }
         Container.Rebind<IHttpClient>().ToSingle<HttpClient>();
         Container.Bind<IDisposable>().ToLookup<IHttpClient>();
