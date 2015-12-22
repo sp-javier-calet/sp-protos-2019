@@ -4,6 +4,7 @@ using SocialPoint.Alert;
 using UnityEngine;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
+using SocialPoint.ScriptEvents;
 
 public class AlertInstaller : MonoInstaller
 {
@@ -32,6 +33,9 @@ public class AlertInstaller : MonoInstaller
             Container.Rebind<IAlertView>().ToSingleInstance(unityAlertView);
             Container.Bind<IDisposable>().ToLookup<IAlertView>();
         }
+
+        Container.Bind<IEventsBridge>().ToSingle<AlertBridge>();
+        Container.Bind<IScriptEventsBridge>().ToSingle<AlertBridge>();
     }
 
     void ShowUnityAlert(GameObject go)

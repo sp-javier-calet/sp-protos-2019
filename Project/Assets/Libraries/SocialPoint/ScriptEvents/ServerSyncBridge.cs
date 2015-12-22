@@ -37,9 +37,9 @@ namespace SocialPoint.ScriptEvents
 
     public class ServerCommandResponseEventSerializer : BaseScriptEventSerializer<ServerCommandResponseEvent>
     {
-        const string AttrKeyCommandName = "cmd_name";
-        const string AttrKeyCommandArguments = "cmd_args";
-        const string AttrKeyResponse = "cmd_args";
+        const string AttrKeyCommandName = "name";
+        const string AttrKeyCommandArguments = "args";
+        const string AttrKeyResponse = "response";
         
         public ServerCommandResponseEventSerializer(): base("event.server.command_response")
         {

@@ -290,5 +290,5 @@ namespace SocialPoint.ScriptEvents
 
         const string ConditionName = "not";
         public string Name { get{ return ConditionName; } }
-    }
+    }   
 }
