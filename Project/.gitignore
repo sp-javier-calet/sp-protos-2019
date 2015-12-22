@@ -15,6 +15,9 @@
 *.booproj
 *.apk
 
+#local config
+/.proxy
+
 # Unity3D generated meta files
 *.pidb.meta
 
