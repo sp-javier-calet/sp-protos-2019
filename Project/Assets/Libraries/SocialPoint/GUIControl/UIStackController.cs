@@ -183,14 +183,14 @@ namespace SocialPoint.GUIControl
             // wait one frame to prevent overlapping transitions. meanwhile we disable the "to" controller to avoid it to update before loading
             if(to != null)
             {
-                to.enabled = false;
+                to.gameObject.SetActive(false);
             }
 
             yield return null;
 
             if(to != null)
             {
-                to.enabled = true;
+                to.gameObject.SetActive(true);
             }
 
             if(SimultaneousAnimations)
