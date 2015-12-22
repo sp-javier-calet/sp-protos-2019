@@ -26,7 +26,7 @@ public class HttpClient :
         }
     }
 
-    [InjectOptional("pinn_ssl_certificate")]
+    [InjectOptional("pin_ssl_certificate")]
     byte[] certificate
     {
         set
