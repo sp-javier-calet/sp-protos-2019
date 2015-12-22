@@ -43,6 +43,8 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         private List<GameObject> _3DContainers = new List<GameObject>();
 
+        public IList<GameObject> UI3DContainers { get { return _3DContainers.AsReadOnly(); } }
+
         private int _ui2DLayer;
         private int _ui3DLayer;
 
