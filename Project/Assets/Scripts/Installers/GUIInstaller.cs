@@ -15,6 +15,7 @@ public class GUIInstaller : MonoInstaller, IDisposable
     public class SettingsData
     {
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
+        public GameObject InitialScreenPrefab = null;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -35,6 +36,19 @@ public class GUIInstaller : MonoInstaller, IDisposable
         if(screens != null)
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
+            if(Settings.InitialScreenPrefab != null)
+            {
+                var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
+                var ctrl = go.GetComponent<UIViewController>();
+                if(ctrl == null)
+                {
+                    throw new InvalidOperationException("Initial Screen Prefab does not contain a UIViewController");
+                }
+                else
+                {
+                    screens.PushImmediate(ctrl);
+                }
+            }
         }
 
         var uiLayerController = GameObject.FindObjectOfType<UILayersController>();

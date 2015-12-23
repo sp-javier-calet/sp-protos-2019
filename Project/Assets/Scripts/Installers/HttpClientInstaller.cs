@@ -3,10 +3,11 @@ using System.Collections;
 using Zenject;
 using SocialPoint.Network;
 using UnityEngine;
-using UnityEditor;
 using SocialPoint.IO;
 using SocialPoint.Base;
 
+#if UNITY_EDITOR
+using UnityEditor;
 [CustomEditor(typeof(HttpClientInstaller))]
 public class HttpClientInstallerEditor: Editor
 {
@@ -16,6 +17,7 @@ public class HttpClientInstallerEditor: Editor
         EditorGUILayout.HelpBox("To setup a editor http proxy, create a \"Project/.proxy\" file containing server and port. This file is ignored so it won't affect other developers.", MessageType.Info, true);
     }
 }
+#endif
 
 public class HttpClientInstaller : MonoInstaller
 {
