@@ -180,8 +180,18 @@ namespace SocialPoint.GUIControl
                 from == null ? string.Empty : from.gameObject.name,
                 to == null ? string.Empty : to.gameObject.name));
 
-            // wait one frame to prevent overlapping transitions
+            // wait one frame to prevent overlapping transitions. meanwhile we disable the "to" controller to avoid it to update before loading
+            if(to != null)
+            {
+                to.gameObject.SetActive(false);
+            }
+
             yield return null;
+
+            if(to != null)
+            {
+                to.gameObject.SetActive(true);
+            }
 
             if(SimultaneousAnimations)
             {

@@ -107,25 +107,10 @@ namespace SocialPoint.GUIControl
                 ActivateNextUILayer(UICameraData.CameraType.GUI2D);
             }
 
-            List<Canvas> uiCanvas = new List<Canvas>();
-
-            GetCanvasFromElement(uiElement, uiCanvas);
-
-            if(uiCanvas.Count == 0)
-            {
-                throw new Exception("Not Canvas found inside the element");
-            }
-
             UICameraData currentCamera = _activeCameras.Peek();
             int layer = LayerMask.NameToLayer(currentCamera.LayerName);
 
-            foreach(Canvas canvas in uiCanvas)
-            {
-                canvas.worldCamera = currentCamera.Camera.GetComponent<Camera>();
-                canvas.gameObject.layer = layer;
-            }
-
-            AddElementToCameraCount(uiElement, currentCamera);
+            AssignCameraToUICanvas(uiElement, currentCamera);
 
             return layer;
         }
@@ -144,6 +129,20 @@ namespace SocialPoint.GUIControl
             else
             {
                 uiCanvas.Add(canvas);
+            }
+        }
+
+        public void AddToUILayer(GameObject uiElement, int layer)
+        {
+            UICameraData camera;
+
+            if(_camerasByLayer.TryGetValue(layer, out camera))
+            {
+                AssignCameraToUICanvas(uiElement, camera);
+            }
+            else
+            {
+                string.Format("There is not any camera assigned to the layer '{0}'", layer);
             }
         }
 
@@ -172,6 +171,28 @@ namespace SocialPoint.GUIControl
             AssignCameraTo3DContainer(uiElement, camera);
 
             return camera.Layer;
+        }
+
+        void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
+        {
+            int layer = LayerMask.NameToLayer(camera.LayerName);
+
+            List<Canvas> uiCanvas = new List<Canvas>();
+
+            GetCanvasFromElement(uiElement, uiCanvas);
+
+            if(uiCanvas.Count == 0)
+            {
+                throw new Exception("Not Canvas found inside the element");
+            }
+
+            foreach(Canvas canvas in uiCanvas)
+            {
+                canvas.worldCamera = camera.Camera.GetComponent<Camera>();
+                canvas.gameObject.layer = layer;
+            }
+
+            AddElementToCameraCount(uiElement, camera);
         }
 
         void AssignCameraTo3DContainer(GameObject uiElement, UICameraData camera)
