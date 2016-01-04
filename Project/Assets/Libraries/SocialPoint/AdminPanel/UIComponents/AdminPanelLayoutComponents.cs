@@ -19,7 +19,8 @@ namespace SocialPoint.AdminPanel
 
         protected static readonly Color BackgroundColor = new Color(.3f, .3f, .3f, .5f);
         protected static readonly Color ForegroundColor = new Color(.5f, .5f, .5f, .7f);
-        protected static readonly Color InputColor = Color.white;
+        protected static readonly Color InputColor = new Color(1.0f, 1.0f, 1.0f, .8f);
+        protected static readonly Color DisabledColor = new Color(.15f, .15f, .15f, .8f);
 
         protected static readonly Color StatusEnabledColor = new Color(.3f, .8f, .3f, .8f);
         protected static readonly Color StatusDisabledColor = new Color(.8f, .3f, .3f, .8f);

@@ -26,8 +26,8 @@ namespace SocialPoint.AdminPanel
                 
                 Parent = rectTrans;
             }
-            
-            public HorizontalLayout(AdminPanelLayout parentLayout) 
+
+            public HorizontalLayout(AdminPanelLayout parentLayout)
                 : this(parentLayout, Vector2.one)
             {
             }
