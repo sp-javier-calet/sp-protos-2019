@@ -17,3 +17,30 @@ allprojects {
         jcenter()
     }
 }
+
+/* Injects configuration in all children projects */
+subprojects{
+
+    /* Add a provided dependency with Unity java classes */
+    apply plugin: 'com.android.library'
+    project.dependencies{
+        provided files('/Applications/Unity/Unity.app/Contents/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar')
+    }
+
+    /*
+     * Copy release package to the Assets folder
+     */
+    task copyPluginPackage(type: Copy, group: 'socialpoint') {
+        from('build/outputs/aar')
+        into('../../../../Assets/Plugins/Android')
+        include(project.name + '-release.aar')
+        rename (project.name + '-release.aar', project.name + '.aar')
+    }
+
+    /*
+     * Generates the .aar package and copy it to the Unity Project's Assets folder
+     */
+    task generateUnityPlugin
+    generateUnityPlugin.dependsOn 'assembleRelease', 'copyPluginPackage'
+    generateUnityPlugin.group 'socialpoint'
+}
