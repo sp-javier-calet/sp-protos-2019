@@ -7,7 +7,7 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public InputField CreateTextInput(string placeholder, Action<string> onSubmit, Action<InputStatus> onValueChange)
+        public InputField CreateTextInput(string placeholder, Action<string> onSubmit, Action<InputStatus> onValueChange, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Text Input", Parent);
             
@@ -16,10 +16,11 @@ namespace SocialPoint.AdminPanel
             layoutElement.flexibleWidth = 1;
             
             var image = rectTransform.gameObject.AddComponent<Image>();
-            image.color = InputColor;
+            image.color = enabled ? InputColor : DisabledColor;
             
             var input = rectTransform.gameObject.AddComponent<InputField>();
             input.targetGraphic = image;
+            input.enabled = enabled;
 
             // Placeholder
             var contentTransform = CreateUIObject("Admin Panel - Text Input Placeholder", rectTransform);
@@ -83,21 +84,27 @@ namespace SocialPoint.AdminPanel
             return input;
         }
 
-        public InputField CreateTextInput(string placeholder, Action<string> onSubmit = null)
+        public InputField CreateTextInput(string placeholder, bool enabled)
         {
-            return CreateTextInput(placeholder, onSubmit, null);
+            return CreateTextInput(placeholder, null, null, enabled);
         }
 
-        public InputField CreateTextInput(Action<string> onSubmit = null)
+        public InputField CreateTextInput(string placeholder, Action<string> onSubmit = null, bool enabled = true)
         {
-            return CreateTextInput(string.Empty, onSubmit, null);
+            return CreateTextInput(placeholder, onSubmit, null, enabled);
+        }
+
+        public InputField CreateTextInput(Action<string> onSubmit = null, bool enabled = true)
+        {
+            return CreateTextInput(string.Empty, onSubmit, null, enabled);
         }
 
         public class InputStatus
         {
             public string Suggestion { get; set; }
+
             public string Content { get; set; }
-            
+
             public InputStatus(string content, string suggestion)
             {
                 Content = content;

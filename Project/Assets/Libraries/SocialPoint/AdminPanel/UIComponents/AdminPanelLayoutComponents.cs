@@ -4,7 +4,8 @@ using System.Collections;
 
 namespace SocialPoint.AdminPanel
 {
-    public partial class AdminPanelLayout {
+    public partial class AdminPanelLayout
+    {
         
         protected const int DefaultMargin = 5;
         protected const int DefaultPadding = 5;
@@ -18,19 +19,22 @@ namespace SocialPoint.AdminPanel
 
         protected static readonly Color BackgroundColor = new Color(.3f, .3f, .3f, .5f);
         protected static readonly Color ForegroundColor = new Color(.5f, .5f, .5f, .7f);
-        protected static readonly Color InputColor = Color.white;
+        protected static readonly Color InputColor = new Color(1.0f, 1.0f, 1.0f, .8f);
+        protected static readonly Color DisabledColor = new Color(.15f, .15f, .15f, .8f);
 
         protected static readonly Color StatusEnabledColor = new Color(.3f, .8f, .3f, .8f);
         protected static readonly Color StatusDisabledColor = new Color(.8f, .3f, .3f, .8f);
         protected static readonly Color CloseButtonColor = new Color(.8f, .3f, .3f, .8f);
 
         private static Font _defaultFont;
-        public static Font DefaultFont { 
-            get 
+
+        public static Font DefaultFont
+        { 
+            get
             {
                 if(_defaultFont == null)
                 {
-                    _defaultFont =  Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
+                    _defaultFont = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
                 }
                 return _defaultFont;
             }
