@@ -10,10 +10,6 @@ public class QualityStatsInstaller : Installer
 
     public override void InstallBindings()
     {
-        if(Container.HasBinding<QualityStats>())
-        {
-            return;
-        }
         if(!(_httpClient is QualityStatsHttpClient))
         {
             var httpClient = new QualityStatsHttpClient(_httpClient);

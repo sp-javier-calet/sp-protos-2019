@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 
@@ -17,6 +16,39 @@ namespace SocialPoint.ScriptEvents
         void AddParser(IScriptEventParser parser);
         void AddBridge(IScriptEventsBridge bridge);
         void Raise(string name, Attr args);
+        object Parse(string name, Attr args);
+    }
+
+    public static class ScriptEventDispatcherExtension
+    {
+        const string AttrKeyActionName = "name";
+        const string AttrKeyActionArguments = "args";
+
+        public static object Parse(this IScriptEventDispatcher dispatcher, Attr data)
+        {
+            if(data.AttrType == AttrType.DICTIONARY)
+            {
+                return dispatcher.Parse(
+                    data.AsDic[AttrKeyActionName].AsValue.ToString(),
+                    data.AsDic[AttrKeyActionArguments]);
+            }
+            else if(data.AttrType == AttrType.LIST)
+            {
+                return dispatcher.Parse(
+                    data.AsList[0].AsValue.ToString(),
+                    data.AsList[1]);
+            }
+            else if(data.AttrType == AttrType.VALUE)
+            {
+                return dispatcher.Parse(
+                    data.AsValue.ToString(),
+                    new AttrEmpty());
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     public interface IScriptEventsBridge : IDisposable
@@ -28,7 +60,12 @@ namespace SocialPoint.ScriptEvents
     {
         bool Matches(string name, Attr arguments);
     }
-
+        
+    public struct ScriptEventAction
+    {
+        public string Name;
+        public Attr Arguments;
+    }
 
     public class ScriptEventDispatcher : IScriptEventDispatcher
     {
@@ -167,12 +204,31 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public void Raise(string name, Attr args)
+        public object Parse(string name, Attr args)
         {
-            var parser = _parsers.FirstOrDefault(c => c.Name == name);
+            IScriptEventParser parser = null;
+            foreach(var p in _parsers)
+            {
+                if(p.Name == name)
+                {
+                    parser = p;
+                }
+            }
             if(parser != null)
             {
-                var ev = parser.Parse(args);
+                return parser.Parse(args);
+            }
+            return new ScriptEventAction{
+                Name = name,
+                Arguments = args
+            };
+        }
+
+        public void Raise(string name, Attr args)
+        {
+            var ev = Parse(name, args);
+            if(ev != null)
+            {
                 _dispatcher.Raise(ev);
             }
             else
@@ -185,21 +241,30 @@ namespace SocialPoint.ScriptEvents
         {
             Attr args = null;
             string name = null;
-            foreach(var serializer in _serializers)
+            if(ev is ScriptEventAction)
             {
-                if(serializer != null)
+                var sev = (ScriptEventAction)ev;
+                name = sev.Name;
+                args = sev.Arguments;
+            }
+            else
+            {
+                foreach(var serializer in _serializers)
                 {
-                    args = serializer.Serialize(ev);
-                    if(args != null)
+                    if(serializer != null)
                     {
-                        name = serializer.Name;
-                        break;
+                        args = serializer.Serialize(ev);
+                        if(args != null)
+                        {
+                            name = serializer.Name;
+                            break;
+                        }
                     }
                 }
-            }
-            if(args == null || string.IsNullOrEmpty(name))
-            {
-                return;
+                if(args == null || string.IsNullOrEmpty(name))
+                {
+                    return;
+                }
             }
 
             OnRaised(name, args);

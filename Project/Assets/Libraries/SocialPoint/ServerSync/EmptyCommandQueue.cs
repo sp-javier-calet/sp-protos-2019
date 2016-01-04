@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.Base;
 
 namespace SocialPoint.ServerSync

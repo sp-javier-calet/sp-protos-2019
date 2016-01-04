@@ -22,36 +22,22 @@ public class ScriptEventsInstaller : MonoInstaller
         Container.Rebind<IParser<IScriptCondition>>().ToSingleMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
         Container.Rebind<IParser<ScriptModel>>().ToSingleMethod<ScriptModelParser>(CreateScriptModelParser);
 
-        Container.Rebind<IEventDispatcher>().ToSingleMethod<EventDispatcher>(CreateEventDispatcher);
-        Container.Rebind<IScriptEventDispatcher>().ToSingleMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
+        Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
+        Container.Rebind<IScriptEventDispatcher>().ToSingle<ScriptEventDispatcher>();
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelScriptEvents>();
     }
 
     public FamilyParser<IScriptCondition> CreateScriptConditionParser(InjectContext ctx)
     {
-        var children = Container.Resolve<List<IChildParser<IScriptCondition>>>();
+        var children = ctx.Container.Resolve<List<IChildParser<IScriptCondition>>>();
         return new FamilyParser<IScriptCondition>(children);
     }
 
     public ScriptModelParser CreateScriptModelParser(InjectContext ctx)
     {
-        var condParser = Container.Resolve<IParser<IScriptCondition>>();
+        var condParser = ctx.Container.Resolve<IParser<IScriptCondition>>();
         return new ScriptModelParser(condParser);
-    }
-
-    public EventDispatcher CreateEventDispatcher(InjectContext ctx)
-    {
-        var dispatcher = Container.Instantiate<EventDispatcher>();
-        dispatcher.AddBridges(Container.Resolve<List<IEventsBridge>>());
-        return dispatcher;
-    }
-
-    public ScriptEventDispatcher CreateScriptEventDispatcher(InjectContext ctx)
-    {
-        var dispatcher = Container.Instantiate<ScriptEventDispatcher>();
-        dispatcher.AddBridges(Container.Resolve<List<IScriptEventsBridge>>());
-        return dispatcher;
     }
 
 }

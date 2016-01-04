@@ -1,4 +1,4 @@
-﻿
+
 namespace SocialPoint.Attributes
 {
     public interface IParser<T>

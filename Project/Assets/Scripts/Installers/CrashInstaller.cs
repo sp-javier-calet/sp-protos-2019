@@ -5,9 +5,9 @@ using SocialPoint.AdminPanel;
 
 public class CrashInstaller : Installer
 {
-    [Serializable]
-    public class SettingsData
-    {
+	[Serializable]
+	public class SettingsData
+	{
         public float SendInterval = CrashReporter.DefaultSendInterval;
         public bool ErrorLogActive = CrashReporter.DefaultErrorLogActive;
         public bool ExceptionLogActive = CrashReporter.DefaultExceptionLogActive;

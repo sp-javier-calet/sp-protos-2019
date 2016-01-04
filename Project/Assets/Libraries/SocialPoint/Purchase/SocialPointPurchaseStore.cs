@@ -16,7 +16,7 @@ namespace SocialPoint.Purchase
 
     public class SocialPointPurchaseStore
     {
-        IPurchaseStore _purchaseStore;
+        IPurchaseStore _purchaseStore = null;
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
         List<string> _purchasesInProcess;
@@ -125,8 +125,7 @@ namespace SocialPoint.Purchase
             var paramDic = new AttrDic();
             paramDic.Set(HttpParamPurchaseData, new AttrString(receipt.OriginalJson));
             paramDic.Set(HttpParamDataSignature, new AttrString(receipt.DataSignature));
-            var orderData = new JsonAttrSerializer().SerializeString(paramDic);
-            req.AddParam(HttpParamOrderData, orderData);
+            req.AddParam(HttpParamOrderData, new JsonAttrSerializer().SerializeString(paramDic));
             #endif
             _httpClient.Send(req, (_1) => OnBackendResponse(_1, response, receipt));
         }
@@ -186,7 +185,7 @@ namespace SocialPoint.Purchase
 
         void TrackPurchaseStart(Receipt receipt, PurchaseGameInfo info)
         {
-            if(TrackEvent == null)
+            if(TrackEvent == null || info == null)
             {
                 return;
             }
@@ -256,6 +255,12 @@ namespace SocialPoint.Purchase
         public Product[] ProductList{ get { return _purchaseStore.ProductList; } }
 
         /// <summary>
+        /// Gets if has products loaded.
+        /// </summary>
+        /// <value>The product list.</value>
+        public bool HasProductsLoaded{ get { return _purchaseStore.HasProductsLoaded; } }
+
+        /// <summary>
         /// Loads the products.
         /// </summary>
         /// <param name="productIds">Product identifiers.</param>
@@ -300,6 +305,7 @@ namespace SocialPoint.Purchase
         /// <param name="productId">Product identifier.</param>
         public bool Purchase(string productId)
         {
+            UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.Contains(productId));
             if(_purchasesInProcess.Contains(productId))
             {
                 //FIXME tech add purchasestate purchasealreadyinprocess
@@ -357,6 +363,7 @@ namespace SocialPoint.Purchase
             case PurchaseState.PurchaseCanceled:
             case PurchaseState.PurchaseFailed:
             case PurchaseState.PurchaseConsumed:
+                UnityEngine.Debug.Log("OnPurchaseUpdated: " + state + " " + productId);
                 _purchasesInProcess.Remove(productId);
                 break;
             }

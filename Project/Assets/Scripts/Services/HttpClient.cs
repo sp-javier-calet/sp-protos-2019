@@ -1,10 +1,19 @@
-﻿using Zenject;
+﻿#if !UNITY_EDITOR_WIN
+#define CURL_SUPPORTED
+#endif
+
+using Zenject;
 using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
 
-public class HttpClient : CurlHttpClient
+public class HttpClient : 
+    #if !CURL_SUPPORTED
+    WebRequestHttpClient
+    #else
+    CurlHttpClient
+    #endif
 {
     private string _httpProxy;
 
@@ -17,7 +26,7 @@ public class HttpClient : CurlHttpClient
         }
     }
 
-    [InjectOptional("pinn_ssl_certificate")]
+    [InjectOptional("pin_ssl_certificate")]
     byte[] certificate
     {
         set
@@ -30,6 +39,7 @@ public class HttpClient : CurlHttpClient
     [Inject]
     IDeviceInfo deviceInfo;
 
+    #if CURL_SUPPORTED
     [Inject]
     IAppEvents injectAppEvents
     {
@@ -38,6 +48,7 @@ public class HttpClient : CurlHttpClient
             AppEvents = value;
         }
     }
+    #endif
 
     public HttpClient(MonoBehaviour mono):
     base(mono)
@@ -47,7 +58,7 @@ public class HttpClient : CurlHttpClient
 
     private void OnRequestSetup(HttpRequest req)
     {
-        if(string.IsNullOrEmpty(req.Proxy))
+        if(string.IsNullOrEmpty(req.Proxy) && !string.IsNullOrEmpty(_httpProxy))
         {
             req.Proxy = _httpProxy;
         }

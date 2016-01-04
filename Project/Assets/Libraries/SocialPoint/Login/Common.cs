@@ -16,6 +16,12 @@ namespace SocialPoint.Login
     public delegate void ConfirmLinkDelegate(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk);
     
     public delegate void NewUserDelegate(Attr data, bool changed);
+
+    public delegate void NewUserChangeDelegate(bool changed);
+
+    public delegate void NewGenericDataDelegate(Attr data);
+
+    public delegate bool NewUserStreamDelegate(IStreamReader reader);
     
     public delegate void NewLinkDelegate(ILink link);
     
@@ -183,7 +189,12 @@ namespace SocialPoint.Login
          * Error when link responds SocialPointLogin::kInvalidSecurityTokenError http code
          * ant the user is not new
          */
-        InvalidSecurityToken
+        InvalidSecurityToken,
+
+        /**
+         * Error parsing the game data
+         */
+        GameDataParse
     }
     
     public enum LinkMode

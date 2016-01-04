@@ -32,7 +32,6 @@ namespace SocialPoint.ServerSync
         const string SyncChangeEventName = "sync.change";
         const string AttrKeySynced = "synced";
 
-        const int MinServerErrorStatusCode = 500;
         const int SessionLostErrorStatusCode = 482;
         const int StartPacketId = 1;
 
@@ -676,7 +675,7 @@ namespace SocialPoint.ServerSync
         bool CheckSync(HttpResponse resp)
         {
             bool oldconn = _synced;
-            _synced = !resp.HasConnectionError && resp.StatusCode < MinServerErrorStatusCode;
+            _synced = !resp.HasRecoverableError;
             if(oldconn != _synced)
             {
                 _syncTimestamp = CurrentTimestamp;

@@ -4,7 +4,7 @@ namespace SocialPoint.Utils
 {
     public interface IQuadObject
     {
-        Rect Bounds { get; }
+        QuadTreeRect Bounds { get; }
         event EventHandler BoundsChanged;
     }
 }

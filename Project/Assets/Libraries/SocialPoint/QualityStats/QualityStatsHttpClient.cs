@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using SocialPoint.Network;
@@ -151,6 +151,10 @@ namespace SocialPoint.QualityStats
 
         void NewTrace(Uri url, DateTime start, HttpResponse response)
         {
+            if(url == null)
+            {
+                return;
+            }
             Stats stats;
             if(!_data.TryGetValue(url.ToString(), out stats))
             {

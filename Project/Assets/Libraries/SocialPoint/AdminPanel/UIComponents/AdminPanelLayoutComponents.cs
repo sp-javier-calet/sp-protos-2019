@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
 namespace SocialPoint.AdminPanel
 {
-    public partial class AdminPanelLayout {
+    public partial class AdminPanelLayout
+    {
         
         protected const int DefaultMargin = 5;
         protected const int DefaultPadding = 5;
@@ -25,21 +26,23 @@ namespace SocialPoint.AdminPanel
         protected static readonly Color CloseButtonColor = new Color(.8f, .3f, .3f, .8f);
 
         private static Font _defaultFont;
-        public static Font DefaultFont { 
-            get 
+
+        public static Font DefaultFont
+        { 
+            get
             {
                 if(_defaultFont == null)
                 {
-                    _defaultFont =  Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
+                    _defaultFont = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
                 }
                 return _defaultFont;
             }
         }
 
-        protected RectTransform CreateUIObject(string name, RectTransform parent)
+        protected RectTransform CreateUIObject(string name, Transform parent)
         {
             var gObject = new GameObject(name);
-            gObject.transform.SetParent(parent);
+            gObject.transform.SetParent(parent, false);
             
             var rectTransform = gObject.AddComponent<RectTransform>();
             rectTransform.pivot = Vector2.up;

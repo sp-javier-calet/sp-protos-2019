@@ -49,6 +49,14 @@ namespace SocialPoint.Purchase
             throw new NotImplementedException();
         }
 
+        public bool HasProductsLoaded
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public Product[] ProductList
         {
             get

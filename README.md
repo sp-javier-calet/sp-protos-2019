@@ -23,6 +23,3 @@ The aim of this repo is to provide a basic functioning Unity game structure.
   * Prime31/GoKit (animation tweening)
   * ModestTree/Zenject (dependency injection)
   * BuildReport (info on build file size)
-
-  The `release/minimal` branch will contain an empty game with all the services working
-  that is a good starting point for a new game.

@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace SocialPoint.Utils
 {
-    public struct Size
+    public struct QuadTreeSize
     {
-        public Size (double width, double height)
+		public QuadTreeSize(double width, double height)
         {
             if (width < 0 || height < 0)
                 throw new ArgumentException ("Width and Height must be non-negative.");
@@ -54,9 +54,9 @@ namespace SocialPoint.Utils
         double height;
     }
 
-    public struct Rect
+    public struct QuadTreeRect
     {
-        public Rect(double x, double y, double width, double height)
+		public QuadTreeRect(double x, double y, double width, double height)
         {
             if (width < 0 || height < 0)
                 throw new ArgumentException ("width and height must be non-negative.");
@@ -66,7 +66,7 @@ namespace SocialPoint.Utils
             this.height = height;
         }
 
-        public Rect(Point location, Size size)
+		public QuadTreeRect(QuadTreePoint location, QuadTreeSize size)
         {
             x = location.X;
             y = location.Y;
@@ -74,7 +74,7 @@ namespace SocialPoint.Utils
             height = size.Height;
         }
 
-        public bool Contains(Rect rect)
+		public bool Contains(QuadTreeRect rect)
         {
             if(rect.Left < this.Left ||
                 rect.Right > this.Right)
@@ -97,13 +97,13 @@ namespace SocialPoint.Utils
             return true;
         }
 
-        public bool IntersectsWith(Rect rect)
+        public bool IntersectsWith(QuadTreeRect rect)
         {
             return !((Left >= rect.Right) || (Right <= rect.Left) ||
             (Top >= rect.Bottom) || (Bottom <= rect.Top));
         }
 
-        public bool Contains(Point point)
+        public bool Contains(QuadTreePoint point)
         {
             return Contains(point.X, point.Y);
         }
@@ -195,24 +195,24 @@ namespace SocialPoint.Utils
             get { return y + height; }
         }
 
-        public Point TopLeft
+		public QuadTreePoint TopLeft
         {
-            get { return new Point(Left, Top); }
+			get { return new QuadTreePoint(Left, Top); }
         }
 
-        public Point TopRight
+		public QuadTreePoint TopRight
         {
-            get { return new Point(Right, Top); }
+			get { return new QuadTreePoint(Right, Top); }
         }
 
-        public Point BottomLeft
+		public QuadTreePoint BottomLeft
         {
-            get { return new Point(Left, Bottom); }
+			get { return new QuadTreePoint(Left, Bottom); }
         }
 
-        public Point BottomRight
+		public QuadTreePoint BottomRight
         {
-            get { return new Point(Right, Bottom); }
+			get { return new QuadTreePoint(Right, Bottom); }
         }
 
         double x;
@@ -221,9 +221,9 @@ namespace SocialPoint.Utils
         double height;
     }
 
-    public struct Point
+    public struct QuadTreePoint
     {
-        public Point(double x, double y)
+		public QuadTreePoint(double x, double y)
         {
             this.x = x;
             this.y = y;
@@ -248,18 +248,18 @@ namespace SocialPoint.Utils
     public class QuadTree<T> where T : class, IQuadObject
     {
         private readonly bool sort;
-        private readonly Size minLeafSize;
+        private readonly QuadTreeSize minLeafSize;
         private readonly int maxObjectsPerLeaf;
-        private QuadNode root = null;
-        private Dictionary<T, QuadNode> objectToNodeLookup = new Dictionary<T, QuadNode>();
+        private QuadTreeNode root = null;
+        private Dictionary<T, QuadTreeNode> objectToNodeLookup = new Dictionary<T, QuadTreeNode>();
         private Dictionary<T, int> objectSortOrder = new Dictionary<T, int>();
 
-        public QuadNode Root { get { return root; } }
+        public QuadTreeNode Root { get { return root; } }
 
         private object syncLock = new object();
         private int objectSortId = 0;
 
-        public QuadTree(Size minLeafSize, int maxObjectsPerLeaf)
+        public QuadTree(QuadTreeSize minLeafSize, int maxObjectsPerLeaf)
         {
             this.minLeafSize = minLeafSize;
             this.maxObjectsPerLeaf = maxObjectsPerLeaf;
@@ -284,7 +284,7 @@ namespace SocialPoint.Utils
         /// <param name="minLeafSize">The smallest size a leaf will split into</param>
         /// <param name="maxObjectsPerLeaf">Maximum number of objects per leaf before it forces a split into sub quadrants</param>
         /// <param name="sort">Whether or not queries will return objects in the order in which they were added</param>
-        public QuadTree(Size minLeafSize, int maxObjectsPerLeaf, bool sort)
+		public QuadTree(QuadTreeSize minLeafSize, int maxObjectsPerLeaf, bool sort)
             : this(minLeafSize, maxObjectsPerLeaf)
         {
             this.sort = sort;
@@ -299,18 +299,18 @@ namespace SocialPoint.Utils
                     objectSortOrder.Add(quadObject, objectSortId++);
                 }
 
-                Rect bounds = quadObject.Bounds;
+                QuadTreeRect bounds = quadObject.Bounds;
                 if(root == null)
                 {
-                    var rootSize = new Size(Math.Ceiling(bounds.Width / minLeafSize.Width),
+                    var rootSize = new QuadTreeSize(Math.Ceiling(bounds.Width / minLeafSize.Width),
                                        Math.Ceiling(bounds.Height / minLeafSize.Height));
                     double multiplier = Math.Max(rootSize.Width, rootSize.Height);
-                    rootSize = new Size(minLeafSize.Width * multiplier, minLeafSize.Height * multiplier);
+					rootSize = new QuadTreeSize(minLeafSize.Width * multiplier, minLeafSize.Height * multiplier);
 
-                    var center = new Point(bounds.X, bounds.Y);
-                    var rootOrigin = new Point(center.X , center.Y);
+                    var center = new QuadTreePoint(bounds.X, bounds.Y);
+					var rootOrigin = new QuadTreePoint(center.X , center.Y);
 
-                    root = new QuadNode(new Rect(rootOrigin, rootSize));
+                    root = new QuadTreeNode(new QuadTreeRect(rootOrigin, rootSize));
                 }
 
                 while(!root.Bounds.Contains(bounds))
@@ -322,7 +322,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        public List<T> Query(Rect bounds)
+        public List<T> Query(QuadTreeRect bounds)
         {
             lock(syncLock)
             {
@@ -337,7 +337,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void Query(Rect bounds, QuadNode node, List<T> results)
+        private void Query(QuadTreeRect bounds, QuadTreeNode node, List<T> results)
         {
             lock(syncLock)
             {
@@ -352,7 +352,7 @@ namespace SocialPoint.Utils
                             results.Add(quadObject);
                     }
 
-                    foreach(QuadNode childNode in node.Nodes)
+                    foreach(QuadTreeNode childNode in node.Nodes)
                     {
                         Query(bounds, childNode, results);
                     }
@@ -360,7 +360,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void ExpandRoot(Rect newChildBounds)
+        private void ExpandRoot(QuadTreeRect newChildBounds)
         {
             lock(syncLock)
             {
@@ -383,15 +383,15 @@ namespace SocialPoint.Utils
                 double newY = (rootDirection == Direction.NW || rootDirection == Direction.NE)
                     ? root.Bounds.Y
                     : root.Bounds.Y - root.Bounds.Height;
-                Rect newRootBounds = new Rect(newX, newY, root.Bounds.Width * 2, root.Bounds.Height * 2);
-                QuadNode newRoot = new QuadNode(newRootBounds);
+                var newRootBounds = new QuadTreeRect(newX, newY, root.Bounds.Width * 2, root.Bounds.Height * 2);
+                QuadTreeNode newRoot = new QuadTreeNode(newRootBounds);
                 SetupChildNodes(newRoot);
                 newRoot[rootDirection] = root;
                 root = newRoot;
             }
         }
 
-        private void InsertNodeObject(QuadNode node, T quadObject)
+        private void InsertNodeObject(QuadTreeNode node, T quadObject)
         {
             lock(syncLock)
             {
@@ -407,7 +407,7 @@ namespace SocialPoint.Utils
 
                     foreach(T childObject in childObjects)
                     {
-                        foreach(QuadNode childNode in node.Nodes)
+                        foreach(QuadTreeNode childNode in node.Nodes)
                         {
                             if(childNode == null)
                                 continue;
@@ -426,7 +426,7 @@ namespace SocialPoint.Utils
                     }
                 }
 
-                foreach(QuadNode childNode in node.Nodes)
+                foreach(QuadTreeNode childNode in node.Nodes)
                 {
                     if(childNode != null)
                     {
@@ -442,7 +442,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void ClearQuadObjectsFromNode(QuadNode node)
+        private void ClearQuadObjectsFromNode(QuadTreeNode node)
         {
             lock(syncLock)
             {
@@ -458,14 +458,14 @@ namespace SocialPoint.Utils
         {
             lock(syncLock)
             {
-                QuadNode node = objectToNodeLookup[quadObject];
+                QuadTreeNode node = objectToNodeLookup[quadObject];
                 node.quadObjects.Remove(quadObject);
                 objectToNodeLookup.Remove(quadObject);
                 quadObject.BoundsChanged -= new EventHandler(OnObjectBoundsChanged);
             }
         }
 
-        private void AddQuadObjectToNode(QuadNode node, T quadObject)
+        private void AddQuadObjectToNode(QuadTreeNode node, T quadObject)
         {
             lock(syncLock)
             {
@@ -482,7 +482,7 @@ namespace SocialPoint.Utils
                 T quadObject = sender as T;
                 if(quadObject != null)
                 {
-                    QuadNode node = objectToNodeLookup[quadObject];
+                    QuadTreeNode node = objectToNodeLookup[quadObject];
                     if(!node.Bounds.Contains(quadObject.Bounds) || node.HasChildNodes)
                     {
                         RemoveQuadObjectFromNode(quadObject);
@@ -496,21 +496,21 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void SetupChildNodes(QuadNode node)
+        private void SetupChildNodes(QuadTreeNode node)
         {
             lock(syncLock)
             {
                 if(minLeafSize.Width <= node.Bounds.Width / 2 && minLeafSize.Height <= node.Bounds.Height / 2)
                 {
-                    node[Direction.NW] = new QuadNode(node.Bounds.X, node.Bounds.Y, node.Bounds.Width / 2,
+                    node[Direction.NW] = new QuadTreeNode(node.Bounds.X, node.Bounds.Y, node.Bounds.Width / 2,
                         node.Bounds.Height / 2);
-                    node[Direction.NE] = new QuadNode(node.Bounds.X + node.Bounds.Width / 2, node.Bounds.Y,
+                    node[Direction.NE] = new QuadTreeNode(node.Bounds.X + node.Bounds.Width / 2, node.Bounds.Y,
                         node.Bounds.Width / 2,
                         node.Bounds.Height / 2);
-                    node[Direction.SW] = new QuadNode(node.Bounds.X, node.Bounds.Y + node.Bounds.Height / 2,
+                    node[Direction.SW] = new QuadTreeNode(node.Bounds.X, node.Bounds.Y + node.Bounds.Height / 2,
                         node.Bounds.Width / 2,
                         node.Bounds.Height / 2);
-                    node[Direction.SE] = new QuadNode(node.Bounds.X + node.Bounds.Width / 2,
+                    node[Direction.SE] = new QuadTreeNode(node.Bounds.X + node.Bounds.Width / 2,
                         node.Bounds.Y + node.Bounds.Height / 2,
                         node.Bounds.Width / 2, node.Bounds.Height / 2);
 
@@ -530,7 +530,7 @@ namespace SocialPoint.Utils
                 if(!objectToNodeLookup.ContainsKey(quadObject))
                     throw new KeyNotFoundException("QuadObject not found in dictionary for removal");
 
-                QuadNode containingNode = objectToNodeLookup[quadObject];
+                QuadTreeNode containingNode = objectToNodeLookup[quadObject];
                 RemoveQuadObjectFromNode(quadObject);
 
                 if(containingNode.Parent != null)
@@ -540,7 +540,7 @@ namespace SocialPoint.Utils
 
 
 
-        private void CheckChildNodes(QuadNode node)
+        private void CheckChildNodes(QuadTreeNode node)
         {
             lock(syncLock)
             {
@@ -583,8 +583,8 @@ namespace SocialPoint.Utils
                     {
                         // Its the root node, see if we're down to one quadrant, with none in local storage - if so, ditch the other three
                         int numQuadrantsWithObjects = 0;
-                        QuadNode nodeWithObjects = null;
-                        foreach(QuadNode childNode in node.Nodes)
+                        QuadTreeNode nodeWithObjects = null;
+                        foreach(QuadTreeNode childNode in node.Nodes)
                         {
                             if(childNode != null && GetObjectCount(childNode) > 0)
                             {
@@ -596,7 +596,7 @@ namespace SocialPoint.Utils
                         }
                         if(numQuadrantsWithObjects == 1)
                         {
-                            foreach(QuadNode childNode in node.Nodes)
+                            foreach(QuadTreeNode childNode in node.Nodes)
                             {
                                 if(childNode != nodeWithObjects)
                                     childNode.Parent = null;
@@ -609,13 +609,13 @@ namespace SocialPoint.Utils
         }
 
 
-        private List<T> GetChildObjects(QuadNode node)
+        private List<T> GetChildObjects(QuadTreeNode node)
         {
             lock(syncLock)
             {
                 List<T> results = new List<T>();
                 results.AddRange(node.quadObjects);
-                foreach(QuadNode childNode in node.Nodes)
+                foreach(QuadTreeNode childNode in node.Nodes)
                 {
                     if(childNode != null)
                         results.AddRange(GetChildObjects(childNode));
@@ -635,12 +635,12 @@ namespace SocialPoint.Utils
             }
         }
 
-        private int GetObjectCount(QuadNode node)
+        private int GetObjectCount(QuadTreeNode node)
         {
             lock(syncLock)
             {
                 int count = node.Objects.Count;
-                foreach(QuadNode childNode in node.Nodes)
+                foreach(QuadTreeNode childNode in node.Nodes)
                 {
                     if(childNode != null)
                     {
@@ -662,14 +662,14 @@ namespace SocialPoint.Utils
             }
         }
 
-        private int GetNodeCount(QuadNode node, int count)
+        private int GetNodeCount(QuadTreeNode node, int count)
         {
             lock(syncLock)
             {
                 if(node == null)
                     return count;
 
-                foreach(QuadNode childNode in node.Nodes)
+                foreach(QuadTreeNode childNode in node.Nodes)
                 {
                     if(childNode != null)
                         count++;
@@ -678,11 +678,11 @@ namespace SocialPoint.Utils
             }
         }
 
-        public List<QuadNode> GetAllNodes()
+        public List<QuadTreeNode> GetAllNodes()
         {
             lock(syncLock)
             {
-                List<QuadNode> results = new List<QuadNode>();
+                List<QuadTreeNode> results = new List<QuadTreeNode>();
                 if(root != null)
                 {
                     results.Add(root);
@@ -692,11 +692,11 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void GetChildNodes(QuadNode node, ICollection<QuadNode> results)
+        private void GetChildNodes(QuadTreeNode node, ICollection<QuadTreeNode> results)
         {
             lock(syncLock)
             {
-                foreach(QuadNode childNode in node.Nodes)
+                foreach(QuadTreeNode childNode in node.Nodes)
                 {
                     if(childNode != null)
                     {
@@ -707,16 +707,16 @@ namespace SocialPoint.Utils
             }
         }
 
-        public class QuadNode
+        public class QuadTreeNode
         {
             private static int _id = 0;
             public readonly int ID = _id++;
 
-            public QuadNode Parent { get; internal set; }
+            public QuadTreeNode Parent { get; internal set; }
 
-            private QuadNode[] _nodes = new QuadNode[4];
+            private QuadTreeNode[] _nodes = new QuadTreeNode[4];
 
-            public QuadNode this[Direction direction]
+            public QuadTreeNode this[Direction direction]
             {
                 get
                 {
@@ -756,12 +756,12 @@ namespace SocialPoint.Utils
                 }
             }
 
-            public ReadOnlyCollection<QuadNode> Nodes;
+            public ReadOnlyCollection<QuadTreeNode> Nodes;
 
             internal List<T> quadObjects = new List<T>();
             public ReadOnlyCollection<T> Objects;
 
-            public Rect Bounds { get; internal set; }
+            public QuadTreeRect Bounds { get; internal set; }
 
             public bool HasChildNodes
             {
@@ -771,15 +771,15 @@ namespace SocialPoint.Utils
                 }
             }
 
-            public QuadNode(Rect bounds)
+            public QuadTreeNode(QuadTreeRect bounds)
             {
                 Bounds = bounds;
-                Nodes = new ReadOnlyCollection<QuadNode>(_nodes);
+                Nodes = new ReadOnlyCollection<QuadTreeNode>(_nodes);
                 Objects = new ReadOnlyCollection<T>(quadObjects);
             }
 
-            public QuadNode(double x, double y, double width, double height)
-                : this(new Rect(x, y, width, height))
+            public QuadTreeNode(double x, double y, double width, double height)
+                : this(new QuadTreeRect(x, y, width, height))
             {
 
             }

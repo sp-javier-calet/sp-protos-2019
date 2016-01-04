@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using UnityEngine;

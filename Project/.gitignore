@@ -15,6 +15,9 @@
 *.booproj
 *.apk
 
+#local config
+/.proxy
+
 # Unity3D generated meta files
 *.pidb.meta
 
@@ -23,6 +26,14 @@ sysinfo.txt
 
 /Assets/Resources/Localization.csv
 /Assets/Resources/Localization.csv.meta
+
+# Artists
+TEMP_*
+TEMP_*.meta
+*.psd
+*.psd.meta
+*.PSD
+*.PSD.meta
 
 # Zenject
 Zenject.csproj

@@ -10,13 +10,13 @@ namespace SocialPoint.Network
 {
     public class HttpResponse
     {
-        public const string ContentLengthHeader = "Content-Length";
-        public const string ContentEncodingHeader = "Content-Encoding";
+        const string ContentLengthHeader = "Content-Length";
+        const string ContentEncodingHeader = "Content-Encoding";
         const string CompressGzipContentEncoding = "gzip";
         const string CompressDeflateContentEncoding = "deflate";
-        public const string LastModifiedHeader = "Last-Modified";
-        public const string LastModifiedHeaderFormat = "dddd, dd MMMM yyyy HH:mm:ss tt";
-        public const int MinServerErrorStatusCode = 500;
+        const string LastModifiedHeader = "Last-Modified";
+        const string LastModifiedHeaderFormat = "dddd, dd MMMM yyyy HH:mm:ss tt";
+        const int MinServerErrorStatusCode = 500;
 
         public enum StatusCodeType
         {
@@ -101,6 +101,14 @@ namespace SocialPoint.Network
             }
         }
 
+        public bool HasRecoverableError
+        {
+            get
+            {
+                return HasConnectionError || StatusCode >= MinServerErrorStatusCode;
+            }
+        }
+
         public void AddHeader(string key, string value)
         {
             Headers.Add(key, value);
@@ -162,7 +170,7 @@ namespace SocialPoint.Network
                 str.Append(kNewline);
             }
 
-            if(Body.Length > 0)
+            if(Body != null && Body.Length > 0)
             {
                 str.Append(new ArraySegment<byte>(Body, 0, 100));
                 str.Append(kNewline);

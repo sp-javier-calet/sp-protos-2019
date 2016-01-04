@@ -45,10 +45,8 @@ std::queue<std::string> _pendingEvents;
     {
         while(!_pendingEvents.empty())
         {
-            const std::string& status = _pendingEvents.front();
+            UnitySendMessage(_gameObjectName.c_str(), kNotifyMethod.c_str(), _pendingEvents.front().c_str());
             _pendingEvents.pop();
-
-            UnitySendMessage(_gameObjectName.c_str(), kNotifyMethod.c_str(), status.c_str());
         }
     }
 }
@@ -166,8 +164,14 @@ std::queue<std::string> _pendingEvents;
 - (void)applicationWillResignActive:(UIApplication*)application
 {
     [self notifyStatus:kStatusWillGoBackground];
+    
     //aditional game loop to allow scripts response before being paused
+#if UNITY_VERSION > 500
     UnityBatchPlayerLoop();
+#else
+    UnityPlayerLoop();
+#endif
+
     [super applicationWillResignActive:application];
 }
 

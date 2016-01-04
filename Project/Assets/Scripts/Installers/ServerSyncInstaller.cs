@@ -6,7 +6,7 @@ using SocialPoint.ScriptEvents;
 public class ServerSyncInstaller : Installer
 {
 	[Serializable]
-	public class SettingsData
+    public class SettingsData
 	{
         public bool IgnoreResponses = CommandQueue.DefaultIgnoreResponses;
         public int SendInterval = CommandQueue.DefaultSendInterval;

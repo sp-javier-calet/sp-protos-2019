@@ -1,0 +1,26 @@
+{
+  "buildSettings": {
+    "GCC_OPTIMIZATION_LEVEL": "1"
+  },
+  "frameworks": [
+    "Security.framework:weak"
+  ],
+  "infoPlist": {
+    "CFBundleIdentifier":"basegame",
+    "CFBundleURLTypes":[{
+      "CFBundleURLName":"basegame",
+      "CFBundleURLSchemes":["basegame"]
+    }]
+  },
+  "keychainAccessGroups": [
+    "$(AppIdentifierPrefix)basegame"
+  ],
+  "copyFiles": {
+    "../Localizable.strings": [ "{XCODE_PROJECT_PATH}/en.lproj/" ]
+  },
+  "variantGroups": {
+    "Localizable.strings": {
+      "en": "{XCODE_PROJECT_PATH}/en.lproj/Localizable.strings"
+    }
+  }
+}

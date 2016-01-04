@@ -47,7 +47,12 @@ namespace SocialPoint.AdminPanel
             
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
-            button.onClick.AddListener(() => { onClick(); });
+            if(onClick != null)
+            {
+                button.onClick.AddListener(() => {
+                    onClick();
+                });
+            }
             
             CreateButtonLabel(label, rectTransform);
 
