@@ -9,13 +9,16 @@ namespace SocialPoint.AdminPanel
     public class ButtonColor
     {
         public Color Color { get; private set; }
+
         private static float Alpha = 0.7f;
+
         private ButtonColor(float r, float g, float b)
         {
             Color = new Color(r, g, b, Alpha);
         }
-        
+
         public static readonly ButtonColor Default = new ButtonColor(.5f, .5f, .5f);
+        public static readonly ButtonColor Disabled = new ButtonColor(.2f, .2f, .2f);
         public static readonly ButtonColor Gray = new ButtonColor(.5f, .5f, .5f);
         public static readonly ButtonColor Red = new ButtonColor(.8f, .5f, .5f);
         public static readonly ButtonColor Green = new ButtonColor(.5f, .8f, .5f);
@@ -29,12 +32,12 @@ namespace SocialPoint.AdminPanel
          * Generic Button
          */
 
-        public Button CreateButton(string label, Action onClick)
+        public Button CreateButton(string label, Action onClick, bool enabled = true)
         {
-            return CreateButton(label, ButtonColor.Default, onClick);
+            return CreateButton(label, ButtonColor.Default, onClick, enabled);
         }
 
-        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick)
+        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
           
@@ -43,18 +46,17 @@ namespace SocialPoint.AdminPanel
             layoutElement.flexibleWidth = 1;
 
             var image = rectTransform.gameObject.AddComponent<Image>();
-            image.color = buttonColor.Color;
+            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
             
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
-            if(onClick != null)
+
+            if(enabled && onClick != null)
             {
-                button.onClick.AddListener(() => {
-                    onClick();
-                });
+                button.onClick.AddListener(() => onClick());
             }
             
-            CreateButtonLabel(label, rectTransform);
+            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
 
             return button;
         }
@@ -64,12 +66,12 @@ namespace SocialPoint.AdminPanel
          * Confirm Button
          */
 
-        public ConfirmActionButton CreateConfirmButton(string label, Action onClick)
+        public ConfirmActionButton CreateConfirmButton(string label, Action onClick, bool enabled = true)
         {
-            return CreateConfirmButton(label, ButtonColor.Default, onClick);
+            return CreateConfirmButton(label, ButtonColor.Default, onClick, enabled);
         }
 
-        public ConfirmActionButton CreateConfirmButton(string label, ButtonColor buttonColor, Action onClick)
+        public ConfirmActionButton CreateConfirmButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Confirm Button", Parent);
             
@@ -78,15 +80,19 @@ namespace SocialPoint.AdminPanel
             layoutElement.flexibleWidth = 1;
             
             var image = rectTransform.gameObject.AddComponent<Image>();
-            image.color = buttonColor.Color;
+            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
 
             var confirm = rectTransform.gameObject.AddComponent<ConfirmActionButton>();
             confirm.ButtonImage = image;
-            confirm.onSubmit = onClick;
+
+            if(enabled)
+            {
+                confirm.onSubmit = onClick;
+            }
 
             rectTransform.gameObject.AddComponent<EventTrigger>();
             
-            CreateButtonLabel(label, rectTransform, FontStyle.BoldAndItalic);
+            CreateButtonLabel(label, rectTransform, FontStyle.BoldAndItalic, enabled);
 
             return confirm;
         }
@@ -158,18 +164,12 @@ namespace SocialPoint.AdminPanel
         /*
          * Open Panel Button
          */
-
-        public Button CreateOpenPanelButton(string label, IAdminPanelGUI panel, ButtonColor buttonColor)
+        public Button CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool enabled = true, bool replacePanel = false)
         {
-            return CreateOpenPanelButton(label, panel, false, ButtonColor.Default);
+            return CreateOpenPanelButton(label, ButtonColor.Default, panel, enabled, replacePanel);
         }
 
-        public Button CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel = false)
-        {
-            return CreateOpenPanelButton(label, panel, replacePanel, ButtonColor.Default);
-        }
-
-        public Button CreateOpenPanelButton(string label, IAdminPanelGUI panel, bool replacePanel, ButtonColor buttonColor)
+        public Button CreateOpenPanelButton(string label, ButtonColor buttonColor, IAdminPanelGUI panel, bool enabled = true, bool replacePanel = false)
         {
             var rectTransform = CreateUIObject("Admin Panel - Open Panel Button", Parent);
             
@@ -178,22 +178,26 @@ namespace SocialPoint.AdminPanel
             layoutElement.flexibleWidth = 1;
             
             var image = rectTransform.gameObject.AddComponent<Image>();
-            image.color = buttonColor.Color;
+            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
             
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
-            button.onClick.AddListener(() => { 
-                if(replacePanel)
-                {
-                    ReplacePanel(panel);
-                }
-                else
-                {
-                    OpenPanel(panel);
-                }
-            });
+
+            if(enabled)
+            {
+                button.onClick.AddListener(() => { 
+                    if(replacePanel)
+                    {
+                        ReplacePanel(panel);
+                    }
+                    else
+                    {
+                        OpenPanel(panel);
+                    }
+                });
+            }
             
-            CreateButtonLabel(label, rectTransform);
+            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
             CreateOpenPanelIndicator(rectTransform);
 
             return button;
@@ -205,12 +209,12 @@ namespace SocialPoint.AdminPanel
          * Toggle Button
          */
 
-        public Toggle CreateToggleButton(string label, bool status, Action<bool> onToggle)
+        public Toggle CreateToggleButton(string label, bool status, Action<bool> onToggle, bool enabled = true)
         {
-            return CreateToggleButton(label, status, ButtonColor.Default, onToggle);
+            return CreateToggleButton(label, status, ButtonColor.Default, onToggle, enabled);
         }
 
-        public Toggle CreateToggleButton(string label, bool status, ButtonColor buttonColor, Action<bool> onToggle)
+        public Toggle CreateToggleButton(string label, bool status, ButtonColor buttonColor, Action<bool> onToggle, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Toggle Button", Parent);
             
@@ -220,14 +224,14 @@ namespace SocialPoint.AdminPanel
             
             var toggleBackground = CreateUIObject("Admin Panel - Toggle Background", rectTransform);
             var image = toggleBackground.gameObject.AddComponent<Image>();
-            image.color = buttonColor.Color;
+            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
             
             // Status indicators parameters
-            Vector2 anchorMin = Vector2.one;
-            Vector2 anchorMax = Vector2.one;
+            var anchorMin = Vector2.one;
+            var anchorMax = Vector2.one;
             int indicatorSize = (int)Mathf.Round(DefaultLabelHeight / 3);
-            Vector2 anchoredPosition = new Vector2(-indicatorSize * 2, -indicatorSize - 1);
-            Vector2 indicatorSizeDelta = new Vector2(indicatorSize, indicatorSize);
+            var anchoredPosition = new Vector2(-indicatorSize * 2, -indicatorSize - 1);
+            var indicatorSizeDelta = new Vector2(indicatorSize, indicatorSize);
             
             // Disabled indicator
             var disableIndicator = CreateUIObject("Admin Panel - Toggle Disabled Graphic", rectTransform);
@@ -255,11 +259,13 @@ namespace SocialPoint.AdminPanel
             toggle.graphic = indImage;
             
             toggle.isOn = status;
-            toggle.onValueChanged.AddListener((value) => {
-                onToggle(value); 
-            });
+
+            if(enabled)
+            {
+                toggle.onValueChanged.AddListener((value) => onToggle(value));
+            }
             
-            CreateButtonLabel(label, rectTransform);
+            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
 
             return toggle;
         }
@@ -268,7 +274,7 @@ namespace SocialPoint.AdminPanel
          * Internal
          */
 
-        private void CreateButtonLabel(string label, RectTransform buttonTransform, FontStyle style = FontStyle.Normal)
+        private void CreateButtonLabel(string label, RectTransform buttonTransform, FontStyle style = FontStyle.Normal, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button Label", buttonTransform);
             
@@ -276,7 +282,7 @@ namespace SocialPoint.AdminPanel
             text.text = label;
             text.font = DefaultFont;
             text.fontSize = DefaultFontSize;
-            text.color = Color.white;
+            text.color = enabled ? Color.white : Color.gray;
             text.alignment = TextAnchor.MiddleCenter;
             text.fontStyle = style;
             
