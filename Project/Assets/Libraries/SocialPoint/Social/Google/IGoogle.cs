@@ -89,7 +89,7 @@ namespace SocialPoint.Social
         {
             Id = id;
             FriendsOnly = friendsOnly;
-            playerCentered = playerCentered;
+            PlayerCentered = playerCentered;
             Scope = scope;
             Scores = new List<GoogleLeaderboardScoreEntry>();
         }

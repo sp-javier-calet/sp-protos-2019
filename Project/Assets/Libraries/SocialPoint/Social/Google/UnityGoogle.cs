@@ -8,7 +8,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public class UnityGoogle : BaseGoogle
+    public class UnityGoogle : IGoogle
     {
         GoogleUser _user;
         PlayGamesPlatform _platform;
@@ -16,7 +16,7 @@ namespace SocialPoint.Social
 
         #region IGoogle implementation
 
-        public override void Login(ErrorDelegate cbk)
+        public void Login(ErrorDelegate cbk)
         {
             if(IsConnected)
             {
@@ -84,7 +84,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void Logout(ErrorDelegate cbk)
+        public void Logout(ErrorDelegate cbk)
         {
             _platform = null;
             _user = null;
@@ -96,7 +96,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override GoogleUser User
+        public GoogleUser User
         {
             get
             {
@@ -104,7 +104,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override bool IsConnected
+        public bool IsConnected
         {
             get
             {
@@ -114,7 +114,7 @@ namespace SocialPoint.Social
 
         #region Achievements
 
-        public override void ResetAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
+        public void ResetAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
         {
             if(!IsConnected)
             {
@@ -151,7 +151,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void UpdateAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
+        public void UpdateAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
         {
             if(!IsConnected)
             {
@@ -220,7 +220,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override IEnumerable<GoogleAchievement> Achievements
+        public IEnumerable<GoogleAchievement> Achievements
         {
             get
             {
@@ -277,7 +277,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void ShowAchievementsUI()
+        public void ShowAchievementsUI()
         {
             if(_platform != null)
             {
@@ -289,7 +289,7 @@ namespace SocialPoint.Social
 
         #region Leaderboards
 
-        public override void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk)
+        public void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk)
         {
             if(!IsConnected)
             {
@@ -344,7 +344,7 @@ namespace SocialPoint.Social
                 });
         }
 
-        public override void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        public void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
         {
             if(!IsConnected)
             {
@@ -363,7 +363,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void ShowLeaderboardsUI(string id = null)
+        public void ShowLeaderboardsUI(string id = null)
         {
             if(_platform != null)
             {
@@ -376,7 +376,7 @@ namespace SocialPoint.Social
 
         #region Quests
 
-        public override void IncrementEvent(string id, uint quantity = 1)
+        public void IncrementEvent(string id, uint quantity = 1)
         {
             if(IsConnected && !string.IsNullOrEmpty(id))
             {
@@ -384,7 +384,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null)
+        public void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null)
         {
             if(!IsConnected)
             {

@@ -1,12 +1,13 @@
 ﻿using SocialPoint.Base;
+using System.Collections.Generic;
 
 namespace SocialPoint.Social
 {
-    public class EmptyGoogle : BaseGoogle
+    public class EmptyGoogle : IGoogle
     {
         #region IGoogle implementation
 
-        public override void Login(ErrorDelegate cbk)
+        public void Login(ErrorDelegate cbk)
         {
             if(cbk != null)
             {
@@ -14,7 +15,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void Logout(ErrorDelegate cbk)
+        public void Logout(ErrorDelegate cbk)
         {
             if(cbk != null)
             {
@@ -22,7 +23,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
+        public void UpdateAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
         {
             if(cbk != null)
             {
@@ -30,7 +31,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void ResetAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
+        public void ResetAchievement(GoogleAchievement achievement, GoogleAchievementDelegate cbk = null)
         {
             if(cbk != null)
             {
@@ -38,19 +39,11 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void ShowAchievementsUI()
+        public void ShowAchievementsUI()
         {
         }
 
-        public override void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk)
-        {
-            if(cbk != null)
-            {
-                cbk(ldb, new Error("Empty Google implementation"));
-            }
-        }
-
-        public override void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        public void LoadLeaderboard(GoogleLeaderboard ldb, uint rowCount, GoogleLeaderboardDelegate cbk)
         {
             if(cbk != null)
             {
@@ -58,15 +51,23 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void ShowLeaderboardsUI(string id = null)
+        public void UpdateLeaderboard(GoogleLeaderboard ldb, GoogleLeaderboardDelegate cbk = null)
+        {
+            if(cbk != null)
+            {
+                cbk(ldb, new Error("Empty Google implementation"));
+            }
+        }
+
+        public void ShowLeaderboardsUI(string id = null)
         {
         }
 
-        public override void IncrementEvent(string id, uint quantity = 1)
+        public void IncrementEvent(string id, uint quantity = 1)
         {
         }
 
-        public override void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null)
+        public void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null)
         {
             if(cbk != null)
             {
@@ -74,7 +75,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override GoogleUser User
+        public GoogleUser User
         {
             get
             {
@@ -82,7 +83,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override bool IsConnected
+        public bool IsConnected
         {
             get
             {
@@ -90,6 +91,13 @@ namespace SocialPoint.Social
             }
         }
 
+        public IEnumerable<GoogleAchievement> Achievements
+        {
+            get
+            {
+                return null;
+            }
+        }
 
         #endregion
     }
