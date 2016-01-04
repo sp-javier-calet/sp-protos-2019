@@ -1,51 +1,55 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using SocialPoint.GUIControl;
+using System.Collections.Generic;
 
-public class FadeAnimation : UIViewAnimation {
-
+public class FadeAnimation : UIViewAnimation
+{
     private float _speed = 1.0f;
-    private float _maxAlpha = 1.0f;    
-    private CanvasGroup _canvasGroup;
+    private float _maxAlpha = 1.0f;
+    private UIViewController _ctrl;
 
     public void Load(UIViewController ctrl)
     {
-        _canvasGroup = ctrl.gameObject.GetComponent<CanvasGroup>();
-        if(_canvasGroup == null)
-        {
-            throw new MissingComponentException("Could not find CanvasGroup component.");
-        }
-        _maxAlpha = _canvasGroup.alpha;
+        _maxAlpha = ctrl.Alpha;
+        _ctrl = ctrl;
     }
 
     public FadeAnimation(float speed)
     {
         _speed = speed;
     }
-    
+
     public IEnumerator Appear()
     {
-        _canvasGroup.alpha = 0.0f;
-        while(_canvasGroup.alpha < _maxAlpha)
+        _ctrl.Alpha = 0.0f;
+
+        while(_ctrl.Alpha < _maxAlpha)
         {
-            _canvasGroup.alpha += _speed * Time.deltaTime;
+            float alpha = _ctrl.Alpha + (_speed * Time.deltaTime);
+
+            _ctrl.Alpha = alpha;
+
             yield return null;
         }
     }
-    
+
     public IEnumerator Disappear()
     {
-        while(_canvasGroup.alpha > 0.0f)
+        while(_ctrl.Alpha > 0.0f)
         {
-            _canvasGroup.alpha -= _speed * Time.deltaTime;
+            float alpha = _ctrl.Alpha - (_speed * Time.deltaTime);
+
+            _ctrl.Alpha = alpha;
+
             yield return null;
         }
     }
 
     public void Reset()
     {
-        _canvasGroup.alpha = _maxAlpha;
+        _ctrl.Alpha = _maxAlpha;
     }
 
     public object Clone()
@@ -54,4 +58,3 @@ public class FadeAnimation : UIViewAnimation {
         return anim;
     }
 }
-

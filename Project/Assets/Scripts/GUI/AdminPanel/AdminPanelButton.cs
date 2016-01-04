@@ -10,7 +10,7 @@ using Zenject;
 public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [InjectOptional]
-    AdminPanel AdminPanel;
+    AdminPanel _adminPanel;
 
     [Inject]
     List<IAdminPanelConfigurer> _configurers;
@@ -34,14 +34,28 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     [PostInject]
     void PostInject()
     {
-        if(AdminPanel != null)
+        if(_adminPanel != null)
         {
-            AdminPanel.RegisterConfigurers(_configurers);
+            _adminPanel.RegisterConfigurers(_configurers);
+            _adminPanel.ChangedVisibility += OnAdminPanelChangedVisibility;
         }
         else
         {
             gameObject.SetActive(false);
         }
+    }
+
+    void OnDisable()
+    {
+        if(_adminPanel != null)
+        {
+            _adminPanel.ChangedVisibility -= OnAdminPanelChangedVisibility;
+        }
+    }
+
+    void OnAdminPanelChangedVisibility()
+    {
+        GetComponent<CanvasGroup>().alpha = _adminPanel.Visible ? 0.0f : 1.0f;
     }
 
     void Update()
@@ -62,7 +76,7 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         if(_adminPanelController == null)
         {
             _adminPanelController = UIViewController.Factory.Create<AdminPanelController>();
-            _adminPanelController.AdminPanel = AdminPanel;
+            _adminPanelController.AdminPanel = _adminPanel;
             _adminPanelController.transform.SetParent(transform.parent, false);
         }
         _adminPanelController.Show();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SocialPoint.GUIControl
@@ -35,6 +36,65 @@ namespace SocialPoint.GUIControl
 
         [HideInInspector]
         public bool DestroyOnHide = false;
+
+        [HideInInspector]
+        public static UILayersController LayersController;
+
+        [SerializeField]
+        private List<GameObject> _3dContainers = new List<GameObject>();
+
+        public IList<GameObject> Containers3d { get { return _3dContainers.AsReadOnly(); } }
+
+        public IList<Material> Materials3d
+        {
+            get
+            {
+                var materials = new List<Material>();
+                foreach(var element in Containers3d)
+                {
+                    var renderer = element.GetComponent<Renderer>();
+                    if(renderer != null && renderer.material != null)
+                    {
+                        materials.Add(renderer.material);
+                    }
+                }
+                return materials;
+            }
+        }
+
+        public float Alpha
+        {
+            set
+            {
+                var group = gameObject.GetComponent<CanvasGroup>();
+                if(group != null)
+                {
+                    group.alpha = value;
+                }
+                foreach(var mat in Materials3d)
+                {
+                    mat.color = new Color(mat.color.r, mat.color.g, mat.color.b, value);
+                }
+            }
+
+            get
+            {
+                var group = gameObject.GetComponent<CanvasGroup>();
+                var alpha = 0.0f;
+                if(group != null)
+                {
+                    alpha = group.alpha;
+                }
+                foreach(var mat in Materials3d)
+                {
+                    alpha = Mathf.Max(alpha, mat.color.a);
+                }
+                return alpha;
+            }
+        }
+
+        private int _layer2d;
+        private int _layer3d;
 
         public UIViewAnimation Animation
         {
@@ -105,7 +165,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnStart()
         {
-            if(isActiveAndEnabled && transform.parent != null && _showCoroutine == null)
+            if(ParentController == null && isActiveAndEnabled && transform.parent != null && _showCoroutine == null)
             {
                 ShowImmediate();
             }
@@ -243,7 +303,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public void HideImmediate(bool destroy=false)
+        public void HideImmediate(bool destroy = false)
         {
             DebugLog("HideImmediate");
             Load();
@@ -259,7 +319,7 @@ namespace SocialPoint.GUIControl
             CheckDestroyOnHide(destroy);
         }
 
-        public bool Hide(bool destroy=false)
+        public bool Hide(bool destroy = false)
         {
             DebugLog("Hide");
             Load();
@@ -275,7 +335,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public IEnumerator HideCoroutine(bool destroy=false)
+        public IEnumerator HideCoroutine(bool destroy = false)
         {
             DebugLog("HideCoroutine");
             Load();
@@ -319,7 +379,75 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppearing");
             _viewState = ViewState.Appearing;
+            SetupLayersAppearing();
             NotifyViewEvent();
+        }
+
+        void SetupLayersAppearing()
+        {
+            if(LayersController != null)
+            {
+                Setup2DCanvas(gameObject);
+
+                foreach(GameObject ui3DContainer in _3dContainers)
+                {
+                    Setup3DContainer(ui3DContainer);
+                }
+            }
+            else if(_3dContainers.Count > 0)
+            {
+                throw new Exception("You need to assign a UILayersController");
+            }
+        }
+
+        void Setup2DCanvas(GameObject gameObject)
+        {
+            if(_layer2d == 0)
+            {
+                _layer2d = LayersController.AddToCurrentUILayer(gameObject);
+            }
+            else
+            {
+                LayersController.AddToUILayer(gameObject, _layer2d);
+            }
+        }
+
+        public void Add3DContainer(GameObject gameObject)
+        {
+            _3dContainers.Add(gameObject);
+
+            Setup3DContainer(gameObject);
+        }
+
+        void Init3DContainer(GameObject container)
+        {
+            UI3DContainer containerComponent = container.GetComponent<UI3DContainer>();
+
+            if(containerComponent == null)
+            {
+                containerComponent = container.AddComponent<UI3DContainer>();
+                containerComponent.OnDestroyed += Remove3DContainer;
+            }
+        }
+
+        void Setup3DContainer(GameObject gameObject)
+        {
+            Init3DContainer(gameObject);
+
+            if(_layer3d == 0)
+            {
+                _layer3d = LayersController.AddToCurrent3DLayer(gameObject);
+            }
+            else
+            {
+                LayersController.AddTo3DLayer(gameObject, _layer3d);
+            }
+        }
+
+        public void Remove3DContainer(GameObject gameObject)
+        {
+            _3dContainers.Remove(gameObject);
+            LayersController.RemoveElement(gameObject);
         }
 
         IEnumerator FullAppear()
@@ -386,6 +514,22 @@ namespace SocialPoint.GUIControl
             NotifyViewEvent();
         }
 
+        void SetupLayersDisappeared()
+        {
+            if(LayersController != null)
+            {
+                foreach(GameObject container in _3dContainers)
+                {
+                    LayersController.RemoveElement(container);
+                }
+
+                LayersController.RemoveElement(gameObject);
+
+                _layer2d = 0;
+                _layer3d = 0;
+            }
+        }
+
         virtual protected IEnumerator Disappear()
         {
             if(Animation != null)
@@ -428,6 +572,7 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnDisappeared");
             _viewState = ViewState.Hidden;
+            SetupLayersDisappeared();
             NotifyViewEvent();
         }
 
@@ -469,6 +614,7 @@ namespace SocialPoint.GUIControl
         }
 
         static Canvas _canvas;
+
         public static Canvas Canvas
         {
             get

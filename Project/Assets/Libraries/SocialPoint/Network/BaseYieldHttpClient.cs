@@ -80,7 +80,7 @@ namespace SocialPoint.Network
             {
                 RequestSetup(req);
             }
-        }       
+        }
 
         public virtual void Dispose()
         {
@@ -92,6 +92,14 @@ namespace SocialPoint.Network
 
         public virtual IHttpConnection Send(HttpRequest req, HttpResponseDelegate del = null)
         {
+            if(req == null || req.Url == null)
+            {
+                if(del != null)
+                {
+                    del(new HttpResponse((int)HttpResponse.StatusCodeType.BadRequestError));
+                }
+                return null;
+            }
             SetupHttpRequest(req);
             req.BeforeSend();
             var conn = CreateConnection(req, del);

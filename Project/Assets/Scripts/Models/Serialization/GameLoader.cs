@@ -40,6 +40,10 @@ public class GameLoader : IGameLoader
 
     public GameModel Load(Attr data)
     {
+        if(Attr.IsNullOrEmpty(data))
+        {
+            return LoadInitial();
+        }
         var newModel = _parser.Parse(data);
         if(newModel.Player == null)
         {

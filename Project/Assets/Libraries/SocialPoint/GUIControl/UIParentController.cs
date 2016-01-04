@@ -5,18 +5,18 @@ namespace SocialPoint.GUIControl
 {
     public class UIParentController : UIViewController
     {
-        public C CreateChild<C>(string prefab=null) where C : UIViewController
+        public C CreateChild<C>(string prefab = null) where C : UIViewController
         {
             return (C)CreateChild(typeof(C), prefab);
         }
 
-        public UIViewController CreateChild(Type c, string prefab=null)
+        public UIViewController CreateChild(Type c, string prefab = null)
         {
             UIViewController ctrl = null;
             if(ctrl == null)
             {
                 var ctrls = gameObject.GetComponentsInChildren(c, true);
-                for(int i=0; i<ctrls.Length; ++i)
+                for(int i = 0; i < ctrls.Length; ++i)
                 {
                     var elm = (UIViewController)ctrls[i];
                     if(elm.ParentController == null)
@@ -54,8 +54,12 @@ namespace SocialPoint.GUIControl
             {
                 throw new ArgumentException("Controller cannot be null.");
             }
-            ctrl.ParentController = this;
-            ctrl.ViewEvent += OnChildViewStateChanged;
+
+            if(ctrl.ParentController != this)
+            {
+                ctrl.ParentController = this;
+                ctrl.ViewEvent += OnChildViewStateChanged;
+            }
         }
 
         protected void RemoveChild(UIViewController ctrl)

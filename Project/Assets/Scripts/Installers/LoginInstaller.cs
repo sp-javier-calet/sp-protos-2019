@@ -66,13 +66,13 @@ public class LoginInstaller : Installer
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
         
         Container.Rebind<ILogin>().ToSingle<Login>();
-        Container.Bind<IDisposable>().ToSingle<Login>();
+        Container.Bind<IDisposable>().ToLookup<ILogin>();
     }
 
-    AdminPanelLogin CreateAdminPanel(InjectContext ctx)
+    public static AdminPanelLogin CreateAdminPanel(InjectContext ctx)
     {
-        var login = Container.Resolve<ILogin>();
-        var appEvents = Container.Resolve<IAppEvents>();
+        var login = ctx.Container.Resolve<ILogin>();
+        var appEvents = ctx.Container.Resolve<IAppEvents>();
         var envs = new Dictionary<string,string>();
         foreach(BackendEnvironment env in Enum.GetValues(typeof(BackendEnvironment)))
         {

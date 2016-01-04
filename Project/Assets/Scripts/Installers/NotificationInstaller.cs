@@ -39,6 +39,4 @@ public class NotificationInstaller : Installer
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
     }
-
-
 }
