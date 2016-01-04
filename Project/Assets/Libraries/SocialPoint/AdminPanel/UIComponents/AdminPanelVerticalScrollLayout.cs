@@ -9,7 +9,7 @@ namespace SocialPoint.AdminPanel
     {
         public VerticalScrollLayout CreateVerticalScrollLayout(out ScrollRect consoleScroll)
         {
-            var layout =  new VerticalScrollLayout(this, DefaultLayoutWeight);
+            var layout = new VerticalScrollLayout(this, DefaultLayoutWeight);
             consoleScroll = layout.ScrollRect;
             return layout;
         }
@@ -18,7 +18,7 @@ namespace SocialPoint.AdminPanel
         {
             return new VerticalScrollLayout(this, weight);
         }
-        
+
         public VerticalScrollLayout CreateVerticalScrollLayout()
         {
             return CreateVerticalScrollLayout(1);
