@@ -363,6 +363,7 @@ PlayerSettings:
   psmSplashimage: {fileID: 0}
   spritePackerPolicy: 
   scriptingDefineSymbols:
+    4: NO_GPGS
     7: DEBUG_SPPERSISTENT
   metroPackageName: Project
   metroPackageLogo: 
