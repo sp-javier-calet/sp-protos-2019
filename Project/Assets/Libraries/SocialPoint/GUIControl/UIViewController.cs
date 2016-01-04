@@ -26,7 +26,9 @@ namespace SocialPoint.GUIControl
         private ViewState _viewState = ViewState.Initial;
         private Coroutine _showCoroutine;
         private Coroutine _hideCoroutine;
-        private UIViewAnimation _animation;
+        private UIViewAnimation _animation;        
+        private int _layer2d;
+        private int _layer3d;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -41,16 +43,14 @@ namespace SocialPoint.GUIControl
         public static UILayersController LayersController;
 
         [SerializeField]
-        private List<GameObject> _3dContainers = new List<GameObject>();
+        private List<GameObject> _containers3d = new List<GameObject>();
 
-        public IList<GameObject> Containers3d { get { return _3dContainers.AsReadOnly(); } }
-
-        public IList<Material> Materials3d
+        IList<Material> Materials3d
         {
             get
             {
                 var materials = new List<Material>();
-                foreach(var element in Containers3d)
+                foreach(var element in _containers3d)
                 {
                     var renderer = element.GetComponent<Renderer>();
                     if(renderer != null && renderer.material != null)
@@ -93,8 +93,77 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        private int _layer2d;
-        private int _layer3d;
+        public Vector2 Position
+        {
+            set
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                foreach(var canvas in canvases)
+                {
+                    foreach(RectTransform child in canvas.transform)
+                    {
+                        child.localPosition = value;
+                    }
+                }
+            }
+
+            get
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                if(canvases.Count > 0)
+                {
+                    foreach(RectTransform child in canvases[0].transform)
+                    {
+                        return child.localPosition;
+                    }
+                }
+                return Vector2.zero;
+            }
+        }
+
+        public Vector2 Size
+        {
+            set
+            {
+                var size = FixSize(value);
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                foreach(var canvas in canvases)
+                {
+                    foreach(RectTransform child in canvas.transform)
+                    {
+                        child.sizeDelta = size;
+                    }
+                }
+            }
+            
+            get
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                var size = Vector2.zero;
+                if(canvases.Count > 0)
+                {
+                    foreach(RectTransform child in canvases[0].transform)
+                    {
+                        size.x = Mathf.Max(size.x, child.sizeDelta.x);
+                        size.y = Mathf.Max(size.y, child.sizeDelta.y);
+                    }
+                }
+                return FixSize(size);
+            }
+        }
+
+        Vector2 FixSize(Vector2 size)
+        {
+            if(size.x == 0)
+            {
+                size.x = Screen.width;
+            }
+            if(size.y == 0)
+            {
+                size.y = Screen.height;
+            }
+            return size;
+        }
 
         public UIViewAnimation Animation
         {
@@ -132,6 +201,87 @@ namespace SocialPoint.GUIControl
                 return _viewState;
             }
         }
+
+        void AddLayers()
+        {
+            if(LayersController != null)
+            {
+                Setup2DCanvas(gameObject);
+                
+                foreach(GameObject ui3DContainer in _containers3d)
+                {
+                    Setup3DContainer(ui3DContainer);
+                }
+            }
+            else if(_containers3d.Count > 0)
+            {
+                throw new Exception("You need to assign a UILayersController");
+            }
+        }
+        
+        void Setup2DCanvas(GameObject gameObject)
+        {
+            if(_layer2d == 0)
+            {
+                _layer2d = LayersController.AddToCurrentUILayer(gameObject);
+            }
+            else
+            {
+                LayersController.AddToUILayer(gameObject, _layer2d);
+            }
+        }
+        
+        public void Add3DContainer(GameObject gameObject)
+        {
+            _containers3d.Add(gameObject);            
+            Setup3DContainer(gameObject);
+        }
+
+        void Setup3DContainer(GameObject gameObject)
+        {
+            var container = gameObject.GetComponent<UI3DContainer>();
+            
+            if(container == null)
+            {
+                container = gameObject.AddComponent<UI3DContainer>();
+                container.OnDestroyed += On3dContainerDestroyed;
+            }
+            
+            if(_layer3d == 0)
+            {
+                _layer3d = LayersController.AddToCurrent3DLayer(gameObject);
+            }
+            else
+            {
+                LayersController.AddTo3DLayer(gameObject, _layer3d);
+            }
+        }
+        
+        public void On3dContainerDestroyed(GameObject gameObject)
+        {
+            _containers3d.Remove(gameObject);
+            if(LayersController != null)
+            {
+                LayersController.RemoveElement(gameObject);
+            }
+        }
+        
+        void RemoveLayers()
+        {
+            if(LayersController != null)
+            {
+                foreach(GameObject container in _containers3d)
+                {
+                    LayersController.RemoveElement(container);
+                }
+                
+                LayersController.RemoveElement(gameObject);
+                
+                _layer2d = 0;
+                _layer3d = 0;
+            }
+        }
+
 
         [System.Diagnostics.Conditional("DEBUG_SPGUI")]
         void DebugLog(string msg)
@@ -196,10 +346,6 @@ namespace SocialPoint.GUIControl
                 if(ParentController != null)
                 {
                     SetParent(ParentController.transform);
-                }
-                if(Canvas != null)
-                {
-                    SetParent(Canvas.transform);
                 }
             }
         }
@@ -379,75 +525,8 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppearing");
             _viewState = ViewState.Appearing;
-            SetupLayersAppearing();
+            AddLayers();
             NotifyViewEvent();
-        }
-
-        void SetupLayersAppearing()
-        {
-            if(LayersController != null)
-            {
-                Setup2DCanvas(gameObject);
-
-                foreach(GameObject ui3DContainer in _3dContainers)
-                {
-                    Setup3DContainer(ui3DContainer);
-                }
-            }
-            else if(_3dContainers.Count > 0)
-            {
-                throw new Exception("You need to assign a UILayersController");
-            }
-        }
-
-        void Setup2DCanvas(GameObject gameObject)
-        {
-            if(_layer2d == 0)
-            {
-                _layer2d = LayersController.AddToCurrentUILayer(gameObject);
-            }
-            else
-            {
-                LayersController.AddToUILayer(gameObject, _layer2d);
-            }
-        }
-
-        public void Add3DContainer(GameObject gameObject)
-        {
-            _3dContainers.Add(gameObject);
-
-            Setup3DContainer(gameObject);
-        }
-
-        void Init3DContainer(GameObject container)
-        {
-            UI3DContainer containerComponent = container.GetComponent<UI3DContainer>();
-
-            if(containerComponent == null)
-            {
-                containerComponent = container.AddComponent<UI3DContainer>();
-                containerComponent.OnDestroyed += Remove3DContainer;
-            }
-        }
-
-        void Setup3DContainer(GameObject gameObject)
-        {
-            Init3DContainer(gameObject);
-
-            if(_layer3d == 0)
-            {
-                _layer3d = LayersController.AddToCurrent3DLayer(gameObject);
-            }
-            else
-            {
-                LayersController.AddTo3DLayer(gameObject, _layer3d);
-            }
-        }
-
-        public void Remove3DContainer(GameObject gameObject)
-        {
-            _3dContainers.Remove(gameObject);
-            LayersController.RemoveElement(gameObject);
         }
 
         IEnumerator FullAppear()
@@ -514,22 +593,6 @@ namespace SocialPoint.GUIControl
             NotifyViewEvent();
         }
 
-        void SetupLayersDisappeared()
-        {
-            if(LayersController != null)
-            {
-                foreach(GameObject container in _3dContainers)
-                {
-                    LayersController.RemoveElement(container);
-                }
-
-                LayersController.RemoveElement(gameObject);
-
-                _layer2d = 0;
-                _layer3d = 0;
-            }
-        }
-
         virtual protected IEnumerator Disappear()
         {
             if(Animation != null)
@@ -572,7 +635,7 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnDisappeared");
             _viewState = ViewState.Hidden;
-            SetupLayersDisappeared();
+            RemoveLayers();
             NotifyViewEvent();
         }
 
@@ -584,47 +647,6 @@ namespace SocialPoint.GUIControl
                 InstantiateEvent(this, go);
             }
             return go;
-        }
-
-        public static Camera GetLayerCamera(int layer)
-        {
-            var cams = GameObject.FindObjectsOfType<Camera>();
-            int layerMask = (1 << layer);
-            for(int i = 0; i < cams.Length; i++)
-            {
-                if(cams[i].cullingMask == layerMask)
-                {
-                    return cams[i];
-                }
-            }
-            return null;
-        }
-
-        public static void SetViewportRect(Rect viewport, int layer)
-        {
-            Camera cam = GetLayerCamera(layer);
-            if(cam == null)
-            {
-                throw new Exception(string.Format("Could not find camera in layer '{0}'.", LayerMask.LayerToName(layer)));
-            }
-            else
-            {
-                cam.rect = viewport;
-            }
-        }
-
-        static Canvas _canvas;
-
-        public static Canvas Canvas
-        {
-            get
-            {
-                if(_canvas == null)
-                {
-                    _canvas = FindObjectOfType<Canvas>();
-                }
-                return _canvas;
-            }
         }
     }
 }

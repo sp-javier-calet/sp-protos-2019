@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace SocialPoint.EventSystems
 {
     public class ActionEventSystem : EventSystem, IActionEventSystem, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
+        [SerializeField]
+        EventSystem _preempt = null;
+
+        [SerializeField]
+        LayerMask _preemptMask;
+
         protected override void OnEnable()
         {
             // do not assign EventSystem.current
@@ -26,8 +33,6 @@ namespace SocialPoint.EventSystems
             _hasFocus = focusStatus;
         }
 
-        public bool Enabled = true;
-
         BaseRaycaster _raycaster;
 
         BaseRaycaster Raycaster
@@ -46,17 +51,48 @@ namespace SocialPoint.EventSystems
             }
         }
 
+        bool PreemptRaycast(PointerEventData eventData)
+        {
+            var preempt = _preempt;
+            if(preempt != null)
+            {
+                preempt = this;
+            }
+            var preemptResults = new List<RaycastResult>();
+            preempt.RaycastAll(eventData, preemptResults);
+            foreach(var result in preemptResults)
+            {
+                var go = result.gameObject;
+                while(go != null)
+                {
+                    if((_preemptMask.value & 1<<go.layer) != 0)
+                    {
+                        return true;
+                    }
+                    var parent = go.transform.parent;
+                    if(parent == null)
+                    {
+                        break;
+                    }
+                    go = parent.gameObject;
+                }
+            }
+            return false;
+        }
+
         public void RaycastCamera(PointerEventData eventData, List<RaycastResult> raycastResults)
         {
-            if(Enabled)
+            if(PreemptRaycast(eventData))
             {
-                raycastResults.Add(new RaycastResult {
-                    gameObject = gameObject,
-                    module = Raycaster,
-                    distance = 0,
-                    index = raycastResults.Count
-                });
+                return;
             }
+
+            raycastResults.Add(new RaycastResult {
+                gameObject = gameObject,
+                module = Raycaster,
+                distance = 0,
+                index = raycastResults.Count
+            });
         }
 
         #region handlers
@@ -69,7 +105,7 @@ namespace SocialPoint.EventSystems
         public event Action<PointerEventData> OnPointerExit;
         public event Action<PointerEventData> OnPointerDown;
         public event Action<PointerEventData> OnPointerUp;
-        public event Action<PointerEventData> OnPointerClick;
+        public event Action<PointerEventData> OnPointerClick;       
 
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {

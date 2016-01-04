@@ -1,5 +1,4 @@
-﻿
-using SocialPoint.GUIControl;
+﻿using SocialPoint.GUIControl;
 using Zenject;
 
 public class PopupsController : UIStackController
@@ -9,10 +8,9 @@ public class PopupsController : UIStackController
     [Inject("popup_fade_speed")]
     public float FadeSpeed = DefaultFadeSpeed;
 
-    protected override void OnLoad()
+    override protected void OnLoad()
     {
         ChildAnimation = new FadeAnimation(FadeSpeed);
         base.OnLoad();
     }
-
 }

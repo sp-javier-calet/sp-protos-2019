@@ -115,8 +115,12 @@ namespace SocialPoint.GUIControl
             return layer;
         }
 
-        void GetCanvasFromElement(GameObject uiElement, List<Canvas> uiCanvas)
+        public static List<Canvas> GetCanvasFromElement(GameObject uiElement, List<Canvas> uiCanvas=null)
         {
+            if(uiCanvas == null)
+            {
+                uiCanvas = new List<Canvas>();
+            }
             var canvas = uiElement.GetComponent<Canvas>();
 
             if(canvas == null)
@@ -130,6 +134,7 @@ namespace SocialPoint.GUIControl
             {
                 uiCanvas.Add(canvas);
             }
+            return uiCanvas;
         }
 
         public void AddToUILayer(GameObject uiElement, int layer)

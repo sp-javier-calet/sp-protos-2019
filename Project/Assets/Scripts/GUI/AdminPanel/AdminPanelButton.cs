@@ -1,10 +1,14 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
+using SocialPoint.EventSystems;
 using SocialPoint.GUIControl;
+
+using UnityEngine;
+using UnityEngine.EventSystems;
+
 using System.Collections;
 using System.Collections.Generic;
 using System;
+
 using Zenject;
 
 public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
