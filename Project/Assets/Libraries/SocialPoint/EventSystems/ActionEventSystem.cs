@@ -54,7 +54,7 @@ namespace SocialPoint.EventSystems
         bool PreemptRaycast(PointerEventData eventData)
         {
             var preempt = _preempt;
-            if(preempt != null)
+            if(preempt == null)
             {
                 preempt = this;
             }
