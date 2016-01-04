@@ -27,7 +27,7 @@ namespace SocialPoint.AdminPanel
             return CreatePanelLayout(null, null, DefaultLayoutWeight);
         }
     }
-    
+
     public class PanelLayout : AdminPanelLayout
     {
         public PanelLayout(AdminPanelLayout parentLayout, string title, Action onClose, int weight) : base(parentLayout)
@@ -100,8 +100,8 @@ namespace SocialPoint.AdminPanel
             
             rectTransform.anchorMin = Vector2.up;
             rectTransform.anchorMax = Vector2.up;
-            rectTransform.anchoredPosition = new Vector2(-5.0f, 5.0f);
-            rectTransform.sizeDelta = new Vector2(50, 30);
+            rectTransform.anchoredPosition = new Vector2(-10.0f, 10.0f);
+            rectTransform.sizeDelta = new Vector2(60, 40);
             
             layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.ignoreLayout = true;
@@ -111,7 +111,9 @@ namespace SocialPoint.AdminPanel
             
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
-            button.onClick.AddListener(() => { onClose(); });
+            button.onClick.AddListener(() => {
+                onClose();
+            });
 
             return button;
         }
