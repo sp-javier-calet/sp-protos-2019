@@ -14,20 +14,16 @@
 //    limitations under the License.
 // </copyright>
 
-
 namespace GooglePlayGames.BasicApi
 {
     using System;
     using GooglePlayGames.BasicApi.Multiplayer;
     using GooglePlayGames.OurUtils;
-    using UnityEngine;
     using UnityEngine.SocialPlatforms;
-
-    using Logger = GooglePlayGames.OurUtils.Logger;
 
     public class DummyClient : IPlayGamesClient
     {
-        public void Authenticate(System.Action<bool> callback, bool silent)
+        public void Authenticate(Action<bool> callback, bool silent)
         {
             LogUsage();
             if (callback != null)
