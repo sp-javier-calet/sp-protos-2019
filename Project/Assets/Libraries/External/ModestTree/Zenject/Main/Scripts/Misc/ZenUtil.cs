@@ -26,40 +26,40 @@ namespace Zenject
         {
             return obj == null || obj.Equals(null);
         }
-
-#if !ZEN_NOT_UNITY3D
+        
+        #if !ZEN_NOT_UNITY3D
         public static void LoadScene(string levelName)
         {
             LoadSceneInternal(levelName, false, null, null);
         }
-
+        
         public static void LoadScene(string levelName, Action<DiContainer> preBindings)
         {
             LoadSceneInternal(levelName, false, preBindings, null);
         }
-
+        
         public static void LoadScene(
             string levelName, Action<DiContainer> preBindings, Action<DiContainer> postBindings)
         {
             LoadSceneInternal(levelName, false, preBindings, postBindings);
         }
-
+        
         public static void LoadSceneAdditive(string levelName)
         {
             LoadSceneInternal(levelName, true, null, null);
         }
-
+        
         public static void LoadSceneAdditive(string levelName, Action<DiContainer> preBindings)
         {
             LoadSceneInternal(levelName, true, preBindings, null);
         }
-
+        
         public static void LoadSceneAdditive(
             string levelName, Action<DiContainer> preBindings, Action<DiContainer> postBindings)
         {
             LoadSceneInternal(levelName, true, preBindings, postBindings);
         }
-
+        
         static void LoadSceneInternal(
             string levelName, bool isAdditive, Action<DiContainer> preBindings, Action<DiContainer> postBindings)
         {
@@ -67,32 +67,32 @@ namespace Zenject
             {
                 SceneCompositionRoot.BeforeInstallHooks += preBindings;
             }
-
+            
             if (postBindings != null)
             {
                 SceneCompositionRoot.AfterInstallHooks += postBindings;
             }
-
+            
             Assert.That(Application.CanStreamedLevelBeLoaded(levelName), "Unable to load level '{0}'", levelName);
-
-#if UNITY_5_3
+            
+            #if UNITY_5_3
             Log.Debug("Starting to load scene '{0}'", levelName);
-			SceneManager.LoadScene(levelName, isAdditive);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(levelName, isAdditive ? UnityEngine.SceneManagement.LoadSceneMode.Additive : UnityEngine.SceneManagement.LoadSceneMode.Single );
             Log.Debug("Finished loading scene '{0}'", levelName);
-#else
-			if (isAdditive)
-			{
-				Application.LoadLevelAdditive(levelName);
-			}
-			else
-			{
-				Log.Debug("Starting to load scene '{0}'", levelName);
-				Application.LoadLevel(levelName);
-				Log.Debug("Finished loading scene '{0}'", levelName);
-			}
-#endif
+            #else
+            if (isAdditive)
+            {
+                Application.LoadLevelAdditive(levelName);
+            }
+            else
+            {
+                Log.Debug("Starting to load scene '{0}'", levelName);
+                Application.LoadLevel(levelName);
+                Log.Debug("Finished loading scene '{0}'", levelName);
+            }
+            #endif
         }
-
+        
         // This method can be used to load the given scene and perform injection on its contents
         // Note that the scene we're loading can have [Inject] flags however it should not have
         // its own composition root
@@ -100,26 +100,26 @@ namespace Zenject
             string levelName, DiContainer parentContainer)
         {
             var rootObjectsBeforeLoad = UnityUtil.GetRootGameObjects();
-
-#if UNITY_5_3
-			SceneManager.LoadScene(levelName, true);
-#else
-			Application.LoadLevelAdditive(levelName);
-#endif
-
+            
+            #if UNITY_5_3
+            UnityEngine.SceneManagement.SceneManager.LoadScene(levelName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+            #else
+            Application.LoadLevelAdditive(levelName);
+            #endif
+            
             // Wait one frame for objects to be added to the scene heirarchy
             yield return null;
-
+            
             var rootObjectsAfterLoad = UnityUtil.GetRootGameObjects();
-
+            
             foreach (var newObject in rootObjectsAfterLoad.Except(rootObjectsBeforeLoad))
             {
                 Assert.That(newObject.GetComponent<SceneCompositionRoot>() == null,
-                    "LoadSceneAdditiveWithContainer does not expect a container to exist in the loaded scene");
-
+                            "LoadSceneAdditiveWithContainer does not expect a container to exist in the loaded scene");
+                
                 parentContainer.InjectGameObject(newObject);
             }
         }
-#endif
+        #endif
     }
 }

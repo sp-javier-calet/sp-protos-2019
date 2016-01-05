@@ -23,6 +23,8 @@ namespace GooglePlayGames.BasicApi
     using UnityEngine;
     using UnityEngine.SocialPlatforms;
 
+    using Logger = GooglePlayGames.OurUtils.Logger;
+
     public class DummyClient : IPlayGamesClient
     {
         public void Authenticate(System.Action<bool> callback, bool silent)

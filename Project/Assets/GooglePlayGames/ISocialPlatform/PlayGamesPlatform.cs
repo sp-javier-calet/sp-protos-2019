@@ -28,6 +28,8 @@ namespace GooglePlayGames
     using GooglePlayGames.BasicApi.Events;
     using GooglePlayGames.BasicApi.Nearby;
 
+    using Logger = GooglePlayGames.OurUtils.Logger;
+
     /// <summary>
     /// Provides access to the Google Play Games platform. This is an implementation of
     /// UnityEngine.SocialPlatforms.ISocialPlatform. Activate this platform by calling

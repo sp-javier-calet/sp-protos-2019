@@ -20,6 +20,8 @@ namespace GooglePlayGames
     using GooglePlayGames.BasicApi;
     using GooglePlayGames.OurUtils;
 
+    using Logger = GooglePlayGames.OurUtils.Logger;
+
     internal class PlayGamesClientFactory
     {
         internal static IPlayGamesClient GetPlatformPlayGamesClient(
