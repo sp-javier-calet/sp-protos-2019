@@ -45,11 +45,7 @@ namespace UnityTest
             #if UNITY_EDITOR
             if (!string.IsNullOrEmpty(m_CreatedInFilePath))
             {
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-                return Resources.LoadAssetAtPath(m_CreatedInFilePath, typeof(Object));
-#else
                 return UnityEditor.AssetDatabase.LoadAssetAtPath(m_CreatedInFilePath, typeof(Object));
-#endif
             }
             #endif
             return this;

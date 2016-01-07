@@ -32,12 +32,7 @@ namespace UnityTest
 
         public AssertionExplorerWindow()
         {
-            var titleStr = "Assertion Explorer";
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            title = titleStr;
-#else
-            titleContent = new GUIContent(titleStr);
-#endif
+            titleContent = new GUIContent("Assertion Explorer");
         }
 
         public void OnDidOpenScene()

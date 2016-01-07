@@ -35,11 +35,7 @@ public class TestResultRenderer
     public void ShowResults()
     {
         m_ShowResults = true;
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-        Screen.showCursor = true;
-#else
         Cursor.visible = true;
-#endif
     }
 
     public void AddResults(string sceneName, ITestResult result)
