@@ -22,12 +22,8 @@
 
 /* Begin PBXBuildFile section */
 		FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
-		FE4490A11C1F339100A10FEA /* CurlHttpClientCallbacks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE31C1EEAD800A10FEA /* CurlHttpClientCallbacks.cpp */; };
 		FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
-		FE4490A41C1F339100A10FEA /* SSLCertificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE91C1EEAD800A10FEA /* SSLCertificate.cpp */; };
-		FE4490A51C1F339100A10FEA /* SSLCertificateReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FEB1C1EEAD800A10FEA /* SSLCertificateReader.cpp */; };
-		FE4490A61C1F339100A10FEA /* SSLCertificateValidator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FED1C1EEAD800A10FEA /* SSLCertificateValidator.cpp */; };
 		FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4490261C1F11D900A10FEA /* KeychainItemWrapper.m */; };
 		FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490281C1F11D900A10FEA /* SPUnityKeychainFacade.mm */; };
 		FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490231C1F11D900A10FEA /* SPUnityAlertViewFacade.mm */; };
@@ -159,18 +155,10 @@
 		FE448FDB1C1EEAD800A10FEA /* x509.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509.h; sourceTree = "<group>"; };
 		FE448FDD1C1EEAD800A10FEA /* x509_vfy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		FE448FDF1C1EEAD800A10FEA /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
-		FE448FE31C1EEAD800A10FEA /* CurlHttpClientCallbacks.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurlHttpClientCallbacks.cpp; sourceTree = "<group>"; };
-		FE448FE41C1EEAD800A10FEA /* CurlHttpClientCallbacks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurlHttpClientCallbacks.h; sourceTree = "<group>"; };
 		FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlFacade.cpp; sourceTree = "<group>"; };
 		FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlFacade.h; sourceTree = "<group>"; };
 		FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlManager.cpp; sourceTree = "<group>"; };
 		FE448FE81C1EEAD800A10FEA /* SPUnityCurlManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlManager.h; sourceTree = "<group>"; };
-		FE448FE91C1EEAD800A10FEA /* SSLCertificate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSLCertificate.cpp; sourceTree = "<group>"; };
-		FE448FEA1C1EEAD800A10FEA /* SSLCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSLCertificate.h; sourceTree = "<group>"; };
-		FE448FEB1C1EEAD800A10FEA /* SSLCertificateReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSLCertificateReader.cpp; sourceTree = "<group>"; };
-		FE448FEC1C1EEAD800A10FEA /* SSLCertificateReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSLCertificateReader.h; sourceTree = "<group>"; };
-		FE448FED1C1EEAD800A10FEA /* SSLCertificateValidator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSLCertificateValidator.cpp; sourceTree = "<group>"; };
-		FE448FEE1C1EEAD800A10FEA /* SSLCertificateValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSLCertificateValidator.h; sourceTree = "<group>"; };
 		FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCrashReporter.mm; sourceTree = "<group>"; };
 		FE4490121C1EF36200A10FEA /* SPUnityHardwareFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityHardwareFacade.h; sourceTree = "<group>"; };
 		FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityHardwareFacade.mm; sourceTree = "<group>"; };
@@ -366,18 +354,10 @@
 		FE448FE21C1EEAD800A10FEA /* sp_unity_curl */ = {
 			isa = PBXGroup;
 			children = (
-				FE448FE31C1EEAD800A10FEA /* CurlHttpClientCallbacks.cpp */,
-				FE448FE41C1EEAD800A10FEA /* CurlHttpClientCallbacks.h */,
 				FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */,
 				FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */,
 				FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */,
 				FE448FE81C1EEAD800A10FEA /* SPUnityCurlManager.h */,
-				FE448FE91C1EEAD800A10FEA /* SSLCertificate.cpp */,
-				FE448FEA1C1EEAD800A10FEA /* SSLCertificate.h */,
-				FE448FEB1C1EEAD800A10FEA /* SSLCertificateReader.cpp */,
-				FE448FEC1C1EEAD800A10FEA /* SSLCertificateReader.h */,
-				FE448FED1C1EEAD800A10FEA /* SSLCertificateValidator.cpp */,
-				FE448FEE1C1EEAD800A10FEA /* SSLCertificateValidator.h */,
 			);
 			path = sp_unity_curl;
 			sourceTree = "<group>";
@@ -532,18 +512,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE4490A41C1F339100A10FEA /* SSLCertificate.cpp in Sources */,
 				FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */,
 				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
 				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
 				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
-				FE4490A51C1F339100A10FEA /* SSLCertificateReader.cpp in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */,
-				FE4490A11C1F339100A10FEA /* CurlHttpClientCallbacks.cpp in Sources */,
-				FE4490A61C1F339100A10FEA /* SSLCertificateValidator.cpp in Sources */,
 				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

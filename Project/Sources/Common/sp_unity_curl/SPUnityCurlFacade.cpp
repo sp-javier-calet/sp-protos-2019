@@ -5,9 +5,6 @@
 #include <string>
 #include <cassert>
 
-#include "SSLCertificate.h"
-#include "CurlHttpClientCallbacks.h"
-
 extern "C" {
 #include "curl/curl.h"
 }
@@ -46,9 +43,9 @@ extern "C" {
     };
 #endif
 
-SSLCertificate* _certificate;
-
 Mutex curlUpdateLock;
+const char* curlPinnedPublicKey = nullptr;
+size_t curlPinnedPublicKeySize = 0;
 
 std::vector<std::string> split(const std::string& str, const std::string& sep, size_t max=std::string::npos)
 {
@@ -109,6 +106,7 @@ const int SPUnityCurlGetHttpResponseErrorCode(int code)
         case CURLE_SSL_ENGINE_SETFAILED:
         case CURLE_USE_SSL_FAILED:
         case CURLE_SSL_ENGINE_INITFAILED:
+        case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
             return 476;
         case CURLE_OPERATION_TIMEDOUT:
             return 408;
@@ -118,10 +116,26 @@ const int SPUnityCurlGetHttpResponseErrorCode(int code)
             return 470;
     }
 }
+
 size_t writeToString(void *contents, size_t size, size_t nmemb, void *userp)
 {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
+}
+
+void obfuscate(const char* in, char** out, size_t size)
+{
+    static const int secretLength = 8;
+    static const unsigned char secret[secretLength] = {55, 11, 44, 71, 66, 177, 253, 122};
+    
+    (*out) = new char[size + 1];// size + null terminated char
+    
+    for(size_t i = 0; i < size; ++i)
+    {
+        (*out)[i] = in[i] ^ secret[i % secretLength];
+    }
+    
+    (*out)[size] = 0;
 }
 
 CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
@@ -177,14 +191,19 @@ CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
         curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
     
-    SSLCertificate* certificate = getCertificate();
-    if (certificate)
+    if(curlPinnedPublicKey)
     {
-        curl_easy_setopt(curl, CURLOPT_SSL_CTX_DATA, getCertificate());
-        curl_easy_setopt(curl, CURLOPT_SSL_CTX_FUNCTION, *curlCallback);
+        char* out = nullptr;
+        obfuscate(curlPinnedPublicKey, &out, curlPinnedPublicKeySize);
+        curl_easy_setopt(curl, CURLOPT_PINNEDPUBLICKEY, out);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2);
+        delete[] out;
     }
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, certificate ? 1 : 0);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, certificate ? 1 : 0);
+    else
+    {
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+    }
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 
     if (req.bodyLength > 0)
     {
@@ -452,16 +471,8 @@ EXPORT_API void SPUnityCurlDestroy()
     }
 }
 
-EXPORT_API void SPUnityCurlSetCertificate(char* data, int size)
+EXPORT_API void SPUnityCurlSetCertificate(const char* data)
 {
-    if(data != nullptr && size > 0)
-    {
-        _certificate = new SSLCertificate();
-        _certificate->initWithEncrypedPem(data, size, data, size);
-    }
-}
-
-SSLCertificate* getCertificate()
-{
-    return _certificate;
+    curlPinnedPublicKey = data;
+    curlPinnedPublicKeySize = data ? strlen(data) : 0;
 }

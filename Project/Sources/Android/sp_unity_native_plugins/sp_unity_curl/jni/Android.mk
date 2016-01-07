@@ -13,10 +13,6 @@ LOCAL_CFLAGS    := -Werror
 LOCAL_SRC_FILES := $(CURL_SRC_PATH)/SPUnityCurlFacade.cpp \
                    $(CURL_SRC_PATH)/SPUnityCurlManager.cpp \
                    $(SRC_PATH)/SPUnityCurlFacadeAndroid.cpp \
-                   $(CURL_SRC_PATH)/CurlHttpClientCallbacks.cpp \
-                   $(CURL_SRC_PATH)/SSLCertificate.cpp \
-                   $(CURL_SRC_PATH)/SSLCertificateReader.cpp \
-                   $(CURL_SRC_PATH)/SSLCertificateValidator.cpp
 
 LOCAL_C_INCLUDES := $(CURL_SRC_PATH) \
                     $(COMMON_SRC_PATH)

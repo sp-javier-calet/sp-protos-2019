@@ -17,7 +17,6 @@
 
 #include <stdlib.h>
 #include <cstdint>
-#include "SSLCertificate.h"
 
 extern "C"
 {
@@ -35,7 +34,6 @@ extern "C"
         int bodyLength;
 
     };
-
 
     EXPORT_API int SPUnityCurlRunning();
 
@@ -66,8 +64,7 @@ extern "C"
     // needs to be implemented for each platform
     EXPORT_API void SPUnityCurlOnApplicationPause(bool paused);
 
-    EXPORT_API void SPUnityCurlSetCertificate(char* data, int size);
-    SSLCertificate* getCertificate();
+    EXPORT_API void SPUnityCurlSetCertificate(const char* data);
 }
 
 
