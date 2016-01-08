@@ -11,8 +11,8 @@ namespace SocialPoint.Network
     public class CurlHttpClient  : BaseYieldHttpClient
     {
         static int _initCount = 0;
-
         IAppEvents _appEvents;
+
         public IAppEvents AppEvents
         {
             set
@@ -33,6 +33,15 @@ namespace SocialPoint.Network
             {
                 _appEvents.WillGoBackground.Remove(OnWillGoBackground);
                 _appEvents.WasOnBackground -= WasOnBackground;
+            }
+        }
+
+        public byte[] PinnedCertificate
+        {
+            set
+            {
+                Debug.LogError("Calling SPUnityCurlSetCertificate with certificate length " + value.Length);
+                CurlBridge.SPUnityCurlSetCertificate(value);
             }
         }
 

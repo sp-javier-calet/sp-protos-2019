@@ -31,7 +31,9 @@ public class HttpClient :
     {
         set
         {
-            CurlBridge.SPUnityCurlSetCertificate(value, value.Length);
+#if CURL_SUPPORTED
+            PinnedCertificate = value;
+#endif
         }
     }
 
