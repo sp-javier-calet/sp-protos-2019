@@ -118,6 +118,7 @@ std::queue<std::string> _pendingEvents;
     [self clearSource];
 
 
+#if !UNITY_TVOS
     UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
     if (notification)
     {
@@ -125,6 +126,7 @@ std::queue<std::string> _pendingEvents;
          * since the Source could change if there are any other  notification event */
         [self storeSourceOptions:notification.userInfo withScheme:@"local"];
     }
+#endif
 
     [self notifyStatus:kStatusUpdateSource];
 
@@ -133,18 +135,22 @@ std::queue<std::string> _pendingEvents;
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
+#if !UNITY_TVOS
     [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+#endif
     [self storeSource:url.absoluteString];
     [self notifyStatus:kStatusUpdateSource];
     return YES;
 }
 
+#if !UNITY_TVOS
 -  (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
     [super application:application didReceiveLocalNotification:notification];
     [self storeSourceOptions:notification.userInfo withScheme:@"local"];
     [self notifyStatus:kStatusUpdateSource];
 }
+#endif
 
 - (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
 {
@@ -175,7 +181,7 @@ std::queue<std::string> _pendingEvents;
 - (void)applicationWillResignActive:(UIApplication*)application
 {
     [self notifyStatus:kStatusWillGoBackground];
-    
+
     //aditional game loop to allow scripts response before being paused
 #if UNITY_VERSION > 500
     UnityBatchPlayerLoop();

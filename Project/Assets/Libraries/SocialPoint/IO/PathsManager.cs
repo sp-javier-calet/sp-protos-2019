@@ -69,7 +69,11 @@ namespace SocialPoint.IO
         public static void Init()
         {
             _dataPath = Application.dataPath;
+            #if UNITY_TVOS
+            _persistentDataPath = Application.temporaryCachePath;
+            #else
             _persistentDataPath = Application.persistentDataPath;
+            #endif
             _streamingAssetsPath = Application.streamingAssetsPath;
             _temporaryCachePath = Application.temporaryCachePath;
             if(_loaded != null)

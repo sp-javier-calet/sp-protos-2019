@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE
+#if UNITY_EDITOR || UNITY_ANDROID || UNITY_IOS || UNITY_TVOS || UNITY_STANDALONE
 #define UNITY
 #endif
 
@@ -9,7 +9,6 @@ using UnityEngine;
 
 using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;

@@ -50,6 +50,9 @@ namespace SocialPoint.AdminPanel
             
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
+            var colors = button.colors;
+            colors.highlightedColor = button.colors.pressedColor;
+            button.colors = colors;
 
             if(enabled && onClick != null)
             {
@@ -182,6 +185,9 @@ namespace SocialPoint.AdminPanel
             
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
+            var colors = button.colors;
+            colors.highlightedColor = button.colors.pressedColor;
+            button.colors = colors;
 
             if(enabled)
             {
@@ -199,6 +205,8 @@ namespace SocialPoint.AdminPanel
             
             CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
             CreateOpenPanelIndicator(rectTransform);
+
+            EventSystem.current.SetSelectedGameObject(rectTransform.gameObject);
 
             return button;
         }
