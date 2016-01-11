@@ -28,8 +28,10 @@ public class StorageInstaller : MonoInstaller
 
         #if UNITY_IOS && !UNITY_EDITOR
         var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
-        #else
+        #elif UNITY_ANDROID && !UNITY_EDITOR
         var persistent = new PersistentAttrStorage(_deviceInfo.Uid, Settings.PersistentPrefix);
+        #else
+        var persistent = new FileAttrStorage(PathsManager.PersistentDataPath); //TODO: doesnt work with prefixes
         #endif
 
         var transition = new TransitionAttrStorage(vol, persistent);
