@@ -3,6 +3,7 @@
 
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 using System;
 using System.Collections;
@@ -304,7 +305,7 @@ public class ReportGenerator
 	static void AddAllPrefabsUsedInCurrentSceneToList()
 	{
 #if USE_PREFAB_USAGE_DETECTION_METHOD_B
-		AddAllPrefabsUsedInScene(EditorApplication.currentScene);
+		AddAllPrefabsUsedInScene(EditorSceneManager.GetActiveScene().name);
 #else
 		GameObject[] allObjects = (GameObject[])UnityEngine.Object.FindObjectsOfType(typeof(GameObject));
 		foreach(GameObject GO in allObjects)

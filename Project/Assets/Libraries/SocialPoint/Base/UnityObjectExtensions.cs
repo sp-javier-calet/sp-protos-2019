@@ -209,6 +209,6 @@ namespace SocialPoint.Base
             {
                 throw new Exception("This method calls GameObject.DestroyInmediate, which should only be used in Editor scripts.");
             }
-        }
+        }            
     }
 }

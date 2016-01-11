@@ -9,6 +9,7 @@ using SocialPoint.Attributes;
 using SocialPoint.ServerSync;
 using SocialPoint.ServerEvents;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
 
 namespace SocialPoint.GameLoading
@@ -144,7 +145,7 @@ namespace SocialPoint.GameLoading
             }
 
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
-            OnLevelWasLoaded(Application.loadedLevel);
+            OnLevelWasLoaded(SceneManager.GetActiveScene().buildIndex);
         }
 
         public void Dispose()

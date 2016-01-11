@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.AdminPanel
 {
@@ -13,7 +14,7 @@ namespace SocialPoint.AdminPanel
         {
             layout.CreateLabel("Application");
             layout.CreateConfirmButton("Reload current scene", () => {
-                Application.LoadLevel(Application.loadedLevel);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             });
 
             layout.CreateConfirmButton("Quit Application", () => {

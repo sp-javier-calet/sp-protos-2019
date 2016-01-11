@@ -12,7 +12,6 @@ namespace SocialPoint.AppEvents
         {
             // Set the GameObject name to the class name for easy access from native plugin
             gameObject.name = GetType().ToString();
-            DontDestroyOnLoad(this);
 
             Source = new AppSource(new Dictionary<string, string>{
                 {"type", "unity"}

@@ -11,6 +11,5 @@ public class BaseInstaller : MonoInstaller
     {
         Container.Rebind<MonoBehaviour>().ToSingleGameObject();
         Container.Rebind<BreadcrumbManager>().ToSingle();
-        Container.Rebind<SceneManager>().ToSingleInstance(SceneManager.Instance);
     }
 }

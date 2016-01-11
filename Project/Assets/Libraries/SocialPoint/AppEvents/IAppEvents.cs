@@ -1,6 +1,7 @@
 using System;
 using SocialPoint.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.AppEvents
 {
@@ -83,7 +84,7 @@ namespace SocialPoint.AppEvents
         public static void RestartGame(this IAppEvents events)
         {
             events.TriggerGameWillRestart();
-            Application.LoadLevel(0);
+            SceneManager.LoadScene(0);
         }
 
         [Obsolete("Use WillGoBackground property")]
