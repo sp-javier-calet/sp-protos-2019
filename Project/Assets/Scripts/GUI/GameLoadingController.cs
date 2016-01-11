@@ -113,9 +113,13 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoadSceneStart()
     {
-        this.LoadSceneAsync(_sceneToLoad, op => {
-            op.allowSceneActivation = true;
-            _loadSceneOperation.Finish("main scene loaded");
+        this.LoadSceneAsyncProgress(_sceneToLoad, op => {
+            _loadSceneOperation.Progress = op.progress;
+            if(op.isDone)
+            {
+                op.allowSceneActivation = true;
+                _loadSceneOperation.Finish("main scene loaded");
+            }
         });
     }
 
