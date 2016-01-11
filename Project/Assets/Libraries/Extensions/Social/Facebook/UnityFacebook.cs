@@ -6,7 +6,7 @@ using UnityEngine;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using Facebook;
+using Facebook.Unity;
 
 namespace SocialPoint.Social
 {
@@ -14,8 +14,6 @@ namespace SocialPoint.Social
 
     public class UnityFacebook : BaseFacebook
     {
-        static string GraphApiVersion = "v2.0";
-
         private bool _connecting = false;
         private FacebookUser _user;
         private uint _loginRetries;
@@ -105,7 +103,7 @@ namespace SocialPoint.Social
             {
                 foreach(var group in req.FilterGroups)
                 {
-                    filters.Add(new FBAppRequestsFilterGroup(group.Name, group.UserIds));
+                    filters.Add(group);
                 }
             }
 
@@ -118,16 +116,17 @@ namespace SocialPoint.Social
                 null,
                 req.AdditionalDataJson(),
                 req.Title == null ? string.Empty : req.Title,
-                (FBResult response) =>
+                    (IAppRequestResult response) =>
             {
                 Error err = null;
                 if(!string.IsNullOrEmpty(response.Error))
                 {
                     err = new Error(response.Error);
                 }
-                if(!string.IsNullOrEmpty(response.Text))
+                if(!string.IsNullOrEmpty(response.RawResult))
                 {
-                    req.ResultUrl = response.Text;
+                        //TODO: consider using response.ResultDictionary
+                    req.ResultUrl = response.RawResult;
                     
                     if(req.RequestCancelled)
                     {
@@ -158,31 +157,25 @@ namespace SocialPoint.Social
                 userId = string.Empty;
             }
 
-            FB.Feed
+            FB.FeedShare
             (
                 userId,
-                post.Link == null ? string.Empty : post.Link,
+                post.Link == null ? null : post.Link,
                 post.Name == null ? string.Empty : post.Name,
                 post.Caption == null ? string.Empty : post.Caption,
                 post.Description == null ? string.Empty : post.Description,
-                post.Picture == null ? string.Empty : post.Picture,
+                post.Picture == null ? null : post.Picture,
                 string.Empty,
-                post.GetActionsJson(),
-                string.Empty,
-                string.Empty,
-                null,
-                (FBResult response) =>
+                (IShareResult response) =>
             {
                 Error err = null;
                 if(!string.IsNullOrEmpty(response.Error))
                 {
                     err = new Error(response.Error);
                 }
-                if(!string.IsNullOrEmpty(response.Text))
+                if(!string.IsNullOrEmpty(response.PostId))
                 {
-                    JsonAttrParser parser = new JsonAttrParser();
-                    Attr attr = parser.ParseString(response.Text);
-                    post.PostId = attr.AsDic.GetValue("post_id").ToString();
+                    post.PostId = response.PostId;
                 }
 
                 if(cbk != null)
@@ -234,7 +227,7 @@ namespace SocialPoint.Social
                 if(err.Code != FacebookErrors.DialogCancelled &&  _loginRetries < _maxLoginRetries)
                 {
                     _loginRetries++;
-                    FB.Logout();
+                    FB.LogOut();
                     DoLogin(cbk, true);
                 }
                 else
@@ -296,9 +289,8 @@ namespace SocialPoint.Social
         void GetLoginSessionInfo(ErrorDelegate cbk)
         {
             var s = UserPhotoSize;
-            var uri = GraphApiVersion + "/me";
-            uri += "?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
-            FB.API(uri, HttpMethod.GET, (FBResult result) => {
+            var uri = "me?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
+            FB.API(uri, HttpMethod.GET, (IGraphResult result) => {
                 if(!string.IsNullOrEmpty(result.Error))
                 {
                     if(cbk != null)
@@ -309,11 +301,11 @@ namespace SocialPoint.Social
                 else
                 {
                     JsonAttrParser parser = new JsonAttrParser();
-                    Attr attr = parser.ParseString(result.Text);
+                    Attr attr = parser.ParseString(result.RawResult);
                     _user = ParseUser(attr.AsDic);
                     if(_user != null)
                     {
-                        _user.AccessToken = FB.AccessToken;
+                        _user.AccessToken = AccessToken.CurrentAccessToken.TokenString;
                         GetLoginPermissions(cbk);
                     }
                     else
@@ -330,7 +322,7 @@ namespace SocialPoint.Social
 
         void GetLoginPermissions(ErrorDelegate cbk)
         {
-            FB.API(GraphApiVersion + "/me/permissions", HttpMethod.GET, (FBResult result) => {
+            FB.API("me/permissions", HttpMethod.GET, (IGraphResult result) => {
                 if(!string.IsNullOrEmpty(result.Error))
                 {
                     if(cbk != null)
@@ -342,7 +334,7 @@ namespace SocialPoint.Social
                 {
                     _userPermissions = new Dictionary<string, string>();
                     JsonAttrParser parser = new JsonAttrParser();
-                    Attr attr = parser.ParseString(result.Text);
+                    Attr attr = parser.ParseString(result.RawResult);
                     var perm = attr.AsDic.Get("data").AsList;
                     for(int k = 0; k < perm.Count; k++)
                     {
@@ -384,15 +376,14 @@ namespace SocialPoint.Social
         void GetLoginFriendsInfo(string path, ErrorDelegate cbk)
         {
             var s = UserPhotoSize;
-            var uri = GraphApiVersion + path;
-            uri += "?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
+            var uri = path + "?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
 
-            FB.API(uri.ToString(), HttpMethod.GET, (FBResult result) => {
+            FB.API(uri.ToString(), HttpMethod.GET, (IGraphResult result) => {
                 var err = new Error(result.Error);
                 if(Error.IsNullOrEmpty(err))
                 {
                     JsonAttrParser parser = new JsonAttrParser();
-                    Attr attr = parser.ParseString(result.Text);
+                    Attr attr = parser.ParseString(result.RawResult);
 
                     AttrList users = attr.AsDic.Get("data").AsList;
                     for(int k = 0; k < users.Count; k++)
@@ -415,11 +406,23 @@ namespace SocialPoint.Social
         {
             if(FB.IsInitialized)
             {
-                DoLogin(cbk, withUi);
+                checkHasAccess(cbk, withUi);
             }
             else
             {
-                FB.Init(() => DoLogin(cbk, withUi));
+                FB.Init(() => checkHasAccess(cbk, withUi));
+            }
+        }
+
+        void checkHasAccess(ErrorDelegate cbk, bool withUi)
+        {
+            if(AccessToken.CurrentAccessToken != null)
+            {
+                DidLogin(null,cbk);
+            }
+            else
+            {
+                DoLogin(cbk, withUi);
             }
         }
 
@@ -433,7 +436,7 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            if(!withUi && string.IsNullOrEmpty(FB.AccessToken))
+            if(!withUi && AccessToken.CurrentAccessToken == null)
             {
                 if(cbk != null)
                 {
@@ -442,14 +445,12 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-
             _connecting = true;
 
             #if UNITY_EDITOR
-            _behaviour.StartCoroutine(CheckEditorLoginFail(cbk));
+            //_behaviour.StartCoroutine(CheckEditorLoginFail(cbk));
             #endif
-
-            FB.Login(string.Join(",", _loginPermissions.ToArray()), (FBResult response) => {
+            FB.LogInWithReadPermissions(_loginPermissions, (ILoginResult response) => {
                 var err = new Error(response.Error);
                 if(Error.IsNullOrEmpty(err) && !FB.IsLoggedIn)
                 {
@@ -459,6 +460,7 @@ namespace SocialPoint.Social
             });
         }
 
+        /*
         IEnumerator CheckEditorLoginFail(ErrorDelegate cbk)
         {
             bool loaded = false;
@@ -480,6 +482,7 @@ namespace SocialPoint.Social
                 yield return new WaitForSeconds(0.5f);
             }
         }
+        */
 
         public override void QueryGraph(FacebookGraphQuery query, FacebookGraphQueryDelegate cbk = null)
         {
@@ -499,12 +502,12 @@ namespace SocialPoint.Social
                 break;
             }
 
-            FB.API(GraphApiVersion + "/" + query.Path, fbMethod, (FBResult response) => {
+            FB.API(query.Path, fbMethod, (IGraphResult response) => {
                 var err = new Error(response.Error);
                 if(Error.IsNullOrEmpty(err))
-                {
+                {//TODO: evaluate if necessary parser or use response dict
                     JsonAttrParser parser = new JsonAttrParser();
-                    Attr attr = parser.ParseString(response.Text);
+                    Attr attr = parser.ParseString(response.RawResult);
                     query.Response = attr.AsDic;
                 }
 
@@ -520,7 +523,7 @@ namespace SocialPoint.Social
         {
             if(FB.IsLoggedIn)
             {
-                FB.Logout();
+                FB.LogOut();
             }
             DidLogout(null, cbk);
         }
@@ -573,7 +576,7 @@ namespace SocialPoint.Social
             dic.Add("width", UserPhotoSize.ToString());
             dic.Add("height", UserPhotoSize.ToString());
 
-            FB.API(GraphApiVersion + "/" + userId + "/picture", HttpMethod.GET, (FBResult response) => {
+            FB.API(userId + "/picture", HttpMethod.GET, (IGraphResult response) => {
                 if(cbk != null)
                 {
                     cbk(response.Texture, new Error(response.Error));

@@ -31,8 +31,8 @@ namespace SocialPoint.Social
             }
 
             var graph = new FacebookGraphQuery(post.To + "/feed", FacebookGraphQuery.MethodType.POST);
-            graph.AddParam("picture", post.Picture);
-            graph.AddParam("link", post.Link);
+            graph.AddParam("picture", post.Picture.AbsoluteUri);
+            graph.AddParam("link", post.Link.AbsoluteUri);
             graph.AddParam("name", post.Name);
             graph.AddParam("caption", post.Caption);
             graph.AddParam("message", post.Message);

@@ -258,9 +258,9 @@ namespace SocialPoint.Social
     {
         public string To { get; set; }
         
-        public string Picture { get; set; }
+        public Uri Picture { get; set; }
         
-        public string Link { get; set; }
+        public Uri Link { get; set; }
         
         public string Name { get; set; }
         
