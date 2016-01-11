@@ -35,7 +35,7 @@ namespace SocialPoint.AppEvents
         public void OnApplicationFocus_True_WasCovered_Raised()
         {
             UnityAppEvent.WasCovered += action;
-			SendMessage(UnityAppEvent, "OnApplicationFocus", true);
+            SendMessage(UnityAppEvent, "OnApplicationFocus", true);
             action.ReceivedWithAnyArgs(1).Invoke();
 
         }
@@ -44,7 +44,7 @@ namespace SocialPoint.AppEvents
         public void OnApplicationFocus_False_WasCovered_NotRaised()
         {
             UnityAppEvent.WasCovered += action;
-			SendMessage(UnityAppEvent, "OnApplicationFocus", false);
+            SendMessage(UnityAppEvent, "OnApplicationFocus", false);
             action.DidNotReceiveWithAnyArgs().Invoke();
         }
 
@@ -52,7 +52,7 @@ namespace SocialPoint.AppEvents
         public void OnApplicationPause_True_WillGoBackground_Raised()
         {
             UnityAppEvent.WillGoBackground.Add(0, action);
-			SendMessage(UnityAppEvent, "OnApplicationPause", true);
+            SendMessage(UnityAppEvent, "OnApplicationPause", true);
             action.ReceivedWithAnyArgs(1).Invoke();
         }
 
@@ -60,7 +60,7 @@ namespace SocialPoint.AppEvents
         public void OnApplicationPause_False_WasOnBackground_Raised()
         {
             UnityAppEvent.WasOnBackground += action;
-			SendMessage(UnityAppEvent, "OnApplicationPause", false);
+            SendMessage(UnityAppEvent, "OnApplicationPause", false);
             action.ReceivedWithAnyArgs(1).Invoke();
         }
 
@@ -68,23 +68,23 @@ namespace SocialPoint.AppEvents
         public void OnApplicationQuit_ApplicationQuit_Raised()
         {
             UnityAppEvent.ApplicationQuit += action;
-			SendMessage(UnityAppEvent, "OnApplicationQuit");
+            SendMessage(UnityAppEvent, "OnApplicationQuit");
             action.ReceivedWithAnyArgs(1).Invoke();
         }
 
-		void SendMessage(object obj, string method)
-		{
-			var type = typeof(BaseAppEvents);
-			var mi = type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-			mi.Invoke(UnityAppEvent, new object[]{ });
-		}
+        void SendMessage(object obj, string method)
+        {
+            var type = typeof(BaseAppEvents);
+            var mi = type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            mi.Invoke(UnityAppEvent, new object[]{ });
+        }
 
-		void SendMessage(object obj, string method, bool param)
-		{
-			var type = obj.GetType();
-			var mi = type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-			mi.Invoke(UnityAppEvent, new object[]{ param });
-		}
+        void SendMessage(object obj, string method, bool param)
+        {
+            var type = obj.GetType();
+            var mi = type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            mi.Invoke(UnityAppEvent, new object[]{ param });
+        }
 
         [TearDown]
         public void TearDown()
