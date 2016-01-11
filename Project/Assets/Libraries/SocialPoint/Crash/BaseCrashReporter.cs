@@ -10,6 +10,7 @@ using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Crash
 {
@@ -107,7 +108,7 @@ namespace SocialPoint.Crash
                 exception.Set(AttrKeyUuid, new AttrString(uuid));
                 exception.Set(AttrKeyLog, new AttrString(log));
                 exception.Set(AttrKeyStacktrace, new AttrString(stacktrace));
-                exception.Set(AttrKeyLoadedLevelName, new AttrString(Application.loadedLevelName));
+                exception.Set(AttrKeyLoadedLevelName, new AttrString(SceneManager.GetActiveScene().name));
                 Set(AttrKeyException, exception);
             }
         }

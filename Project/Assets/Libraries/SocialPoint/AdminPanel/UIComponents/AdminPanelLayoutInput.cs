@@ -70,7 +70,7 @@ namespace SocialPoint.AdminPanel
             
             if(onValueChange != null)
             {
-                input.onValueChange.AddListener((value) => {
+                input.onValueChanged.AddListener((value) => {
                     InputStatus status = new InputStatus(value, suggestionText.text);
 
                     onValueChange(status); 

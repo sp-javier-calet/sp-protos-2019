@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,6 +10,6 @@ public class SceneAdditiveLoader : MonoBehaviour
 
     void Start()
     {
-        _scenes.ForEach(scene => Application.LoadLevelAdditive(scene));
+        _scenes.ForEach(scene => SceneManager.LoadScene(scene, LoadSceneMode.Additive));
     }
 }

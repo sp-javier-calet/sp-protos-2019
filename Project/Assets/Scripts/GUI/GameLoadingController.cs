@@ -7,7 +7,9 @@ using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
@@ -68,9 +70,6 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [Inject]
     GameModel _model;
 
-    [Inject]
-    SceneManager _sceneManager;
-
     #region services that need to be loaded when the game starts
 
     [Inject]
@@ -114,8 +113,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoadSceneStart()
     {
-        _sceneManager.ChangeSceneToAsync(_sceneToLoad, false, args => {
-            args.ActivateScene();
+        this.LoadSceneAsync(_sceneToLoad, op => {
+            op.allowSceneActivation = true;
             _loadSceneOperation.Finish("main scene loaded");
         });
     }
