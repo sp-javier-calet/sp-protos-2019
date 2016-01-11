@@ -1,8 +1,11 @@
 
 #import <UIKit/UIKit.h>
+#if !UNITY_TVOS
 #import <CrashReporter/CrashReporter.h>
+#endif
 #include <string>
 #import <Foundation/Foundation.h>
+
 
 class SPUnityCrashReporter
 {
@@ -20,6 +23,7 @@ private:
         crashReporter->check();
     }
     
+#if !UNITY_TVOS
     void setCrashCallback()
     {
         PLCrashReporterCallbacks* callbacks = new PLCrashReporterCallbacks();
@@ -66,6 +70,7 @@ private:
         }
         return _error.empty();
     }
+#endif
     
 public:
     
@@ -93,11 +98,15 @@ public:
     
     bool enable()
     {
+#if !UNITY_TVOS
         if(!_enabled)
         {
             _enabled = initializePLCrashReporter();
         }
         return _enabled;
+#else
+        return false;
+#endif
     }
     
     bool disable()
@@ -116,6 +125,7 @@ public:
      */
     bool check()
     {
+#if !UNITY_TVOS
         PLCrashReporter *reporter = [PLCrashReporter sharedReporter];
         
         if (![reporter hasPendingCrashReport])
@@ -146,8 +156,13 @@ public:
         dumpCrash(plReport);
         
         return true;
+#else
+        return false;
+#endif
     }
+    
 };
+
 
 /*
  * Exported interface

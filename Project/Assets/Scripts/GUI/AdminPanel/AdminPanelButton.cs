@@ -64,6 +64,21 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     void Update()
     {
+        // quick test to use admin panel with gamepad input
+        if(Input.GetButtonDown("Submit"))
+        {
+            _down = true;
+            _timeSinceDown = 0.0f;
+        }
+        else if(Input.GetButtonDown("Cancel"))
+        {
+            if(_adminPanelController && _adminPanelController.AdminPanel.Visible)
+            {
+                _adminPanelController.Hide(false);
+            }
+        }
+        //
+
         if(_down)
         {
             _timeSinceDown += Time.deltaTime;

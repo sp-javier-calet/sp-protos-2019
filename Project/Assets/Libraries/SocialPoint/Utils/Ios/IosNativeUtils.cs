@@ -6,7 +6,7 @@ namespace SocialPoint.Utils
 {
     public class IosNativeUtils : INativeUtils
     {
-        #if UNITY_IPHONE && !UNITY_EDITOR
+        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         static extern bool SPUnityNativeUtilsIsInstalled(string appId);
         #else

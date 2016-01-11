@@ -143,7 +143,7 @@ public sealed class FB : ScriptableObject
             FBComponentFactory.GetComponent<EditorFacebookLoader>();
 #elif UNITY_WEBPLAYER
             FBComponentFactory.GetComponent<CanvasFacebookLoader>();
-#elif UNITY_IOS
+#elif (UNITY_IOS || UNITY_TVOS )
             FBComponentFactory.GetComponent<IOSFacebookLoader>();
 #elif UNITY_ANDROID
             FBComponentFactory.GetComponent<AndroidFacebookLoader>();

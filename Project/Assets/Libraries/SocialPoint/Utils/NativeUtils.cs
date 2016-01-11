@@ -10,7 +10,7 @@
             {
                 if(_nativeUtils == null)
                 {
-#if UNITY_IPHONE && !UNITY_EDITOR
+#if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
                     _nativeUtils = new IosNativeUtils();
 #elif UNITY_ANDROID && !UNITY_EDITOR
                     _nativeUtils = new AndroidNativeUtils();
