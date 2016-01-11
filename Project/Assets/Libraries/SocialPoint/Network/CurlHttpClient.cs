@@ -40,7 +40,6 @@ namespace SocialPoint.Network
         {
             set
             {
-                Debug.LogError("Calling SPUnityCurlSetCertificate with certificate length " + value.Length);
                 CurlBridge.SPUnityCurlSetCertificate(value);
             }
         }
