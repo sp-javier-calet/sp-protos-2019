@@ -1,8 +1,11 @@
 #include "SPUnityCurlFacade.h"
 #include "SPUnityCurlManager.h"
-#import <UIKit/UIKit.h>
+#include <mutex>
 
 UIBackgroundTaskIdentifier bgTask = UIBackgroundTaskInvalid;
+
+std::mutex AppPaused_mutex;
+bool AppPaused = false;
 
 void SPUnityCurlEndBackgroundTask()
 {
@@ -16,6 +19,8 @@ void SPUnityCurlEndBackgroundTask()
 
 EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
 {
+    std::lock_guard<std::mutex> lk(AppPaused_mutex);
+    AppPaused = paused;
     if(SPUnityCurlRunning() == 0)
     {
         return;
@@ -30,7 +35,15 @@ EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             while(SPUnityCurlRunning() > 0)
             {
-                SPUnityCurlUpdate(0);
+                std::lock_guard<std::mutex> lk(AppPaused_mutex);
+                if(AppPaused)
+                {
+                    SPUnityCurlUpdate(0);
+                }
+                else
+                {
+                    break;
+                }
             }
             SPUnityCurlEndBackgroundTask();
         });
