@@ -64,7 +64,7 @@ extern "C"
     // needs to be implemented for each platform
     EXPORT_API void SPUnityCurlOnApplicationPause(bool paused);
 
-    EXPORT_API void SPUnityCurlSetCertificate(const char* data);
+    EXPORT_API void SPUnityCurlSetCertificate(const char* data, size_t size);
 }
 
 

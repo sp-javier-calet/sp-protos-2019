@@ -471,8 +471,8 @@ EXPORT_API void SPUnityCurlDestroy()
     }
 }
 
-EXPORT_API void SPUnityCurlSetCertificate(const char* data)
+EXPORT_API void SPUnityCurlSetCertificate(const char* data, size_t size)
 {
     curlPinnedPublicKey = data;
-    curlPinnedPublicKeySize = data ? strlen(data) : 0;
+    curlPinnedPublicKeySize = size;
 }
