@@ -1,3 +1,4 @@
+#import <UIKit/UIKit.h>
 #include "SPUnityCurlFacade.h"
 #include "SPUnityCurlManager.h"
 #include <mutex>

@@ -40,7 +40,14 @@ namespace SocialPoint.Network
         {
             set
             {
-                CurlBridge.SPUnityCurlSetCertificate(value);
+                if(value != null)
+                {
+                    CurlBridge.SPUnityCurlSetCertificate(value, value.Length);
+                }
+                else
+                {
+                    CurlBridge.SPUnityCurlSetCertificate(null, 0);
+                }
             }
         }
 
