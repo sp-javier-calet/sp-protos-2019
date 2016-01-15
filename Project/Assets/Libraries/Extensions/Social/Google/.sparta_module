@@ -5,3 +5,5 @@ depends_on Assets/GooglePlayGames
 depends_on Assets/Plugins/Android/MainLibProj
 depends_on Assets/Plugins/Ios/GPGSAppController.h
 depends_on Assets/Plugins/Ios/GPGSAppController.mm
+depends_on Assets/Plugins/Android/libs/armabi-v7a/libgpg.so
+depends_on Assets/Plugins/Android/libs/x86/libgpg.so
