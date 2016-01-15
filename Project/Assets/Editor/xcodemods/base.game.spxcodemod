@@ -1,6 +1,6 @@
 {
   "buildSettings": {
-    "GCC_OPTIMIZATION_LEVEL": "1"
+    "ENABLE_BITCODE": "NO"
   },
   "frameworks": [
     "Security.framework:weak"
