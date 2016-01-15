@@ -26,7 +26,7 @@ namespace SocialPoint.GUIControl
         private ViewState _viewState = ViewState.Initial;
         private Coroutine _showCoroutine;
         private Coroutine _hideCoroutine;
-        private UIViewAnimation _animation;        
+        private UIViewAnimation _animation;
         private int _layer2d;
         private int _layer3d;
 
@@ -135,7 +135,7 @@ namespace SocialPoint.GUIControl
                     }
                 }
             }
-            
+
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
@@ -207,7 +207,7 @@ namespace SocialPoint.GUIControl
             if(LayersController != null)
             {
                 Setup2DCanvas(gameObject);
-                
+
                 foreach(GameObject ui3DContainer in _containers3d)
                 {
                     Setup3DContainer(ui3DContainer);
@@ -218,7 +218,7 @@ namespace SocialPoint.GUIControl
                 throw new Exception("You need to assign a UILayersController");
             }
         }
-        
+
         void Setup2DCanvas(GameObject gameObject)
         {
             if(_layer2d == 0)
@@ -230,7 +230,7 @@ namespace SocialPoint.GUIControl
                 LayersController.AddToUILayer(gameObject, _layer2d);
             }
         }
-        
+
         public void Add3DContainer(GameObject gameObject)
         {
             _containers3d.Add(gameObject);            
@@ -240,13 +240,13 @@ namespace SocialPoint.GUIControl
         void Setup3DContainer(GameObject gameObject)
         {
             var container = gameObject.GetComponent<UI3DContainer>();
-            
+
             if(container == null)
             {
                 container = gameObject.AddComponent<UI3DContainer>();
                 container.OnDestroyed += On3dContainerDestroyed;
             }
-            
+
             if(_layer3d == 0)
             {
                 _layer3d = LayersController.AddToCurrent3DLayer(gameObject);
@@ -256,7 +256,7 @@ namespace SocialPoint.GUIControl
                 LayersController.AddTo3DLayer(gameObject, _layer3d);
             }
         }
-        
+
         public void On3dContainerDestroyed(GameObject gameObject)
         {
             _containers3d.Remove(gameObject);
@@ -265,7 +265,7 @@ namespace SocialPoint.GUIControl
                 LayersController.RemoveElement(gameObject);
             }
         }
-        
+
         void RemoveLayers()
         {
             if(LayersController != null)
@@ -274,9 +274,9 @@ namespace SocialPoint.GUIControl
                 {
                     LayersController.RemoveElement(container);
                 }
-                
+
                 LayersController.RemoveElement(gameObject);
-                
+
                 _layer2d = 0;
                 _layer3d = 0;
             }
@@ -311,6 +311,7 @@ namespace SocialPoint.GUIControl
         {
             Reset();
             HideImmediate();
+            OnDestroyed();
         }
 
         virtual protected void OnStart()
@@ -319,6 +320,10 @@ namespace SocialPoint.GUIControl
             {
                 ShowImmediate();
             }
+        }
+
+        virtual protected void OnDestroyed()
+        {
         }
 
         public bool Load()
