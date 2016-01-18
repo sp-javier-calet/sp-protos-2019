@@ -14,7 +14,7 @@ echo "Cleaning up"
 rm -rf obj
 
 echo "Installing Unity Plugin"
-cp -R libs ../../../../Assets/Plugins/Android/
+cp -R libs ../../../../Assets/Libraries/Binaries/Plugins/Android/
 
 echo ""
 echo "Done!"
