@@ -11,7 +11,8 @@ public class GameInstaller : MonoInstaller
     [Serializable]
     public class SettingsData
     {
-        public string InitialJsonResource = "game";
+        public string InitialJsonGameResource = "game";
+        public string InitialJsonPlayerResource = "user";
         public bool EditorDebug = true;
     }
 
@@ -19,7 +20,8 @@ public class GameInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.BindInstance("game_initial_json_resource", Settings.InitialJsonResource);
+        Container.BindInstance("game_initial_json_game_resource", Settings.InitialJsonGameResource);
+        Container.BindInstance("game_initial_json_player_resource", Settings.InitialJsonPlayerResource);
 #if UNITY_EDITOR
         Container.BindInstance("game_debug", Settings.EditorDebug);
 #else
@@ -39,6 +41,7 @@ public class GameInstaller : MonoInstaller
         Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
 
         Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
+        Container.Rebind<IPlayerSaver>().ToSingle<PlayerSaver>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
     }
 

@@ -1,5 +1,6 @@
 ﻿using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
 using UnityEngine;
 using Zenject;
 
@@ -11,19 +12,26 @@ public class AdminPanelGame : IAdminPanelConfigurer
     [Inject]
     GameModel _model;
 
+    [Inject]
+    IPlayerSaver _playerSaver;
+
     public void OnConfigure(AdminPanel adminPanel)
     {
-        adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents));
+        adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents, _model, _playerSaver));
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Model", new AdminPanelGameModel(_model)));
     }
 
     private class AdminPanelGameControl : IAdminPanelGUI
     {
         IAppEvents _appEvents;
+        GameModel _model;
+        IPlayerSaver _playerSaver;
 
-        public AdminPanelGameControl(IAppEvents appEvents)
+        public AdminPanelGameControl(IAppEvents appEvents, GameModel model, IPlayerSaver playerSaver)
         {
             _appEvents = appEvents;
+            _model = model;
+            _playerSaver = playerSaver;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -31,6 +39,9 @@ public class AdminPanelGame : IAdminPanelConfigurer
             layout.CreateLabel("Game Control");
             layout.CreateConfirmButton("Restart", () => {
                 _appEvents.RestartGame();
+            });
+            layout.CreateButton("Save game", () => {
+                _playerSaver.Save(_model.Player);
             });
             layout.CreateMargin(2);
         }
@@ -45,7 +56,7 @@ public class AdminPanelGame : IAdminPanelConfigurer
         {
             _model = model;
         }
-        
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Game Model");
