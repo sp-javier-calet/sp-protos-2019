@@ -82,6 +82,7 @@ public class GameLoader : IGameLoader
             var savedGame = LoadSavedGame(); 
             if(savedGame != null)
             {
+                _model.Assign(savedGame);
                 return savedGame;
             }
             return LoadInitial();
