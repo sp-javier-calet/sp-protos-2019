@@ -41,7 +41,6 @@ public class GameInstaller : MonoInstaller
         Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
 
         Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
-        Container.Rebind<IPlayerSaver>().ToSingle<PlayerSaver>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
     }
 

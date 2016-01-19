@@ -13,25 +13,23 @@ public class AdminPanelGame : IAdminPanelConfigurer
     GameModel _model;
 
     [Inject]
-    IPlayerSaver _playerSaver;
+    IGameLoader _gameLoader;
 
     public void OnConfigure(AdminPanel adminPanel)
     {
-        adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents, _model, _playerSaver));
+        adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents, _gameLoader));
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Model", new AdminPanelGameModel(_model)));
     }
 
     private class AdminPanelGameControl : IAdminPanelGUI
     {
         IAppEvents _appEvents;
-        GameModel _model;
-        IPlayerSaver _playerSaver;
+        IGameLoader _gameLoader;
 
-        public AdminPanelGameControl(IAppEvents appEvents, GameModel model, IPlayerSaver playerSaver)
+        public AdminPanelGameControl(IAppEvents appEvents, IGameLoader gameLoader)
         {
             _appEvents = appEvents;
-            _model = model;
-            _playerSaver = playerSaver;
+            _gameLoader = gameLoader;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -40,8 +38,8 @@ public class AdminPanelGame : IAdminPanelConfigurer
             layout.CreateConfirmButton("Restart", () => {
                 _appEvents.RestartGame();
             });
-            layout.CreateButton("Save game", () => {
-                _playerSaver.Save(_model.Player);
+            layout.CreateButton("Delete local game", () => {
+                _gameLoader.DeleteLocalGame();
             });
             layout.CreateMargin(2);
         }
