@@ -100,7 +100,7 @@ namespace SocialPoint.IO
             }
             else
             {
-                return System.IO.File.Exists(path) || System.IO.Directory.Exists(path);
+                return System.IO.File.Exists(path);
             }
         }
 
