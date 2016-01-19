@@ -11,9 +11,6 @@ using System.Text;
 
 public class EmptyBackendInstaller : MonoInstaller
 {
-    [Inject]
-    IGameLoader _gameLoader;
-
     public override void InstallBindings()
     {
         if(!Container.HasBinding<IEventTracker>())
@@ -36,10 +33,6 @@ public class EmptyBackendInstaller : MonoInstaller
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
-        }
-        if(_gameLoader != null)
-        {
-            _gameLoader.LoadInitial();
         }
     }
 

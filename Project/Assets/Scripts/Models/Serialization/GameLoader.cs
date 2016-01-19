@@ -6,8 +6,6 @@ using Zenject;
 
 public interface IGameLoader
 {
-    GameModel LoadInitial();
-
     GameModel Load(Attr data);
 
     void SaveLocalGame();
@@ -50,16 +48,6 @@ public class GameLoader : IGameLoader
         return _parser.Parse(gameData);
     }
 
-    public GameModel LoadInitial()
-    {
-        if(_model.Config == null)
-        {
-            _model.Assign(GetInitial());
-        }
-
-        return _model;
-    }
-
     GameModel LoadSavedGame()
     {
         var savedPlayerGameJson = UnityEngine.Resources.Load(_jsonPlayerResource) as UnityEngine.TextAsset;
@@ -83,9 +71,11 @@ public class GameLoader : IGameLoader
             if(savedGame != null)
             {
                 _model.Assign(savedGame);
-                return savedGame;
+                return _model;
             }
-            return LoadInitial();
+            _model.Assign(GetInitial());
+
+            return _model;
         }
         var newModel = _parser.Parse(data);
 
