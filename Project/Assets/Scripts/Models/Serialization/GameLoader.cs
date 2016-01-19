@@ -67,6 +67,10 @@ public class GameLoader : IGameLoader
         //if there is no backend
         if(Attr.IsNullOrEmpty(data))
         {
+            if(_model.IsAssigned)
+            {
+                return _model;
+            }
             var savedGame = LoadSavedGame(); 
             if(savedGame != null)
             {
