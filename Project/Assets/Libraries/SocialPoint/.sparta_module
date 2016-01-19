@@ -4,3 +4,4 @@ type core
 depends_on Assets/Libraries/External/LitJson
 depends_on Assets/Libraries/External/OpenIAB
 depends_on Assets/Libraries/External/Prime31
+depends_on Assets/Libraries/External/Ionic/Zlib

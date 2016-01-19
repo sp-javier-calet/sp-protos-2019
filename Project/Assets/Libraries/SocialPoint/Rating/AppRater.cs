@@ -63,6 +63,10 @@ namespace SocialPoint.Rating
             {
                 _userLevelGetDelegate = value;
             }
+            get
+            {
+                return _userLevelGetDelegate;
+            }
         }
 
         /// <summary>
@@ -75,13 +79,21 @@ namespace SocialPoint.Rating
         {
             _deviceInfo = deviceInfo;
             _storage = storage;
-            _appEvents = appEvents;
-            _appEvents.WasOnBackground += OnWasOnBackground;
+
+            //In some games, we don't want showRate when you come back from background
+            if(appEvents != null)
+            {
+                _appEvents = appEvents;
+                _appEvents.WasOnBackground += OnWasOnBackground;
+            }
         }
 
         virtual public void Dispose()
         {
-            _appEvents.WasOnBackground -= OnWasOnBackground;
+            if(_appEvents != null)
+            {
+                _appEvents.WasOnBackground -= OnWasOnBackground;
+            }
         }
 
         public void Init()
@@ -89,29 +101,51 @@ namespace SocialPoint.Rating
             CheckDayReset();
         }
 
+        protected bool HasInfo()
+        {
+            return _storage.Has(AppRaterInfoKey);
+        }
+
+        protected AttrDic LoadInfo()
+        {
+            return _storage.Load(AppRaterInfoKey).AsDic;
+        }
+
+        protected void SaveInfo(AttrDic data)
+        {
+            _storage.Save(AppRaterInfoKey, data);
+        }
+
         private void CheckDayReset()
         {
-            if(!_storage.Has(AppRaterInfoKey))
+            if(!HasInfo())
             {
                 return;
             }
-            var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
+            var appRaterInfo = LoadInfo();
             if((TimeUtils.Timestamp - appRaterInfo.GetValue(DateStartLastDayKey).ToDouble()) > DayInSeconds)
             {
                 appRaterInfo.SetValue(PromptsLastDayKey, 0);
                 appRaterInfo.SetValue(DateStartLastDayKey, TimeUtils.Timestamp);
-                _storage.Save(AppRaterInfoKey, appRaterInfo);
+                SaveInfo(appRaterInfo);
             }
         }
 
         public void ShowRateView()
         {
-            //increment prompts
-            var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
-            appRaterInfo.SetValue(PromptsLastDayKey, appRaterInfo.GetValue(PromptsLastDayKey).ToInt() + 1);
-            _storage.Save(AppRaterInfoKey, appRaterInfo);
-         
-            _gui.Show(true);
+            //Avoiding problems in the splash screen
+            if(_gui == null)
+            {
+                return;
+            }
+
+            if(_gui.Show(true))
+            {
+                //increment prompts only if the popup can be shown
+                var appRaterInfo = LoadInfo();
+                appRaterInfo.SetValue(PromptsLastDayKey, appRaterInfo.GetValue(PromptsLastDayKey).ToInt() + 1);
+                SaveInfo(appRaterInfo);
+            }
         }
 
         private void IncrementUsesAndRate(bool canPromptForRating)
@@ -146,36 +180,39 @@ namespace SocialPoint.Rating
 
         private void IncrementCount(bool uses, bool events)
         {
-            // actual app version
+            // current app version
             var version = _deviceInfo.AppInfo.Version;
 
-            if(!_storage.Has(AppRaterInfoKey))
+            AttrDic appRaterInfo = null;
+            if(!HasInfo())
             {
                 // first time user launches app, set initial vaules
-                SaveFirstDefaults(TimeUtils.Timestamp, 0, 0, false, false, 0, 0, TimeUtils.Timestamp);
+                appRaterInfo = SaveFirstDefaults(TimeUtils.Timestamp, 0, 0, false, false, 0, 0, TimeUtils.Timestamp);
+            }
+            else
+            {
+                appRaterInfo = LoadInfo();
             }
 
-            var AppRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
-            
-            if(AppRaterInfo.GetValue(CurrentVersionKey) == version)
+            if(appRaterInfo.GetValue(CurrentVersionKey) == version)
             {
-                if(AppRaterInfo.GetValue(FirstUseDateKey) == 0)
+                if(appRaterInfo.GetValue(FirstUseDateKey) == 0)
                 {
-                    AppRaterInfo.SetValue(FirstUseDateKey, TimeUtils.Timestamp);
+                    appRaterInfo.SetValue(FirstUseDateKey, TimeUtils.Timestamp);
                 }
 
                 if(uses)
                 {
-                    AppRaterInfo.SetValue(UsesUntilPromptKey, AppRaterInfo.GetValue(UsesUntilPromptKey).ToInt() + 1);
+                    appRaterInfo.SetValue(UsesUntilPromptKey, appRaterInfo.GetValue(UsesUntilPromptKey).ToInt() + 1);
                 }
 
                 if(events)
                 {
                     // increment the event count
-                    AppRaterInfo.SetValue(EventsUntilPromptKey, AppRaterInfo.GetValue(EventsUntilPromptKey).ToInt() + 1);
+                    appRaterInfo.SetValue(EventsUntilPromptKey, appRaterInfo.GetValue(EventsUntilPromptKey).ToInt() + 1);
                 }
                 // save changes
-                _storage.Save(AppRaterInfoKey, AppRaterInfo);
+                SaveInfo(appRaterInfo);
             }
             else
             {
@@ -184,7 +221,7 @@ namespace SocialPoint.Rating
             }
         }
 
-        private void SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
+        private AttrDic SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
                                        bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
         {
             var defaults = new AttrDic();
@@ -197,70 +234,77 @@ namespace SocialPoint.Rating
             defaults.SetValue(ReminderRequestDateKey, reminderRequestDate);
             defaults.SetValue(PromptsLastDayKey, promptsPerDay);
             defaults.SetValue(DateStartLastDayKey, lastDayDate);
-            _storage.Save(AppRaterInfoKey, defaults);
+            SaveInfo(defaults);
+            return defaults;
         }
 
-        private bool preRatingConditionsHaveBeenMet
+        private bool PreRatingConditionsHaveBeenMet(AttrDic appRaterInfo)
         {
-            get
+            // Has the user previously declined to rate this version of the app?
+            if(appRaterInfo.GetValue(DeclineToRateKey).ToBool())
             {
-                // Check if the days passed from first use has passed
-                var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
-                var timeSinceFirstLaunch = TimeUtils.Timestamp - appRaterInfo.GetValue(FirstUseDateKey).ToDouble();
-                var timeUntilRate = DayInSeconds * DaysUntilPrompt;
-                if(timeSinceFirstLaunch < timeUntilRate)
-                {
-                    return false;
-                }
-
-                // Check if the app has been used enough //FIXME:maybe <= ?? first session is uses 1
-                if(appRaterInfo.GetValue(UsesUntilPromptKey).ToInt() < UsesUntilPrompt)
-                {
-                    return false;
-                }
-
-                // Check if the user has done enough significant events
-                if(appRaterInfo.GetValue(EventsUntilPromptKey).ToInt() < EventsUntilPrompt)
-                {
-                    return false;
-                }
-
-                // Has the user rated any version of the game?
-                if(AnyVersionRateIsValid && appRaterInfo.GetValue(RatedAnyVersionKey).ToBool())
-                {
-                    return false;
-                }
-
-                // Has the user previously declined to rate this version of the app?
-                if(appRaterInfo.GetValue(DeclineToRateKey).ToBool())
-                {
-                    return false;
-                }
-
-                // Has the user already rated the app?
-                if(appRaterInfo.GetValue(RatedCurrentVersionKey).ToBool())
-                {
-                    return false;
-                }
-
-                // If the user wanted to be reminded later, has enough time passed?
-                var timeSinceReminderRequest = TimeUtils.Timestamp - appRaterInfo.GetValue(ReminderRequestDateKey).ToDouble();
-                var timeUntilReminder = DayInSeconds * DaysBeforeReminding;
-                if(timeSinceReminderRequest < timeUntilReminder)
-                {
-                    return false;
-                }
-
-                if(_userLevelGetDelegate != null)
-                {
-                    if(UserLevelUntilPrompt > _userLevelGetDelegate())
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                return false;
             }
+
+            // Has the user rated any version of the game?
+            if(AnyVersionRateIsValid && appRaterInfo.GetValue(RatedAnyVersionKey).ToBool())
+            {
+                return false;
+            }
+
+            if(!PreRatingCustomConditionsHaveBeenMet(appRaterInfo))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected virtual bool PreRatingCustomConditionsHaveBeenMet(AttrDic appRaterInfo)
+        {
+
+            // Check if the days passed from first use has passed
+            var timeSinceFirstLaunch = TimeUtils.Timestamp - appRaterInfo.GetValue (FirstUseDateKey).ToDouble ();
+            var timeUntilRate = DayInSeconds * DaysUntilPrompt;
+            if(timeSinceFirstLaunch < timeUntilRate)
+            {
+                return false;
+            }
+
+            // Check if the app has been used enough //FIXME:maybe <= ?? first session is uses 1
+            if(appRaterInfo.GetValue(UsesUntilPromptKey).ToInt () < UsesUntilPrompt)
+            {
+                return false;
+            }
+
+            // Check if the user has done enough significant events
+            if(appRaterInfo.GetValue(EventsUntilPromptKey).ToInt () < EventsUntilPrompt)
+            {
+                return false;
+            }
+
+            // If the user wanted to be reminded later, has enough time passed?
+            var timeSinceReminderRequest = TimeUtils.Timestamp - appRaterInfo.GetValue(ReminderRequestDateKey).ToDouble();
+            var timeUntilReminder = DayInSeconds * DaysBeforeReminding;
+            if(timeSinceReminderRequest < timeUntilReminder)
+            {
+                return false;
+            }
+            if(_userLevelGetDelegate != null)
+            {
+                if(UserLevelUntilPrompt > _userLevelGetDelegate())
+                {
+                    return false;
+                }
+            }
+
+            // Has the user already rated the app?
+            if(appRaterInfo.GetValue(RatedCurrentVersionKey).ToBool())
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private bool RatingConditionsHaveBeenMet
@@ -268,11 +312,13 @@ namespace SocialPoint.Rating
             get
             {
                 CheckDayReset();
+                var appRaterInfo = LoadInfo();
 
-                if(!preRatingConditionsHaveBeenMet)
+                if(!PreRatingConditionsHaveBeenMet(appRaterInfo))
+                {
                     return false;
+                }
 
-                var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
                 if(MaxPromptsPerDay >= 0 && appRaterInfo.GetValue(PromptsLastDayKey).ToInt() >= MaxPromptsPerDay)
                 {
                     return false;
@@ -320,25 +366,25 @@ namespace SocialPoint.Rating
 
         void RequestDeclined()
         {
-            var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
+            var appRaterInfo = LoadInfo();
             appRaterInfo.SetValue(DeclineToRateKey, true);
-            _storage.Save(AppRaterInfoKey, appRaterInfo);
+            SaveInfo(appRaterInfo);
         }
 
         void RequestAccepted()
         {
             Application.OpenURL(StoreUrl);
-            var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
+            var appRaterInfo = LoadInfo();
             appRaterInfo.SetValue(RatedCurrentVersionKey, true);
             appRaterInfo.SetValue(RatedAnyVersionKey, true);
-            _storage.Save(AppRaterInfoKey, appRaterInfo);
+            SaveInfo(appRaterInfo);
         }
 
         void RequestDelayed()
         {
-            var appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
+            var appRaterInfo = LoadInfo();
             appRaterInfo.SetValue(ReminderRequestDateKey, TimeUtils.Timestamp);
-            _storage.Save(AppRaterInfoKey, appRaterInfo);
+            SaveInfo(appRaterInfo);
         }
 
         public override string ToString()
@@ -354,7 +400,21 @@ namespace SocialPoint.Rating
         /*
         TODO:
         void setText(AppRaterText type, const std::string& text);
+         *
          */
+
+        public virtual void RemoveKeys()
+        {
+            _storage.Remove(AppRaterInfoKey);
+            _storage.Remove(CurrentVersionKey);
+            _storage.Remove(UsesUntilPromptKey);
+            _storage.Remove(EventsUntilPromptKey);
+            _storage.Remove(RatedCurrentVersionKey);
+            _storage.Remove(RatedAnyVersionKey);
+            _storage.Remove(DeclineToRateKey);
+            _storage.Remove(ReminderRequestDateKey);
+            _storage.Remove(PromptsLastDayKey);
+            _storage.Remove(DateStartLastDayKey);
+        }
     }
 }
-

@@ -153,7 +153,7 @@ namespace SocialPoint.ServerSync
             return data;
         }
 
-        public void Add(Command cmd, ErrorDelegate callback = null)
+        public bool Add(Command cmd, ErrorDelegate callback = null)
         {
             DebugUtils.Assert(cmd != null);
 
@@ -164,14 +164,22 @@ namespace SocialPoint.ServerSync
                     var pcmd = _commands[i];
                     if(pcmd.Command.Name == cmd.Name)
                     {
-                        callback += pcmd.Finished;
-                        _commands.RemoveAt(i);
+                        if (pcmd.Command.Timestamp > cmd.Timestamp)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            callback += pcmd.Finished;
+                            _commands.RemoveAt(i);
+                        }
                     }
                 }
             }
 
             var item = new PackedCommand(cmd, callback);
             _commands.Add(item);
+            return true;
         }
 
         public PackedCommand GetCommand(string id)
@@ -185,6 +193,5 @@ namespace SocialPoint.ServerSync
             }
             return null;
         }
-
     }
 }
