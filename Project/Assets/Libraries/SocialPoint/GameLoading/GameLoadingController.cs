@@ -321,6 +321,7 @@ namespace SocialPoint.GameLoading
         override protected void OnDisappearing()
         {
             Login.ErrorEvent -= OnLoginError;
+            OnAllOperationsLoaded();
             base.OnDisappearing();
         }
 
