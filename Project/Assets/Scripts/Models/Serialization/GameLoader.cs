@@ -88,6 +88,7 @@ public class GameLoader : IGameLoader
             var initialGame = GetInitial();
             newModel = new GameModel(newModel.Config, initialGame.Player);
         }
+        _model.Assign(newModel);
         data.Dispose();
         return _model;
     }
@@ -113,7 +114,7 @@ public class GameLoader : IGameLoader
 
     public Attr OnAutoSync()
     {
-        if(_login == null || (_login.BaseUrl == null || _login.BaseUrl == string.Empty))
+        if(_login == null || string.IsNullOrEmpty(_login.BaseUrl))
         {
             SaveLocalGame();
             return null;

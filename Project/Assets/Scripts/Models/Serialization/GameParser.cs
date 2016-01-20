@@ -20,11 +20,4 @@ public class GameParser : IParser<GameModel>
         var player = _playerParser.Parse(data.AsDic[AttrKeyUser]);
         return new GameModel(config, player);
     }
-
-    public GameModel Parse(Attr configData, Attr playerData)
-    {
-        var config = _configParser.Parse(configData);
-        var player = _playerParser.Parse(playerData);
-        return new GameModel(config, player);
-    }
 }
