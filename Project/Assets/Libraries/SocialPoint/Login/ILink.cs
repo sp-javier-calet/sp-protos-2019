@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
 using SocialPoint.Base;
 
 namespace SocialPoint.Login
 {
-    public delegate void StateChangeDelegate(LinkState state);   
+    public delegate void StateChangeDelegate(LinkState state);
 
     public interface ILink : IDisposable
     {
         string Name{ get; }
+
+        LinkState State{ get; }
 
         void AddStateChangeDelegate(StateChangeDelegate cbk);
 
