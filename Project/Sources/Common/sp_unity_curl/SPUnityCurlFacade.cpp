@@ -46,7 +46,6 @@ extern "C" {
 Mutex curlUpdateLock;
 const uint8_t* curlPinnedPublicKey = nullptr;
 size_t curlPinnedPublicKeySize = 0;
-const char* curlConfig = nullptr;
 
 std::vector<std::string> split(const std::string& str, const std::string& sep, size_t max=std::string::npos)
 {
@@ -126,28 +125,28 @@ size_t writeToString(void *contents, size_t size, size_t nmemb, void *userp)
 
 void obfuscate(const uint8_t* in, uint8_t** out, size_t size)
 {
-    static const int secretLength = 8;
-    static const uint8_t secret[secretLength] = {55, 11, 44, 71, 66, 177, 253, 122};
-
+    static const uint8_t secret[] = {55, 11, 44, 71, 66, 177, 253, 122};
     (*out) = new uint8_t[size + 1];// size + null terminated char
 
     for(size_t i = 0; i < size; ++i)
     {
-        (*out)[i] = in[i] ^ secret[i % secretLength];
+        (*out)[i] = in[i] ^ secret[i % (sizeof(secret) / sizeof(secret[0]))];
     }
 
     (*out)[size] = 0;
 }
 
 
+
+// sha256//sGYj4r/mnjRz3syQWx8IV+kiUODjy5f0Ss4oaYrwR50=
 static const uint8_t pinnedCertBaseGame[] = {
-        0x44, 0x63, 0x4D, 0x75, 0x77, 0x87, 0xD2, 0x55, 0x65, 0x49,
-        0x5E, 0x04, 0x2B, 0xF3, 0xBB, 0x1B, 0x75, 0x5E, 0x07, 0x73,
-        0x70, 0xFD, 0x99, 0x23, 0x47, 0x6E, 0x4F, 0x33, 0x25, 0xFB,
-        0x99, 0x23, 0x55, 0x53, 0x62, 0x71, 0x35, 0xF0, 0xD6, 0x0D,
-        0x66, 0x20, 0x45, 0x71, 0x07, 0xF3, 0xBF, 0x51, 0x46, 0x7C,
-        0x6D, 0x7A
-    };
+        0x44, 0x63, 0x4D, 0x75, 0x77, 0x87, 0xD2, 0x55, 0x44, 0x4C,
+        0x75, 0x2D, 0x76, 0xC3, 0xD2, 0x17, 0x59, 0x61, 0x7E, 0x3D,
+        0x71, 0xC2, 0x84, 0x2B, 0x60, 0x73, 0x14, 0x0E, 0x14, 0x9A,
+        0x96, 0x13, 0x62, 0x44, 0x68, 0x2D, 0x3B, 0x84, 0x9B, 0x4A,
+        0x64, 0x78, 0x18, 0x28, 0x23, 0xE8, 0x8F, 0x0D, 0x65, 0x3E,
+        0x1C, 0x7A
+};
 
 // sha256///sdIuK4VrbGBsCFHmQJFCTnWERJZe8gNXphH3gcS7v8=
 static const uint8_t pinnedCertDragonLand[] = {
@@ -169,25 +168,6 @@ static const uint8_t pinnedCertDragonStadium[] = {
         0x5B, 0x7A
     };
 
-void SPUnityCurlSetupConfig(CURL* curl)
-{
-    if(curlConfig == "dragonland")
-    {
-        curlPinnedPublicKey = pinnedCertDragonLand;
-        curlPinnedPublicKeySize = sizeof(pinnedCertDragonLand);
-    }
-    else if(curlConfig == "dragonstadium")
-    {
-        curlPinnedPublicKey = pinnedCertDragonStadium;
-        curlPinnedPublicKeySize = sizeof(pinnedCertDragonStadium);
-    }
-    else
-    {
-        curlPinnedPublicKey = pinnedCertBaseGame;
-        curlPinnedPublicKeySize = sizeof(pinnedCertBaseGame);
-    }
-}
-
 CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
 {
     CURL* curl = curl_easy_init();
@@ -195,8 +175,6 @@ CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
     {
         return curl;
     }
-
-    SPUnityCurlSetupConfig(curl);
 
     std::string url = (std::string(req.url)+"?"+ std::string(req.query)).c_str() ;
 
@@ -289,7 +267,7 @@ EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct req)
 {
 #ifdef SP_UNITY_CURL_DEBUG
     std::ofstream ss;
-    ss.open("/tmp/sp_unity_curl.log");
+    ss.open("/tmp/sp_unity_curl.log", std::ofstream::out | std::ofstream::app);
     ss << "request" << std::endl;
     ss << "id " << req.id << std::endl;
     ss << "url " << req.url << std::endl;
@@ -303,6 +281,7 @@ EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct req)
     }
     ss << "headers " << req.headers << std::endl;
     ss << "bodyLength " << req.bodyLength << std::endl;
+    ss << "----" << std::endl;
     ss.close();
 #endif
 
@@ -374,6 +353,29 @@ EXPORT_API int SPUnityCurlUpdate(int id)
             curl_easy_getinfo(easy, CURLINFO_TOTAL_TIME, &conn->totalTime);
             curl_easy_getinfo(easy, CURLINFO_SIZE_DOWNLOAD, &conn->downloadSize);
             curl_easy_getinfo(easy, CURLINFO_SPEED_DOWNLOAD, &conn->downloadSpeed);
+
+
+#ifdef SP_UNITY_CURL_DEBUG
+            std::ofstream ss;
+            ss.open("/tmp/sp_unity_curl.log", std::ofstream::out | std::ofstream::app);
+            ss << "response" << std::endl;
+            ss << "id " << conn->id << std::endl;
+            ss << "code " << conn->responseCode << std::endl;
+            ss << "headers " << conn->headersBuffer << std::endl;
+            ss << "error " << conn->errorBuffer << std::endl;
+            std::string body = conn->bodyBuffer;
+            if(body.length() > 30)
+            {
+                body = body.substr(0, 30)+"...";
+            }
+            ss << "body " << body << std::endl;
+            ss << "downloadSize " << conn->downloadSize << std::endl;
+            ss << "downloadSpeed " << conn->downloadSpeed << std::endl;
+            ss << "connectTime " << conn->connectTime << std::endl;
+            ss << "totalTime " << conn->totalTime << std::endl;
+            ss << "----" << std::endl;
+            ss.close();
+#endif
 
             curl_multi_remove_handle(globalInfo.multi, easy);
             curl_easy_cleanup(easy);
@@ -511,6 +513,7 @@ EXPORT_API int SPUnityCurlGetDownloadSpeed(int id)
 
 EXPORT_API void SPUnityCurlInit()
 {
+    SPUnityCurlSetConfig(nullptr);
     memset(&globalInfo, 0, sizeof(SPUnityCurlGlobalInfo));
     globalInfo.multi =  curl_multi_init();
 }
@@ -526,5 +529,19 @@ EXPORT_API void SPUnityCurlDestroy()
 
 EXPORT_API void SPUnityCurlSetConfig(const char* name)
 {
-    curlConfig = name;
+    if(name != nullptr && strcmp(name, "dragonland") == 0)
+    {
+        curlPinnedPublicKey = pinnedCertDragonLand;
+        curlPinnedPublicKeySize = sizeof(pinnedCertDragonLand) / sizeof(pinnedCertDragonLand[0]);
+    }
+    else if(name != nullptr && strcmp(name, "dragonstadium") == 0)
+    {
+        curlPinnedPublicKey = pinnedCertDragonStadium;
+        curlPinnedPublicKeySize = sizeof(pinnedCertDragonStadium) / sizeof(pinnedCertDragonStadium[0]);
+    }
+    else
+    {
+        curlPinnedPublicKey = pinnedCertBaseGame;
+        curlPinnedPublicKeySize = sizeof(pinnedCertBaseGame) / sizeof(pinnedCertBaseGame[0]);
+    }
 }

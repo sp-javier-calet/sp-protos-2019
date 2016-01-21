@@ -60,6 +60,8 @@ extern "C"
 
     EXPORT_API void SPUnityCurlInit();
     EXPORT_API void SPUnityCurlDestroy();
+    
+    EXPORT_API void SPUnityCurlSetConfig(const char* name);
 
     // needs to be implemented for each platform
     EXPORT_API void SPUnityCurlOnApplicationPause(bool paused);
