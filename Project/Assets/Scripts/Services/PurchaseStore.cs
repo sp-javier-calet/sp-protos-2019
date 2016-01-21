@@ -26,6 +26,16 @@ class PurchaseStore : SocialPointPurchaseStore
         }
     }
 
+    //String must match the binding in PurchaseInstaller
+    [InjectOptional("purchase_store_product_ids")]
+    string[] injectStoreProductIds
+    {
+        set
+        {
+            StoreProductIds = value;
+        }
+    }
+
     public PurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue) : base(httpClient, commandQueue)
     {
     }

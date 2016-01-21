@@ -38,11 +38,11 @@ namespace SocialPoint.Purchase
             ORDER_SYNCED = 265
         }
 
-        public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt,PurchaseResponseType response);
+        public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
         /// <summary>
         /// The purchase completed function that each game defines.
@@ -62,6 +62,11 @@ namespace SocialPoint.Purchase
         /// The request setup.
         /// </summary>
         public RequestSetupDelegate RequestSetup;
+
+        /// <summary>
+        /// The store product identifiers for current platform.
+        /// </summary>
+        public string[] StoreProductIds { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SocialPoint.Purchase.SocialPointPurchaseStore"/> class.
