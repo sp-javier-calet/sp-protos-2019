@@ -38,7 +38,7 @@ public class PurchaseInstaller : MonoInstaller
             }
         }
     }
-    //Instance to fill through editor
+    //Instance to fill through editor. Search PurchaseInstaller prefab
     public StoreData Data = new StoreData();
 
     public override void InstallBindings()
