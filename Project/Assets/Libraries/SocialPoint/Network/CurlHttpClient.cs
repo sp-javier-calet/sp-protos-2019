@@ -36,18 +36,11 @@ namespace SocialPoint.Network
             }
         }
 
-        public byte[] PinnedCertificate
+        public string Config
         {
             set
             {
-                if(value != null)
-                {
-                    CurlBridge.SPUnityCurlSetCertificate(value, value.Length);
-                }
-                else
-                {
-                    CurlBridge.SPUnityCurlSetCertificate(null, 0);
-                }
+                CurlBridge.SPUnityCurlSetConfig(value);
             }
         }
 
