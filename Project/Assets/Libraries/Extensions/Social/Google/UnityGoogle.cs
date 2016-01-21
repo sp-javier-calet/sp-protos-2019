@@ -86,6 +86,8 @@ namespace SocialPoint.Social
 
         public void Logout(ErrorDelegate cbk)
         {
+            _platform.SignOut();
+
             _platform = null;
             _user = null;
             _achievements = null;
