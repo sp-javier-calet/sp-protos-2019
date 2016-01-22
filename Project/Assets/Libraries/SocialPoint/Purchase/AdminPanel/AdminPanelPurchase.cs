@@ -7,13 +7,12 @@ namespace SocialPoint.Purchase
 {
     public class AdminPanelPurchase : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        SocialPointPurchaseStore _purchaseStore;
+        IGamePurchaseStore _purchaseStore;
 
         //Map each product ID to a last known purchase state
-        //TODO: Would it be possible to have more than one transaction in progress for a single product?
         Dictionary<string, PurchaseState> _lastKnownPurchaseState = new Dictionary<string, PurchaseState>();
 
-        public AdminPanelPurchase(SocialPointPurchaseStore purchaseStore)
+        public AdminPanelPurchase(IGamePurchaseStore purchaseStore)
         {
             _purchaseStore = purchaseStore;
             _purchaseStore.ProductsUpdated += OnProductsUpdated;
@@ -23,7 +22,7 @@ namespace SocialPoint.Purchase
             SetMockupProductsAndDelegate();
             #endif
             //Load products (IMPORTANT: Check that product IDs are set in PurchaseInstaller prefab)
-            _purchaseStore.LoadProducts(_purchaseStore.StoreProductIds);
+            _purchaseStore.LoadProducts(_purchaseStore.GetStoreProductIds());
         }
 
         //IAdminPanelConfigurer implementation
@@ -40,9 +39,9 @@ namespace SocialPoint.Purchase
         {
             //TODO: Add options to activate an "always fail", "always success" response?
             layout.CreateLabel("Products");//Title
-            if(_purchaseStore.HasProductsLoaded)
+            if(_purchaseStore.HasProductsLoaded())
             {
-                foreach(Product product in _purchaseStore.ProductList)
+                foreach(Product product in _purchaseStore.GetProductList())
                 {
                     string id = product.Id;//Caching id to avoid passing reference to lambda
                     layout.CreateButton(product.Locale, 
@@ -86,12 +85,13 @@ namespace SocialPoint.Purchase
         private void SetMockupProductsAndDelegate()
         {
             //Create mockup product objects with mock store data
-            Product[] mockProducts = new Product[_purchaseStore.StoreProductIds.Length];
+            string[] storeProductIds = _purchaseStore.GetStoreProductIds();
+            Product[] mockProducts = new Product[storeProductIds.Length];
             for(int i = 0; i < mockProducts.Length; i++)
             {
                 float price = (float)i + 0.99f;
                 mockProducts[i] = new Product(
-                    _purchaseStore.StoreProductIds[i],
+                    storeProductIds[i],
                     "Test Product " + (i + 1),
                     price,
                     "$",
@@ -102,7 +102,7 @@ namespace SocialPoint.Purchase
             //Set products
             _purchaseStore.SetProductMockList(mockProducts);
             //Set purchase delegate
-            _purchaseStore.PurchaseCompleted = OnMockPurchaseCompleted;
+            _purchaseStore.PurchaseCompleted += OnMockPurchaseCompleted;
         }
 
         PurchaseGameInfo OnMockPurchaseCompleted(Receipt receipt, PurchaseResponseType response)

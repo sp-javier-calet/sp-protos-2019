@@ -14,7 +14,69 @@ namespace SocialPoint.Purchase
         public AttrDic AdditionalData;
     }
 
-    public class SocialPointPurchaseStore
+    public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
+
+    public interface IGamePurchaseStore
+    {
+        event PurchaseCompletedDelegate PurchaseCompleted;
+        event ProductsUpdatedDelegate ProductsUpdated;
+        event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        string[] GetStoreProductIds();
+
+        Product[] GetProductList();
+
+        bool HasProductsLoaded();
+
+        void LoadProducts(string[] productIds);
+
+        void SetProductMockList(IEnumerable<Product> productMockList);
+
+        bool Purchase(string productId);
+
+        void ForceFinishPendingTransactions();
+    }
+
+    public class EmptyGamePurchaseStore : IGamePurchaseStore
+    {
+        public event PurchaseCompletedDelegate PurchaseCompleted;
+        public event ProductsUpdatedDelegate ProductsUpdated;
+        public event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        public string[] GetStoreProductIds()
+        {
+            return null;
+        }
+
+        public Product[] GetProductList()
+        {
+            return null;
+        }
+
+        public bool HasProductsLoaded()
+        {
+            return false;
+        }
+
+        public void LoadProducts(string[] productIds)
+        {
+        }
+
+        public void SetProductMockList(IEnumerable<Product> productMockList)
+        {
+        }
+
+        public bool Purchase(string productId)
+        {
+            return true;
+        }
+
+        public void ForceFinishPendingTransactions()
+        {
+        }
+    }
+
+    public class SocialPointPurchaseStore : IGamePurchaseStore
     {
         IPurchaseStore _purchaseStore = null;
         IHttpClient _httpClient;
@@ -23,6 +85,11 @@ namespace SocialPoint.Purchase
         public string Currency;
 
         public bool ProductListReceived { get; private set; }
+
+        /// <summary>
+        /// Identifiers of the products in the store.
+        /// </summary>
+        protected string[] _storeProductIds;
 
         const string HttpParamOrderData = "order_data_base64";
         //used for android
@@ -38,8 +105,6 @@ namespace SocialPoint.Purchase
             ORDER_SYNCED = 265
         }
 
-        public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
-
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
@@ -50,7 +115,7 @@ namespace SocialPoint.Purchase
         /// - apply changes depending the response
         /// - create a sync command if response was Complete
         /// </summary>
-        public PurchaseCompletedDelegate PurchaseCompleted;
+        public event PurchaseCompletedDelegate PurchaseCompleted;
 
         /// <summary>
         /// Should be connected to the event tracker to track purchase events
@@ -62,11 +127,6 @@ namespace SocialPoint.Purchase
         /// The request setup.
         /// </summary>
         public RequestSetupDelegate RequestSetup;
-
-        /// <summary>
-        /// The store product identifiers for current platform.
-        /// </summary>
-        public string[] StoreProductIds { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SocialPoint.Purchase.SocialPointPurchaseStore"/> class.
@@ -105,7 +165,7 @@ namespace SocialPoint.Purchase
         /// </summary>
         /// <param name="receipt">Receipt.</param>
         /// <param name="response">callback defined by each store implementation (usually consumes product, finishes transaction)</param>
-        public void SocialPointValidatePurchase(Receipt receipt, ValidatePurchaseResponseDelegate response)
+        void SocialPointValidatePurchase(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
             if(_purchaseStore is MockPurchaseStore)
             {
@@ -204,9 +264,9 @@ namespace SocialPoint.Purchase
             order.SetValue("resource_type", info.ResourceName);
             order.SetValue("resource_amount", info.ResourceAmount);
 
-            if(ProductList.Length > 0)
+            if(GetProductList().Length > 0)
             {
-                var products = new List<Product>(ProductList);
+                var products = new List<Product>(GetProductList());
                 var product = products.Find(x => x.Id == receipt.ProductId);
                 if(product.Id != default(Product).Id)
                 {
@@ -254,16 +314,31 @@ namespace SocialPoint.Purchase
         }
 
         /// <summary>
+        /// Gets the registered IDs for all the available in-app purchases
+        /// </summary>
+        /// <value>The product list.</value>
+        public string[] GetStoreProductIds()
+        {
+            return _storeProductIds;
+        }
+
+        /// <summary>
         /// Gets the product list.
         /// </summary>
         /// <value>The product list.</value>
-        public Product[] ProductList{ get { return _purchaseStore.ProductList; } }
+        public Product[] GetProductList()
+        {
+            return _purchaseStore.ProductList;
+        }
 
         /// <summary>
         /// Gets if has products loaded.
         /// </summary>
         /// <value>The product list.</value>
-        public bool HasProductsLoaded{ get { return _purchaseStore.HasProductsLoaded; } }
+        public bool HasProductsLoaded()
+        {
+            return _purchaseStore.HasProductsLoaded;
+        }
 
         /// <summary>
         /// Loads the products.
@@ -352,9 +427,10 @@ namespace SocialPoint.Purchase
         {
             if(state == LoadProductsState.Success)
             {
-                if(ProductList.Length > 0)
+                Product[] productList = GetProductList();
+                if(productList.Length > 0)
                 {
-                    Currency = ProductList[0].Currency;
+                    Currency = productList[0].Currency;
                 }
 
                 ProductListReceived = true;

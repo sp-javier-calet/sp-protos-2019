@@ -45,7 +45,7 @@ public class PurchaseInstaller : MonoInstaller
     {
         Container.BindInstance("purchase_store_product_ids", Data.ProductIds);
 
-        Container.Rebind<SocialPointPurchaseStore>().ToSingle<PurchaseStore>();
+        Container.Rebind<IGamePurchaseStore>().ToSingle<PurchaseStore>();
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelPurchase>();
     }

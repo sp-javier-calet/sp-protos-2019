@@ -2,6 +2,143 @@
     "config": {
         "globals": {
             "example": "value"
+        },
+        "store": {
+            "categories": [{
+                "id": "nodes",
+                "name": "category_node_name_key",
+                "items": [100, 101]
+            }, {
+                "id": "resources",
+                "name": "category_resource_name_key",
+                "items": [500, 501]
+            }, {
+                "id": "cash",
+                "name": "category_cash_name_key",
+                "items": [900, 901, 902, 903]
+            }],
+            "items": [{
+                "id": 100,
+                "reward": {
+                    "type": "tile_node",
+                    "value": "food_farm"
+                },
+                "cost": {
+                    "type": "resources",
+                    "value": {
+                        "g": 10
+                    }
+                },
+                "name": "store.food_farm"
+            }, {
+                "id": 101,
+                "reward": {
+                    "type": "tile_node",
+                    "value": "gold_farm"
+                },
+                "cost": {
+                    "type": "resources",
+                    "value": {
+                        "f": 10
+                    }
+                },
+                "name": "store.gold_farm"
+            }, {
+                "id": 500,
+                "reward": {
+                    "type": "resources",
+                    "value": {
+                        "g": 1000
+                    }
+                },
+                "cost": {
+                    "type": "resources",
+                    "value": {
+                        "d": 10
+                    }
+                },
+                "name": "store.gold"
+            }, {
+                "id": 501,
+                "reward": {
+                    "type": "resources",
+                    "value": {
+                        "f": 1000
+                    }
+                },
+                "cost": {
+                    "type": "resources",
+                    "value": {
+                        "d": 10
+                    }
+                },
+                "name": "store.food"
+            }, {
+                "id": 900,
+                "shopId": "gem_0",
+                "cost": {
+                    "type": "purchase",
+                    "value": "gem_0"
+                },
+                "name": "store.gem_0"
+            }, {
+                "id": 901,
+                "shopId": "gem_1",
+                "cost": {
+                    "type": "purchase",
+                    "value": "gem_1"
+                },
+                "name": "store.gem_1"
+            }, {
+                "id": 902,
+                "shopId": "gem_2",
+                "cost": {
+                    "type": "purchase",
+                    "value": "gem_2"
+                },
+                "name": "store.gem_2"
+            }, {
+                "id": 903,
+                "shopId": "gem_3",
+                "cost": {
+                    "type": "purchase",
+                    "value": "gem_3"
+                },
+                "name": "store.gem_3"
+            }],
+            "purchases": [{
+                "productId": "gem_0",
+                "reward": {
+                    "type": "resources",
+                    "value": {
+                        "d": 10
+                    }
+                }
+            }, {
+                "productId": "gem_1",
+                "reward": {
+                    "type": "resources",
+                    "value": {
+                        "d": 10
+                    }
+                }
+            }, {
+                "productId": "gem_2",
+                "reward": {
+                    "type": "resources",
+                    "value": {
+                        "d": 10
+                    }
+                }
+            }, {
+                "productId": "gem_3",
+                "reward": {
+                    "type": "resources",
+                    "value": {
+                        "d": 10
+                    }
+                }
+            }]
         }
     },
     "user": {
