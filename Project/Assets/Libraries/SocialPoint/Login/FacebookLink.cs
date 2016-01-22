@@ -17,11 +17,14 @@ namespace SocialPoint.Login
         private event StateChangeDelegate _eventStateChange;
         
         public readonly static string LinkName = "fb";
-        
+
+        LinkState _state;
+
         public FacebookLink(MonoBehaviour behaviour, bool loginWithUi = true)
         {
             _loginWithUi = loginWithUi;
             _facebook = new UnityFacebook(behaviour);
+            _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             Init();
         }
         
@@ -68,7 +71,15 @@ namespace SocialPoint.Login
                 return LinkName;
             }
         }
-        
+
+        public LinkState State
+        {
+            get
+            {
+                return _state;
+            }
+        }
+
         public void AddStateChangeDelegate(StateChangeDelegate cbk)
         {
             _eventStateChange += cbk;
@@ -80,12 +91,13 @@ namespace SocialPoint.Login
             {
                 if(_facebook.IsConnected)
                 {
-                    _eventStateChange(LinkState.Connected);
+                    _state = LinkState.Connected;
                 }
                 else
                 {
-                    _eventStateChange(LinkState.Disconnected);
+                    _state = LinkState.Disconnected;
                 }
+                _eventStateChange(_state);
             }
         }
         

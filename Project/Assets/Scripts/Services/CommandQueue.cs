@@ -105,18 +105,20 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     [Inject]
     IGameErrorHandler _errorHandler;
 
-    public CommandQueue(MonoBehaviour behaviour, IHttpClient client):base(behaviour, client)
+    [Inject]
+    IGameLoader gameLoader
     {
-        AutoSync = OnAutoSync;
-        _errorHandler.Setup(this);
+        set
+        {
+            AutoSync = value.OnAutoSync;
+        }
     }
 
-    public Attr OnAutoSync()
+    [Inject]
+    ILogin _login;
+
+    public CommandQueue(MonoBehaviour behaviour, IHttpClient client) : base(behaviour, client)
     {
-        if(_gameModel == null || _gameModel.Player == null)
-        {
-            return null;
-        }
-        return _playerSerializer.Serialize(_gameModel.Player);
+        _errorHandler.Setup(this);
     }
 }

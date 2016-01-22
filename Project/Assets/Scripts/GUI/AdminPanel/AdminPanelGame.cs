@@ -1,5 +1,6 @@
 ﻿using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
 using UnityEngine;
 using Zenject;
 
@@ -11,19 +12,24 @@ public class AdminPanelGame : IAdminPanelConfigurer
     [Inject]
     GameModel _model;
 
+    [Inject]
+    IGameLoader _gameLoader;
+
     public void OnConfigure(AdminPanel adminPanel)
     {
-        adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents));
+        adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents, _gameLoader));
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Model", new AdminPanelGameModel(_model)));
     }
 
     private class AdminPanelGameControl : IAdminPanelGUI
     {
         IAppEvents _appEvents;
+        IGameLoader _gameLoader;
 
-        public AdminPanelGameControl(IAppEvents appEvents)
+        public AdminPanelGameControl(IAppEvents appEvents, IGameLoader gameLoader)
         {
             _appEvents = appEvents;
+            _gameLoader = gameLoader;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -31,6 +37,9 @@ public class AdminPanelGame : IAdminPanelConfigurer
             layout.CreateLabel("Game Control");
             layout.CreateConfirmButton("Restart", () => {
                 _appEvents.RestartGame();
+            });
+            layout.CreateButton("Delete local game", () => {
+                _gameLoader.DeleteLocalGame();
             });
             layout.CreateMargin(2);
         }
@@ -45,7 +54,7 @@ public class AdminPanelGame : IAdminPanelConfigurer
         {
             _model = model;
         }
-        
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Game Model");

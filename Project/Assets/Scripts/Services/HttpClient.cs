@@ -26,13 +26,13 @@ public class HttpClient :
         }
     }
 
-    [InjectOptional("pin_ssl_certificate")]
-    byte[] certificate
+    [InjectOptional("http_client_config")]
+    string config
     {
         set
         {
 #if CURL_SUPPORTED
-            PinnedCertificate = value;
+            Config = value;
 #endif
         }
     }

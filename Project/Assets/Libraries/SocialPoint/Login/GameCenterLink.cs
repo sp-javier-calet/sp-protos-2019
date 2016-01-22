@@ -15,7 +15,9 @@ namespace SocialPoint.Login
         private event StateChangeDelegate _eventStateChange;
         
         public readonly static string LinkName = "gc";
-        
+
+        LinkState _state;
+
         public GameCenterLink()
         {
             _gameCenter = new UnityGameCenter();
@@ -30,6 +32,7 @@ namespace SocialPoint.Login
         
         void Init()
         {
+            _state = _gameCenter.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             _gameCenter.StateChangeEvent += OnStateChanged;
         }
 
@@ -80,7 +83,15 @@ namespace SocialPoint.Login
                 return LinkName;
             }
         }
-        
+
+        public LinkState State
+        {
+            get
+            {
+                return _state;
+            }
+        }
+
         public void AddStateChangeDelegate(StateChangeDelegate cbk)
         {
             _eventStateChange += cbk;
@@ -93,12 +104,13 @@ namespace SocialPoint.Login
             {
                 if(_gameCenter.IsConnected)
                 {
-                    _eventStateChange(LinkState.Connected);
+                    _state = LinkState.Connected;
                 }
                 else
                 {
-                    _eventStateChange(LinkState.Disconnected);
+                    _state = LinkState.Disconnected;
                 }
+                _eventStateChange(_state);
             }
         }
         

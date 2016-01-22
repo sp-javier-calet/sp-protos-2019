@@ -39,7 +39,7 @@ public class EmptyBackendInstaller : MonoInstaller
         }
         if(_gameLoader != null)
         {
-            _gameLoader.LoadInitial();
+            _gameLoader.Load(null);
         }
     }
 

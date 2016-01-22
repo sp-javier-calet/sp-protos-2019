@@ -1,50 +1,88 @@
 ﻿using SocialPoint.Attributes;
+using SocialPoint.IO;
+using SocialPoint.Login;
+
 using Zenject;
 
 public interface IGameLoader
 {
-    GameModel LoadInitial();
     GameModel Load(Attr data);
+
+    void SaveLocalGame();
+
+    void DeleteLocalGame();
+
+    Attr OnAutoSync();
 }
 
 public class GameLoader : IGameLoader
 {
-    string _jsonResource;
+    string _jsonGameResource;
+    string _jsonPlayerResource;
 
     [Inject]
     IParser<GameModel> _parser;
 
     [Inject]
+    IParser<PlayerModel> _playerParser;
+
+    [Inject]
+    ISerializer<PlayerModel> _playerSerializer;
+
+    [Inject]
     GameModel _model;
 
-    public GameLoader([Inject("game_initial_json_resource")] string jsonResource)
+    [InjectOptional]
+    ILogin _login;
+
+    public GameLoader([Inject("game_initial_json_game_resource")] string jsonGameResource, [Inject("game_initial_json_player_resource")] string jsonPlayerResource)
     {
-        _jsonResource = jsonResource;
+        _jsonGameResource = jsonGameResource;
+        _jsonPlayerResource = jsonPlayerResource;
     }
 
     GameModel GetInitial()
     {
-        var defaultGame = (UnityEngine.Resources.Load(_jsonResource) as UnityEngine.TextAsset).text;
-        var json = new JsonAttrParser().ParseString(defaultGame).AsDic;
-        return _parser.Parse(json);
+        var defaultGameJson = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+        var gameData = new JsonAttrParser().ParseString(defaultGameJson).AsDic;
+        return _parser.Parse(gameData);
     }
 
-    public GameModel LoadInitial()
+    GameModel LoadSavedGame()
     {
-        if(_model.Config == null)
+        var savedPlayerGameJson = UnityEngine.Resources.Load(_jsonPlayerResource) as UnityEngine.TextAsset;
+        if(savedPlayerGameJson != null)
         {
-            _model.Assign(GetInitial());
+            var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson.text).AsDic;
+            var initialGame = GetInitial();
+            var savedPlayer = _playerParser.Parse(playerData);
+
+            return new GameModel(initialGame.Config, savedPlayer);
         }
-        return _model;
+        return null;
     }
 
     public GameModel Load(Attr data)
     {
+        //if there is no backend
         if(Attr.IsNullOrEmpty(data))
         {
-            return LoadInitial();
+            if(_model.IsAssigned)
+            {
+                return _model;
+            }
+            var savedGame = LoadSavedGame(); 
+            if(savedGame != null)
+            {
+                _model.Assign(savedGame);
+                return _model;
+            }
+            _model.Assign(GetInitial());
+
+            return _model;
         }
         var newModel = _parser.Parse(data);
+
         if(newModel.Player == null)
         {
             var initialGame = GetInitial();
@@ -53,5 +91,39 @@ public class GameLoader : IGameLoader
         _model.Assign(newModel);
         data.Dispose();
         return _model;
+    }
+
+    string PlayerJsonPath()
+    {
+        return string.Format("{0}/{1}/{2}.json", PathsManager.DataPath, "Resources",
+            _jsonPlayerResource);
+    }
+
+    public void SaveLocalGame()
+    {
+        Attr data = _playerSerializer.Serialize(_model.Player);
+        IAttrSerializer Serializer = new JsonAttrSerializer();
+
+        FileUtils.WriteAllText(PlayerJsonPath(), Serializer.SerializeString(data));
+    }
+
+    public void DeleteLocalGame()
+    {
+        FileUtils.Delete(PlayerJsonPath());
+    }
+
+    public Attr OnAutoSync()
+    {
+        if(_login == null || string.IsNullOrEmpty(_login.BaseUrl))
+        {
+            SaveLocalGame();
+            return null;
+        }
+        if(_model == null || _model.Player == null)
+        {
+            return null;
+        }
+        return _playerSerializer.Serialize(_model.Player);
+
     }
 }
