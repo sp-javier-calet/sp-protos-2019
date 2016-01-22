@@ -45,7 +45,7 @@ extern "C"
 
     EXPORT_API double SPUnityCurlGetConnectTime(int id);
     EXPORT_API double SPUnityCurlGetTotalTime(int id);
-    
+
     EXPORT_API int SPUnityCurlGetCode(int id);
 
     EXPORT_API void SPUnityCurlGetError(int id, char* data);
@@ -60,11 +60,11 @@ extern "C"
 
     EXPORT_API void SPUnityCurlInit();
     EXPORT_API void SPUnityCurlDestroy();
+    
+    EXPORT_API void SPUnityCurlSetConfig(const char* name);
 
     // needs to be implemented for each platform
     EXPORT_API void SPUnityCurlOnApplicationPause(bool paused);
-
-    EXPORT_API void SPUnityCurlSetCertificate(const char* data, size_t size);
 }
 
 
