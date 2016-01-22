@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using UnityEngine;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 using Facebook.Unity;
 
 namespace SocialPoint.Social
@@ -20,7 +19,7 @@ namespace SocialPoint.Social
         private uint _maxLoginRetries = 3;
         private List<FacebookUser> _friends = new List<FacebookUser>();
         private List<string> _loginPermissions = new List<string>();
-        private Dictionary<string, string> _userPermissions;
+        private List<string> _userPermissions;
         private MonoBehaviour _behaviour;
 
         public UnityFacebook(MonoBehaviour behaviour)
@@ -109,35 +108,34 @@ namespace SocialPoint.Social
 
             FB.AppRequest
             (
-                req.Message == null ? string.Empty : req.Message,
+                req.Message ?? string.Empty,
                 req.To.Count > 0 ? req.To.ToArray() : null,
                 filters,
                 req.ExcludeIds == null ? null : req.ExcludeIds.ToArray(),
                 null,
                 req.AdditionalDataJson(),
-                req.Title == null ? string.Empty : req.Title,
-                    (IAppRequestResult response) =>
-            {
-                Error err = null;
-                if(!string.IsNullOrEmpty(response.Error))
-                {
-                    err = new Error(response.Error);
-                }
-                if(!string.IsNullOrEmpty(response.RawResult))
-                {
-                        //TODO: consider using response.ResultDictionary
-                    req.ResultUrl = response.RawResult;
-                    
-                    if(req.RequestCancelled)
+                req.Title ?? string.Empty,
+                (IAppRequestResult response) => {
+                    Error err = null;
+                    if(!string.IsNullOrEmpty(response.Error))
                     {
-                        err = new Error(FacebookErrors.DialogCancelled);
+                        err = new Error(response.Error);
+                    }
+                    if(!string.IsNullOrEmpty(response.RawResult))
+                    {
+                        //TODO: consider using response.ResultDictionary
+                        req.ResultUrl = response.RawResult;
+                    
+                        if(req.RequestCancelled)
+                        {
+                            err = new Error(FacebookErrors.DialogCancelled);
+                        }
+                    }
+                    if(cbk != null)
+                    {
+                        cbk(req, err);
                     }
                 }
-                if(cbk != null)
-                {
-                    cbk(req, err);
-                }
-            }
             );
         }
 
@@ -160,29 +158,28 @@ namespace SocialPoint.Social
             FB.FeedShare
             (
                 userId,
-                post.Link == null ? null : post.Link,
-                post.Name == null ? string.Empty : post.Name,
-                post.Caption == null ? string.Empty : post.Caption,
-                post.Description == null ? string.Empty : post.Description,
-                post.Picture == null ? null : post.Picture,
+                post.Link,
+                post.Name ?? string.Empty,
+                post.Caption ?? string.Empty,
+                post.Description ?? string.Empty,
+                post.Picture,
                 string.Empty,
-                (IShareResult response) =>
-            {
-                Error err = null;
-                if(!string.IsNullOrEmpty(response.Error))
-                {
-                    err = new Error(response.Error);
-                }
-                if(!string.IsNullOrEmpty(response.PostId))
-                {
-                    post.PostId = response.PostId;
-                }
+                (IShareResult response) => {
+                    Error err = null;
+                    if(!string.IsNullOrEmpty(response.Error))
+                    {
+                        err = new Error(response.Error);
+                    }
+                    if(!string.IsNullOrEmpty(response.PostId))
+                    {
+                        post.PostId = response.PostId;
+                    }
 
-                if(cbk != null)
-                {
-                    cbk(post, err);
+                    if(cbk != null)
+                    {
+                        cbk(post, err);
+                    }
                 }
-            }
             );
         }
 
@@ -190,21 +187,21 @@ namespace SocialPoint.Social
         {
             foreach(var perm in permissions)
             {
-                if(_userPermissions == null || !_userPermissions.ContainsKey(perm))
+                if(_userPermissions == null || !_userPermissions.Contains(perm))
                 {
                     return false;
                 }
             }
             return true;
         }
-       
+
         public override void AskForPermissions(List<string> permissions, FacebookPermissionsDelegate cbk = null)
         {
             if(!IsConnected)
             {
                 if(cbk != null)
                 {
-                    cbk(new Dictionary<string,string>(), new Error("Facebook is not logged in"));
+                    cbk(new List<string>(), new Error("Facebook is not logged in"));
                 }
                 return;
             }
@@ -224,7 +221,7 @@ namespace SocialPoint.Social
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                if(err.Code != FacebookErrors.DialogCancelled &&  _loginRetries < _maxLoginRetries)
+                if(err.Code != FacebookErrors.DialogCancelled && _loginRetries < _maxLoginRetries)
                 {
                     _loginRetries++;
                     FB.LogOut();
@@ -306,7 +303,25 @@ namespace SocialPoint.Social
                     if(_user != null)
                     {
                         _user.AccessToken = AccessToken.CurrentAccessToken.TokenString;
-                        GetLoginPermissions(cbk);
+                        _userPermissions = AccessToken.CurrentAccessToken.Permissions.ToList();
+                        GetLoginFriendsInfo("/me/friends", (err) => {
+                            if(!Error.IsNullOrEmpty(err))
+                            {
+                                if(cbk != null)
+                                {
+                                    cbk(err);
+                                }
+                            }
+                            else
+                            {
+                                GetLoginFriendsInfo("/me/invitable_friends", (err2) => {
+                                    if(cbk != null)
+                                    {
+                                        cbk(null);
+                                    }
+                                });
+                            }
+                        });
                     }
                     else
                     {
@@ -316,54 +331,6 @@ namespace SocialPoint.Social
                         }
                     }
 
-                }
-            });
-        }
-
-        void GetLoginPermissions(ErrorDelegate cbk)
-        {
-            FB.API("me/permissions", HttpMethod.GET, (IGraphResult result) => {
-                if(!string.IsNullOrEmpty(result.Error))
-                {
-                    if(cbk != null)
-                    {
-                        cbk(new Error(result.Error));
-                    }
-                }
-                else
-                {
-                    _userPermissions = new Dictionary<string, string>();
-                    JsonAttrParser parser = new JsonAttrParser();
-                    Attr attr = parser.ParseString(result.RawResult);
-                    var perm = attr.AsDic.Get("data").AsList;
-                    for(int k = 0; k < perm.Count; k++)
-                    {
-                        AttrDic dicPerm = perm[k].AsDic;
-                        string permission = dicPerm.GetValue("permission").ToString();
-                        string status = dicPerm.GetValue("status").ToString();
-                        if(!string.IsNullOrEmpty(permission) && !string.IsNullOrEmpty(status))
-                        {
-                            _userPermissions.Add(permission, status);
-                        }
-                    }
-                    GetLoginFriendsInfo("/me/friends", (err) => {
-                        if(!Error.IsNullOrEmpty(err))
-                        {
-                            if(cbk != null)
-                            {
-                                cbk(err);
-                            }
-                        }
-                        else
-                        {
-                            GetLoginFriendsInfo("/me/invitable_friends", (err2) => {
-                                if(cbk != null)
-                                {
-                                    cbk(null);
-                                }
-                            });
-                        }
-                    });
                 }
             });
         }
@@ -418,7 +385,7 @@ namespace SocialPoint.Social
         {
             if(AccessToken.CurrentAccessToken != null)
             {
-                DidLogin(null,cbk);
+                DidLogin(null, cbk);
             }
             else
             {
@@ -516,7 +483,7 @@ namespace SocialPoint.Social
                     cbk(query, err);
                 }
             },
-            dic);
+                dic);
         }
 
         public override void Logout(ErrorDelegate cbk = null)
@@ -559,7 +526,7 @@ namespace SocialPoint.Social
             }
             if(_friends != null)
             {
-                for(int i=0; i<_friends.Count; ++i)
+                for(int i = 0; i < _friends.Count; ++i)
                 {
                     var user = _friends[i];
                     if(_user != null && userId == user.UserId && !string.IsNullOrEmpty(user.PhotoUrl))
@@ -582,7 +549,7 @@ namespace SocialPoint.Social
                     cbk(response.Texture, new Error(response.Error));
                 }
             },
-            dic);
+                dic);
         }
     }
 }

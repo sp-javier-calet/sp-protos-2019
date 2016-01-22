@@ -18,7 +18,7 @@ namespace SocialPoint.Social
     
     public delegate void FacebookPhotoDelegate(Texture2D photo, Error err);
     
-    public delegate void FacebookPermissionsDelegate(IDictionary<string, string> permissions, Error err);
+    public delegate void FacebookPermissionsDelegate(List<string> permissions, Error err);
     
     public delegate bool FacebookFriendFilterDelegate(FacebookUser fbUser);
     

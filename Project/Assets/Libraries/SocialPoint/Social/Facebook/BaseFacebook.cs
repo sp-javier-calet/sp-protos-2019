@@ -64,7 +64,7 @@ namespace SocialPoint.Social
 
         public void PostOnWall(FacebookWallPost post, FacebookWallPostDelegate cbk = null)
         {
-            AskForPermission("publish_actions", (perms, err) => DoPostOnWall(post, err, cbk));
+            DoPostOnWall(post, null, cbk);
         }
 
         public void AskForPermission(string permission, FacebookPermissionsDelegate cbk = null)
