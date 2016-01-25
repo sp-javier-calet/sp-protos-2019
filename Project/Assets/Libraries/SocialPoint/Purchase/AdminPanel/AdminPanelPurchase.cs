@@ -7,13 +7,15 @@ namespace SocialPoint.Purchase
 {
     public class AdminPanelPurchase : IAdminPanelConfigurer, IAdminPanelGUI
     {
+        StoreModel _store;
         IGamePurchaseStore _purchaseStore;
 
         //Map each product ID to a last known purchase state
         Dictionary<string, PurchaseState> _lastKnownPurchaseState = new Dictionary<string, PurchaseState>();
 
-        public AdminPanelPurchase(IGamePurchaseStore purchaseStore)
+        public AdminPanelPurchase(StoreModel store, IGamePurchaseStore purchaseStore)
         {
+            _store = store;
             _purchaseStore = purchaseStore;
             _purchaseStore.ProductsUpdated += OnProductsUpdated;
             _purchaseStore.PurchaseUpdated += OnPurchaseUpdated;
@@ -22,7 +24,7 @@ namespace SocialPoint.Purchase
             SetMockupProductsAndDelegate();
             #endif
             //Load products (IMPORTANT: Check that product IDs are set in PurchaseInstaller prefab)
-            _purchaseStore.LoadProducts(_purchaseStore.StoreProductIds);
+            _purchaseStore.LoadProducts(_store.ProductIds);
         }
 
         //IAdminPanelConfigurer implementation
@@ -85,7 +87,7 @@ namespace SocialPoint.Purchase
         private void SetMockupProductsAndDelegate()
         {
             //Create mockup product objects with mock store data
-            string[] storeProductIds = _purchaseStore.StoreProductIds;
+            string[] storeProductIds = _store.ProductIds;
             Product[] mockProducts = new Product[storeProductIds.Length];
             for(int i = 0; i < mockProducts.Length; i++)
             {

@@ -22,8 +22,6 @@ namespace SocialPoint.Purchase
         event ProductsUpdatedDelegate ProductsUpdated;
         event PurchaseUpdatedDelegate PurchaseUpdated;
 
-        string[] StoreProductIds { get; }
-
         Product[] ProductList { get; }
 
         bool HasProductsLoaded { get; }
@@ -37,28 +35,44 @@ namespace SocialPoint.Purchase
         void ForceFinishPendingTransactions();
     }
 
+    //TODO: Verify behaviour for desired empty store
     public class EmptyGamePurchaseStore : IGamePurchaseStore
     {
+        Product[] _productList = new Product[0];
+        bool _productsLoaded = false;
+
         public event PurchaseCompletedDelegate PurchaseCompleted;
         public event ProductsUpdatedDelegate ProductsUpdated;
         public event PurchaseUpdatedDelegate PurchaseUpdated;
 
-        public string[] StoreProductIds { get { return null; } }
+        public Product[] ProductList { get { return _productList; } }
 
-        public Product[] ProductList { get { return null; } }
-
-        public bool HasProductsLoaded { get { return false; } }
+        public bool HasProductsLoaded { get { return _productsLoaded; } }
 
         public void LoadProducts(string[] productIds)
         {
+            if(ProductsUpdated != null)
+            {
+                ProductsUpdated(LoadProductsState.Success);
+            }
+            _productsLoaded = true;
         }
 
         public void SetProductMockList(IEnumerable<Product> productMockList)
         {
+            //TODO: Allow mock products for this class?
         }
 
         public bool Purchase(string productId)
         {
+            if(PurchaseUpdated != null)
+            {
+                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+            }
+            if(PurchaseCompleted != null)
+            {
+                PurchaseCompleted(new Receipt(), PurchaseResponseType.Complete);
+            }
             return true;
         }
 
@@ -73,10 +87,6 @@ namespace SocialPoint.Purchase
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
         List<string> _purchasesInProcess;
-        /// <summary>
-        /// Identifiers of the products in the store.
-        /// </summary>
-        string[] _storeProductIds;
 
         public string Currency;
 
@@ -302,16 +312,6 @@ namespace SocialPoint.Purchase
                 return "purchase/unknown";
                 #endif
             }
-        }
-
-        /// <summary>
-        /// Gets the registered IDs for all the available in-app purchases
-        /// </summary>
-        /// <value>The product list.</value>
-        public string[] StoreProductIds
-        {
-            get { return _storeProductIds; }
-            protected set { _storeProductIds = value; }
         }
 
         /// <summary>
