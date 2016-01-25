@@ -22,11 +22,11 @@ namespace SocialPoint.Purchase
         event ProductsUpdatedDelegate ProductsUpdated;
         event PurchaseUpdatedDelegate PurchaseUpdated;
 
-        string[] GetStoreProductIds();
+        string[] StoreProductIds { get; }
 
-        Product[] GetProductList();
+        Product[] ProductList { get; }
 
-        bool HasProductsLoaded();
+        bool HasProductsLoaded { get; }
 
         void LoadProducts(string[] productIds);
 
@@ -43,20 +43,11 @@ namespace SocialPoint.Purchase
         public event ProductsUpdatedDelegate ProductsUpdated;
         public event PurchaseUpdatedDelegate PurchaseUpdated;
 
-        public string[] GetStoreProductIds()
-        {
-            return null;
-        }
+        public string[] StoreProductIds { get { return null; } }
 
-        public Product[] GetProductList()
-        {
-            return null;
-        }
+        public Product[] ProductList { get { return null; } }
 
-        public bool HasProductsLoaded()
-        {
-            return false;
-        }
+        public bool HasProductsLoaded { get { return false; } }
 
         public void LoadProducts(string[] productIds)
         {
@@ -82,14 +73,14 @@ namespace SocialPoint.Purchase
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
         List<string> _purchasesInProcess;
-        public string Currency;
-
-        public bool ProductListReceived { get; private set; }
-
         /// <summary>
         /// Identifiers of the products in the store.
         /// </summary>
-        protected string[] _storeProductIds;
+        string[] _storeProductIds;
+
+        public string Currency;
+
+        public bool ProductListReceived { get; private set; }
 
         const string HttpParamOrderData = "order_data_base64";
         //used for android
@@ -264,9 +255,9 @@ namespace SocialPoint.Purchase
             order.SetValue("resource_type", info.ResourceName);
             order.SetValue("resource_amount", info.ResourceAmount);
 
-            if(GetProductList().Length > 0)
+            if(ProductList.Length > 0)
             {
-                var products = new List<Product>(GetProductList());
+                var products = new List<Product>(ProductList);
                 var product = products.Find(x => x.Id == receipt.ProductId);
                 if(product.Id != default(Product).Id)
                 {
@@ -317,27 +308,28 @@ namespace SocialPoint.Purchase
         /// Gets the registered IDs for all the available in-app purchases
         /// </summary>
         /// <value>The product list.</value>
-        public string[] GetStoreProductIds()
+        public string[] StoreProductIds
         {
-            return _storeProductIds;
+            get { return _storeProductIds; }
+            protected set { _storeProductIds = value; }
         }
 
         /// <summary>
         /// Gets the product list.
         /// </summary>
         /// <value>The product list.</value>
-        public Product[] GetProductList()
+        public Product[] ProductList
         {
-            return _purchaseStore.ProductList;
+            get { return _purchaseStore.ProductList; }
         }
 
         /// <summary>
         /// Gets if has products loaded.
         /// </summary>
         /// <value>The product list.</value>
-        public bool HasProductsLoaded()
+        public bool HasProductsLoaded
         {
-            return _purchaseStore.HasProductsLoaded;
+            get { return _purchaseStore.HasProductsLoaded; }
         }
 
         /// <summary>
@@ -427,10 +419,9 @@ namespace SocialPoint.Purchase
         {
             if(state == LoadProductsState.Success)
             {
-                Product[] productList = GetProductList();
-                if(productList.Length > 0)
+                if(ProductList.Length > 0)
                 {
-                    Currency = productList[0].Currency;
+                    Currency = ProductList[0].Currency;
                 }
 
                 ProductListReceived = true;

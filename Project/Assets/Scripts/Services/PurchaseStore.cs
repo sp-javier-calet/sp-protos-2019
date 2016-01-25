@@ -32,7 +32,7 @@ class PurchaseStore : SocialPointPurchaseStore
     {
         set
         {
-            _storeProductIds = value;
+            StoreProductIds = value;
         }
     }
 

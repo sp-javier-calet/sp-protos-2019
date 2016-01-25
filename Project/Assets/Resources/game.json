@@ -3,77 +3,29 @@
         "globals": {
             "example": "value"
         },
+        "resources": [
+            {
+                "id": "f",
+                "name": "resources.food_name",
+                "store_id": 501
+            },
+            {
+                "id": "g",
+                "name": "resources.gold_name",
+                "store_id": 500
+            },
+            {
+                "id": "d",
+                "name": "resources.diamond_name"
+            }
+        ],
         "store": {
             "categories": [{
-                "id": "nodes",
-                "name": "category_node_name_key",
-                "items": [100, 101]
-            }, {
-                "id": "resources",
-                "name": "category_resource_name_key",
-                "items": [500, 501]
-            }, {
                 "id": "cash",
                 "name": "category_cash_name_key",
                 "items": [900, 901, 902, 903]
             }],
             "items": [{
-                "id": 100,
-                "reward": {
-                    "type": "tile_node",
-                    "value": "food_farm"
-                },
-                "cost": {
-                    "type": "resources",
-                    "value": {
-                        "g": 10
-                    }
-                },
-                "name": "store.food_farm"
-            }, {
-                "id": 101,
-                "reward": {
-                    "type": "tile_node",
-                    "value": "gold_farm"
-                },
-                "cost": {
-                    "type": "resources",
-                    "value": {
-                        "f": 10
-                    }
-                },
-                "name": "store.gold_farm"
-            }, {
-                "id": 500,
-                "reward": {
-                    "type": "resources",
-                    "value": {
-                        "g": 1000
-                    }
-                },
-                "cost": {
-                    "type": "resources",
-                    "value": {
-                        "d": 10
-                    }
-                },
-                "name": "store.gold"
-            }, {
-                "id": 501,
-                "reward": {
-                    "type": "resources",
-                    "value": {
-                        "f": 1000
-                    }
-                },
-                "cost": {
-                    "type": "resources",
-                    "value": {
-                        "d": 10
-                    }
-                },
-                "name": "store.food"
-            }, {
                 "id": 900,
                 "shopId": "gem_0",
                 "cost": {

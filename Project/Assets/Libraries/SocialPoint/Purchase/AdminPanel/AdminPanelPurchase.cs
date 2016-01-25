@@ -22,7 +22,7 @@ namespace SocialPoint.Purchase
             SetMockupProductsAndDelegate();
             #endif
             //Load products (IMPORTANT: Check that product IDs are set in PurchaseInstaller prefab)
-            _purchaseStore.LoadProducts(_purchaseStore.GetStoreProductIds());
+            _purchaseStore.LoadProducts(_purchaseStore.StoreProductIds);
         }
 
         //IAdminPanelConfigurer implementation
@@ -39,9 +39,9 @@ namespace SocialPoint.Purchase
         {
             //TODO: Add options to activate an "always fail", "always success" response?
             layout.CreateLabel("Products");//Title
-            if(_purchaseStore.HasProductsLoaded())
+            if(_purchaseStore.HasProductsLoaded)
             {
-                foreach(Product product in _purchaseStore.GetProductList())
+                foreach(Product product in _purchaseStore.ProductList)
                 {
                     string id = product.Id;//Caching id to avoid passing reference to lambda
                     layout.CreateButton(product.Locale, 
@@ -85,7 +85,7 @@ namespace SocialPoint.Purchase
         private void SetMockupProductsAndDelegate()
         {
             //Create mockup product objects with mock store data
-            string[] storeProductIds = _purchaseStore.GetStoreProductIds();
+            string[] storeProductIds = _purchaseStore.StoreProductIds;
             Product[] mockProducts = new Product[storeProductIds.Length];
             for(int i = 0; i < mockProducts.Length; i++)
             {
