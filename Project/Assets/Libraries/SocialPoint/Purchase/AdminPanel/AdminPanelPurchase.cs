@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Purchase
 {
@@ -12,6 +13,9 @@ namespace SocialPoint.Purchase
 
         //Map each product ID to a last known purchase state
         Dictionary<string, PurchaseState> _lastKnownPurchaseState = new Dictionary<string, PurchaseState>();
+
+        //Flag to do purchase actions after some delay
+        bool _purchaseWithDelay = true;
 
         public AdminPanelPurchase(StoreModel store, IGamePurchaseStore purchaseStore)
         {
@@ -60,7 +64,16 @@ namespace SocialPoint.Purchase
 
         private void OnPurchaseButtonClick(string productId)
         {
-            _purchaseStore.Purchase(productId);
+            if(_purchaseWithDelay)
+            {
+                ActionDelayer.Instance.FireActionWithDelay(() => {
+                    _purchaseStore.Purchase(productId);
+                }, 5.0f);
+            }
+            else
+            {
+                _purchaseStore.Purchase(productId);
+            }
         }
 
         private void OnProductsUpdated(LoadProductsState state, Error error)
@@ -107,7 +120,7 @@ namespace SocialPoint.Purchase
             _purchaseStore.PurchaseCompleted += OnMockPurchaseCompleted;
         }
 
-        PurchaseGameInfo OnMockPurchaseCompleted(Receipt receipt, PurchaseResponseType response)
+        private PurchaseGameInfo OnMockPurchaseCompleted(Receipt receipt, PurchaseResponseType response)
         {
             //TODO: Return info depending on receipt.State and response type. Return null if not completed?
             UnityEngine.Debug.Log("Product Purchased: " + receipt.ProductId);
