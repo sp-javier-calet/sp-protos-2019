@@ -1,10 +1,6 @@
 fileFormatVersion: 2
 guid: cb174ffb75c23445aa43f1a4ad3b49a9
-<<<<<<< HEAD:Project/Assets/Libraries/SocialPoint/Attributes/ISerializer.cs.meta
 timeCreated: 1446743628
-=======
-timeCreated: 1446797125
->>>>>>> release/minimal:Project/Assets/Libraries/SocialPoint/Attributes/ISerializer.cs.meta
 licenseType: Pro
 MonoImporter:
   serializedVersion: 2

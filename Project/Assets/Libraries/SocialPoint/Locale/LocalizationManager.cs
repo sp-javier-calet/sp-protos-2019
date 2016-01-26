@@ -57,6 +57,13 @@ namespace SocialPoint.Locale
             }
         }
 
+        public enum CsvMode
+        {
+            WriteCsv,
+            WriteCsvWithAllSupportedLanguages,
+            NoCsv
+        }
+
         const string JsonExtension = ".json";
         const string EtagHeader = "Etag";
         const string IfNoneMatchHeader = "If-None-Match";
@@ -88,8 +95,9 @@ namespace SocialPoint.Locale
         private IAppInfo _appInfo;
         private bool _running = false;
         private IHttpConnection _httpConn;
-
-        public bool WriteCsv = true;
+        private bool _writeCsv = true;
+        private bool _loadAllSupportedLanguagesCsv = true;
+        
         public const float DefaultTimeout = 20.0f;
         public float Timeout = DefaultTimeout;
         public event Action Loaded = delegate{};
@@ -226,10 +234,13 @@ namespace SocialPoint.Locale
             }
         }
 
-        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo, Localization locale=null)
+        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo, Localization locale=null, CsvMode csvMode = CsvMode.WriteCsvWithAllSupportedLanguages, CsvLoadedDelegate csvLoaded = null)
         {
             _httpClient = httpClient;
             _appInfo = appInfo;
+            _writeCsv = csvMode == CsvMode.WriteCsv || csvMode == CsvMode.WriteCsvWithAllSupportedLanguages;
+            _loadAllSupportedLanguagesCsv = csvMode == CsvMode.WriteCsvWithAllSupportedLanguages;
+            CsvLoaded = csvLoaded;
 
             if(_httpClient == null)
             {
@@ -336,16 +347,19 @@ namespace SocialPoint.Locale
 
         void OnLanguagesLoaded(IDictionary<string, Localization> locales)
         {
-            if(WriteCsv)
+            if(_writeCsv)
             {
-                foreach(var slang in SupportedLanguages)
+                if (_loadAllSupportedLanguagesCsv)
                 {
-                    if(!locales.ContainsKey(slang))
+                    foreach(var slang in SupportedLanguages)
                     {
-                        var slocale = new Localization();
-                        if(LoadLocalizationData(slocale, slang))
+                        if(!locales.ContainsKey(slang))
                         {
-                            locales[slang] = slocale;
+                            var slocale = new Localization();
+                            if(LoadLocalizationData(slocale, slang))
+                            {
+                                locales[slang] = slocale;
+                            }
                         }
                     }
                 }
@@ -386,21 +400,19 @@ namespace SocialPoint.Locale
                 _localization.Fallback = new Localization();
                 LoadLocalizationData(_localization.Fallback, flang);
             }
-            if(LoadLocalizationData(_localization, CurrentLanguage))
+            LoadLocalizationData(_localization, CurrentLanguage);
+            var locales = new Dictionary<string, Localization>();
+            locales[CurrentLanguage] = _localization;
+            OnLanguagesLoaded(locales);
+            if(Loaded != null)
             {
-                var locales = new Dictionary<string, Localization>();
-                locales[CurrentLanguage] = _localization;
-                OnLanguagesLoaded(locales);
-                if(Loaded != null)
-                {
-                    Loaded();
-                }
+                Loaded();
             }
         }
 
         static string LocalizationsToCsv(IDictionary<string,Localization> locales)
         {
-            List<string> keys = null;
+            HashSet<string> keys = null;
             var builder = new StringBuilder();
 
             builder.Append("KEY");
@@ -412,7 +424,7 @@ namespace SocialPoint.Locale
                 builder.Append(CsvSeparator);
                 if(keys == null)
                 {
-                    keys = new List<string>(pair.Value.Strings.Keys);
+                    keys = new HashSet<string>(pair.Value.Strings.Keys);
                     if(pair.Value.Fallback != null)
                     {
                         foreach(var fkey in pair.Value.Fallback.Strings.Keys)
@@ -434,7 +446,7 @@ namespace SocialPoint.Locale
                 builder.Append(CsvSeparator);
                 foreach(var pair in locales)
                 {
-                    var val = pair.Value.Get(key);
+                    var val = pair.Value.Get(key, string.Empty);
                     val = val.Replace("\n", @"\n");
                     val = val.Replace("\t", @"\t");
                     builder.Append("\"" + val + "\"");

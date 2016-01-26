@@ -314,6 +314,25 @@ namespace SocialPoint.Crash
             }
         }
 
+        // Exceptions limit
+        public const int DefaultExceptionsBatchSize = 50;
+        int _exceptionsBatchSize = DefaultExceptionsBatchSize;
+
+        public int ExceptionsBatchSize
+        {
+            get { return _exceptionsBatchSize; }
+            set { _exceptionsBatchSize = value; }
+        }
+
+        public const int DefaultMaxStoredExceptions = 200;
+        int _maxStoredExceptions = DefaultMaxStoredExceptions;
+
+        public int MaxStoredExceptions
+        {
+            get { return _maxStoredExceptions; }
+            set { _maxStoredExceptions = value; }
+        }
+
         static long LastMemoryWarningTimestamp
         {
             get
@@ -731,7 +750,14 @@ namespace SocialPoint.Crash
         {
             if(HasExceptionLogs)
             {
-                SendExceptions(_exceptionStorage.StoredKeys);
+                /* Send a max of MaxExceptionsRequestSize exceptions per request, 
+                 * to avoid big http requests and timeouts */
+                var storedKeys = _exceptionStorage.StoredKeys;
+                int len = Math.Min(storedKeys.Length, ExceptionsBatchSize);
+                var keysToSend = new string[len];
+                Array.Copy(storedKeys, keysToSend, len);
+
+                SendExceptions(keysToSend);
             }
         }
 
@@ -851,9 +877,14 @@ namespace SocialPoint.Crash
             {
                 return;
             }
+            
             string uuid = RandomUtils.GetUuid();
+            if(_exceptionStorage.StoredKeys.Length < MaxStoredExceptions)
+            {
                 var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
                 _exceptionStorage.Save(uuid, exception);
+            }
+
             _uniqueExceptions.Add(exceptionHashSource);
 
             if(TrackEvent != null)

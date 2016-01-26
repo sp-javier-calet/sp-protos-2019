@@ -233,20 +233,25 @@ namespace SocialPoint.GUIControl
 
         public void Add3DContainer(GameObject gameObject)
         {
-            _containers3d.Add(gameObject);            
+            if(!_containers3d.Contains(gameObject))
+            {
+                _containers3d.Add(gameObject);
+
+                var container = gameObject.GetComponent<UI3DContainer>();
+
+                if(container == null)
+                {
+                    container = gameObject.AddComponent<UI3DContainer>();
+                }
+
+                container.OnDestroyed += On3dContainerDestroyed;
+            }
+
             Setup3DContainer(gameObject);
         }
 
         void Setup3DContainer(GameObject gameObject)
         {
-            var container = gameObject.GetComponent<UI3DContainer>();
-
-            if(container == null)
-            {
-                container = gameObject.AddComponent<UI3DContainer>();
-                container.OnDestroyed += On3dContainerDestroyed;
-            }
-
             if(_layer3d == 0)
             {
                 _layer3d = LayersController.AddToCurrent3DLayer(gameObject);
