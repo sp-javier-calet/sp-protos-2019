@@ -48,46 +48,68 @@ namespace SocialPoint.Purchase
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             _layout = layout;
-            int separationMargin = 3;
 
             //TODO: Add options to activate an "always fail", "always success" response?
 
             //Load products
-            layout.CreateButton("Load Products", () => {
-                LoadProducts();
+            layout.CreateLabel("Load Products");
+            var productsInput = layout.CreateTextInput();
+            AddGUIInfoLabel(layout, "Fill with comma separated IDs (ex: 1,2,3) or leave empty to load all");
+            layout.CreateButton("Load", () => {
+                string[] ids = string.IsNullOrEmpty(productsInput.text) ? null : productsInput.text.Split(',');
+                LoadProducts(ids);
             });
-            layout.CreateMargin(separationMargin);
+            AddGUISeparation(layout);
 
             //Use delay before purchasing? Can be used to test receiving events to refresh after closing the panel
-            layout.CreateButton("Using Delay: " + _purchaseWithDelay, () => {
-                _purchaseWithDelay = !_purchaseWithDelay;
+            layout.CreateLabel("Purchase Options");
+            layout.CreateToggleButton("Purchase with delay?", _purchaseWithDelay, (selected) => {
+                _purchaseWithDelay = selected;
                 RefreshPanel();
             });
-            layout.CreateMargin(separationMargin);
+            AddGUISeparation(layout);
 
             //In-Apps
-            layout.CreateLabel("Products");//Title
+            layout.CreateLabel("Products");
             if(_purchaseStore.HasProductsLoaded)
             {
                 foreach(Product product in _purchaseStore.ProductList)
                 {
+                    AdminPanelLayout.VerticalLayout pLayout = layout.CreateVerticalLayout();
                     string id = product.Id;//Caching id to avoid passing reference to lambda
                     //Purchase product button
-                    layout.CreateButton(product.Locale, 
-                        () => {
-                            PurchaseProduct(id);
-                        });
+                    pLayout.CreateButton(product.Locale, () => {
+                        PurchaseProduct(id);
+                    });
                     //Label with purchase state
-                    if(_lastKnownPurchaseState.ContainsKey(id))
+                    if(_lastKnownPurchaseState.ContainsKey(id) && !string.IsNullOrEmpty(_lastKnownPurchaseState[id]))
                     {
-                        layout.CreateLabel(_lastKnownPurchaseState[id]);
+                        var infoPanel = layout.CreatePanelLayout(product.Locale + " - Purchase Info", () => {
+                            _lastKnownPurchaseState[id] = string.Empty;
+                            RefreshPanel();
+                        });
+                        string purchaseMsg = _lastKnownPurchaseState[id];
+                        AddGUIInfoLabel(infoPanel, purchaseMsg);
                     }
                 }
             }
             else
             {
-                layout.CreateLabel(_lastKnownLoadState);
+                AddGUIInfoLabel(layout, "< " + _lastKnownLoadState + " >");
             }
+        }
+
+        private void AddGUIInfoLabel(AdminPanelLayout layout, string label)
+        {
+            var infoLabel = layout.CreateLabel(label);
+            infoLabel.fontSize = 12;
+            infoLabel.fontStyle = FontStyle.Italic;
+        }
+
+        private void AddGUISeparation(AdminPanelLayout layout)
+        {
+            layout.CreateLabel("_________________");
+            layout.CreateMargin(3);
         }
 
         private void OnProductsUpdated(LoadProductsState state, Error error)
@@ -101,7 +123,7 @@ namespace SocialPoint.Purchase
                 _lastKnownLoadState = "Load Error: " + error;
                 break;
             default:
-                _lastKnownLoadState = "Unknown State";
+                _lastKnownLoadState = "Unknown State; " + state.ToString();
                 break;
             }
             RefreshPanel();
@@ -113,11 +135,15 @@ namespace SocialPoint.Purchase
             RefreshPanel();
         }
 
-        private void LoadProducts()
+        private void LoadProducts(string[] ids = null)
         {
             _lastKnownLoadState = "Loading...";
+            if(ids == null)
+            {
+                ids = _store.ProductIds;
+            }
             //Load products (IMPORTANT: Check that product IDs are set in game.json)
-            _purchaseStore.LoadProducts(_store.ProductIds);
+            _purchaseStore.LoadProducts(ids);
             RefreshPanel();
         }
 
