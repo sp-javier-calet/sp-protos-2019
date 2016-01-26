@@ -94,13 +94,13 @@ namespace SocialPoint.AppEvents
 
         public static void QuitGame(this IAppEvents events)
         {
+#if UNITY_ANDROID && !UNITY_EDITOR
             events.TriggerApplicationQuit();
-            #if UNITY_ANDROID
             SocialPoint.Base.AndroidContext.CurrentActivity.Call("finishAndRemoveTask");
             System.Diagnostics.Process.GetCurrentProcess().Kill();
-            #else
+#else
             Application.Quit ();
-            #endif
+#endif
         }
 
         [Obsolete("Use WillGoBackground property")]
