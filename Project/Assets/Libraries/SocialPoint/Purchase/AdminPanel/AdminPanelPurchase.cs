@@ -11,11 +11,16 @@ namespace SocialPoint.Purchase
         StoreModel _store;
         IGamePurchaseStore _purchaseStore;
 
-        //Map each product ID to a last known purchase state
-        Dictionary<string, PurchaseState> _lastKnownPurchaseState = new Dictionary<string, PurchaseState>();
+        //Reference to layout
+        AdminPanelLayout _layout;
+
+        //Last known load state
+        string _lastKnownLoadState;
+        //Map each product ID to a last known purchase state message
+        Dictionary<string, string> _lastKnownPurchaseState = new Dictionary<string, string>();
 
         //Flag to do purchase actions after some delay
-        bool _purchaseWithDelay = true;
+        bool _purchaseWithDelay = false;
 
         public AdminPanelPurchase(StoreModel store, IGamePurchaseStore purchaseStore)
         {
@@ -27,8 +32,7 @@ namespace SocialPoint.Purchase
             #if UNITY_EDITOR
             SetMockupProductsAndDelegate();
             #endif
-            //Load products (IMPORTANT: Check that product IDs are set in PurchaseInstaller prefab)
-            _purchaseStore.LoadProducts(_store.ProductIds);
+            LoadProducts();
         }
 
         //IAdminPanelConfigurer implementation
@@ -43,26 +47,81 @@ namespace SocialPoint.Purchase
         //IAdminPanelGUI implementation
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            _layout = layout;
+            int separationMargin = 3;
+
             //TODO: Add options to activate an "always fail", "always success" response?
+
+            //Load products
+            layout.CreateButton("Load Products", () => {
+                LoadProducts();
+            });
+            layout.CreateMargin(separationMargin);
+
+            //Use delay before purchasing? Can be used to test receiving events to refresh after closing the panel
+            layout.CreateButton("Using Delay: " + _purchaseWithDelay, () => {
+                _purchaseWithDelay = !_purchaseWithDelay;
+                RefreshPanel();
+            });
+            layout.CreateMargin(separationMargin);
+
+            //In-Apps
             layout.CreateLabel("Products");//Title
             if(_purchaseStore.HasProductsLoaded)
             {
                 foreach(Product product in _purchaseStore.ProductList)
                 {
                     string id = product.Id;//Caching id to avoid passing reference to lambda
+                    //Purchase product button
                     layout.CreateButton(product.Locale, 
                         () => {
-                            OnPurchaseButtonClick(id);
+                            PurchaseProduct(id);
                         });
+                    //Label with purchase state
+                    if(_lastKnownPurchaseState.ContainsKey(id))
+                    {
+                        layout.CreateLabel(_lastKnownPurchaseState[id]);
+                    }
                 }
             }
             else
             {
-                layout.CreateLabel("< Products Not Loaded >");
+                layout.CreateLabel(_lastKnownLoadState);
             }
         }
 
-        private void OnPurchaseButtonClick(string productId)
+        private void OnProductsUpdated(LoadProductsState state, Error error)
+        {
+            switch(state)
+            {
+            case LoadProductsState.Success:
+                _lastKnownLoadState = "Loaded";
+                break;
+            case LoadProductsState.Error:
+                _lastKnownLoadState = "Load Error: " + error;
+                break;
+            default:
+                _lastKnownLoadState = "Unknown State";
+                break;
+            }
+            RefreshPanel();
+        }
+
+        private void OnPurchaseUpdated(PurchaseState state, string productId)
+        {
+            _lastKnownPurchaseState[productId] = state.ToString();
+            RefreshPanel();
+        }
+
+        private void LoadProducts()
+        {
+            _lastKnownLoadState = "Loading...";
+            //Load products (IMPORTANT: Check that product IDs are set in game.json)
+            _purchaseStore.LoadProducts(_store.ProductIds);
+            RefreshPanel();
+        }
+
+        private void PurchaseProduct(string productId)
         {
             if(_purchaseWithDelay)
             {
@@ -76,25 +135,16 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnProductsUpdated(LoadProductsState state, Error error)
+        private void RefreshPanel()
         {
-            switch(state)
+            if(_layout != null && _layout.IsActiveInHierarchy)
             {
-            case LoadProductsState.Success:
-                UnityEngine.Debug.Log("Products Loaded");
-                break;
-            case LoadProductsState.Error:
-                UnityEngine.Debug.LogWarning("Products Load Error: " + error);
-                break;
-            default:
-                UnityEngine.Debug.LogWarning("Unhandled Products Load State");
-                break;
+                _layout.Refresh();
             }
-        }
-
-        private void OnPurchaseUpdated(PurchaseState state, string productId)
-        {
-            _lastKnownPurchaseState[productId] = state;
+            else
+            {
+                _layout = null;//Clear previous reference
+            }
         }
 
         private void SetMockupProductsAndDelegate()

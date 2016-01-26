@@ -26,6 +26,18 @@ namespace SocialPoint.AdminPanel
             }
         }
 
+        /// <summary>
+        /// Check if the game object is active in the scene
+        /// </summary>
+        /// <value><c>true</c> if this instance is active in scene hierarchy; otherwise, <c>false</c>.</value>
+        public bool IsActiveInHierarchy
+        {
+            get
+            { 
+                return Parent.gameObject.activeInHierarchy; 
+            }
+        }
+
         public AdminPanelLayout(AdminPanelLayout parentLayout)
         {
             Parent = parentLayout.Parent;

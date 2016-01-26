@@ -4,6 +4,7 @@ using System.Collections;
 
 namespace SocialPoint.Utils
 {
+    //TODO: Usar con MonoBehaviourSingletonProvider de Zenject?
     public class ActionDelayer : MonoBehaviourSingleton<ActionDelayer>
     {
         /// <summary>
