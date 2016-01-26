@@ -1,7 +1,5 @@
 ﻿using SocialPoint.AdminPanel;
-using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 using System.Collections.Generic;
 using SocialPoint.Console;
 

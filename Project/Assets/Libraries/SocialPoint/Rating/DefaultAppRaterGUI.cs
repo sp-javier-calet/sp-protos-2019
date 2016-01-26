@@ -15,7 +15,7 @@ namespace SocialPoint.Rating
 
         #region IAppRaterGUI implementation
 
-        public void Show(bool showLaterButton)
+        public bool Show(bool showLaterButton)
         {
             var alert = _prototype.Clone() as IAlertView;
             if(alert != null)
@@ -45,7 +45,9 @@ namespace SocialPoint.Rating
                         break;
                     }
                 });
+                return true;
             }
+            return false;
         }
 
         public void SetAppRater(IAppRater appRater)

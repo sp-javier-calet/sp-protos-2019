@@ -1,9 +1,0 @@
-
-{
-    "headerpaths": [
-        "{ROOT_PATH}/../Project/Assets/Plugins/Ios"
-    ],
-    "frameworks": [
-        "libz.tbd:weak"
-    ]
-}

@@ -13,7 +13,8 @@ namespace SocialPoint.ServerSync
         ResponseJson,
         SessionLost,
         OutOfSync,
-        Exception
+        Exception,
+        ClockChange
     }
 
     public delegate void CommandQueueErrorDelegate(CommandQueueErrorType type, Error err);
