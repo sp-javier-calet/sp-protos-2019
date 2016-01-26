@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace SocialPoint.Utils
 {
-    //TODO: Usar con MonoBehaviourSingletonProvider de Zenject?
+    //TODO: Avoid using a singleton? Group this behaviour with others that require a GameObject in scene and instantiate only one with all scripts?
     public class ActionDelayer : MonoBehaviourSingleton<ActionDelayer>
     {
         /// <summary>
