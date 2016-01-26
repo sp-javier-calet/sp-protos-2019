@@ -96,10 +96,19 @@ namespace SocialPoint.AppEvents
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             events.TriggerApplicationQuit();
-            SocialPoint.Base.AndroidContext.CurrentActivity.Call("finishAndRemoveTask");
+            try
+            {
+                // Remove activity from task manager. Requires Level API 21.
+                SocialPoint.Base.AndroidContext.CurrentActivity.Call("finishAndRemoveTask");
+            }
+            catch(Exception)
+            {
+                Debug.LogWarning("finishAndRemoveTask not available");
+            }
+
             System.Diagnostics.Process.GetCurrentProcess().Kill();
 #else
-            Application.Quit ();
+            Application.Quit();
 #endif
         }
 
