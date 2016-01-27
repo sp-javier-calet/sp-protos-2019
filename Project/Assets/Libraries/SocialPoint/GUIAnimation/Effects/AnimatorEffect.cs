@@ -26,8 +26,7 @@ namespace SocialPoint.GUIAnimation
 		}
 
 		public override void OnRemoved () { }
-		public override void SetOrCreateDefaultValues()
-		{}
+		public override void SetOrCreateDefaultValues()	{ }
 
 		public override void DoAction()
 		{
@@ -37,6 +36,30 @@ namespace SocialPoint.GUIAnimation
 			}
 
 			PlayAnimation(Target.gameObject);
+		
+		}
+
+		public override float GetFixedDuration()
+		{
+			float duration = base.GetFixedDuration();
+
+			Animator anim = GUIAnimationUtility.GetComponentRecursiveDown<Animator>(Target.gameObject);
+			if(anim == null)
+			{
+				duration = base.GetFixedDuration();
+			}
+
+			UnityEditor.Animations.AnimatorController ac = anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController;
+			for (int i = 0; i < ac.animationClips.Length; ++i) 
+			{
+				AnimationClip clip = ac.animationClips[0];
+				if(_stateName ==  clip.name)
+				{
+					duration = Mathf.Max((float)clip.length, base.GetFixedDuration());
+				}
+			}
+
+			return duration;
 		}
 
 		void PlayAnimation(GameObject go)

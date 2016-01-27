@@ -34,5 +34,10 @@ namespace SocialPoint.GUIAnimation
 		}
 
 		public abstract void DoAction();
+
+		public virtual float GetFixedDuration()
+		{
+			return 0.5f;
+		}
 	}
 }

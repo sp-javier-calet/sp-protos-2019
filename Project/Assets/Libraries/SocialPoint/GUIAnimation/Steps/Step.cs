@@ -145,7 +145,7 @@ namespace SocialPoint.GUIAnimation
 			}
 		}
 
-		public float GetDuration(AnimTimeMode mode)
+		public virtual float GetDuration(AnimTimeMode mode)
 		{
 			if(mode == AnimTimeMode.Global)
 			{

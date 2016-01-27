@@ -284,8 +284,8 @@ namespace SocialPoint.GUIAnimation
 				return;
 			}
 
-			float localTimeNormalized = selectedAnimItem.NormalizedToAbsoluteTime(_timelinePanel.CurrentTime);
-			if(localTimeNormalized < 0.5f)
+			float halfTime = (selectedAnimItem.GetStartTime(AnimTimeMode.Global) + selectedAnimItem.GetEndTime(AnimTimeMode.Global)) * 0.5f;
+			if(_timelinePanel.CurrentTime < halfTime)
 			{
 				_viewModeId = 0;
 				_timelinePanel.SetTimeAt(selectedAnimItem.GetStartTime(AnimTimeMode.Global));
@@ -770,12 +770,22 @@ namespace SocialPoint.GUIAnimation
 				}
 			}
 
-			GUILayout.Space(20f);
+			GUILayout.Space(42f);
 
 			string pasteLabel = string.Format("Copy To {0}", _viewModeId == 0 ? "End" : "Start");
 			if(GUILayout.Button(pasteLabel, GUILayout.Width(90f)))
 			{
 				_timelinePanel.SaveValues();
+			}
+
+			// Invert
+			GUILayout.Space(6f);
+			if(GUILayout.Button("Invert Keys", GUILayout.Width(90f), GUILayout.Height(20f)))
+			{
+				_timelinePanel.StepsSelection.Invert(false);
+				_timelinePanel.PlayAtCurrentTimeline();
+
+				_timeValueGridEditor.ResetState();
 			}
 			GUILayout.EndHorizontal();
 
@@ -817,16 +827,6 @@ namespace SocialPoint.GUIAnimation
 				globalTime = Mathf.Clamp(globalTime, _timelinePanel.CurrentCollection.GetStartTime(AnimTimeMode.Global), _timelinePanel.CurrentCollection.GetEndTime(AnimTimeMode.Global));
 				_timelinePanel.StepsSelection.SetEndTime(globalTime, AnimTimeMode.Global);
 				_timelinePanel.RefreshSelectedAnimItemsBoxSize();
-			}
-
-			// Invert
-			GUILayout.Space(26f);
-			if(GUILayout.Button("Invert Keys", GUILayout.Width(96f), GUILayout.Height(20f)))
-			{
-				_timelinePanel.StepsSelection.Invert(false);
-				_timelinePanel.PlayAtCurrentTimeline();
-
-				_timeValueGridEditor.ResetState();
 			}
 			GUILayout.EndHorizontal();
 

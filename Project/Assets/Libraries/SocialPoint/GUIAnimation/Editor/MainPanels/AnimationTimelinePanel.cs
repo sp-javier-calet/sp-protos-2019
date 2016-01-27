@@ -439,6 +439,14 @@ namespace SocialPoint.GUIAnimation
 				
 				// Update Timeline
 				_timelinePosition = Event.current.mousePosition;
+				if(GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftShift))
+				{
+					Snapper.ResultData resultData = new Snapper.ResultData();
+					if( Snapper.Snap(ref resultData, ConvertDictionaryToList(CacheWindows), _timelinePosition, 26f) )
+					{
+						_timelinePosition = resultData.Pos;
+					}
+				}
 				_timelinePosition.y = _gridScrollPosition.y;
 				
 				PlayAtCurrentTimeline();
@@ -447,14 +455,24 @@ namespace SocialPoint.GUIAnimation
 			UnityEngine.GUI.EndScrollView ();
 		}
 
+		List<Rect> ConvertDictionaryToList(Dictionary<Step, AnimationStepBox> cacheWindows)
+		{
+			List<Rect> rects = new List<Rect>();
+			foreach (var pair in cacheWindows) 
+			{
+				rects.Add(pair.Value.Rect);
+			}
+			return rects;
+		}
+
 		public void PlayAtCurrentTimeline()
 		{
-			float seconds = 0f;
+			_currentGlobalTime = 0f;
 			int lineIdx = 0;
-			_gridProperties.GetGlobalTimeSlotFromGridPos(ref seconds, ref lineIdx, new Vector2(_timelinePosition.x, 0f));
+			_gridProperties.GetGlobalTimeSlotFromGridPos(ref _currentGlobalTime, ref lineIdx, new Vector2(_timelinePosition.x, 0f));
 
 			_animationTool.AnimationModel.CurrentAnimation.RefreshAndInit();
-			_animationTool.AnimationModel.CurrentAnimation.PlayAt(seconds);
+			_animationTool.AnimationModel.CurrentAnimation.PlayAt(_currentGlobalTime);
 		}
 
 		void RenderTimelineController(float gridMaxWidth, float gridMaxHeight)
@@ -551,6 +569,7 @@ namespace SocialPoint.GUIAnimation
 					// Create the box by the animation item start and end time info
 					Vector2 animItemGridPosStart = _gridProperties.GetGridPosFromNormalizedTimeSlot(animationItem.GetStartTime(AnimTimeMode.Local), animationItem.Slot);
 					Vector2 animItemGridPosEnd = _gridProperties.GetGridPosFromNormalizedTimeSlot(animationItem.GetEndTime(AnimTimeMode.Local), animationItem.Slot) + new Vector2(0, _gridProperties.PixelsPerSlot * 0.90f);
+
 					animationItemBox = new AnimationStepBox(){ Rect = new Rect(animItemGridPosStart, (animItemGridPosEnd-animItemGridPosStart)), AnimationItem = animationItem };
 
 					_cacheWindows.Add(animationItem, animationItemBox);
@@ -566,6 +585,17 @@ namespace SocialPoint.GUIAnimation
 					float normalizedEndTime = 0f;
 					_gridProperties.GetNormalizedTimeSlotFromGridPos(ref normalizedEndTime, ref slot, animationItemBox.Rect.position + new Vector2(animationItemBox.Rect.width, 0f));
 					animationItem.SetEndTime(normalizedEndTime, AnimTimeMode.Local);
+
+					if(animationItem is TriggerEffect)
+					{
+						Vector2 size = animationItemBox.Rect.size;
+
+						Vector2 animItemGridPosStart = _gridProperties.GetGridPosFromTimeSlot(0f, 0);
+						Vector2 animItemGridPosEnd = _gridProperties.GetGridPosFromTimeSlot(((TriggerEffect)animationItem).GetFixedDuration() , 0);
+						size.x = (animItemGridPosEnd-animItemGridPosStart).x;
+
+						animationItemBox.Rect.size = size;
+					}
 
 					animationItem.SetSlot(slot);
 				}
@@ -594,11 +624,11 @@ namespace SocialPoint.GUIAnimation
 			animationItemBox.InteractuableRect = animationItemBox.Rect;
 			if(animationItem is TriggerEffect)
 			{
-				visibleBoxWindow = new Rect(new Vector2(0f, 0f), new Vector2(_gridProperties.PixelsPerSlot, animationItemBox.Rect.size.y));
-
-				// Fix animItemBox
-				animationItemBox.InteractuableRect = new Rect(animationItemBox.Rect.position, new Vector2(_gridProperties.PixelsPerSlot, animationItemBox.Rect.size.y));
-				animationItemBox.WinMover.GrabSize = new Vector2(_gridProperties.PixelsPerSlot, 0f);
+//				visibleBoxWindow = new Rect(new Vector2(0f, 0f), new Vector2(_gridProperties.PixelsPerSlot, animationItemBox.Rect.size.y));
+//
+//				// Fix animItemBox
+//				animationItemBox.InteractuableRect = new Rect(animationItemBox.Rect.position, new Vector2(_gridProperties.PixelsPerSlot, animationItemBox.Rect.size.y));
+//				animationItemBox.WinMover.GrabSize = new Vector2(_gridProperties.PixelsPerSlot, 0f);
 			}
 
 			float isMouseOver = animationItemBox.InteractuableRect.Contains(Event.current.mousePosition) ? 1f : 0f;

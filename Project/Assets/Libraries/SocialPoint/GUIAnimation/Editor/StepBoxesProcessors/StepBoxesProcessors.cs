@@ -34,6 +34,11 @@ namespace SocialPoint.GUIAnimation
 				foreach (var pair in Host.BoxContainer.CacheWindows) 
 				{
 					AnimationStepBox animationItemBox = pair.Value;
+					if(animationItemBox.AnimationItem is TriggerEffect)
+					{
+						continue;
+					}
+
 					animationItemBox.WinResizer.Resize(ref animationItemBox.Rect, Vector2.right, (Vector2 delta)=>{
 						if(Host.BoxContainer.StepsSelection.IsSelected(animationItemBox.AnimationItem))
 						{
