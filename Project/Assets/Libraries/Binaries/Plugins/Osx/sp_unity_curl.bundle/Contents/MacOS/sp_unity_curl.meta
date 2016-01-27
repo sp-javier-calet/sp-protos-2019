@@ -1,11 +1,6 @@
 fileFormatVersion: 2
-<<<<<<< HEAD:Project/Assets/Libraries/Binaries/Plugins/Osx/sp_unity_curl.bundle/Contents/MacOS/sp_unity_curl.meta
 guid: cfcc20bdcf7ac40b9a46e5fd511b1241
-timeCreated: 1452878905
-=======
-guid: 2cf7cb917037143e0a88c36c9cdcf7f3
-timeCreated: 1453458447
->>>>>>> master:Project/Assets/Plugins/Osx/sp_unity_curl.bundle/Contents/MacOS/sp_unity_curl.meta
+timeCreated: 1453820918
 licenseType: Pro
 DefaultImporter:
   userData: 
