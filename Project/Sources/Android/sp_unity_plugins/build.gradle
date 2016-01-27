@@ -20,9 +20,21 @@ allprojects {
 
 /* Injects configuration in all children projects */
 subprojects{
+    apply plugin: 'com.android.library'
+
+    /* Configure plugins compilation */
+    project.android {
+        compileSdkVersion 23
+        buildToolsVersion "21.1.2"
+
+
+        defaultConfig {
+            minSdkVersion 14
+            targetSdkVersion 23
+        }
+    }
 
     /* Add a provided dependency with Unity java classes */
-    apply plugin: 'com.android.library'
     project.dependencies{
         provided files('/Applications/Unity/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar')
     }
