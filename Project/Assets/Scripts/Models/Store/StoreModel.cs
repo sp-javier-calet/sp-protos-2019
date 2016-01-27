@@ -34,13 +34,13 @@ public class StoreModel : IDisposable
         _purchaseStore = purchaseStore;
         if(_purchaseStore != null)
         {
-            _purchaseStore.PurchaseCompleted += OnPurchaseCompleted;
+            _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
         }
     }
 
     public void Dispose()
     {
-        _purchaseStore.PurchaseCompleted -= OnPurchaseCompleted;
+        _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
     }
 
     public void Assign(StoreModel other)
@@ -49,12 +49,12 @@ public class StoreModel : IDisposable
         PurchaseRewards = other.PurchaseRewards;
         if(_purchaseStore != null)
         {
-            _purchaseStore.PurchaseCompleted -= OnPurchaseCompleted;
+            _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
         }
         _purchaseStore = other._purchaseStore;
         if(_purchaseStore != null)
         {
-            _purchaseStore.PurchaseCompleted += OnPurchaseCompleted;
+            _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
         }
     }
 

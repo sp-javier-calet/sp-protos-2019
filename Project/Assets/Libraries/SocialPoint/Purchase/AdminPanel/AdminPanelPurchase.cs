@@ -193,7 +193,7 @@ namespace SocialPoint.Purchase
             //Set products
             _purchaseStore.SetProductMockList(mockProducts);
             //Set purchase delegate
-            _purchaseStore.PurchaseCompleted += OnMockPurchaseCompleted;
+            _purchaseStore.RegisterPurchaseCompletedDelegate(OnMockPurchaseCompleted);
         }
 
         private PurchaseGameInfo OnMockPurchaseCompleted(Receipt receipt, PurchaseResponseType response)
