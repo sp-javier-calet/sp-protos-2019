@@ -14,6 +14,8 @@ namespace SocialPoint.Purchase
         //Reference to layout
         AdminPanelLayout _layout;
 
+        //Last known ids of products attempted to use
+        string _lastKnownRequiredProducts;
         //Last known load state
         string _lastKnownLoadState;
         //Map each product ID to a last known purchase state message
@@ -59,6 +61,7 @@ namespace SocialPoint.Purchase
                 string[] ids = string.IsNullOrEmpty(productsInput.text) ? null : productsInput.text.Split(',');
                 LoadProducts(ids);
             });
+            AddGUIInfoLabel(layout, "Latest required products: " + _lastKnownRequiredProducts);
             AddGUISeparation(layout);
 
             //Use delay before purchasing? Can be used to test receiving events to refresh after closing the panel
@@ -102,7 +105,7 @@ namespace SocialPoint.Purchase
         private void AddGUIInfoLabel(AdminPanelLayout layout, string label)
         {
             var infoLabel = layout.CreateLabel(label);
-            infoLabel.fontSize = 12;
+            infoLabel.fontSize /= 2;//Set info text as half the size of default label text
             infoLabel.fontStyle = FontStyle.Italic;
         }
 
@@ -137,11 +140,14 @@ namespace SocialPoint.Purchase
 
         private void LoadProducts(string[] ids = null)
         {
-            _lastKnownLoadState = "Loading...";
             if(ids == null)
             {
                 ids = _store.ProductIds;
             }
+
+            _lastKnownRequiredProducts = MergeStrings(ids);
+            _lastKnownLoadState = "Loading...";
+
             //Load products (IMPORTANT: Check that product IDs are set in game.json)
             _purchaseStore.LoadProducts(ids);
             RefreshPanel();
@@ -206,6 +212,20 @@ namespace SocialPoint.Purchase
             purchaseInfo.ResourceAmount = 1;
             purchaseInfo.AdditionalData = null;
             return purchaseInfo;
+        }
+
+        private string MergeStrings(string[] ids)
+        {
+            string merged = string.Empty;
+            for(int i = 0; i < ids.Length; i++)
+            {
+                merged += ids[i];
+                if(i < ids.Length - 1)
+                {
+                    merged += ',';
+                }
+            }
+            return merged;
         }
     }
 }
