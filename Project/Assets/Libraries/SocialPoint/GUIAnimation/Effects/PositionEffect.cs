@@ -136,6 +136,18 @@ namespace SocialPoint.GUIAnimation
 			SetAnchors();
 		}
 
+		public override void CopySharedValues(Effect other)
+		{
+			PositionEffect otherTrans = (PositionEffect) other;
+
+			_anchorMode = otherTrans.AnchorsMode;
+			_startAnchor.Copy(otherTrans.StartAnchor);
+			_endAnchor.Copy(otherTrans.EndAnchor);
+			IsLocal = otherTrans.IsLocal;
+
+			SetAnchors();
+		}
+
 		public void RemoveAnchors ()
 		{
 			if(_startValue != null && _endValue != null)
@@ -160,18 +172,18 @@ namespace SocialPoint.GUIAnimation
 			{
 				_startValue = AnchorUtility.CreatePivotTransform(StepName + "_start");
 				_startValue.transform.SetParent(transform, false);
-//				_startValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+				_startValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 			}
 
 			if(_endValue == null)
 			{
 				_endValue = AnchorUtility.CreatePivotTransform(StepName + "_end");
 				_endValue.transform.SetParent(transform, false);
-//				_endValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+				_endValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 			}
 
-			_startValue.gameObject.hideFlags = HideFlags.None;
-			_endValue.gameObject.hideFlags = HideFlags.None;
+			_startValue.gameObject.hideFlags = HideFlags.None; // remove
+			_endValue.gameObject.hideFlags = HideFlags.None;   // remove
 
 			if(Target != null)
 			{

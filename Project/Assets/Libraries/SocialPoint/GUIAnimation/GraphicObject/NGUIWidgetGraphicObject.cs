@@ -47,7 +47,11 @@ namespace SocialPoint.GUIAnimation
 				color.b = value.b;
 				color.a *= value.a;
 				_graphic.color = color;
-//				Refresh();
+
+				if(!Application.isPlaying)
+				{
+					Refresh();
+				}
 			}
 		}
 
@@ -60,7 +64,10 @@ namespace SocialPoint.GUIAnimation
 			set
 			{
 				_graphic.alpha = value;
-//				Refresh();
+				if(!Application.isPlaying)
+				{
+					Refresh();
+				}
 			}
 		}
 
@@ -83,6 +90,7 @@ namespace SocialPoint.GUIAnimation
 			if(panel)
 			{
 				panel.Refresh();
+				panel.Update();
 			}
 		}
 	}

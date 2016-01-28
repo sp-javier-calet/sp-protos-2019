@@ -26,7 +26,11 @@ namespace SocialPoint.GUIAnimation
 			_target = ((Effect) other).Target;
 		}
 
+		// Copy another effect
 		public abstract void CopyActionValues(Effect other);
+
+		// Copy the values that are shared between different targets of the same effect
+		public virtual void CopySharedValues(Effect other){}
 
 		public virtual StepMonitor CreateTargetMonitor()
 		{

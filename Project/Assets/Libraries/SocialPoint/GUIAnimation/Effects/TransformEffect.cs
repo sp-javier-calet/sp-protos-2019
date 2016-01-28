@@ -127,6 +127,18 @@ namespace SocialPoint.GUIAnimation
 			SetAnchors();
 		}
 
+		public override void CopySharedValues(Effect other)
+		{
+			PositionEffect otherTrans = (PositionEffect) other;
+
+			_anchorMode = otherTrans.AnchorsMode;
+			_startAnchor.Copy(otherTrans.StartAnchor);
+			_endAnchor.Copy(otherTrans.EndAnchor);
+			IsLocal = otherTrans.IsLocal;
+
+			SetAnchors();
+		}
+
 		public void RemoveAnchors ()
 		{
 			if(_startValue != null && _endValue != null)

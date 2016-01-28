@@ -102,7 +102,7 @@ namespace SocialPoint.GUIAnimation
 				_animation.RefreshAndInit();
 
 				// By default apply all the values
-//				OverrideActionsOfTarget(iTarget);
+				CopySharedValuesToTarget(iTarget);
 				OverrideEasingOfTarget(iTarget);
 
 				return true;
@@ -282,13 +282,13 @@ namespace SocialPoint.GUIAnimation
 			return true;
 		}
 
-		void OverrideActionsOfTarget(Transform target)
+		void CopySharedValuesToTarget(Transform target)
 		{
 			List<Step> animItemsOfTarget = AnimItems.FindAll((Step iAction)=>{ return (iAction is Effect) && ( ((Effect)iAction).Target == target); });
 			for (int animItemIdx = 0; animItemIdx < animItemsOfTarget.Count; ++animItemIdx) 
 			{
 				Effect template = GetActionTemplate<Effect>(animItemsOfTarget[animItemIdx].GetType());
-				((Effect)animItemsOfTarget[animItemIdx]).CopyActionValues((Effect)template);
+				((Effect)animItemsOfTarget[animItemIdx]).CopySharedValues((Effect)template);
 			}
 		}
 

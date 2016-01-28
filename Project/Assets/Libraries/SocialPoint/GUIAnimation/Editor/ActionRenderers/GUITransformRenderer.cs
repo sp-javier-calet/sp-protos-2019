@@ -52,7 +52,7 @@ namespace SocialPoint.GUIAnimation
 			UnityEngine.GUI.changed = false;
 
 			GUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Is Local:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(150f));
+			EditorGUILayout.LabelField("Is Local:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.Width(100f));
 			transEffect.IsLocal = EditorGUILayout.Toggle(transEffect.IsLocal, GUILayout.ExpandWidth(false), GUILayout.MaxWidth(15f));
 			GUILayout.EndHorizontal();
 
@@ -111,38 +111,16 @@ namespace SocialPoint.GUIAnimation
 			float labelMaxWidth = 100f;
 
 			GUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Start Anchor:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
+			EditorGUILayout.LabelField("Anchor Start State:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
 			transAction.StartAnchor.AnchorMin = EditorGUILayout.Vector2Field("", transAction.StartAnchor.AnchorMin, GUILayout.ExpandWidth(false));
 			transAction.StartAnchor.AnchorMax = transAction.StartAnchor.AnchorMin;
 			GUILayout.EndHorizontal();
-			
-//			GUILayout.BeginHorizontal();
-//			EditorGUILayout.LabelField("Start Anchor Max:", AnimationUtility.GetStyle(AnimationUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
-//			transAction.StartAnchor.AnchorMax = EditorGUILayout.Vector2Field("", transAction.StartAnchor.AnchorMax, GUILayout.ExpandWidth(false));
-//			GUILayout.EndHorizontal();
 
-			Rect lastRect = GUILayoutUtility.GetLastRect();
-			Vector2 startPos = lastRect.position + new Vector2(100f, lastRect.size.y);
-			Vector2 endPos = startPos + new Vector2(100f, 0f);
-			Color prevHandlesColor = Handles.color;
-			Handles.color = new Color(1f, 1f, 1f, 0.25f);
-			Handles.DrawLine(startPos, endPos);
-			Handles.color = prevHandlesColor;
-
-			GUILayout.Space(10f);
-			
 			GUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("End Anchor:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
-			transAction.EndAnchor.AnchorMin = EditorGUILayout.Vector2Field("", transAction.EndAnchor.AnchorMin, GUILayout.ExpandWidth(false));
+			EditorGUILayout.LabelField("Anchor End State:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
+			transAction.EndAnchor.AnchorMin = EditorGUILayout.Vector2Field("", transAction.StartAnchor.AnchorMin, GUILayout.ExpandWidth(false));
 			transAction.EndAnchor.AnchorMax = transAction.EndAnchor.AnchorMin;
 			GUILayout.EndHorizontal();
-			UnityEngine.GUI.enabled = preEnabled;
-			
-//			GUILayout.BeginHorizontal();
-//			EditorGUILayout.LabelField("End Anchor Max:", AnimationUtility.GetStyle(AnimationUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
-//			transAction.EndAnchor.AnchorMax = EditorGUILayout.Vector2Field("", transAction.EndAnchor.AnchorMax, GUILayout.ExpandWidth(false));
-//			GUILayout.EndHorizontal();
-
 		}
 	}
 }

@@ -94,11 +94,6 @@ namespace SocialPoint.GUIAnimation
 			{
 				AnimItems[i].Init(animation, this);
 			}
-
-	//		if(_parent == null && Animation.HideSerializedObjects)
-	//		{
-	//			ItemsRoot.hideFlags = HideFlags.HideInHierarchy;
-	//		}
 		}
 
 		public void AddAndCopyAnimationItems(List<Step> animItems, bool calculateContainerTime)

@@ -46,7 +46,6 @@ namespace SocialPoint.GUIAnimation
 			_viewModeId = 0;
 			_isInit = false;
 
-			InitTargetMonitors();
 			_monitorController.Backup();
 		}
 
