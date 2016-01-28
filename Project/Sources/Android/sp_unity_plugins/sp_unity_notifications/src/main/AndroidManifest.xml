@@ -23,6 +23,9 @@
         android:name="es.socialpoint.unity.notification.AlarmReceiver"
         android:exported="true"/>
 
+    <!-- Required from push notifications -->
+    <!-- <meta-data android:name="GOOGLE_API_PROJECT_NUMBER" android:value="[API_PROJECT_NUMBER]" /> -->
+
     <!-- Required configuration in game manifest -->
     <!-- Remote Notifications receiver-->
     <!-- 
