@@ -7,8 +7,8 @@ namespace SocialPoint.GUIAnimation
 	{
 		GUIAnimationTool _animationTool;
 
-		AnimationTimelinePanel _boxContainer = new AnimationTimelinePanel();
-		AnimationPropertiesPanel _animItemDetail = new AnimationPropertiesPanel();
+		AnimationTimelinePanel _timelinePanel = new AnimationTimelinePanel();
+		AnimationPropertiesPanel _propertiesPanel = new AnimationPropertiesPanel();
 
 		bool _isInit = false;
 
@@ -27,21 +27,29 @@ namespace SocialPoint.GUIAnimation
 
 		public void ResetState()
 		{
-			_boxContainer.ResetState();
+			_timelinePanel.ResetState();
 
-			_animItemDetail.ResetState();
-			_animItemDetail.SetBoxEditor(_boxContainer);
+			_propertiesPanel.ResetState();
+			_propertiesPanel.SetBoxEditor(_timelinePanel);
 		}
 
 		void Init()
 		{
-			_animItemDetail.SetBoxEditor(_boxContainer);
+			_propertiesPanel.SetBoxEditor(_timelinePanel);
 		}
 		
 		void DoRender()
 		{
-			_boxContainer.Render(_animationTool);
-			_animItemDetail.Render(_animationTool, new Vector2(0f, _boxContainer.PanelHeight));
+			Rect timelineContainerRect = 	new Rect(0f, 0f, _animationTool.position.width, _animationTool.position.height * 0.6f);
+			Rect propertiesContainerRect = 	new Rect(0f, _animationTool.position.height * 0.6f, _animationTool.position.width, (_animationTool.position.height-_animationTool.position.height * 0.6f));
+
+			GUI.BeginGroup(timelineContainerRect);
+			_timelinePanel.Render(_animationTool, timelineContainerRect);
+			GUI.EndGroup();
+
+			GUI.BeginGroup(propertiesContainerRect);
+			_propertiesPanel.Render(_animationTool, propertiesContainerRect);
+			GUI.EndGroup();
 		}
 	}
 }

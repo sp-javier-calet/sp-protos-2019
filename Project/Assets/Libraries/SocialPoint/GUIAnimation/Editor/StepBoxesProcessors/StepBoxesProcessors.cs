@@ -225,8 +225,6 @@ namespace SocialPoint.GUIAnimation
 								}
 							}
 							someIsSelected = true;
-
-	//						break;
 						}
 					}
 
@@ -395,10 +393,10 @@ namespace SocialPoint.GUIAnimation
 			MovedBoxes.Clear();
 
 			_processors.Clear();
+			_processors.Add(new RealignProcessor(this));
 			_processors.Add(new ResizeProcessor(this));
 			_processors.Add(new MoveProcessor(this));
 			_processors.Add(new SelectionProcessor(this));
-			_processors.Add(new RealignProcessor(this));
 		}
 
 		public void ResetState()

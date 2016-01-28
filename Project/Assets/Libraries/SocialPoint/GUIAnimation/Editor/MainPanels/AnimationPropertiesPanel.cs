@@ -33,12 +33,11 @@ namespace SocialPoint.GUIAnimation
 
 		List<BaseGUIActionRenderer> _actionRenderers = new List<BaseGUIActionRenderer>();
 
-		Vector2 _startPosition = Vector2.zero;
-
 		List<StepMonitorData> _firedMonitors = new List<StepMonitorData>();
 		List<MonitorChangedEventData> _monitorChangedEventDatas = new List<MonitorChangedEventData>();
 		float _changedEventDatasEffectTime = 1.5f;
 		TargetMonitorController _monitorController = new TargetMonitorController();
+		Rect _parentRect;
 
 		public void ResetState()
 		{
@@ -50,10 +49,10 @@ namespace SocialPoint.GUIAnimation
 			_monitorController.Backup();
 		}
 
-		public void Render(GUIAnimationTool animationTool, Vector2 position)
+		public void Render(GUIAnimationTool animationTool, Rect parentRect)
 		{
 			_animationTool = animationTool;
-			_startPosition = position;
+			_parentRect = parentRect;
 
 			if(!_isInit)
 			{
@@ -108,20 +107,16 @@ namespace SocialPoint.GUIAnimation
 			if(haveToClean)
 			{
 				_monitorChangedEventDatas.Clear();
-				
-				if(_animationTool)
-				{
-					_animationTool.SaveState();
-				} 
+				_animationTool.SaveState();
 			}
 		}
 
 		void DoRender()
 		{
 			float maxScrollWidth = 1200f;
-			float maxScrollHeight = 400f;
+			float maxScrollHeight = 300f;
 			
-			Rect scrollRectPos = new Rect(_startPosition, new Vector2(_animationTool.position.width, 400f));	// External Size of the Scroll
+			Rect scrollRectPos = new Rect(Vector2.zero, new Vector2(_parentRect.width, Mathf.Min(_parentRect.height, 320f)) );	// External Size of the Scroll
 			Rect scrollableArea = new Rect (0f, 0f, maxScrollWidth, maxScrollHeight);							// Internal Size of the Scroll
 			
 			_mainScrollPosition = UnityEngine.GUI.BeginScrollView(
@@ -694,11 +689,6 @@ namespace SocialPoint.GUIAnimation
 						}
 
 						_timelinePanel.PlayAtCurrentTimeline();
-
-//						if(_animationTool != null)
-//						{
-//							_animationTool.SaveState();
-//						}
 					});
 
 					break;

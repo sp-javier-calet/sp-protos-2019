@@ -8,6 +8,24 @@ namespace SocialPoint.GUIAnimation
 	{
 		const string kOnAnimationTriggeredMessage = "OnAnimationTriggered";
 
+		public override string StepName 
+		{ 
+			get
+			{
+				AnimationClip clip = GetCurrentAnimationClip();
+				_stepName = StepsManager.GetStepName(GetType());
+				if(clip != null)
+				{
+					_stepName += " (" + clip.name+")";
+				}
+				return _stepName;
+			} 
+			set
+			{
+				_stepName = value;
+			}
+		}
+
 		[SerializeField]
 		[ShowInEditor]
 		string _stateName = "Main";
@@ -43,23 +61,35 @@ namespace SocialPoint.GUIAnimation
 		{
 			float duration = base.GetFixedDuration();
 
-			Animator anim = GUIAnimationUtility.GetComponentRecursiveDown<Animator>(Target.gameObject);
-			if(anim == null)
+			AnimationClip clip = GetCurrentAnimationClip();
+			if(clip != null)
 			{
-				duration = base.GetFixedDuration();
-			}
-
-			UnityEditor.Animations.AnimatorController ac = anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController;
-			for (int i = 0; i < ac.animationClips.Length; ++i) 
-			{
-				AnimationClip clip = ac.animationClips[0];
-				if(_stateName ==  clip.name)
-				{
-					duration = Mathf.Max((float)clip.length, base.GetFixedDuration());
-				}
+				duration = clip.length;
 			}
 
 			return duration;
+		}
+
+		AnimationClip GetCurrentAnimationClip()
+		{
+			AnimationClip clip = null;
+
+			Animator anim = GUIAnimationUtility.GetComponentRecursiveDown<Animator>(Target.gameObject);
+			if(anim != null)
+			{
+				UnityEditor.Animations.AnimatorController ac = anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController;
+				for (int i = 0; i < ac.animationClips.Length; ++i) 
+				{
+					AnimationClip aclip = ac.animationClips[0];
+					if(_stateName ==  aclip.name)
+					{
+						clip = aclip;
+						break;
+					}
+				}
+			}
+
+			return clip;
 		}
 
 		void PlayAnimation(GameObject go)

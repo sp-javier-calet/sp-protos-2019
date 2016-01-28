@@ -128,7 +128,7 @@ namespace SocialPoint.GUIAnimation
 			GUILayout.BeginHorizontal();
 			
 			RenderAnimationSelection(animations);
-			CreateSaveAnimation();
+			RenderActionButtons();
 			
 			GUILayout.EndHorizontal();
 			
@@ -181,7 +181,7 @@ namespace SocialPoint.GUIAnimation
 			}
 		}
 
-		void CreateSaveAnimation()
+		void RenderActionButtons()
 		{
 			if(GUILayout.Button(_animationEditorPlayer.IsPlaying() ? "Stop" : "Play", GUILayout.ExpandWidth(false), GUILayout.Width(50f)))
 			{
@@ -278,17 +278,8 @@ namespace SocialPoint.GUIAnimation
 
 		void OnInspectorUpdate()
 		{
-			RefreshAndInitCurrentAnimation();
-
 			Repaint();
 		}
 
-		void RefreshAndInitCurrentAnimation()
-		{
-			if(AnimationModel.CurrentAnimation != null)
-			{
-//				AnimationModel.CurrentAnimation.RefreshAndInit();
-			}
-		}
 	}
 }

@@ -37,7 +37,7 @@ namespace SocialPoint.GUIAnimation
 
 		public virtual float GetFixedDuration()
 		{
-			return 0.5f;
+			return 0.25f;
 		}
 	}
 }

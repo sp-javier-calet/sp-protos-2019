@@ -19,8 +19,8 @@ namespace SocialPoint.GUIAnimation
 		public int Slot { get { return _slot; } }
 
 		[SerializeField]
-		string _stepName = "Step";
-		public string StepName { get { return _stepName; } set { _stepName = value; } }
+		protected string _stepName = "Step";
+		public virtual string StepName { get { return _stepName; } set { _stepName = value; } }
 
 		[SerializeField]
 		bool _isEnabled = true;

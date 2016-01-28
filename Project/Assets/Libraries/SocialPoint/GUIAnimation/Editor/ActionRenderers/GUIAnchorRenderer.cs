@@ -29,8 +29,6 @@ namespace SocialPoint.GUIAnimation
 				base.Render(effect, stepsSelection, onChanged);
 			}
 
-			AnchorsEffect uniformEffect = (AnchorsEffect) effect;
-			
 			GUILayout.Space(15f);
 
 			GUILayout.BeginHorizontal();

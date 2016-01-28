@@ -22,10 +22,8 @@ namespace SocialPoint.GUIAnimation
 			}
 		}
 
-		EditorTimeGetter _editorTimeGetter;
+		EditorTimeGetter _editorTimeGetter = new EditorTimeGetter();
 		GUIAnimationTool _animTool;
-
-		GUIAnimation.Animation.PlayMode _originalPlayMode = GUIAnimation.Animation.PlayMode.Once;
 
 		public float GetCurrentTime()
 		{
@@ -48,8 +46,6 @@ namespace SocialPoint.GUIAnimation
 		{
 			if(_animTool.AnimationModel.CurrentAnimation != null)
 			{
-//				_originalPlayMode = _animTool.AnimationModel.CurrentAnimation.Mode;
-
 				_animTool.AnimationModel.CurrentAnimation.Play();
 				_state = State.Playing;
 			}

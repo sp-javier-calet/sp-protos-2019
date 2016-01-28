@@ -172,9 +172,12 @@ namespace SocialPoint.GUIAnimation
 		private const float kEpsilon = 1e-4f;
 		private const float kGridExtraWidth = 4f;
 
-		public void Render(GUIAnimationTool animationTool)
+		Rect _parentRect;
+
+		public void Render(GUIAnimationTool animationTool, Rect parentRect)
 		{
 			_animationTool = animationTool;
+			_parentRect = parentRect;
 
 			if(!_isInit)
 			{
@@ -254,11 +257,6 @@ namespace SocialPoint.GUIAnimation
 			{
 				_onAnimationItemSelectedDelegate(SelectedStep, CurrentCollection);
 			}
-
-//			if(_animationTool)
-//			{
-//				_animationTool.SaveState();
-//			}
 		}
 
 		void RenderHeaderOptions()
@@ -306,7 +304,7 @@ namespace SocialPoint.GUIAnimation
 
 		void RenderCollectionActionPanel()
 		{
-			GUILayout.BeginArea(new Rect(0f, 50f, 2048f, 40f));
+			GUILayout.BeginArea(new Rect(0f, 50f, 1024f, 40f));
 
 			GUILayout.BeginHorizontal();
 
@@ -412,10 +410,8 @@ namespace SocialPoint.GUIAnimation
 		{
 			float gridMaxWidth = _gridProperties.GetGridPosFromNormalizedTimeSlot(1f, 0).x;
 
-			float gridVisbleWidth = _animationTool.position.width + kGridExtraWidth;
-
-			Rect scrollRectPos = new Rect (_gridStartPosition.x, _gridStartPosition.y, gridVisbleWidth, _gridVisibleHeight);		// External Scroll Rect
-			Rect scrollableArea = new Rect (0f, 0f, gridMaxWidth, _gridMaxHeight);												// Internal Size of the Scroll
+			Rect scrollRectPos = new Rect (_gridStartPosition.x, _gridStartPosition.y, _parentRect.width-_gridStartPosition.x, _parentRect.height-_gridStartPosition.y);		// External Scroll Rect
+			Rect scrollableArea = new Rect (0f, 0f, gridMaxWidth, _gridMaxHeight);													// Internal Size of the Scroll
 
 			bool isMouseInGridOutOfBox = scrollRectPos.Contains(Event.current.mousePosition);
 
@@ -622,14 +618,6 @@ namespace SocialPoint.GUIAnimation
 			Rect boxWindowContainer = new Rect(animationItemBox.Rect.position, new Vector2(Mathf.Max(animationItemBox.Rect.size.x, _gridProperties.MaxBoxRectPixels), animationItemBox.Rect.size.y));
 			Rect visibleBoxWindow = new Rect(new Vector2(0f, 0f), animationItemBox.Rect.size);
 			animationItemBox.InteractuableRect = animationItemBox.Rect;
-			if(animationItem is TriggerEffect)
-			{
-//				visibleBoxWindow = new Rect(new Vector2(0f, 0f), new Vector2(_gridProperties.PixelsPerSlot, animationItemBox.Rect.size.y));
-//
-//				// Fix animItemBox
-//				animationItemBox.InteractuableRect = new Rect(animationItemBox.Rect.position, new Vector2(_gridProperties.PixelsPerSlot, animationItemBox.Rect.size.y));
-//				animationItemBox.WinMover.GrabSize = new Vector2(_gridProperties.PixelsPerSlot, 0f);
-			}
 
 			float isMouseOver = animationItemBox.InteractuableRect.Contains(Event.current.mousePosition) ? 1f : 0f;
 
@@ -651,7 +639,7 @@ namespace SocialPoint.GUIAnimation
 			DrawGridBoxFigure(imgPivot, imgSize, animationItem);
 
 			// Title
-			UnityEngine.GUI.color = isMouseOver>0f ? Color.white : prevColor;
+			UnityEngine.GUI.color = isMouseOver > 0f ? Color.white : prevColor;
 
 			GUIStyle titleStyle = AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft);
 			Vector2 titleSize = titleStyle.CalcSize( new GUIContent( animationItem.StepName ));
@@ -932,7 +920,6 @@ namespace SocialPoint.GUIAnimation
 			}
 			
 			_timelinePosition = _gridProperties.GetGridPosFromTimeSlot(_currentGlobalTime, 0);
-//			_animationToolWindow.AnimationModel.CurrentAnimation.PlayAt(_currentGlobalTime);
 			_animationTool.AnimationModel.RefreshScreen();
 		}
 

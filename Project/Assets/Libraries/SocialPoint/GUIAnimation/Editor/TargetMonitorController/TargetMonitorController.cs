@@ -20,7 +20,7 @@ namespace SocialPoint.GUIAnimation
 			public EffectTargetMonitorController(Effect step)
 			{
 				_step = step;
-				_monitor.Init(step.Target, step.CreateTargetMonitor());
+				_monitor.Init(_step.Target, _step.CreateTargetMonitor());
 				_monitor.Backup();
 			}
 

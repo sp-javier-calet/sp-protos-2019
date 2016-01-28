@@ -83,7 +83,6 @@ namespace SocialPoint.GUIAnimation
 			GUILayout.EndScrollView();
 
 			// Cancel Button
-			Rect lastRect = GUILayoutUtility.GetLastRect();
 			GUILayout.BeginArea (new Rect(0f, scroolHeight + 50f, 200, 50));
 			GUILayout.BeginHorizontal();
 
