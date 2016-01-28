@@ -188,25 +188,40 @@ namespace SocialPoint.Login
             }
             var parms = src.Parameters;
             string val;
+            bool changed = false;
             if(parms.TryGetValue(SourceParamEnvironment, out val))
             {
-#if !DEBUG
                 if(BaseUrl != val)
                 {
+#if !DEBUG
+                    // don't change environment in prod
                     return false;
+#endif           
+                    changed = true;
+                    BaseUrl = val;
                 }
-#endif                
-                BaseUrl = val;
             }
             if(parms.TryGetValue(SourceParamPrivilegeToken, out val))
             {
-                PrivilegeToken = val;
+                if(PrivilegeToken != val)
+                {
+                    changed = true;
+                    PrivilegeToken = val;
+                }
             }
             if(parms.TryGetValue(SourceParamUserId, out val))
             {
-                ImpersonatedUserId = ulong.Parse(val);
+                ulong userId;
+                if(ulong.TryParse(val, out userId))
+                {
+                    if(UserId != userId)
+                    {
+                        changed = true;
+                        ImpersonatedUserId = userId;
+                    }
+                }
             }
-            return true;
+            return changed;
         }
 
         public List<User> Friends { get; private set; }
