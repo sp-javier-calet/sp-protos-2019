@@ -115,7 +115,7 @@ namespace SocialPoint.GUIControl
             return layer;
         }
 
-        public static List<Canvas> GetCanvasFromElement(GameObject uiElement, List<Canvas> uiCanvas=null)
+        public static List<Canvas> GetCanvasFromElement(GameObject uiElement, List<Canvas> uiCanvas = null)
         {
             if(uiCanvas == null)
             {
@@ -143,6 +143,7 @@ namespace SocialPoint.GUIControl
 
             if(_camerasByLayer.TryGetValue(layer, out camera))
             {
+                camera.Camera.SetActive(true);
                 AssignCameraToUICanvas(uiElement, camera);
             }
             else
@@ -157,6 +158,7 @@ namespace SocialPoint.GUIControl
 
             if(_camerasByLayer.TryGetValue(layer, out camera))
             {
+                camera.Camera.SetActive(true);
                 AssignCameraTo3DContainer(uiElement, camera);
             }
             else

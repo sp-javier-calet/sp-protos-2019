@@ -30,6 +30,7 @@ namespace SocialPoint.ServerSync
         const string AttrKeyEventErrorHttpCode = "error_code";
         const string HttpParamSessionId = "session_id";
         const string SyncChangeEventName = "sync.change";
+        const string AttrKeyGame = "game";
         const string AttrKeySynced = "synced";
 
         const int SessionLostErrorStatusCode = 482;
@@ -104,6 +105,7 @@ namespace SocialPoint.ServerSync
             appEvents.WillGoBackground.Add(-25, OnAppWillGoBackground);
             appEvents.GameWillRestart.Add(-25, OnGameWillRestart);
             appEvents.GameWasLoaded.Add(-1000, OnGameWasLoaded);
+            appEvents.WasOnBackground += OnWasOnBackground;
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
@@ -111,6 +113,7 @@ namespace SocialPoint.ServerSync
             appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
             appEvents.GameWillRestart.Remove(OnGameWillRestart);
             appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
+            appEvents.WasOnBackground -= OnWasOnBackground;
         }
 
         void OnGameWasLoaded()
@@ -133,11 +136,21 @@ namespace SocialPoint.ServerSync
 
         void OnAppWillGoBackground()
         {
+            _goToBackgroundTS = TimeUtils.Timestamp;
             if(Running)
             {
                 SendUpdate();
             }
         }
+
+        private void OnWasOnBackground()
+        {
+            if (_goToBackgroundTS > TimeUtils.Timestamp)
+            {
+                RaiseClockChangeError();
+            }
+        }
+
 
         #endregion
 
@@ -219,6 +232,8 @@ namespace SocialPoint.ServerSync
         float _currentSendInterval;
         IHttpConnection _httpConn;
         Action _sendFinish;
+        long _goToBackgroundTS;
+
 
         public CommandQueue(MonoBehaviour behaviour, IHttpClient client)
         {
@@ -279,7 +294,10 @@ namespace SocialPoint.ServerSync
             {
                 _currentPacket = new Packet();
             }
-            _currentPacket.Add(cmd, callback);
+            if (!_currentPacket.Add(cmd, callback))
+            {
+                RaiseClockChangeError();
+            }
         }
 
         public int Remove(Packet.FilterDelegate callback = null)
@@ -662,8 +680,10 @@ namespace SocialPoint.ServerSync
         {
             if(TrackEvent != null)
             {
-                var data = new AttrDic();             
-                data.SetValue(AttrKeySynced, _synced);
+                var data = new AttrDic();
+                var gameData = new AttrDic();
+                data.Set(AttrKeyGame, gameData);
+                gameData.SetValue(AttrKeySynced, _synced);
                 TrackEvent(SyncChangeEventName, data);
             }
             if(SyncChange != null)
@@ -845,5 +865,12 @@ namespace SocialPoint.ServerSync
             #endif
         }
 
+        void RaiseClockChangeError()
+        {
+            if(GeneralError != null)
+            {
+                GeneralError(CommandQueueErrorType.ClockChange, new Error("Clock changed to the past"));
+            }
+        }
     }
 }

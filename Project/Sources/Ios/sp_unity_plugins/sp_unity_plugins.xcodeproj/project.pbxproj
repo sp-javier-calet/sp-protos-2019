@@ -101,7 +101,7 @@
 		468E00381C3E762200CA07AF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Plugins/tvOS";
+			dstPath = "$(PROJECT_DIR)/../../../Assets/Libraries/Binaries/Plugins/tvOS";
 			dstSubfolderSpec = 0;
 			files = (
 				460B35381C3E7B1B003E0D9D /* SPUnityPlugins_tvOS.framework in CopyFiles */,
@@ -111,7 +111,7 @@
 		FEE5C1B31C2163C40020C4DB /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Plugins/Ios";
+			dstPath = "$(PROJECT_DIR)/../../../Assets/Libraries/Binaries/Plugins/Ios";
 			dstSubfolderSpec = 0;
 			files = (
 				4629063D1C403550009BDB74 /* CrashReporter.framework in CopyFiles */,

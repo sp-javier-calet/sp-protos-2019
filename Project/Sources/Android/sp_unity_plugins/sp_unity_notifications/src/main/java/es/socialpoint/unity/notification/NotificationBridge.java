@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -21,6 +23,7 @@ public class NotificationBridge {
     private static final String TAG = "NotificationBridge";
     private static final String SENDER_ID_KEY = "GOOGLE_API_PROJECT_NUMBER";
 
+    private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static AsyncTask<Void, Void, Void> mRegisterTask;
     private static String mPushNotificationToken;
     private static String mSenderId;
@@ -37,7 +40,9 @@ public class NotificationBridge {
         intent.putExtra(IntentParameters.EXTRA_TEXT, text);
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
         Log.d(TAG, "Scheduling alarm " + alarmId + " [ " + id + " - " + title + " : " + text + "] with delay " + delay);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, 0);
+
+        // Use FLAG_UPDATE_CURRENT to override PendingIntent for current alarmId - even if it is currently cancelled -.
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000, pendingIntent);
     }
 
@@ -52,12 +57,22 @@ public class NotificationBridge {
         Log.d(TAG, "Cancelling pending notifications (" + mAlarmIdCounter + ")");
         Activity currentActivity = UnityPlayer.currentActivity;
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
-        
-        for(int i = 0; i <= mAlarmIdCounter; i++) {
-            Intent intent = new Intent(currentActivity, AlarmReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, i, intent, 0);
-            am.cancel(pendingIntent);
-        }
+
+        int alarmId = 1;
+        Intent intent = new Intent(currentActivity, AlarmReceiver.class);
+        PendingIntent pendingIntent = null;
+        do {
+            /* Use FLAG_NO_CREATE to get only existing PendingIntent for the current context.
+             * Since we schedule the alarms using an incremental alarmId, we can search for them using an incremental index */
+            pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, PendingIntent.FLAG_NO_CREATE);
+            if(pendingIntent != null) {
+                Log.d(TAG, "Cancelling Alarm with id: " + alarmId);
+                am.cancel(pendingIntent);
+            }
+
+            // Increment AlarmId
+            alarmId++;
+        } while(pendingIntent != null);
 
         mAlarmIdCounter = 0;
     }
@@ -84,38 +99,53 @@ public class NotificationBridge {
         // Cancel current register task, if exist
         if(mRegisterTask != null) {
             mRegisterTask.cancel(true);
+            mRegisterTask = null;
         }
-        
-        mRegisterTask = new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        InstanceID instanceID = InstanceID.getInstance(UnityPlayer.currentActivity);
-                        String token = instanceID.getToken(getSenderId(UnityPlayer.currentActivity),
-                                GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                        Log.i(TAG, "GCM Registration Token: " + token);
-                        
-                        // Notify registered token
-                        setNotificationToken(token);
 
-                    } catch (Exception e) {
-                        Log.e(TAG, "Failed to complete token refresh", e);
+        boolean postSuccess = mHandler.post(new Runnable() {
+            public void run() {
+                mRegisterTask = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        try {
+                            InstanceID instanceID = InstanceID.getInstance(UnityPlayer.currentActivity);
+                            String senderId = getSenderId(UnityPlayer.currentActivity);
+
+                            if(senderId != null && !senderId.isEmpty()) {
+                                String token = instanceID.getToken(senderId,
+                                        GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+                                Log.i(TAG, "GCM Registration Token: " + token);
+
+                                // Notify registered token
+                                setNotificationToken(token);
+                            } else {
+                                Log.e(TAG, "Invalid sender ID for push enabled. Is " + SENDER_ID_KEY + " meta-data set?");
+                            }
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "Failed to complete token refresh", e);
+                        }
+                        return null;
                     }
-                    return null;
-                }
 
-                @Override
-                protected void onPostExecute(Void result) {
-                    mRegisterTask = null;
-                }
-            }.execute(null, null, null);
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        mRegisterTask = null;
+                    }
+                }.execute(null, null, null);
+            }
+        });
+
+        if(!postSuccess) {
+            Log.e(TAG, "Failed to dispatch token petition");
+        }
     }
 
-    private static void setNotificationToken(String token) {
+    private static synchronized void setNotificationToken(String token) {
         mPushNotificationToken = token;
     }
 
-    public static String getNotificationToken() {
+    public static synchronized String getNotificationToken() {
         return mPushNotificationToken;
     }
 }
