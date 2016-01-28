@@ -44,7 +44,6 @@ public class GameInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
 
         Container.Rebind<IParser<StoreModel>>().ToSingle<StoreParser>();
-        Container.Rebind<IParser<StoreItem>>().ToSingle<StoreItemParser>();
         Container.Rebind<IParser<IDictionary<string, IReward>>>().ToSingle<PurchaseRewardsParser>();
 
         Container.Rebind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);

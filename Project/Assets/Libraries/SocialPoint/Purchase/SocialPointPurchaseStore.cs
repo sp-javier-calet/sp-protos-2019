@@ -4,6 +4,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Base;
+using UnityEngine.Assertions;
 
 namespace SocialPoint.Purchase
 {
@@ -407,6 +408,9 @@ namespace SocialPoint.Purchase
         /// <param name="productId">Product identifier.</param>
         public bool Purchase(string productId)
         {
+            //A delegate must exist before doing any attempt
+            Assert.IsNotNull(_purchaseCompleted, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
+
             UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.Contains(productId));
             if(_purchasesInProcess.Contains(productId))
             {

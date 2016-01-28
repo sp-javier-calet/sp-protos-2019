@@ -7,7 +7,6 @@ using Zenject;
 
 public class StoreModel : IDisposable
 {
-    public IDictionary<string, StoreCategory> Categories = new Dictionary<string, StoreCategory>();
     public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
 
     public string[] ProductIds
@@ -23,9 +22,6 @@ public class StoreModel : IDisposable
             return value;
         }
     }
-
-    public event Action<StoreItem> PurchaseSuccess;
-    public event Action<Error> PurchaseError;
 
     IGamePurchaseStore _purchaseStore;
 
@@ -45,7 +41,6 @@ public class StoreModel : IDisposable
 
     public void Assign(StoreModel other)
     {
-        Categories = other.Categories;
         PurchaseRewards = other.PurchaseRewards;
         if(_purchaseStore != null)
         {
@@ -56,21 +51,6 @@ public class StoreModel : IDisposable
         {
             _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
         }
-    }
-
-    public void OnPurchase(StoreItem storeItem)
-    {        
-        UnityEngine.Debug.Log("buying " + storeItem.Name);
-        storeItem.Purchase((Error error) => {
-            if(!Error.IsNullOrEmpty(error))
-            {
-                PurchaseError(error);
-            }
-            else
-            {
-                PurchaseSuccess(storeItem);
-            }
-        });
     }
 
     void OnProductsUpdated(LoadProductsState state, Error error)
@@ -104,8 +84,7 @@ public class StoreModel : IDisposable
 
     public override string ToString()
     {
-        return string.Format("[StoreModel: Categories={0}, PurchaseRewards={1}]", 
-            StringUtils.Join(Categories), StringUtils.Join(PurchaseRewards));
+        return string.Format("[StoreModel: PurchaseRewards={0}]", StringUtils.Join(PurchaseRewards));
     }
 }
 

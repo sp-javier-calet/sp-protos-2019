@@ -6,12 +6,10 @@ using SocialPoint.Attributes;
 
 public class StoreParser : IParser<StoreModel>
 {
-    IParser<StoreItem> _storeItemParser;
     IParser<IDictionary<string, IReward>> _purchaseRewardsParser;
 
-    public StoreParser(IParser<StoreItem> storeItemParser, IParser<IDictionary<string, IReward>> purchaseRewardsParser)
+    public StoreParser(IParser<IDictionary<string, IReward>> purchaseRewardsParser)
     {
-        _storeItemParser = storeItemParser;
         _purchaseRewardsParser = purchaseRewardsParser;
     }
 
@@ -20,10 +18,6 @@ public class StoreParser : IParser<StoreModel>
     public StoreModel Parse(Attr data)
     {
         var storeModel = new StoreModel();
-        var storeItemsParser = new StoreItemsParser(_storeItemParser);
-        var items = storeItemsParser.Parse(data);
-        var storeCategoriesParser = new StoreCategoriesParser(items);
-        storeModel.Categories = storeCategoriesParser.Parse(data);
         storeModel.PurchaseRewards = _purchaseRewardsParser.Parse(data);
         return storeModel;
     }
