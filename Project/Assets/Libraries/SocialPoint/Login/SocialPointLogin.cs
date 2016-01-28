@@ -174,10 +174,12 @@ namespace SocialPoint.Login
 
         void OnAppOpenedFromSource(AppSource src)
         {
+            #if DEBUG
             if(SetAppSource(src))
             {
                 _appEvents.RestartGame();
             }
+            #endif
         }
 
         bool SetAppSource(AppSource src)
@@ -193,10 +195,7 @@ namespace SocialPoint.Login
             {
                 if(BaseUrl != val)
                 {
-#if !DEBUG
-                    // don't change environment in prod
-                    return false;
-#endif           
+     
                     changed = true;
                     BaseUrl = val;
                 }
@@ -859,6 +858,10 @@ namespace SocialPoint.Login
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            if(ImpersonatedUserId != 0)
+            {
+                return;
+            }
 
             if(state == LinkState.Disconnected)
             {
