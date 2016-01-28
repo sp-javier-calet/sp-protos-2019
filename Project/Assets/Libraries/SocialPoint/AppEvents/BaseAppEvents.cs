@@ -66,6 +66,11 @@ namespace SocialPoint.AppEvents
             WillGoBackground.Run();
         }
 
+        public void TriggerApplicationQuit()
+        {
+            OnApplicationQuit();
+        }
+
         public event Action WasOnBackground;
         
         protected void OnWasOnBackground()

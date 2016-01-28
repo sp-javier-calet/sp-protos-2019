@@ -37,7 +37,9 @@ public class NotificationBridge {
         intent.putExtra(IntentParameters.EXTRA_TEXT, text);
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
         Log.d(TAG, "Scheduling alarm " + alarmId + " [ " + id + " - " + title + " : " + text + "] with delay " + delay);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, 0);
+
+        // Use FLAG_UPDATE_CURRENT to override PendingIntent for current alarmId - even if it is currently cancelled -.
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay * 1000, pendingIntent);
     }
 
@@ -52,12 +54,22 @@ public class NotificationBridge {
         Log.d(TAG, "Cancelling pending notifications (" + mAlarmIdCounter + ")");
         Activity currentActivity = UnityPlayer.currentActivity;
         AlarmManager am = (AlarmManager)currentActivity.getSystemService(Context.ALARM_SERVICE);
-        
-        for(int i = 0; i <= mAlarmIdCounter; i++) {
-            Intent intent = new Intent(currentActivity, AlarmReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(currentActivity, i, intent, 0);
-            am.cancel(pendingIntent);
-        }
+
+        int alarmId = 1;
+        Intent intent = new Intent(currentActivity, AlarmReceiver.class);
+        PendingIntent pendingIntent = null;
+        do {
+            /* Use FLAG_NO_CREATE to get only existing PendingIntent for the current context.
+             * Since we schedule the alarms using an incremental alarmId, we can search for them using an incremental index */
+            pendingIntent = PendingIntent.getBroadcast(currentActivity, alarmId, intent, PendingIntent.FLAG_NO_CREATE);
+            if(pendingIntent != null) {
+                Log.d(TAG, "Cancelling Alarm with id: " + alarmId);
+                am.cancel(pendingIntent);
+            }
+
+            // Increment AlarmId
+            alarmId++;
+        } while(pendingIntent != null);
 
         mAlarmIdCounter = 0;
     }
