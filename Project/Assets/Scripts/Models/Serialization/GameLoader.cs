@@ -50,10 +50,10 @@ public class GameLoader : IGameLoader
 
     GameModel LoadSavedGame()
     {
-        var savedPlayerGameJson = UnityEngine.Resources.Load(_jsonPlayerResource) as UnityEngine.TextAsset;
-        if(savedPlayerGameJson != null)
+        var savedPlayerGameJson = FileUtils.ReadAllText(PlayerJsonPath());
+        if(!string.IsNullOrEmpty(savedPlayerGameJson))
         {
-            var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson.text).AsDic;
+            var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson).AsDic;
             var initialGame = GetInitial();
             var savedPlayer = _playerParser.Parse(playerData);
 
