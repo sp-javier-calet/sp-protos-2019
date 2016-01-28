@@ -40,10 +40,11 @@ namespace SocialPoint.GUIAnimation
 		{
 			if(_itemsRoot == null)
 			{
-				_itemsRoot = AnchorUtility.CreateParentTransform(StepName + "_collection");
+				_itemsRoot = AnchorUtility.CreateParentTransform(StepName + "_Group");
 			}
 
 			_itemsRoot.SetParent(transform, false);
+			ItemsRoot.gameObject.name = StepName + "Effects";
 		}
 
 		public void OnAnimationStartPlaying()

@@ -87,7 +87,7 @@ namespace SocialPoint.GUIAnimation
 			for (int i = 0; i < stepsSelection.Count; ++i) 
 			{
 				Step step = stepsSelection.Steps[i];
-				if((IPositionable) step == effect)
+				if(step == (Step) effect)
 				{
 					continue;
 				}

@@ -160,13 +160,18 @@ namespace SocialPoint.GUIAnimation
 			{
 				_startValue = AnchorUtility.CreatePivotTransform(StepName + "_start");
 				_startValue.transform.SetParent(transform, false);
+//				_startValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 			}
 
 			if(_endValue == null)
 			{
 				_endValue = AnchorUtility.CreatePivotTransform(StepName + "_end");
 				_endValue.transform.SetParent(transform, false);
+//				_endValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 			}
+
+			_startValue.gameObject.hideFlags = HideFlags.None;
+			_endValue.gameObject.hideFlags = HideFlags.None;
 
 			if(Target != null)
 			{

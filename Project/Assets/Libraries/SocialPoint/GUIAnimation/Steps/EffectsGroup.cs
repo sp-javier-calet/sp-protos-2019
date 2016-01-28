@@ -195,6 +195,7 @@ namespace SocialPoint.GUIAnimation
 			if(_template == null)
 			{
 				_template = AnchorUtility.CreateParentTransform("_Template" + StepName).gameObject;
+				_template.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 			}
 			
 			_template.transform.SetParent(ItemsRoot, false);

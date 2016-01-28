@@ -46,6 +46,7 @@ namespace SocialPoint.GUIAnimation
 			_viewModeId = 0;
 			_isInit = false;
 
+			InitTargetMonitors();
 			_monitorController.Backup();
 		}
 
@@ -473,6 +474,7 @@ namespace SocialPoint.GUIAnimation
 					if(GUILayout.Button("X", GUILayout.Width(25f)))
 					{
 						actionsCollection.RemoveTarget(targetObject);
+						InitTargetMonitors();
 					}
 					
 					GUILayout.EndHorizontal();

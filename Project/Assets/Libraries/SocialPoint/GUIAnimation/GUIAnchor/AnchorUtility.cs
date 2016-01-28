@@ -111,7 +111,6 @@ namespace SocialPoint.GUIAnimation
 		public static Transform CreatePivotTransform(string name = "")
 		{
 			#if NGUI
-
 			Debug.Log("Setting Dimmensions...");
 
 			GameObject go = new GameObject(name);
@@ -293,12 +292,10 @@ namespace SocialPoint.GUIAnimation
 
 		static Vector2[] SetAnchorsNative(Transform trans, Vector2 anchorMin, Vector2 anchorMax)
 		{
-			RectTransform rect = trans.GetComponent<RectTransform>();
-
 			// Parent Rect Info
 			Canvas canvas = GameObject.FindObjectOfType<Canvas>();
 			RectTransform canvasTrans = canvas.GetComponent<RectTransform>();
-			
+
 			Rect parentRect = canvasTrans.rect;
 			Transform parentTrans = trans.parent;
 			RectTransform parentRectTrans = null;
@@ -318,6 +315,7 @@ namespace SocialPoint.GUIAnimation
 			Vector2 parentPosMin = new Vector2(parentWorldCorners[0].x, parentWorldCorners[0].y);
 
 			// My Rect Info
+			RectTransform rect = trans.GetComponent<RectTransform>();
 			Vector3 []rectCorners = new Vector3[4];
 			rect.GetWorldCorners(rectCorners);
 			Vector2 posMin = new Vector2(rectCorners[0].x, rectCorners[0].y);
@@ -326,10 +324,8 @@ namespace SocialPoint.GUIAnimation
 			Vector2 offsetMin = new Vector2( posMin.x - (parentPosMin.x + anchorMin.x * (2f*parentSize.x)), posMin.y - (parentPosMin.y + anchorMin.y * (2f*parentSize.y)));
 			Vector2 offsetMax = new Vector2( posMax.x - (parentPosMin.x + anchorMax.x * (2f*parentSize.x)), posMax.y - (parentPosMin.y + anchorMax.y * (2f*parentSize.y)));
 
-			rect.offsetMin = offsetMin;
-			rect.offsetMax = offsetMax;
-
-			return new Vector2[] { rect.anchorMin, rect.anchorMax, rect.offsetMin, rect.offsetMax };
+//			Debug.Log(string.Format("Pos: {0}, anchorMin{1}, anchorMax{2}, width: {3}, height: {4}", pos, anchorMin, anchorMax, size.x, size.y ));
+			return SetAnchorsNative(trans, anchorMin, anchorMax, offsetMin, offsetMax);
 		}
 
 		public static Vector2[] SetAnchorsNative(Transform trans, Vector2 relativeMin, Vector2 relativeMax, Vector2 absoluteMin, Vector2 absoluteMax)
