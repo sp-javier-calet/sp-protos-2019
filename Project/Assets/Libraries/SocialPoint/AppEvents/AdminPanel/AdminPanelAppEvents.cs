@@ -114,6 +114,10 @@ namespace SocialPoint.AppEvents
             layout.CreateConfirmButton("Restart Game", () => {
                 _appEvents.RestartGame();
             });
+
+            layout.CreateConfirmButton("Quit Game", () => {
+                _appEvents.QuitGame();
+            });
         }
 
         private void RefreshContent()

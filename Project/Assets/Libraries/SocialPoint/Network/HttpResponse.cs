@@ -16,7 +16,8 @@ namespace SocialPoint.Network
         const string CompressDeflateContentEncoding = "deflate";
         const string LastModifiedHeader = "Last-Modified";
         const string LastModifiedHeaderFormat = "dddd, dd MMMM yyyy HH:mm:ss tt";
-        const int MinServerErrorStatusCode = 500;
+        const int MinServerRecoverableErrorStatusCode = 500;
+        public const int MinClientUnknownErrorStatusCode = 600;
 
         public enum StatusCodeType
         {
@@ -30,6 +31,7 @@ namespace SocialPoint.Network
             TimeOutError = 408,
             CancelledError = 409,
             /* custom errors not specified in HTTP standard */
+            [Obsolete("Use HasUnknownError instead")]
             UnknownError = 470,
             ValidationError = 471,
             BadResponseError = 474,
@@ -93,6 +95,14 @@ namespace SocialPoint.Network
             }
         }
 
+        public bool HasUnknownError
+        {
+            get
+            {
+                return StatusCode >= MinClientUnknownErrorStatusCode;
+            }
+        }
+
         public bool HasConnectionError
         {
             get
@@ -105,7 +115,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return HasConnectionError || StatusCode >= MinServerErrorStatusCode;
+                return HasConnectionError || (!HasUnknownError && StatusCode >= MinServerRecoverableErrorStatusCode);
             }
         }
 

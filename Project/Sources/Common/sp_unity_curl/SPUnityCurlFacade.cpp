@@ -113,7 +113,7 @@ const int SPUnityCurlGetHttpResponseErrorCode(int code)
         case CURLE_ABORTED_BY_CALLBACK:
             return 409;
         default:
-            return 470;
+            return 600 + code;
     }
 }
 
