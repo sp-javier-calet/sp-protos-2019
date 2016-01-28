@@ -95,8 +95,7 @@ public class GameLoader : IGameLoader
 
     string PlayerJsonPath()
     {
-        return string.Format("{0}/{1}/{2}.json", PathsManager.DataPath, "Resources",
-            _jsonPlayerResource);
+        return string.Format("{0}/{1}.json", PathsManager.PersistentDataPath, _jsonPlayerResource);
     }
 
     public void SaveLocalGame()
