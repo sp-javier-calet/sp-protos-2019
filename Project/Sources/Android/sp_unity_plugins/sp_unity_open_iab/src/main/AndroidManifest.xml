@@ -4,6 +4,14 @@
 	android:installLocation="auto" 
 	package="es.socialpoint.unity.openiab" 
 	android:versionName="1.00" android:versionCode="1">
+	<application>
+		<activity android:name="org.onepf.openiab.UnityProxyActivity"
+			android:launchMode="singleTask"
+			android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen"
+			android:screenOrientation="sensorLandscape">
+		</activity>
+	</application>
+	<uses-permission android:name="org.onepf.openiab.permission.BILLING"/>
 	 <!--Google Play-->
     <uses-permission android:name="com.android.vending.BILLING" />
 </manifest>
