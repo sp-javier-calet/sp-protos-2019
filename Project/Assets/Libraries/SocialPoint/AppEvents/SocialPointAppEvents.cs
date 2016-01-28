@@ -130,6 +130,15 @@ namespace SocialPoint.AppEvents
             _appEvents.TriggerGameWillRestart();
         }
 
+        public void TriggerApplicationQuit()
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.TriggerApplicationQuit();
+        }
+
         public event Action WasOnBackground
         {
             add
