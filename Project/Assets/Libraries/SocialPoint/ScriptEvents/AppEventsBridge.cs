@@ -106,7 +106,7 @@ namespace SocialPoint.ScriptEvents
         override protected Attr SerializeEvent(AppOpenedFromSourceEvent ev)
         {
             var data = new AttrDic();
-            data.SetValue(AttrKeyUri, ev.Source.Uri.ToString());
+            data.SetValue(AttrKeyUri, ev.Source.ToString());
             data.SetValue(AttrKeyScheme, ev.Source.Scheme);
             var parms = new AttrDic();
             data.Set(AttrKeyParameters, parms);
