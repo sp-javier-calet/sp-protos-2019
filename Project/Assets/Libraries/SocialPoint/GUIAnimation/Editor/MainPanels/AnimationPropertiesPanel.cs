@@ -162,7 +162,8 @@ namespace SocialPoint.GUIAnimation
 
 			_actionRenderers.Add(new GUIUniformRenderer());
 			_actionRenderers.Add(new GUITransformRenderer(_timelinePanel.SelectedStep is Effect));
-			_actionRenderers.Add(new GUIAnchorRenderers(_timelinePanel.SelectedStep is Effect));
+			_actionRenderers.Add(new GUIAnchorRenderer(_timelinePanel.SelectedStep is Effect));
+			_actionRenderers.Add(new GUIAnimatorRenderer());
 
 			_actionRenderers.Add(new GUIDefaultActionRenderer());
 		}
