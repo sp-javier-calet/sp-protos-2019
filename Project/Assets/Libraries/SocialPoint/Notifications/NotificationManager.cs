@@ -55,15 +55,19 @@ namespace SocialPoint.Notifications
             {
                 throw new ArgumentNullException("appEvents", "appEvents cannot be null or empty!");
             }
-            _appEvents.WillGoBackground.Add(-50, OnGoToBackground);
-            _appEvents.WasOnBackground += OnComeFromBackground;
+            _appEvents.WillGoBackground.Add(-50, ScheduleNotifications);
+            _appEvents.ApplicationQuit += ScheduleNotifications;
+            _appEvents.WasOnBackground += ClearNotifications;
+            _appEvents.WasCovered += ClearNotifications;
             Reset();
         }
 
         virtual public void Dispose()
         {
-            _appEvents.WillGoBackground.Remove(OnGoToBackground);
-            _appEvents.WasOnBackground -= OnComeFromBackground;
+            _appEvents.WillGoBackground.Remove(ScheduleNotifications);
+            _appEvents.ApplicationQuit -= ScheduleNotifications;
+            _appEvents.WasOnBackground -= ClearNotifications;
+            _appEvents.WasCovered -= ClearNotifications;
         }
 
         protected virtual void AddGameNotifications()
@@ -98,7 +102,7 @@ namespace SocialPoint.Notifications
 
         #region App Events
 
-        private void OnGoToBackground()
+        void ScheduleNotifications()
         {
             AddGameNotifications();
             foreach(var notif in _notifications)
@@ -108,7 +112,7 @@ namespace SocialPoint.Notifications
             _notifications.Clear();
         }
 
-        private void OnComeFromBackground()
+        void ClearNotifications()
         {
             Reset();
         }
