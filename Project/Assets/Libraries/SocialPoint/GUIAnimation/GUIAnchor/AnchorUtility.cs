@@ -235,20 +235,20 @@ namespace SocialPoint.GUIAnimation
                 parentRect = parentRectTrans.rect;
             }
 
-            Vector2 parentSize = new Vector2 (((float)parentRect.width) * 0.5f, ((float)parentRect.height) * 0.5f);
-            Vector2 parentPos = parentRect.position;
-
             Vector3[] parentWorldCorners = new Vector3[4];
             parentRectTrans.GetWorldCorners (parentWorldCorners);
-            Vector2 parentPosMin = new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y);
+            Vector2 parentPosMin = new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y) * canvasTrans.localScale.x;
+
+            Vector2 parentPos = parentRect.position;
+            Vector2 parentSize = (new Vector2 (parentWorldCorners [2].x, parentWorldCorners [2].y) - new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y)) * 0.5f * canvasTrans.localScale.x;
 
             // My Rect Info
             RectTransform rect = trans.GetComponent<RectTransform> ();
             Vector2 pos = rect.position;
             Vector3[] rectCorners = new Vector3[4];
             rect.GetWorldCorners (rectCorners);
-            Vector2 posMin = new Vector2 (rectCorners [0].x, rectCorners [0].y);
-            Vector2 posMax = new Vector2 (rectCorners [2].x, rectCorners [2].y);
+            Vector2 posMin = new Vector2 (rectCorners [0].x, rectCorners [0].y)  * canvasTrans.localScale.x;
+            Vector2 posMax = new Vector2 (rectCorners [2].x, rectCorners [2].y)  * canvasTrans.localScale.x;
 
             Vector2 localPos = pos - parentPos;
             if (anchorMode == AnchorMode.ClosestSide)
@@ -298,30 +298,25 @@ namespace SocialPoint.GUIAnimation
             Canvas canvas = GameObject.FindObjectOfType<Canvas> ();
             RectTransform canvasTrans = canvas.GetComponent<RectTransform> ();
 
-            Rect parentRect = canvasTrans.rect;
             Transform parentTrans = trans.parent;
             RectTransform parentRectTrans = null;
             if (parentTrans != null)
             {
                 parentRectTrans = parentTrans.GetComponentInParent<RectTransform> ();
             }
-            if (parentRectTrans != null)
-            {
-                parentRect = parentRectTrans.rect;
-            }
-
-            Vector2 parentSize = new Vector2 (((float)parentRect.width) * 0.5f, ((float)parentRect.height) * 0.5f);
 
             Vector3[] parentWorldCorners = new Vector3[4];
             parentRectTrans.GetWorldCorners (parentWorldCorners);
-            Vector2 parentPosMin = new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y);
+            Vector2 parentPosMin = new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y)  * canvasTrans.localScale.x;
+
+            Vector2 parentSize = (new Vector2 (parentWorldCorners [2].x, parentWorldCorners [2].y) - new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y)) * 0.5f * canvasTrans.localScale.x;
 
             // My Rect Info
             RectTransform rect = trans.GetComponent<RectTransform> ();
             Vector3[] rectCorners = new Vector3[4];
             rect.GetWorldCorners (rectCorners);
-            Vector2 posMin = new Vector2 (rectCorners [0].x, rectCorners [0].y);
-            Vector2 posMax = new Vector2 (rectCorners [2].x, rectCorners [2].y);
+            Vector2 posMin = new Vector2 (rectCorners [0].x, rectCorners [0].y)  * canvasTrans.localScale.x;
+            Vector2 posMax = new Vector2 (rectCorners [2].x, rectCorners [2].y)  * canvasTrans.localScale.x;
 
             Vector2 offsetMin = new Vector2 (posMin.x - (parentPosMin.x + anchorMin.x * (2f * parentSize.x)), posMin.y - (parentPosMin.y + anchorMin.y * (2f * parentSize.y)));
             Vector2 offsetMax = new Vector2 (posMax.x - (parentPosMin.x + anchorMax.x * (2f * parentSize.x)), posMax.y - (parentPosMin.y + anchorMax.y * (2f * parentSize.y)));

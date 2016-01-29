@@ -102,8 +102,6 @@ namespace SocialPoint.GUIAnimation
         {
             if (Target != null)
             {
-                AnchorUtility.SetAnchors (Target, Target.parent, AnchorMode.CurrentPosition, false);
-
                 SaveValuesAt (0f);
                 SaveValuesAt (1f);
             }
