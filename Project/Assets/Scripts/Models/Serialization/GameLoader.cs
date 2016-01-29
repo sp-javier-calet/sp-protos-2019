@@ -35,6 +35,14 @@ public class GameLoader : IGameLoader
     [InjectOptional]
     ILogin _login;
 
+    public string PlayerJsonPath
+    {
+        get
+        {
+            return string.Format("{0}/{1}.json", PathsManager.PersistentDataPath, _jsonPlayerResource);
+        }
+    }
+
     public GameLoader([Inject("game_initial_json_game_resource")] string jsonGameResource, [Inject("game_initial_json_player_resource")] string jsonPlayerResource)
     {
         _jsonGameResource = jsonGameResource;
@@ -50,10 +58,10 @@ public class GameLoader : IGameLoader
 
     GameModel LoadSavedGame()
     {
-        var savedPlayerGameJson = UnityEngine.Resources.Load(_jsonPlayerResource) as UnityEngine.TextAsset;
-        if(savedPlayerGameJson != null)
+        var savedPlayerGameJson = FileUtils.ReadAllText(PlayerJsonPath);
+        if(!string.IsNullOrEmpty(savedPlayerGameJson))
         {
-            var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson.text).AsDic;
+            var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson).AsDic;
             var initialGame = GetInitial();
             var savedPlayer = _playerParser.Parse(playerData);
 
@@ -93,23 +101,17 @@ public class GameLoader : IGameLoader
         return _model;
     }
 
-    string PlayerJsonPath()
-    {
-        return string.Format("{0}/{1}/{2}.json", PathsManager.DataPath, "Resources",
-            _jsonPlayerResource);
-    }
-
     public void SaveLocalGame()
     {
         Attr data = _playerSerializer.Serialize(_model.Player);
         IAttrSerializer Serializer = new JsonAttrSerializer();
 
-        FileUtils.WriteAllText(PlayerJsonPath(), Serializer.SerializeString(data));
+        FileUtils.WriteAllText(PlayerJsonPath, Serializer.SerializeString(data));
     }
 
     public void DeleteLocalGame()
     {
-        FileUtils.Delete(PlayerJsonPath());
+        FileUtils.Delete(PlayerJsonPath);
     }
 
     public Attr OnAutoSync()
