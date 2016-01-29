@@ -42,6 +42,14 @@ public class GameInstaller : MonoInstaller
 
         Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
+
+        Container.Rebind<IParser<StoreModel>>().ToSingle<StoreParser>();
+        Container.Rebind<IParser<IDictionary<string, IReward>>>().ToSingle<PurchaseRewardsParser>();
+
+        Container.Rebind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
+        Container.Rebind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
+
+        Container.Install<EconomyInstaller>();
     }
 
     void OnGameModelAssigned()
@@ -49,6 +57,8 @@ public class GameInstaller : MonoInstaller
         var game = Container.Resolve<GameModel>();
         Container.Inject(game.Player);
         Container.Inject(game.Config);
+
+        Container.Inject(game.Config.Store);
     }
 
     GameModel CreateGameModel(InjectContext ctx)
