@@ -63,7 +63,10 @@ public class GUIInstaller : MonoInstaller, IDisposable
 
     void OnViewControllerAwake(UIViewController ctrl)
     {
-        Container.Inject(ctrl);
+        if(ctrl.gameObject.transform.parent == null)
+        {
+            Container.Inject(ctrl);
+        }
     }
 
     string GetControllerFactoryPrefabName(Type type)
