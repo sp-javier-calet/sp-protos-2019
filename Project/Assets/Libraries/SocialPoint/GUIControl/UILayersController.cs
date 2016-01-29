@@ -40,6 +40,10 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         List<UICameraData> _cameras = new List<UICameraData>();
 
+        Stack<UICameraData> _inactiveCameras = new Stack<UICameraData>();
+
+        Stack<UICameraData> _activeCameras = new Stack<UICameraData>();
+
         IDictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
 
         IDictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
@@ -49,10 +53,6 @@ namespace SocialPoint.GUIControl
         List<UIViewController> _controllers = new List<UIViewController>();
 
         IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
-
-        Stack<UICameraData> _inactiveCameras = new Stack<UICameraData>();
-
-        Stack<UICameraData> _activeCameras = new Stack<UICameraData>();
 
         void Awake()
         {
@@ -91,6 +91,49 @@ namespace SocialPoint.GUIControl
             {
                 _camerasByLayer[layer] = cameraData;
             }
+        }
+
+        void ActivateNextUILayer(UICameraData.CameraType type)
+        {
+            if(_inactiveCameras.Count == 0)
+            {
+                Assert.IsTrue(false, "Trying to use more cameras than allowed");
+                return;
+            }
+
+            _activeCameras.Push(_inactiveCameras.Pop());
+            UICameraData cameraData = _activeCameras.Peek();
+
+            if(cameraData.Type == type)
+            {
+                cameraData.Camera.SetActive(true);
+            }
+            else
+            {
+                ActivateNextUILayer(type);
+            }
+        }
+
+        public static List<Canvas> GetCanvasFromElement(GameObject uiElement, List<Canvas> uiCanvas = null)
+        {
+            if(uiCanvas == null)
+            {
+                uiCanvas = new List<Canvas>();
+            }
+            var canvas = uiElement.GetComponent<Canvas>();
+
+            if(canvas == null)
+            {
+                foreach(Transform child in uiElement.transform)
+                {
+                    GetCanvasFromElement(child.gameObject, uiCanvas);
+                }
+            }
+            else
+            {
+                uiCanvas.Add(canvas);
+            }
+            return uiCanvas;
         }
 
         void ResetCameras()
@@ -147,27 +190,6 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void ActivateNextUILayer(UICameraData.CameraType type)
-        {
-            if(_inactiveCameras.Count == 0)
-            {
-                Assert.IsTrue(false, "Trying to use more cameras than allowed");
-                return;
-            }
-
-            _activeCameras.Push(_inactiveCameras.Pop());
-            UICameraData cameraData = _activeCameras.Peek();
-
-            if(cameraData.Type == type)
-            {
-                cameraData.Camera.SetActive(true);
-            }
-            else
-            {
-                ActivateNextUILayer(type);
-            }
-        }
-
         void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
         {
             int layer = LayerMask.NameToLayer(camera.LayerName);
@@ -187,28 +209,6 @@ namespace SocialPoint.GUIControl
                 canvas.worldCamera = camera.Camera.GetComponent<Camera>();
                 canvas.gameObject.layer = layer;
             }
-        }
-
-        public static List<Canvas> GetCanvasFromElement(GameObject uiElement, List<Canvas> uiCanvas = null)
-        {
-            if(uiCanvas == null)
-            {
-                uiCanvas = new List<Canvas>();
-            }
-            var canvas = uiElement.GetComponent<Canvas>();
-
-            if(canvas == null)
-            {
-                foreach(Transform child in uiElement.transform)
-                {
-                    GetCanvasFromElement(child.gameObject, uiCanvas);
-                }
-            }
-            else
-            {
-                uiCanvas.Add(canvas);
-            }
-            return uiCanvas;
         }
 
         void AssignCameraTo3DContainer(GameObject uiElement, UICameraData camera)
