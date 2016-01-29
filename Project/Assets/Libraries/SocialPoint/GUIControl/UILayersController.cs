@@ -40,16 +40,24 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         List<UICameraData> _cameras = new List<UICameraData>();
 
+        IDictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
+
+        IDictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
+
+        IDictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
+
+        List<UIViewController> _controllers = new List<UIViewController>();
+
+        IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
+
         Stack<UICameraData> _inactiveCameras = new Stack<UICameraData>();
 
         Stack<UICameraData> _activeCameras = new Stack<UICameraData>();
 
-        IDictionary<GameObject, UICameraData> _elementsInCameras = new Dictionary<GameObject, UICameraData>();
-
-        IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
-
         void Awake()
         {
+            Assert.AreEqual(_cameras[0].Type, UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
+
             List<UICameraData> cameras = new List<UICameraData>(_cameras);
             cameras.Reverse();
 
@@ -59,7 +67,7 @@ namespace SocialPoint.GUIControl
                 _inactiveCameras.Push(cameraData);
             }
 
-            ActivateNextUILayer(UICameraData.CameraType.GUI2D);
+            RefreshCameras();
         }
 
         void InitializeCamera(UICameraData cameraData)
@@ -70,9 +78,14 @@ namespace SocialPoint.GUIControl
             cameraData.Layer = layer;
             cameraData.Camera.GetComponent<Camera>().cullingMask = 1 << layer;
 
+            if(cameraData.Type == UICameraData.CameraType.GUI3D)
+            {
+                cameraData.Camera.AddComponent<UI3DCamera>();
+            }
+
             if(_camerasByLayer.ContainsKey(layer))
             {
-                throw new Exception(string.Format("There is more than one camera using the layer '{0}'.", cameraData.LayerName));
+                Assert.IsTrue(false, string.Format("There is more than one camera using the layer '{0}'.", cameraData.LayerName));
             }
             else
             {
@@ -80,11 +93,66 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        void ResetCameras()
+        {
+            if(_activeCameras.Count > 0)
+            {
+                _activeCameras.Peek().Camera.SetActive(false);
+                _inactiveCameras.Push(_activeCameras.Pop());
+
+                ResetCameras();
+            }
+            else
+            {
+                ActivateNextUILayer(UICameraData.CameraType.GUI2D);
+            }
+        }
+
+        void RefreshCameras()
+        {
+            ResetCameras();
+
+            foreach(UIViewController controller in _controllers)
+            {
+                if(_activeCameras.Peek().Type != UICameraData.CameraType.GUI2D)
+                {
+                    ActivateNextUILayer(UICameraData.CameraType.GUI2D);
+                }
+
+                UICameraData previousCameraAssigned = null;
+
+                // check if we are changing the camera assigned to this controller
+                if(!_uiCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
+                {
+                    _uiCameraByController[controller] = _activeCameras.Peek();
+                    AssignCameraToUICanvas(controller.gameObject, _activeCameras.Peek());
+                }
+
+                // if this camera is using 3d objects, then we need to activate a 3d camera and start using the next ui camera from now on
+                if(_3dObjectsByController.ContainsKey(controller))
+                {
+                    //activate next 3d camera
+                    ActivateNextUILayer(UICameraData.CameraType.GUI3D);
+
+                    if(!_3dCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
+                    {
+                        _3dCameraByController[controller] = _activeCameras.Peek();
+
+                        foreach(GameObject go in _3dObjectsByController[controller])
+                        {
+                            AssignCameraTo3DContainer(go, _activeCameras.Peek());
+                        }
+                    }
+                }
+            }
+        }
+
         void ActivateNextUILayer(UICameraData.CameraType type)
         {
             if(_inactiveCameras.Count == 0)
             {
-                throw new Exception("Trying to use more cameras than allowed");
+                Assert.IsTrue(false, "Trying to use more cameras than allowed");
+                return;
             }
 
             _activeCameras.Push(_inactiveCameras.Pop());
@@ -100,19 +168,25 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public int AddToCurrentUILayer(GameObject uiElement)
+        void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
         {
-            if(_activeCameras.Peek().Type != UICameraData.CameraType.GUI2D)
+            int layer = LayerMask.NameToLayer(camera.LayerName);
+
+            List<Canvas> uiCanvas = new List<Canvas>();
+
+            GetCanvasFromElement(uiElement, uiCanvas);
+
+            if(uiCanvas.Count == 0)
             {
-                ActivateNextUILayer(UICameraData.CameraType.GUI2D);
+                Assert.IsTrue(false, "Not Canvas found inside the element");
+                return;
             }
 
-            UICameraData currentCamera = _activeCameras.Peek();
-            int layer = LayerMask.NameToLayer(currentCamera.LayerName);
-
-            AssignCameraToUICanvas(uiElement, currentCamera);
-
-            return layer;
+            foreach(Canvas canvas in uiCanvas)
+            {
+                canvas.worldCamera = camera.Camera.GetComponent<Camera>();
+                canvas.gameObject.layer = layer;
+            }
         }
 
         public static List<Canvas> GetCanvasFromElement(GameObject uiElement, List<Canvas> uiCanvas = null)
@@ -137,82 +211,9 @@ namespace SocialPoint.GUIControl
             return uiCanvas;
         }
 
-        public void AddToUILayer(GameObject uiElement, int layer)
-        {
-            UICameraData camera;
-
-            if(_camerasByLayer.TryGetValue(layer, out camera))
-            {
-                camera.Camera.SetActive(true);
-                AssignCameraToUICanvas(uiElement, camera);
-            }
-            else
-            {
-                string.Format("There is not any camera assigned to the layer '{0}'", layer);
-            }
-        }
-
-        public void AddTo3DLayer(GameObject uiElement, int layer)
-        {
-            UICameraData camera;
-
-            if(_camerasByLayer.TryGetValue(layer, out camera))
-            {
-                camera.Camera.SetActive(true);
-                AssignCameraTo3DContainer(uiElement, camera);
-            }
-            else
-            {
-                string.Format("There is not any camera assigned to the layer '{0}'", layer);
-            }
-        }
-
-        public int AddToCurrent3DLayer(GameObject uiElement)
-        {
-            if(_activeCameras.Peek().Type != UICameraData.CameraType.GUI3D)
-            {
-                ActivateNextUILayer(UICameraData.CameraType.GUI3D);
-            }
-
-            UICameraData camera = _activeCameras.Peek();
-            AssignCameraTo3DContainer(uiElement, camera);
-
-            return camera.Layer;
-        }
-
-        void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
-        {
-            int layer = LayerMask.NameToLayer(camera.LayerName);
-
-            List<Canvas> uiCanvas = new List<Canvas>();
-
-            GetCanvasFromElement(uiElement, uiCanvas);
-
-            if(uiCanvas.Count == 0)
-            {
-                throw new Exception("Not Canvas found inside the element");
-            }
-
-            foreach(Canvas canvas in uiCanvas)
-            {
-                canvas.worldCamera = camera.Camera.GetComponent<Camera>();
-                canvas.gameObject.layer = layer;
-            }
-
-            AddElementToCameraCount(uiElement, camera);
-        }
-
         void AssignCameraTo3DContainer(GameObject uiElement, UICameraData camera)
         {
             SetLayerRecursively(uiElement, camera.Layer);
-            AddElementToCameraCount(uiElement, camera);
-        }
-
-        public void RemoveElement(GameObject uiElement)
-        {
-            RemoveElementFromCameraCount(uiElement);
-
-            DisableUnusedCameras();
         }
 
         void SetLayerRecursively(GameObject gameObject, LayerMask layer)
@@ -221,39 +222,58 @@ namespace SocialPoint.GUIControl
             Array.ForEach(children, child => child.gameObject.layer = layer);
         }
 
-        void AddElementToCameraCount(GameObject gameObject, UICameraData camera)
+        public void Add(UIViewController controller)
         {
-            RemoveElementFromCameraCount(gameObject);
+            _controllers.Add(controller);
 
-            _elementsInCameras[gameObject] = camera;
-            camera.ElementsInCamera++;
+            RefreshCameras();
         }
 
-        void RemoveElementFromCameraCount(GameObject gameObject)
+        public void Remove(UIViewController controller)
         {
-            UICameraData camera;
+            _uiCameraByController.Remove(controller);
+            _3dCameraByController.Remove(controller);
+            _3dObjectsByController.Remove(controller);
+            _controllers.Remove(controller);
 
-            if(_elementsInCameras.TryGetValue(gameObject, out camera))
+            RefreshCameras();
+        }
+
+        public void Add3DContainer(UIViewController controller, GameObject go)
+        {
+            List<GameObject> objectsAdded = null;
+
+            if(_3dObjectsByController.TryGetValue(controller, out objectsAdded))
             {
-                _elementsInCameras.Remove(gameObject);
-                camera.ElementsInCamera--;
+                objectsAdded.Add(go);
+                AssignCameraTo3DContainer(go, _3dCameraByController[controller]);
+            }
+            else
+            {
+                objectsAdded = new List<GameObject>();
+                objectsAdded.Add(go);
+
+                _3dObjectsByController[controller] = objectsAdded;
+
+                RefreshCameras();
             }
         }
 
-        void DisableUnusedCameras()
+        public void Remove3DContainer(UIViewController controller, GameObject go)
         {
-            if(_activeCameras.Count == 1)
-            {
-                return;
-            }
+            List<GameObject> objectsAdded = null;
 
-            if(_activeCameras.Peek().ElementsInCamera == 0)
+            if(_3dObjectsByController.TryGetValue(controller, out objectsAdded))
             {
-                UICameraData camera = _activeCameras.Pop();
-                _inactiveCameras.Push(camera);
-                camera.Camera.SetActive(false);
+                objectsAdded.Remove(go);
 
-                DisableUnusedCameras();
+                if(objectsAdded.Count == 0)
+                {
+                    _3dObjectsByController.Remove(controller);
+                    _3dCameraByController.Remove(controller);
+
+                    RefreshCameras();
+                }
             }
         }
     }
