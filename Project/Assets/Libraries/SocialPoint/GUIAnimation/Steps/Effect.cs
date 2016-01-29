@@ -3,44 +3,49 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public abstract class Effect : Step
-	{
-		[SerializeField]
-		Transform _target;
-		public Transform Target { get { return _target; } set { _target = value; } }
+    [System.Serializable]
+    public abstract class Effect : Step
+    {
+        [SerializeField]
+        Transform _target;
 
-		public override void Init (Animation animation, Step parent)
-		{
-			base.Init(animation, parent);
+        public Transform Target { get { return _target; } set { _target = value; } }
 
-			_animation.AddAction(this);
-		}
+        public override void Init (Animation animation, Step parent)
+        {
+            base.Init (animation, parent);
 
-		public override void Refresh() {}
+            _animation.AddAction (this);
+        }
 
-		public override void Copy(Step other)
-		{
-			base.Copy(other);
+        public override void Refresh ()
+        {
+        }
 
-			_target = ((Effect) other).Target;
-		}
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
 
-		// Copy another effect
-		public abstract void CopyActionValues(Effect other);
+            _target = ((Effect)other).Target;
+        }
 
-		// Copy the values that are shared between different targets of the same effect
-		public virtual void CopySharedValues(Effect other){}
+        // Copy another effect
+        public abstract void CopyActionValues (Effect other);
 
-		public virtual StepMonitor CreateTargetMonitor()
-		{
-			return null;
-		}
+        // Copy the values that are shared between different targets of the same effect
+        public virtual void CopySharedValues (Effect other)
+        {
+        }
 
-		public abstract void OnUpdate();
+        public virtual StepMonitor CreateTargetMonitor ()
+        {
+            return null;
+        }
 
-		public abstract void SetOrCreateDefaultValues();
+        public abstract void OnUpdate ();
 
-		public abstract void OnReset();
-	}
+        public abstract void SetOrCreateDefaultValues ();
+
+        public abstract void OnReset ();
+    }
 }

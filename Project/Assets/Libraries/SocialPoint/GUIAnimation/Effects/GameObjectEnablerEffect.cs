@@ -3,123 +3,128 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public class GameObjectEnablerEffect : TriggerEffect 
-	{
-		public class TargetValueMonitor : StepMonitor
-		{
-			public bool WasEnabled;
-			
-			public override void Backup()
-			{
-				WasEnabled = Target.gameObject.activeSelf;
-			}
-			
-			public override bool HasChanged()
-			{
-				if(Target == null)
-				{
-					return false;
-				}
+    [System.Serializable]
+    public class GameObjectEnablerEffect : TriggerEffect
+    {
+        public class TargetValueMonitor : StepMonitor
+        {
+            public bool WasEnabled;
 
-				bool originalValue = WasEnabled;
-				bool newValue = Target.gameObject.activeSelf;
+            public override void Backup ()
+            {
+                WasEnabled = Target.gameObject.activeSelf;
+            }
+
+            public override bool HasChanged ()
+            {
+                if (Target == null)
+                {
+                    return false;
+                }
+
+                bool originalValue = WasEnabled;
+                bool newValue = Target.gameObject.activeSelf;
 				
-				return newValue != originalValue;
-			}
-		}
+                return newValue != originalValue;
+            }
+        }
 
-		[SerializeField]
-		[ShowInEditor]
-		bool _startValue = true;
-		public bool StartValue { get { return _startValue; } set { _startValue = value; } }
+        [SerializeField]
+        [ShowInEditor]
+        bool _startValue = true;
 
-		[SerializeField]
-		[ShowInEditor]
-		bool _endValue = true;
-		public bool EndValue { get { return _endValue; } set{_endValue = value; } }
+        public bool StartValue { get { return _startValue; } set { _startValue = value; } }
 
-		[SerializeField]
-		[ShowInEditor]
-		bool _disableAfterPlay = true;
+        [SerializeField]
+        [ShowInEditor]
+        bool _endValue = true;
 
-		bool _hasBeenPlayed = false;
+        public bool EndValue { get { return _endValue; } set { _endValue = value; } }
 
-		public override void Copy (Step other)
-		{
-			base.Copy(other);
-			CopyActionValues((GameObjectEnablerEffect) other);
-		}
+        [SerializeField]
+        [ShowInEditor]
+        bool _disableAfterPlay = true;
 
-		public override void CopyActionValues(Effect other)
-		{
-			_startValue = ((GameObjectEnablerEffect) other).StartValue;
-			_endValue = ((GameObjectEnablerEffect) other).EndValue;
-		}
+        bool _hasBeenPlayed = false;
 
-		public override void OnRemoved () { }
-		public override void SetOrCreateDefaultValues() 
-		{
-			_startValue = _endValue = true;
-		}
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
+            CopyActionValues ((GameObjectEnablerEffect)other);
+        }
 
-		public override void Invert(bool invertTime)
-		{
-			base.Invert(invertTime);
+        public override void CopyActionValues (Effect other)
+        {
+            _startValue = ((GameObjectEnablerEffect)other).StartValue;
+            _endValue = ((GameObjectEnablerEffect)other).EndValue;
+        }
 
-			bool tempEndValue = _endValue;
-			_endValue = _startValue;
-			_startValue = tempEndValue;
-		}
-		
-		public override void DoAction()
-		{
-			if(Target == null)
-			{
-				Debug.LogWarning("(GameObjectEnablerEffect) OnBlend " + StepName + " Target is null");
-				return;
-			}
+        public override void OnRemoved ()
+        {
+        }
 
-			if(_disableAfterPlay && _hasBeenPlayed)
-			{
-				return;
-			}
+        public override void SetOrCreateDefaultValues ()
+        {
+            _startValue = _endValue = true;
+        }
 
-			Target.gameObject.SetActive(EndValue);
-			_hasBeenPlayed = true;
-		}
+        public override void Invert (bool invertTime)
+        {
+            base.Invert (invertTime);
 
-		public override void OnReset()
-		{
-			base.OnReset();
+            bool tempEndValue = _endValue;
+            _endValue = _startValue;
+            _startValue = tempEndValue;
+        }
 
-			if(!IsEnabledInHierarchy())
-			{
-				return;
-			}
+        public override void DoAction ()
+        {
+            if (Target == null)
+            {
+                Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                return;
+            }
 
-			if(Target == null)
-			{
-				Debug.LogWarning("(GameObjectEnablerEffect) OnBlend " + StepName + " Target is null");
-				return;
-			}
+            if (_disableAfterPlay && _hasBeenPlayed)
+            {
+                return;
+            }
 
-			if(_disableAfterPlay && _hasBeenPlayed)
-			{
-				return;
-			}
+            Target.gameObject.SetActive (EndValue);
+            _hasBeenPlayed = true;
+        }
 
-			Target.gameObject.SetActive(StartValue);
-		}
+        public override void OnReset ()
+        {
+            base.OnReset ();
 
-		public override StepMonitor CreateTargetMonitor()
-		{
-			return new TargetValueMonitor();
-		}
+            if (!IsEnabledInHierarchy ())
+            {
+                return;
+            }
 
-		public override void SaveValuesAt (float localTimeNormalized)
-		{
-			UnityEngine.Debug.LogWarning("(GameObjectEnablerEffect) -> SaveValues. Nothing to save :(");
-		}
-	}
+            if (Target == null)
+            {
+                Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                return;
+            }
+
+            if (_disableAfterPlay && _hasBeenPlayed)
+            {
+                return;
+            }
+
+            Target.gameObject.SetActive (StartValue);
+        }
+
+        public override StepMonitor CreateTargetMonitor ()
+        {
+            return new TargetValueMonitor ();
+        }
+
+        public override void SaveValuesAt (float localTimeNormalized)
+        {
+            Debug.LogWarning (GetType () + " -> SaveValues. Nothing to save :(");
+        }
+    }
 }

@@ -3,90 +3,96 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	// Class that spawns a particle effect
-	// Notes: By default this class will instanciate the prefab by using GameObject.Instantiate
-	[System.Serializable]
-	public class ParticlePlayerEffect : TriggerEffect 
-	{
-		public interface ISpawner
-		{
-			GameObject Spawn(GameObject prefab);
-		}
-		
-		public class DefaultSpawner : ISpawner
-		{
-			public GameObject Spawn(GameObject prefab)
-			{
-				return GameObject.Instantiate(prefab);
-			}
-		}
+    // Class that spawns a particle effect
+    // Notes: By default this class will instanciate the prefab by using GameObject.Instantiate
+    [System.Serializable]
+    public class ParticlePlayerEffect : TriggerEffect
+    {
+        public interface ISpawner
+        {
+            GameObject Spawn (GameObject prefab);
+        }
 
-		const string kOnAnimationTriggeredMessage = "OnAnimationTriggered";
+        public class DefaultSpawner : ISpawner
+        {
+            public GameObject Spawn (GameObject prefab)
+            {
+                return GameObject.Instantiate (prefab);
+            }
+        }
 
-		static ISpawner _spawner = null;
-		static ISpawner Spawner
-		{
-			get
-			{
-				if(_spawner == null)
-				{
-					_spawner = new DefaultSpawner();
-				}
-				return _spawner;
-			}
-		}
+        const string kOnAnimationTriggeredMessage = "OnAnimationTriggered";
 
-		[ShowInEditor]
-		[SerializeField]
-		List<GameObject> _particles = new List<GameObject>();
-		public List<GameObject> Particles
-		{
-			get
-			{
-				return _particles;
-			}
-		}
+        static ISpawner _spawner = null;
 
-		public override void Copy (Step other)
-		{
-			base.Copy(other);
-			CopyActionValues((ParticleSpawnerEffect) other);
-		}
+        static ISpawner Spawner
+        {
+            get
+            {
+                if (_spawner == null)
+                {
+                    _spawner = new DefaultSpawner ();
+                }
+                return _spawner;
+            }
+        }
 
-		public override void CopyActionValues (Effect other)
-		{
-			_particles = ((ParticlePlayerEffect)other).Particles;
-		}
+        [ShowInEditor]
+        [SerializeField]
+        List<GameObject> _particles = new List<GameObject> ();
 
-		public override void OnRemoved () { }
-		public override void SetOrCreateDefaultValues()
-		{}
+        public List<GameObject> Particles
+        {
+            get
+            {
+                return _particles;
+            }
+        }
 
-		public override void DoAction()
-		{
-			if(!Application.isPlaying)
-			{
-				return;
-			}
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
+            CopyActionValues ((ParticleSpawnerEffect)other);
+        }
 
-			for (int i = 0; i < Particles.Count; ++i) 
-			{
-				PlayParticle(Particles[i]);
-			}
-		}
+        public override void CopyActionValues (Effect other)
+        {
+            _particles = ((ParticlePlayerEffect)other).Particles;
+        }
 
-		void PlayParticle(GameObject go)
-		{
-			ParticleSystem particle = GUIAnimationUtility.GetComponentRecursiveDown<ParticleSystem>(go);
-			if(particle != null)
-			{
-				particle.Play();
-			}
-		}
+        public override void OnRemoved ()
+        {
+        }
 
-		public override void SaveValuesAt (float localTimeNormalized)
-		{
-			UnityEngine.Debug.LogWarning( GetType().ToString() + " -> SaveValues. Nothing to save :(");
-		}
-	}
+        public override void SetOrCreateDefaultValues ()
+        {
+        }
+
+        public override void DoAction ()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            for (int i = 0; i < Particles.Count; ++i)
+            {
+                PlayParticle (Particles [i]);
+            }
+        }
+
+        void PlayParticle (GameObject go)
+        {
+            ParticleSystem particle = GUIAnimationUtility.GetComponentRecursiveDown<ParticleSystem> (go);
+            if (particle != null)
+            {
+                particle.Play ();
+            }
+        }
+
+        public override void SaveValuesAt (float localTimeNormalized)
+        {
+            Debug.LogWarning (GetType () + " -> SaveValues. Nothing to save :(");
+        }
+    }
 }

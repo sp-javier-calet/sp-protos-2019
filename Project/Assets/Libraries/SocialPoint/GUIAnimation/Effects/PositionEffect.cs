@@ -3,477 +3,485 @@ using SocialPoint.GUIControl;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public class AnchorProperties
-	{
-		[SerializeField]
-		public Vector2 AnchorMin = new Vector2(0.5f, 0.5f);
-		[SerializeField]
-		public Vector2 AnchorMax = new Vector2(0.5f, 0.5f);
+    [System.Serializable]
+    public class AnchorProperties
+    {
+        [SerializeField]
+        public Vector2 AnchorMin = new Vector2 (0.5f, 0.5f);
+        [SerializeField]
+        public Vector2 AnchorMax = new Vector2 (0.5f, 0.5f);
 
-		[SerializeField]
-		public Vector2 OffsetMin = new Vector2(0.0f, 0.0f);
+        [SerializeField]
+        public Vector2 OffsetMin = new Vector2 (0.0f, 0.0f);
 
-		[SerializeField]
-		public Vector2 OffsetMax = new Vector2(0.0f, 0.0f);
-		
-		public void Copy(AnchorProperties other)
-		{
-			AnchorMin = other.AnchorMin;
-			AnchorMax = other.AnchorMax;
+        [SerializeField]
+        public Vector2 OffsetMax = new Vector2 (0.0f, 0.0f);
 
-			OffsetMin = other.OffsetMin;
-			OffsetMax = other.OffsetMax;
-		}
-	}
+        public void Copy (AnchorProperties other)
+        {
+            AnchorMin = other.AnchorMin;
+            AnchorMax = other.AnchorMax;
 
-	public interface IPositionable
-	{
-		AnchorProperties StartAnchor { get; set; }
-		AnchorProperties EndAnchor { get; set; }
-		AnchorMode AnchorsMode { get; set; }
-		bool IsLocal { get; set; }
+            OffsetMin = other.OffsetMin;
+            OffsetMax = other.OffsetMax;
+        }
+    }
 
-		void SetAnchors();
-	}
+    public interface IPositionable
+    {
+        AnchorProperties StartAnchor { get; set; }
 
-	[System.Serializable]
-	public class PositionEffect : BlendEffect, IPositionable
-	{
-		[System.Serializable]
-		public class TargetValueMonitor : StepMonitor
-		{
-			public Vector3 Position;
+        AnchorProperties EndAnchor { get; set; }
 
-			public override void Backup()
-			{
-				Position = Target.position;
-			}
+        AnchorMode AnchorsMode { get; set; }
 
-			public override bool HasChanged()
-			{
-				return Position != Target.position;
-			}
-		}
+        bool IsLocal { get; set; }
 
-		[ShowInEditor]
-		[SerializeField]
-		AnchorProperties _startAnchor = new AnchorProperties();
-		public AnchorProperties StartAnchor { get { return _startAnchor; } set { _startAnchor = value; } }
+        void SetAnchors ();
+    }
 
-		[ShowInEditor]
-		[SerializeField]
-		AnchorProperties _endAnchor = new AnchorProperties();
-		public AnchorProperties EndAnchor { get { return _endAnchor; } set { _endAnchor = value; } }
+    [System.Serializable]
+    public class PositionEffect : BlendEffect, IPositionable
+    {
+        [System.Serializable]
+        public class TargetValueMonitor : StepMonitor
+        {
+            public Vector3 Position;
 
-		[ShowInEditor]
-		[SerializeField]
-		AnchorMode _anchorMode = AnchorMode.Disabled;
-		public AnchorMode AnchorsMode { get { return _anchorMode; } set { _anchorMode = value; } }
+            public override void Backup ()
+            {
+                Position = Target.position;
+            }
 
-		[ShowInEditor]
-		[SerializeField]
-		bool _isLocal = false;
-		public bool IsLocal
-		{
-			get
-			{
-				return _isLocal;
-			} 
-			set
-			{
-				if(value != _isLocal)
-				{
-					if(value)
-					{
-						ChangeFromWorldToLocal();
-					}
-					else
-					{
-						ChangeFromLocalToWorld();
-					}
-				}
+            public override bool HasChanged ()
+            {
+                return Position != Target.position;
+            }
+        }
 
-				_isLocal = value;
-			}
-		}
+        [ShowInEditor]
+        [SerializeField]
+        AnchorProperties _startAnchor = new AnchorProperties ();
 
-		[SerializeField]
-		Transform _startValue;
-		public Transform StartValue { get { return _startValue; } set { _startValue = value; } }
+        public AnchorProperties StartAnchor { get { return _startAnchor; } set { _startAnchor = value; } }
 
-		[SerializeField]
-		Transform _endValue;
-		public Transform EndValue { get { return _endValue; } set{_endValue = value; } }
+        [ShowInEditor]
+        [SerializeField]
+        AnchorProperties _endAnchor = new AnchorProperties ();
 
-		public override void Copy (Step other)
-		{
-			base.Copy(other);
+        public AnchorProperties EndAnchor { get { return _endAnchor; } set { _endAnchor = value; } }
 
-			_startValue = null; _endValue = null;
-			SetOrCreateDefaultValues();
+        [ShowInEditor]
+        [SerializeField]
+        AnchorMode _anchorMode = AnchorMode.Disabled;
 
-			CopyActionValues((PositionEffect) other);
-		}
+        public AnchorMode AnchorsMode { get { return _anchorMode; } set { _anchorMode = value; } }
 
-		public override void CopyActionValues(Effect other)
-		{
-			PositionEffect otherTrans = (PositionEffect) other;
+        [ShowInEditor]
+        [SerializeField]
+        bool _isLocal = false;
 
-			_anchorMode = otherTrans.AnchorsMode;
-			_startAnchor.Copy(otherTrans.StartAnchor);
-			_endAnchor.Copy(otherTrans.EndAnchor);
-			IsLocal = otherTrans.IsLocal;
+        public bool IsLocal
+        {
+            get
+            {
+                return _isLocal;
+            } 
+            set
+            {
+                if (value != _isLocal)
+                {
+                    if (value)
+                    {
+                        ChangeFromWorldToLocal ();
+                    }
+                    else
+                    {
+                        ChangeFromLocalToWorld ();
+                    }
+                }
 
-			RemoveAnchors();
-			if(	  otherTrans.StartValue != null && otherTrans.EndValue !=null
-			   )
-			{
-				CopyTransformValues(_startValue, ((PositionEffect)other).StartValue);
-				CopyTransformValues(_endValue, ((PositionEffect)other).EndValue);
-			}
+                _isLocal = value;
+            }
+        }
 
-			SetAnchors();
-		}
+        [SerializeField]
+        Transform _startValue;
 
-		public override void CopySharedValues(Effect other)
-		{
-			PositionEffect otherTrans = (PositionEffect) other;
+        public Transform StartValue { get { return _startValue; } set { _startValue = value; } }
 
-			_anchorMode = otherTrans.AnchorsMode;
-			_startAnchor.Copy(otherTrans.StartAnchor);
-			_endAnchor.Copy(otherTrans.EndAnchor);
-			IsLocal = otherTrans.IsLocal;
+        [SerializeField]
+        Transform _endValue;
 
-			SetAnchors();
-		}
+        public Transform EndValue { get { return _endValue; } set { _endValue = value; } }
 
-		public void RemoveAnchors ()
-		{
-			if(_startValue != null && _endValue != null)
-			{
-				RemoveAnchorAt(0f);
-				RemoveAnchorAt(1f);
-			}
-		}
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
 
-		public void SetAnchors ()
-		{
-			if(_startValue != null && _endValue != null)
-			{
-				SetAnchorAt(0f);
-				SetAnchorAt(1f);
-			}
-		}
+            _startValue = null;
+            _endValue = null;
+            SetOrCreateDefaultValues ();
 
-		public override void SetOrCreateDefaultValues()
-		{
-			if(_startValue == null)
-			{
-				_startValue = AnchorUtility.CreatePivotTransform(StepName + "_start");
-				_startValue.transform.SetParent(transform, false);
-				_startValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
-			}
+            CopyActionValues ((PositionEffect)other);
+        }
 
-			if(_endValue == null)
-			{
-				_endValue = AnchorUtility.CreatePivotTransform(StepName + "_end");
-				_endValue.transform.SetParent(transform, false);
-				_endValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
-			}
+        public override void CopyActionValues (Effect other)
+        {
+            PositionEffect otherTrans = (PositionEffect)other;
 
-			_startValue.gameObject.hideFlags = HideFlags.None; // remove
-			_endValue.gameObject.hideFlags = HideFlags.None;   // remove
+            _anchorMode = otherTrans.AnchorsMode;
+            _startAnchor.Copy (otherTrans.StartAnchor);
+            _endAnchor.Copy (otherTrans.EndAnchor);
+            IsLocal = otherTrans.IsLocal;
 
-			if(Target != null)
-			{
-				SaveValuesAt(0f);
-				SaveValuesAt(1f);
-			}
-		}
+            RemoveAnchors ();
+            if (otherTrans.StartValue != null && otherTrans.EndValue != null)
+            {
+                CopyTransformValues (_startValue, ((PositionEffect)other).StartValue);
+                CopyTransformValues (_endValue, ((PositionEffect)other).EndValue);
+            }
 
-		void CopyTransformValues(Transform dest, Transform src)
-		{
-			dest.position = src.position;
-		}
+            SetAnchors ();
+        }
 
-		public override void Invert(bool invertTime)
-		{
-			base.Invert(invertTime);
+        public override void CopySharedValues (Effect other)
+        {
+            PositionEffect otherTrans = (PositionEffect)other;
 
-			Vector3 ensPos = _endValue.position;
-			Vector3 startPos = _startValue.position;
+            _anchorMode = otherTrans.AnchorsMode;
+            _startAnchor.Copy (otherTrans.StartAnchor);
+            _endAnchor.Copy (otherTrans.EndAnchor);
+            IsLocal = otherTrans.IsLocal;
 
-			_startValue.position = ensPos;
-			_endValue.position = startPos;
+            SetAnchors ();
+        }
 
-			SetAnchorAt(0f);
-			SetAnchorAt(1f);
-		}
+        public void RemoveAnchors ()
+        {
+            if (_startValue != null && _endValue != null)
+            {
+                RemoveAnchorAt (0f);
+                RemoveAnchorAt (1f);
+            }
+        }
 
-		public override void OnRemoved()
-		{
-			if(_startValue != null)
-			{
-				GameObject.DestroyImmediate(_startValue.gameObject);
-				_startValue = null;
-			}
+        public void SetAnchors ()
+        {
+            if (_startValue != null && _endValue != null)
+            {
+                SetAnchorAt (0f);
+                SetAnchorAt (1f);
+            }
+        }
+
+        public override void SetOrCreateDefaultValues ()
+        {
+            if (_startValue == null)
+            {
+                _startValue = AnchorUtility.CreatePivotTransform (StepName + "_start");
+                _startValue.transform.SetParent (transform, false);
+//                _startValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+            }
+
+            if (_endValue == null)
+            {
+                _endValue = AnchorUtility.CreatePivotTransform (StepName + "_end");
+                _endValue.transform.SetParent (transform, false);
+//                _endValue.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+            }
+
+            if (Target != null)
+            {
+                SaveValuesAt (0f);
+                SaveValuesAt (1f);
+            }
+        }
+
+        void CopyTransformValues (Transform dest, Transform src)
+        {
+            dest.position = src.position;
+        }
+
+        public override void Invert (bool invertTime)
+        {
+            base.Invert (invertTime);
+
+            Vector3 ensPos = _endValue.position;
+            Vector3 startPos = _startValue.position;
+
+            _startValue.position = ensPos;
+            _endValue.position = startPos;
+
+            SetAnchorAt (0f);
+            SetAnchorAt (1f);
+        }
+
+        public override void OnRemoved ()
+        {
+            if (_startValue != null)
+            {
+                GameObject.DestroyImmediate (_startValue.gameObject);
+                _startValue = null;
+            }
 			
-			if(_endValue != null)
-			{
-				GameObject.DestroyImmediate(_endValue.gameObject);
-				_endValue = null;
-			}
-		}
+            if (_endValue != null)
+            {
+                GameObject.DestroyImmediate (_endValue.gameObject);
+                _endValue = null;
+            }
+        }
 
-		public override void OnBlend(float blend)
-		{
-			if(Target == null)
-			{
-				if(Animation != null && Animation.EnableWarnings)
-				{
-					Debug.LogWarning("(SPTransform) OnBlend " + StepName + " Target is null");
-				}
-				return;
-			}
+        public override void OnBlend (float blend)
+        {
+            if (Target == null)
+            {
+                if (Animation != null && Animation.EnableWarnings)
+                {
+                    Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                }
+                return;
+            }
 
-			SetPosition(Target, Vector3.LerpUnclamped(GetPosition(_startValue), GetPosition(_endValue), blend));
-		}
+            SetPosition (Target, Vector3.LerpUnclamped (GetPosition (_startValue), GetPosition (_endValue), blend));
+        }
 
-		Vector3 GetPosition(Transform trans)
-		{
-			if(IsLocal)
-			{
-				return trans.localPosition;
-			}
-			else
-			{
-				return trans.position;
-			}
-		}
+        Vector3 GetPosition (Transform trans)
+        {
+            if (IsLocal)
+            {
+                return trans.localPosition;
+            }
+            else
+            {
+                return trans.position;
+            }
+        }
 
-		void SetPosition(Transform dest, Vector3 src)
-		{
-			if(IsLocal)
-			{
-				dest.localPosition = src;
-			}
-			else
-			{
-				dest.position = src;
-			}
-		}
+        void SetPosition (Transform dest, Vector3 src)
+        {
+            if (IsLocal)
+            {
+                dest.localPosition = src;
+            }
+            else
+            {
+                dest.position = src;
+            }
+        }
 
-		void SetPosition(Transform dest, Transform src)
-		{
-			if(IsLocal)
-			{
-				dest.localPosition = src.localPosition;
-			}
-			else
-			{
-				dest.position = src.position;
-			}
-		}
+        void SetPosition (Transform dest, Transform src)
+        {
+            if (IsLocal)
+            {
+                dest.localPosition = src.localPosition;
+            }
+            else
+            {
+                dest.position = src.position;
+            }
+        }
 
-		// DeltaPosition should be world space to work properly
-		public void SetMovementDelta(Vector3 deltaPostion, bool deltaInWorldSpace = true)
-		{
-			if (IsLocal)
-			{
-				if (deltaInWorldSpace)
-				{
-					deltaPostion = AnchorUtility.ToPixels (deltaPostion);
-				}
-			} else 
-			{
-				if(!deltaInWorldSpace)
-				{
-					deltaPostion = AnchorUtility.ToClipSpace (deltaPostion);
-				}
-			}
+        // DeltaPosition should be world space to work properly
+        public void SetMovementDelta (Vector3 deltaPostion, bool deltaInWorldSpace = true)
+        {
+            if (IsLocal)
+            {
+                if (deltaInWorldSpace)
+                {
+                    deltaPostion = AnchorUtility.ToPixels (deltaPostion);
+                }
+            }
+            else
+            {
+                if (!deltaInWorldSpace)
+                {
+                    deltaPostion = AnchorUtility.ToClipSpace (deltaPostion);
+                }
+            }
 			
-			RemoveAnchors();
+            RemoveAnchors ();
 			
-			Vector3 startPos =  GetPosition(Target);
-			Vector3 endPos = startPos + deltaPostion;
-			SetPosition(_startValue, startPos);
-			SetPosition(_endValue, endPos);
+            Vector3 startPos = GetPosition (Target);
+            Vector3 endPos = startPos + deltaPostion;
+            SetPosition (_startValue, startPos);
+            SetPosition (_endValue, endPos);
 			
-			SetAnchors();
-		}
+            SetAnchors ();
+        }
 
-		public void SetMovementTo(Transform end)
-		{
-			RemoveAnchors();
+        public void SetMovementTo (Transform end)
+        {
+            RemoveAnchors ();
 
-			Vector3 startPos = GetPosition(Target);
-			Vector3 endPos = GetPosition(end);
+            Vector3 startPos = GetPosition (Target);
+            Vector3 endPos = GetPosition (end);
 
-			SetPosition(_startValue, startPos);
-			SetPosition(_endValue, endPos);
+            SetPosition (_startValue, startPos);
+            SetPosition (_endValue, endPos);
 
-			SetAnchors();
-		}
+            SetAnchors ();
+        }
 
-		public void SetTransform(float localTimeNorm, Transform trans)
-		{
-			RemoveAnchors();
+        public void SetTransform (float localTimeNorm, Transform trans)
+        {
+            RemoveAnchors ();
 
-			if(localTimeNorm < 0.5f)
-			{
-				CopyTransformValues(_startValue, trans);
-			}
-			else
-			{
-				CopyTransformValues(_endValue, trans);
-			}
+            if (localTimeNorm < 0.5f)
+            {
+                CopyTransformValues (_startValue, trans);
+            }
+            else
+            {
+                CopyTransformValues (_endValue, trans);
+            }
 
-			SetAnchors();
-		}
+            SetAnchors ();
+        }
 
-		public override void SaveValues ()
-		{
-			RemoveAnchors();
+        public override void SaveValues ()
+        {
+            RemoveAnchors ();
 
-			SetPosition(StartValue, Target);
-			SetPosition(EndValue, Target);
+            SetPosition (StartValue, Target);
+            SetPosition (EndValue, Target);
 
-			SetAnchors();
-		}
+            SetAnchors ();
+        }
 
-		public override void SaveValuesAt (float localTimeNormalized)
-		{
-			if(Target == null)
-			{
-				if(Animation != null && Animation.EnableWarnings)
-				{
-					Debug.LogWarning("[TransformEffect] Target is null");
-				}
-				return;
-			}
+        public override void SaveValuesAt (float localTimeNormalized)
+        {
+            if (Target == null)
+            {
+                if (Animation != null && Animation.EnableWarnings)
+                {
+                    Debug.LogWarning ("[TransformEffect] Target is null");
+                }
+                return;
+            }
 
-			if(localTimeNormalized < 0.5f)
-			{
-				RemoveAnchorAt(0f);
+            if (localTimeNormalized < 0.5f)
+            {
+                RemoveAnchorAt (0f);
 
-				SetPosition(StartValue, Target);
+                SetPosition (StartValue, Target);
 
-				SetAnchorAt(0f);
-			}
-			else
-			{
-				RemoveAnchorAt(1f);
+                SetAnchorAt (0f);
+            }
+            else
+            {
+                RemoveAnchorAt (1f);
 
-				SetPosition(EndValue, Target);
+                SetPosition (EndValue, Target);
 
-				SetAnchorAt(1f);
-			}
-		}
+                SetAnchorAt (1f);
+            }
+        }
 
-		void RemoveAnchorAt(float localTime)
-		{
-			Transform trans = localTime < 0.5f ? _startValue : _endValue;
-			AnchorUtility.RemoveAnchors(trans, false);
-			IGraphicObject graphic = GraphicObjectLoader.Load(trans, false);
-			if(graphic != null)
-			{
-				graphic.Refresh();
-			}
-		}
+        void RemoveAnchorAt (float localTime)
+        {
+            Transform trans = localTime < 0.5f ? _startValue : _endValue;
+            AnchorUtility.RemoveAnchors (trans, false);
+            IGraphicObject graphic = GraphicObjectLoader.Load (trans, false);
+            if (graphic != null)
+            {
+                graphic.Refresh ();
+            }
+        }
 
-		void SetAnchorAt(float localTime)
-		{
-			Transform trans = localTime < 0.5f ? _startValue : _endValue;
-			AnchorProperties anchorsValue = localTime < 0.5f ? _startAnchor : _endAnchor;
+        void SetAnchorAt (float localTime)
+        {
+            Transform trans = localTime < 0.5f ? _startValue : _endValue;
+            AnchorProperties anchorsValue = localTime < 0.5f ? _startAnchor : _endAnchor;
 
-			Transform parent = null;
-			if(Animation != null)
-			{
-				UIViewController view = Animation.GetComponentInParent<UIViewController>();
-				parent = view != null ? view.transform : null;
-			}
+            Transform parent = null;
+            if (Animation != null)
+            {
+                UIViewController view = Animation.GetComponentInParent<UIViewController> ();
+                parent = view != null ? view.transform : null;
+            }
 
-			if(_anchorMode == AnchorMode.Disabled)
-			{
-				AnchorUtility.RemoveAnchors(trans, false);
-			}
-			else if(_anchorMode == AnchorMode.Custom)
-			{
-				AnchorUtility.SetAnchors(trans, parent, anchorsValue.AnchorMin, anchorsValue.AnchorMax, false);
-			}
-			else
-			{
-				Vector2[] anchors = AnchorUtility.SetAnchors(trans, parent, AnchorsMode, false);
-				anchorsValue.AnchorMin = anchors[0];
-				anchorsValue.AnchorMax = anchors[1];
-			}
+            if (_anchorMode == AnchorMode.Disabled)
+            {
+                AnchorUtility.RemoveAnchors (trans, false);
+            }
+            else
+            if (_anchorMode == AnchorMode.Custom)
+            {
+                AnchorUtility.SetAnchors (trans, parent, anchorsValue.AnchorMin, anchorsValue.AnchorMax, false);
+            }
+            else
+            {
+                Vector2[] anchors = AnchorUtility.SetAnchors (trans, parent, AnchorsMode, false);
+                anchorsValue.AnchorMin = anchors [0];
+                anchorsValue.AnchorMax = anchors [1];
+            }
 
-			IGraphicObject graphic = GraphicObjectLoader.Load(trans, false);
-			if(graphic != null)
-			{
-				graphic.Refresh();
-			}
-		}
+            IGraphicObject graphic = GraphicObjectLoader.Load (trans, false);
+            if (graphic != null)
+            {
+                graphic.Refresh ();
+            }
+        }
 
-		void DoUpdateAnchors()
-		{
-			AnchorUtility.Update (Target, true);
+        void DoUpdateAnchors ()
+        {
+            AnchorUtility.Update (Target, true);
 
-			AnchorUtility.Update(StartValue, true);
-			AnchorUtility.Update(EndValue, true);
-		}
+            AnchorUtility.Update (StartValue, true);
+            AnchorUtility.Update (EndValue, true);
+        }
 
-		void DoRemoveTargetAnchors()
-		{
-			AnchorUtility.RemoveAnchors(Target, true);
-		}
+        void DoRemoveTargetAnchors ()
+        {
+            AnchorUtility.RemoveAnchors (Target, true);
+        }
 
-		void ChangeFromWorldToLocal()
-		{
-			if(Target == null)
-			{
-				return;
-			}
+        void ChangeFromWorldToLocal ()
+        {
+            if (Target == null)
+            {
+                return;
+            }
 
-			ChangeFromWorldToLocalTransform(StartValue);
-			ChangeFromWorldToLocalTransform(EndValue);
-		}
+            ChangeFromWorldToLocalTransform (StartValue);
+            ChangeFromWorldToLocalTransform (EndValue);
+        }
 
-		void ChangeFromWorldToLocalTransform(Transform pivot)
-		{
-			Vector3 currPos = Target.position;
+        void ChangeFromWorldToLocalTransform (Transform pivot)
+        {
+            Vector3 currPos = Target.position;
 
-			Target.position = pivot.position;
-			pivot.localPosition = Target.localPosition;
+            Target.position = pivot.position;
+            pivot.localPosition = Target.localPosition;
 
-			Target.position = currPos;
-		}
+            Target.position = currPos;
+        }
 
-		void ChangeFromLocalToWorld()
-		{
-			if(Target == null)
-			{
-				return;
-			}
+        void ChangeFromLocalToWorld ()
+        {
+            if (Target == null)
+            {
+                return;
+            }
 
-			ChangeFromLocalToWorldTransform(StartValue);
-			ChangeFromLocalToWorldTransform(EndValue);
-		}
+            ChangeFromLocalToWorldTransform (StartValue);
+            ChangeFromLocalToWorldTransform (EndValue);
+        }
 
-		void ChangeFromLocalToWorldTransform(Transform pivot)
-		{
-			Vector3 currPos = Target.position;
+        void ChangeFromLocalToWorldTransform (Transform pivot)
+        {
+            Vector3 currPos = Target.position;
 
-			Target.localPosition = pivot.localPosition;
-			pivot.position = Target.position;
+            Target.localPosition = pivot.localPosition;
+            pivot.position = Target.position;
 
-			Target.position = currPos;
-		}
+            Target.position = currPos;
+        }
 
-		public override StepMonitor CreateTargetMonitor()
-		{
-			return new TargetValueMonitor();
-		}
-	}
+        public override StepMonitor CreateTargetMonitor ()
+        {
+            return new TargetValueMonitor ();
+        }
+    }
 }

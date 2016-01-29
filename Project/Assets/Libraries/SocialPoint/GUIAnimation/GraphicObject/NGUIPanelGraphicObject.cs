@@ -4,108 +4,109 @@ using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class NGUIPanelGraphicObject : IGraphicObject
-	{
-		UIPanel _graphic;
+    public class NGUIPanelGraphicObject : IGraphicObject
+    {
+        UIPanel _graphic;
 
-		UIWidget _subWidget;
-		UIWidget SubWidget
-		{
-			get
-			{
-				if(_subWidget == null)
-				{
-					_subWidget = GUIAnimationUtility.GetComponentRecursiveDown<UIWidget>(_graphic.gameObject);
-				}
+        UIWidget _subWidget;
 
-				return _subWidget;
-			}
-		}
+        UIWidget SubWidget
+        {
+            get
+            {
+                if (_subWidget == null)
+                {
+                    _subWidget = GUIAnimationUtility.GetComponentRecursiveDown<UIWidget> (_graphic.gameObject);
+                }
 
-		public static NGUIPanelGraphicObject Load(Transform root, bool searchInChild)
-		{
-			UIPanel graphic = null;
-			if(searchInChild)
-			{
-				graphic = root.GetComponentInChildren<UIPanel>();
-			}
-			else
-			{
-				graphic = root.GetComponent<UIPanel>();
-			}
+                return _subWidget;
+            }
+        }
 
-			NGUIPanelGraphicObject wrapper = null;
-			if(graphic != null)
-			{
-				wrapper = new NGUIPanelGraphicObject(graphic);
-			}
-			return wrapper;
-		}
+        public static NGUIPanelGraphicObject Load (Transform root, bool searchInChild)
+        {
+            UIPanel graphic = null;
+            if (searchInChild)
+            {
+                graphic = root.GetComponentInChildren<UIPanel> ();
+            }
+            else
+            {
+                graphic = root.GetComponent<UIPanel> ();
+            }
 
-		public NGUIPanelGraphicObject(UIPanel panel)
-		{
-			_graphic = panel;
-		}
+            NGUIPanelGraphicObject wrapper = null;
+            if (graphic != null)
+            {
+                wrapper = new NGUIPanelGraphicObject (graphic);
+            }
+            return wrapper;
+        }
 
-		public Color Color
-		{
-			get
-			{
-				if(SubWidget)
-				{
-					return SubWidget.color;
-				}
+        public NGUIPanelGraphicObject (UIPanel panel)
+        {
+            _graphic = panel;
+        }
 
-				return Color.white;
-			}
-			set
-			{
-				if(SubWidget)
-				{
-					SubWidget.color = value;
+        public Color Color
+        {
+            get
+            {
+                if (SubWidget)
+                {
+                    return SubWidget.color;
+                }
+
+                return Color.white;
+            }
+            set
+            {
+                if (SubWidget)
+                {
+                    SubWidget.color = value;
 //					Refresh();
-				}
-			}
-		}
+                }
+            }
+        }
 
-		public float Alpha 
-		{
-			get
-			{
-				return _graphic.alpha;
-			}
-			set
-			{
-				_graphic.alpha = value;
+        public float Alpha
+        {
+            get
+            {
+                return _graphic.alpha;
+            }
+            set
+            {
+                _graphic.alpha = value;
 //				Refresh();
-			}
-		}
+            }
+        }
 
-		public Material Material
-		{
-			get
-			{
-				if(SubWidget)
-				{
-					return SubWidget.material;
-				}
+        public Material Material
+        {
+            get
+            {
+                if (SubWidget)
+                {
+                    return SubWidget.material;
+                }
 
-				return null;
-			}
-			set
-			{
-				if(SubWidget)
-				{
-					SubWidget.material = value;
-					Refresh();
-				}
-			}
-		}
+                return null;
+            }
+            set
+            {
+                if (SubWidget)
+                {
+                    SubWidget.material = value;
+                    Refresh ();
+                }
+            }
+        }
 
-		public void Refresh()
-		{
-			_graphic.Refresh();
-		}
-	}
+        public void Refresh ()
+        {
+            _graphic.Refresh ();
+        }
+    }
 }
 #endif

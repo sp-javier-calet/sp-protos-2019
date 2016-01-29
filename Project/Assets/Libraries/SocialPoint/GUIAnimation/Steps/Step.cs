@@ -3,217 +3,228 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public abstract class Step : MonoBehaviour, IStep
-	{
-		[SerializeField]
-		float _startTime = 0f;
-		public float StartTime { get { return _startTime; } }
-		
-		[SerializeField]
-		float _endTime = 1f;
-		public float EndTime { get { return _endTime; } }
+    [System.Serializable]
+    public abstract class Step : MonoBehaviour, IStep
+    {
+        [SerializeField]
+        float _startTime = 0f;
 
-		[SerializeField]
-		int _slot = 0;
-		public int Slot { get { return _slot; } }
+        public float StartTime { get { return _startTime; } }
 
-		[SerializeField]
-		protected string _stepName = "Step";
-		public virtual string StepName { get { return _stepName; } set { _stepName = value; } }
+        [SerializeField]
+        float _endTime = 1f;
 
-		[SerializeField]
-		bool _isEnabled = true;
-		public bool IsEnabled { get { return _isEnabled; } set { _isEnabled = value; } }
+        public float EndTime { get { return _endTime; } }
 
-		[SerializeField]
-		Color _editorColor = Color.white;
-		public Color EditorColor { get { return _editorColor; } set { _editorColor = value; } }
+        [SerializeField]
+        int _slot = 0;
 
-		protected Animation _animation;
-		public Animation Animation { get { return _animation; } set { _animation = value; } }
+        public int Slot { get { return _slot; } }
 
-		protected Step _parent;
-		public Step Parent { get { return _parent; } set { _parent = value;} }
+        [SerializeField]
+        protected string _stepName = "Step";
 
-		public abstract void Refresh();
-		public abstract void OnRemoved();
-		public abstract void SaveValuesAt(float localTimeNormalized);
-		public virtual void SaveValues()
-		{
-			SaveValuesAt(0f);
-			SaveValuesAt(1f);
-		}
+        public virtual string StepName { get { return _stepName; } set { _stepName = value; } }
 
-		public void ScaleTime(float scale)
-		{
-			_startTime *= scale;
-			_endTime *= scale;
-		}
+        [SerializeField]
+        bool _isEnabled = true;
 
-		public virtual void OnCreated()
-		{
-			_editorColor = new Color(1f, 1f, 1f, 1f);
-		}
+        public bool IsEnabled { get { return _isEnabled; } set { _isEnabled = value; } }
 
-		public virtual void Copy(Step other)
-		{
-			_startTime = other.StartTime;
-			_endTime = other.EndTime;
+        [SerializeField]
+        Color _editorColor = Color.white;
 
-			_slot = other.Slot;
-			_stepName = other._stepName;
-			_isEnabled = other.IsEnabled;
-			_animation = other.Animation;
-			_editorColor = other.EditorColor;
-		}
+        public Color EditorColor { get { return _editorColor; } set { _editorColor = value; } }
 
-		public virtual void Invert(bool invertTime = false)
-		{
-			if(_parent == null || !invertTime)
-			{
-				return;
-			}
+        protected Animation _animation;
 
-			float duration = GetDuration(AnimTimeMode.Local);
-			float newStartTime = 1f - GetEndTime(AnimTimeMode.Local);
-			float newEndTime = newStartTime + duration;
+        public Animation Animation { get { return _animation; } set { _animation = value; } }
 
-			_startTime = newStartTime;
-			_endTime = newEndTime;
-		}
+        protected Step _parent;
 
-		public virtual void Init (Animation animation, Step parent)
-		{
-			_animation = animation;
-			_parent = parent;
-		}
+        public Step Parent { get { return _parent; } set { _parent = value; } }
 
-		public float NormalizedToAbsoluteTime(float iTime)
-		{
-			float localTime = _startTime + (_endTime - _startTime) * iTime;
+        public abstract void Refresh ();
 
-			if(_parent != null)
-			{
-				return _parent.NormalizedToAbsoluteTime(localTime);
-			}
-			else
-			{
-				return localTime;
-			}
-		}
+        public abstract void OnRemoved ();
 
-		public void SetSlot(int timelineIdx)
-		{
-			_slot = timelineIdx;
-		}
+        public abstract void SaveValuesAt (float localTimeNormalized);
 
-		public float AbsoluteToNormalizedTime(float iAbsoluteTime)
-		{
-			if(_parent != null)
-			{
-				float parentStartTime = _parent.GetStartTime(AnimTimeMode.Global);
-				float parentEndTime = _parent.GetEndTime(AnimTimeMode.Global);
+        public virtual void SaveValues ()
+        {
+            SaveValuesAt (0f);
+            SaveValuesAt (1f);
+        }
 
-				return (iAbsoluteTime-parentStartTime)/(parentEndTime-parentStartTime);
-			}
-			else
-			{
-				return iAbsoluteTime;
-			}
-		}
+        public void ScaleTime (float scale)
+        {
+            _startTime *= scale;
+            _endTime *= scale;
+        }
 
-		public void SetDuration(float duration, AnimTimeMode mode)
-		{
-			if(_parent == null)
-			{
-				_endTime = _startTime + duration;
-			}
-			else
-			{
-				if(mode == AnimTimeMode.Local)
-				{
-					_endTime = _startTime + duration;
-				}
-				else
-				{
-					float parentStartTime = _parent.GetStartTime(AnimTimeMode.Global);
-					float parentEndTime = _parent.GetEndTime(AnimTimeMode.Global);
-					float durationNormalized = duration / (parentEndTime - parentStartTime);
-					_endTime = _startTime + durationNormalized;
-				}
-			}
-		}
+        public virtual void OnCreated ()
+        {
+            _editorColor = new Color (1f, 1f, 1f, 1f);
+        }
 
-		public virtual float GetDuration(AnimTimeMode mode)
-		{
-			if(mode == AnimTimeMode.Global)
-			{
-				return GetEndTime(AnimTimeMode.Global) - GetStartTime(AnimTimeMode.Global);
-			}
-			else
-			{
-				return GetEndTime(AnimTimeMode.Local) - GetStartTime(AnimTimeMode.Local);
-			}
-		}
+        public virtual void Copy (Step other)
+        {
+            _startTime = other.StartTime;
+            _endTime = other.EndTime;
 
-		public void SetStartTime(float time, AnimTimeMode mode)
-		{
-			if(mode == AnimTimeMode.Global)
-			{
-				_startTime = AbsoluteToNormalizedTime(time);
-			}
-			else
-			{
-				_startTime = time;
-			}
-		}
+            _slot = other.Slot;
+            _stepName = other._stepName;
+            _isEnabled = other.IsEnabled;
+            _animation = other.Animation;
+            _editorColor = other.EditorColor;
+        }
 
-		public void SetEndTime(float time, AnimTimeMode mode)
-		{
-			if(mode == AnimTimeMode.Global)
-			{
-				_endTime = AbsoluteToNormalizedTime(time);
-			}
-			else
-			{
-				_endTime = time;
-			}
-		}
+        public virtual void Invert (bool invertTime = false)
+        {
+            if (_parent == null || !invertTime)
+            {
+                return;
+            }
 
-		public float GetStartTime(AnimTimeMode mode)
-		{
-			if(mode == AnimTimeMode.Global && _parent != null)
-			{
-				return _parent.NormalizedToAbsoluteTime(_startTime);
-			}
-			else
-			{
-				return _startTime;
-			}
-		}
+            float duration = GetDuration (AnimTimeMode.Local);
+            float newStartTime = 1f - GetEndTime (AnimTimeMode.Local);
+            float newEndTime = newStartTime + duration;
 
-		public float GetEndTime(AnimTimeMode mode)
-		{
-			if(mode == AnimTimeMode.Global && _parent != null)
-			{
-				return _parent.NormalizedToAbsoluteTime(_endTime);
-			}
-			else
-			{
-				return _endTime;
-			}
-		}
+            _startTime = newStartTime;
+            _endTime = newEndTime;
+        }
 
-		public bool IsEnabledInHierarchy()
-		{
-			bool isEnabledInH = _isEnabled;
-			if(_isEnabled && _parent != null)
-			{
-				isEnabledInH = _parent.IsEnabledInHierarchy();
-			}
+        public virtual void Init (Animation animation, Step parent)
+        {
+            _animation = animation;
+            _parent = parent;
+        }
 
-			return isEnabledInH;
-		}
-	}
+        public float NormalizedToAbsoluteTime (float iTime)
+        {
+            float localTime = _startTime + (_endTime - _startTime) * iTime;
+
+            if (_parent != null)
+            {
+                return _parent.NormalizedToAbsoluteTime (localTime);
+            }
+            else
+            {
+                return localTime;
+            }
+        }
+
+        public void SetSlot (int timelineIdx)
+        {
+            _slot = timelineIdx;
+        }
+
+        public float AbsoluteToNormalizedTime (float iAbsoluteTime)
+        {
+            if (_parent != null)
+            {
+                float parentStartTime = _parent.GetStartTime (AnimTimeMode.Global);
+                float parentEndTime = _parent.GetEndTime (AnimTimeMode.Global);
+
+                return (iAbsoluteTime - parentStartTime) / (parentEndTime - parentStartTime);
+            }
+            else
+            {
+                return iAbsoluteTime;
+            }
+        }
+
+        public void SetDuration (float duration, AnimTimeMode mode)
+        {
+            if (_parent == null)
+            {
+                _endTime = _startTime + duration;
+            }
+            else
+            {
+                if (mode == AnimTimeMode.Local)
+                {
+                    _endTime = _startTime + duration;
+                }
+                else
+                {
+                    float parentStartTime = _parent.GetStartTime (AnimTimeMode.Global);
+                    float parentEndTime = _parent.GetEndTime (AnimTimeMode.Global);
+                    float durationNormalized = duration / (parentEndTime - parentStartTime);
+                    _endTime = _startTime + durationNormalized;
+                }
+            }
+        }
+
+        public virtual float GetDuration (AnimTimeMode mode)
+        {
+            if (mode == AnimTimeMode.Global)
+            {
+                return GetEndTime (AnimTimeMode.Global) - GetStartTime (AnimTimeMode.Global);
+            }
+            else
+            {
+                return GetEndTime (AnimTimeMode.Local) - GetStartTime (AnimTimeMode.Local);
+            }
+        }
+
+        public void SetStartTime (float time, AnimTimeMode mode)
+        {
+            if (mode == AnimTimeMode.Global)
+            {
+                _startTime = AbsoluteToNormalizedTime (time);
+            }
+            else
+            {
+                _startTime = time;
+            }
+        }
+
+        public void SetEndTime (float time, AnimTimeMode mode)
+        {
+            if (mode == AnimTimeMode.Global)
+            {
+                _endTime = AbsoluteToNormalizedTime (time);
+            }
+            else
+            {
+                _endTime = time;
+            }
+        }
+
+        public float GetStartTime (AnimTimeMode mode)
+        {
+            if (mode == AnimTimeMode.Global && _parent != null)
+            {
+                return _parent.NormalizedToAbsoluteTime (_startTime);
+            }
+            else
+            {
+                return _startTime;
+            }
+        }
+
+        public float GetEndTime (AnimTimeMode mode)
+        {
+            if (mode == AnimTimeMode.Global && _parent != null)
+            {
+                return _parent.NormalizedToAbsoluteTime (_endTime);
+            }
+            else
+            {
+                return _endTime;
+            }
+        }
+
+        public bool IsEnabledInHierarchy ()
+        {
+            bool isEnabledInH = _isEnabled;
+            if (_isEnabled && _parent != null)
+            {
+                isEnabledInH = _parent.IsEnabledInHierarchy ();
+            }
+
+            return isEnabledInH;
+        }
+    }
 }

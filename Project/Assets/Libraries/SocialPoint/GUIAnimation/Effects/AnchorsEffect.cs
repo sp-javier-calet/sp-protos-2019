@@ -3,198 +3,200 @@ using SocialPoint.GUIControl;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public class AnchorEffectProps
-	{
-		[SerializeField]
-		public Vector2 AnchorMin = new Vector2(0.0f, 0.5f);
-		[SerializeField]
-		public Vector2 AnchorMax = new Vector2(1.0f, 0.5f);
+    [System.Serializable]
+    public class AnchorEffectProps
+    {
+        [SerializeField]
+        public Vector2 AnchorMin = new Vector2 (0.0f, 0.5f);
+        [SerializeField]
+        public Vector2 AnchorMax = new Vector2 (1.0f, 0.5f);
 
-		[SerializeField]
-		public Vector2 OffsetMin = new Vector2(0.0f, 0.0f);
+        [SerializeField]
+        public Vector2 OffsetMin = new Vector2 (0.0f, 0.0f);
 
-		[SerializeField]
-		public Vector2 OffsetMax = new Vector2(0.0f, 0.0f);
-		
-		public void Copy(AnchorEffectProps other)
-		{
-			AnchorMin = other.AnchorMin;
-			AnchorMax = other.AnchorMax;
+        [SerializeField]
+        public Vector2 OffsetMax = new Vector2 (0.0f, 0.0f);
 
-			OffsetMin = other.OffsetMin;
-			OffsetMax = other.OffsetMax;
-		}
+        public void Copy (AnchorEffectProps other)
+        {
+            AnchorMin = other.AnchorMin;
+            AnchorMax = other.AnchorMax;
 
-		public void Save(Transform trans)
-		{
-			AnchorUtility.GetAnchors(trans, out AnchorMin, out AnchorMax, out OffsetMin, out OffsetMax);
-		}
-	}
+            OffsetMin = other.OffsetMin;
+            OffsetMax = other.OffsetMax;
+        }
 
-	[System.Serializable]
-	public class AnchorsEffect : BlendEffect
-	{
-		[System.Serializable]
-		public class TargetValueMonitor : StepMonitor
-		{
-			public Vector2 AnchorsMin;
-			public Vector2 AnchorsMax;
+        public void Save (Transform trans)
+        {
+            AnchorUtility.GetAnchors (trans, out AnchorMin, out AnchorMax, out OffsetMin, out OffsetMax);
+        }
+    }
 
-			public Vector2 OffsetsMin;
-			public Vector2 OffsetsMax;
+    [System.Serializable]
+    public class AnchorsEffect : BlendEffect
+    {
+        [System.Serializable]
+        public class TargetValueMonitor : StepMonitor
+        {
+            public Vector2 AnchorsMin;
+            public Vector2 AnchorsMax;
 
-			public override void Backup()
-			{
-				AnchorUtility.GetAnchors(Target, out AnchorsMin, out AnchorsMax, out OffsetsMin, out OffsetsMax);
-			}
+            public Vector2 OffsetsMin;
+            public Vector2 OffsetsMax;
 
-			public override bool HasChanged()
-			{
-				Vector2 AnchorsMinTemp = Vector2.zero;
-				Vector2 AnchorsMaxTemp = Vector2.one;
+            public override void Backup ()
+            {
+                AnchorUtility.GetAnchors (Target, out AnchorsMin, out AnchorsMax, out OffsetsMin, out OffsetsMax);
+            }
+
+            public override bool HasChanged ()
+            {
+                Vector2 AnchorsMinTemp = Vector2.zero;
+                Vector2 AnchorsMaxTemp = Vector2.one;
 				
-				Vector2 OffsetsMinTemp = Vector2.zero;
-				Vector2 OffsetsMaxTemp = Vector2.zero;
+                Vector2 OffsetsMinTemp = Vector2.zero;
+                Vector2 OffsetsMaxTemp = Vector2.zero;
 
-				if(AnchorUtility.GetAnchors(Target, out AnchorsMinTemp, out AnchorsMaxTemp, out OffsetsMinTemp, out OffsetsMaxTemp))
-				{
-					return AnchorsMin != AnchorsMinTemp
-						|| AnchorsMax != AnchorsMaxTemp
+                if (AnchorUtility.GetAnchors (Target, out AnchorsMinTemp, out AnchorsMaxTemp, out OffsetsMinTemp, out OffsetsMaxTemp))
+                {
+                    return AnchorsMin != AnchorsMinTemp
+                    || AnchorsMax != AnchorsMaxTemp
 							
-						|| OffsetsMin != OffsetsMinTemp
-						|| OffsetsMax != OffsetsMaxTemp;
-				}
+                    || OffsetsMin != OffsetsMinTemp
+                    || OffsetsMax != OffsetsMaxTemp;
+                }
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
-		[ShowInEditor]
-		[SerializeField]
-		AnchorEffectProps _startValue = new AnchorEffectProps();
-		public AnchorEffectProps StartValue { get { return _startValue; } set { _startValue = value; } }
+        [ShowInEditor]
+        [SerializeField]
+        AnchorEffectProps _startValue = new AnchorEffectProps ();
 
-		[ShowInEditor]
-		[SerializeField]
-		AnchorEffectProps _endValue = new AnchorEffectProps();
-		public AnchorEffectProps EndValue { get { return _endValue; } set { _endValue = value; } }
+        public AnchorEffectProps StartValue { get { return _startValue; } set { _startValue = value; } }
 
-		public override void Copy (Step other)
-		{
-			base.Copy(other);
+        [ShowInEditor]
+        [SerializeField]
+        AnchorEffectProps _endValue = new AnchorEffectProps ();
 
-			SetOrCreateDefaultValues();
-			CopyActionValues((AnchorsEffect) other);
-		}
+        public AnchorEffectProps EndValue { get { return _endValue; } set { _endValue = value; } }
 
-		public override void CopyActionValues(Effect other)
-		{
-			AnchorsEffect otherTrans = (AnchorsEffect) other;
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
 
-			_startValue.Copy(otherTrans.StartValue);
-			_endValue.Copy(otherTrans.EndValue);
-		}
+            SetOrCreateDefaultValues ();
+            CopyActionValues ((AnchorsEffect)other);
+        }
 
-		public override void SetOrCreateDefaultValues()
-		{
-			if(Target != null)
-			{
-				AnchorUtility.SetAnchors(Target, Target.parent, AnchorMode.CurrentPosition, false);
+        public override void CopyActionValues (Effect other)
+        {
+            AnchorsEffect otherTrans = (AnchorsEffect)other;
 
-				SaveValuesAt(0f);
-				SaveValuesAt(1f);
-			}
-		}
+            _startValue.Copy (otherTrans.StartValue);
+            _endValue.Copy (otherTrans.EndValue);
+        }
 
-		public override void Invert(bool invertTime)
-		{
-			base.Invert(invertTime);
+        public override void SetOrCreateDefaultValues ()
+        {
+            if (Target != null)
+            {
+                AnchorUtility.SetAnchors (Target, Target.parent, AnchorMode.CurrentPosition, false);
 
-			AnchorEffectProps temp = _endValue;
+                SaveValuesAt (0f);
+                SaveValuesAt (1f);
+            }
+        }
 
-			_endValue = _startValue;
-			_startValue = temp;
-		}
+        public override void Invert (bool invertTime)
+        {
+            base.Invert (invertTime);
 
-		public override void OnRemoved()
-		{
-		}
+            AnchorEffectProps temp = _endValue;
 
-		public override void OnBlend(float blend)
-		{
-			if(Target == null)
-			{
-				if(Animation != null && Animation.EnableWarnings)
-				{
-					Debug.LogWarning("(SPTransform) OnBlend " + StepName + " Target is null");
-				}
-				return;
-			}
+            _endValue = _startValue;
+            _startValue = temp;
+        }
 
-			// Lerp Anchors
-			Vector2 anchorsMin;
-			anchorsMin.x = Mathf.LerpUnclamped(_startValue.AnchorMin.x, _endValue.AnchorMin.x, blend);
-			anchorsMin.y = Mathf.LerpUnclamped(_startValue.AnchorMin.y, _endValue.AnchorMin.y, blend);
+        public override void OnRemoved ()
+        {
+        }
 
-			Vector2 anchorsMax;
-			anchorsMax.x = Mathf.LerpUnclamped(_startValue.AnchorMax.x, _endValue.AnchorMax.x, blend);
-			anchorsMax.y = Mathf.LerpUnclamped(_startValue.AnchorMax.y, _endValue.AnchorMax.y, blend);
+        public override void OnBlend (float blend)
+        {
+            if (Target == null)
+            {
+                if (Animation != null && Animation.EnableWarnings)
+                {
+                    Debug.LogWarning ("(SPTransform) OnBlend " + StepName + " Target is null");
+                }
+                return;
+            }
 
-			// Lerp Offsets
-			Vector2 offsetsMin;
-			offsetsMin.x = Mathf.LerpUnclamped(_startValue.OffsetMin.x, _endValue.OffsetMin.x, blend);
-			offsetsMin.y = Mathf.LerpUnclamped(_startValue.OffsetMin.y, _endValue.OffsetMin.y, blend);
+            // Lerp Anchors
+            Vector2 anchorsMin;
+            anchorsMin.x = Mathf.LerpUnclamped (_startValue.AnchorMin.x, _endValue.AnchorMin.x, blend);
+            anchorsMin.y = Mathf.LerpUnclamped (_startValue.AnchorMin.y, _endValue.AnchorMin.y, blend);
 
-			Vector2 offsetsMax;
-			offsetsMax.x = Mathf.LerpUnclamped(_startValue.OffsetMax.x, _endValue.OffsetMax.x, blend);
-			offsetsMax.y = Mathf.LerpUnclamped(_startValue.OffsetMax.y, _endValue.OffsetMax.y, blend);
+            Vector2 anchorsMax;
+            anchorsMax.x = Mathf.LerpUnclamped (_startValue.AnchorMax.x, _endValue.AnchorMax.x, blend);
+            anchorsMax.y = Mathf.LerpUnclamped (_startValue.AnchorMax.y, _endValue.AnchorMax.y, blend);
 
-			AnchorUtility.SetAnchors(Target, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
-			AnchorUtility.Update(Target, false);
-		}
+            // Lerp Offsets
+            Vector2 offsetsMin;
+            offsetsMin.x = Mathf.LerpUnclamped (_startValue.OffsetMin.x, _endValue.OffsetMin.x, blend);
+            offsetsMin.y = Mathf.LerpUnclamped (_startValue.OffsetMin.y, _endValue.OffsetMin.y, blend);
 
-		public void SetCurrentPosition()
-		{
-			Transform parent = AnchorUtility.GetAnchorParent(Target);
-			AnchorUtility.SetAnchors(Target, parent != null ? parent : Target.parent, AnchorMode.CurrentPosition, false);
-		}
+            Vector2 offsetsMax;
+            offsetsMax.x = Mathf.LerpUnclamped (_startValue.OffsetMax.x, _endValue.OffsetMax.x, blend);
+            offsetsMax.y = Mathf.LerpUnclamped (_startValue.OffsetMax.y, _endValue.OffsetMax.y, blend);
 
-		public override void SaveValues ()
-		{
-			StartValue.Save(Target);
-			EndValue.Save(Target);
-		}
+            AnchorUtility.SetAnchors (Target, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
+            AnchorUtility.Update (Target, false);
+        }
 
-		public override void SaveValuesAt (float localTimeNormalized)
-		{
-			if(Target == null)
-			{
-				if(Animation != null && Animation.EnableWarnings)
-				{
-					Debug.LogWarning("[TransformEffect] Target is null");
-				}
-				return;
-			}
+        public void SetCurrentPosition ()
+        {
+            Transform parent = AnchorUtility.GetAnchorParent (Target);
+            AnchorUtility.SetAnchors (Target, parent != null ? parent : Target.parent, AnchorMode.CurrentPosition, false);
+        }
 
-			if(localTimeNormalized < 0.5f)
-			{
-				StartValue.Save(Target);
-			}
-			else
-			{
-				EndValue.Save(Target);
-			}
-		}
+        public override void SaveValues ()
+        {
+            StartValue.Save (Target);
+            EndValue.Save (Target);
+        }
 
-		void DoRemoveTargetAnchors()
-		{
-			AnchorUtility.RemoveAnchors(Target, true);
-		}
+        public override void SaveValuesAt (float localTimeNormalized)
+        {
+            if (Target == null)
+            {
+                if (Animation != null && Animation.EnableWarnings)
+                {
+                    Debug.LogWarning (GetType() + " Target is null");
+                }
+                return;
+            }
 
-		public override StepMonitor CreateTargetMonitor()
-		{
-			return new TargetValueMonitor();
-		}
-	}
+            if (localTimeNormalized < 0.5f)
+            {
+                StartValue.Save (Target);
+            }
+            else
+            {
+                EndValue.Save (Target);
+            }
+        }
+
+        void DoRemoveTargetAnchors ()
+        {
+            AnchorUtility.RemoveAnchors (Target, true);
+        }
+
+        public override StepMonitor CreateTargetMonitor ()
+        {
+            return new TargetValueMonitor ();
+        }
+    }
 }

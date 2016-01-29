@@ -3,129 +3,131 @@ using SocialPoint.GUIControl;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public class ScaleEffect : BlendEffect
-	{
-		[System.Serializable]
-		public class TargetValueMonitor : StepMonitor
-		{
-			public Vector3 Scale;
+    [System.Serializable]
+    public class ScaleEffect : BlendEffect
+    {
+        [System.Serializable]
+        public class TargetValueMonitor : StepMonitor
+        {
+            public Vector3 Scale;
 
-			public override void Backup()
-			{
-				Scale = Target.localScale;
-			}
+            public override void Backup ()
+            {
+                Scale = Target.localScale;
+            }
 
-			public override bool HasChanged()
-			{
-				return Scale != Target.localScale;
-			}
-		}
+            public override bool HasChanged ()
+            {
+                return Scale != Target.localScale;
+            }
+        }
 
-		[SerializeField]
-		Vector3 _startValue = Vector3.one;
-		public Vector3 StartValue { get { return _startValue; } set { _startValue = value; } }
+        [SerializeField]
+        Vector3 _startValue = Vector3.one;
 
-		[SerializeField]
-		Vector3 _endValue = Vector3.one;
-		public Vector3 EndValue { get { return _endValue; } set{_endValue = value; } }
+        public Vector3 StartValue { get { return _startValue; } set { _startValue = value; } }
 
-		public override void Copy (Step other)
-		{
-			base.Copy(other);
+        [SerializeField]
+        Vector3 _endValue = Vector3.one;
 
-			SetOrCreateDefaultValues();
+        public Vector3 EndValue { get { return _endValue; } set { _endValue = value; } }
 
-			CopyActionValues((ScaleEffect) other);
-		}
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
 
-		public override void CopyActionValues(Effect other)
-		{
-			CopyValues(ref _startValue, ((ScaleEffect)other).StartValue);
-			CopyValues(ref _endValue, ((ScaleEffect)other).EndValue);
-		}
+            SetOrCreateDefaultValues ();
 
-		public void RemoveAnchors ()
-		{
-		}
+            CopyActionValues ((ScaleEffect)other);
+        }
 
-		public void SetAnchors ()
-		{
-		}
+        public override void CopyActionValues (Effect other)
+        {
+            CopyValues (ref _startValue, ((ScaleEffect)other).StartValue);
+            CopyValues (ref _endValue, ((ScaleEffect)other).EndValue);
+        }
 
-		public override void SetOrCreateDefaultValues()
-		{
-			if(Target != null)
-			{
-				SaveValuesAt(0f);
-				SaveValuesAt(1f);
-			}
-		}
+        public void RemoveAnchors ()
+        {
+        }
 
-		void CopyValues(ref Vector3 dest, Vector3 src)
-		{
-			dest = src;
-		}
+        public void SetAnchors ()
+        {
+        }
 
-		public override void Invert(bool invertTime)
-		{
-			base.Invert(invertTime);
+        public override void SetOrCreateDefaultValues ()
+        {
+            if (Target != null)
+            {
+                SaveValuesAt (0f);
+                SaveValuesAt (1f);
+            }
+        }
 
-			Vector3 endScale = _endValue;
-			Vector3 startScale = _startValue;
+        void CopyValues (ref Vector3 dest, Vector3 src)
+        {
+            dest = src;
+        }
 
-			_startValue = endScale;
-			_endValue = startScale;
-		}
+        public override void Invert (bool invertTime)
+        {
+            base.Invert (invertTime);
 
-		public override void OnRemoved()
-		{
-		}
+            Vector3 endScale = _endValue;
+            Vector3 startScale = _startValue;
 
-		public override void OnBlend(float blend)
-		{
-			if(Target == null)
-			{
-				if(Animation != null && Animation.EnableWarnings)
-				{
-					Debug.LogWarning(GetType().ToString() + " OnBlend " + StepName + " Target is null");
-				}
-				return;
-			}
+            _startValue = endScale;
+            _endValue = startScale;
+        }
 
-			Target.localScale = Vector3.LerpUnclamped(_startValue, _endValue, blend);
-		}
+        public override void OnRemoved ()
+        {
+        }
 
-		public override void SaveValues ()
-		{
-			StartValue = Target.localScale;
-			EndValue = Target.localScale;
-		}
+        public override void OnBlend (float blend)
+        {
+            if (Target == null)
+            {
+                if (Animation != null && Animation.EnableWarnings)
+                {
+                    Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                }
+                return;
+            }
 
-		public override void SaveValuesAt (float localTimeNormalized)
-		{
-			if(Target == null)
-			{
-				if(Animation != null && Animation.EnableWarnings)
-				{
-					Debug.LogWarning("[TransformEffect] Target is null");
-				}
-				return;
-			}
+            Target.localScale = Vector3.LerpUnclamped (_startValue, _endValue, blend);
+        }
 
-			if(localTimeNormalized < 0.5f)
-			{
-				StartValue = Target.localScale;
-			}
-			else
-			{
-				EndValue = Target.localScale;
-			}
-		}
+        public override void SaveValues ()
+        {
+            StartValue = Target.localScale;
+            EndValue = Target.localScale;
+        }
 
-		public override StepMonitor CreateTargetMonitor()
-		{
-			return new TargetValueMonitor();
-		}
-	}
+        public override void SaveValuesAt (float localTimeNormalized)
+        {
+            if (Target == null)
+            {
+                if (Animation != null && Animation.EnableWarnings)
+                {
+                    Debug.LogWarning (GetType () + " Target is null");
+                }
+                return;
+            }
+
+            if (localTimeNormalized < 0.5f)
+            {
+                StartValue = Target.localScale;
+            }
+            else
+            {
+                EndValue = Target.localScale;
+            }
+        }
+
+        public override StepMonitor CreateTargetMonitor ()
+        {
+            return new TargetValueMonitor ();
+        }
+    }
 }

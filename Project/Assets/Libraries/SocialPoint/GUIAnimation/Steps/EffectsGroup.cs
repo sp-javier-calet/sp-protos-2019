@@ -3,309 +3,323 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public class EffectsGroup : Group, IBlendeableEffect
-	{
-		[SerializeField]
-		GameObject _template;
-		GameObject Template 
-		{
-			get
-			{
-				SetOrCreateTemplate();
-				return _template;
-			}
-		}
+    [System.Serializable]
+    public class EffectsGroup : Group, IBlendeableEffect
+    {
+        [SerializeField]
+        GameObject _template;
 
-		[SerializeField]
-		List<Transform> _targets = new List<Transform>();
-		public List<Transform> Targets { get { return _targets; } }
+        GameObject Template
+        {
+            get
+            {
+                SetOrCreateTemplate ();
+                return _template;
+            }
+        }
 
-		[SerializeField]
-		bool _useEaseCustom = true;
-		public bool UseEaseCustom { get { return _useEaseCustom; } set { _useEaseCustom = value; } }
-		
-		[SerializeField]
-		List<Vector2> _easeCustom = new List<Vector2>()
-		{
-			new Vector2(0f, 0f),
-			new Vector2(1f, 1f)
-		};
-		public List<Vector2> EaseCustom { get { return _easeCustom; } set { _easeCustom = value; } }
-		
-		[SerializeField]
-		EaseType _easeType;
-		public EaseType EaseType { get { return _easeType; } set { _easeType = value; } }
+        [SerializeField]
+        List<Transform> _targets = new List<Transform> ();
 
-		public override void Refresh()
-		{
-			base.Refresh();
-			SetOrCreateTemplate();
-		}
+        public List<Transform> Targets { get { return _targets; } }
 
-		public override void Invert (bool invertTime)
-		{
-			base.Invert (invertTime);
-			CustomEasingUtility.Invert(_easeCustom);
-		}
+        [SerializeField]
+        bool _useEaseCustom = true;
 
-		public override void OnRemoved ()
-		{
-			base.OnRemoved();
+        public bool UseEaseCustom { get { return _useEaseCustom; } set { _useEaseCustom = value; } }
 
-			_targets.Clear();
+        [SerializeField]
+        List<Vector2> _easeCustom = new List<Vector2> () {
+            new Vector2 (0f, 0f),
+            new Vector2 (1f, 1f)
+        };
 
-			if(_template != null)
-			{
-				GameObject.DestroyImmediate(_template.gameObject);
-				_template = null;
-			}
-		}
+        public List<Vector2> EaseCustom { get { return _easeCustom; } set { _easeCustom = value; } }
 
-		public override void Copy(Step other)
-		{
-			base.Copy(other);
+        [SerializeField]
+        EaseType _easeType;
 
-			// Copy Targets
-			_targets = new List<Transform>(((EffectsGroup) other).Targets);
+        public EaseType EaseType { get { return _easeType; } set { _easeType = value; } }
 
-			// Copy Template
-			_template = null;
-			SetOrCreateTemplate();
-			CopyTemplate((EffectsGroup) other);
+        public override void Refresh ()
+        {
+            base.Refresh ();
+            SetOrCreateTemplate ();
+        }
 
-			// Copy Easing
-			_useEaseCustom = ((EffectsGroup) other).UseEaseCustom;
-			_easeCustom = new List<Vector2>(((EffectsGroup) other).EaseCustom);
-			_easeType = ((EffectsGroup) other).EaseType;
-		}
+        public override void Invert (bool invertTime)
+        {
+            base.Invert (invertTime);
+            CustomEasingUtility.Invert (_easeCustom);
+        }
 
-		public void CopyTemplate(EffectsGroup other)
-		{
-			List<Component> actionTemplates = other.GetActionTemplates();
-			for (int i = 0; i < actionTemplates.Count; ++i) 
-			{
-				Component copy = (Component) Template.AddComponent(actionTemplates[i].GetType());
-				((Step) copy).Animation = Animation;
-				((Step) copy).Copy((Step)actionTemplates[i]);
-			}
-		}
+        public override void OnRemoved ()
+        {
+            base.OnRemoved ();
 
-		public bool AddTarget(Transform iTarget)
-		{
-			bool existTarget = ContainsTarget(iTarget);
-			if(!existTarget)
-			{
-				Targets.Add(iTarget);
+            _targets.Clear ();
 
-				CreateAllActionsForTarget(iTarget);
-				_animation.RefreshAndInit();
+            if (_template != null)
+            {
+                GameObject.DestroyImmediate (_template.gameObject);
+                _template = null;
+            }
+        }
 
-				// By default apply all the values
-				CopySharedValuesToTarget(iTarget);
-				OverrideEasingOfTarget(iTarget);
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
 
-				return true;
-			}
-			return false;
-		}
+            // Copy Targets
+            _targets = new List<Transform> (((EffectsGroup)other).Targets);
 
-		public bool RemoveTarget(Transform iTarget)
-		{
-			List<Step> animItemsWithTarget = _animItems.FindAll((Step iAction)=>{  return (iAction is Effect && ((Effect)iAction).Target == iTarget); });
+            // Copy Template
+            _template = null;
+            SetOrCreateTemplate ();
+            CopyTemplate ((EffectsGroup)other);
 
-			// Remove all actions that contains the target
-			for (int i = 0; i < animItemsWithTarget.Count; ++i) 
-			{
-				animItemsWithTarget[i].OnRemoved();
-				GameObject.DestroyImmediate(animItemsWithTarget[i]);
+            // Copy Easing
+            _useEaseCustom = ((EffectsGroup)other).UseEaseCustom;
+            _easeCustom = new List<Vector2> (((EffectsGroup)other).EaseCustom);
+            _easeType = ((EffectsGroup)other).EaseType;
+        }
 
-				_animItems.Remove(animItemsWithTarget[i]);
-			}
+        public void CopyTemplate (EffectsGroup other)
+        {
+            List<Component> actionTemplates = other.GetActionTemplates ();
+            for (int i = 0; i < actionTemplates.Count; ++i)
+            {
+                Component copy = (Component)Template.AddComponent (actionTemplates [i].GetType ());
+                ((Step)copy).Animation = Animation;
+                ((Step)copy).Copy ((Step)actionTemplates [i]);
+            }
+        }
 
-			// Remove the target from targets list
-			Targets.Remove(iTarget);
+        public bool AddTarget (Transform iTarget)
+        {
+            bool existTarget = ContainsTarget (iTarget);
+            if (!existTarget)
+            {
+                Targets.Add (iTarget);
 
-			_animation.RefreshAndInit();
-			return true;
-		}
+                CreateAllActionsForTarget (iTarget);
+                _animation.RefreshAndInit ();
 
-		void CreateAllActionsForTarget(Transform iTarget)
-		{
-			List<Component> actionTemplates = GetActionTemplates();
-			for (int i = 0; i < actionTemplates.Count; ++i) 
-			{
-				int totalAnimItems = AnimItems.Count;
+                // By default apply all the values
+                CopySharedValuesToTarget (iTarget);
+                OverrideEasingOfTarget (iTarget);
 
-				System.Type actionType = actionTemplates[i].GetType();
-				string newActionName = iTarget.name + " - " + StepsManager.GetStepName(actionType);
-				Effect newAction = (Effect) AddAnimationItem(actionType, newActionName);
+                return true;
+            }
+            return false;
+        }
 
-				SetupDefaultActionConfig(newAction, totalAnimItems);
+        public bool RemoveTarget (Transform iTarget)
+        {
+            List<Step> animItemsWithTarget = _animItems.FindAll ((Step iAction) => {
+                return (iAction is Effect && ((Effect)iAction).Target == iTarget);
+            });
 
-				newAction.Target = iTarget;
-				newAction.SetOrCreateDefaultValues();
-			}
-		}
+            // Remove all actions that contains the target
+            for (int i = 0; i < animItemsWithTarget.Count; ++i)
+            {
+                animItemsWithTarget [i].OnRemoved ();
+                GameObject.DestroyImmediate (animItemsWithTarget [i]);
 
-		void SetupDefaultActionConfig(Effect action, int totalAnimItems)
-		{
-			action.SetStartTime(0f, AnimTimeMode.Local);
-			action.SetEndTime(1f, AnimTimeMode.Local);
-			action.SetSlot(totalAnimItems);
-		}
-		
-		void CreateActionForAllTargets(System.Type actionType)
-		{
-			for (int i = 0; i < Targets.Count; ++i) 
-			{
-				int totalAnimItems = AnimItems.Count;
+                _animItems.Remove (animItemsWithTarget [i]);
+            }
 
-				string newActionName = Targets[i].name + " - " + StepsManager.GetStepName(actionType);
-				Effect action = (Effect) AddAnimationItem(actionType, newActionName);
-				action.OnCreated();
+            // Remove the target from targets list
+            Targets.Remove (iTarget);
 
-				SetupDefaultActionConfig(action, totalAnimItems);
+            _animation.RefreshAndInit ();
+            return true;
+        }
 
-				action.Target = Targets[i];
-				action.SetOrCreateDefaultValues();
-			}
-		}
+        void CreateAllActionsForTarget (Transform iTarget)
+        {
+            List<Component> actionTemplates = GetActionTemplates ();
+            for (int i = 0; i < actionTemplates.Count; ++i)
+            {
+                int totalAnimItems = AnimItems.Count;
 
-		void RemoveAllActionOfType(System.Type actionType)
-		{
-			List<Step> animItemsOfType = _animItems.FindAll((Step iAction)=>{  return (iAction.GetType() == actionType); });
+                System.Type actionType = actionTemplates [i].GetType ();
+                string newActionName = iTarget.name + " - " + StepsManager.GetStepName (actionType);
+                Effect newAction = (Effect)AddAnimationItem (actionType, newActionName);
+
+                SetupDefaultActionConfig (newAction, totalAnimItems);
+
+                newAction.Target = iTarget;
+                newAction.SetOrCreateDefaultValues ();
+            }
+        }
+
+        void SetupDefaultActionConfig (Effect action, int totalAnimItems)
+        {
+            action.SetStartTime (0f, AnimTimeMode.Local);
+            action.SetEndTime (1f, AnimTimeMode.Local);
+            action.SetSlot (totalAnimItems);
+        }
+
+        void CreateActionForAllTargets (System.Type actionType)
+        {
+            for (int i = 0; i < Targets.Count; ++i)
+            {
+                int totalAnimItems = AnimItems.Count;
+
+                string newActionName = Targets [i].name + " - " + StepsManager.GetStepName (actionType);
+                Effect action = (Effect)AddAnimationItem (actionType, newActionName);
+                action.OnCreated ();
+
+                SetupDefaultActionConfig (action, totalAnimItems);
+
+                action.Target = Targets [i];
+                action.SetOrCreateDefaultValues ();
+            }
+        }
+
+        void RemoveAllActionOfType (System.Type actionType)
+        {
+            List<Step> animItemsOfType = _animItems.FindAll ((Step iAction) => {
+                return (iAction.GetType () == actionType);
+            });
 			
-			// Remove all actions of that type
-			for (int i = 0; i < animItemsOfType.Count; ++i) 
-			{
-				animItemsOfType[i].OnRemoved();
-				_animItems.Remove(animItemsOfType[i]);
-				GameObject.DestroyImmediate(animItemsOfType[i]);
-			}
-		}
+            // Remove all actions of that type
+            for (int i = 0; i < animItemsOfType.Count; ++i)
+            {
+                animItemsOfType [i].OnRemoved ();
+                _animItems.Remove (animItemsOfType [i]);
+                GameObject.DestroyImmediate (animItemsOfType [i]);
+            }
+        }
 
-		public bool ContainsTarget(Transform iTarget)
-		{
-			return Targets.Contains(iTarget);
-		}
+        public bool ContainsTarget (Transform iTarget)
+        {
+            return Targets.Contains (iTarget);
+        }
 
-		void SetOrCreateTemplate()
-		{
-			if(_template == null)
-			{
-				_template = AnchorUtility.CreateParentTransform("_Template" + StepName).gameObject;
-				_template.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
-			}
+        void SetOrCreateTemplate ()
+        {
+            if (_template == null)
+            {
+                _template = AnchorUtility.CreateParentTransform ("_Template" + StepName).gameObject;
+                _template.gameObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+            }
 			
-			_template.transform.SetParent(ItemsRoot, false);
-		}
+            _template.transform.SetParent (ItemsRoot, false);
+        }
 
-		public T AddActionType<T>(System.Type actionType) where T:Effect
-		{
-			T newActionTemplate = default(T);
-			bool exists = ContainsActionType<T>(actionType);
-			if(!exists)
-			{
-				newActionTemplate = (T) Template.AddComponent(actionType);
-				newActionTemplate.enabled = false;
+        public T AddActionType<T> (System.Type actionType) where T:Effect
+        {
+            T newActionTemplate = default(T);
+            bool exists = ContainsActionType<T> (actionType);
+            if (!exists)
+            {
+                newActionTemplate = (T)Template.AddComponent (actionType);
+                newActionTemplate.enabled = false;
 
-				CreateActionForAllTargets(actionType);
+                CreateActionForAllTargets (actionType);
 
-				_animation.RefreshAndInit();
-			}
+                _animation.RefreshAndInit ();
+            }
 			
-			return newActionTemplate;
-		}
+            return newActionTemplate;
+        }
 
-		public bool RemoveActionType<T>(System.Type actionType) where T:Effect
-		{
-			T actionTemplate = GetActionTemplate<T>(actionType);
-			if(actionTemplate != default(T))
-			{
-				RemoveAllActionOfType(actionType);
+        public bool RemoveActionType<T> (System.Type actionType) where T:Effect
+        {
+            T actionTemplate = GetActionTemplate<T> (actionType);
+            if (actionTemplate != default(T))
+            {
+                RemoveAllActionOfType (actionType);
 
-				GameObject.DestroyImmediate(actionTemplate);
+                GameObject.DestroyImmediate (actionTemplate);
 
-				_animation.RefreshAndInit();
+                _animation.RefreshAndInit ();
 
-				return true;
-			}
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		public bool ContainsActionType<T>(System.Type actionType) where T:Effect
-		{
-			return GetActionTemplate<T>(actionType) != default(T);
-		}
+        public bool ContainsActionType<T> (System.Type actionType) where T:Effect
+        {
+            return GetActionTemplate<T> (actionType) != default(T);
+        }
 
-		public T GetActionTemplate<T>(System.Type actionType) where T:Effect
-		{
-			List<Component> actions = GetActionTemplates();
-			return (T) actions.Find( (Component i)=> { return i.GetType() == actionType; } );
-		}
+        public T GetActionTemplate<T> (System.Type actionType) where T:Effect
+        {
+            List<Component> actions = GetActionTemplates ();
+            return (T)actions.Find ((Component i) => {
+                return i.GetType () == actionType;
+            });
+        }
 
-		public List<Component> GetActionTemplates()
-		{
-			List<Component> actionTemplates = new List<Component>(Template.GetComponents<Component>());
-			for (int i = 0; i < actionTemplates.Count;) 
-			{
-				if(!(actionTemplates[i] is Effect))
-				{
-					actionTemplates.RemoveAt(i);
-				}
-				else
-				{
-					i++;
-				}
-			}
+        public List<Component> GetActionTemplates ()
+        {
+            List<Component> actionTemplates = new List<Component> (Template.GetComponents<Component> ());
+            for (int i = 0; i < actionTemplates.Count;)
+            {
+                if (!(actionTemplates [i] is Effect))
+                {
+                    actionTemplates.RemoveAt (i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
 
-			return actionTemplates;
-		}
+            return actionTemplates;
+        }
 
-		public bool OverrideAnimItemsByTemplate(System.Type type)
-		{
-			Effect atemplate = GetActionTemplate<Effect>(type);
-			if(atemplate == null)
-			{
-				Debug.LogWarning("Template: " + type.ToString() + " is not found");
-				return false;
-			}
+        public bool OverrideAnimItemsByTemplate (System.Type type)
+        {
+            Effect atemplate = GetActionTemplate<Effect> (type);
+            if (atemplate == null)
+            {
+                Debug.LogWarning ("Template: " + type.ToString () + " is not found");
+                return false;
+            }
 
-			List<Step> animItemsOfType = AnimItems.FindAll((Step iAction)=>{ return (iAction.GetType() == atemplate.GetType()); });
-			for (int animItemIdx = 0; animItemIdx < animItemsOfType.Count; ++animItemIdx) 
-			{
-				((Effect)animItemsOfType[animItemIdx]).CopyActionValues((Effect)atemplate);
-			}
+            List<Step> animItemsOfType = AnimItems.FindAll ((Step iAction) => {
+                return (iAction.GetType () == atemplate.GetType ());
+            });
+            for (int animItemIdx = 0; animItemIdx < animItemsOfType.Count; ++animItemIdx)
+            {
+                ((Effect)animItemsOfType [animItemIdx]).CopyActionValues ((Effect)atemplate);
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		void CopySharedValuesToTarget(Transform target)
-		{
-			List<Step> animItemsOfTarget = AnimItems.FindAll((Step iAction)=>{ return (iAction is Effect) && ( ((Effect)iAction).Target == target); });
-			for (int animItemIdx = 0; animItemIdx < animItemsOfTarget.Count; ++animItemIdx) 
-			{
-				Effect template = GetActionTemplate<Effect>(animItemsOfTarget[animItemIdx].GetType());
-				((Effect)animItemsOfTarget[animItemIdx]).CopySharedValues((Effect)template);
-			}
-		}
+        void CopySharedValuesToTarget (Transform target)
+        {
+            List<Step> animItemsOfTarget = AnimItems.FindAll ((Step iAction) => {
+                return (iAction is Effect) && (((Effect)iAction).Target == target);
+            });
+            for (int animItemIdx = 0; animItemIdx < animItemsOfTarget.Count; ++animItemIdx)
+            {
+                Effect template = GetActionTemplate<Effect> (animItemsOfTarget [animItemIdx].GetType ());
+                ((Effect)animItemsOfTarget [animItemIdx]).CopySharedValues ((Effect)template);
+            }
+        }
 
-		public void OverrideEasing()
-		{
-			for (int i = 0; i < AnimItems.Count; ++i) 
-			{
-				((BlendEffect)AnimItems[i]).CopyEasing(_useEaseCustom, _easeCustom, _easeType);
-			}
-		}
+        public void OverrideEasing ()
+        {
+            for (int i = 0; i < AnimItems.Count; ++i)
+            {
+                ((BlendEffect)AnimItems [i]).CopyEasing (_useEaseCustom, _easeCustom, _easeType);
+            }
+        }
 
-		void OverrideEasingOfTarget(Transform target)
-		{
-			for (int i = 0; i < AnimItems.Count; ++i) 
-			{
-				((BlendEffect)AnimItems[i]).CopyEasing(_useEaseCustom, _easeCustom, _easeType);
-			}
-		}
-	}
+        void OverrideEasingOfTarget (Transform target)
+        {
+            for (int i = 0; i < AnimItems.Count; ++i)
+            {
+                ((BlendEffect)AnimItems [i]).CopyEasing (_useEaseCustom, _easeCustom, _easeType);
+            }
+        }
+    }
 }

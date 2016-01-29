@@ -3,416 +3,433 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public class Animation : MonoBehaviour 
-	{
-		public enum State
-		{
-			Idle,
-			Playing
-		}
+    [System.Serializable]
+    public class Animation : MonoBehaviour
+    {
+        public enum State
+        {
+            Idle,
+            Playing
+        }
 
-		public enum PlayMode
-		{
-			Once,
-			Loop,
-			PingPong
-		}
+        public enum PlayMode
+        {
+            Once,
+            Loop,
+            PingPong
+        }
 
-		// First step of the animation, this will contain the rest of steps that makes the animation
-		[SerializeField]
-		Step _root;
-		public Step Root
-		{
-			get
-			{
-				if(_root == null)
-				{
-					_root = GetComponent<Step>();
-				}
-				return _root;
-			}
-		}
+        // First step of the animation, this will contain the rest of steps that makes the animation
+        [SerializeField]
+        Step _root;
 
-		// Flat list of all actions in the animation
-		List<Effect> _actions = new List<Effect>();
+        public Step Root
+        {
+            get
+            {
+                if (_root == null)
+                {
+                    _root = GetComponent<Step> ();
+                }
+                return _root;
+            }
+        }
 
-		[SerializeField]
-		bool _hideSerializedObjects = true;
-		public bool HideSerializedObjects { get { return _hideSerializedObjects; } }
+        // Flat list of all actions in the animation
+        List<Effect> _actions = new List<Effect> ();
 
-		[SerializeField]
-		bool _playOnStart = false;
-		public bool PlayOnStart { get { return _playOnStart; } set { _playOnStart = value; } }
+        [SerializeField]
+        bool _hideSerializedObjects = true;
 
-		[SerializeField]
-		PlayMode _playMode = PlayMode.Once;
-		public PlayMode Mode { get { return _playMode; } set { _playMode = value; } }
+        public bool HideSerializedObjects { get { return _hideSerializedObjects; } }
 
-		bool _hasStartPlaying = false;
-		State _state = State.Idle;
+        [SerializeField]
+        bool _playOnStart = false;
 
-		float _playTime = 0f;
-		float _currentTime = 0f;
-		public float CurrentTime { get { return _currentTime; } }
-		float _prevTime = 0f;
-		public float PrevTime { get { return _prevTime; } }
-		public float DeltaTime { get { return CurrentTime - _prevTime; } }
+        public bool PlayOnStart { get { return _playOnStart; } set { _playOnStart = value; } }
 
-		[SerializeField]
-		bool _enableWarnings = false;
-		public bool EnableWarnings { get { return _enableWarnings; } }
+        [SerializeField]
+        PlayMode _playMode = PlayMode.Once;
 
-		bool _isInverted = false;
+        public PlayMode Mode { get { return _playMode; } set { _playMode = value; } }
 
-		ITimeGetter _editorTimeGetter = null;
+        bool _hasStartPlaying = false;
+        State _state = State.Idle;
 
-		System.Action _onEndCallback = null;
-		public System.Action OnEndCallback { get { return _onEndCallback; } set { _onEndCallback = value; } }
+        float _playTime = 0f;
+        float _currentTime = 0f;
 
-		public string AnimationName
-		{
-			get
-			{
-				return gameObject.name;
-			}
-			set
-			{
-				gameObject.name = value;
-				if(_root != null)
-				{
-					_root.name = gameObject.name;
-				}
-			}
-		}
+        public float CurrentTime { get { return _currentTime; } }
 
-		public void PlayBackwards()
-		{
-			if(!gameObject.activeSelf)
-			{
-				gameObject.SetActive(true);
-			}
+        float _prevTime = 0f;
 
-			RefreshAndInit();
-			TryToTriggerStartPlayingMessage();
+        public float PrevTime { get { return _prevTime; } }
 
-			Invert();
-			DoPlay();
-		}
+        public float DeltaTime { get { return CurrentTime - _prevTime; } }
 
-		public void Stop()
-		{
-			ChangeState(State.Idle);
-		}
+        [SerializeField]
+        bool _enableWarnings = false;
 
-		public void Play()
-		{
-			if(!gameObject.activeSelf)
-			{
-				gameObject.SetActive(true);
-			}
+        public bool EnableWarnings { get { return _enableWarnings; } }
 
-			RefreshAndInit();
-			TryToTriggerStartPlayingMessage();
+        bool _isInverted = false;
 
-			DoPlay();
-		}
+        ITimeGetter _editorTimeGetter = null;
+
+        System.Action _onEndCallback = null;
+
+        public System.Action OnEndCallback { get { return _onEndCallback; } set { _onEndCallback = value; } }
+
+        public string AnimationName
+        {
+            get
+            {
+                return gameObject.name;
+            }
+            set
+            {
+                gameObject.name = value;
+                if (_root != null)
+                {
+                    _root.name = gameObject.name;
+                }
+            }
+        }
+
+        public void PlayBackwards ()
+        {
+            if (!gameObject.activeSelf)
+            {
+                gameObject.SetActive (true);
+            }
+
+            RefreshAndInit ();
+            TryToTriggerStartPlayingMessage ();
+
+            Invert ();
+            DoPlay ();
+        }
+
+        public void Stop ()
+        {
+            ChangeState (State.Idle);
+        }
+
+        public void Play ()
+        {
+            if (!gameObject.activeSelf)
+            {
+                gameObject.SetActive (true);
+            }
+
+            RefreshAndInit ();
+            TryToTriggerStartPlayingMessage ();
+
+            DoPlay ();
+        }
 
 
-		public void SetEditorTimeGetter(ITimeGetter timeGetter)
-		{
-			_editorTimeGetter = timeGetter;
-		}
+        public void SetEditorTimeGetter (ITimeGetter timeGetter)
+        {
+            _editorTimeGetter = timeGetter;
+        }
 
-		void DoPlay()
-		{
-			ChangeState(State.Playing);
-		}
+        void DoPlay ()
+        {
+            ChangeState (State.Playing);
+        }
 
-		void TryToTriggerStartPlayingMessage()
-		{
-			if(!_hasStartPlaying && Application.isPlaying)
-			{
-				_hasStartPlaying = true;
-				TriggerStartPlayingMessage();
-			}
-		}
+        void TryToTriggerStartPlayingMessage ()
+        {
+            if (!_hasStartPlaying && Application.isPlaying)
+            {
+                _hasStartPlaying = true;
+                TriggerStartPlayingMessage ();
+            }
+        }
 
-		void TriggerStartPlayingMessage()
-		{
-			((Group) Root).OnAnimationStartPlaying();
-		}
+        void TriggerStartPlayingMessage ()
+        {
+            ((Group)Root).OnAnimationStartPlaying ();
+        }
 
-		public void RefreshAndInit()
-		{
-			Refresh();
-			Init();
-		}
+        public void RefreshAndInit ()
+        {
+            Refresh ();
+            Init ();
+        }
 
-		public void Refresh()
-		{
-			if(Root != null)
-			{
-				Root.Refresh();
-			}
-		}
+        public void Refresh ()
+        {
+            if (Root != null)
+            {
+                Root.Refresh ();
+            }
+        }
 
-		// Set the animation, parent animationItem to the hierarchy. Save all the actions and order them by starting time
-		public void Init()
-		{
-			_actions.Clear();
-			_root.Init(this, null);
+        // Set the animation, parent animationItem to the hierarchy. Save all the actions and order them by starting time
+        public void Init ()
+        {
+            _actions.Clear ();
+            _root.Init (this, null);
 
-			OrderActions();
-		}
+            OrderActions ();
+        }
 
-		public List<Effect> FindEffectsByName(string name)
-		{
-			RefreshAndInit();
+        public List<Effect> FindEffectsByName (string name)
+        {
+            RefreshAndInit ();
 
-			return _actions.FindAll( (Effect a)=> { return a.StepName == name; } );
-		}
+            return _actions.FindAll ((Effect a) => {
+                return a.StepName == name;
+            });
+        }
 
-		public Effect FindEffectByName(string name)
-		{
-			List<Effect> effects = FindEffectsByName(name);
-			if(effects.Count > 0)
-			{
-				return effects[0];
-			}
-			return null;
-		}
+        public Effect FindEffectByName (string name)
+        {
+            List<Effect> effects = FindEffectsByName (name);
+            if (effects.Count > 0)
+            {
+                return effects [0];
+            }
+            return null;
+        }
 
-		public List<Effect> FindEffectsByType<T>() where T : Effect
-		{
-			RefreshAndInit();
+        public List<Effect> FindEffectsByType<T> () where T : Effect
+        {
+            RefreshAndInit ();
 
-			return _actions.FindAll( (Effect a)=> { return a is T; } );
-		}
+            return _actions.FindAll ((Effect a) => {
+                return a is T;
+            });
+        }
 
-		public T FindEffectByType<T>() where T : Effect
-		{
-			List<Effect> effects = FindEffectsByType<T>();
-			if(effects.Count > 0)
-			{
-				return (T) effects[0];
-			}
-			return null;
-		}
+        public T FindEffectByType<T> () where T : Effect
+        {
+            List<Effect> effects = FindEffectsByType<T> ();
+            if (effects.Count > 0)
+            {
+                return (T)effects [0];
+            }
+            return null;
+        }
 
-		void OrderActions()
-		{
-			_actions.Sort(SortByEndTime);
-		}
+        void OrderActions ()
+        {
+            _actions.Sort (SortByEndTime);
+        }
 
-		public static int SortByEndTime(Step a, Step b)
-		{
-			float aTime = a.GetEndTime(AnimTimeMode.Global);
-			float bTime = b.GetEndTime(AnimTimeMode.Global);
+        public static int SortByEndTime (Step a, Step b)
+        {
+            float aTime = a.GetEndTime (AnimTimeMode.Global);
+            float bTime = b.GetEndTime (AnimTimeMode.Global);
 
-			return aTime < bTime ? -1 : aTime > bTime ? 1 : 0;
-		}
+            return aTime < bTime ? -1 : aTime > bTime ? 1 : 0;
+        }
 
-		public static int SortByStartTime(Step a, Step b)
-		{
-			float aTime = a.GetStartTime(AnimTimeMode.Global);
-			float bTime = b.GetStartTime(AnimTimeMode.Global);
+        public static int SortByStartTime (Step a, Step b)
+        {
+            float aTime = a.GetStartTime (AnimTimeMode.Global);
+            float bTime = b.GetStartTime (AnimTimeMode.Global);
 			
-			return aTime < bTime ? -1 : aTime > bTime ? 1 : 0;
-		}
+            return aTime < bTime ? -1 : aTime > bTime ? 1 : 0;
+        }
 
 
-		void Start()
-		{
-			if(_playOnStart)
-			{
-				Play();
-			}
-		}
+        void Start ()
+        {
+            if (_playOnStart)
+            {
+                Play ();
+            }
+        }
 
-		//Absolute time from zero as the start animation time
-		public void PlayAt(float t)
-		{
-			// Set everything at start point
-			ResetEffects();
+        //Absolute time from zero as the start animation time
+        public void PlayAt (float t)
+        {
+            // Set everything at start point
+            ResetEffects ();
 
-			// Set current time with a big deltaTime to run every action till the current time
-			_currentTime = t;
-			_prevTime = 0f;
+            // Set current time with a big deltaTime to run every action till the current time
+            _currentTime = t;
+            _prevTime = 0f;
 
-			for (int i = 0; i < _actions.Count; ++i) 
-			{
-				_actions[i].OnUpdate();
-			}
-		}
+            for (int i = 0; i < _actions.Count; ++i)
+            {
+                _actions [i].OnUpdate ();
+            }
+        }
 
-		public void RevertToOriginal()
-		{
-			if (_isInverted)
-			{
-				Invert();
-			}
+        public void RevertToOriginal ()
+        {
+            if (_isInverted)
+            {
+                Invert ();
+            }
 
-			ResetEffects ();
+            ResetEffects ();
 
-			ChangeState(State.Idle);
-		}
+            ChangeState (State.Idle);
+        }
 
-		void ResetEffects()
-		{
-			RefreshAndInit();
+        void ResetEffects ()
+        {
+            RefreshAndInit ();
 
-			for (int i = _actions.Count-1; i >= 0; --i) 
-			{
-				_actions[i].OnReset();
-			}
-		}
+            for (int i = _actions.Count - 1; i >= 0; --i)
+            {
+                _actions [i].OnReset ();
+            }
+        }
 
-		public void Update()
-		{
-			switch (_state) 
-			{
-			case State.Idle:
-				IdleState();
-				break;
+        public void Update ()
+        {
+            switch (_state)
+            {
+            case State.Idle:
+                IdleState ();
+                break;
 
-			case State.Playing:
-				PlayingState();
-				break;
-			}
-		}
+            case State.Playing:
+                PlayingState ();
+                break;
+            }
+        }
 
-		void ChangeState(State newState)
-		{
-			if(newState == State.Playing)
-			{
-				_playTime = GetTime();
-				_currentTime = 0f;
-				_prevTime = 0f;
+        void ChangeState (State newState)
+        {
+            if (newState == State.Playing)
+            {
+                _playTime = GetTime ();
+                _currentTime = 0f;
+                _prevTime = 0f;
 
-				ResetEffects();
-			}
-			else if(newState == State.Idle)
-			{
-			}
+                ResetEffects ();
+            }
+            else
+            if (newState == State.Idle)
+            {
+            }
 
-			_state = newState;
-		}
+            _state = newState;
+        }
 
-		void IdleState()
-		{}
+        void IdleState ()
+        {
+        }
 
-		public bool IsPlaying()
-		{
-			return _state != State.Idle;
-		}
+        public bool IsPlaying ()
+        {
+            return _state != State.Idle;
+        }
 
-		void PlayingState()
-		{
-			_currentTime = GetTime() - _playTime;
-			for (int i = 0; i < _actions.Count; ++i) 
-			{
-				_actions[i].OnUpdate();
-			}
-			_prevTime = _currentTime;
+        void PlayingState ()
+        {
+            _currentTime = GetTime () - _playTime;
+            for (int i = 0; i < _actions.Count; ++i)
+            {
+                _actions [i].OnUpdate ();
+            }
+            _prevTime = _currentTime;
 
-			if(Root != null && CurrentTime >= GetEndingTime())
-			{
-				PlayMode mode = Application.isPlaying ? _playMode : PlayMode.Once;
-				switch (mode) 
-				{
-				case PlayMode.Once:
-					TriggerOnEndCallback();
-					ChangeState(State.Idle);
-					break;
-				case PlayMode.Loop:
-					DoPlay();
-					break;
-				case PlayMode.PingPong:
-					Invert();
-					DoPlay();
-					break;
-				}
-			}
-		}
+            if (Root != null && CurrentTime >= GetEndingTime ())
+            {
+                PlayMode mode = Application.isPlaying ? _playMode : PlayMode.Once;
+                switch (mode)
+                {
+                case PlayMode.Once:
+                    TriggerOnEndCallback ();
+                    ChangeState (State.Idle);
+                    break;
+                case PlayMode.Loop:
+                    DoPlay ();
+                    break;
+                case PlayMode.PingPong:
+                    Invert ();
+                    DoPlay ();
+                    break;
+                }
+            }
+        }
 
-		float GetTime()
-		{
-			if(Application.isPlaying || _editorTimeGetter == null)
-			{
-				return Time.time;
-			}
-			else
-			{
-				return _editorTimeGetter.Get();
-			}
-		}
+        float GetTime ()
+        {
+            if (Application.isPlaying || _editorTimeGetter == null)
+            {
+                return Time.time;
+            }
+            else
+            {
+                return _editorTimeGetter.Get ();
+            }
+        }
 
-		void TriggerOnEndCallback()
-		{
-			if (_onEndCallback != null)
-			{
-				_onEndCallback();
-			}
-		}
+        void TriggerOnEndCallback ()
+        {
+            if (_onEndCallback != null)
+            {
+                _onEndCallback ();
+            }
+        }
 
-		public bool HasFinished()
-		{
-			if(Root == null || _state == State.Idle)
-			{
-				return true;
-			}
-			else if(_playMode != PlayMode.Once)
-			{
-				return false;
-			}
-			else
-			{
-				return CurrentTime >= GetEndingTime();
-			}
-		}
+        public bool HasFinished ()
+        {
+            if (Root == null || _state == State.Idle)
+            {
+                return true;
+            }
+            else
+            if (_playMode != PlayMode.Once)
+            {
+                return false;
+            }
+            else
+            {
+                return CurrentTime >= GetEndingTime ();
+            }
+        }
 
-		public float GetEndingTime()
-		{
-			float endTime = 0f;
-			if(_actions.Count > 0)
-			{
-				endTime = _actions[_actions.Count -1].GetEndTime(AnimTimeMode.Global);
-			}
+        public float GetEndingTime ()
+        {
+            float endTime = 0f;
+            if (_actions.Count > 0)
+            {
+                endTime = _actions [_actions.Count - 1].GetEndTime (AnimTimeMode.Global);
+            }
 
-			return endTime;
-		}
+            return endTime;
+        }
 
-		public void Invert()
-		{
-			if(Root != null)
-			{
-				_isInverted = !_isInverted;
-				Root.Invert(false);
-			}
-		}
+        public void Invert ()
+        {
+            if (Root != null)
+            {
+                _isInverted = !_isInverted;
+                Root.Invert (false);
+            }
+        }
 
-		public void AddAction(Effect action)
-		{
-			_actions.Add(action);
-		}
+        public void AddAction (Effect action)
+        {
+            _actions.Add (action);
+        }
 
-		public T SetRootAnimationItem<T>() where T:Step
-		{
-			_root = gameObject.AddComponent<T>();
-			RefreshAndInit();
+        public T SetRootAnimationItem<T> () where T:Step
+        {
+            _root = gameObject.AddComponent<T> ();
+            RefreshAndInit ();
 
-			return (T) _root;
-		}
+            return (T)_root;
+        }
 
-		public void Copy(Animation other)
-		{
-			AnimationName = other.AnimationName;
+        public void Copy (Animation other)
+        {
+            AnimationName = other.AnimationName;
 
-			_playOnStart = other._playOnStart;
-			_playMode = other._playMode;
+            _playOnStart = other._playOnStart;
+            _playMode = other._playMode;
 
-			Root.Copy(other.Root);
-		}
-	}
+            Root.Copy (other.Root);
+        }
+    }
 }

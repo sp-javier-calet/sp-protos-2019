@@ -3,138 +3,144 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	[System.Serializable]
-	public class OpacityEffect : BlendEffect 
-	{
-		public class TargetValueMonitor : StepMonitor
-		{
-			public float Alpha;
-			
-			public override void Backup()
-			{
-				IGraphicObject widget = GetWidget();
-				if(widget != null)
-				{
-					Alpha = widget.Alpha;
-				}
-			}
+    [System.Serializable]
+    public class OpacityEffect : BlendEffect
+    {
+        public class TargetValueMonitor : StepMonitor
+        {
+            public float Alpha;
+
+            public override void Backup ()
+            {
+                IGraphicObject widget = GetWidget ();
+                if (widget != null)
+                {
+                    Alpha = widget.Alpha;
+                }
+            }
 
 
-			IGraphicObject GetWidget()
-			{
-				return GraphicObjectLoader.Load(Target, true);
-			}
-			
-			public override bool HasChanged()
-			{
-				float original = Alpha;
+            IGraphicObject GetWidget ()
+            {
+                return GraphicObjectLoader.Load (Target, true);
+            }
+
+            public override bool HasChanged ()
+            {
+                float original = Alpha;
 				
-				float newAlpha = original;
-				IGraphicObject widget = GetWidget();
-				if(widget != null)
-				{
-					newAlpha = widget.Alpha;
-				}
+                float newAlpha = original;
+                IGraphicObject widget = GetWidget ();
+                if (widget != null)
+                {
+                    newAlpha = widget.Alpha;
+                }
 				
-				return newAlpha != Alpha;
-			}
-		}
+                return newAlpha != Alpha;
+            }
+        }
 
-		[SerializeField]
-		[ShowInEditor]
-		float _startValue = 1f;
-		public float StartValue { get { return _startValue; } set { _startValue = value; } }
+        [SerializeField]
+        [ShowInEditor]
+        float _startValue = 1f;
 
-		[SerializeField]
-		[ShowInEditor]
-		float _endValue = 1f;
-		public float EndValue { get { return _endValue; } set{_endValue = value; } }
+        public float StartValue { get { return _startValue; } set { _startValue = value; } }
 
-		IGraphicObject _graphicObject;
-		IGraphicObject TargetWidget
-		{
-			get
-			{
-				if(Target == null)
-				{
-					return null;
-				}
+        [SerializeField]
+        [ShowInEditor]
+        float _endValue = 1f;
 
-				if(Application.isPlaying && _graphicObject != null)
-				{
-					return _graphicObject;
-				}
+        public float EndValue { get { return _endValue; } set { _endValue = value; } }
 
-				_graphicObject = GraphicObjectLoader.Load(Target, true);
-				return _graphicObject;
-			}
-		}
-		
-		public override void Copy (Step other)
-		{
-			base.Copy(other);
-			CopyActionValues((OpacityEffect) other);
-		}
+        IGraphicObject _graphicObject;
 
-		public override void CopyActionValues(Effect other)
-		{
-			_startValue = ((OpacityEffect) other).StartValue;
-			_endValue = ((OpacityEffect) other).EndValue;
-		}
+        IGraphicObject TargetWidget
+        {
+            get
+            {
+                if (Target == null)
+                {
+                    return null;
+                }
 
-		public override void OnRemoved () { }
-		public override void SetOrCreateDefaultValues() 
-		{
-			SaveValuesAt(0f);
-			SaveValuesAt(1f);
-		}
+                if (Application.isPlaying && _graphicObject != null)
+                {
+                    return _graphicObject;
+                }
 
-		public override void Invert(bool invertTime)
-		{
-			base.Invert(invertTime);
+                _graphicObject = GraphicObjectLoader.Load (Target, true);
+                return _graphicObject;
+            }
+        }
 
-			float tempEndValue = _endValue;
-			_endValue = _startValue;
-			_startValue = tempEndValue;
-		}
-		
-		public override void OnBlend(float blend)
-		{
-			if(TargetWidget == null)
-			{
-				Debug.LogWarning("(OpacityEffect) OnBlend " + StepName + " Target is null");
-				return;
-			}
+        public override void Copy (Step other)
+        {
+            base.Copy (other);
+            CopyActionValues ((OpacityEffect)other);
+        }
 
-			TargetWidget.Alpha = Mathf.Lerp(StartValue, EndValue, blend);
+        public override void CopyActionValues (Effect other)
+        {
+            _startValue = ((OpacityEffect)other).StartValue;
+            _endValue = ((OpacityEffect)other).EndValue;
+        }
 
-			if(!Application.isPlaying)
-			{
-				gameObject.SetActive(false);
-				gameObject.SetActive(true);
-			}
-		}
-		
-		public override void SaveValuesAt (float localTimeNormalized)
-		{
-			if(TargetWidget == null)
-			{
-				return;
-			}
+        public override void OnRemoved ()
+        {
+        }
+
+        public override void SetOrCreateDefaultValues ()
+        {
+            SaveValuesAt (0f);
+            SaveValuesAt (1f);
+        }
+
+        public override void Invert (bool invertTime)
+        {
+            base.Invert (invertTime);
+
+            float tempEndValue = _endValue;
+            _endValue = _startValue;
+            _startValue = tempEndValue;
+        }
+
+        public override void OnBlend (float blend)
+        {
+            if (TargetWidget == null)
+            {
+                Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                return;
+            }
+
+            TargetWidget.Alpha = Mathf.Lerp (StartValue, EndValue, blend);
+
+            if (!Application.isPlaying)
+            {
+                gameObject.SetActive (false);
+                gameObject.SetActive (true);
+            }
+        }
+
+        public override void SaveValuesAt (float localTimeNormalized)
+        {
+            if (TargetWidget == null)
+            {
+                return;
+            }
 			
-			if(localTimeNormalized < 0.5f)
-			{
-				StartValue = TargetWidget.Alpha;
-			}
-			else
-			{
-				EndValue = TargetWidget.Alpha;
-			}
-		}
+            if (localTimeNormalized < 0.5f)
+            {
+                StartValue = TargetWidget.Alpha;
+            }
+            else
+            {
+                EndValue = TargetWidget.Alpha;
+            }
+        }
 
-		public override StepMonitor CreateTargetMonitor()
-		{
-			return new TargetValueMonitor();
-		}
-	}
+        public override StepMonitor CreateTargetMonitor ()
+        {
+            return new TargetValueMonitor ();
+        }
+    }
 }

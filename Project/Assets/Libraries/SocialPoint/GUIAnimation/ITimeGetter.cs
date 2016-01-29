@@ -2,8 +2,8 @@
 
 namespace SocialPoint.GUIAnimation
 {
-	public interface ITimeGetter
-	{
-		float Get();
-	}
+    public interface ITimeGetter
+    {
+        float Get ();
+    }
 }
