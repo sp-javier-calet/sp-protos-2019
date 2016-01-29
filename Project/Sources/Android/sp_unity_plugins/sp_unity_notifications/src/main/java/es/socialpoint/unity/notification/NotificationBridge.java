@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -21,6 +23,7 @@ public class NotificationBridge {
     private static final String TAG = "NotificationBridge";
     private static final String SENDER_ID_KEY = "GOOGLE_API_PROJECT_NUMBER";
 
+    private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static AsyncTask<Void, Void, Void> mRegisterTask;
     private static String mPushNotificationToken;
     private static String mSenderId;
@@ -96,38 +99,53 @@ public class NotificationBridge {
         // Cancel current register task, if exist
         if(mRegisterTask != null) {
             mRegisterTask.cancel(true);
+            mRegisterTask = null;
         }
-        
-        mRegisterTask = new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        InstanceID instanceID = InstanceID.getInstance(UnityPlayer.currentActivity);
-                        String token = instanceID.getToken(getSenderId(UnityPlayer.currentActivity),
-                                GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                        Log.i(TAG, "GCM Registration Token: " + token);
-                        
-                        // Notify registered token
-                        setNotificationToken(token);
 
-                    } catch (Exception e) {
-                        Log.e(TAG, "Failed to complete token refresh", e);
+        boolean postSuccess = mHandler.post(new Runnable() {
+            public void run() {
+                mRegisterTask = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        try {
+                            InstanceID instanceID = InstanceID.getInstance(UnityPlayer.currentActivity);
+                            String senderId = getSenderId(UnityPlayer.currentActivity);
+
+                            if(senderId != null && !senderId.isEmpty()) {
+                                String token = instanceID.getToken(senderId,
+                                        GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+                                Log.i(TAG, "GCM Registration Token: " + token);
+
+                                // Notify registered token
+                                setNotificationToken(token);
+                            } else {
+                                Log.e(TAG, "Invalid sender ID for push enabled. Is " + SENDER_ID_KEY + " meta-data set?");
+                            }
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "Failed to complete token refresh", e);
+                        }
+                        return null;
                     }
-                    return null;
-                }
 
-                @Override
-                protected void onPostExecute(Void result) {
-                    mRegisterTask = null;
-                }
-            }.execute(null, null, null);
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        mRegisterTask = null;
+                    }
+                }.execute(null, null, null);
+            }
+        });
+
+        if(!postSuccess) {
+            Log.e(TAG, "Failed to dispatch token petition");
+        }
     }
 
-    private static void setNotificationToken(String token) {
+    private static synchronized void setNotificationToken(String token) {
         mPushNotificationToken = token;
     }
 
-    public static String getNotificationToken() {
+    public static synchronized String getNotificationToken() {
         return mPushNotificationToken;
     }
 }
