@@ -27,8 +27,6 @@ namespace SocialPoint.GUIControl
         private Coroutine _showCoroutine;
         private Coroutine _hideCoroutine;
         private UIViewAnimation _animation;
-        private int _layer2d;
-        private int _layer3d;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -206,28 +204,16 @@ namespace SocialPoint.GUIControl
         {
             if(LayersController != null)
             {
-                Setup2DCanvas(gameObject);
+                LayersController.Add(this);
 
                 foreach(GameObject ui3DContainer in _containers3d)
                 {
-                    Setup3DContainer(ui3DContainer);
+                    LayersController.Add3DContainer(this, ui3DContainer);
                 }
             }
             else if(_containers3d.Count > 0)
             {
                 throw new Exception("You need to assign a UILayersController");
-            }
-        }
-
-        void Setup2DCanvas(GameObject gameObject)
-        {
-            if(_layer2d == 0)
-            {
-                _layer2d = LayersController.AddToCurrentUILayer(gameObject);
-            }
-            else
-            {
-                LayersController.AddToUILayer(gameObject, _layer2d);
             }
         }
 
@@ -245,20 +231,8 @@ namespace SocialPoint.GUIControl
                 }
 
                 container.OnDestroyed += On3dContainerDestroyed;
-            }
 
-            Setup3DContainer(gameObject);
-        }
-
-        void Setup3DContainer(GameObject gameObject)
-        {
-            if(_layer3d == 0)
-            {
-                _layer3d = LayersController.AddToCurrent3DLayer(gameObject);
-            }
-            else
-            {
-                LayersController.AddTo3DLayer(gameObject, _layer3d);
+                LayersController.Add3DContainer(this, gameObject);
             }
         }
 
@@ -267,7 +241,7 @@ namespace SocialPoint.GUIControl
             _containers3d.Remove(gameObject);
             if(LayersController != null)
             {
-                LayersController.RemoveElement(gameObject);
+                LayersController.Remove3DContainer(this, gameObject);
             }
         }
 
@@ -275,18 +249,9 @@ namespace SocialPoint.GUIControl
         {
             if(LayersController != null)
             {
-                foreach(GameObject container in _containers3d)
-                {
-                    LayersController.RemoveElement(container);
-                }
-
-                LayersController.RemoveElement(gameObject);
-
-                _layer2d = 0;
-                _layer3d = 0;
+                LayersController.Remove(this);
             }
         }
-
 
         [System.Diagnostics.Conditional("DEBUG_SPGUI")]
         void DebugLog(string msg)

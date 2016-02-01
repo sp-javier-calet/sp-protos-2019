@@ -8,20 +8,8 @@ public class ConfigModel
 {
     IDictionary<string, Attr> _globals;
     IList<ScriptModel> _scripts;
-
-    public ConfigModel(IDictionary<string, Attr> globals=null, IList<ScriptModel> scripts=null)
-    {
-        if(globals == null)
-        {
-            globals = new Dictionary<string, Attr>();
-        }
-        _globals = globals;
-        if(scripts == null)
-        {
-            scripts = new List<ScriptModel>();
-        }
-        _scripts = scripts;
-    }
+    IDictionary<string, ResourceType> _resourceTypes;
+    StoreModel _store;
 
     public IEnumerable<ScriptModel> Scripts
     {
@@ -31,10 +19,58 @@ public class ConfigModel
         }
     }
 
+    public IEnumerable<KeyValuePair<string, ResourceType>> ResourceTypes
+    {
+        get
+        {
+            return _resourceTypes;
+        }
+    }
+
+    public StoreModel Store
+    {
+        get
+        {
+            return _store;
+        }
+    }
+
+    public ConfigModel(IDictionary<string, Attr> globals = null, 
+                       IList<ScriptModel> scripts = null,
+                       IDictionary<string, ResourceType> resourceTypes = null,
+                       StoreModel store = null)
+    {
+        if(globals == null)
+        {
+            globals = new Dictionary<string, Attr>();
+        }
+        _globals = globals;
+
+        if(scripts == null)
+        {
+            scripts = new List<ScriptModel>();
+        }
+        _scripts = scripts;
+
+        if(resourceTypes == null)
+        {
+            resourceTypes = new Dictionary<string, ResourceType>();
+        }
+        _resourceTypes = resourceTypes;
+
+        if(store == null)
+        {
+            store = new StoreModel();
+        }
+        _store = store;
+    }
+
     public void Assign(ConfigModel other)
     {
         _globals = other._globals;
-        _scripts = other._scripts;            
+        _scripts = other._scripts;
+        _resourceTypes = other._resourceTypes;
+        _store.Assign(other._store);
     }
 
     public Attr GetGlobal(string name)
@@ -49,7 +85,7 @@ public class ConfigModel
 
     public override string ToString()
     {
-        return string.Format("[ConfigModel Globals={0} Scripts={1}]",
-          _globals.Count, _scripts.Count);
+        return string.Format("[ConfigModel: Globals={0}, Scripts={1}, Resources={2}, Store={3}]",
+            _globals.Count, _scripts.Count, _resourceTypes.Count, _store.ToString());
     }
 }
