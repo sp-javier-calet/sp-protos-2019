@@ -1,13 +1,13 @@
-﻿using SocialPoint.AdminPanel;
-using UnityEngine.UI;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using SocialPoint.AdminPanel;
 using SocialPoint.Console;
+using UnityEngine.UI;
 
 namespace SocialPoint.Locale
 {
     public class AdminPanelLocale : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        ILocalizationManager _manager;
+        readonly ILocalizationManager _manager;
         AdminPanel.AdminPanel _adminPanel;
 
         AdminPanelLocale(ILocalizationManager manager)
@@ -40,7 +40,7 @@ namespace SocialPoint.Locale
             foreach(var lang in _manager.SupportedLanguages)
             {
                 var blang = lang;
-                _langButtons[lang] = layout.CreateToggleButton(blang, false, (enabled) => {
+                _langButtons[lang] = layout.CreateToggleButton(blang, false, enabled => {
                     _manager.CurrentLanguage = blang;
                     UpdateLangButtons();
                 });
