@@ -58,7 +58,12 @@ public class GameLoader : IGameLoader
 
     GameModel LoadSavedGame()
     {
-        var savedPlayerGameJson = FileUtils.ReadAllText(PlayerJsonPath);
+        string savedPlayerGameJson = null;
+        if(FileUtils.Exists(PlayerJsonPath))
+        {
+            savedPlayerGameJson = FileUtils.ReadAllText(PlayerJsonPath);
+        }
+
         if(!string.IsNullOrEmpty(savedPlayerGameJson))
         {
             var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson).AsDic;
