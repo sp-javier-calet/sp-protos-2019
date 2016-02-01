@@ -12,6 +12,8 @@ namespace SocialPoint.IO
         private const string TestDirectory = "io_test_directory";
         private const string TestFile = "io_test_file";
 
+        private const string TestGeneric = "io_test_generic";
+
         [SetUp]
         public void SetUp()
         {
@@ -32,7 +34,9 @@ namespace SocialPoint.IO
             {
                 //TODO: Use the same FileUtils functions that we want to test or use System.IO functions?
                 FileUtils.DeleteDirectory(TestDirectory);
+                FileUtils.DeleteDirectory(TestGeneric);
                 FileUtils.DeleteFile(TestFile);
+                FileUtils.DeleteFile(TestGeneric);
             }
             catch
             {
@@ -44,10 +48,11 @@ namespace SocialPoint.IO
         public void Create_File()
         {
             string path = TestFile;
-            if(!FileUtils.ExistsFile(path))
+            if(FileUtils.ExistsFile(path))
             {
-                FileUtils.CreateFile(path);
+                FileUtils.DeleteFile(path);
             }
+            FileUtils.CreateFile(path);
             if(!FileUtils.ExistsFile(path))
             {
                 Assert.Fail();
@@ -58,10 +63,11 @@ namespace SocialPoint.IO
         public void Create_Directory()
         {
             string path = TestDirectory;
-            if(!FileUtils.ExistsDirectory(path))
+            if(FileUtils.ExistsDirectory(path))
             {
-                FileUtils.CreateDirectory(path);
+                FileUtils.DeleteDirectory(path);
             }
+            FileUtils.CreateDirectory(path);
             if(!FileUtils.ExistsDirectory(path))
             {
                 Assert.Fail();
@@ -168,10 +174,7 @@ namespace SocialPoint.IO
             {
                 FileUtils.CreateFile(path);
             }
-            if(FileUtils.ExistsFile(path))
-            {
-                FileUtils.DeleteFile(path);
-            }
+            FileUtils.DeleteFile(path);
             if(FileUtils.ExistsFile(path))
             {
                 Assert.Fail();
@@ -186,10 +189,7 @@ namespace SocialPoint.IO
             {
                 FileUtils.CreateDirectory(path);
             }
-            if(FileUtils.ExistsDirectory(path))
-            {
-                FileUtils.DeleteDirectory(path);
-            }
+            FileUtils.DeleteDirectory(path);
             if(FileUtils.ExistsDirectory(path))
             {
                 Assert.Fail();
@@ -245,6 +245,31 @@ namespace SocialPoint.IO
             {
                 Assert.Fail();
             }
+        }
+
+        [Test]
+        /// <summary>
+        /// Verify that Exists functions don't mix Files and Directories
+        /// </summary>
+        public void Existance_Mix()
+        {
+            string path = TestGeneric;
+            FileUtils.DeleteFile(path);
+            FileUtils.DeleteDirectory(path);
+
+            FileUtils.CreateFile(path);
+            if(!FileUtils.ExistsFile(path) || FileUtils.ExistsDirectory(path))
+            {
+                Assert.Fail();
+            }
+            FileUtils.DeleteFile(path);
+
+            FileUtils.CreateDirectory(path);
+            if(!FileUtils.ExistsDirectory(path) || FileUtils.ExistsFile(path))
+            {
+                Assert.Fail();
+            }
+            FileUtils.DeleteDirectory(path);
         }
     }
 }
