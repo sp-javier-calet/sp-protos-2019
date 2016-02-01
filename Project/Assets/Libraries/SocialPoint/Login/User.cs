@@ -47,7 +47,7 @@ namespace SocialPoint.Login
             {
                 if(_photoTexture == null)
                 {
-                    if(FileUtils.Exists(PhotoPath, IOTarget.File))
+                    if(FileUtils.ExistsFile(PhotoPath))
                     {
                         var data = FileUtils.ReadAllBytes(PhotoPath);
                         _photoTexture = new Texture2D(1, 1);

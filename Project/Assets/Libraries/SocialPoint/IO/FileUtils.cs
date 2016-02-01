@@ -16,16 +16,6 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.IO
 {
-    /// <summary>
-    /// Types of targets for IO opperations.
-    /// </summary>
-    public enum IOTarget
-    {
-        Any,
-        File,
-        Directory
-    }
-
     public class FileUtils
     {
 
@@ -81,7 +71,7 @@ namespace SocialPoint.IO
 
         public static bool CopyFile(string from, string to, bool overwrite = false)
         {
-            if(Exists(to, IOTarget.File))
+            if(ExistsFile(to))
             {
                 if(!overwrite)
                 {
@@ -96,7 +86,7 @@ namespace SocialPoint.IO
             return true;
         }
 
-        public static bool Exists(string path, IOTarget pathTarget = IOTarget.Any)
+        public static bool ExistsFile(string path)
         {
             if(IsUrl(path))
             {
@@ -109,20 +99,20 @@ namespace SocialPoint.IO
             }
             else
             {
-                bool existence = false;
-                switch(pathTarget)
-                {
-                case IOTarget.File:
-                    existence = System.IO.File.Exists(path);
-                    break;
-                case IOTarget.Directory:
-                    existence = System.IO.Directory.Exists(path);
-                    break;
-                default:
-                    existence = System.IO.File.Exists(path) || System.IO.Directory.Exists(path);
-                    break;
-                }
-                return existence;
+                return System.IO.File.Exists(path);
+            }
+        }
+
+        public static bool ExistsDirectory(string path)
+        {
+            if(IsUrl(path))
+            {
+                //TODO: Can the existence of a directory be proved with the same method than with files?
+                return false;
+            }
+            else
+            {
+                return System.IO.Directory.Exists(path);
             }
         }
 
@@ -188,7 +178,7 @@ namespace SocialPoint.IO
 
         public static void CreateDirectory(string path)
         {
-            if(!Exists(path, IOTarget.Directory))
+            if(!ExistsDirectory(path))
             {
                 CheckLocalPath(path);
                 path = Path.GetFullPath(path);
@@ -198,38 +188,40 @@ namespace SocialPoint.IO
 
         public static void CreateFile(string path, bool overwrite = false)
         {
-            if(Exists(path, IOTarget.File) && !overwrite)
+            if(ExistsFile(path) && !overwrite)
             {
                 throw new IOException("File already exists.");
             }
 
             string dirPath = Path.GetDirectoryName(path);
-            if(!string.IsNullOrEmpty(dirPath) && !Exists(dirPath, IOTarget.Directory))
+            if(!string.IsNullOrEmpty(dirPath) && !ExistsDirectory(dirPath))
             {
                 CreateDirectory(dirPath);
             }
             File.Create(path).Close();
         }
 
-        public static bool Delete(string path, IOTarget pathTarget = IOTarget.Any)
+        public static bool DeleteFile(string path)
         {
-            if(!Exists(path, pathTarget))
+            if(!ExistsFile(path))
             {
                 return false;
             }
 
-            FileAttributes attributes = File.GetAttributes(path);
-            if((attributes & FileAttributes.Directory) == FileAttributes.Directory)
+            //TODO: What happens if exists returns true for an URL path (Android). Can it be deleted with File.Delete?
+            File.Delete(path);
+            return true;
+        }
+
+        public static bool DeleteDirectory(string path)
+        {
+            if(!ExistsDirectory(path))
             {
-                Directory.Delete(path, true);
-                return true;
-            }
-            else
-            {
-                File.Delete(path);
-                return true;
+                return false;
             }
 
+            Directory.Delete(path, true);
+            return true;
         }
 
         private static void CheckWritablePath(string path)
@@ -410,13 +402,13 @@ namespace SocialPoint.IO
             string dir;
             string pattern;
             SearchOption search;
-            if(Exists(src, IOTarget.File))
+            if(ExistsFile(src))
             {
                 search = SearchOption.TopDirectoryOnly;
                 dir = null;
                 pattern = null;
             }
-            else if(Exists(src, IOTarget.Directory))
+            else if(ExistsDirectory(src))
             {
                 search = SearchOption.AllDirectories;
                 dir = src;
@@ -445,14 +437,14 @@ namespace SocialPoint.IO
             }
 
             string[] files;
-            if(!string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(dir) && Exists(dir, IOTarget.Directory))
+            if(!string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(dir) && ExistsDirectory(dir))
             {
                 files = Directory.GetFiles(dir, pattern, search);
                 dir = CleanPath(dir) + Path.DirectorySeparatorChar;
             }
             else
             {
-                if(Exists(src, IOTarget.File))
+                if(ExistsFile(src))
                 {
                     files = new string[]{ src };
                 }
@@ -533,7 +525,7 @@ namespace SocialPoint.IO
 
             if(checkDst && srcDir != null)
             {
-                if(Exists(dst, IOTarget.Directory))
+                if(ExistsDirectory(dst))
                 {
                     if(IsWildcard(src))
                     {
@@ -589,7 +581,7 @@ namespace SocialPoint.IO
 
         static public string SetDefaultFileName(string path, string filename)
         {
-            if(Exists(path, IOTarget.Directory) || path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
+            if(ExistsDirectory(path) || path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
             {
                 return System.IO.Path.Combine(path, filename);
             }
@@ -600,13 +592,13 @@ namespace SocialPoint.IO
         {
             CheckLocalPath(path1);
             CheckLocalPath(path2);
-            if(!Exists(path1, IOTarget.File))
+            if(!ExistsFile(path1))
             {
-                return !Exists(path2, IOTarget.File);
+                return !ExistsFile(path2);
             }
-            if(!Exists(path2, IOTarget.File))
+            if(!ExistsFile(path2))
             {
-                return !Exists(path1, IOTarget.File);
+                return !ExistsFile(path1);
             }
             
             int file1byte;

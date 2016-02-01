@@ -475,7 +475,7 @@ namespace SocialPoint.Locale
             {
                 file = Path.Combine(_bundlePath, lang + JsonExtension);
             }
-            if(!FileUtils.Exists(file, IOTarget.File))
+            if(!FileUtils.ExistsFile(file))
             {
                 return false;
             }
@@ -594,9 +594,9 @@ namespace SocialPoint.Locale
             string oldLocalPath = prefix + oldEtag + JsonExtension;
             FileUtils.WriteAllBytes(newLocalPath, json);
 
-            if(!string.IsNullOrEmpty(oldEtag) && oldEtag != newLocalPath && FileUtils.Exists(oldLocalPath, IOTarget.File))
+            if(!string.IsNullOrEmpty(oldEtag) && oldEtag != newLocalPath && FileUtils.ExistsFile(oldLocalPath))
             {
-                FileUtils.Delete(oldLocalPath, IOTarget.File);
+                FileUtils.DeleteFile(oldLocalPath);
             }
 
             if(finish != null)

@@ -49,14 +49,14 @@ namespace SocialPoint.Crash
 
             public override void Remove()
             {
-                if(FileUtils.Exists(CrashPath, IOTarget.File))
+                if(FileUtils.ExistsFile(CrashPath))
                 {
-                    FileUtils.Delete(CrashPath, IOTarget.File);
+                    FileUtils.DeleteFile(CrashPath);
                 }
 
-                if(FileUtils.Exists(LogPath, IOTarget.File))
+                if(FileUtils.ExistsFile(LogPath))
                 {
-                    FileUtils.Delete(LogPath, IOTarget.File);
+                    FileUtils.DeleteFile(LogPath);
                 }
             }
 
@@ -102,7 +102,7 @@ namespace SocialPoint.Crash
                 get
                 {
                     string logContent = "";
-                    if(FileUtils.Exists(LogPath, IOTarget.File))
+                    if(FileUtils.ExistsFile(LogPath))
                     {
                         TryReadFile(LogPath, out logContent);
                     }

@@ -226,7 +226,7 @@ namespace SocialPoint.Hardware
                     };
                     foreach(var path in paths)
                     {
-                        if(FileUtils.Exists(path, IOTarget.File))
+                        if(FileUtils.ExistsFile(path))
                         {
                             _rooted = true;
                             break;
