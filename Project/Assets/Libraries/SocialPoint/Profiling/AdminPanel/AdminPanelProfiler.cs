@@ -6,9 +6,9 @@ namespace SocialPoint.Profiling
 {
     public class AdminPanelProfiler : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        private PerfInfoGUI _perfInfoGUI;
-        private Text _frameText;
-        private Text _garbageText;
+        PerfInfoGUI _perfInfoGUI;
+        Text _frameText;
+        Text _garbageText;
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
@@ -22,9 +22,10 @@ namespace SocialPoint.Profiling
             if(_perfInfoGUI != null)
             {
                 layout.CreateToggleButton("Show performance info", _perfInfoGUI.enabled, (value) => {
-                    _perfInfoGUI.enabled = value; });
+                    _perfInfoGUI.enabled = value;
+                });
 
-                layout.CreateButton("Refresh", () => { UpdateContent(); });
+                layout.CreateButton("Refresh", UpdateContent);
                 layout.CreateMargin();
 
                 layout.CreateLabel("Frame Info");
@@ -33,9 +34,13 @@ namespace SocialPoint.Profiling
                 layout.CreateLabel("Garbage Info");
                 _garbageText = layout.CreateVerticalScrollLayout().CreateTextArea(_perfInfoGUI.Info.Garbage.ToString());
             }
+            else
+            {
+                layout.CreateLabel("Performance info unavailable. There is no PerfInfoGUI object in the current scene");
+            }
         }
 
-        private void UpdateContent()
+        void UpdateContent()
         {
             if(_perfInfoGUI != null)
             {
