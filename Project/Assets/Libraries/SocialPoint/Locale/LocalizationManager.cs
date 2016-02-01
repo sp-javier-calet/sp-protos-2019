@@ -157,7 +157,7 @@ namespace SocialPoint.Locale
 
         public CultureInfo CurrentCultureInfo{ get; private set; }
 
-        public CultureInfo CurrentCultureInfoOriginal{ get; private set; }
+        public CultureInfo SelectedCultureInfo{ get; private set; }
 
         public delegate void CsvLoadedDelegate(byte[] bytes);
 
@@ -673,7 +673,7 @@ namespace SocialPoint.Locale
             var supported = new List<string>(_supportedLanguages);
 
             _selectedLanguage = lang;
-            CurrentCultureInfoOriginal = GetCultureInfo(_selectedLanguage);
+            SelectedCultureInfo = GetCultureInfo(_selectedLanguage);
 
             var fixlang = FixLanguage(lang);
             if(supported.Contains(lang) || supported.Contains(fixlang))
