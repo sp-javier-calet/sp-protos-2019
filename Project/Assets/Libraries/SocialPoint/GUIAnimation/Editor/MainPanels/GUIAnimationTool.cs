@@ -105,21 +105,29 @@ namespace SocialPoint.GUIAnimation
 		{
 			GUILayout.BeginVertical();
 			List<UIViewController> screens = AnimationModel.FindScreens();
-			if(  screens.Count == 0 )
+
+            if(screens.Count == 0)
 			{
-				ResetState();
-				RenderNoScreenMessage();
+                if(Event.current.type == EventType.Repaint)
+                {
+                    ResetState();
+                    RenderNoScreenMessage();
+                }
 				return;
 			}
 
 			RenderScreensSelector(screens);
-			if(AnimationModel.CurrentScreen == null)
+            if(AnimationModel.CurrentScreen == null)
 			{
-				ResetState();
+                if(Event.current.type == EventType.Repaint)
+                {
+				    ResetState();
+                }
 				return;
 			}
 
 			List<Animation> animations = _animationModel.FindAnimations();
+
 			if(animations.Count == 0)
 			{
 				_animationModel.RemoveCurrentAnimation();

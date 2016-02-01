@@ -1,7 +1,7 @@
 ﻿using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Login;
-
+using System;
 using Zenject;
 
 public interface IGameLoader
@@ -58,14 +58,18 @@ public class GameLoader : IGameLoader
 
     GameModel LoadSavedGame()
     {
-        var savedPlayerGameJson = FileUtils.ReadAllText(PlayerJsonPath);
-        if(!string.IsNullOrEmpty(savedPlayerGameJson))
+        var path = PlayerJsonPath;
+        if(FileUtils.Exists(path))
         {
-            var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson).AsDic;
-            var initialGame = GetInitial();
-            var savedPlayer = _playerParser.Parse(playerData);
+            var savedPlayerGameJson = FileUtils.ReadAllText(path);
+            if(!string.IsNullOrEmpty(savedPlayerGameJson))
+            {
+                var playerData = new JsonAttrParser().ParseString(savedPlayerGameJson).AsDic;
+                var initialGame = GetInitial();
+                var savedPlayer = _playerParser.Parse(playerData);
 
-            return new GameModel(initialGame.Config, savedPlayer);
+                return new GameModel(initialGame.Config, savedPlayer);
+            }
         }
         return null;
     }

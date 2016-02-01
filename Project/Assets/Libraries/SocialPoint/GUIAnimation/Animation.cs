@@ -74,6 +74,8 @@ namespace SocialPoint.GUIAnimation
 
         bool _isInverted = false;
 
+        public bool IsInverted { get { return _isInverted; } }
+
         ITimeGetter _editorTimeGetter = null;
 
         System.Action _onEndCallback = null;

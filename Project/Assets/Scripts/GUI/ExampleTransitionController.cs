@@ -2,7 +2,7 @@
 using SocialPoint.GUIControl;
 using UnityEngine.EventSystems;
 
-public class ExampleTransitionController : UIViewController, IPointerClickHandler
+public class ExampleTransitionController : UIViewController
 {
     protected override void OnLoad()
     {
@@ -34,7 +34,7 @@ public class ExampleTransitionController : UIViewController, IPointerClickHandle
         Debug.Log("ExampleTransitionController OnDisappeared");
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClick()
     {
         Hide();
     }
