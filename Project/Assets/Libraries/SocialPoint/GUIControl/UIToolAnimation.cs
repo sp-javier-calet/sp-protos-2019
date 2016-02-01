@@ -25,7 +25,7 @@ namespace SocialPoint.GUIControl
             {
                 yield break;
             }
-            yield return Play();
+            yield return Play(false);
         }
 
         public IEnumerator Disappear()
@@ -34,17 +34,21 @@ namespace SocialPoint.GUIControl
             {
                 yield break;
             }
-            _anim.Invert();
-            yield return Play();
+            yield return Play(true);
         }
 
-        IEnumerator Play()
+        IEnumerator Play(bool inverted)
         {
+            if(inverted != _anim.IsInverted)
+            {
+                _anim.Invert();
+            }
             _anim.Play();
             while(!_anim.HasFinished())
             {
                 yield return null;
             }
+            _anim.Stop();
         }
 
         public void Reset()
@@ -58,7 +62,7 @@ namespace SocialPoint.GUIControl
             {
                 return false;
             }
-            _anim.RevertToOriginal();
+            _anim.RevertToOriginal(false);
             return true;
         }
 
