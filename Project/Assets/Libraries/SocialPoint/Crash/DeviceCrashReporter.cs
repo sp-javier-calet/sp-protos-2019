@@ -102,7 +102,7 @@ namespace SocialPoint.Crash
                 get
                 {
                     string logContent = "";
-                    if(FileUtils.Exists(LogPath))
+                    if(FileUtils.Exists(LogPath, IOTarget.File))
                     {
                         TryReadFile(LogPath, out logContent);
                     }

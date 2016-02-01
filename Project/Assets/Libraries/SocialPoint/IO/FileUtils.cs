@@ -81,7 +81,7 @@ namespace SocialPoint.IO
 
         public static bool CopyFile(string from, string to, bool overwrite = false)
         {
-            if(Exists(to))
+            if(Exists(to, IOTarget.File))
             {
                 if(!overwrite)
                 {
@@ -198,13 +198,13 @@ namespace SocialPoint.IO
 
         public static void CreateFile(string path, bool overwrite = false)
         {
-            if(Exists(path) && !overwrite)
+            if(Exists(path, IOTarget.File) && !overwrite)
             {
                 throw new IOException("File already exists.");
             }
 
             string dirPath = Path.GetDirectoryName(path);
-            if(!string.IsNullOrEmpty(dirPath) && !Exists(dirPath))
+            if(!string.IsNullOrEmpty(dirPath) && !Exists(dirPath, IOTarget.Directory))
             {
                 CreateDirectory(dirPath);
             }

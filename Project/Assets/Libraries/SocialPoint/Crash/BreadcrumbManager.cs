@@ -40,7 +40,7 @@ namespace SocialPoint.Crash
 
                 FileUtils.CreateDirectory(breadCrumbDirectoryPath);
                 
-                if(FileUtils.Exists(BreadcrumbLogPath()))
+                if(FileUtils.Exists(BreadcrumbLogPath(), IOTarget.File))
                 {
                     FileUtils.CopyFile(BreadcrumbLogPath(), BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
                 }
@@ -76,8 +76,8 @@ namespace SocialPoint.Crash
 
         public void RemoveData()
         {
-            FileUtils.Delete(BreadcrumbLogPath());
-            FileUtils.Delete(BreadcrumbLogPath(LastSessionBreadcrumbsName));
+            FileUtils.Delete(BreadcrumbLogPath(), IOTarget.File);
+            FileUtils.Delete(BreadcrumbLogPath(LastSessionBreadcrumbsName), IOTarget.File);
         }
 
         public string CurrentBreadcrumb
@@ -85,7 +85,7 @@ namespace SocialPoint.Crash
             get
             {
                 string path = BreadcrumbLogPath();
-                return !FileUtils.Exists(path) ? null : FileUtils.ReadAllText(path);
+                return !FileUtils.Exists(path, IOTarget.File) ? null : FileUtils.ReadAllText(path);
             }
         }
 
@@ -94,7 +94,7 @@ namespace SocialPoint.Crash
             get
             {
                 string oldPath = BreadcrumbLogPath(LastSessionBreadcrumbsName);
-                return !FileUtils.Exists(oldPath) ? null : FileUtils.ReadAllText(oldPath);
+                return !FileUtils.Exists(oldPath, IOTarget.File) ? null : FileUtils.ReadAllText(oldPath);
             }
         }
 

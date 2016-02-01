@@ -62,7 +62,7 @@ namespace SocialPoint.Attributes
         public Attr Load(string key)
         {
             var path = GetPath(key);
-            if(!FileUtils.Exists(path))
+            if(!FileUtils.Exists(path, IOTarget.File))
             {
                 return null;
             }

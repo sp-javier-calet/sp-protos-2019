@@ -100,12 +100,14 @@ namespace SocialPoint.Locale
         
         public const float DefaultTimeout = 20.0f;
         public float Timeout = DefaultTimeout;
+
         public event Action Loaded = delegate{};
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
 
         private string _fallbackLanguage;
+
         public string FallbackLanguage
         {
             get
@@ -140,6 +142,7 @@ namespace SocialPoint.Locale
             Localization.BasqueIdentifier
         };
         string[] _supportedLanguages = DefaultSupportedLanguages;
+
         public string[] SupportedLanguages
         {
             get
@@ -213,6 +216,7 @@ namespace SocialPoint.Locale
         }
 
         IAppEvents _appEvents;
+
         public IAppEvents AppEvents
         {
             get
@@ -234,7 +238,7 @@ namespace SocialPoint.Locale
             }
         }
 
-        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo, Localization locale=null, CsvMode csvMode = CsvMode.WriteCsvWithAllSupportedLanguages, CsvLoadedDelegate csvLoaded = null)
+        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo, Localization locale = null, CsvMode csvMode = CsvMode.WriteCsvWithAllSupportedLanguages, CsvLoadedDelegate csvLoaded = null)
         {
             _httpClient = httpClient;
             _appInfo = appInfo;
@@ -349,7 +353,7 @@ namespace SocialPoint.Locale
         {
             if(_writeCsv)
             {
-                if (_loadAllSupportedLanguagesCsv)
+                if(_loadAllSupportedLanguagesCsv)
                 {
                     foreach(var slang in SupportedLanguages)
                     {
@@ -471,7 +475,7 @@ namespace SocialPoint.Locale
             {
                 file = Path.Combine(_bundlePath, lang + JsonExtension);
             }
-            if(!FileUtils.Exists(file))
+            if(!FileUtils.Exists(file, IOTarget.File))
             {
                 return false;
             }
@@ -590,9 +594,9 @@ namespace SocialPoint.Locale
             string oldLocalPath = prefix + oldEtag + JsonExtension;
             FileUtils.WriteAllBytes(newLocalPath, json);
 
-            if(!string.IsNullOrEmpty(oldEtag) && oldEtag != newLocalPath && FileUtils.Exists(oldLocalPath))
+            if(!string.IsNullOrEmpty(oldEtag) && oldEtag != newLocalPath && FileUtils.Exists(oldLocalPath, IOTarget.File))
             {
-                FileUtils.Delete(oldLocalPath);
+                FileUtils.Delete(oldLocalPath, IOTarget.File);
             }
 
             if(finish != null)
