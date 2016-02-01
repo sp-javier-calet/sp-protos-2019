@@ -195,5 +195,56 @@ namespace SocialPoint.IO
                 Assert.Fail();
             }
         }
+
+        [Test]
+        public void Write_And_Read_Byte_File()
+        {
+            string path = TestFile;
+            if(!FileUtils.ExistsFile(path))
+            {
+                FileUtils.CreateFile(path);
+            }
+            byte[] write = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+            try
+            {
+                FileUtils.WriteAllBytes(path, write);
+                byte[] read = FileUtils.ReadAllBytes(path);
+                for(int i = 0; i < write.Length && i < read.Length; i++)
+                {
+                    if(write[i] != read[i])
+                    {
+                        Assert.Fail();
+                    }
+                }
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
+
+        [Test]
+        public void Write_And_Read_Text_File()
+        {
+            string path = TestFile;
+            if(!FileUtils.ExistsFile(path))
+            {
+                FileUtils.CreateFile(path);
+            }
+            string write = "IO Test String";
+            try
+            {
+                FileUtils.WriteAllText(path, write);
+                string read = FileUtils.ReadAllText(path);
+                if(write != read)
+                {
+                    Assert.Fail();
+                }
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+        }
     }
 }
