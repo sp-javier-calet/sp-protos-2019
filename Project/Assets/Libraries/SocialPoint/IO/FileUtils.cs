@@ -188,7 +188,7 @@ namespace SocialPoint.IO
 
         public static void CreateDirectory(string path)
         {
-            if(!Directory.Exists(path))
+            if(!Exists(path, IOTarget.Directory))
             {
                 CheckLocalPath(path);
                 path = Path.GetFullPath(path);
@@ -410,13 +410,13 @@ namespace SocialPoint.IO
             string dir;
             string pattern;
             SearchOption search;
-            if(File.Exists(src))
+            if(Exists(src, IOTarget.File))
             {
                 search = SearchOption.TopDirectoryOnly;
                 dir = null;
                 pattern = null;
             }
-            else if(Directory.Exists(src))
+            else if(Exists(src, IOTarget.Directory))
             {
                 search = SearchOption.AllDirectories;
                 dir = src;
@@ -445,14 +445,14 @@ namespace SocialPoint.IO
             }
 
             string[] files;
-            if(!string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(dir) && Directory.Exists(dir))
+            if(!string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(dir) && Exists(dir, IOTarget.Directory))
             {
                 files = Directory.GetFiles(dir, pattern, search);
                 dir = CleanPath(dir) + Path.DirectorySeparatorChar;
             }
             else
             {
-                if(File.Exists(src))
+                if(Exists(src, IOTarget.File))
                 {
                     files = new string[]{ src };
                 }
@@ -533,7 +533,7 @@ namespace SocialPoint.IO
 
             if(checkDst && srcDir != null)
             {
-                if(Directory.Exists(dst))
+                if(Exists(dst, IOTarget.Directory))
                 {
                     if(IsWildcard(src))
                     {
@@ -589,7 +589,7 @@ namespace SocialPoint.IO
 
         static public string SetDefaultFileName(string path, string filename)
         {
-            if(Directory.Exists(path) || path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
+            if(Exists(path, IOTarget.Directory) || path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
             {
                 return System.IO.Path.Combine(path, filename);
             }
@@ -600,13 +600,13 @@ namespace SocialPoint.IO
         {
             CheckLocalPath(path1);
             CheckLocalPath(path2);
-            if(!File.Exists(path1))
+            if(!Exists(path1, IOTarget.File))
             {
-                return !File.Exists(path2);
+                return !Exists(path2, IOTarget.File);
             }
-            if(!File.Exists(path2))
+            if(!Exists(path2, IOTarget.File))
             {
-                return !File.Exists(path1);
+                return !Exists(path1, IOTarget.File);
             }
             
             int file1byte;

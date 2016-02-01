@@ -49,14 +49,14 @@ namespace SocialPoint.Crash
 
             public override void Remove()
             {
-                if(File.Exists(CrashPath))
+                if(FileUtils.Exists(CrashPath, IOTarget.File))
                 {
-                    File.Delete(CrashPath);
+                    FileUtils.Delete(CrashPath, IOTarget.File);
                 }
 
-                if(File.Exists(LogPath))
+                if(FileUtils.Exists(LogPath, IOTarget.File))
                 {
-                    File.Delete(LogPath);
+                    FileUtils.Delete(LogPath, IOTarget.File);
                 }
             }
 
