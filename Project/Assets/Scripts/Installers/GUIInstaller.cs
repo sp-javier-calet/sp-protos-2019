@@ -16,6 +16,7 @@ public class GUIInstaller : MonoInstaller, IDisposable
     {
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
         public GameObject InitialScreenPrefab = null;
+        public bool InitialScreenAnimation = false;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -46,7 +47,14 @@ public class GUIInstaller : MonoInstaller, IDisposable
                 }
                 else
                 {
-                    screens.PushImmediate(ctrl);
+                    if(Settings.InitialScreenAnimation)
+                    {
+                        screens.Push(ctrl);
+                    }
+                    else
+                    {
+                        screens.PushImmediate(ctrl);
+                    }
                 }
             }
         }
