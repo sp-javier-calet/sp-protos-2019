@@ -35,6 +35,7 @@ namespace SocialPoint.Rating
             var appEvents = Substitute.For<IAppEvents>();
             AppRater = new AppRater(deviceInfo, storage, appEvents);
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
+            AppRaterGUI.Show(Arg.Any<bool>()).Returns(true);
             AppRater.GUI = AppRaterGUI;
             //default test values
             AppRater.UsesUntilPrompt = -1;
