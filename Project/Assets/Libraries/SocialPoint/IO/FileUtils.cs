@@ -16,6 +16,15 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.IO
 {
+    /// <summary>
+    /// Types of targets for IO opperations.
+    /// </summary>
+    public enum IOTarget
+    {
+        Any,
+        File,
+        Directory
+    }
 
     public class FileUtils
     {
@@ -87,7 +96,7 @@ namespace SocialPoint.IO
             return true;
         }
 
-        public static bool Exists(string path)
+        public static bool Exists(string path, IOTarget pathTarget = IOTarget.Any)
         {
             if(IsUrl(path))
             {
@@ -100,7 +109,20 @@ namespace SocialPoint.IO
             }
             else
             {
-                return System.IO.File.Exists(path);
+                bool existence = false;
+                switch(pathTarget)
+                {
+                case IOTarget.File:
+                    existence = System.IO.File.Exists(path);
+                    break;
+                case IOTarget.Directory:
+                    existence = System.IO.Directory.Exists(path);
+                    break;
+                default:
+                    existence = System.IO.File.Exists(path) || System.IO.Directory.Exists(path);
+                    break;
+                }
+                return existence;
             }
         }
 
@@ -189,9 +211,9 @@ namespace SocialPoint.IO
             File.Create(path).Close();
         }
 
-        public static bool Delete(string path)
+        public static bool Delete(string path, IOTarget pathTarget = IOTarget.Any)
         {
-            if(!Exists(path))
+            if(!Exists(path, pathTarget))
             {
                 return false;
             }
