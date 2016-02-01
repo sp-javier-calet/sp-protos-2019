@@ -107,7 +107,7 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-                //TODO: Can the existence of a directory be proved with the same method than with files?
+                //TODO: Can the existence of a directory be proved with the same method than with files for Url paths?
                 return false;
             }
             else
