@@ -31,9 +31,7 @@ namespace SocialPoint.Login
 
         UInt64 UserId { get; }
 
-        string SessionId { get; }
-
-        string PrivilegeToken { set; }
+        string SessionId { get; }       
 
         GenericData Data { get; }
 

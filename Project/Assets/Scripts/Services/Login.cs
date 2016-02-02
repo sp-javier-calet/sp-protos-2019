@@ -4,6 +4,7 @@ using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
+using SocialPoint.AppEvents;
 using System.Collections.Generic;
 
 class Login : SocialPointLogin
@@ -14,6 +15,15 @@ class Login : SocialPointLogin
         set
         {
             DeviceInfo = value;
+        }
+    }
+
+    [Inject]
+    IAppEvents injectAppEvents
+    {
+        set
+        {
+            AppEvents = value;
         }
     }
 
