@@ -161,7 +161,19 @@ namespace SocialPoint.IO
         {
             CheckLocalPath(path);
             path = Path.GetFullPath(path);
-            return Directory.GetFiles(path);
+
+            string[] files = null;
+
+            try
+            {
+                files = Directory.GetFiles(path);
+            }
+            catch(Exception e)
+            {
+                CatchException(e);
+            }
+
+            return files;
         }
 
         public static void CreateDirectory(string path)
@@ -618,6 +630,15 @@ namespace SocialPoint.IO
             fs2.Close();
             
             return ((file1byte - file2byte) == 0);
+        }
+
+        static void CatchException(Exception e)
+        {
+            Debug.LogException(e);
+            
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #endif
         }
     }
 }
