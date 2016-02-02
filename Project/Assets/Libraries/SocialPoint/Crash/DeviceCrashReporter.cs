@@ -43,12 +43,12 @@ namespace SocialPoint.Crash
                     try
                     {
                         content = FileUtils.ReadAllBytes(filePath);
+                        success = true;
                     }
                     catch(Exception e)
                     {
                         content = Encoding.UTF8.GetBytes(string.Format("Error reading crash file {0} : {1}", filePath, e.Message));
                     }
-                    success = true;
                 }
                 return success;
             }
