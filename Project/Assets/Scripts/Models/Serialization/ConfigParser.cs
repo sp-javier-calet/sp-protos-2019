@@ -4,34 +4,49 @@ using System.Collections.Generic;
 
 public class ConfigParser : IParser<ConfigModel>
 {
+    const string AttrKeyGame = "game";
+    const string AttrKeyResources = "resources";
+    const string AttrKeyStore = "store";
     const string AttrKeyGlobals = "globals";
     const string AttrKeyScripts = "scripts";
     const string AttrKeyGlobalKey = "key";
     const string AttrKeyGlobalValue = "value";
 
     IParser<ScriptModel> _scriptParser;
+    IParser<StoreModel> _storeParser;
 
-    public ConfigParser(IParser<ScriptModel> scriptParser)
+    public ConfigParser(IParser<StoreModel> storeParser, IParser<ScriptModel> scriptParser)
     {
         _scriptParser = scriptParser;
+        _storeParser = storeParser;
     }
 
     public ConfigModel Parse(Attr data)
     {
-        var globals = new Dictionary<string, Attr>();
-        var scripts = new List<ScriptModel>();
-        var gsAttr = data.AsDic[AttrKeyGlobals];
+        var globals = ParseGlobals(data);
+        var scripts = ParseScripts(data);
 
-        if(gsAttr.AttrType == AttrType.DICTIONARY)
+        var resourceTypes = new ResourceTypesParser().Parse(data.AsDic[AttrKeyResources]);
+        var store = _storeParser.Parse(data.AsDic[AttrKeyStore]);
+
+        return new ConfigModel(globals, scripts, resourceTypes, store);
+    }
+
+    Dictionary<string, Attr> ParseGlobals(Attr data)
+    {
+        var globalsDict = data.AsDic[AttrKeyGlobals];
+        var globals = new Dictionary<string, Attr>();
+
+        if(globalsDict.AttrType == AttrType.DICTIONARY)
         {
-            foreach(var gAttr in gsAttr.AsDic)
+            foreach(var gAttr in globalsDict.AsDic)
             {
-                globals[gAttr.Key] = (Attr) gAttr.Value.Clone();
+                globals[gAttr.Key] = (Attr)gAttr.Value.Clone();
             }
         }
-        else if(gsAttr.AttrType == AttrType.LIST)
+        else if(globalsDict.AttrType == AttrType.LIST)
         {
-            foreach(var gAttr in gsAttr.AsList)
+            foreach(var gAttr in globalsDict.AsList)
             {
                 var gAttrdic = gAttr.AsDic;
                 var key = gAttrdic[AttrKeyGlobalKey].AsValue.ToString();
@@ -41,10 +56,22 @@ public class ConfigParser : IParser<ConfigModel>
                 }
             }
         }
-        foreach(var script in data.AsDic[AttrKeyScripts].AsList)
+
+        return globals;
+    }
+
+    List<ScriptModel> ParseScripts(Attr data)
+    {
+        var scripts = new List<ScriptModel>();
+
+        if(_scriptParser != null)
         {
-            scripts.Add(_scriptParser.Parse(script));
+            foreach(var script in data.AsDic[AttrKeyScripts].AsList)
+            {
+                scripts.Add(_scriptParser.Parse(script));
+            }
         }
-        return new ConfigModel(globals, scripts);
+
+        return scripts;
     }
 }
