@@ -81,16 +81,14 @@ namespace SocialPoint.GUIAnimation
             AnimationClip clip = null;
 
             Animator anim = GUIAnimationUtility.GetComponentRecursiveDown<Animator> (Target.gameObject);
-            if (anim != null)
+            if(anim != null)
             {
-                UnityEditor.Animations.AnimatorController ac = anim.runtimeAnimatorController as UnityEditor.Animations.AnimatorController;
-                for (int i = 0; i < ac.animationClips.Length; ++i)
+                AnimatorClipInfo[] clipsInfo = anim.GetCurrentAnimatorClipInfo(0); 
+                for (int i = 0; i < clipsInfo.Length; ++i)
                 {
-                    AnimationClip aclip = ac.animationClips [0];
-                    if (_stateName == aclip.name)
+                    if(clipsInfo[i].clip.name == _stateName)
                     {
-                        clip = aclip;
-                        break;
+                        return clipsInfo[i].clip;
                     }
                 }
             }
