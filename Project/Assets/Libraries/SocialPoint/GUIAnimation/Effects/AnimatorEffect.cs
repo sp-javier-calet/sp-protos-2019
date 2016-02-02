@@ -88,7 +88,8 @@ namespace SocialPoint.GUIAnimation
                 {
                     if(clipsInfo[i].clip.name == _stateName)
                     {
-                        return clipsInfo[i].clip;
+                        clip = clipsInfo[i].clip;
+                        break;
                     }
                 }
             }
