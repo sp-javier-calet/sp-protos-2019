@@ -80,13 +80,11 @@ namespace SocialPoint.Attributes
             Invalidate();
         }
 
-        //TODO: check if this function 'Has' cares about Files and Directories or only one of them (to add IOTarget param in FileUtils.Exists)
         public bool Has(string key)
         {
             return FileUtils.ExistsFile(GetPath(key));
         }
 
-        //TODO: check if this function 'Remove' cares about Files and Directories or only one of them (to add IOTarget param in FileUtils.Delete)
         public void Remove(string key)
         {
             FileUtils.DeleteFile(GetPath(key));

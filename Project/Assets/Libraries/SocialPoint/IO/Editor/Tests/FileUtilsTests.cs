@@ -13,6 +13,7 @@ namespace SocialPoint.IO
         private const string TestFile = "io_test_file";
 
         private const string TestGeneric = "io_test_generic";
+        private const string TestURL = "https://socialpoint.atlassian.net/wiki/display/MT";
 
         [SetUp]
         public void SetUp()
@@ -248,14 +249,16 @@ namespace SocialPoint.IO
         }
 
         [Test]
-        /// <summary>
-        /// Verify that Exists functions don't mix Files and Directories
-        /// </summary>
         public void Existance_Mix()
         {
+            // Verify that 'Exists' functions don't mix Files and Directories
             string path = TestGeneric;
             FileUtils.DeleteFile(path);
             FileUtils.DeleteDirectory(path);
+            if(FileUtils.ExistsFile(path) || FileUtils.ExistsDirectory(path))
+            {
+                Assert.Fail();
+            }
 
             FileUtils.CreateFile(path);
             if(!FileUtils.ExistsFile(path) || FileUtils.ExistsDirectory(path))
@@ -270,6 +273,34 @@ namespace SocialPoint.IO
                 Assert.Fail();
             }
             FileUtils.DeleteDirectory(path);
+        }
+
+        [Test]
+        public void Existance_File_URL()
+        {
+            string path = TestURL;
+            if(FileUtils.ExistsFile(path))
+            {
+                Assert.Pass();
+            }
+            else
+            {
+                Assert.Fail();
+            }
+        }
+
+        [Test]
+        public void Existance_Directory_URL()
+        {
+            string path = TestURL;
+            if(FileUtils.ExistsDirectory(path))
+            {
+                Assert.Pass();
+            }
+            else
+            {
+                Assert.Fail();
+            }
         }
     }
 }

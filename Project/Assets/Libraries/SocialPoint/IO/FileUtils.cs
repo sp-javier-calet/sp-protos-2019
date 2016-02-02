@@ -107,8 +107,13 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-                //TODO: Can the existence of a directory be proved with the same method than with files for Url paths?
-                return false;
+#if UNITY
+                //TODO: Is there a way to differentiate it from a URL file?
+                var www = Download(path);
+                return string.IsNullOrEmpty(www.error);
+#else
+                throw new IOException("Url paths are not supported.");
+#endif
             }
             else
             {
@@ -203,18 +208,25 @@ namespace SocialPoint.IO
 
         public static bool DeleteFile(string path)
         {
+            if(IsUrl(path))
+            {
+                return false;
+            }
             if(!ExistsFile(path))
             {
                 return false;
             }
 
-            //TODO: What happens if exists returns true for an URL path (Android). Can it be deleted with File.Delete?
             File.Delete(path);
             return true;
         }
 
         public static bool DeleteDirectory(string path)
         {
+            if(IsUrl(path))
+            {
+                return false;
+            }
             if(!ExistsDirectory(path))
             {
                 return false;
