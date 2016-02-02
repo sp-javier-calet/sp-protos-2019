@@ -99,7 +99,7 @@ namespace SocialPoint.Login
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
         public const uint DefaultUserMappingsBlock = 50;
 
-        public const string SourceHost = "load-external-user";
+        public const string LoadExternalSourceHost = "load-external-user";
         public const string SourceParamEnvironment = "envurl";
         public const string SourceParamPrivilegeToken = "privilegedToken";
         public const string SourceParamUserId = "userId";
@@ -184,7 +184,7 @@ namespace SocialPoint.Login
 
         bool SetAppSource(AppSource src)
         {
-            if(src == null || src.Empty || src.Host != SourceHost)
+            if(src == null || src.Empty || src.Host != LoadExternalSourceHost)
             {
                 return false;
             }
@@ -195,7 +195,6 @@ namespace SocialPoint.Login
             {
                 if(BaseUrl != val)
                 {
-     
                     changed = true;
                     BaseUrl = val;
                 }
