@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Runtime.InteropServices;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
@@ -32,17 +33,22 @@ namespace SocialPoint.Crash
                 LogPath = logPath;
             }
 
-            static bool TryReadFile(string filePath, out string content)
+            static bool TryReadFile(string filePath, out byte[] content)
             {
                 bool success = false;
-                try
+                content = null;
+
+                if(FileUtils.Exists(filePath))
                 {
-                    content = FileUtils.ReadAllText(filePath);
+                    try
+                    {
+                        content = FileUtils.ReadAllBytes(filePath);
+                    }
+                    catch(Exception e)
+                    {
+                        content = Encoding.UTF8.GetBytes(string.Format("Error reading crash file {0} : {1}", filePath, e.Message));
+                    }
                     success = true;
-                }
-                catch(Exception e)
-                {
-                    content = "Error reading crash file " + filePath + ": " + e.Message;
                 }
                 return success;
             }
@@ -64,14 +70,18 @@ namespace SocialPoint.Crash
             {
                 get
                 {
-                    string stackTrace;
-                    if(TryReadFile(CrashPath, out stackTrace))
+                    string stackTrace = null;
+                    byte[] content;
+                    if(TryReadFile(CrashPath, out content))
                     {
 #if UNITY_ANDROID
                         // Base 64 encoding only for Android
-                        var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(stackTrace);
-                        stackTrace = Convert.ToBase64String(plainTextBytes);
+                        int base64BufferSize = 4 * (int)Math.Ceiling(content.Length / 3.0);
+                        var encoded = new char[base64BufferSize];
+                        var size = Convert.ToBase64CharArray(content, 0, content.Length, encoded, 0);
+                        content = Encoding.UTF8.GetBytes(encoded, 0, size);
 #endif
+                        stackTrace = Encoding.UTF8.GetString(content);
                     }
                     return stackTrace;
                 }
@@ -101,10 +111,11 @@ namespace SocialPoint.Crash
             {
                 get
                 {
-                    string logContent = "";
-                    if(FileUtils.Exists(LogPath))
+                    string logContent = string.Empty;
+                    byte[] content;
+                    if(TryReadFile(LogPath, out content))
                     {
-                        TryReadFile(LogPath, out logContent);
+                        logContent = Encoding.UTF8.GetString(content);
                     }
                     return logContent;
                 }
