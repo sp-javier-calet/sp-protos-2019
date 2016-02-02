@@ -199,24 +199,29 @@ namespace SocialPoint.Crash
         protected override List<Report> GetPendingCrashes()
         {
             var reports = new List<Report>();
-
-            // Iterates over all files in the crashes folder
-            var dir = new DirectoryInfo(_crashesBasePath);
-            FileInfo[] info = dir.GetFiles();
-
-            foreach(FileInfo f in info)
+            try
             {
-                // Creates a report for each .crash/.logcat pair
-                if(f.Extension == CrashExtension)
+                // Iterates over all files in the crashes folder
+                var dir = new DirectoryInfo(_crashesBasePath);
+                FileInfo[] info = dir.GetFiles();
+
+                foreach(FileInfo f in info)
                 {
-                    var report = new DeviceReport(f.FullName);
-                    report.Uuid = f.Name;
-                    reports.Add(report);
+                    // Creates a report for each .crash/.logcat pair
+                    if(f.Extension == CrashExtension)
+                    {
+                        var report = new DeviceReport(f.FullName);
+                        report.Uuid = f.Name;
+                        reports.Add(report);
+                    }
                 }
+            }
+            catch(DirectoryNotFoundException e)
+            {
+                Debug.LogError(string.Format("Crash folder not found. {0}", e));
             }
 
             return reports;
         }
     }
 }
-
