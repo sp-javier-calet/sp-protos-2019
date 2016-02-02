@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.GameCenter;
@@ -9,8 +10,10 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
+    public delegate void GameCenterValidationDelegate(GameCenterUserVerification ver);
     public class UnityGameCenter : BaseGameCenter
     {
+
         private readonly static string PhotosCacheFolder = "GameCenter";
         private GameCenterUser _user;
 
@@ -31,6 +34,7 @@ namespace SocialPoint.Social
         private bool _connecting = false;
         private GameCenterPlatform _platform;
         private List<GameCenterUser> _friends;
+        SocialPointGameCenterVerification _gameCenterVerification;
 
         public override List<GameCenterUser> Friends
         {
@@ -72,6 +76,12 @@ namespace SocialPoint.Social
                                                          localUser.underage ? GameCenterUser.AgeGroup.Underage : GameCenterUser.AgeGroup.Adult
                 );                
                 _user = user;
+
+                //plugin request
+                RequestGameCenterVerification();
+
+                //TODO: actual request to backend
+
                 if(cbk != null)
                 {
                     cbk(null);
@@ -208,6 +218,13 @@ namespace SocialPoint.Social
             PlayerVerification = playerVerification;
             _platform = new GameCenterPlatform();
             UnityEngine.Social.Active = _platform;
+        }
+
+        private void RequestGameCenterVerification()
+        {
+            var go = new GameObject();
+            _gameCenterVerification = go.AddComponent<SocialPointGameCenterVerification>();
+            _gameCenterVerification.Callback = (GameCenterUserVerification ver) => Debug.Log("callback called");
         }
         
         public override bool IsConnected
