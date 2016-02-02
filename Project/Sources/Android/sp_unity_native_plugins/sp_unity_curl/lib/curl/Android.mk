@@ -3,8 +3,6 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := curl
-BASE_PATH := $(LOCAL_PATH)
-LOCAL_EXPORT_C_INCLUDES := $(BASE_PATH)/include
-LOCAL_SRC_FILES := $(BASE_PATH)/libs/$(TARGET_ARCH_ABI)/libcurl.a
+LOCAL_SRC_FILES := $(LOCAL_PATH)/libs/$(TARGET_ARCH_ABI)/libcurl.a
 
 include $(PREBUILT_STATIC_LIBRARY)
