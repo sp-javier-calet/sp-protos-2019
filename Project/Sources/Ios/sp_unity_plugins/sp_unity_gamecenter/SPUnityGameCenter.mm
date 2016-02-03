@@ -5,6 +5,7 @@
 //  Created by Miguel Janer on 1/2/16.
 //
 #include <string>
+#include "UnityGameObject.h"
 #import <GameKit/GameKit.h>
 
 std::string _gameObjectName;
@@ -23,13 +24,13 @@ void generateIdentityVerificationSignature()
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
         if(!error)
         {
-            NSString *signatureStr = [signature base64Encoding];
-            NSString *saltStr = [salt base64Encoding];
+            NSString *signatureStr = [signature base64EncodedStringWithOptions:0];
+            NSString *saltStr = [salt base64EncodedStringWithOptions:0];
             [dict setObject:@false forKey:@"error"];
             [dict setObject:publicKeyUrl.absoluteString forKey:@"url"];
             [dict setObject:signatureStr forKey:@"signature"];
             [dict setObject:saltStr forKey:@"salt"];
-            [dict setObject:[NSNumber numberWithLong:timestamp] forKey:@"timestamp"];
+            [dict setObject:[NSNumber numberWithLongLong:timestamp] forKey:@"timestamp"];
         }
         else
         {
@@ -42,7 +43,7 @@ void generateIdentityVerificationSignature()
         {
             NSData *json = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil];
             NSString *jsonString = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
-            UnitySendMessage(_gameObjectName.c_str(), kNotifyMethod.c_str(), [jsonString UTF8String]);
+            UnityGameObject(_gameObjectName).SendMessage(kNotifyMethod, [jsonString UTF8String]);
         }
     }];
 }
