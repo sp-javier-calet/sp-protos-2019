@@ -221,6 +221,7 @@ namespace SocialPoint.ServerSync
         List<Packet> _sentPackets;
         List<string> _pendingAcks;
         List<string> _sendingAcks;
+        bool _pendingSend;
         bool _sending;
         bool _synced;
         bool _currentPacketFlushed;
@@ -398,6 +399,7 @@ namespace SocialPoint.ServerSync
         {
             if(_sending)
             {
+                _pendingSend = true;
                 _sendFinish += finish;
             }
             else
@@ -442,11 +444,10 @@ namespace SocialPoint.ServerSync
         void AfterSend()
         {
             _sending = false;
-            if(_sendFinish != null)
+            if(_pendingSend)
             {
-                var finish = _sendFinish;
-                _sendFinish = null;
-                Send(finish);
+                _pendingSend = false;
+                Send(_sendFinish);
             }
         }
 
