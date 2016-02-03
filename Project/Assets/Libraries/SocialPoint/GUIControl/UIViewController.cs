@@ -407,7 +407,7 @@ namespace SocialPoint.GUIControl
         {
             if(_viewState == ViewState.Appearing && _showCoroutine != null)
             {
-                yield return _hideCoroutine;
+                yield return _showCoroutine;
             }
             else
             {
