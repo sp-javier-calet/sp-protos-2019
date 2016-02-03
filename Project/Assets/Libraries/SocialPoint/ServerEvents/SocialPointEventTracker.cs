@@ -654,15 +654,15 @@ namespace SocialPoint.ServerEvents
             string sourceType = "app";
             string detail = "";
 
-            if(source.IsCustomScheme())
+            if(source.IsCustomScheme)
             {
                 sourceType = source.Scheme;
-                detail = source.QueryString;
+                detail = source.Query;
             }
             else if(!source.Empty)
             {
                 sourceType = "url";
-                detail = source.Uri;
+                detail = source.ToString();
             }
 
             origin.SetValue("source", sourceType);

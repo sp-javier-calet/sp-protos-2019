@@ -7,6 +7,7 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.AppEvents;
 
 namespace SocialPoint.Login
 {
@@ -98,6 +99,10 @@ namespace SocialPoint.Login
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
         public const uint DefaultUserMappingsBlock = 50;
 
+        public const string LoadExternalSourceHost = "load-external-user";
+        public const string SourceParamEnvironment = "envurl";
+        public const string SourceParamPrivilegeToken = "privilegedToken";
+        public const string SourceParamUserId = "userId";
         
         public struct LoginConfig
         {
@@ -113,6 +118,7 @@ namespace SocialPoint.Login
         int _availableSecurityTokenErrorRetries;
         int _availableConnectivityErrorRetries;        
         IHttpClient _httpClient;
+        IAppEvents _appEvents;
         List<LinkInfo> _links;
         List<LinkInfo> _pendingLinkConfirms;
         List<User> _users;
@@ -145,9 +151,80 @@ namespace SocialPoint.Login
             }
         }
 
+        public IAppEvents AppEvents
+        {
+            get
+            {
+                return _appEvents;
+            }
+
+            set
+            {
+                if(_appEvents != null)
+                {
+                    _appEvents.OpenedFromSource -= OnAppOpenedFromSource;
+                }
+                _appEvents = value;
+                if(_appEvents != null)
+                {
+                    _appEvents.OpenedFromSource += OnAppOpenedFromSource;
+                }
+            }
+        }
+
+        void OnAppOpenedFromSource(AppSource src)
+        {
+            #if DEBUG
+            if(SetAppSource(src))
+            {
+                _appEvents.RestartGame();
+            }
+            #endif
+        }
+
+        bool SetAppSource(AppSource src)
+        {
+            if(src == null || src.Empty || src.Host != LoadExternalSourceHost)
+            {
+                return false;
+            }
+            var parms = src.Parameters;
+            string val;
+            bool changed = false;
+            if(parms.TryGetValue(SourceParamEnvironment, out val))
+            {
+                if(BaseUrl != val)
+                {
+                    changed = true;
+                    BaseUrl = val;
+                }
+            }
+            if(parms.TryGetValue(SourceParamPrivilegeToken, out val))
+            {
+                if(PrivilegeToken != val)
+                {
+                    changed = true;
+                    PrivilegeToken = val;
+                }
+            }
+            if(parms.TryGetValue(SourceParamUserId, out val))
+            {
+                ulong userId;
+                if(ulong.TryParse(val, out userId))
+                {
+                    if(UserId != userId)
+                    {
+                        changed = true;
+                        ImpersonatedUserId = userId;
+                    }
+                }
+            }
+            return changed;
+        }
+
         public List<User> Friends { get; private set; }
 
-        public IDeviceInfo DeviceInfo { private get; set; }
+        public IDeviceInfo DeviceInfo { private get; set; }       
 
         public IAttrStorage Storage { private get; set; }
 
@@ -171,6 +248,10 @@ namespace SocialPoint.Login
         {
             get
             {
+                if(ImpersonatedUserId != 0)
+                {
+                    return ImpersonatedUserId;
+                }
                 if(_userId == 0 && Storage != null)
                 {
                     try
@@ -202,6 +283,8 @@ namespace SocialPoint.Login
                 StoreUserId();
             }
         }
+
+        public UInt64 ImpersonatedUserId;
 
         public bool UserHasRegistered
         {
@@ -307,7 +390,13 @@ namespace SocialPoint.Login
             set
             {
 
-                _baseUrl = StringUtils.FixBaseUri(value);
+                var url = StringUtils.FixBaseUri(value);
+                Uri uri;
+                if(url != null && !Uri.TryCreate(url, UriKind.Absolute, out uri))
+                {
+                    throw new InvalidOperationException("Invalid base Url.");
+                }
+                _baseUrl = url;
             }
         }
 
@@ -351,6 +440,7 @@ namespace SocialPoint.Login
         private void Init()
         {
             _userId = 0;
+            ImpersonatedUserId = 0;
             _userHasRegistered = false;
             _userHasRegisteredLoaded = false;
             Friends = new List<User>();
@@ -425,6 +515,8 @@ namespace SocialPoint.Login
             else if(resp.StatusCode == InvalidPrivilegeTokenError)
             {
                 err = new Error("Privilege token is invalid.");
+                PrivilegeToken = null;
+                ImpersonatedUserId = 0;
                 typ = ErrorType.InvalidPrivilegeToken;
             }
             else if(json != null)
@@ -537,21 +629,23 @@ namespace SocialPoint.Login
             return err;
         }      
 
-        public string GetUrl(string uri)
+        public Uri GetUrl(string path)
         {
             var baseUrl = _baseUrl;
             if(string.IsNullOrEmpty(baseUrl))
             {
                 baseUrl = DefaultBaseUrl;
             }
-            var url = StringUtils.CombineUri(baseUrl + BaseUri, uri);
+            var uriStr = StringUtils.CombineUri(baseUrl + BaseUri, path);
             string deviceId = "0";
             if(DeviceInfo != null)
             {
                 deviceId = DeviceInfo.Uid;
             }
-            url = string.Format(url, UserId.ToString(), deviceId);
-            return url;
+            uriStr = string.Format(uriStr, UserId.ToString(), deviceId);
+            Uri uri = null;
+            Uri.TryCreate(uriStr, UriKind.Absolute, out uri);
+            return uri;
         }
 
         void DoFakeLogin(ErrorDelegate cbk)
@@ -569,6 +663,10 @@ namespace SocialPoint.Login
 
         void DoLogin(ErrorDelegate cbk)
         {
+            if(_appEvents != null)
+            {
+                SetAppSource(_appEvents.Source);
+            }
             _pendingLinkConfirms.Clear();
             if(_availableSecurityTokenErrorRetries < 0)
             {
@@ -678,7 +776,7 @@ namespace SocialPoint.Login
             {
                 cbk(err);
             }
-            if(Error.IsNullOrEmpty(err))
+            if(ImpersonatedUserId == 0 && Error.IsNullOrEmpty(err))
             {
                 NextLinkLogin(null, null, LinkInfo.Filter.Auto);
             }
@@ -759,6 +857,10 @@ namespace SocialPoint.Login
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
+            if(ImpersonatedUserId != 0)
+            {
+                return;
+            }
 
             if(state == LinkState.Disconnected)
             {
@@ -1799,6 +1901,7 @@ namespace SocialPoint.Login
         public void ClearStoredUser()
         {
             _userId = 0;
+            ImpersonatedUserId = 0;
             _userHasRegistered = false;
             _userHasRegisteredLoaded = true;
             if(Storage != null)
@@ -1855,7 +1958,7 @@ namespace SocialPoint.Login
                 req.ActivityTimeout = ActivityTimeout;
             }
             req.Method = HttpRequest.MethodType.POST;
-            req.Url = new Uri(GetUrl(Uri));
+            req.Url = GetUrl(Uri);
             if(User != null && !string.IsNullOrEmpty(User.SessionId))
             {
                 req.AddQueryParam(HttpParamSessionId, User.SessionId);
