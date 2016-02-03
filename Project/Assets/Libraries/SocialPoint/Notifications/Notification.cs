@@ -12,16 +12,30 @@ namespace SocialPoint.Notifications
     */
     public class Notification
     {
+        public Notification(bool requiresOffset)
+        {
+            RequiresOffset = requiresOffset;
+        }
+
         /**
          * the title of the action button or slider
          */
-        public string Title = string.Empty; 
+        public string Title = string.Empty;
 
         /**
          * he message displayed in the notification alert
          */
         public string Message = string.Empty;
 
+        /// <summary>
+        /// Flag to mark if the notification time may require a random offset of time applied to it
+        /// </summary>
+        /// <value><c>true</c> if requires offset; otherwise, <c>false</c>.</value>
+        public bool RequiresOffset
+        {
+            get;
+            private set;
+        }
 
         [Obsolete("Use Title")]
         public string AlertAction
@@ -36,7 +50,7 @@ namespace SocialPoint.Notifications
                 return Title;
             }
         }
-        
+
         [Obsolete("Use Message")]
         public string AlertBody
         {
@@ -75,7 +89,7 @@ namespace SocialPoint.Notifications
 
             set
             {
-               FireDelay = (long)value.Subtract(DateTime.Now.ToLocalTime()).TotalSeconds;
+                FireDelay = (long)value.Subtract(DateTime.Now.ToLocalTime()).TotalSeconds;
             }
         }
 
