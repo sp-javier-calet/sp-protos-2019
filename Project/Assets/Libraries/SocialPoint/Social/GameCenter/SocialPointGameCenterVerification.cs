@@ -17,10 +17,10 @@ namespace SocialPoint.Social
 
         #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
-        private static extern void SPUnityGameCenterUserVerification_Init(string name);
+        private static extern void SPUnityGameCenter_UserVerificationInit(string name);
         
 #else
-        private static void SPUnityGameCenterUserVerification_Init(string name)
+        private static void SPUnityGameCenter_UserVerificationInit(string name)
         {
 
         }
@@ -30,7 +30,7 @@ namespace SocialPoint.Social
         {
             gameObject.name = GetType().ToString();
             DontDestroyOnLoad(this);
-            SPUnityGameCenterUserVerification_Init(gameObject.name);
+            SPUnityGameCenter_UserVerificationInit(gameObject.name);
         }
 
         /// <summary>

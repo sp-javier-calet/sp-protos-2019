@@ -50,7 +50,7 @@ void generateIdentityVerificationSignature()
 
 extern "C"
 {
-    void SPUnityGameCenterUserVerification_Init(const char* gameObjectName)
+    void SPUnityGameCenter_UserVerificationInit(const char* gameObjectName)
     {
         _gameObjectName = gameObjectName;
         generateIdentityVerificationSignature();
