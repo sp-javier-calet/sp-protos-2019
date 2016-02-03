@@ -1,13 +1,11 @@
-﻿//  Author:
-//    Miguel-Janer 
-//
-//  Copyright (c) 2016, Miguel-Janer
-//
-//  All rights reserved.
-//
-using System;
+﻿using System;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 using UnityEngine;
+
+#if UNITY_IOS && !UNITY_EDITOR
 using System.Runtime.InteropServices;
+#endif
 
 namespace SocialPoint.Social
 {
@@ -20,8 +18,8 @@ namespace SocialPoint.Social
         #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
         private static extern void SPUnityGameCenterUserVerification_Init(string name);
-
-        #else
+        
+#else
         private static void SPUnityGameCenterUserVerification_Init(string name)
         {
 
@@ -32,16 +30,34 @@ namespace SocialPoint.Social
         {
             gameObject.name = GetType().ToString();
             DontDestroyOnLoad(this);
-            //initialize plugin with gameobject name
             SPUnityGameCenterUserVerification_Init(gameObject.name);
-            //requests gameCenterVerification
         }
 
-        //called by the plugin when the verification is ready
+        /// <summary>
+        /// recieves the verification from the plugin as a serialized json
+        /// </summary>
+        /// <param name="verfication">Verfication.</param>
         void Notify(string verfication)
         {
             Debug.Log(verfication);
-            Callback(new GameCenterUserVerification());
+            var parser = new JsonAttrParser();
+            var data = parser.ParseString(verfication).AsDic;
+            if(data.GetValue("error").ToBool())
+            {
+                Callback(new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString()), null);
+            }
+            else
+            {
+                var url = data.GetValue("url").ToString();
+                var signature = Convert.FromBase64String(data.GetValue("signature").ToString());
+                var salt = Convert.FromBase64String(data.GetValue("salt").ToString());
+                var time = (ulong)data.GetValue("timestamp").ToLong();
+                var userVerification = new GameCenterUserVerification(url, signature, salt, time);
+                if(Callback != null)
+                {
+                    Callback(new Error(), userVerification);
+                }
+            }
         }
 
     }
