@@ -81,7 +81,7 @@ namespace SocialPoint.Social
         {
             if(callback != null)
             {
-                callback(new Dictionary<string, string>(), null);
+                callback(new List<string>(), null);
             }
         }
 

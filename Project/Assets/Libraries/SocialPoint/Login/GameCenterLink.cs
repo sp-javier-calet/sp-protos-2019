@@ -182,8 +182,8 @@ namespace SocialPoint.Login
             if(!string.IsNullOrEmpty(veri.Url))
             {
                 data.SetValue("gc_verification_url", veri.Url);
-                data.SetValue("gc_verification_signature", veri.Signature.ToString());
-                data.SetValue("gc_verification_salt", veri.Salt.ToString());
+                data.SetValue("gc_verification_signature", Convert.ToBase64String(veri.Signature));
+                data.SetValue("gc_verification_salt", Convert.ToBase64String(veri.Salt));
                 data.SetValue("gc_verification_time", veri.Time.ToString());
             }
             else

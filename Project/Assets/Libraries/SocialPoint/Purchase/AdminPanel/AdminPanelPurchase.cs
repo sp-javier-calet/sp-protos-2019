@@ -64,11 +64,20 @@ namespace SocialPoint.Purchase
             AddGUIInfoLabel(layout, "Latest required products: " + _lastKnownRequiredProducts);
             AddGUISeparation(layout);
 
-            //Use delay before purchasing? Can be used to test receiving events to refresh after closing the panel
             layout.CreateLabel("Purchase Options");
+            //Use delay before purchasing? Can be used to test receiving events to refresh after closing the panel
             layout.CreateToggleButton("Purchase with delay?", _purchaseWithDelay, (selected) => {
                 _purchaseWithDelay = selected;
                 RefreshPanel();
+            });
+            //Force pending transactions
+            layout.CreateButton("Finish Pending Transactions", () => {
+                _purchaseStore.ForceFinishPendingTransactions();
+                #if UNITY_ANDROID && !UNITY_EDITOR
+                //Reload... this is needed in Android. 
+                //TODO: Check Mock and iOS versions to update Android version without needing to reload
+                LoadProducts(null);
+                #endif
             });
             AddGUISeparation(layout);
 

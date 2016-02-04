@@ -306,7 +306,6 @@ namespace SocialPoint.GUIControl
                 OnLoad();
             }
             Setup();
-            Reset();
             return loaded;
         }
 
@@ -412,7 +411,6 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                Load();
                 if(_viewState != ViewState.Shown)
                 {
                     var enm = FullAppear();
@@ -428,12 +426,12 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("HideImmediate");
             Load();
-            if(_viewState != ViewState.Disappearing && _viewState != ViewState.Hidden)
+            if(_viewState != ViewState.Disappearing && _viewState != ViewState.Hidden && _viewState != ViewState.Destroyed)
             {
                 OnDisappearing();
             }
             Disable();
-            if(_viewState != ViewState.Hidden)
+            if(_viewState != ViewState.Hidden && _viewState != ViewState.Destroyed)
             {
                 OnDisappeared();
             }

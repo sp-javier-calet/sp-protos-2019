@@ -28,16 +28,16 @@ public class HttpClientInstaller : MonoInstaller
     {
         public string Config = "basegame";
     };
-        
+
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
 #if UNITY_EDITOR
         var proxyPath = FileUtils.Combine(Application.dataPath, "../.proxy");
-        if(FileUtils.Exists(proxyPath))
+        if(FileUtils.ExistsFile(proxyPath))
         {
-            var proxy = FileUtils.ReadAllText(proxyPath);
+            var proxy = FileUtils.ReadAllText(proxyPath).Trim();
             DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
             Container.BindInstance("http_client_proxy", proxy);
         }

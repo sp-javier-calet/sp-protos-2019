@@ -389,12 +389,14 @@ namespace SocialPoint.Login
 
             set
             {
-
                 var url = StringUtils.FixBaseUri(value);
-                Uri uri;
-                if(url != null && !Uri.TryCreate(url, UriKind.Absolute, out uri))
+                if(url != null)
                 {
-                    throw new InvalidOperationException("Invalid base Url.");
+                    Uri uri;
+                    if(!Uri.TryCreate(url, UriKind.Absolute, out uri))
+                    {
+                        throw new InvalidOperationException("Invalid base Url.");
+                    }
                 }
                 _baseUrl = url;
             }

@@ -96,6 +96,8 @@ namespace SocialPoint.Purchase
             }
         }
 
+        //Right now this function should be coupled with a reload of the inventory (see AdminPanelPurchase for example)
+        //TODO: Change to do the force in one go (as Mock and iOS stores)
         public void ForceFinishPendingTransactions()
         {
             _autoCompletePurchases = true;
@@ -165,6 +167,8 @@ namespace SocialPoint.Purchase
                     PurchaseSucceeded(item);
                 }
             }
+            //This bool is set to false again to make the ForceFinishPendingTransactions a one time only action (check comments on function)
+            _autoCompletePurchases = false;
 
             Debug.Log("received total products: " + inventory.GetAllAvailableSkus().Count);
             try
@@ -249,10 +253,10 @@ namespace SocialPoint.Purchase
             PurchaseUpdated(PurchaseState.PurchaseConsumed, obj.Sku);
         }
 
-        private void consumePurchaseFailed( string error)
+        private void consumePurchaseFailed(string error)
         {
             DebugLog(string.Format("Purchase Cancel : errorCode = {0}",
-                                    error));
+                error));
             PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
         }
 

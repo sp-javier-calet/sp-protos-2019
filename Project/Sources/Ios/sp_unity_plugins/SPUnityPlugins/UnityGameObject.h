@@ -18,7 +18,7 @@ public:
     typedef std::function<void(std::string, std::string, std::string)> SendMessageDelegate;
     
 private:
-    static SendMessageDelegate _sendMessageDelegate;
+    static SendMessageDelegate *_sendMessageDelegate;
     
     std::string _objectName;
     

@@ -74,6 +74,8 @@ namespace SocialPoint.GUIAnimation
 
         bool _isInverted = false;
 
+        public bool IsInverted { get { return _isInverted; } }
+
         ITimeGetter _editorTimeGetter = null;
 
         System.Action _onEndCallback = null;
@@ -260,25 +262,28 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public void RevertToOriginal ()
+        public void RevertToOriginal (bool invert=true)
         {
-            if (_isInverted)
+            if (invert && _isInverted)
             {
                 Invert ();
             }
 
-            ResetEffects ();
+            ResetEffects (invert);
 
             ChangeState (State.Idle);
         }
 
-        void ResetEffects ()
+        void ResetEffects (bool actions=true)
         {
             RefreshAndInit ();
 
-            for (int i = _actions.Count - 1; i >= 0; --i)
+            if(actions)
             {
-                _actions [i].OnReset ();
+                for(int i = _actions.Count - 1; i >= 0; --i)
+                {
+                    _actions[i].OnReset();
+                }
             }
         }
 

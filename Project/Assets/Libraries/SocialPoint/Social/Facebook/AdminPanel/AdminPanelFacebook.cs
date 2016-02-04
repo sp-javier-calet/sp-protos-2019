@@ -158,6 +158,7 @@ namespace SocialPoint.Social
 
             layout.CreateButton("Send App Request", () => {
                 var req = new FacebookAppRequest();
+                req.Message = "Test message";
                 _facebook.SendAppRequest(req, (_, err) => {
                     PrintError("sending app request", err);
                 });

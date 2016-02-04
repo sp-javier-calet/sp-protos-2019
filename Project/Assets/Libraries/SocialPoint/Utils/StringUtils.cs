@@ -145,7 +145,7 @@ namespace SocialPoint.Utils
         {
             if(uri == null)
             {
-                return string.Empty;
+                return null;
             }
             // Ensure the URL always contains a trailing slash
             if(!uri.EndsWith(UriSeparator.ToString()))

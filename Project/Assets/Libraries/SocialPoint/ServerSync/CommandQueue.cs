@@ -145,7 +145,7 @@ namespace SocialPoint.ServerSync
 
         private void OnWasOnBackground()
         {
-            if (_goToBackgroundTS > TimeUtils.Timestamp)
+            if(_goToBackgroundTS > TimeUtils.Timestamp)
             {
                 RaiseClockChangeError();
             }
@@ -221,6 +221,7 @@ namespace SocialPoint.ServerSync
         List<Packet> _sentPackets;
         List<string> _pendingAcks;
         List<string> _sendingAcks;
+        bool _pendingSend;
         bool _sending;
         bool _synced;
         bool _currentPacketFlushed;
@@ -278,23 +279,13 @@ namespace SocialPoint.ServerSync
             _syncTimestamp += dt;
         }
 
-        public void Add(Command cmd, Action callback)
-        {
-            Add(cmd, err => {
-                if(callback != null)
-                {
-                    callback();
-                }
-            });
-        }
-
         public void Add(Command cmd, ErrorDelegate callback = null)
         {
             if(_currentPacket == null)
             {
                 _currentPacket = new Packet();
             }
-            if (!_currentPacket.Add(cmd, callback))
+            if(!_currentPacket.Add(cmd, callback))
             {
                 RaiseClockChangeError();
             }
@@ -398,6 +389,7 @@ namespace SocialPoint.ServerSync
         {
             if(_sending)
             {
+                _pendingSend = true;
                 _sendFinish += finish;
             }
             else
@@ -442,11 +434,10 @@ namespace SocialPoint.ServerSync
         void AfterSend()
         {
             _sending = false;
-            if(_sendFinish != null)
+            if(_pendingSend)
             {
-                var finish = _sendFinish;
-                _sendFinish = null;
-                Send(finish);
+                _pendingSend = false;
+                Send(_sendFinish);
             }
         }
 

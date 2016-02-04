@@ -38,7 +38,7 @@ namespace SocialPoint.Crash
                 bool success = false;
                 content = null;
 
-                if(FileUtils.Exists(filePath))
+                if(FileUtils.ExistsFile(filePath))
                 {
                     try
                     {
@@ -55,14 +55,14 @@ namespace SocialPoint.Crash
 
             public override void Remove()
             {
-                if(File.Exists(CrashPath))
+                if(FileUtils.ExistsFile(CrashPath))
                 {
-                    File.Delete(CrashPath);
+                    FileUtils.DeleteFile(CrashPath);
                 }
 
-                if(File.Exists(LogPath))
+                if(FileUtils.ExistsFile(LogPath))
                 {
-                    File.Delete(LogPath);
+                    FileUtils.DeleteFile(LogPath);
                 }
             }
 

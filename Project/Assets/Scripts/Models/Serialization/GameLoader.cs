@@ -59,7 +59,7 @@ public class GameLoader : IGameLoader
     GameModel LoadSavedGame()
     {
         string savedPlayerGameJson = null;
-        if(FileUtils.Exists(PlayerJsonPath))
+        if(FileUtils.ExistsFile(PlayerJsonPath))
         {
             savedPlayerGameJson = FileUtils.ReadAllText(PlayerJsonPath);
         }
@@ -116,7 +116,7 @@ public class GameLoader : IGameLoader
 
     public void DeleteLocalGame()
     {
-        FileUtils.Delete(PlayerJsonPath);
+        FileUtils.DeleteFile(PlayerJsonPath);
     }
 
     public Attr OnAutoSync()
