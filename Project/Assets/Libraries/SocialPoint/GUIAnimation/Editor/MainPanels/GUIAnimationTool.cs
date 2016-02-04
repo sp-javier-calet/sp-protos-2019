@@ -5,281 +5,291 @@ using SocialPoint.GUIControl;
 
 namespace SocialPoint.GUIAnimation
 {
-	// Entry EditorWindows for the animation tool
-	public class GUIAnimationTool : EditorWindow
-	{
-		AnimationToolModel _animationModel = new AnimationToolModel();
-		public AnimationToolModel AnimationModel { get{ return _animationModel; } }
+    // Entry EditorWindows for the animation tool
+    public class GUIAnimationTool : EditorWindow
+    {
+        AnimationToolModel _animationModel = new AnimationToolModel();
 
-		static AnimationBlackboard _blackBoard = new AnimationBlackboard();
-		public static AnimationBlackboard Blackboard { get{ return _blackBoard; } }
+        public AnimationToolModel AnimationModel { get { return _animationModel; } }
 
-		static KeyboardController _keyController = new KeyboardController();
-		public static KeyboardController KeyController { get{ return _keyController; } }
+        static AnimationBlackboard _blackBoard = new AnimationBlackboard();
 
-		static MouseController _mouseController = new MouseController();
-		public static MouseController MouseController { get{ return _mouseController; } }
+        public static AnimationBlackboard Blackboard { get { return _blackBoard; } }
 
-		static AnimationEditorPlayer _animationEditorPlayer = new AnimationEditorPlayer();
-		public static AnimationEditorPlayer AnimationEditorPlayer { get{ return _animationEditorPlayer; } }
+        static KeyboardController _keyController = new KeyboardController();
 
-		AnimationEditorContainer _animationEditorContainer = new AnimationEditorContainer();
+        public static KeyboardController KeyController { get { return _keyController; } }
 
-		int _currentScreenIdx = 0;
-		int _currentAnimationIdx = 0;
+        static MouseController _mouseController = new MouseController();
 
-		bool _isInit = false;
+        public static MouseController MouseController { get { return _mouseController; } }
 
-		[MenuItem ("Social Point/GUI/Animation Tool")]
-		public static void ShowWindow()
-		{
-			GUIAnimationTool animationTool = EditorWindow.GetWindow<GUIAnimationTool>();
-			animationTool.titleContent = new GUIContent( "Animation Tool" );
-		}
+        static AnimationEditorPlayer _animationEditorPlayer = new AnimationEditorPlayer();
 
-		public void Init()
-		{
-			ResetState();
-		}
+        public static AnimationEditorPlayer AnimationEditorPlayer { get { return _animationEditorPlayer; } }
 
-		public void SaveState()
-		{
-			if(AnimationModel.CurrentScreen != null)
-			{
-				AnimationPrefabUtility.SaveScreenPrefab(AnimationModel.CurrentScreen.gameObject);
-			}
-		}
+        AnimationEditorContainer _animationEditorContainer = new AnimationEditorContainer();
 
-		void ResetState()
-		{
-			_animationModel.ResetState();
-			_animationEditorContainer.ResetState();
+        int _currentScreenIdx = 0;
+        int _currentAnimationIdx = 0;
 
-			_currentAnimationIdx = 0;
-			_currentScreenIdx = 0;
-			Blackboard.ResetState();
-			KeyController.ResetState();
-			MouseController.ResetState();
+        bool _isInit = false;
 
-			_animationEditorPlayer.Init(this);
-		}
+        [MenuItem("Social Point/GUI/Animation Tool")]
+        public static void ShowWindow()
+        {
+            GUIAnimationTool animationTool = EditorWindow.GetWindow<GUIAnimationTool>();
+            animationTool.titleContent = new GUIContent("Animation Tool");
+        }
 
-		void Update()
-		{
-			if(Application.isPlaying)
-			{
-				return;
-			}
-		}
+        public void Init()
+        {
+            ResetState();
+        }
 
-		void OnGUI()
-		{
-			DoUpdate();
-			DoRender();
-		}
+        public void SaveState()
+        {
+            if(AnimationModel.CurrentScreen != null)
+            {
+                AnimationPrefabUtility.SaveScreenPrefab(AnimationModel.CurrentScreen.gameObject);
+            }
+        }
 
-		void DoUpdate()
-		{
-			if(!_isInit)
-			{
-				_isInit = true;
-				Init();
-			}
+        void ResetState()
+        {
+            _animationModel.ResetState();
+            _animationEditorContainer.ResetState();
 
-			KeyController.UpdateState();
-			MouseController.UpdateState();
-			_animationEditorPlayer.Update(this);
+            _currentAnimationIdx = 0;
+            _currentScreenIdx = 0;
+            Blackboard.ResetState();
+            KeyController.ResetState();
+            MouseController.ResetState();
 
-			TryResetPanelOnFocus();
-		}
+            _animationEditorPlayer.Init(this);
+        }
 
-		void TryResetPanelOnFocus()
-		{
-			if(Event.current.type == EventType.mouseDown)
-			{
-				Blackboard.Remove(AnimationBlackboardKey.FocusPanelKey);
-			}
-		}
+        void Update()
+        {
+            if(Application.isPlaying)
+            {
+                return;
+            }
+        }
 
-		void DoRender()
-		{
-			GUILayout.BeginVertical();
-			List<UIViewController> screens = AnimationModel.FindScreens();
-			if(  screens.Count == 0 )
-			{
-				ResetState();
-				RenderNoScreenMessage();
-				return;
-			}
+        void OnGUI()
+        {
+            DoUpdate();
+            DoRender();
+        }
 
-			RenderScreensSelector(screens);
-			if(AnimationModel.CurrentScreen == null)
-			{
-				ResetState();
-				return;
-			}
+        void DoUpdate()
+        {
+            if(!_isInit)
+            {
+                _isInit = true;
+                Init();
+            }
 
-			List<Animation> animations = _animationModel.FindAnimations();
-			if(animations.Count == 0)
-			{
-				_animationModel.RemoveCurrentAnimation();
-			}
+            KeyController.UpdateState();
+            MouseController.UpdateState();
+            _animationEditorPlayer.Update(this);
+
+            TryResetPanelOnFocus();
+        }
+
+        void TryResetPanelOnFocus()
+        {
+            if(Event.current.type == EventType.mouseDown)
+            {
+                Blackboard.Remove(AnimationBlackboardKey.FocusPanelKey);
+            }
+        }
+
+        void DoRender()
+        {
+            GUILayout.BeginVertical();
+            List<UIViewController> screens = AnimationModel.FindScreens();
+
+            if(screens.Count == 0)
+            {
+                if(Event.current.type == EventType.Repaint)
+                {
+                    ResetState();
+                    RenderNoScreenMessage();
+                }
+                return;
+            }
+
+            RenderScreensSelector(screens);
+            if(AnimationModel.CurrentScreen == null)
+            {
+                if(Event.current.type == EventType.Repaint)
+                {
+                    ResetState();
+                }
+                return;
+            }
+
+            List<Animation> animations = _animationModel.FindAnimations();
+
+            if(animations.Count == 0)
+            {
+                _animationModel.RemoveCurrentAnimation();
+            }
 			
-			GUILayout.BeginHorizontal();
+            GUILayout.BeginHorizontal();
 			
-			RenderAnimationSelection(animations);
-			RenderActionButtons();
+            RenderAnimationSelection(animations);
+            RenderActionButtons();
 			
-			GUILayout.EndHorizontal();
+            GUILayout.EndHorizontal();
 			
-			GUILayout.EndVertical();
+            GUILayout.EndVertical();
 			
-			if(_animationModel.CurrentAnimation == null)
-			{
-				return;
-			}
+            if(_animationModel.CurrentAnimation == null)
+            {
+                return;
+            }
 			
-			_animationEditorContainer.Render(this);
-		}
+            _animationEditorContainer.Render(this);
+        }
 
-		void RenderNoScreenMessage()
-		{
-			GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
-		}
+        void RenderNoScreenMessage()
+        {
+            GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
+        }
 
-		void RenderScreensSelector(List<UIViewController> screens)
-		{
-			List<string> animationsRootOptionList = AnimationToolUtility.ComponentsToNames<UIViewController>(screens);
+        void RenderScreensSelector(List<UIViewController> screens)
+        {
+            List<string> animationsRootOptionList = AnimationToolUtility.ComponentsToNames<UIViewController>(screens);
 
-			GUILayout.BeginHorizontal();
-			GUILayout.Label("Screen:", GUILayout.MaxWidth(80f));
-			_currentScreenIdx = EditorGUILayout.Popup (_currentScreenIdx, animationsRootOptionList.ToArray(), GUILayout.MaxWidth(160f));
-			GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Screen:", GUILayout.MaxWidth(80f));
+            _currentScreenIdx = EditorGUILayout.Popup(_currentScreenIdx, animationsRootOptionList.ToArray(), GUILayout.MaxWidth(160f));
+            GUILayout.EndHorizontal();
 
-			UIViewController currentScreen = _animationModel.GetScreenByIdx(_currentScreenIdx);
-			if(currentScreen != _animationModel.CurrentScreen)
-			{
-				_animationModel.SetCurrentScreen(currentScreen);
+            UIViewController currentScreen = _animationModel.GetScreenByIdx(_currentScreenIdx);
+            if(currentScreen != _animationModel.CurrentScreen)
+            {
+                _animationModel.SetCurrentScreen(currentScreen);
 
-				// Reset the state
-				_animationEditorContainer.ResetState();
-			}
-		}
+                // Reset the state
+                _animationEditorContainer.ResetState();
+            }
+        }
 
-		void RenderAnimationSelection(List<Animation> animations)
-		{
-			List<string> animationsOptionList = AnimationToolUtility.ComponentsToNames<Animation>(animations);
+        void RenderAnimationSelection(List<Animation> animations)
+        {
+            List<string> animationsOptionList = AnimationToolUtility.ComponentsToNames<Animation>(animations);
 
-			GUILayout.Label("Animation:", GUILayout.MaxWidth(80f), GUILayout.ExpandWidth(false));
-			_currentAnimationIdx = EditorGUILayout.Popup (_currentAnimationIdx, animationsOptionList.Count > 0 ? animationsOptionList.ToArray() : new string[1]{""}, GUILayout.MaxWidth(160f), GUILayout.ExpandWidth(false));
+            GUILayout.Label("Animation:", GUILayout.MaxWidth(80f), GUILayout.ExpandWidth(false));
+            _currentAnimationIdx = EditorGUILayout.Popup(_currentAnimationIdx, animationsOptionList.Count > 0 ? animationsOptionList.ToArray() : new string[1]{ "" }, GUILayout.MaxWidth(160f), GUILayout.ExpandWidth(false));
 
-			Animation currentAnimation = _animationModel.GetAnimationByIdx(_currentAnimationIdx);
-			if(currentAnimation != _animationModel.CurrentAnimation)
-			{
-				_animationModel.SetCurrentAnimation(currentAnimation);
-				_animationEditorContainer.ResetState();
-			}
-		}
+            Animation currentAnimation = _animationModel.GetAnimationByIdx(_currentAnimationIdx);
+            if(currentAnimation != _animationModel.CurrentAnimation)
+            {
+                _animationModel.SetCurrentAnimation(currentAnimation);
+                _animationEditorContainer.ResetState();
+            }
+        }
 
-		void RenderActionButtons()
-		{
-			if(GUILayout.Button(_animationEditorPlayer.IsPlaying() ? "Stop" : "Play", GUILayout.ExpandWidth(false), GUILayout.Width(50f)))
-			{
-				if(_animationEditorPlayer.IsPlaying())
-				{
-					_animationEditorPlayer.Stop();
-				}
-				else
-				{
-					_animationEditorPlayer.Play();
-				}
-			}
+        void RenderActionButtons()
+        {
+            if(GUILayout.Button(_animationEditorPlayer.IsPlaying() ? "Stop" : "Play", GUILayout.ExpandWidth(false), GUILayout.Width(50f)))
+            {
+                if(_animationEditorPlayer.IsPlaying())
+                {
+                    _animationEditorPlayer.Stop();
+                }
+                else
+                {
+                    _animationEditorPlayer.Play();
+                }
+            }
 
-			if(GUILayout.Button("Create", GUILayout.ExpandWidth(false)))
-			{
-				EnterStringPopup createNameWindow = (EnterStringPopup) EditorWindow.GetWindow(typeof(EnterStringPopup));
-				createNameWindow.titleContent = new GUIContent( "Animation Name" );
-				createNameWindow.SetCallbacks(()=> {
-					OnAnimationNameCreated(createNameWindow.Value);
-				});
-			}
+            if(GUILayout.Button("Create", GUILayout.ExpandWidth(false)))
+            {
+                EnterStringPopup createNameWindow = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
+                createNameWindow.titleContent = new GUIContent("Animation Name");
+                createNameWindow.SetCallbacks(() => {
+                    OnAnimationNameCreated(createNameWindow.Value);
+                });
+            }
 
-			UnityEngine.GUI.enabled = AnimationModel.CurrentScreen != null;
-			if(GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
-			{
-				SaveState();
-			}
-			UnityEngine.GUI.enabled = true;
+            UnityEngine.GUI.enabled = AnimationModel.CurrentScreen != null;
+            if(GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
+            {
+                SaveState();
+            }
+            UnityEngine.GUI.enabled = true;
 
-			UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
-			if(GUILayout.Button("Remove", GUILayout.ExpandWidth(false)))
-			{
-				ConfirmationPopup confirmationPopup = (ConfirmationPopup) EditorWindow.GetWindow(typeof(ConfirmationPopup));
-				confirmationPopup.titleContent = new GUIContent( "Remove Animation" );
-				confirmationPopup.SetTitle(string.Format("Really want to Remove {0} ?", AnimationModel.CurrentAnimation.name));
-				confirmationPopup.SetCallbacks(()=> 
-               	{
-					AnimationModel.RemoveCurrentAnimation();
-					ResetState();
-				});
-			}
-			UnityEngine.GUI.enabled = true;
+            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            if(GUILayout.Button("Remove", GUILayout.ExpandWidth(false)))
+            {
+                ConfirmationPopup confirmationPopup = (ConfirmationPopup)EditorWindow.GetWindow(typeof(ConfirmationPopup));
+                confirmationPopup.titleContent = new GUIContent("Remove Animation");
+                confirmationPopup.SetTitle(string.Format("Really want to Remove {0} ?", AnimationModel.CurrentAnimation.name));
+                confirmationPopup.SetCallbacks(() => {
+                    AnimationModel.RemoveCurrentAnimation();
+                    ResetState();
+                });
+            }
+            UnityEngine.GUI.enabled = true;
 
-			UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
-			if(GUILayout.Button("Rename", GUILayout.ExpandWidth(false)))
-			{
-				EnterStringPopup renamePopup = (EnterStringPopup) EditorWindow.GetWindow(typeof(EnterStringPopup));
-				renamePopup.titleContent = new GUIContent( "Rename Animation" );
-				renamePopup.SetTitle(string.Format("Set the new animation name for {0} ?", AnimationModel.CurrentAnimation.AnimationName));
-				renamePopup.SetCallbacks(()=> 
-               	{
-					AnimationModel.CurrentAnimation.AnimationName = renamePopup.Value;
-				});
-			}
-			UnityEngine.GUI.enabled = true;
+            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            if(GUILayout.Button("Rename", GUILayout.ExpandWidth(false)))
+            {
+                EnterStringPopup renamePopup = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
+                renamePopup.titleContent = new GUIContent("Rename Animation");
+                renamePopup.SetTitle(string.Format("Set the new animation name for {0} ?", AnimationModel.CurrentAnimation.AnimationName));
+                renamePopup.SetCallbacks(() => {
+                    AnimationModel.CurrentAnimation.AnimationName = renamePopup.Value;
+                });
+            }
+            UnityEngine.GUI.enabled = true;
 
-			UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
-			if(GUILayout.Button("Duplicate", GUILayout.ExpandWidth(false)))
-			{
-				EnterStringPopup renamePopup = (EnterStringPopup) EditorWindow.GetWindow(typeof(EnterStringPopup));
-				renamePopup.titleContent = new GUIContent( "Duplicate Animation" );
-				renamePopup.SetTitle(string.Format("Set the new animation name to duplicate {0} ?", AnimationModel.CurrentAnimation.AnimationName));
-				renamePopup.SetCallbacks(()=> 
-				                         {
-					Animation animation = AnimationModel.DuplicateCurrentAnimation(renamePopup.Value);
+            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            if(GUILayout.Button("Duplicate", GUILayout.ExpandWidth(false)))
+            {
+                EnterStringPopup renamePopup = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
+                renamePopup.titleContent = new GUIContent("Duplicate Animation");
+                renamePopup.SetTitle(string.Format("Set the new animation name to duplicate {0} ?", AnimationModel.CurrentAnimation.AnimationName));
+                renamePopup.SetCallbacks(() => {
+                    Animation animation = AnimationModel.DuplicateCurrentAnimation(renamePopup.Value);
 
-					List<Animation> animations = _animationModel.FindAnimations();
-					_currentAnimationIdx = animations.Count -1;
-					_animationModel.SetCurrentAnimation(animation);
+                    List<Animation> animations = _animationModel.FindAnimations();
+                    _currentAnimationIdx = animations.Count - 1;
+                    _animationModel.SetCurrentAnimation(animation);
 					
-					_animationEditorContainer.ResetState();
-				});
-			}
-			UnityEngine.GUI.enabled = true;
+                    _animationEditorContainer.ResetState();
+                });
+            }
+            UnityEngine.GUI.enabled = true;
 
-			UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
-			if(GUILayout.Button("Invert", GUILayout.ExpandWidth(false)))
-			{
-				AnimationModel.CurrentAnimation.Invert();
-			}
-			UnityEngine.GUI.enabled = true;
-		}
+            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            if(GUILayout.Button("Invert", GUILayout.ExpandWidth(false)))
+            {
+                AnimationModel.CurrentAnimation.Invert();
+            }
+            UnityEngine.GUI.enabled = true;
+        }
 
-		void OnAnimationNameCreated(string animationName)
-		{
-			Animation animation = _animationModel.CreateAnimation<Group>(animationName);
+        void OnAnimationNameCreated(string animationName)
+        {
+            Animation animation = _animationModel.CreateAnimation<Group>(animationName);
 
-			List<Animation> animations = _animationModel.FindAnimations();
-			_currentAnimationIdx = animations.Count -1;
-			_animationModel.SetCurrentAnimation(animation);
+            List<Animation> animations = _animationModel.FindAnimations();
+            _currentAnimationIdx = animations.Count - 1;
+            _animationModel.SetCurrentAnimation(animation);
 
-			_animationEditorContainer.ResetState();
-		}
+            _animationEditorContainer.ResetState();
+        }
 
-		void OnInspectorUpdate()
-		{
-			Repaint();
-		}
+        void OnInspectorUpdate()
+        {
+            Repaint();
+        }
 
-	}
+    }
 }

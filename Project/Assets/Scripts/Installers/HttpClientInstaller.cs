@@ -37,7 +37,7 @@ public class HttpClientInstaller : MonoInstaller
         var proxyPath = FileUtils.Combine(Application.dataPath, "../.proxy");
         if(FileUtils.ExistsFile(proxyPath))
         {
-            var proxy = FileUtils.ReadAllText(proxyPath);
+            var proxy = FileUtils.ReadAllText(proxyPath).Trim();
             DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
             Container.BindInstance("http_client_proxy", proxy);
         }
