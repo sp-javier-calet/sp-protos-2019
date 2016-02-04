@@ -62,7 +62,7 @@ namespace SocialPoint.Attributes
         public Attr Load(string key)
         {
             var path = GetPath(key);
-            if(!FileUtils.Exists(path))
+            if(!FileUtils.ExistsFile(path))
             {
                 return null;
             }
@@ -82,12 +82,12 @@ namespace SocialPoint.Attributes
 
         public bool Has(string key)
         {
-            return FileUtils.Exists(GetPath(key));
+            return FileUtils.ExistsFile(GetPath(key));
         }
 
         public void Remove(string key)
         {
-            FileUtils.Delete(GetPath(key));
+            FileUtils.DeleteFile(GetPath(key));
             Invalidate();
         }
 
@@ -95,7 +95,7 @@ namespace SocialPoint.Attributes
         {
             get
             {
-                if(!Directory.Exists(_root))
+                if(!FileUtils.ExistsDirectory(_root))
                 {
                     //TODO: launch exception
                     _storedKeys = new string[0];

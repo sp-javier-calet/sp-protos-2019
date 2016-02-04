@@ -86,7 +86,8 @@ namespace SocialPoint.Locale
         public const string KoreanKRIdentifier = "ko-KR";
         public const string RussianRUIdentifier = "ru-RU";
         public const string GermanDEIdentifier = "de-DE";
-        public const string ChineseCNIdentifier = "zh-CN"; //zn-CHS and zn-CHT are neutral culture info (crashes).
+        public const string ChineseCNIdentifier = "zh-CN";
+        //zn-CHS and zn-CHT are neutral culture info (crashes).
 
         string _cachePath;
         string _bundlePath;
@@ -502,7 +503,7 @@ namespace SocialPoint.Locale
                 file = Path.Combine(_bundlePath, lang + JsonExtension);
                 fileFromCache = false;
             }
-            if(!FileUtils.Exists(file))
+            if(!FileUtils.ExistsFile(file))
             {
                 return false;
             }
@@ -516,7 +517,7 @@ namespace SocialPoint.Locale
             {
                 if(fileFromCache)
                 {
-                    FileUtils.Delete(file);
+                    FileUtils.DeleteFile(file);
                 }
             }
             if(attr == null)
@@ -632,9 +633,9 @@ namespace SocialPoint.Locale
             string oldLocalPath = prefix + oldEtag + JsonExtension;
             FileUtils.WriteAllBytes(newLocalPath, json);
 
-            if(!string.IsNullOrEmpty(oldEtag) && oldEtag != newLocalPath && FileUtils.Exists(oldLocalPath))
+            if(!string.IsNullOrEmpty(oldEtag) && oldEtag != newLocalPath && FileUtils.ExistsFile(oldLocalPath))
             {
-                FileUtils.Delete(oldLocalPath);
+                FileUtils.DeleteFile(oldLocalPath);
             }
 
             if(finish != null)
