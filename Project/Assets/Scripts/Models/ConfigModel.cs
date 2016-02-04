@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
@@ -10,6 +11,8 @@ public class ConfigModel
     IList<ScriptModel> _scripts;
     IDictionary<string, ResourceType> _resourceTypes;
     StoreModel _store;
+
+    public event Action<ConfigModel> Assigned;
 
     public IEnumerable<ScriptModel> Scripts
     {
@@ -71,6 +74,10 @@ public class ConfigModel
         _scripts = other._scripts;
         _resourceTypes = other._resourceTypes;
         _store.Assign(other._store);
+        if(Assigned != null)
+        {
+            Assigned(this);
+        }
     }
 
     public Attr GetGlobal(string name)

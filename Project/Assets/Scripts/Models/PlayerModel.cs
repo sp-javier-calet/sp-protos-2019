@@ -6,6 +6,8 @@ public class PlayerModel
 
     public ResourcePool Resources{ get; private set; }
 
+    public event Action<PlayerModel> Assigned;
+
     public PlayerModel(long level = 0, ResourcePool resources = null)
     {
         Level = level;
@@ -21,6 +23,10 @@ public class PlayerModel
     {
         Level = other.Level;
         Resources.Assign(other.Resources);
+        if(Assigned != null)
+        {
+            Assigned(this);
+        }
     }
 
     

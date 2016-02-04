@@ -52,12 +52,10 @@ public class GameInstaller : MonoInstaller
         Container.Install<EconomyInstaller>();
     }
 
-    void OnGameModelAssigned()
+    void OnGameModelAssigned(GameModel game)
     {
-        var game = Container.Resolve<GameModel>();
         Container.Inject(game.Player);
         Container.Inject(game.Config);
-
         Container.Inject(game.Config.Store);
     }
 

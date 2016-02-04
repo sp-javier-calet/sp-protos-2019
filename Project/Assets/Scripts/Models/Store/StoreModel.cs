@@ -9,6 +9,8 @@ public class StoreModel : IDisposable
 {
     public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
 
+    public event Action<StoreModel> Assigned;
+
     public string[] ProductIds
     {
         get
@@ -50,6 +52,10 @@ public class StoreModel : IDisposable
         if(_purchaseStore != null)
         {
             _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+        }
+        if(Assigned != null)
+        {
+            Assigned(this);
         }
     }
 
