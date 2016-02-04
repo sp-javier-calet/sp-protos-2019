@@ -42,6 +42,9 @@ namespace SocialPoint.Notifications
 #else
             Services = new EmptyNotificationServices();
 #endif
+
+            MaxNotificationOffset = 60 * 5;//Default value of 5 minutes
+
             Init();
         }
 
