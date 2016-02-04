@@ -14,7 +14,7 @@ namespace SocialPoint.Notifications
 
         /// <summary>
         /// Max offset in seconds to apply to notifications' fire date if they require it.
-        /// It should be assigned with a default value greater than 0.
+        /// It should be assigned with a default value greater than 0. Check Init() function
         /// Each game must be responsible of setting it.
         /// WARNING: Take into account each notification event. Avoid cases when the offset may schedule the notification after it stops being relevant.
         /// </summary>
@@ -43,8 +43,6 @@ namespace SocialPoint.Notifications
             Services = new EmptyNotificationServices();
 #endif
 
-            MaxNotificationOffset = 60 * 5;//Default value of 5 minutes
-
             Init();
         }
 
@@ -69,6 +67,9 @@ namespace SocialPoint.Notifications
             _appEvents.ApplicationQuit += ScheduleNotifications;
             _appEvents.WasOnBackground += ClearNotifications;
             _appEvents.WasCovered += ClearNotifications;
+
+            MaxNotificationOffset = 60 * 5;//Default value of 5 minutes
+
             Reset();
         }
 
