@@ -100,6 +100,8 @@
 		FEE21F391C200E0500ECC3E2 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FEE21F381C200E0500ECC3E2 /* libz.a */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		FEE5C1C31C21B3380020C4DB /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
+		FF5AF7801C623DD800B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -303,6 +305,7 @@
 		FEE21F661C20198100ECC3E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
 		FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnityGameObject.cpp; sourceTree = "<group>"; };
+		FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityGameCenter.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -425,6 +428,7 @@
 		FE448F0D1C1EE83100A10FEA = {
 			isa = PBXGroup;
 			children = (
+				FF5AF77D1C623DCF00B5573A /* sp_unity_gamecenter */,
 				FE4490451C1F205800A10FEA /* SPUnityPlugins */,
 				FE448F311C1EEAD800A10FEA /* Common */,
 				FE4490211C1F11D900A10FEA /* sp_unity_alertview */,
@@ -667,6 +671,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FF5AF77D1C623DCF00B5573A /* sp_unity_gamecenter */ = {
+			isa = PBXGroup;
+			children = (
+				FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */,
+			);
+			path = sp_unity_gamecenter;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -898,6 +910,7 @@
 				468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */,
 				468E00231C3E75E500CA07AF /* SPUnityCurlManager.cpp in Sources */,
 				468E00241C3E75E500CA07AF /* (null) in Sources */,
+				FF5AF7801C623DD800B5573A /* SPUnityGameCenter.mm in Sources */,
 				468E00251C3E75E500CA07AF /* (null) in Sources */,
 				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
 			);
@@ -912,6 +925,7 @@
 				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
 				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
+				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */,

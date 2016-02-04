@@ -9,11 +9,11 @@
 #include "UnityGameObject.h"
 #include <cassert>
 
-UnityGameObject::SendMessageDelegate UnityGameObject::_sendMessageDelegate;
+UnityGameObject::SendMessageDelegate *UnityGameObject::_sendMessageDelegate;
 
 void UnityGameObject::setSendMessageDelegate(const SendMessageDelegate& delegate)
 {
-    _sendMessageDelegate = delegate;
+    _sendMessageDelegate = new SendMessageDelegate(delegate);
 }
 
 UnityGameObject::UnityGameObject(const std::string name)
@@ -33,6 +33,6 @@ void UnityGameObject::SendMessage(const std::string& method, const std::string& 
     assert(_sendMessageDelegate && "Missing Send Message Delegate");
     if(_sendMessageDelegate && !_objectName.empty())
     {
-        _sendMessageDelegate(_objectName, method, msg);
+        (*_sendMessageDelegate)(_objectName, method, msg);
     }
 }
