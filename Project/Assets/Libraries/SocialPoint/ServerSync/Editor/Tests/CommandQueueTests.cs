@@ -108,6 +108,25 @@ namespace SocialPoint.ServerSync
         }
 
         [Test]
+        public void Multiple_Send_calls_HttpClient_Send()
+        {
+            Start();
+
+            // Call Response callback to finalize the request immediately.
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
+
+            Add_cmd_finishDelegate();
+            Flush_action();
+            CommandQueue.Send(null);
+
+            Add_cmd_finishDelegate();
+            Flush_action();
+            CommandQueue.Send(null);
+
+            HttpClient.ReceivedWithAnyArgs(2).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
         public void Dispose()
         {
             Start();
