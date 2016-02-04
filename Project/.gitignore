@@ -27,6 +27,9 @@ sysinfo.txt
 
 /Assets/Resources/Localization.csv
 /Assets/Resources/Localization.csv.meta
+/Assets/Resources/user.json
+/Assets/StreamingAssets/localization
+/Assets/StreamingAssets/localization.meta
 
 # Artists
 TEMP_*
