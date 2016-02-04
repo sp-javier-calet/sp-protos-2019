@@ -13,8 +13,7 @@ namespace SocialPoint.AppEvents
         public const string WidgetScheme = "widget";
         public const string FacebookScheme = "facebook";
         public const string OthersScheme = "others";
-        public const string SchemeSeparator = "://";
-        public const string QuerySeparator = "?";
+        public const char QuerySeparator = '?';
 
         private const string SourceTitleKey = "title";
         private const string SourceTextKey = "text";
@@ -53,13 +52,6 @@ namespace SocialPoint.AppEvents
         };
 
         private Uri _uri;
-        public string Uri
-        { 
-            get
-            {
-                return (_uri != null) ? _uri.ToString() : string.Empty;
-            }
-        }
 
         public string Scheme
         {
@@ -69,11 +61,27 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        public string QueryString
+        public string Host
         {
             get
             {
-                return (_uri != null) ? _uri.Query : string.Empty;
+                return (_uri != null) ? _uri.Host : string.Empty;
+            }
+        }
+
+        public string Path
+        {
+            get
+            {
+                return (_uri != null) ? _uri.LocalPath : string.Empty;
+            }
+        }
+
+        public string Query
+        {
+            get
+            {
+                return (_uri != null) ? _uri.Query.TrimStart(QuerySeparator) : string.Empty;
             }
         }
 
@@ -81,7 +89,7 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                return StringUtils.QueryToDictionary(QueryString);
+                return StringUtils.QueryToDictionary(Query);
             }
         }
 
@@ -89,18 +97,16 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                return Uri == null || Uri.Length == 0;
+                return ToString().Length == 0;
             }
         }
 
-        private static bool IsCustomScheme(string scheme)
+        public bool IsCustomScheme
         {
-            return CustomSchemes.Contains(scheme);
-        }
-
-        public bool IsCustomScheme()
-        {
-            return IsCustomScheme(Scheme);
+            get
+            {
+                return CustomSchemes.Contains(Scheme);
+            }
         }
 
         public AppSource()
@@ -112,38 +118,34 @@ namespace SocialPoint.AppEvents
             /* If sourceString is already a valid URL, 
              * use it as source. If not, try to parse parameters (in url format)
              * and infer the corresponding scheme */
-            try
-            {
-                _uri = new Uri(sourceString);
-            }
-            catch(UriFormatException)
+            if(!System.Uri.TryCreate(sourceString, UriKind.Absolute, out _uri))
             {
                 _uri = CreateUriFromSource(sourceString);
             }
         }
 
-        public AppSource(IDictionary<string, string> sourceParameters)
+        public AppSource(IDictionary<string, string> parms)
         {
-            _uri = CreateUriFromSource(sourceParameters);
+            _uri = CreateUriFromSource(parms);
         }
 
-        private Uri CreateUriFromSource(string sourceString)
+        private Uri CreateUriFromSource(string src)
         {
-            return CreateUriFromSource(StringUtils.QueryToDictionary(sourceString));
+            return CreateUriFromSource(StringUtils.QueryToDictionary(src));
         }
 
-        private Uri CreateUriFromSource(IDictionary<string, string> sourceParameters)
+        private Uri CreateUriFromSource(IDictionary<string, string> parms)
         {
             string scheme = OthersScheme;
 
             // Check parameters for scheme mapping 
             string spOrigin;
-            if(sourceParameters.TryGetValue(SourceKeyOrigin, out spOrigin))
+            if(parms.TryGetValue(SourceKeyOrigin, out spOrigin))
             {
                 // Map sp_origin parameter, if exists
                 scheme = OriginMapping[spOrigin];
             }
-            else if(sourceParameters.ContainsKey(SourceKeyFacebookLink))
+            else if(parms.ContainsKey(SourceKeyFacebookLink))
             {
                 scheme = FacebookScheme;
             }
@@ -154,37 +156,22 @@ namespace SocialPoint.AppEvents
             {
                 foreach(string filter in filters)
                 {
-                    sourceParameters.Remove(filter);
+                    parms.Remove(filter);
                 }
             }
 
-            // If there is no parameters for an Others sources, returns a null uri.
-            Uri uri = null;
-            if(scheme != OthersScheme || sourceParameters.Count > 0)
+            var build = new UriBuilder();
+            build.Scheme = scheme;
+            if(parms.Count > 0)
             {
-                string parametersString = string.Empty;
-                if(sourceParameters.Count > 0)
-                {
-                    parametersString = QuerySeparator + StringUtils.DictionaryToQuery(sourceParameters);
-                }
-
-                uri = new Uri(scheme + SchemeSeparator + parametersString);
+                build.Query = QuerySeparator.ToString()+StringUtils.DictionaryToQuery(parms);
             }
-
-            return uri;
+            return build.Uri;
         }
 
         public override string ToString()
         {
-            if(Uri == null)
-            {
-                return String.Empty;
-            }
-            else
-            {
-                return Uri.ToString();
-            }
+            return (_uri != null) ? _uri.ToString() : string.Empty;
         }
-
     }
 }

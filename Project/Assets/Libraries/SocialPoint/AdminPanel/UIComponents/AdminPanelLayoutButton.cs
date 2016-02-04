@@ -129,6 +129,8 @@ namespace SocialPoint.AdminPanel
                         _completion = 0f;
                         _pressed = false;
 
+                        UpdateButtonColor();
+
                         if(onSubmit != null)
                         {
                             onSubmit();
