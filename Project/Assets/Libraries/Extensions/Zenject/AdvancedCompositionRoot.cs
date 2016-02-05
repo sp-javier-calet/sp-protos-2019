@@ -1,7 +1,4 @@
 ﻿using ModestTree;
-
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Zenject
@@ -20,7 +17,13 @@ namespace Zenject
             var rootContainer = GlobalCompositionRoot.Instance.Container;
             if(rootContainer != null)
             {
-                rootContainer.Install(GlobalRootInstallers);
+                foreach(var installer in GlobalRootInstallers)
+                {
+                    if(!rootContainer.HasInstalled(installer.GetType()))
+                    {
+                        rootContainer.Install(installer);
+                    }
+                }
             }
         }
     }
