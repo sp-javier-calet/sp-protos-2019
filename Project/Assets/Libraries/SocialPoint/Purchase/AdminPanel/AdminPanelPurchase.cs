@@ -9,6 +9,9 @@ namespace SocialPoint.Purchase
 {
     public class AdminPanelPurchase : IAdminPanelConfigurer, IAdminPanelGUI
     {
+        /*TODO: Find a way to decouple StoreModel from AdminPanel. Because one is part of Libraries and the other of the game.
+         *      Take into account that StoreModel contains the ProductIds to load and it also is the one registering the PurchaseCompletedDelegate
+        */
         StoreModel _store;
         IGamePurchaseStore _purchaseStore;
         ICommandQueue _commandQueue;
@@ -35,7 +38,7 @@ namespace SocialPoint.Purchase
             _commandQueue = commandQueue;
 
             #if UNITY_EDITOR
-            SetMockupProductsAndDelegate();
+            SetMockupProducts();
             #endif
             LoadProducts();
         }
@@ -197,7 +200,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void SetMockupProductsAndDelegate()
+        private void SetMockupProducts()
         {
             //Create mockup product objects with mock store data
             string[] storeProductIds = _store.ProductIds;
@@ -216,20 +219,6 @@ namespace SocialPoint.Purchase
 
             //Set products
             _purchaseStore.SetProductMockList(mockProducts);
-            //Set purchase delegate
-            _purchaseStore.RegisterPurchaseCompletedDelegate(OnMockPurchaseCompleted);
-        }
-
-        private PurchaseGameInfo OnMockPurchaseCompleted(Receipt receipt, PurchaseResponseType response)
-        {
-            //TODO: Return info depending on receipt.State and response type. Return null if not completed?
-            UnityEngine.Debug.Log("Product Purchased: " + receipt.ProductId);
-            PurchaseGameInfo purchaseInfo = new PurchaseGameInfo();
-            purchaseInfo.OfferName = "Product " + receipt.ProductId;
-            purchaseInfo.ResourceName = "Mock";
-            purchaseInfo.ResourceAmount = 1;
-            purchaseInfo.AdditionalData = null;
-            return purchaseInfo;
         }
 
         private string MergeStrings(string[] ids)
