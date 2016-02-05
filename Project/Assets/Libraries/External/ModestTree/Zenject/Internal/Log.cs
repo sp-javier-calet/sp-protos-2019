@@ -15,6 +15,8 @@ namespace ModestTree
     // Simple wrapper around unity's logging system
     public static class Log
     {
+        // Strip out debug logs outside of unity
+        [Conditional("UNITY_EDITOR")]
         public static void Debug(string message, params object[] args)
         {
 #if ZEN_NOT_UNITY3D
