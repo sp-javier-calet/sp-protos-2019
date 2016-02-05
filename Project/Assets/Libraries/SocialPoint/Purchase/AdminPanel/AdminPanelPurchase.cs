@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
+using SocialPoint.ServerSync;
 
 namespace SocialPoint.Purchase
 {
@@ -10,6 +11,7 @@ namespace SocialPoint.Purchase
     {
         StoreModel _store;
         IGamePurchaseStore _purchaseStore;
+        ICommandQueue _commandQueue;
 
         //Reference to layout
         AdminPanelLayout _layout;
@@ -24,12 +26,13 @@ namespace SocialPoint.Purchase
         //Flag to do purchase actions after some delay
         bool _purchaseWithDelay = false;
 
-        public AdminPanelPurchase(StoreModel store, IGamePurchaseStore purchaseStore)
+        public AdminPanelPurchase(StoreModel store, IGamePurchaseStore purchaseStore, ICommandQueue commandQueue)
         {
             _store = store;
             _purchaseStore = purchaseStore;
             _purchaseStore.ProductsUpdated += OnProductsUpdated;
             _purchaseStore.PurchaseUpdated += OnPurchaseUpdated;
+            _commandQueue = commandQueue;
 
             #if UNITY_EDITOR
             SetMockupProductsAndDelegate();
@@ -79,6 +82,12 @@ namespace SocialPoint.Purchase
                 LoadProducts(null);
                 #endif
             });
+            //Force command queue flush
+            layout.CreateConfirmButton("Flush Command Queue", () => {
+                _commandQueue.Flush();
+                _commandQueue.Send();
+            });
+            AddGUIInfoLabel(layout, "Flush after purchase validation if testing without a game to consume purchases");
             AddGUISeparation(layout);
 
             //In-Apps
