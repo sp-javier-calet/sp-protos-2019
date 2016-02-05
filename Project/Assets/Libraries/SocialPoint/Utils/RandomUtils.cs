@@ -21,7 +21,7 @@ namespace SocialPoint.Utils
             _init = true;
         }
 
-        public static string GetUuid(string format=null)
+        public static string GetUuid(string format = null)
         {
             Init();
             Guid g = System.Guid.NewGuid();
@@ -80,6 +80,28 @@ namespace SocialPoint.Utils
             s += (d).ToString("X").PadLeft(8, '0');
 
             return s.ToLower();
+        }
+
+        /// <summary>
+        /// Return a random int value between the param range [min, max)
+        /// </summary>
+        /// <param name="minInclusive">Minimum inclusive.</param>
+        /// <param name="maxExclusive">Max exclusive.</param>
+        public static int Range(int minInclusive, int maxExclusive)
+        {
+            Init();
+            return UnityEngine.Random.Range(minInclusive, maxExclusive);
+        }
+
+        /// <summary>
+        /// Return a random float value between the param range [min, max]
+        /// </summary>
+        /// <param name="minInclusive">Minimum inclusive.</param>
+        /// <param name="maxExclusive">Max inclusive.</param>
+        public static float Range(float minInclusive, float maxInclusive)
+        {
+            Init();
+            return UnityEngine.Random.Range(minInclusive, maxInclusive);
         }
     }
 }

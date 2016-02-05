@@ -121,7 +121,7 @@ namespace SocialPoint.Notifications
                 //If notification must use a time offset, change its fire delay
                 if(notif.RequiresOffset)
                 {
-                    int randomOffset = UnityEngine.Random.Range(0, MaxNotificationOffset + 1);//Second param is exclusive for ints, adding 1 to include it 
+                    int randomOffset = RandomUtils.Range(0, MaxNotificationOffset + 1);//Second param is exclusive for ints, adding 1 to include it 
                     notif.FireDelay += randomOffset;//Offset must be added only, to avoid scheduling notifications before the actual event happens
                 }
 
