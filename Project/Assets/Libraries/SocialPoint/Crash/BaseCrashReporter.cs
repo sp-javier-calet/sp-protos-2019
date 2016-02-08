@@ -875,22 +875,13 @@ namespace SocialPoint.Crash
             CreateAlertView(logString, stackTrace, type);
         }
 
+        /// <summary>
+        /// Creates an alert view/popup if needed/allowed. (Depends on LogType and DEBUG compilation mode)
+        /// </summary>
         void CreateAlertView(string logString, string stackTrace, LogType type)
         {
 #if DEBUG
-            bool display = false;
-            switch(type)
-            {
-            case LogType.Error:
-            case LogType.Assert:
-            case LogType.Exception:
-                display = true;
-                break;
-            default:
-                break;
-            }
-
-            if(display)
+            if(type == LogType.Exception)
             {
                 var alert = (IAlertView)_alertViewPrototype.Clone();
                 alert.Title = type.ToString();
