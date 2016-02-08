@@ -115,10 +115,11 @@ namespace SocialPoint.Notifications
         /// <param name="offset">Offset.</param>
         public void ApplyOffset(long offset)
         {
-            Assert.IsTrue(RequiresOffset && offset > 0);
+            Assert.IsTrue(RequiresOffset && offset > 0, "Warning: Invalid offset settings for notification");
             switch(_offsetType)
             {
             case OffsetType.Negative:
+                Assert.IsTrue(FireDelay >= offset, "Warning: Notification has a negative offset that will schedule it before current time");
                 FireDelay -= offset;
                 break;
             case OffsetType.Positive:
