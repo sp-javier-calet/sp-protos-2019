@@ -90,20 +90,13 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        public class Stats
+        public struct Stats
         {
             public double DataDownloaded;
             // in Kbytes
             public double SumDownloadSpeed;
             // in Kbytes
             public MRequests Requests;
-
-            public Stats()
-            {
-                DataDownloaded = 0.0;
-                SumDownloadSpeed = 0.0;
-                Requests = new MRequests();
-            }
 
             public override string ToString()
             {
@@ -163,6 +156,7 @@ namespace SocialPoint.QualityStats
             if(!_data.TryGetValue(url.ToString(), out stats))
             {
                 stats = new Stats();
+                stats.Requests = new MRequests();
                 _data[url.ToString()] = stats;
             }
 
@@ -173,7 +167,6 @@ namespace SocialPoint.QualityStats
             if(!stats.Requests.TryGetValue(response.StatusCode, out data))
             {
                 data = new Data();
-                stats.Requests[response.StatusCode] = data;
             }
 
             data.Amount++;
@@ -183,6 +176,8 @@ namespace SocialPoint.QualityStats
             data.SumWaitTimes += (end - start).TotalSeconds - response.Duration;
             data.SumConnectionTimes += response.ConnectionDuration;
             data.SumTransferTimes += response.TransferDuration;
+
+            stats.Requests[response.StatusCode] = data;
         }
     }
 }

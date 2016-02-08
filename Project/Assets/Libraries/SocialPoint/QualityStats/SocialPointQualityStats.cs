@@ -169,8 +169,7 @@ namespace SocialPoint.QualityStats
 
             foreach(var statsIt in data)
             {
-                QualityStatsHttpClient.Stats stats = statsIt.Value;
-                foreach(var dataIt in stats.Requests)
+                foreach(var dataIt in statsIt.Value.Requests)
                 {
                     var request = GetPerformanceRequest(statsIt, dataIt);
                     requestList.Add(request);
@@ -192,9 +191,10 @@ namespace SocialPoint.QualityStats
                     if(!data.TryGetValue(statsIt.Key, out mergedStats))
                     {
                         mergedStats = new QualityStatsHttpClient.Stats();
+                        mergedStats.Requests = new QualityStatsHttpClient.MRequests();
                         data[statsIt.Key] = mergedStats;
                     }
-                    QualityStatsHttpClient.Stats stats = statsIt.Value;
+                    var stats = statsIt.Value;
                     mergedStats.DataDownloaded += stats.DataDownloaded;
                     mergedStats.SumDownloadSpeed += stats.SumDownloadSpeed;
                     foreach(var dataIt in stats.Requests)
@@ -203,9 +203,9 @@ namespace SocialPoint.QualityStats
                         if(!mergedStats.Requests.TryGetValue(dataIt.Key, out requestMergedData))
                         {
                             requestMergedData = new QualityStatsHttpClient.Data();
-                            mergedStats.Requests[dataIt.Key] = requestMergedData;
                         }
                         requestMergedData += dataIt.Value;
+                        mergedStats.Requests[dataIt.Key] = requestMergedData;
                     }
                 }
             }
@@ -230,8 +230,7 @@ namespace SocialPoint.QualityStats
             var code = dataIt.Key.ToString();
             performance.SetValue("code", code);
 
-            QualityStatsHttpClient.Data requestData = dataIt.Value;
-            GetPerformanceData(performance, requestData);
+            GetPerformanceData(performance, dataIt.Value);
 
             return data;
         }
