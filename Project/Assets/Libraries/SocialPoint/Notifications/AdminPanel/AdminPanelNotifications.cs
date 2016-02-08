@@ -43,7 +43,7 @@ namespace SocialPoint.Notifications
 
         void OnNotifyCommand(ConsoleCommand cmd)
         {
-            var notify = new Notification();
+            var notify = new Notification(false);
             notify.Title = cmd["title"].Value;
             notify.Message = cmd["message"].Value;
             notify.FireDelay = cmd["delay"].IntValue;
@@ -83,7 +83,7 @@ namespace SocialPoint.Notifications
             _secondsInput.text = "2";
 
             layout.CreateButton("Set Notification", () => {
-                var notif = new Notification();
+                var notif = new Notification(false);
                 notif.Message = _messageInput.text;
                 notif.Title = _actionInput.text;
                 int secs = 0;

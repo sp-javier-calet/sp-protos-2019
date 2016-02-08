@@ -12,6 +12,14 @@ namespace SocialPoint.Notifications
     {
         public INotificationServices Services{ private set; get; }
 
+        /// <summary>
+        /// Max offset in seconds to apply to notifications' fire date if they require it.
+        /// It should be assigned with a default value greater than 0. Check Init() function
+        /// Each game must be responsible of setting it.
+        /// WARNING: Take into account each notification event. Avoid cases when the offset may schedule the notification after it stops being relevant.
+        /// </summary>
+        public int MaxNotificationOffset { get; set; }
+
         IAppEvents _appEvents;
         List<Notification> _notifications = new List<Notification>();
 
@@ -34,6 +42,7 @@ namespace SocialPoint.Notifications
 #else
             Services = new EmptyNotificationServices();
 #endif
+
             Init();
         }
 
@@ -58,6 +67,9 @@ namespace SocialPoint.Notifications
             _appEvents.ApplicationQuit += ScheduleNotifications;
             _appEvents.WasOnBackground += ClearNotifications;
             _appEvents.WasCovered += ClearNotifications;
+
+            MaxNotificationOffset = 60 * 5;//Default value of 5 minutes
+
             Reset();
         }
 
@@ -76,7 +88,7 @@ namespace SocialPoint.Notifications
         [Obsolete("Use AddNotification(Notification notification)")]
         protected void AddNotification(string action, string message, DateTime dateTime, int numBadge = 0)
         {
-            var ln = new Notification();
+            var ln = new Notification(false);
             ln.Title = action;
             ln.Message = message;
             ln.FireDate = dateTime;
@@ -106,6 +118,13 @@ namespace SocialPoint.Notifications
             AddGameNotifications();
             foreach(var notif in _notifications)
             {
+                //If notification must use a time offset, change its fire delay
+                if(notif.RequiresOffset)
+                {
+                    int randomOffset = RandomUtils.Range(0, MaxNotificationOffset + 1);//Second param is exclusive for ints, adding 1 to include it 
+                    notif.FireDelay += randomOffset;//Offset must be added only, to avoid scheduling notifications before the actual event happens
+                }
+
                 Services.Schedule(notif);
             }
             _notifications.Clear();
