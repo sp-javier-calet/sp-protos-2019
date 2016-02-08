@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 using System;
 using System.Collections;
 
@@ -12,9 +13,22 @@ namespace SocialPoint.Notifications
     */
     public class Notification
     {
-        public Notification(bool requiresOffset)
+        /**
+         * What kind of operation should be applied to the base schedule time and an additional offset time.
+         * Some notifications can be scheduled before (Negative) while other can be after (Positive) their real desired time.
+         */
+        public enum OffsetType
         {
-            RequiresOffset = requiresOffset;
+            None,
+            Negative,
+            Positive,
+        };
+
+        public Notification(long fireDelay, OffsetType offsetType)
+        {
+            FireDelay = fireDelay;
+            _offsetType = offsetType;
+            MaxDesiredOffset = 0;
         }
 
         /**
@@ -33,9 +47,24 @@ namespace SocialPoint.Notifications
         /// <value><c>true</c> if requires offset; otherwise, <c>false</c>.</value>
         public bool RequiresOffset
         {
-            get;
-            private set;
+            get
+            { 
+                return _offsetType != OffsetType.None; 
+            }
         }
+
+        /// <summary>
+        /// Max amount of offset this notification should have.
+        /// If its set to zero but an offset is required, the default offset will be set by NotificationCenter.
+        /// </summary>
+        /// <value>The max desired offset.</value>
+        public int MaxDesiredOffset
+        {
+            get;
+            set;
+        }
+
+        private OffsetType _offsetType;
 
         [Obsolete("Use Title")]
         public string AlertAction
@@ -74,7 +103,31 @@ namespace SocialPoint.Notifications
         /**
          * the delay in seconds from now when the system should deliver the notification
          */
-        public long FireDelay = 0;
+        public long FireDelay
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Applies the desired offset directly over its actual FireDelay value. Will add or subtract it depending on its offset type.
+        /// </summary>
+        /// <param name="offset">Offset.</param>
+        public void ApplyOffset(long offset)
+        {
+            Assert.IsTrue(RequiresOffset && offset > 0);
+            switch(_offsetType)
+            {
+            case OffsetType.Negative:
+                FireDelay -= offset;
+                break;
+            case OffsetType.Positive:
+                FireDelay += offset;
+                break;
+            default:
+                break;
+            }
+        }
 
         /**
          * the local date and time when the system should deliver the notification 
