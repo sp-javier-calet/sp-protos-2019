@@ -55,7 +55,7 @@ namespace SocialPoint.Notifications
 
         /// <summary>
         /// Max amount of offset this notification should have.
-        /// If its set to zero but an offset is required, the default offset will be set by NotificationCenter.
+        /// If its set to zero but an offset is required, the default offset will be set by NotificationManager.
         /// </summary>
         /// <value>The max desired offset.</value>
         public int MaxDesiredOffset
