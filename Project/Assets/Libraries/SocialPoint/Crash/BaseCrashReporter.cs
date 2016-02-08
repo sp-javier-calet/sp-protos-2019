@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -258,6 +259,7 @@ namespace SocialPoint.Crash
 
         MonoBehaviour _behaviour;
         Coroutine _updateCoroutine;
+        IAlertView _alertViewPrototype;
         float _currentSendInterval = DefaultSendInterval;
         long _lastSendTimestamp;
         bool _sending;
@@ -417,11 +419,12 @@ namespace SocialPoint.Crash
         }
 
         public BaseCrashReporter(MonoBehaviour behaviour, IHttpClient client, 
-                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
+                                 IDeviceInfo deviceInfo, IAlertView alertView, BreadcrumbManager breadcrumbManager = null)
         {
             _behaviour = behaviour;
             _httpClient = client;
             _deviceInfo = deviceInfo;
+            _alertViewPrototype = alertView;
 
             _exceptionStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/exceptions"));
             _crashStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/crashes"));
@@ -868,6 +871,37 @@ namespace SocialPoint.Crash
             {
                 TrackException(logString, stackTrace);
             }
+
+            CreateAlertView(logString, stackTrace, type);
+        }
+
+        void CreateAlertView(string logString, string stackTrace, LogType type)
+        {
+#if DEBUG
+            bool display = false;
+            switch(type)
+            {
+            case LogType.Error:
+            case LogType.Assert:
+            case LogType.Exception:
+                display = true;
+                break;
+            default:
+                break;
+            }
+
+            if(display)
+            {
+                var alert = (IAlertView)_alertViewPrototype.Clone();
+                alert.Title = type.ToString();
+                alert.Message = logString + "\n" + stackTrace;
+                alert.Signature = type.ToString();
+                alert.Buttons = new string[]{ "OK" };
+                alert.Show((int result) => {
+                    alert.Dispose();
+                });
+            }
+#endif
         }
 
         void TrackException(string logString, string stackTrace)

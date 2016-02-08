@@ -4,6 +4,7 @@ using SocialPoint.Hardware;
 using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
+using SocialPoint.Alert;
 using UnityEngine;
 using Zenject;
 
@@ -83,8 +84,8 @@ class CrashReporter : SocialPointCrashReporter
         }
     }
 
-    public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs) :
-        base(behaviour, client, deviceInfo, breadcrumbs)
+    public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, IAlertView alertView, BreadcrumbManager breadcrumbs) :
+        base(behaviour, client, deviceInfo, alertView, breadcrumbs)
     {
     }
 
