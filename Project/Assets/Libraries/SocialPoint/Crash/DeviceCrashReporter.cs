@@ -159,8 +159,8 @@ namespace SocialPoint.Crash
         readonly string _crashesBasePath;
         UIntPtr _nativeObject;
 
-        public DeviceCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, IAlertView alertView, BreadcrumbManager breadcrumbManager = null)
-            : base(behaviour, client, deviceInfo, alertView, breadcrumbManager)
+        public DeviceCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+            : base(behaviour, client, deviceInfo, breadcrumbManager, alertView)
         {
             _crashesBasePath = PathsManager.TemporaryCachePath + CrashesFolder;
 

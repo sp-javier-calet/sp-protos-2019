@@ -6,7 +6,6 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Attributes;
-using SocialPoint.Alert;
 
 
 namespace SocialPoint.Crash
@@ -34,8 +33,7 @@ namespace SocialPoint.Crash
 
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
-            var AlertView = new AlertView();
-            CrashReporterBase = new BaseCrashReporter(monobh, HttpClient, DeviceInfo, AlertView);
+            CrashReporterBase = new BaseCrashReporter(monobh, HttpClient, DeviceInfo);
             CrashReporterBase.RequestSetup = Substitute.For<BaseCrashReporter.RequestSetupDelegate>();
         }
 

@@ -84,8 +84,8 @@ class CrashReporter : SocialPointCrashReporter
         }
     }
 
-    public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, IAlertView alertView, BreadcrumbManager breadcrumbs) :
-        base(behaviour, client, deviceInfo, alertView, breadcrumbs)
+    public CrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs, IAlertView alertView = null) :
+        base(behaviour, client, deviceInfo, breadcrumbs, alertView)
     {
     }
 

@@ -419,7 +419,7 @@ namespace SocialPoint.Crash
         }
 
         public BaseCrashReporter(MonoBehaviour behaviour, IHttpClient client, 
-                                 IDeviceInfo deviceInfo, IAlertView alertView, BreadcrumbManager breadcrumbManager = null)
+                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
             _behaviour = behaviour;
             _httpClient = client;
@@ -881,7 +881,7 @@ namespace SocialPoint.Crash
         void CreateAlertView(string logString, string stackTrace, LogType type, bool exceptionTracked)
         {
 #if DEBUG
-            if(type == LogType.Exception)
+            if(_alertViewPrototype != null && type == LogType.Exception)
             {
                 try
                 {                    

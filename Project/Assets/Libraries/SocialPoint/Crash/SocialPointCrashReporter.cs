@@ -9,14 +9,16 @@ namespace SocialPoint.Crash
     using BasePlatformCrashReporter = DeviceCrashReporter;
     
 
+
+
 #else
     using BasePlatformCrashReporter = BaseCrashReporter;
     #endif
 
     public class SocialPointCrashReporter : BasePlatformCrashReporter
     {
-        public SocialPointCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, IAlertView alertView, BreadcrumbManager breadcrumbs = null)
-            : base(behaviour, client, deviceInfo, alertView, breadcrumbs)
+        public SocialPointCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs = null, IAlertView alertView = null)
+            : base(behaviour, client, deviceInfo, breadcrumbs, alertView)
         {
         }
     }
