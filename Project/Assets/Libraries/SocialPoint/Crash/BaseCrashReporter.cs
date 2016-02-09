@@ -872,13 +872,13 @@ namespace SocialPoint.Crash
                 TrackException(logString, stackTrace);
             }
 
-            CreateAlertView(logString, stackTrace, type);
+            CreateAlertView(logString, stackTrace, type, doHandleLog);
         }
 
         /// <summary>
         /// Creates an alert view/popup if needed/allowed. (Depends on LogType and DEBUG compilation mode)
         /// </summary>
-        void CreateAlertView(string logString, string stackTrace, LogType type)
+        void CreateAlertView(string logString, string stackTrace, LogType type, bool exceptionTracked)
         {
 #if DEBUG
             if(type == LogType.Exception)
@@ -888,8 +888,7 @@ namespace SocialPoint.Crash
                     var alert = (IAlertView)_alertViewPrototype.Clone();
                     alert.Title = type.ToString();
                     alert.Message = logString + "\n" + stackTrace;
-                    ;
-                    alert.Signature = type.ToString();
+                    alert.Signature = "Exception tracked by Crash Reporter? " + exceptionTracked;
                     alert.Buttons = new string[]{ "OK" };
                     alert.Show((int result) => {
                         alert.Dispose();
