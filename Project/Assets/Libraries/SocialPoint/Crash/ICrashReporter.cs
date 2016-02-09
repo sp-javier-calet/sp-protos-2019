@@ -12,6 +12,8 @@ namespace SocialPoint.Crash
 
         bool WasEnabled { get; }
 
+        bool IsEnabled { get; }
+
         void Enable();
 
         void Disable();

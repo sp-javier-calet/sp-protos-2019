@@ -436,9 +436,17 @@ namespace SocialPoint.Crash
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
         }
 
+        public bool IsEnabled
+        {
+            get
+            {
+                return _updateCoroutine != null;
+            }
+        }
+
         public void Enable()
         {
-            if(_updateCoroutine != null)
+            if(IsEnabled)
             {
                 return;
             }
@@ -860,8 +868,7 @@ namespace SocialPoint.Crash
 
         void HandleLog(string logString, string stackTrace, LogType type)
         {
-            bool doHandleLog = false || type == LogType.Exception && _exceptionLogActive;
-            
+            bool doHandleLog = type == LogType.Exception && _exceptionLogActive;
             doHandleLog |= type == LogType.Error && _errorLogActive;
             
             if(doHandleLog)

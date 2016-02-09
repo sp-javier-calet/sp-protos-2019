@@ -17,13 +17,17 @@ namespace SocialPoint.Crash
 
         public bool WasEnabled { get; private set; }
 
+        public bool IsEnabled { get; private set; }
+
         public void Enable()
         {
+            IsEnabled = true;
             WasEnabled = true;
         }
 
         public void Disable()
         {
+            IsEnabled = false;
             WasEnabled = false;
         }
 
