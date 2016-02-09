@@ -883,14 +883,22 @@ namespace SocialPoint.Crash
 #if DEBUG
             if(type == LogType.Exception)
             {
-                var alert = (IAlertView)_alertViewPrototype.Clone();
-                alert.Title = type.ToString();
-                alert.Message = logString + "\n" + stackTrace;
-                alert.Signature = type.ToString();
-                alert.Buttons = new string[]{ "OK" };
-                alert.Show((int result) => {
-                    alert.Dispose();
-                });
+                try
+                {                    
+                    var alert = (IAlertView)_alertViewPrototype.Clone();
+                    alert.Title = type.ToString();
+                    alert.Message = logString + "\n" + stackTrace;
+                    ;
+                    alert.Signature = type.ToString();
+                    alert.Buttons = new string[]{ "OK" };
+                    alert.Show((int result) => {
+                        alert.Dispose();
+                    });
+                }
+                catch(Exception e)
+                {
+                    UnityEngine.Debug.Log("Exception while creating Alert View - " + e.Message);
+                }
             }
 #endif
         }
