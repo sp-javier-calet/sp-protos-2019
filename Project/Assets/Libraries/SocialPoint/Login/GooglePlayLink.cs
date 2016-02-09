@@ -1,10 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Social;
+using UnityEngine;
 
 namespace SocialPoint.Login
 {
@@ -14,7 +13,7 @@ namespace SocialPoint.Login
         {
             get
             {
-                throw new System.NotImplementedException();
+                return _state;
             }
         }
 
@@ -70,15 +69,16 @@ namespace SocialPoint.Login
 
         void OnStateChanged()
         {
+            _state = _googlePlay.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             if(_eventStateChange != null && _googlePlay != null)
             {
                 if(_googlePlay.IsConnected)
                 {
-                    _eventStateChange(LinkState.Connected);
+                    _eventStateChange(_state);
                 }
                 else
                 {
-                    _eventStateChange(LinkState.Disconnected);
+                    _eventStateChange(_state);
                 }
             }
         }
