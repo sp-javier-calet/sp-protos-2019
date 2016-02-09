@@ -21,6 +21,7 @@ public class LoginInstaller : Installer
         public bool EnableLinkConfirmRetries = Login.DefaultEnableLinkConfirmRetries;
         public uint UserMappingsBlock = Login.DefaultUserMappingsBlock;
         public bool FacebookLoginWithUi = false;
+        public bool GooglePlayLoginWithUi = false;
 	};
 
     public SettingsData Settings = new SettingsData();
@@ -30,6 +31,9 @@ public class LoginInstaller : Installer
 
     [Inject]
     IGameCenter _gameCenter;
+
+    [Inject]
+    IGoogle _googlePlay;
 
     [Inject]
     IAppEvents _appEvents;
@@ -44,6 +48,11 @@ public class LoginInstaller : Installer
         if(_gameCenter != null)
         {
             Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateGameCenterLink);
+        }
+
+        if(_googlePlay != null)
+        {
+            Container.Bind<ILink>().ToSingleMethod<GooglePlayLink>(CreateGooglePlayLink);
         }
 
         Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelLogin>(CreateAdminPanel);
@@ -90,5 +99,10 @@ public class LoginInstaller : Installer
     GameCenterLink CreateGameCenterLink(InjectContext ctx)
     {
         return new GameCenterLink(_gameCenter);
+    }
+
+    GooglePlayLink CreateGooglePlayLink(InjectContext ctx)
+    {
+        return new GooglePlayLink(_googlePlay,!Settings.GooglePlayLoginWithUi);
     }
 }
