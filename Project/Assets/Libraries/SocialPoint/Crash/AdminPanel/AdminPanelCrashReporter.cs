@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using SocialPoint.AdminPanel;
 using UnityEngine.UI;
@@ -67,6 +68,11 @@ namespace SocialPoint.Crash
                 layout.CreateButton("Clear unique exceptions", () => {
                     layout.AdminPanel.Console.Print("Removed pending unique exceptions");
                     _reporter.ClearUniqueExceptions();
+                });
+                layout.CreateMargin(2);
+
+                layout.CreateConfirmButton("Force Exception", ButtonColor.Red, () => {
+                    throw new Exception("This is a forced exception");
                 });
                 layout.CreateMargin(2);
 

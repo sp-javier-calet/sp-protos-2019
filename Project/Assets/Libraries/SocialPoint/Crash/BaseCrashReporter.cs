@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -258,6 +259,7 @@ namespace SocialPoint.Crash
 
         MonoBehaviour _behaviour;
         Coroutine _updateCoroutine;
+        IAlertView _alertViewPrototype;
         float _currentSendInterval = DefaultSendInterval;
         long _lastSendTimestamp;
         bool _sending;
@@ -417,11 +419,12 @@ namespace SocialPoint.Crash
         }
 
         public BaseCrashReporter(MonoBehaviour behaviour, IHttpClient client, 
-                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
+                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
             _behaviour = behaviour;
             _httpClient = client;
             _deviceInfo = deviceInfo;
+            _alertViewPrototype = alertView;
 
             _exceptionStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/exceptions"));
             _crashStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/crashes"));
@@ -875,6 +878,35 @@ namespace SocialPoint.Crash
             {
                 TrackException(logString, stackTrace);
             }
+
+            CreateAlertView(logString, stackTrace, type, doHandleLog);
+        }
+
+        /// <summary>
+        /// Creates an alert view/popup if needed/allowed. (Depends on LogType and DEBUG compilation mode)
+        /// </summary>
+        void CreateAlertView(string logString, string stackTrace, LogType type, bool exceptionTracked)
+        {
+#if DEBUG
+            if(_alertViewPrototype != null && type == LogType.Exception)
+            {
+                try
+                {                    
+                    var alert = (IAlertView)_alertViewPrototype.Clone();
+                    alert.Title = type.ToString();
+                    alert.Message = logString + "\n" + stackTrace;
+                    alert.Signature = "Exception tracked by Crash Reporter? " + exceptionTracked;
+                    alert.Buttons = new string[]{ "OK" };
+                    alert.Show((int result) => {
+                        alert.Dispose();
+                    });
+                }
+                catch(Exception e)
+                {
+                    UnityEngine.Debug.Log("Exception while creating Alert View - " + e.Message);
+                }
+            }
+#endif
         }
 
         void TrackException(string logString, string stackTrace)

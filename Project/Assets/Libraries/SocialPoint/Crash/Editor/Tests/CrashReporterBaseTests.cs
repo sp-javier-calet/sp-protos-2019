@@ -23,6 +23,7 @@ namespace SocialPoint.Crash
         BaseCrashReporter CrashReporterBase;
         IHttpClient HttpClient;
         GameObject GO;
+
         [SetUp]
         public void SetUp()
         {
