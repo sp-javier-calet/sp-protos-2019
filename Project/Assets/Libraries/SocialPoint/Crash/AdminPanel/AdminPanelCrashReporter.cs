@@ -47,7 +47,7 @@ namespace SocialPoint.Crash
                     layout.CreateOpenPanelButton("CrashReporterBase Options", new AdminPanelCrashReporterBaseGUI(crBase));
                 }
 
-                layout.CreateToggleButton("Enabled", _reporter.WasEnabled, value => {
+                layout.CreateToggleButton("Enabled", _reporter.IsEnabled, value => {
                     if(value)
                     {
                         _reporter.Enable();

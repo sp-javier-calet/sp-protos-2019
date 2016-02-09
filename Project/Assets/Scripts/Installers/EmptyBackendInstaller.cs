@@ -36,6 +36,7 @@ public class EmptyBackendInstaller : MonoInstaller
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
         }
         if(_gameLoader != null)
         {
