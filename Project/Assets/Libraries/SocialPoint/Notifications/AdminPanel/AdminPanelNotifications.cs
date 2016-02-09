@@ -43,10 +43,9 @@ namespace SocialPoint.Notifications
 
         void OnNotifyCommand(ConsoleCommand cmd)
         {
-            var notify = new Notification(false);
+            var notify = new Notification(cmd["delay"].IntValue, Notification.OffsetType.None);
             notify.Title = cmd["title"].Value;
             notify.Message = cmd["message"].Value;
-            notify.FireDelay = cmd["delay"].IntValue;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -83,12 +82,11 @@ namespace SocialPoint.Notifications
             _secondsInput.text = "2";
 
             layout.CreateButton("Set Notification", () => {
-                var notif = new Notification(false);
-                notif.Message = _messageInput.text;
-                notif.Title = _actionInput.text;
                 int secs = 0;
                 int.TryParse(_secondsInput.text, out secs);
-                notif.FireDelay = secs;
+                var notif = new Notification(secs, Notification.OffsetType.None);
+                notif.Message = _messageInput.text;
+                notif.Title = _actionInput.text;
                 _services.Schedule(notif);
                 _adminPanel.Console.Print(string.Format("A test notification should appear in {0} seconds.", secs));
             });
