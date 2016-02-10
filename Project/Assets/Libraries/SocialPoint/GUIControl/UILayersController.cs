@@ -54,6 +54,8 @@ namespace SocialPoint.GUIControl
 
         IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
 
+        int _currentOrderInLayer = 0;
+
         void Awake()
         {
             Assert.AreEqual(_cameras[0].Type, UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
@@ -147,6 +149,7 @@ namespace SocialPoint.GUIControl
             }
             else
             {
+                _currentOrderInLayer = 0;
                 ActivateNextUILayer(UICameraData.CameraType.GUI2D);
             }
         }
@@ -171,6 +174,8 @@ namespace SocialPoint.GUIControl
                     AssignCameraToUICanvas(controller.gameObject, _activeCameras.Peek());
                 }
 
+                AssignOrderInCameraLayer(controller.gameObject);
+
                 // if this camera is using 3d objects, then we need to activate a 3d camera and start using the next ui camera from now on
                 if(_3dObjectsByController.ContainsKey(controller))
                 {
@@ -187,6 +192,18 @@ namespace SocialPoint.GUIControl
                         }
                     }
                 }
+            }
+        }
+
+        void AssignOrderInCameraLayer(GameObject uiElement)
+        {
+            List<Canvas> uiCanvas = new List<Canvas>();
+
+            GetCanvasFromElement(uiElement, uiCanvas);
+
+            foreach(Canvas canvas in uiCanvas)
+            {
+                canvas.sortingOrder = _currentOrderInLayer++;
             }
         }
 

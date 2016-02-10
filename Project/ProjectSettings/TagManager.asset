@@ -41,9 +41,6 @@ TagManager:
   - name: HUD
     uniqueID: 4155421895
     locked: 0
-  - name: PopupBackground
-    uniqueID: 4108755071
-    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
