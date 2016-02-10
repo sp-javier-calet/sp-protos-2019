@@ -1,4 +1,5 @@
-﻿using UnityEngine.SocialPlatforms;
+﻿using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using System.Collections.Generic;
 using SocialPoint.Base;
 
@@ -7,6 +8,7 @@ namespace SocialPoint.Social
     public delegate void GoogleAchievementDelegate(GoogleAchievement achi, Error err);
     public delegate void GoogleLeaderboardDelegate(GoogleLeaderboard ldb, Error err);
     public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt, Error err);
+    public delegate void GoogleStateChangeDelegate();
 
     public class GoogleUser
     {
@@ -24,6 +26,8 @@ namespace SocialPoint.Social
         public string PhotoUrl { get; private set; }
 
         public AgeGroup Age { get; private set; }
+
+        public Texture2D Image { get; private set; }
 
         public GoogleUser(string id = "", string displayName = "", string photoUrl = "", AgeGroup age = AgeGroup.Unknown)
         {
@@ -174,16 +178,20 @@ namespace SocialPoint.Social
 
     public interface IGoogle
     {
+        event GoogleStateChangeDelegate StateChangeEvent;
+
         // Login
 
         GoogleUser User{ get; }
 
         bool IsConnected{ get; }
 
+        List<GoogleUser> Friends { get; }
+
         /// <summary>
         /// Starts login with Google Play Games
         /// </summary>
-        void Login(ErrorDelegate cbk);
+        void Login(ErrorDelegate cbk, bool silent = false);
 
         /// <summary>
         /// Clean Login information
@@ -237,5 +245,9 @@ namespace SocialPoint.Social
         /// Show native Quest view and manage user actions
         /// </summary>
         void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null);
+
+        string GetAccessToken();
+
+        Texture2D GetUserPhoto(string userID);
     }
 }

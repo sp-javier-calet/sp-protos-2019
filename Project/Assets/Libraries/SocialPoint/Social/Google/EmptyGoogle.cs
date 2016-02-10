@@ -5,21 +5,42 @@ namespace SocialPoint.Social
 {
     public class EmptyGoogle : IGoogle
     {
+        private bool _isConnected = false;
+        private GoogleUser _user;
+        private List<GoogleUser> _friends = new List<GoogleUser>();
+
         #region IGoogle implementation
 
-        public void Login(ErrorDelegate cbk)
+        public EmptyGoogle()
         {
+            _user = new GoogleUser("DebugGoogleUserID", "DebugGoogleUserName");
+        }
+
+        public event GoogleStateChangeDelegate StateChangeEvent;
+
+        public void Login(ErrorDelegate cbk, bool silent = false)
+        {
+            _isConnected = true;
             if(cbk != null)
             {
                 cbk(new Error("Empty Google implementation"));
+            }
+            if(StateChangeEvent != null)
+            {
+                StateChangeEvent();
             }
         }
 
         public void Logout(ErrorDelegate cbk)
         {
+            _isConnected = false;
             if(cbk != null)
             {
                 cbk(new Error("Empty Google implementation"));
+            }
+            if(StateChangeEvent != null)
+            {
+                StateChangeEvent();
             }
         }
 
@@ -79,7 +100,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return null;
+                return _user;
             }
         }
 
@@ -87,7 +108,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return false;
+                return _isConnected;
             }
         }
 
@@ -99,6 +120,23 @@ namespace SocialPoint.Social
             }
         }
 
+        public string GetAccessToken()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public UnityEngine.Texture2D GetUserPhoto(string userID)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public List<GoogleUser> Friends
+        {
+            get
+            {
+                return _friends;
+            }
+        }
         #endregion
     }
 }

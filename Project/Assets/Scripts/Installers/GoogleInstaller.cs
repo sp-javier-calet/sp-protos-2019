@@ -22,7 +22,7 @@ public class GoogleInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IGoogle>().ToSingle<UnityGoogle>();
+            Container.Rebind<IGoogle>().ToSingleGameObject<UnityGoogle>();
         }
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGoogle>();

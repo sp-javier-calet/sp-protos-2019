@@ -191,6 +191,11 @@ namespace SocialPoint.Social
             public void OnCreateGUI(AdminPanelLayout layout)
             {
                 _mainTitle = layout.CreateLabel("Leaderboard not found");
+                if(string.IsNullOrEmpty(_leaderboard.Id))
+                {
+                    layout.AdminPanel.Console.Print("Leaderboard id cannot be empty");
+                    return;  
+                }
                 _google.LoadLeaderboard(new GoogleLeaderboard(_idHandler.Id, _isFriendOnly, _playerCentered, _scope), 10, (ldb, err) => {
                     _leaderboard = ldb;
                     if(_leaderboard != null)
