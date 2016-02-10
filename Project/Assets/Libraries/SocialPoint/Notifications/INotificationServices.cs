@@ -1,32 +1,29 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using SocialPoint.Base;
-using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
     public interface INotificationServices
     {
-        /**
-         * Schedules a local notification
-         */
+        /// <summary>
+        /// Schedules a local notification
+        /// </summary>
+        /// <param name="notif">Notification to schedule</param>
         void Schedule(Notification notif);
-        
-        /**
-         * Discards of all received local notifications
-         */
-        void ClearReceived();
-        
-        /**
-         * Cancels the delivery of all scheduled local notifications
-         */
-        void CancelPending();
-        
-        /**
-         * Register to receive remote notifications of the specified types from a provider
-         */
-        void RegisterForRemote();
 
-    }   
+        /// <summary>
+        /// Discards of all received local notifications
+        /// </summary>
+        void ClearReceived();
+
+        /// <summary>
+        /// Cancels the delivery of all scheduled local notifications
+        /// </summary>
+        void CancelPending();
+
+        /// <summary>
+        /// Register to receive remote notifications of the specified types from a provider
+        /// </summary>
+        /// <param name="onTokenReceivedCallback">On token received callback.</param>
+        void RegisterForRemote(Action<string> onTokenReceivedCallback = null);
+    }
 }
