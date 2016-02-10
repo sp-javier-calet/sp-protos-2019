@@ -32,6 +32,10 @@ public class EmptyBackendInstaller : MonoInstaller
             Container.Bind<ICommandQueue>().ToSingle<EmptyCommandQueue>();
             Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
         }
+        if(!Container.HasBinding<BreadcrumbManager>())
+        {
+            Container.Bind<BreadcrumbManager>().ToSingle();
+        }
         if(!Container.HasBinding<ICrashReporter>())
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();

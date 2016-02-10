@@ -24,6 +24,7 @@ public class CrashInstaller : Installer
         Container.BindInstance("crash_reporter_exception_log_active", Settings.ExceptionLogActive);
         Container.BindInstance("crash_reporter_enable_sending_crashes_before_login", Settings.EnableSendingCrashesBeforeLogin);
         Container.BindInstance("crash_reporter_num_retries_before_sending_crash_before_login", Settings.NumRetriesBeforeSendingCrashBeforeLogin);
+        Container.Rebind<BreadcrumbManager>().ToSingle();
         Container.Rebind<ICrashReporter>().ToSingle<CrashReporter>();
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
 
