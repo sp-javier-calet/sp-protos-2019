@@ -1,31 +1,22 @@
 using UnityEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using SocialPoint.ServerSync;
 
 #if UNITY_IOS
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-using LocalNotification = UnityEngine.LocalNotification;
-using NotificationServices = UnityEngine.NotificationServices;
-using LocalNotificationType = UnityEngine.LocalNotificationType;
-using RemoteNotificationType = UnityEngine.RemoteNotificationType;
-#else
 using LocalNotification = UnityEngine.iOS.LocalNotification;
 using NotificationServices = UnityEngine.iOS.NotificationServices;
 using LocalNotificationType = UnityEngine.iOS.NotificationType;
 using RemoteNotificationType = UnityEngine.iOS.NotificationType;
 #endif
-#endif
 
 namespace SocialPoint.Notifications
 {
-#if UNITY_IOS
+    #if UNITY_IOS
     public class IosNotificationServices : BaseNotificationServices
     {
-        private const string TokenSeparator = "-";
-        private const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
-        private const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
+        const string TokenSeparator = "-";
+        const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
+        const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
 
         public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
             : base(behaviour, commandqueue)
@@ -55,15 +46,11 @@ namespace SocialPoint.Notifications
             NotificationServices.CancelAllLocalNotifications();
         }
 
-        public override void RegisterForRemote()
+        protected override void RequestPushNotificationToken()
         {
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            NotificationServices.RegisterForRemoteNotificationTypes(_remoteNotifyTypes);
-#else
             NotificationServices.RegisterForNotifications(_remoteNotifyTypes, true);
-#endif
 
-            WaitForRemoteToken(()=> {
+            WaitForRemoteToken(() => {
                 string token = null;
                 byte[] byteToken = NotificationServices.deviceToken;
                 if(byteToken != null)
@@ -73,7 +60,7 @@ namespace SocialPoint.Notifications
                 return token;
             });
         }
-        
+
         public override void ClearReceived()
         {
             NotificationServices.ClearRemoteNotifications();
@@ -84,20 +71,15 @@ namespace SocialPoint.Notifications
             NotificationServices.PresentLocalNotificationNow(unotif);
         }
 
-        private void RegisterForLocal()
+        void RegisterForLocal()
         {
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            NotificationServices.RegisterForLocalNotificationTypes(_localNotifyTypes);
-#else
             NotificationServices.RegisterForNotifications(_localNotifyTypes, false);
-#endif
         }
-
     }
 
-#else
+    #else
     public class IosNotificationServices : EmptyNotificationServices
     {
     }
-#endif
+    #endif
 }

@@ -1,19 +1,16 @@
-using UnityEngine;
 using UnityEngine.UI;
-using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Notifications
 {
     public class AdminPanelNotifications : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        private INotificationServices _services;
-        private AdminPanel.AdminPanel _adminPanel;
-        private InputField _messageInput;
-        private InputField _actionInput;
-        private InputField _secondsInput;
+        readonly INotificationServices _services;
+        AdminPanel.AdminPanel _adminPanel;
+        InputField _messageInput;
+        InputField _actionInput;
+        InputField _secondsInput;
 
         public AdminPanelNotifications(INotificationServices services)
         {
@@ -52,17 +49,14 @@ namespace SocialPoint.Notifications
         {
             layout.CreateLabel("Notification Services");
 
-            layout.CreateButton("Clear Received", () => {
-                _services.ClearReceived();
-            });
+            layout.CreateButton("Clear Received", _services.ClearReceived);
 
-            layout.CreateButton("Cancel Pending", () => {
-                _services.CancelPending();
-            });
+            layout.CreateButton("Cancel Pending", _services.CancelPending);
 
-            layout.CreateButton("Register For Remote", () => {
-                _services.RegisterForRemote();
-            });
+            layout.CreateButton("Register For Remote", () => _services.RegisterForRemote(token => { 
+                var msg = string.Format("Retrieved push token: {0}", token);
+                layout.AdminPanel.Console.Print(msg);
+            }));
 
             layout.CreateMargin();
 
