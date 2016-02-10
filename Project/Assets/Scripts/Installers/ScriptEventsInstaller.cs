@@ -30,13 +30,13 @@ public class ScriptEventsInstaller : MonoInstaller, IInitializable
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelScriptEvents>();
     }
 
-    public FamilyParser<IScriptCondition> CreateScriptConditionParser(InjectContext ctx)
+    FamilyParser<IScriptCondition> CreateScriptConditionParser(InjectContext ctx)
     {
         var children = ctx.Container.Resolve<List<IChildParser<IScriptCondition>>>();
         return new FamilyParser<IScriptCondition>(children);
     }
 
-    public ScriptModelParser CreateScriptModelParser(InjectContext ctx)
+    ScriptModelParser CreateScriptModelParser(InjectContext ctx)
     {
         var condParser = ctx.Container.Resolve<IParser<IScriptCondition>>();
         return new ScriptModelParser(condParser);

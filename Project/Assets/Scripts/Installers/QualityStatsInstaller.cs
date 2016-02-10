@@ -3,21 +3,22 @@ using SocialPoint.Network;
 using SocialPoint.QualityStats;
 using Zenject;
 
-public class QualityStatsInstaller : Installer
+public class QualityStatsInstaller : Installer, IInitializable
 {
     [Inject]
     IHttpClient _httpClient;
 
     public override void InstallBindings()
     {
-        if(!(_httpClient is QualityStatsHttpClient))
-        {
-            var httpClient = new QualityStatsHttpClient(_httpClient);
-            Container.Rebind<IHttpClient>().ToInstance(httpClient);
-            Container.Rebind<QualityStatsHttpClient>().ToInstance(httpClient);
-            Container.Bind<IDisposable>().ToInstance(httpClient);
-        }
+        Container.Rebind<QualityStatsHttpClient>().ToSingle<QualityStatsHttpClient>();
+        Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
         Container.Rebind<QualityStats>().ToSingle<QualityStats>();
         Container.Bind<IDisposable>().ToSingle<QualityStats>();
     }
+
+    public void Initialize()
+    {
+        var client = Container.Resolve<QualityStatsHttpClient>();
+        Container.Rebind<IHttpClient>().ToSingleInstance(client);
+    }        
 }

@@ -20,40 +20,18 @@ public class LoginInstaller : Installer
         public uint MaxConnectivityErrorRetries = Login.DefaultMaxConnectivityErrorRetries;
         public bool EnableLinkConfirmRetries = Login.DefaultEnableLinkConfirmRetries;
         public uint UserMappingsBlock = Login.DefaultUserMappingsBlock;
-        public bool FacebookLoginWithUi = false;
 	};
 
     public SettingsData Settings = new SettingsData();
 
-    [Inject]
-    IFacebook _facebook;
-
-    [Inject]
-    IGameCenter _gameCenter;
-
-    [Inject]
-    IAppEvents _appEvents;
-
     public override void InstallBindings()
     {
-        if(_facebook != null)
+        if(!Container.HasInstalled<LoginAdminPanelInstaller>())
         {
-            Container.Bind<ILink>().ToSingleMethod<FacebookLink>(CreateFacebookLink);
+            Container.Install<LoginAdminPanelInstaller>();
         }
 
-        if(_gameCenter != null)
-        {
-            Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateGameCenterLink);
-        }
-
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelLogin>(CreateAdminPanel);
-
-        InstallLogin();
-	}
-
-    void InstallLogin()
-    {
-        Container.Rebind<Login.LoginConfig>().ToInstance<Login.LoginConfig>(new Login.LoginConfig {
+        Container.Rebind<Login.LoginConfig>().ToSingleInstance<Login.LoginConfig>(new Login.LoginConfig {
             BaseUrl = Settings.Environment.GetUrl(),
             SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries, 
             ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
@@ -67,28 +45,5 @@ public class LoginInstaller : Installer
         
         Container.Rebind<ILogin>().ToSingle<Login>();
         Container.Bind<IDisposable>().ToLookup<ILogin>();
-    }
-
-    public static AdminPanelLogin CreateAdminPanel(InjectContext ctx)
-    {
-        var login = ctx.Container.Resolve<ILogin>();
-        var appEvents = ctx.Container.Resolve<IAppEvents>();
-        var envs = new Dictionary<string,string>();
-        foreach(BackendEnvironment env in Enum.GetValues(typeof(BackendEnvironment)))
-        {
-            envs.Add(env.ToString(), env.GetUrl());
-        }
-
-        return new AdminPanelLogin(login, envs, appEvents);
-    }
-
-    FacebookLink CreateFacebookLink(InjectContext ctx)
-    {
-        return new FacebookLink(_facebook, Settings.FacebookLoginWithUi);
-    }
-
-    GameCenterLink CreateGameCenterLink(InjectContext ctx)
-    {
-        return new GameCenterLink(_gameCenter);
     }
 }

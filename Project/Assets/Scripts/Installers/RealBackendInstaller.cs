@@ -39,10 +39,6 @@ public class RealBackendInstaller : MonoInstaller
             Container.Install(installer);
         }
         {
-            var installer = new QualityStatsInstaller();
-            Container.Install(installer);
-        }
-        {
             var installer = new NotificationInstaller();
             installer.Settings = Settings.Notifications;
             Container.Install(installer);
@@ -50,6 +46,10 @@ public class RealBackendInstaller : MonoInstaller
         {
             var installer = new CrashInstaller();
             installer.Settings = Settings.Crashes;
+            Container.Install(installer);
+        }
+        {
+            var installer = new QualityStatsInstaller();
             Container.Install(installer);
         }
     }
