@@ -6,7 +6,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;
 using SocialPoint.Notifications;
 
-public class NotificationInstaller : Installer
+public class NotificationInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData
@@ -18,8 +18,11 @@ public class NotificationInstaller : Installer
 
     public override void InstallBindings()
     {
+        Container.Bind<IInitializable>().ToSingleInstance(this);
 
-#if UNITY_ANDROID 
+#if UNITY_EDITOR
+        Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
+#elif UNITY_ANDROID 
         Container.Rebind<INotificationServices>().ToSingle<AndroidNotificationServices>();
 #elif UNITY_IOS
         Container.Rebind<INotificationServices>().ToSingle<IosNotificationServices>();
@@ -31,12 +34,16 @@ public class NotificationInstaller : Installer
         Container.Bind<IDisposable>().ToSingle<NotificationManager>();
         Container.Resolve<NotificationManager>();
 
-        if(Settings.AutoRegisterForRemote)
-        {
-            var services = Container.Resolve<INotificationServices>();
-            services.RegisterForRemote();
-        }
-
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
     }
+
+    public void Initialize()
+    {
+        var services = Container.Resolve<INotificationServices>();
+        if(Settings.AutoRegisterForRemote)
+        {
+            services.RegisterForRemote();
+        }
+    }
+    
 }
