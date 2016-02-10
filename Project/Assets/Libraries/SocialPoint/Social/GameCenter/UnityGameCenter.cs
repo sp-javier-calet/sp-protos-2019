@@ -11,7 +11,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
-    public delegate void GameCenterValidationDelegate(Error error,GameCenterUserVerification ver);
+    public delegate void GameCenterValidationDelegate(Error error, GameCenterUserVerification ver);
     public class UnityGameCenter : BaseGameCenter
     {
 
@@ -28,15 +28,11 @@ namespace SocialPoint.Social
 
         public Dictionary<string, double> Achievements { get; private set; }
 
-        public bool ShowLoginWindow { get; private set; }
-
-        public bool PlayerVerification { get; private set; }
-
         private bool _connecting = false;
         private GameCenterPlatform _platform;
         private List<GameCenterUser> _friends;
 
-        SocialPointGameCenterVerification _gameCenterVerification;
+        SocialPointGameCenterVerification _verification;
 
         public override List<GameCenterUser> Friends
         {
@@ -72,24 +68,14 @@ namespace SocialPoint.Social
             }
             else
             {
-                GameCenterUser user = new GameCenterUser(localUser.id,
-                                          localUser.userName,
-                                          localUser.userName,
-                                          localUser.underage ? GameCenterUser.AgeGroup.Underage : GameCenterUser.AgeGroup.Adult
-                                      );                
+                var user = new GameCenterUser(localUser.id,
+                               localUser.userName,
+                               localUser.userName,
+                               localUser.underage ? GameCenterUser.AgeGroup.Underage : GameCenterUser.AgeGroup.Adult
+                           );
                 _user = user;
 
-                if(PlayerVerification)
-                {
-                    RequestGameCenterVerification(cbk);
-                }
-                else
-                {
-                    if(cbk != null)
-                    {
-                        cbk(null);
-                    }
-                }
+                RequestGameCenterVerification(cbk);
             }
         }
 
@@ -211,21 +197,28 @@ namespace SocialPoint.Social
             });
         }
 
-        public UnityGameCenter(bool playerVerification = true)
+        public UnityGameCenter(Transform parent = null)
         {
             _friends = new List<GameCenterUser>();
             _user = new GameCenterUser();
-            ShowLoginWindow = false;
-            PlayerVerification = playerVerification;
+            var go = new GameObject();
+            if(parent == null)
+            {
+                GameObject.DontDestroyOnLoad(go);
+            }
+            else
+            {
+                go.transform.SetParent(parent);
+            }
             _platform = new GameCenterPlatform();
+            // TODO: check if this is needed
             UnityEngine.Social.Active = _platform;
+            _verification = go.AddComponent<SocialPointGameCenterVerification>();
         }
 
         private void RequestGameCenterVerification(ErrorDelegate cbk)
         {
-            var go = new GameObject();
-            _gameCenterVerification = go.AddComponent<SocialPointGameCenterVerification>();
-            _gameCenterVerification.Callback = (Error error, GameCenterUserVerification ver) => {
+            _verification.Callback = (Error error, GameCenterUserVerification ver) => {
                 if(Error.IsNullOrEmpty(error))
                 {
                     _user.Verification = ver;

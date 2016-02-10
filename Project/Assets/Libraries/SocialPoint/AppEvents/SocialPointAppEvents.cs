@@ -7,13 +7,12 @@ namespace SocialPoint.AppEvents
     public class SocialPointAppEvents : IAppEvents
     {
         BaseAppEvents _appEvents;
-        const string GameObjectName = "SocialPointAppEvents";
 
-        public SocialPointAppEvents(MonoBehaviour behaviour = null)
+        public SocialPointAppEvents(Transform parent = null)
         {
-            if(behaviour != null)
+            if(parent != null)
             {
-                Setup(behaviour.gameObject);
+                Setup(parent);
             }
             else
             {
@@ -26,14 +25,18 @@ namespace SocialPoint.AppEvents
             DestroyAppEvents();
         }
 
-        private void Setup(GameObject go)
+        private void Setup(Transform parent)
         {
-            if(go == null)
+            var go = new GameObject();
+            if(parent == null)
             {
-                go = new GameObject();
-                go.name = GameObjectName;
                 GameObject.DontDestroyOnLoad(go);
             }
+            else
+            {
+                go.transform.SetParent(parent);
+            }
+            go.name = GetType().ToString();
             DestroyAppEvents();
             #if UNITY_EDITOR
             _appEvents = go.AddComponent<UnityAppEvents>();
