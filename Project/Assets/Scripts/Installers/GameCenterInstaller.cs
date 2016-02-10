@@ -9,7 +9,6 @@ public class GameCenterInstaller : MonoInstaller
     public class SettingsData
     {
         public bool UseEmpty = false;
-        public bool EnableVerification = true;
     };
     
     public SettingsData Settings = new SettingsData();
@@ -22,12 +21,7 @@ public class GameCenterInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IGameCenter>().ToSingleMethod<UnityGameCenter>(CreateUnityGameCenter);
+            Container.Rebind<IGameCenter>().ToSingle<UnityGameCenter>();
         }
-    }
-
-    UnityGameCenter CreateUnityGameCenter(InjectContext ctx)
-    {
-        return new UnityGameCenter(Settings.EnableVerification);
     }
 }
