@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.Social;
+using SocialPoint.IO;
 
 namespace SocialPoint.Login
 {
@@ -20,10 +19,10 @@ namespace SocialPoint.Login
 
         LinkState _state;
 
-        public FacebookLink(MonoBehaviour behaviour, bool loginWithUi = true)
+        public FacebookLink(IUnityDownloader downloader, bool loginWithUi = true)
         {
             _loginWithUi = loginWithUi;
-            _facebook = new UnityFacebook(behaviour);
+            _facebook = new UnityFacebook(downloader);
             _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             Init();
         }
@@ -200,7 +199,7 @@ namespace SocialPoint.Login
                 {
                     if(Error.IsNullOrEmpty(err))
                     {
-                        string tmpFilePath = Application.temporaryCachePath + "/SPLoginFacebook/" + user.Id + "_" + photoSize.ToString() + ".png";
+                        var tmpFilePath = FileUtils.Combine(PathsManager.TemporaryCachePath, "SPLoginFacebook/" + user.Id + "_" + photoSize.ToString() + ".png");
                         err = ImageUtils.SaveTextureToFile(texture, tmpFilePath);
                         if(Error.IsNullOrEmpty(err))
                         {

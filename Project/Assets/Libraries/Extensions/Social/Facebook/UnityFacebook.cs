@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using Facebook.Unity;
 
 namespace SocialPoint.Social
@@ -20,11 +19,11 @@ namespace SocialPoint.Social
         private List<FacebookUser> _friends = new List<FacebookUser>();
         private List<string> _loginPermissions = new List<string>();
         private List<string> _userPermissions;
-        private MonoBehaviour _behaviour;
+        private IUnityDownloader _downloader;
 
-        public UnityFacebook(MonoBehaviour behaviour)
+        public UnityFacebook(IUnityDownloader downloader)
         {
-            _behaviour = behaviour;
+            _downloader = downloader;
         }
 
         public override List<string> LoginPermissions
@@ -303,7 +302,7 @@ namespace SocialPoint.Social
                     if(_user != null)
                     {
                         _user.AccessToken = AccessToken.CurrentAccessToken.TokenString;
-                        _userPermissions = AccessToken.CurrentAccessToken.Permissions.ToList();
+                        _userPermissions = new List<string>(AccessToken.CurrentAccessToken.Permissions);
                         GetLoginFriendsInfo("/me/friends", (err) => {
                             if(!Error.IsNullOrEmpty(err))
                             {
@@ -501,21 +500,16 @@ namespace SocialPoint.Social
             {
                 throw new Exception("Unity Facebook SDK does not have the option to set the app id programatically.");
             }
-        }
-
-        private IEnumerator LoadPhotoFromUrlCoroutine(string url, FacebookPhotoDelegate cbk = null)
-        {
-            var www = new WWW(url);
-            yield return www;
-            if(cbk != null)
-            {
-                cbk(www.texture, new Error(www.error));
-            }
-        }
+        }            
 
         private void LoadPhotoFromUrl(string url, FacebookPhotoDelegate cbk = null)
         {
-            _behaviour.StartCoroutine(LoadPhotoFromUrlCoroutine(url, cbk));
+            _downloader.DownloadTexture(url, (tex, err) => {
+                if(cbk != null)
+                {
+                    cbk(tex, err);
+                }
+            });
         }
 
         public override void LoadPhoto(string userId, FacebookPhotoDelegate cbk = null)

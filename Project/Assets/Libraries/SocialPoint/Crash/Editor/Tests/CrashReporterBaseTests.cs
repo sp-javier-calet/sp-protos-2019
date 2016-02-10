@@ -6,6 +6,7 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Attributes;
+using SocialPoint.Utils;
 
 
 namespace SocialPoint.Crash
@@ -28,12 +29,12 @@ namespace SocialPoint.Crash
         public void SetUp()
         {
             GO = new GameObject();
-            var monobh = GO.AddComponent<MonoBehaviour>();
+            var runner = GO.AddComponent<UnityUpdateRunner>();
             PathsManager.Init();
 
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
-            CrashReporterBase = new BaseCrashReporter(monobh, HttpClient, DeviceInfo);
+			CrashReporterBase = new BaseCrashReporter(runner, HttpClient, DeviceInfo);
             CrashReporterBase.RequestSetup = Substitute.For<BaseCrashReporter.RequestSetupDelegate>();
         }
 

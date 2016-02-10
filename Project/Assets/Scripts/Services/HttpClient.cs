@@ -3,7 +3,7 @@
 #endif
 
 using Zenject;
-using UnityEngine;
+using SocialPoint.Utils;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
@@ -52,8 +52,8 @@ public class HttpClient :
     }
     #endif
 
-    public HttpClient(MonoBehaviour mono):
-    base(mono)
+    public HttpClient(ICoroutineRunner runner):
+    base(runner)
     {
         RequestSetup += OnRequestSetup;
     }

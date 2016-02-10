@@ -1,9 +1,6 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-
 using SocialPoint.Utils;
 
 namespace SocialPoint.Network
@@ -38,13 +35,12 @@ namespace SocialPoint.Network
     {
         protected BaseYieldHttpConnection Current = null;
         protected PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection> Pending;
-        MonoBehaviour _behaviour = null;
-        Coroutine _update = null;
+        ICoroutineRunner _runner = null;
+        bool _running = false;
         
-        public BaseYieldHttpClient(MonoBehaviour behaviour)
+        public BaseYieldHttpClient(ICoroutineRunner runner)
         {
-            _behaviour = behaviour;
-            // Initialize queues for all available priorities
+            _runner = runner;
             Pending = new PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection>();
         }
         
@@ -104,9 +100,10 @@ namespace SocialPoint.Network
             req.BeforeSend();
             var conn = CreateConnection(req, del);
             Pending.Add(req.Priority, conn);
-            if(_update == null)
+            if(!_running)
             {
-                _update = _behaviour.StartCoroutine(Update());
+                _running = true;
+                _runner.StartCoroutine(Update());
             }
             return conn;
         }
@@ -123,7 +120,7 @@ namespace SocialPoint.Network
                 }
                 Current = null;
             }
-            _update = null;
+            _running = false;
         }
     }
 }

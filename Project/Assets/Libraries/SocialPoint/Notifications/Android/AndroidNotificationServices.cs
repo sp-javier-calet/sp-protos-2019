@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using SocialPoint.ServerSync;
 using UnityEngine;
 
@@ -19,8 +20,8 @@ namespace SocialPoint.Notifications
 
         private AndroidJavaClass _notifClass = null;
 
-        public AndroidNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
-        : base(behaviour, commandqueue)
+        public AndroidNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
+            : base(runner, commandqueue)
         {
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);

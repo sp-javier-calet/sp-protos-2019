@@ -257,8 +257,8 @@ namespace SocialPoint.Crash
             set{ _currentSendInterval = value; }
         }
 
-        MonoBehaviour _behaviour;
-        Coroutine _updateCoroutine;
+        ICoroutineRunner _runner;
+        IEnumerator _updateCoroutine;
         IAlertView _alertViewPrototype;
         float _currentSendInterval = DefaultSendInterval;
         long _lastSendTimestamp;
@@ -418,10 +418,10 @@ namespace SocialPoint.Crash
             }
         }
 
-        public BaseCrashReporter(MonoBehaviour behaviour, IHttpClient client, 
+        public BaseCrashReporter(ICoroutineRunner runner, IHttpClient client, 
                                  IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
-            _behaviour = behaviour;
+            _runner = runner;
             _httpClient = client;
             _deviceInfo = deviceInfo;
             _alertViewPrototype = alertView;
@@ -458,7 +458,8 @@ namespace SocialPoint.Crash
             LogCallbackHandler.RegisterLogCallback(HandleLog);
             OnEnable();
 
-            _updateCoroutine = _behaviour.StartCoroutine(UpdateCoroutine());
+            _updateCoroutine = UpdateCoroutine();
+            _runner.StartCoroutine(_updateCoroutine);
         }
 
         protected virtual void OnEnable()
@@ -470,7 +471,7 @@ namespace SocialPoint.Crash
             WasEnabled = false;
             if(_updateCoroutine != null)
             {
-                _behaviour.StopCoroutine(_updateCoroutine);
+                _runner.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
             }
 

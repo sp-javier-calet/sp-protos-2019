@@ -8,7 +8,6 @@ namespace SocialPoint.Base
 {
     public static class MonoBehaviourExtensions
     {
-
         public static AsyncOperation LoadSceneAsync(this MonoBehaviour behaviour, string name, Action<AsyncOperation> finished)
         {
             return LoadSceneAsync(behaviour, name, LoadSceneMode.Single, finished);

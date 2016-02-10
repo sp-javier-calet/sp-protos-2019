@@ -1,7 +1,7 @@
 ﻿using SocialPoint.Hardware;
 using SocialPoint.Network;
 using SocialPoint.Alert;
-using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Crash
 {
@@ -17,8 +17,8 @@ namespace SocialPoint.Crash
 
     public class SocialPointCrashReporter : BasePlatformCrashReporter
     {
-        public SocialPointCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs = null, IAlertView alertView = null)
-            : base(behaviour, client, deviceInfo, breadcrumbs, alertView)
+        public SocialPointCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs = null, IAlertView alertView = null)
+            : base(runner, client, deviceInfo, breadcrumbs, alertView)
         {
         }
     }

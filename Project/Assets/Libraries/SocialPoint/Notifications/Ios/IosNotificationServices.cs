@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.ServerSync;
+using SocialPoint.Utils;
 
 #if UNITY_IOS
 #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
@@ -27,8 +28,8 @@ namespace SocialPoint.Notifications
         private const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
         private const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
 
-        public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
-            : base(behaviour, commandqueue)
+        public IosNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
+        : base(runner, commandqueue)
         {
             RegisterForLocal();
         }

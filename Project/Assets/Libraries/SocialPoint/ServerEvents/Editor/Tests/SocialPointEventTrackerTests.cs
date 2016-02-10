@@ -22,8 +22,8 @@ namespace SocialPoint.ServerEvents
         public void SetUp()
         {
             GO = new GameObject();
-            var monobh = GO.AddComponent<MonoBehaviour>();
-            SocialPointEventTracker = new SocialPointEventTracker(monobh);
+			var runner = GO.AddComponent<UnityUpdateRunner>();
+			SocialPointEventTracker = new SocialPointEventTracker(runner);
             SocialPointEventTracker.HttpClient = Substitute.For<IHttpClient>();
             SocialPointEventTracker.DeviceInfo = Substitute.For<IDeviceInfo>();
             SocialPointEventTracker.RequestSetup = Substitute.For<SocialPointEventTracker.RequestSetupDelegate>();

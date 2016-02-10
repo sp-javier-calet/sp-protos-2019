@@ -1,8 +1,9 @@
 ﻿using System;
-using UnityEngine;
 using System.Collections;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using SocialPoint.ServerSync;
+using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
@@ -11,24 +12,24 @@ namespace SocialPoint.Notifications
         protected delegate string PollPushNotificationToken();
 
         const string kPushTokenKey = "notifications_push_token";
-        MonoBehaviour _behaviour;
+        ICoroutineRunner _runner;
         ICommandQueue _commandQueue;
         string _pushToken = null;
 
-        public BaseNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue = null)
+        public BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
         {
-            if(behaviour == null)
+            if(runner == null)
             {
-                throw new ArgumentNullException("behaviour", "behaviour cannot be null or empty!");
+                throw new ArgumentNullException("runner", "ICoroutineRunner cannot be null!");
             }
 
-            _behaviour = behaviour;
+            _runner = runner;
             _commandQueue = commandqueue;
         }
 
         protected void WaitForRemoteToken(PollPushNotificationToken pollDelegate)
         {
-            _behaviour.StartCoroutine(CheckPushNotificationToken(pollDelegate));
+            _runner.StartCoroutine(CheckPushNotificationToken(pollDelegate));
         }
 
         IEnumerator CheckPushNotificationToken(PollPushNotificationToken pollDelegate)
@@ -43,6 +44,7 @@ namespace SocialPoint.Notifications
 
         void SendPushToken(string pushToken)
         {
+            // TODO: pass a IAttrStorage instead of storing in PlayerPrefs
             string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
             if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && pushToken != currentPushToken)
             {
