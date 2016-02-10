@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd6e1e73473c3d14e9ecd75348863ab9, type: 3}
-  m_Name: ZenjectGlobalCompositionRoot
+  m_Name: ZenjectGlobalInstallers
   m_EditorClassIdentifier: 
   Installers:
   - {fileID: 11484044, guid: a8e61605f1da34b3ba1a7d39d17bfad5, type: 2}
