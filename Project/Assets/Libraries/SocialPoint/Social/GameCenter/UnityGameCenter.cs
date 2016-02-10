@@ -201,7 +201,7 @@ namespace SocialPoint.Social
         {
             _friends = new List<GameCenterUser>();
             _user = new GameCenterUser();
-            var go = new GameObject();
+            var go = new GameObject(GetType().ToString());
             if(parent == null)
             {
                 GameObject.DontDestroyOnLoad(go);
@@ -211,8 +211,6 @@ namespace SocialPoint.Social
                 go.transform.SetParent(parent);
             }
             _platform = new GameCenterPlatform();
-            // TODO: check if this is needed
-            UnityEngine.Social.Active = _platform;
             _verification = go.AddComponent<SocialPointGameCenterVerification>();
         }
 

@@ -27,7 +27,7 @@ namespace SocialPoint.AppEvents
 
         private void Setup(Transform parent)
         {
-            var go = new GameObject();
+            var go = new GameObject(GetType().ToString());
             if(parent == null)
             {
                 GameObject.DontDestroyOnLoad(go);
@@ -36,7 +36,6 @@ namespace SocialPoint.AppEvents
             {
                 go.transform.SetParent(parent);
             }
-            go.name = GetType().ToString();
             DestroyAppEvents();
             #if UNITY_EDITOR
             _appEvents = go.AddComponent<UnityAppEvents>();
