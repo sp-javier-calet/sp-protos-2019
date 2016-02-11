@@ -1,7 +1,7 @@
 ﻿
 namespace SocialPoint.Attributes
 {
-    public class JsonStreamReader : LitJsonStreamReader
+    public class JsonStreamReader : FastJsonStreamReader
     {
         public JsonStreamReader(byte[] data) : base(data)
         {
