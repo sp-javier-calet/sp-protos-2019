@@ -12,7 +12,7 @@ public class NotificationInstaller : Installer, IInitializable
     public class SettingsData
     {
         public bool AutoRegisterForRemote = true;
-    };
+    }
     
     public SettingsData Settings = new SettingsData();
 

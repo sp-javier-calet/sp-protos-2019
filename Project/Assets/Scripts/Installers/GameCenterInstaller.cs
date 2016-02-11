@@ -11,7 +11,7 @@ public class GameCenterInstaller : MonoInstaller
     {
         public bool UseEmpty = false;
         public bool LoginLink = true;
-    };
+    }
     
     public SettingsData Settings = new SettingsData();
         

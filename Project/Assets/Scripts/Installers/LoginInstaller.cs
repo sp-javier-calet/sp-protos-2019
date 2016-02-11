@@ -18,7 +18,7 @@ public class LoginInstaller : Installer
         public uint MaxConnectivityErrorRetries = Login.DefaultMaxConnectivityErrorRetries;
         public bool EnableLinkConfirmRetries = Login.DefaultEnableLinkConfirmRetries;
         public uint UserMappingsBlock = Login.DefaultUserMappingsBlock;
-	};
+	}
 
     public SettingsData Settings = new SettingsData();
 

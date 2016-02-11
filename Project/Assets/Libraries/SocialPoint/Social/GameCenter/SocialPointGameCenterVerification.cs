@@ -12,7 +12,6 @@ namespace SocialPoint.Social
 
     public class SocialPointGameCenterVerification : MonoBehaviour
     {
-
         public GameCenterValidationDelegate Callback;
 
         #if UNITY_IOS && !UNITY_EDITOR
@@ -26,7 +25,6 @@ namespace SocialPoint.Social
 
         void Awake()
         {
-            DontDestroyOnLoad(this);
             SPUnityGameCenter_UserVerificationInit(gameObject.name);
         }
 

@@ -13,7 +13,7 @@ public class CrashInstaller : Installer
         public bool ExceptionLogActive = CrashReporter.DefaultExceptionLogActive;
         public bool EnableSendingCrashesBeforeLogin = CrashReporter.DefaultEnableSendingCrashesBeforeLogin;
         public int NumRetriesBeforeSendingCrashBeforeLogin = CrashReporter.DefaultNumRetriesBeforeSendingCrashBeforeLogin;
-    };
+    }
 
     public SettingsData Settings = new SettingsData();
 

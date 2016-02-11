@@ -13,7 +13,7 @@ public class FacebookInstaller : MonoInstaller
         public bool UseEmpty = false;
         public bool LoginLink = true;
         public bool LoginWithUi = false;
-    };
+    }
     
     public SettingsData Settings = new SettingsData();
 

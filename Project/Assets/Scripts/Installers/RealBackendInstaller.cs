@@ -17,7 +17,7 @@ public class RealBackendInstaller : MonoInstaller
         public ServerEventsInstaller.SettingsData Events = new ServerEventsInstaller.SettingsData();
         public NotificationInstaller.SettingsData Notifications = new NotificationInstaller.SettingsData();
         public CrashInstaller.SettingsData Crashes = new CrashInstaller.SettingsData();
-    };
+    }
     
     public SettingsData Settings = new SettingsData();
     
