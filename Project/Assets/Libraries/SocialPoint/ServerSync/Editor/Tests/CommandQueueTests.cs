@@ -27,8 +27,8 @@ namespace SocialPoint.ServerSync
         {
             GO = new GameObject();
             HttpClient = Substitute.For<IHttpClient>();
-			var runner = GO.AddComponent<UnityUpdateRunner>();
-			CommandQueue = new CommandQueue(runner, HttpClient);
+            var runner = GO.AddComponent<UnityUpdateRunner>();
+            CommandQueue = new CommandQueue(runner, HttpClient);
 
             //CommandQueue.RequestSetup = Substitute.For<CommandQueue.RequestSetupDelegate>();
             CommandQueue.RequestSetup = (req, Uri) => {

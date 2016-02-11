@@ -34,7 +34,7 @@ namespace SocialPoint.Crash
 
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
-			CrashReporterBase = new BaseCrashReporter(runner, HttpClient, DeviceInfo);
+            CrashReporterBase = new BaseCrashReporter(runner, HttpClient, DeviceInfo);
             CrashReporterBase.RequestSetup = Substitute.For<BaseCrashReporter.RequestSetupDelegate>();
         }
 

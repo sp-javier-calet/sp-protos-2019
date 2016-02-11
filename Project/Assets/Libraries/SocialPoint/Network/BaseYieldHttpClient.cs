@@ -36,7 +36,7 @@ namespace SocialPoint.Network
         protected BaseYieldHttpConnection Current = null;
         protected PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection> Pending;
         ICoroutineRunner _runner = null;
-        bool _running = false;
+        IEnumerator _updateCoroutine = null;
         
         public BaseYieldHttpClient(ICoroutineRunner runner)
         {
@@ -84,6 +84,7 @@ namespace SocialPoint.Network
             {
                 connection.Cancel();
             }
+            _runner.StopCoroutine(_updateCoroutine);
         }
 
         public virtual IHttpConnection Send(HttpRequest req, HttpResponseDelegate del = null)
@@ -100,10 +101,10 @@ namespace SocialPoint.Network
             req.BeforeSend();
             var conn = CreateConnection(req, del);
             Pending.Add(req.Priority, conn);
-            if(!_running)
+            if(_updateCoroutine == null)
             {
-                _running = true;
-                _runner.StartCoroutine(Update());
+                _updateCoroutine = Update();
+                _runner.StartCoroutine(_updateCoroutine);
             }
             return conn;
         }
@@ -120,7 +121,7 @@ namespace SocialPoint.Network
                 }
                 Current = null;
             }
-            _running = false;
+            _updateCoroutine = null;
         }
     }
 }

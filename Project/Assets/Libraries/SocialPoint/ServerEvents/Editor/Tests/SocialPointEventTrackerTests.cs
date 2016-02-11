@@ -18,22 +18,23 @@ namespace SocialPoint.ServerEvents
     {
         SocialPointEventTracker SocialPointEventTracker;
         GameObject GO;
+
         [SetUp]
         public void SetUp()
         {
             GO = new GameObject();
-			var runner = GO.AddComponent<UnityUpdateRunner>();
-			SocialPointEventTracker = new SocialPointEventTracker(runner);
+            var runner = GO.AddComponent<UnityUpdateRunner>();
+            SocialPointEventTracker = new SocialPointEventTracker(runner);
             SocialPointEventTracker.HttpClient = Substitute.For<IHttpClient>();
             SocialPointEventTracker.DeviceInfo = Substitute.For<IDeviceInfo>();
             SocialPointEventTracker.RequestSetup = Substitute.For<SocialPointEventTracker.RequestSetupDelegate>();
             SocialPointEventTracker.CommandQueue = Substitute.For<ICommandQueue>();
 
-			var appEvents = Substitute.For<IAppEvents>();
-			appEvents.WillGoBackground.Returns(new PriorityAction());
-			appEvents.GameWasLoaded.Returns(new PriorityAction());
-			appEvents.GameWillRestart.Returns(new PriorityAction());
-			SocialPointEventTracker.AppEvents = appEvents;
+            var appEvents = Substitute.For<IAppEvents>();
+            appEvents.WillGoBackground.Returns(new PriorityAction());
+            appEvents.GameWasLoaded.Returns(new PriorityAction());
+            appEvents.GameWillRestart.Returns(new PriorityAction());
+            SocialPointEventTracker.AppEvents = appEvents;
         }
 
         [Test]
@@ -64,7 +65,7 @@ namespace SocialPoint.ServerEvents
         {
             Start();
             SocialPointEventTracker.Send();
-            SocialPointEventTracker.HttpClient.Received(1).Send(Arg.Any<HttpRequest>(),Arg.Any<HttpResponseDelegate>());
+            SocialPointEventTracker.HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
         }
 
         [Test]
@@ -72,7 +73,7 @@ namespace SocialPoint.ServerEvents
         {
             Start();
             SocialPointEventTracker.TrackEvent("Test event");
-            SocialPointEventTracker.CommandQueue.Received(1).Add(Arg.Any<Command>(),Arg.Any<ErrorDelegate>());
+            SocialPointEventTracker.CommandQueue.Received(1).Add(Arg.Any<Command>(), Arg.Any<ErrorDelegate>());
         }
 
         [Test]
@@ -81,9 +82,9 @@ namespace SocialPoint.ServerEvents
             Start();
             SocialPointEventTracker.TrackEvent("Test event");
             SocialPointEventTracker.Send();
-            SocialPointEventTracker.HttpClient.Received(1).Send(Arg.Any<HttpRequest>(),Arg.Any<HttpResponseDelegate>());
+            SocialPointEventTracker.HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
         }
-        
+
         [TearDown]
         public void TearDown()
         {
