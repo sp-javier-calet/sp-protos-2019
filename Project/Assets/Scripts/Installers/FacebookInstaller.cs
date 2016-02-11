@@ -17,7 +17,6 @@ public class FacebookInstaller : MonoInstaller
     
     public SettingsData Settings = new SettingsData();
 
-
     public override void InstallBindings()
     {
         if(Settings.UseEmpty)

@@ -16,7 +16,6 @@ public class GoogleInstaller : MonoInstaller
 
     public SettingsData Settings = new SettingsData();
 
-
     public override void InstallBindings()
     {
         if(Settings.UseEmpty)
@@ -37,6 +36,6 @@ public class GoogleInstaller : MonoInstaller
     GooglePlayLink CreateLoginLink(InjectContext ctx)
     {
         var google = ctx.Container.Resolve<IGoogle>();
-        return new GooglePlayLink(google, Settings.LoginWithUi);
+        return new GooglePlayLink(google, !Settings.LoginWithUi);
     }
 }
