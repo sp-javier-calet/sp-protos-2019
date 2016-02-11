@@ -1,8 +1,9 @@
+#if UNITY_IOS
 using UnityEngine;
 using System;
 using SocialPoint.ServerSync;
+using SocialPoint.Utils;
 
-#if UNITY_IOS
 using LocalNotification = UnityEngine.iOS.LocalNotification;
 using NotificationServices = UnityEngine.iOS.NotificationServices;
 using LocalNotificationType = UnityEngine.iOS.NotificationType;
@@ -18,8 +19,8 @@ namespace SocialPoint.Notifications
         const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
         const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
 
-        public IosNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
-            : base(behaviour, commandqueue)
+        public IosNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
+        : base(runner, commandqueue)
         {
             RegisterForLocal();
         }

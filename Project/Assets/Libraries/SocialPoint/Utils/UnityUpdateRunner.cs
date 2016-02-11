@@ -25,17 +25,6 @@ namespace SocialPoint.Utils
     {
         HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
 
-        public UnityUpdateRunner(List<IUpdateable> elements = null)
-        {
-            if(elements != null)
-            {
-                foreach(var elm in elements)
-                {
-                    Add(elm);
-                }
-            }
-        }
-
         public void Add(IUpdateable elm)
         {
             if(elm == null)
@@ -107,12 +96,12 @@ namespace SocialPoint.Utils
                     {
                         cbk(null, new Error(www.error));
                     }
-                    return false;
+                    yield break;
                 }
                 var bundle = www.assetBundle;
                 if(cbk == null)
                 {
-                    return false;
+                    yield break;
                 }
                 AssetBundleRequest req = null;
                 if(string.IsNullOrEmpty(def.Name))

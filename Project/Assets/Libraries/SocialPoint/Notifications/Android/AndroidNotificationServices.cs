@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SocialPoint.ServerSync;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.Notifications
@@ -14,8 +15,8 @@ namespace SocialPoint.Notifications
 
         private AndroidJavaClass _notifClass = null;
 
-        public AndroidNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
-        : base(behaviour, commandqueue)
+        public AndroidNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
+            : base(runner, commandqueue)
         {
 
 #if !UNITY_EDITOR
