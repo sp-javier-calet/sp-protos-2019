@@ -10,9 +10,6 @@ namespace SocialPoint.AppEvents
 
         private void Awake()
         {
-            // Set the GameObject name to the class name for easy access from native plugin
-            gameObject.name = GetType().ToString();
-
             Source = new AppSource(new Dictionary<string, string>{
                 {"type", "unity"}
             });
