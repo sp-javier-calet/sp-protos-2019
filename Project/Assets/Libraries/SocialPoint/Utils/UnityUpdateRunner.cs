@@ -15,13 +15,7 @@ namespace SocialPoint.Utils
         public bool All;
     }
 
-    public interface IUnityDownloader
-    {
-        void DownloadTexture(string url, Action<Texture2D, Error> cbk);
-        void DownloadBundle<T>(AssetBundleDef def, Action<T[], Error> cbk) where T : UnityEngine.Object;
-    }
-
-    public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler, IUnityDownloader
+    public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
         HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
 
@@ -59,13 +53,18 @@ namespace SocialPoint.Utils
                 }
             }
         }
+    }
 
-        public void DownloadTexture(string url, Action<Texture2D, Error> cbk)
+    public static class UnityCoroutineRunnerExtensions
+    {
+        public static IEnumerator DownloadTexture(this ICoroutineRunner runner, string url, Action<Texture2D, Error> cbk)
         {
-            StartCoroutine(DownloadTextureCoroutine(url, cbk));
+            var itr = DownloadTextureCoroutine(url, cbk);
+            runner.StartCoroutine(itr);
+            return itr;
         }
 
-        IEnumerator DownloadTextureCoroutine(string url, Action<Texture2D, Error> cbk)
+        static IEnumerator DownloadTextureCoroutine(string url, Action<Texture2D, Error> cbk)
         {
             var www = new WWW(url);
             yield return www;
@@ -75,12 +74,14 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void DownloadBundle<T>(AssetBundleDef def, Action<T[], Error> cbk) where T : UnityEngine.Object
+        public static IEnumerator DownloadBundle<T>(this ICoroutineRunner runner, AssetBundleDef def, Action<T[], Error> cbk) where T : UnityEngine.Object
         {
-            StartCoroutine(DownloadBundleCoroutine(def, cbk));
+            var itr = DownloadBundleCoroutine(def, cbk);
+            runner.StartCoroutine(itr);
+            return itr;
         }
 
-        IEnumerator DownloadBundleCoroutine<T>(AssetBundleDef def, Action<T[], Error> cbk) where T : UnityEngine.Object
+        static IEnumerator DownloadBundleCoroutine<T>(AssetBundleDef def, Action<T[], Error> cbk) where T : UnityEngine.Object
         {
             while(!Caching.ready)
             {

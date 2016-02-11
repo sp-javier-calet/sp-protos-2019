@@ -1,6 +1,7 @@
 using System;
 using Zenject;
 using UnityEngine;
+using System.Collections.Generic;
 using SocialPoint.Crash;
 using SocialPoint.Utils;
 using SocialPoint.Base;
@@ -13,13 +14,17 @@ public class BaseInstaller : MonoInstaller, IInitializable
         Container.Rebind<UnityUpdateRunner>().ToSingleGameObject<UnityUpdateRunner>();
         Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
-        Container.Rebind<IUnityDownloader>().ToLookup<UnityUpdateRunner>();
 
         Container.Rebind<BreadcrumbManager>().ToSingle();
     }
 
     public void Initialize()
     {
-        Container.Resolve<IUpdateScheduler>();
+        var scheduler = Container.Resolve<IUpdateScheduler>();
+        var updateables = Container.TryResolve<List<IUpdateable>>();
+        if(updateables != null)
+        {
+            scheduler.Add(updateables);
+        }
     }
 }

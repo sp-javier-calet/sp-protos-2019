@@ -19,11 +19,11 @@ namespace SocialPoint.Social
         private List<FacebookUser> _friends = new List<FacebookUser>();
         private List<string> _loginPermissions = new List<string>();
         private List<string> _userPermissions;
-        private IUnityDownloader _downloader;
+        private ICoroutineRunner _runner;
 
-        public UnityFacebook(IUnityDownloader downloader)
+        public UnityFacebook(ICoroutineRunner runner)
         {
-            _downloader = downloader;
+            _runner = runner;
         }
 
         public override List<string> LoginPermissions
@@ -504,7 +504,7 @@ namespace SocialPoint.Social
 
         private void LoadPhotoFromUrl(string url, FacebookPhotoDelegate cbk = null)
         {
-            _downloader.DownloadTexture(url, (tex, err) => {
+            _runner.DownloadTexture(url, (tex, err) => {
                 if(cbk != null)
                 {
                     cbk(tex, err);
