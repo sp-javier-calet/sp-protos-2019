@@ -56,16 +56,6 @@ namespace GooglePlayGames.IOS {
             return _GooglePlayGetUserEmail();;
         }
 
-
-        /// <summary>Gets the authZ token for server authorization.</summary>
-        /// <param name="serverClietnID">The client ID for the server that will exchange the one-time code.</param>
-        /// <returns> An authorization code upon success.</returns>
-        public string GetAuthorizationCode(string serverClientID)
-        {
-            throw new NotImplementedException();
-        }
-
-
         /// <summary>Gets the access token currently associated with the Unity activity.</summary>
         /// <returns>The OAuth 2.0 access token.</returns>
         public string GetAccessToken()
@@ -73,16 +63,24 @@ namespace GooglePlayGames.IOS {
             return _GooglePlayGetAccessToken();
         }
 
-
         /// <summary>
         /// Gets the OpenID Connect ID token for authentication with a server backend.
         /// </summary>
-        /// <returns>The OpenID Connect ID token.</returns>
+        /// <param name="idTokenCallback"> A callback to be invoked after token is retrieved. Will be passed null value
+        /// on failure. </param>
         /// <param name="serverClientID">Server client ID from console.developers.google.com or the Play Games
         /// services console.</param>
-        public string GetIdToken(string serverClientID)
+        public void GetIdToken(string serverClientID, Action<string> idTokenCallback)
         {
-            return _GooglePlayGetIdToken();
+            var token =  _GooglePlayGetIdToken();
+            if(String.IsNullOrEmpty(token))
+            {
+                idTokenCallback(null);
+            }
+            else
+            {
+                idTokenCallback(token);
+            }
         }
     }
 }

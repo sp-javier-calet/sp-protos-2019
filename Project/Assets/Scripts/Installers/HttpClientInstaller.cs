@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using Zenject;
 using SocialPoint.Network;
 using UnityEngine;
@@ -27,7 +28,7 @@ public class HttpClientInstaller : MonoInstaller
     public class SettingsData
     {
         public string Config = "basegame";
-    };
+    }
 
     public SettingsData Settings = new SettingsData();
 

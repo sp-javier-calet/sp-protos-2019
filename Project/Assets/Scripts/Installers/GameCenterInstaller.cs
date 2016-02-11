@@ -2,6 +2,7 @@
 using Zenject;
 using System;
 using SocialPoint.Social;
+using SocialPoint.Login;
 
 public class GameCenterInstaller : MonoInstaller
 {
@@ -9,8 +10,8 @@ public class GameCenterInstaller : MonoInstaller
     public class SettingsData
     {
         public bool UseEmpty = false;
-        public bool EnableVerification = true;
-    };
+        public bool LoginLink = true;
+    }
     
     public SettingsData Settings = new SettingsData();
         
@@ -22,12 +23,17 @@ public class GameCenterInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IGameCenter>().ToSingleMethod<UnityGameCenter>(CreateUnityGameCenter);
+            Container.Rebind<IGameCenter>().ToSingle<UnityGameCenter>();
+        }
+        if(Settings.LoginLink)
+        {
+            Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
         }
     }
 
-    UnityGameCenter CreateUnityGameCenter(InjectContext ctx)
+    GameCenterLink CreateLoginLink(InjectContext ctx)
     {
-        return new UnityGameCenter(Settings.EnableVerification);
+        var gc = ctx.Container.Resolve<IGameCenter>();
+        return new GameCenterLink(gc);
     }
 }

@@ -12,7 +12,7 @@ public class ServerEventsInstaller : Installer
         public int SendInterval = EventTracker.DefaultSendInterval;
         public float Timeout = EventTracker.DefaultTimeout;
         public float BackoffMultiplier = EventTracker.DefaultBackoffMultiplier;
-	};
+	}
 
 	public SettingsData Settings = new SettingsData();
 

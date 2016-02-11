@@ -48,7 +48,10 @@ namespace SocialPoint.AppEvents
             Source = new AppSource();
             // Set the GameObject name to the class name for easy access from native plugin
             gameObject.name = GetType().ToString();
-            DontDestroyOnLoad(this);
+            if(gameObject.transform.parent == null)
+            {
+                DontDestroyOnLoad(this);
+            }
             SPUnityAppEvents_Init(gameObject.name);
         }
 

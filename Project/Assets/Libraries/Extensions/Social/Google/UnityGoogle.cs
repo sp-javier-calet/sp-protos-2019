@@ -1,4 +1,6 @@
-﻿using UnityEngine.SocialPlatforms;
+﻿using UnityEngine;
+using UnityEngine.SocialPlatforms;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using GooglePlayGames;
@@ -8,15 +10,37 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public class UnityGoogle : IGoogle
+    public class UnityGoogle : MonoBehaviour, IGoogle
     {
+        public event GoogleStateChangeDelegate StateChangeEvent;
+
+        protected void NotifyStateChanged()
+        {
+            if(StateChangeEvent != null)
+            {
+                StateChangeEvent();
+            }
+        }
+
+        bool _loadDescriptionAchievements = false;
         GoogleUser _user;
         PlayGamesPlatform _platform;
         Dictionary<string, GoogleAchievement> _achievements = null;
+        bool _loginSuccess;
+        ErrorDelegate _loginCallback;
+        List<GoogleUser> _friends;
+
+        public List<GoogleUser> Friends
+        {
+            get
+            {
+                return _friends;
+            }
+        }
 
         #region IGoogle implementation
 
-        public void Login(ErrorDelegate cbk)
+        public void Login(ErrorDelegate cbk, bool silent = false)
         {
             if(IsConnected)
             {
@@ -30,33 +54,83 @@ namespace SocialPoint.Social
             // Use Activate() instead to override Social.Active
             _platform = PlayGamesPlatform.Instance;
 
+            _loginCallback = cbk;
             _platform.Authenticate((bool success) => {
-                if(success)
+                _loginSuccess = success;
+                DispatchMainThread(UpdateAfterLogin);
+            }, silent);
+        }
+
+        void UpdateAfterLogin()
+        {
+            if(_loginCallback != null)
+            {
+                OnLogin();
+            }
+        }
+
+        void LoadDescriptionAchievements()
+        {
+            DebugUtils.Log("Intentamos cargar los achivements");
+            _platform.LoadAchievementDescriptions(descriptions => {
+                if(descriptions.Length > 0)
                 {
-                    LoginLoadPlayerData((Error err) => {
-                        if(!Error.IsNullOrEmpty(err))
-                        {
-                            OnLoginEnd(err, cbk);
-                        }
-                        else
-                        {
-                            DownloadAchievements((err2) => OnLoginEnd(err2, cbk));
-                        }
-                    });
+                    DebugUtils.Log("Got " + descriptions.Length + " achievement descriptions");
+                    string achievementDescriptions = "Achievement Descriptions:\n";
+                    foreach(IAchievementDescription ad in descriptions)
+                    {
+                        achievementDescriptions += "\t" +
+                            
+                        ad.id + " " +
+                        ad.title + " " +
+                        ad.unachievedDescription + "\n";
+                    }
+                    DebugUtils.Log(achievementDescriptions);
                 }
                 else
                 {
-                    OnLoginEnd(new Error("Cannot connect to Google Play Games"), cbk);
+                    DebugUtils.Log("Failed to load achievement descriptions");
                 }
             });
         }
 
+        void OnLogin()
+        {
+            if(_loginSuccess)
+            {
+
+                if(_loadDescriptionAchievements)
+                {
+                    LoadDescriptionAchievements();
+                }
+                
+                LoginLoadPlayerData((Error err) => {
+                    if(!Error.IsNullOrEmpty(err))
+                    {
+                        DispatchMainThread(() => OnLoginEnd(err, _loginCallback));
+                    }
+                    else
+                    {
+                        DownloadAchievements((err2) => DispatchMainThread(() => OnLoginEnd(err2, _loginCallback)));
+                    }
+                });
+            }
+            else
+            {
+                DispatchMainThread(() => OnLoginEnd(new Error("Cannot connect to Google Play Games"), _loginCallback));
+            }
+        }
+
         void OnLoginEnd(Error err, ErrorDelegate cbk = null)
         {
+            NotifyStateChanged();
+
             if(cbk != null)
             {
                 cbk(err);
             }
+
+            _loginCallback = null;
         }
 
         void LoginLoadPlayerData(ErrorDelegate cbk = null)
@@ -76,21 +150,32 @@ namespace SocialPoint.Social
                     localUser.userName,
                     _platform.GetUserImageUrl(),
                     localUser.underage ? GoogleUser.AgeGroup.Underage : GoogleUser.AgeGroup.Adult
-                );                
-                if(cbk != null)
-                {
-                    cbk(null);
-                }
+                );
+
+                _platform.LoadFriends(_platform.localUser, bolean => {
+                    _friends = new List<GoogleUser>();
+                    IUserProfile[] friends = _platform.GetFriends();
+                    foreach(IUserProfile friend in friends)
+                    {
+                        _friends.Add(new GoogleUser(friend.id, friend.userName, string.Empty, GoogleUser.AgeGroup.Unknown));
+                    }
+
+                    if(cbk != null)
+                    {
+                        cbk(null);
+                    }
+                });
             }
         }
 
         public void Logout(ErrorDelegate cbk)
         {
             _platform.SignOut();
-
             _platform = null;
             _user = null;
             _achievements = null;
+
+            NotifyStateChanged();
 
             if(cbk != null)
             {
@@ -136,7 +221,9 @@ namespace SocialPoint.Social
                 form.AddField("access_token", _platform.GetAccessToken());
                 var www = new UnityEngine.WWW(uri, form);
                 while(!www.isDone)
+                {
                     ;
+                }
                 if(!string.IsNullOrEmpty(www.error))
                 {
                     err = new Error(www.error);
@@ -151,6 +238,19 @@ namespace SocialPoint.Social
             {
                 cbk(achi, err);
             }
+        }
+
+        public Texture2D GetUserPhoto(string userID)
+        {
+            IUserProfile[] users = _platform.GetFriends();
+            foreach(IUserProfile user in users)
+            {
+                if(user.id == userID)
+                {
+                    return user.image;
+                }
+            }
+            return null;
         }
 
         public void UpdateAchievement(GoogleAchievement achi, GoogleAchievementDelegate cbk = null)
@@ -222,6 +322,11 @@ namespace SocialPoint.Social
             }
         }
 
+        public string GetAccessToken()
+        {
+            return _platform.GetAccessToken();
+        }
+
         public IEnumerable<GoogleAchievement> Achievements
         {
             get
@@ -244,7 +349,6 @@ namespace SocialPoint.Social
             }
             return achi;
         }
-
 
         void DownloadAchievements(ErrorDelegate cbk)
         {
@@ -467,6 +571,34 @@ namespace SocialPoint.Social
         }
 
         #endregion
+
+        #endregion
+
+        #region Dispatch
+
+        Action _dispatched;
+
+        void LateUpdate()
+        {
+            DispatchPending();
+        }
+
+        
+        void DispatchPending()
+        {
+            if(_dispatched != null)
+            {
+                _dispatched();
+                _dispatched = null;
+            }
+        }
+
+        void DispatchMainThread(Action action)
+        {
+            /* System events have to be dispatched to the current Unity Main Thread 
+             * since this changes between Development and Production builds. */
+            _dispatched += action;
+        }
 
         #endregion
     }

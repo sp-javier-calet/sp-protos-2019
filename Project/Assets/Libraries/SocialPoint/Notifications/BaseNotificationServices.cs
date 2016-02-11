@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections;
-using SocialPoint.Base;
-using SocialPoint.Utils;
-using SocialPoint.ServerSync;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using SocialPoint.Base;
+using SocialPoint.ServerSync;
 
 namespace SocialPoint.Notifications
 {
@@ -12,24 +12,29 @@ namespace SocialPoint.Notifications
         protected delegate string PollPushNotificationToken();
 
         const string kPushTokenKey = "notifications_push_token";
-        ICoroutineRunner _runner;
+        MonoBehaviour _behaviour;
         ICommandQueue _commandQueue;
-        string _pushToken = null;
 
-        public BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
+        string _pushToken = null;
+        Coroutine _checkPushTokenCoroutine;
+        readonly IList<Action<string>> _pushTokenReceivedListeners;
+
+
+        public BaseNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue = null)
         {
-            if(runner == null)
+            if(behaviour == null)
             {
-                throw new ArgumentNullException("runner", "ICoroutineRunner cannot be null!");
+                throw new ArgumentNullException("behaviour", "behaviour cannot be null or empty!");
             }
 
-            _runner = runner;
+            _behaviour = behaviour;
             _commandQueue = commandqueue;
+            _pushTokenReceivedListeners = new List<Action<string>>();
         }
 
         protected void WaitForRemoteToken(PollPushNotificationToken pollDelegate)
         {
-            _runner.StartCoroutine(CheckPushNotificationToken(pollDelegate));
+            _checkPushTokenCoroutine = _behaviour.StartCoroutine(CheckPushNotificationToken(pollDelegate));
         }
 
         IEnumerator CheckPushNotificationToken(PollPushNotificationToken pollDelegate)
@@ -40,11 +45,11 @@ namespace SocialPoint.Notifications
                 yield return null;
             }
             SendPushToken(_pushToken);
+            NotifyPushTokenReceived(_pushToken);
         }
 
         void SendPushToken(string pushToken)
         {
-            // TODO: pass a IAttrStorage instead of storing in PlayerPrefs
             string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
             if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && pushToken != currentPushToken)
             {
@@ -57,15 +62,47 @@ namespace SocialPoint.Notifications
             }
         }
 
-        /**
-         * Interface methods
-         */
+        void NotifyPushTokenReceived(string token)
+        {
+            foreach(var cbk in _pushTokenReceivedListeners)
+            {
+                cbk(token);
+            }
+            _pushTokenReceivedListeners.Clear();
+        }
+
+        public void RegisterForRemote(Action<string> onTokenReceivedCallback = null)
+        {
+            if(onTokenReceivedCallback != null)
+            {
+                if(_pushToken != null)
+                {
+                    onTokenReceivedCallback(_pushToken);
+                }
+                else
+                {
+                    _pushTokenReceivedListeners.Add(onTokenReceivedCallback);
+                }
+            }
+
+            // Start registering proccess if it is not already running
+            if(_checkPushTokenCoroutine == null)
+            {
+                RequestPushNotificationToken();
+            }
+        }
+
+        protected abstract void RequestPushNotificationToken();
+
+
+        #region INotificationServices implementation
+
         public abstract void Schedule(Notification notif);
 
         public abstract void ClearReceived();
 
         public abstract void CancelPending();
 
-        public abstract void RegisterForRemote();
+        #endregion
     }
 }
