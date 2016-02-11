@@ -25,17 +25,47 @@ namespace SocialPoint.Notifications
             Positive,
         };
 
+        public Notification(long fireDelay, OffsetType offsetType)
+        {
+            _fireDelay = fireDelay;
+            _offsetType = offsetType;
+            SetMaxOffset(_defaultMaxOffset);
+        }
+
         /**
          * Default max offset to apply to notifications that require it.
          * (Default value of 2 hours)
          */
         private static int _defaultMaxOffset = 7200;
 
-        public Notification(long fireDelay, OffsetType offsetType)
+        /**
+         * Set the maximun default offset for all notifications
+         */
+        public static void SetDefaultMaxOffset(int maxOffset)
         {
-            _fireDelay = fireDelay;
-            _offsetType = offsetType;
-            SetMaxOffset(_defaultMaxOffset);
+            Assert.IsTrue(maxOffset > 0, "Warning: Invalid default offset settings for Notification class");
+            _defaultMaxOffset = maxOffset;
+        }
+
+        /**
+         * The delay in seconds from now when the system should deliver the notification
+         */
+        private long _fireDelay = 0;
+
+        /**
+         * Amount of offset to apply to fire delay if needed
+         */
+        private long _randomOffset = 0;
+
+        private OffsetType _offsetType;
+
+        /**
+         * Set the maximun offset for this notification 
+         */
+        public void SetMaxOffset(int maxOffset)
+        {
+            Assert.IsTrue(maxOffset > 0, "Warning: Invalid offset settings for notification");
+            _randomOffset = RandomUtils.Range(0, maxOffset + 1);//Second param is exclusive for ints, adding 1 to include it 
         }
 
         /**
@@ -47,20 +77,6 @@ namespace SocialPoint.Notifications
          * he message displayed in the notification alert
          */
         public string Message = string.Empty;
-
-        /// <summary>
-        /// Flag to mark if the notification time may require a random offset of time applied to it
-        /// </summary>
-        /// <value><c>true</c> if requires offset; otherwise, <c>false</c>.</value>
-        public bool RequiresOffset
-        {
-            get
-            { 
-                return _offsetType != OffsetType.None; 
-            }
-        }
-
-        private OffsetType _offsetType;
 
         [Obsolete("Use Title")]
         public string AlertAction
@@ -95,25 +111,6 @@ namespace SocialPoint.Notifications
          */
         [Obsolete("Not supported anymore")]
         public int IconBadgeNumber = 0;
-
-        /**
-         * The delay in seconds from now when the system should deliver the notification
-         */
-        private long _fireDelay = 0;
-
-        /**
-         * Amount of offset to apply to fire delay if needed
-         */
-        private long _randomOffset = 0;
-
-        /**
-         * Set the maximun offset for this notification 
-         */
-        public void SetMaxOffset(int maxOffset)
-        {
-            Assert.IsTrue(maxOffset > 0, "Warning: Invalid offset settings for notification");
-            _randomOffset = RandomUtils.Range(0, maxOffset + 1);//Second param is exclusive for ints, adding 1 to include it 
-        }
 
         /**
          * The delay in seconds from now when the system should deliver the notification (taking a random offset into account if needed)
