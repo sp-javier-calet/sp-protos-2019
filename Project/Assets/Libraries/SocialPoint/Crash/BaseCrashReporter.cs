@@ -879,7 +879,10 @@ namespace SocialPoint.Crash
                 TrackException(logString, stackTrace);
             }
 
-            CreateAlertView(logString, stackTrace, type, doHandleLog);
+            if(_alertViewPrototype != null && type == LogType.Exception)
+            {
+                CreateAlertView(logString, stackTrace, type, doHandleLog);
+            }
         }
 
         /// <summary>
@@ -888,23 +891,18 @@ namespace SocialPoint.Crash
         void CreateAlertView(string logString, string stackTrace, LogType type, bool exceptionTracked)
         {
 #if DEBUG
-            if(_alertViewPrototype != null && type == LogType.Exception)
+            try
+            {                    
+                var alert = (IAlertView)_alertViewPrototype.Clone();
+                alert.Title = type.ToString();
+                alert.Message = logString + "\n" + stackTrace;
+                alert.Signature = "Exception tracked by Crash Reporter? " + exceptionTracked;
+                alert.Buttons = new string[]{ "OK" };
+                alert.Show(result => alert.Dispose());
+            }
+            catch(Exception e)
             {
-                try
-                {                    
-                    var alert = (IAlertView)_alertViewPrototype.Clone();
-                    alert.Title = type.ToString();
-                    alert.Message = logString + "\n" + stackTrace;
-                    alert.Signature = "Exception tracked by Crash Reporter? " + exceptionTracked;
-                    alert.Buttons = new string[]{ "OK" };
-                    alert.Show((int result) => {
-                        alert.Dispose();
-                    });
-                }
-                catch(Exception e)
-                {
-                    UnityEngine.Debug.Log("Exception while creating Alert View - " + e.Message);
-                }
+                UnityEngine.Debug.Log("Exception while creating Alert View - " + e.Message);
             }
 #endif
         }

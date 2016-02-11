@@ -1,0 +1,10 @@
+{
+  "infoPlist": {
+    "LSApplicationQueriesSchemes": [
+        "fbapi",
+        "fb-messenger-api",
+        "fbauth2",
+        "fbshareextension"
+      ]
+  }
+}

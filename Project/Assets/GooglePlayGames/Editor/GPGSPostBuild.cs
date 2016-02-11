@@ -14,7 +14,7 @@
 //    limitations under the License.
 // </copyright>
 
-namespace GooglePlayGames
+namespace GooglePlayGames.Editor
 {
     using System;
     using System.Collections.Generic;
@@ -64,6 +64,7 @@ namespace GooglePlayGames
             }
 #endif
 
+#if UNITY_IOS
             #if NO_GPGS
 
             string[] filesToRemove = {
@@ -93,7 +94,7 @@ namespace GooglePlayGames
 
             File.WriteAllText(pbxprojPath, proj.WriteToString());
 
-            #elif UNITY_IOS
+            #else
 
             if (!GPGSProjectSettings.Instance.GetBool(GPGSUtil.IOSSETUPDONEKEY, false))
             {
@@ -131,6 +132,7 @@ namespace GooglePlayGames
             UpdateGeneratedPbxproj(pathToBuiltProject + "/Unity-iPhone.xcodeproj/project.pbxproj");
 
         #endif
+#endif
         }
 
         /// <summary>

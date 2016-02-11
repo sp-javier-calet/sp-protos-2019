@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Login;
-using SocialPoint.Social;
-using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 
 public class LoginInstaller : Installer
@@ -30,19 +28,18 @@ public class LoginInstaller : Installer
         {
             Container.Install<LoginAdminPanelInstaller>();
         }
-
         Container.Rebind<Login.LoginConfig>().ToSingleInstance<Login.LoginConfig>(new Login.LoginConfig {
             BaseUrl = Settings.Environment.GetUrl(),
-            SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries, 
+            SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
             ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
-            EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries }
-        );
+            EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
+        });
         Container.BindInstance("login_timeout", Settings.Timeout);
         Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
         Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
         Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
-        
+
         Container.Rebind<ILogin>().ToSingle<Login>();
         Container.Bind<IDisposable>().ToLookup<ILogin>();
     }
