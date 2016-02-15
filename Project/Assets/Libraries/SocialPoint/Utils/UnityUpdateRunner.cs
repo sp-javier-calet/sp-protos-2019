@@ -47,10 +47,7 @@ namespace SocialPoint.Utils
         {
             foreach(var elm in _elements)
             {
-                if(elm != null)
-                {
-                    elm.Update();
-                }
+                elm.Update();
             }
         }
     }
@@ -70,8 +67,20 @@ namespace SocialPoint.Utils
             yield return www;
             if(cbk != null)
             {
-                cbk(www.texture, new Error(www.error));
+                if(!string.IsNullOrEmpty(www.error))
+                {
+                    cbk(null, new Error(www.error));
+                }
+                else if(www.texture == null)
+                {
+                    cbk(null, new Error("Could not load texture."));
+                }
+                else
+                {
+                    cbk(www.texture, null);
+                }
             }
+            www.Dispose();
         }
 
         public static IEnumerator DownloadBundle<T>(this ICoroutineRunner runner, AssetBundleDef def, Action<T[], Error> cbk) where T : UnityEngine.Object
@@ -91,7 +100,7 @@ namespace SocialPoint.Utils
             using(var www = WWW.LoadFromCacheOrDownload(def.Url, def.Version))
             {
                 yield return www;
-                if(www.error != null)
+                if(!string.IsNullOrEmpty(www.error))
                 {
                     if(cbk != null)
                     {
@@ -99,11 +108,12 @@ namespace SocialPoint.Utils
                     }
                     yield break;
                 }
-                var bundle = www.assetBundle;
                 if(cbk == null)
                 {
                     yield break;
                 }
+                var bundle = www.assetBundle;
+                www.Dispose();
                 AssetBundleRequest req = null;
                 if(string.IsNullOrEmpty(def.Name))
                 {
