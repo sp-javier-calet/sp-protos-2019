@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System;
 using System.Collections;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Notifications
 {
@@ -26,9 +27,45 @@ namespace SocialPoint.Notifications
 
         public Notification(long fireDelay, OffsetType offsetType)
         {
-            FireDelay = fireDelay;
+            _fireDelay = fireDelay;
             _offsetType = offsetType;
-            MaxDesiredOffset = 0;
+            SetMaxOffset(_defaultMaxOffset);
+        }
+
+        /**
+         * Default max offset to apply to notifications that require it.
+         * (Default value of 2 hours)
+         */
+        private static int _defaultMaxOffset = 7200;
+
+        /**
+         * Set the maximun default offset for all notifications
+         */
+        public static void SetDefaultMaxOffset(int maxOffset)
+        {
+            Assert.IsTrue(maxOffset > 0, "Warning: Invalid default offset settings for Notification class");
+            _defaultMaxOffset = maxOffset;
+        }
+
+        /**
+         * The delay in seconds from now when the system should deliver the notification
+         */
+        private long _fireDelay = 0;
+
+        /**
+         * Amount of offset to apply to fire delay if needed
+         */
+        private long _randomOffset = 0;
+
+        private OffsetType _offsetType;
+
+        /**
+         * Set the maximun offset for this notification 
+         */
+        public void SetMaxOffset(int maxOffset)
+        {
+            Assert.IsTrue(maxOffset > 0, "Warning: Invalid offset settings for notification");
+            _randomOffset = RandomUtils.Range(0, maxOffset + 1);//Second param is exclusive for ints, adding 1 to include it 
         }
 
         /**
@@ -40,31 +77,6 @@ namespace SocialPoint.Notifications
          * he message displayed in the notification alert
          */
         public string Message = string.Empty;
-
-        /// <summary>
-        /// Flag to mark if the notification time may require a random offset of time applied to it
-        /// </summary>
-        /// <value><c>true</c> if requires offset; otherwise, <c>false</c>.</value>
-        public bool RequiresOffset
-        {
-            get
-            { 
-                return _offsetType != OffsetType.None; 
-            }
-        }
-
-        /// <summary>
-        /// Max amount of offset this notification should have.
-        /// If its set to zero but an offset is required, the default offset will be set by NotificationManager.
-        /// </summary>
-        /// <value>The max desired offset.</value>
-        public int MaxDesiredOffset
-        {
-            get;
-            set;
-        }
-
-        private OffsetType _offsetType;
 
         [Obsolete("Use Title")]
         public string AlertAction
@@ -101,32 +113,29 @@ namespace SocialPoint.Notifications
         public int IconBadgeNumber = 0;
 
         /**
-         * the delay in seconds from now when the system should deliver the notification
+         * The delay in seconds from now when the system should deliver the notification (taking a random offset into account if needed)
          */
         public long FireDelay
         {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Applies the desired offset directly over its actual FireDelay value. Will add or subtract it depending on its offset type.
-        /// </summary>
-        /// <param name="offset">Offset.</param>
-        public void ApplyOffset(long offset)
-        {
-            Assert.IsTrue(RequiresOffset && offset > 0, "Warning: Invalid offset settings for notification");
-            switch(_offsetType)
+            get
             {
-            case OffsetType.Negative:
-                Assert.IsTrue(FireDelay >= offset, "Warning: Notification has a negative offset that will schedule it before current time");
-                FireDelay -= offset;
-                break;
-            case OffsetType.Positive:
-                FireDelay += offset;
-                break;
-            default:
-                break;
+                long realFireDelay = _fireDelay;
+                switch(_offsetType)
+                {
+                case OffsetType.Negative:
+                    realFireDelay -= _randomOffset;
+                    break;
+                case OffsetType.Positive:
+                    realFireDelay += _randomOffset;
+                    break;
+                default:
+                    break;
+                }
+                return realFireDelay;
+            }
+            private set
+            {
+                _fireDelay = value;
             }
         }
 
