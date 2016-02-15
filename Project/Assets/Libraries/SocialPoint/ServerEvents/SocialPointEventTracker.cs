@@ -9,7 +9,6 @@ using SocialPoint.Hardware;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
-using UnityEngine;
 
 namespace SocialPoint.ServerEvents
 {
@@ -65,8 +64,8 @@ namespace SocialPoint.ServerEvents
         public ICommandQueue CommandQueue;
 
         List<Event> _pendingEvents;
-        MonoBehaviour _behaviour;
-        Coroutine _updateCoroutine;
+        ICoroutineRunner _runner;
+        IEnumerator _updateCoroutine;
         bool _sending;
         int _lastEventNum;
         long _lastSendTimestamp;
@@ -187,9 +186,9 @@ namespace SocialPoint.ServerEvents
 
         #endregion
 
-        public SocialPointEventTracker(MonoBehaviour behaviour, bool autoStart = true)
+        public SocialPointEventTracker(ICoroutineRunner runner, bool autoStart = true)
         {
-            _behaviour = behaviour;
+            _runner = runner;
             UnauthorizedEvents = new List<string>(DefaultUnauthorizedEvents);
             _pendingEvents = new List<Event>();
             Reset();
@@ -315,7 +314,8 @@ namespace SocialPoint.ServerEvents
             if(_updateCoroutine == null)
             {
                 SetStartValues();
-                _updateCoroutine = _behaviour.StartCoroutine(UpdateCoroutine());
+                _updateCoroutine = UpdateCoroutine();
+                _runner.StartCoroutine(_updateCoroutine);
             }
             TrackGameStart();
         }
@@ -324,7 +324,7 @@ namespace SocialPoint.ServerEvents
         {
             if(_updateCoroutine != null)
             {
-                _behaviour.StopCoroutine(_updateCoroutine);
+                _runner.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
             }
         }
@@ -484,7 +484,7 @@ namespace SocialPoint.ServerEvents
                 }
             }
             req.Body = data;
-            if(Math.Abs(req.Timeout) < Mathf.Epsilon)
+            if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
                 req.Timeout = Timeout;
             }
@@ -575,7 +575,7 @@ namespace SocialPoint.ServerEvents
             if(success)
             {
                 var transTime = CurrentTimestamp - _lastSendTimestamp;
-                _currentTimeout = Mathf.Max(transTime, Timeout);
+                _currentTimeout = Math.Max(transTime, Timeout);
             }
             else
             {
@@ -682,9 +682,9 @@ namespace SocialPoint.ServerEvents
             data.Set("operation", operation);
             operation.SetValue("category", op.Category);
             operation.SetValue("subcategory", op.Subcategory);
-            operation.SetValue("amount", Mathf.Abs(op.Amount));
-            operation.SetValue("potential_amount", Mathf.Abs(op.PotentialAmount));
-            operation.SetValue("lost_amount", Mathf.Abs(op.LostAmount));
+            operation.SetValue("amount", Math.Abs(op.Amount));
+            operation.SetValue("potential_amount", Math.Abs(op.PotentialAmount));
+            operation.SetValue("lost_amount", Math.Abs(op.LostAmount));
             operation.SetValue("type", op.Resource);
 
             TrackEvent(name, data);
@@ -692,7 +692,7 @@ namespace SocialPoint.ServerEvents
 
         void CatchException(Exception e)
         {
-            Debug.LogException(e);
+            DebugUtils.LogException(e);
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #else

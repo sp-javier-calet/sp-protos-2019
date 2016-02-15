@@ -7,9 +7,9 @@ using SocialPoint.ServerSync;
 using SocialPoint.Alert;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using SocialPoint.Locale;
 using SocialPoint.GameLoading;
-using UnityEngine;
 using System;
 
 class CommandQueue : SocialPoint.ServerSync.CommandQueue
@@ -117,7 +117,7 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     [Inject]
     ILogin _login;
 
-    public CommandQueue(MonoBehaviour behaviour, IHttpClient client) : base(behaviour, client)
+    public CommandQueue(ICoroutineRunner runner, IHttpClient client) : base(runner, client)
     {
         _errorHandler.Setup(this);
     }

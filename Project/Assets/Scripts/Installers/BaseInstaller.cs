@@ -1,22 +1,30 @@
+using System;
 using Zenject;
 using UnityEngine;
+using System.Collections.Generic;
+using SocialPoint.Crash;
+using SocialPoint.Utils;
+using SocialPoint.Base;
 
-public class BaseInstaller : MonoInstaller
+public class BaseInstaller : MonoInstaller, IInitializable
 {
     public override void InstallBindings()
     {
-        Container.Rebind<MonoBehaviour>().ToSingleMethod<MonoBehaviour>(CreateMonoBehaviour);
-        Container.Rebind<Transform>().ToSingleInstance(Container.DefaultParent);
+        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Rebind<UnityUpdateRunner>().ToSingleGameObject<UnityUpdateRunner>();
+        Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
+        Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
+
+        Container.Rebind<BreadcrumbManager>().ToSingle();
     }
 
-    MonoBehaviour CreateMonoBehaviour(InjectContext ctx)
+    public void Initialize()
     {
-        var go = ctx.Container.DefaultParent.gameObject;
-        var behaviour = go.GetComponent<MonoBehaviour>();
-        if(behaviour == null)
+        var scheduler = Container.Resolve<IUpdateScheduler>();
+        var updateables = Container.TryResolve<List<IUpdateable>>();
+        if(updateables != null)
         {
-            behaviour = go.AddComponent<MonoBehaviour>();
+            scheduler.Add(updateables);
         }
-        return behaviour;
     }
 }
