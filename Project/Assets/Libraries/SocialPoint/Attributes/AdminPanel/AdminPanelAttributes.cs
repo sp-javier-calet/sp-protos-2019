@@ -39,7 +39,7 @@ namespace SocialPoint.Attributes
             Attr resultLitJson = litJsonParser.ParseString(json);
             UnityEngine.Profiler.EndSample();
             long litJsonTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
-            if (resultLitJson != null)
+            if(resultLitJson != null)
             {
                 sb.AppendLine(string.Format("LitJson parsing time: {0}ms", litJsonTS - startTS));
             }
@@ -54,7 +54,7 @@ namespace SocialPoint.Attributes
             Attr resultFastJson = fastJsonParser.ParseString(json);
             UnityEngine.Profiler.EndSample();
             long fastJsonTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
-            if (resultFastJson != null)
+            if(resultFastJson != null)
             {
                 sb.AppendLine(string.Format("FastJson parsing time: {0}ms", fastJsonTS - litJsonTS));
             }

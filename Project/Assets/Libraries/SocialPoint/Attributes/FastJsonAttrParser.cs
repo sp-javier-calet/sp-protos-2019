@@ -20,8 +20,10 @@ namespace SocialPoint.Attributes
             {
                 c = data[i];
 
-                if (c > ' ') return false;
-                if (c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != 0) return false;
+                if(c > ' ')
+                    return false;
+                if(c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != 0)
+                    return false;
             }
             return true;
         }
@@ -38,11 +40,13 @@ namespace SocialPoint.Attributes
                 Attr result = null;
                 reader.Read(); 
                 result = reader.ParseElement();
-                if (result == null)
+                if(result == null)
                     result = new AttrEmpty();
                 return result;
             }
-            catch {}
+            catch
+            {
+            }
             throw new SerializationException(string.Format("Error reading data: {0}", data));
         }
     }
