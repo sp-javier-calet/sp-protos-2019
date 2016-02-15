@@ -35,12 +35,18 @@ namespace SocialPoint.Utils
 
         void ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
         {
-            StartCoroutine(enumerator);
+            if(enumerator != null)
+            {
+                StartCoroutine(enumerator);
+            }
         }
 
         void ICoroutineRunner.StopCoroutine(IEnumerator enumerator)
         {
-            StopCoroutine(enumerator);
+            if(enumerator != null)
+            {
+                StopCoroutine(enumerator);
+            }
         }
 
         public void Update()
