@@ -29,7 +29,7 @@ namespace SocialPoint.Notifications
         {
             _fireDelay = fireDelay;
             _offsetType = offsetType;
-            SetMaxOffset(_defaultMaxOffset);
+            MaxOffset = _defaultMaxOffset;
         }
 
         /**
@@ -62,10 +62,13 @@ namespace SocialPoint.Notifications
         /**
          * Set the maximun offset for this notification 
          */
-        public void SetMaxOffset(int maxOffset)
+        public int MaxOffset
         {
-            Assert.IsTrue(maxOffset > 0, "Warning: Invalid offset settings for notification");
-            _randomOffset = RandomUtils.Range(0, maxOffset + 1);//Second param is exclusive for ints, adding 1 to include it 
+            set
+            {
+                Assert.IsTrue(value > 0, "Warning: Invalid offset settings for notification");
+                _randomOffset = RandomUtils.Range(0, value + 1); //Second param is exclusive for ints, adding 1 to include it 
+            }
         }
 
         /**
