@@ -2,6 +2,7 @@ using Zenject;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.Profiling;
+using SocialPoint.Attributes;
 
 public class AdminPanelInstaller : MonoInstaller
 {
@@ -13,6 +14,7 @@ public class AdminPanelInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
 #endif
     }
 }
