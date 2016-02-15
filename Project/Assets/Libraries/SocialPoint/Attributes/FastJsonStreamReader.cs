@@ -77,9 +77,13 @@ namespace SocialPoint.Attributes
 
             case JsonParser.Token.String:
                 if(_expectedPropertyNameToken && _containers.Peek())
+                {
                     _currentToken = StreamToken.PropertyName;
+                }
                 else
+                {
                     _currentToken = StreamToken.String;
+                }
                 _currentValue = _parser.CurrentValue;
                 _expectedPropertyNameToken = false;
                 break;

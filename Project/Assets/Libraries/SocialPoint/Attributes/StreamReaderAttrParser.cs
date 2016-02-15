@@ -23,9 +23,13 @@ namespace SocialPoint.Attributes
                 c = data[i];
 
                 if(c > ' ')
+                {
                     return false;
+                }
                 if(c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != 0)
+                {
                     return false;
+                }
             }
             return true;
         }
@@ -43,10 +47,14 @@ namespace SocialPoint.Attributes
                 reader.Read(); 
                 result = reader.ParseElement();
                 if(result == null)
+                {
                     result = new AttrEmpty();
+                }
                 //Check if all the tokens were read
                 if(!reader.Read())
+                {
                     return result;
+                }
             }
             catch
             {
