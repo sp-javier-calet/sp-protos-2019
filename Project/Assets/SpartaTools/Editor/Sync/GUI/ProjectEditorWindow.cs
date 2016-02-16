@@ -160,8 +160,13 @@ namespace SpartaTools.Editor.Sync.View
             if(_showRawFile)
             {
                 GUILayout.BeginVertical(Styles.Group);
-                _fileContent = GUILayout.TextArea(_fileContent);
-				
+				if(string.IsNullOrEmpty(_fileContent))
+				{
+					LoadProjectFileContent();
+				}
+
+				_fileContent = GUILayout.TextArea(_fileContent);
+
                 GUILayout.BeginHorizontal(Styles.Group);
                 if(GUILayout.Button("Reload", GUILayout.MaxWidth(60)))
                 {
