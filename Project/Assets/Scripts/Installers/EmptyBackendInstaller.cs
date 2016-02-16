@@ -13,7 +13,6 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
 {
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
         if(!Container.HasBinding<IEventTracker>())
         {
             Container.Bind<IEventTracker>().ToSingle<EmptyEventTracker>();
@@ -21,6 +20,7 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
         }
         if(!Container.HasBinding<ILogin>())
         {
+            Container.Bind<IInitializable>().ToSingleInstance(this);
             Container.Bind<ILogin>().ToSingle<EmptyLogin>();
             Container.Bind<IDisposable>().ToLookup<ILogin>();
         }

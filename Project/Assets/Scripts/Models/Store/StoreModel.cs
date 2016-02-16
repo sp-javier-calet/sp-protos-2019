@@ -27,7 +27,7 @@ public class StoreModel : IDisposable
 
     IGamePurchaseStore _purchaseStore;
 
-    public StoreModel(IGamePurchaseStore purchaseStore = null)
+    public void Init(IGamePurchaseStore purchaseStore)
     {
         _purchaseStore = purchaseStore;
         if(_purchaseStore != null)
@@ -38,30 +38,15 @@ public class StoreModel : IDisposable
 
     public void Dispose()
     {
-        _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+        if(_purchaseStore != null)
+        {
+            _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+        }
     }
 
     public void Assign(StoreModel other)
     {
         PurchaseRewards = other.PurchaseRewards;
-
-        //Unregister previous purchase delegates
-        if(_purchaseStore != null)
-        {
-            _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-        }
-        if(other._purchaseStore != null)
-        {
-            //Unregister <other> delegate, to register own delegate later (only one can be registered at any time)
-            //Right now the delegate is working as "unique", we should be careful if we plan to use the <other> StoreModel after unregistering its delegate
-            other._purchaseStore.UnregisterPurchaseCompletedDelegate(other.OnPurchaseCompleted);
-        }
-        //Register new delegate
-        _purchaseStore = other._purchaseStore;
-        if(_purchaseStore != null)
-        {
-            _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-        }
 
         if(Assigned != null)
         {
@@ -73,6 +58,13 @@ public class StoreModel : IDisposable
     {
         //handle and alert view
     }
+
+    /*static void RegisterDelegate()
+    {
+
+    }
+
+    static void UnregisterDek*/
 
     PurchaseGameInfo OnPurchaseCompleted(Receipt receipt, PurchaseResponseType response)
     {

@@ -3,24 +3,21 @@ using System;
 using System.Collections.Generic;
 
 using SocialPoint.Attributes;
-using SocialPoint.Purchase;
 
 public class StoreParser : IParser<StoreModel>
 {
     IParser<IDictionary<string, IReward>> _purchaseRewardsParser;
-    IGamePurchaseStore _store;
 
-    public StoreParser(IParser<IDictionary<string, IReward>> purchaseRewardsParser, IGamePurchaseStore store)
+    public StoreParser(IParser<IDictionary<string, IReward>> purchaseRewardsParser)
     {
         _purchaseRewardsParser = purchaseRewardsParser;
-        _store = store;
     }
 
     #region IParser implementation
 
     public StoreModel Parse(Attr data)
     {
-        var storeModel = new StoreModel(_store);
+        var storeModel = new StoreModel();
         storeModel.PurchaseRewards = _purchaseRewardsParser.Parse(data);
         return storeModel;
     }

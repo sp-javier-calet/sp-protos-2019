@@ -26,7 +26,8 @@ class PurchaseStore : SocialPointPurchaseStore
         }
     }
 
-    public PurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue) : base(httpClient, commandQueue)
+    public PurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue, StoreModel store) : base(httpClient, commandQueue)
     {
+        store.Init(this);
     }
 }
