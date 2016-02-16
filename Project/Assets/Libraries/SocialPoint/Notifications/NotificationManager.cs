@@ -15,7 +15,7 @@ namespace SocialPoint.Notifications
         IAppEvents _appEvents;
         List<Notification> _notifications = new List<Notification>();
 
-        public NotificationManager(MonoBehaviour behaviour, IAppEvents appEvents, ICommandQueue commandQueue)
+        public NotificationManager(ICoroutineRunner behaviour, IAppEvents appEvents, ICommandQueue commandQueue)
         {
             if(behaviour == null)
             {
@@ -123,7 +123,7 @@ namespace SocialPoint.Notifications
     [Obsolete("Use NotificationManager instead")]
     abstract class LocalNotificationManager : NotificationManager
     {
-        protected LocalNotificationManager(MonoBehaviour behaviour, IAppEvents appEvents, ICommandQueue commandQueue) :
+        protected LocalNotificationManager(ICoroutineRunner behaviour, IAppEvents appEvents, ICommandQueue commandQueue) :
             base(behaviour, appEvents, commandQueue)
         {
         }
