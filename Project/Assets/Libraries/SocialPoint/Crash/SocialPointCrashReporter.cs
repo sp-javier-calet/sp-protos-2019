@@ -1,19 +1,24 @@
 ﻿using SocialPoint.Hardware;
 using SocialPoint.Network;
-using UnityEngine;
+using SocialPoint.Alert;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Crash
 {
     #if !UNITY_EDITOR
     using BasePlatformCrashReporter = DeviceCrashReporter;
-    #else
+    
+
+
+
+#else
     using BasePlatformCrashReporter = BaseCrashReporter;
     #endif
 
     public class SocialPointCrashReporter : BasePlatformCrashReporter
     {
-        public SocialPointCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs = null)
-            : base(behaviour, client, deviceInfo, breadcrumbs)
+        public SocialPointCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs = null, IAlertView alertView = null)
+            : base(runner, client, deviceInfo, breadcrumbs, alertView)
         {
         }
     }

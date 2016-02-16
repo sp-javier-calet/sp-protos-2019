@@ -1,0 +1,193 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Social;
+using UnityEngine;
+
+namespace SocialPoint.Login
+{
+    public class GooglePlayLink : ILink
+    {
+        public LinkState State
+        {
+            get
+            {
+                return _state;
+            }
+        }
+
+        LinkState _state;
+
+        private IGoogle _googlePlay;
+
+        private event StateChangeDelegate _eventStateChange;
+
+        public readonly static string LinkName = "gp";
+        public bool _loginSilent;
+
+        public GooglePlayLink(IGoogle googlePlay, bool silent = false)
+        {
+            _googlePlay = googlePlay;
+            _loginSilent = silent;
+            Init();
+        }
+
+        void Init()
+        {
+            _googlePlay.StateChangeEvent += OnStateChanged;
+        }
+
+        void GetUserIdsFromLinkData(Attr linkData, ref List<string> userIds)
+        {
+            if(linkData.AttrType == AttrType.VALUE)
+            {
+                userIds.Add(linkData.AsValue.ToString());
+            }
+            else if(linkData.AttrType == AttrType.LIST)
+            {
+                userIds.AddRange(linkData.AsList.ToList<string>());
+            }
+            else if(linkData.AttrType == AttrType.DICTIONARY)
+            {
+                GetUserIdsFromLinkData(linkData.AsDic.Get(Name), ref userIds);
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return LinkName;
+            }
+        }
+
+        public void AddStateChangeDelegate(StateChangeDelegate cbk)
+        {
+            _eventStateChange += cbk;
+        }
+
+        void OnStateChanged()
+        {
+            _state = _googlePlay.IsConnected ? LinkState.Connected : LinkState.Disconnected;
+            if(_eventStateChange != null && _googlePlay != null)
+            {
+                if(_googlePlay.IsConnected)
+                {
+                    _eventStateChange(_state);
+                }
+                else
+                {
+                    _eventStateChange(_state);
+                }
+            }
+        }
+
+        public void Login(ErrorDelegate cbk)
+        {            
+            _googlePlay.Login((err) => OnLogin(err, cbk), _loginSilent);
+        }
+
+        void OnLogin(Error err, ErrorDelegate cbk)
+        {
+            if(cbk != null)
+            {
+                cbk(err);
+            }
+        }
+
+        public void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk)
+        {
+            if(cbk != null)
+            {
+                cbk(null);
+            }
+        }
+
+        public void UpdateUser(User user)
+        {
+            if(_googlePlay.IsConnected && _googlePlay.User != null)
+            {
+                GoogleUser gUser = GetGooglePlayUser(user);
+                if(gUser != null)
+                {
+                    user.AddName(gUser.Name);
+                }
+            }
+        }
+
+        public void UpdateLocalUser(LocalUser user)
+        {
+            if(_googlePlay.IsConnected && _googlePlay.User != null)
+            {
+                user.AddLink(_googlePlay.User.UserId, Name);
+                user.AddName(_googlePlay.User.Name, Name);
+            }
+        }
+
+        public AttrDic GetLinkData()
+        {
+            GoogleUser user = _googlePlay.User;
+            AttrDic data = new AttrDic();
+
+            string accessToken = _googlePlay.GetAccessToken();
+            
+            data.SetValue("gp_external_id", user.UserId);
+            data.SetValue("gp_user_name", user.Name);
+            data.SetValue("gp_access_token", accessToken);
+
+            return data;
+        }
+
+        public void GetFriendsData(List<UserMapping> mappings)
+        {
+            var enumerator = _googlePlay.Friends.GetEnumerator();
+            while(enumerator.MoveNext())
+            {
+                mappings.Add(new UserMapping(enumerator.Current.UserId, Name));
+            }
+        }
+
+        public void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
+        {
+            Debug.LogError("Not Implementing Update User Photo Yet");
+        }
+
+        public bool IsFriend(User user)
+        {
+            Debug.LogError("Not Implementing Is Friend Yet");
+            return false;
+        }
+
+        public void Logout()
+        {
+            return;
+        }
+
+        GoogleUser GetGooglePlayUser(User user)
+        {
+            List<string> userIds = user.GetExternalIds(LinkName);
+            if(userIds.Contains(_googlePlay.User.UserId))
+            {
+                return _googlePlay.User;
+            }
+            
+            var itr = _googlePlay.Friends.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                GoogleUser friend = itr.Current;
+                if(userIds.Contains(friend.UserId))
+                {
+                    return friend;
+                }
+            }
+            
+            return null;
+        }
+
+        public void Dispose()
+        {
+            _googlePlay.StateChangeEvent -= OnStateChanged;
+        }
+    }
+}

@@ -5,19 +5,18 @@ using Zenject;
 
 public class QualityStatsInstaller : Installer
 {
-    [Inject]
-    IHttpClient _httpClient;
-
     public override void InstallBindings()
     {
-        if(!(_httpClient is QualityStatsHttpClient))
-        {
-            var httpClient = new QualityStatsHttpClient(_httpClient);
-            Container.Rebind<IHttpClient>().ToInstance(httpClient);
-            Container.Rebind<QualityStatsHttpClient>().ToInstance(httpClient);
-            Container.Bind<IDisposable>().ToInstance(httpClient);
-        }
+        Container.Rebind<QualityStatsHttpClient>().ToSingleMethod<QualityStatsHttpClient>(CreateHttpClient);
+        Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
+        Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
         Container.Rebind<QualityStats>().ToSingle<QualityStats>();
         Container.Bind<IDisposable>().ToSingle<QualityStats>();
+    }
+
+    QualityStatsHttpClient CreateHttpClient(InjectContext ctx)
+    {
+        var client = ctx.Container.Instantiate<HttpClient>();
+        return new QualityStatsHttpClient(client);
     }
 }

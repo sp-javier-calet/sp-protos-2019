@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Alert;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.Crash
@@ -158,8 +160,8 @@ namespace SocialPoint.Crash
         readonly string _crashesBasePath;
         UIntPtr _nativeObject;
 
-        public DeviceCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
-            : base(behaviour, client, deviceInfo, breadcrumbManager)
+        public DeviceCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+            : base(runner, client, deviceInfo, breadcrumbManager, alertView)
         {
             _crashesBasePath = PathsManager.TemporaryCachePath + CrashesFolder;
 

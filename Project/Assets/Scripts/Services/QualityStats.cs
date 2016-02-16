@@ -20,7 +20,7 @@ public class QualityStats : SocialPointQualityStats
     {
         set
         {
-            TrackEvent = value.TrackEvent;
+            TrackEvent = value.TrackSystemEvent;
         }
     }
 

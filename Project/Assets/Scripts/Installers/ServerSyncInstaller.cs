@@ -14,7 +14,7 @@ public class ServerSyncInstaller : Installer
         public float Timeout = CommandQueue.DefaultTimeout;
         public float BackoffMultiplier = CommandQueue.DefaultBackoffMultiplier;
         public bool PingEnabled = CommandQueue.DefaultPingEnabled;
-    };
+    }
 
     public SettingsData Settings = new SettingsData();
 

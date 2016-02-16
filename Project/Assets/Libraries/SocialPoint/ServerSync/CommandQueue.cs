@@ -6,7 +6,6 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Network;
 using SocialPoint.Utils;
-using UnityEngine;
 
 namespace SocialPoint.ServerSync
 {
@@ -215,7 +214,7 @@ namespace SocialPoint.ServerSync
 
 
         IHttpClient _httpClient;
-        MonoBehaviour _behaviour;
+        ICoroutineRunner _runner;
         Packet _sendingPacket;
         Packet _currentPacket;
         List<Packet> _sentPackets;
@@ -226,7 +225,7 @@ namespace SocialPoint.ServerSync
         bool _synced;
         bool _currentPacketFlushed;
         long _syncTimestamp;
-        Coroutine _updateCoroutine;
+        IEnumerator _updateCoroutine;
         int _lastPacketId;
         long _lastSendTimestamp;
         float _currentTimeout;
@@ -236,12 +235,12 @@ namespace SocialPoint.ServerSync
         long _goToBackgroundTS;
 
 
-        public CommandQueue(MonoBehaviour behaviour, IHttpClient client)
+        public CommandQueue(ICoroutineRunner runner, IHttpClient client)
         {
-            DebugUtils.Assert(behaviour != null);
+            DebugUtils.Assert(runner != null);
             DebugUtils.Assert(client != null);
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
-            _behaviour = behaviour;
+            _runner = runner;
             _httpClient = client;
             _synced = true;
             Reset();
@@ -330,11 +329,12 @@ namespace SocialPoint.ServerSync
 
             if(RequestSetup == null)
             {
-                throw new MissingComponentException("Request setup callback not assigned.");
+                throw new InvalidOperationException("Request setup callback not assigned.");
             }
             if(_updateCoroutine == null)
             {
-                _updateCoroutine = _behaviour.StartCoroutine(UpdateCoroutine());
+                _updateCoroutine = UpdateCoroutine();
+                _runner.StartCoroutine(_updateCoroutine);
             }
         }
 
@@ -342,7 +342,7 @@ namespace SocialPoint.ServerSync
         {
             if(_updateCoroutine != null)
             {
-                _behaviour.StopCoroutine(_updateCoroutine);
+                _runner.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
             }
         }
@@ -552,7 +552,7 @@ namespace SocialPoint.ServerSync
             req.AcceptCompressed = true;
             req.CompressBody = true;
             req.Priority = HttpRequestPriority.High;
-            if(Math.Abs(req.Timeout) < Mathf.Epsilon)
+            if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
                 req.Timeout = _currentTimeout;
             }
@@ -635,7 +635,7 @@ namespace SocialPoint.ServerSync
             if(success)
             {
                 var transTime = CurrentTimestamp - _lastSendTimestamp;
-                _currentTimeout = Mathf.Max(transTime, Timeout);
+                _currentTimeout = Math.Max(transTime, Timeout);
             }
             else
             {
@@ -848,7 +848,7 @@ namespace SocialPoint.ServerSync
 
         void CatchException(Exception e)
         {
-            Debug.LogException(e);
+            DebugUtils.LogException(e);
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #else

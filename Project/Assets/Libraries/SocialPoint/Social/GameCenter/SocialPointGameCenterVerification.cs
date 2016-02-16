@@ -12,24 +12,19 @@ namespace SocialPoint.Social
 
     public class SocialPointGameCenterVerification : MonoBehaviour
     {
-
         public GameCenterValidationDelegate Callback;
 
         #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
         private static extern void SPUnityGameCenter_UserVerificationInit(string name);
-        
-#else
+        #else
         private static void SPUnityGameCenter_UserVerificationInit(string name)
         {
-
         }
         #endif
 
         void Awake()
         {
-            gameObject.name = GetType().ToString();
-            DontDestroyOnLoad(this);
             SPUnityGameCenter_UserVerificationInit(gameObject.name);
         }
 
@@ -39,7 +34,11 @@ namespace SocialPoint.Social
         /// <param name="verfication">Verfication.</param>
         void Notify(string verfication)
         {
-            Debug.Log(verfication);
+            DebugUtils.Log(verfication);
+            if(Callback == null)
+            {
+                return;
+            }
             var parser = new JsonAttrParser();
             var data = parser.ParseString(verfication).AsDic;
             if(data.GetValue("error").ToBool())
@@ -53,10 +52,7 @@ namespace SocialPoint.Social
                 var salt = Convert.FromBase64String(data.GetValue("salt").ToString());
                 var time = (ulong)data.GetValue("timestamp").ToLong();
                 var userVerification = new GameCenterUserVerification(url, signature, salt, time);
-                if(Callback != null)
-                {
-                    Callback(new Error(), userVerification);
-                }
+                Callback(new Error(), userVerification);
             }
         }
 

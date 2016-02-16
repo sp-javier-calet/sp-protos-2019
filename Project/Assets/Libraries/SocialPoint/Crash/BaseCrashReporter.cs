@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -256,8 +257,9 @@ namespace SocialPoint.Crash
             set{ _currentSendInterval = value; }
         }
 
-        MonoBehaviour _behaviour;
-        Coroutine _updateCoroutine;
+        ICoroutineRunner _runner;
+        IEnumerator _updateCoroutine;
+        IAlertView _alertViewPrototype;
         float _currentSendInterval = DefaultSendInterval;
         long _lastSendTimestamp;
         bool _sending;
@@ -416,12 +418,13 @@ namespace SocialPoint.Crash
             }
         }
 
-        public BaseCrashReporter(MonoBehaviour behaviour, IHttpClient client, 
-                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
+        public BaseCrashReporter(ICoroutineRunner runner, IHttpClient client, 
+                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
-            _behaviour = behaviour;
+            _runner = runner;
             _httpClient = client;
             _deviceInfo = deviceInfo;
+            _alertViewPrototype = alertView;
 
             _exceptionStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/exceptions"));
             _crashStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/crashes"));
@@ -436,9 +439,17 @@ namespace SocialPoint.Crash
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
         }
 
+        public bool IsEnabled
+        {
+            get
+            {
+                return _updateCoroutine != null;
+            }
+        }
+
         public void Enable()
         {
-            if(_updateCoroutine != null)
+            if(IsEnabled)
             {
                 return;
             }
@@ -447,7 +458,8 @@ namespace SocialPoint.Crash
             LogCallbackHandler.RegisterLogCallback(HandleLog);
             OnEnable();
 
-            _updateCoroutine = _behaviour.StartCoroutine(UpdateCoroutine());
+            _updateCoroutine = UpdateCoroutine();
+            _runner.StartCoroutine(_updateCoroutine);
         }
 
         protected virtual void OnEnable()
@@ -459,7 +471,7 @@ namespace SocialPoint.Crash
             WasEnabled = false;
             if(_updateCoroutine != null)
             {
-                _behaviour.StopCoroutine(_updateCoroutine);
+                _runner.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
             }
 
@@ -860,14 +872,40 @@ namespace SocialPoint.Crash
 
         void HandleLog(string logString, string stackTrace, LogType type)
         {
-            bool doHandleLog = false || type == LogType.Exception && _exceptionLogActive;
-            
+            bool doHandleLog = type == LogType.Exception && _exceptionLogActive;
             doHandleLog |= type == LogType.Error && _errorLogActive;
             
             if(doHandleLog)
             {
                 TrackException(logString, stackTrace);
             }
+
+            if(_alertViewPrototype != null && type == LogType.Exception)
+            {
+                CreateAlertView(logString, stackTrace, type, doHandleLog);
+            }
+        }
+
+        /// <summary>
+        /// Creates an alert view/popup if needed/allowed. (Depends on LogType and DEBUG compilation mode)
+        /// </summary>
+        void CreateAlertView(string logString, string stackTrace, LogType type, bool exceptionTracked)
+        {
+#if DEBUG
+            try
+            {                    
+                var alert = (IAlertView)_alertViewPrototype.Clone();
+                alert.Title = type.ToString();
+                alert.Message = logString + "\n" + stackTrace;
+                alert.Signature = "Exception tracked by Crash Reporter? " + exceptionTracked;
+                alert.Buttons = new string[]{ "OK" };
+                alert.Show(result => alert.Dispose());
+            }
+            catch(Exception e)
+            {
+                UnityEngine.Debug.Log("Exception while creating Alert View - " + e.Message);
+            }
+#endif
         }
 
         void TrackException(string logString, string stackTrace)

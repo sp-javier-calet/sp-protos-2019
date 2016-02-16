@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
 
 namespace SocialPoint.Notifications
 {
@@ -18,7 +17,7 @@ namespace SocialPoint.Notifications
         {
         }
 
-        public void RegisterForRemote()
+        public void RegisterForRemote(Action<string> onTokenReceivedCallback = null)
         {
         }
 

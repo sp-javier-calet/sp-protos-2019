@@ -1,8 +1,6 @@
 ﻿using ModestTree;
-
-using System;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Zenject
 {
@@ -18,9 +16,29 @@ namespace Zenject
         public void Awake()
         {
             var rootContainer = GlobalCompositionRoot.Instance.Container;
-            if(rootContainer != null)
+            if(rootContainer == null)
             {
-                rootContainer.Install(GlobalRootInstallers);
+                return;
+            }
+
+            var oldInits = rootContainer.TryResolve<List<IInitializable>>();
+            foreach(var installer in GlobalRootInstallers)
+            {
+                if(!rootContainer.HasInstalled(installer.GetType()))
+                {
+                    rootContainer.Install(installer);
+                }
+            }
+            var newInits = rootContainer.TryResolve<List<IInitializable>>();
+            if(newInits != null)
+            {
+                foreach(var init in newInits)
+                {
+                    if(oldInits == null || !oldInits.Contains(init))
+                    {
+                        init.Initialize();
+                    }
+                }
             }
         }
     }

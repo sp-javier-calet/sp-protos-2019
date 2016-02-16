@@ -62,7 +62,7 @@ namespace SocialPoint.Crash
 
         public BreadcrumbManager()
         {
-            InitializeBreadcrumbFile();
+            PathsManager.CallOnLoaded(InitializeBreadcrumbFile);
         }
 
         public void Log(string info)

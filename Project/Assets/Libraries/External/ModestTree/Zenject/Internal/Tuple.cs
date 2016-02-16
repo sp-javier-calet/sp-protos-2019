@@ -44,13 +44,13 @@ namespace ModestTree.Util
 
         public override int GetHashCode()
         {
+            int hash = 17;
             unchecked // Overflow is fine, just wrap
             {
-                int hash = 17;
                 hash = hash * 29 + (First == null ? 0 : First.GetHashCode());
                 hash = hash * 29 + (Second == null ? 0 : Second.GetHashCode());
-                return hash;
             }
+            return hash;
         }
     }
 
@@ -98,7 +98,14 @@ namespace ModestTree.Util
 
         public override int GetHashCode()
         {
-            return 17 * First.GetHashCode() + 31 * Second.GetHashCode() + 47 * Third.GetHashCode();
+            int hash = 37;
+            unchecked // Overflow is fine, just wrap
+            {
+                hash = hash * 31 + (First == null ? 0 : First.GetHashCode());
+                hash = hash * 31 + (Second == null ? 0 : Second.GetHashCode());
+                hash = hash * 31 + (Third == null ? 0 : Third.GetHashCode());
+            }
+            return hash;
         }
     }
 

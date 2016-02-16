@@ -7,19 +7,19 @@ namespace SocialPoint.AdminPanel
 {
     public class AdminPanelController : UIViewController
     {
-        private Stack<IAdminPanelGUI> _activePanels;
+        Stack<IAdminPanelGUI> _activePanels;
 
-        private Text _consoleText;
-        private AdminPanelRootLayout _root;
-        private ScrollRect _consoleScroll;
+        Text _consoleText;
+        AdminPanelRootLayout _root;
+        ScrollRect _consoleScroll;
 
-        private AdminPanelLayout _mainPanel;
-        private AdminPanelLayout _mainPanelContent;
-        private AdminPanelLayout _categoriesPanelContent;
-        private AdminPanelLayout _consolePanel;
+        AdminPanelLayout _mainPanel;
+        AdminPanelLayout _mainPanelContent;
+        AdminPanelLayout _categoriesPanelContent;
+        AdminPanelLayout _consolePanel;
 
-        private bool _consoleEnabled;
-        private bool _mainPanelDirty;
+        bool _consoleEnabled;
+        bool _mainPanelDirty;
 
         public AdminPanel AdminPanel;
 
@@ -48,15 +48,10 @@ namespace SocialPoint.AdminPanel
 
             AdminPanelLayout horizontalLayout = _root.CreateHorizontalLayout();
             
-            var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", () => {
-                Hide(false);
-            });
+            var panelLayout = horizontalLayout.CreatePanelLayout("Admin Panel", () => Hide());
             _categoriesPanelContent = panelLayout.CreateVerticalScrollLayout();
 
-            panelLayout.CreateToggleButton("Console", _consoleEnabled, (value) => {
-                _consoleEnabled = value;
-                RefreshPanel();
-            });
+            CreateConsoleButton(panelLayout);
 
             var rightVerticalLayout = horizontalLayout.CreateVerticalLayout(4);
 
@@ -73,6 +68,20 @@ namespace SocialPoint.AdminPanel
                 _consoleText = scrollLayout.CreateTextArea(AdminPanel.Console.Content);
             }
             _consolePanel.SetActive(false);
+        }
+
+        void CreateConsoleButton(AdminPanelLayout layout)
+        {
+            var toggle = layout.CreateToggleButton("Console", _consoleEnabled, value => {
+                _consoleEnabled = value;
+                RefreshPanel();
+            });
+
+            // Add feedback component
+            var consoleButtonObject = toggle.gameObject;
+            var feedback = consoleButtonObject.AddComponent<ConsoleButtonFeedback>();
+            feedback.ButtonImage = toggle.targetGraphic as Image;
+            feedback.AdminPanel = AdminPanel;
         }
 
         protected override void OnAppearing()
@@ -164,7 +173,7 @@ namespace SocialPoint.AdminPanel
         }
 
         // Categories Panel content
-        private class AdminPanelCategoriesGUI : IAdminPanelGUI
+        class AdminPanelCategoriesGUI : IAdminPanelGUI
         {
             private Dictionary<string, IAdminPanelGUI> _categories;
 
@@ -179,6 +188,67 @@ namespace SocialPoint.AdminPanel
                 foreach(var category in _categories)
                 {
                     layout.CreateOpenPanelButton(category.Key, category.Value, true, true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Feedback behaviour for Console Button
+        /// </summary>
+        class ConsoleButtonFeedback : MonoBehaviour
+        {
+            const float FeedbackTime = 0.5f;
+            readonly Color FeedbackColor = new Color(0.9f, 0.9f, 0.9f, 0.7f);
+
+            float CurrentFeedbackTime;
+            AdminPanel _adminPanel;
+            Color _initialColor;
+            Image _buttonImage;
+
+            public AdminPanel AdminPanel
+            {
+                set
+                {
+                    _adminPanel = value;
+                    _adminPanel.Console.OnContentChanged += OnContentChanged;
+                }
+            }
+
+            public Image ButtonImage
+            {
+                set
+                {
+                    _buttonImage = value;
+                    _initialColor = value.color;
+                }
+            }
+
+            void OnDestroy()
+            {
+                if(_adminPanel != null)
+                {
+                    _adminPanel.Console.OnContentChanged -= OnContentChanged;
+                }
+            }
+
+            void OnContentChanged()
+            {
+                CurrentFeedbackTime = FeedbackTime;
+            }
+
+            void Update()
+            {
+                var step = CurrentFeedbackTime / FeedbackTime;
+
+                CurrentFeedbackTime -= Time.deltaTime;
+                if(CurrentFeedbackTime < 0)
+                {
+                    CurrentFeedbackTime = 0;
+                }
+
+                if(_buttonImage != null)
+                {
+                    _buttonImage.color = Color.Lerp(_initialColor, FeedbackColor, step);
                 }
             }
         }

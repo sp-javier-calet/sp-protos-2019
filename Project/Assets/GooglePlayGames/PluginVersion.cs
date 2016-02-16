@@ -21,14 +21,19 @@ namespace GooglePlayGames
     // older versions, used when upgrading to other versions
     public const string VersionKeyCPP = "00911";
     public const string VersionKeyU5 = "00915";
-    public const int VersionInt = 0x0926;
-    public const string VersionString = "0.9.27";
-    public const string VersionKey = "00927";
+    // patched 0.9.27 version for Unity 5.3 changes.
+    public const string VersionKey27Patch = "00927a";
+
+    public const string VersionKeyJarResolver = "00928";
+    public const string VersionKeyNativeCRM = "00930";
+    public const int VersionInt = 0x0930;
+    public const string VersionString = "0.9.30";
+    public const string VersionKey = "00930";
 
     // used to check for the correct min version or play services.
-    public const int MinGmsCoreVersionCode = 8115000;
-    
+    public const int MinGmsCoreVersionCode = 8487000;
+
     // used to get the right version of dependencies.
-    public const string PlayServicesVersionConstraint = "8.1+";
+    public const string PlayServicesVersionConstraint = "8.4+";
   }
 }

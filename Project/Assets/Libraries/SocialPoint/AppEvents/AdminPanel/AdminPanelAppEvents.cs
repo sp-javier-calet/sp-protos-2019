@@ -1,6 +1,4 @@
-using UnityEngine;
 using UnityEngine.UI;
-using System.Reflection;
 using SocialPoint.AdminPanel;
 using System;
 
@@ -8,9 +6,9 @@ namespace SocialPoint.AppEvents
 {
     public class AdminPanelAppEvents : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
     {
-        private IAppEvents _appEvents;
-        private Text _textComponent;
-        private string _eventsLog;
+        IAppEvents _appEvents;
+        Text _textComponent;
+        string _eventsLog;
 
         public AdminPanelAppEvents(IAppEvents appEvents)
         {
@@ -96,9 +94,7 @@ namespace SocialPoint.AppEvents
         {
             layout.CreateLabel("App Events");
             _textComponent = layout.CreateVerticalScrollLayout().CreateTextArea(_eventsLog);
-            layout.CreateButton("Refresh", () => {
-                RefreshContent(); 
-            });
+            layout.CreateButton("Refresh", RefreshContent);
 
             layout.CreateMargin();
             layout.CreateButton("Trigger Memory Warning", () => {
@@ -111,16 +107,17 @@ namespace SocialPoint.AppEvents
                 RefreshContent();
             });
 
-            layout.CreateConfirmButton("Restart Game", () => {
-                _appEvents.RestartGame();
-            });
+            layout.CreateConfirmButton("Restart Game", () => _appEvents.RestartGame());
 
             layout.CreateConfirmButton("Quit Game", () => {
-                _appEvents.QuitGame();
+                var moved = _appEvents.QuitGame();
+                layout.AdminPanel.Console.Print(string.Format("Moved to background: {0}", moved));
             });
+
+            layout.CreateConfirmButton("Kill Game", () => _appEvents.KillGame());
         }
 
-        private void RefreshContent()
+        void RefreshContent()
         {
             if(_textComponent)
             {
@@ -128,7 +125,7 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        private void AddEvent(string newEvent)
+        void AddEvent(string newEvent)
         {
             _eventsLog += newEvent + "\n";
             RefreshContent();

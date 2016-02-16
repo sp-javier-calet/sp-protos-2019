@@ -1,15 +1,18 @@
+using System;
 using System.Collections.Generic;
 using Zenject;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Attributes;
+using SocialPoint.AdminPanel;
 
-
-public class ScriptEventsPostInstaller : MonoInstaller
+public class ScriptEventsPostInstaller : MonoInstaller, IInitializable
 {
-    /**
-     * this installer will add all the bridges defined in the scene installers
-     * to the dispatchers that are created in the global composition root
-     */
     public override void InstallBindings()
+    {
+        Container.Bind<IInitializable>().ToSingleInstance(this);
+    }
+
+    public void Initialize()
     {
         {
             var dispatcher = Container.Resolve<IEventDispatcher>();

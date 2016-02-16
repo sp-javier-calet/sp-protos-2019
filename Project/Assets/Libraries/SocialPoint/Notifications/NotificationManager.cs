@@ -34,6 +34,7 @@ namespace SocialPoint.Notifications
 #else
             Services = new EmptyNotificationServices();
 #endif
+
             Init();
         }
 
@@ -76,7 +77,7 @@ namespace SocialPoint.Notifications
         [Obsolete("Use AddNotification(Notification notification)")]
         protected void AddNotification(string action, string message, DateTime dateTime, int numBadge = 0)
         {
-            var ln = new Notification();
+            var ln = new Notification(0, Notification.OffsetType.None);
             ln.Title = action;
             ln.Message = message;
             ln.FireDate = dateTime;

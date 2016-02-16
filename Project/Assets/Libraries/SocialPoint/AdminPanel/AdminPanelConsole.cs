@@ -37,7 +37,7 @@ namespace SocialPoint.AdminPanel
             ContentChanged();
         }
 
-        private void ContentChanged()
+        void ContentChanged()
         {
             if(OnContentChanged != null)
             {
@@ -48,9 +48,7 @@ namespace SocialPoint.AdminPanel
         public void OnConfigure(AdminPanel adminPanel)
         {
             adminPanel.RegisterGUI("Console", this);
-            adminPanel.RegisterCommand("clear", "Clear console", (command) => {
-                Clear();
-            });
+            adminPanel.RegisterCommand("clear", "Clear console", command => Clear());
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -66,12 +64,11 @@ namespace SocialPoint.AdminPanel
                 hLayout.CreateToggleButton("Lock", FixedFocus, (value) => {
                     FixedFocus = value; });
             
-                hLayout.CreateButton("Clear", () => {
-                    Clear(); });
+                hLayout.CreateButton("Clear", Clear);
             }
         }
         
-        private void OnSubmitCommand(string command)
+        void OnSubmitCommand(string command)
         {
             Print(String.Format("${0}", command));
             try
@@ -84,7 +81,7 @@ namespace SocialPoint.AdminPanel
             }
         }
         
-        private void OnValueChange(AdminPanelLayout.InputStatus status)
+        void OnValueChange(AdminPanelLayout.InputStatus status)
         {
             status.Suggestion = status.Content;
             
@@ -95,9 +92,9 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        private class AdminPanelAvailableCommands : IAdminPanelGUI
+        class AdminPanelAvailableCommands : IAdminPanelGUI
         {
-            private AdminPanelConsole _console;
+            readonly AdminPanelConsole _console;
             
             public AdminPanelAvailableCommands(AdminPanelConsole console)
             {
@@ -106,9 +103,7 @@ namespace SocialPoint.AdminPanel
 
             public void OnConfigure(AdminPanel adminPanel)
             {
-                adminPanel.RegisterCommand("clear", "Clear console", (command) => {
-                    _console.Clear();
-                });
+                adminPanel.RegisterCommand("clear", "Clear console", command => _console.Clear());
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)

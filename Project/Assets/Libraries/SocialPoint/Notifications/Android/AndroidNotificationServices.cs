@@ -1,15 +1,11 @@
-using System;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Base;
 using SocialPoint.ServerSync;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
-
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
     public class AndroidNotificationServices : BaseNotificationServices
     {
         private const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
@@ -19,9 +15,10 @@ namespace SocialPoint.Notifications
 
         private AndroidJavaClass _notifClass = null;
 
-        public AndroidNotificationServices(MonoBehaviour behaviour, ICommandQueue commandqueue)
-        : base(behaviour, commandqueue)
+        public AndroidNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
+            : base(runner, commandqueue)
         {
+
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
 #endif
@@ -57,18 +54,17 @@ namespace SocialPoint.Notifications
             }
         }
 
-        public override void RegisterForRemote()
+        protected override void RequestPushNotificationToken()
         {
             if(_notifClass != null)
             {
                 _notifClass.CallStatic("registerForRemote");
 
-                WaitForRemoteToken(() => {
-                    return _notifClass.CallStatic<string>("getNotificationToken");
-                });
+                WaitForRemoteToken(() => _notifClass.CallStatic<string>("getNotificationToken"));
             }
         }
     }
+
 #else
     public class AndroidNotificationServices : EmptyNotificationServices
     {

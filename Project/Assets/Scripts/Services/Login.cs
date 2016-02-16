@@ -7,7 +7,7 @@ using SocialPoint.ServerEvents;
 using SocialPoint.AppEvents;
 using System.Collections.Generic;
 
-class Login : SocialPointLogin
+public class Login : SocialPointLogin
 {
     [Inject]
     IDeviceInfo injectDeviceInfo
