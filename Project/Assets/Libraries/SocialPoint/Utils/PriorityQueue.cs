@@ -109,7 +109,7 @@ namespace SocialPoint.Utils
                     {
                         if(!EqualityComparer<TValue>.Default.Equals(elm, value))
                         {
-                            newQueue.Enqueue(value);
+                            newQueue.Enqueue(elm);
                         }
                     }
                     _queues[key] = newQueue;
