@@ -9,10 +9,7 @@ namespace SocialPoint.Purchase
 {
     public class AdminPanelPurchase : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        /*TODO: Find a way to decouple StoreModel from AdminPanel. Because one is part of Libraries and the other of the game.
-         *      Take into account that StoreModel contains the ProductIds to load and it also is the one registering the PurchaseCompletedDelegate
-        */
-        StoreModel _store;
+        IStoreProductSource _productSource;
         IGamePurchaseStore _purchaseStore;
         ICommandQueue _commandQueue;
 
@@ -29,18 +26,13 @@ namespace SocialPoint.Purchase
         //Flag to do purchase actions after some delay
         bool _purchaseWithDelay = false;
 
-        public AdminPanelPurchase(StoreModel store, IGamePurchaseStore purchaseStore, ICommandQueue commandQueue)
+        public AdminPanelPurchase(IStoreProductSource productSource, IGamePurchaseStore purchaseStore, ICommandQueue commandQueue)
         {
-            _store = store;
+            _productSource = productSource;
             _purchaseStore = purchaseStore;
             _purchaseStore.ProductsUpdated += OnProductsUpdated;
             _purchaseStore.PurchaseUpdated += OnPurchaseUpdated;
             _commandQueue = commandQueue;
-
-            #if UNITY_EDITOR
-            SetMockupProducts();
-            #endif
-            LoadProducts();
         }
 
         //IAdminPanelConfigurer implementation
@@ -161,9 +153,14 @@ namespace SocialPoint.Purchase
 
         private void LoadProducts(string[] ids = null)
         {
+            #if UNITY_EDITOR
+            //Mockup available products with latest data
+            SetMockupProducts();
+            #endif
+
             if(ids == null)
             {
-                ids = _store.ProductIds;
+                ids = _productSource.ProductIds;
             }
 
             _lastKnownRequiredProducts = MergeStrings(ids);
@@ -203,7 +200,7 @@ namespace SocialPoint.Purchase
         private void SetMockupProducts()
         {
             //Create mockup product objects with mock store data
-            string[] storeProductIds = _store.ProductIds;
+            string[] storeProductIds = _productSource.ProductIds;
             Product[] mockProducts = new Product[storeProductIds.Length];
             for(int i = 0; i < mockProducts.Length; i++)
             {

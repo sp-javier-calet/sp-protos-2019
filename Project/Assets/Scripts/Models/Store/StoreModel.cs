@@ -5,7 +5,7 @@ using SocialPoint.Base;
 using SocialPoint.Utils;
 using Zenject;
 
-public class StoreModel : IDisposable
+public class StoreModel : IStoreProductSource, IDisposable
 {
     public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
 
@@ -58,13 +58,6 @@ public class StoreModel : IDisposable
     {
         //handle and alert view
     }
-
-    /*static void RegisterDelegate()
-    {
-
-    }
-
-    static void UnregisterDek*/
 
     PurchaseGameInfo OnPurchaseCompleted(Receipt receipt, PurchaseResponseType response)
     {
