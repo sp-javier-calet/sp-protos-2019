@@ -15,11 +15,11 @@ namespace SocialPoint.Notifications
         IAppEvents _appEvents;
         List<Notification> _notifications = new List<Notification>();
 
-        public NotificationManager(ICoroutineRunner runner, IAppEvents appEvents, ICommandQueue commandQueue)
+        public NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
         {
-            if(runner == null)
+            if(coroutineRunner == null)
             {
-                throw new ArgumentNullException("runner", "runner cannot be null or empty!");
+                throw new ArgumentNullException("coroutineRunner", "coroutineRunner cannot be null or empty!");
             }
             if(appEvents == null)
             {
@@ -28,9 +28,9 @@ namespace SocialPoint.Notifications
             _appEvents = appEvents;
 
 #if UNITY_IOS && !UNITY_EDITOR
-            Services = new IosNotificationServices(runner, commandQueue);
+            Services = new IosNotificationServices(coroutineRunner, commandQueue);
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            Services = new AndroidNotificationServices(runner, commandQueue);
+            Services = new AndroidNotificationServices(coroutineRunner, commandQueue);
 #else
             Services = new EmptyNotificationServices();
 #endif
@@ -123,8 +123,8 @@ namespace SocialPoint.Notifications
     [Obsolete("Use NotificationManager instead")]
     abstract class LocalNotificationManager : NotificationManager
     {
-        protected LocalNotificationManager(ICoroutineRunner runner, IAppEvents appEvents, ICommandQueue commandQueue) :
-            base(runner, appEvents, commandQueue)
+        protected LocalNotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue) :
+            base(coroutineRunner, appEvents, commandQueue)
         {
         }
     }
