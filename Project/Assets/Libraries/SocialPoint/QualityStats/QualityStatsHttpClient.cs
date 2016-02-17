@@ -49,6 +49,7 @@ namespace SocialPoint.QualityStats
         {
             public int Amount;
             public double SumSize;
+            public double SumSpeed;
             public double SumTimes;
             public double SumWaitTimes;
             public double SumConnectionTimes;
@@ -66,6 +67,7 @@ namespace SocialPoint.QualityStats
                 return new Data {
                     Amount = a.Amount + b.Amount,
                     SumSize = a.SumSize + b.SumSize,
+                    SumSpeed = a.SumSpeed + b.SumSpeed,
                     SumTimes = a.SumTimes + b.SumTimes,
                     SumWaitTimes = a.SumWaitTimes + b.SumWaitTimes,
                     SumConnectionTimes = a.SumConnectionTimes + b.SumConnectionTimes,
@@ -171,6 +173,7 @@ namespace SocialPoint.QualityStats
 
             data.Amount++;
             data.SumSize += response.DownloadSize / 1024.0;
+            data.SumSpeed += response.DownloadSpeed;
             data.SumTimes += response.Duration;
             var end = TimeUtils.Now;
             data.SumWaitTimes += (end - start).TotalSeconds - response.Duration;
