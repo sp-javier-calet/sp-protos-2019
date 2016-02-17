@@ -1,5 +1,6 @@
 ﻿using Zenject;
 using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.ServerSync;
 using SocialPoint.ScriptEvents;
 
@@ -29,11 +30,12 @@ public class ServerSyncInstaller : Installer
 
         Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
         Container.Rebind<ICommandQueue>().ToSingle<CommandQueue>();
-        Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
         Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
 
         Container.Bind<IEventsBridge>().ToSingle<ServerSyncBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<ServerSyncBridge>();
-    }
 
+        Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCommandReceiver>();
+    }
 }

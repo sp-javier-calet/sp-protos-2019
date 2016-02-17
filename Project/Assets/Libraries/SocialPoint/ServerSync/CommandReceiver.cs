@@ -33,9 +33,14 @@ namespace SocialPoint.ServerSync
 
         public void RegisterCommand(string name, ISTCCommandFactory factory)
         {
+            if(factory == null)
+            {
+                throw new ArgumentNullException("factory", "Invalid Command Factory");
+            }
+
             if(string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException("Invalid command name", "name");
+                throw new ArgumentNullException("name", "Invalid command name");
             }
 
             if(_registeredCommands.ContainsKey(name))
