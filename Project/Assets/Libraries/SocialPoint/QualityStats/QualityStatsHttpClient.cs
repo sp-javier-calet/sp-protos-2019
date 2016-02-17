@@ -173,7 +173,7 @@ namespace SocialPoint.QualityStats
 
             data.Amount++;
             data.SumSize += response.DownloadSize / 1024.0;
-            data.SumSpeed += response.DownloadSpeed;
+            data.SumSpeed += response.DownloadSpeed / 1024.0;
             data.SumTimes += response.Duration;
             var end = TimeUtils.Now;
             data.SumWaitTimes += (end - start).TotalSeconds - response.Duration;
