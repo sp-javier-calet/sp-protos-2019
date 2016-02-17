@@ -91,19 +91,29 @@ namespace SocialPoint.ServerSync
 
             layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(_commandReceiver));
 
-            layout.CreateMargin();
+            layout.CreateMargin(2);
 
             layout.CreateLabel("STC Command History");
 
             StringBuilder content = new StringBuilder();
-            foreach(var log in _history)
+            if(_history.Count > 0)
             {
-                content.AppendLine(log.ToString());
+                foreach(var log in _history)
+                {
+                    content.AppendLine(log.ToString());
+                }
+            }
+            else
+            {
+                content.AppendLine("Empty history");
             }
 
             layout.CreateVerticalScrollLayout()
                   .CreateTextArea(content.ToString());
-            layout.CreateButton("Clear History", _history.Clear);
+            layout.CreateButton("Clear History", () => {
+                _history.Clear();
+                layout.Refresh();
+            });
         }
 
         class AdminPanelAvailableCommands : IAdminPanelGUI
