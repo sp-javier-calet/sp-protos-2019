@@ -8,11 +8,19 @@ namespace SocialPoint.ServerSync
     {
         public delegate void CommandCallback(STCCommand cmd);
 
+        Action<STCCommand> OnCommandExecuted;
+
         readonly Dictionary<string, ISTCCommandFactory> _registeredCommands;
 
         public CommandReceiver()
         {
             _registeredCommands = new Dictionary<string, ISTCCommandFactory>();
+        }
+
+        // Private Listener. Used by admin panel
+        void SetListener(Action<STCCommand> listener)
+        {
+            OnCommandExecuted = listener;
         }
 
         public bool Receive(AttrDic data, out string commandId)
@@ -24,7 +32,14 @@ namespace SocialPoint.ServerSync
             if(_registeredCommands.TryGetValue(name, out fct))
             {
                 var command = fct.Create(data);
+
+                if(OnCommandExecuted != null)
+                {
+                    OnCommandExecuted(command);
+                }
+
                 command.Exec();
+
                 return true;
             }
 

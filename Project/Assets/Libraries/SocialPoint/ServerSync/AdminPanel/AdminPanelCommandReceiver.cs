@@ -1,5 +1,5 @@
-﻿using System.Text;
-using System.Reflection;
+﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.AdminPanel;
@@ -9,11 +9,57 @@ namespace SocialPoint.ServerSync
 {
     public class AdminPanelCommandReceiver : IAdminPanelGUI, IAdminPanelConfigurer
     {
+        struct CommandLog
+        {
+            public string Name;
+            public string Id;
+            public DateTime Time;
+            public string Arguments;
+
+            public CommandLog(string id, string name, long ts, string args)
+            {
+                Id = id;
+                Name = name;
+                Time = TimeUtils.GetTime(ts);
+                Arguments = args;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("{0} - {1} Id: {2} Arguments: {3}", Time, Name, Id, Arguments);
+            }
+        }
+
         readonly CommandReceiver _commandReceiver;
+
+        readonly List<CommandLog> _history;
+
+        AdminPanelLayout _layout;
 
         AdminPanelCommandReceiver(CommandReceiver receiver)
         {
             _commandReceiver = receiver;
+            _history = new List<CommandLog>();
+
+            Reflection.CallPrivateVoidMethod(_commandReceiver, "SetListener", new Action<STCCommand>(OnReceive));
+        }
+
+        void OnReceive(STCCommand cmd)
+        {
+            _history.Add(new CommandLog(cmd.Id, cmd.Name, cmd.Timestamp, cmd.Args.ToString()));
+            RefreshLayout();
+        }
+
+        void RefreshLayout()
+        {
+            if(_layout != null && _layout.IsActiveInHierarchy)
+            {
+                _layout.Refresh();
+            }
+            else
+            {
+                _layout = null;
+            }
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -33,6 +79,8 @@ namespace SocialPoint.ServerSync
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            _layout = layout;
+
             layout.CreateLabel("Command Receiver");
 
             layout.CreateTextInput("Enter command", name => {
@@ -42,6 +90,20 @@ namespace SocialPoint.ServerSync
             });
 
             layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(_commandReceiver));
+
+            layout.CreateMargin();
+
+            layout.CreateLabel("STC Command History");
+
+            StringBuilder content = new StringBuilder();
+            foreach(var log in _history)
+            {
+                content.AppendLine(log.ToString());
+            }
+
+            layout.CreateVerticalScrollLayout()
+                  .CreateTextArea(content.ToString());
+            layout.CreateButton("Clear History", _history.Clear);
         }
 
         class AdminPanelAvailableCommands : IAdminPanelGUI

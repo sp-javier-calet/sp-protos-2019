@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Reflection;
 
 namespace SocialPoint.AdminPanel
@@ -15,6 +16,52 @@ namespace SocialPoint.AdminPanel
                 Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` field in class {1}", fieldName, instance.GetType()));
             }
             return field != null ? field.GetValue(instance) as R : null;
+        }
+
+        public static void CallPrivateVoidMethod(object instance, string methodName, params object[] parameters)
+        {
+            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+            MethodInfo method = instance.GetType().GetMethod(methodName, bindFlags);
+            if(method != null)
+            {
+                try
+                {
+                    method.Invoke(instance, parameters);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
+                }
+            }
+            else
+            {
+                Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` method in class {1}", methodName, instance.GetType()));
+            }
+        }
+
+        public static R CallPrivateMethod<R>(object instance, string methodName, R defaultReturn, params object[] parameters) where R : class
+        {
+            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+            MethodInfo method = instance.GetType().GetMethod(methodName, bindFlags);
+            if(method != null)
+            {
+                try
+                {
+                    return method.Invoke(instance, parameters) as R;
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
+                    return defaultReturn;
+                }
+            }
+            else
+            {
+                Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` method in class {1}", methodName, instance.GetType()));
+                return defaultReturn;
+            }
         }
     }
 }
