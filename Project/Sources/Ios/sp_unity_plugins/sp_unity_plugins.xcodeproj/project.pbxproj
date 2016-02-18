@@ -86,6 +86,10 @@
 		46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */; };
 		46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */; };
 		46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */; };
+		FE0A1DC81C75EFB500C44367 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = FE0A1DC61C75EFB500C44367 /* SPUnityNativeUtils.h */; };
+		FE0A1DC91C75EFB500C44367 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = FE0A1DC61C75EFB500C44367 /* SPUnityNativeUtils.h */; };
+		FE0A1DCA1C75EFB500C44367 /* SPUnityNativeUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE0A1DC71C75EFB500C44367 /* SPUnityNativeUtils.mm */; };
+		FE0A1DCB1C75EFB500C44367 /* SPUnityNativeUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE0A1DC71C75EFB500C44367 /* SPUnityNativeUtils.mm */; };
 		FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
@@ -197,6 +201,8 @@
 		46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCrashReportSystemInfo.h; sourceTree = "<group>"; };
 		46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCrashReportTextFormatter.h; sourceTree = "<group>"; };
 		46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCrashReportThreadInfo.h; sourceTree = "<group>"; };
+		FE0A1DC61C75EFB500C44367 /* SPUnityNativeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityNativeUtils.h; sourceTree = "<group>"; };
+		FE0A1DC71C75EFB500C44367 /* SPUnityNativeUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityNativeUtils.mm; sourceTree = "<group>"; };
 		FE448F161C1EE88600A10FEA /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		FE448F171C1EE88600A10FEA /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcurl.a; sourceTree = "<group>"; };
 		FE448F181C1EE88600A10FEA /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
@@ -425,9 +431,19 @@
 			path = headers;
 			sourceTree = "<group>";
 		};
+		FE0A1DC51C75EFB500C44367 /* sp_unity_utils */ = {
+			isa = PBXGroup;
+			children = (
+				FE0A1DC61C75EFB500C44367 /* SPUnityNativeUtils.h */,
+				FE0A1DC71C75EFB500C44367 /* SPUnityNativeUtils.mm */,
+			);
+			path = sp_unity_utils;
+			sourceTree = "<group>";
+		};
 		FE448F0D1C1EE83100A10FEA = {
 			isa = PBXGroup;
 			children = (
+				FE0A1DC51C75EFB500C44367 /* sp_unity_utils */,
 				FF5AF77D1C623DCF00B5573A /* sp_unity_gamecenter */,
 				FE4490451C1F205800A10FEA /* SPUnityPlugins */,
 				FE448F311C1EEAD800A10FEA /* Common */,
@@ -686,6 +702,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE0A1DC91C75EFB500C44367 /* SPUnityNativeUtils.h in Headers */,
 				468E00301C3E75E500CA07AF /* UnityGameObject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -716,6 +733,7 @@
 				46F749191C60AE77000DB6B1 /* PLCrashReportRegisterInfo.h in Headers */,
 				46F7491B1C60AE77000DB6B1 /* PLCrashReportStackFrameInfo.h in Headers */,
 				46F7491C1C60AE77000DB6B1 /* PLCrashReportSymbolInfo.h in Headers */,
+				FE0A1DC81C75EFB500C44367 /* SPUnityNativeUtils.h in Headers */,
 				46F7490F1C60AE77000DB6B1 /* PLCrashReportApplicationInfo.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -913,6 +931,7 @@
 				FF5AF7801C623DD800B5573A /* SPUnityGameCenter.mm in Sources */,
 				468E00251C3E75E500CA07AF /* (null) in Sources */,
 				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
+				FE0A1DCB1C75EFB500C44367 /* SPUnityNativeUtils.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -926,6 +945,7 @@
 				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
 				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
+				FE0A1DCA1C75EFB500C44367 /* SPUnityNativeUtils.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */,
