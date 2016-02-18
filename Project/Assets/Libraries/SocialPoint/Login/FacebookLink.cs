@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.Social;
+using SocialPoint.IO;
 
 namespace SocialPoint.Login
 {
@@ -17,11 +16,14 @@ namespace SocialPoint.Login
         private event StateChangeDelegate _eventStateChange;
         
         public readonly static string LinkName = "fb";
-        
-        public FacebookLink(MonoBehaviour behaviour, bool loginWithUi = true)
+
+        LinkState _state;
+
+        public FacebookLink(ICoroutineRunner runner, bool loginWithUi = true)
         {
             _loginWithUi = loginWithUi;
-            _facebook = new UnityFacebook(behaviour);
+            _facebook = new UnityFacebook(runner);
+            _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             Init();
         }
         
@@ -68,7 +70,15 @@ namespace SocialPoint.Login
                 return LinkName;
             }
         }
-        
+
+        public LinkState State
+        {
+            get
+            {
+                return _state;
+            }
+        }
+
         public void AddStateChangeDelegate(StateChangeDelegate cbk)
         {
             _eventStateChange += cbk;
@@ -80,12 +90,13 @@ namespace SocialPoint.Login
             {
                 if(_facebook.IsConnected)
                 {
-                    _eventStateChange(LinkState.Connected);
+                    _state = LinkState.Connected;
                 }
                 else
                 {
-                    _eventStateChange(LinkState.Disconnected);
+                    _state = LinkState.Disconnected;
                 }
+                _eventStateChange(_state);
             }
         }
         
@@ -188,7 +199,7 @@ namespace SocialPoint.Login
                 {
                     if(Error.IsNullOrEmpty(err))
                     {
-                        string tmpFilePath = Application.temporaryCachePath + "/SPLoginFacebook/" + user.Id + "_" + photoSize.ToString() + ".png";
+                        var tmpFilePath = FileUtils.Combine(PathsManager.TemporaryCachePath, "SPLoginFacebook/" + user.Id + "_" + photoSize.ToString() + ".png");
                         err = ImageUtils.SaveTextureToFile(texture, tmpFilePath);
                         if(Error.IsNullOrEmpty(err))
                         {

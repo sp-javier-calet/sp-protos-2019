@@ -1,57 +1,159 @@
 ﻿using SocialPoint.Attributes;
+using SocialPoint.IO;
+using SocialPoint.Login;
+using System;
 using Zenject;
 
 public interface IGameLoader
 {
-    GameModel LoadInitial();
     GameModel Load(Attr data);
+
+    void SaveLocalGame();
+
+    void DeleteLocalGame();
+
+    Attr OnAutoSync();
 }
 
 public class GameLoader : IGameLoader
 {
-    string _jsonResource;
+    string _jsonGameResource;
+    string _jsonPlayerResource;
 
     [Inject]
-    IParser<GameModel> _parser;
+    IParser<GameModel> _gameParser;
 
     [Inject]
-    GameModel _model;
+    IParser<PlayerModel> _playerParser;
 
-    public GameLoader([Inject("game_initial_json_resource")] string jsonResource)
-    {
-        _jsonResource = jsonResource;
-    }
+    [Inject]
+    ISerializer<PlayerModel> _playerSerializer;
 
-    GameModel GetInitial()
-    {
-        var defaultGame = (UnityEngine.Resources.Load(_jsonResource) as UnityEngine.TextAsset).text;
-        var json = new JsonAttrParser().ParseString(defaultGame).AsDic;
-        return _parser.Parse(json);
-    }
+    [Inject]
+    GameModel _gameModel;
 
-    public GameModel LoadInitial()
+    [InjectOptional]
+    ILogin _login;
+
+    GameModel _initialModel;
+
+    public string PlayerJsonPath
     {
-        if(_model.Config == null)
+        get
         {
-            _model.Assign(GetInitial());
+            return string.Format("{0}/{1}.json", PathsManager.PersistentDataPath, _jsonPlayerResource);
         }
-        return _model;
+    }
+
+    public bool IsLocalGame
+    {
+        get
+        {
+            return _login == null || string.IsNullOrEmpty(_login.BaseUrl);
+        }
+    }
+
+    public GameLoader([Inject("game_initial_json_game_resource")] string jsonGameResource, [Inject("game_initial_json_player_resource")] string jsonPlayerResource)
+    {
+        _jsonGameResource = jsonGameResource;
+        _jsonPlayerResource = jsonPlayerResource;
+    }
+
+    GameModel LoadInitialGame()
+    {
+        // caching the initial model, should not change in the same execution
+        if(_initialModel == null)
+        {
+            var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+            var gameData = new JsonAttrParser().ParseString(json);
+            _initialModel = _gameParser.Parse(gameData);
+        }
+        return _initialModel;
+    }
+
+    GameModel LoadSavedGame()
+    {
+        string json = null;
+        if(FileUtils.ExistsFile(PlayerJsonPath))
+        {
+            json = FileUtils.ReadAllText(PlayerJsonPath);
+        }
+
+        if(!string.IsNullOrEmpty(json))
+        {
+            var ini = LoadInitialGame();
+            // we need to assign it or else the player parser will have the wrong config
+            _gameModel.Assign(ini); 
+            var playerData = new JsonAttrParser().ParseString(json);
+            var player = _playerParser.Parse(playerData);
+            return new GameModel(ini.Config, player);
+        }
+        return null;
     }
 
     public GameModel Load(Attr data)
     {
-        if(Attr.IsNullOrEmpty(data))
+        GameModel newModel = null;
+        if(data != null)
         {
-            return LoadInitial();
+            newModel = _gameParser.Parse(data);
+            data.Dispose();
         }
-        var newModel = _parser.Parse(data);
-        if(newModel.Player == null)
+        if(newModel == null && IsLocalGame)
         {
-            var initialGame = GetInitial();
-            newModel = new GameModel(newModel.Config, initialGame.Player);
+            newModel = LoadSavedGame();
         }
-        _model.Assign(newModel);
-        data.Dispose();
-        return _model;
+        if(newModel == null)
+        {
+            newModel = LoadInitialGame();
+        }
+        if(newModel != null && newModel.Player == null)
+        {
+            var ini = LoadInitialGame();
+            if(ini != null)
+            {
+                newModel.Player.Assign(ini.Player);
+            }
+        }
+        if(newModel == null)
+        {
+            throw new InvalidOperationException("Could not load the game.");
+        }
+        else
+        {
+            _gameModel.Assign(newModel);
+        }
+        return _gameModel;
+    }
+
+    public void SaveLocalGame()
+    {
+        Attr data = _playerSerializer.Serialize(_gameModel.Player);
+        IAttrSerializer Serializer = new JsonAttrSerializer();
+
+        FileUtils.WriteAllText(PlayerJsonPath, Serializer.SerializeString(data));
+    }
+
+    public void DeleteLocalGame()
+    {
+        FileUtils.DeleteFile(PlayerJsonPath);
+        if(IsLocalGame)
+        {
+            Load(null);
+        }
+    }
+
+    public Attr OnAutoSync()
+    {
+        if(IsLocalGame)
+        {
+            SaveLocalGame();
+            return null;
+        }
+        if(_gameModel == null || _gameModel.Player == null)
+        {
+            return null;
+        }
+        return _playerSerializer.Serialize(_gameModel.Player);
     }
 }

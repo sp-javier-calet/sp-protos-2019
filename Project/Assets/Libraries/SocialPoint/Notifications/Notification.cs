@@ -1,6 +1,8 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 using System;
 using System.Collections;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Notifications
 {
@@ -13,15 +15,71 @@ namespace SocialPoint.Notifications
     public class Notification
     {
         /**
+         * What kind of operation should be applied to the base schedule time and an additional offset time.
+         * Some notifications can be scheduled before (Negative) while other can be after (Positive) their real desired time.
+         */
+        public enum OffsetType
+        {
+            None,
+            Negative,
+            Positive,
+        };
+
+        public Notification(long fireDelay, OffsetType offsetType)
+        {
+            _fireDelay = fireDelay;
+            _offsetType = offsetType;
+            MaxOffset = _defaultMaxOffset;
+        }
+
+        /**
+         * Default max offset to apply to notifications that require it.
+         * (Default value of 2 hours)
+         */
+        private static int _defaultMaxOffset = 7200;
+
+        /**
+         * Set the maximun default offset for all notifications
+         */
+        public static void SetDefaultMaxOffset(int maxOffset)
+        {
+            Assert.IsTrue(maxOffset > 0, "Warning: Invalid default offset settings for Notification class");
+            _defaultMaxOffset = maxOffset;
+        }
+
+        /**
+         * The delay in seconds from now when the system should deliver the notification
+         */
+        private long _fireDelay = 0;
+
+        /**
+         * Amount of offset to apply to fire delay if needed
+         */
+        private long _randomOffset = 0;
+
+        private OffsetType _offsetType;
+
+        /**
+         * Set the maximun offset for this notification 
+         */
+        public int MaxOffset
+        {
+            set
+            {
+                Assert.IsTrue(value > 0, "Warning: Invalid offset settings for notification");
+                _randomOffset = RandomUtils.Range(0, value + 1); //Second param is exclusive for ints, adding 1 to include it 
+            }
+        }
+
+        /**
          * the title of the action button or slider
          */
-        public string Title = string.Empty; 
+        public string Title = string.Empty;
 
         /**
          * he message displayed in the notification alert
          */
         public string Message = string.Empty;
-
 
         [Obsolete("Use Title")]
         public string AlertAction
@@ -36,7 +94,7 @@ namespace SocialPoint.Notifications
                 return Title;
             }
         }
-        
+
         [Obsolete("Use Message")]
         public string AlertBody
         {
@@ -58,9 +116,31 @@ namespace SocialPoint.Notifications
         public int IconBadgeNumber = 0;
 
         /**
-         * the delay in seconds from now when the system should deliver the notification
+         * The delay in seconds from now when the system should deliver the notification (taking a random offset into account if needed)
          */
-        public long FireDelay = 0;
+        public long FireDelay
+        {
+            get
+            {
+                long realFireDelay = _fireDelay;
+                switch(_offsetType)
+                {
+                case OffsetType.Negative:
+                    realFireDelay -= _randomOffset;
+                    break;
+                case OffsetType.Positive:
+                    realFireDelay += _randomOffset;
+                    break;
+                default:
+                    break;
+                }
+                return realFireDelay;
+            }
+            private set
+            {
+                _fireDelay = value;
+            }
+        }
 
         /**
          * the local date and time when the system should deliver the notification 
@@ -75,7 +155,7 @@ namespace SocialPoint.Notifications
 
             set
             {
-               FireDelay = (long)value.Subtract(DateTime.Now.ToLocalTime()).TotalSeconds;
+                FireDelay = (long)value.Subtract(DateTime.Now.ToLocalTime()).TotalSeconds;
             }
         }
 

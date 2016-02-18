@@ -45,28 +45,32 @@ namespace SocialPoint.QualityStats
 
         #endregion
 
-        public class Data
+        public struct Data
         {
             public int Amount;
+            public double SumSize;
             public double SumTimes;
             public double SumWaitTimes;
             public double SumConnectionTimes;
             public double SumTransferTimes;
 
-            public Data()
-            {
-                Amount = 0;
-                SumTimes = 0.0;
-                SumWaitTimes = 0.0;
-                SumConnectionTimes = 0.0;
-                SumTransferTimes = 0.0;
-            }
-
             public override string ToString()
             {
                 return string.Format(
-                    "[Data: Amount={0}, SumTimes={1}, SumWaitTimes={2}, SumConnectionTimes={3}, SumTransferTimes={4}]",
+                    "[Data: Amount={0}, SumSize={1}, SumTimes={2}, SumWaitTimes={3}, SumConnectionTimes={4}, SumTransferTimes={5}]",
                     Amount, SumTimes, SumWaitTimes, SumConnectionTimes, SumTransferTimes);
+            }
+
+            public static Data operator+(Data a, Data b)
+            {
+                return new Data {
+                    Amount = a.Amount + b.Amount,
+                    SumSize = a.SumSize + b.SumSize,
+                    SumTimes = a.SumTimes + b.SumTimes,
+                    SumWaitTimes = a.SumWaitTimes + b.SumWaitTimes,
+                    SumConnectionTimes = a.SumConnectionTimes + b.SumConnectionTimes,
+                    SumTransferTimes = a.SumTransferTimes + b.SumTransferTimes,
+                };
             }
         }
 
@@ -86,20 +90,13 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        public class Stats
+        public struct Stats
         {
             public double DataDownloaded;
             // in Kbytes
             public double SumDownloadSpeed;
             // in Kbytes
             public MRequests Requests;
-
-            public Stats()
-            {
-                DataDownloaded = 0.0;
-                SumDownloadSpeed = 0.0;
-                Requests = new MRequests();
-            }
 
             public override string ToString()
             {
@@ -159,6 +156,7 @@ namespace SocialPoint.QualityStats
             if(!_data.TryGetValue(url.ToString(), out stats))
             {
                 stats = new Stats();
+                stats.Requests = new MRequests();
                 _data[url.ToString()] = stats;
             }
 
@@ -169,15 +167,17 @@ namespace SocialPoint.QualityStats
             if(!stats.Requests.TryGetValue(response.StatusCode, out data))
             {
                 data = new Data();
-                stats.Requests[response.StatusCode] = data;
             }
 
             data.Amount++;
+            data.SumSize += response.DownloadSize / 1024.0;
             data.SumTimes += response.Duration;
             var end = TimeUtils.Now;
             data.SumWaitTimes += (end - start).TotalSeconds - response.Duration;
             data.SumConnectionTimes += response.ConnectionDuration;
             data.SumTransferTimes += response.TransferDuration;
+
+            stats.Requests[response.StatusCode] = data;
         }
     }
 }

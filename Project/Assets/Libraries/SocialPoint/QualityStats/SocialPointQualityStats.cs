@@ -169,8 +169,7 @@ namespace SocialPoint.QualityStats
 
             foreach(var statsIt in data)
             {
-                QualityStatsHttpClient.Stats stats = statsIt.Value;
-                foreach(var dataIt in stats.Requests)
+                foreach(var dataIt in statsIt.Value.Requests)
                 {
                     var request = GetPerformanceRequest(statsIt, dataIt);
                     requestList.Add(request);
@@ -192,9 +191,10 @@ namespace SocialPoint.QualityStats
                     if(!data.TryGetValue(statsIt.Key, out mergedStats))
                     {
                         mergedStats = new QualityStatsHttpClient.Stats();
+                        mergedStats.Requests = new QualityStatsHttpClient.MRequests();
                         data[statsIt.Key] = mergedStats;
                     }
-                    QualityStatsHttpClient.Stats stats = statsIt.Value;
+                    var stats = statsIt.Value;
                     mergedStats.DataDownloaded += stats.DataDownloaded;
                     mergedStats.SumDownloadSpeed += stats.SumDownloadSpeed;
                     foreach(var dataIt in stats.Requests)
@@ -203,14 +203,9 @@ namespace SocialPoint.QualityStats
                         if(!mergedStats.Requests.TryGetValue(dataIt.Key, out requestMergedData))
                         {
                             requestMergedData = new QualityStatsHttpClient.Data();
-                            mergedStats.Requests[dataIt.Key] = requestMergedData;
                         }
-                        QualityStatsHttpClient.Data requestData = dataIt.Value;
-                        requestMergedData.Amount += requestData.Amount;
-                        requestMergedData.SumTimes += requestData.SumTimes;
-                        requestMergedData.SumWaitTimes += requestData.SumWaitTimes;
-                        requestMergedData.SumConnectionTimes += requestData.SumConnectionTimes;
-                        requestMergedData.SumTransferTimes += requestData.SumTransferTimes;
+                        requestMergedData += dataIt.Value;
+                        mergedStats.Requests[dataIt.Key] = requestMergedData;
                     }
                 }
             }
@@ -235,8 +230,7 @@ namespace SocialPoint.QualityStats
             var code = dataIt.Key.ToString();
             performance.SetValue("code", code);
 
-            QualityStatsHttpClient.Data requestData = dataIt.Value;
-            GetPerformanceData(performance, requestData);
+            GetPerformanceData(performance, dataIt.Value);
 
             return data;
         }
@@ -247,6 +241,7 @@ namespace SocialPoint.QualityStats
 
             performance.SetValue("number_of_calls", requestData.Amount);
             performance.SetValue("avg_time", requestData.SumTimes / dAmount);
+            performance.SetValue("avg_size", requestData.SumSize / dAmount);
             performance.SetValue("avg_wait_time", requestData.SumWaitTimes / dAmount);
             performance.SetValue("avg_conn_time", requestData.SumConnectionTimes / dAmount);
             performance.SetValue("avg_trans_time", requestData.SumTransferTimes / dAmount);

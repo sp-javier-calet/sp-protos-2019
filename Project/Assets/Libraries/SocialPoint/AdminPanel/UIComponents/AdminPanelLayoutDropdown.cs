@@ -68,7 +68,7 @@ namespace SocialPoint.AdminPanel
             {
                 dropdown.onValueChanged.AddListener((int pos) =>
                 {
-                    if(options != null && pos > 0 && pos < options.Length)
+                    if(options != null && pos > 0 && pos <= options.Length)
                     {
                         onChange(options[pos-1]);
                     }

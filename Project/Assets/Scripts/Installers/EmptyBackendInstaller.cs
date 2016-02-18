@@ -9,11 +9,8 @@ using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using System.Text;
 
-public class EmptyBackendInstaller : MonoInstaller
+public class EmptyBackendInstaller : MonoInstaller, IInitializable
 {
-    [Inject]
-    IGameLoader _gameLoader;
-
     public override void InstallBindings()
     {
         if(!Container.HasBinding<IEventTracker>())
@@ -23,23 +20,38 @@ public class EmptyBackendInstaller : MonoInstaller
         }
         if(!Container.HasBinding<ILogin>())
         {
+            Container.Bind<IInitializable>().ToSingleInstance(this);
             Container.Bind<ILogin>().ToSingle<EmptyLogin>();
             Container.Bind<IDisposable>().ToLookup<ILogin>();
-            Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelLogin>(LoginInstaller.CreateAdminPanel);
+        }
+        if(!Container.HasInstalled<LoginAdminPanelInstaller>())
+        {
+            Container.Install<LoginAdminPanelInstaller>();
         }
         if(!Container.HasBinding<ICommandQueue>())
         {
             Container.Bind<ICommandQueue>().ToSingle<EmptyCommandQueue>();
             Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
         }
+        if(!Container.HasBinding<BreadcrumbManager>())
+        {
+            Container.Bind<BreadcrumbManager>().ToSingle();
+        }
         if(!Container.HasBinding<ICrashReporter>())
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
         }
-        if(_gameLoader != null)
+
+    }
+
+    public void Initialize()
+    {
+        var loader = Container.TryResolve<IGameLoader>();
+        if(loader != null)
         {
-            _gameLoader.LoadInitial();
+            loader.Load(null);
         }
     }
 

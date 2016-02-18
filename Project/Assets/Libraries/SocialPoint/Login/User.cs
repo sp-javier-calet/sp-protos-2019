@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 using UnityEngine;
 
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Login
-{    
+{
     public struct UserMapping
     {
         public string Id { get; set; }
@@ -47,9 +47,9 @@ namespace SocialPoint.Login
             {
                 if(_photoTexture == null)
                 {
-                    if(File.Exists(PhotoPath))
+                    if(FileUtils.ExistsFile(PhotoPath))
                     {
-                        var data = File.ReadAllBytes(PhotoPath);
+                        var data = FileUtils.ReadAllBytes(PhotoPath);
                         _photoTexture = new Texture2D(1, 1);
                         _photoTexture.LoadImage(data);
                     }
@@ -60,7 +60,7 @@ namespace SocialPoint.Login
 
         Texture2D _photoTexture;
 
-        public User() :this(0)
+        public User() : this(0)
         {
         }
 
@@ -110,7 +110,7 @@ namespace SocialPoint.Login
                 return new UserMapping();
             }
         }
-        
+
         public string GetExternalId(string provider)
         {
             var enumerator = Links.GetEnumerator();
@@ -124,7 +124,7 @@ namespace SocialPoint.Login
             }
             return null;
         }
-        
+
         public List<string> GetExternalIds(string provider)
         {
             var ids = new List<string>();
@@ -139,7 +139,7 @@ namespace SocialPoint.Login
             }
             return ids;
         }
-        
+
         public bool HasLink(string provider, string externalId = null)
         {
             var enumerator = Links.GetEnumerator();
@@ -156,7 +156,7 @@ namespace SocialPoint.Login
             }
             return false;
         }
-        
+
         public bool AddLink(string externalId, string provider)
         {
             if(HasLink(provider, externalId))
@@ -213,7 +213,7 @@ namespace SocialPoint.Login
             PhotoPaths.TryGetValue(provider, out path);
             return path;
         }
-        
+
         [Obsolete("Use PhotoPath property")]
         public string GetPhotoPath()
         {
@@ -305,7 +305,7 @@ namespace SocialPoint.Login
             
             return this == p;
         }
-        
+
         public override int GetHashCode()
         {
             return (int)Id;

@@ -1,18 +1,36 @@
 using System;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.Utils
 {
-    public class RandomUtils
+    public static class RandomUtils
     {
-        public static string GetUuid(string format=null)
+        static bool _init = false;
+
+        static void Init()
         {
+            if(_init)
+            {
+                return;
+            }
+            var devId = SystemInfo.deviceUniqueIdentifier.GetHashCode();
+            var guId = System.Guid.NewGuid().GetHashCode();
+            UnityEngine.Random.seed ^= devId;
+            UnityEngine.Random.seed ^= guId;
+            _init = true;
+        }
+
+        public static string GetUuid(string format = null)
+        {
+            Init();
             Guid g = System.Guid.NewGuid();
             return g.ToString(format);
         }
 
         public static UInt64 GenerateUserId()
         {
+            Init();
             UInt64 ts = (UInt64)TimeUtils.Timestamp;
             UInt64 rn = (UInt64)GenerateRandom32();
             ts = ts << 31;
@@ -22,17 +40,20 @@ namespace SocialPoint.Utils
 
         private static uint GenerateRandom32()
         {
+            Init();
             return (uint)UnityEngine.Random.Range(-int.MaxValue, int.MaxValue);
         }
 
         [System.Obsolete("Use GenerateSecurityToken instead", true)]
         public static string GenerateClientToken()
         {
+            Init();
             return GenerateSecurityToken();
         }
 
         public static string GenerateSecurityToken()
         {
+            Init();
             uint ab1 = GenerateRandom32();
             uint ab2 = GenerateRandom32();
             ulong ab = (ulong)(ab1 << 32 | ab2);
@@ -59,6 +80,28 @@ namespace SocialPoint.Utils
             s += (d).ToString("X").PadLeft(8, '0');
 
             return s.ToLower();
+        }
+
+        /// <summary>
+        /// Return a random int value between the param range [min, max)
+        /// </summary>
+        /// <param name="minInclusive">Minimum inclusive.</param>
+        /// <param name="maxExclusive">Max exclusive.</param>
+        public static int Range(int minInclusive, int maxExclusive)
+        {
+            Init();
+            return UnityEngine.Random.Range(minInclusive, maxExclusive);
+        }
+
+        /// <summary>
+        /// Return a random float value between the param range [min, max]
+        /// </summary>
+        /// <param name="minInclusive">Minimum inclusive.</param>
+        /// <param name="maxExclusive">Max inclusive.</param>
+        public static float Range(float minInclusive, float maxInclusive)
+        {
+            Init();
+            return UnityEngine.Random.Range(minInclusive, maxInclusive);
         }
     }
 }

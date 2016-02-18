@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Runtime.InteropServices;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Alert;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.Crash
@@ -32,31 +35,36 @@ namespace SocialPoint.Crash
                 LogPath = logPath;
             }
 
-            static bool TryReadFile(string filePath, out string content)
+            static bool TryReadFile(string filePath, out byte[] content)
             {
                 bool success = false;
-                try
+                content = null;
+
+                if(FileUtils.ExistsFile(filePath))
                 {
-                    content = FileUtils.ReadAllText(filePath);
-                    success = true;
-                }
-                catch(Exception e)
-                {
-                    content = "Error reading crash file " + filePath + ": " + e.Message;
+                    try
+                    {
+                        content = FileUtils.ReadAllBytes(filePath);
+                        success = true;
+                    }
+                    catch(Exception e)
+                    {
+                        content = Encoding.UTF8.GetBytes(string.Format("Error reading crash file {0} : {1}", filePath, e.Message));
+                    }
                 }
                 return success;
             }
 
             public override void Remove()
             {
-                if(File.Exists(CrashPath))
+                if(FileUtils.ExistsFile(CrashPath))
                 {
-                    File.Delete(CrashPath);
+                    FileUtils.DeleteFile(CrashPath);
                 }
 
-                if(File.Exists(LogPath))
+                if(FileUtils.ExistsFile(LogPath))
                 {
-                    File.Delete(LogPath);
+                    FileUtils.DeleteFile(LogPath);
                 }
             }
 
@@ -64,14 +72,18 @@ namespace SocialPoint.Crash
             {
                 get
                 {
-                    string stackTrace;
-                    if(TryReadFile(CrashPath, out stackTrace))
+                    string stackTrace = null;
+                    byte[] content;
+                    if(TryReadFile(CrashPath, out content))
                     {
 #if UNITY_ANDROID
                         // Base 64 encoding only for Android
-                        var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(stackTrace);
-                        stackTrace = Convert.ToBase64String(plainTextBytes);
+                        int base64BufferSize = 4 * (int)Math.Ceiling(content.Length / 3.0);
+                        var encoded = new char[base64BufferSize];
+                        var size = Convert.ToBase64CharArray(content, 0, content.Length, encoded, 0);
+                        content = Encoding.UTF8.GetBytes(encoded, 0, size);
 #endif
+                        stackTrace = Encoding.UTF8.GetString(content);
                     }
                     return stackTrace;
                 }
@@ -101,10 +113,11 @@ namespace SocialPoint.Crash
             {
                 get
                 {
-                    string logContent = "";
-                    if(FileUtils.Exists(LogPath))
+                    string logContent = string.Empty;
+                    byte[] content;
+                    if(TryReadFile(LogPath, out content))
                     {
-                        TryReadFile(LogPath, out logContent);
+                        logContent = Encoding.UTF8.GetString(content);
                     }
                     return logContent;
                 }
@@ -147,8 +160,8 @@ namespace SocialPoint.Crash
         readonly string _crashesBasePath;
         UIntPtr _nativeObject;
 
-        public DeviceCrashReporter(MonoBehaviour behaviour, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null)
-            : base(behaviour, client, deviceInfo, breadcrumbManager)
+        public DeviceCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+            : base(runner, client, deviceInfo, breadcrumbManager, alertView)
         {
             _crashesBasePath = PathsManager.TemporaryCachePath + CrashesFolder;
 
@@ -188,24 +201,29 @@ namespace SocialPoint.Crash
         protected override List<Report> GetPendingCrashes()
         {
             var reports = new List<Report>();
-
-            // Iterates over all files in the crashes folder
-            var dir = new DirectoryInfo(_crashesBasePath);
-            FileInfo[] info = dir.GetFiles();
-
-            foreach(FileInfo f in info)
+            try
             {
-                // Creates a report for each .crash/.logcat pair
-                if(f.Extension == CrashExtension)
+                // Iterates over all files in the crashes folder
+                var dir = new DirectoryInfo(_crashesBasePath);
+                FileInfo[] info = dir.GetFiles();
+
+                foreach(FileInfo f in info)
                 {
-                    var report = new DeviceReport(f.FullName);
-                    report.Uuid = f.Name;
-                    reports.Add(report);
+                    // Creates a report for each .crash/.logcat pair
+                    if(f.Extension == CrashExtension)
+                    {
+                        var report = new DeviceReport(f.FullName);
+                        report.Uuid = f.Name;
+                        reports.Add(report);
+                    }
                 }
+            }
+            catch(DirectoryNotFoundException e)
+            {
+                Debug.LogError(string.Format("Crash folder not found. {0}", e));
             }
 
             return reports;
         }
     }
 }
-

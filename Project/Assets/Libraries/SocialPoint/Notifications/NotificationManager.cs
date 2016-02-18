@@ -12,15 +12,14 @@ namespace SocialPoint.Notifications
     {
         public INotificationServices Services{ private set; get; }
 
-        private IAppEvents _appEvents;
-        private List<Notification> _notifications = new List<Notification>();
+        IAppEvents _appEvents;
+        List<Notification> _notifications = new List<Notification>();
 
-
-        public NotificationManager(MonoBehaviour behaviour, IAppEvents appEvents, ICommandQueue commandQueue)
+        public NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
         {
-            if(behaviour == null)
+            if(coroutineRunner == null)
             {
-                throw new ArgumentNullException("behaviour", "behaviour cannot be null or empty!");
+                throw new ArgumentNullException("coroutineRunner", "coroutineRunner cannot be null or empty!");
             }
             if(appEvents == null)
             {
@@ -29,23 +28,24 @@ namespace SocialPoint.Notifications
             _appEvents = appEvents;
 
 #if UNITY_IOS && !UNITY_EDITOR
-            Services = new IosNotificationServices(behaviour, commandQueue);
+            Services = new IosNotificationServices(coroutineRunner, commandQueue);
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            Services = new AndroidNotificationServices(behaviour, commandQueue);
+            Services = new AndroidNotificationServices(coroutineRunner, commandQueue);
 #else
             Services = new EmptyNotificationServices();
 #endif
+
             Init();
         }
 
-        public NotificationManager(INotificationServices services, IAppEvents appEvents)
+        protected NotificationManager(INotificationServices services, IAppEvents appEvents)
         {
             _appEvents = appEvents;
             Services = services;
             Init();
         }
 
-        private void Init()
+        void Init()
         {
             if(Services == null)
             {
@@ -55,15 +55,19 @@ namespace SocialPoint.Notifications
             {
                 throw new ArgumentNullException("appEvents", "appEvents cannot be null or empty!");
             }
-            _appEvents.WillGoBackground.Add(-50, OnGoToBackground);
-            _appEvents.WasOnBackground += OnComeFromBackground;
+            _appEvents.WillGoBackground.Add(-50, ScheduleNotifications);
+            _appEvents.ApplicationQuit += ScheduleNotifications;
+            _appEvents.WasOnBackground += ClearNotifications;
+            _appEvents.WasCovered += ClearNotifications;
             Reset();
         }
 
         virtual public void Dispose()
         {
-            _appEvents.WillGoBackground.Remove(OnGoToBackground);
-            _appEvents.WasOnBackground -= OnComeFromBackground;
+            _appEvents.WillGoBackground.Remove(ScheduleNotifications);
+            _appEvents.ApplicationQuit -= ScheduleNotifications;
+            _appEvents.WasOnBackground -= ClearNotifications;
+            _appEvents.WasCovered -= ClearNotifications;
         }
 
         protected virtual void AddGameNotifications()
@@ -73,7 +77,7 @@ namespace SocialPoint.Notifications
         [Obsolete("Use AddNotification(Notification notification)")]
         protected void AddNotification(string action, string message, DateTime dateTime, int numBadge = 0)
         {
-            var ln = new Notification();
+            var ln = new Notification(0, Notification.OffsetType.None);
             ln.Title = action;
             ln.Message = message;
             ln.FireDate = dateTime;
@@ -90,7 +94,7 @@ namespace SocialPoint.Notifications
             _notifications.Add(notification);
         }
 
-        private void Reset()
+        void Reset()
         {
             Services.CancelPending();
             Services.ClearReceived();
@@ -98,7 +102,7 @@ namespace SocialPoint.Notifications
 
         #region App Events
 
-        private void OnGoToBackground()
+        void ScheduleNotifications()
         {
             AddGameNotifications();
             foreach(var notif in _notifications)
@@ -108,7 +112,7 @@ namespace SocialPoint.Notifications
             _notifications.Clear();
         }
 
-        private void OnComeFromBackground()
+        void ClearNotifications()
         {
             Reset();
         }
@@ -119,8 +123,8 @@ namespace SocialPoint.Notifications
     [Obsolete("Use NotificationManager instead")]
     abstract class LocalNotificationManager : NotificationManager
     {
-        public LocalNotificationManager(MonoBehaviour behaviour, IAppEvents appEvents, ICommandQueue commandQueue):
-            base(behaviour, appEvents, commandQueue)
+        protected LocalNotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue) :
+            base(coroutineRunner, appEvents, commandQueue)
         {
         }
     }

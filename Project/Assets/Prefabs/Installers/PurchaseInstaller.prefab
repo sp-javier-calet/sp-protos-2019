@@ -39,13 +39,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c52cacb19a4f497daa33d49ca12712d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Data:
+    _mockupProductIds:
+    - testProductA
+    - testProductB
+    - testProductC
+    _androidProductIds: []
+    _iosProductIds: []
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: Data._mockupProductIds.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: Data._mockupProductIds.Array.data[0]
+      value: testProductA
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: Data._mockupProductIds.Array.data[1]
+      value: testProductB
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: Data._mockupProductIds.Array.data[2]
+      value: testProductC
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 197580}

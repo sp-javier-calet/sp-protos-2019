@@ -69,6 +69,8 @@ namespace GooglePlayGames.Native
 
         private string rationale;
 
+        private int needGPlusWarningFreq = 100000;
+        private int needGPlusWarningCount = 0;
         private int webclientWarningFreq = 100000;
         private int noWebClientIdWarningCount = 0;
 
@@ -127,6 +129,9 @@ namespace GooglePlayGames.Native
             // If game services are uninitialized, creating them will start a silent auth attempt.
             InitializeGameServices();
 
+            // reset friends loading flag
+            friendsLoading = false;
+
             if (!silent)
             {
                 GameServices().StartAuthorizationUI();
@@ -183,6 +188,10 @@ namespace GooglePlayGames.Native
                         if (mConfiguration.EnableSavedGames)
                         {
                             builder.EnableSnapshots();
+                        }
+                        if (mConfiguration.RequireGooglePlus)
+                        {
+                            builder.RequireGooglePlus();
                         }
                         Debug.Log("Building GPG services, implicitly attempts silent auth");
                         mAuthState = AuthState.SilentPending;
@@ -252,14 +261,14 @@ namespace GooglePlayGames.Native
                 return null;
             }
 
-            if(!GameInfo.WebClientIdInitialized())
+            if(!GameInfo.RequireGooglePlus())
             {
                 //don't spam the log, only do this every so often
-                if (noWebClientIdWarningCount++ % webclientWarningFreq == 0)
+                if (needGPlusWarningCount++ % needGPlusWarningFreq == 0)
                 {
-                    Debug.LogError("Web client ID has not been set, cannot request email.");
+                    Debug.LogError("RequiresGooglePlus not set, cannot request email.");
                     // avoid int overflow
-                    noWebClientIdWarningCount = (noWebClientIdWarningCount/ webclientWarningFreq) + 1;
+                    needGPlusWarningCount = (needGPlusWarningCount/ needGPlusWarningFreq) + 1;
                 }
                 return null;
             }
@@ -269,6 +278,7 @@ namespace GooglePlayGames.Native
 
         /// <summary>Gets the access token currently associated with the Unity activity.</summary>
         /// <returns>The OAuth 2.0 access token.</returns>
+        [Obsolete("Use GetServerAuthCode() then exchange it for a token")]
         public string GetAccessToken()
         {
             if (!this.IsAuthenticated())
@@ -295,13 +305,17 @@ namespace GooglePlayGames.Native
         /// <summary>
         /// Returns an id token, which can be verified server side, if they are logged in.
         /// </summary>
+        /// <param name="idTokenCallback"> A callback to be invoked after token is retrieved. Will be passed null value
+        /// on failure. </param>
         /// <returns>The identifier token.</returns>
-        public string GetIdToken()
+
+        [Obsolete("Use GetServerAuthCode() then exchange it for a token")]
+        public void GetIdToken(Action<string> idTokenCallback)
         {
             if (!this.IsAuthenticated())
             {
                 Debug.Log("Cannot get API client - not authenticated");
-                return null;
+                idTokenCallback(null);
             }
 
             if(!GameInfo.WebClientIdInitialized())
@@ -313,10 +327,36 @@ namespace GooglePlayGames.Native
                     // avoid int overflow
                     noWebClientIdWarningCount = (noWebClientIdWarningCount/ webclientWarningFreq) + 1;
                 }
-                return null;
+                idTokenCallback(null);
             }
             mTokenClient.SetRationale(rationale);
-            return mTokenClient.GetIdToken(GameInfo.WebClientId);
+            mTokenClient.GetIdToken(GameInfo.WebClientId,idTokenCallback);
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves the server auth code for this client.
+        /// </summary>
+        /// <remarks>Note: This function is currently only implemented for Android.</remarks>
+        /// <param name="serverClientId">The Client ID.</param>
+        /// <param name="callback">Callback for response.</param>
+        public void GetServerAuthCode(string serverClientId, Action<CommonStatusCodes, string> callback)
+        {
+            mServices.FetchServerAuthCode(serverClientId, (serverAuthCodeResponse) => {
+                // Translate native errors into CommonStatusCodes.
+                CommonStatusCodes responseCode =
+                    ConversionUtils.ConvertResponseStatusToCommonStatus(serverAuthCodeResponse.Status());
+                // Log errors.
+                if (responseCode != CommonStatusCodes.Success &&
+                    responseCode != CommonStatusCodes.SuccessCached)
+                {
+                    OurUtils.Logger.e("Error loading server auth code: " + serverAuthCodeResponse.Status().ToString());
+                }
+                // Fill in the code & call the callback.
+                if (callback != null)
+                {
+                    callback(responseCode, serverAuthCodeResponse.Code());
+                }
+            });
         }
 
         ///<summary></summary>
@@ -338,6 +378,14 @@ namespace GooglePlayGames.Native
                 callback(false);
                 return;
             }
+
+            // avoid calling excessively
+            if (mFriends != null)
+            {
+                callback(true);
+                return;
+            }
+
             mServices.PlayerManager().FetchFriends((status, players) =>
                 {
                     if (status == ResponseStatus.Success ||
@@ -364,7 +412,12 @@ namespace GooglePlayGames.Native
                 LoadFriends((ok) =>
                     {
                         GooglePlayGames.OurUtils.Logger.d("loading: " + ok + " mFriends = " + mFriends);
-                        friendsLoading = false;
+                        if (!ok)
+                        {
+                            GooglePlayGames.OurUtils.Logger.e("Friends list did not load successfully." +
+                                "  Disabling loading until re-authenticated");
+                        }
+                        friendsLoading = !ok;
                     });
             }
             return (mFriends == null) ? new IUserProfile[0] : mFriends.ToArray();
@@ -527,6 +580,10 @@ namespace GooglePlayGames.Native
                             else
                             {
                                 Debug.Log("AuthState == " + mAuthState + " calling auth callbacks with failure");
+
+                                // make sure we are not paused
+                                UnpauseUnityPlayer();
+
                                 // Noisy sign-in failed - report failure.
                                 Action<bool> localCallbacks = mPendingAuthCallbacks;
                                 mPendingAuthCallbacks = null;
@@ -543,6 +600,16 @@ namespace GooglePlayGames.Native
                 }
             }
         }
+
+		#if UNITY_IOS || UNITY_IPHONE
+				[System.Runtime.InteropServices.DllImport("__Internal")]
+				internal static extern void UnpauseUnityPlayer();
+		#else
+		private void UnpauseUnityPlayer()
+		{
+			// don't do anything.
+		}
+		#endif
 
         private void ToUnauthenticated()
         {
@@ -607,9 +674,33 @@ namespace GooglePlayGames.Native
             return mUser.AvatarURL;
         }
 
-        public void GetPlayerStats(Action<CommonStatusCodes, PlayGamesLocalUser.PlayerStats> callback)
+        ///<summary></summary>
+        /// <seealso cref="GooglePlayGames.BasicApi.IPlayGamesClient.GetPlayerStats"/>
+        public void GetPlayerStats(Action<CommonStatusCodes, PlayerStats> callback)
         {
-            clientImpl.GetPlayerStats(GetApiClient(), callback);
+            mServices.StatsManager().FetchForPlayer((playerStatsResponse) => {
+                // Translate native errors into CommonStatusCodes.
+                CommonStatusCodes responseCode =
+                    ConversionUtils.ConvertResponseStatusToCommonStatus(playerStatsResponse.Status());
+                // Log errors.
+                if (responseCode != CommonStatusCodes.Success &&
+                responseCode != CommonStatusCodes.SuccessCached)
+                {
+                    GooglePlayGames.OurUtils.Logger.e("Error loading PlayerStats: " + playerStatsResponse.Status().ToString());
+                }
+                // Fill in the stats & call the callback.
+                if (callback != null)
+                {
+                    if (playerStatsResponse.PlayerStats() != null)
+                    {
+                        callback(responseCode, playerStatsResponse.PlayerStats().AsPlayerStats());
+                    }
+                    else
+                    {
+                        callback(responseCode, new PlayerStats());
+                    }
+                }
+            });
         }
 
         ///<summary></summary>

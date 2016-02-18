@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
 using SocialPoint.Base;
+using SocialPoint.IO;
 
 namespace SocialPoint.Hardware
 {
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
     public class AndroidDeviceInfo : IDeviceInfo
     {
         AndroidMemoryInfo _memoryInfo;
@@ -118,14 +119,15 @@ namespace SocialPoint.Hardware
                 {
                     try
                     {
-                        try {
-                            var availabilityClass =  new AndroidJavaClass("com.google.android.gms.common.GoogleApiAvailability");
+                        try
+                        {
+                            var availabilityClass = new AndroidJavaClass("com.google.android.gms.common.GoogleApiAvailability");
                             int availabilityCode = availabilityClass.CallStatic<int>("isGooglePlayServicesAvailable", AndroidContext.CurrentActivity);
                             _isGooglePlayServicesAvailable = (availabilityCode == 0);
-                        } 
-                        catch (AndroidJavaException)
+                        }
+                        catch(AndroidJavaException)
                         {
-                            var availabilityClass =  new AndroidJavaClass("com.google.android.gms.common.GooglePlayServicesUtil");
+                            var availabilityClass = new AndroidJavaClass("com.google.android.gms.common.GooglePlayServicesUtil");
                             int availabilityCode = availabilityClass.CallStatic<int>("isGooglePlayServicesAvailable", AndroidContext.CurrentActivity);
                             _isGooglePlayServicesAvailable = (availabilityCode == 0);
                         }
@@ -209,21 +211,22 @@ namespace SocialPoint.Hardware
                 return _advertisingIdEnabled;
             }
         }
-        
+
         private bool _rooted;
         private bool _rootedLoaded;
-        
+
         public bool Rooted
         {
             get
             {
                 if(!_rootedLoaded)
                 {
-                    var paths = new String[]{ "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su",
-                        "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su", "/data/local/su" };
-                    foreach (var path in paths)
+                    var paths = new String[] { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su",
+                        "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su", "/data/local/su"
+                    };
+                    foreach(var path in paths)
                     {
-                        if(System.IO.File.Exists(path))
+                        if(FileUtils.ExistsFile(path))
                         {
                             _rooted = true;
                             break;
@@ -273,7 +276,7 @@ namespace SocialPoint.Hardware
         }
 
     }
-#else
+    #else
     public class AndroidDeviceInfo : EmptyDeviceInfo
     {
     }

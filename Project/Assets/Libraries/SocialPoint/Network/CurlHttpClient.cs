@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 
@@ -36,27 +35,15 @@ namespace SocialPoint.Network
             }
         }
 
-        public byte[] PinnedCertificate
+        public string Config
         {
             set
             {
-                if(value != null)
-                {
-                    CurlBridge.SPUnityCurlSetCertificate(value, value.Length);
-                }
-                else
-                {
-                    CurlBridge.SPUnityCurlSetCertificate(null, 0);
-                }
+                CurlBridge.SPUnityCurlSetConfig(value);
             }
         }
 
-        public CurlHttpClient(MonoBehaviour mono) : base(mono)
-        {
-            Init();
-        }
-
-        void Init()
+        public CurlHttpClient(ICoroutineRunner runner) : base(runner)
         {
             if(_initCount == 0)
             {
@@ -93,10 +80,6 @@ namespace SocialPoint.Network
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)
         {
-            if(_initCount == 0)
-            {
-                Init();
-            }
             int id = CurlBridge.SPUnityCurlCreateConn();
             return new CurlHttpConnection(id, req, del);
         }

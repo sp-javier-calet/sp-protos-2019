@@ -129,6 +129,8 @@ namespace SocialPoint.AdminPanel
                         _completion = 0f;
                         _pressed = false;
 
+                        UpdateButtonColor();
+
                         if(onSubmit != null)
                         {
                             onSubmit();
@@ -265,7 +267,7 @@ namespace SocialPoint.AdminPanel
             var toggle = rectTransform.gameObject.AddComponent<Toggle>();
             toggle.targetGraphic = image;
             toggle.graphic = indImage;
-            
+            toggle.enabled = enabled;
             toggle.isOn = status;
 
             if(enabled)

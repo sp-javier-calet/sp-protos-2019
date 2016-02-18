@@ -321,6 +321,7 @@ namespace SocialPoint.GameLoading
         override protected void OnDisappearing()
         {
             Login.ErrorEvent -= OnLoginError;
+            OnAllOperationsLoaded();
             base.OnDisappearing();
         }
 
@@ -342,15 +343,9 @@ namespace SocialPoint.GameLoading
             case ErrorType.MaintenanceMode:
                 ErrorHandler.ShowMaintenance(Login.Data.Maintenance, OnLoginErrorShown);
                 break;
-
-            case ErrorType.InvalidPrivilegeToken:
-                ErrorHandler.ShowLogin(err, OnInvalidPrivilegeTokenShown);
-                break;
-
             case ErrorType.Connection: 
                 ErrorHandler.ShowConnection(err, OnLoginErrorShown);
                 break;
-
             case ErrorType.InvalidSecurityToken:
                 ErrorHandler.ShowInvalidSecurityToken(OnInvalidSecurityTokenShown);
                 break;
@@ -358,13 +353,7 @@ namespace SocialPoint.GameLoading
                 ErrorHandler.ShowLogin(err, OnLoginErrorShown);
                 break;
             }
-        }
-
-        void OnInvalidPrivilegeTokenShown()
-        {
-            Login.PrivilegeToken = null;
-            Restart();
-        }
+        }            
 
         void OnInvalidSecurityTokenShown()
         {

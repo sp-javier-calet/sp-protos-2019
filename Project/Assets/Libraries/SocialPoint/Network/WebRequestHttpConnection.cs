@@ -65,7 +65,7 @@ namespace SocialPoint.Network
             var response = (HttpWebResponse)webAsync.WebResponse;
             if(response == null)
             {
-                NotifyError(HttpResponse.StatusCodeType.UnknownError, webAsync.ErrorMessage);
+                NotifyError(HttpResponse.MinClientUnknownErrorStatusCode, webAsync.ErrorMessage);
                 yield break;
             }
 
@@ -82,10 +82,16 @@ namespace SocialPoint.Network
         
         void NotifyError(HttpResponse.StatusCodeType statusCode, string errorMessage)
         {
-            var resp = new HttpResponse((int)statusCode);
-            resp.Error = new Error((int)statusCode, errorMessage);
+            NotifyError((int)statusCode, errorMessage);
+        }
+
+        void NotifyError(int statusCode, string errorMessage)
+        {
+            var resp = new HttpResponse(statusCode);
+            resp.Error = new Error(statusCode, errorMessage);
             OnResponse(resp);
         }
+
 
         private HttpResponse ConvertResponse(HttpWebResponse wresp, byte[] responseBody)
         {

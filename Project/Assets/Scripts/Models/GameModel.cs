@@ -1,12 +1,13 @@
-﻿
-using System;
+﻿using System;
 
 public class GameModel
 {
     public ConfigModel Config{ get; private set; }
     public PlayerModel Player{ get; private set; }
-    
-    public event Action Assigned;
+
+    public event Action<GameModel> Assigned;
+
+    public bool IsAssigned{ get; private set; }
 
     public GameModel(ConfigModel config=null, PlayerModel player=null)
     {
@@ -21,18 +22,18 @@ public class GameModel
         }
         Player = player;
     }
-    
+
     public void Assign(GameModel other)
     {
+        IsAssigned = true;
         Player.Assign(other.Player);
         Config.Assign(other.Config);
-        
         if(Assigned != null)
         {
-            Assigned();
-        }              
+            Assigned(this);
+        }
     }
-    
+
     public override string ToString()
     {
         return string.Format("[GameModel: Config={0}, Player={1}]", Config, Player);

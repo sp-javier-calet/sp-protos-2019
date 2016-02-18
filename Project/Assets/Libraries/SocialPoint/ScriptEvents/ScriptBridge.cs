@@ -1,5 +1,6 @@
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
+using SocialPoint.Utils;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -112,12 +113,12 @@ namespace SocialPoint.ScriptEvents
         IEventDispatcher _dispatcher;
         IScriptEventDispatcher _scriptDispatcher;
         IParser<ScriptModel> _scriptParser;
-        MonoBehaviour _behaviour;
+        ICoroutineRunner _runner;
 
-        public ScriptBridge(IParser<ScriptModel> scriptParser, MonoBehaviour behaviour)
+        public ScriptBridge(IParser<ScriptModel> scriptParser, ICoroutineRunner runner)
         {
             _scriptParser = scriptParser;
-            _behaviour = behaviour;
+            _runner = runner;
         }
 
         public void Load(IScriptEventDispatcher dispatcher)
@@ -168,7 +169,7 @@ namespace SocialPoint.ScriptEvents
 
         void OnWaitAction(WaitAction action)
         {
-            _behaviour.StartCoroutine(WaitCoroutine(action));
+            _runner.StartCoroutine(WaitCoroutine(action));
         }
 
         IEnumerator WaitCoroutine(WaitAction action)

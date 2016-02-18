@@ -1,7 +1,7 @@
 
 #import <UIKit/UIKit.h>
 #if !UNITY_TVOS
-#import <CrashReporter/CrashReporter.h>
+#include "CrashReporter.h"
 #endif
 #include <string>
 #import <Foundation/Foundation.h>

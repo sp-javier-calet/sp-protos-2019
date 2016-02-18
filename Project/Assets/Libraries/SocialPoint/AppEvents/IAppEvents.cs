@@ -77,6 +77,11 @@ namespace SocialPoint.AppEvents
         /// Trigger GameWillRestart
         /// </summary>
         void TriggerGameWillRestart();
+
+        /// <summary>
+        /// Trigger ApplicationQuit
+        /// </summary>
+        void TriggerApplicationQuit();
     }
 
     public static class AppEventsExtension
@@ -85,6 +90,37 @@ namespace SocialPoint.AppEvents
         {
             events.TriggerGameWillRestart();
             SceneManager.LoadScene(0);
+        }
+
+        public static bool QuitGame(this IAppEvents events)
+        {
+            bool movedToBackground = false;
+
+            #if UNITY_ANDROID && !UNITY_EDITOR
+            movedToBackground = SocialPoint.Base.AndroidContext.CurrentActivity.Call<bool>("moveTaskToBack", true);
+            #endif
+
+            return movedToBackground;
+        }
+
+        public static void KillGame(this IAppEvents events)
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            events.TriggerApplicationQuit();
+            try
+            {
+                // Remove activity from task manager. Requires Level API 21.
+                SocialPoint.Base.AndroidContext.CurrentActivity.Call("finishAndRemoveTask");
+            }
+            catch(Exception)
+            {
+                Debug.LogWarning("finishAndRemoveTask not available");
+            }
+
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+#else
+            Application.Quit();
+#endif
         }
 
         [Obsolete("Use WillGoBackground property")]

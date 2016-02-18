@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using SocialPoint.AdminPanel;
 using UnityEngine.UI;
@@ -47,7 +48,7 @@ namespace SocialPoint.Crash
                     layout.CreateOpenPanelButton("CrashReporterBase Options", new AdminPanelCrashReporterBaseGUI(crBase));
                 }
 
-                layout.CreateToggleButton("Enabled", _reporter.WasEnabled, value => {
+                layout.CreateToggleButton("Enabled", _reporter.IsEnabled, value => {
                     if(value)
                     {
                         _reporter.Enable();
@@ -67,6 +68,11 @@ namespace SocialPoint.Crash
                 layout.CreateButton("Clear unique exceptions", () => {
                     layout.AdminPanel.Console.Print("Removed pending unique exceptions");
                     _reporter.ClearUniqueExceptions();
+                });
+                layout.CreateMargin(2);
+
+                layout.CreateConfirmButton("Force Exception", ButtonColor.Red, () => {
+                    throw new Exception("This is a forced exception");
                 });
                 layout.CreateMargin(2);
 

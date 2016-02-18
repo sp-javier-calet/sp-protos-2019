@@ -27,8 +27,6 @@ namespace SocialPoint.GUIControl
         private Coroutine _showCoroutine;
         private Coroutine _hideCoroutine;
         private UIViewAnimation _animation;
-        private int _layer2d;
-        private int _layer3d;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -206,11 +204,11 @@ namespace SocialPoint.GUIControl
         {
             if(LayersController != null)
             {
-                Setup2DCanvas(gameObject);
+                LayersController.Add(this);
 
                 foreach(GameObject ui3DContainer in _containers3d)
                 {
-                    Setup3DContainer(ui3DContainer);
+                    LayersController.Add3DContainer(this, ui3DContainer);
                 }
             }
             else if(_containers3d.Count > 0)
@@ -219,41 +217,22 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void Setup2DCanvas(GameObject gameObject)
-        {
-            if(_layer2d == 0)
-            {
-                _layer2d = LayersController.AddToCurrentUILayer(gameObject);
-            }
-            else
-            {
-                LayersController.AddToUILayer(gameObject, _layer2d);
-            }
-        }
-
         public void Add3DContainer(GameObject gameObject)
         {
-            _containers3d.Add(gameObject);            
-            Setup3DContainer(gameObject);
-        }
-
-        void Setup3DContainer(GameObject gameObject)
-        {
-            var container = gameObject.GetComponent<UI3DContainer>();
-
-            if(container == null)
+            if(!_containers3d.Contains(gameObject))
             {
-                container = gameObject.AddComponent<UI3DContainer>();
+                _containers3d.Add(gameObject);
+
+                var container = gameObject.GetComponent<UI3DContainer>();
+
+                if(container == null)
+                {
+                    container = gameObject.AddComponent<UI3DContainer>();
+                }
+
                 container.OnDestroyed += On3dContainerDestroyed;
-            }
 
-            if(_layer3d == 0)
-            {
-                _layer3d = LayersController.AddToCurrent3DLayer(gameObject);
-            }
-            else
-            {
-                LayersController.AddTo3DLayer(gameObject, _layer3d);
+                LayersController.Add3DContainer(this, gameObject);
             }
         }
 
@@ -262,7 +241,7 @@ namespace SocialPoint.GUIControl
             _containers3d.Remove(gameObject);
             if(LayersController != null)
             {
-                LayersController.RemoveElement(gameObject);
+                LayersController.Remove3DContainer(this, gameObject);
             }
         }
 
@@ -270,18 +249,9 @@ namespace SocialPoint.GUIControl
         {
             if(LayersController != null)
             {
-                foreach(GameObject container in _containers3d)
-                {
-                    LayersController.RemoveElement(container);
-                }
-
-                LayersController.RemoveElement(gameObject);
-
-                _layer2d = 0;
-                _layer3d = 0;
+                LayersController.Remove(this);
             }
         }
-
 
         [System.Diagnostics.Conditional("DEBUG_SPGUI")]
         void DebugLog(string msg)
@@ -336,7 +306,6 @@ namespace SocialPoint.GUIControl
                 OnLoad();
             }
             Setup();
-            Reset();
             return loaded;
         }
 
@@ -442,7 +411,6 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                Load();
                 if(_viewState != ViewState.Shown)
                 {
                     var enm = FullAppear();
@@ -458,12 +426,12 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("HideImmediate");
             Load();
-            if(_viewState != ViewState.Disappearing && _viewState != ViewState.Hidden)
+            if(_viewState != ViewState.Disappearing && _viewState != ViewState.Hidden && _viewState != ViewState.Destroyed)
             {
                 OnDisappearing();
             }
             Disable();
-            if(_viewState != ViewState.Hidden)
+            if(_viewState != ViewState.Hidden && _viewState != ViewState.Destroyed)
             {
                 OnDisappeared();
             }

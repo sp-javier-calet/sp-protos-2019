@@ -7,7 +7,7 @@ using SocialPoint.ScriptEvents;
 
 
 
-public class GUIInstaller : MonoInstaller, IDisposable
+public class GUIInstaller : MonoInstaller, IDisposable, IInitializable
 {
     const string UIViewControllerSuffix = "Controller";
 
@@ -16,12 +16,15 @@ public class GUIInstaller : MonoInstaller, IDisposable
     {
         public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
         public GameObject InitialScreenPrefab = null;
+        public bool InitialScreenAnimation = false;
     }
 
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
+        Container.Bind<IInitializable>().ToSingleInstance(this);
+
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
         UIViewController.AwakeEvent += OnViewControllerAwake;
 
@@ -36,19 +39,6 @@ public class GUIInstaller : MonoInstaller, IDisposable
         if(screens != null)
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
-            if(Settings.InitialScreenPrefab != null)
-            {
-                var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
-                var ctrl = go.GetComponent<UIViewController>();
-                if(ctrl == null)
-                {
-                    throw new InvalidOperationException("Initial Screen Prefab does not contain a UIViewController");
-                }
-                else
-                {
-                    screens.PushImmediate(ctrl);
-                }
-            }
         }
 
         var uiLayerController = GameObject.FindObjectOfType<UILayersController>();
@@ -61,9 +51,42 @@ public class GUIInstaller : MonoInstaller, IDisposable
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
 
+    public void Initialize()
+    {
+        if(Settings.InitialScreenPrefab == null)
+        {
+            return;
+        }
+        var screens = Container.TryResolve<ScreensController>();
+        if(screens == null)
+        {
+            throw new InvalidOperationException("Could not find screens controller for initial screen");
+        }
+        var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
+        var ctrl = go.GetComponent<UIViewController>();
+        if(ctrl == null)
+        {
+            throw new InvalidOperationException("Initial Screen Prefab does not contain a UIViewController");
+        }
+        else
+        {
+            if(Settings.InitialScreenAnimation)
+            {
+                screens.Push(ctrl);
+            }
+            else
+            {
+                screens.PushImmediate(ctrl);
+            }
+        }
+    }
+
     void OnViewControllerAwake(UIViewController ctrl)
     {
-        Container.Inject(ctrl);
+        if(ctrl.gameObject.transform.parent == null)
+        {
+            Container.Inject(ctrl);
+        }
     }
 
     string GetControllerFactoryPrefabName(Type type)

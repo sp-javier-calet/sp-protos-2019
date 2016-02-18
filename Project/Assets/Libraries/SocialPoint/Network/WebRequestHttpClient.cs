@@ -1,14 +1,15 @@
 using System;
 using System.Net;
 using System.Collections.Generic;
-using UnityEngine;
+using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
     public class WebRequestHttpClient : BaseYieldHttpClient
     {
 
-        public WebRequestHttpClient(MonoBehaviour behaviour) : base(behaviour)
+        public WebRequestHttpClient(ICoroutineRunner runner) : base(runner)
         {
         }
 
@@ -96,7 +97,7 @@ namespace SocialPoint.Network
 
         private void LogUnsupportedHeader(string name)
         {
-            Debug.Log(string.Format("HttpWebRequest does not support the '{0}' header", name));
+            DebugUtils.Log(string.Format("HttpWebRequest does not support the '{0}' header", name));
         }
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)

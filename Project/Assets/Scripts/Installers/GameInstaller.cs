@@ -11,7 +11,8 @@ public class GameInstaller : MonoInstaller
     [Serializable]
     public class SettingsData
     {
-        public string InitialJsonResource = "game";
+        public string InitialJsonGameResource = "game";
+        public string InitialJsonPlayerResource = "user";
         public bool EditorDebug = true;
     }
 
@@ -19,7 +20,8 @@ public class GameInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.BindInstance("game_initial_json_resource", Settings.InitialJsonResource);
+        Container.BindInstance("game_initial_json_game_resource", Settings.InitialJsonGameResource);
+        Container.BindInstance("game_initial_json_player_resource", Settings.InitialJsonPlayerResource);
 #if UNITY_EDITOR
         Container.BindInstance("game_debug", Settings.EditorDebug);
 #else
@@ -40,13 +42,21 @@ public class GameInstaller : MonoInstaller
 
         Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGame>();
+
+        Container.Rebind<IParser<StoreModel>>().ToSingle<StoreParser>();
+        Container.Rebind<IParser<IDictionary<string, IReward>>>().ToSingle<PurchaseRewardsParser>();
+
+        Container.Rebind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
+        Container.Rebind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
+
+        Container.Install<EconomyInstaller>();
     }
 
-    void OnGameModelAssigned()
+    void OnGameModelAssigned(GameModel game)
     {
-        var game = Container.Resolve<GameModel>();
         Container.Inject(game.Player);
         Container.Inject(game.Config);
+        Container.Inject(game.Config.Store);
     }
 
     GameModel CreateGameModel(InjectContext ctx)

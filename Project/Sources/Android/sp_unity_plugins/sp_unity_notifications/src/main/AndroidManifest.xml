@@ -23,6 +23,17 @@
         android:name="es.socialpoint.unity.notification.AlarmReceiver"
         android:exported="true"/>
 
+    <service
+        android:name="es.socialpoint.unity.notification.TokenListenerService"
+        android:exported="false" >
+        <intent-filter>
+            <action android:name="com.google.android.gms.iid.InstanceID" />
+        </intent-filter>
+    </service>
+
+    <!-- Required from push notifications -->
+    <!-- <meta-data android:name="GOOGLE_API_PROJECT_NUMBER" android:value="[API_PROJECT_NUMBER]" /> -->
+
     <!-- Required configuration in game manifest -->
     <!-- Remote Notifications receiver-->
     <!-- 

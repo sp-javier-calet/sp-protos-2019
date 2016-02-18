@@ -27,20 +27,20 @@ namespace SocialPoint.ServerSync
         {
             GO = new GameObject();
             HttpClient = Substitute.For<IHttpClient>();
-            var monobh = GO.AddComponent<MonoBehaviour>();
-            CommandQueue = new CommandQueue(monobh, HttpClient);
+            var runner = GO.AddComponent<UnityUpdateRunner>();
+            CommandQueue = new CommandQueue(runner, HttpClient);
 
             //CommandQueue.RequestSetup = Substitute.For<CommandQueue.RequestSetupDelegate>();
             CommandQueue.RequestSetup = (req, Uri) => {
                 req.Method = HttpRequest.MethodType.POST;
-                req.Url = new Uri("http://"+Uri);
-                req.AddQueryParam("session_id",new SocialPoint.Attributes.AttrString("session_id_test"));
+                req.Url = new Uri("http://" + Uri);
+                req.AddQueryParam("session_id", new SocialPoint.Attributes.AttrString("session_id_test"));
             };
-			var appEvents = Substitute.For<IAppEvents>();
-			appEvents.WillGoBackground.Returns(new PriorityAction());
-			appEvents.GameWasLoaded.Returns(new PriorityAction());
-			appEvents.GameWillRestart.Returns(new PriorityAction());
-			CommandQueue.AppEvents = appEvents;
+            var appEvents = Substitute.For<IAppEvents>();
+            appEvents.WillGoBackground.Returns(new PriorityAction());
+            appEvents.GameWasLoaded.Returns(new PriorityAction());
+            appEvents.GameWillRestart.Returns(new PriorityAction());
+            CommandQueue.AppEvents = appEvents;
             CommandQueue.TrackEvent = Substitute.For<CommandQueue.TrackEventDelegate>();
         }
 
@@ -65,18 +65,10 @@ namespace SocialPoint.ServerSync
         }
 
         [Test]
-        public void Add_cmd_action()
-        {
-            Start();
-            CommandQueue.Add(Substitute.For<Command>("Test Command",null,false,true), Substitute.For<Action>());
-            //todo: check number of packages?
-        }
-
-        [Test]
         public void Add_cmd_finishDelegate()
         {
             Start();
-            CommandQueue.Add(Substitute.For<Command>("Test Command",null,false,true), Substitute.For<ErrorDelegate>());
+            CommandQueue.Add(Substitute.For<Command>("Test Command", null, false, true), Substitute.For<ErrorDelegate>());
             //todo: check number of packages?
         }
 
@@ -84,8 +76,8 @@ namespace SocialPoint.ServerSync
         public void Remove_removes_TestCommand_added()
         {
             Start();
-            Add_cmd_action();
-            Assert.AreEqual(1,CommandQueue.Remove((PackedCommand item) => item.Command.Name == "Test Command"));
+            Add_cmd_finishDelegate();
+            Assert.AreEqual(1, CommandQueue.Remove((PackedCommand item) => item.Command.Name == "Test Command"));
         }
 
         [Test]
@@ -108,11 +100,30 @@ namespace SocialPoint.ServerSync
         public void Send_calls_HttpClient_Send()
         {
             Start();
-            Add_cmd_action();
+            Add_cmd_finishDelegate();
             Flush_action();
             CommandQueue.Send(Substitute.For<Action>());
             //CommandQueue.RequestSetup.Received(1).Invoke(Arg.Any<HttpRequest>(), Arg.Any<string>());
-            HttpClient.ReceivedWithAnyArgs(1).Send(Arg.Any<HttpRequest>(),Arg.Any<HttpResponseDelegate>());
+            HttpClient.ReceivedWithAnyArgs(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
+        public void Multiple_Send_calls_HttpClient_Send()
+        {
+            Start();
+
+            // Call Response callback to finalize the request immediately.
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
+
+            Add_cmd_finishDelegate();
+            Flush_action();
+            CommandQueue.Send(null);
+
+            Add_cmd_finishDelegate();
+            Flush_action();
+            CommandQueue.Send(null);
+
+            HttpClient.ReceivedWithAnyArgs(2).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
         }
 
         [Test]

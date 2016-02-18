@@ -19,9 +19,10 @@ namespace SocialPoint.Locale
         public const string GalicianIdentifier = "gl";
         public const string BasqueIdentifier = "eu";
         public const string CatalanIdentifier = "ca";
-        public const string ChineseIdentifier = "zh";
+        public const string SimplifiedChineseIdentifier = "zh-Hans";
+        public const string TraditionalChineseIdentifier = "zh-Hant";
 
-        private static Localization _defaultLocalization = null;
+        static Localization _defaultLocalization;
 
         public static Localization Default
         { 
@@ -37,7 +38,7 @@ namespace SocialPoint.Locale
 
         public Localization Fallback;
 
-        private Dictionary<string,string> _strings = new Dictionary<string,string>();
+        readonly Dictionary<string,string> _strings = new Dictionary<string,string>();
 
         public Dictionary<string,string> Strings
         {
@@ -47,14 +48,14 @@ namespace SocialPoint.Locale
             }
         }
 
-        public bool Debug = false;
+        public bool Debug;
 
         public Localization()
         {
             Debug = UnityEngine.Debug.isDebugBuild;
         }
 
-        private string _language = "";
+        string _language = "";
 
         public string Language
         {
@@ -68,7 +69,7 @@ namespace SocialPoint.Locale
             }
         }
 
-        string DefaultFormat = "{0}<{1}>";
+        const string DefaultFormat = "{0}<{1}>";
 
         public string Get(string key, string defaultString = null)
         {
@@ -103,7 +104,7 @@ namespace SocialPoint.Locale
             }
         }
 
-        string GetDefault(string defaultString, string key=null)
+        string GetDefault(string defaultString, string key = null)
         {
             if(Debug && !string.IsNullOrEmpty(key))
             {

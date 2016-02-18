@@ -24,7 +24,7 @@ public class LocaleInstaller : MonoInstaller
         public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
         public float Timeout = LocalizationManager.DefaultTimeout;
         public bool EditorDebug = true;
-    };
+    }
 
     public SettingsData Settings = new SettingsData();
 

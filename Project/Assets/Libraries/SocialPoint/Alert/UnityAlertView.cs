@@ -52,9 +52,9 @@ namespace SocialPoint.Alert
 
         public void Dispose()
         {
-            if(_controller != null && _controller.gameObject != null)
+            if(_controller != null)
             {
-                MonoBehaviour.Destroy(_controller.gameObject);
+                _controller.Hide(true);
             }
         }
 

@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Base;
+using UnityEngine.Assertions;
 
 namespace SocialPoint.Purchase
 {
@@ -14,12 +16,117 @@ namespace SocialPoint.Purchase
         public AttrDic AdditionalData;
     }
 
-    public class SocialPointPurchaseStore
+    public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
+
+    public interface IGamePurchaseStore
+    {
+        event ProductsUpdatedDelegate ProductsUpdated;
+        event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        Product[] ProductList { get; }
+
+        bool HasProductsLoaded { get; }
+
+        void LoadProducts(string[] productIds);
+
+        void SetProductMockList(IEnumerable<Product> productMockList);
+
+        bool Purchase(string productId);
+
+        void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate);
+
+        void UnregisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate);
+
+        void ForceFinishPendingTransactions();
+    }
+
+    //TODO: Verify behaviour for desired empty store
+    public class EmptyGamePurchaseStore : IGamePurchaseStore
+    {
+        Product[] _productList = new Product[0];
+        bool _productsLoaded = false;
+        PurchaseCompletedDelegate _purchaseCompleted;
+
+        public event ProductsUpdatedDelegate ProductsUpdated;
+        public event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        public Product[] ProductList { get { return _productList; } }
+
+        public bool HasProductsLoaded { get { return _productsLoaded; } }
+
+        public void LoadProducts(string[] productIds)
+        {
+            if(ProductsUpdated != null)
+            {
+                ProductsUpdated(LoadProductsState.Success);
+            }
+            _productsLoaded = true;
+        }
+
+        public void SetProductMockList(IEnumerable<Product> productMockList)
+        {
+            //TODO: Allow mock products for this class?
+        }
+
+        public bool Purchase(string productId)
+        {
+            if(PurchaseUpdated != null)
+            {
+                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+            }
+            if(_purchaseCompleted != null)
+            {
+                _purchaseCompleted(new Receipt(), PurchaseResponseType.Complete);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Registers the purchase completed delegate.
+        /// May throw an exception if another delegate is already registered.
+        /// </summary>
+        /// <param name="pDelegate">Delegate to register.</param>
+        public void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
+        {
+            if(_purchaseCompleted != null && _purchaseCompleted != pDelegate)
+            {
+                throw new Exception("Only one delegate allowed!");
+            }
+            _purchaseCompleted = pDelegate;
+        }
+
+        /// <summary>
+        /// Check if the current registered delegate matches with the param and unregister it if true
+        /// </summary>
+        /// <param name="pDelegate">Delegate to unregister.</param>
+        public void UnregisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
+        {
+            if(_purchaseCompleted == pDelegate)
+            {
+                _purchaseCompleted = null;
+            }
+        }
+
+        public void ForceFinishPendingTransactions()
+        {
+        }
+    }
+
+    public class SocialPointPurchaseStore : IGamePurchaseStore
     {
         IPurchaseStore _purchaseStore = null;
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
         List<string> _purchasesInProcess;
+
+        /// <summary>
+        /// The purchase completed function that each game defines.
+        /// - check receipt product
+        /// - apply changes depending the response
+        /// - create a sync command if response was Complete
+        /// </summary>
+        PurchaseCompletedDelegate _purchaseCompleted;
+
         public string Currency;
 
         public bool ProductListReceived { get; private set; }
@@ -38,19 +145,9 @@ namespace SocialPoint.Purchase
             ORDER_SYNCED = 265
         }
 
-        public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt,PurchaseResponseType response);
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
-
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
-
-        /// <summary>
-        /// The purchase completed function that each game defines.
-        /// - check receipt product
-        /// - apply changes depending the response
-        /// - create a sync command if response was Complete
-        /// </summary>
-        public PurchaseCompletedDelegate PurchaseCompleted;
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
         /// <summary>
         /// Should be connected to the event tracker to track purchase events
@@ -100,12 +197,12 @@ namespace SocialPoint.Purchase
         /// </summary>
         /// <param name="receipt">Receipt.</param>
         /// <param name="response">callback defined by each store implementation (usually consumes product, finishes transaction)</param>
-        public void SocialPointValidatePurchase(Receipt receipt, ValidatePurchaseResponseDelegate response)
+        void SocialPointValidatePurchase(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
             if(_purchaseStore is MockPurchaseStore)
             {
                 DebugLog("no validation for mockup purchase");
-                var purchaseGameInfo = PurchaseCompleted(receipt, PurchaseResponseType.Complete);
+                var purchaseGameInfo = _purchaseCompleted(receipt, PurchaseResponseType.Complete);
                 TrackPurchaseStart(receipt, purchaseGameInfo);
                 return;
             }
@@ -150,7 +247,7 @@ namespace SocialPoint.Purchase
             {
             case (int)BackendResponse.ORDER_INVALID:
                 //warn client
-                PurchaseCompleted(receipt, PurchaseResponseType.Error);
+                _purchaseCompleted(receipt, PurchaseResponseType.Error);
                 //consume purchase
                 response(PurchaseResponseType.Error);
                 break;
@@ -163,7 +260,7 @@ namespace SocialPoint.Purchase
                 PurchaseSync(receipt, response);
 
                 //client have to apply changes to de user_data
-                var purchaseGameInfo = PurchaseCompleted(receipt, PurchaseResponseType.Complete);
+                var purchaseGameInfo = _purchaseCompleted(receipt, PurchaseResponseType.Complete);
                 TrackPurchaseStart(receipt, purchaseGameInfo);
                 //we send the packet with the purchaseSync, if there is no syncCmd we will ad one with the cmdqueue event Sync
                 _commandQueue.Send();
@@ -171,14 +268,14 @@ namespace SocialPoint.Purchase
                 
             case (int)BackendResponse.ORDER_SYNCED:
                 //warn client
-                PurchaseCompleted(receipt, PurchaseResponseType.Duplicated);
+                _purchaseCompleted(receipt, PurchaseResponseType.Duplicated);
                 //consume purchase
                 response(PurchaseResponseType.Duplicated);
                 break;
 
             default:
                 response(PurchaseResponseType.Error);
-                PurchaseCompleted(receipt, PurchaseResponseType.Error);
+                _purchaseCompleted(receipt, PurchaseResponseType.Error);
                 break;
             }
         }
@@ -252,13 +349,19 @@ namespace SocialPoint.Purchase
         /// Gets the product list.
         /// </summary>
         /// <value>The product list.</value>
-        public Product[] ProductList{ get { return _purchaseStore.ProductList; } }
+        public Product[] ProductList
+        {
+            get { return _purchaseStore.ProductList; }
+        }
 
         /// <summary>
         /// Gets if has products loaded.
         /// </summary>
         /// <value>The product list.</value>
-        public bool HasProductsLoaded{ get { return _purchaseStore.HasProductsLoaded; } }
+        public bool HasProductsLoaded
+        {
+            get { return _purchaseStore.HasProductsLoaded; }
+        }
 
         /// <summary>
         /// Loads the products.
@@ -305,6 +408,9 @@ namespace SocialPoint.Purchase
         /// <param name="productId">Product identifier.</param>
         public bool Purchase(string productId)
         {
+            //A delegate must exist before doing any attempt
+            Assert.IsNotNull(_purchaseCompleted, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
+
             UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.Contains(productId));
             if(_purchasesInProcess.Contains(productId))
             {
@@ -314,6 +420,32 @@ namespace SocialPoint.Purchase
             }
             _purchasesInProcess.Add(productId);
             return _purchaseStore.Purchase(productId);
+        }
+
+        /// <summary>
+        /// Registers the purchase completed delegate.
+        /// May throw an exception if another delegate is already registered.
+        /// </summary>
+        /// <param name="pDelegate">Delegate to register.</param>
+        public void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
+        {
+            if(_purchaseCompleted != null && _purchaseCompleted != pDelegate)
+            {
+                throw new Exception("Only one delegate allowed!");
+            }
+            _purchaseCompleted = pDelegate;
+        }
+
+        /// <summary>
+        /// Check if the current registered delegate matches with the param and unregister it if true
+        /// </summary>
+        /// <param name="pDelegate">Delegate to unregister.</param>
+        public void UnregisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
+        {
+            if(_purchaseCompleted == pDelegate)
+            {
+                _purchaseCompleted = null;
+            }
         }
 
         /// <summary>
