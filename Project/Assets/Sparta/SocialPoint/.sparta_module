@@ -5,4 +5,4 @@ depends_on Assets/Sparta/External/LitJson
 depends_on Assets/Sparta/External/OpenIAB
 depends_on Assets/Sparta/External/Prime31
 depends_on Assets/Sparta/External/Ionic/Zlib
-depends_on Assets/Sparta/External/Ionic/fastJSON
+depends_on Assets/Sparta/External/fastJSON
