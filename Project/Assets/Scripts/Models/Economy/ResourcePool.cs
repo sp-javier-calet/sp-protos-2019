@@ -99,7 +99,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
     {
         get
         {
-            var max = new KeyValuePair<string,long>(string.Empty, 0);
+            var max = new KeyValuePair<string,long>(string.Empty, long.MinValue);
             foreach(var kvp in _data)
             {
                 if(max.Value < kvp.Value)
@@ -111,12 +111,11 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
         }
     }
 
-    
     public KeyValuePair<string,long> MinPair
     {
         get
         {
-            var min = new KeyValuePair<string,long>(string.Empty, 0);
+            var min = new KeyValuePair<string,long>(string.Empty, long.MaxValue);
             foreach(var kvp in _data)
             {
                 if(min.Value > kvp.Value)
