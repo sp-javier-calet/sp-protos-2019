@@ -88,7 +88,7 @@ namespace SocialPoint.Purchase
         /// <param name="pDelegate">Delegate to register.</param>
         public void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
         {
-            if(_purchaseCompleted != null)
+            if(_purchaseCompleted != null && _purchaseCompleted != pDelegate)
             {
                 throw new Exception("Only one delegate allowed!");
             }
@@ -429,7 +429,7 @@ namespace SocialPoint.Purchase
         /// <param name="pDelegate">Delegate to register.</param>
         public void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
         {
-            if(_purchaseCompleted != null)
+            if(_purchaseCompleted != null && _purchaseCompleted != pDelegate)
             {
                 throw new Exception("Only one delegate allowed!");
             }

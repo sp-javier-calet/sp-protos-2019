@@ -5,7 +5,7 @@ using SocialPoint.Base;
 using SocialPoint.Utils;
 using Zenject;
 
-public class StoreModel : IDisposable
+public class StoreModel : IStoreProductSource, IDisposable
 {
     public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
 
@@ -27,7 +27,7 @@ public class StoreModel : IDisposable
 
     IGamePurchaseStore _purchaseStore;
 
-    public StoreModel(IGamePurchaseStore purchaseStore = null)
+    public void Init(IGamePurchaseStore purchaseStore)
     {
         _purchaseStore = purchaseStore;
         if(_purchaseStore != null)
@@ -38,21 +38,16 @@ public class StoreModel : IDisposable
 
     public void Dispose()
     {
-        _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+        if(_purchaseStore != null)
+        {
+            _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+        }
     }
 
     public void Assign(StoreModel other)
     {
         PurchaseRewards = other.PurchaseRewards;
-        if(_purchaseStore != null)
-        {
-            _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-        }
-        _purchaseStore = other._purchaseStore;
-        if(_purchaseStore != null)
-        {
-            _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-        }
+
         if(Assigned != null)
         {
             Assigned(this);
