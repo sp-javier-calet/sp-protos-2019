@@ -1,4 +1,4 @@
 name Extension/Facebook
 desc IFacebook implementation
 type extension
-depends_on Assets/Libraries/External/FacebookSDK
+depends_on Assets/Sparta/External/FacebookSDK
