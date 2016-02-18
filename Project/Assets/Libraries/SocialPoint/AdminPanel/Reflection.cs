@@ -18,48 +18,41 @@ namespace SocialPoint.AdminPanel
             return field != null ? field.GetValue(instance) as R : null;
         }
 
+        static MethodInfo GetMethod(object instance, string methodName)
+        {
+            // FIXME Does not work for overloaded methods
+            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+            MethodInfo method = instance.GetType().GetMethod(methodName, bindFlags);
+
+            if(method == null)
+            {
+                throw new Exception("Private method not found");
+            }
+
+            return method;
+        }
+
         public static void CallPrivateVoidMethod(object instance, string methodName, params object[] parameters)
         {
-            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-
-            MethodInfo method = instance.GetType().GetMethod(methodName, bindFlags);
-            if(method != null)
+            try
             {
-                try
-                {
-                    method.Invoke(instance, parameters);
-                }
-                catch(Exception e)
-                {
-                    Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
-                }
+                GetMethod(instance, methodName).Invoke(instance, parameters);
             }
-            else
+            catch(Exception e)
             {
-                Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` method in class {1}", methodName, instance.GetType()));
+                Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
             }
         }
 
-        public static R CallPrivateMethod<R>(object instance, string methodName, R defaultReturn, params object[] parameters) where R : class
+        public static R CallPrivateMethod<R>(object instance, string methodName, R defaultReturn, params object[] parameters)
         {
-            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-
-            MethodInfo method = instance.GetType().GetMethod(methodName, bindFlags);
-            if(method != null)
+            try
             {
-                try
-                {
-                    return method.Invoke(instance, parameters) as R;
-                }
-                catch(Exception e)
-                {
-                    Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
-                    return defaultReturn;
-                }
+                return (R)GetMethod(instance, methodName).Invoke(instance, parameters);
             }
-            else
+            catch(Exception e)
             {
-                Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` method in class {1}", methodName, instance.GetType()));
+                Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
                 return defaultReturn;
             }
         }
