@@ -12,7 +12,7 @@ cd ..
 
 echo "Installing Unity Plugin"
 mkdir -p libs
-cp -R libs ../../../../Assets/Libraries/Binaries/Plugins/Android/
+cp -R libs ../../../../Assets/Sparta/Binaries/Plugins/Android/
 
 
 echo "Cleaning up"

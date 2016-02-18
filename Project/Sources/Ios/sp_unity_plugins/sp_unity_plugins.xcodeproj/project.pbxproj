@@ -129,7 +129,7 @@
 		468E00381C3E762200CA07AF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Libraries/Binaries/Plugins/tvOS";
+			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/tvOS";
 			dstSubfolderSpec = 0;
 			files = (
 				460B35381C3E7B1B003E0D9D /* SPUnityPlugins_tvOS.framework in CopyFiles */,
@@ -139,7 +139,7 @@
 		FEE5C1B31C2163C40020C4DB /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Libraries/Binaries/Plugins/Ios";
+			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/Ios";
 			dstSubfolderSpec = 0;
 			files = (
 				460B35371C3E7AFE003E0D9D /* SPUnityPlugins.framework in CopyFiles */,
