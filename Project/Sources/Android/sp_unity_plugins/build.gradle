@@ -44,7 +44,7 @@ subprojects{
      */
     task copyPluginPackage(type: Copy, group: 'socialpoint') {
         from('build/outputs/aar')
-        into('../../../../Assets/Libraries/Binaries/Plugins/Android')
+        into('../../../../Assets/Sparta/Binaries/Plugins/Android')
         include(project.name + '-release.aar')
         rename (project.name + '-release.aar', project.name + '.aar')
     }
