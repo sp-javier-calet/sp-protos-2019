@@ -57,6 +57,7 @@
 		069170631C762BED00C6B0B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 069170621C762BED00C6B0B6 /* Assets.xcassets */; };
 		069170661C762BED00C6B0B6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 069170641C762BED00C6B0B6 /* MainMenu.xib */; };
 		069170701C762CF700C6B0B6 /* SPUnityPlugins.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
+		06A173231C76FF22002178EF /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 069170311C7606A000C6B0B6 /* libcurl.tbd */; };
 		460B35371C3E7AFE003E0D9D /* SPUnityPlugins.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */; };
 		460B35381C3E7B1B003E0D9D /* SPUnityPlugins_tvOS.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */; };
 		460B35D01C3EAE80003E0D9D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 460B35CF1C3EAE80003E0D9D /* main.m */; };
@@ -403,6 +404,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				06A173231C76FF22002178EF /* libcurl.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1280,7 +1282,7 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../Common";
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = es.socialpoint.SPUnityPlugins;
 				PRODUCT_NAME = SPUnityPlugins;
@@ -1325,7 +1327,7 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../Common";
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = es.socialpoint.SPUnityPlugins;
 				PRODUCT_NAME = SPUnityPlugins;
@@ -2018,6 +2020,7 @@
 				069170691C762BEE00C6B0B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		460B35E21C3EAE80003E0D9D /* Build configuration list for PBXNativeTarget "LinkerValidator" */ = {
 			isa = XCConfigurationList;
