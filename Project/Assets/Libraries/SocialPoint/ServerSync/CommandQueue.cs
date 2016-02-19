@@ -20,6 +20,7 @@ namespace SocialPoint.ServerSync
         const string Uri = "packet";
         const string AttrKeyPackets = "packets";
         const string AttrKeyCommands = "commands";
+        const string AttrKeyPush = "push";
         const string AttrKeyAcks = "acks";
         const string ErrorEventName = "errors.sync";
         const string AttrKeyEventError = "error";
@@ -142,7 +143,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        private void OnWasOnBackground()
+        void OnWasOnBackground()
         {
             if(_goToBackgroundTS > TimeUtils.Timestamp)
             {
@@ -182,6 +183,8 @@ namespace SocialPoint.ServerSync
         public event ResponseDelegate ResponseReceive;
 
         int _lastAutoSyncDataHash;
+
+        public CommandReceiver CommandReceiver { get; set; }
 
         public SyncDelegate AutoSync{ set; private get; }
 
@@ -516,19 +519,12 @@ namespace SocialPoint.ServerSync
             ApplyBackoff(success);
         }
 
-        void DoSend(Packet packet, Action finish)
+        void AddPendingAcksToRequest(Attr attr)
         {
-            if(packet == null)
+            if(_sendingAcks.Count > 0)
             {
-                if(finish != null)
-                {
-                    finish();
-                }
-                return;
+                throw new InvalidOperationException("Current sending acks have not been successfully send");
             }
-
-            BeforePacketSent(packet);
-            var attr = packet.ToRequestAttr();
 
             if(_pendingAcks.Count > 0)
             {
@@ -544,6 +540,33 @@ namespace SocialPoint.ServerSync
                     attrdic.Set(AttrKeyAcks, attracks);
                 }
             }
+        }
+
+        void RemoveNotifiedAcks()
+        {
+            foreach(var ack in _sendingAcks)
+            {
+                _pendingAcks.Remove(ack);
+            }
+            _sendingAcks.Clear();
+        }
+
+        void DoSend(Packet packet, Action finish)
+        {
+            if(packet == null)
+            {
+                if(finish != null)
+                {
+                    finish();
+                }
+                return;
+            }
+
+            BeforePacketSent(packet);
+            var attr = packet.ToRequestAttr();
+
+            // Add Acks to request
+            AddPendingAcksToRequest(attr);
 
             var req = new HttpRequest();
             req.Body = new JsonAttrSerializer().Serialize(attr);
@@ -610,11 +633,9 @@ namespace SocialPoint.ServerSync
                 {
                     packet.Finished(null);
                 }
-                foreach(var ack in _sendingAcks)
-                {
-                    _pendingAcks.Remove(ack);
-                }
-                _sendingAcks.Clear();
+
+                RemoveNotifiedAcks();
+
                 return;
             }
 
@@ -839,11 +860,22 @@ namespace SocialPoint.ServerSync
                 ValidateResponse(packAttrPair.Value, packet);
             }
 
-            foreach(var ack in _sendingAcks)
+            // Handle Server to Client Commands
+            var pushAttr = data.Get(AttrKeyPush).AsDic;
+            var pushCommands = pushAttr.Get(AttrKeyCommands).AsDic;
+
+            foreach(var pushCommand in pushCommands)
             {
-                _pendingAcks.Remove(ack);
+                string commandId;
+                if(CommandReceiver != null &&
+                   CommandReceiver.Receive(pushCommand.Value.AsDic, out commandId))
+                {
+                    // Add a pending ack for the command response
+                    _pendingAcks.Add(commandId);
+                }
             }
-            _sendingAcks.Clear();
+
+            RemoveNotifiedAcks();
         }
 
         void CatchException(Exception e)

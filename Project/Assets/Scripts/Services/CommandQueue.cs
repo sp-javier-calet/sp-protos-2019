@@ -97,6 +97,15 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
     }
 
     [Inject]
+    CommandReceiver injectCommandReceiver
+    {
+        set
+        {
+            CommandReceiver = value;
+        }
+    }
+
+    [Inject]
     ISerializer<PlayerModel> _playerSerializer;
 
     [Inject]
