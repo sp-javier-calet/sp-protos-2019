@@ -114,20 +114,20 @@ namespace SocialPoint.Login
                 Title, Message, Button);
         }
     }
-    
+
     public class GenericData
     {
         public TimeSpan DeltaTime;
         public string StoreUrl;
         public UpgradeData Upgrade;
-        public int UserImportance;
+        public string UserImportance;
         public MaintenanceData Maintenance;
-        private const string AttrKeyTimestamp = "ts";
-        private const string AttrKeyStoreUrl = "store";
-        private const string AttrKeyUpgradeSuggested = "suggested_upgrade";
-        private const string AttrKeyUpgradeForced = "forced_upgrade";
-        private const string AttrKeyMaintenanceData = "maintenance_data";
-        private const string AttrKeyUserImportance = "user_importance";
+        const string AttrKeyTimestamp = "ts";
+        const string AttrKeyStoreUrl = "store";
+        const string AttrKeyUpgradeSuggested = "suggested_upgrade";
+        const string AttrKeyUpgradeForced = "forced_upgrade";
+        const string AttrKeyMaintenanceData = "maintenance_data";
+        const string AttrKeyUserImportance = "user_importance";
         
         public void Load(IStreamReader reader)
         {
@@ -160,7 +160,7 @@ namespace SocialPoint.Login
                         Maintenance = new MaintenanceData(reader);
                         break;
                     case AttrKeyUserImportance:
-                        UserImportance = reader.GetIntValue();
+                        UserImportance = reader.GetStringValue();
                         break;
                     }
                 }
@@ -205,7 +205,7 @@ namespace SocialPoint.Login
 
             if(datadic.ContainsKey(AttrKeyUserImportance))
             {
-                UserImportance = datadic.Get(AttrKeyUserImportance).AsValue.ToInt();
+                UserImportance = datadic.Get(AttrKeyUserImportance).AsValue.ToString();
             }
         }
 
