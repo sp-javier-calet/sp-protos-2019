@@ -1,23 +1,16 @@
 #include "SPUnityUtils.h"
 #include <random>
+#include <limits>
 
 class RandomEngine
 {
 private:
-    std::random_device _device;
-    std::random_device::result_type _seed;
     std::mt19937 _engine;
 
 public:
     RandomEngine():
-    _seed(_device()),
-    _engine(_seed)
+    _engine(std::random_device()())
     {
-    }
-
-    std::random_device::result_type getSeed() const
-    {
-        return _seed;
     }
 
     template <typename T, typename D>
@@ -29,12 +22,29 @@ public:
 
 static RandomEngine engine;
 
-int SPUnityUtilsGetRandom()
+unsigned int SPUnityUtilsGetRandomUnsignedInt()
 {
-    return engine.getNext<int>(std::uniform_int_distribution<int>());
+    return engine.getNext<unsigned int>(std::uniform_int_distribution<unsigned int>(
+        std::numeric_limits<unsigned int>::min(), std::numeric_limits<unsigned int>::max()));
 }
 
-int SPUnityUtilsGetRandomSeed()
+int SPUnityUtilsGetRandomInt()
 {
-    return engine.getSeed();
+    return engine.getNext<int>(std::uniform_int_distribution<int>(
+       std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
+}
+
+int SPUnityUtilsGetRandomIntRange(int min, int max)
+{
+    return engine.getNext<int>(std::uniform_int_distribution<int>(min, max));
+}
+
+float SPUnityUtilsGetRandomFloatRange(float min, float max)
+{
+    return engine.getNext<float>(std::uniform_real_distribution<float>(min, max));
+}
+
+double SPUnityUtilsGetRandomDoubleRange(double min, double max)
+{
+    return engine.getNext<double>(std::uniform_real_distribution<double>(min, max));
 }

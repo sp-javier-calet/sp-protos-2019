@@ -17,8 +17,11 @@
 
 extern "C"
 {
-    EXPORT_API int SPUnityUtilsGetRandom();
-    EXPORT_API int SPUnityUtilsGetRandomSeed();
+    EXPORT_API int SPUnityUtilsGetRandomInt();
+    EXPORT_API unsigned int SPUnityUtilsGetRandomUnsignedInt();
+    EXPORT_API int SPUnityUtilsGetRandomIntRange(int min, int max);
+    EXPORT_API float SPUnityUtilsGetRandomFloatRange(float min, float max);
+    EXPORT_API double SPUnityUtilsGetRandomDoubleRange(double min, double max);
 }
 
 #endif
