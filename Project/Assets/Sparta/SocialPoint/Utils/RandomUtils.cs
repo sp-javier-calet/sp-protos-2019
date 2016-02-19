@@ -1,14 +1,8 @@
-#if UNITY_EDITOR_OSX
-#define NATIVE_RANDOM
-#elif UNITY_ANDROID
-#define NATIVE_RANDOM
-#elif UNITY_IOS
-#define NATIVE_RANDOM
+#if !UNITY_EDITOR && (UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS)
+  #define NATIVE_RANDOM
 #endif
 
 using System;
-using System.Runtime.InteropServices;
-using SocialPoint.Base;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -74,7 +68,7 @@ namespace SocialPoint.Utils
             return ts + rn;
         }
 
-        private static uint GenerateRandom32()
+        static uint GenerateRandom32()
         {
             Init();
             return (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
