@@ -183,7 +183,7 @@ namespace SocialPoint.Login
             }
             if(datadic.ContainsKey(AttrKeyUserImportance))
             {
-                UserImportance = datadic.GetValue(AttrKeyUserImportance).ToInt();
+                UserImportance = datadic.GetValue(AttrKeyUserImportance).ToString();
             } 
             if(datadic.ContainsKey(AttrKeyUpgradeForced))
             {
