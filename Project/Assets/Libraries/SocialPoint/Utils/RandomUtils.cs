@@ -37,15 +37,6 @@ namespace SocialPoint.Utils
         [DllImport(PluginModuleName)]
         static extern int SPUnityUtilsGetRandomInt();
 
-        [DllImport(PluginModuleName)]
-        static extern uint SPUnityUtilsGetRandomUnsignedInt();
-
-        [DllImport(PluginModuleName)]
-        static extern int SPUnityUtilsGetRandomIntRange(int min, int max);
-
-        [DllImport(PluginModuleName)]
-        static extern float SPUnityUtilsGetRandomFloatRange(float min, float max);
-
         #else
 
         static int SPUnityUtilsGetRandomSeed()
@@ -54,25 +45,6 @@ namespace SocialPoint.Utils
             return TimeUtils.Timestamp.GetHashCode() ^ Guid.NewGuid().GetHashCode();
         }
 
-        static int SPUnityUtilsGetRandomInt()
-        {
-            return UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-        }
-
-        static uint SPUnityUtilsGetRandomUnsignedInt()
-        {
-            return (uint)UnityEngine.Random.Range(-int.MaxValue, int.MaxValue);
-        }
-
-        static int SPUnityUtilsGetRandomIntRange(int min, int max)
-        {
-            return UnityEngine.Random.Range(min, max);
-        }
-
-        static float SPUnityUtilsGetRandomFloatRange(float min, float max)
-        {
-            return UnityEngine.Random.Range(min, max);
-        }
         #endif
 
         static void Init()
@@ -105,7 +77,7 @@ namespace SocialPoint.Utils
         private static uint GenerateRandom32()
         {
             Init();
-            return SPUnityUtilsGetRandomUnsignedInt();
+            return (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
         }
 
         [System.Obsolete("Use GenerateSecurityToken instead", true)]
@@ -155,7 +127,7 @@ namespace SocialPoint.Utils
         {
             Init();
             Assert.IsTrue(minInclusive < maxExclusive, "Max needs to be more that min.");
-            return SPUnityUtilsGetRandomIntRange(minInclusive, maxExclusive-1);
+            return UnityEngine.Random.Range(minInclusive, maxExclusive);
         }
 
         /// <summary>
@@ -167,7 +139,7 @@ namespace SocialPoint.Utils
         {
             Init();
             Assert.IsTrue(minInclusive < maxInclusive, "Max needs to be more that min.");
-            return SPUnityUtilsGetRandomFloatRange(minInclusive, maxInclusive);
+            return UnityEngine.Random.Range(minInclusive, maxInclusive);
         }
     }
 }
