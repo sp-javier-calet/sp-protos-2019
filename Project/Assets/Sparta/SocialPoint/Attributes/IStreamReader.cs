@@ -263,5 +263,28 @@ namespace SocialPoint.Attributes
                 return ParseValue(reader);
             }
         }
+
+        const string kMinVersionKey = "MinV";
+        const string kMaxVersionKey = "MaxV";
+
+        public static bool CheckVersion(this JsonStreamReader reader, string key, string version)
+        {
+            if(string.IsNullOrEmpty(version))
+                return true;
+
+            if(key == kMinVersionKey)
+            {
+                if(reader.Token != StreamToken.Null && reader.Value.ToString().CompareTo(version) > 0)
+                    return false;
+            }
+
+            if(key == kMaxVersionKey)
+            {
+                if(reader.Token != StreamToken.Null && reader.Value.ToString().CompareTo(version) < 0)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

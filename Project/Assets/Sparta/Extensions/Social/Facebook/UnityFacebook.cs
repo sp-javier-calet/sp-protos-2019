@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -12,17 +11,22 @@ namespace SocialPoint.Social
 
     public class UnityFacebook : BaseFacebook
     {
-        private bool _connecting = false;
-        private FacebookUser _user;
-        private uint _loginRetries;
-        private uint _maxLoginRetries = 3;
-        private List<FacebookUser> _friends = new List<FacebookUser>();
-        private List<string> _loginPermissions = new List<string>();
-        private List<string> _userPermissions;
-        private ICoroutineRunner _runner;
+        const uint kMaxLoginRetries = 3;
+
+        public bool InitializedFriends { get; protected set; }
+
+        bool _connecting;
+        FacebookUser _user;
+        uint _loginRetries;
+        readonly List<FacebookUser> _friends;
+        readonly List<string> _loginPermissions;
+        List<string> _userPermissions;
+        ICoroutineRunner _runner;
 
         public UnityFacebook(ICoroutineRunner runner)
         {
+            _friends = new List<FacebookUser>();
+            _loginPermissions = new List<string>();
             _runner = runner;
         }
 
@@ -220,7 +224,7 @@ namespace SocialPoint.Social
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                if(err.Code != FacebookErrors.DialogCancelled && _loginRetries < _maxLoginRetries)
+                if(err.Code != FacebookErrors.DialogCancelled && _loginRetries < kMaxLoginRetries)
                 {
                     _loginRetries++;
                     FB.LogOut();
@@ -344,7 +348,7 @@ namespace SocialPoint.Social
             var s = UserPhotoSize;
             var uri = path + "?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
 
-            FB.API(uri.ToString(), HttpMethod.GET, (IGraphResult result) => {
+            FB.API(uri, HttpMethod.GET, result => {
                 var err = new Error(result.Error);
                 if(Error.IsNullOrEmpty(err))
                 {
@@ -360,6 +364,8 @@ namespace SocialPoint.Social
                             _friends.Add(user);
                         }
                     }
+
+                    InitializedFriends = true;
                 }
                 if(cbk != null)
                 {
@@ -492,6 +498,8 @@ namespace SocialPoint.Social
                 FB.LogOut();
             }
             DidLogout(null, cbk);
+            InitializedFriends = false;
+            _connecting = false;
         }
 
         public override string AppId
@@ -537,7 +545,7 @@ namespace SocialPoint.Social
             dic.Add("width", UserPhotoSize.ToString());
             dic.Add("height", UserPhotoSize.ToString());
 
-            FB.API(userId + "/picture", HttpMethod.GET, (IGraphResult response) => {
+            FB.API(userId + "/picture", HttpMethod.GET, response => {
                 if(cbk != null)
                 {
                     cbk(response.Texture, new Error(response.Error));
