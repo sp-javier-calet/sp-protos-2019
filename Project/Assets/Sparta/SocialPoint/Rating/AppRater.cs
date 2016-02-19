@@ -116,7 +116,7 @@ namespace SocialPoint.Rating
             _storage.Save(AppRaterInfoKey, data);
         }
 
-        private void CheckDayReset()
+        void CheckDayReset()
         {
             if(!HasInfo())
             {
@@ -148,7 +148,7 @@ namespace SocialPoint.Rating
             }
         }
 
-        private void IncrementUsesAndRate(bool canPromptForRating)
+        void IncrementUsesAndRate(bool canPromptForRating)
         {
             IncrementCount(true, false);
             if(canPromptForRating && RatingConditionsHaveBeenMet && IsConnectedToNetwork)
@@ -163,7 +163,7 @@ namespace SocialPoint.Rating
             IncrementUsesAndRate(canPromptForRating);
         }
 
-        private void IncrementEventAndRate(bool canPromptForRating)
+        void IncrementEventAndRate(bool canPromptForRating)
         {
             IncrementCount(false, true);
             if(canPromptForRating && RatingConditionsHaveBeenMet && IsConnectedToNetwork)
@@ -178,7 +178,7 @@ namespace SocialPoint.Rating
             IncrementEventAndRate(canPromptForRating);
         }
 
-        private void IncrementCount(bool uses, bool events)
+        void IncrementCount(bool uses, bool events)
         {
             // current app version
             var version = _deviceInfo.AppInfo.Version;
@@ -221,7 +221,7 @@ namespace SocialPoint.Rating
             }
         }
 
-        private AttrDic SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
+        AttrDic SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
                                        bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
         {
             var defaults = new AttrDic();
@@ -238,7 +238,7 @@ namespace SocialPoint.Rating
             return defaults;
         }
 
-        private bool PreRatingConditionsHaveBeenMet(AttrDic appRaterInfo)
+        bool PreRatingConditionsHaveBeenMet(AttrDic appRaterInfo)
         {
             // Has the user previously declined to rate this version of the app?
             if(appRaterInfo.GetValue(DeclineToRateKey).ToBool())
@@ -252,12 +252,7 @@ namespace SocialPoint.Rating
                 return false;
             }
 
-            if(!PreRatingCustomConditionsHaveBeenMet(appRaterInfo))
-            {
-                return false;
-            }
-
-            return true;
+            return PreRatingCustomConditionsHaveBeenMet(appRaterInfo);
         }
 
         protected virtual bool PreRatingCustomConditionsHaveBeenMet(AttrDic appRaterInfo)
@@ -299,15 +294,10 @@ namespace SocialPoint.Rating
             }
 
             // Has the user already rated the app?
-            if(appRaterInfo.GetValue(RatedCurrentVersionKey).ToBool())
-            {
-                return false;
-            }
-
-            return true;
+            return appRaterInfo.GetValue(RatedCurrentVersionKey).ToBool();
         }
 
-        private bool RatingConditionsHaveBeenMet
+        bool RatingConditionsHaveBeenMet
         {
             get
             {
@@ -328,7 +318,7 @@ namespace SocialPoint.Rating
             }
         }
 
-        private bool IsConnectedToNetwork
+        bool IsConnectedToNetwork
         {
             get
             {
@@ -415,6 +405,11 @@ namespace SocialPoint.Rating
             _storage.Remove(ReminderRequestDateKey);
             _storage.Remove(PromptsLastDayKey);
             _storage.Remove(DateStartLastDayKey);
+        }
+
+        protected void RemoveKey(string key)
+        {
+            _storage.Remove(key);
         }
     }
 }

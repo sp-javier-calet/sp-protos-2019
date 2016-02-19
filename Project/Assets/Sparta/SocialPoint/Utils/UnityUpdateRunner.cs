@@ -50,7 +50,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void Update()
+        void Update()
         {
             foreach(var elm in _elements)
             {
