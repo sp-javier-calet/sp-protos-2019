@@ -14,7 +14,6 @@
 				069170341C760B4100C6B0B6 /* CopyFiles */,
 			);
 			dependencies = (
-				0691703B1C760B6F00C6B0B6 /* PBXTargetDependency */,
 			);
 			name = PluginDependencies_macOs;
 			productName = PluginDependencies;
@@ -26,7 +25,6 @@
 				468E00381C3E762200CA07AF /* CopyFiles */,
 			);
 			dependencies = (
-				0691703E1C760BF800C6B0B6 /* PBXTargetDependency */,
 			);
 			name = PluginDependencies_tvOS;
 			productName = PluginDependencies;
@@ -38,7 +36,6 @@
 				FEE5C1B31C2163C40020C4DB /* CopyFiles */,
 			);
 			dependencies = (
-				069170401C760C0400C6B0B6 /* PBXTargetDependency */,
 			);
 			name = PluginDependencies;
 			productName = PluginDependencies;
@@ -137,27 +134,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0691703A1C760B6F00C6B0B6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 069170281C75F79B00C6B0B6;
-			remoteInfo = SPUnityPlugins_macOS;
-		};
-		0691703D1C760BF800C6B0B6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 468E00161C3E75E500CA07AF;
-			remoteInfo = SPUnityPlugins_tvOS;
-		};
-		0691703F1C760C0400C6B0B6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = FE44907B1C1F20C400A10FEA;
-			remoteInfo = SPUnityPlugins;
-		};
 		0691704F1C760D0A00C6B0B6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
@@ -179,19 +155,26 @@
 			remoteGlobalIDString = 069170281C75F79B00C6B0B6;
 			remoteInfo = SPUnityPlugins_macOS;
 		};
+		06D7A6951C77199900F71393 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 069170331C760B4100C6B0B6;
+			remoteInfo = PluginDependencies_macOs;
+		};
+		06D7A6971C77199E00F71393 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FEE5C1AF1C2163BA0020C4DB;
+			remoteInfo = PluginDependencies;
+		};
 		468E003E1C3E766100CA07AF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 468E00371C3E762200CA07AF;
 			remoteInfo = PluginDependencies_tvOS;
-		};
-		FEE5C1B51C2163DC0020C4DB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = FEE5C1AF1C2163BA0020C4DB;
-			remoteInfo = PluginDependencies;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -900,6 +883,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				06D7A6961C77199900F71393 /* PBXTargetDependency */,
 			);
 			name = SPUnityPlugins_macOS;
 			productName = SPUnityPlugins_macOS;
@@ -991,7 +975,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				FEE5C1B61C2163DC0020C4DB /* PBXTargetDependency */,
+				06D7A6981C77199E00F71393 /* PBXTargetDependency */,
 			);
 			name = SPUnityPlugins;
 			productName = SPUnityPlugins;
@@ -1189,21 +1173,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0691703B1C760B6F00C6B0B6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 069170281C75F79B00C6B0B6 /* SPUnityPlugins_macOS */;
-			targetProxy = 0691703A1C760B6F00C6B0B6 /* PBXContainerItemProxy */;
-		};
-		0691703E1C760BF800C6B0B6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 468E00161C3E75E500CA07AF /* SPUnityPlugins_tvOS */;
-			targetProxy = 0691703D1C760BF800C6B0B6 /* PBXContainerItemProxy */;
-		};
-		069170401C760C0400C6B0B6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = FE44907B1C1F20C400A10FEA /* SPUnityPlugins */;
-			targetProxy = 0691703F1C760C0400C6B0B6 /* PBXContainerItemProxy */;
-		};
 		069170501C760D0A00C6B0B6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FE44907B1C1F20C400A10FEA /* SPUnityPlugins */;
@@ -1219,15 +1188,20 @@
 			target = 069170281C75F79B00C6B0B6 /* SPUnityPlugins_macOS */;
 			targetProxy = 0691706B1C762C1C00C6B0B6 /* PBXContainerItemProxy */;
 		};
+		06D7A6961C77199900F71393 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 069170331C760B4100C6B0B6 /* PluginDependencies_macOs */;
+			targetProxy = 06D7A6951C77199900F71393 /* PBXContainerItemProxy */;
+		};
+		06D7A6981C77199E00F71393 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FEE5C1AF1C2163BA0020C4DB /* PluginDependencies */;
+			targetProxy = 06D7A6971C77199E00F71393 /* PBXContainerItemProxy */;
+		};
 		468E003F1C3E766100CA07AF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 468E00371C3E762200CA07AF /* PluginDependencies_tvOS */;
 			targetProxy = 468E003E1C3E766100CA07AF /* PBXContainerItemProxy */;
-		};
-		FEE5C1B61C2163DC0020C4DB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = FEE5C1AF1C2163BA0020C4DB /* PluginDependencies */;
-			targetProxy = FEE5C1B51C2163DC0020C4DB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
