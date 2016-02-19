@@ -267,7 +267,7 @@ namespace SocialPoint.AdminPanel
             var toggle = rectTransform.gameObject.AddComponent<Toggle>();
             toggle.targetGraphic = image;
             toggle.graphic = indImage;
-            
+            toggle.enabled = enabled;
             toggle.isOn = status;
 
             if(enabled)

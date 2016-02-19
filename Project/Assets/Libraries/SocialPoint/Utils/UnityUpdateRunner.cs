@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SocialPoint.Base;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Utils
 {
@@ -149,6 +150,28 @@ namespace SocialPoint.Utils
                 {
                     cbk(new T[]{ req.asset as T }, null);
                 }
+            }
+        }
+
+        public static void LoadSceneAsync(this ICoroutineRunner runner, string sceneName, Action<AsyncOperation> finished, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
+        {
+            runner.StartCoroutine(DoLoadSceneAsync(sceneName, finished, loadSceneMode));
+        }
+
+        static IEnumerator DoLoadSceneAsync(string sceneName, Action<AsyncOperation> finished, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
+        {
+            var op = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
+            while(!op.isDone)
+            {
+                if(finished != null)
+                {
+                    finished(op);
+                }
+                yield return null;
+            }
+            if(finished != null)
+            {
+                finished(op);
             }
         }
     }
