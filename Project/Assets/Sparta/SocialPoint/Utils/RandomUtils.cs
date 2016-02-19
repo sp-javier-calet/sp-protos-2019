@@ -12,7 +12,6 @@ namespace SocialPoint.Utils
     {
         static bool _init = false;
 
-
         #if UNITY_EDITOR_OSX
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
@@ -28,7 +27,7 @@ namespace SocialPoint.Utils
             return SPUnityUtilsGetRandomInt();
         }
 
-        [DllImport(PluginModuleName)]
+        [System.Runtime.InteropServices.DllImport(PluginModuleName)]
         static extern int SPUnityUtilsGetRandomInt();
 
         #else
