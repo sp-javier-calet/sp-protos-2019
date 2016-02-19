@@ -1,4 +1,0 @@
-name Extension/Zenject
-desc Zenject extension
-type extension
-depends_on Assets/Libraries/External/ModestTree/Zenject
