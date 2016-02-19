@@ -1,6 +1,16 @@
+#if UNITY_EDITOR_OSX
+#define NATIVE_RANDOM
+#elif UNITY_ANDROID
+#define NATIVE_RANDOM
+#elif UNITY_IOS
+#define NATIVE_RANDOM
+#endif
+
 using System;
+using System.Runtime.InteropServices;
 using SocialPoint.Base;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace SocialPoint.Utils
 {
@@ -8,23 +18,49 @@ namespace SocialPoint.Utils
     {
         static bool _init = false;
 
+
+        #if UNITY_EDITOR_OSX
+        const string PluginModuleName = "SPUnityPlugins";
+        #elif UNITY_ANDROID
+        const string PluginModuleName = "sp_unity_utils";
+        #elif UNITY_IOS
+        const string PluginModuleName = "__Internal";
+        #endif
+
+        #if NATIVE_RANDOM
+
+        static int SPUnityUtilsGetRandomSeed()
+        {
+            return SPUnityUtilsGetRandomInt();
+        }
+
+        [DllImport(PluginModuleName)]
+        static extern int SPUnityUtilsGetRandomInt();
+
+        #else
+
+        static int SPUnityUtilsGetRandomSeed()
+        {
+            Debug.LogWarning("Using substandard Random implementation, this should only happen in Editor!");
+            return TimeUtils.Timestamp.GetHashCode() ^ Guid.NewGuid().GetHashCode();
+        }
+
+        #endif
+
         static void Init()
         {
             if(_init)
             {
                 return;
             }
-            var devId = SystemInfo.deviceUniqueIdentifier.GetHashCode();
-            var guId = System.Guid.NewGuid().GetHashCode();
-            UnityEngine.Random.seed ^= devId;
-            UnityEngine.Random.seed ^= guId;
+            UnityEngine.Random.seed = SPUnityUtilsGetRandomSeed();
             _init = true;
         }
 
         public static string GetUuid(string format = null)
         {
             Init();
-            Guid g = System.Guid.NewGuid();
+            var g = Guid.NewGuid();
             return g.ToString(format);
         }
 
@@ -41,7 +77,7 @@ namespace SocialPoint.Utils
         private static uint GenerateRandom32()
         {
             Init();
-            return (uint)UnityEngine.Random.Range(-int.MaxValue, int.MaxValue);
+            return (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
         }
 
         [System.Obsolete("Use GenerateSecurityToken instead", true)]
@@ -90,6 +126,7 @@ namespace SocialPoint.Utils
         public static int Range(int minInclusive, int maxExclusive)
         {
             Init();
+            Assert.IsTrue(minInclusive < maxExclusive, "Max needs to be more that min.");
             return UnityEngine.Random.Range(minInclusive, maxExclusive);
         }
 
@@ -101,6 +138,7 @@ namespace SocialPoint.Utils
         public static float Range(float minInclusive, float maxInclusive)
         {
             Init();
+            Assert.IsTrue(minInclusive < maxInclusive, "Max needs to be more that min.");
             return UnityEngine.Random.Range(minInclusive, maxInclusive);
         }
     }
