@@ -182,7 +182,7 @@
 		069170341C760B4100C6B0B6 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/../../../Assets/Libraries/Binaries/Plugins/Osx";
+			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/Osx";
 			dstSubfolderSpec = 0;
 			files = (
 				0691703C1C760B8A00C6B0B6 /* SPUnityPlugins.bundle in CopyFiles */,
