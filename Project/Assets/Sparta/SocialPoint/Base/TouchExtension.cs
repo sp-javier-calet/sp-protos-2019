@@ -4,7 +4,7 @@ namespace SocialPoint.Base
 {
     public static class TouchExtension
     {
-        public static Vector2 NormalizedDeltaPosition(this Touch touch)
+        public static Vector2 NormalizedDeltaPosition(this UnityEngine.Touch touch)
         {
             //Checking the deltaTime is causing problems in some ios devices (ipad air 1). The deltaPosition is always normalized on ios.
             #if UNITY_IOS
