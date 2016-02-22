@@ -52,6 +52,12 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Window/Sparta/Build/Android Native Plugins", false, 102)]
         public static void CompileAndroidNative()
         {
+            if(string.IsNullOrEmpty(AndroidNDKPath))
+            {
+                Debug.LogError("Error compiling Android native plugins. No NDK Path configured");
+                return;
+            }
+                
             var commandOutput = new StringBuilder("Compile Android Native Plugins");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins");
 
