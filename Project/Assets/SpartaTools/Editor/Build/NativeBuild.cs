@@ -28,6 +28,15 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        static string InstallationPath
+        {
+            get
+            {
+                // Retrived running Unity instance installation path
+                return Path.GetDirectoryName(EditorApplication.applicationPath);
+            }
+        }
+
         #region Editor options
 
         [MenuItem("Window/Sparta/Build/Android Plugins", false, 101)]
@@ -35,13 +44,14 @@ namespace SpartaTools.Editor.Build
         {
             var commandOutput = new StringBuilder("Compile SPUnityPlugins for Android");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_plugins");
+            var unityPath = InstallationPath;
 
             var msg = string.Format("Building Android SPUnityPlugins {0}", path);
             Debug.Log(msg);
             commandOutput.AppendLine(msg);
 
             AsyncProcess.Start(progress => {
-                NativeConsole.RunProcess(path + "/gradlew", "generateUnityPlugin", path, output => {
+                NativeConsole.RunProcess(path + "/gradlew", string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath), path, output => {
                     commandOutput.AppendLine(output);
                     progress.Update(output.Substring(0, Mathf.Min(output.Length, 100)), 1.0f);
                 });

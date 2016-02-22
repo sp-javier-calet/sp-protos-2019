@@ -18,6 +18,19 @@ allprojects {
     }
 }
 
+/* Configure Unity app path using the parameter `unityInstallationPath` */
+def DEFAULT_UNITY_PATH = "/Applications/Unity"
+def UNITY_CLASSES_PATH = "/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar"
+def unityClassesPath;
+if(hasProperty('unityInstallationPath') && 
+    unityInstallationPath?.trim()) {
+    unityClassesPath = unityInstallationPath + UNITY_CLASSES_PATH
+} else {
+    unityClassesPath = DEFAULT_UNITY_PATH + UNITY_CLASSES_PATH
+}
+
+println "Using Unity installation in : " + unityClassesPath
+
 /* Injects configuration in all children projects */
 subprojects{
     apply plugin: 'com.android.library'
@@ -36,7 +49,7 @@ subprojects{
 
     /* Add a provided dependency with Unity java classes */
     project.dependencies{
-        provided files('/Applications/Unity_5_3/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar')
+        provided files(unityClassesPath)
     }
 
     /*
