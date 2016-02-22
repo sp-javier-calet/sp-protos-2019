@@ -281,7 +281,7 @@ namespace SocialPoint.ServerSync
             _syncTimestamp += dt;
         }
 
-        public void Add(Command cmd, ErrorDelegate callback = null)
+        public void Add(Command cmd, Action<Attr, Error> callback = null)
         {
             if(_currentPacket == null)
             {
@@ -626,7 +626,7 @@ namespace SocialPoint.ServerSync
                 {
                     if(pcmd.Finished != null)
                     {
-                        pcmd.Finished(null);
+                        pcmd.Finished(null, null);
                     }
                 }
                 if(packet.Finished != null)
@@ -786,7 +786,7 @@ namespace SocialPoint.ServerSync
             }
             if(pcmd.Finished != null)
             {
-                pcmd.Finished(err);
+                pcmd.Finished(data, err);
             }
             if(err != null && CommandError != null)
             {
@@ -812,7 +812,7 @@ namespace SocialPoint.ServerSync
                 {
                     if(pcmd.Finished != null)
                     {
-                        pcmd.Finished(err);
+                        pcmd.Finished(data, err);
                     }
                 }
                 _sentPackets.Remove(packet);

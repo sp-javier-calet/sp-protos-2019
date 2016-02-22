@@ -311,8 +311,8 @@ namespace SocialPoint.Purchase
         private void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
             var purchaseCmd = new PurchaseCommand(receipt.OrderId, receipt.Store);
-            _commandQueue.Add(purchaseCmd, (_1) => {
-                if(_1 == null || !_1.HasError)
+            _commandQueue.Add(purchaseCmd, (data, err) => {
+                if(err == null || !err.HasError)
                 {
                     DebugUtils.Log("calling ValidatePurchaseResponseDelegate"); 
                     response(PurchaseResponseType.Complete);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
@@ -153,7 +154,7 @@ namespace SocialPoint.ServerSync
             return data;
         }
 
-        public bool Add(Command cmd, ErrorDelegate callback = null)
+        public bool Add(Command cmd, Action<Attr, Error> callback = null)
         {
             DebugUtils.Assert(cmd != null);
 

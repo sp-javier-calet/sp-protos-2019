@@ -40,7 +40,7 @@ namespace SocialPoint.ServerSync
 
         void Reset();
 
-        void Add(Command cmd, ErrorDelegate callback = null);
+        void Add(Command cmd, Action<Attr, Error> callback = null);
 
         int Remove(Packet.FilterDelegate callback = null);
 

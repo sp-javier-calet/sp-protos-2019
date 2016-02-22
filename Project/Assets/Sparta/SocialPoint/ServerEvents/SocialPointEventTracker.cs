@@ -262,7 +262,7 @@ namespace SocialPoint.ServerEvents
             }
             AddHardwareData(data);
             var eventCommand = new EventCommand(eventName, data);
-            CommandQueue.Add(eventCommand, del);
+            CommandQueue.Add(eventCommand, (attr, err) => del(err));
         }
 
         public void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
