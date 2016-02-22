@@ -1,3 +1,3 @@
 #!/bin/sh
-ANDROID_DIR=../
-sh ${ANDROID_DIR}/build_plugin_ndk_base.sh "Curl" "$(pwd)"
+LOCAL_PATH=`dirname $0`
+sh $LOCAL_PATH/../build_plugin_ndk_base.sh "Curl" $LOCAL_PATH
