@@ -3,8 +3,8 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Collections.Generic;
+using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.Sync.View
 {
@@ -12,19 +12,19 @@ namespace SpartaTools.Editor.Sync.View
     {
         #region Editor options
 
-        [MenuItem("Window/Sparta/Advanced Mode")]
-        public static void ToggleAdvanced()
+        [MenuItem("Window/Sparta/Sync/Sync Tools", false, 9)]
+        public static void ShowWindow()
         {
-            Sparta.AdvancedMode = !Sparta.AdvancedMode;
+            EditorWindow.GetWindow(typeof(SyncProjectWindow), false, "Sparta Sync", true);
         }
 
-        [MenuItem("Window/Sparta/Create module...")]
+        [MenuItem("Window/Sparta/Sync/Create module...", false, 30)]
         public static void CreateModule()
         {
             var path = EditorUtility.OpenFolderPanel("Select module root", 
-                           Sparta.BasePath,
-                           Module.DefinitionFileName);
-            
+                Sparta.BasePath,
+                Module.DefinitionFileName);
+
             if(!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
                 SyncTools.CreateModule(path);
@@ -36,10 +36,10 @@ namespace SpartaTools.Editor.Sync.View
             }
         }
 
-        [MenuItem("Window/Sparta/Sync Tools")]
-        public static void ShowWindow()
+        [MenuItem("Window/Sparta/Sync/Advanced Mode", false, 50)]
+        public static void ToggleAdvanced()
         {
-            EditorWindow.GetWindow(typeof(SyncProjectWindow), false, "Sparta Sync", true);
+            Sparta.AdvancedMode = !Sparta.AdvancedMode;
         }
 
         #endregion
@@ -88,7 +88,7 @@ namespace SpartaTools.Editor.Sync.View
         IList<ModuleSync> _modules = new List<ModuleSync>();
         IList<ModuleSyncCategory> _categories = new List<ModuleSyncCategory>();
         Vector2 _scrollPosition = Vector2.right;
-        SyncTools.ProgressHandler _progressHandler;
+        ProgressHandler _progressHandler;
         bool _refreshFinished;
 
         bool Synchronized
@@ -103,7 +103,9 @@ namespace SpartaTools.Editor.Sync.View
         {
             if(Sparta.Target.Valid && _progressHandler == null)
             {
-                DoAsync((progress) => {
+                _refreshFinished = false;
+
+                _progressHandler = AsyncProcess.Start(progress => {
                     var dic = new Dictionary<string, ModuleSyncCategory>();
                     var categories = new List<ModuleSyncCategory>();
                     var modules = SyncTools.Synchronize(Sparta.Target.ProjectPath, progress);
@@ -124,20 +126,9 @@ namespace SpartaTools.Editor.Sync.View
                     // Synchronize
                     _modules = modules;
                     _categories = categories;
+                    _refreshFinished = true;
                 });
             }
-        }
-
-        void DoAsync(Action<SyncTools.ProgressHandler> action)
-        {
-            _progressHandler = new SyncTools.ProgressHandler();
-            _refreshFinished = false;
-
-            var t = new Thread(() => {
-                action(_progressHandler);
-                _refreshFinished = true;
-            });
-            t.Start();
         }
 
         #region Draw GUI
@@ -234,7 +225,7 @@ namespace SpartaTools.Editor.Sync.View
                            "Backport", 
                            "Cancel"))
                     {
-                        DoAsync((progress) => {
+                        AsyncProcess.Start(progress => {
                             progress.Update("Fetching repository info", 0.1f);
                             Sparta.FetchInfo();
                             progress.Update("Backporting modules", 0.5f);
@@ -252,7 +243,7 @@ namespace SpartaTools.Editor.Sync.View
                        "Override", 
                        "Cancel"))
                 {
-                    DoAsync((progress) => {
+                    AsyncProcess.Start(progress => {
                         progress.Update("Fetching repository info", 0.1f);
                         Sparta.FetchInfo();
                         progress.Update("Updating modules", 0.5f);

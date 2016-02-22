@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-
 using System.Collections.Generic;
+using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.Sync
 {
@@ -21,31 +21,6 @@ namespace SpartaTools.Editor.Sync
         {
             SourceToTarget,
             TargetToSource
-        }
-
-        public class ProgressHandler
-        {
-            public float Percent { get; private set; }
-
-            public string Message{ get; private set; }
-
-            public bool Finished{ get; private set; }
-
-            public void Update(string message, float increment)
-            {
-                Message = message;
-                Percent += increment;
-            }
-
-            public void Update(float increment)
-            {
-                Percent += increment;
-            }
-
-            public void Finish()
-            {
-                Finished = true;
-            }
         }
 
         static ProgressHandler CurrentProgress;
