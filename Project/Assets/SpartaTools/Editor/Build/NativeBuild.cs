@@ -41,7 +41,7 @@ namespace SpartaTools.Editor.Build
         public static void CompileAndroidNative()
         {
             var commandOutput = new StringBuilder();
-            var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins/sp_unity_curl"); // Iterates and build
+            var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins/sp_unity_curl"); // TODO Iterates and build
             NativeConsole.RunProcess(path + "/build_plugin.sh", string.Empty, path, output => commandOutput.AppendLine(output));
             Debug.Log(commandOutput.ToString());
         }
@@ -49,7 +49,10 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Window/Sparta/Build/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
-            // TODO Compile Xcode project
+            var commandOutput = new StringBuilder();
+            var path = Path.Combine(SourcesDirectoryPath, "Ios/sp_unity_plugins"); // TODO Apple folders
+            NativeConsole.RunProcess("xcodebuild", "-target PluginDependencies", path, output => commandOutput.AppendLine(output));
+            Debug.Log(commandOutput.ToString());
         }
 
         [MenuItem("Window/Sparta/Build/tvOS Plugins", false, 202)]
