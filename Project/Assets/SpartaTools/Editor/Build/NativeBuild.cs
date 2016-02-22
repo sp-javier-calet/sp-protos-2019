@@ -64,11 +64,12 @@ namespace SpartaTools.Editor.Build
             var dirs = Directory.GetDirectories(path);
             foreach(var plugin in dirs)
             {
-                var msg = string.Format("Compiling native plugin {0}", plugin);
+                var pluginDir = Path.GetFileName(plugin);
+                var msg = string.Format("Compiling native plugin {0}", pluginDir);
                 Debug.Log(msg);
                 commandOutput.AppendLine(msg);
 
-                NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", plugin, AndroidNDKPath), path, output => commandOutput.AppendLine(output));
+                NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path, output => commandOutput.AppendLine(output));
             }
             Debug.Log(commandOutput.ToString());
         }
