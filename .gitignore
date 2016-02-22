@@ -2,3 +2,4 @@ xcuserdata/
 *.xcuserstate
 *.xccheckout
 .DS_Store
+Project/Sources/Android/sp_unity_native_plugins/*/obj
