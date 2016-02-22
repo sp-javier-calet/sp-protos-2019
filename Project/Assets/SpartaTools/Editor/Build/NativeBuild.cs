@@ -24,11 +24,14 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Window/Sparta/Build/Android Plugins", false, 101)]
         public static void CompileAndroid()
         {
-            var commandOutput = new StringBuilder();
+            var commandOutput = new StringBuilder("Compile SPUnityPlugins for Android");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_plugins");
 
-            AsyncProcess.Start(progress => {
+            var msg = string.Format("Building Android SPUnityPlugins {0}", path);
+            Debug.Log(msg);
+            commandOutput.AppendLine(msg);
 
+            AsyncProcess.Start(progress => {
                 NativeConsole.RunProcess(path + "/gradlew", "generateUnityPlugin", path, output => {
                     commandOutput.AppendLine(output);
                     progress.Update(output.Substring(0, Mathf.Min(output.Length, 100)), 1.0f);
@@ -40,31 +43,37 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Window/Sparta/Build/Android Native Plugins", false, 102)]
         public static void CompileAndroidNative()
         {
-            var commandOutput = new StringBuilder();
-            var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins/sp_unity_curl"); // TODO Iterates and build
-            NativeConsole.RunProcess(path + "/build_plugin.sh", string.Empty, path, output => commandOutput.AppendLine(output));
+            var commandOutput = new StringBuilder("Compile Android Native Plugins");
+            var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins");
+
+            var dirs = Directory.GetDirectories(path);
+            foreach(var plugin in dirs)
+            {
+                var msg = string.Format("Compiling native plugin {0}", plugin);
+                Debug.Log(msg);
+                commandOutput.AppendLine(msg);
+
+                NativeConsole.RunProcess(Path.Combine(plugin, "build_plugin.sh"), string.Empty, path, output => commandOutput.AppendLine(output));
+            }
             Debug.Log(commandOutput.ToString());
         }
 
         [MenuItem("Window/Sparta/Build/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
-            var commandOutput = new StringBuilder();
-            var path = Path.Combine(SourcesDirectoryPath, "Ios/sp_unity_plugins"); // TODO Apple folders
-            NativeConsole.RunProcess("xcodebuild", "-target PluginDependencies", path, output => commandOutput.AppendLine(output));
-            Debug.Log(commandOutput.ToString());
+            CompileAppleProjectTarget("PluginDependencies"); // TODO Rename iOS target names as in Android
         }
 
         [MenuItem("Window/Sparta/Build/tvOS Plugins", false, 202)]
         public static void CompileTVOS()
         {
-            // TODO Compile Xcode project
+            CompileAppleProjectTarget("PluginDependencies_tvOS");
         }
 
         [MenuItem("Window/Sparta/Build/OSX Plugins", false, 202)]
         public static void CompileOSX()
         {
-            // TODO Compile Xcode project
+            // TODO Compile Xcode project for OSX
         }
 
         [MenuItem("Window/Sparta/Build/Build All", false, 500)]
@@ -77,6 +86,18 @@ namespace SpartaTools.Editor.Build
             CompileOSX();
         }
 
+        static void CompileAppleProjectTarget(string target)
+        {
+            var commandOutput = new StringBuilder(string.Format("Compile SPUnityPlugins {0} for Apple Platforms", target));
+            var path = Path.Combine(SourcesDirectoryPath, "Ios/sp_unity_plugins"); // TODO Apple folders & fix target dependencies (copy -> build)
+
+            var msg = string.Format("Building target '{0}' for SPUnityPlugins '{1}'", target, path);
+            Debug.Log(msg);
+            commandOutput.AppendLine(msg);
+
+            NativeConsole.RunProcess("xcodebuild", string.Format("-target {0}", target), path, output => commandOutput.AppendLine(output));
+            Debug.Log(commandOutput.ToString());
+        }
         #endregion
     }
 }
