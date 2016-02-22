@@ -19,6 +19,15 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        static string AndroidNDKPath
+        {
+            get
+            {
+                // Retrieve stored NDK path from Unity settings
+                return EditorPrefs.GetString("AndroidNdkRoot");
+            }
+        }
+
         #region Editor options
 
         [MenuItem("Window/Sparta/Build/Android Plugins", false, 101)]
@@ -53,7 +62,7 @@ namespace SpartaTools.Editor.Build
                 Debug.Log(msg);
                 commandOutput.AppendLine(msg);
 
-                NativeConsole.RunProcess(Path.Combine(plugin, "build_plugin.sh"), string.Empty, path, output => commandOutput.AppendLine(output));
+                NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", plugin, AndroidNDKPath), path, output => commandOutput.AppendLine(output));
             }
             Debug.Log(commandOutput.ToString());
         }

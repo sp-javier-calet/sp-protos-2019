@@ -1,7 +1,15 @@
 #!/bin/sh
 
+LOCAL_PATH=$( pwd )
+
 MODULE_NAME=$1
-MODULE_PATH=$2
+MODULE_PATH=$LOCAL_PATH/$MODULE_NAME
+
+echo "Compiling module in $MODULE_PATH"
+
+if [ ! -z "$2" ]; then
+    NDK_PATH=$2
+fi
 
 clean() {
     echo "Cleaning up\n"
@@ -15,17 +23,15 @@ abort()
     exit 1
 }
 
-# Redirect error output
 
 echo "\n\n *** BUILD ANDROID NDK PLUGIN ***  \n"
 
 clean $MODULE_PATH
 
-cd $MODULE_PATH/jni
+cd $MODULE_NAME/jni 2>&1
 echo "Compiling '$MODULE_NAME' Android Native plugin"
-OUTPUT="$( ndk-build NDK_APPLICATION_MK=Application.mk 2>&1)"
+$NDK_PATH/ndk-build NDK_APPLICATION_MK=Application.mk 2>&1
 BUILD_SUCCESS=$?
-echo "$OUTPUT\n";
 cd ..
 
 # Check success code
@@ -35,8 +41,6 @@ if [ $BUILD_SUCCESS != 0 ] ; then
 else
     echo "\nCOMPILATION SUCCESS\n"
 fi
-
-
 
 echo "Installing Unity Plugin..."
 mkdir -p $MODULE_PATH/libs
