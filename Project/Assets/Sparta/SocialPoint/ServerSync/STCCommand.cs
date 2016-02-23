@@ -13,7 +13,7 @@ namespace SocialPoint.ServerSync
         public string Name { get; private set; }
         public long Timestamp { get; private set; }
 
-        public AttrDic Args { get; private set; }
+        public Attr Args { get; private set; }
 
         protected STCCommand(string name, AttrDic data)
         {
@@ -47,9 +47,9 @@ namespace SocialPoint.ServerSync
             return data.Get(CommandTimestampKey).AsValue.ToLong();
         }
 
-        public static AttrDic getArgs(AttrDic data)
+        public static Attr getArgs(AttrDic data)
         {
-            return data.Get(CommandArgsKey).AsDic;
+            return data.Get(CommandArgsKey);
         }
 
         #endregion
