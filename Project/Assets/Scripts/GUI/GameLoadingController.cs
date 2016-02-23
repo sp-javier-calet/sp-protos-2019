@@ -113,6 +113,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoadSceneStart()
     {
+        Hide();
         this.LoadSceneAsyncProgress(_sceneToLoad, op => {
             _loadSceneOperation.Progress = op.progress;
             if(op.isDone)
