@@ -38,7 +38,23 @@ namespace SocialPoint.GUIControl
         public bool DestroyOnHide = false;
 
         [HideInInspector]
-        public static UILayersController LayersController;
+        UILayersController _layersController;
+        public UILayersController LayersController
+        {
+            get
+            {
+                if(_layersController == null)
+                {
+                    _layersController = FindObjectOfType<UILayersController>();
+                }
+                return _layersController;
+            }
+
+            set
+            {
+                _layersController = value;
+            }
+        }
 
         [SerializeField]
         private List<GameObject> _containers3d = new List<GameObject>();
