@@ -292,20 +292,19 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        public DateTime CurrentTime
+        long CurrentTimestamp
         {
             get
             {
-                return TimeUtils.Now;
+                return TimeUtils.GetTimestamp(DateTime.Now);//Do not use 'TimeUtils.Timestamp' nor 'TimeUtils.Now' because they apply a server offset
             }
         }
 
-
-        public long CurrentTimestamp
+        long CurrentSyncedTimestamp
         {
             get
             {
-                return TimeUtils.Timestamp;
+                return TimeUtils.Timestamp;//Dependant on server offset
             }
         }
 
@@ -461,7 +460,7 @@ namespace SocialPoint.ServerEvents
             common.SetValue("plat", DeviceInfo.Platform);
             var version = DeviceInfo.AppInfo.ShortVersion + "-" + DeviceInfo.AppInfo.Version;
             common.SetValue("ver", version);
-            common.SetValue("ts", CurrentTimestamp);
+            common.SetValue("ts", CurrentSyncedTimestamp);
             AddHardwareData(common);
             data.Set("events", evs);
             
