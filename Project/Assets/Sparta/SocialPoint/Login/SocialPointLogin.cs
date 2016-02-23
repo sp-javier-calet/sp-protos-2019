@@ -740,15 +740,13 @@ namespace SocialPoint.Login
             //If no errors, track successful login
             if(Error.IsNullOrEmpty(err) && TrackEvent != null)
             {
-                var evData = new AttrDic();
                 var loginData = new AttrDic();
-                evData.Set(AttrKeyEventLogin, loginData);
                 loginData.SetValue(AttrKeyHttpDuration, resp.Duration);
                 loginData.SetValue(AttrKeyHttpTransferDuration, resp.TransferDuration);
                 loginData.SetValue(AttrKeyHttpConnectionDuration, resp.ConnectionDuration);
                 loginData.SetValue(AttrKeyHttpDownloadSize, resp.DownloadSize / 1024.0);
                 loginData.SetValue(AttrKeyHttpDownloadSpeed, resp.DownloadSpeed / 1024.0);
-                TrackEvent(EventNameLogin, evData);
+                TrackEvent(EventNameLogin, loginData);
             }
 
             OnLoginEnd(err, cbk);
