@@ -12,13 +12,13 @@ namespace SpartaTools.Editor.Sync.View
     {
         #region Editor options
 
-        [MenuItem("Window/Sparta/Sync/Sync Tools", false, 9)]
+        [MenuItem("Sparta/Sync/Sync Tools", false, 9)]
         public static void ShowWindow()
         {
             EditorWindow.GetWindow(typeof(SyncProjectWindow), false, "Sparta Sync", true);
         }
 
-        [MenuItem("Window/Sparta/Sync/Create module...", false, 30)]
+        [MenuItem("Sparta/Sync/Create module...", false, 30)]
         public static void CreateModule()
         {
             var path = EditorUtility.OpenFolderPanel("Select module root", 
@@ -36,7 +36,7 @@ namespace SpartaTools.Editor.Sync.View
             }
         }
 
-        [MenuItem("Window/Sparta/Sync/Advanced Mode", false, 50)]
+        [MenuItem("Sparta/Sync/Advanced Mode", false, 50)]
         public static void ToggleAdvanced()
         {
             Sparta.AdvancedMode = !Sparta.AdvancedMode;

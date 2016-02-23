@@ -9,7 +9,7 @@ namespace SpartaTools.Editor.Sync.View
     {
         #region Editor options
 
-        [MenuItem("Window/Sparta/Sync/Module Info", false, 5)]
+        [MenuItem("Sparta/Sync/Module Info", false, 5)]
         public static void ShowWindow()
         {
             EditorWindow.GetWindow(typeof(ModuleEditorWindow), false, "Sparta Module", true);
