@@ -1,5 +1,6 @@
 using System;
 using SocialPoint.Base;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
@@ -52,11 +53,7 @@ namespace SocialPoint.ServerSync
         {
         }
 
-        public void Add(Command cmd, Action callback)
-        {
-        }
-
-        public void Add(Command cmd, ErrorDelegate callback = null)
+        public void Add(Command cmd, Action<Attr, Error> callback)
         {
         }
 

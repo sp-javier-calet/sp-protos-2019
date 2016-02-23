@@ -59,7 +59,7 @@ namespace SocialPoint.Notifications
             string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
             if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && pushToken != currentPushToken)
             {
-                _commandQueue.Add(new PushEnabledCommand(pushToken), err => {
+                _commandQueue.Add(new PushEnabledCommand(pushToken), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
                         PlayerPrefs.SetString(kPushTokenKey, pushToken);
