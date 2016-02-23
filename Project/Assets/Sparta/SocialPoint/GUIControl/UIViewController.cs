@@ -302,7 +302,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnStart()
         {
-            if(ParentController == null && isActiveAndEnabled && transform.parent != null && _showCoroutine == null)
+            if(ParentController == null && gameObject.activeInHierarchy && _showCoroutine == null)
             {
                 ShowImmediate();
             }
