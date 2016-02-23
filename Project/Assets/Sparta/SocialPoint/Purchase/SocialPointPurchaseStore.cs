@@ -16,7 +16,7 @@ namespace SocialPoint.Purchase
         public AttrDic AdditionalData;
     }
 
-    public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt,PurchaseResponseType response);
+    public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
 
     public interface IGamePurchaseStore
     {
@@ -145,9 +145,9 @@ namespace SocialPoint.Purchase
             ORDER_SYNCED = 265
         }
 
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+        public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
-        public delegate void RequestSetupDelegate(HttpRequest req,string Uri);
+        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
         /// <summary>
         /// Should be connected to the event tracker to track purchase events
