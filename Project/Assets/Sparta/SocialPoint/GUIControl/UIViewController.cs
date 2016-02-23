@@ -38,11 +38,22 @@ namespace SocialPoint.GUIControl
         public bool DestroyOnHide = false;
 
         [HideInInspector]
+        public static UILayersController DefaultLayersController;
+
+        [HideInInspector]
         UILayersController _layersController;
         public UILayersController LayersController
         {
             get
             {
+                if(ParentController != null)
+                {
+                    return ParentController.LayersController;
+                }
+                if(DefaultLayersController != null)
+                {
+                    return DefaultLayersController;
+                }
                 if(_layersController == null)
                 {
                     _layersController = FindObjectOfType<UILayersController>();

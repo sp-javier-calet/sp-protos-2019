@@ -42,7 +42,13 @@ public class GUIInstaller : MonoInstaller, IDisposable, IInitializable
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
         }
-                   
+        var layers = root.GetComponentInChildren<UILayersController>();
+        if(layers != null)
+        {
+            Container.Rebind<UILayersController>().ToSingleInstance(layers);
+            UIViewController.DefaultLayersController = layers;
+        }
+
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
