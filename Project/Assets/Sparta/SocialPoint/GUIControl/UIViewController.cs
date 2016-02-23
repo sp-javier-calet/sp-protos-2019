@@ -46,6 +46,10 @@ namespace SocialPoint.GUIControl
         {
             get
             {
+                if(_layersController != null)
+                {
+                    return _layersController;
+                }
                 if(ParentController != null)
                 {
                     return ParentController.LayersController;
