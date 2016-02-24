@@ -83,7 +83,6 @@
 		468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		468E001E1C3E75E500CA07AF /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
-		468E001F1C3E75E500CA07AF /* SPUnityAlertViewFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490231C1F11D900A10FEA /* SPUnityAlertViewFacade.mm */; };
 		468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490281C1F11D900A10FEA /* SPUnityKeychainFacade.mm */; };
 		468E00211C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
 		468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
@@ -1139,7 +1138,6 @@
 				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
 				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
 				468E001E1C3E75E500CA07AF /* SPUnityCrashReporter.mm in Sources */,
-				468E001F1C3E75E500CA07AF /* SPUnityAlertViewFacade.mm in Sources */,
 				468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */,
 				468E00211C3E75E500CA07AF /* (null) in Sources */,
 				468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */,
