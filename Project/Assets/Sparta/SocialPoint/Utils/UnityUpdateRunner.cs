@@ -153,17 +153,65 @@ namespace SocialPoint.Utils
             }
         }
 
-        public static void LoadSceneAsync(this ICoroutineRunner runner, string sceneName, Action<AsyncOperation> finished, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
+        public static AsyncOperation LoadSceneAsync(this ICoroutineRunner runner, string name, Action<AsyncOperation> finished)
         {
-            runner.StartCoroutine(DoLoadSceneAsync(sceneName, finished, loadSceneMode));
+            return LoadSceneAsync(runner, name, LoadSceneMode.Single, finished);
         }
 
-        static IEnumerator DoLoadSceneAsync(string sceneName, Action<AsyncOperation> finished, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
+        public static AsyncOperation LoadSceneAsync(this ICoroutineRunner runner, int index, Action<AsyncOperation> finished)
         {
-            var op = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
+            return LoadSceneAsync(runner, index, LoadSceneMode.Single, finished);
+        }
+
+        public static AsyncOperation LoadSceneAsync(this ICoroutineRunner runner, string name, LoadSceneMode mode, Action<AsyncOperation> finished)
+        {
+            return LoadSceneAsync(runner, name, false, mode, finished);
+        }
+
+        public static AsyncOperation LoadSceneAsync(this ICoroutineRunner runner, int index, LoadSceneMode mode, Action<AsyncOperation> finished)
+        {
+            return LoadSceneAsync(runner, index, false, mode, finished);
+        }
+
+        public static AsyncOperation LoadSceneAsyncProgress(this ICoroutineRunner runner, int index, Action<AsyncOperation> finished)
+        {
+            return LoadSceneAsync(runner, index, LoadSceneMode.Single, finished);
+        }
+
+        public static AsyncOperation LoadSceneAsyncProgress(this ICoroutineRunner runner, string name, Action<AsyncOperation> finished)
+        {
+            return LoadSceneAsync(runner, name, LoadSceneMode.Single, finished);
+        }
+
+        public static AsyncOperation LoadSceneAsyncProgress(this ICoroutineRunner runner, int index, LoadSceneMode mode, Action<AsyncOperation> finished)
+        {
+            return LoadSceneAsync(runner, index, true, mode, finished);
+        }
+
+        public static AsyncOperation LoadSceneAsyncProgress(this ICoroutineRunner runner, string name, LoadSceneMode mode, Action<AsyncOperation> finished)
+        {
+            return LoadSceneAsync(runner, name, true, mode, finished);
+        }
+
+        static AsyncOperation LoadSceneAsync(this ICoroutineRunner behaviour, string name, bool progress, LoadSceneMode mode, Action<AsyncOperation> finished)
+        {
+            var op = SceneManager.LoadSceneAsync(name, mode);
+            behaviour.StartCoroutine(CheckAsyncOp(op, progress, finished));
+            return op;
+        }
+
+        static AsyncOperation LoadSceneAsync(this ICoroutineRunner behaviour, int index, bool progress, LoadSceneMode mode, Action<AsyncOperation> finished)
+        {
+            var op = SceneManager.LoadSceneAsync(index, mode);
+            behaviour.StartCoroutine(CheckAsyncOp(op, progress, finished));
+            return op;
+        }
+
+        static IEnumerator CheckAsyncOp(AsyncOperation op, bool progress, Action<AsyncOperation> finished)
+        {
             while(!op.isDone)
             {
-                if(finished != null)
+                if(progress && finished != null)
                 {
                     finished(op);
                 }
