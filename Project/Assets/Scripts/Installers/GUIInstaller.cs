@@ -10,6 +10,7 @@ using SocialPoint.ScriptEvents;
 public class GUIInstaller : MonoInstaller, IDisposable, IInitializable
 {
     const string UIViewControllerSuffix = "Controller";
+    const string GUIRootPrefab = "GUI_Root";
 
     [Serializable]
     public class SettingsData
@@ -30,25 +31,41 @@ public class GUIInstaller : MonoInstaller, IDisposable, IInitializable
 
         Container.BindInstance("popup_fade_speed", Settings.PopupFadeSpeed);
 
-        var popups = GameObject.FindObjectOfType<PopupsController>();
+        var root = CreateRoot();
+        var popups = root.GetComponentInChildren<PopupsController>();
         if(popups != null)
         {
             Container.Rebind<PopupsController>().ToSingleInstance(popups);
         }
-        var screens = GameObject.FindObjectOfType<ScreensController>();
+        var screens = root.GetComponentInChildren<ScreensController>();
         if(screens != null)
         {
             Container.Rebind<ScreensController>().ToSingleInstance(screens);
         }
-
-        var uiLayerController = GameObject.FindObjectOfType<UILayersController>();
-        if(uiLayerController != null)
+        var layers = root.GetComponentInChildren<UILayersController>();
+        if(layers != null)
         {
-            UIViewController.LayersController = uiLayerController;
+            Container.Rebind<UILayersController>().ToSingleInstance(layers);
+            UIViewController.DefaultLayersController = layers;
         }
-                
+
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
+    }
+
+    GameObject CreateRoot()
+    {
+        var root = Resources.Load<GameObject>(GUIRootPrefab);
+        if(root == null)
+        {
+            throw new InvalidOperationException("Could not load GUI root prefab.");
+        }
+        var rname = root.name;
+        root = Instantiate<GameObject>(root);
+        root.name = rname;
+        Container.InjectGameObject(root);
+        DontDestroyOnLoad(root);
+        return root;
     }
 
     public void Initialize()
