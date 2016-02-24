@@ -7,10 +7,26 @@ namespace SocialPoint.ServerMessaging
 {
     public interface IMessageCenter
     {
-        List<Message> Messages{get;}
-        void SendMessage(Message message, Action<Error> cbk = null);
-        void DeleteMessages(List<Message> messages, Action<Error> cbk = null);
-        void RequestMessages(Action<List<Message>,Error> cbk = null);
+        IEnumerator<Message> Messages{ get; }
+
+        event Action<Error> ErrorEvent;
+        event Action<IMessageCenter> UpdatedEvent;
+
+        void Load();
+
+        void SendMessage(Message message);
+
+        void DeleteMessages(List<Message> messages);
+    }
+
+    public static class MessageCenterExtensions
+    {
+        public static void DeleteMessage(this IMessageCenter msgs, Message msg)
+        {
+            var list = new List<Message>();
+            list.Add(msg);
+            msgs.DeleteMessages(list);
+        }
     }
 }
 

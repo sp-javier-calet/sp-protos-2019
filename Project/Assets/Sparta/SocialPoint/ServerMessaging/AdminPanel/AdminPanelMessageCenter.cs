@@ -17,7 +17,7 @@ namespace SocialPoint.ServerMessaging
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Messages");
-            layout.CreateButton("Get Messages", () => _mesageCenter.RequestMessages());
+            layout.CreateButton("Load", _mesageCenter.Load);
         }
 
         #endregion
