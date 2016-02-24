@@ -193,17 +193,17 @@ namespace SocialPoint.Utils
             return LoadSceneAsync(runner, name, true, mode, finished);
         }
 
-        static AsyncOperation LoadSceneAsync(this ICoroutineRunner behaviour, string name, bool progress, LoadSceneMode mode, Action<AsyncOperation> finished)
+        static AsyncOperation LoadSceneAsync(this ICoroutineRunner runner, string name, bool progress, LoadSceneMode mode, Action<AsyncOperation> finished)
         {
             var op = SceneManager.LoadSceneAsync(name, mode);
-            behaviour.StartCoroutine(CheckAsyncOp(op, progress, finished));
+            runner.StartCoroutine(CheckAsyncOp(op, progress, finished));
             return op;
         }
 
-        static AsyncOperation LoadSceneAsync(this ICoroutineRunner behaviour, int index, bool progress, LoadSceneMode mode, Action<AsyncOperation> finished)
+        static AsyncOperation LoadSceneAsync(this ICoroutineRunner runner, int index, bool progress, LoadSceneMode mode, Action<AsyncOperation> finished)
         {
             var op = SceneManager.LoadSceneAsync(index, mode);
-            behaviour.StartCoroutine(CheckAsyncOp(op, progress, finished));
+            runner.StartCoroutine(CheckAsyncOp(op, progress, finished));
             return op;
         }
 
