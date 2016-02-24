@@ -71,8 +71,14 @@ namespace SocialPoint.Login
         private const string AttrKeyEventErrorData = "data";
         public const string AttrKeyHttpCode = "http_code";
         public const string AttrKeySignature = "signature";
+        private const string AttrKeyHttpDuration = "duration";
+        private const string AttrKeyHttpTransferDuration = "transfer_duration";
+        private const string AttrKeyHttpConnectionDuration = "connection_duration";
+        private const string AttrKeyHttpDownloadSize = "download_size";
+        private const string AttrKeyHttpDownloadSpeed = "download_speed";
 
         private const string EventNameLoading = "game.loading";
+        private const string EventNameLogin = "game.login";
         private const string EventNameError = "errors.login_error";
 
         private const string SignatureSeparator = ":";
@@ -103,7 +109,7 @@ namespace SocialPoint.Login
         public const string SourceParamEnvironment = "envurl";
         public const string SourceParamPrivilegeToken = "privilegedToken";
         public const string SourceParamUserId = "userId";
-        
+
         public struct LoginConfig
         {
             public string BaseUrl;
@@ -116,7 +122,7 @@ namespace SocialPoint.Login
         LoginConfig _loginConfig;
         string _baseUrl;
         int _availableSecurityTokenErrorRetries;
-        int _availableConnectivityErrorRetries;        
+        int _availableConnectivityErrorRetries;
         IHttpClient _httpClient;
         IAppEvents _appEvents;
         List<LinkInfo> _links;
@@ -127,7 +133,7 @@ namespace SocialPoint.Login
         bool _userHasRegistered;
         bool _userHasRegisteredLoaded;
         string _securityToken;
-        
+
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
         public event NewUserStreamDelegate NewUserStreamEvent = null;
@@ -224,7 +230,7 @@ namespace SocialPoint.Login
 
         public List<User> Friends { get; private set; }
 
-        public IDeviceInfo DeviceInfo { private get; set; }       
+        public IDeviceInfo DeviceInfo { private get; set; }
 
         public IAttrStorage Storage { private get; set; }
 
@@ -233,7 +239,7 @@ namespace SocialPoint.Login
         public float ActivityTimeout { private get; set; }
 
         public bool AutoUpdateFriends { private get; set; }
-       
+
         public uint AutoUpdateFriendsPhotosSize { private get; set; }
 
         public uint UserMappingsBlock { private get; set; }
@@ -380,7 +386,6 @@ namespace SocialPoint.Login
         }
 
         public string BaseUrl
-
         {
             get
             {
@@ -419,7 +424,7 @@ namespace SocialPoint.Login
             _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
             _availableConnectivityErrorRetries = config.ConnectivityErrors;
         }
-                
+
         bool CheckFakeEnvironment(ErrorDelegate cbk)
         {
             if(FakeEnvironment)
@@ -629,7 +634,7 @@ namespace SocialPoint.Login
                 NotifyError(typ, err, data);
             }
             return err;
-        }      
+        }
 
         public Uri GetUrl(string path)
         {
@@ -731,6 +736,19 @@ namespace SocialPoint.Login
             {
                 err = OnNewLocalUser(resp);
             }
+
+            //If no errors, track successful login
+            if(Error.IsNullOrEmpty(err) && TrackEvent != null)
+            {
+                var loginData = new AttrDic();
+                loginData.SetValue(AttrKeyHttpDuration, resp.Duration);
+                loginData.SetValue(AttrKeyHttpTransferDuration, resp.TransferDuration);
+                loginData.SetValue(AttrKeyHttpConnectionDuration, resp.ConnectionDuration);
+                loginData.SetValue(AttrKeyHttpDownloadSize, resp.DownloadSize / 1024.0);
+                loginData.SetValue(AttrKeyHttpDownloadSpeed, resp.DownloadSpeed / 1024.0);
+                TrackEvent(EventNameLogin, loginData);
+            }
+
             OnLoginEnd(err, cbk);
         }
 
@@ -1099,50 +1117,50 @@ namespace SocialPoint.Login
                 switch(key)
                 {
                 case AttrKeyLoginData:
-                {
-                    _user = LoadLocalUser(reader.ParseElement());
-                    if(_user == null)
                     {
-                        err = new Error("Could not load the user.");
-                    }
-                    else
-                    {
-                        userIdChanged = UserId != _user.Id;
-                        UserId = _user.Id;
-                    }
-                    break;
-                }
-                case AttrKeyGameData:
-                {
-                    if(NewUserStreamEvent != null)
-                    {
-                        if(!NewUserStreamEvent(reader))
+                        _user = LoadLocalUser(reader.ParseElement());
+                        if(_user == null)
                         {
-                            errType = ErrorType.GameDataParse;
-                            err = new Error("Could not load Game Data");
+                            err = new Error("Could not load the user.");
                         }
+                        else
+                        {
+                            userIdChanged = UserId != _user.Id;
+                            UserId = _user.Id;
+                        }
+                        break;
                     }
-                    else if(NewUserEvent != null)
+                case AttrKeyGameData:
                     {
-                        gameData = reader.ParseElement();
+                        if(NewUserStreamEvent != null)
+                        {
+                            if(!NewUserStreamEvent(reader))
+                            {
+                                errType = ErrorType.GameDataParse;
+                                err = new Error("Could not load Game Data");
+                            }
+                        }
+                        else if(NewUserEvent != null)
+                        {
+                            gameData = reader.ParseElement();
+                        }
+                        else
+                        {
+                            reader.SkipElement();
+                        }
+                        break;
                     }
-                    else
-                    {
-                        reader.SkipElement();
-                    }
-                    break;
-                }
                 case AttrKeyGenericData:
-                {
-                    LoadGenericData(reader);
-                    if(Data != null && Data.Upgrade != null && Data.Upgrade.Type != UpgradeType.None)
                     {
-                        // Check for upgrade
-                        err = new Error(Data.Upgrade.Message);
-                        errType = ErrorType.Upgrade;
+                        LoadGenericData(reader);
+                        if(Data != null && Data.Upgrade != null && Data.Upgrade.Type != UpgradeType.None)
+                        {
+                            // Check for upgrade
+                            err = new Error(Data.Upgrade.Message);
+                            errType = ErrorType.Upgrade;
+                        }
+                        break;
                     }
-                    break;
-                }
                 default:
                     reader.SkipElement();
                     break;
@@ -1197,7 +1215,7 @@ namespace SocialPoint.Login
 
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
-            if((resp.HasRecoverableError) &&_availableConnectivityErrorRetries > 0 && _loginConfig.EnableOnLinkConfirm)
+            if((resp.HasRecoverableError) && _availableConnectivityErrorRetries > 0 && _loginConfig.EnableOnLinkConfirm)
             {
                 _availableConnectivityErrorRetries--;
                 ConfirmLink(linkToken, decision, cbk);
