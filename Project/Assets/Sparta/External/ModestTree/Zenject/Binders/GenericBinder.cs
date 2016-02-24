@@ -11,9 +11,8 @@ namespace Zenject
     public class GenericBinder<TContract> : TypeBinder
     {
         public GenericBinder(
-            DiContainer container, string identifier,
-            SingletonProviderMap singletonMap)
-            : base(container, typeof(TContract), identifier, singletonMap)
+            DiContainer container, string identifier)
+            : base(container, typeof(TContract), identifier)
         {
         }
 
@@ -120,6 +119,18 @@ namespace Zenject
 
 #if !ZEN_NOT_UNITY3D
 
+        public BindingConditionSetter ToSingleMonoBehaviour<TConcrete>(GameObject gameObject)
+            where TConcrete : TContract
+        {
+            return ToSingleMonoBehaviour<TConcrete>(null, gameObject);
+        }
+
+        public BindingConditionSetter ToSingleMonoBehaviour<TConcrete>(string concreteIdentifier, GameObject gameObject)
+            where TConcrete : TContract
+        {
+            return ToSingleMonoBehaviour(concreteIdentifier, typeof(TConcrete), gameObject);
+        }
+
         public BindingConditionSetter ToResource<TConcrete>(string resourcePath)
             where TConcrete : TContract
         {
@@ -140,22 +151,14 @@ namespace Zenject
             return ToTransientPrefab(typeof(TConcrete), prefab);
         }
 
+        // Creates a new game object and adds the given type as a new component on it
         public BindingConditionSetter ToTransientGameObject<TConcrete>()
             where TConcrete : Component, TContract
         {
-            return ToTransientGameObject<TConcrete>(null);
+            return ToTransientGameObject(typeof(TConcrete));
         }
 
         // Creates a new game object and adds the given type as a new component on it
-        // NOTE! The string given here is just a name and not a singleton identifier
-        public BindingConditionSetter ToTransientGameObject<TConcrete>(string name)
-            where TConcrete : Component, TContract
-        {
-            return ToTransientGameObject(typeof(TConcrete), name);
-        }
-
-        // Creates a new game object and adds the given type as a new component on it
-        // NOTE! The string given here is just a name and not a singleton identifier
         public BindingConditionSetter ToSingleGameObject<TConcrete>()
             where TConcrete : Component, TContract
         {
@@ -163,17 +166,10 @@ namespace Zenject
         }
 
         // Creates a new game object and adds the given type as a new component on it
-        // NOTE! The string given here is just a name and not a singleton identifier
-        public BindingConditionSetter ToSingleGameObject<TConcrete>(string name)
+        public BindingConditionSetter ToSingleGameObject<TConcrete>(string concreteIdentifier)
             where TConcrete : Component, TContract
         {
-            return ToSingleGameObject(typeof(TConcrete), name);
-        }
-
-        public BindingConditionSetter ToSingleMonoBehaviour<TConcrete>(GameObject gameObject)
-            where TConcrete : TContract
-        {
-            return ToSingleMonoBehaviourBase<TConcrete>(gameObject);
+            return ToSingleGameObject(typeof(TConcrete), concreteIdentifier);
         }
 
         public BindingConditionSetter ToSinglePrefab<TConcrete>(GameObject prefab)
@@ -182,10 +178,10 @@ namespace Zenject
             return ToSinglePrefab(typeof(TConcrete), null, prefab);
         }
 
-        public BindingConditionSetter ToSinglePrefab<TConcrete>(string identifier, GameObject prefab)
+        public BindingConditionSetter ToSinglePrefab<TConcrete>(string concreteIdentifier, GameObject prefab)
             where TConcrete : TContract
         {
-            return ToSinglePrefab(typeof(TConcrete), identifier, prefab);
+            return ToSinglePrefab(typeof(TConcrete), concreteIdentifier, prefab);
         }
 
         public BindingConditionSetter ToSinglePrefabResource<TConcrete>(string resourcePath)
@@ -194,10 +190,10 @@ namespace Zenject
             return ToSinglePrefabResource(typeof(TConcrete), null, resourcePath);
         }
 
-        public BindingConditionSetter ToSinglePrefabResource<TConcrete>(string identifier, string resourcePath)
+        public BindingConditionSetter ToSinglePrefabResource<TConcrete>(string concreteIdentifier, string resourcePath)
             where TConcrete : TContract
         {
-            return ToSinglePrefabResource(typeof(TConcrete), identifier, resourcePath);
+            return ToSinglePrefabResource(typeof(TConcrete), concreteIdentifier, resourcePath);
         }
 #endif
     }

@@ -8,7 +8,6 @@ namespace Zenject
 {
     public class DisposableManager : IDisposable
     {
-        readonly SingletonInstanceHelper _singletonInstanceHelper;
         readonly List<DisposableInfo> _disposables = new List<DisposableInfo>();
         bool _disposed;
 
@@ -16,11 +15,8 @@ namespace Zenject
             [InjectOptional(InjectSources.Local)]
             List<IDisposable> disposables,
             [InjectOptional(InjectSources.Local)]
-            List<ModestTree.Util.Tuple<Type, int>> priorities,
-            SingletonInstanceHelper singletonInstanceHelper)
+            List<ModestTree.Util.Tuple<Type, int>> priorities)
         {
-            _singletonInstanceHelper = singletonInstanceHelper;
-
             foreach (var disposable in disposables)
             {
                 // Note that we use zero for unspecified priority
@@ -59,8 +55,6 @@ namespace Zenject
             // Dispose in the reverse order that they are initialized in
             var disposablesOrdered = _disposables.OrderBy(x => x.Priority).Reverse().ToList();
 
-            //WarnForMissingBindings();
-
             foreach (var disposable in disposablesOrdered.Select(x => x.Disposable).GetDuplicates())
             {
                 Assert.That(false, "Found duplicate IDisposable with type '{0}'".Fmt(disposable.GetType()));
@@ -82,19 +76,6 @@ namespace Zenject
             }
 
             Log.Debug("Disposed of {0} disposables in DisposablesHandler", disposablesOrdered.Count());
-        }
-
-        void WarnForMissingBindings()
-        {
-            var ignoredTypes = new Type[] { typeof(DisposableManager) };
-            var boundTypes = _disposables.Select(x => x.Disposable.GetType()).Distinct();
-
-            var unboundTypes = _singletonInstanceHelper.GetActiveSingletonTypesDerivingFrom<IDisposable>(boundTypes.Concat(ignoredTypes));
-
-            foreach (var objType in unboundTypes)
-            {
-                Log.Warn("Found unbound IDisposable with type '" + objType.Name() + "'");
-            }
         }
 
         class DisposableInfo

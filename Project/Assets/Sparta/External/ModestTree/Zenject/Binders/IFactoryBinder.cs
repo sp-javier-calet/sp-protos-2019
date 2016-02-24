@@ -47,6 +47,14 @@ namespace Zenject
             return ToCustomFactory<TConcrete, Factory<TConcrete>>();
         }
 
+        public BindingConditionSetter ToFactory(Type concreteType)
+        {
+            Assert.DerivesFrom<TContract>(concreteType);
+
+            var genericType = typeof(Factory<>).MakeGenericType(concreteType);
+            return ToCustomFactory(concreteType, genericType);
+        }
+
         // Note that we assume here that IFactory<TConcrete> is bound somewhere else
         public BindingConditionSetter ToIFactory<TConcrete>()
             where TConcrete : TContract
@@ -73,7 +81,13 @@ namespace Zenject
         public BindingConditionSetter ToCustomFactory<TFactory>()
             where TFactory : IFactory<TContract>
         {
-            return _container.Bind<IFactory<TContract>>(_identifier).ToTransient<TFactory>();
+            return ToCustomFactory(typeof(TFactory));
+        }
+
+        public BindingConditionSetter ToCustomFactory(Type factoryType)
+        {
+            Assert.DerivesFrom<IFactory<TContract>>(factoryType);
+            return _container.Bind<IFactory<TContract>>(_identifier).ToTransient(factoryType);
         }
 
         public BindingConditionSetter ToCustomFactory<TConcrete, TFactory>()
@@ -82,6 +96,19 @@ namespace Zenject
         {
             return _container.Bind<IFactory<TContract>>(_identifier)
                 .ToMethod(c => new FactoryNested<TContract, TConcrete>(c.Container.Instantiate<TFactory>()));
+        }
+
+        public BindingConditionSetter ToCustomFactory(Type concreteType, Type factoryType)
+        {
+            var genericIFactoryType = typeof(IFactory<>).MakeGenericType(concreteType);
+            Assert.That(factoryType.DerivesFrom(genericIFactoryType));
+
+            Assert.DerivesFrom<TContract>(concreteType);
+
+            var genericFactoryNestedType = typeof(FactoryNested<,>).MakeGenericType(typeof(TContract), concreteType);
+
+            return _container.Bind<IFactory<TContract>>(_identifier)
+                .ToMethod(c => (IFactory<TContract>)c.Container.Instantiate(genericFactoryNestedType, c.Container.Instantiate(factoryType)));
         }
 
 #if !ZEN_NOT_UNITY3D
@@ -94,7 +121,7 @@ namespace Zenject
             if (prefab == null)
             {
                 throw new ZenjectBindException(
-                    "Null prefab provided to BindIFactory<{0}>().ToPrefab".Fmt(contractType.Name()));
+                    "Null prefab provided to BindIFactory< {0} >().ToPrefab".Fmt(contractType.Name()));
             }
 
             return _container.Bind<IFactory<TContract>>(_identifier)
@@ -171,7 +198,7 @@ namespace Zenject
             if (prefab == null)
             {
                 throw new ZenjectBindException(
-                    "Null prefab provided to BindIFactory<{0}>().ToPrefab".Fmt(typeof(TContract).Name()));
+                    "Null prefab provided to BindIFactory< {0} >().ToPrefab".Fmt(typeof(TContract).Name()));
             }
 
             return _container.Bind<IFactory<TParam1, TContract>>(_identifier)
@@ -248,7 +275,7 @@ namespace Zenject
             if (prefab == null)
             {
                 throw new ZenjectBindException(
-                    "Null prefab provided to BindIFactory<{0}>().ToPrefab".Fmt(typeof(TContract).Name()));
+                    "Null prefab provided to BindIFactory< {0} >().ToPrefab".Fmt(typeof(TContract).Name()));
             }
 
             return _container.Bind<IFactory<TParam1, TParam2, TContract>>(_identifier)
@@ -325,7 +352,7 @@ namespace Zenject
             if (prefab == null)
             {
                 throw new ZenjectBindException(
-                    "Null prefab provided to BindIFactory<{0}>().ToPrefab".Fmt(typeof(TContract).Name()));
+                    "Null prefab provided to BindIFactory< {0} >().ToPrefab".Fmt(typeof(TContract).Name()));
             }
 
             return _container.Bind<IFactory<TParam1, TParam2, TParam3, TContract>>(_identifier)
@@ -403,7 +430,7 @@ namespace Zenject
             if (prefab == null)
             {
                 throw new ZenjectBindException(
-                    "Null prefab provided to BindIFactory<{0}>().ToPrefab".Fmt(typeof(TContract).Name()));
+                    "Null prefab provided to BindIFactory< {0} >().ToPrefab".Fmt(typeof(TContract).Name()));
             }
 
             return _container.Bind<IFactory<TParam1, TParam2, TParam3, TParam4, TContract>>(_identifier)

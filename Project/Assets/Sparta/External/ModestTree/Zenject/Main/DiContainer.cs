@@ -17,11 +17,12 @@ namespace Zenject
     public class DiContainer : IInstantiator, IResolver, IBinder
     {
         readonly Dictionary<BindingId, List<ProviderBase>> _providers = new Dictionary<BindingId, List<ProviderBase>>();
-        readonly SingletonProviderMap _singletonMap;
         readonly HashSet<Type> _installedInstallers = new HashSet<Type>();
         readonly Stack<Type> _installsInProgress = new Stack<Type>();
         readonly DiContainer _parentContainer;
         readonly Stack<LookupId> _resolvesInProgress = new Stack<LookupId>();
+        readonly SingletonProviderCreator _singletonProviderFactory;
+        readonly SingletonRegistry _singletonRegistry;
 
         bool _isValidating;
 
@@ -32,22 +33,33 @@ namespace Zenject
 
         public DiContainer()
         {
-            _singletonMap = new SingletonProviderMap(this);
+            _singletonRegistry = new SingletonRegistry();
+            _singletonProviderFactory = new SingletonProviderCreator(this, _singletonRegistry);
 
             this.Bind<DiContainer>().ToInstance(this);
             this.Bind<IInstantiator>().ToInstance(this);
-            this.Bind<SingletonProviderMap>().ToInstance(_singletonMap);
-
-#if !ZEN_NOT_UNITY3D
-            this.Bind<PrefabSingletonProviderMap>().ToSingle<PrefabSingletonProviderMap>();
-#endif
-            this.Bind<SingletonInstanceHelper>().ToSingle<SingletonInstanceHelper>();
         }
 
         public DiContainer(DiContainer parentContainer)
             : this()
         {
             _parentContainer = parentContainer;
+        }
+
+        public SingletonProviderCreator SingletonProviderCreator
+        {
+            get
+            {
+                return _singletonProviderFactory;
+            }
+        }
+
+        public SingletonRegistry SingletonRegistry
+        {
+            get
+            {
+                return _singletonRegistry;
+            }
         }
 
 #if !ZEN_NOT_UNITY3D
@@ -74,14 +86,6 @@ namespace Zenject
             }
         }
 #endif
-
-        public SingletonProviderMap SingletonProviderMap
-        {
-            get
-            {
-                return _singletonMap;
-            }
-        }
 
         public DiContainer ParentContainer
         {
@@ -189,11 +193,6 @@ namespace Zenject
             provider.Dispose();
 
             return numRemoved;
-        }
-
-        public IEnumerable<Type> GetDependencyContracts<TContract>()
-        {
-            return GetDependencyContracts(typeof(TContract));
         }
 
         public IEnumerable<ZenjectResolveException> ValidateResolve<TContract>()
@@ -625,6 +624,11 @@ namespace Zenject
 
             Assert.IsNotNull(_parentContainer);
             return _parentContainer.GetContainerHeirarchyDistance(container, depth + 1);
+        }
+
+        public IEnumerable<Type> GetDependencyContracts<TContract>()
+        {
+            return GetDependencyContracts(typeof(TContract));
         }
 
         public IEnumerable<Type> GetDependencyContracts(Type contract)
@@ -1382,6 +1386,21 @@ namespace Zenject
 
         ////////////// IBinder ////////////////
 
+        public void UnbindAll()
+        {
+            foreach (var provider in _providers.Values.SelectMany(x => x))
+            {
+                provider.Dispose();
+            }
+
+            _providers.Clear();
+        }
+
+        public bool Unbind<TContract>()
+        {
+            return Unbind<TContract>(null);
+        }
+
         public bool Unbind<TContract>(string identifier)
         {
             List<ProviderBase> providersToRemove;
@@ -1424,11 +1443,6 @@ namespace Zenject
         public UntypedBinder Bind(Type contractType)
         {
             return Bind(contractType, null);
-        }
-
-        public bool Unbind<TContract>()
-        {
-            return Unbind<TContract>(null);
         }
 
         public bool HasBinding(InjectContext context)
@@ -1554,7 +1568,7 @@ namespace Zenject
         {
             Assert.That(!typeof(TContract).DerivesFromOrEqual<IInstaller>(),
                 "Deprecated usage of Bind<IInstaller>, use Install<IInstaller> instead");
-            return new GenericBinder<TContract>(this, identifier, _singletonMap);
+            return new GenericBinder<TContract>(this, identifier);
         }
 
         public FacadeBinder<TFacade> BindFacade<TFacade>(Action<DiContainer> installerFunc)
@@ -1575,7 +1589,7 @@ namespace Zenject
         {
             Assert.That(!contractType.DerivesFromOrEqual<IInstaller>(),
                 "Deprecated usage of Bind<IInstaller>, use Install<IInstaller> instead");
-            return new UntypedBinder(this, contractType, identifier, _singletonMap);
+            return new UntypedBinder(this, contractType, identifier);
         }
 
 #if !ZEN_NOT_UNITY3D
