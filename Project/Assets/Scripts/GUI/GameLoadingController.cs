@@ -78,6 +78,9 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     [Inject]
     IEventTracker _eventTracker;
 
+    [Inject]
+    ICoroutineRunner _coroutineRunner;
+
     [InjectOptional]
     QualityStats _qualityStats;
 
@@ -113,11 +116,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoadSceneStart()
     {
-        Hide();
-        this.LoadSceneAsyncProgress(_sceneToLoad, op => {
+        _coroutineRunner.LoadSceneAsyncProgress(_sceneToLoad, op => {
             _loadSceneOperation.Progress = op.progress;
             if(op.isDone)
             {
+                Hide();
                 op.allowSceneActivation = true;
                 _loadSceneOperation.Finish("main scene loaded");
             }
