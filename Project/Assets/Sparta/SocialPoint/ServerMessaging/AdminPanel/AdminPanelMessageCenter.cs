@@ -10,14 +10,12 @@ namespace SocialPoint.ServerMessaging
     public class AdminPanelMessageCenter : IAdminPanelGUI, IAdminPanelConfigurer
     {
         IMessageCenter _mesageCenter;
-        //IDeviceInfo _deviceInfo;
         ILogin _login;
-        Text _messagesText;
+        AdminPanelLayout _layout;
 
-        public AdminPanelMessageCenter(IMessageCenter messageCenter, IDeviceInfo deviceInfo, ILogin login)
+        public AdminPanelMessageCenter(IMessageCenter messageCenter, ILogin login)
         {
             _mesageCenter = messageCenter;
-            //_deviceInfo = deviceInfo;
             _login = login;
         }
 
@@ -25,10 +23,18 @@ namespace SocialPoint.ServerMessaging
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            _layout = layout;
             layout.CreateLabel("Message Center");
             layout.CreateButton("Load", _mesageCenter.Load);
             layout.CreateLabel("Messages");
-            _messagesText = layout.CreateTextArea(MessagesAsText());
+            var messages = _mesageCenter.Messages;
+            messages.Reset();
+            while(messages.MoveNext())
+            {
+                var hlayout = layout.CreateHorizontalLayout();
+                hlayout.CreateTextArea(messages.Current.ToString());
+                hlayout.CreateButton("Delete",() => _mesageCenter.DeleteMessage(messages.Current));
+            }
             layout.CreateButton("Delete all Messages", DeleteAllMessages, _mesageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
             _mesageCenter.UpdatedEvent += MessageCenterUpdated;
@@ -58,7 +64,14 @@ namespace SocialPoint.ServerMessaging
 
         void MessageCenterUpdated(IMessageCenter obj)
         {
-            _messagesText.text = MessagesAsText();
+            if(_layout != null && _layout.IsActiveInHierarchy)
+            {
+                _layout.Refresh();
+            }
+            else
+            {
+                _layout = null;//Clear previous reference
+            }
         }
 
         void SendTestMessageItself()

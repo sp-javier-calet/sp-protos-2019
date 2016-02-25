@@ -107,9 +107,9 @@ namespace SocialPoint.ServerMessaging
 
         void ParseMessages(Attr data)
         {
-            var dataList = data.AsList;
+            var messagesList = data.AsDic.Get(MessagesArg).AsList;
             var newMessages = false;
-            foreach(var messageData in dataList)
+            foreach(var messageData in messagesList)
             {
                 var message = new Message(messageData.AsDic);
                 if(!_messages.ContainsKey(message.Id))
@@ -139,8 +139,7 @@ namespace SocialPoint.ServerMessaging
                 }
                 return;
             }
-            var dataDic = data.AsDic;
-            ParseMessages(dataDic.GetValue(MessagesArg));
+            ParseMessages(data);
         }
     }
 }
