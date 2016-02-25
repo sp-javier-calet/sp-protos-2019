@@ -35,8 +35,6 @@ public class GameLoader : IGameLoader
     [InjectOptional]
     ILogin _login;
 
-    GameModel _initialModel;
-
     public string PlayerJsonPath
     {
         get
@@ -61,14 +59,9 @@ public class GameLoader : IGameLoader
 
     GameModel LoadInitialGame()
     {
-        // caching the initial model, should not change in the same execution
-        if(_initialModel == null)
-        {
-            var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
-            var gameData = new JsonAttrParser().ParseString(json);
-            _initialModel = _gameParser.Parse(gameData);
-        }
-        return _initialModel;
+        var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+        var gameData = new JsonAttrParser().ParseString(json);
+        return _gameParser.Parse(gameData);
     }
 
     GameModel LoadSavedGame()
