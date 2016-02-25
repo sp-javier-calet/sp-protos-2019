@@ -22,6 +22,7 @@ namespace SocialPoint.ServerSync
         const string AttrKeyCommands = "commands";
         const string AttrKeyPush = "push";
         const string AttrKeyAcks = "acks";
+        const string AttrKeyResponse = "response";
         const string ErrorEventName = "errors.sync";
         const string AttrKeyEventError = "error";
         const string AttrKeyEventSync = "sync";
@@ -771,26 +772,27 @@ namespace SocialPoint.ServerSync
 
         void ValidateResponse(Attr data, PackedCommand pcmd)
         {
+            var response = data.AsDic.Get(AttrKeyResponse);
             if(pcmd == null)
             {
                 return;
             }
             if(pcmd.Command != null && CommandResponse != null)
             {
-                CommandResponse(pcmd.Command, data);
+                CommandResponse(pcmd.Command, response);
             }
-            Error err = AttrUtils.GetError(data);
+            Error err = AttrUtils.GetError(response);
             if(err == null && pcmd.Command != null)
             {
-                err = pcmd.Command.Validate(data);
+                err = pcmd.Command.Validate(response);
             }
             if(pcmd.Finished != null)
             {
-                pcmd.Finished(data, err);
+                pcmd.Finished(response, err);
             }
             if(err != null && CommandError != null)
             {
-                CommandError(pcmd.Command, err, data);
+                CommandError(pcmd.Command, err, response);
             }
         }
 
