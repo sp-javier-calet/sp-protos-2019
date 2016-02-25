@@ -5,35 +5,6 @@ using SocialPoint.Attributes;
 namespace SocialPoint.ServerMessaging
 {
 
-    public struct Destination
-    {
-        const string IdKey = "id";
-        const string TypeKey = "type";
-
-        public string type;
-        public string id;
-
-        public Destination(string id, string type)
-        {
-            this.id = id;
-            this.type = type;
-        }
-
-        public Destination(AttrDic data)
-        {
-            id = data.GetValue(IdKey).ToString();
-            type = data.GetValue(TypeKey).ToString();
-        }
-
-        public Attr ToAttr()
-        {
-            var attr = new AttrDic();
-            attr.Set(IdKey, new AttrString(id));
-            attr.Set(TypeKey, new AttrString(type));
-            return attr;
-        }
-    }
-
     public struct Origin
     {
         const string TypeKey = "type";
@@ -46,6 +17,14 @@ namespace SocialPoint.ServerMessaging
         public string name;
         public string icon;
 
+        public Origin(string name, string icon)
+        {
+            this.name = name;
+            this.icon = icon;
+            id = null;
+            type = null;
+        }
+
         public Origin(AttrDic data)
         {
             id = data.GetValue(IdKey).ToString();
@@ -56,7 +35,10 @@ namespace SocialPoint.ServerMessaging
 
         public Attr ToAttr()
         {
-            return null;
+            var attr = new AttrDic();
+            attr.Set(NameKey, new AttrString(name));
+            attr.Set(IconKey, new AttrString(icon));
+            return attr;
         }
     }
 
@@ -76,9 +58,16 @@ namespace SocialPoint.ServerMessaging
 
         public AttrDic Params { get; private set; }
 
-        public Destination Destination { get; private set; }
+        public string Destination { get; private set; }
 
-        public Message(string type, AttrDic args, Origin origin, Destination destination)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SocialPoint.ServerMessaging.Message"/> class to be sended.
+        /// </summary>
+        /// <param name="type">Type.</param>
+        /// <param name="args">Arguments.</param>
+        /// <param name="origin">Origin.</param>
+        /// <param name="destination">Destination.</param>
+        public Message(string type, AttrDic args, Origin origin, string destination)
         {
             Id = RandomUtils.GetUuid();
             Type = type;
@@ -87,16 +76,16 @@ namespace SocialPoint.ServerMessaging
             Destination = destination;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SocialPoint.ServerMessaging.Message"/> class that has been received.
+        /// </summary>
+        /// <param name="data">Data.</param>
         public Message(AttrDic data)
         {
             Id = data.GetValue(MessageIdKey).ToString();
             Type = data.GetValue(MessageTypeKey).ToString();
             Origin = new Origin(data.GetValue(MessageOriginKey).AsDic);
             Params = data.GetValue(MessageParamsKey).AsDic;
-            if(data.ContainsKey(MessageDestinationKey))
-            {
-                Destination = new Destination(data.GetValue(MessageDestinationKey).AsDic);
-            }
         }
 
         public Attr ToAttr()
@@ -106,8 +95,13 @@ namespace SocialPoint.ServerMessaging
             data.Set(MessageTypeKey, new AttrString(Type));
             data.Set(MessageParamsKey, Params);
             data.Set(MessageOriginKey, Origin.ToAttr());
-            data.Set(MessageDestinationKey, Destination.ToAttr());
+            data.Set(MessageDestinationKey, new AttrString(Destination));
             return data;
+        }
+
+        override public string ToString()
+        {
+            return string.Format("[message: id:{0}, type:{1}, args{2}, origin: {3}]", Id, Type, Params, Origin);
         }
     }
 }

@@ -18,8 +18,9 @@ namespace SocialPoint.ServerMessaging
         const string GetMessagesCommandName = "messages.get";
         const string SendMessagesCommandName = "messages.send";
         const string DeleteMessagesCommandName = "messages.delete";
-        const string PendingMessagesCommandName = "messages.pending";
-        const string MessagesArgName = "msgs";
+        const string DeleteIdsArg = "ids";
+        const string PendingMessagesCommandName = "messages.new";
+        const string MessagesArg = "msgs";
 
         public MessageCenter(ICommandQueue commandQueue, CommandReceiver commandReceiver)
         {
@@ -53,20 +54,23 @@ namespace SocialPoint.ServerMessaging
 
         public void DeleteMessages(List<Message> messages)
         {
-            var arg = new AttrList();
+            var arg = new AttrDic();
+            var ids = new AttrList();
 
             messages.ForEach((message) => {
                 if(!_messagesPendingDelete.Contains(message.Id))
                 {
-                    arg.Add(new AttrString(message.Id));
+                    ids.Add(new AttrString(message.Id));
                     _messagesPendingDelete.Add(message.Id);
                 }
             });
 
+            arg.Set(DeleteIdsArg, ids);
+
             _commandQueue.Add(new Command(DeleteMessagesCommandName, arg, false, false), (resp, err) => {
                 if(Error.IsNullOrEmpty(err))
                 {
-                    foreach(var messageId in arg)
+                    foreach(var messageId in ids)
                     {
                         _messages.Remove(messageId.ToString());
                         _messagesPendingDelete.Remove(messageId.ToString());
@@ -116,7 +120,11 @@ namespace SocialPoint.ServerMessaging
             }
             if(newMessages)
             {
-                UpdatedEvent(this);
+                var handler = UpdatedEvent;
+                if(handler != null)
+                {
+                    handler(this);
+                }
             }
         }
 
@@ -124,11 +132,15 @@ namespace SocialPoint.ServerMessaging
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                ErrorEvent(err);
+                var handler = ErrorEvent;
+                if(handler != null)
+                {
+                    handler(err);
+                }
                 return;
             }
             var dataDic = data.AsDic;
-            ParseMessages(dataDic.GetValue(MessagesArgName));
+            ParseMessages(dataDic.GetValue(MessagesArg));
         }
     }
 }
