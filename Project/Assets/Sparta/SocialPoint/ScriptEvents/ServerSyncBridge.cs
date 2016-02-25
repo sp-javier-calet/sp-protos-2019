@@ -51,7 +51,10 @@ namespace SocialPoint.ScriptEvents
             if(ev.Command != null)
             {
                 data.SetValue(AttrKeyCommandName, ev.Command.Name);
-                data.Set(AttrKeyCommandArguments, (Attr)ev.Command.Arguments.Clone());
+                if(ev.Command.Arguments != null)
+                {
+                    data.Set(AttrKeyCommandArguments, (Attr)ev.Command.Arguments.Clone());
+                }
             }
             data.Set(AttrKeyResponse, (Attr)ev.Response.Clone());
             return data;
