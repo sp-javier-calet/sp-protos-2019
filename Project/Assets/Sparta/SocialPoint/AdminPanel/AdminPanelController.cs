@@ -48,6 +48,11 @@ namespace SocialPoint.AdminPanel
             };
         }
 
+        void OnLevelWasLoaded(int i)
+        {
+            Hide();
+        }
+
         void InflateGUI()
         {
             _root = new AdminPanelRootLayout(this);
