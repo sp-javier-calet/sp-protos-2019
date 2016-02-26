@@ -5,7 +5,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.ServerMessaging
 {
-    public interface IMessageCenter
+    public interface IMessageCenter : IDisposable
     {
         IEnumerator<Message> Messages{ get; }
 

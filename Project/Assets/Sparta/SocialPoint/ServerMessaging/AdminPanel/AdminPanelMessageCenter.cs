@@ -35,6 +35,7 @@ namespace SocialPoint.ServerMessaging
                 hlayout.CreateTextArea(messages.Current.ToString());
                 hlayout.CreateButton("Delete",() => _mesageCenter.DeleteMessage(messages.Current));
             }
+            layout.CreateButton("Refresh messages", () => MessageCenterUpdated(_mesageCenter));
             layout.CreateButton("Delete all Messages", DeleteAllMessages, _mesageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
             _mesageCenter.UpdatedEvent += MessageCenterUpdated;

@@ -103,6 +103,12 @@ namespace SocialPoint.ServerMessaging
             }
         }
 
+
+        public void Dispose()
+        {
+            _commandReceiver.UnregisterCommand(PendingMessagesCommandName);
+        }
+
         #endregion
 
         void ParseMessages(Attr data)
