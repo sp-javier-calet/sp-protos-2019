@@ -87,6 +87,7 @@ namespace SocialPoint.GUIControl
             var cameraComponent = cameraData.Camera.GetComponent<Camera>();
             cameraComponent.cullingMask = 1 << layer;
             cameraComponent.depth = cameraData.Depth;
+            cameraComponent.clearFlags = CameraClearFlags.Depth;
 
             if(cameraData.Type == UICameraData.CameraType.GUI3D)
             {
