@@ -6,6 +6,13 @@ namespace SocialPoint.ServerMessaging
 {
     public class EmptyMessageCenter : IMessageCenter
     {
+        List<Message> _messages;
+
+        public EmptyMessageCenter()
+        {
+            _messages = new List<Message>();
+        }
+
         #region IMessageCenter implementation
 
         public event Action<SocialPoint.Base.Error> ErrorEvent
@@ -36,7 +43,7 @@ namespace SocialPoint.ServerMessaging
         {
             get
             {
-                return new List<Message>().GetEnumerator();
+                return _messages.GetEnumerator();
             }
         }
 
