@@ -26,11 +26,16 @@ namespace SocialPoint.GUIControl
             [SerializeField]
             CameraType type;
 
+            [SerializeField]
+            int depth;
+
             public GameObject Camera { get { return camera; } }
 
             public string LayerName { get { return layerName; } }
 
             public CameraType Type { get { return type; } }
+
+            public int Depth { get { return depth; } }
 
             public int ElementsInCamera { get; set; }
 
@@ -78,7 +83,10 @@ namespace SocialPoint.GUIControl
             cameraData.Camera.SetActive(false);
             int layer = LayerMask.NameToLayer(cameraData.LayerName);
             cameraData.Layer = layer;
-            cameraData.Camera.GetComponent<Camera>().cullingMask = 1 << layer;
+
+            var cameraComponent = cameraData.Camera.GetComponent<Camera>();
+            cameraComponent.cullingMask = 1 << layer;
+            cameraComponent.depth = cameraData.Depth;
 
             if(cameraData.Type == UICameraData.CameraType.GUI3D)
             {
