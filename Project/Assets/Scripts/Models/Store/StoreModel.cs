@@ -9,7 +9,7 @@ public class StoreModel : IStoreProductSource, IDisposable
 {
     public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
 
-    public event Action<StoreModel> Assigned;
+    public event Action<StoreModel> Moved;
 
     public string[] ProductIds
     {
@@ -44,13 +44,16 @@ public class StoreModel : IStoreProductSource, IDisposable
         }
     }
 
-    public void Assign(StoreModel other)
+    public void Move(StoreModel other)
     {
         PurchaseRewards = other.PurchaseRewards;
 
-        if(Assigned != null)
+        other.PurchaseRewards = null;
+        other.Dispose();
+
+        if(Moved != null)
         {
-            Assigned(this);
+            Moved(this);
         }
     }
 

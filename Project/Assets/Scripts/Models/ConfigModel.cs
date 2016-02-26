@@ -5,14 +5,14 @@ using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 
-public class ConfigModel
+public class ConfigModel : IDisposable
 {
     IDictionary<string, Attr> _globals;
     IList<ScriptModel> _scripts;
     IDictionary<string, ResourceType> _resourceTypes;
     StoreModel _store;
 
-    public event Action<ConfigModel> Assigned;
+    public event Action<ConfigModel> Moved;
 
     public IEnumerable<ScriptModel> Scripts
     {
@@ -68,15 +68,22 @@ public class ConfigModel
         _store = store;
     }
 
-    public void Assign(ConfigModel other)
+    public void Move(ConfigModel other)
     {
         _globals = other._globals;
         _scripts = other._scripts;
         _resourceTypes = other._resourceTypes;
-        _store.Assign(other._store);
-        if(Assigned != null)
+        _store.Move(other._store);
+
+        other._globals = null;
+        other._scripts = null;
+        other._resourceTypes = null;
+        other._store = null;
+        other.Dispose();
+
+        if(Moved != null)
         {
-            Assigned(this);
+            Moved(this);
         }
     }
 
@@ -94,5 +101,10 @@ public class ConfigModel
     {
         return string.Format("[ConfigModel: Globals={0}, Scripts={1}, Resources={2}, Store={3}]",
             _globals.Count, _scripts.Count, _resourceTypes.Count, _store.ToString());
+    }
+
+    public void Dispose()
+    {
+        
     }
 }

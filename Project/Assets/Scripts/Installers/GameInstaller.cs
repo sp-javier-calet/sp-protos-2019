@@ -52,7 +52,7 @@ public class GameInstaller : MonoInstaller
         Container.Install<EconomyInstaller>();
     }
 
-    void OnGameModelAssigned(GameModel game)
+    void OnGameModelMoved(GameModel game)
     {
         Container.Inject(game.Player);
         Container.Inject(game.Config);
@@ -62,7 +62,7 @@ public class GameInstaller : MonoInstaller
     GameModel CreateGameModel(InjectContext ctx)
     {
         var model = new GameModel();
-        model.Assigned += OnGameModelAssigned;
+        model.Moved += OnGameModelMoved;
         return model;
     }
 
