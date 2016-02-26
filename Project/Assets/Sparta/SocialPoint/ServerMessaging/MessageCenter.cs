@@ -57,23 +57,24 @@ namespace SocialPoint.ServerMessaging
             var arg = new AttrDic();
             var ids = new AttrList();
 
-            messages.ForEach((message) => {
-                if(!_messagesPendingDelete.Contains(message.Id))
+            for(int i = 0; i < messages.Count; i++)
+            {
+                if(!_messagesPendingDelete.Contains(messages[i].Id))
                 {
-                    ids.Add(new AttrString(message.Id));
-                    _messagesPendingDelete.Add(message.Id);
+                    ids.Add(new AttrString(messages[i].Id));
+                    _messagesPendingDelete.Add(messages[i].Id);
                 }
-            });
+            }
 
             arg.Set(DeleteIdsArg, ids);
 
             _commandQueue.Add(new Command(DeleteMessagesCommandName, arg, false, false), (resp, err) => {
                 if(Error.IsNullOrEmpty(err))
                 {
-                    foreach(var messageId in ids)
+                    for(int i = 0; i < ids.Count; i++)
                     {
-                        _messages.Remove(messageId.ToString());
-                        _messagesPendingDelete.Remove(messageId.ToString());
+                        _messages.Remove(ids[i].ToString());
+                        _messagesPendingDelete.Remove(ids[i].ToString());
                     }
                 }
                 else
@@ -95,9 +96,9 @@ namespace SocialPoint.ServerMessaging
             get
             {
                 var a = new List<Message>(_messages.Values);
-                foreach(var message in _messagesPendingDelete)
+                for(int i = 0; i < _messagesPendingDelete.Count; i++)
                 {
-                    a.Remove(a.Find(m => m.Id == message));
+                    a.Remove(a.Find(m => m.Id == _messagesPendingDelete[i]));
                 }
                 return a.GetEnumerator();
             }
@@ -115,9 +116,9 @@ namespace SocialPoint.ServerMessaging
         {
             var messagesList = data.AsDic.Get(MessagesArg).AsList;
             var newMessages = false;
-            foreach(var messageData in messagesList)
+            for(int i = 0; i < messagesList.Count; i++)
             {
-                var message = new Message(messageData.AsDic);
+                var message = new Message(messagesList[i].AsDic);
                 if(!_messages.ContainsKey(message.Id))
                 {
                     _messages.Add(message.Id, message);
