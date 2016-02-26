@@ -7,6 +7,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
+using SocialPoint.ServerMessaging;
 using System.Text;
 
 public class EmptyBackendInstaller : MonoInstaller, IInitializable
@@ -43,7 +44,12 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
         }
-
+        if(!Container.HasBinding<IMessageCenter>())
+        {
+            Container.Bind<IMessageCenter>().ToSingle<EmptyMessageCenter>();
+            Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelMessageCenter>();
+        }
     }
 
     public void Initialize()
