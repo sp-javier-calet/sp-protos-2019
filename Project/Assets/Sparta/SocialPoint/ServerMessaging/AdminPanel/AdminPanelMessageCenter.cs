@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
 using SocialPoint.Login;
 using SocialPoint.Hardware;
 using SocialPoint.AdminPanel;
@@ -33,10 +36,11 @@ namespace SocialPoint.ServerMessaging
             {
                 var hlayout = layout.CreateHorizontalLayout();
                 hlayout.CreateTextArea(messages.Current.ToString());
-                hlayout.CreateButton("Delete",() => _mesageCenter.DeleteMessage(messages.Current));
+                hlayout.CreateButton("Delete", () => _mesageCenter.DeleteMessage(messages.Current));
             }
             layout.CreateButton("Refresh messages", () => MessageCenterUpdated(_mesageCenter));
-            layout.CreateButton("Delete all Messages", DeleteAllMessages, _mesageCenter.Messages.MoveNext());
+            layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _mesageCenter.Messages.MoveNext());
+            layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _mesageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
             _mesageCenter.UpdatedEvent += MessageCenterUpdated;
         }
@@ -54,13 +58,13 @@ namespace SocialPoint.ServerMessaging
 
         string MessagesAsText()
         {
-            var result = "";
             var iterator = _mesageCenter.Messages;
+            var stringBuilder = new StringBuilder();
             while(iterator.MoveNext())
             {
-                result += "\n" + iterator.Current;
+                stringBuilder.AppendFormat("\n{0}",iterator.Current);
             }
-            return result;
+            return stringBuilder.ToString();
         }
 
         void MessageCenterUpdated(IMessageCenter obj)
@@ -81,7 +85,7 @@ namespace SocialPoint.ServerMessaging
             _mesageCenter.SendMessage(message);
         }
 
-        void DeleteAllMessages()
+        void DeleteAllMessagesOneByOne()
         {
             var iterator = _mesageCenter.Messages;
             iterator.Reset();
@@ -89,6 +93,19 @@ namespace SocialPoint.ServerMessaging
             {
                 _mesageCenter.DeleteMessage(iterator.Current);
             }
+        }
+
+        void DeleteAllMessagesTogether()
+        {
+            var iterator = _mesageCenter.Messages;
+            iterator.Reset();
+
+            var list = new List<Message>();
+            while(iterator.MoveNext())
+            {
+                list.Add(iterator.Current);
+            }
+            _mesageCenter.DeleteMessages(list);
         }
     }
 }
