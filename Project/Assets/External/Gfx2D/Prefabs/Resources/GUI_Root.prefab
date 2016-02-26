@@ -627,7 +627,7 @@ Camera:
   field of view: 10
   orthographic: 0
   orthographic size: 5
-  m_Depth: 80
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -661,7 +661,7 @@ Camera:
   field of view: 60
   orthographic: 1
   orthographic size: 8.75
-  m_Depth: 30
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -695,7 +695,7 @@ Camera:
   field of view: 10
   orthographic: 0
   orthographic size: 5
-  m_Depth: 20
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -729,7 +729,7 @@ Camera:
   field of view: 10
   orthographic: 0
   orthographic size: 5
-  m_Depth: 40
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -763,7 +763,7 @@ Camera:
   field of view: 60
   orthographic: 1
   orthographic size: 8.75
-  m_Depth: 50
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -797,7 +797,7 @@ Camera:
   field of view: 60
   orthographic: 1
   orthographic size: 8.75
-  m_Depth: 10
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -831,7 +831,7 @@ Camera:
   field of view: 10
   orthographic: 0
   orthographic size: 5
-  m_Depth: 60
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -865,7 +865,7 @@ Camera:
   field of view: 60
   orthographic: 1
   orthographic size: 8.75
-  m_Depth: 70
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
@@ -1231,27 +1231,35 @@ MonoBehaviour:
   - camera: {fileID: 159342}
     layerName: GUILevel1
     type: 0
+    depth: 10
   - camera: {fileID: 151154}
     layerName: GUILevel2
     type: 1
+    depth: 20
   - camera: {fileID: 180798}
     layerName: GUILevel3
     type: 0
+    depth: 30
   - camera: {fileID: 157296}
     layerName: GUILevel4
     type: 1
+    depth: 40
   - camera: {fileID: 148302}
     layerName: GUILevel5
     type: 0
+    depth: 50
   - camera: {fileID: 185256}
     layerName: GUILevel6
     type: 1
+    depth: 60
   - camera: {fileID: 141782}
     layerName: GUILevel7
     type: 0
+    depth: 70
   - camera: {fileID: 102766}
     layerName: GUILevel8
     type: 1
+    depth: 80
 --- !u!114 &11494382
 MonoBehaviour:
   m_ObjectHideFlags: 1
