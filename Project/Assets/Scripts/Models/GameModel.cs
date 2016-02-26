@@ -27,8 +27,15 @@ public class GameModel : IDisposable
     public void Move(GameModel other)
     {
         IsMoved = true;
-        Player.Move(other.Player);
-        Config.Move(other.Config);
+        if(Player != other.Player)
+        {
+            Player.Move(other.Player);
+        }
+
+        if(Config != other.Config)
+        {
+            Config.Move(other.Config);
+        }
 
         other.Player = null;
         other.Config = null;
