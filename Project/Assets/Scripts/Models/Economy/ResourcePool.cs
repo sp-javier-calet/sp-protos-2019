@@ -54,7 +54,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
     {
         return _data.GetEnumerator();
     }
-    
+
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
@@ -99,6 +99,11 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
     {
         get
         {
+            if(_data.Count == 0)
+            {
+                return new KeyValuePair<string,long>(string.Empty, 0);
+            }
+
             var max = new KeyValuePair<string,long>(string.Empty, long.MinValue);
             foreach(var kvp in _data)
             {
@@ -115,6 +120,11 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
     {
         get
         {
+            if(_data.Count == 0)
+            {
+                return new KeyValuePair<string,long>(string.Empty, 0);
+            }
+
             var min = new KeyValuePair<string,long>(string.Empty, long.MaxValue);
             foreach(var kvp in _data)
             {
@@ -197,7 +207,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
             Modified();
         }
     }
-        
+
     public void Assign(long b)
     {
         bool modified = false;
@@ -232,7 +242,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
             Modified();
         }
     }
-        
+
     public void Min(long b)
     {
         bool modified = false;
@@ -267,7 +277,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
             Modified();
         }
     }
-    
+
     public void Max(long b)
     {
         bool modified = false;
@@ -300,7 +310,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
             }
         }
     }
-        
+
     public void Add(long b)
     {
         if(b != 0)
@@ -331,7 +341,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
             }
         }
     }
-        
+
     public void Substract(long b)
     {
         if(b != 0)
@@ -391,7 +401,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
             }
         }
     }
-        
+
     public void Multiply(long b)
     {
         if(b != 1)
@@ -422,7 +432,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
             }
         }
     }
-    
+
     public void Divide(long b)
     {
         if(b != 1)
@@ -467,14 +477,14 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
         c.Substract(b);
         return c;
     }
-    
+
     public static ResourcePool operator*(ResourcePool a, ResourcePool b)
     {
         var c = new ResourcePool(a);
         c.Multiply(b);
         return c;
     }
-        
+
     public static ResourcePool operator*(ResourcePool a, long b)
     {
         var c = new ResourcePool(a);
@@ -488,7 +498,7 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
         c.Divide(b);
         return c;
     }
-        
+
     public static ResourcePool operator/(ResourcePool a, long b)
     {
         var c = new ResourcePool(a);
@@ -502,14 +512,14 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
         c.Min(b);
         return c;
     }
-    
+
     public static ResourcePool Min(ResourcePool a, long b)
     {
         var c = new ResourcePool(a);
         c.Min(b);
         return c;
     }
-        
+
     public static ResourcePool Max(ResourcePool a, ResourcePool b)
     {
         var c = new ResourcePool(a);
