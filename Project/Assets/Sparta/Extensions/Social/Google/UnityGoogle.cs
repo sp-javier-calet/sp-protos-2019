@@ -124,13 +124,12 @@ namespace SocialPoint.Social
 
         void OnLoginEnd(Error err, ErrorDelegate cbk = null)
         {
+            _connecting = false;
             NotifyStateChanged();
-
             if(cbk != null)
             {
                 cbk(err);
             }
-            _connecting = false;
             _loginCallback = null;
         }
 

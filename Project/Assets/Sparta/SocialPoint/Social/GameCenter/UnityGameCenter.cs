@@ -44,10 +44,8 @@ namespace SocialPoint.Social
 
         void OnLoginEnd(Error err, ErrorDelegate cbk = null)
         {
-            if(IsConnected)
-            {
-                NotifyStateChanged();
-            }
+            _connecting = false;
+            NotifyStateChanged();
             if(cbk != null)
             {
                 cbk(err);
@@ -234,7 +232,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return _platform.localUser.authenticated;
+                return _platform.localUser.authenticated && !_connecting;
             }
         }
 
@@ -256,7 +254,7 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-
+            _connecting = true;
             _platform.localUser.Authenticate((bool success) => {
                 if(success)
                 {

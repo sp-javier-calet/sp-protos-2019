@@ -244,10 +244,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
             _connecting = false;
-            if(IsConnected)
-            {
-                NotifyStateChanged();
-            }
+            NotifyStateChanged();
             if(cbk != null)
             {
                 cbk(err);
