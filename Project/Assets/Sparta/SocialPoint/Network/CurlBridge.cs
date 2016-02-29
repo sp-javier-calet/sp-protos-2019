@@ -50,7 +50,10 @@ namespace SocialPoint.Network
         public static extern void SPUnityCurlGetHeaders(int id, byte[] data);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetCode(int id);
+        public static extern int SPUnityCurlGetResponseCode(int id);
+
+        [DllImport(PluginModuleName)]
+        public static extern int SPUnityCurlGetErrorCode(int id);
 
         [DllImport(PluginModuleName)]
         public static extern int SPUnityCurlGetErrorLength(int id);
