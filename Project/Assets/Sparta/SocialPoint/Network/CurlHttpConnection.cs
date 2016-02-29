@@ -216,7 +216,7 @@ namespace SocialPoint.Network
             else if(!Error.IsNullOrEmpty(_error))
             {
                 r.Error = _error;
-                r.StatusCode = GetResponseErrorCode(_error.Code);
+                r.StatusCode = _error.Code;
             }
             else if(r.HasError)
             {
@@ -308,7 +308,9 @@ namespace SocialPoint.Network
                 int errorLength = CurlBridge.SPUnityCurlGetErrorLength(_connectionId);
                 byte[] bytes = new byte[errorLength];
                 CurlBridge.SPUnityCurlGetError(_connectionId, bytes);
-                _error = new Error(errorCode, System.Text.Encoding.ASCII.GetString(bytes));
+                _error = new Error(
+                    GetResponseErrorCode(errorCode),
+                    System.Text.Encoding.ASCII.GetString(bytes));
             }
             
             _body = new byte[0];

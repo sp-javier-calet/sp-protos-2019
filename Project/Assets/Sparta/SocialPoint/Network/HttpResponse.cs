@@ -46,6 +46,18 @@ namespace SocialPoint.Network
             set;
         }
 
+        public int ErrorCode
+        {
+            get
+            {
+                if(Error.IsNullOrEmpty(Error))
+                {
+                    return 0;
+                }
+                return Error.Code;
+            }
+        }
+
         public Error Error { get; set; }
 
         public Dictionary<string, string> Headers { get; set; }

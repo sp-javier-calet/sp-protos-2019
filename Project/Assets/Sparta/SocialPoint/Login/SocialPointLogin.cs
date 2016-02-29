@@ -668,7 +668,7 @@ namespace SocialPoint.Login
             OnLoginEnd(null, cbk);
         }
 
-        void DoLogin(ErrorDelegate cbk)
+        void DoLogin(ErrorDelegate cbk, int lastErrCode=0)
         {
             if(_appEvents != null)
             {
@@ -677,13 +677,13 @@ namespace SocialPoint.Login
             _pendingLinkConfirms.Clear();
             if(_availableSecurityTokenErrorRetries < 0)
             {
-                var err = new Error("Max amount of login retries reached.");
+                var err = new Error(lastErrCode, "Max amount of login retries reached.");
                 NotifyError(ErrorType.LoginMaxRetries, err);
                 OnLoginEnd(err, cbk);
             }
             else if(_availableConnectivityErrorRetries < 0)
             {
-                var err = new Error("There was an error with the connection.");
+                var err = new Error(lastErrCode, "There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
             }
@@ -712,13 +712,13 @@ namespace SocialPoint.Login
             {
                 ClearStoredUser();
                 _availableSecurityTokenErrorRetries--;
-                DoLogin(cbk);
+                DoLogin(cbk, resp.ErrorCode);
                 return;
             }
             else if(resp.HasRecoverableError)
             {
                 _availableConnectivityErrorRetries--;
-                DoLogin(cbk);
+                DoLogin(cbk, resp.ErrorCode);
                 return;
             }
 
