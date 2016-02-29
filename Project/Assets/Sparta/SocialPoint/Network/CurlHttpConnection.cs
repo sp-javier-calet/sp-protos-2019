@@ -213,14 +213,14 @@ namespace SocialPoint.Network
             {
                 r.Error = new Error((int)HttpResponse.StatusCodeType.CancelledError, "Connection was cancelled");
             }
-            else if(r.HasError)
-            {
-                r.Error = new Error(r.StatusCode, "HTTP Server responded with error code.");
-            }
             else if(!Error.IsNullOrEmpty(_error))
             {
                 r.Error = _error;
                 r.StatusCode = GetResponseErrorCode(_error.Code);
+            }
+            else if(r.HasError)
+            {
+                r.Error = new Error(r.StatusCode, "HTTP Server responded with error code.");
             }
             r.OriginalBody = _body;
             r.DownloadSize = _downloadSize;
