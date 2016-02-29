@@ -7,7 +7,7 @@ using Facebook.Unity;
 
 namespace SocialPoint.Social
 {
-    public delegate void PlatformBridgeSessionDelegate(string session,string status,string error);
+    public delegate void PlatformBridgeSessionDelegate(string session, string status, string error);
 
     public class UnityFacebook : BaseFacebook
     {
@@ -42,7 +42,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return FB.IsLoggedIn;
+                return FB.IsLoggedIn && !_connecting;
             }
         }
 
@@ -244,10 +244,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
             _connecting = false;
-            if(IsConnected)
-            {
-                NotifyStateChanged();
-            }
+            NotifyStateChanged();
             if(cbk != null)
             {
                 cbk(err);
@@ -293,10 +290,7 @@ namespace SocialPoint.Social
             FB.API(uri, HttpMethod.GET, (IGraphResult result) => {
                 if(!string.IsNullOrEmpty(result.Error))
                 {
-                    if(cbk != null)
-                    {
-                        cbk(new Error(result.Error));
-                    }
+                    OnLoginEnd(new Error(result.Error), cbk);
                 }
                 else
                 {
@@ -310,30 +304,20 @@ namespace SocialPoint.Social
                         GetLoginFriendsInfo("/me/friends", (err) => {
                             if(!Error.IsNullOrEmpty(err))
                             {
-                                if(cbk != null)
-                                {
-                                    cbk(err);
-                                }
+                                OnLoginEnd(err, cbk);
                             }
                             else
                             {
                                 GetLoginFriendsInfo("/me/invitable_friends", (err2) => {
-                                    if(cbk != null)
-                                    {
-                                        cbk(null);
-                                    }
+                                    OnLoginEnd(err2, cbk);
                                 });
                             }
                         });
                     }
                     else
                     {
-                        if(cbk != null)
-                        {
-                            cbk(new Error("Could not read the user json"));
-                        }
+                        OnLoginEnd(new Error("Could not read the user json"), cbk);
                     }
-
                 }
             });
         }
@@ -419,9 +403,6 @@ namespace SocialPoint.Social
             }
             _connecting = true;
 
-            #if UNITY_EDITOR
-            //_behaviour.StartCoroutine(CheckEditorLoginFail(cbk));
-            #endif
             FB.LogInWithReadPermissions(_loginPermissions, (ILoginResult response) => {
                 var err = new Error(response.Error);
                 if(Error.IsNullOrEmpty(err) && !FB.IsLoggedIn)
@@ -431,30 +412,6 @@ namespace SocialPoint.Social
                 DidLogin(err, cbk);
             });
         }
-
-        /*
-        IEnumerator CheckEditorLoginFail(ErrorDelegate cbk)
-        {
-            bool loaded = false;
-            while(_connecting)
-            {
-                var token = GameObject.FindObjectOfType<EditorFacebookAccessToken>();
-                if(token == null)
-                {
-                    if(loaded)
-                    {
-                        var err = new Error(FacebookErrors.DialogCancelled, "Invalid editor login access token.");
-                        DidLogin(err, cbk);
-                    }
-                    else
-                    {
-                        loaded = true;
-                    }
-                }
-                yield return new WaitForSeconds(0.5f);
-            }
-        }
-        */
 
         public override void QueryGraph(FacebookGraphQuery query, FacebookGraphQueryDelegate cbk = null)
         {
@@ -508,7 +465,7 @@ namespace SocialPoint.Social
             {
                 throw new Exception("Unity Facebook SDK does not have the option to set the app id programatically.");
             }
-        }            
+        }
 
         private void LoadPhotoFromUrl(string url, FacebookPhotoDelegate cbk = null)
         {

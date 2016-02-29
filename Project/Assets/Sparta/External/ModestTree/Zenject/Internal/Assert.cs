@@ -30,6 +30,22 @@ namespace ModestTree
             }
         }
 
+        public static void DerivesFrom<T>(Type type)
+        {
+            if (!type.DerivesFrom<T>())
+            {
+                Throw("Expected type '{0}' to derive from '{1}'", type.Name, typeof(T).Name);
+            }
+        }
+
+        public static void DerivesFromOrEqual<T>(Type type)
+        {
+            if (!type.DerivesFromOrEqual<T>())
+            {
+                Throw("Expected type '{0}' to derive from or be equal to '{1}'", type.Name, typeof(T).Name);
+            }
+        }
+
         //[Conditional("UNITY_EDITOR")]
         public static void IsType<T>(object obj)
         {

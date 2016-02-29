@@ -12,9 +12,8 @@ namespace SocialPoint.ObjectPool
             Awake,
             Start,
             CallManually
-    }
-        ;
-    
+        }
+
         [System.Serializable]
         public class StartupPool
         {
@@ -52,7 +51,7 @@ namespace SocialPoint.ObjectPool
         private Dictionary<GameObject, GameObject> _spawnedObjects = new Dictionary<GameObject, GameObject>();
         private HashSet<GameObject> _nonPulledPrefabs = new HashSet<GameObject>();
         private bool startupPoolsCreated = false;
-    
+
         void Awake()
         {
             _instance = this;
@@ -61,7 +60,7 @@ namespace SocialPoint.ObjectPool
                 CreateStartupPools();
             }
         }
-    
+
         void Start()
         {
             if(StartupPoolMode == StartupPoolModeEnum.Start)
@@ -69,7 +68,7 @@ namespace SocialPoint.ObjectPool
                 CreateStartupPools();
             }
         }
-    
+
         public static void CreateStartupPools()
         {
             if(!Instance.startupPoolsCreated)
@@ -85,7 +84,7 @@ namespace SocialPoint.ObjectPool
                 }
             }
         }
-    
+
         public static void CreatePool<T>(T prefab, int initialPoolSize) where T : Component
         {
             CreatePool(prefab.gameObject, initialPoolSize);
@@ -117,7 +116,7 @@ namespace SocialPoint.ObjectPool
                 prefab.SetActive(active);
             }
         }
-    
+
         public static T Spawn<T>(T prefab, Transform parent, Vector3 position, Quaternion rotation) where T : Component
         {
             return Spawn(prefab.gameObject, parent, position, rotation).GetComponent<T>();
@@ -171,8 +170,8 @@ namespace SocialPoint.ObjectPool
                 GameObject spawnedObj = CreateObject(prefab, parent, position, rotation, obj, true);
                 
                 // Spawn 'notification'
-                Component [] recyclables = spawnedObj.GetComponents(typeof(IRecyclable));
-                for( int i=0; i<recyclables.Length; ++i )
+                Component[] recyclables = spawnedObj.GetComponents(typeof(IRecyclable));
+                for(int i = 0; i < recyclables.Length; ++i)
                 {
                     ((IRecyclable)recyclables[i]).OnSpawn();
                 }
@@ -203,7 +202,7 @@ namespace SocialPoint.ObjectPool
 
         static void SetupTransform(Transform parent, Vector3 position, Quaternion rotation, GameObject obj)
         {
-            obj.transform.parent = parent;
+            obj.transform.SetParent(parent);
             obj.transform.localPosition = position;
             obj.transform.localRotation = rotation;
         }
@@ -262,7 +261,7 @@ namespace SocialPoint.ObjectPool
         {
             return Spawn(prefab, null, Vector3.zero, Quaternion.identity);
         }
-    
+
         public static void Recycle<T>(T obj) where T : Component
         {
             Recycle(obj.gameObject);
@@ -280,8 +279,8 @@ namespace SocialPoint.ObjectPool
             {
             
                 // Recycle 'notification'
-                Component [] recyclables = obj.GetComponents(typeof(IRecyclable));
-                for( int i=0; i<recyclables.Length; ++i )
+                Component[] recyclables = obj.GetComponents(typeof(IRecyclable));
+                for(int i = 0; i < recyclables.Length; ++i)
                 {
                     ((IRecyclable)recyclables[i]).OnRecycle();
                 }
@@ -306,7 +305,7 @@ namespace SocialPoint.ObjectPool
                 obj.SetActive(false);
             }
         }
-    
+
         public static void RecycleAll<T>(T prefab) where T : Component
         {
             RecycleAll(prefab.gameObject);
@@ -338,12 +337,12 @@ namespace SocialPoint.ObjectPool
             }
             _recycleList.Clear();
         }
-    
+
         public static bool IsSpawned(GameObject obj)
         {
             return Instance._spawnedObjects.ContainsKey(obj);
         }
-    
+
         public static int CountPooled<T>(T prefab) where T : Component
         {
             return CountPooled(prefab.gameObject);
@@ -358,7 +357,7 @@ namespace SocialPoint.ObjectPool
             }
             return 0;
         }
-    
+
         public static int CountSpawned<T>(T prefab) where T : Component
         {
             return CountSpawned(prefab.gameObject);
@@ -376,7 +375,7 @@ namespace SocialPoint.ObjectPool
             }
             return count;
         }
-    
+
         public static int CountAllPooled()
         {
             int count = 0;
@@ -386,7 +385,7 @@ namespace SocialPoint.ObjectPool
             }
             return count;
         }
-    
+
         public static List<GameObject> GetPooled(GameObject prefab, List<GameObject> list, bool appendList)
         {
             if(list == null)
@@ -425,7 +424,7 @@ namespace SocialPoint.ObjectPool
             }
             return list;
         }
-    
+
         public static List<GameObject> GetSpawned(GameObject prefab, List<GameObject> list, bool appendList)
         {
             if(list == null)
@@ -466,7 +465,7 @@ namespace SocialPoint.ObjectPool
             }
             return list;
         }
-    
+
         public static void DestroyPooled(GameObject prefab)
         {
             List<GameObject> pooled;
@@ -484,7 +483,7 @@ namespace SocialPoint.ObjectPool
         {
             DestroyPooled(prefab.gameObject);
         }
-    
+
         public static void DestroyAll(GameObject prefab)
         {
             RecycleAll(prefab);

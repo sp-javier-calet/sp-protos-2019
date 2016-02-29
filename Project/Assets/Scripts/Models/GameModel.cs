@@ -1,15 +1,16 @@
 ﻿using System;
 
-public class GameModel
+public class GameModel : IDisposable
 {
     public ConfigModel Config{ get; private set; }
+
     public PlayerModel Player{ get; private set; }
 
-    public event Action<GameModel> Assigned;
+    public event Action<GameModel> Moved;
 
-    public bool IsAssigned{ get; private set; }
+    public bool IsMoved{ get; private set; }
 
-    public GameModel(ConfigModel config=null, PlayerModel player=null)
+    public GameModel(ConfigModel config = null, PlayerModel player = null)
     {
         if(config == null)
         {
@@ -23,19 +24,50 @@ public class GameModel
         Player = player;
     }
 
-    public void Assign(GameModel other)
+    public void Move(GameModel other)
     {
-        IsAssigned = true;
-        Player.Assign(other.Player);
-        Config.Assign(other.Config);
-        if(Assigned != null)
+        IsMoved = true;
+        if(Player != other.Player)
         {
-            Assigned(this);
+            Player.Move(other.Player);
         }
+
+        if(Config != other.Config)
+        {
+            Config.Move(other.Config);
+        }
+
+        other.Player = null;
+        other.Config = null;
+        other.Dispose();
+
+        if(Moved != null)
+        {
+            Moved(this);
+        }
+    }
+
+    public void LoadPlayer(PlayerModel player)
+    {
+        Player.Dispose();
+        Player = player;
     }
 
     public override string ToString()
     {
         return string.Format("[GameModel: Config={0}, Player={1}]", Config, Player);
+    }
+
+    public void Dispose()
+    {
+        if(Config != null)
+        {
+            Config.Dispose();
+        }
+
+        if(Player != null)
+        {
+            Player.Dispose();
+        }
     }
 }
