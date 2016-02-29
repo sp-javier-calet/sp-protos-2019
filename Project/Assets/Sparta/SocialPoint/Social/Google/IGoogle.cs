@@ -2,6 +2,7 @@
 using UnityEngine.SocialPlatforms;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using System;
 
 namespace SocialPoint.Social
 {
@@ -185,6 +186,9 @@ namespace SocialPoint.Social
         GoogleUser User{ get; }
 
         bool IsConnected{ get; }
+        bool IsConnecting{ get; }
+
+        string AccessToken{ get; }
 
         List<GoogleUser> Friends { get; }
 
@@ -246,8 +250,15 @@ namespace SocialPoint.Social
         /// </summary>
         void ShowViewQuestsUI(GoogleQuestEventDelegate cbk = null);
 
-        string GetAccessToken();
-
         Texture2D GetUserPhoto(string userID);
+    }
+
+    public static class GoogleExtensions
+    {
+        [Obsolete("User AccessToken property")]
+        public static string GetAccessToken(this IGoogle google)
+        {
+            return google.AccessToken;
+        }
     }
 }

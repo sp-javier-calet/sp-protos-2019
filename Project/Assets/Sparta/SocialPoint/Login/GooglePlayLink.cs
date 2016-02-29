@@ -130,7 +130,7 @@ namespace SocialPoint.Login
             GoogleUser user = _googlePlay.User;
             AttrDic data = new AttrDic();
 
-            string accessToken = _googlePlay.GetAccessToken();
+            string accessToken = _googlePlay.AccessToken;
             
             data.SetValue("gp_external_id", user.UserId);
             data.SetValue("gp_user_name", user.Name);
