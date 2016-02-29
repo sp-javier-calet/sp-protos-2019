@@ -29,6 +29,7 @@ namespace SocialPoint.Social
         bool _loginSuccess;
         ErrorDelegate _loginCallback;
         List<GoogleUser> _friends;
+        bool _connecting = false;
 
         public List<GoogleUser> Friends
         {
@@ -53,7 +54,7 @@ namespace SocialPoint.Social
 
             // Use Activate() instead to override Social.Active
             _platform = PlayGamesPlatform.Instance;
-
+            _connecting = true;
             _loginCallback = cbk;
             _platform.Authenticate((bool success) => {
                 _loginSuccess = success;
@@ -129,7 +130,7 @@ namespace SocialPoint.Social
             {
                 cbk(err);
             }
-
+            _connecting = false;
             _loginCallback = null;
         }
 
@@ -195,7 +196,15 @@ namespace SocialPoint.Social
         {
             get
             {
-                return _platform != null && _platform.IsAuthenticated();
+                return !_connecting && _platform != null && _platform.IsAuthenticated();
+            }
+        }
+
+        public bool IsConnecting
+        {
+            get
+            {
+                return _connecting;
             }
         }
 
@@ -212,13 +221,13 @@ namespace SocialPoint.Social
                 return;
             }
 
-            string accessToken = _platform.GetAccessToken();
+            string accessToken = AccessToken;
             Error err = null;
             if(!string.IsNullOrEmpty(accessToken))
             {
                 string uri = string.Format("https://www.googleapis.com/games/v1management/achievements/{0}/reset", achi.Id);
                 var form = new UnityEngine.WWWForm();
-                form.AddField("access_token", _platform.GetAccessToken());
+                form.AddField("access_token", accessToken);
                 var www = new UnityEngine.WWW(uri, form);
                 while(!www.isDone)
                 {
@@ -322,9 +331,12 @@ namespace SocialPoint.Social
             }
         }
 
-        public string GetAccessToken()
+        public string AccessToken
         {
-            return _platform.GetAccessToken();
+            get
+            {
+                return _platform.GetAccessToken();
+            }
         }
 
         public IEnumerable<GoogleAchievement> Achievements
