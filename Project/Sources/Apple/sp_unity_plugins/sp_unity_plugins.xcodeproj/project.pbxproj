@@ -43,17 +43,16 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		066396C41C84763900875810 /* SPUnityPlugins.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
 		069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
 		069170241C75CADE00C6B0B6 /* SPUnityUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 069170221C75CADE00C6B0B6 /* SPUnityUtils.h */; };
 		0691702F1C75F81100C6B0B6 /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		069170301C75F81100C6B0B6 /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
-		0691703C1C760B8A00C6B0B6 /* SPUnityPlugins.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
 		069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */ = {isa = PBXBuildFile; fileRef = 069170531C760D5D00C6B0B6 /* SPUnityCurlFacadeMacos.mm */; };
 		0691705E1C762BED00C6B0B6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0691705D1C762BED00C6B0B6 /* AppDelegate.m */; };
 		069170611C762BED00C6B0B6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 069170601C762BED00C6B0B6 /* main.m */; };
 		069170631C762BED00C6B0B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 069170621C762BED00C6B0B6 /* Assets.xcassets */; };
 		069170661C762BED00C6B0B6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 069170641C762BED00C6B0B6 /* MainMenu.xib */; };
-		069170701C762CF700C6B0B6 /* SPUnityPlugins.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
 		06A173231C76FF22002178EF /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 069170311C7606A000C6B0B6 /* libcurl.tbd */; };
 		06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
 		06A173251C770789002178EF /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
@@ -184,7 +183,7 @@
 			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/Osx";
 			dstSubfolderSpec = 0;
 			files = (
-				0691703C1C760B8A00C6B0B6 /* SPUnityPlugins.bundle in CopyFiles */,
+				066396C41C84763900875810 /* SPUnityPlugins.bundle in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1047,7 +1046,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				069170701C762CF700C6B0B6 /* SPUnityPlugins.bundle in Resources */,
 				069170631C762BED00C6B0B6 /* Assets.xcassets in Resources */,
 				069170661C762BED00C6B0B6 /* MainMenu.xib in Resources */,
 			);

@@ -79,43 +79,6 @@ int SPUnityCurlRunning()
     return globalInfo.still_running;
 }
 
-const int SPUnityCurlGetHttpResponseErrorCode(int code)
-{
-    switch(code)
-    {
-        case CURLE_URL_MALFORMAT:
-        case CURLE_UNSUPPORTED_PROTOCOL:
-        case CURLE_FAILED_INIT:
-            return 400;
-        case CURLE_COULDNT_RESOLVE_PROXY:
-        case CURLE_COULDNT_RESOLVE_HOST:
-        case CURLE_COULDNT_CONNECT:
-        case CURLE_REMOTE_ACCESS_DENIED:
-        case CURLE_RECV_ERROR:
-        case CURLE_SEND_ERROR:
-        case CURLE_HTTP_RETURNED_ERROR:
-        case CURLE_TOO_MANY_REDIRECTS:
-        case CURLE_REMOTE_FILE_EXISTS:
-        case CURLE_REMOTE_DISK_FULL:
-        case CURLE_GOT_NOTHING:
-            return 475;
-        case CURLE_SSL_ENGINE_NOTFOUND:
-        case CURLE_SSL_CERTPROBLEM:
-        case CURLE_SSL_CIPHER:
-        case CURLE_SSL_CACERT:
-        case CURLE_SSL_ENGINE_SETFAILED:
-        case CURLE_USE_SSL_FAILED:
-        case CURLE_SSL_ENGINE_INITFAILED:
-        case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
-            return 476;
-        case CURLE_OPERATION_TIMEDOUT:
-            return 408;
-        case CURLE_ABORTED_BY_CALLBACK:
-            return 409;
-        default:
-            return 600 + code;
-    }
-}
 
 size_t writeToString(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -135,8 +98,6 @@ void obfuscate(const uint8_t* in, uint8_t** out, size_t size)
 
     (*out)[size] = 0;
 }
-
-
 
 // sha256//sGYj4r/mnjRz3syQWx8IV+kiUODjy5f0Ss4oaYrwR50=
 static const uint8_t pinnedCertBaseGame[] = {
@@ -340,7 +301,7 @@ EXPORT_API int SPUnityCurlUpdate(int id)
             if(msg->data.result != CURLE_OK)
             {
                 conn->errorBuffer = curl_easy_strerror(msg->data.result);
-                conn->responseCode = SPUnityCurlGetHttpResponseErrorCode(msg->data.result);
+                conn->errorCode = msg->data.result;
             }
             else
             {
@@ -424,12 +385,22 @@ EXPORT_API double SPUnityCurlGetTotalTime(int id)
     return 0;
 }
 
-EXPORT_API int SPUnityCurlGetCode(int id)
+EXPORT_API int SPUnityCurlGetResponseCode(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
     if (conn)
     {
         return conn->responseCode;
+    }
+    return 0;
+}
+
+EXPORT_API int SPUnityCurlGetErrorCode(int id)
+{
+    SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
+    if (conn)
+    {
+        return conn->errorCode;
     }
     return 0;
 }
