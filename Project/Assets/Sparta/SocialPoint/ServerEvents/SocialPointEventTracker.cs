@@ -296,7 +296,8 @@ namespace SocialPoint.ServerEvents
         {
             get
             {
-                return TimeUtils.GetTimestamp(DateTime.Now);//Do not use 'TimeUtils.Timestamp' nor 'TimeUtils.Now' because they apply a server offset
+                // do not use 'TimeUtils.Timestamp' nor 'TimeUtils.Now' because they apply a server offset
+                return TimeUtils.GetTimestamp(DateTime.Now);
             }
         }
 
@@ -304,7 +305,16 @@ namespace SocialPoint.ServerEvents
         {
             get
             {
-                return TimeUtils.Timestamp;//Dependant on server offset
+                // dependant on server offset
+                return TimeUtils.Timestamp;
+            }
+        }
+
+        int CurrentSyncedOffset
+        {
+            get
+            {
+                return (int)TimeUtils.Offset.TotalSeconds;
             }
         }
 
@@ -411,6 +421,9 @@ namespace SocialPoint.ServerEvents
             mobile.SetValue("adid_enabled", DeviceInfo.AdvertisingIdEnabled);
             mobile.SetValue("rooted", DeviceInfo.Rooted);
             mobile.SetValue("os", DeviceInfo.PlatformVersion);
+            #if ADMIN_PANEL
+            mobile.SetValue("admin_panel", true);
+            #endif
         }
 
         bool IsEventUnauthorized(string evName)
@@ -461,6 +474,7 @@ namespace SocialPoint.ServerEvents
             var version = DeviceInfo.AppInfo.ShortVersion + "-" + DeviceInfo.AppInfo.Version;
             common.SetValue("ver", version);
             common.SetValue("ts", CurrentSyncedTimestamp);
+            common.SetValue("dts", CurrentSyncedOffset);
             AddHardwareData(common);
             data.Set("events", evs);
             
