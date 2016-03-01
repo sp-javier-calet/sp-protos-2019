@@ -13,8 +13,6 @@ namespace Zenject
 {
     public interface IBinder
     {
-        bool Unbind<TContract>(string identifier);
-
         bool HasBinding(InjectContext context);
 
         UntypedBinder Bind(Type contractType, string identifier);
@@ -47,7 +45,9 @@ namespace Zenject
 
         UntypedBinder Bind(Type contractType);
 
+        bool Unbind<TContract>(string identifier);
         bool Unbind<TContract>();
+        void UnbindAll();
 
         bool HasBinding<TContract>();
 
@@ -89,6 +89,19 @@ namespace Zenject
             GameObject prefab, string groupName)
             where T : class;
 #endif
+
+        void Install(IEnumerable<IInstaller> installers);
+        void Install(IInstaller installer);
+
+        void Install<T>(params object[] extraArgs)
+            where T : IInstaller;
+
+        void Install(Type installerType, params object[] extraArgs);
+
+        bool HasInstalled(Type installerType);
+
+        bool HasInstalled<T>()
+            where T : IInstaller;
     }
 }
 

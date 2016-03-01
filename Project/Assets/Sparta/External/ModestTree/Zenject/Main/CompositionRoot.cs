@@ -45,26 +45,34 @@ namespace Zenject
 
         public void OnApplicationQuit()
         {
-            // In some cases we have monobehaviour's that are bound to IDisposable, and who have
-            // also been set with Application.DontDestroyOnLoad so that the Dispose() is always
-            // called instead of OnDestroy.  This is nice because we can actually reliably predict the
-            // order Dispose() is called in which is not the case for OnDestroy.
-            // However, when the user quits the app, OnDestroy is called even for objects that
-            // have been marked with Application.DontDestroyOnLoad, and so the destruction order
-            // changes.  So to address this case, dispose before the OnDestroy event below (OnApplicationQuit
-            // is always called before OnDestroy) and then don't call dispose in OnDestroy
-            Assert.That(!_isDisposed);
-            RootFacade.Dispose();
-            _isDisposed = true;
+            // RootFacade is null if the SceneCompositionRoot is not enabled then the user quits
+            if (RootFacade != null)
+            {
+                // In some cases we have monobehaviour's that are bound to IDisposable, and who have
+                // also been set with Application.DontDestroyOnLoad so that the Dispose() is always
+                // called instead of OnDestroy.  This is nice because we can actually reliably predict the
+                // order Dispose() is called in which is not the case for OnDestroy.
+                // However, when the user quits the app, OnDestroy is called even for objects that
+                // have been marked with Application.DontDestroyOnLoad, and so the destruction order
+                // changes.  So to address this case, dispose before the OnDestroy event below (OnApplicationQuit
+                // is always called before OnDestroy) and then don't call dispose in OnDestroy
+                Assert.That(!_isDisposed);
+                RootFacade.Dispose();
+                _isDisposed = true;
+            }
         }
 
         public void OnDestroy()
         {
-            // See comment in OnApplicationQuit
-            if (!_isDisposed)
+            // RootFacade is null if the SceneCompositionRoot is not enabled then the user quits
+            if (RootFacade != null)
             {
-                _isDisposed = true;
-                RootFacade.Dispose();
+                // See comment in OnApplicationQuit
+                if (!_isDisposed)
+                {
+                    _isDisposed = true;
+                    RootFacade.Dispose();
+                }
             }
         }
     }
