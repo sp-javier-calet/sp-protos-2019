@@ -20,6 +20,7 @@ namespace SocialPoint.Social
         private List<string> _loginPermissions = new List<string>();
         private List<string> _userPermissions;
         private ICoroutineRunner _runner;
+        public bool InitializedFriends { get; protected set; }
 
         public UnityFacebook(ICoroutineRunner runner)
         {
@@ -360,6 +361,7 @@ namespace SocialPoint.Social
                             _friends.Add(user);
                         }
                     }
+                    InitializedFriends = true;
                 }
                 if(cbk != null)
                 {
@@ -492,6 +494,8 @@ namespace SocialPoint.Social
                 FB.LogOut();
             }
             DidLogout(null, cbk);
+            InitializedFriends = false;
+            _connecting = false;
         }
 
         public override string AppId

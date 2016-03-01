@@ -416,5 +416,10 @@ namespace SocialPoint.Rating
             _storage.Remove(PromptsLastDayKey);
             _storage.Remove(DateStartLastDayKey);
         }
+
+        protected void RemoveKey(string key)
+        {
+            _storage.Remove(key);
+        }
     }
 }

@@ -120,7 +120,8 @@ namespace SocialPoint.Login
         public TimeSpan DeltaTime;
         public string StoreUrl;
         public UpgradeData Upgrade;
-        public int UserImportance;
+        public string UserImportance;
+		public bool Cheat;
         public MaintenanceData Maintenance;
         private const string AttrKeyTimestamp = "ts";
         private const string AttrKeyStoreUrl = "store";
@@ -128,6 +129,7 @@ namespace SocialPoint.Login
         private const string AttrKeyUpgradeForced = "forced_upgrade";
         private const string AttrKeyMaintenanceData = "maintenance_data";
         private const string AttrKeyUserImportance = "user_importance";
+		private const string AttrKeyCheat = "cheat";
         
         public void Load(IStreamReader reader)
         {
@@ -160,8 +162,11 @@ namespace SocialPoint.Login
                         Maintenance = new MaintenanceData(reader);
                         break;
                     case AttrKeyUserImportance:
-                        UserImportance = reader.GetIntValue();
+                        UserImportance = reader.GetStringValue();
                         break;
+					case AttrKeyCheat:
+						Cheat = reader.GetBoolValue (); 
+						break;
                     }
                 }
                 if(Upgrade == null)
@@ -183,8 +188,12 @@ namespace SocialPoint.Login
             }
             if(datadic.ContainsKey(AttrKeyUserImportance))
             {
-                UserImportance = datadic.GetValue(AttrKeyUserImportance).ToInt();
+                UserImportance = datadic.GetValue(AttrKeyUserImportance).ToString();
             } 
+			if(datadic.ContainsKey(AttrKeyCheat))
+			{
+				Cheat = datadic.GetValue(AttrKeyCheat).ToBool();
+			} 
             if(datadic.ContainsKey(AttrKeyUpgradeForced))
             {
                 Upgrade = new UpgradeData(UpgradeType.Forced, datadic.Get(AttrKeyUpgradeForced));
@@ -202,18 +211,13 @@ namespace SocialPoint.Login
             {
                 Maintenance = new MaintenanceData(datadic.Get(AttrKeyMaintenanceData));
             }
-
-            if(datadic.ContainsKey(AttrKeyUserImportance))
-            {
-                UserImportance = datadic.Get(AttrKeyUserImportance).AsValue.ToInt();
-            }
         }
 
         public override string ToString()
         {
             return string.Format(
-                "[GenericData: DeltaTime={0}, StoreUrl={1}, UserImportance={2} Upgrade={3}, Maintenance={4}]",
-                DeltaTime, StoreUrl, UserImportance, Upgrade, Maintenance);
+				"[GenericData: DeltaTime={0}, StoreUrl={1}, UserImportance={2} Upgrade={3}, Maintenance={4}, Cheat={5}]",
+				DeltaTime, StoreUrl, UserImportance, Upgrade, Maintenance, Cheat);
         }
         
         [Obsolete("Use Upgrade.Type")]

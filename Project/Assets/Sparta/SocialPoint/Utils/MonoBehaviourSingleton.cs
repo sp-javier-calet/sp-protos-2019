@@ -140,7 +140,7 @@ namespace SocialPoint.Utils
 
         #endregion
 
-        #region Unity3d Messages - DO NOT OVERRRIDE / IMPLEMENT THESE METHODS in child classes!
+        #region Unity3d Messages - DO NOT OVERRRIDE NOR IMPLEMENT THESE METHODS in child classes!
 
         void Awake()
         {

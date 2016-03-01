@@ -14,17 +14,17 @@ namespace SocialPoint.XCodeEditor
         public PBXDictionary _objects;
         private PBXGroup _rootGroup;
         private string _rootObjectKey;
-    
+
         public string projectRootPath { get; private set; }
 
         private FileInfo projectFileInfo;
-        
+
         public string filePath { get; private set; }
 
         private bool modified = false;
-        
+
         #region Data
-        
+
         // Objects
         private PBXDictionary<PBXBuildFile> _buildFiles;
         private PBXDictionary<PBXGroup> _groups;
@@ -39,15 +39,14 @@ namespace SocialPoint.XCodeEditor
         private PBXDictionary<XCBuildConfiguration> _buildConfigurations;
         private PBXDictionary<XCConfigurationList> _configurationLists;
         private PBXProject _project;
-        
+
         #endregion
         #region Constructor
-        
+
         public XCProject()
         {
-            
         }
-        
+
         public XCProject(string filePath) : this()
         {
             if(!System.IO.Directory.Exists(filePath))
@@ -55,7 +54,7 @@ namespace SocialPoint.XCodeEditor
                 XCDebug.LogWarning("Path does not exists.");
                 return;
             }
-            
+
             if(filePath.EndsWith(".xcodeproj"))
             {
                 XCDebug.Log("Opening project " + filePath);
@@ -71,21 +70,21 @@ namespace SocialPoint.XCodeEditor
                     XCDebug.LogWarning("Error: missing xcodeproj file");
                     return;
                 }
-                
+
                 this.projectRootPath = filePath;
                 this.filePath = projects[0];  
             }
-            
+
             // Convert to absolute
             this.projectRootPath = GetFullPath(this.projectRootPath);
             this.filePath = GetFullPath(this.filePath);
             XCDebug.Log("Project file path is: " + this.filePath);
-            
+
             projectFileInfo = new FileInfo(PathCombine(this.filePath, "project.pbxproj"));
             StreamReader sr = projectFileInfo.OpenText();
             string contents = sr.ReadToEnd();
             sr.Close();
-            
+
             PBXParser parser = new PBXParser();
             _datastore = parser.Decode(contents);
             if(_datastore == null)
@@ -98,10 +97,10 @@ namespace SocialPoint.XCodeEditor
                 XCDebug.Log("Error " + _datastore.Count);
                 return;
             }
-            
+
             _objects = (PBXDictionary)_datastore["objects"];
             modified = false;
-            
+
             _rootObjectKey = (string)_datastore["rootObject"];
             if(!string.IsNullOrEmpty(_rootObjectKey))
             {
@@ -175,10 +174,10 @@ namespace SocialPoint.XCodeEditor
             relativePath.Append(relDirs[relDirs.Length - 1]);
             return relativePath.ToString();
         }
-        
+
         #endregion
         #region Properties
-        
+
         public PBXProject project
         {
             get
@@ -186,7 +185,7 @@ namespace SocialPoint.XCodeEditor
                 return _project;
             }
         }
-        
+
         public PBXGroup rootGroup
         {
             get
@@ -194,7 +193,7 @@ namespace SocialPoint.XCodeEditor
                 return _rootGroup;
             }
         }
-        
+
         public PBXDictionary<PBXBuildFile> buildFiles
         {
             get
@@ -206,7 +205,7 @@ namespace SocialPoint.XCodeEditor
                 return _buildFiles;
             }
         }
-        
+
         public PBXDictionary<PBXGroup> groups
         {
             get
@@ -230,7 +229,7 @@ namespace SocialPoint.XCodeEditor
                 return _variantGroups;
             }
         }
-        
+
         public PBXDictionary<PBXFileReference> fileReferences
         {
             get
@@ -242,7 +241,7 @@ namespace SocialPoint.XCodeEditor
                 return _fileReferences;
             }
         }
-        
+
         public PBXDictionary<PBXNativeTarget> nativeTargets
         {
             get
@@ -254,7 +253,7 @@ namespace SocialPoint.XCodeEditor
                 return _nativeTargets;
             }
         }
-        
+
         public PBXDictionary<XCBuildConfiguration> buildConfigurations
         {
             get
@@ -266,7 +265,7 @@ namespace SocialPoint.XCodeEditor
                 return _buildConfigurations;
             }
         }
-        
+
         public PBXDictionary<XCConfigurationList> configurationLists
         {
             get
@@ -278,7 +277,7 @@ namespace SocialPoint.XCodeEditor
                 return _configurationLists;
             }
         }
-        
+
         public PBXDictionary<PBXFrameworksBuildPhase> frameworkBuildPhases
         {
             get
@@ -290,7 +289,7 @@ namespace SocialPoint.XCodeEditor
                 return _frameworkBuildPhases;
             }
         }
-    
+
         public PBXDictionary<PBXResourcesBuildPhase> resourcesBuildPhases
         {
             get
@@ -302,7 +301,7 @@ namespace SocialPoint.XCodeEditor
                 return _resourcesBuildPhases;
             }
         }
-    
+
         public PBXDictionary<PBXShellScriptBuildPhase> shellScriptBuildPhases
         {
             get
@@ -314,7 +313,7 @@ namespace SocialPoint.XCodeEditor
                 return _shellScriptBuildPhases;
             }
         }
-    
+
         public PBXDictionary<PBXSourcesBuildPhase> sourcesBuildPhases
         {
             get
@@ -326,7 +325,7 @@ namespace SocialPoint.XCodeEditor
                 return _sourcesBuildPhases;
             }
         }
-    
+
         public PBXDictionary<PBXCopyFilesBuildPhase> copyBuildPhases
         {
             get
@@ -340,15 +339,15 @@ namespace SocialPoint.XCodeEditor
         }
 
 
-        
+
         #endregion
         #region PBXMOD
-        
+
         public bool AddOtherCFlags(string flag)
         {
             return AddOtherCFlags(new PBXList(flag)); 
         }
-        
+
         public bool AddOtherCFlags(PBXList flags)
         {
             foreach(KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations)
@@ -363,7 +362,7 @@ namespace SocialPoint.XCodeEditor
         {
             return AddOtherLDFlags(new PBXList(flag)); 
         }
-        
+
         public bool AddOtherLDFlags(PBXList flags)
         {
             foreach(KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations)
@@ -408,7 +407,7 @@ namespace SocialPoint.XCodeEditor
         {
             return AddHeaderSearchPaths(new PBXList(path));
         }
-        
+
         public bool AddHeaderSearchPaths(PBXList paths)
         {
             foreach(KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations)
@@ -418,12 +417,12 @@ namespace SocialPoint.XCodeEditor
             modified = true;
             return modified;
         }
-        
+
         public bool AddLibrarySearchPaths(string path)
         {
             return AddLibrarySearchPaths(new PBXList(path));
         }
-        
+
         public bool AddLibrarySearchPaths(PBXList paths)
         {
             foreach(KeyValuePair<string, XCBuildConfiguration> buildConfig in buildConfigurations)
@@ -582,12 +581,12 @@ namespace SocialPoint.XCodeEditor
             }
             return success;
         }
-        
+
         public object GetObject(string guid)
         {
             return _objects[guid];
         }
-    
+
         private void CreatePathDirectories(string path)
         {
             var dir = Path.GetDirectoryName(GetFullPath(path));
@@ -659,9 +658,9 @@ namespace SocialPoint.XCodeEditor
             return true;
         }
 
-        public PBXDictionary AddFile(string filePath, PBXGroup parent = null, string tree = "SOURCE_ROOT", bool createBuildFiles = true, bool weak = false)
+        public PBXDictionary AddFile(string filePath, PBXGroup parent = null, string tree = "SOURCE_ROOT", bool createBuildFiles = true, bool weak = false, string[] compilerFlags = null)
         {
-            return AddFile(filePath, null, parent, tree, createBuildFiles, weak);
+            return AddFile(filePath, null, parent, tree, createBuildFiles, weak, compilerFlags);
         }
 
         private string RootFilePath
@@ -678,44 +677,44 @@ namespace SocialPoint.XCodeEditor
                 }
             }   
         }
-        
-        public PBXDictionary AddFile(string filePath, string name, PBXGroup parent = null, string tree = "SOURCE_ROOT", bool createBuildFiles = true, bool weak = false)
+
+        public PBXDictionary AddFile(string filePath, string name, PBXGroup parent = null, string tree = "SOURCE_ROOT", bool createBuildFiles = true, bool weak = false, string[] compilerFlags = null)
         {
             PBXDictionary results = new PBXDictionary();
             string absPath = string.Empty;
-            
+
             if(Path.IsPathRooted(filePath))
             {
                 absPath = filePath;
             }
             else
-            if(tree.CompareTo("SDKROOT") != 0)
-            {
-                absPath = PathCombine(RootFilePath, filePath);
-            }
-            
+                if(tree.CompareTo("SDKROOT") != 0)
+                {
+                    absPath = PathCombine(RootFilePath, filePath);
+                }
+
             if(!(File.Exists(absPath) || Directory.Exists(absPath)) && tree.CompareTo("SDKROOT") != 0)
             {
                 XCDebug.LogError("Missing file: " + absPath + " > " + filePath);
                 return results;
             }
             else
-            if(tree.CompareTo("SOURCE_ROOT") == 0 || tree.CompareTo("GROUP") == 0)
-            {
-                filePath = PathRelative(projectRootPath, absPath);
-            }
-            
+                if(tree.CompareTo("SOURCE_ROOT") == 0 || tree.CompareTo("GROUP") == 0)
+                {
+                    filePath = PathRelative(projectRootPath, absPath);
+                }
+
             if(parent == null)
             {
                 parent = _rootGroup;
             }
-            
+
             PBXFileReference fileReference = GetFile(System.IO.Path.GetFileName(filePath)); 
             if(fileReference != null)
             {
                 fileReferences.Remove(fileReference.guid);
             }
-            
+
             fileReference = new PBXFileReference(filePath, name, (TreeEnum)System.Enum.Parse(typeof(TreeEnum), tree));
             parent.AddChild(fileReference);
             fileReferences.Add(fileReference);
@@ -727,68 +726,68 @@ namespace SocialPoint.XCodeEditor
                 PBXBuildFile buildFile;
                 switch(fileReference.buildPhase)
                 {
-                case "PBXFrameworksBuildPhase":
-                    foreach(KeyValuePair<string, PBXFrameworksBuildPhase> currentObject in frameworkBuildPhases)
-                    {
-                        buildFile = new PBXBuildFile(fileReference, weak);
-                        buildFiles.Add(buildFile);
-                        currentObject.Value.AddBuildFile(buildFile);
-                    }
+                    case "PBXFrameworksBuildPhase":
+                        foreach(KeyValuePair<string, PBXFrameworksBuildPhase> currentObject in frameworkBuildPhases)
+                        {
+                            buildFile = new PBXBuildFile(fileReference, weak, compilerFlags);
+                            buildFiles.Add(buildFile);
+                            currentObject.Value.AddBuildFile(buildFile);
+                        }
 
-                    if(!string.IsNullOrEmpty(absPath) && File.Exists(absPath) && tree.CompareTo("SOURCE_ROOT") == 0)
-                    {
-                        //XCDebug.LogError(absPath);
-                        string libraryPath = PathCombine("$(SRCROOT)", Path.GetDirectoryName(filePath));
-                        this.AddLibrarySearchPaths(new PBXList(libraryPath));
-                    }
-                    else
-                    if(!string.IsNullOrEmpty(absPath) && Directory.Exists(absPath) && absPath.EndsWith(".framework") && tree.CompareTo("GROUP") == 0)
-                    { // Annt: Add framework search path for FacebookSDK
-                        string frameworkPath = PathCombine("$(SRCROOT)", Path.GetDirectoryName(filePath));
-                        this.AddFrameworkSearchPaths(new PBXList(frameworkPath));
-                    }
-                    break;
-                case "PBXResourcesBuildPhase":
-                    foreach(KeyValuePair<string, PBXResourcesBuildPhase> currentObject in resourcesBuildPhases)
-                    {
-                        buildFile = new PBXBuildFile(fileReference, weak);
-                        buildFiles.Add(buildFile);
-                        currentObject.Value.AddBuildFile(buildFile);
-                    }
-                    break;
-                case "PBXShellScriptBuildPhase":
-                    foreach(KeyValuePair<string, PBXShellScriptBuildPhase> currentObject in shellScriptBuildPhases)
-                    {
-                        buildFile = new PBXBuildFile(fileReference, weak);
-                        buildFiles.Add(buildFile);
-                        currentObject.Value.AddBuildFile(buildFile);
-                    }
-                    break;
-                case "PBXSourcesBuildPhase":
-                    foreach(KeyValuePair<string, PBXSourcesBuildPhase> currentObject in sourcesBuildPhases)
-                    {
-                        buildFile = new PBXBuildFile(fileReference, weak);
-                        buildFiles.Add(buildFile);
-                        currentObject.Value.AddBuildFile(buildFile);
-                    }
-                    break;
-                case "PBXCopyFilesBuildPhase":
-                    foreach(KeyValuePair<string, PBXCopyFilesBuildPhase> currentObject in copyBuildPhases)
-                    {
-                        buildFile = new PBXBuildFile(fileReference, weak);
-                        buildFiles.Add(buildFile);
-                        currentObject.Value.AddBuildFile(buildFile);
-                    }
-                    break;
-                default:
-                    XCDebug.LogWarning("Phase '" + fileReference.buildPhase + "' not supported.");
-                    return null;
+                        if(!string.IsNullOrEmpty(absPath) && File.Exists(absPath) && tree.CompareTo("SOURCE_ROOT") == 0)
+                        {
+                            //XCDebug.LogError(absPath);
+                            string libraryPath = PathCombine("$(SRCROOT)", Path.GetDirectoryName(filePath));
+                            this.AddLibrarySearchPaths(new PBXList(libraryPath));
+                        }
+                        else
+                            if(!string.IsNullOrEmpty(absPath) && Directory.Exists(absPath) && absPath.EndsWith(".framework") && tree.CompareTo("GROUP") == 0)
+                            { // Annt: Add framework search path for FacebookSDK
+                                string frameworkPath = PathCombine("$(SRCROOT)", Path.GetDirectoryName(filePath));
+                                this.AddFrameworkSearchPaths(new PBXList(frameworkPath));
+                            }
+                        break;
+                    case "PBXResourcesBuildPhase":
+                        foreach(KeyValuePair<string, PBXResourcesBuildPhase> currentObject in resourcesBuildPhases)
+                        {
+                            buildFile = new PBXBuildFile(fileReference, weak, compilerFlags);
+                            buildFiles.Add(buildFile);
+                            currentObject.Value.AddBuildFile(buildFile);
+                        }
+                        break;
+                    case "PBXShellScriptBuildPhase":
+                        foreach(KeyValuePair<string, PBXShellScriptBuildPhase> currentObject in shellScriptBuildPhases)
+                        {
+                            buildFile = new PBXBuildFile(fileReference, weak, compilerFlags);
+                            buildFiles.Add(buildFile);
+                            currentObject.Value.AddBuildFile(buildFile);
+                        }
+                        break;
+                    case "PBXSourcesBuildPhase":
+                        foreach(KeyValuePair<string, PBXSourcesBuildPhase> currentObject in sourcesBuildPhases)
+                        {
+                            buildFile = new PBXBuildFile(fileReference, weak, compilerFlags);
+                            buildFiles.Add(buildFile);
+                            currentObject.Value.AddBuildFile(buildFile);
+                        }
+                        break;
+                    case "PBXCopyFilesBuildPhase":
+                        foreach(KeyValuePair<string, PBXCopyFilesBuildPhase> currentObject in copyBuildPhases)
+                        {
+                            buildFile = new PBXBuildFile(fileReference, weak, compilerFlags);
+                            buildFiles.Add(buildFile);
+                            currentObject.Value.AddBuildFile(buildFile);
+                        }
+                        break;
+                    default:
+                        XCDebug.LogWarning("Phase '" + fileReference.buildPhase + "' not supported.");
+                        return null;
                 }
             }
-            
+
             return results;
         }
-        
+
         public bool AddFolder(string folderPath, PBXGroup parent = null, string[] exclude = null, bool recursive = true, bool createBuildFile = true)
         {
             if(!Directory.Exists(folderPath))
@@ -802,12 +801,12 @@ namespace SocialPoint.XCodeEditor
                 exclude = new string[] {};
             }
             string regexExclude = string.Format(@"{0}", string.Join("|", exclude));
-            
+
             if(parent == null)
             {
                 parent = rootGroup;
             }
-            
+
             // Create group
             PBXGroup newGroup = GetGroup(sourceDirectoryInfo.Name, null, parent);
 
@@ -827,7 +826,7 @@ namespace SocialPoint.XCodeEditor
                     XCDebug.Log("fatto");
                     continue;
                 }
-                
+
                 if(recursive)
                 {
                     XCDebug.Log("recursive");
@@ -865,7 +864,7 @@ namespace SocialPoint.XCodeEditor
 
             return true;
         }
-        
+
         #endregion
         #region Getters
         public PBXFileReference GetFile(string name)
@@ -874,7 +873,7 @@ namespace SocialPoint.XCodeEditor
             {
                 return null;
             }
-            
+
             foreach(KeyValuePair<string, PBXFileReference> current in fileReferences)
             {
                 if(!string.IsNullOrEmpty(current.Value.name) && current.Value.name.CompareTo(name) == 0)
@@ -882,7 +881,7 @@ namespace SocialPoint.XCodeEditor
                     return current.Value;
                 }
             }
-            
+
             return null;
         }
 
@@ -893,15 +892,15 @@ namespace SocialPoint.XCodeEditor
             {
                 return null;
             }
-            
+
             if(parent == null)
             {
                 parent = rootGroup;
             }
-            
+
             foreach(KeyValuePair<string, PBXVariantGroup> current in variantGroups)
             {
-                
+
                 if(string.IsNullOrEmpty(current.Value.name))
                 { 
                     if(!string.IsNullOrEmpty(current.Value.path) && current.Value.path.CompareTo(name) == 0 && parent.HasChild(current.Key))
@@ -910,20 +909,20 @@ namespace SocialPoint.XCodeEditor
                     }
                 }
                 else
-                if(current.Value.name.CompareTo(name) == 0 && parent.HasChild(current.Key))
-                {
-                    return current.Value;
-                }
+                    if(current.Value.name.CompareTo(name) == 0 && parent.HasChild(current.Key))
+                    {
+                        return current.Value;
+                    }
             }
-            
+
             PBXVariantGroup result = new PBXVariantGroup(name, path);
             variantGroups.Add(result);
             parent.AddChild(result);
-            
+
             modified = true;
             return result;
         }
-        
+
         public PBXGroup GetGroup(string name, string path = null, PBXGroup parent = null)
         {
             if(string.IsNullOrEmpty(name))
@@ -932,15 +931,15 @@ namespace SocialPoint.XCodeEditor
             }
 
             XCDebug.Log("GetGroup: " + name + ", " + path + ", " + parent);
-            
+
             if(parent == null)
             {
                 parent = rootGroup;
             }
-            
+
             foreach(KeyValuePair<string, PBXGroup> current in groups)
             {
-                
+
                 if(string.IsNullOrEmpty(current.Value.name))
                 { 
                     if(!string.IsNullOrEmpty(current.Value.path) && current.Value.path.CompareTo(name) == 0 && parent.HasChild(current.Key))
@@ -949,24 +948,24 @@ namespace SocialPoint.XCodeEditor
                     }
                 }
                 else
-                if(current.Value.name.CompareTo(name) == 0 && parent.HasChild(current.Key))
-                {
-                    return current.Value;
-                }
+                    if(current.Value.name.CompareTo(name) == 0 && parent.HasChild(current.Key))
+                    {
+                        return current.Value;
+                    }
             }
-            
+
             PBXGroup result = new PBXGroup(name, path);
             groups.Add(result);
             parent.AddChild(result);
-            
+
             modified = true;
             return result;
         }
-            
+
         #endregion
 
         #region Mods
-        
+
         public void ApplyMod(string pbxmod)
         {
             XCMod mod = new XCMod(pbxmod);
@@ -1004,7 +1003,7 @@ namespace SocialPoint.XCodeEditor
             path = ReplaceProjectVariables(path);
             return PathCombine(mod.path, path);
         }
-        
+
         public void ApplyMod(XCMod mod)
         {   
             if(mod == null)
@@ -1029,7 +1028,7 @@ namespace SocialPoint.XCodeEditor
                     {
                         completeLibPath = PathCombine(mod.path, libRef.filePath);
                     }
-                    
+
                     this.AddFile(completeLibPath, modGroup, libRef.sourceTree, true, libRef.isWeak);
                 }
             }
@@ -1085,7 +1084,13 @@ namespace SocialPoint.XCodeEditor
                     }
                     else
                     {
-                        this.AddFile(absoluteFilePath, modGroup);
+                        string[] compilerFlags = null;
+                        string[] filename = filePath.Split(':');
+                        if( filename.Length > 1 )
+                        {
+                            compilerFlags = filename[1].Split(',');
+                        }
+                        this.AddFile(filename[0], modGroup, "SOURCE_ROOT", true, false, compilerFlags);
                     }
                 }
             }
@@ -1242,10 +1247,10 @@ namespace SocialPoint.XCodeEditor
                 }
             }
         }
-        
+
         #endregion
         #region Savings
-            
+
         public void Consolidate()
         {
             PBXDictionary consolidated = new PBXDictionary();
@@ -1265,7 +1270,7 @@ namespace SocialPoint.XCodeEditor
             _objects = consolidated;
             consolidated = null;
         }
-        
+
         public void Backup()
         {
             var timestamp = System.DateTime.Now.ToString("yyMMddHHmmss");
@@ -1277,11 +1282,11 @@ namespace SocialPoint.XCodeEditor
             {
                 File.Delete(backupPath);
             }
-            
+
             // Backup original pbxproj file first
             File.Copy(PathCombine(this.filePath, "project.pbxproj"), backupPath);
         }
-        
+
         /// <summary>
         /// Saves a project after editing.
         /// </summary>
@@ -1291,14 +1296,14 @@ namespace SocialPoint.XCodeEditor
             result.Add("archiveVersion", 1);
             result.Add("classes", new PBXDictionary());
             result.Add("objectVersion", 45);
-            
+
             Consolidate();
             result.Add("objects", _objects);
-            
+
             result.Add("rootObject", _rootObjectKey);
-            
+
             Backup();
-            
+
             // Parse result object directly into file
             PBXParser parser = new PBXParser();
             StreamWriter saveFile = File.CreateText(PathCombine(this.filePath, "project.pbxproj"));
@@ -1306,7 +1311,7 @@ namespace SocialPoint.XCodeEditor
             saveFile.Close();
 
         }
-        
+
         /**
         * Raw project data.
         */
@@ -1317,13 +1322,13 @@ namespace SocialPoint.XCodeEditor
                 return null;
             }
         }
-        
-        
+
+
         #endregion
-        
+
         public void Dispose()
         {
-            
+
         }
     }
 }
