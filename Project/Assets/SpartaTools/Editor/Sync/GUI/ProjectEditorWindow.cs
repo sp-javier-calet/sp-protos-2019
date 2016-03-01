@@ -1,0 +1,203 @@
+﻿using UnityEngine;
+using UnityEditor;
+using System.IO;
+
+namespace SpartaTools.Editor.Sync.View
+{
+    public class ProjectEditorWindow : EditorWindow
+    {
+        Vector2 _scrollPosition;
+        string _inputPath;
+        string _fileContent;
+        bool _showRawFile;
+        bool _showLog;
+
+        #region Editor options
+
+        [MenuItem("Window/Sparta/Project Info")]
+        public static void ShowWindow()
+        {
+            EditorWindow.GetWindow(typeof(ProjectEditorWindow), false, "Sparta Project", true);
+        }
+
+        #endregion
+
+        ProjectEditorWindow()
+        {
+            _inputPath = Sparta.Target.ProjectPath;
+            Sparta.OnChanged += OnSpartaChanged;   
+        }
+
+        ~ProjectEditorWindow()
+        {
+            Sparta.OnChanged -= OnSpartaChanged;
+        }
+
+        void OnSpartaChanged()
+        {
+            _inputPath = Sparta.Target.ProjectPath;
+            Repaint();
+        }
+
+        #region Draw GUI
+
+        void OnGUI()
+        {
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
+            GUIProjectPathInput();
+            GUIRepositoryStatus();
+
+            if(Sparta.Target.Valid)
+            {
+                GUIProjectLog();
+
+                if(Sparta.AdvancedMode)
+                {
+                    GUIAdvancedMode();
+                }
+            }
+            else
+            {
+                GUILayout.Label("No project selected");
+            }
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        void GUIProjectPathInput()
+        {
+            // Target Project Path input
+            GUILayout.Label("Target Project", EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            var path = _inputPath;
+            path = EditorGUILayout.TextField("Project path", _inputPath);
+            if(GUILayout.Button("Browse", GUILayout.MaxWidth(60)))
+            {
+                path = EditorUtility.OpenFolderPanel("Select Target Project", 
+                    Sparta.Target.ProjectPath,
+                    Sparta.Target.ProjectPath);
+            }
+
+            if(GUILayout.Button("Refresh", GUILayout.MaxWidth(60)) ||
+               path != Sparta.Target.ProjectPath)
+            {
+                Sparta.Target = new Project(path);
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            // Validate project path indicator
+            if(Sparta.Target.Valid)
+            {
+                GUILayout.Label("Is a valid Unity Project path", Styles.ValidProjectLabel);
+            }
+            else
+            {
+                GUILayout.Label("Path is not a Unity Project", Styles.InvalidProjectLabel);
+            }
+        }
+
+        void GUIRepositoryStatus()
+        {
+            var spartaInfo = Sparta.RepoInfo;
+            Sparta.RepositoryInfo targetInfo;
+
+            if(Sparta.Target.Valid && Sparta.Target.LastEntry != null)
+            {
+                targetInfo = Sparta.Target.LastEntry.RepoInfo;
+            }
+            else
+            {
+                targetInfo = new Sparta.RepositoryInfo();
+            }
+
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.BeginVertical(Styles.Group);
+            GUILayout.Label("", EditorStyles.boldLabel);
+            EditorGUILayout.SelectableLabel("Commit", Styles.TableLabel, Styles.TableLabelOptions);
+            EditorGUILayout.SelectableLabel("Branch", Styles.TableLabel, Styles.TableLabelOptions);
+            EditorGUILayout.SelectableLabel("User", Styles.TableLabel, Styles.TableLabelOptions);
+            GUILayout.EndVertical();
+
+            GUILayout.BeginVertical(Styles.Group);
+            GUILayout.Label("Sparta", EditorStyles.boldLabel);
+            EditorGUILayout.SelectableLabel(spartaInfo.Commit, Styles.TableContent);
+            EditorGUILayout.SelectableLabel(spartaInfo.Branch, Styles.TableContent);
+            EditorGUILayout.SelectableLabel(spartaInfo.User, Styles.TableContent);
+            GUILayout.EndVertical();
+
+            GUILayout.BeginVertical(Styles.Group);
+            GUILayout.Label("Target project", EditorStyles.boldLabel);
+            EditorGUILayout.SelectableLabel(targetInfo.Commit, Styles.TableContent);
+            EditorGUILayout.SelectableLabel(targetInfo.Branch, Styles.TableContent);
+            EditorGUILayout.SelectableLabel(targetInfo.User, Styles.TableContent);
+            GUILayout.EndVertical();
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        void GUIProjectLog()
+        {
+            _showLog = EditorGUILayout.Foldout(_showLog, "Project Log");
+            if(_showLog)
+            {
+                GUILayout.BeginVertical(Styles.Group);
+                foreach(var entry in Sparta.Target.Log)
+                {
+                    EditorGUILayout.SelectableLabel(string.Format("{0} - Updated by {1} on {2} - Local branch: {3}", 
+                        entry.RepoInfo.Commit, entry.RepoInfo.User, entry.Time, entry.RepoInfo.Branch));
+                }
+                GUILayout.EndVertical();
+            }
+        }
+
+        void GUIAdvancedMode()
+        {
+            _showRawFile = EditorGUILayout.Foldout(_showRawFile, "Raw Project file");
+            if(_showRawFile)
+            {
+                GUILayout.BeginVertical(Styles.Group);
+				if(string.IsNullOrEmpty(_fileContent))
+				{
+					LoadProjectFileContent();
+				}
+
+				_fileContent = GUILayout.TextArea(_fileContent);
+
+                GUILayout.BeginHorizontal(Styles.Group);
+                if(GUILayout.Button("Reload", GUILayout.MaxWidth(60)))
+                {
+                    LoadProjectFileContent();
+                }
+				
+                if(GUILayout.Button("Save", GUILayout.MaxWidth(60)))
+                {
+                    File.WriteAllText(Sparta.Target.ProjectFilePath, _fileContent);
+                }
+				
+                GUILayout.EndHorizontal();
+                GUILayout.EndVertical();
+            }
+        }
+
+        void LoadProjectFileContent()
+        {
+            if(Sparta.Target.Valid)
+            {
+                _fileContent = File.ReadAllText(Sparta.Target.ProjectFilePath);
+            }
+            else
+            {
+                _fileContent = string.Empty;
+            }
+
+            Repaint();
+        }
+
+        #endregion
+    }
+}
+
