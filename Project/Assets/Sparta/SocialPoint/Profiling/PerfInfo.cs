@@ -34,7 +34,7 @@ namespace SocialPoint.Profiling
         {
             get
             {
-                if (FrameTime != 0f)
+                if(FrameTime != 0f)
                 {
                     return 1000f / FrameTime;
                 }
@@ -133,7 +133,7 @@ namespace SocialPoint.Profiling
         float _updateInterval = 0.0f;
         float _currentInterval = 0.0f;
 
-        public PerfInfo(MonoBehaviour behaviour, float updateInterval=1.0f)
+        public PerfInfo(MonoBehaviour behaviour, float updateInterval = 1.0f)
         {
             _updateInterval = updateInterval;
             _behaviour = behaviour;
@@ -203,7 +203,7 @@ namespace SocialPoint.Profiling
             stats.FrameTime = UnityEditor.UnityStats.frameTime;
             if(stats.FrameTime == 0)
             {
-                stats.FrameTime = Time.smoothDeltaTime*1000;
+                stats.FrameTime = Time.smoothDeltaTime * 1000;
             }
             stats.RenderTime = UnityEditor.UnityStats.renderTime;
             stats.DrawCalls = (uint)UnityEditor.UnityStats.drawCalls;
@@ -212,10 +212,11 @@ namespace SocialPoint.Profiling
             stats.Verts = (uint)UnityEditor.UnityStats.vertices;
             return stats;
         }
-        #elif UNITY_IOS
+        #elif UNITY_IOS && SPARTA_PROFILER_ENABLED
         [DllImport(PluginModuleName)]
         public static extern FrameInfo SPUnityProfilerGetFrameInfo();
-        #else
+        
+#else
         public static FrameInfo SPUnityProfilerGetFrameInfo()
         {
             var stats = new FrameInfo();
@@ -230,10 +231,11 @@ namespace SocialPoint.Profiling
         }
         #endif
 
-        #if !UNITY_EDITOR && UNITY_IOS
+        #if !UNITY_EDITOR && UNITY_IOS && SPARTA_PROFILER_ENABLED
         [DllImport(PluginModuleName)]
         public static extern GarbageInfo SPUnityProfilerGetGarbageInfo();
-        #else
+        
+#else
         public static GarbageInfo SPUnityProfilerGetGarbageInfo()
         {
             var stats = new GarbageInfo();
