@@ -157,20 +157,27 @@ namespace SocialPoint.Crash
         public const string LogExtension = ".logcat";
         public const string FileSeparator = "-";
 
-        readonly string _crashesBasePath;
+        string _crashesBasePath;
         UIntPtr _nativeObject;
+        string _appVersion;
 
         public DeviceCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
             : base(runner, client, deviceInfo, breadcrumbManager, alertView)
         {
-            _crashesBasePath = PathsManager.TemporaryCachePath + CrashesFolder;
+            _appVersion = deviceInfo.AppInfo.Version;
+            PathsManager.CallOnLoaded(OnPathsLoaded);
+        }
+
+        void OnPathsLoaded()
+        {
+            _crashesBasePath = PathsManager.PersistentDataPath + CrashesFolder;
 
             FileUtils.CreateDirectory(_crashesBasePath);
 
             ReadPendingCrashes();
 
             // Create native object
-            _nativeObject = native_crashReporter_create(_crashesBasePath, deviceInfo.AppInfo.Version, FileSeparator, CrashExtension, LogExtension);
+            _nativeObject = native_crashReporter_create(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension);
         }
 
         ~DeviceCrashReporter ()
@@ -218,9 +225,13 @@ namespace SocialPoint.Crash
                     }
                 }
             }
-            catch(DirectoryNotFoundException e)
+            catch(DirectoryNotFoundException)
             {
-                Debug.LogError(string.Format("Crash folder not found. {0}", e));
+                Debug.LogError(string.Format("Crash folder '{0}' not found.", _crashesBasePath));
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(string.Format("Exception getting pending crashes: {0}", e));
             }
 
             return reports;
