@@ -121,7 +121,7 @@ namespace SocialPoint.Login
         public string StoreUrl;
         public UpgradeData Upgrade;
         public string UserImportance;
-		public bool Cheat;
+        public bool Cheat;
         public MaintenanceData Maintenance;
         private const string AttrKeyTimestamp = "ts";
         private const string AttrKeyStoreUrl = "store";
@@ -129,7 +129,7 @@ namespace SocialPoint.Login
         private const string AttrKeyUpgradeForced = "forced_upgrade";
         private const string AttrKeyMaintenanceData = "maintenance_data";
         private const string AttrKeyUserImportance = "user_importance";
-		private const string AttrKeyCheat = "cheat";
+        private const string AttrKeyCheat = "cheat";
         
         public void Load(IStreamReader reader)
         {
@@ -164,9 +164,9 @@ namespace SocialPoint.Login
                     case AttrKeyUserImportance:
                         UserImportance = reader.GetStringValue();
                         break;
-					case AttrKeyCheat:
-						Cheat = reader.GetBoolValue (); 
-						break;
+                    case AttrKeyCheat:
+                        Cheat = reader.GetBoolValue (); 
+                        break;
                     }
                 }
                 if(Upgrade == null)
@@ -190,10 +190,10 @@ namespace SocialPoint.Login
             {
                 UserImportance = datadic.GetValue(AttrKeyUserImportance).ToString();
             } 
-			if(datadic.ContainsKey(AttrKeyCheat))
-			{
-				Cheat = datadic.GetValue(AttrKeyCheat).ToBool();
-			} 
+            if(datadic.ContainsKey(AttrKeyCheat))
+            {
+                Cheat = datadic.GetValue(AttrKeyCheat).ToBool();
+            } 
             if(datadic.ContainsKey(AttrKeyUpgradeForced))
             {
                 Upgrade = new UpgradeData(UpgradeType.Forced, datadic.Get(AttrKeyUpgradeForced));
@@ -216,8 +216,8 @@ namespace SocialPoint.Login
         public override string ToString()
         {
             return string.Format(
-				"[GenericData: DeltaTime={0}, StoreUrl={1}, UserImportance={2} Upgrade={3}, Maintenance={4}, Cheat={5}]",
-				DeltaTime, StoreUrl, UserImportance, Upgrade, Maintenance, Cheat);
+                "[GenericData: DeltaTime={0}, StoreUrl={1}, UserImportance={2} Upgrade={3}, Maintenance={4}, Cheat={5}]",
+                DeltaTime, StoreUrl, UserImportance, Upgrade, Maintenance, Cheat);
         }
         
         [Obsolete("Use Upgrade.Type")]
