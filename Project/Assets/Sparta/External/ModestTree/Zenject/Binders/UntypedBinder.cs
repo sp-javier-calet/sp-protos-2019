@@ -11,8 +11,8 @@ namespace Zenject
     {
         public UntypedBinder(
             DiContainer container, Type contractType,
-            string identifier)
-            : base(container, contractType, identifier)
+            string identifier, SingletonProviderMap singletonMap)
+            : base(container, contractType, identifier, singletonMap)
         {
         }
 
@@ -94,16 +94,6 @@ namespace Zenject
 
 #if !ZEN_NOT_UNITY3D
 
-        public BindingConditionSetter ToSingleMonoBehaviour<TConcrete>(GameObject gameObject)
-        {
-            return ToSingleMonoBehaviour<TConcrete>(null, gameObject);
-        }
-
-        public BindingConditionSetter ToSingleMonoBehaviour<TConcrete>(string concreteIdentifier, GameObject gameObject)
-        {
-            return ToSingleMonoBehaviour(concreteIdentifier, typeof(TConcrete), gameObject);
-        }
-
         public BindingConditionSetter ToResource<TConcrete>(string resourcePath)
         {
             return ToResource(typeof(TConcrete), resourcePath);
@@ -127,6 +117,11 @@ namespace Zenject
             where TConcrete : Component
         {
             return ToSingleGameObject(typeof(TConcrete), name);
+        }
+
+        public BindingConditionSetter ToSingleMonoBehaviour<TConcrete>(GameObject gameObject)
+        {
+            return ToSingleMonoBehaviourBase<TConcrete>(gameObject);
         }
 
         public BindingConditionSetter ToSinglePrefab<TConcrete>(GameObject prefab)

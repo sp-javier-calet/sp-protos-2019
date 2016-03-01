@@ -14,10 +14,10 @@ namespace Zenject
     public class ZenjectAutoBinding : MonoBehaviour
     {
         [SerializeField]
-        Component _component = null;
+        Component _component;
 
         [SerializeField]
-        BindTypes _bindType = BindTypes.ToInstance;
+        BindTypes _bindType;
 
 #if UNITY_EDITOR
         public void Update()

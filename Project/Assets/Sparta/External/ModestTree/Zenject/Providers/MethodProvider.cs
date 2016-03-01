@@ -10,18 +10,9 @@ namespace Zenject
     {
         readonly Func<InjectContext, T> _method;
 
-        public MethodProvider(Func<InjectContext, T> method, DiContainer container)
+        public MethodProvider(Func<InjectContext, T> method)
         {
             _method = method;
-
-            // We can't do this because this is used by ToLookup which is valid in this case
-            //var singletonMark = container.SingletonRegistry.TryGetSingletonType<T>();
-
-            //if (singletonMark.HasValue)
-            //{
-                //throw new ZenjectBindException(
-                    //"Attempted to use 'ToMethod' with the same type ('{0}') that is already marked with '{1}'".Fmt(typeof(T).Name(), singletonMark.Value));
-            //}
         }
 
         public override Type GetInstanceType()

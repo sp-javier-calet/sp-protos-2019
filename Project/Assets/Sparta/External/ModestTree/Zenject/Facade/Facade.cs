@@ -7,13 +7,13 @@ namespace Zenject
     [System.Diagnostics.DebuggerStepThrough]
     public class Facade : IFacade
     {
-        [Inject(InjectSources.Local)]
+        [Inject]
         TickableManager _tickableManager = null;
 
-        [Inject(InjectSources.Local)]
+        [Inject]
         InitializableManager _initializableManager = null;
 
-        [Inject(InjectSources.Local)]
+        [Inject]
         DisposableManager _disposablesManager = null;
 
         // For cases where you have objects that aren't referenced anywhere but still want them to be
