@@ -99,7 +99,7 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Sparta/Build/OSX Plugins", false, 202)]
         public static void CompileOSX()
         {
-            CompileAppleProjectTarget("generateUnityPlugin_macOs");
+            CompileAppleProjectTarget("generateUnityPlugin_macOS");
         }
 
         [MenuItem("Sparta/Build/Build All", false, 500)]

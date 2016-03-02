@@ -3,3 +3,4 @@ xcuserdata/
 *.xccheckout
 .DS_Store
 Project/Sources/Android/sp_unity_native_plugins/*/obj
+Project/Sources/Apple/sp_unity_plugins/build

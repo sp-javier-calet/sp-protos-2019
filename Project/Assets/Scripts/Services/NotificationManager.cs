@@ -1,8 +1,4 @@
-using Zenject;
-using UnityEngine;
-using System;
 using SocialPoint.AppEvents;
-using SocialPoint.ServerSync;
 using SocialPoint.Notifications;
 
 public class NotificationManager : SocialPoint.Notifications.NotificationManager
