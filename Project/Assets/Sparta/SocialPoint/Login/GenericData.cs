@@ -188,7 +188,7 @@ namespace SocialPoint.Login
             }
             if(datadic.ContainsKey(AttrKeyUserImportance))
             {
-                UserImportance = datadic.GetValue(AttrKeyUserImportance).ToInt();
+                UserImportance = datadic.GetValue(AttrKeyUserImportance).ToString();
             } 
             if(datadic.ContainsKey(AttrKeyCheat))
             {
@@ -210,11 +210,6 @@ namespace SocialPoint.Login
             if(datadic.ContainsKey(AttrKeyMaintenanceData))
             {
                 Maintenance = new MaintenanceData(datadic.Get(AttrKeyMaintenanceData));
-            }
-
-            if(datadic.ContainsKey(AttrKeyUserImportance))
-            {
-                UserImportance = datadic.Get(AttrKeyUserImportance).AsValue.ToString();
             }
         }
 
