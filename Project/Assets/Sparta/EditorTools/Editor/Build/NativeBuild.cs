@@ -87,19 +87,19 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Sparta/Build/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
-            CompileAppleProjectTarget("PluginDependencies"); // TODO Rename iOS target names as in Android
+            CompileAppleProjectTarget("generateUnityPlugin");
         }
 
         [MenuItem("Sparta/Build/tvOS Plugins", false, 202)]
         public static void CompileTVOS()
         {
-            CompileAppleProjectTarget("PluginDependencies_tvOS");
+            CompileAppleProjectTarget("generateUnityPlugin_tvOS");
         }
 
         [MenuItem("Sparta/Build/OSX Plugins", false, 202)]
         public static void CompileOSX()
         {
-            // TODO Compile Xcode project for OSX
+            CompileAppleProjectTarget("generateUnityPlugin_macOs");
         }
 
         [MenuItem("Sparta/Build/Build All", false, 500)]
@@ -115,7 +115,7 @@ namespace SpartaTools.Editor.Build
         static void CompileAppleProjectTarget(string target)
         {
             var commandOutput = new StringBuilder(string.Format("Compile SPUnityPlugins {0} for Apple Platforms", target));
-            var path = Path.Combine(SourcesDirectoryPath, "Ios/sp_unity_plugins"); // TODO Apple folders & fix target dependencies (copy -> build)
+            var path = Path.Combine(SourcesDirectoryPath, "Apple/sp_unity_plugins");
 
             var msg = string.Format("Building target '{0}' for SPUnityPlugins '{1}'", target, path);
             Debug.Log(msg);

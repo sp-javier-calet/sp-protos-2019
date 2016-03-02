@@ -7,37 +7,40 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		069170331C760B4100C6B0B6 /* PluginDependencies_macOs */ = {
+		069170331C760B4100C6B0B6 /* generateUnityPlugin_macOS */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 069170361C760B4100C6B0B6 /* Build configuration list for PBXAggregateTarget "PluginDependencies_macOs" */;
+			buildConfigurationList = 069170361C760B4100C6B0B6 /* Build configuration list for PBXAggregateTarget "generateUnityPlugin_macOS" */;
 			buildPhases = (
 				069170341C760B4100C6B0B6 /* CopyFiles */,
 			);
 			dependencies = (
+				FE58A4641C87055100F9BA0D /* PBXTargetDependency */,
 			);
-			name = PluginDependencies_macOs;
+			name = generateUnityPlugin_macOS;
 			productName = PluginDependencies;
 		};
-		468E00371C3E762200CA07AF /* PluginDependencies_tvOS */ = {
+		468E00371C3E762200CA07AF /* generateUnityPlugin_tvOS */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 468E003B1C3E762200CA07AF /* Build configuration list for PBXAggregateTarget "PluginDependencies_tvOS" */;
+			buildConfigurationList = 468E003B1C3E762200CA07AF /* Build configuration list for PBXAggregateTarget "generateUnityPlugin_tvOS" */;
 			buildPhases = (
 				468E00381C3E762200CA07AF /* CopyFiles */,
 			);
 			dependencies = (
+				FE58A4661C87056500F9BA0D /* PBXTargetDependency */,
 			);
-			name = PluginDependencies_tvOS;
+			name = generateUnityPlugin_tvOS;
 			productName = PluginDependencies;
 		};
-		FEE5C1AF1C2163BA0020C4DB /* PluginDependencies */ = {
+		FEE5C1AF1C2163BA0020C4DB /* generateUnityPlugin */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = FEE5C1B01C2163BA0020C4DB /* Build configuration list for PBXAggregateTarget "PluginDependencies" */;
+			buildConfigurationList = FEE5C1B01C2163BA0020C4DB /* Build configuration list for PBXAggregateTarget "generateUnityPlugin" */;
 			buildPhases = (
 				FEE5C1B31C2163C40020C4DB /* CopyFiles */,
 			);
 			dependencies = (
+				FE58A4681C87056D00F9BA0D /* PBXTargetDependency */,
 			);
-			name = PluginDependencies;
+			name = generateUnityPlugin;
 			productName = PluginDependencies;
 		};
 /* End PBXAggregateTarget section */
@@ -153,26 +156,26 @@
 			remoteGlobalIDString = 069170281C75F79B00C6B0B6;
 			remoteInfo = SPUnityPlugins_macOS;
 		};
-		06D7A6951C77199900F71393 /* PBXContainerItemProxy */ = {
+		FE58A4631C87055100F9BA0D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 069170331C760B4100C6B0B6;
-			remoteInfo = PluginDependencies_macOs;
+			remoteGlobalIDString = 069170281C75F79B00C6B0B6;
+			remoteInfo = SPUnityPlugins_macOS;
 		};
-		06D7A6971C77199E00F71393 /* PBXContainerItemProxy */ = {
+		FE58A4651C87056500F9BA0D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = FEE5C1AF1C2163BA0020C4DB;
-			remoteInfo = PluginDependencies;
+			remoteGlobalIDString = 468E00161C3E75E500CA07AF;
+			remoteInfo = SPUnityPlugins_tvOS;
 		};
-		468E003E1C3E766100CA07AF /* PBXContainerItemProxy */ = {
+		FE58A4671C87056D00F9BA0D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FE448F0E1C1EE83100A10FEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 468E00371C3E762200CA07AF;
-			remoteInfo = PluginDependencies_tvOS;
+			remoteGlobalIDString = FE44907B1C1F20C400A10FEA;
+			remoteInfo = SPUnityPlugins;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -881,7 +884,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				06D7A6961C77199900F71393 /* PBXTargetDependency */,
 			);
 			name = SPUnityPlugins_macOS;
 			productName = SPUnityPlugins_macOS;
@@ -954,7 +956,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				468E003F1C3E766100CA07AF /* PBXTargetDependency */,
 			);
 			name = SPUnityPlugins_tvOS;
 			productName = SPUnityPlugins;
@@ -973,7 +974,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				06D7A6981C77199E00F71393 /* PBXTargetDependency */,
 			);
 			name = SPUnityPlugins;
 			productName = SPUnityPlugins;
@@ -1022,13 +1022,13 @@
 			projectRoot = "";
 			targets = (
 				FE44907B1C1F20C400A10FEA /* SPUnityPlugins */,
-				FEE5C1AF1C2163BA0020C4DB /* PluginDependencies */,
+				FEE5C1AF1C2163BA0020C4DB /* generateUnityPlugin */,
 				460B35CB1C3EAE80003E0D9D /* LinkerValidator */,
 				468E00161C3E75E500CA07AF /* SPUnityPlugins_tvOS */,
-				468E00371C3E762200CA07AF /* PluginDependencies_tvOS */,
+				468E00371C3E762200CA07AF /* generateUnityPlugin_tvOS */,
 				460B360F1C3EB1B8003E0D9D /* LinkerValidator_tvOS */,
 				069170281C75F79B00C6B0B6 /* SPUnityPlugins_macOS */,
-				069170331C760B4100C6B0B6 /* PluginDependencies_macOs */,
+				069170331C760B4100C6B0B6 /* generateUnityPlugin_macOS */,
 				069170591C762BED00C6B0B6 /* LinkerValidator_macOS */,
 			);
 		};
@@ -1184,20 +1184,20 @@
 			target = 069170281C75F79B00C6B0B6 /* SPUnityPlugins_macOS */;
 			targetProxy = 0691706B1C762C1C00C6B0B6 /* PBXContainerItemProxy */;
 		};
-		06D7A6961C77199900F71393 /* PBXTargetDependency */ = {
+		FE58A4641C87055100F9BA0D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 069170331C760B4100C6B0B6 /* PluginDependencies_macOs */;
-			targetProxy = 06D7A6951C77199900F71393 /* PBXContainerItemProxy */;
+			target = 069170281C75F79B00C6B0B6 /* SPUnityPlugins_macOS */;
+			targetProxy = FE58A4631C87055100F9BA0D /* PBXContainerItemProxy */;
 		};
-		06D7A6981C77199E00F71393 /* PBXTargetDependency */ = {
+		FE58A4661C87056500F9BA0D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = FEE5C1AF1C2163BA0020C4DB /* PluginDependencies */;
-			targetProxy = 06D7A6971C77199E00F71393 /* PBXContainerItemProxy */;
+			target = 468E00161C3E75E500CA07AF /* SPUnityPlugins_tvOS */;
+			targetProxy = FE58A4651C87056500F9BA0D /* PBXContainerItemProxy */;
 		};
-		468E003F1C3E766100CA07AF /* PBXTargetDependency */ = {
+		FE58A4681C87056D00F9BA0D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 468E00371C3E762200CA07AF /* PluginDependencies_tvOS */;
-			targetProxy = 468E003E1C3E766100CA07AF /* PBXContainerItemProxy */;
+			target = FE44907B1C1F20C400A10FEA /* SPUnityPlugins */;
+			targetProxy = FE58A4671C87056D00F9BA0D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1998,7 +1998,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		069170361C760B4100C6B0B6 /* Build configuration list for PBXAggregateTarget "PluginDependencies_macOs" */ = {
+		069170361C760B4100C6B0B6 /* Build configuration list for PBXAggregateTarget "generateUnityPlugin_macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				069170371C760B4100C6B0B6 /* Debug */,
@@ -2043,7 +2043,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		468E003B1C3E762200CA07AF /* Build configuration list for PBXAggregateTarget "PluginDependencies_tvOS" */ = {
+		468E003B1C3E762200CA07AF /* Build configuration list for PBXAggregateTarget "generateUnityPlugin_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				468E003C1C3E762200CA07AF /* Debug */,
@@ -2070,7 +2070,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FEE5C1B01C2163BA0020C4DB /* Build configuration list for PBXAggregateTarget "PluginDependencies" */ = {
+		FEE5C1B01C2163BA0020C4DB /* Build configuration list for PBXAggregateTarget "generateUnityPlugin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FEE5C1B11C2163BA0020C4DB /* Debug */,
