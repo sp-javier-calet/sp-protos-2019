@@ -1,5 +1,3 @@
-using DS.Utils.Extensions;
-
 namespace SocialPoint.Utils
 {
     public static class Formatters
@@ -27,7 +25,7 @@ namespace SocialPoint.Utils
                 formatStr = oneMillionFormatStr;
             }
 
-            return formatStr.WithFormat(finalAmount);
+            return string.Format(formatStr, finalAmount);
 
         }
     }
