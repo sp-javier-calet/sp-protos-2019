@@ -35,8 +35,6 @@ public class GameLoader : IGameLoader
     [InjectOptional]
     ILogin _login;
 
-    GameModel _initialModel;
-
     public string PlayerJsonPath
     {
         get
@@ -61,14 +59,9 @@ public class GameLoader : IGameLoader
 
     GameModel LoadInitialGame()
     {
-        // caching the initial model, should not change in the same execution
-        if(_initialModel == null)
-        {
-            var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
-            var gameData = new JsonAttrParser().ParseString(json);
-            _initialModel = _gameParser.Parse(gameData);
-        }
-        return _initialModel;
+        var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+        var gameData = new JsonAttrParser().ParseString(json);
+        return _gameParser.Parse(gameData);
     }
 
     GameModel LoadSavedGame()
@@ -81,12 +74,13 @@ public class GameLoader : IGameLoader
 
         if(!string.IsNullOrEmpty(json))
         {
-            var ini = LoadInitialGame();
-            // we need to assign it or else the player parser will have the wrong config
-            _gameModel.Assign(ini); 
+            var gameModel = LoadInitialGame();
             var playerData = new JsonAttrParser().ParseString(json);
             var player = _playerParser.Parse(playerData);
-            return new GameModel(ini.Config, player);
+
+            gameModel.LoadPlayer(player);
+
+            return gameModel;
         }
         return null;
     }
@@ -112,7 +106,7 @@ public class GameLoader : IGameLoader
             var ini = LoadInitialGame();
             if(ini != null)
             {
-                newModel.Player.Assign(ini.Player);
+                newModel.Player.Move(ini.Player);
             }
         }
         if(newModel == null)
@@ -121,7 +115,7 @@ public class GameLoader : IGameLoader
         }
         else
         {
-            _gameModel.Assign(newModel);
+            _gameModel.Move(newModel);
         }
         return _gameModel;
     }

@@ -49,6 +49,7 @@ namespace SocialPoint.QualityStats
         {
             public int Amount;
             public double SumSize;
+            public double SumSpeed;
             public double SumTimes;
             public double SumWaitTimes;
             public double SumConnectionTimes;
@@ -57,8 +58,8 @@ namespace SocialPoint.QualityStats
             public override string ToString()
             {
                 return string.Format(
-                    "[Data: Amount={0}, SumSize={1}, SumTimes={2}, SumWaitTimes={3}, SumConnectionTimes={4}, SumTransferTimes={5}]",
-                    Amount, SumTimes, SumWaitTimes, SumConnectionTimes, SumTransferTimes);
+                    "[Data: Amount={0}, SumSize={1}, SumSpeed={2}, SumTimes={3}, SumWaitTimes={4}, SumConnectionTimes={5}, SumTransferTimes={6}]",
+                    Amount, SumSize, SumSpeed, SumTimes, SumWaitTimes, SumConnectionTimes, SumTransferTimes);
             }
 
             public static Data operator+(Data a, Data b)
@@ -66,6 +67,7 @@ namespace SocialPoint.QualityStats
                 return new Data {
                     Amount = a.Amount + b.Amount,
                     SumSize = a.SumSize + b.SumSize,
+                    SumSpeed = a.SumSpeed + b.SumSpeed,
                     SumTimes = a.SumTimes + b.SumTimes,
                     SumWaitTimes = a.SumWaitTimes + b.SumWaitTimes,
                     SumConnectionTimes = a.SumConnectionTimes + b.SumConnectionTimes,
@@ -171,6 +173,7 @@ namespace SocialPoint.QualityStats
 
             data.Amount++;
             data.SumSize += response.DownloadSize / 1024.0;
+            data.SumSpeed += response.DownloadSpeed / 1024.0;
             data.SumTimes += response.Duration;
             var end = TimeUtils.Now;
             data.SumWaitTimes += (end - start).TotalSeconds - response.Duration;

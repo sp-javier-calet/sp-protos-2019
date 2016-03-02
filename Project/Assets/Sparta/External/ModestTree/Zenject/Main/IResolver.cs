@@ -13,12 +13,6 @@ namespace Zenject
 {
     public interface IResolver
     {
-        IList ResolveAll(InjectContext context);
-
-        List<Type> ResolveTypeAll(InjectContext context);
-
-        object Resolve(InjectContext context);
-
         void InjectExplicit(
             object injectable, IEnumerable<TypeValuePair> extraArgs,
             bool shouldUseAll, ZenjectTypeInfo typeInfo, InjectContext context, string concreteIdentifier);
@@ -55,7 +49,10 @@ namespace Zenject
         void InjectExplicit(object injectable, List<TypeValuePair> additional);
         void InjectExplicit(object injectable, List<TypeValuePair> additional, InjectContext context);
 
+        List<Type> ResolveTypeAll(InjectContext context);
         List<Type> ResolveTypeAll(Type type);
+
+        object Resolve(InjectContext context);
 
         TContract Resolve<TContract>();
         TContract Resolve<TContract>(string identifier);
@@ -73,6 +70,8 @@ namespace Zenject
 
         TContract Resolve<TContract>(InjectContext context);
 
+        IList ResolveAll(InjectContext context);
+
         List<TContract> ResolveAll<TContract>();
         List<TContract> ResolveAll<TContract>(bool optional);
         List<TContract> ResolveAll<TContract>(string identifier);
@@ -83,5 +82,9 @@ namespace Zenject
         IList ResolveAll(Type contractType, string identifier);
         IList ResolveAll(Type contractType, bool optional);
         IList ResolveAll(Type contractType, string identifier, bool optional);
+
+        IEnumerable<ZenjectResolveException> ValidateResolve<TContract>();
+        IEnumerable<ZenjectResolveException> ValidateResolve<TContract>(string identifier);
+        IEnumerable<ZenjectResolveException> ValidateValidatables(params Type[] ignoreTypes);
     }
 }

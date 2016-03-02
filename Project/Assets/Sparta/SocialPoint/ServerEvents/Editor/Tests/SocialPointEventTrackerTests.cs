@@ -2,6 +2,7 @@
 using NSubstitute;
 using UnityEngine;
 using System;
+using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.ServerSync;
@@ -73,7 +74,7 @@ namespace SocialPoint.ServerEvents
         {
             Start();
             SocialPointEventTracker.TrackEvent("Test event");
-            SocialPointEventTracker.CommandQueue.Received(1).Add(Arg.Any<Command>(), Arg.Any<ErrorDelegate>());
+            SocialPointEventTracker.CommandQueue.Received(1).Add(Arg.Any<Command>(), Arg.Any<Action<Attr, Error>>());
         }
 
         [Test]

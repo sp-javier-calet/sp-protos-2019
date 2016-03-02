@@ -23,6 +23,7 @@ struct SPUnityCurlConnInfo
     int id;
     CURL* easy;
     int responseCode;
+    int errorCode;
     std::string bodyBuffer;
     std::string headersBuffer;
     std::string errorBuffer;

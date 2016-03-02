@@ -18,9 +18,9 @@ public class RealBackendInstaller : MonoInstaller
         public NotificationInstaller.SettingsData Notifications = new NotificationInstaller.SettingsData();
         public CrashInstaller.SettingsData Crashes = new CrashInstaller.SettingsData();
     }
-    
+
     public SettingsData Settings = new SettingsData();
-    
+
     public override void InstallBindings()
     {
         {
@@ -52,8 +52,10 @@ public class RealBackendInstaller : MonoInstaller
             var installer = new QualityStatsInstaller();
             Container.Install(installer);
         }
+        {
+            var installer = new MessageCenterInstaller();
+            Container.Install(installer);
+        }
     }
-
-
 
 }

@@ -10,15 +10,12 @@ namespace Zenject
 {
     public class GameObjectTransientProvider : ProviderBase
     {
-        readonly string _name;
         readonly Type _componentType;
 
-        public GameObjectTransientProvider(
-            Type componentType, string name)
+        public GameObjectTransientProvider(Type componentType)
         {
             Assert.That(componentType.DerivesFrom<Component>());
             _componentType = componentType;
-            _name = name;
         }
 
         public override Type GetInstanceType()
@@ -30,10 +27,8 @@ namespace Zenject
         {
             Assert.That(_componentType.DerivesFromOrEqual(context.MemberType));
 
-            var name = string.IsNullOrEmpty(_name) ? _componentType.Name() : _name;
-
             return context.Container.InstantiateComponentOnNewGameObjectExplicit(
-                _componentType, name, new List<TypeValuePair>(), context);
+                _componentType, _componentType.Name(), new List<TypeValuePair>(), context);
         }
 
         public override IEnumerable<ZenjectResolveException> ValidateBinding(InjectContext context)

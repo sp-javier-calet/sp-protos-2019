@@ -4,6 +4,7 @@ using NSubstitute;
 using System;
 using UnityEngine;
 
+using SocialPoint.Attributes;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
@@ -68,7 +69,7 @@ namespace SocialPoint.ServerSync
         public void Add_cmd_finishDelegate()
         {
             Start();
-            CommandQueue.Add(Substitute.For<Command>("Test Command", null, false, true), Substitute.For<ErrorDelegate>());
+            CommandQueue.Add(Substitute.For<Command>("Test Command", null, false, true), Substitute.For<Action<Attr,Error>>());
             //todo: check number of packages?
         }
 

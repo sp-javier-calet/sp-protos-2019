@@ -32,7 +32,7 @@ namespace Zenject
         DiContainer _container;
         IFacade _rootFacade = null;
 
-        static List<IInstaller> _staticInstallers = new List<IInstaller>();
+        static StaticSettings _staticSettings;
 
         public override DiContainer Container
         {
@@ -52,6 +52,17 @@ namespace Zenject
 
         public void Awake()
         {
+            var extraInstallers = new List<IInstaller>();
+
+            if (_staticSettings != null)
+            // Static settings are needed if creating a SceneCompositionRoot dynamically
+            {
+                extraInstallers = _staticSettings.Installers;
+                OnlyInjectWhenActive = _staticSettings.OnlyInjectWhenActive;
+                ParentNewObjectsUnderRoot = _staticSettings.ParentNewObjectsUnderRoot;
+                _staticSettings = null;
+            }
+
             // We always want to initialize GlobalCompositionRoot as early as possible
             GlobalCompositionRoot.Instance.EnsureIsInitialized();
 
@@ -59,7 +70,8 @@ namespace Zenject
             Assert.IsNull(RootFacade);
 
             Log.Debug("Initializing SceneCompositionRoot in scene '{0}'", this.gameObject.scene.name);
-            InitContainer();
+            _container = CreateContainer(
+                false, GlobalCompositionRoot.Instance.Container, extraInstallers);
 
             Log.Debug("SceneCompositionRoot: Finished install phase.  Injecting into scene...");
             InjectObjectsInScene();
@@ -132,30 +144,6 @@ namespace Zenject
             return container;
         }
 
-        // This method is used for cases where you need to create the SceneCompositionRoot entirely in code
-        // Necessary because the Awake() method is called immediately after AddComponent<SceneCompositionRoot>
-        // so there's no other way to add installers to it
-        public static SceneCompositionRoot AddComponent(
-            GameObject gameObject, IInstaller rootInstaller)
-        {
-            return AddComponent(gameObject, new List<IInstaller>() { rootInstaller });
-        }
-
-        public static SceneCompositionRoot AddComponent(
-            GameObject gameObject, List<IInstaller> installers)
-        {
-            Assert.That(_staticInstallers.IsEmpty());
-            _staticInstallers.AddRange(installers);
-            return gameObject.AddComponent<SceneCompositionRoot>();
-        }
-
-        void InitContainer()
-        {
-            _container = CreateContainer(
-                false, GlobalCompositionRoot.Instance.Container, _staticInstallers);
-            _staticInstallers.Clear();
-        }
-
         public static IEnumerable<GameObject> GetSceneRootObjects(Scene scene)
         {
             // Note: We can't use activeScene.GetRootObjects() here because that apparently fails with an exception
@@ -177,6 +165,40 @@ namespace Zenject
             {
                 _container.InjectGameObject(rootObj, true, !OnlyInjectWhenActive);
             }
+        }
+
+        // These methods can be used for cases where you need to create the SceneCompositionRoot entirely in code
+        // Necessary because the Awake() method is called immediately after InstantiateComponent<SceneCompositionRoot>
+        // so there's no other way to add installers to it
+        public static SceneCompositionRoot Instantiate(
+            GameObject parent, StaticSettings settings)
+        {
+            var gameObject = new GameObject();
+
+            if (parent != null)
+            {
+                gameObject.transform.SetParent(parent.transform, false);
+            }
+
+            return InstantiateComponent(gameObject, settings);
+        }
+
+        public static SceneCompositionRoot InstantiateComponent(
+            GameObject gameObject, StaticSettings settings)
+        {
+            Assert.IsNull(_staticSettings);
+            _staticSettings = settings;
+
+            var result = gameObject.AddComponent<SceneCompositionRoot>();
+            Assert.IsNull(_staticSettings);
+            return result;
+        }
+
+        public class StaticSettings
+        {
+            public List<IInstaller> Installers;
+            public bool ParentNewObjectsUnderRoot;
+            public bool OnlyInjectWhenActive;
         }
     }
 }
