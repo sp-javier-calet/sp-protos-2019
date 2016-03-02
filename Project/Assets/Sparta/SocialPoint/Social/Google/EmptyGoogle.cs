@@ -112,6 +112,14 @@ namespace SocialPoint.Social
             }
         }
 
+        public bool IsConnecting
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public IEnumerable<GoogleAchievement> Achievements
         {
             get
@@ -120,9 +128,12 @@ namespace SocialPoint.Social
             }
         }
 
-        public string GetAccessToken()
+        public string AccessToken
         {
-            throw new System.NotImplementedException();
+            get
+            {
+                return string.Empty;
+            }
         }
 
         public UnityEngine.Texture2D GetUserPhoto(string userID)

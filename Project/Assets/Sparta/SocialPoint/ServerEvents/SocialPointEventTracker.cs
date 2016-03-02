@@ -262,7 +262,7 @@ namespace SocialPoint.ServerEvents
             }
             AddHardwareData(data);
             var eventCommand = new EventCommand(eventName, data);
-            CommandQueue.Add(eventCommand, del);
+            CommandQueue.Add(eventCommand, (attr, err) => del(err));
         }
 
         public void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
@@ -292,20 +292,29 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        public DateTime CurrentTime
+        long CurrentTimestamp
         {
             get
             {
-                return TimeUtils.Now;
+                // do not use 'TimeUtils.Timestamp' nor 'TimeUtils.Now' because they apply a server offset
+                return TimeUtils.GetTimestamp(DateTime.Now);
             }
         }
 
-
-        public long CurrentTimestamp
+        long CurrentSyncedTimestamp
         {
             get
             {
+                // dependant on server offset
                 return TimeUtils.Timestamp;
+            }
+        }
+
+        int CurrentSyncedOffset
+        {
+            get
+            {
+                return (int)TimeUtils.Offset.TotalSeconds;
             }
         }
 
@@ -412,6 +421,9 @@ namespace SocialPoint.ServerEvents
             mobile.SetValue("adid_enabled", DeviceInfo.AdvertisingIdEnabled);
             mobile.SetValue("rooted", DeviceInfo.Rooted);
             mobile.SetValue("os", DeviceInfo.PlatformVersion);
+            #if ADMIN_PANEL
+            mobile.SetValue("admin_panel", true);
+            #endif
         }
 
         bool IsEventUnauthorized(string evName)
@@ -461,7 +473,8 @@ namespace SocialPoint.ServerEvents
             common.SetValue("plat", DeviceInfo.Platform);
             var version = DeviceInfo.AppInfo.ShortVersion + "-" + DeviceInfo.AppInfo.Version;
             common.SetValue("ver", version);
-            common.SetValue("ts", CurrentTimestamp);
+            common.SetValue("ts", CurrentSyncedTimestamp);
+            common.SetValue("dts", CurrentSyncedOffset);
             AddHardwareData(common);
             data.Set("events", evs);
             

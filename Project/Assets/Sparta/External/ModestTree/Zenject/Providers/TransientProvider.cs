@@ -9,9 +9,17 @@ namespace Zenject
     {
         readonly Type _concreteType;
 
-        public TransientProvider(Type concreteType)
+        public TransientProvider(Type concreteType, DiContainer container)
         {
             _concreteType = concreteType;
+
+            var singletonMark = container.SingletonRegistry.TryGetSingletonType(concreteType);
+
+            if (singletonMark.HasValue)
+            {
+                throw new ZenjectBindException(
+                    "Attempted to use 'ToTransient' with the same type ('{0}') that is already marked with '{1}'".Fmt(concreteType.Name(), singletonMark.Value));
+            }
         }
 
         public override Type GetInstanceType()

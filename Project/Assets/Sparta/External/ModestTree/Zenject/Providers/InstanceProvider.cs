@@ -11,12 +11,20 @@ namespace Zenject
         readonly object _instance;
         readonly Type _instanceType;
 
-        public InstanceProvider(Type instanceType, object instance)
+        public InstanceProvider(Type instanceType, object instance, DiContainer container)
         {
             Assert.That(instance == null || instance.GetType().DerivesFromOrEqual(instanceType));
 
             _instance = instance;
             _instanceType = instanceType;
+
+            var singletonMark = container.SingletonRegistry.TryGetSingletonType(instanceType);
+
+            if (singletonMark.HasValue)
+            {
+                throw new ZenjectBindException(
+                    "Attempted to use 'ToInstance' with the same type ('{0}') that is already marked with '{1}'".Fmt(instanceType.Name(), singletonMark.Value));
+            }
         }
 
         public override Type GetInstanceType()

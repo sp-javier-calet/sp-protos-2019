@@ -30,6 +30,7 @@ namespace SocialPoint.GUIControl
             {
                 ctrl = Factory.Create(c, prefab);
             }
+            ctrl.LayersController = LayersController;
             if(ctrl != null)
             {
                 AddChild(ctrl);

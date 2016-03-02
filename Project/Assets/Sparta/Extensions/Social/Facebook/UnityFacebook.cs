@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -8,22 +7,26 @@ using Facebook.Unity;
 
 namespace SocialPoint.Social
 {
-    public delegate void PlatformBridgeSessionDelegate(string session,string status,string error);
+    public delegate void PlatformBridgeSessionDelegate(string session, string status, string error);
 
     public class UnityFacebook : BaseFacebook
     {
-        private bool _connecting = false;
-        private FacebookUser _user;
-        private uint _loginRetries;
-        private uint _maxLoginRetries = 3;
-        private List<FacebookUser> _friends = new List<FacebookUser>();
-        private List<string> _loginPermissions = new List<string>();
-        private List<string> _userPermissions;
-        private ICoroutineRunner _runner;
+        const uint kMaxLoginRetries = 3;
+
         public bool InitializedFriends { get; protected set; }
+
+        bool _connecting;
+        FacebookUser _user;
+        uint _loginRetries;
+        readonly List<FacebookUser> _friends;
+        readonly List<string> _loginPermissions;
+        List<string> _userPermissions;
+        ICoroutineRunner _runner;
 
         public UnityFacebook(ICoroutineRunner runner)
         {
+            _friends = new List<FacebookUser>();
+            _loginPermissions = new List<string>();
             _runner = runner;
         }
 
@@ -39,7 +42,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return FB.IsLoggedIn;
+                return FB.IsLoggedIn && !_connecting;
             }
         }
 
@@ -221,7 +224,7 @@ namespace SocialPoint.Social
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                if(err.Code != FacebookErrors.DialogCancelled && _loginRetries < _maxLoginRetries)
+                if(err.Code != FacebookErrors.DialogCancelled && _loginRetries < kMaxLoginRetries)
                 {
                     _loginRetries++;
                     FB.LogOut();
@@ -241,10 +244,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err, ErrorDelegate cbk)
         {
             _connecting = false;
-            if(IsConnected)
-            {
-                NotifyStateChanged();
-            }
+            NotifyStateChanged();
             if(cbk != null)
             {
                 cbk(err);
@@ -290,10 +290,7 @@ namespace SocialPoint.Social
             FB.API(uri, HttpMethod.GET, (IGraphResult result) => {
                 if(!string.IsNullOrEmpty(result.Error))
                 {
-                    if(cbk != null)
-                    {
-                        cbk(new Error(result.Error));
-                    }
+                    OnLoginEnd(new Error(result.Error), cbk);
                 }
                 else
                 {
@@ -307,30 +304,20 @@ namespace SocialPoint.Social
                         GetLoginFriendsInfo("/me/friends", (err) => {
                             if(!Error.IsNullOrEmpty(err))
                             {
-                                if(cbk != null)
-                                {
-                                    cbk(err);
-                                }
+                                OnLoginEnd(err, cbk);
                             }
                             else
                             {
                                 GetLoginFriendsInfo("/me/invitable_friends", (err2) => {
-                                    if(cbk != null)
-                                    {
-                                        cbk(null);
-                                    }
+                                    OnLoginEnd(err2, cbk);
                                 });
                             }
                         });
                     }
                     else
                     {
-                        if(cbk != null)
-                        {
-                            cbk(new Error("Could not read the user json"));
-                        }
+                        OnLoginEnd(new Error("Could not read the user json"), cbk);
                     }
-
                 }
             });
         }
@@ -345,7 +332,7 @@ namespace SocialPoint.Social
             var s = UserPhotoSize;
             var uri = path + "?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
 
-            FB.API(uri.ToString(), HttpMethod.GET, (IGraphResult result) => {
+            FB.API(uri, HttpMethod.GET, result => {
                 var err = new Error(result.Error);
                 if(Error.IsNullOrEmpty(err))
                 {
@@ -361,6 +348,7 @@ namespace SocialPoint.Social
                             _friends.Add(user);
                         }
                     }
+
                     InitializedFriends = true;
                 }
                 if(cbk != null)
@@ -415,9 +403,6 @@ namespace SocialPoint.Social
             }
             _connecting = true;
 
-            #if UNITY_EDITOR
-            //_behaviour.StartCoroutine(CheckEditorLoginFail(cbk));
-            #endif
             FB.LogInWithReadPermissions(_loginPermissions, (ILoginResult response) => {
                 var err = new Error(response.Error);
                 if(Error.IsNullOrEmpty(err) && !FB.IsLoggedIn)
@@ -427,30 +412,6 @@ namespace SocialPoint.Social
                 DidLogin(err, cbk);
             });
         }
-
-        /*
-        IEnumerator CheckEditorLoginFail(ErrorDelegate cbk)
-        {
-            bool loaded = false;
-            while(_connecting)
-            {
-                var token = GameObject.FindObjectOfType<EditorFacebookAccessToken>();
-                if(token == null)
-                {
-                    if(loaded)
-                    {
-                        var err = new Error(FacebookErrors.DialogCancelled, "Invalid editor login access token.");
-                        DidLogin(err, cbk);
-                    }
-                    else
-                    {
-                        loaded = true;
-                    }
-                }
-                yield return new WaitForSeconds(0.5f);
-            }
-        }
-        */
 
         public override void QueryGraph(FacebookGraphQuery query, FacebookGraphQueryDelegate cbk = null)
         {
@@ -504,7 +465,7 @@ namespace SocialPoint.Social
             {
                 throw new Exception("Unity Facebook SDK does not have the option to set the app id programatically.");
             }
-        }            
+        }
 
         private void LoadPhotoFromUrl(string url, FacebookPhotoDelegate cbk = null)
         {
@@ -541,7 +502,7 @@ namespace SocialPoint.Social
             dic.Add("width", UserPhotoSize.ToString());
             dic.Add("height", UserPhotoSize.ToString());
 
-            FB.API(userId + "/picture", HttpMethod.GET, (IGraphResult response) => {
+            FB.API(userId + "/picture", HttpMethod.GET, response => {
                 if(cbk != null)
                 {
                     cbk(response.Texture, new Error(response.Error));

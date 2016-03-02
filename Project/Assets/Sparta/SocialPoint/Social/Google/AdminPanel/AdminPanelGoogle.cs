@@ -83,7 +83,9 @@ namespace SocialPoint.Social
             ldbInput.text = _leaderboardId.Id;
             groupLayout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelLeaderboard(_google, _leaderboardId), connected);
 
-            layout.CreateConfirmButton("Show Leaderboards UI", () => _google.ShowLeaderboardsUI(), connected);
+            layout.CreateConfirmButton("Show Leaderboards UI", () => {
+                _google.ShowLeaderboardsUI(_leaderboardId.Id);
+            }, connected);
 
             layout.CreateMargin(2);
             layout.CreateLabel("Quests");

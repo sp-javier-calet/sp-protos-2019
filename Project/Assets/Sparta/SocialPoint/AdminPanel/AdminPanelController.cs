@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
 using UnityEngine;
@@ -30,6 +31,11 @@ namespace SocialPoint.AdminPanel
             _activePanels = new Stack<IAdminPanelGUI>();
             _mainPanelDirty = false;
 
+            if(AdminPanel == null)
+            {
+                throw new InvalidOperationException("Admin panel not set.");
+            }
+
             AdminPanel.Console.OnContentChanged += () => {
                 if(_consoleText != null)
                 {
@@ -40,6 +46,11 @@ namespace SocialPoint.AdminPanel
                     }
                 }
             };
+        }
+
+        void OnLevelWasLoaded(int i)
+        {
+            Hide();
         }
 
         void InflateGUI()

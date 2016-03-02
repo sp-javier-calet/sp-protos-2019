@@ -38,7 +38,38 @@ namespace SocialPoint.GUIControl
         public bool DestroyOnHide = false;
 
         [HideInInspector]
-        public static UILayersController LayersController;
+        public static UILayersController DefaultLayersController;
+
+        [HideInInspector]
+        UILayersController _layersController;
+        public UILayersController LayersController
+        {
+            get
+            {
+                if(_layersController != null)
+                {
+                    return _layersController;
+                }
+                if(ParentController != null)
+                {
+                    return ParentController.LayersController;
+                }
+                if(DefaultLayersController != null)
+                {
+                    return DefaultLayersController;
+                }
+                if(_layersController == null)
+                {
+                    _layersController = FindObjectOfType<UILayersController>();
+                }
+                return _layersController;
+            }
+
+            set
+            {
+                _layersController = value;
+            }
+        }
 
         [SerializeField]
         private List<GameObject> _containers3d = new List<GameObject>();
@@ -286,7 +317,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnStart()
         {
-            if(ParentController == null && isActiveAndEnabled && transform.parent != null && _showCoroutine == null)
+            if(ParentController == null && gameObject.activeInHierarchy && _showCoroutine == null)
             {
                 ShowImmediate();
             }

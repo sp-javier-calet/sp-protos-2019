@@ -26,15 +26,9 @@ namespace Zenject
         [InjectOptional("Late", InjectSources.Local)]
         readonly List<ModestTree.Util.Tuple<Type, int>> _latePriorities = null;
 
-        [Inject]
-        readonly SingletonInstanceHelper _singletonInstanceHelper = null;
-
         readonly TickablesTaskUpdater _updater = new TickablesTaskUpdater();
         readonly FixedTickablesTaskUpdater _fixedUpdater = new FixedTickablesTaskUpdater();
         readonly LateTickablesTaskUpdater _lateUpdater = new LateTickablesTaskUpdater();
-
-        [InjectOptional]
-        bool _warnForMissing = false;
 
         public IEnumerable<ITickable> Tickables
         {
@@ -50,22 +44,6 @@ namespace Zenject
             InitTickables();
             InitFixedTickables();
             InitLateTickables();
-
-            if (_warnForMissing)
-            {
-                WarnForMissingBindings();
-            }
-        }
-
-        void WarnForMissingBindings()
-        {
-            var ignoreTypes = _tickables.Select(x => x.GetType()).Distinct();
-            var unboundTypes = _singletonInstanceHelper.GetActiveSingletonTypesDerivingFrom<ITickable>(ignoreTypes);
-
-            foreach (var objType in unboundTypes)
-            {
-                Log.Warn("Found unbound ITickable with type '" + objType.Name() + "'");
-            }
         }
 
         void InitFixedTickables()

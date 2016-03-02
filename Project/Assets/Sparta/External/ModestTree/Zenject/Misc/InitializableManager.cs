@@ -10,8 +10,6 @@ namespace Zenject
     // - Run Initialize() on all Iinitializable's, in the order specified by InitPriority
     public class InitializableManager
     {
-        readonly SingletonInstanceHelper _singletonInstanceHelper = null;
-
         List<InitializableInfo> _initializables = new List<InitializableInfo>();
 
         public InitializableManager(
@@ -19,13 +17,8 @@ namespace Zenject
             List<IInitializable> initializables,
             [InjectOptional(InjectSources.Local)]
             List<ModestTree.Util.Tuple<Type, int>> priorities,
-            DiContainer container,
-            SingletonInstanceHelper singletonInstanceHelper)
+            DiContainer container)
         {
-            _singletonInstanceHelper = singletonInstanceHelper;
-
-            WarnForMissingBindings(initializables, container);
-
             foreach (var initializable in initializables)
             {
                 // Note that we use zero for unspecified priority
@@ -34,17 +27,6 @@ namespace Zenject
                 int priority = matches.IsEmpty() ? 0 : matches.Single();
 
                 _initializables.Add(new InitializableInfo(initializable, priority));
-            }
-        }
-
-        void WarnForMissingBindings(List<IInitializable> initializables, DiContainer container)
-        {
-            var boundTypes = initializables.Select(x => x.GetType()).Distinct();
-            var unboundTypes = _singletonInstanceHelper.GetActiveSingletonTypesDerivingFrom<IInitializable>(boundTypes);
-
-            foreach (var objType in unboundTypes)
-            {
-                Log.Warn("Found unbound IInitializable with type '" + objType.Name() + "'");
             }
         }
 

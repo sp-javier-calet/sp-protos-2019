@@ -7,27 +7,26 @@ namespace SocialPoint.Utils
 {
     public interface IMemberAttributeObserver<A> : IDisposable, ICloneable where A : Attribute
     {
-        bool Supports(object obj, A attr);
+        bool Supports(object obj, Type type, A attr);
 
-        object Apply(object obj, A attr);
+        object Apply(object obj, Type type, A attr);
     }
 
     public abstract class BaseMemberAttributeObserver<T,A> : IMemberAttributeObserver<A> where T : class where A : Attribute
     {
-        public bool Supports(object obj, A attr)
+        public bool Supports(object obj, Type type, A attr)
         {
-            return obj as T != null;
+            return typeof(T) == type;
         }
         
-        public object Apply(object obj, A attr)
+        public object Apply(object obj, Type type, A attr)
         {
-            var tobj = obj as T;
-            if(tobj == null)
+            if(typeof(T) != type)
             {
                 throw new InvalidOperationException(
                     string.Format("Argument needs to be of type {0}", typeof(T).FullName));
             }
-            return ApplyType(tobj, attr);
+            return ApplyType((T)obj, attr);
         }
 
         public virtual void Dispose()
@@ -81,14 +80,14 @@ namespace SocialPoint.Utils
             }
         }
         
-        object Apply(object prop, A attr)
+        object Apply(object prop, Type type, A attr)
         {
             IMemberAttributeObserver<A> observer = null;
             if(!_observers.TryGetValue(attr, out observer))
             {
                 foreach(var proto in _prototypes)
                 {
-                    if(proto.Supports(prop, attr))
+                    if(proto.Supports(prop, type, attr))
                     {
                         observer = (IMemberAttributeObserver<A>)proto.Clone();
                         _observers.Add(attr, observer);
@@ -98,10 +97,10 @@ namespace SocialPoint.Utils
             }
             if(observer != null)
             {
-                return observer.Apply(prop, attr);
+                return observer.Apply(prop, type, attr);
             }
             throw new InvalidOperationException(
-                string.Format("Could not find any way to manage object of type '{0}'.", prop.GetType().FullName));
+                string.Format("Could not find any way to manage object of type '{0}'.", type.FullName));
         }
 
         const BindingFlags MemberBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
@@ -119,7 +118,7 @@ namespace SocialPoint.Utils
                 {
                     var attr = (A)attrObj;
                     var val = prop.GetValue(obj, null);
-                    val = Apply(val, attr);
+                    val = Apply(val, prop.PropertyType, attr);
                     prop.SetValue(obj, val, null);
                 }
             }
@@ -129,7 +128,7 @@ namespace SocialPoint.Utils
                 {
                     var attr = (A)attrObj;
                     var val = field.GetValue(obj);
-                    val = Apply(val, attr);
+                    val = Apply(val, field.FieldType, attr);
                     field.SetValue(obj, val);
                 }
             }

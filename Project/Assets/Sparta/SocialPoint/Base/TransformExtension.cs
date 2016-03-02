@@ -6,7 +6,7 @@ namespace SocialPoint.Base
 {
     public static class TransformExtension
     {
-        private static float kRadianToAngle = (180.0f / ((float)Mathf.PI));
+        const float kRadianToAngle = (180.0f / Mathf.PI);
 
         public static void RotateYToDir(this Transform transform, Vector3 dir, float stepSize)
         {
@@ -96,7 +96,6 @@ namespace SocialPoint.Base
                 Object.DestroyImmediate(TempObject);
             }
         }
-
         public static T SafeGetComponentInChildren<T>(this Transform parent) where T : Component
         {
             T parentComponent = parent.GetComponent<T>();
