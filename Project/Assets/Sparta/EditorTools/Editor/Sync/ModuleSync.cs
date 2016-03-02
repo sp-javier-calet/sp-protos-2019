@@ -42,32 +42,24 @@ namespace SpartaTools.Editor.Sync
 
             long _sizeInSource;
 
-            public long SizeInSource
-            {
-                get
-                {
-                    return _sizeInSource;
-                }
-                set
-                {
-                    _sizeInSource = value;
-                    UpdateStatus();
-                }
-            }
+            public string _sourceHash;
 
             long _sizeInTarget;
 
-            public long SizeInTarget
+            public string _targetHash;
+
+            public void SetSourceInfo(long size, string hash)
             {
-                get
-                {
-                    return _sizeInTarget;
-                }
-                set
-                {
-                    _sizeInTarget = value;
-                    UpdateStatus();
-                }
+                _sizeInSource = size;
+                _sourceHash = hash;
+                UpdateStatus();
+            }
+
+            public void SetTargetInfo(long size, string hash)
+            {
+                _sizeInTarget = size;
+                _targetHash = hash;
+                UpdateStatus();
             }
 
             void UpdateStatus()
@@ -80,7 +72,7 @@ namespace SpartaTools.Editor.Sync
                 {
                     FileStatus = FileStatus.MissingFileInTarget;
                 }
-                else if(_sizeInSource != _sizeInTarget)
+                else if(_sizeInSource != _sizeInTarget || _sourceHash != _targetHash)
                 {
                     FileStatus = FileStatus.Modified;
                 }
