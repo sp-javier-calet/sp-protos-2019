@@ -33,26 +33,27 @@ namespace SocialPoint.ServerMessaging
 
         #region IMessageCenter implementation
 
-        public event Action<Error> ErrorEvent;
-
         public event Action<IMessageCenter> UpdatedEvent;
 
-        public void Load()
+        public void UpdateMessages(Action<Error> callback = null)
         {
-            _commandQueue.Add(new Command(GetMessagesCommandName), ParseResponseGetMessagesCommand);
+            _commandQueue.Add(new Command(GetMessagesCommandName), (attr, error) => ParseResponseGetMessagesCommand(attr, error, callback));
         }
 
-        public void SendMessage(Message message)
+        public void SendMessage(Message message, Action<Error> callback = null)
         {
             _commandQueue.Add(new Command(SendMessagesCommandName, message.ToAttr()), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    ErrorEvent(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                 }
             });
         }
 
-        public void DeleteMessages(List<Message> messages)
+        public void DeleteMessages(List<Message> messages, Action<Error> callback = null)
         {
             var arg = new AttrDic();
             var ids = new AttrList();
@@ -81,7 +82,10 @@ namespace SocialPoint.ServerMessaging
                 {
                     if(!Error.IsNullOrEmpty(err))
                     {
-                        ErrorEvent(err);
+                        if(callback != null)
+                        {
+                            callback(err);
+                        }
                     }
                 }
             });
@@ -135,14 +139,13 @@ namespace SocialPoint.ServerMessaging
             }
         }
 
-        void ParseResponseGetMessagesCommand(Attr data, Error err)
+        void ParseResponseGetMessagesCommand(Attr data, Error err, Action<Error> callback = null)
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                var handler = ErrorEvent;
-                if(handler != null)
+                if(callback != null)
                 {
-                    handler(err);
+                    callback(err);
                 }
                 return;
             }

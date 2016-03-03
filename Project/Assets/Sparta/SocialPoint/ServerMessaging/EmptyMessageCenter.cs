@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 
+using SocialPoint.Base;
+
 namespace SocialPoint.ServerMessaging
 {
     public class EmptyMessageCenter : IMessageCenter
@@ -15,27 +17,21 @@ namespace SocialPoint.ServerMessaging
 
         #region IMessageCenter implementation
 
-        public event Action<SocialPoint.Base.Error> ErrorEvent
-        {
-            add { }
-            remove { }
-        }
-
         public event Action<IMessageCenter> UpdatedEvent
         {
             add { }
             remove { }
         }
 
-        public void Load()
+        public void UpdateMessages(Action<Error> callback = null)
         {
         }
 
-        public void SendMessage(Message message)
+        public void SendMessage(Message message, Action<Error> callback = null)
         {
         }
 
-        public void DeleteMessages(List<Message> messages)
+        public void DeleteMessages(List<Message> messages, Action<Error> callback = null)
         {
         }
 
@@ -53,7 +49,6 @@ namespace SocialPoint.ServerMessaging
 
         #endregion
 
-        
     }
 }
 

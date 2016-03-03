@@ -28,7 +28,7 @@ namespace SocialPoint.ServerMessaging
         {
             _layout = layout;
             layout.CreateLabel("Message Center");
-            layout.CreateButton("Load", _mesageCenter.Load);
+            layout.CreateButton("Load", () => _mesageCenter.UpdateMessages());
             layout.CreateLabel("Messages");
             var messages = _mesageCenter.Messages;
             messages.Reset();
@@ -62,7 +62,7 @@ namespace SocialPoint.ServerMessaging
             var stringBuilder = new StringBuilder();
             while(iterator.MoveNext())
             {
-                stringBuilder.AppendFormat("\n{0}",iterator.Current);
+                stringBuilder.AppendFormat("\n{0}", iterator.Current);
             }
             return stringBuilder.ToString();
         }
