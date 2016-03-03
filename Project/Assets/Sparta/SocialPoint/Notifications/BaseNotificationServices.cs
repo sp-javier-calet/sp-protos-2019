@@ -20,7 +20,7 @@ namespace SocialPoint.Notifications
         IEnumerator _checkPushTokenCoroutine;
         readonly IList<Action<string>> _pushTokenReceivedListeners;
 
-        public BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
+        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
         {
             if(runner == null)
             {

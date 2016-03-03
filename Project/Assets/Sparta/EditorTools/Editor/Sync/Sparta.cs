@@ -2,7 +2,7 @@
 using UnityEditor;
 using System;
 using System.IO;
-using System.Diagnostics;
+using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.Sync
 {
@@ -151,52 +151,22 @@ namespace SpartaTools.Editor.Sync
         static RepositoryInfo GetRepositoryInfo()
         {
             string commit = null;
-            RunProcess("git", "log --pretty=format:'%H' -n 1", BasePath, line => {
+            NativeConsole.RunProcess("git", "log --pretty=format:'%H' -n 1", BasePath, line => {
                 commit = line.Trim();
             });
 
             string branch = null;
-            RunProcess("git", "rev-parse --abbrev-ref HEAD", BasePath, line => {
+            NativeConsole.RunProcess("git", "rev-parse --abbrev-ref HEAD", BasePath, line => {
                 branch = line.Trim();
             });
 
             string user = null;
-            RunProcess("git", "config user.email", BasePath, line => {
+            NativeConsole.RunProcess("git", "config user.email", BasePath, line => {
                 user = line.Trim();
             });
 
             return new RepositoryInfo(commit, branch, user);
         }
-
-        static int RunProcess(string exe, string args, string path, Action<string> output)
-        {
-            var proc = new Process {
-                StartInfo = new ProcessStartInfo {
-                    FileName = exe,
-                    Arguments = args,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = false,
-                    CreateNoWindow = true,
-                    WorkingDirectory = path
-                }
-            };
-            proc.Start();
-            while(!proc.StandardOutput.EndOfStream)
-            {
-                string line = proc.StandardOutput.ReadLine();
-                if(output != null)
-                {
-                    output(line);
-                }
-            }
-            proc.WaitForExit();
-            int code = proc.ExitCode;
-            proc.Close();
-            return code;
-        }
-
         #endregion
     }
 }

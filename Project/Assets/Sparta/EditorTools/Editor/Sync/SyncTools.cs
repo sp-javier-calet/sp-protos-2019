@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-
 using System.Collections.Generic;
+using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.Sync
 {
@@ -21,31 +21,6 @@ namespace SpartaTools.Editor.Sync
         {
             SourceToTarget,
             TargetToSource
-        }
-
-        public class ProgressHandler
-        {
-            public float Percent { get; private set; }
-
-            public string Message{ get; private set; }
-
-            public bool Finished{ get; private set; }
-
-            public void Update(string message, float increment)
-            {
-                Message = message;
-                Percent += increment;
-            }
-
-            public void Update(float increment)
-            {
-                Percent += increment;
-            }
-
-            public void Finish()
-            {
-                Finished = true;
-            }
         }
 
         static ProgressHandler CurrentProgress;
@@ -343,14 +318,14 @@ namespace SpartaTools.Editor.Sync
             // Check actual differences between module files
             foreach(var fs in fileSync.Values)
             {
-                if(fs.SizeInSource != fs.SizeInTarget)
+                if(fs.FileStatus != ModuleSync.FileStatus.Equals)
                 {
                     if(status == ModuleSync.SyncStatus.UpToDate)
                     {
                         status = ModuleSync.SyncStatus.HasChanges;
                     }
 
-                    SyncReport.Log(string.Format("{0} {1} : {2}", fs.SizeInSource != 0 ? "<" : " ", fs.SizeInTarget != 0 ? ">" : " ", fs.File));
+                    SyncReport.Log(string.Format("{0} : {1}", fs.FileStatus, fs.File));
                 }
             }
 
@@ -481,15 +456,25 @@ namespace SpartaTools.Editor.Sync
                     fileSync[relativePath] = sync;
                 }
 
-                // TODO Byte-Byte comparison.
-                // Update size . Uses min size as 1 for zero-bytes files.
+                // Update size and hash. Uses min size as 1 for zero-bytes files.
                 if(projectType == ProjectType.Source)
                 {
-                    sync.SizeInSource = Math.Max(file.Length, 1);
+                    sync.SetSourceInfo(Math.Max(file.Length, 1), GetMD5HashFromFile(file.FullName));
                 }
                 else
                 {
-                    sync.SizeInTarget = Math.Max(file.Length, 1);
+                    sync.SetTargetInfo(Math.Max(file.Length, 1), GetMD5HashFromFile(file.FullName));
+                }
+            }
+        }
+
+        static string GetMD5HashFromFile(string fileName)
+        {
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                using (var stream = File.OpenRead(fileName))
+                {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
                 }
             }
         }

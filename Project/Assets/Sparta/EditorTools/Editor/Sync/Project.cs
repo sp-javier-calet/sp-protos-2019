@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace SpartaTools.Editor.Sync
@@ -7,6 +8,8 @@ namespace SpartaTools.Editor.Sync
     public class Project
     {
         const string ProjectFileName = ".sparta_project";
+
+        const string DefaultCultureName = "en-US";
 
         public bool Valid { get; private set; }
 
@@ -34,8 +37,7 @@ namespace SpartaTools.Editor.Sync
             public LogEntry(string serializedEntry)
             {
                 var parts = serializedEntry.Split(new char[]{ ';' }, 4);
-                Time = DateTime.Parse(parts[0]);
-
+                Time = DateTime.Parse(parts[0], new CultureInfo(DefaultCultureName));
                 var commit = parts[1];
                 var branch = parts[2];
                 var user = parts[3];
@@ -45,7 +47,7 @@ namespace SpartaTools.Editor.Sync
 
             public override string ToString()
             {
-                return string.Format("{0};{1};{2};{3}", Time, RepoInfo.Commit, RepoInfo.Branch, RepoInfo.User);
+                return string.Format("{0};{1};{2};{3}", Time.ToString(new CultureInfo(DefaultCultureName)), RepoInfo.Commit, RepoInfo.Branch, RepoInfo.User);
             }
         }
 
