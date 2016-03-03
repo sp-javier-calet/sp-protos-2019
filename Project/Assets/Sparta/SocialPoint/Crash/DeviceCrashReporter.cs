@@ -138,10 +138,10 @@ namespace SocialPoint.Crash
 
         /* Native plugin interface */
         [DllImport(PluginModuleName)]
-        static extern bool native_crashReporter_enable(UIntPtr ctx);
+        static extern void native_crashReporter_enable(UIntPtr ctx);
 
         [DllImport(PluginModuleName)]
-        static extern bool native_crashReporter_disable(UIntPtr ctx);
+        static extern void native_crashReporter_disable(UIntPtr ctx);
 
         [DllImport(PluginModuleName)]
         static extern void native_crashReporter_forceCrash();
