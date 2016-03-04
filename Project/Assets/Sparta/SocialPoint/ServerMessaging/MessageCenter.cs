@@ -42,7 +42,7 @@ namespace SocialPoint.ServerMessaging
 
         public void SendMessage(Message message, Action<Error> callback = null)
         {
-            _commandQueue.Add(new Command(SendMessagesCommandName, message.ToAttr()), (resp, err) => {
+            _commandQueue.Add(new Command(SendMessagesCommandName, message.ToAttr(), false, false), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
