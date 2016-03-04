@@ -77,6 +77,11 @@ namespace SocialPoint.ServerMessaging
                         _messages.Remove(ids[i].ToString());
                         _messagesPendingDelete.Remove(ids[i].ToString());
                     }
+                    var handler = UpdatedEvent;
+                    if(handler != null)
+                    {
+                        handler(this);
+                    }
                 }
                 else
                 {
