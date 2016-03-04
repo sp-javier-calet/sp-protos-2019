@@ -13,9 +13,6 @@ namespace SocialPoint.Purchase
         IGamePurchaseStore _purchaseStore;
         ICommandQueue _commandQueue;
 
-        //Reference to layout
-        AdminPanelLayout _layout;
-
         //Last known ids of products attempted to use
         string _lastKnownRequiredProducts;
         //Last known load state
@@ -47,7 +44,8 @@ namespace SocialPoint.Purchase
         //IAdminPanelGUI implementation
         public void OnCreateGUI(AdminPanelLayout layout)
         {
-            _layout = layout;
+            _purchaseStore.ProductsUpdated += (state, error) =>  layout.Refresh();
+            _purchaseStore.PurchaseUpdated += (state, error) =>  layout.Refresh();
 
             //TODO: Add options to activate an "always fail", "always success" response?
 
@@ -58,6 +56,7 @@ namespace SocialPoint.Purchase
             layout.CreateButton("Load", () => {
                 string[] ids = string.IsNullOrEmpty(productsInput.text) ? null : productsInput.text.Split(',');
                 LoadProducts(ids);
+                layout.Refresh();
             });
             AddGUIInfoLabel(layout, "Latest required products: " + _lastKnownRequiredProducts);
             AddGUISeparation(layout);
@@ -66,7 +65,7 @@ namespace SocialPoint.Purchase
             //Use delay before purchasing? Can be used to test receiving events to refresh after closing the panel
             layout.CreateToggleButton("Purchase with delay?", _purchaseWithDelay, (selected) => {
                 _purchaseWithDelay = selected;
-                RefreshPanel();
+                layout.Refresh();
             });
             //Force pending transactions
             layout.CreateButton("Finish Pending Transactions", () => {
@@ -102,7 +101,7 @@ namespace SocialPoint.Purchase
                     {
                         var infoPanel = layout.CreatePanelLayout(product.Locale + " - Purchase Info", () => {
                             _lastKnownPurchaseState[id] = string.Empty;
-                            RefreshPanel();
+                            layout.Refresh();
                         });
                         string purchaseMsg = _lastKnownPurchaseState[id];
                         AddGUIInfoLabel(infoPanel, purchaseMsg);
@@ -142,13 +141,11 @@ namespace SocialPoint.Purchase
                 _lastKnownLoadState = "Unknown State; " + state.ToString();
                 break;
             }
-            RefreshPanel();
         }
 
         private void OnPurchaseUpdated(PurchaseState state, string productId)
         {
             _lastKnownPurchaseState[productId] = state.ToString();
-            RefreshPanel();
         }
 
         private void LoadProducts(string[] ids = null)
@@ -168,7 +165,6 @@ namespace SocialPoint.Purchase
 
             //Load products (IMPORTANT: Check that product IDs are set in game.json)
             _purchaseStore.LoadProducts(ids);
-            RefreshPanel();
         }
 
         private void PurchaseProduct(string productId)
@@ -182,18 +178,6 @@ namespace SocialPoint.Purchase
             else
             {
                 _purchaseStore.Purchase(productId);
-            }
-        }
-
-        private void RefreshPanel()
-        {
-            if(_layout != null && _layout.IsActiveInHierarchy)
-            {
-                _layout.Refresh();
-            }
-            else
-            {
-                _layout = null;//Clear previous reference
             }
         }
 

@@ -30,7 +30,7 @@ namespace SocialPoint.AdminPanel
         /// Check if the game object is active in the scene
         /// </summary>
         /// <value><c>true</c> if this instance is active in scene hierarchy; otherwise, <c>false</c>.</value>
-        public bool IsActiveInHierarchy
+        bool IsActiveInHierarchy
         {
             get
             { 
@@ -56,7 +56,10 @@ namespace SocialPoint.AdminPanel
 
         public void Refresh()
         {
-            _adminPanelController.RefreshPanel(true);
+            if(IsActiveInHierarchy)
+            {
+                _adminPanelController.RefreshPanel(true);
+            }
         }
 
         protected void OpenPanel(IAdminPanelGUI panel)
