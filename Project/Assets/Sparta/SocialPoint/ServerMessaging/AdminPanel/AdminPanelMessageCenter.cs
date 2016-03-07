@@ -14,7 +14,6 @@ namespace SocialPoint.ServerMessaging
     {
         IMessageCenter _mesageCenter;
         ILogin _login;
-        AdminPanelLayout _layout;
 
         public AdminPanelMessageCenter(IMessageCenter messageCenter, ILogin login)
         {
@@ -26,9 +25,8 @@ namespace SocialPoint.ServerMessaging
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
-            _layout = layout;
             layout.CreateLabel("Message Center");
-            layout.CreateButton("Load", () => _mesageCenter.UpdateMessages());
+            layout.CreateButton("Update messages", () => _mesageCenter.UpdateMessages());
             layout.CreateLabel("Messages");
             var messages = _mesageCenter.Messages;
             messages.Reset();
@@ -38,11 +36,10 @@ namespace SocialPoint.ServerMessaging
                 hlayout.CreateTextArea(messages.Current.ToString());
                 hlayout.CreateButton("Delete", () => _mesageCenter.DeleteMessage(messages.Current));
             }
-            layout.CreateButton("Refresh messages", () => MessageCenterUpdated(_mesageCenter));
             layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _mesageCenter.Messages.MoveNext());
             layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _mesageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
-            _mesageCenter.UpdatedEvent += MessageCenterUpdated;
+            _mesageCenter.UpdatedEvent += (a) => layout.Refresh();
         }
 
         #endregion
@@ -65,18 +62,6 @@ namespace SocialPoint.ServerMessaging
                 stringBuilder.AppendFormat("\n{0}", iterator.Current);
             }
             return stringBuilder.ToString();
-        }
-
-        void MessageCenterUpdated(IMessageCenter obj)
-        {
-            if(_layout != null && _layout.IsActiveInHierarchy)
-            {
-                _layout.Refresh();
-            }
-            else
-            {
-                _layout = null;//Clear previous reference
-            }
         }
 
         void SendTestMessageItself()

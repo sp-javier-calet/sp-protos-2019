@@ -47,18 +47,9 @@ namespace SocialPoint.ServerSync
         void OnReceive(STCCommand cmd)
         {
             _history.Add(new CommandLog(cmd.Id, cmd.Name, cmd.Timestamp, cmd.Args.ToString()));
-            RefreshLayout();
-        }
-
-        void RefreshLayout()
-        {
-            if(_layout != null && _layout.IsActiveInHierarchy)
+            if(_layout != null)
             {
                 _layout.Refresh();
-            }
-            else
-            {
-                _layout = null;
             }
         }
 
