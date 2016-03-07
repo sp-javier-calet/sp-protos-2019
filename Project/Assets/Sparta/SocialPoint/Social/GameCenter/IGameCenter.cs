@@ -169,7 +169,7 @@ namespace SocialPoint.Social
         void ResetAchievements(ErrorDelegate cbk);
 
         /**
-         Start the facebook login
+         Start the game center login
          @param callback - called when login is finished
          */
         void Login(ErrorDelegate cbk);
