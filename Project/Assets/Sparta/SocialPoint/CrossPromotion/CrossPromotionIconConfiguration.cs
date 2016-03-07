@@ -1,0 +1,31 @@
+﻿using UnityEngine;
+
+namespace SocialPoint.CrossPromotion
+{
+    public class CrossPromotionIconConfiguration : MonoBehaviour
+    {
+        [SerializeField]
+        Texture[] _textures;
+
+        public Texture[] Textures
+        {
+            get { return _textures; }
+        }
+
+        [SerializeField]
+        float _frameDelay = 0.0333f;
+
+        public float FrameDelay
+        { 
+            get { return _frameDelay; }
+        }
+
+        [SerializeField]
+        float _startDelay = 0.0f;
+
+        public float StartDelay
+        {
+            get { return _startDelay; }
+        }
+    }
+}
