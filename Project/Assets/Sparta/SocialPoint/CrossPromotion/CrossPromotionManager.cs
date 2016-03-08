@@ -46,14 +46,14 @@ namespace SocialPoint.CrossPromotion
         bool _isAutoOpened = false;
         bool _assetsReadyCalled = false;
         List<string> _assetsFailed = new List<string>();
-        MonoBehaviour _behaviour = null;
+        ICoroutineRunner _coroutineRunner = null;
         IAttrStorage _storage = null;
         IAppEvents _appEvents = null;
         CrossPromotionIconConfiguration _iconConfig = null;
-        Coroutine _trackBannerClickEventTimeoutCoroutine = null;
+        IEnumerator _trackBannerClickEventTimeoutCoroutine = null;
         int _remainingAssetsToDownload = -1;
         List<WWW> _currentDownloads = new List<WWW>();
-        List<Coroutine> _currentDownloadsCoroutines = new List<Coroutine>();
+        List<IEnumerator> _currentDownloadsCoroutines = new List<IEnumerator>();
         Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
         Texture2D _iconTexture = null;
 
@@ -83,10 +83,10 @@ namespace SocialPoint.CrossPromotion
             }
         }
 
-        public CrossPromotionManager(MonoBehaviour behaviour)
+        public CrossPromotionManager(ICoroutineRunner coroutineRunner)
         {
-            DebugUtils.Assert(behaviour != null);
-            _behaviour = behaviour;
+            DebugUtils.Assert(coroutineRunner != null);
+            _coroutineRunner = coroutineRunner;
             _storage = new PlayerPrefsAttrStorage();
             _assetsPath = PathsManager.TemporaryCachePath;
 
@@ -126,7 +126,7 @@ namespace SocialPoint.CrossPromotion
             {
                 if(_currentDownloadsCoroutines[i] != null)
                 {
-                    _behaviour.StopCoroutine(_currentDownloadsCoroutines[i]);
+                    _coroutineRunner.StopCoroutine(_currentDownloadsCoroutines[i]);
                 }
             }
             _currentDownloadsCoroutines.Clear();
@@ -274,7 +274,9 @@ namespace SocialPoint.CrossPromotion
         {
             if(!string.IsNullOrEmpty(url))
             {
-                _currentDownloadsCoroutines.Add(_behaviour.StartCoroutine(LoadAssetFromCacheOrDownloadCoroutine(url, callback)));
+                IEnumerator coroutine = LoadAssetFromCacheOrDownloadCoroutine(url, callback);
+                _coroutineRunner.StartCoroutine(coroutine);
+                _currentDownloadsCoroutines.Add(coroutine);
             }
             else
             {
@@ -476,12 +478,13 @@ namespace SocialPoint.CrossPromotion
 
             if(urgent)
             {
-                _trackBannerClickEventTimeoutCoroutine = _behaviour.StartCoroutine(TrackBannerClickEventTimeoutCoroutine(uid, position, endCallback));
+                _trackBannerClickEventTimeoutCoroutine = TrackBannerClickEventTimeoutCoroutine(uid, position, endCallback);
+                _coroutineRunner.StartCoroutine(_trackBannerClickEventTimeoutCoroutine);
 
                 TrackUrgentSystemEvent("cross.banner_clicked", data, (Error error) => {
                     if(_trackBannerClickEventTimeoutCoroutine != null)
                     {
-                        _behaviour.StopCoroutine(_trackBannerClickEventTimeoutCoroutine);
+                        _coroutineRunner.StopCoroutine(_trackBannerClickEventTimeoutCoroutine);
                         _trackBannerClickEventTimeoutCoroutine = null;
                         endCallback();
                         OpenApp(uid);

@@ -3,6 +3,7 @@ using Zenject;
 using SocialPoint.CrossPromotion;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerEvents;
+using SocialPoint.Utils;
 
 public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionManager 
 {
@@ -25,8 +26,8 @@ public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionMa
         }
     }
 
-    public CrossPromotionManager(MonoBehaviour behavior) :
-    base(behavior)
+    public CrossPromotionManager(ICoroutineRunner coroutineRunner) :
+    base(coroutineRunner)
     {
         
     }
