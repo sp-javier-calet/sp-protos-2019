@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
@@ -21,7 +22,14 @@ namespace SocialPoint.Network
         {
             if(_callback != null)
             {
-                _callback(resp);
+                try
+                {
+                    _callback(resp);
+                }
+                catch(Exception e)
+                {
+                    DebugUtils.LogException(e);
+                }
             }
         }
 
