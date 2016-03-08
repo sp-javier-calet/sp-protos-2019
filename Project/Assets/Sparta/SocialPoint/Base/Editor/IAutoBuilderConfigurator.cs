@@ -47,7 +47,7 @@ namespace SocialPoint.Base
 
         public static void Build(this IAutoBuilderConfigurator configurator, AutoBuilderConfiguration baseConfiguration)
         {
-            string result = "test"; // BuildPipeline.BuildPlayer(baseConfiguration.Levels, baseConfiguration.LocationPathName, baseConfiguration.Target, baseConfiguration.Options);
+            string result = BuildPipeline.BuildPlayer(baseConfiguration.Levels, baseConfiguration.LocationPathName, baseConfiguration.Target, baseConfiguration.Options);
             configurator.OnBuildCompleted(baseConfiguration, result);
         }
     }
