@@ -127,7 +127,7 @@ namespace SocialPoint.Utils
         /// Return a random float value between the param range [min, max]
         /// </summary>
         /// <param name="minInclusive">Minimum inclusive.</param>
-        /// <param name="maxExclusive">Max inclusive.</param>
+        /// <param name="maxInclusive">Max inclusive.</param>
         public static float Range(float minInclusive, float maxInclusive)
         {
             Init();

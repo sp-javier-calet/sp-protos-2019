@@ -57,17 +57,17 @@ public class PositionPathTweenProperty : AbstractTweenProperty
 	
 	public override void prepareForUse()
 	{
-        if (_ownerTween == null)
-            return;
+		if (_ownerTween == null)
+			return;
 
-        if (_ownerTween.target == null)
-            return;
+		if (_ownerTween.target == null)
+			return;
 
-        _target = _ownerTween.target as Transform;
+		_target = _ownerTween.target as Transform;
 
-        if (_target == null)
-            return;
-        
+		if (_target == null)
+			return;
+		
 		// if this is a from tween first reverse the path then build it
 		if( _ownerTween.isFrom )
 			_path.reverseNodes();

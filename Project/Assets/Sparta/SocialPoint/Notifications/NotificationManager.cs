@@ -104,7 +104,10 @@ namespace SocialPoint.Notifications
         void Reset()
         {
             if (Services == null)
+            {
                 return;
+            }
+            
             Services.CancelPending();
             Services.ClearReceived();
         }

@@ -30,8 +30,8 @@ public class OffsetTweenProperty : AbstractTweenProperty
 		
 		_endValue = _originalEndValue;
 
-        if (_ownerTween == null)
-            return;
+		if (_ownerTween == null)
+			return;
 
 		if( _ownerTween.isFrom ) 
 		{

@@ -40,16 +40,16 @@ public class EulerAnglesTweenProperty : AbstractVector3TweenProperty
 	
 	public override void prepareForUse()
 	{
-        if (_ownerTween == null)
-            return;
+		if (_ownerTween == null)
+			return;
 
-        if (_ownerTween.target == null)
-            return;
+		if (_ownerTween.target == null)
+			return;
 
-        _target = _ownerTween.target as Transform;
+		_target = _ownerTween.target as Transform;
 
-        if (_target == null)
-            return;
+		if (_target == null)
+			return;
 		
 		_endValue = _originalEndValue;
 		

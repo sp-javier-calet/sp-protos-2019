@@ -86,9 +86,9 @@ namespace SocialPoint.Social
                 return;
             }
 
-            #pragma warning disable 0618
+#pragma warning disable 0618
             var filters = req.Filters;
-            #pragma warning restore 0618
+#pragma warning restore 0618
             if(filters == null)
             {
                 filters = new List<object>();
@@ -110,7 +110,7 @@ namespace SocialPoint.Social
             }
 
             FB.AppRequest
-			(
+            (
                 req.Message ?? string.Empty,
                 req.To.Count > 0 ? req.To.ToArray() : null,
                 filters,
@@ -159,7 +159,7 @@ namespace SocialPoint.Social
             }
 
             FB.FeedShare
-			(
+            (
                 userId,
                 post.Link,
                 post.Name ?? string.Empty,
