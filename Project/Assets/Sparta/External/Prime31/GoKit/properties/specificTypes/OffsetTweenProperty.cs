@@ -33,9 +33,6 @@ public class OffsetTweenProperty : AbstractTweenProperty
         if (_ownerTween == null)
             return;
 
-        if (_ownerTween.isFrom == null)
-            return;
-		
 		if( _ownerTween.isFrom ) 
 		{
 			if( _useMax )
