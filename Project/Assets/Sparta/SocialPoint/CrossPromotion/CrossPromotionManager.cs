@@ -12,7 +12,7 @@ using SocialPoint.AppEvents;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class CrossPromotionManager
+    public class CrossPromotionManager : IDisposable
     {
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
@@ -144,6 +144,15 @@ namespace SocialPoint.CrossPromotion
         void OnGameWillRestart()
         {
             Reset();
+        }
+
+        virtual public void Dispose()
+        {
+            Reset();
+            if(_appEvents != null)
+            {
+                DisconnectAppEvents(_appEvents);
+            }
         }
 
         public void Start()

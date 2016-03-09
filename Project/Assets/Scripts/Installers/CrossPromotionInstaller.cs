@@ -1,11 +1,13 @@
 ﻿using Zenject;
+using System;
 using SocialPoint.AdminPanel;
 
-public class CrossPromotionInstaller : MonoInstaller
+public class CrossPromotionInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.Bind<CrossPromotionManager>().ToSingle<CrossPromotionManager>();
+        Container.Bind<SocialPoint.CrossPromotion.CrossPromotionManager>().ToSingle<CrossPromotionManager>();
+        Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<SocialPoint.CrossPromotion.AdminPanelCrossPromotion>();
     }
 }
