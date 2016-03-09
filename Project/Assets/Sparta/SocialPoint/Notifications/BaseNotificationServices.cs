@@ -19,8 +19,9 @@ namespace SocialPoint.Notifications
         string _pushToken = null;
         IEnumerator _checkPushTokenCoroutine;
         readonly IList<Action<string>> _pushTokenReceivedListeners;
+        bool _requestPushNotificationAutomatically;
 
-        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
+        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null, bool requestPushNotificationAutomatically = true)
         {
             if(runner == null)
             {
@@ -29,6 +30,7 @@ namespace SocialPoint.Notifications
 
             _runner = runner;
             _commandQueue = commandqueue;
+            _requestPushNotificationAutomatically = requestPushNotificationAutomatically;
             _pushTokenReceivedListeners = new List<Action<string>>();
         }
 
@@ -91,6 +93,14 @@ namespace SocialPoint.Notifications
                 }
             }
 
+            if(_requestPushNotificationAutomatically)
+            {
+                RequestPushNotification();
+            }
+        }
+
+        public void RequestPushNotification()
+        {
             // Start registering proccess if it is not already running
             if(_checkPushTokenCoroutine == null)
             {
@@ -108,6 +118,8 @@ namespace SocialPoint.Notifications
         public abstract void ClearReceived();
 
         public abstract void CancelPending();
+
+        public abstract void RequestLocalNotification();
 
         #endregion
     }

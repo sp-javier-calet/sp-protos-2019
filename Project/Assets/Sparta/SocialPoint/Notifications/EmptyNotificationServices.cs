@@ -8,7 +8,7 @@ namespace SocialPoint.Notifications
         public void Schedule(Notification notif)
         {
         }
-        
+
         public void ClearReceived()
         {
         }
@@ -20,6 +20,15 @@ namespace SocialPoint.Notifications
         public void RegisterForRemote(Action<string> onTokenReceivedCallback = null)
         {
         }
+
+        public void RequestPushNotification()
+        {
+        }
+
+        public void RequestLocalNotification()
+        {
+        }
+
 
     }
 }

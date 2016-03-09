@@ -1,9 +1,8 @@
 #if UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS && !UNITY_EDITOR_WIN
-  #define NATIVE_RANDOM
+#define NATIVE_RANDOM
 #endif
 
 using System;
-using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace SocialPoint.Utils
@@ -16,7 +15,8 @@ namespace SocialPoint.Utils
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_utils";
-        #elif UNITY_IOS
+        
+#elif UNITY_IOS
         const string PluginModuleName = "__Internal";
         #endif
 
@@ -31,7 +31,7 @@ namespace SocialPoint.Utils
         static extern int SPUnityUtilsGetRandomInt();
 
         #else
-
+        
         static int SPUnityUtilsGetRandomSeed()
         {
             Debug.LogWarning("Using substandard Random implementation, this should only happen in Editor!");
@@ -136,3 +136,4 @@ namespace SocialPoint.Utils
         }
     }
 }
+    

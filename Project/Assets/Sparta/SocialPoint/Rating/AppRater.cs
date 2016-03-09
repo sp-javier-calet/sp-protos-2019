@@ -16,7 +16,7 @@ namespace SocialPoint.Rating
         const string EventsUntilPromptKey = "eventsUntilPrompt";
         const string FirstUseDateKey = "firstUseDate";
         const string RatedCurrentVersionKey = "ratedCurrentVersion";
-        const string RatedAnyVersionKey = "ratedAnyVersion";
+        protected const string RatedAnyVersionKey = "ratedAnyVersion";
         const string DeclineToRateKey = "declineToRate";
         const string ReminderRequestDateKey = "reminderRequestDate";
         const string PromptsLastDayKey = "promptsLastDay";

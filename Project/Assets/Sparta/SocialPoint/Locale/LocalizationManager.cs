@@ -283,6 +283,8 @@ namespace SocialPoint.Locale
             }
             _currentLanguage = GetSupportedLanguage(_currentLanguage);
             PathsManager.CallOnLoaded(Init);
+
+            LoadCurrentLanguage ();
         }
 
         void OnGameWasLoaded()
@@ -422,6 +424,7 @@ namespace SocialPoint.Locale
 
         void LoadCurrentLanguage()
         {
+
             if(_localization == null)
             {
                 return;

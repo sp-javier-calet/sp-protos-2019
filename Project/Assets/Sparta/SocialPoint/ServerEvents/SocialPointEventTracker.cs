@@ -261,6 +261,7 @@ namespace SocialPoint.ServerEvents
                 DataSetup(data);
             }
             AddHardwareData(data);
+
             var eventCommand = new EventCommand(eventName, data);
             if(del == null)
             {
@@ -698,7 +699,7 @@ namespace SocialPoint.ServerEvents
             name = string.Format(name, op.Resource);
 
             var data = op.AdditionalData ?? new AttrDic();
-            var operation = new AttrDic();
+            var operation = op.AdditionalData != null && op.AdditionalData.ContainsKey("operation") ? op.AdditionalData["operation"].AsDic : new AttrDic();
             data.Set("operation", operation);
             operation.SetValue("category", op.Category);
             operation.SetValue("subcategory", op.Subcategory);

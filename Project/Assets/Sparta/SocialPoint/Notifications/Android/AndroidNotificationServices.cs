@@ -19,6 +19,7 @@ namespace SocialPoint.Notifications
             : base(runner, commandqueue)
         {
 
+
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
 #endif
@@ -63,12 +64,18 @@ namespace SocialPoint.Notifications
                 WaitForRemoteToken(() => _notifClass.CallStatic<string>("getNotificationToken"));
             }
         }
+
+        public override void RequestLocalNotification()
+        {
+        }
+
     }
+
 
 #else
     public class AndroidNotificationServices : EmptyNotificationServices
     {
     }
 
-#endif // UNITY_ANDROID
+    #endif // UNITY_ANDROID
 }
