@@ -8,7 +8,7 @@ namespace SocialPoint.Notifications
         public void Schedule(Notification notif)
         {
         }
-        
+
         public void ClearReceived()
         {
         }

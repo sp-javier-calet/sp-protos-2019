@@ -20,11 +20,11 @@ namespace SocialPoint.Notifications
         const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
 
         public IosNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue, bool requestPushNotificationAutomatically = true)
-        : base(runner, commandqueue, requestPushNotificationAutomatically)
+            : base(runner, commandqueue, requestPushNotificationAutomatically)
         {
-            if (requestPushNotificationAutomatically)
+            if(requestPushNotificationAutomatically)
             {
-                RegisterForLocal ();
+                RegisterForLocal();
             }
         }
 
@@ -77,7 +77,7 @@ namespace SocialPoint.Notifications
 
         public override void RequestLocalNotification()
         {
-            RegisterForLocal ();
+            RegisterForLocal();
         }
 
         void RegisterForLocal()

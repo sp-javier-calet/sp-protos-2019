@@ -81,21 +81,21 @@ namespace SocialPoint.Notifications
 
         public void RegisterForRemote(Action<string> onTokenReceivedCallback = null)
         {
-            if (onTokenReceivedCallback != null)
+            if(onTokenReceivedCallback != null)
             {
-                if (_pushToken != null)
+                if(_pushToken != null)
                 {
-                    onTokenReceivedCallback (_pushToken);
+                    onTokenReceivedCallback(_pushToken);
                 }
                 else
                 {
-                    _pushTokenReceivedListeners.Add (onTokenReceivedCallback);
+                    _pushTokenReceivedListeners.Add(onTokenReceivedCallback);
                 }
             }
 
-            if (_requestPushNotificationAutomatically)
+            if(_requestPushNotificationAutomatically)
             {
-                RequestPushNotification ();
+                RequestPushNotification();
             }
         }
 

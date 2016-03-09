@@ -103,7 +103,7 @@ namespace SocialPoint.Notifications
 
         void Reset()
         {
-            if (Services == null)
+            if(Services == null)
             {
                 return;
             }

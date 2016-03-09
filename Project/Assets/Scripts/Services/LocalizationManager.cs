@@ -82,14 +82,14 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
         base(client, appInfo, locale)
     {
     }
-    
+
     [PostInject]
     void PostInject()
     {
         _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
         _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }
-    
+
     void OnViewControllerStateChangeEvent(UIViewControllerStateChangeEvent ev)
     {
         if(ev.State == UIViewController.ViewState.Appearing || ev.State == UIViewController.ViewState.Shown)
@@ -105,7 +105,7 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
             _localizeAttributeConfig.Apply(component);
         }
     }
-    
+
     override public void Dispose()
     {
         base.Dispose();

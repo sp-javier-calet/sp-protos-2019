@@ -19,6 +19,7 @@ namespace SocialPoint.Notifications
             : base(runner, commandqueue)
         {
 
+
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
 #endif
@@ -70,10 +71,11 @@ namespace SocialPoint.Notifications
 
     }
 
+
 #else
     public class AndroidNotificationServices : EmptyNotificationServices
     {
     }
 
-#endif // UNITY_ANDROID
+    #endif // UNITY_ANDROID
 }
