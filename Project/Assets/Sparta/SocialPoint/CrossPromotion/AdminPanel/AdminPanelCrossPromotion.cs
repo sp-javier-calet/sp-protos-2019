@@ -40,7 +40,7 @@ namespace SocialPoint.CrossPromotion
         void Reset()
         {
             _initialized = false;
-            Reflection.CallPrivateVoidMethod(_xpromo, "Reset");
+            Reflection.CallPrivateVoidMethod<CrossPromotionManager>(_xpromo, "Reset");
         }
 
         void OpenPopup()
