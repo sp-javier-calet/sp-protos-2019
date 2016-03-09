@@ -167,8 +167,8 @@ PlayerSettings:
   AndroidTargetDevice: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: /Users/mibero/Downloads/debug.keystore
-  AndroidKeyaliasName: 
+  AndroidKeystoreName: Assets/Plugins/Android/socialpoint.keystore
+  AndroidKeyaliasName: android
   AndroidTVCompatibility: 1
   AndroidIsGame: 1
   androidEnableBanner: 0
