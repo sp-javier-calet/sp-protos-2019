@@ -4,39 +4,39 @@ namespace SocialPoint.CrossPromotion
 {
     public class CrossPromotionBannerData
     {
-        public int uid { get; private set; }
+        public int Uid { get; private set; }
 
-        public string storeId { get; private set; }
+        public string StoreId { get; private set; }
 
-        public string appId { get; private set; }
+        public string AppId { get; private set; }
 
-        public string buttonTextImage { get; private set; }
+        public string ButtonTextImage { get; private set; }
 
-        public string bgImage { get; private set; }
+        public string BgImage { get; private set; }
 
-        public string iconImage { get; private set; }
+        public string IconImage { get; private set; }
 
-        public string game { get; private set; }
+        public string Game { get; private set; }
 
-        public bool currentGame { get; private set; }
+        public bool CurrentGame { get; private set; }
 
-        public bool showRibbon { get; private set; }
+        public bool ShowRibbon { get; private set; }
 
         public CrossPromotionBannerData(AttrDic config)
         {
-            uid = config.GetValue("id").ToInt();
+            Uid = config.GetValue("id").ToInt();
             #if UNITY_IOS
-            storeId = config.GetValue("store_id").ToString();
+            StoreId = config.GetValue("store_id").ToString();
             #elif UNITY_ANDROID
             storeId = config.GetValue("app_id").ToString();
             #endif
-            appId = config.GetValue("app_id").ToString();
-            buttonTextImage = config.GetValue("button").ToString();
-            bgImage = config.GetValue("background").ToString();
-            iconImage = config.GetValue("icon").ToString();
-            game = config.GetValue("game").ToString();
-            showRibbon = config.GetValue("ribbon").ToBool();
-            currentGame = config.ContainsKey("current") ? config.GetValue("current").ToBool() : false;
+            AppId = config.GetValue("app_id").ToString();
+            ButtonTextImage = config.GetValue("button").ToString();
+            BgImage = config.GetValue("background").ToString();
+            IconImage = config.GetValue("icon").ToString();
+            Game = config.GetValue("game").ToString();
+            ShowRibbon = config.GetValue("ribbon").ToBool();
+            CurrentGame = config.ContainsKey("current") ? config.GetValue("current").ToBool() : false;
         }
     }
 }

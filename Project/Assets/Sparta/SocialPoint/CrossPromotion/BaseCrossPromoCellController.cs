@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class ICrossPromoCellController : MonoBehaviour
+    public class BaseCrossPromoCellController : MonoBehaviour
     {
         public GameObject NewGame;
 
@@ -14,19 +14,19 @@ namespace SocialPoint.CrossPromotion
 
 
         protected CrossPromotionManager _cpm;
-        protected IPopupCrossPromoController _pc;
+        protected BasePopupCrossPromoController _pc;
         protected bool _sentTrack = false;
 
-        public virtual void InitCell(CrossPromotionManager crossPromoManager, IPopupCrossPromoController popupController, int bannerId, int position)
+        public virtual void InitCell(CrossPromotionManager crossPromoManager, BasePopupCrossPromoController popupController, int bannerId, int position)
         {
             _cpm = crossPromoManager;
             _pc = popupController;
             _bannerId = bannerId;
             _position = position;
 
-            CrossPromotionBannerData bannerData = _cpm.Data.bannerInfo[bannerId];
-            _selfGame = bannerData.currentGame;
-            _isNew = bannerData.showRibbon;
+            CrossPromotionBannerData bannerData = _cpm.Data.BannerInfo[bannerId];
+            _selfGame = bannerData.CurrentGame;
+            _isNew = bannerData.ShowRibbon;
 
             NewGame.SetActive(_isNew);
         }

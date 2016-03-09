@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class IPopupCrossPromoController : MonoBehaviour
+    public class BasePopupCrossPromoController : MonoBehaviour
     {
         protected CrossPromotionManager _cpm;
         public GameObject CellPrefab;
@@ -26,6 +26,10 @@ namespace SocialPoint.CrossPromotion
 
         public float Margin { get; protected set; }
 
+        public Vector2 ScreenSize { get; protected set; }
+
+        public Vector2 PopupSize { get; protected set; }
+
         Action _closeCallback = null;
         long _timeOpened;
 
@@ -37,18 +41,15 @@ namespace SocialPoint.CrossPromotion
 
             ActivityView.SetActive(false);
 
-            var Screen = GetScreenSize();
-            var PopupSize = GetPopupSize();
-
             float ratioIphone = 960f / 640f;
-            float currentRatio = (float)Screen.x / (float)Screen.y;
+            float currentRatio = (float)ScreenSize.x / (float)ScreenSize.y;
 
             Margin = ratioIphone == currentRatio ? _iphone4Margin : _defaultMargin;
 
             SetSize();
             SetPopupSize();
 
-            if(!CheckIfFits(Screen.x, Screen.y, PopupSize.x, PopupSize.y))
+            if(!CheckIfFits(ScreenSize.x, ScreenSize.y, PopupSize.x, PopupSize.y))
             {
                 SetPopupSize();
             }
@@ -62,22 +63,12 @@ namespace SocialPoint.CrossPromotion
         public virtual void SetSize()
         {
             CellWidth = _originalCellWidth - Margin;
-            CellHeight = (_originalCellWidth / _cpm.Data.aspectRatio);
+            CellHeight = (_originalCellWidth / _cpm.Data.AspectRatio);
         }
 
         public virtual void SetPopupSize()
         {
-
-        }
-
-        public virtual Vector2 GetScreenSize()
-        {
-            return Vector2.zero;
-        }
-
-        public virtual Vector2 GetPopupSize()
-        {
-            return Vector2.zero;
+            
         }
 
         public bool CheckIfFits(float screenWidth, float screenHeight, float finalWidth, float finalHeight)
@@ -95,13 +86,13 @@ namespace SocialPoint.CrossPromotion
                 {
                     // Recalculate adjusting width
                     CellWidth = (_originalCellWidth + widthAdjust) - Margin;
-                    CellHeight = ((_originalCellWidth - Margin + widthAdjust) / _cpm.Data.aspectRatio);
+                    CellHeight = ((_originalCellWidth - Margin + widthAdjust) / _cpm.Data.AspectRatio);
                 }
                 else
                 {
                     // Recalculate adjusting height
-                    CellHeight = (((_originalCellWidth - Margin)/ _cpm.Data.aspectRatio) + heightAdjust);
-                    CellWidth = (CellHeight * _cpm.Data.aspectRatio);
+                    CellHeight = (((_originalCellWidth - Margin)/ _cpm.Data.AspectRatio) + heightAdjust);
+                    CellWidth = (CellHeight * _cpm.Data.AspectRatio);
                 }
 
                 return false;

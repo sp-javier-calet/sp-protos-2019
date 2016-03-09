@@ -169,7 +169,7 @@ namespace SocialPoint.CrossPromotion
             DebugUtils.Assert(CreatePopup != null);
 
             _startTime = TimeUtils.Timestamp;
-            _canOpenPopup = _data.showPopup && _data.bannerInfo.Count > 0 && CanOpenPopupByFreq();
+            _canOpenPopup = _data.ShowPopup && _data.BannerInfo.Count > 0 && CanOpenPopupByFreq();
 
             DownloadAllAssets();
         }
@@ -189,29 +189,29 @@ namespace SocialPoint.CrossPromotion
             if(_storage.Has(kLastAutoShowPopup))
             {
                 long lastOpenedTs = _storage.Load(kLastAutoShowPopup).AsValue.ToLong();
-                canOpenPopup = _startTime - lastOpenedTs >= _data.popupFrequency;
+                canOpenPopup = _startTime - lastOpenedTs >= _data.PopupFrequency;
             }
             return canOpenPopup;
         }
 
         bool CanOpenPopupByTimeout()
         {
-            return TimeUtils.Timestamp - _startTime < _data.popupTimeout;
+            return TimeUtils.Timestamp - _startTime < _data.PopupTimeout;
         }
 
         void DownloadAllAssets()
         {
             _assetsReadyCalled = false;
             HashSet<string> assetsToDownload = new HashSet<string>();
-            assetsToDownload.Add(_data.iconImage);
-            assetsToDownload.Add(_data.popupTitleImage);
+            assetsToDownload.Add(_data.IconImage);
+            assetsToDownload.Add(_data.PopupTitleImage);
              
-            foreach(var keyValue in _data.bannerInfo)
+            foreach(var keyValue in _data.BannerInfo)
             {
                 CrossPromotionBannerData banner = keyValue.Value;
-                assetsToDownload.Add(banner.buttonTextImage);
-                assetsToDownload.Add(banner.bgImage);
-                assetsToDownload.Add(banner.iconImage);
+                assetsToDownload.Add(banner.ButtonTextImage);
+                assetsToDownload.Add(banner.BgImage);
+                assetsToDownload.Add(banner.IconImage);
             }
 
             _remainingAssetsToDownload = assetsToDownload.Count;
@@ -230,15 +230,15 @@ namespace SocialPoint.CrossPromotion
             }
 
             bool allReady = true;
-            allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(_data.iconImage)));
-            allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(_data.popupTitleImage)));
+            allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(_data.IconImage)));
+            allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(_data.PopupTitleImage)));
 
-            foreach(var keyValue in _data.bannerInfo)
+            foreach(var keyValue in _data.BannerInfo)
             {
                 CrossPromotionBannerData banner = keyValue.Value;
-                allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.buttonTextImage)));
-                allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.bgImage)));
-                allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.iconImage)));
+                allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.ButtonTextImage)));
+                allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.BgImage)));
+                allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.IconImage)));
             }
 
             return allReady;
@@ -321,7 +321,7 @@ namespace SocialPoint.CrossPromotion
         void SaveGamesToCheck()
         {
             StringBuilder sb = new StringBuilder();
-            foreach(var app in _data.appsToCheck)
+            foreach(var app in _data.AppsToCheck)
             {
                 sb.Append(app);
                 sb.Append(",");
@@ -369,7 +369,7 @@ namespace SocialPoint.CrossPromotion
 
         void TryCreateIcon()
         {
-            if(_data.showIcon)
+            if(_data.ShowIcon)
             {
                 CreateIcon();
             }
@@ -404,7 +404,7 @@ namespace SocialPoint.CrossPromotion
         AttrDic GetEventBasicInformation(bool setIconId, bool setAutoOpen)
         {
             AttrDic data = new AttrDic();
-            data.SetValue("xpromoid", _data.id);
+            data.SetValue("xpromoid", _data.Id);
             data.SetValue("init_ts", _loginTime);
             
             if(setAutoOpen)
@@ -414,7 +414,7 @@ namespace SocialPoint.CrossPromotion
             
             if(setIconId)
             {
-                data.SetValue("id", _data.iconId);
+                data.SetValue("id", _data.IconId);
             }
             
             return data;
@@ -424,13 +424,13 @@ namespace SocialPoint.CrossPromotion
         {
             AttrList bannerList = new AttrList();
             int position = 0;
-            foreach(var keyValue in _data.bannerInfo)
+            foreach(var keyValue in _data.BannerInfo)
             {
                 CrossPromotionBannerData banner = keyValue.Value;
                 AttrDic bannerData = new AttrDic();
-                bannerData.SetValue("id", banner.uid);
-                bannerData.SetValue("xpromo_game", banner.game);
-                bannerData.SetValue("installed", NativeUtils.IsInstalled(banner.appId));
+                bannerData.SetValue("id", banner.Uid);
+                bannerData.SetValue("xpromo_game", banner.Game);
+                bannerData.SetValue("installed", NativeUtils.IsInstalled(banner.AppId));
                 bannerData.SetValue("position", position);
                 bannerList.Add(bannerData);
                 ++position;
@@ -465,22 +465,22 @@ namespace SocialPoint.CrossPromotion
         public void SendBannerImpressedEvent(int uid, int position)
         {
             AttrDic data = GetEventBasicInformation(false, true);
-            CrossPromotionBannerData banner = _data.bannerInfo[uid];
+            CrossPromotionBannerData banner = _data.BannerInfo[uid];
             data.SetValue("id", uid);
             data.SetValue("position", position);
-            data.SetValue("xpromo_game", banner.game);
-            data.SetValue("installed", NativeUtils.IsInstalled(banner.appId));
+            data.SetValue("xpromo_game", banner.Game);
+            data.SetValue("installed", NativeUtils.IsInstalled(banner.AppId));
             TrackSystemEvent("cross.banner_impressed", data);
         }
 
         public void SendBannerClickedEvent(int uid, int position, bool urgent, bool currentGame, Action endCallback)
         {
             AttrDic data = GetEventBasicInformation(false, true);
-            CrossPromotionBannerData banner = _data.bannerInfo[uid];
+            CrossPromotionBannerData banner = _data.BannerInfo[uid];
             data.SetValue("id", uid);
             data.SetValue("position", position);
-            data.SetValue("xpromo_game", banner.game);
-            data.SetValue("installed", NativeUtils.IsInstalled(banner.appId));
+            data.SetValue("xpromo_game", banner.Game);
+            data.SetValue("installed", NativeUtils.IsInstalled(banner.AppId));
             data.SetValue("urgent", urgent);
 
             if(urgent)
@@ -511,7 +511,7 @@ namespace SocialPoint.CrossPromotion
 
         IEnumerator TrackBannerClickEventTimeoutCoroutine(int uid, int position, Action endCallback)
         {
-            yield return new WaitForSeconds(_data.trackTimeout);
+            yield return new WaitForSeconds(_data.TrackTimeout);
             _trackBannerClickEventTimeoutCoroutine = null;
             SendBannerClickedEvent(uid, position, false, false, endCallback);
         }
@@ -548,14 +548,14 @@ namespace SocialPoint.CrossPromotion
 
         void OpenApp(int uid)
         {
-            CrossPromotionBannerData banner = _data.bannerInfo[uid];
-            if(NativeUtils.IsInstalled(banner.appId))
+            CrossPromotionBannerData banner = _data.BannerInfo[uid];
+            if(NativeUtils.IsInstalled(banner.AppId))
             {
-                NativeUtils.OpenApp(banner.appId);
+                NativeUtils.OpenApp(banner.AppId);
             }
             else
             {
-                NativeUtils.OpenStore(banner.storeId);
+                NativeUtils.OpenStore(banner.StoreId);
             }
         }
 
@@ -594,7 +594,7 @@ namespace SocialPoint.CrossPromotion
         {
             if(_iconTexture == null && IsIconAnImage())
             {
-                _iconTexture = GetTexture2DForImage(_data.iconImage);
+                _iconTexture = GetTexture2DForImage(_data.IconImage);
             }
             return _iconTexture;
         }
@@ -603,7 +603,7 @@ namespace SocialPoint.CrossPromotion
         {
             if(_iconConfig == null)
             {
-                string filePath = FileUtils.Combine(_assetsPath, Path.GetFileName(_data.iconImage));
+                string filePath = FileUtils.Combine(_assetsPath, Path.GetFileName(_data.IconImage));
                 AssetBundle assetBundle = AssetBundle.LoadFromFile(filePath);
                 if(assetBundle != null)
                 {
@@ -641,12 +641,12 @@ namespace SocialPoint.CrossPromotion
 
         public bool CanShowIcon()
         {
-            return (_data != null && _data.showIcon && AreAssetsReady());
+            return (_data != null && _data.ShowIcon && AreAssetsReady());
         }
 
         public bool IsIconAnImage()
         {
-            return Path.GetExtension(_data.iconImage) != kAssetBundleExtension;
+            return Path.GetExtension(_data.IconImage) != kAssetBundleExtension;
         }
     }
 }
