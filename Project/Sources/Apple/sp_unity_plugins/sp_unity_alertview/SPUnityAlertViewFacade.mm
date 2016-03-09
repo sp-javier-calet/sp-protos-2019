@@ -38,10 +38,19 @@ typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
     self = [super init];
     if(self)
     {
+        
+        NSString* formattedSignature = @"";
+        if(signature != nil && ![signature isEqualToString:@""])
+        {
+            formattedSignature = [NSString stringWithFormat:@"(%@)", signature];
+        }
+        
+        NSString* formattedMessage = [NSString stringWithFormat:@"%@ %@",message, formattedSignature];
+         
         if([UIAlertController class])
         {
             self.alertCtrl = [UIAlertController alertControllerWithTitle:title
-                                 message:[NSString stringWithFormat:@"%@ (%@)",message,signature]
+                                 message:[NSString stringWithFormat:@"%@",formattedMessage]
                          preferredStyle:UIAlertControllerStyleAlert];
             
             NSInteger buttonIndex = 0;
@@ -66,7 +75,7 @@ typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
         {
             self.alertView = [[UIAlertView alloc]
                               initWithTitle:title
-                              message:[NSString stringWithFormat:@"%@ (%@)",message,signature]
+                              message:[NSString stringWithFormat:@"%@",formattedMessage]
                               delegate:self
                               cancelButtonTitle:nil
                               otherButtonTitles:nil];

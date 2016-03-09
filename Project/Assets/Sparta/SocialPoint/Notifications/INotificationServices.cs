@@ -25,5 +25,17 @@ namespace SocialPoint.Notifications
         /// </summary>
         /// <param name="onTokenReceivedCallback">On token received callback.</param>
         void RegisterForRemote(Action<string> onTokenReceivedCallback = null);
+
+        /// <summary>
+        /// Requests the push notification.
+        /// </summary>
+        void RequestPushNotification();
+
+        /// <summary>
+        /// Requests the local notification.
+        /// </summary>
+        void RequestLocalNotification();
+
+
     }
 }

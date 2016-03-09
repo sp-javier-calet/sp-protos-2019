@@ -33,6 +33,10 @@ public class GoTween : AbstractGoTween
             // change ease type of all existing tweens.
 			for ( int k = 0; k < _tweenPropertyList.Count; ++k )
 			{
+                if (_tweenPropertyList [k] == null)
+                {
+                    continue;
+                }
 				AbstractTweenProperty tween = _tweenPropertyList[k];
 				tween.setEaseType (value);
 			}
@@ -177,8 +181,14 @@ public class GoTween : AbstractGoTween
         //Debug.Log(string.Format("{0} : {1} -- {2}", _elapsedTime, convertedElapsedTime, _isLoopingBackOnPingPong ? "Y" : "N"));
 
 		// update all properties
-		for( var i = 0; i < _tweenPropertyList.Count; ++i )
-			_tweenPropertyList[i].tick( convertedElapsedTime );
+        for (var i = 0; i < _tweenPropertyList.Count; ++i)
+        {
+            if (_tweenPropertyList [i] == null)
+            {
+                continue;
+            }
+            _tweenPropertyList [i].tick (convertedElapsedTime);
+        }
 
         onUpdate();
 
@@ -269,8 +279,14 @@ public class GoTween : AbstractGoTween
     {
         base.onInit();
 
-        for ( var i = 0; i < _tweenPropertyList.Count; ++i )
-            _tweenPropertyList[i].prepareForUse();
+        for (var i = 0; i < _tweenPropertyList.Count; ++i)
+        {
+            if (_tweenPropertyList [i] == null)
+            {
+                continue;
+            }
+            _tweenPropertyList [i].prepareForUse ();
+        }
     }
 
 	/// <summary>

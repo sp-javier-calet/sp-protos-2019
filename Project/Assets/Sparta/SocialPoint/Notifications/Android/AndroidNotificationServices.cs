@@ -63,6 +63,11 @@ namespace SocialPoint.Notifications
                 WaitForRemoteToken(() => _notifClass.CallStatic<string>("getNotificationToken"));
             }
         }
+
+        public override void RequestLocalNotification()
+        {
+        }
+
     }
 
 #else

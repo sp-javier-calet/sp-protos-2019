@@ -23,7 +23,16 @@ public class PivotTweenProperty : AbstractTweenProperty
 	
 	public override void prepareForUse()
 	{
-		_target = _ownerTween.target as RectTransform;
+        if (_ownerTween == null)
+            return;
+
+        if (_ownerTween.target == null)
+            return;
+
+        _target = _ownerTween.target as RectTransform;
+
+        if (_target == null)
+            return;
 		
 		_endValue = _originalEndValue;
 		

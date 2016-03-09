@@ -37,6 +37,12 @@ public class MaterialFloatTweenProperty : AbstractMaterialFloatTweenProperty
 	{
 		_endValue = _originalEndValue;
 		
+        if (_ownerTween == null)
+            return;
+
+        if (_ownerTween.isFrom == null)
+            return;
+        
 		// if this is a from tween we need to swap the start and end values
 		if( _ownerTween.isFrom )
 		{

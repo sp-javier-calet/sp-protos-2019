@@ -9,6 +9,7 @@ namespace SocialPoint.Network
     public abstract class BaseYieldHttpConnection : IHttpConnection
     {
         public abstract IEnumerator Update();
+
         public abstract void Cancel();
 
         HttpResponseDelegate _callback;
@@ -45,16 +46,17 @@ namespace SocialPoint.Network
         protected PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection> Pending;
         ICoroutineRunner _runner = null;
         IEnumerator _updateCoroutine = null;
-        
+
         public BaseYieldHttpClient(ICoroutineRunner runner)
         {
             _runner = runner;
             Pending = new PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection>();
         }
-        
+
         protected abstract BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del);
-    
+
         private string _defaultProxy;
+
         /// <summary>
         ///     Default proxy address that will be set for any connection created using
         ///     this client.
@@ -116,7 +118,7 @@ namespace SocialPoint.Network
             }
             return conn;
         }
-        
+
         public virtual IEnumerator Update()
         {
             while(Pending.Count > 0)

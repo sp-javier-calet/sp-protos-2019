@@ -29,6 +29,12 @@ public class OffsetTweenProperty : AbstractTweenProperty
 		_target = _ownerTween.target as RectTransform;
 		
 		_endValue = _originalEndValue;
+
+        if (_ownerTween == null)
+            return;
+
+        if (_ownerTween.isFrom == null)
+            return;
 		
 		if( _ownerTween.isFrom ) 
 		{

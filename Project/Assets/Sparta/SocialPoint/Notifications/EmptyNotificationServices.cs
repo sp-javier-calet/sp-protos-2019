@@ -21,5 +21,14 @@ namespace SocialPoint.Notifications
         {
         }
 
+        public void RequestPushNotification()
+        {
+        }
+
+        public void RequestLocalNotification()
+        {
+        }
+
+
     }
 }
