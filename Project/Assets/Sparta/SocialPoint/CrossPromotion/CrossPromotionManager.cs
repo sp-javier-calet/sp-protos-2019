@@ -283,9 +283,7 @@ namespace SocialPoint.CrossPromotion
         {
             if(!string.IsNullOrEmpty(url))
             {
-                IEnumerator coroutine = LoadAssetFromCacheOrDownloadCoroutine(url, callback);
-                _coroutineRunner.StartCoroutine(coroutine);
-                _currentDownloadsCoroutines.Add(coroutine);
+                _currentDownloadsCoroutines.Add(_coroutineRunner.StartCoroutine(LoadAssetFromCacheOrDownloadCoroutine(url, callback)));
             }
             else
             {
@@ -487,8 +485,7 @@ namespace SocialPoint.CrossPromotion
 
             if(urgent)
             {
-                _trackBannerClickEventTimeoutCoroutine = TrackBannerClickEventTimeoutCoroutine(uid, position, endCallback);
-                _coroutineRunner.StartCoroutine(_trackBannerClickEventTimeoutCoroutine);
+                _trackBannerClickEventTimeoutCoroutine = _coroutineRunner.StartCoroutine(TrackBannerClickEventTimeoutCoroutine(uid, position, endCallback));
 
                 TrackUrgentSystemEvent("cross.banner_clicked", data, (Error error) => {
                     if(_trackBannerClickEventTimeoutCoroutine != null)

@@ -34,12 +34,13 @@ namespace SocialPoint.Utils
             _elements.Remove(elm);
         }
 
-        void ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
+        IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
         {
             if(enumerator != null)
             {
                 StartCoroutine(enumerator);
             }
+            return enumerator;
         }
 
         void ICoroutineRunner.StopCoroutine(IEnumerator enumerator)
