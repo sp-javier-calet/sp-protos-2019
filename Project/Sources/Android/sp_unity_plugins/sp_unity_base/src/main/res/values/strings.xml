@@ -1,5 +1,7 @@
 <resources>
-
     <string name="app_name">AndroidNotifications</string>
-
+    <string name="accept_permissions_title">Accept permissions</string>
+    <string name="accept_permissions_message">Accept all permissions to play this game.</string>
+    <string name="accept_permissions_settings_title">Accept permissions in settings</string>
+    <string name="accept_permissions_settings_message">Accept all permissions in settings to play this game.</string>
 </resources>
