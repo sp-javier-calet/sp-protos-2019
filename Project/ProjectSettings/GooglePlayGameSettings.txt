@@ -1,9 +1,9 @@
 lastUpgrade=00930
-proj.AppId=157200987425
+proj.AppId=942387780338
 and.BundleId=es.socialpoint.basegame
 proj.classDir=Assets
 proj.ConstantsClassName=GPGSConstants
-and.ResourceData=%3c%3fxml+version%3d%221.0%22+encoding%3d%22utf-8%22%3f%3e%0a%3cresources%3e%0a++%3cstring+name%3d%22app_id%22%3e157200987425%3c%2fstring%3e%0a++%3cstring+name%3d%22package_name%22%3ees.socialpoint.basegame%3c%2fstring%3e%0a++%3c%21--+temporary+resources%2c+needs+setup+for+actual+game+--%3e%0a%3c%2fresources%3e%0a
-and.ClientId=
+and.ResourceData=%3c%3fxml+version%3d%221.0%22+encoding%3d%22utf-8%22%3f%3e%0a%3c%21--%0aGoogle+Play+game+services+IDs.%0aSave+this+file+as+res%2fvalues%2fgames-ids.xml+in+your+project.%0a--%3e%0a%3cresources%3e%0a++%3cstring+name%3d%22app_id%22%3e942387780338%3c%2fstring%3e%0a++%3cstring+name%3d%22package_name%22%3ees.socialpoint.basegame%3c%2fstring%3e%0a++%3cstring+name%3d%22achievement_achievement_1%22%3eCgkI8rXB1bYbEAIQAg%3c%2fstring%3e%0a++%3cstring+name%3d%22leaderboard_leaderboard_1%22%3eCgkI8rXB1bYbEAIQAw%3c%2fstring%3e%0a%3c%2fresources%3e%0a
+and.ClientId=942387780338-6vpmllld59f29un5qktkubgcdv5eleah.apps.googleusercontent.com
 proj.requireGPlus=false
 android.SetupDone=true

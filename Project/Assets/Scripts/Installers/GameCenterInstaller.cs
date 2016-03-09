@@ -17,6 +17,7 @@ public class GameCenterInstaller : MonoInstaller
         
     public override void InstallBindings()
     {
+        #if UNITY_IOS
         if(Settings.UseEmpty)
         {
             Container.Rebind<IGameCenter>().ToSingle<EmptyGameCenter>();
@@ -27,8 +28,11 @@ public class GameCenterInstaller : MonoInstaller
         }
         if(Settings.LoginLink)
         {
-            Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
+        Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
         }
+        #else
+        Container.Rebind<IGameCenter>().ToSingle<EmptyGameCenter>();
+        #endif
     }
 
     GameCenterLink CreateLoginLink(InjectContext ctx)

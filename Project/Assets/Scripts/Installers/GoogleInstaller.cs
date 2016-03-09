@@ -11,13 +11,14 @@ public class GoogleInstaller : MonoInstaller
     {
         public bool UseEmpty = false;
         public bool LoginLink = true;
-        public bool LoginWithUi = false;
+        public bool LoginWithUi = true;
     }
 
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
+        #if UNITY_ANDROID
         if(Settings.UseEmpty)
         {
             Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
@@ -30,6 +31,9 @@ public class GoogleInstaller : MonoInstaller
         {
             Container.Bind<ILink>().ToSingleMethod<GooglePlayLink>(CreateLoginLink);
         }
+        #else
+        Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
+        #endif
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGoogle>();
     }
 

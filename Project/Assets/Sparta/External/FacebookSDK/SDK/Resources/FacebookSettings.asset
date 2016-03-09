@@ -13,9 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectedAppIndex: 0
   appIds:
-  - 552673158114597
+  - 965032093546412
   appLabels:
-  - HelloSocialPoint
+  - Unity Base Game
   cookie: 1
   logging: 1
   status: 1
