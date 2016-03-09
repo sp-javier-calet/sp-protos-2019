@@ -24,6 +24,8 @@ namespace SocialPoint.CrossPromotion
 
         public float CellHeight { get; protected set; }
 
+        public float Margin { get; protected set; }
+
         Action _closeCallback = null;
         long _timeOpened;
 
@@ -35,11 +37,16 @@ namespace SocialPoint.CrossPromotion
 
             ActivityView.SetActive(false);
 
-            SetSize();
-            SetPopupSize();
-
             var Screen = GetScreenSize();
             var PopupSize = GetPopupSize();
+
+            float ratioIphone = 960f / 640f;
+            float currentRatio = (float)Screen.x / (float)Screen.y;
+
+            Margin = ratioIphone == currentRatio ? _iphone4Margin : _defaultMargin;
+
+            SetSize();
+            SetPopupSize();
 
             if(!CheckIfFits(Screen.x, Screen.y, PopupSize.x, PopupSize.y))
             {
@@ -54,13 +61,13 @@ namespace SocialPoint.CrossPromotion
 
         public virtual void SetSize()
         {
-            CellWidth = _originalCellWidth;
+            CellWidth = _originalCellWidth - Margin;
             CellHeight = (_originalCellWidth / _cpm.Data.aspectRatio);
         }
 
         public virtual void SetPopupSize()
         {
-            
+
         }
 
         public virtual Vector2 GetScreenSize()
@@ -75,7 +82,7 @@ namespace SocialPoint.CrossPromotion
 
         public bool CheckIfFits(float screenWidth, float screenHeight, float finalWidth, float finalHeight)
         {
- 
+
             // Calculate if it fits
             float widthAdjust = screenWidth - finalWidth;
             float heightAdjust = screenHeight - finalHeight;
@@ -87,13 +94,13 @@ namespace SocialPoint.CrossPromotion
                 if(widthAdjust < heightAdjust)
                 {
                     // Recalculate adjusting width
-                    CellWidth = (_originalCellWidth + widthAdjust);
-                    CellHeight = ((_originalCellWidth + widthAdjust) / _cpm.Data.aspectRatio);
+                    CellWidth = (_originalCellWidth + widthAdjust) - Margin;
+                    CellHeight = ((_originalCellWidth - Margin + widthAdjust) / _cpm.Data.aspectRatio);
                 }
                 else
                 {
                     // Recalculate adjusting height
-                    CellHeight = ((_originalCellWidth / _cpm.Data.aspectRatio) + heightAdjust);
+                    CellHeight = (((_originalCellWidth - Margin)/ _cpm.Data.aspectRatio) + heightAdjust);
                     CellWidth = (CellHeight * _cpm.Data.aspectRatio);
                 }
 
