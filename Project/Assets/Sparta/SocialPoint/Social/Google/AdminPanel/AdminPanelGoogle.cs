@@ -12,12 +12,12 @@ namespace SocialPoint.Social
         AdminPanel.AdminPanel _adminPanel;
 
         Toggle _toggleLogin;
-        LeaderboardIdHandler _leaderboardId;
+        AdminPanelGoogleLeaderboardIdHandler _leaderboardId;
 
         public AdminPanelGoogle(IGoogle google)
         {
             _google = google;
-            _leaderboardId = new LeaderboardIdHandler();
+            _leaderboardId = new AdminPanelGoogleLeaderboardIdHandler();
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -70,7 +70,7 @@ namespace SocialPoint.Social
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
-            layout.CreateOpenPanelButton("Achievements", new AdminPanelAchievementList(_google), connected);
+            layout.CreateOpenPanelButton("Achievements", new AdminPanelGoogleAchievementList(_google), connected);
             layout.CreateConfirmButton("Show Achievements UI", _google.ShowAchievementsUI, connected);
 
             layout.CreateMargin(2);
@@ -81,7 +81,7 @@ namespace SocialPoint.Social
                 _leaderboardId.Id = text;
             }, connected);
             ldbInput.text = _leaderboardId.Id;
-            groupLayout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelLeaderboard(_google, _leaderboardId), connected);
+            groupLayout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelGoogleLeaderboard(_google, _leaderboardId), connected);
 
             layout.CreateConfirmButton("Show Leaderboards UI", () => {
                 _google.ShowLeaderboardsUI(_leaderboardId.Id);
@@ -101,11 +101,11 @@ namespace SocialPoint.Social
 
         #region Achievements panels
 
-        class AdminPanelAchievementList : IAdminPanelGUI
+        class AdminPanelGoogleAchievementList : IAdminPanelGUI
         {
             IGoogle _google;
 
-            public AdminPanelAchievementList(IGoogle google)
+            public AdminPanelGoogleAchievementList(IGoogle google)
             {
                 _google = google;
             }
@@ -118,17 +118,17 @@ namespace SocialPoint.Social
                 {
                     layout.CreateOpenPanelButton(achievement.Name,
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
-                        new AdminPanelAchievement(_google, achievement));
+                        new AdminPanelGoogleAchievement(_google, achievement));
                 }
             }
         }
 
-        class AdminPanelAchievement : IAdminPanelGUI
+        class AdminPanelGoogleAchievement : IAdminPanelGUI
         {
             GoogleAchievement _achievement;
             IGoogle _google;
 
-            public AdminPanelAchievement(IGoogle google, GoogleAchievement achievement)
+            public AdminPanelGoogleAchievement(IGoogle google, GoogleAchievement achievement)
             {
                 _google = google;
                 _achievement = achievement;
@@ -171,17 +171,17 @@ namespace SocialPoint.Social
 
         #region Leaderboard panels
 
-        class AdminPanelLeaderboard :IAdminPanelGUI
+        class AdminPanelGoogleLeaderboard :IAdminPanelGUI
         {
             IGoogle _google;
             GoogleLeaderboard _leaderboard;
-            LeaderboardIdHandler _idHandler;
+            AdminPanelGoogleLeaderboardIdHandler _idHandler;
             Text _mainTitle;
             bool _isFriendOnly;
             bool _playerCentered;
             TimeScope _scope;
 
-            public AdminPanelLeaderboard(IGoogle google, LeaderboardIdHandler idHandler)
+            public AdminPanelGoogleLeaderboard(IGoogle google, AdminPanelGoogleLeaderboardIdHandler idHandler)
             {
                 _google = google;
                 _idHandler = idHandler;
@@ -237,12 +237,12 @@ namespace SocialPoint.Social
             }
         }
 
-        class LeaderboardIdHandler
+        class AdminPanelGoogleLeaderboardIdHandler
         {
-            const string kLeaderboardIdKey = "admin_leaderboard_id";
+            const string kLeaderboardIdKey = "admin_google_leaderboard_id";
             string _id;
 
-            public LeaderboardIdHandler()
+            public AdminPanelGoogleLeaderboardIdHandler()
             {
                 _id = PlayerPrefs.GetString(kLeaderboardIdKey, string.Empty);
             }

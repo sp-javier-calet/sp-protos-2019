@@ -3,6 +3,7 @@ using Zenject;
 using System;
 using SocialPoint.Social;
 using SocialPoint.Login;
+using SocialPoint.AdminPanel;
 
 public class GameCenterInstaller : MonoInstaller
 {
@@ -33,6 +34,7 @@ public class GameCenterInstaller : MonoInstaller
         #else
         Container.Rebind<IGameCenter>().ToSingle<EmptyGameCenter>();
         #endif
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGameCenter>();
     }
 
     GameCenterLink CreateLoginLink(InjectContext ctx)

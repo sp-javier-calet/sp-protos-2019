@@ -28,7 +28,7 @@ namespace SocialPoint.Social
 
         public override string ToString()
         {
-            return string.Format("[GameCenterUserVerification: Url={0}, Signature={1}, Salt={2}, Time={3}]", Url, Signature.ToString(), Salt.ToString(), Time.ToString());
+            return string.Format("[GameCenterUserVerification: Url={0}, Signature={1}, Salt={2}, Time={3}]", Url, Signature, Salt, Time);
         }
 
         public GameCenterUserVerification()
@@ -135,7 +135,15 @@ namespace SocialPoint.Social
     {
         public string Id { get; private set; }
 
-        public Double Percent { get; private set; }
+        public Double Percent { get; set; }
+
+        public bool IsUnlocked
+        {
+            get
+            {
+                return Percent >= 100;
+            }
+        }
 
         public GameCenterAchievement(string id, Double percent)
         {
@@ -148,31 +156,33 @@ namespace SocialPoint.Social
     {
         event Action StateChangeEvent;
 
+        IEnumerable<GameCenterAchievement> Achievements { get; }
+
         /**
          Update a score
          @param score the score info to send
          @param callback called when the request was sent
          */
-        void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk);
+        void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk=null);
 
         /**
          Update an achievement
          @param achievement 
          @param callback called when the request was sent
          */
-        void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk);
+        void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk=null);
 
         /**
          Remove all achievements
          @param callback called when the request was sent
          */
-        void ResetAchievements(ErrorDelegate cbk);
+        void ResetAchievements(ErrorDelegate cbk=null);
 
         /**
          Start the game center login
          @param callback - called when login is finished
          */
-        void Login(ErrorDelegate cbk);
+        void Login(ErrorDelegate cbk=null);
 
         /**
          Load a photo of a player
@@ -199,5 +209,16 @@ namespace SocialPoint.Social
          */
         bool IsConnecting{ get; }
 
+        /// <summary>
+        /// Show native Achievements view
+        /// </summary>
+        void ShowAchievementsUI();
+
+        /// <summary>
+        /// Show native Leaderboards view
+        /// </summary>
+        void ShowLeaderboardUI(string id = null);
+
     }
+
 }

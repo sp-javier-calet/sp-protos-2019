@@ -12,7 +12,10 @@ namespace SocialPoint.Social
 
     public class SocialPointGameCenterVerification : MonoBehaviour
     {
-        public GameCenterValidationDelegate Callback;
+        bool _loaded = false;
+        GameCenterValidationDelegate _delegate;
+        GameCenterUserVerification _verification;
+        Error _error;
 
         #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
@@ -28,6 +31,21 @@ namespace SocialPoint.Social
             SPUnityGameCenter_UserVerificationInit(gameObject.name);
         }
 
+        public void LoadData(GameCenterValidationDelegate cbk)
+        {
+            if(cbk != null)
+            {
+                if(_loaded)
+                {
+                    cbk(_error, _verification);
+                }
+                else
+                {
+                    _delegate += cbk;
+                }
+            }
+        }
+
         /// <summary>
         /// recieves the verification from the plugin as a serialized json
         /// </summary>
@@ -35,15 +53,12 @@ namespace SocialPoint.Social
         void Notify(string verfication)
         {
             DebugUtils.Log(verfication);
-            if(Callback == null)
-            {
-                return;
-            }
             var parser = new JsonAttrParser();
             var data = parser.ParseString(verfication).AsDic;
             if(data.GetValue("error").ToBool())
             {
-                Callback(new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString()), null);
+                _verification = null;
+                _error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
             }
             else
             {
@@ -51,8 +66,14 @@ namespace SocialPoint.Social
                 var signature = Convert.FromBase64String(data.GetValue("signature").ToString());
                 var salt = Convert.FromBase64String(data.GetValue("salt").ToString());
                 var time = (ulong)data.GetValue("timestamp").ToLong();
-                var userVerification = new GameCenterUserVerification(url, signature, salt, time);
-                Callback(new Error(), userVerification);
+                _verification = new GameCenterUserVerification(url, signature, salt, time);
+                _error = null;
+            }
+            _loaded = true;
+            if(_delegate != null)
+            {
+                _delegate(_error, _verification);
+                _delegate = null;
             }
         }
 

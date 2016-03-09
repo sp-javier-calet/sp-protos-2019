@@ -12,13 +12,13 @@ using SocialPoint.Utils;
 namespace SocialPoint.Social
 {
     public delegate void GameCenterValidationDelegate(Error error, GameCenterUserVerification ver);
-    public class UnityGameCenter : BaseGameCenter
+    public class UnityGameCenter : IGameCenter
     {
 
         private readonly static string PhotosCacheFolder = "GameCenter";
         private GameCenterUser _user;
 
-        public override GameCenterUser User
+        public GameCenterUser User
         {
             get
             {
@@ -26,19 +26,36 @@ namespace SocialPoint.Social
             }
         }
 
-        public Dictionary<string, double> Achievements { get; private set; }
+        public IEnumerable<GameCenterAchievement> Achievements
+        {
+            get
+            {
+                return _achievements;
+            }
+        }
 
+        private List<GameCenterAchievement> _achievements;
         private bool _connecting = false;
         private GameCenterPlatform _platform;
         private List<GameCenterUser> _friends;
 
         SocialPointGameCenterVerification _verification;
 
-        public override List<GameCenterUser> Friends
+        public List<GameCenterUser> Friends
         {
             get
             {
                 return _friends;
+            }
+        }
+
+        public event Action StateChangeEvent;
+
+        protected void NotifyStateChanged()
+        { 
+            if(StateChangeEvent != null)
+            {
+                StateChangeEvent();
             }
         }
 
@@ -132,31 +149,32 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            string achiId = achi.Id;
-            
-            if(!Achievements.ContainsKey(achiId))
+            bool found = false;
+            foreach(var a in _achievements)
             {
-                Achievements.Add(achiId, 0);
+                if(a.Id == achi.Id)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+            {
+                _achievements.Add(achi);
             }
             
-            if(Achievements[achiId] < achi.Percent && achi.Percent <= 100)
-            {
-                _platform.ReportProgress(achiId, Achievements[achiId], (bool success) => {
-                    if(cbk != null)
+
+            _platform.ReportProgress(achi.Id, achi.Percent, (bool success) => {
+                if(cbk != null)
+                {
+                    Error err = null;
+                    if(!success)
                     {
-                        Error err = null;
-                        if(!success)
-                        {
-                            err = new Error(string.Format("Error updating chievement '{0}'.", achiId));
-                        }
-                        cbk(achi, err);
+                        err = new Error(string.Format("Error updating chievement '{0}'.", achi.Id));
                     }
-                });
-            }
-            else if(cbk != null)
-            {
-                cbk(achi, null);
-            }
+                    cbk(achi, err);
+                }
+            });
         }
 
         void DownloadAchievements(ErrorDelegate cbk)
@@ -173,14 +191,10 @@ namespace SocialPoint.Social
             _platform.LoadAchievements((IAchievement[] achievements) => {
                 if(achievements != null)
                 {
-                    Achievements = new Dictionary<string, double>();
-                    for(int k = 0; k < achievements.Length; k++)
+                    _achievements = new List<GameCenterAchievement>();
+                    foreach(var a in achievements)
                     {
-                        if(achievements[k] != null && achievements[k] is IAchievement)
-                        {
-                            IAchievement achievementData = achievements[k];
-                            Achievements.Add(achievementData.id, achievementData.percentCompleted);
-                        }
+                        _achievements.Add(new GameCenterAchievement(a.id, a.percentCompleted));
                     }
                 }
                 if(cbk != null)
@@ -214,7 +228,7 @@ namespace SocialPoint.Social
 
         private void RequestGameCenterVerification(ErrorDelegate cbk)
         {
-            _verification.Callback = (Error error, GameCenterUserVerification ver) => {
+            _verification.LoadData((Error error, GameCenterUserVerification ver) => {
                 if(Error.IsNullOrEmpty(error))
                 {
                     _user.Verification = ver;
@@ -224,11 +238,11 @@ namespace SocialPoint.Social
                 {
                     cbk(error);
                 }
-            };
+            });
         }
 
 
-        public override bool IsConnected
+        public bool IsConnected
         {
             get
             {
@@ -236,7 +250,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override bool IsConnecting
+        public bool IsConnecting
         {
             get
             {
@@ -244,7 +258,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override void Login(ErrorDelegate cbk)
+        public void Login(ErrorDelegate cbk=null)
         {
             if(IsConnected)
             {
@@ -287,7 +301,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk = null)
+        public void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk = null)
         {
             if(!IsConnected)
             {
@@ -296,7 +310,7 @@ namespace SocialPoint.Social
                     cbk(score, new Error("GameCenter is not logged in"));
                 }
                 return;
-            }
+            }                
 
             _platform.ReportScore(score.Value, score.Category, (bool success) => {
                 if(cbk != null)
@@ -311,7 +325,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void ResetAchievements(ErrorDelegate cbk = null)
+        public void ResetAchievements(ErrorDelegate cbk = null)
         {
             if(!IsConnected)
             {
@@ -334,7 +348,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void UpdateAchievement(GameCenterAchievement achi, GameCenterAchievementDelegate cbk = null)
+        public void UpdateAchievement(GameCenterAchievement achi, GameCenterAchievementDelegate cbk = null)
         {
             if(!IsConnected)
             {
@@ -360,7 +374,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void LoadPhoto(string userId, uint photoSize, GameCenterPhotoDelegate cbk = null)
+        public void LoadPhoto(string userId, uint photoSize, GameCenterPhotoDelegate cbk = null)
         {
             if(!IsConnected)
             {
@@ -400,6 +414,17 @@ namespace SocialPoint.Social
                 }
                 
             });
+        }
+
+
+        public void ShowAchievementsUI()
+        {
+            _platform.ShowAchievementsUI();
+        }
+
+        public void ShowLeaderboardUI(string id = null)
+        {
+            GameCenterPlatform.ShowLeaderboardUI(id, TimeScope.AllTime);
         }
     }
 }
