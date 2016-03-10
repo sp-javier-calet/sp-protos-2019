@@ -17,7 +17,7 @@ namespace SocialPoint.Attributes
         uint _syncId = 0;
 
         public FileAttrStorage()
-            : this(new JsonAttrParser(), new JsonAttrSerializer(), PathsManager.PersistentDataPath)
+            : this(new JsonAttrParser(), new JsonAttrSerializer(), PathsManager.AppPersistentDataPath)
         {
         }
 

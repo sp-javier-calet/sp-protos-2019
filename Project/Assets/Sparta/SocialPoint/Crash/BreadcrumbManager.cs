@@ -36,7 +36,7 @@ namespace SocialPoint.Crash
             if(!_initialized)
             {
                 _initialized = true;
-                string breadCrumbDirectoryPath = PathsManager.PersistentDataPath + "/breadcrumb/";
+                string breadCrumbDirectoryPath = PathsManager.AppPersistentDataPath + "/breadcrumb/";
 
                 FileUtils.CreateDirectory(breadCrumbDirectoryPath);
                 
@@ -54,7 +54,7 @@ namespace SocialPoint.Crash
 
         public static string BreadcrumbLogPath(string uuid = "")
         {
-            return string.Format("{0}/breadcrumb/Breadcrumb{1}.log", PathsManager.PersistentDataPath,
+            return string.Format("{0}/breadcrumb/Breadcrumb{1}.log", PathsManager.AppPersistentDataPath,
                 uuid != "" ? "-" + uuid : "");
         }
 

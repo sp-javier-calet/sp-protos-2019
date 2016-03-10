@@ -65,7 +65,7 @@ namespace SocialPoint.Crash
         public void SendExceptions()
         {
             var uuid = "testException";
-            var _exceptionStorage = new FileAttrStorage(string.Format("{0}/{1}", PathsManager.PersistentDataPath, "logs/exceptions"));
+            var _exceptionStorage = new FileAttrStorage(string.Format("{0}/{1}", PathsManager.AppPersistentDataPath, "logs/exceptions"));
             _exceptionStorage.Save(uuid, new AttrDic());
             CrashReporterBase.Enable();
             HttpClient.Received().Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());

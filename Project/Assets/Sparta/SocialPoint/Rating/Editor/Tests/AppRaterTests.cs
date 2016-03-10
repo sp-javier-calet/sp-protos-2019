@@ -31,7 +31,7 @@ namespace SocialPoint.Rating
             netWorkInfo.Connectivity.Returns(INetworkInfoStatus.ReachableViaWiFi);
             deviceInfo.NetworkInfo.Returns(netWorkInfo);
             PathsManager.Init();
-            storage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "AppRaterTests"));
+            storage = new FileAttrStorage(FileUtils.Combine(PathsManager.AppPersistentDataPath, "AppRaterTests"));
             var appEvents = Substitute.For<IAppEvents>();
             AppRater = new AppRater(deviceInfo, storage, appEvents);
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
