@@ -198,7 +198,7 @@ namespace SocialPoint.Login
                 _facebook.LoadPhoto(userIds[0], (texture, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
-                        var tmpFilePath = FileUtils.Combine(PathsManager.AppPersistentDataPath, "SPLoginFacebook/" + user.Id + "_" + photoSize.ToString() + ".png");
+                        var tmpFilePath = FileUtils.Combine(PathsManager.TemporaryDataPath, "SPLoginFacebook/" + user.Id + "_" + photoSize.ToString() + ".png");
                         err = ImageUtils.SaveTextureToFile(texture, tmpFilePath);
                         if(Error.IsNullOrEmpty(err))
                         {
