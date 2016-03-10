@@ -28,7 +28,7 @@ namespace SocialPoint.CrossPromotion
             #if UNITY_IOS
             StoreId = config.GetValue("store_id").ToString();
             #elif UNITY_ANDROID
-            storeId = config.GetValue("app_id").ToString();
+            StoreId = config.GetValue("app_id").ToString();
             #endif
             AppId = config.GetValue("app_id").ToString();
             ButtonTextImage = config.GetValue("button").ToString();
