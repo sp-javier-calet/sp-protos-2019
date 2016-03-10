@@ -185,7 +185,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public UnityGameCenter(Transform parent = null)
+        public UnityGameCenter(Transform parent = null, bool showAchievements = true)
         {
             _friends = new List<GameCenterUser>();
             _user = new GameCenterUser();
@@ -199,6 +199,7 @@ namespace SocialPoint.Social
                 go.transform.SetParent(parent);
             }
             _platform = new GameCenterPlatform();
+            GameCenterPlatform.ShowDefaultAchievementCompletionBanner(showAchievements);
             _verification = go.AddComponent<SocialPointGameCenterVerification>();
         }
 
