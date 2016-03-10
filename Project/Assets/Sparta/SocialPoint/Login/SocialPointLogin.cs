@@ -341,7 +341,7 @@ namespace SocialPoint.Login
                     try
                     {
                         Attr attr = Storage.Load(SecurityTokenStorageKey);
-                        if(attr.AttrType == AttrType.VALUE)
+                        if(attr != null && attr.AttrType == AttrType.VALUE)
                         {
                             _securityToken = attr.ToString();
                         }
@@ -668,7 +668,7 @@ namespace SocialPoint.Login
             OnLoginEnd(null, cbk);
         }
 
-        void DoLogin(ErrorDelegate cbk, int lastErrCode=0)
+        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0)
         {
             if(_appEvents != null)
             {

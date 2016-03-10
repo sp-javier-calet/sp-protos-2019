@@ -5,9 +5,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
+using System.Reflection;
 
 namespace SocialPoint.Base
 {
+    // In order to extend the autobuilder, you must create a static IAutoBuilderConfiguratorFactory method
+    // marked with the attribute AutoBuilderConfiguratorFactory and with the following signature:
+    //
+    // static IAutoBuilderConfigurator CreateMyConfigurator(AutoBuilderConfiguration configuration)
     public static class AutoBuilder
     {
         static string ProjectName
@@ -22,10 +27,10 @@ namespace SocialPoint.Base
         private static bool IsDebugScene(EditorBuildSettingsScene scene)
         {
             // Exclude '/Debug*' scenes from release builds
-#if NO_ADMIN_PANEL
-            return Path.GetFileName(scene.path).StartsWith("Debug");
-#else
+#if ADMIN_PANEL
             return false;
+#else
+            return Path.GetFileName(scene.path).StartsWith("Debug");
 #endif 
         }
 
@@ -46,7 +51,7 @@ namespace SocialPoint.Base
             }
         }
 
-        static string[] GetCommandLineArgs(string name)
+        public static string[] GetCommandLineArgs(string name)
         {
             List<string> values = new List<string>();
 
@@ -58,6 +63,16 @@ namespace SocialPoint.Base
                 {
                     values.Add(arg.Substring(argName.Length));
                 }
+            }
+
+            if(values.Count > 0)
+            {
+                string stringizedList = "";
+                foreach(var elem in values)
+                {
+                    stringizedList += string.IsNullOrEmpty(stringizedList) ? elem : " | " + elem;
+                }
+                UnityEngine.Debug.Log("Custom argument: [" + name + "]\n\tValue(s): [" + stringizedList + "]");
             }
             return values.ToArray();
         }
@@ -82,7 +97,7 @@ namespace SocialPoint.Base
         {
             BuildOptions result = BuildOptions.None;
             string[] buildOptions = GetCommandLineArgs("buildOptions");
-            if (buildOptions != null)
+            if(buildOptions != null)
             {
                 foreach(var option in buildOptions)
                 {
@@ -100,63 +115,177 @@ namespace SocialPoint.Base
             return result;
         }
 
+        static IAutoBuilderConfigurator CreateAutoBuilderConfigurator(AutoBuilderConfiguration configuration)
+        {
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach(var assembly in assemblies)
+            {
+                foreach(var type in assembly.GetTypes())
+                {
+                    MethodInfo[] methods = type.GetMethods();
+                    foreach(var method in methods)
+                    {
+                        foreach(var attribute in method.GetCustomAttributes(true))
+                        {
+                            if(attribute is AutoBuilderConfiguratorFactory)
+                            {
+                                IAutoBuilderConfigurator configurator = CreateAutoBuilderByMethod(method, configuration);
+                                if(configurator != null)
+                                {
+                                    return configurator;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return new EmptyAutoBuilderConfigurator();
+        }
+
+        static IAutoBuilderConfigurator CreateAutoBuilderByMethod(MethodInfo method, AutoBuilderConfiguration configuration)
+        {
+            ParameterInfo[] parameters = method.GetParameters();
+            if(method.IsStatic
+               && parameters.Length == 1
+               && parameters[0].ParameterType == typeof(AutoBuilderConfiguration)
+               && method.ReturnType == typeof(IAutoBuilderConfigurator))
+            {
+                object result = method.Invoke(null, new object[]{ configuration });
+                return result as IAutoBuilderConfigurator;
+            }
+
+            UnityEngine.Debug.LogWarning("[WARNING] - Found a method marked as AutoBuilderConfiguratorFactory with a wrong signature: " + method);
+            return null;
+        }
+
+        static void PerformBuildWithConfiguration(AutoBuilderConfiguration configuration, BuildTargetGroup buildTargetGroup)
+        {
+            SetDefines(buildTargetGroup);
+            IAutoBuilderConfigurator configurator = CreateAutoBuilderConfigurator(configuration);
+            configuration = configurator.Configure(configuration);
+            EditorUserBuildSettings.SwitchActiveBuildTarget(configuration.Target);
+            configurator.Build(configuration);
+        }
+
         [MenuItem("File/AutoBuilder/Mac OSX/Intel")]
         static void PerformOSXIntelBuild()
         {
-            SetDefines(BuildTargetGroup.Standalone);
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.StandaloneOSXIntel);
-            BuildOptions buildOptions = GetBuildOptions();
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/OSX-Intel/" + ProjectName + ".app", BuildTarget.StandaloneOSXIntel, buildOptions);
-
+            PerformBuildWithConfiguration(new AutoBuilderConfiguration() {
+                Levels = ScenePaths,
+                LocationPathName = "Builds/OSX-Intel/" + ProjectName + ".app",
+                Target = BuildTarget.StandaloneOSXIntel,
+                Options = GetBuildOptions()
+            }, BuildTargetGroup.Standalone);
         }
 
         [MenuItem("File/AutoBuilder/iOS")]
         static void PerformiOSBuild()
         {
-            BuildOptions buildOptions = GetBuildOptions();
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            SetDefines(BuildTargetGroup.iPhone);
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.iPhone);
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iPhone, buildOptions);
-#else
-            SetDefines(BuildTargetGroup.iOS);
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.iOS);
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/iOS", BuildTarget.iOS, buildOptions);
-#endif
+            PerformBuildWithConfiguration(new AutoBuilderConfiguration() {
+                Levels = ScenePaths,
+                LocationPathName = "Builds/iOS",
+                Target = BuildTarget.iOS,
+                Options = GetBuildOptions()
+            }, BuildTargetGroup.iOS);
         }
 
         [MenuItem("File/AutoBuilder/Android")]
         static void PerformAndroidBuild()
         {
+            UnityEngine.Debug.Log("************************\nStarting Android Unity Build\n************************");
+            if(!Directory.Exists("Builds/Android/"))
+            {
+                Directory.CreateDirectory("Builds/Android/");
+            }
+
+            // Setup Android Version Info
+            string[] buildNumber = GetCommandLineArgs("build");
+            if(buildNumber.Length == 0)
+            {
+                string data = System.DateTime.Today.ToString("yyMMddhmm");
+                int value = Int32.Parse(data);     
+                PlayerSettings.Android.bundleVersionCode = value;
+                UnityEngine.Debug.Log("[INFO] Android bundle version code set to: [" + PlayerSettings.Android.bundleVersionCode + "]");
+            }
+            PlayerSettings.Android.useAPKExpansionFiles = false;
+
+            // Note: FAT means all supported/available architectures.
+            string[] targetArch = GetCommandLineArgs("targetArch");
+            if(targetArch[0] == "arm+x86")
+            {
+                PlayerSettings.Android.targetDevice = AndroidTargetDevice.FAT;
+            }
+            else if(targetArch[0] == "arm")
+            {
+                PlayerSettings.Android.targetDevice = AndroidTargetDevice.ARMv7;
+            }
+            else if(targetArch[0] == "x86")
+            {
+                PlayerSettings.Android.targetDevice = AndroidTargetDevice.x86;
+            }
+            else if(targetArch.Length == 0)
+            {
+                UnityEngine.Debug.LogWarning("[WARNING] - Target architecture not specified. Defaulting to all supported architectures");
+                PlayerSettings.Android.targetDevice = AndroidTargetDevice.FAT;
+            }
+
             SetDefines(BuildTargetGroup.Android);
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.Android);
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            EditorUserBuildSettings.androidBuildSubtarget = AndroidBuildSubtarget.ETC;
-#else
             EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ETC;
-#endif
 
-            EditorPrefs.SetString("AndroidSdkRoot", System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal) + "/Development/android-sdk/");
-            BuildOptions buildOptions = GetBuildOptions();
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Android/" + ProjectName + ".apk", BuildTarget.Android, buildOptions);
+            AutoBuilderConfiguration configuration = new AutoBuilderConfiguration() {
+                Levels = ScenePaths,
+                LocationPathName = "Builds/Android/" + ProjectName + ".apk",
+                Target = BuildTarget.Android,
+                Options = GetBuildOptions()
+            };
+
+            IAutoBuilderConfigurator configurator = CreateAutoBuilderConfigurator(configuration);
+            configuration = configurator.Configure(configuration);
+
+            // Setup Android KeyStore
+            if(!string.IsNullOrEmpty(configuration.AndroidKeyStoreName))
+            {
+                PlayerSettings.Android.keystoreName = configuration.AndroidKeyStoreName;
+            }
+            if(!string.IsNullOrEmpty(configuration.AndroidKeyStorePass))
+            {
+                PlayerSettings.Android.keystorePass = configuration.AndroidKeyStorePass;
+            }
+            if(!string.IsNullOrEmpty(configuration.AndroidKeyAliasName))
+            {
+                PlayerSettings.Android.keyaliasName = configuration.AndroidKeyAliasName;
+            }
+            if(!string.IsNullOrEmpty(configuration.AndroidKeyAliasPass))
+            {
+                PlayerSettings.Android.keyaliasPass = configuration.AndroidKeyAliasPass;
+            }
+
+            configurator.Build(configuration);
         }
+
+
 
         [MenuItem("File/AutoBuilder/Web/Standard")]
         static void PerformWebBuild()
         {
-            SetDefines(BuildTargetGroup.WebPlayer);
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.WebPlayer);
-            BuildOptions buildOptions = GetBuildOptions();
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Web", BuildTarget.WebPlayer, buildOptions);
+            PerformBuildWithConfiguration(new AutoBuilderConfiguration() {
+                Levels = ScenePaths,
+                LocationPathName = "Builds/Web",
+                Target = BuildTarget.WebPlayer,
+                Options = GetBuildOptions()
+            }, BuildTargetGroup.WebPlayer);
         }
 
         [MenuItem("File/AutoBuilder/Web/Streamed")]
         static void PerformWebStreamedBuild()
         {
-            SetDefines(BuildTargetGroup.WebPlayer);
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.WebPlayerStreamed);
-            BuildOptions buildOptions = GetBuildOptions();
-            BuildPipeline.BuildPlayer(ScenePaths, "Builds/Web-Streamed", BuildTarget.WebPlayerStreamed, buildOptions);
+            PerformBuildWithConfiguration(new AutoBuilderConfiguration() {
+                Levels = ScenePaths,
+                LocationPathName = "Builds/Web-Streamed",
+                Target = BuildTarget.WebPlayerStreamed,
+                Options = GetBuildOptions()
+            }, BuildTargetGroup.WebPlayer);
         }
     }
 }

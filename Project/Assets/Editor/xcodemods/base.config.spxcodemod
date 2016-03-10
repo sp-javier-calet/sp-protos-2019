@@ -1,0 +1,42 @@
+{
+  "targetAttributes": {
+    "SystemCapabilities": {
+      "com.apple.Keychain": {
+        "enabled": 1
+      }
+    }
+  },
+  "buildSettings": {
+    "COPY_PHASE_STRIP": "YES",
+    "SEPARATE_STRIP": "YES",
+    "DEAD_CODE_STRIPPING": "YES",
+    "ONLY_ACTIVE_ARCH": "NO",
+    "GCC_OPTIMIZATION_LEVEL": "0",
+    "IPHONEOS_DEPLOYMENT_TARGET": "7.0",
+    "CODE_SIGN_ENTITLEMENTS": "Unity-iPhone.entitlements",
+    "ENABLE_BITCODE": "NO",
+    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+    "DEBUG_INFORMATION_FORMAT[sdk=iphoneos*]": "dwarf-with-dsym"
+  },
+  "shellScripts": [
+    {
+      "script": "strip \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/$PRODUCT_NAME\"",
+      "target": "Unity-iPhone",
+      "position": -1
+    },
+    {
+      "script": "rm -rf \"\$TARGET_BUILD_DIR/\$PRODUCT_NAME.app/global-metadata.dat\"",
+      "target": "Unity-iPhone",
+      "position": -1
+    }
+  ],
+  "frameworks": [
+    "Security.framework:weak"
+  ],
+  "infoPlist": {
+    "CFBundleURLTypes":[{
+      "CFBundleURLName":"basegame",
+      "CFBundleURLSchemes":["basegame"]
+    }]
+  }
+}

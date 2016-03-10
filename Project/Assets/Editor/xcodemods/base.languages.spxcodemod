@@ -1,0 +1,10 @@
+{
+  "copyFiles": {
+    "../Localizable.strings": [ "{XCODE_PROJECT_PATH}/en.lproj/" ]
+  },
+  "variantGroups": {
+    "Localizable.strings": {
+      "en": "{XCODE_PROJECT_PATH}/en.lproj/Localizable.strings"
+    }
+  }
+}
