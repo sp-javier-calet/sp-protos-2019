@@ -34,6 +34,10 @@ namespace SocialPoint.IO
             }
         }
 
+        /// <summary>
+        /// Gets the app persistent data path. Removed when the app is uninstalled.
+        /// </summary>
+        /// <value>The app persistent data path.</value>
         public static string AppPersistentDataPath
         {
             get
@@ -67,6 +71,10 @@ namespace SocialPoint.IO
             }
         }
 
+        /// <summary>
+        /// Gets the temporary data path. Might remove files inside it when the app is not running.
+        /// </summary>
+        /// <value>The temporary data path.</value>
         public static string TemporaryDataPath
         {
             get
