@@ -8,9 +8,9 @@ namespace SocialPoint.IO
     public class PathsManager
     {
         private static string _dataPath;
-        private static string _persistentDataPath;
+        private static string _appPersistentDataPath;
         private static string _streamingAssetsPath;
-        private static string _temporaryCachePath;
+        private static string _temporaryDataPath;
         private static Action _loaded;
 
         public static string DataPath
@@ -25,15 +25,24 @@ namespace SocialPoint.IO
             }
         }
 
+        [Obsolete("Use AppPersistentDataPath instead")]
         public static string PersistentDataPath
         {
             get
             {
-                if(_persistentDataPath == null)
+                return AppPersistentDataPath;
+            }
+        }
+
+        public static string AppPersistentDataPath
+        {
+            get
+            {
+                if(_appPersistentDataPath == null)
                 {
                     throw new Exception("Uninitialized PathsManager");
                 }
-                return _persistentDataPath;
+                return _appPersistentDataPath;
             }
         }
 
@@ -49,15 +58,24 @@ namespace SocialPoint.IO
             }
         }
 
+        [Obsolete("Use TemporaryDataPath instead")]
         public static string TemporaryCachePath
         {
             get
             {
-                if(_temporaryCachePath == null)
+                return TemporaryDataPath;
+            }
+        }
+
+        public static string TemporaryDataPath
+        {
+            get
+            {
+                if(_temporaryDataPath == null)
                 {
                     throw new Exception("Uninitialized PathsManager");
                 }
-                return _temporaryCachePath;
+                return _temporaryDataPath;
             }
         }
 
@@ -68,14 +86,26 @@ namespace SocialPoint.IO
 
         public static void Init()
         {
+            // Bundle
             _dataPath = Application.dataPath;
+
+            // Persisten Data Path
             #if UNITY_TVOS
-            _persistentDataPath = Application.temporaryCachePath;
+            _appPersistentDataPath = Application.temporaryCachePath;
             #else
-            _persistentDataPath = Application.persistentDataPath;
+            _appPersistentDataPath = Application.persistentDataPath;
             #endif
+
+            // Streaming Assets
             _streamingAssetsPath = Application.streamingAssetsPath;
-            _temporaryCachePath = Application.temporaryCachePath;
+
+            // Temporary Data Path
+            #if UNITY_ANDROID
+            _temporaryDataPath = Application.persistentDataPath;
+            #else
+            _temporaryDataPath = Application.temporaryCachePath;
+            #endif
+
             if(_loaded != null)
             {
                 _loaded();
