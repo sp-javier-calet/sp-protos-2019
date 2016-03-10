@@ -1,0 +1,4 @@
+{
+  "provisioningProfile": "{ROOT_PATH}/../proj.ios/appstore.mobileprovision",
+  "buildSettings": {"GCC_OPTIMIZATION_LEVEL": "s"}
+}
