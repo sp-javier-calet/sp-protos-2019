@@ -6,7 +6,6 @@
     "Security.framework:weak"
   ],
   "infoPlist": {
-    "CFBundleIdentifier":"basegame",
     "CFBundleURLTypes":[{
       "CFBundleURLName":"basegame",
       "CFBundleURLSchemes":["basegame"]

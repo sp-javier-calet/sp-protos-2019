@@ -13,6 +13,7 @@ namespace SocialPoint.Social
     public class SocialPointGameCenterVerification : MonoBehaviour
     {
         bool _loaded = false;
+        bool _inited = false;
         GameCenterValidationDelegate _delegate;
         GameCenterUserVerification _verification;
         Error _error;
@@ -28,11 +29,15 @@ namespace SocialPoint.Social
 
         void Awake()
         {
-            SPUnityGameCenter_UserVerificationInit(gameObject.name);
         }
 
         public void LoadData(GameCenterValidationDelegate cbk)
         {
+            if(!_inited)
+            {
+                _inited = true;
+                SPUnityGameCenter_UserVerificationInit(gameObject.name);
+            }
             if(cbk != null)
             {
                 if(_loaded)
@@ -52,13 +57,13 @@ namespace SocialPoint.Social
         /// <param name="verfication">Verfication.</param>
         void Notify(string verfication)
         {
-            DebugUtils.Log(verfication);
             var parser = new JsonAttrParser();
             var data = parser.ParseString(verfication).AsDic;
             if(data.GetValue("error").ToBool())
             {
                 _verification = null;
                 _error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
+                DebugUtils.Log("Game Center Verification got error: "+_error);
             }
             else
             {

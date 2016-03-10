@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.SocialPlatforms;
 using SocialPoint.AdminPanel;
+using SocialPoint.Base;
 using System.Text;
 
 namespace SocialPoint.Social
@@ -11,6 +12,7 @@ namespace SocialPoint.Social
         IGameCenter _gameCenter;
         AdminPanel.AdminPanel _adminPanel;
         Toggle _toggleLogin;
+        AdminPanelGameCenterAchievementList _achisPanel;
 
         public AdminPanelGameCenter(IGameCenter gameCenter)
         {
@@ -36,7 +38,7 @@ namespace SocialPoint.Social
             _toggleLogin = layout.CreateToggleButton("Logged In", _gameCenter.IsConnected, (status) => {
                 if(status)
                 {
-                    _adminPanel.Console.Print("Logging in to GameCenter Play Games");
+                    _adminPanel.Console.Print("Logging in to Game Center");
                     _gameCenter.Login((err) => {
                         _toggleLogin.isOn = (err == null);
                         _adminPanel.Console.Print("Login finished." + err);
@@ -63,10 +65,26 @@ namespace SocialPoint.Social
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
-            layout.CreateOpenPanelButton("Achievements", new AdminPanelGameCenterAchievementList(_gameCenter), connected);
+            _achisPanel = new AdminPanelGameCenterAchievementList(_gameCenter);
+            layout.CreateOpenPanelButton("Achievements", _achisPanel, connected);
             layout.CreateButton("Show Achievements UI", _gameCenter.ShowAchievementsUI, connected);
-            layout.CreateConfirmButton("Reset Achievements", () => _gameCenter.ResetAchievements(), connected);
-                         
+            layout.CreateConfirmButton("Reset Achievements", ResetAchievements, connected);
+        }
+
+        void ResetAchievements()
+        {
+            _adminPanel.Console.Print("Reseting achievements...");
+            _gameCenter.ResetAchievements((err) =>  {
+                if(Error.IsNullOrEmpty(err))
+                {
+                    _adminPanel.Console.Print("Achievements were reset.");
+                    _achisPanel.Refresh();
+                }
+                else
+                {
+                    _adminPanel.Console.Print("Error reseting achievements.");
+                }
+            });
         }
 
         #region Achievements panels
@@ -74,19 +92,26 @@ namespace SocialPoint.Social
         class AdminPanelGameCenterAchievementList : IAdminPanelGUI
         {
             IGameCenter _gameCenter;
+            AdminPanelLayout _layout;
 
             public AdminPanelGameCenterAchievementList(IGameCenter gameCenter)
             {
                 _gameCenter = gameCenter;
             }
 
+            public void Refresh()
+            {
+                _layout.Refresh();
+            }
+
             public void OnCreateGUI(AdminPanelLayout layout)
             {
-                layout.CreateLabel("Achievements");
+                _layout = layout;
+                _layout.CreateLabel("Achievements");
 
                 foreach(var achievement in _gameCenter.Achievements)
                 {
-                    layout.CreateOpenPanelButton(achievement.Id,
+                    _layout.CreateOpenPanelButton(achievement.Id,
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
                         new AdminPanelAchievement(_gameCenter, achievement));
                 }

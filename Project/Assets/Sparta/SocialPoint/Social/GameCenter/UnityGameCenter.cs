@@ -63,6 +63,10 @@ namespace SocialPoint.Social
         {
             _connecting = false;
             NotifyStateChanged();
+            if(!Error.IsNullOrEmpty(err))
+            {
+                Debug.Log("Game Center login ended in error: " + err);
+            }
             if(cbk != null)
             {
                 cbk(err);
@@ -139,44 +143,6 @@ namespace SocialPoint.Social
             }
         }
 
-        void DoUpdateAchievement(GameCenterAchievement achi, GameCenterAchievementDelegate cbk = null)
-        {
-            if(Achievements == null)
-            {
-                if(cbk != null)
-                {
-                    cbk(achi, new Error("Failed to download the list of existing achievements"));
-                }
-                return;
-            }
-            bool found = false;
-            foreach(var a in _achievements)
-            {
-                if(a.Id == achi.Id)
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if(!found)
-            {
-                _achievements.Add(achi);
-            }
-            
-
-            _platform.ReportProgress(achi.Id, achi.Percent, (bool success) => {
-                if(cbk != null)
-                {
-                    Error err = null;
-                    if(!success)
-                    {
-                        err = new Error(string.Format("Error updating chievement '{0}'.", achi.Id));
-                    }
-                    cbk(achi, err);
-                }
-            });
-        }
-
         void DownloadAchievements(ErrorDelegate cbk)
         {
             if(Achievements != null)
@@ -187,25 +153,35 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            
-            _platform.LoadAchievements((IAchievement[] achievements) => {
-                if(achievements != null)
-                {
-                    _achievements = new List<GameCenterAchievement>();
-                    foreach(var a in achievements)
+            _platform.LoadAchievementDescriptions((IAchievementDescription[] descs) => {
+                _platform.LoadAchievements((IAchievement[] achis) => {
+                    if(achis != null)
                     {
-                        _achievements.Add(new GameCenterAchievement(a.id, a.percentCompleted));
+                        _achievements = new List<GameCenterAchievement>();
+                        foreach(var d in descs)
+                        {
+                            var percent = 0.0f;
+                            foreach(var a in achis)
+                            {
+                                if(a.id == d.id)
+                                {
+                                    percent = (float)a.percentCompleted;
+                                    break;
+                                }
+                            }
+                            _achievements.Add(new GameCenterAchievement(d.id, percent));
+                        }
                     }
-                }
-                if(cbk != null)
-                {
-                    Error err = null;
-                    if(Achievements == null)
+                    if(cbk != null)
                     {
-                        err = new Error("Could not download achievements.");
+                        Error err = null;
+                        if(_achievements == null)
+                        {
+                            err = new Error("Could not download achievements.");
+                        }
+                        cbk(err);
                     }
-                    cbk(err);
-                }
+                });
             });
         }
 
@@ -343,6 +319,13 @@ namespace SocialPoint.Social
                     {
                         err = new Error("Could not reset achievements.");
                     }
+                    else
+                    {
+                        foreach(var achi in _achievements)
+                        {
+                            achi.Percent = 0.0f;
+                        }
+                    }
                     cbk(err);
                 }
             });
@@ -358,18 +341,40 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-
-            DownloadAchievements((err) => {
-                if(!Error.IsNullOrEmpty(err))
+            if(Achievements == null)
+            {
+                if(cbk != null)
                 {
-                    if(cbk != null)
-                    {
-                        cbk(achi, err);
-                    }
+                    cbk(achi, new Error("Failed to download the list of existing achievements"));
                 }
-                else
+                return;
+            }
+            _platform.ReportProgress(achi.Id, achi.Percent, (bool success) => {
+                if(cbk != null)
                 {
-                    DoUpdateAchievement(achi, cbk);
+                    Error err = null;
+                    if(!success)
+                    {
+                        err = new Error(string.Format("Error updating achievement '{0}'.", achi.Id));
+                    }
+                    else
+                    {
+                        bool found = false;
+                        foreach(var a in _achievements)
+                        {
+                            if(a.Id == achi.Id)
+                            {
+                                found = true;
+                                a.Percent = achi.Percent;
+                                break;
+                            }
+                        }
+                        if(!found)
+                        {
+                            _achievements.Add(achi);
+                        }
+                    }
+                    cbk(achi, err);
                 }
             });
         }

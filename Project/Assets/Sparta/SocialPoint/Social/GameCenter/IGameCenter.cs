@@ -135,7 +135,7 @@ namespace SocialPoint.Social
     {
         public string Id { get; private set; }
 
-        public Double Percent { get; set; }
+        public float Percent { get; set; }
 
         public bool IsUnlocked
         {
@@ -145,7 +145,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public GameCenterAchievement(string id, Double percent)
+        public GameCenterAchievement(string id, float percent)
         {
             Id = id;
             Percent = percent;
