@@ -41,7 +41,7 @@ namespace SocialPoint.ServerSync
             _commandReceiver = receiver;
             _history = new List<CommandLog>();
 
-            Reflection.CallPrivateVoidMethod(_commandReceiver, "SetListener", new Action<STCCommand>(OnReceive));
+            Reflection.CallPrivateVoidMethod<CommandReceiver>(_commandReceiver, "SetListener", new Action<STCCommand>(OnReceive));
         }
 
         void OnReceive(STCCommand cmd)
@@ -120,7 +120,7 @@ namespace SocialPoint.ServerSync
             {
                 layout.CreateLabel("Available STC Commands");
 
-                var registeredCommands = Reflection.GetPrivateField<Dictionary<string, ISTCCommandFactory>>(_commandReceiver, "_registeredCommands");
+                var registeredCommands = Reflection.GetPrivateField<CommandReceiver, Dictionary<string, ISTCCommandFactory>>(_commandReceiver, "_registeredCommands");
                 if(registeredCommands != null)
                 {
                     StringBuilder content = new StringBuilder();

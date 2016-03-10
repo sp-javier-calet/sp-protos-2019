@@ -70,10 +70,10 @@ public class AppRater : SocialPoint.Rating.AppRater
         {
             MaxPromptsPerDay = value;
         }
-    }   
+    }
 
-    public AppRater([Inject] IDeviceInfo deviceInfo, [Inject("volatile")] IAttrStorage storage, [Inject] IAppEvents appEvents):
-    base(deviceInfo, storage, appEvents)
+    public AppRater([Inject] IDeviceInfo deviceInfo, [Inject("volatile")] IAttrStorage storage, [Inject] IAppEvents appEvents) :
+        base(deviceInfo, storage, appEvents)
     {
     }
 

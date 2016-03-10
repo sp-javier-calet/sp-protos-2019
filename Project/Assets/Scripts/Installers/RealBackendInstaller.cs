@@ -56,6 +56,10 @@ public class RealBackendInstaller : MonoInstaller
             var installer = new MessageCenterInstaller();
             Container.Install(installer);
         }
+        {
+            var installer = new CrossPromotionInstaller();
+            Container.Install(installer);
+        }
     }
 
 }
