@@ -74,7 +74,7 @@ namespace SocialPoint.Social
         void ResetAchievements()
         {
             _adminPanel.Console.Print("Reseting achievements...");
-            _gameCenter.ResetAchievements((err) =>  {
+            _gameCenter.ResetAchievements((err) => {
                 if(Error.IsNullOrEmpty(err))
                 {
                     _adminPanel.Console.Print("Achievements were reset.");
@@ -115,6 +115,25 @@ namespace SocialPoint.Social
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
                         new AdminPanelAchievement(_gameCenter, achievement));
                 }
+                
+                _layout.CreateButton(
+                    "Complete All",
+                    () => {
+                        foreach(var achievement in _gameCenter.Achievements)
+                        {
+                            var achievementRef = achievement;
+                            float previousPercent = achievementRef.Percent;
+                            achievementRef.Percent = 100;
+                            _gameCenter.UpdateAchievement(achievement, (achi, err) => {
+                                _layout.AdminPanel.Console.Print(string.Format("Updated Achievement {0}. {1}", achi.Id, err));
+                                _layout.Refresh();
+                                if(err.HasError)
+                                {
+                                    achievementRef.Percent = previousPercent;
+                                }
+                            });
+                        }
+                    });
             }
         }
 
