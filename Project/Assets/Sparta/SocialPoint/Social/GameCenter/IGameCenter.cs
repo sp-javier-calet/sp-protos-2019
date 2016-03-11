@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.Social
 {
@@ -16,7 +17,7 @@ namespace SocialPoint.Social
         public const int LoginCancelled = 2;
     }
 
-    public class GameCenterUserVerification
+    public class GameCenterUserVerification : ICloneable
     {
         public string Url { get; private set; }
 
@@ -42,9 +43,14 @@ namespace SocialPoint.Social
             Salt = salt;
             Time = time;
         }
+
+        public object Clone()
+        {
+            return new GameCenterUserVerification(Url, Signature, Salt, Time);
+        }
     }
 
-    public class GameCenterUser
+    public class GameCenterUser : ICloneable
     {
         public enum AgeGroup
         {
@@ -70,6 +76,13 @@ namespace SocialPoint.Social
             DisplayName = displayName;
             Age = age;
             Verification = new GameCenterUserVerification();
+        }
+
+        public object Clone()
+        {
+            var user = new GameCenterUser(UserId, Alias, DisplayName, Age);
+            user.Verification = (GameCenterUserVerification)Verification.Clone();
+            return user;
         }
 
         public static bool operator ==(GameCenterUser lu, GameCenterUser ru)
@@ -113,12 +126,16 @@ namespace SocialPoint.Social
 
         public override int GetHashCode()
         {
-            return 0;
+            return UserId.GetHashCode();
         }
 
+        public override string ToString()
+        {
+            return string.Format("[GameCenterUser: UserId={0}, Alias={1}, DisplayName={2}, Age={3}, Verification={4}]", UserId, Alias, DisplayName, Age, Verification);
+        }
     }
 
-    public class GameCenterScore
+    public class GameCenterScore : ICloneable
     {
         public string Category { get; private set; }
 
@@ -129,9 +146,19 @@ namespace SocialPoint.Social
             Category = category;
             Value = value;
         }
+
+        public object Clone()
+        {
+            return new GameCenterScore(Category, Value);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[GameCenterScore: Category={0}, Value={1}]", Category, Value);
+        }
     }
 
-    public class GameCenterAchievement
+    public class GameCenterAchievement : ICloneable
     {
         public string Id { get; private set; }
 
@@ -139,6 +166,12 @@ namespace SocialPoint.Social
          Completion percent for this achievement. Percent must be in range [0,100]
          */
         public float Percent { get; set; }
+
+        public int Points { get; private set; }
+        public bool Hidden { get; private set; }
+        public string Title { get; private set; }
+        public string AchievedDescription { get; private set; }
+        public string UnachievedDescription { get; private set; }
 
         public bool IsUnlocked
         {
@@ -152,6 +185,32 @@ namespace SocialPoint.Social
         {
             Id = id;
             Percent = percent;
+            Hidden = false;
+            Points = 0;
+            Title = string.Empty;
+            UnachievedDescription = string.Empty;
+            AchievedDescription = string.Empty;
+        }
+
+        public GameCenterAchievement(string id, float percent, int points, bool hidden, string title, string noDesc, string yesDesc)
+        {
+            Id = id;
+            Percent = percent;
+            Points = points;
+            Hidden = hidden;
+            Title = title;
+            UnachievedDescription = noDesc;
+            AchievedDescription = yesDesc;
+        }
+
+        public object Clone()
+        {
+            return new GameCenterAchievement(Id, Percent, Points, Hidden, Title, UnachievedDescription, AchievedDescription);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[GameCenterAchievement: Id={0}, Percent={1}, Points={2}, Hidden={3}, Title={4}, AchievedDescription={5}, IsUnlocked={6}]", Id, Percent, Points, Hidden, Title, AchievedDescription, IsUnlocked);
         }
     }
 

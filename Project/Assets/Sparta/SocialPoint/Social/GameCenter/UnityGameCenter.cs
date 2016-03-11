@@ -103,7 +103,6 @@ namespace SocialPoint.Social
             var localUser = _platform.localUser;
             if((localUser.friends == null || localUser.friends.Length == 0) && initial)
             {
-
                 localUser.LoadFriends((bool success) => {
                     if(success)
                     {
@@ -169,7 +168,9 @@ namespace SocialPoint.Social
                                     break;
                                 }
                             }
-                            _achievements.Add(new GameCenterAchievement(d.id, percent));
+                            _achievements.Add(new GameCenterAchievement(
+                                d.id, percent, d.points, d.hidden, d.title,
+                                d.unachievedDescription, d.achievedDescription));
                         }
                     }
                     if(cbk != null)
@@ -313,21 +314,26 @@ namespace SocialPoint.Social
                 return;
             }
             UnityEngine.SocialPlatforms.GameCenter.GameCenterPlatform.ResetAllAchievements((bool success) => {
-                if(cbk != null)
+                if(!success)
                 {
-                    Error err = null;
-                    if(!success)
+                    if(cbk != null)
                     {
-                        err = new Error("Could not reset achievements.");
+                        var err = new Error("Could not reset achievements.");
+                        cbk(err);
                     }
-                    else
+                }
+                else
+                {
+                    foreach(var achi in _achievements)
                     {
-                        foreach(var achi in _achievements)
+                        achi.Percent = 0.0f;
+                    }
+                    _platform.LoadAchievements((IAchievement[] achis) => {
+                        if(cbk != null)
                         {
-                            achi.Percent = 0.0f;
+                            cbk(null);
                         }
-                    }
-                    cbk(err);
+                    });
                 }
             });
         }
@@ -350,32 +356,30 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            _platform.ReportProgress(achi.Id, achi.Percent, (bool success) => {
+            var achiId = achi.Id;
+            var achiPercent = achi.Percent;
+            _platform.ReportProgress(achiId, achiPercent, (bool success) => {
                 if(cbk != null)
                 {
                     Error err = null;
+                    GameCenterAchievement achi2 = null;
                     if(!success)
                     {
-                        err = new Error(string.Format("Error updating achievement '{0}'.", achi.Id));
+                        err = new Error(string.Format("Error updating achievement '{0}'.", achiId));
                     }
                     else
                     {
-                        bool found = false;
                         foreach(var a in _achievements)
                         {
-                            if(a.Id == achi.Id)
+                            if(a.Id == achiId)
                             {
-                                found = true;
-                                a.Percent = achi.Percent;
+                                achi2 = a;
+                                achi2.Percent = achiPercent;
                                 break;
                             }
                         }
-                        if(!found)
-                        {
-                            _achievements.Add(achi);
-                        }
                     }
-                    cbk(achi, err);
+                    cbk(achi2, err);
                 }
             });
         }

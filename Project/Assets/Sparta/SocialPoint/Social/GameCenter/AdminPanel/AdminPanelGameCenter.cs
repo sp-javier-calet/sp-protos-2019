@@ -14,6 +14,8 @@ namespace SocialPoint.Social
         Toggle _toggleLogin;
         AdminPanelGameCenterAchievementList _achisPanel;
 
+        const float AchievementPercent = 10;
+
         public AdminPanelGameCenter(IGameCenter gameCenter)
         {
             _gameCenter = gameCenter;
@@ -111,29 +113,10 @@ namespace SocialPoint.Social
 
                 foreach(var achievement in _gameCenter.Achievements)
                 {
-                    _layout.CreateOpenPanelButton(achievement.Id,
+                    _layout.CreateOpenPanelButton(achievement.Title,
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
                         new AdminPanelAchievement(_gameCenter, achievement));
                 }
-                
-                _layout.CreateButton(
-                    "Complete All",
-                    () => {
-                        foreach(var achievement in _gameCenter.Achievements)
-                        {
-                            var achievementRef = achievement;
-                            float previousPercent = achievementRef.Percent;
-                            achievementRef.Percent = 100;
-                            _gameCenter.UpdateAchievement(achievement, (achi, err) => {
-                                _layout.AdminPanel.Console.Print(string.Format("Updated Achievement {0}. {1}", achi.Id, err));
-                                _layout.Refresh();
-                                if(err.HasError)
-                                {
-                                    achievementRef.Percent = previousPercent;
-                                }
-                            });
-                        }
-                    });
             }
         }
 
@@ -150,25 +133,29 @@ namespace SocialPoint.Social
 
             public void OnCreateGUI(AdminPanelLayout layout)
             {
-                layout.CreateLabel(_achievement.Id);
+                layout.CreateLabel(_achievement.Title);
                 layout.CreateMargin();
 
                 var info = new StringBuilder();
+                info.Append("Id:").AppendLine(_achievement.Id);
+                info.Append("Title:").AppendLine(_achievement.Title);
+                info.Append("Hidden:").AppendLine(_achievement.Hidden.ToString());
+                info.Append("Points:").AppendLine(_achievement.Points.ToString());
+                info.Append("Unachieved Description:").AppendLine(_achievement.UnachievedDescription);
+                info.Append("Achieved Description:").AppendLine(_achievement.AchievedDescription);
                 info.Append("Percent:").AppendLine(_achievement.Percent.ToString());
                 layout.CreateTextArea(info.ToString());
                 layout.CreateMargin();
 
+                var buttonText = string.Format("Increment {0}%", AchievementPercent);
                 layout.CreateButton(
-                    "Increment 10% " + _achievement.Id,
+                    buttonText,
                     () => {
-                        _achievement.Percent += 10;
-                        _gameCenter.UpdateAchievement(_achievement, (achi, err) => {
-                            layout.AdminPanel.Console.Print(string.Format("Updated Achievement {0}. {1}", achi.Id, err));
+                        var achi = (GameCenterAchievement)_achievement.Clone();
+                        achi.Percent += AchievementPercent;
+                        _gameCenter.UpdateAchievement(_achievement, (achi2, err) => {
+                            layout.AdminPanel.Console.Print(string.Format("Updated Achievement {0}. {1}", achi2.Id, err));
                             layout.Refresh();
-                            if(err.HasError)
-                            {
-                                achi.Percent -= 10;
-                            }
                         });
                     },
                     !_achievement.IsUnlocked);
