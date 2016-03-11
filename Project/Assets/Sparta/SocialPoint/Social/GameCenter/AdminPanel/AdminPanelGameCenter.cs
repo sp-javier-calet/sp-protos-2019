@@ -140,12 +140,16 @@ namespace SocialPoint.Social
                 layout.CreateMargin();
 
                 layout.CreateButton(
-                    "Increment 10%",
+                    "Increment 10% " + _achievement.Id,
                     () => {
                         _achievement.Percent += 10;
                         _gameCenter.UpdateAchievement(_achievement, (achi, err) => {
                             layout.AdminPanel.Console.Print(string.Format("Updated Achievement {0}. {1}", achi.Id, err));
                             layout.Refresh();
+                            if(err.HasError)
+                            {
+                                achi.Percent -= 10;
+                            }
                         });
                     },
                     !_achievement.IsUnlocked);
