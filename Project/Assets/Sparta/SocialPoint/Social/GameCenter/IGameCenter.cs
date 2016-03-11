@@ -135,6 +135,9 @@ namespace SocialPoint.Social
     {
         public string Id { get; private set; }
 
+        /**
+         Completion percent for this achievement. Percent must be in range [0,100]
+         */
         public float Percent { get; set; }
 
         public bool IsUnlocked
@@ -174,6 +177,10 @@ namespace SocialPoint.Social
 
         /**
          Remove all achievements
+
+         Note that after reseting achievements, UpdateAchievement() calls might start failing (it does in Unity 5.3.3) 
+         If this happens you need login again to GameCenter restarting the app.
+         
          @param callback called when the request was sent
          */
         void ResetAchievements(ErrorDelegate cbk=null);
