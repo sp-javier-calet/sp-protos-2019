@@ -88,7 +88,7 @@ namespace SocialPoint.CrossPromotion
             DebugUtils.Assert(coroutineRunner != null);
             _coroutineRunner = coroutineRunner;
             _storage = new PlayerPrefsAttrStorage();
-            _assetsPath = PathsManager.TemporaryCachePath;
+            _assetsPath = PathsManager.TemporaryDataPath;
 
             Reset();
         }

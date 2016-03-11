@@ -426,8 +426,8 @@ namespace SocialPoint.Crash
             _deviceInfo = deviceInfo;
             _alertViewPrototype = alertView;
 
-            _exceptionStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/exceptions"));
-            _crashStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.PersistentDataPath, "logs/crashes"));
+            _exceptionStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.AppPersistentDataPath, "logs/exceptions"));
+            _crashStorage = new FileAttrStorage(FileUtils.Combine(PathsManager.AppPersistentDataPath, "logs/crashes"));
            
             //only used when crash detected
             _breadcrumbManager = breadcrumbManager;

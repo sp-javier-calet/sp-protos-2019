@@ -170,7 +170,7 @@ namespace SocialPoint.Crash
 
         void OnPathsLoaded()
         {
-            _crashesBasePath = PathsManager.PersistentDataPath + CrashesFolder;
+            _crashesBasePath = PathsManager.TemporaryDataPath + CrashesFolder;
 
             FileUtils.CreateDirectory(_crashesBasePath);
 

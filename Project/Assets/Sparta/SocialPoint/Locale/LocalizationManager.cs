@@ -308,7 +308,7 @@ namespace SocialPoint.Locale
 
         void Init()
         {
-            _cachePath = Path.Combine(PathsManager.TemporaryCachePath, "localization");
+            _cachePath = Path.Combine(PathsManager.TemporaryDataPath, "localization");
             FileUtils.CreateDirectory(_cachePath);
             _bundlePath = Path.Combine(PathsManager.StreamingAssetsPath, BundleDir);
         }
