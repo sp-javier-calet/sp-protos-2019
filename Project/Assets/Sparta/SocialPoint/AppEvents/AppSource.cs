@@ -160,6 +160,12 @@ namespace SocialPoint.AppEvents
                 }
             }
 
+            //we assume that empty params is an "icon" source
+            if(scheme == OthersScheme && parms.Count == 0)
+            {
+                return null;
+            }
+
             var build = new UriBuilder();
             build.Scheme = scheme;
             if(parms.Count > 0)
@@ -172,6 +178,14 @@ namespace SocialPoint.AppEvents
         public override string ToString()
         {
             return (_uri != null) ? _uri.ToString() : string.Empty;
+        }
+
+        public bool IsOpenFromIcon
+        {
+            get
+            {
+                return _uri == null;
+            }
         }
     }
 }

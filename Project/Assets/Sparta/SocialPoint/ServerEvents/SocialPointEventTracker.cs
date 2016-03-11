@@ -675,7 +675,7 @@ namespace SocialPoint.ServerEvents
             string sourceType = "app";
             string detail = "";
 
-            if(source.IsCustomScheme)
+            if(source.IsCustomScheme && !source.IsOpenFromIcon)
             {
                 sourceType = source.Scheme;
                 detail = source.Query;
