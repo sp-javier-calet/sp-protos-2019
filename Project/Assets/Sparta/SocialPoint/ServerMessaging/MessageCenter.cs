@@ -165,6 +165,7 @@ namespace SocialPoint.ServerMessaging
         void Reset()
         {
             _messages = new Dictionary<string,Message>();
+            _deletedMessages = new List<string>();
         }
     }
 }
