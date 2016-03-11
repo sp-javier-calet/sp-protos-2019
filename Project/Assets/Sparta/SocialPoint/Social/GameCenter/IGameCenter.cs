@@ -166,14 +166,14 @@ namespace SocialPoint.Social
          @param score the score info to send
          @param callback called when the request was sent
          */
-        void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk=null);
+        void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk = null);
 
         /**
          Update an achievement
          @param achievement 
          @param callback called when the request was sent
          */
-        void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk=null);
+        void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk = null);
 
         /**
          Remove all achievements
@@ -183,13 +183,13 @@ namespace SocialPoint.Social
          
          @param callback called when the request was sent
          */
-        void ResetAchievements(ErrorDelegate cbk=null);
+        void ResetAchievements(ErrorDelegate cbk = null);
 
         /**
          Start the game center login
          @param callback - called when login is finished
          */
-        void Login(ErrorDelegate cbk=null);
+        void Login(ErrorDelegate cbk = null);
 
         /**
          Load a photo of a player
