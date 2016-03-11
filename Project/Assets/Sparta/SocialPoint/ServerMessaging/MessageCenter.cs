@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.ServerSync;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.AppEvents;
+using SocialPoint.Base;
+using SocialPoint.ServerSync;
 
 namespace SocialPoint.ServerMessaging
 {
@@ -14,7 +15,9 @@ namespace SocialPoint.ServerMessaging
 
         ICommandQueue _commandQueue;
         CommandReceiver _commandReceiver;
+        IAppEvents _appEvents;
         Dictionary<string,Message> _messages;
+        List<string> _deletedMessages;
 
         const string GetMessagesCommandName = "messages.get";
         const string SendMessagesCommandName = "messages.send";
@@ -23,12 +26,15 @@ namespace SocialPoint.ServerMessaging
         const string PendingMessagesCommandName = "messages.new";
         const string MessagesArg = "msgs";
 
-        public MessageCenter(ICommandQueue commandQueue, CommandReceiver commandReceiver)
+        public MessageCenter(ICommandQueue commandQueue, CommandReceiver commandReceiver, IAppEvents appEvents)
         {
             _messages = new Dictionary<string,Message>();
+            _deletedMessages = new List<string>();
             _commandQueue = commandQueue;
             _commandReceiver = commandReceiver;
             _commandReceiver.RegisterCommand(PendingMessagesCommandName, (cmd) => ParseMessages(cmd.Args));
+            _appEvents = appEvents;
+            _appEvents.GameWillRestart.Add(0, Reset);
         }
 
         #region IMessageCenter implementation
@@ -74,7 +80,8 @@ namespace SocialPoint.ServerMessaging
             //now that we know sure that messages were waiting for deletion
             foreach(var message in messages)
             {
-                _messages.Remove(message.Id);  
+                _messages.Remove(message.Id);
+                _deletedMessages.Add(message.Id);
             }
 
             var handler = UpdatedEvent;
@@ -110,6 +117,7 @@ namespace SocialPoint.ServerMessaging
         public void Dispose()
         {
             _commandReceiver.UnregisterCommand(PendingMessagesCommandName);
+            _appEvents.GameWillRestart.Remove(Reset);
         }
 
         #endregion
@@ -125,7 +133,7 @@ namespace SocialPoint.ServerMessaging
             for(int i = 0; i < messagesList.Count; i++)
             {
                 var message = new Message(messagesList[i].AsDic);
-                if(!_messages.ContainsKey(message.Id))
+                if(!_messages.ContainsKey(message.Id) && !_deletedMessages.Contains(message.Id))
                 {
                     _messages.Add(message.Id, message);
                     newMessages = true;
@@ -152,6 +160,12 @@ namespace SocialPoint.ServerMessaging
                 return;
             }
             ParseMessages(data);
+        }
+
+        void Reset()
+        {
+            _messages = new Dictionary<string,Message>();
+            _deletedMessages = new List<string>();
         }
     }
 }
