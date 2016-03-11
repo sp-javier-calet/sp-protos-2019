@@ -5,20 +5,39 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
-    public class EmptyGameCenter : BaseGameCenter
+    public class EmptyGameCenter : IGameCenter
     {        
         private bool _isConnected = false;
         private GameCenterUser _user;
         private List<GameCenterUser> _friends = new List<GameCenterUser>();
-        
+        public event Action StateChangeEvent;
+
+        List<GameCenterAchievement> _achievements = new List<GameCenterAchievement>();
+        public IEnumerable<GameCenterAchievement> Achievements
+        {
+            get
+            {
+                return _achievements;
+            }
+        }
+
         public EmptyGameCenter(string userName)
         {
             _user = new GameCenterUser(userName);
         }
+
+
+        protected void NotifyStateChanged()
+        { 
+            if(StateChangeEvent != null)
+            {
+                StateChangeEvent();
+            }
+        }
         
         #region implemented abstract members of IGameCenter
         
-        public override void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk)
+        public void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk=null)
         {
             if(cbk != null)
             {
@@ -26,7 +45,7 @@ namespace SocialPoint.Social
             }
         }
         
-        public override void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk)
+        public void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk=null)
         {
             if(cbk != null)
             {
@@ -34,7 +53,7 @@ namespace SocialPoint.Social
             }
         }
         
-        public override void ResetAchievements(ErrorDelegate cbk)
+        public void ResetAchievements(ErrorDelegate cbk=null)
         {
             if(cbk != null)
             {
@@ -42,7 +61,7 @@ namespace SocialPoint.Social
             }
         }
         
-        public override void Login(ErrorDelegate cbk)
+        public void Login(ErrorDelegate cbk=null)
         {
             _isConnected = true;
             if(cbk != null)
@@ -52,7 +71,7 @@ namespace SocialPoint.Social
             NotifyStateChanged();
         }
         
-        public override void LoadPhoto(string playerId, uint size, GameCenterPhotoDelegate cbk)
+        public void LoadPhoto(string playerId, uint size, GameCenterPhotoDelegate cbk)
         {
             if(cbk != null)
             {
@@ -60,7 +79,7 @@ namespace SocialPoint.Social
             }
         }
         
-        public override GameCenterUser User
+        public GameCenterUser User
         {
             get
             {
@@ -68,7 +87,7 @@ namespace SocialPoint.Social
             }
         }
         
-        public override List<GameCenterUser> Friends
+        public List<GameCenterUser> Friends
         {
             get
             {
@@ -76,7 +95,7 @@ namespace SocialPoint.Social
             }
         }
         
-        public override bool IsConnected
+        public bool IsConnected
         {
             get
             {
@@ -84,12 +103,20 @@ namespace SocialPoint.Social
             }
         }
         
-        public override bool IsConnecting
+        public bool IsConnecting
         {
             get
             {
                 return false;
             }
+        }
+
+        public void ShowAchievementsUI()
+        {
+        }
+            
+        public void ShowLeaderboardUI(string id = null)
+        {
         }
 
         

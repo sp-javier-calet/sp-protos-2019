@@ -30,6 +30,7 @@ namespace SocialPoint.Social
         ErrorDelegate _loginCallback;
         List<GoogleUser> _friends;
         bool _connecting = false;
+        string _accessToken = null;
 
         public List<GoogleUser> Friends
         {
@@ -152,18 +153,29 @@ namespace SocialPoint.Social
                     localUser.underage ? GoogleUser.AgeGroup.Underage : GoogleUser.AgeGroup.Adult
                 );
 
-                _platform.LoadFriends(_platform.localUser, bolean => {
-                    _friends = new List<GoogleUser>();
-                    IUserProfile[] friends = _platform.GetFriends();
-                    foreach(IUserProfile friend in friends)
+                _platform.GetServerAuthCode((result, token) => {
+                    if(result != CommonStatusCodes.Success)
                     {
-                        _friends.Add(new GoogleUser(friend.id, friend.userName, string.Empty, GoogleUser.AgeGroup.Unknown));
+                        if(cbk != null)
+                        {
+                            cbk(new Error("Got " + result + " when requesting access token."));
+                        }
+                        return;
                     }
+                    _accessToken = token;
+                    _platform.LoadFriends(_platform.localUser, bolean => {
+                        _friends = new List<GoogleUser>();
+                        IUserProfile[] friends = _platform.GetFriends();
+                        foreach(IUserProfile friend in friends)
+                        {
+                            _friends.Add(new GoogleUser(friend.id, friend.userName, string.Empty, GoogleUser.AgeGroup.Unknown));
+                        }
 
-                    if(cbk != null)
-                    {
-                        cbk(null);
-                    }
+                        if(cbk != null)
+                        {
+                            cbk(null);
+                        }
+                    });
                 });
             }
         }
@@ -334,7 +346,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return _platform.GetAccessToken();
+                return _accessToken;
             }
         }
 
