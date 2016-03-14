@@ -5,6 +5,14 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Crash
 {
+    public class AdminPanelCrashReporterException : Exception
+    {
+        public AdminPanelCrashReporterException():
+        base("This is a forced exception.")
+        {
+        }
+    }
+
     public class AdminPanelCrashReporter : IAdminPanelGUI, IAdminPanelConfigurer
     {
         ICrashReporter _reporter;
@@ -72,7 +80,17 @@ namespace SocialPoint.Crash
                 layout.CreateMargin(2);
 
                 layout.CreateConfirmButton("Force Exception", ButtonColor.Red, () => {
-                    throw new Exception("This is a forced exception");
+                    throw new AdminPanelCrashReporterException();
+                });
+                layout.CreateConfirmButton("Force Handled Exception", ButtonColor.Red, () => {
+                    try
+                    {
+                        throw new AdminPanelCrashReporterException();
+                    }
+                    catch(Exception e)
+                    {
+                        _reporter.ReportHandledException(e);
+                    }
                 });
                 layout.CreateMargin(2);
 

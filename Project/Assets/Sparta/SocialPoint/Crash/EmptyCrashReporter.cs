@@ -47,5 +47,9 @@ namespace SocialPoint.Crash
                 callback();
             }
         }
+
+        public void ReportHandledException(Exception e)
+        {
+        }
     }
 }

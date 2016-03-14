@@ -101,8 +101,9 @@ namespace SocialPoint.Crash
             const string AttrKeyLog = "log";
             const string AttrKeyStacktrace = "stacktrace";
             const string AttrKeyLoadedLevelName = "loadedlevel";
+            const string AttrKeyHandled = "handled";
 
-            public SocialPointExceptionLog(string uuid, string log, string stacktrace, IDeviceInfo deviceInfo, UInt64 userId)
+            public SocialPointExceptionLog(string uuid, string log, string stacktrace, IDeviceInfo deviceInfo, UInt64 userId, bool handled)
                 : base(deviceInfo, userId)
             {
                 var exception = new AttrDic();
@@ -110,6 +111,7 @@ namespace SocialPoint.Crash
                 exception.Set(AttrKeyLog, new AttrString(log));
                 exception.Set(AttrKeyStacktrace, new AttrString(stacktrace));
                 exception.Set(AttrKeyLoadedLevelName, new AttrString(SceneManager.GetActiveScene().name));
+                exception.Set(AttrKeyHandled, new AttrBool(handled));
                 Set(AttrKeyException, exception);
             }
         }
@@ -501,6 +503,11 @@ namespace SocialPoint.Crash
 
         protected virtual void OnDestroy()
         {
+        }
+
+        public void ReportHandledException(Exception e)
+        {
+            TrackException(e.ToString(), e.StackTrace, true);
         }
 
         public void ClearUniqueExceptions()
@@ -908,7 +915,7 @@ namespace SocialPoint.Crash
 #endif
         }
 
-        void TrackException(string logString, string stackTrace)
+        void TrackException(string logString, string stackTrace, bool handled=false)
         {
             string exceptionHashSource = logString + stackTrace;
             if(_uniqueExceptions.Contains(exceptionHashSource))
@@ -919,7 +926,7 @@ namespace SocialPoint.Crash
             string uuid = RandomUtils.GetUuid();
             if(_exceptionStorage.StoredKeys.Length < MaxStoredExceptions)
             {
-                var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId);
+                var exception = new SocialPointExceptionLog(uuid, logString, stackTrace, _deviceInfo, UserId, handled);
                 _exceptionStorage.Save(uuid, exception);
             }
 
