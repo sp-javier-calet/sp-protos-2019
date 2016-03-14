@@ -507,6 +507,7 @@ namespace SocialPoint.Crash
 
         public void ReportHandledException(Exception e)
         {
+            Debug.LogWarning("Reporting Handled Exception: " + e);
             TrackException(e.ToString(), e.StackTrace, true);
         }
 
@@ -915,7 +916,7 @@ namespace SocialPoint.Crash
 #endif
         }
 
-        void TrackException(string logString, string stackTrace, bool handled=false)
+        void TrackException(string logString, string stackTrace, bool handled = false)
         {
             string exceptionHashSource = logString + stackTrace;
             if(_uniqueExceptions.Contains(exceptionHashSource))
