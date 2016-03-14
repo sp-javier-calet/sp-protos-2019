@@ -941,7 +941,7 @@ namespace SocialPoint.Crash
                 error.Set(AttrKeyUnityException, mobile);
                 mobile.SetValue(AttrKeyCrashUuid, uuid);
                 mobile.SetValue(AttrKeyMessage, logString);
-                mobile.SetValue(AttrKeyType, 0);
+                mobile.SetValue(AttrKeyType, handled ? 1 : 0);
 
                 TrackEvent(ExceptionEventName, data);
             }
