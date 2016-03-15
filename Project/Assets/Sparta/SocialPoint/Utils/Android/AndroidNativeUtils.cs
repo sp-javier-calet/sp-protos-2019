@@ -56,7 +56,15 @@ namespace SocialPoint.Utils
         {
             Application.OpenURL(url);
         }
-    }
+
+        public bool UserAllowNotification
+        {
+            get
+            {
+                return true; // This only makes sense on IOS
+            }
+        }
+}
 #else
     public class AndroidNativeUtils : EmptyNativeUtils
     {
