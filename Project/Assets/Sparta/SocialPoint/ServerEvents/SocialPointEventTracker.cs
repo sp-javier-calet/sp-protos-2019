@@ -30,6 +30,8 @@ namespace SocialPoint.ServerEvents
         const string EventNameResourceEarning = "economy.{0}_earning";
         const string EventNameResourceSpending = "economy.{0}_spending";
 
+        const string HttpParamSessionId = "session_id";
+
         const int SessionLostErrorStatusCode = 482;
         const int StartEventNum = 1;
         static readonly string[] DefaultUnauthorizedEvents = {
@@ -46,6 +48,7 @@ namespace SocialPoint.ServerEvents
         public const int DefaultSendInterval = 5;
         public const float DefaultTimeout = 30.0f;
         public const float DefaultBackoffMultiplier = 1.1f;
+
 
         public RequestSetupDelegate RequestSetup;
 
@@ -504,6 +507,16 @@ namespace SocialPoint.ServerEvents
                     CatchException(e);
                 }
             }
+            if(auth && !req.HasParam(HttpParamSessionId))
+            {
+                // no session, we wait
+                if(finish != null)
+                {
+                    finish();
+                }
+                return;
+            }
+
             req.Body = data;
             if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
