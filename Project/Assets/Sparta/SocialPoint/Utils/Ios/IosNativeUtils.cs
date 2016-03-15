@@ -39,7 +39,7 @@ namespace SocialPoint.Utils
             Application.OpenURL(url);
         }
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         static extern bool SPUnityNativeUtilsUserAllowNotification();
         #else
