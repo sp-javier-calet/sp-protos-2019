@@ -1,7 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Collections;
 
 namespace SocialPoint.AdminPanel
 {
@@ -61,7 +60,7 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        private Text CreatePanelTitle(RectTransform panelTransform, string title)
+        Text CreatePanelTitle(Transform panelTransform, string title)
         {
             var rectTransform = CreateUIObject("Admin Panel - Panel title", panelTransform);
             
@@ -79,7 +78,7 @@ namespace SocialPoint.AdminPanel
             return text;
         }
 
-        private Button CreateCloseButton(RectTransform panelTransform, Action onClose)
+        Button CreateCloseButton(Transform panelTransform, Action onClose)
         {
             // Close button decorator
             var rectTransform = CreateUIObject("Admin Panel - Close panel button decorator", panelTransform);
@@ -115,9 +114,7 @@ namespace SocialPoint.AdminPanel
             colors.highlightedColor = button.colors.pressedColor;
             button.colors = colors;
 
-            button.onClick.AddListener(() => {
-                onClose();
-            });
+            button.onClick.AddListener(() => onClose());
 
             return button;
         }

@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Collections;
 
 namespace SocialPoint.AdminPanel
 {
@@ -9,10 +7,10 @@ namespace SocialPoint.AdminPanel
     {
         public RawImage CreateImage(Texture2D texture, Vector2 size)
         {
-            var rectTransform = CreateUIObject("Admin Panel - Image", Parent);            
+            var rectTransform = CreateUIObject("Admin Panel - Image", Parent);
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
             layoutElement.preferredWidth = size.x;
-            layoutElement.preferredHeight = size.y;           
+            layoutElement.preferredHeight = size.y;
             var image = rectTransform.gameObject.AddComponent<RawImage>();
             image.texture = texture;
             return image;
@@ -22,6 +20,5 @@ namespace SocialPoint.AdminPanel
         {
             return CreateImage(null, size);
         }
-
     }
 }

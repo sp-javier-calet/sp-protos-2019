@@ -1,7 +1,6 @@
-using System;
 
-namespace SocialPoint.Alert {
-
+namespace SocialPoint.Alert
+{
     public class AlertView
     #if UNITY_IOS && !UNITY_EDITOR
     : IosAlertView
