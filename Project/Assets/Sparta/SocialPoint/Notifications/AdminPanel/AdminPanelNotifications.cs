@@ -49,6 +49,8 @@ namespace SocialPoint.Notifications
         {
             layout.CreateLabel("Notification Services");
 
+            layout.CreateLabel("User allows notifications: " + _services.UserAllowsNofitication);
+
             layout.CreateButton("Clear Received", _services.ClearReceived);
 
             layout.CreateButton("Cancel Pending", _services.CancelPending);
