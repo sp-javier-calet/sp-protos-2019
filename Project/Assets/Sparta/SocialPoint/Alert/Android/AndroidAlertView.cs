@@ -1,5 +1,5 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 namespace SocialPoint.Alert
 {
@@ -31,11 +31,8 @@ namespace SocialPoint.Alert
         AndroidJavaObject _inputView;
         IntPtr _dialogPtr;
 
-        public AndroidAlertView()
-        {
-        }
-
         string _message;
+
         public string Message
         {
             set
@@ -45,6 +42,7 @@ namespace SocialPoint.Alert
         }
 
         string _title;
+
         public string Title
         {
             set
@@ -54,6 +52,7 @@ namespace SocialPoint.Alert
         }
 
         string _signature;
+
         public string Signature
         {
             set
@@ -63,6 +62,7 @@ namespace SocialPoint.Alert
         }
 
         string[] _buttons;
+
         public string[] Buttons
         {
             set
@@ -71,7 +71,8 @@ namespace SocialPoint.Alert
             }
         }
 
-        bool _input = false;
+        bool _input;
+
         public bool Input
         {
             set
@@ -81,6 +82,7 @@ namespace SocialPoint.Alert
         }
 
         string _inputText;
+
         public string InputText
         {
             get
@@ -100,19 +102,17 @@ namespace SocialPoint.Alert
 
         public void Show(ResultDelegate dlg)
         {
-            CurrentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
-                DoShow(dlg);
-            }));
+            CurrentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() => DoShow(dlg)));
         }
 
         static void SetButton(AndroidJavaObject builder, string text, string method, ClickDelegate dlg, int pos)
         {
             var methodId = AndroidJNI.GetMethodID(builder.GetRawClass(), method, "(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;");
-            jvalue[] parms =  new jvalue[2];
+            var parms = new jvalue[2];
             parms[0] = new jvalue();
             parms[0].l = AndroidJNI.NewStringUTF(text);
             parms[1] = new jvalue();
-            parms[1].l = AndroidJNIHelper.CreateJavaProxy(new DialogClickListener((int which) => {
+            parms[1].l = AndroidJNIHelper.CreateJavaProxy(new DialogClickListener(which => {
                 if(dlg != null)
                 {
                     dlg(pos);
@@ -130,7 +130,7 @@ namespace SocialPoint.Alert
             if(_title != null)
             {
                 var setTitle = AndroidJNI.GetMethodID(builder.GetRawClass(), "setTitle", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
-                jvalue[] setTitleParams =  new jvalue[1];
+                var setTitleParams = new jvalue[1];
                 setTitleParams[0] = new jvalue();
                 setTitleParams[0].l = AndroidJNI.NewStringUTF(_title);
                 AndroidJNI.CallVoidMethod(builder.GetRawObject(), setTitle, setTitleParams);
@@ -138,7 +138,7 @@ namespace SocialPoint.Alert
             if(_message != null)
             {
                 var setMsg = AndroidJNI.GetMethodID(builder.GetRawClass(), "setMessage", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
-                jvalue[] setMsgParams =  new jvalue[1];
+                var setMsgParams = new jvalue[1];
                 setMsgParams[0] = new jvalue();
                 var msg = _message;
                 if(_signature != null)
@@ -155,7 +155,7 @@ namespace SocialPoint.Alert
                 builder.Call<AndroidJavaObject>("setView", _inputView);
             }
 
-            ClickDelegate clicked = (int which) => {
+            ClickDelegate clicked = which => {
                 if(_inputView != null)
                 {
                     _inputText = _inputView.Call<AndroidJavaObject>("getText").Call<string>("toString");
@@ -187,13 +187,13 @@ namespace SocialPoint.Alert
                 {
                     var listener = new DialogClickListener(clicked);
                     var btnArr = AndroidJNI.NewObjectArray(_buttons.Length, AndroidJNI.FindClass("java/lang/CharSequence"), IntPtr.Zero);
-                    for(int i=0; i<_buttons.Length; i++)
+                    for(int i = 0; i < _buttons.Length; i++)
                     {
                         AndroidJNI.SetObjectArrayElement(btnArr, i, AndroidJNI.NewStringUTF(_buttons[i]));
                     }
                     
                     var setItems = AndroidJNI.GetMethodID(builder.GetRawClass(), "setItems", "([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;");
-                    jvalue[] setItemsParams =  new jvalue[2];
+                    var setItemsParams = new jvalue[2];
                     setItemsParams[0] = new jvalue();
                     setItemsParams[0].l = btnArr;
                     setItemsParams[1] = new jvalue();
@@ -203,7 +203,7 @@ namespace SocialPoint.Alert
             }
             
             var show = AndroidJNI.GetMethodID(builder.GetRawClass(), "show", "()Landroid/app/AlertDialog;");
-            jvalue[] showParams =  new jvalue[0];
+            var showParams = new jvalue[0];
             _dialogPtr = AndroidJNI.CallObjectMethod(builder.GetRawObject(), show, showParams);
         }
 
@@ -213,7 +213,7 @@ namespace SocialPoint.Alert
             {
                 var clsPtr = AndroidJNI.GetObjectClass(_dialogPtr);
                 var dismiss = AndroidJNI.GetMethodID(clsPtr, "dismiss", "()V");
-                jvalue[] dismissParams =  new jvalue[0];
+                var dismissParams = new jvalue[0];
                 AndroidJNI.CallVoidMethod(_dialogPtr, dismiss, dismissParams);
                 AndroidJNI.DeleteLocalRef(_dialogPtr);
                 _dialogPtr = IntPtr.Zero;

@@ -1,6 +1,6 @@
 using System;
-using UnityEngine;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
@@ -10,14 +10,7 @@ namespace SocialPoint.AppEvents
 
         public SocialPointAppEvents(Transform parent = null)
         {
-            if(parent != null)
-            {
-                Setup(parent);
-            }
-            else
-            {
-                Setup(null);
-            }
+            Setup(parent);
         }
 
         public void Dispose()
@@ -25,12 +18,12 @@ namespace SocialPoint.AppEvents
             DestroyAppEvents();
         }
 
-        private void Setup(Transform parent)
+        void Setup(Transform parent)
         {
             var go = new GameObject(GetType().ToString());
             if(parent == null)
             {
-                GameObject.DontDestroyOnLoad(go);
+                UnityEngine.Object.DontDestroyOnLoad(go);
             }
             else
             {
@@ -46,11 +39,11 @@ namespace SocialPoint.AppEvents
             #endif
         }
 
-        private void DestroyAppEvents()
+        void DestroyAppEvents()
         {
             if(_appEvents != null)
             {
-                MonoBehaviour.Destroy(_appEvents);
+                UnityEngine.Object.Destroy(_appEvents);
                 _appEvents = null;
             }
         }
@@ -64,11 +57,7 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                if(_appEvents == null)
-                {
-                    return _default;
-                }
-                return _appEvents.WillGoBackground;
+                return _appEvents == null ? _default : _appEvents.WillGoBackground;
             }
         }
 
@@ -76,11 +65,7 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                if(_appEvents == null)
-                {
-                    return _default;
-                }
-                return _appEvents.GameWasLoaded;
+                return _appEvents == null ? _default : _appEvents.GameWasLoaded;
             }
         }
 
@@ -88,11 +73,7 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                if(_appEvents == null)
-                {
-                    return _default;
-                }
-                return _appEvents.GameWillRestart;
+                return _appEvents == null ? _default : _appEvents.GameWillRestart;
             }
         }
 
@@ -205,11 +186,7 @@ namespace SocialPoint.AppEvents
         {
             get
             {
-                if(_appEvents == null)
-                {
-                    return null;
-                }
-                return _appEvents.Source;
+                return _appEvents == null ? null : _appEvents.Source;
             }
         }
 

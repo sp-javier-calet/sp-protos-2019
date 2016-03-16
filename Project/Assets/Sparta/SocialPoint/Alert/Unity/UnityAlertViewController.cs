@@ -1,22 +1,17 @@
 using UnityEngine;
-using System;
 using UnityEngine.UI;
 
 namespace SocialPoint.Alert
 {
-    public class UnityAlertViewController : BaseUnityAlertViewController {
-
+    public class UnityAlertViewController : BaseUnityAlertViewController
+    {
         public Text TitleLabel;
         public Text MessageLabel;
         public Text SignatureLabel;
         public InputField InputLabel;
         public RectTransform Buttons;
         public GameObject ButtonPrefab;
-        public int ButtonSeparation = 0;
-
-        public UnityAlertViewController()
-        {
-        }
+        public int ButtonSeparation;
 
         public override event ResultDelegate Result;
 
@@ -46,7 +41,7 @@ namespace SocialPoint.Alert
                 }
             }
         }
-        
+
         public override string TitleText
         {
             set
@@ -84,7 +79,7 @@ namespace SocialPoint.Alert
                 }
             }
         }
-        
+
         public override bool InputEnabled
         {
             set
@@ -95,19 +90,15 @@ namespace SocialPoint.Alert
                 }
             }
         }
-        
+
         public override string InputText
         {
             get
             {
-                if(InputLabel != null)
-                {
-                    return InputLabel.text;
-                }
-                return string.Empty;
+                return InputLabel != null ? InputLabel.text : string.Empty;
             }
         }
-        
+
         public override string[] ButtonTitles
         {
             set
@@ -125,9 +116,9 @@ namespace SocialPoint.Alert
                     throw new MissingComponentException("Could not load button prefab.");
                 }
 
-                for(int i=0; i<value.Length; ++i)
+                for(int i = 0; i < value.Length; ++i)
                 {
-                    var btnGo = ((GameObject)Instantiate(ButtonPrefab));
+                    var btnGo = Instantiate(ButtonPrefab);
                     btnGo.name = string.Format("{0} ({1})", ButtonPrefab, value[i]);
                     btnGo.transform.SetParent(Buttons.transform);
 

@@ -1,8 +1,7 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using System;
-using System.Collections;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace SocialPoint.AdminPanel
 {
@@ -10,9 +9,9 @@ namespace SocialPoint.AdminPanel
     {
         public Color Color { get; private set; }
 
-        private static float Alpha = 0.7f;
+        const float Alpha = 0.7f;
 
-        private ButtonColor(float r, float g, float b)
+        ButtonColor(float r, float g, float b)
         {
             Color = new Color(r, g, b, Alpha);
         }
@@ -102,15 +101,15 @@ namespace SocialPoint.AdminPanel
 
         public class ConfirmActionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
-            private static float TimeToCompletion = 1.0f;
-            private static float TimeToDisabled = 0.2f;
+            const float TimeToCompletion = 1.0f;
+            const float TimeToDisabled = 0.2f;
 
             public Action onSubmit;
             public Image ButtonImage;
 
-            private Color _initialColor;
-            private bool _pressed;
-            private float _completion;
+            Color _initialColor;
+            bool _pressed;
+            float _completion;
 
             void Start()
             {
@@ -146,7 +145,7 @@ namespace SocialPoint.AdminPanel
                 }
             }
 
-            private void UpdateButtonColor()
+            void UpdateButtonColor()
             {
                 if(ButtonImage != null)
                 {
@@ -272,7 +271,7 @@ namespace SocialPoint.AdminPanel
 
             if(enabled)
             {
-                toggle.onValueChanged.AddListener((value) => onToggle(value));
+                toggle.onValueChanged.AddListener(value => onToggle(value));
             }
             
             CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
@@ -284,7 +283,7 @@ namespace SocialPoint.AdminPanel
          * Internal
          */
 
-        private void CreateButtonLabel(string label, RectTransform buttonTransform, FontStyle style = FontStyle.Normal, bool enabled = true)
+        void CreateButtonLabel(string label, Transform buttonTransform, FontStyle style = FontStyle.Normal, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button Label", buttonTransform);
             
@@ -300,7 +299,7 @@ namespace SocialPoint.AdminPanel
             layoutElement.preferredHeight = DefaultLabelHeight;
         }
 
-        private void CreateOpenPanelIndicator(RectTransform buttonTransform)
+        void CreateOpenPanelIndicator(Transform buttonTransform)
         {
             var rectTransform = CreateUIObject("Admin Panel - Open Panel Indicator", buttonTransform);
             rectTransform.anchorMin = Vector2.right;

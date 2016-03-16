@@ -1,7 +1,7 @@
 using System;
 
-namespace SocialPoint.Alert {
-
+namespace SocialPoint.Alert
+{
     public delegate void ResultDelegate(int result);
 
     public interface IAlertView : IDisposable, ICloneable
@@ -18,7 +18,7 @@ namespace SocialPoint.Alert {
         /// <value>The title.</value>
         string Title { set; }
 
-        string Signature { set;}
+        string Signature { set; }
 
         /// <summary>
         /// Set the button texts

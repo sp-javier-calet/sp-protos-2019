@@ -1,19 +1,21 @@
 using System;
-using UnityEngine;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
     /// <summary>
     /// Manage interface events and provides a common base implementation for all platform-dependent classes
     /// </summary>
-    public abstract class BaseAppEvents : MonoBehaviour, IAppEvents 
+    public abstract class BaseAppEvents : MonoBehaviour, IAppEvents
     {
         public PriorityAction GameWasLoaded { get; private set; }
+
         public PriorityAction GameWillRestart { get; private set; }
+
         public PriorityAction WillGoBackground { get; private set; }
 
-        public BaseAppEvents()
+        protected BaseAppEvents()
         {
             GameWasLoaded = new PriorityAction();
             GameWillRestart = new PriorityAction();
@@ -50,12 +52,12 @@ namespace SocialPoint.AppEvents
         {
             GameWillRestart.Run();
         }
-        
+
         public void TriggerMemoryWarning()
         {
             OnReceivedMemoryWarning();
         }
-        
+
         public void TriggerWillGoBackground()
         {
             OnWillGoBackground();
@@ -72,7 +74,7 @@ namespace SocialPoint.AppEvents
         }
 
         public event Action WasOnBackground;
-        
+
         protected void OnWasOnBackground()
         {
             var handler = WasOnBackground;
@@ -83,7 +85,7 @@ namespace SocialPoint.AppEvents
         }
 
         public event Action WasCovered;
-        
+
         protected void OnWasCovered()
         {
             var handler = WasCovered;
@@ -94,7 +96,7 @@ namespace SocialPoint.AppEvents
         }
 
         public event Action ReceivedMemoryWarning;
-        
+
         protected void OnReceivedMemoryWarning()
         {
             var handler = ReceivedMemoryWarning;
@@ -105,7 +107,7 @@ namespace SocialPoint.AppEvents
         }
 
         public event Action<AppSource> OpenedFromSource;
-        
+
         protected void OnOpenedFromSource(AppSource source)
         {
             var handler = OpenedFromSource;
@@ -115,10 +117,10 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        public AppSource Source { get; protected set;}
+        public AppSource Source { get; protected set; }
 
         public event Action ApplicationQuit;
-        
+
         void OnApplicationQuit()
         {
             var handler = ApplicationQuit;
@@ -129,7 +131,7 @@ namespace SocialPoint.AppEvents
         }
 
         public event Action<int> LevelWasLoaded;
-        
+
         void OnLevelWasLoaded(int level)
         {
             var handler = LevelWasLoaded;
