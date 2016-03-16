@@ -9,29 +9,26 @@ namespace SocialPoint.Utils
 {
     public class StringUtils
     {
+        static StringBuilder _builder = new StringBuilder();
+
+        public static StringBuilder StartBuilder()
+        {
+            _builder.Length = 0;
+            return _builder;
+        }
+
         public static string DictToString<T, V>(IEnumerable<KeyValuePair<T, V>> items, string format = "")
         {
             format = String.IsNullOrEmpty(format) ? "{0}='{1}' " : format; 
-            
-            StringBuilder itemString = new StringBuilder();
 
+            var sb = StartBuilder();
             for(int k = 0; k < items.Count(); k++)
             {
                 KeyValuePair<T,V> item = items.ElementAt(k);
-                itemString.AppendFormat(format, item.Key, item.Value);
+                sb.AppendFormat(format, item.Key, item.Value);
             }
             
-            return itemString.ToString(); 
-        }
-
-        public static void InitCapacity(ref string str, int capacity)
-        {
-            str = "";
-            while(capacity > 0)
-            {
-                str += " ";
-                capacity--;
-            }
+            return sb.ToString(); 
         }
 
         private const char QuerySeparator = '&';
@@ -57,7 +54,7 @@ namespace SocialPoint.Utils
                 return dict;
             }
             var parts = query.Split(QuerySeparator);
-            for(int i=0; i<parts.Length; ++i)
+            for(int i = 0; i < parts.Length; ++i)
             {
                 var part = parts[i].Split(QueryAssign);
                 if(part.Length > 1)
@@ -76,13 +73,13 @@ namespace SocialPoint.Utils
         {
             return dt.ToString("yyyyMMddTHHmmssZ");
         }
-        
+
         public static string GetIsoTimeStr(string dts)
         {
             DateTime dt = DateTime.ParseExact(dts, "yyyyMMdd", null);
             return GetIsoTimeStr(new DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0));
         }
-        
+
         public static string GetJoinedUrlParams(KeyValuePair<string,string>[] parms)
         {
             string result = "";
@@ -97,7 +94,7 @@ namespace SocialPoint.Utils
             System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
             return bytes;
         }
-        
+
         public static string GetString(byte[] bytes)
         {
             char[] chars = new char[bytes.Length / sizeof(char)];
@@ -118,7 +115,7 @@ namespace SocialPoint.Utils
 
         const string DefaultJoinSeparator = ", ";
 
-        public static string Join<T>(IEnumerable<T> objs, string sep=null)
+        public static string Join<T>(IEnumerable<T> objs, string sep = null)
         {
             if(objs == null)
             {
@@ -173,15 +170,15 @@ namespace SocialPoint.Utils
             }
             
             int pos = 0;
-            while (pattern.Length != pos)
+            while(pattern.Length != pos)
             {
-                switch (pattern[pos])
+                switch(pattern[pos])
                 {
                 case WildcardOneChar:
                     break;
                     
                 case WildcardMultiChar:
-                    for (int i = value.Length; i >= pos; i--)
+                    for(int i = value.Length; i >= pos; i--)
                     {
                         if(GlobMatch(pattern.Substring(pos + 1), value.Substring(i)))
                         {
@@ -191,7 +188,7 @@ namespace SocialPoint.Utils
                     return false;
                     
                 default:
-                    if (value.Length == pos || char.ToUpper(pattern[pos]) != char.ToUpper(value[pos]))
+                    if(value.Length == pos || char.ToUpper(pattern[pos]) != char.ToUpper(value[pos]))
                     {
                         return false;
                     }
@@ -201,6 +198,33 @@ namespace SocialPoint.Utils
                 pos++;
             }
             return value.Length == pos;
+        }
+
+        public static bool EndsWith(string a, string b)
+        {
+            int ap = a.Length - 1;
+            int bp = b.Length - 1;
+            while(ap >= 0 && bp >= 0 && a[ap] == b[bp])
+            {
+                ap--;
+                bp--;
+            }
+            return (bp < 0 && a.Length >= b.Length) || (ap < 0 && b.Length >= a.Length);
+
+        }
+
+        public static bool StartsWith(string a, string b)
+        {
+            int aLen = a.Length;
+            int bLen = b.Length;
+            int ap = 0;
+            int bp = 0;
+            while(ap < aLen && bp < bLen && a[ap] == b[bp])
+            {
+                ap++;
+                bp++;
+            }
+            return (bp == bLen && aLen >= bLen) || (ap == aLen && bLen >= aLen);
         }
     }
 }

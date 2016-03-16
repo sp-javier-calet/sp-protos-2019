@@ -320,7 +320,7 @@ namespace SocialPoint.CrossPromotion
 
         void SaveGamesToCheck()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = StringUtils.StartBuilder();
             foreach(var app in _data.AppsToCheck)
             {
                 sb.Append(app);

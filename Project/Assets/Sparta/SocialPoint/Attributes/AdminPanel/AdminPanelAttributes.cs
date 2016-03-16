@@ -1,5 +1,6 @@
 using UnityEngine.UI;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 using System;
 
 namespace SocialPoint.Attributes
@@ -30,7 +31,7 @@ namespace SocialPoint.Attributes
 
         void OnParseBigFile()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = StringUtils.StartBuilder();
             string jsonPath = UnityEngine.Application.streamingAssetsPath + "/BigJsonFile.json";
             string json = SocialPoint.IO.FileUtils.ReadAllText(jsonPath);
             long startTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
