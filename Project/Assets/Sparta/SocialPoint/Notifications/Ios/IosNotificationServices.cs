@@ -84,6 +84,14 @@ namespace SocialPoint.Notifications
         {
             NotificationServices.RegisterForNotifications(_localNotifyTypes, false);
         }
+
+        public override bool UserAllowsNofitication
+        {
+            get
+            {
+                return NativeUtils.UserAllowNotification;
+            }
+        }
     }
 
     #else

@@ -1,29 +1,28 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        Text CreateItemText(GameObject go)
+        static Text CreateItemText(GameObject go)
         {
             var text = go.AddComponent<Text>();
             text.font = DefaultFont;
             text.color = Color.white;
-            text.fontSize = DefaultFontSize-5;
+            text.fontSize = DefaultFontSize - 5;
             text.alignment = TextAnchor.MiddleLeft;
             return text;
         }
 
-        Color MofiyToggleColor(Color c)
+        static Color MofiyToggleColor(Color c)
         {
             return new Color(c.r, c.g, c.b, 1.0f);
         }
 
-        ColorBlock GetToggleColors()
+        static ColorBlock GetToggleColors()
         {
             var normal = MofiyToggleColor(BackgroundColor);
             var highlight = MofiyToggleColor(ForegroundColor);
@@ -34,9 +33,9 @@ namespace SocialPoint.AdminPanel
             return colors;
         }
 
-        public Dropdown CreateDropdown(string currentKey, string[] options, Action<string> onChange=null)
+        public Dropdown CreateDropdown(string currentKey, string[] options, Action<string> onChange = null)
         {
-            var rectTransform = CreateUIObject("Admin Panel - Dropdown", Parent);            
+            var rectTransform = CreateUIObject("Admin Panel - Dropdown", Parent);
             var dropdown = rectTransform.gameObject.AddComponent<Dropdown>();
             dropdown.gameObject.AddComponent<Image>().color = MofiyToggleColor(BackgroundColor);
             var label = CreateUIObject("Label", dropdown.transform);
@@ -66,11 +65,10 @@ namespace SocialPoint.AdminPanel
             }
             if(onChange != null)
             {
-                dropdown.onValueChanged.AddListener((int pos) =>
-                {
+                dropdown.onValueChanged.AddListener(pos => {
                     if(options != null && pos > 0 && pos <= options.Length)
                     {
-                        onChange(options[pos-1]);
+                        onChange(options[pos - 1]);
                     }
                     else
                     {

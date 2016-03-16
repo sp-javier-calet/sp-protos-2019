@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        
         protected const int DefaultMargin = 5;
         protected const int DefaultPadding = 5;
         protected const int DefaultScrollPadding = 10;
@@ -26,7 +24,7 @@ namespace SocialPoint.AdminPanel
         protected static readonly Color StatusDisabledColor = new Color(.8f, .3f, .3f, .8f);
         protected static readonly Color CloseButtonColor = new Color(.8f, .3f, .3f, .8f);
 
-        private static Font _defaultFont;
+        static Font _defaultFont;
 
         public static Font DefaultFont
         { 

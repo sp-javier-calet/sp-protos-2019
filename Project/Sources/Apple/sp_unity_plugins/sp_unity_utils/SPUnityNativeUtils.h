@@ -18,6 +18,7 @@
 extern "C"
 {
     EXPORT_API bool SPUnityNativeUtilsIsInstalled(const char* appId);
+    EXPORT_API bool SPUnityNativeUtilsUserAllowNotification();
 }
 
 #endif

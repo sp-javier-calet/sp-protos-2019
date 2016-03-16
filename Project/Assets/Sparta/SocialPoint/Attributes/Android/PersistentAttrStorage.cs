@@ -1,7 +1,6 @@
-﻿
-using System;
-using UnityEngine;
+﻿using System;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.Attributes
 {

@@ -61,26 +61,27 @@ namespace SocialPoint.AdminPanel
 
             using(var hLayout = layout.CreateHorizontalLayout())
             {
-                hLayout.CreateToggleButton("Lock", FixedFocus, (value) => {
-                    FixedFocus = value; });
+                hLayout.CreateToggleButton("Lock", FixedFocus, value => {
+                    FixedFocus = value;
+                });
             
                 hLayout.CreateButton("Clear", Clear);
             }
         }
-        
+
         void OnSubmitCommand(string command)
         {
             Print(String.Format("${0}", command));
             try
             {
-                Application.Run(command.Split(new char[]{' '}));
+                Application.Run(command.Split(new []{ ' ' }));
             }
             catch(ConsoleException)
             {
                 Print(String.Format("Command {0} not found", command));
             }
         }
-        
+
         void OnValueChange(AdminPanelLayout.InputStatus status)
         {
             status.Suggestion = status.Content;
@@ -95,7 +96,7 @@ namespace SocialPoint.AdminPanel
         class AdminPanelAvailableCommands : IAdminPanelGUI
         {
             readonly AdminPanelConsole _console;
-            
+
             public AdminPanelAvailableCommands(AdminPanelConsole console)
             {
                 _console = console;
@@ -110,7 +111,7 @@ namespace SocialPoint.AdminPanel
             {
                 layout.CreateLabel("Available commands");
 
-                StringBuilder content = new StringBuilder();
+                var content = new StringBuilder();
                 foreach(KeyValuePair<string, ConsoleCommand> entry in _console.Application)
                 {
                     content.Append(entry.Key).Append(" : ").AppendLine(entry.Value.Description);

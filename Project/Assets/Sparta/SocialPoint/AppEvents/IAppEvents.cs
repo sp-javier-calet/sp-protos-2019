@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 namespace SocialPoint.AppEvents
 {
     public interface IAppEvents : IDisposable
-    {   
+    {
         /// <summary>
         /// Occurs before going to background.
         /// </summary>
@@ -85,7 +85,7 @@ namespace SocialPoint.AppEvents
     }
 
     public static class AppEventsExtension
-    {        
+    {
         public static void RestartGame(this IAppEvents events)
         {
             events.TriggerGameWillRestart();

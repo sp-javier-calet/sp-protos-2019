@@ -1,21 +1,19 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
     public class UnityAppEvents : BaseAppEvents
     {
-        bool _openedFromSource = false;
+        bool _openedFromSource;
 
-        private void Awake()
+        void Awake()
         {
-            Source = new AppSource(new Dictionary<string, string>{
-                {"type", "unity"}
+            Source = new AppSource(new Dictionary<string, string> {
+                { "type", "unity" }
             });
         }
 
-        private void Start()
+        void Start()
         {
             if(!_openedFromSource)
             {

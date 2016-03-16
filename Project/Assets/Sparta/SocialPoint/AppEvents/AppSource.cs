@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Utils;
 
@@ -15,17 +14,16 @@ namespace SocialPoint.AppEvents
         public const string OthersScheme = "others";
         public const char QuerySeparator = '?';
 
-        private const string SourceTitleKey = "title";
-        private const string SourceTextKey = "text";
-        private const string SourceKeyOrigin = "sp_origin";
-        private const string SourceKeyFacebookLink = "applink_data";
-        private const string SourceValueLocalNotification = "local_notification";
-        private const string SourceValuePushNotification = "push_notification";
-        private const string SourceValueWidget = "widget";
+        const string SourceTitleKey = "title";
+        const string SourceTextKey = "text";
+        const string SourceKeyOrigin = "sp_origin";
+        const string SourceKeyFacebookLink = "applink_data";
+        const string SourceValueLocalNotification = "local_notification";
+        const string SourceValuePushNotification = "push_notification";
+        const string SourceValueWidget = "widget";
 
         // Custom schemes to identify custom URLs
-        private static readonly List<string> CustomSchemes = new List<string>
-        {
+        static readonly List<string> CustomSchemes = new List<string> {
             LocalNotificationScheme, 
             PushNotificationScheme, 
             WidgetScheme, 
@@ -34,24 +32,30 @@ namespace SocialPoint.AppEvents
         };
 
         // sp_origin->scheme mapping
-        private static readonly Dictionary<string, string> OriginMapping = new Dictionary<string, string>
-        {
+        static readonly Dictionary<string, string> OriginMapping = new Dictionary<string, string> {
             { SourceValueLocalNotification, LocalNotificationScheme },
             { SourceValuePushNotification, PushNotificationScheme },
             { SourceValueWidget, WidgetScheme }
         };
 
         // Parameter filter per scheme
-        private static readonly Dictionary<string, string[]> SourceFilters = new Dictionary<string, string[]>
-        {
-            { LocalNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey, "alarmId", "android.intent.extra.ALARM_COUNT" } },
-            { PushNotificationScheme, new string[]{ SourceKeyOrigin, SourceTitleKey, SourceTextKey } },
-            { WidgetScheme, new string[]{SourceKeyOrigin} },
-            { FacebookScheme, new string[]{} },
-            { OthersScheme, new string[] {"profile"} }
+        static readonly Dictionary<string, string[]> SourceFilters = new Dictionary<string, string[]> { {
+                LocalNotificationScheme,
+                new [] {
+                    SourceKeyOrigin,
+                    SourceTitleKey,
+                    SourceTextKey,
+                    "alarmId",
+                    "android.intent.extra.ALARM_COUNT"
+                }
+            },
+            { PushNotificationScheme, new []{ SourceKeyOrigin, SourceTitleKey, SourceTextKey } },
+            { WidgetScheme, new []{ SourceKeyOrigin } },
+            { FacebookScheme, new string[]{ } },
+            { OthersScheme, new [] { "profile" } }
         };
 
-        private Uri _uri;
+        Uri _uri;
 
         public string Scheme
         {
@@ -118,7 +122,7 @@ namespace SocialPoint.AppEvents
             /* If sourceString is already a valid URL, 
              * use it as source. If not, try to parse parameters (in url format)
              * and infer the corresponding scheme */
-            if(!System.Uri.TryCreate(sourceString, UriKind.Absolute, out _uri))
+            if(!Uri.TryCreate(sourceString, UriKind.Absolute, out _uri))
             {
                 _uri = CreateUriFromSource(sourceString);
             }
@@ -129,12 +133,12 @@ namespace SocialPoint.AppEvents
             _uri = CreateUriFromSource(parms);
         }
 
-        private Uri CreateUriFromSource(string src)
+        Uri CreateUriFromSource(string src)
         {
             return CreateUriFromSource(StringUtils.QueryToDictionary(src));
         }
 
-        private Uri CreateUriFromSource(IDictionary<string, string> parms)
+        static Uri CreateUriFromSource(IDictionary<string, string> parms)
         {
             string scheme = OthersScheme;
 
@@ -170,7 +174,7 @@ namespace SocialPoint.AppEvents
             build.Scheme = scheme;
             if(parms.Count > 0)
             {
-                build.Query = QuerySeparator.ToString()+StringUtils.DictionaryToQuery(parms);
+                build.Query = QuerySeparator + StringUtils.DictionaryToQuery(parms);
             }
             return build.Uri;
         }

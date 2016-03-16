@@ -1,17 +1,20 @@
 using System;
-using UnityEngine;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using UnityEngine;
+
+#if UNITY_IOS && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
 
 namespace SocialPoint.AppEvents
-{    
+{
     /// <summary>
     /// In order to receive events in Unity from Ios we use UnitySendMessage("IosAppEvents","NotifyStatus","ACTIVE")
     /// we need to create a persistant gameObject Containig this script
     /// </summary>
     public class IosAppEvents : BaseAppEvents
     {
-        private enum Status
+        enum Status
         {
             FIRSTBOOT,
             ACTIVE,
@@ -22,26 +25,27 @@ namespace SocialPoint.AppEvents
             UPDATEDSOURCE
         }
 
-        private const string PlayerPrefSourceApplicationKey = "SourceApplicationKey";
+        const string PlayerPrefSourceApplicationKey = "SourceApplicationKey";
 
-        private List<Status> EventStatus = new List<Status> {Status.MEMORYWARNING, Status.UPDATEDSOURCE};
-        private Status _previousStatus = Status.FIRSTBOOT;
+        List<Status> EventStatus = new List<Status> { Status.MEMORYWARNING, Status.UPDATEDSOURCE };
+        Status _previousStatus = Status.FIRSTBOOT;
 
-#if UNITY_IOS && !UNITY_EDITOR
+        #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Init(string name);
 
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Flush();
+
 #else
-        private static  void SPUnityAppEvents_Init(string name)
+        static  void SPUnityAppEvents_Init(string name)
         {
         }
 
-        private static void SPUnityAppEvents_Flush()
+        static void SPUnityAppEvents_Flush()
         {
         }
-#endif
+        #endif
 
         void Awake()
         {
@@ -55,14 +59,14 @@ namespace SocialPoint.AppEvents
             SPUnityAppEvents_Init(gameObject.name);
         }
 
-        private void Start()
+        void Start()
         {
             /* Early native events can't be sent to the Unity counterpart, 
              * so they must be flushed manually */
             SPUnityAppEvents_Flush();
         }
 
-        private void UpdateStatus(Status status)
+        void UpdateStatus(Status status)
         {
             /* Store only real statuses (background/foreground/active..). 
              * Other events could break the checks for WasCovered and WasOnBackground */
@@ -72,19 +76,19 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        private void CheckApplicationSource()
+        void CheckApplicationSource()
         {
             OnOpenedFromSource(Source); 
         }
 
-        private void ClearAppSource()
+        void ClearAppSource()
         {
             Source = new AppSource();
         }
-        
+
         void NotifyStatus(string message)
         {
-            Status status = (Status)Enum.Parse(typeof(Status), message.ToUpper());
+            var status = (Status)Enum.Parse(typeof(Status), message.ToUpper());
 
             switch(status)
             {
