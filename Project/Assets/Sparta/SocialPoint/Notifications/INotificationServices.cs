@@ -36,6 +36,11 @@ namespace SocialPoint.Notifications
         /// </summary>
         void RequestLocalNotification();
 
-
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="SocialPoint.Notifications.INotificationServices"/> user
+        /// allows nofitication.
+        /// </summary>
+        /// <value><c>true</c> if user allows nofitication; otherwise, <c>false</c>.</value>
+        bool UserAllowsNofitication{ get; }
     }
 }
