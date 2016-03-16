@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using System;
 using SocialPoint.Utils;
@@ -9,13 +8,7 @@ namespace SocialPoint.CrossPromotion
     public class BasePopupCrossPromoController : MonoBehaviour
     {
         [SerializeField]
-        protected BaseCrossPromoCellController _cellPrefab;
-
-        [SerializeField]
         protected GameObject _activityView;
-
-        [SerializeField]
-        protected Button _closeButton;
 
         protected CrossPromotionManager _cpm;
 
@@ -47,11 +40,7 @@ namespace SocialPoint.CrossPromotion
             _closeCallback = closeCallback;
             _timeOpened = TimeUtils.Timestamp;
 
-            _cellPrefab.gameObject.SetActive(false);
             _activityView.SetActive(false);
-
-            _closeButton.onClick.RemoveAllListeners();
-            _closeButton.onClick.AddListener(OnClose);
 
             float ratioIphone = 960f / 640f;
             float currentRatio = (float)ScreenSize.x / (float)ScreenSize.y;
@@ -71,18 +60,17 @@ namespace SocialPoint.CrossPromotion
             _cpm.SendPopupImpressedEvent();
         }
 
-        public virtual void SetSize()
+        protected virtual void SetSize()
         {
             CellWidth = _originalCellWidth - Margin;
             CellHeight = (_originalCellWidth / _cpm.Data.AspectRatio);
         }
 
-        public virtual void SetPopupSize()
+        protected virtual void SetPopupSize()
         {
-            
         }
 
-        public bool CheckIfFits(float screenWidth, float screenHeight, float finalWidth, float finalHeight)
+        protected bool CheckIfFits(float screenWidth, float screenHeight, float finalWidth, float finalHeight)
         {
 
             // Calculate if it fits
@@ -116,16 +104,6 @@ namespace SocialPoint.CrossPromotion
 
         protected virtual void CreateCells()
         {
-            //GridObj.GetComponent<UIGrid>().cellHeight = CellHeight;
-            //GridObj.GetComponent<UIGrid>().cellWidth = CellWidth;
-            foreach(var keyValue in _cpm.Data.BannerInfo)
-            {
-                BaseCrossPromoCellController newCell = GameObject.Instantiate(_cellPrefab) as BaseCrossPromoCellController;
-                newCell.transform.SetParent(_cellPrefab.transform.parent);
-                newCell.transform.localScale = _cellPrefab.transform.localScale;
-                newCell.gameObject.SetActive(true);
-                Debug.Log(keyValue.Value.BgImage);
-            }
         }
 
         public void OnClose()

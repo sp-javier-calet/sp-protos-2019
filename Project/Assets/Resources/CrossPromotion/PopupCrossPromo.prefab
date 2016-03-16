@@ -28,7 +28,7 @@ GameObject:
   - 222: {fileID: 22211968}
   - 114: {fileID: 11446184}
   m_Layer: 5
-  m_Name: Texture - Banner
+  m_Name: Image - Banner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,7 +146,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 224: {fileID: 22408988}
-  - 114: {fileID: 11426296}
+  - 114: {fileID: 11480554}
   - 222: {fileID: 22252560}
   - 114: {fileID: 11471468}
   - 114: {fileID: 11422986}
@@ -168,7 +168,7 @@ GameObject:
   - 222: {fileID: 22200568}
   - 114: {fileID: 11417216}
   m_Layer: 5
-  m_Name: Sprite -New Game
+  m_Name: New Game Flag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -203,7 +203,7 @@ GameObject:
   - 222: {fileID: 22280306}
   - 114: {fileID: 11451594}
   m_Layer: 5
-  m_Name: Texture - Label Button
+  m_Name: Image - Label Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -220,7 +220,7 @@ GameObject:
   - 222: {fileID: 22263450}
   - 114: {fileID: 11468726}
   m_Layer: 5
-  m_Name: Texture - Icon
+  m_Name: Image - Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -301,7 +301,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 224: {fileID: 22465260}
-  - 114: {fileID: 11456014}
+  - 114: {fileID: 11477860}
   - 223: {fileID: 22350716}
   - 114: {fileID: 11448264}
   - 114: {fileID: 11414364}
@@ -496,18 +496,6 @@ MonoBehaviour:
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
---- !u!114 &11426296
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 156194}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41981071936534630a0acf46088c9f48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  NewGame: {fileID: 0}
 --- !u!114 &11427022
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -592,7 +580,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.86764705, g: 0.86764705, b: 0.86764705, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -600,8 +588,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: 0d18211e38a204566ae8dba959293407, type: 3}
-  m_Type: 1
-  m_PreserveAspect: 0
+  m_Type: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -695,21 +683,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &11456014
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 198162}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2a2e7dc311c94362896b43da61f94ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _cellContainer: {fileID: 22476354}
-  _cellPrefab: {fileID: 11426296}
-  _activityView: {fileID: 100588}
-  _closeButton: {fileID: 11480434}
 --- !u!114 &11456528
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -749,7 +722,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.63754326, g: 0.9852941, b: 0.97090447, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -757,8 +730,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
+  m_Type: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -832,6 +805,20 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 5
+--- !u!114 &11477860
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 198162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 502f996538e15402cb4c3553f857d05a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activityView: {fileID: 100588}
+  _cellPrefab: {fileID: 11480554}
+  _closeButton: {fileID: 11480434}
 --- !u!114 &11480434
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -873,6 +860,21 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &11480554
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 156194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da28a6c06068420c818c89c166e4074, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _newGameFlag: {fileID: 169826}
+  _bannerImage: {fileID: 11446184}
+  _iconImage: {fileID: 11468726}
+  _buttonImage: {fileID: 11451594}
 --- !u!114 &11481812
 MonoBehaviour:
   m_ObjectHideFlags: 1

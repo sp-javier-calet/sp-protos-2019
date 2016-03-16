@@ -5,7 +5,8 @@ namespace SocialPoint.CrossPromotion
 {
     public class BaseCrossPromoCellController : MonoBehaviour
     {
-        public GameObject NewGame;
+        [SerializeField]
+        protected GameObject _newGameFlag;
 
         protected int _bannerId;
         protected int _position;
@@ -28,7 +29,7 @@ namespace SocialPoint.CrossPromotion
             _selfGame = bannerData.CurrentGame;
             _isNew = bannerData.ShowRibbon;
 
-            NewGame.SetActive(_isNew);
+            _newGameFlag.SetActive(_isNew);
         }
 
         public void OnClickBanner()

@@ -41,7 +41,7 @@ public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionMa
     private void CreatePopupCrossPromo()
     {
         //TODO: Use a UIController to add the object to GUI_Root??
-        GameObject prefab = Resources.Load("PopupCrossPromo") as GameObject;
+        GameObject prefab = Resources.Load("CrossPromotion/PopupCrossPromo") as GameObject;
         GameObject obj = GameObject.Instantiate(prefab) as GameObject;
         BasePopupCrossPromoController popupController = obj.GetComponent<BasePopupCrossPromoController>();
         popupController.Init(this, null);
