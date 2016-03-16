@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
@@ -1249,7 +1250,7 @@ namespace SocialPoint.Attributes
 
         public override string ToString()
         {
-            var b = new StringBuilder();
+            var b = StringUtils.StartBuilder();
             b.Append("{");
             var i = 0;
             foreach(var pair in this)
@@ -1559,7 +1560,7 @@ namespace SocialPoint.Attributes
 
         public override string ToString()
         {
-            var b = new StringBuilder();
+            var b = StringUtils.StartBuilder();
             b.Append("[");
             var i = 0;
             foreach(var elm in this)

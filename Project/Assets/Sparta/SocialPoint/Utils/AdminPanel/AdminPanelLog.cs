@@ -85,8 +85,7 @@ namespace SocialPoint.Utils
         {
             if(_textComponent != null)
             {
-                StringBuilder logContent = new StringBuilder();
-
+                var logContent = StringUtils.StartBuilder();
                 foreach(LogEntry entry in _entries)
                 {
                     if(_activeTypes[entry.Type] == true)
@@ -124,7 +123,7 @@ namespace SocialPoint.Utils
                 string color = null;
                 LogColors.TryGetValue(type, out color);
 
-                StringBuilder contentBuilder = new StringBuilder();
+                var contentBuilder = StringUtils.StartBuilder();
                 contentBuilder.Append("<color=").Append(color).Append("><b> ").Append(type.ToString()).Append("</b>: ")
                               .AppendLine(message)
                               .Append(((type == LogType.Exception)? "<b>Stack:</b>"+stackTrace : ""))
