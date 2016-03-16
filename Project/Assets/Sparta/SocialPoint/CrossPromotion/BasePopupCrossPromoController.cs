@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System;
 using SocialPoint.Utils;
@@ -7,9 +8,16 @@ namespace SocialPoint.CrossPromotion
 {
     public class BasePopupCrossPromoController : MonoBehaviour
     {
+        [SerializeField]
+        protected BaseCrossPromoCellController _cellPrefab;
+
+        [SerializeField]
+        protected GameObject _activityView;
+
+        [SerializeField]
+        protected Button _closeButton;
+
         protected CrossPromotionManager _cpm;
-        public GameObject CellPrefab;
-        public GameObject ActivityView;
 
         protected static int _iphone4Margin = 47;
         protected static int _defaultMargin = 135;
@@ -39,7 +47,11 @@ namespace SocialPoint.CrossPromotion
             _closeCallback = closeCallback;
             _timeOpened = TimeUtils.Timestamp;
 
-            ActivityView.SetActive(false);
+            _cellPrefab.gameObject.SetActive(false);
+            _activityView.SetActive(false);
+
+            _closeButton.onClick.RemoveAllListeners();
+            _closeButton.onClick.AddListener(OnClose);
 
             float ratioIphone = 960f / 640f;
             float currentRatio = (float)ScreenSize.x / (float)ScreenSize.y;
@@ -55,7 +67,6 @@ namespace SocialPoint.CrossPromotion
             }
             //Initialize cells
             CreateCells();
-
 
             _cpm.SendPopupImpressedEvent();
         }
@@ -91,7 +102,7 @@ namespace SocialPoint.CrossPromotion
                 else
                 {
                     // Recalculate adjusting height
-                    CellHeight = (((_originalCellWidth - Margin)/ _cpm.Data.AspectRatio) + heightAdjust);
+                    CellHeight = (((_originalCellWidth - Margin) / _cpm.Data.AspectRatio) + heightAdjust);
                     CellWidth = (CellHeight * _cpm.Data.AspectRatio);
                 }
 
@@ -105,6 +116,16 @@ namespace SocialPoint.CrossPromotion
 
         protected virtual void CreateCells()
         {
+            //GridObj.GetComponent<UIGrid>().cellHeight = CellHeight;
+            //GridObj.GetComponent<UIGrid>().cellWidth = CellWidth;
+            foreach(var keyValue in _cpm.Data.BannerInfo)
+            {
+                BaseCrossPromoCellController newCell = GameObject.Instantiate(_cellPrefab) as BaseCrossPromoCellController;
+                newCell.transform.SetParent(_cellPrefab.transform.parent);
+                newCell.transform.localScale = _cellPrefab.transform.localScale;
+                newCell.gameObject.SetActive(true);
+                Debug.Log(keyValue.Value.BgImage);
+            }
         }
 
         public void OnClose()
@@ -117,7 +138,7 @@ namespace SocialPoint.CrossPromotion
 
         public void SetActivityView(bool active)
         {
-            ActivityView.SetActive(active);
+            _activityView.SetActive(active);
         }
     }
 }

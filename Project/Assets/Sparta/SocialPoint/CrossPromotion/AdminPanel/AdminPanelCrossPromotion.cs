@@ -22,15 +22,15 @@ namespace SocialPoint.CrossPromotion
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("CrossPromotion");
-            layout.CreateConfirmButton("Start", () => {
+            layout.CreateButton("Start", () => {
                 Start();
                 layout.Refresh();
             }, !_initialized);
-            layout.CreateConfirmButton("Reset", () => {
+            layout.CreateButton("Reset", () => {
                 Reset();
                 layout.Refresh();
             }, _initialized);
-            layout.CreateConfirmButton("OpenPopup", () => {
+            layout.CreateButton("Open Popup", () => {
                 OpenPopup();
                 layout.Refresh();
             }, _initialized);
