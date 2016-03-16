@@ -1,16 +1,12 @@
-using UnityEngine.UI;
-using SocialPoint.AdminPanel;
 using System;
+using SocialPoint.AdminPanel;
+using UnityEngine.UI;
 
 namespace SocialPoint.Attributes
 {
     public class AdminPanelAttributes : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
     {
         Text _textComponent;
-
-        public AdminPanelAttributes()
-        {
-        }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
@@ -30,12 +26,12 @@ namespace SocialPoint.Attributes
 
         void OnParseBigFile()
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new System.Text.StringBuilder();
             string jsonPath = UnityEngine.Application.streamingAssetsPath + "/BigJsonFile.json";
             string json = SocialPoint.IO.FileUtils.ReadAllText(jsonPath);
             long startTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
             UnityEngine.Profiler.BeginSample("LitJson Parsing");
-            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
+            var litJsonParser = new LitJsonAttrParser();
             Attr resultLitJson = litJsonParser.ParseString(json);
             UnityEngine.Profiler.EndSample();
             long litJsonTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
@@ -50,7 +46,7 @@ namespace SocialPoint.Attributes
 
 
             UnityEngine.Profiler.BeginSample("FastJson Parsing");
-            FastJsonAttrParser fastJsonParser = new FastJsonAttrParser();
+            var fastJsonParser = new FastJsonAttrParser();
             Attr resultFastJson = fastJsonParser.ParseString(json);
             UnityEngine.Profiler.EndSample();
             long fastJsonTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;

@@ -9,5 +9,7 @@
         void OpenStore(string appId);
 
         void OpenUrl(string url);
+
+        bool UserAllowNotification{ get; }
     }
 }

@@ -6,7 +6,7 @@ namespace SocialPoint.Utils
 {
     public class IosNativeUtils : INativeUtils
     {
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         static extern bool SPUnityNativeUtilsIsInstalled(string appId);
         #else
@@ -37,6 +37,24 @@ namespace SocialPoint.Utils
         public void OpenUrl(string url)
         {
             Application.OpenURL(url);
+        }
+
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        [DllImport ("__Internal")]
+        static extern bool SPUnityNativeUtilsUserAllowNotification();
+        #else
+        public bool SPUnityNativeUtilsUserAllowNotification()
+        {
+            return true;
+        }
+        #endif
+
+        public bool UserAllowNotification
+        {
+            get
+            {
+                return SPUnityNativeUtilsUserAllowNotification();
+            }
         }
     }
 }

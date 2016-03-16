@@ -283,6 +283,8 @@ namespace SocialPoint.Locale
             }
             _currentLanguage = GetSupportedLanguage(_currentLanguage);
             PathsManager.CallOnLoaded(Init);
+
+            LoadCurrentLanguage ();
         }
 
         void OnGameWasLoaded()
@@ -306,7 +308,7 @@ namespace SocialPoint.Locale
 
         void Init()
         {
-            _cachePath = Path.Combine(PathsManager.TemporaryCachePath, "localization");
+            _cachePath = Path.Combine(PathsManager.TemporaryDataPath, "localization");
             FileUtils.CreateDirectory(_cachePath);
             _bundlePath = Path.Combine(PathsManager.StreamingAssetsPath, BundleDir);
         }
@@ -422,6 +424,7 @@ namespace SocialPoint.Locale
 
         void LoadCurrentLanguage()
         {
+
             if(_localization == null)
             {
                 return;

@@ -1,0 +1,5 @@
+{
+  "provisioningProfile": "{ROOT_PATH}/../proj.ios/inhouse.mobileprovision",
+  "buildSettings": {"GCC_OPTIMIZATION_LEVEL": "0"},
+  "infoPlist": {"UIFileSharingEnabled": true}
+}

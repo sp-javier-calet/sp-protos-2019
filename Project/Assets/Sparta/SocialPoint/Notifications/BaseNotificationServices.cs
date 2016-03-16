@@ -13,14 +13,16 @@ namespace SocialPoint.Notifications
         protected delegate string PollPushNotificationToken();
 
         const string kPushTokenKey = "notifications_push_token";
+        const string kPlayerAllowsNotificationKey = "player_allow_notification";
         ICoroutineRunner _runner;
         ICommandQueue _commandQueue;
 
         string _pushToken = null;
         IEnumerator _checkPushTokenCoroutine;
         readonly IList<Action<string>> _pushTokenReceivedListeners;
+        bool _requestPushNotificationAutomatically;
 
-        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
+        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null, bool requestPushNotificationAutomatically = true)
         {
             if(runner == null)
             {
@@ -29,6 +31,7 @@ namespace SocialPoint.Notifications
 
             _runner = runner;
             _commandQueue = commandqueue;
+            _requestPushNotificationAutomatically = requestPushNotificationAutomatically;
             _pushTokenReceivedListeners = new List<Action<string>>();
         }
 
@@ -57,12 +60,15 @@ namespace SocialPoint.Notifications
         void SendPushToken(string pushToken)
         {
             string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
-            if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && pushToken != currentPushToken)
+            bool userAllowedNotifications = PlayerPrefs.GetInt(kPlayerAllowsNotificationKey, 0) != 0;
+            if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && (pushToken != currentPushToken || userAllowedNotifications != UserAllowsNofitication))
             {
                 _commandQueue.Add(new PushEnabledCommand(pushToken), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
                         PlayerPrefs.SetString(kPushTokenKey, pushToken);
+                        PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, UserAllowsNofitication ? 1 : 0);
+                        PlayerPrefs.Save();
                     }
                 });
             }
@@ -91,6 +97,14 @@ namespace SocialPoint.Notifications
                 }
             }
 
+            if(_requestPushNotificationAutomatically)
+            {
+                RequestPushNotification();
+            }
+        }
+
+        public void RequestPushNotification()
+        {
             // Start registering proccess if it is not already running
             if(_checkPushTokenCoroutine == null)
             {
@@ -108,6 +122,10 @@ namespace SocialPoint.Notifications
         public abstract void ClearReceived();
 
         public abstract void CancelPending();
+
+        public abstract void RequestLocalNotification();
+
+        public abstract bool UserAllowsNofitication{ get; }
 
         #endregion
     }

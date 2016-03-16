@@ -14,8 +14,8 @@ namespace SocialPoint.AdminPanel
 
     public class AdminPanelNestedGUI : IAdminPanelGUI
     {
-        private string _name;
-        private IAdminPanelGUI _gui;
+        string _name;
+        IAdminPanelGUI _gui;
 
         public AdminPanelNestedGUI(string name, IAdminPanelGUI gui)
         {
@@ -31,18 +31,18 @@ namespace SocialPoint.AdminPanel
 
     public class AdminPanelGUIGroup : IAdminPanelGUI
     {
-        private List<IAdminPanelGUI> guiGroup;
-        
+        List<IAdminPanelGUI> guiGroup;
+
         public AdminPanelGUIGroup()
         {
             guiGroup = new List<IAdminPanelGUI>();
         }
-        
+
         public AdminPanelGUIGroup(IAdminPanelGUI gui) : this()
         {
             guiGroup.Add(gui);
         }
-        
+
         public void Add(IAdminPanelGUI gui)
         {
             guiGroup.Add(gui);

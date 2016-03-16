@@ -10,12 +10,14 @@ namespace SocialPoint.Notifications
 {
     public abstract class NotificationManager : IDisposable
     {
-        public INotificationServices Services{ private set; get; }
+        public INotificationServices Services{ protected set; get; }
 
-        IAppEvents _appEvents;
+        protected IAppEvents _appEvents;
+
         List<Notification> _notifications = new List<Notification>();
 
-        public NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
+
+        public NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue, bool requestPushNotificationAutomatically = true)
         {
             if(coroutineRunner == null)
             {
@@ -28,14 +30,19 @@ namespace SocialPoint.Notifications
             _appEvents = appEvents;
 
 #if UNITY_IOS && !UNITY_EDITOR
-            Services = new IosNotificationServices(coroutineRunner, commandQueue);
+            Services = new IosNotificationServices(coroutineRunner, commandQueue, requestPushNotificationAutomatically);
+            if(requestPushNotificationAutomatically)
+            {
+                Init();
+            }
+
 #elif UNITY_ANDROID && !UNITY_EDITOR
             Services = new AndroidNotificationServices(coroutineRunner, commandQueue);
+            Init();
 #else
             Services = new EmptyNotificationServices();
-#endif
-
             Init();
+#endif
         }
 
         protected NotificationManager(INotificationServices services, IAppEvents appEvents)
@@ -45,7 +52,7 @@ namespace SocialPoint.Notifications
             Init();
         }
 
-        void Init()
+        protected void Init()
         {
             if(Services == null)
             {
@@ -96,6 +103,11 @@ namespace SocialPoint.Notifications
 
         void Reset()
         {
+            if(Services == null)
+            {
+                return;
+            }
+            
             Services.CancelPending();
             Services.ClearReceived();
         }

@@ -1,14 +1,12 @@
-using UnityEngine;
 using System;
-using System.Collections;
 using SocialPoint.Base;
-using SocialPoint.Threading;
+using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
 #if UNITY_ANDROID && !UNITY_EDITOR
 
-	public class AndroidAppEvents : BaseAppEvents
+    public class AndroidAppEvents : BaseAppEvents
     {
         void Awake()
         {
@@ -29,16 +27,16 @@ namespace SocialPoint.AppEvents
             OnOpenedFromSource(Source);
         }
 
-        private void UpdateSource()
+        void UpdateSource()
         {
             string sourceUri = AndroidContext.CurrentActivity.Call<string>("collectApplicationSource");
             Source = new AppSource(sourceUri);
         }
-        
+
         #region Events dispatch
 
         Action _dispatched;
-                
+
         void LateUpdate()
         {
             DispatchPending();
@@ -60,7 +58,7 @@ namespace SocialPoint.AppEvents
                 _dispatched = null;
             }
         }
-        
+
         void DispatchMainThread(Action action)
         {
             /* System events have to be dispatched to the current Unity Main Thread 
@@ -73,7 +71,7 @@ namespace SocialPoint.AppEvents
             DispatchMainThread(() => OnActivityResumedDispatched(stopped));
         }
 
-        private void OnActivityResumedDispatched(bool stopped)
+        void OnActivityResumedDispatched(bool stopped)
         {
             if(stopped)
             {
@@ -97,8 +95,8 @@ namespace SocialPoint.AppEvents
         {
             DispatchMainThread(OnActivityPausedDispatched);
         }
-        
-        private void OnActivityPausedDispatched()
+
+        void OnActivityPausedDispatched()
         {
             OnWillGoBackground();
         }
@@ -108,14 +106,15 @@ namespace SocialPoint.AppEvents
             DispatchMainThread(OnReceivedMemoryWarning);
         }
 
-    #endregion
+        #endregion
 
-    #region Java proxies
-        private class ApplicationLifecycleDelegate : AndroidJavaProxy
+        #region Java proxies
+
+        class ApplicationLifecycleDelegate : AndroidJavaProxy
         {
-            private const string JavaInterface = "android.app.Application$ActivityLifecycleCallbacks";
-            private AndroidAppEvents _appEvents;
-            private bool WasStopped = false;
+            const string JavaInterface = "android.app.Application$ActivityLifecycleCallbacks";
+            AndroidAppEvents _appEvents;
+            bool WasStopped = false;
 
             public ApplicationLifecycleDelegate(AndroidAppEvents appEvents)
                 : base(JavaInterface)
@@ -123,45 +122,45 @@ namespace SocialPoint.AppEvents
                 _appEvents = appEvents;
             }
 
-            public void onActivityCreated(AndroidJavaObject activity, AndroidJavaObject savedInstanceState) 
+            public void onActivityCreated(AndroidJavaObject activity, AndroidJavaObject savedInstanceState)
             {
             }
 
-            public void onActivityDestroyed(AndroidJavaObject activity) 
+            public void onActivityDestroyed(AndroidJavaObject activity)
             {
             }
 
 
-            public void onActivityPaused(AndroidJavaObject activity) 
+            public void onActivityPaused(AndroidJavaObject activity)
             {
                 _appEvents.OnActivityPaused();
             }
 
-            public void onActivityResumed(AndroidJavaObject activity) 
+            public void onActivityResumed(AndroidJavaObject activity)
             {
                 _appEvents.OnActivityResumed(WasStopped);
                 WasStopped = false;
             }
 
-            public void onActivitySaveInstanceState(AndroidJavaObject activity, AndroidJavaObject outState) 
+            public void onActivitySaveInstanceState(AndroidJavaObject activity, AndroidJavaObject outState)
             {
             }
 
-            public void onActivityStarted(AndroidJavaObject activity) 
+            public void onActivityStarted(AndroidJavaObject activity)
             {
             }
 
-            public void onActivityStopped(AndroidJavaObject activity) 
+            public void onActivityStopped(AndroidJavaObject activity)
             {
                 WasStopped = true;
             }
         }
 
-        private class MemoryTrimListener : AndroidJavaProxy
+        class MemoryTrimListener : AndroidJavaProxy
         {
-            private const string JavaInterface = "android.content.ComponentCallbacks2";
-            private AndroidAppEvents _appEvents;
-            private int LevelMemoryComplete;
+            const string JavaInterface = "android.content.ComponentCallbacks2";
+            AndroidAppEvents _appEvents;
+            int LevelMemoryComplete;
 
             public MemoryTrimListener(AndroidAppEvents appEvents)
                 : base(JavaInterface)
@@ -170,11 +169,11 @@ namespace SocialPoint.AppEvents
                 LevelMemoryComplete = new AndroidJavaClass(JavaInterface).GetStatic<int>("TRIM_MEMORY_COMPLETE");
             }
 
-            public void onConfigurationChanged(AndroidJavaObject newConfig) 
+            public void onConfigurationChanged(AndroidJavaObject newConfig)
             {
             }
-            
-            public void onTrimMemory(int level) 
+
+            public void onTrimMemory(int level)
             {                
                 if(level == LevelMemoryComplete)
                 {
@@ -184,13 +183,13 @@ namespace SocialPoint.AppEvents
         }
 
 
-    #endregion
+        #endregion
 
-	}
+    }
 
 #else
     public class AndroidAppEvents : BaseAppEvents
-	{
-	}
+    {
+    }
 #endif
 }

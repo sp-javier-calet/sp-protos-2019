@@ -186,7 +186,7 @@ namespace SocialPoint.AdminPanel
         // Categories Panel content
         class AdminPanelCategoriesGUI : IAdminPanelGUI
         {
-            private Dictionary<string, IAdminPanelGUI> _categories;
+            Dictionary<string, IAdminPanelGUI> _categories;
 
             public AdminPanelCategoriesGUI(Dictionary<string, IAdminPanelGUI> categories)
             {

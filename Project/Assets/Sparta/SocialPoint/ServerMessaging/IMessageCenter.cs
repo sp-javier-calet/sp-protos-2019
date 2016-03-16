@@ -9,23 +9,22 @@ namespace SocialPoint.ServerMessaging
     {
         IEnumerator<Message> Messages{ get; }
 
-        event Action<Error> ErrorEvent;
         event Action<IMessageCenter> UpdatedEvent;
 
-        void Load();
+        void UpdateMessages(Action<Error> callback = null);
 
-        void SendMessage(Message message);
+        void SendMessage(Message message, Action<Error> callback = null);
 
-        void DeleteMessages(List<Message> messages);
+        void DeleteMessages(List<Message> messages, Action<Error> callback = null);
     }
 
     public static class MessageCenterExtensions
     {
-        public static void DeleteMessage(this IMessageCenter msgs, Message msg)
+        public static void DeleteMessage(this IMessageCenter msgs, Message msg, Action<Error> callback = null)
         {
             var list = new List<Message>();
             list.Add(msg);
-            msgs.DeleteMessages(list);
+            msgs.DeleteMessages(list, callback);
         }
     }
 }

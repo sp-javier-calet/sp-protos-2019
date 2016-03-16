@@ -868,13 +868,13 @@ namespace SocialPoint.ServerSync
 
             foreach(var pushCommand in pushCommands)
             {
-                string commandId;
-                if(CommandReceiver != null &&
-                   CommandReceiver.Receive(pushCommand.Value.AsDic, out commandId))
+                string commandId = STCCommand.getId(pushCommand.Value.AsDic);
+                if(CommandReceiver != null)
                 {
-                    // Add a pending ack for the command response
-                    _pendingAcks.Add(commandId);
+                    CommandReceiver.Receive(pushCommand.Value.AsDic, out commandId);
                 }
+                // Add a pending ack for the command response
+                _pendingAcks.Add(commandId);
             }
 
             RemoveNotifiedAcks();

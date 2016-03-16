@@ -3,6 +3,7 @@ using Zenject;
 using System;
 using SocialPoint.Social;
 using SocialPoint.Login;
+using SocialPoint.AdminPanel;
 
 public class GameCenterInstaller : MonoInstaller
 {
@@ -17,6 +18,7 @@ public class GameCenterInstaller : MonoInstaller
         
     public override void InstallBindings()
     {
+        #if UNITY_IOS
         if(Settings.UseEmpty)
         {
             Container.Rebind<IGameCenter>().ToSingle<EmptyGameCenter>();
@@ -27,8 +29,12 @@ public class GameCenterInstaller : MonoInstaller
         }
         if(Settings.LoginLink)
         {
-            Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
+        Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
         }
+        #else
+        Container.Rebind<IGameCenter>().ToSingleMethod<EmptyGameCenter>(CreateEmptyGameCenter);
+        #endif
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGameCenter>();
     }
 
     GameCenterLink CreateLoginLink(InjectContext ctx)
@@ -36,4 +42,10 @@ public class GameCenterInstaller : MonoInstaller
         var gc = ctx.Container.Resolve<IGameCenter>();
         return new GameCenterLink(gc);
     }
+
+    EmptyGameCenter CreateEmptyGameCenter(InjectContext ctx)
+    {
+        return new EmptyGameCenter("Test User");
+    }
+
 }

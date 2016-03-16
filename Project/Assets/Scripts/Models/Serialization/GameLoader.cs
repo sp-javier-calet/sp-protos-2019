@@ -39,7 +39,7 @@ public class GameLoader : IGameLoader
     {
         get
         {
-            return string.Format("{0}/{1}.json", PathsManager.PersistentDataPath, _jsonPlayerResource);
+            return string.Format("{0}/{1}.json", PathsManager.AppPersistentDataPath, _jsonPlayerResource);
         }
     }
 

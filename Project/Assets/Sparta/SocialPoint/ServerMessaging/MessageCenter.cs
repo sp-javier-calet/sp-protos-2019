@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.ServerSync;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.AppEvents;
+using SocialPoint.Base;
+using SocialPoint.ServerSync;
 
 namespace SocialPoint.ServerMessaging
 {
@@ -10,10 +11,13 @@ namespace SocialPoint.ServerMessaging
     {
         public delegate void GetMessagesDelegate(Error Error,List<Message> messages);
 
+        public const int MsgDontExistError = 1;
+
         ICommandQueue _commandQueue;
         CommandReceiver _commandReceiver;
+        IAppEvents _appEvents;
         Dictionary<string,Message> _messages;
-        List<string> _messagesPendingDelete;
+        List<string> _deletedMessages;
 
         const string GetMessagesCommandName = "messages.get";
         const string SendMessagesCommandName = "messages.send";
@@ -22,85 +26,90 @@ namespace SocialPoint.ServerMessaging
         const string PendingMessagesCommandName = "messages.new";
         const string MessagesArg = "msgs";
 
-        public MessageCenter(ICommandQueue commandQueue, CommandReceiver commandReceiver)
+        public MessageCenter(ICommandQueue commandQueue, CommandReceiver commandReceiver, IAppEvents appEvents)
         {
             _messages = new Dictionary<string,Message>();
-            _messagesPendingDelete = new List<string>();
+            _deletedMessages = new List<string>();
             _commandQueue = commandQueue;
             _commandReceiver = commandReceiver;
             _commandReceiver.RegisterCommand(PendingMessagesCommandName, (cmd) => ParseMessages(cmd.Args));
+            _appEvents = appEvents;
+            _appEvents.GameWillRestart.Add(0, Reset);
         }
 
         #region IMessageCenter implementation
 
-        public event Action<Error> ErrorEvent;
-
         public event Action<IMessageCenter> UpdatedEvent;
 
-        public void Load()
+        public void UpdateMessages(Action<Error> callback = null)
         {
-            _commandQueue.Add(new Command(GetMessagesCommandName), ParseResponseGetMessagesCommand);
+            _commandQueue.Add(new Command(GetMessagesCommandName), (attr, error) => ParseResponseGetMessagesCommand(attr, error, callback));
         }
 
-        public void SendMessage(Message message)
+        public void SendMessage(Message message, Action<Error> callback = null)
         {
-            _commandQueue.Add(new Command(SendMessagesCommandName, message.ToAttr()), (resp, err) => {
+            _commandQueue.Add(new Command(SendMessagesCommandName, message.ToAttr(), false, false), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    ErrorEvent(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                 }
             });
         }
 
-        public void DeleteMessages(List<Message> messages)
+        public void DeleteMessages(List<Message> messages, Action<Error> callback = null)
         {
-            var arg = new AttrDic();
             var ids = new AttrList();
 
-            for(int i = 0; i < messages.Count; i++)
+            //check messages exist
+            foreach(var message in messages)
             {
-                if(!_messagesPendingDelete.Contains(messages[i].Id))
+                if(_messages.ContainsKey(message.Id))
                 {
-                    ids.Add(new AttrString(messages[i].Id));
-                    _messagesPendingDelete.Add(messages[i].Id);
-                }
-            }
-
-            arg.Set(DeleteIdsArg, ids);
-
-            _commandQueue.Add(new Command(DeleteMessagesCommandName, arg, false, false), (resp, err) => {
-                if(Error.IsNullOrEmpty(err))
-                {
-                    for(int i = 0; i < ids.Count; i++)
-                    {
-                        _messages.Remove(ids[i].ToString());
-                        _messagesPendingDelete.Remove(ids[i].ToString());
-                    }
+                    ids.Add(new AttrString(message.Id));
                 }
                 else
                 {
-                    if(!Error.IsNullOrEmpty(err))
-                    {
-                        ErrorEvent(err);
-                    }
+                    callback(new Error(MsgDontExistError, string.Format("message {0} doesn't exist", message.Id)));
+                    return;
+                }
+            }
+
+            //now that we know sure that messages were waiting for deletion
+            foreach(var message in messages)
+            {
+                _messages.Remove(message.Id);
+                _deletedMessages.Add(message.Id);
+            }
+
+            var handler = UpdatedEvent;
+            if(handler != null)
+            {
+                handler(this);
+            }
+
+            var arg = new AttrDic();
+            arg.Set(DeleteIdsArg, ids);
+
+            _commandQueue.Add(new Command(DeleteMessagesCommandName, arg, false, false), (resp, err) => {
+                if(callback != null)
+                {
+                    callback(err);
                 }
             });
         }
 
         /// <summary>
-        /// Returns all the pending messages
+        /// Returns all the messages
         /// </summary>
         /// <value>The messages.</value>
         public IEnumerator<Message> Messages
         {
             get
             {
-                var a = new List<Message>(_messages.Values);
-                for(int i = 0; i < _messagesPendingDelete.Count; i++)
-                {
-                    a.Remove(a.Find(m => m.Id == _messagesPendingDelete[i]));
-                }
-                return a.GetEnumerator();
+                return _messages.Values.GetEnumerator();
             }
         }
 
@@ -108,18 +117,23 @@ namespace SocialPoint.ServerMessaging
         public void Dispose()
         {
             _commandReceiver.UnregisterCommand(PendingMessagesCommandName);
+            _appEvents.GameWillRestart.Remove(Reset);
         }
 
         #endregion
 
-        void ParseMessages(Attr data)
+        /// <summary>
+        /// Parses the messages. expects an AttrDict with the key "msgs" and a list of objects message as a value.
+        /// </summary>
+        /// <param name="data">Data.</param>
+        public void ParseMessages(Attr data)
         {
             var messagesList = data.AsDic.Get(MessagesArg).AsList;
             var newMessages = false;
             for(int i = 0; i < messagesList.Count; i++)
             {
                 var message = new Message(messagesList[i].AsDic);
-                if(!_messages.ContainsKey(message.Id))
+                if(!_messages.ContainsKey(message.Id) && !_deletedMessages.Contains(message.Id))
                 {
                     _messages.Add(message.Id, message);
                     newMessages = true;
@@ -135,18 +149,23 @@ namespace SocialPoint.ServerMessaging
             }
         }
 
-        void ParseResponseGetMessagesCommand(Attr data, Error err)
+        void ParseResponseGetMessagesCommand(Attr data, Error err, Action<Error> callback = null)
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                var handler = ErrorEvent;
-                if(handler != null)
+                if(callback != null)
                 {
-                    handler(err);
+                    callback(err);
                 }
                 return;
             }
             ParseMessages(data);
+        }
+
+        void Reset()
+        {
+            _messages = new Dictionary<string,Message>();
+            _deletedMessages = new List<string>();
         }
     }
 }

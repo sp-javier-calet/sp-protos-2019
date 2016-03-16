@@ -84,7 +84,7 @@ namespace SocialPoint.Login
         }
 
         public void Login(ErrorDelegate cbk)
-        {            
+        {
             _googlePlay.Login((err) => OnLogin(err, cbk), _loginSilent);
         }
 

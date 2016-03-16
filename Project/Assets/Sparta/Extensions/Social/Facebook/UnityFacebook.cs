@@ -128,7 +128,7 @@ namespace SocialPoint.Social
                     {
                         //TODO: consider using response.ResultDictionary
                         req.ResultUrl = response.RawResult;
-                    
+
                         if(req.RequestCancelled)
                         {
                             err = new Error(FacebookErrors.DialogCancelled);

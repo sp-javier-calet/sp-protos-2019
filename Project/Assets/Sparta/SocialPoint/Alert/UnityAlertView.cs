@@ -1,6 +1,5 @@
-using UnityEngine;
-using System;
 using SocialPoint.GUIControl;
+using UnityEngine;
 
 namespace SocialPoint.Alert
 {
@@ -27,8 +26,7 @@ namespace SocialPoint.Alert
 
     public class UnityAlertView : IAlertView
     {
-
-        GameObject _prefab;
+        readonly GameObject _prefab;
         BaseUnityAlertViewController _controller;
         ResultDelegate _delegate;
 
@@ -116,7 +114,7 @@ namespace SocialPoint.Alert
             }
         }
 
-        bool _input = false;
+        bool _input;
 
         public bool Input
         {
@@ -130,14 +128,7 @@ namespace SocialPoint.Alert
         {
             get
             {
-                if(_controller != null)
-                {
-                    return _controller.InputText;
-                }
-                else
-                {
-                    return null;
-                }
+                return _controller != null ? _controller.InputText : null;
             }
         }
 
@@ -145,7 +136,7 @@ namespace SocialPoint.Alert
         {
             if(_controller == null)
             {
-                var go = (GameObject)GameObject.Instantiate(_prefab);
+                var go = Object.Instantiate(_prefab);
                 if(go != null)
                 {
                     go.name = _prefab.name;

@@ -39,7 +39,7 @@ public class StorageInstaller : MonoInstaller
         var devInfo = ctx.Container.Resolve<IDeviceInfo>();
         var persistent = new PersistentAttrStorage(devInfo.Uid, Settings.PersistentPrefix);
         #else
-        var persistent = new FileAttrStorage(PathsManager.PersistentDataPath); //TODO: doesnt work with prefixes
+        var persistent = new FileAttrStorage(PathsManager.AppPersistentDataPath); //TODO: doesnt work with prefixes
         #endif
 
         var vol = ctx.Container.Resolve<IAttrStorage>("volatile");

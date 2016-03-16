@@ -30,6 +30,8 @@ namespace SocialPoint.ServerEvents
         const string EventNameResourceEarning = "economy.{0}_earning";
         const string EventNameResourceSpending = "economy.{0}_spending";
 
+        const string HttpParamSessionId = "session_id";
+
         const int SessionLostErrorStatusCode = 482;
         const int StartEventNum = 1;
         static readonly string[] DefaultUnauthorizedEvents = {
@@ -46,6 +48,7 @@ namespace SocialPoint.ServerEvents
         public const int DefaultSendInterval = 5;
         public const float DefaultTimeout = 30.0f;
         public const float DefaultBackoffMultiplier = 1.1f;
+
 
         public RequestSetupDelegate RequestSetup;
 
@@ -261,8 +264,16 @@ namespace SocialPoint.ServerEvents
                 DataSetup(data);
             }
             AddHardwareData(data);
+
             var eventCommand = new EventCommand(eventName, data);
-            CommandQueue.Add(eventCommand, (attr, err) => del(err));
+            if(del == null)
+            {
+                CommandQueue.Add(eventCommand);
+            }
+            else
+            {
+                CommandQueue.Add(eventCommand, (attr, err) => del(err));
+            }
         }
 
         public void TrackSystemEvent(string eventName, AttrDic data = null, ErrorDelegate del = null)
@@ -496,6 +507,16 @@ namespace SocialPoint.ServerEvents
                     CatchException(e);
                 }
             }
+            if(auth && !req.HasParam(HttpParamSessionId))
+            {
+                // no session, we wait
+                if(finish != null)
+                {
+                    finish();
+                }
+                return;
+            }
+
             req.Body = data;
             if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
@@ -667,7 +688,7 @@ namespace SocialPoint.ServerEvents
             string sourceType = "app";
             string detail = "";
 
-            if(source.IsCustomScheme)
+            if(source.IsCustomScheme && !source.IsOpenFromIcon)
             {
                 sourceType = source.Scheme;
                 detail = source.Query;
@@ -691,7 +712,7 @@ namespace SocialPoint.ServerEvents
             name = string.Format(name, op.Resource);
 
             var data = op.AdditionalData ?? new AttrDic();
-            var operation = new AttrDic();
+            var operation = op.AdditionalData != null && op.AdditionalData.ContainsKey("operation") ? op.AdditionalData["operation"].AsDic : new AttrDic();
             data.Set("operation", operation);
             operation.SetValue("category", op.Category);
             operation.SetValue("subcategory", op.Subcategory);

@@ -8,7 +8,7 @@ namespace SocialPoint.Notifications
         public void Schedule(Notification notif)
         {
         }
-        
+
         public void ClearReceived()
         {
         }
@@ -21,5 +21,20 @@ namespace SocialPoint.Notifications
         {
         }
 
+        public void RequestPushNotification()
+        {
+        }
+
+        public void RequestLocalNotification()
+        {
+        }
+
+        public bool UserAllowsNofitication
+        {
+            get
+            {
+                return true;
+            }
+        }
     }
 }

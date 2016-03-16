@@ -1,16 +1,16 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Reflection;
+using UnityEngine;
 
 namespace SocialPoint.AdminPanel
 {
     public static class Reflection
     {
-        public static R GetPrivateField<R>(object instance, string fieldName) where R : class
+        public static R GetPrivateField<T, R>(object instance, string fieldName) where R : class
         {
             BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
             
-            FieldInfo field = instance.GetType().GetField(fieldName, bindFlags);
+            FieldInfo field = typeof(T).GetField(fieldName, bindFlags);
             if(field == null)
             {
                 Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` field in class {1}", fieldName, instance.GetType()));
@@ -18,11 +18,11 @@ namespace SocialPoint.AdminPanel
             return field != null ? field.GetValue(instance) as R : null;
         }
 
-        static MethodInfo GetMethod(object instance, string methodName)
+        static MethodInfo GetMethod<T>(string methodName)
         {
             // FIXME Does not work for overloaded methods
             BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            MethodInfo method = instance.GetType().GetMethod(methodName, bindFlags);
+            MethodInfo method = typeof(T).GetMethod(methodName, bindFlags);
 
             if(method == null)
             {
@@ -32,11 +32,11 @@ namespace SocialPoint.AdminPanel
             return method;
         }
 
-        public static void CallPrivateVoidMethod(object instance, string methodName, params object[] parameters)
+        public static void CallPrivateVoidMethod<T>(object instance, string methodName, params object[] parameters)
         {
             try
             {
-                GetMethod(instance, methodName).Invoke(instance, parameters);
+                GetMethod<T>(methodName).Invoke(instance, parameters);
             }
             catch(Exception e)
             {
@@ -44,11 +44,11 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public static R CallPrivateMethod<R>(object instance, string methodName, R defaultReturn, params object[] parameters)
+        public static R CallPrivateMethod<T, R>(object instance, string methodName, R defaultReturn, params object[] parameters)
         {
             try
             {
-                return (R)GetMethod(instance, methodName).Invoke(instance, parameters);
+                return (R)GetMethod<T>(methodName).Invoke(instance, parameters);
             }
             catch(Exception e)
             {

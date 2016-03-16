@@ -18,5 +18,13 @@
         public void OpenUrl(string url)
         {
         }
+
+        public bool UserAllowNotification
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

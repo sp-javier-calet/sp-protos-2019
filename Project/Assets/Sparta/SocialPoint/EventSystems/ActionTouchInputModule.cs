@@ -61,7 +61,7 @@ namespace SocialPoint.EventSystems
 
             for (int i = 0; i < Input.touchCount; ++i)
             {
-                Touch input = Input.GetTouch(i);
+                UnityEngine.Touch input = Input.GetTouch(i);
 
                 if (input.phase == TouchPhase.Began
                     || input.phase == TouchPhase.Moved
@@ -114,7 +114,7 @@ namespace SocialPoint.EventSystems
         {
             for (int i = 0; i < Input.touchCount; ++i)
             {
-                Touch input = Input.GetTouch(i);
+                UnityEngine.Touch input = Input.GetTouch(i);
 
                 bool released;
                 bool pressed;

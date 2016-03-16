@@ -12,7 +12,7 @@ namespace SocialPoint.Utils
 
     public interface ICoroutineRunner
     {
-        void StartCoroutine(IEnumerator enumerator);
+        IEnumerator StartCoroutine(IEnumerator enumerator);
         void StopCoroutine(IEnumerator enumerator);
     }
 

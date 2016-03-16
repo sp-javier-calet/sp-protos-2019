@@ -19,10 +19,13 @@ namespace SocialPoint.Notifications
         const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
         const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
 
-        public IosNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
-        : base(runner, commandqueue)
+        public IosNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue, bool requestPushNotificationAutomatically = true)
+            : base(runner, commandqueue, requestPushNotificationAutomatically)
         {
-            RegisterForLocal();
+            if(requestPushNotificationAutomatically)
+            {
+                RegisterForLocal();
+            }
         }
 
         public override void Schedule(Notification notif)
@@ -72,9 +75,22 @@ namespace SocialPoint.Notifications
             NotificationServices.PresentLocalNotificationNow(unotif);
         }
 
+        public override void RequestLocalNotification()
+        {
+            RegisterForLocal();
+        }
+
         void RegisterForLocal()
         {
             NotificationServices.RegisterForNotifications(_localNotifyTypes, false);
+        }
+
+        public override bool UserAllowsNofitication
+        {
+            get
+            {
+                return NativeUtils.UserAllowNotification;
+            }
         }
     }
 

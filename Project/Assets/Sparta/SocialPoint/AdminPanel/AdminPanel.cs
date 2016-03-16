@@ -7,8 +7,11 @@ namespace SocialPoint.AdminPanel
     public class AdminPanel
     {
         public Dictionary<string, IAdminPanelGUI> Categories { get; private set; }
+
         public AdminPanelConsole Console { get; private set; }
+
         public event Action ChangedVisibility;
+
         public bool Visible { get; private set; }
 
         List<IAdminPanelConfigurer> _configurers = new List<IAdminPanelConfigurer>();
@@ -55,7 +58,7 @@ namespace SocialPoint.AdminPanel
                 _configurers.Add(config);
             }
         }
-         
+
         public AdminPanelGUIGroup RegisterGUI(string category, IAdminPanelGUI gui)
         {
             var group = GetCategoryLayout(category);
@@ -63,7 +66,7 @@ namespace SocialPoint.AdminPanel
             return group;
         }
 
-        private AdminPanelGUIGroup GetCategoryLayout(string category)
+        AdminPanelGUIGroup GetCategoryLayout(string category)
         {
             IAdminPanelGUI group;
             if(!Categories.TryGetValue(category, out group))
