@@ -52,6 +52,7 @@
         "show_icon": true,
         "show_popup": true,
         "legacy_xpromo_enabled": false,
-        "aspect_ratio" : 1.778
+        "aspect_ratio" : 2.83,
+        "popup_height_factor" : 1.5
     }
 }
