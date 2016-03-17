@@ -36,7 +36,7 @@ namespace SocialPoint.Social
         
         public bool UsesApp { get; private set; }
         
-        public FacebookUser(string id = "", string name = "", bool usesApp = false)
+        public FacebookUser(string id = null, string name = null, bool usesApp = false)
         {
             UserId = id;
             Name = name;
@@ -127,10 +127,8 @@ namespace SocialPoint.Social
         public string RequestId { get; set; }
         
         public bool RequestCancelled { get; set; }
-        
+
         public List<string> To { get; set; }
-        
-        public List<string> Processed { get; set; }
         
         public string Message { get; set; }
         
@@ -156,7 +154,9 @@ namespace SocialPoint.Social
         const string RequestIdResultParam = "request";
         const string RequestCancelledParam = "cancelled";
         const string RequestErrorMesageParam = "error_code";
-        const string ToSeparator = ",";
+        const string RequestToParam = "to";
+        const string RequestToParamPrefix = "to[";
+        const char ToSeparator = ',';
         const string ActionTypeSend = "send";
         const string ActionTypeAskFor = "askfor";
         
@@ -164,7 +164,6 @@ namespace SocialPoint.Social
         {
             FrictionLess = false;
             To = new List<string>();
-            Processed = new List<string>();
             ExcludeIds = null;
         }
         
@@ -172,16 +171,65 @@ namespace SocialPoint.Social
         {
             Message = message;
         }
-        
+
+        public string[] ArrayTo
+        {
+            get
+            {
+                if(To == null || To.Count == 0)
+                {
+                    return null;
+                }
+                return To.ToArray();
+            }
+        }
+
+        public string[] ArrayExcludeIds
+        {
+            get
+            {
+                if(ExcludeIds == null || ExcludeIds.Count == 0)
+                {
+                    return null;
+                }
+                return ExcludeIds.ToArray();
+            }
+        }
+
+        public string StringTo
+        {
+            set
+            {
+                To.Clear();
+                To.AddRange(value.Split(new char[]{ ToSeparator }));
+            }
+
+            get
+            {
+                return string.Join(ToSeparator.ToString(), To.ToArray());
+            }
+        }
+
+        [Obsolete("Use StringTo property")]
         public void SetTo(string to)
         {
-            To.Clear();
-            To.AddRange(to.Split(ToSeparator.ToArray()));
+            StringTo = to;
         }
-        
+
+        [Obsolete("Use StringTo property")]
         public string GetTo()
         {
-            return string.Join(ToSeparator, To.ToArray());
+            return StringTo;
+        }
+
+        public bool AddTo(string id)
+        {
+            if(!To.Contains(id))
+            {
+                To.Add(id);
+                return true;
+            }
+            return false;
         }
         
         public string ResultUrl
@@ -214,6 +262,30 @@ namespace SocialPoint.Social
                 }
                 RequestCancelled = ResultParams.GetValue(RequestCancelledParam).ToBool()
                     || ResultParams.GetValue(RequestErrorMesageParam).ToLong() == DialogButtonCancelled;
+
+
+                // Facebook returns recipients in 2 forms, so we need to be prepared for both:
+                // 1. Recipients contained under "to" key
+                if(value.ContainsKey(RequestToParam))
+                {
+                    var recipients = value.Get(RequestToParam).AsList;
+                    for(var i = 0; i < recipients.Count; i++)
+                    {
+                        AddTo(recipients[i].AsValue.ToString());
+                    }
+                }
+
+                // 2. Recipients contained under keys with the form "to[%d]", where %d is a string number, one per each entry
+                var itr = value.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    var pair = itr.Current;
+                    if(StringUtils.StartsWith(pair.Key, RequestToParamPrefix))
+                    {
+                        AddTo(pair.Value.AsValue.ToString());
+                    }
+                }
+                itr.Dispose();
             }
         }
         
@@ -230,10 +302,8 @@ namespace SocialPoint.Social
         }
         public override string ToString()
         {
-            return string.Format("[FacebookAppRequest: RequestId={0}, Cancelled={1}, To={2}, Processed={3}, " +
-                "Message={4}, Title={5}, ResultParams={6}, FrictionLess={7}, ActionType={8}, ObjectId={9}, ExcludeIds={10}, " +
-                "Filter={11}]", RequestId, RequestCancelled, To, Processed,
-                 Message, Title, ResultParams, FrictionLess, ActionType, ObjectId, ExcludeIds, Filter);
+            return string.Format("[FacebookAppRequest: RequestId={0}, Cancelled={1}, To={2}, Message={3}, Title={4}, ResultParams={5}, FrictionLess={6}, ActionType={7}, ObjectId={8}, ExcludeIds={9}, Filter={10}]",
+                RequestId, RequestCancelled, StringTo, Message, Title, ResultParams, FrictionLess, ActionType, ObjectId, ExcludeIds, Filter);
         }
     }
     

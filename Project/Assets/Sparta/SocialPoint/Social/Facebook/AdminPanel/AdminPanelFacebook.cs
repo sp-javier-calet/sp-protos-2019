@@ -71,15 +71,17 @@ namespace SocialPoint.Social
             _adminPanel.Console.Print(string.Format("Facebook: {0}", msg));
         }
 
-        private void PrintError(string what, Error err)
+        private bool PrintError(string what, Error err)
         {
             if(Error.IsNullOrEmpty(err))
             {
                 PrintLog(string.Format("success when {0}", what));
+                return false;
             }
             else
             {
                 PrintLog(string.Format("error when {0}: {1}", what, err));
+                return true;
             }
         }
 
@@ -160,14 +162,20 @@ namespace SocialPoint.Social
                 var req = new FacebookAppRequest();
                 req.Message = "Test message";
                 _facebook.SendAppRequest(req, (_, err) => {
-                    PrintError("sending app request", err);
+                    if(!PrintError("sending app request", err))
+                    {
+                        PrintLog(req.ToString());
+                    }
                 });
             });
 
             layout.CreateButton("Post on Wall", () => {
                 var post = new FacebookWallPost();
                 _facebook.PostOnWallWithDialog(post, (_, err) => {
-                    PrintError("posting on wall", err);
+                    if(!PrintError("posting on wall", err))
+                    {
+                        PrintLog(post.ToString());
+                    }
                 });
             });
 

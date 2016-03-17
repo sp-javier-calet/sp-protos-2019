@@ -134,7 +134,7 @@ namespace SocialPoint.Login
             fbReq.FrictionLess = true;
             fbReq.Title = req.Title;
 
-            List<string> userIds = new List<string>();
+            var userIds = new List<string>();
             foreach(var recipient in req.Recipients)
             {
                 userIds.AddRange(recipient.GetExternalIds(LinkName));
