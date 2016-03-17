@@ -1,14 +1,12 @@
-
-using NUnit.Framework;
 using System;
+using NUnit.Framework;
 
 namespace SocialPoint.Utils
 {
     [TestFixture]
     [Category("SocialPoint.Utils")]
-    internal class PriorityQueueTests
+    class PriorityQueueTests
     {
-
         PriorityQueue<int, string> _queue;
 
         [SetUp]
@@ -27,14 +25,14 @@ namespace SocialPoint.Utils
             using(var itr = _queue.GetEnumerator())
             {
                 itr.MoveNext();
-                Assert.AreEqual ("important", itr.Current);
+                Assert.AreEqual("important", itr.Current);
                 itr.MoveNext();
-                Assert.AreEqual ("normal", itr.Current);
+                Assert.AreEqual("normal", itr.Current);
                 itr.MoveNext();
-                Assert.AreEqual ("last", itr.Current);
+                Assert.AreEqual("last", itr.Current);
             }
         }
-       
+
         [Test]
         public void RemoveTest()
         {
@@ -58,11 +56,11 @@ namespace SocialPoint.Utils
             using(var itr = queue.GetEnumerator())
             {
                 itr.MoveNext();
-                Assert.AreEqual ("important", itr.Current);
+                Assert.AreEqual("important", itr.Current);
                 itr.MoveNext();
-                Assert.AreEqual ("normal", itr.Current);
+                Assert.AreEqual("normal", itr.Current);
                 itr.MoveNext();
-                Assert.AreEqual ("last", itr.Current);
+                Assert.AreEqual("last", itr.Current);
             }
         }
 
@@ -93,9 +91,7 @@ namespace SocialPoint.Utils
             Action test = null;
 
             var action = new PriorityAction();
-            action.Add(0, () => {
-                action.Add(10, test);
-            });
+            action.Add(0, () => action.Add(10, test));
 
             action.Add(-10, () => {
                 var result = action.Remove(test);

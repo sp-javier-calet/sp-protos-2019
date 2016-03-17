@@ -303,7 +303,7 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        long CurrentTimestamp
+        static long CurrentTimestamp
         {
             get
             {
@@ -312,7 +312,7 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        long CurrentSyncedTimestamp
+        static long CurrentSyncedTimestamp
         {
             get
             {
@@ -321,7 +321,7 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        int CurrentSyncedOffset
+        static int CurrentSyncedOffset
         {
             get
             {
@@ -389,16 +389,14 @@ namespace SocialPoint.ServerEvents
             if(!_sending)
             {
                 _sending = true;
-                int count = 2;
-                Action step = () => {
-                    count--;
-                    if(count == 0)
-                    {
-                        AfterSend();
-                    }
-                };
-                DoSend(false, step);
-                DoSend(true, step);
+
+                var steps = new StepCallbackBuilder(AfterSend);
+
+                DoSend(false, steps.Add());
+                DoSend(true, steps.Add());
+
+                steps.Ready();
+
                 return true;
             }
             else
