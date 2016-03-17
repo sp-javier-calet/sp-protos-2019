@@ -7,9 +7,11 @@ using SocialPoint.Utils;
 
 public class CrossPromoPopupController : BasePopupCrossPromoController
 {
+    //Popup parent/head container
     [SerializeField]
     protected RectTransform _mainContainer;
 
+    //Scroll area for the banners
     [SerializeField]
     protected RectTransform _cellContainer;
 
@@ -37,43 +39,58 @@ public class CrossPromoPopupController : BasePopupCrossPromoController
         return new Vector2(Screen.width, Screen.height);
     }
 
-    protected override Vector2 GetOriginalPopupSize()
-    {
-        float widthPercent = _mainContainer.anchorMax.x - _mainContainer.anchorMin.x;
-        float heightPercent = _mainContainer.anchorMax.y - _mainContainer.anchorMin.y;
-        return new Vector2(Screen.width * widthPercent, Screen.height * heightPercent);
-    }
-
     protected override Vector2 GetPopupSize()
     {
-        return new Vector2(_mainContainer.rect.width, _mainContainer.rect.height);
-    }
-
-    protected override Vector2 GetOriginalCellAreaSize()
-    {
-        float widthPercent = _cellContainer.anchorMax.x - _cellContainer.anchorMin.x;
-        float heightPercent = _cellContainer.anchorMax.y - _cellContainer.anchorMin.y;
-        return new Vector2(Screen.width * widthPercent, Screen.height * heightPercent);
+        return GetSize(_mainContainer);
     }
 
     protected override Vector2 GetCellAreaSize()
     {
-        return new Vector2(_cellContainer.rect.width, _cellContainer.rect.height);
+        return GetSize(_cellContainer);
+    }
+
+    /**
+     * Helper function to get current size of some UI elements in the popup.
+     * If current size is 0 in both axis its probably because its not yet 
+     * initialized in screen by Unity nor set through script,
+     * in this case an original estimated size is returned.
+     * */
+    private static Vector2 GetSize(RectTransform rTransform)
+    {
+        Vector2 currentSize = new Vector2(rTransform.rect.width, rTransform.rect.height);
+        if(currentSize.x == 0 && currentSize.y == 0)
+        {
+            currentSize = GetOriginalSize(rTransform);
+        }
+        return currentSize;
+    }
+
+    /**
+     * Helper function to get original size of some UI elements in the popup.
+     * */
+    private static Vector2 GetOriginalSize(RectTransform rTransform)
+    {
+        float widthPercent = rTransform.anchorMax.x - rTransform.anchorMin.x;
+        float heightPercent = rTransform.anchorMax.y - rTransform.anchorMin.y;
+        return new Vector2(Screen.width * widthPercent, Screen.height * heightPercent);
     }
 
     protected override void SetPopupSize()
     {
-        Vector2 currentCellAreaSize = GetOriginalCellAreaSize();
+        Vector2 currentCellAreaSize = GetCellAreaSize();
         float desiredCellAreaHeight = CellHeight * _cpm.Data.PopupHeightFactor;
         float growFactor = desiredCellAreaHeight / currentCellAreaSize.y;
-        Vector2 currentPopupSize = GetOriginalPopupSize();//GetPopupSize();
-        Vector2 desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);
+        Vector2 currentPopupSize = GetPopupSize();
+        Vector2 desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);//new Vector2(Mathf.Min(currentPopupSize.x, Screen.width - Margin), currentPopupSize.y * growFactor);
         float finalPopupAspectRatio = desiredPopupSize.x / desiredPopupSize.y;
 
-        //Rect newPopupRect = new Rect(0, 0, Mathf.CeilToInt(CellWidth), Mathf.CeilToInt(CellHeight * _cpm.Data.PopupHeightFactor));
-        //_mainContainer.rect = newPopupRect;
-        float horizontalOffset = (Screen.width * 0.5f) - Margin;
+        float horizontalOffset = (Screen.width * 0.5f) - Margin;//desiredPopupSize.x * 0.5f;
         float verticalOffset = horizontalOffset / finalPopupAspectRatio;
+        if(verticalOffset * 2 > Screen.height)
+        {
+            verticalOffset = Screen.height * 0.5f;
+            horizontalOffset = verticalOffset * finalPopupAspectRatio;
+        }
 
         _mainContainer.anchorMin = new Vector2(0.5f, 0.5f);
         _mainContainer.anchorMax = new Vector2(0.5f, 0.5f);
@@ -83,12 +100,6 @@ public class CrossPromoPopupController : BasePopupCrossPromoController
         Vector2 cellAreaSize = GetCellAreaSize();
         CellWidth = cellAreaSize.x;
         CellHeight = CellWidth / _cpm.Data.AspectRatio;
-
-        /*UIWidget containerScroll = GridObj.transform.parent.parent.GetComponent<UIWidget>();
-        containerScroll.width = Mathf.CeilToInt(CellWidth);
-        containerScroll.height = Mathf.CeilToInt(CellHeight * _cpm.Data.PopupHeightFactor);
-
-        PopupSprite.ResetAndUpdateAnchors();*/
     }
 
     protected override void CreateCells()
