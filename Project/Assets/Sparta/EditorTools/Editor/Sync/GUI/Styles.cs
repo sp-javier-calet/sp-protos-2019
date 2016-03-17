@@ -23,6 +23,11 @@ namespace SpartaTools.Editor.Sync.View
 
         public static GUIStyle TableContent { get; private set; }
 
+        public static readonly GUILayoutOption[] ActionButtonOptions = new GUILayoutOption[] {
+            GUILayout.Width(60),
+            GUILayout.Height(18)
+        };
+
         public static readonly GUILayoutOption[] PopupLayoutOptions = new GUILayoutOption[] {
             GUILayout.Width(60),
             GUILayout.Height(15)

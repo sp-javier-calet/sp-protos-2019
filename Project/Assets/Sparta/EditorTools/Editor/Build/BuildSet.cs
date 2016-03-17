@@ -6,9 +6,21 @@ namespace SpartaTools.Editor.Build
 {
     public class BuildSet : ScriptableObject
     {
+        public const string BuildSetPath = "Assets/Sparta/Config/BuildSet/";
+
+        /* Common configuration */
         public string CommonFlags;
-        public string AndroidFlags;
+        public string BundleIdentifier;
+        public bool RebuildNativePlugins;
+
+        /* iOS configuration */
         public string IosFlags;
+        public string XcodeModsPrefixes;
+
+        /* Android configuration */
+        public string AndroidFlags;
+        public bool ForceBundleVersionCode;
+        public int BundleVersionCode;
 
         public bool UseKeytore;
         public string KeystorePath;
@@ -17,21 +29,27 @@ namespace SpartaTools.Editor.Build
         public string KeystorePassword;
 
 
-        [MenuItem( "Sparta/Create/Instance" )]
-        public static void CreateInstance() {
-            CreateAsset(typeof(BuildSet));
+        public bool Validate()
+        {
+            return !string.IsNullOrEmpty(BundleIdentifier);
         }
 
-        private static void CreateAsset(System.Type type) {
-            var asset = ScriptableObject.CreateInstance( type );
-            string path = AssetDatabase.GetAssetPath( Selection.activeObject );
-            if( path == "" )  {
+        public static void CreateBuildSet(string configName)
+        {
+            System.Type type = typeof(BuildSet);
+            var asset = ScriptableObject.CreateInstance(type);
+            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if(path == "")
+            {
                 path = "Assets";
-            } else if( Path.GetExtension( path ) != "" ) {
-                path = path.Replace( Path.GetFileName( AssetDatabase.GetAssetPath( Selection.activeObject ) ), "" );
             }
-            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath( "Assets/BuildSet/" + type.ToString() + ".asset" );
-            AssetDatabase.CreateAsset( asset, assetPathAndName );
+            else if(Path.GetExtension(path) != "")
+            {
+                path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
+            }
+
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(BuildSetPath + configName + ".asset");
+            AssetDatabase.CreateAsset(asset, assetPathAndName);
             AssetDatabase.SaveAssets();
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;

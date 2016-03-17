@@ -9,12 +9,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
-  m_Name: Debug-BuildSet
+  m_Name: Release-BuildSet
   m_EditorClassIdentifier: 
   CommonFlags: 
+  BundleIdentifier: 
+  RebuildNativePlugins: 0
+  IosFlags: NO_GPGS
+  XcodeModsPrefixes: 
   AndroidFlags: 
-  IosFlags: 
-  UseKeytore: 0
+  UseKeytore: 1
   KeystorePath: 
   KeystoreFilePassword: 
   KeystoreAlias: 
