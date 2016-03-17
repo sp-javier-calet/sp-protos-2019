@@ -1747,12 +1747,9 @@ namespace SocialPoint.Attributes
 
             for(var i = 0; i < ra.Count; i++)
             {
-                for(var j = 0; j < la.Count; j++)
+                if(la[i] != ra[i])
                 {
-                    if(la[j] != ra[i])
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
             return true;
