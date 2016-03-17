@@ -76,7 +76,7 @@ namespace SpartaTools.Editor.Build
 
         static void ApplyConfig(string configName)
         {
-            var configPath = BuildSet.BuildSetPath + configName + "-BuildSet.asset";
+            var configPath = BuildSet.ContainerPath + configName + BuildSet.FileSuffix + BuildSet.FileExtension;
             var buildSet = AssetDatabase.LoadAssetAtPath<BuildSet>(configPath);
             if(buildSet != null)
             {
@@ -86,6 +86,29 @@ namespace SpartaTools.Editor.Build
 
         static void ApplyConfig(BuildSet config)
         {
+            if(config.OverrideIcon)
+            {
+                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon
+                });
+                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon,
+                    config.Icon
+                });
+            }
+
             // Bundle
             PlayerSettings.bundleIdentifier = config.BundleIdentifier;
 
@@ -114,17 +137,17 @@ namespace SpartaTools.Editor.Build
         Dictionary<string, BuildSetViewData> LoadViewConfig()
         {
             var configs = new Dictionary<string, BuildSetViewData>();
-            foreach(var path in Directory.GetFiles(BuildSet.BuildSetPath))
+            foreach(var path in Directory.GetFiles(BuildSet.ContainerPath))
             {
-                if(path.EndsWith(".asset"))
+                if(path.EndsWith(BuildSet.FileExtension))
                 {
                     var bs = AssetDatabase.LoadAssetAtPath<BuildSet>(path);
                     var assetName = Path.GetFileNameWithoutExtension(path);
-                    var suffixIndex = assetName.IndexOf("-BuildSet");
+                    var suffixIndex = assetName.IndexOf(BuildSet.FileSuffix);
                     if(suffixIndex > 0)
                     {
                         var configName = assetName.Substring(0, suffixIndex);
-                        configs.Add(configName, new BuildSetViewData(configName, bs));
+                        configs.Add(assetName, new BuildSetViewData(configName, bs));
                     }
                 }
             }
@@ -149,6 +172,12 @@ namespace SpartaTools.Editor.Build
                 config.CommonFlags = EditorGUILayout.TextField("Common Flags", config.CommonFlags);
                 config.RebuildNativePlugins = EditorGUILayout.Toggle("Rebuild native plugins", config.RebuildNativePlugins);
                 config.BundleIdentifier = EditorGUILayout.TextField("Bundle Identifier", config.BundleIdentifier);
+                config.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.OverrideIcon);
+                if(config.OverrideIcon)
+                {
+                    config.Icon = (Texture2D)EditorGUILayout.ObjectField("Icon", config.Icon, typeof(Texture2D), false);
+                }
+
                 EditorGUILayout.Space();
 
                 EditorGUILayout.LabelField("IOS", EditorStyles.boldLabel);
@@ -209,9 +238,17 @@ namespace SpartaTools.Editor.Build
                 _buildSetData = LoadViewConfig();
             }
 
-            foreach(var config in _buildSetData.Values)
+            // Inflate config panels
+            if(_buildSetData.Count == 0)
             {
-                CreateConfigPanel(config);
+                EditorGUILayout.LabelField("No build sets defined");
+            }
+            else
+            {
+                foreach(var config in _buildSetData.Values)
+                {
+                    CreateConfigPanel(config);
+                }
             }
 
             // Common Buttons
@@ -221,7 +258,7 @@ namespace SpartaTools.Editor.Build
             }
             if(GUILayout.Button("New Build Set"))
             {
-                BuildSet.CreateBuildSet("NewConfig-BuildSet");
+                BuildSet.CreateBuildSet("NewConfig");
             }
 
             EditorGUILayout.Space();

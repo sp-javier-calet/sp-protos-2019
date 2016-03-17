@@ -6,12 +6,17 @@ namespace SpartaTools.Editor.Build
 {
     public class BuildSet : ScriptableObject
     {
-        public const string BuildSetPath = "Assets/Sparta/Config/BuildSet/";
+        public const string ContainerPath = "Assets/Sparta/Config/BuildSet/";
+        public const string FileSuffix = "-BuildSet";
+        public const string FileExtension = ".asset";
 
         /* Common configuration */
         public string CommonFlags;
         public string BundleIdentifier;
         public bool RebuildNativePlugins;
+
+        public bool OverrideIcon;
+        public Texture2D Icon;
 
         /* iOS configuration */
         public string IosFlags;
@@ -48,11 +53,13 @@ namespace SpartaTools.Editor.Build
                 path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
             }
 
-            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(BuildSetPath + configName + ".asset");
-            AssetDatabase.CreateAsset(asset, assetPathAndName);
+
+            string assetPath = AssetDatabase.GenerateUniqueAssetPath(ContainerPath + configName + FileSuffix + FileExtension);
+            AssetDatabase.CreateAsset(asset, assetPath);
             AssetDatabase.SaveAssets();
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
+
         }
     }
 }
