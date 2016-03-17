@@ -149,7 +149,7 @@ namespace SocialPoint.Attributes
                 return new AttrDic();
             }
         }
-                
+
         public static AttrList InvalidList
         {
             get
@@ -1170,15 +1170,18 @@ namespace SocialPoint.Attributes
         {
             if(other != null)
             {
-                foreach(var pair in other)
+                var itr = other.GetEnumerator();
+                while(itr.MoveNext())
                 {
                     Attr val = null;
+                    var pair = itr.Current;
                     if(pair.Value != null)
                     {
                         val = (Attr)pair.Value.Clone();
                     }
                     Set(pair.Key, val);
                 }
+                itr.Dispose();
             }
         }
 
@@ -1190,10 +1193,13 @@ namespace SocialPoint.Attributes
         {
             if(other != null)
             {
-                foreach(var pair in other)
+                var itr = other.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pair = itr.Current;
                     SetValue(pair.Key, pair.Value);
                 }
+                itr.Dispose();
             }
         }
 
@@ -1201,11 +1207,9 @@ namespace SocialPoint.Attributes
         {
             if(other != null)
             {
-                var i = 0;
-                foreach(var val in other)
+                for(var i = 0; i < other.Count; i++)
                 {
-                    Set(i.ToString(), (Attr)val.Clone());
-                    i++;
+                    Set(i.ToString(), (Attr)other.Get(i).Clone());
                 }
             }
         }
@@ -1233,9 +1237,14 @@ namespace SocialPoint.Attributes
             return ContainsValue(new AttrString((value != null ? value : "")));
         }
 
-        public IEnumerator<KeyValuePair<string, Attr>> GetEnumerator()
+        public Dictionary<string, Attr>.Enumerator GetEnumerator()
         {
             return _value.GetEnumerator();
+        }
+
+        IEnumerator<KeyValuePair<string, Attr>> IEnumerable<KeyValuePair<string, Attr>>.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -1253,8 +1262,10 @@ namespace SocialPoint.Attributes
             var b = StringUtils.StartBuilder();
             b.Append("{");
             var i = 0;
-            foreach(var pair in this)
+            var itr = GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 b.Append(pair.Key);
                 b.Append(" = ");
                 b.Append(pair.Value);
@@ -1264,6 +1275,7 @@ namespace SocialPoint.Attributes
                 }
                 i++;
             }
+            itr.Dispose();
             b.Append("}");
             return b.ToString();
         }
@@ -1390,13 +1402,17 @@ namespace SocialPoint.Attributes
                 return false;
             }
 
-            foreach(var pair in la)
+            var itr = la.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 if(!ra.ContainsKey(pair.Key) || !pair.Value.Equals(ra.Get(pair.Key)))
                 {
+                    itr.Dispose();
                     return false;
                 }
             }
+            itr.Dispose();
             
             return true;
         }
@@ -1440,29 +1456,33 @@ namespace SocialPoint.Attributes
         public Dictionary<string,V> ToDictionary<V>()
         {
             var dic = new Dictionary<string, V>();
-            foreach(var pair in this)
+            var itr = GetEnumerator();
+            while(itr.MoveNext())
             {
                 V val = default(V);
+                var pair = itr.Current;
                 if(pair.Value != null)
                 {
                     val = pair.Value.AsValue.ToValue<V>();
                 }
                 dic.Add(pair.Key, val);
             }
-
+            itr.Dispose();
             return dic;
         }
 
         public override void Dispose()
         {
-            foreach(var pair in this)
+            var itr = GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 if(pair.Value != null)
                 {
                     pair.Value.Dispose();
                 }
             }
-            GC.SuppressFinalize(this);
+            itr.Dispose();
         }
     }
 
@@ -1485,9 +1505,10 @@ namespace SocialPoint.Attributes
             AllowDuplicates = true;
             if(other != null)
             {
-                foreach(var elm in other)
+                for(var i = 0; i < other.Count; i++)
                 {
                     Attr val = null;
+                    var elm = other[i];
                     if(elm != null)
                     {
                         val = (Attr)elm.Clone();
@@ -1502,17 +1523,19 @@ namespace SocialPoint.Attributes
             AllowDuplicates = true;
             if(other != null)
             {
-                foreach(var elm in other)
+                for(var i = 0; i < other.Count; i++)
                 {
-                    AddValue(elm);
+                    AddValue(other[i]);
                 }
             }
         }
 
         public AttrList(AttrDic other) : this()
         {
-            foreach(var pair in other)
+            var itr = other.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 Attr val = null;
                 if(pair.Value != null)
                 {
@@ -1520,6 +1543,7 @@ namespace SocialPoint.Attributes
                 }
                 Add(val);
             }
+            itr.Dispose();
         }
 
         public AttrList(AttrList other) : this(other._value)
@@ -1546,8 +1570,9 @@ namespace SocialPoint.Attributes
         public List<V> ToList<V>()
         {
             var list = new List<V>();
-            foreach(var elm in this)
+            for(var i = 0; i < Count; i++)
             {
+                var elm = Get(i);
                 V val = default(V);
                 if(elm != null)
                 {
@@ -1562,23 +1587,26 @@ namespace SocialPoint.Attributes
         {
             var b = StringUtils.StartBuilder();
             b.Append("[");
-            var i = 0;
-            foreach(var elm in this)
+            for(var i = 0; i < Count; i++)
             {
-                b.Append(elm);
+                b.Append(Get(i));
                 if(i != _value.Count - 1)
                 {
                     b.Append(",");
                 }
-                i++;
             }
             b.Append("]");
             return b.ToString();
         }
 
-        public  IEnumerator<Attr> GetEnumerator()
+        public List<Attr>.Enumerator GetEnumerator()
         {
             return _value.GetEnumerator();
+        }
+
+        IEnumerator<Attr> IEnumerable<Attr>.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -1717,18 +1745,16 @@ namespace SocialPoint.Attributes
                 return false;
             }
 
-            using(var raItr = ra.GetEnumerator())
+            for(var i = 0; i < ra.Count; i++)
             {
-                foreach(var elm in la)
+                for(var j = 0; j < la.Count; j++)
                 {
-                    if(elm != raItr.Current)
+                    if(la[j] != ra[i])
                     {
                         return false;
                     }
-                    raItr.MoveNext();
                 }
             }
-
             return true;
         }
 
@@ -1769,8 +1795,9 @@ namespace SocialPoint.Attributes
 
         public override void Dispose()
         {
-            foreach(var elm in this)
+            for(var i = 0; i < Count; i++)
             {
+                var elm = Get(i);
                 if(elm != null)
                 {
                     elm.Dispose();
