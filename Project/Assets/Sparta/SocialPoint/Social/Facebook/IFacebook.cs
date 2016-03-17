@@ -224,7 +224,7 @@ namespace SocialPoint.Social
 
         public bool AddTo(string id)
         {
-            if(!To.Contains(id))
+            if(!string.IsNullOrEmpty(id) && !To.Contains(id))
             {
                 To.Add(id);
                 return true;
