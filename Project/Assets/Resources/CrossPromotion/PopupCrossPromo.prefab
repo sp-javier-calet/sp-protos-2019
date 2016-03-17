@@ -490,12 +490,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: -1
+  m_MinWidth: 640
   m_MinHeight: 215
-  m_PreferredWidth: -1
-  m_PreferredHeight: -1
-  m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
+  m_PreferredWidth: 640
+  m_PreferredHeight: 215
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: 1
 --- !u!114 &11427022
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -606,7 +606,7 @@ MonoBehaviour:
   m_Script: {fileID: 1980459831, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 1
+  m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -818,6 +818,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _activityView: {fileID: 100588}
   _mainContainer: {fileID: 22452822}
+  _cellContainer: {fileID: 22458996}
   _cellPrototype: {fileID: 11480554}
   _titleImage: {fileID: 11404614}
   _closeButton: {fileID: 11480434}
@@ -976,8 +977,8 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 1
   m_Spacing: 0
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
 --- !u!222 &22200568
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -1219,7 +1220,7 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 22481254}
   m_RootOrder: 1
-  m_AnchorMin: {x: 0.30508474, y: 0.13076876}
+  m_AnchorMin: {x: 0.2354363, y: 0.13076876}
   m_AnchorMax: {x: 0.9216102, y: 0.8692303}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -1309,8 +1310,8 @@ RectTransform:
   - {fileID: 22408988}
   m_Father: {fileID: 22431418}
   m_RootOrder: 0
-  m_AnchorMin: {x: -0.0003303502, y: 0.5530146}
-  m_AnchorMax: {x: 1.0003303, y: 1}
+  m_AnchorMin: {x: 0.0050836415, y: 0.39323243}
+  m_AnchorMax: {x: 0.9949163, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
@@ -1365,7 +1366,7 @@ RectTransform:
   m_Father: {fileID: 22481254}
   m_RootOrder: 0
   m_AnchorMin: {x: 0.0069385464, y: 0.13076924}
-  m_AnchorMax: {x: 0.28225636, y: 0.86923075}
+  m_AnchorMax: {x: 0.21692054, y: 0.86923075}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

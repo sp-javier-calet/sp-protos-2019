@@ -11,6 +11,9 @@ public class CrossPromoPopupController : BasePopupCrossPromoController
     protected RectTransform _mainContainer;
 
     [SerializeField]
+    protected RectTransform _cellContainer;
+
+    [SerializeField]
     protected CrossPromoCellController _cellPrototype;
 
     [SerializeField]
@@ -34,26 +37,67 @@ public class CrossPromoPopupController : BasePopupCrossPromoController
         return new Vector2(Screen.width, Screen.height);
     }
 
+    protected override Vector2 GetOriginalPopupSize()
+    {
+        float widthPercent = _mainContainer.anchorMax.x - _mainContainer.anchorMin.x;
+        float heightPercent = _mainContainer.anchorMax.y - _mainContainer.anchorMin.y;
+        return new Vector2(Screen.width * widthPercent, Screen.height * heightPercent);
+    }
+
     protected override Vector2 GetPopupSize()
     {
         return new Vector2(_mainContainer.rect.width, _mainContainer.rect.height);
     }
 
+    protected override Vector2 GetOriginalCellAreaSize()
+    {
+        float widthPercent = _cellContainer.anchorMax.x - _cellContainer.anchorMin.x;
+        float heightPercent = _cellContainer.anchorMax.y - _cellContainer.anchorMin.y;
+        return new Vector2(Screen.width * widthPercent, Screen.height * heightPercent);
+    }
+
+    protected override Vector2 GetCellAreaSize()
+    {
+        return new Vector2(_cellContainer.rect.width, _cellContainer.rect.height);
+    }
+
     protected override void SetPopupSize()
     {
+        Vector2 currentCellAreaSize = GetOriginalCellAreaSize();
+        float desiredCellAreaHeight = CellHeight * _cpm.Data.PopupHeightFactor;
+        float growFactor = desiredCellAreaHeight / currentCellAreaSize.y;
+        Vector2 currentPopupSize = GetOriginalPopupSize();//GetPopupSize();
+        Vector2 desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);
+        float finalPopupAspectRatio = desiredPopupSize.x / desiredPopupSize.y;
+
         //Rect newPopupRect = new Rect(0, 0, Mathf.CeilToInt(CellWidth), Mathf.CeilToInt(CellHeight * _cpm.Data.PopupHeightFactor));
         //_mainContainer.rect = newPopupRect;
-        float halfWidth = Screen.width / 2;
-        float halfHeight = Screen.height / 2;
+        float horizontalOffset = (Screen.width * 0.5f) - Margin;
+        float verticalOffset = horizontalOffset / finalPopupAspectRatio;
+
         _mainContainer.anchorMin = new Vector2(0.5f, 0.5f);
         _mainContainer.anchorMax = new Vector2(0.5f, 0.5f);
-        _mainContainer.offsetMin = new Vector2(-halfWidth * 0.8f, -halfHeight * 0.8f);
-        _mainContainer.offsetMax = new Vector2(halfWidth * 0.8f, halfHeight * 0.8f);
+        _mainContainer.offsetMin = new Vector2(-horizontalOffset, -verticalOffset);
+        _mainContainer.offsetMax = new Vector2(horizontalOffset, verticalOffset);
+
+        Vector2 cellAreaSize = GetCellAreaSize();
+        CellWidth = cellAreaSize.x;
+        CellHeight = CellWidth / _cpm.Data.AspectRatio;
+
+        /*UIWidget containerScroll = GridObj.transform.parent.parent.GetComponent<UIWidget>();
+        containerScroll.width = Mathf.CeilToInt(CellWidth);
+        containerScroll.height = Mathf.CeilToInt(CellHeight * _cpm.Data.PopupHeightFactor);
+
+        PopupSprite.ResetAndUpdateAnchors();*/
     }
 
     protected override void CreateCells()
     {
         _cellPrototype.gameObject.SetActive(false);
+        LayoutElement cellLayout = _cellPrototype.GetComponent<LayoutElement>();
+        cellLayout.preferredWidth = cellLayout.minWidth = CellWidth;
+        cellLayout.preferredHeight = cellLayout.minHeight = CellHeight;
+
         int position = 0;
         foreach(var keyValue in _cpm.Data.BannerInfo)
         {

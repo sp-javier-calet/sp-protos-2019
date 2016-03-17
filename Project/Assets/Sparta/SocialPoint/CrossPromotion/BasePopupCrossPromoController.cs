@@ -40,14 +40,15 @@ namespace SocialPoint.CrossPromotion
 
             //Check screen settings and desired size
             Vector2 screenSize = GetScreenSize();
+            Vector2 popupSize = GetPopupSize();
+            Vector2 cellAreaSize = GetOriginalCellAreaSize();
             float ratioIphone = 960f / 640f;
             float currentRatio = screenSize.x / screenSize.y;
             Margin = (Mathf.Approximately(ratioIphone, currentRatio)) ? _iphone4Margin : _defaultMargin;
-            CellWidth = _originalCellWidth - Margin;
+            CellWidth = cellAreaSize.x;
             CellHeight = CellWidth / _cpm.Data.AspectRatio;
 
             //Set popup size
-            Vector2 popupSize;
             do
             {
                 SetPopupSize();
@@ -68,9 +69,24 @@ namespace SocialPoint.CrossPromotion
             return Vector2.zero;
         }
 
+        protected virtual Vector2 GetOriginalPopupSize()
+        {
+            return Vector2.zero;
+        }
+
         protected virtual Vector2 GetPopupSize()
         {
-            return  Vector2.zero;
+            return Vector2.zero;
+        }
+
+        protected virtual Vector2 GetOriginalCellAreaSize()
+        {
+            return Vector2.zero;
+        }
+
+        protected virtual Vector2 GetCellAreaSize()
+        {
+            return Vector2.zero;
         }
 
         protected virtual void SetPopupSize()
