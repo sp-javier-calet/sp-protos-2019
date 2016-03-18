@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 
 namespace SocialPoint.EventSystems
 {
+    [Obsolete("ActionTouchInputModule is no longer required as Touch input is now handled in ActionStandaloneInputModule.")]
     [AddComponentMenu("Event/Touch Input Module")]
     public class ActionTouchInputModule : ActionPointerInputModule
     {
@@ -61,7 +62,7 @@ namespace SocialPoint.EventSystems
 
             for (int i = 0; i < Input.touchCount; ++i)
             {
-                UnityEngine.Touch input = Input.GetTouch(i);
+                Touch input = Input.GetTouch(i);
 
                 if (input.phase == TouchPhase.Began
                     || input.phase == TouchPhase.Moved
@@ -114,7 +115,10 @@ namespace SocialPoint.EventSystems
         {
             for (int i = 0; i < Input.touchCount; ++i)
             {
-                UnityEngine.Touch input = Input.GetTouch(i);
+                Touch input = Input.GetTouch(i);
+
+                if (input.type == TouchType.Indirect)
+                    continue;
 
                 bool released;
                 bool pressed;
