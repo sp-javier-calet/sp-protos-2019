@@ -1,4 +1,5 @@
 ﻿using System;
+using SocialPoint.Base;
 
 namespace SocialPoint.Attributes
 {
@@ -267,21 +268,36 @@ namespace SocialPoint.Attributes
         const string kMinVersionKey = "MinV";
         const string kMaxVersionKey = "MaxV";
 
+        static AppVersion _versionComparer;
         public static bool CheckVersion(this JsonStreamReader reader, string key, string version)
         {
             if(string.IsNullOrEmpty(version))
                 return true;
 
+            if (_versionComparer == null)
+            {
+                _versionComparer = new AppVersion(version);
+            }
+
             if(key == kMinVersionKey)
             {
-                if(reader.Token != StreamToken.Null && reader.Value.ToString().CompareTo(version) > 0)
-                    return false;
+                if(reader.Token != StreamToken.Null)
+                {
+                    string minVersionStr = reader.Value.ToString();
+
+                    return _versionComparer >= minVersionStr;
+                }
             }
 
             if(key == kMaxVersionKey)
             {
-                if(reader.Token != StreamToken.Null && reader.Value.ToString().CompareTo(version) < 0)
-                    return false;
+                if(reader.Token != StreamToken.Null)
+                {
+                    var maxVersionStr = reader.Value.ToString();
+
+                    return _versionComparer <= maxVersionStr;
+                }
+
             }
 
             return true;
