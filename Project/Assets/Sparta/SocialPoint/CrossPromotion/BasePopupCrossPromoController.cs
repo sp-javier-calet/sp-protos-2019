@@ -12,14 +12,16 @@ namespace SocialPoint.CrossPromotion
 
         protected CrossPromotionManager _cpm;
 
-        protected static int _iphone4Margin = 47;
-        protected static int _defaultMargin = 135;
+        protected float _minHorizontalMargin;
+        protected float _minVerticalMargin;
 
-        public float CellWidth { get; protected set; }
+        protected static int _iphone4HorizontalMargin = 47;
+        protected static int _defaultHorizontalMargin = 135;
+        protected static int _iphone4VerticalMargin = 23;
+        protected static int _defaultVerticalMargin = 60;
 
-        public float CellHeight { get; protected set; }
-
-        public float Margin { get; protected set; }
+        protected float _cellWidth;
+        protected float _cellHeight;
 
         Action _closeCallback = null;
         long _timeOpened;
@@ -32,23 +34,21 @@ namespace SocialPoint.CrossPromotion
 
             _activityView.SetActive(false);
 
-            //Check screen settings and desired size
+            //Set desired margins for screen
             Vector2 screenSize = GetScreenSize();
-            Vector2 popupSize = GetPopupSize();
-            Vector2 cellAreaSize = GetCellAreaSize();
             float ratioIphone = 960f / 640f;
             float currentRatio = screenSize.x / screenSize.y;
-            Margin = (Mathf.Approximately(ratioIphone, currentRatio)) ? _iphone4Margin : _defaultMargin;
-            CellWidth = cellAreaSize.x;
-            CellHeight = CellWidth / _cpm.Data.AspectRatio;
-
-            //Set popup size
-            do
+            if(Mathf.Approximately(ratioIphone, currentRatio))
             {
-                SetPopupSize();
-                popupSize = GetPopupSize();
+                SetMargins(_iphone4HorizontalMargin, _iphone4VerticalMargin);
             }
-            while(popupSize.x < 0/*!CheckIfFits(screenSize.x, screenSize.y, popupSize.x, popupSize.y)*/);
+            else
+            {
+                SetMargins(_defaultHorizontalMargin, _defaultVerticalMargin);
+            }
+
+            //Initialize popup UI to fit screen with current settings
+            SetPopupSize();
 
             //Initialize cells
             CreateCells();
@@ -56,58 +56,10 @@ namespace SocialPoint.CrossPromotion
             _cpm.SendPopupImpressedEvent();
         }
 
-        protected virtual Vector2 GetScreenSize()
+        public void SetMargins(int horizontal, int vertical)
         {
-            return Vector2.zero;
-        }
-
-        protected virtual Vector2 GetPopupSize()
-        {
-            return Vector2.zero;
-        }
-
-        protected virtual Vector2 GetCellAreaSize()
-        {
-            return Vector2.zero;
-        }
-
-        protected virtual void SetPopupSize()
-        {
-        }
-
-        protected bool CheckIfFits(float screenWidth, float screenHeight, float finalWidth, float finalHeight)
-        {
-            // Calculate if it fits
-            float widthAdjust = screenWidth - finalWidth - Margin;
-            float heightAdjust = screenHeight - finalHeight;
-
-            // Check if size fits
-            if(widthAdjust < 0 || heightAdjust < 0)
-            {
-                // Recalculate sizes
-                if(widthAdjust < heightAdjust)
-                {
-                    // Recalculate adjusting width
-                    CellWidth += widthAdjust;
-                    CellHeight = CellWidth / _cpm.Data.AspectRatio;
-                }
-                else
-                {
-                    // Recalculate adjusting height
-                    CellHeight += (heightAdjust / _cpm.Data.PopupHeightFactor);
-                    CellWidth = CellHeight * _cpm.Data.AspectRatio;
-                }
-
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        protected virtual void CreateCells()
-        {
+            _minHorizontalMargin = _iphone4HorizontalMargin = _defaultHorizontalMargin = horizontal;
+            _minVerticalMargin = _iphone4VerticalMargin = _defaultVerticalMargin = vertical;
         }
 
         public void OnClose()
@@ -121,6 +73,24 @@ namespace SocialPoint.CrossPromotion
         public void SetActivityView(bool active)
         {
             _activityView.SetActive(active);
+        }
+
+        protected virtual Vector2 GetScreenSize()
+        {
+            return Vector2.zero;
+        }
+
+        protected virtual Vector2 GetPopupSize()
+        {
+            return Vector2.zero;
+        }
+
+        protected virtual void SetPopupSize()
+        {
+        }
+
+        protected virtual void CreateCells()
+        {
         }
     }
 }

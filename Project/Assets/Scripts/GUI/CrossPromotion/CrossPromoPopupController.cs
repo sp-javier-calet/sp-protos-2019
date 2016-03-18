@@ -44,7 +44,7 @@ public class CrossPromoPopupController : BasePopupCrossPromoController
         return GetSize(_mainContainer);
     }
 
-    protected override Vector2 GetCellAreaSize()
+    protected Vector2 GetCellAreaSize()
     {
         return GetSize(_cellContainer);
     }
@@ -77,37 +77,61 @@ public class CrossPromoPopupController : BasePopupCrossPromoController
 
     protected override void SetPopupSize()
     {
-        Vector2 currentCellAreaSize = GetCellAreaSize();
-        float desiredCellAreaHeight = CellHeight * _cpm.Data.PopupHeightFactor;
-        float growFactor = desiredCellAreaHeight / currentCellAreaSize.y;
-        Vector2 currentPopupSize = GetPopupSize();
-        Vector2 desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);//new Vector2(Mathf.Min(currentPopupSize.x, Screen.width - Margin), currentPopupSize.y * growFactor);
-        float finalPopupAspectRatio = desiredPopupSize.x / desiredPopupSize.y;
+        UpdateCellMeasures();
 
-        float horizontalOffset = (Screen.width * 0.5f) - Margin;//desiredPopupSize.x * 0.5f;
-        float verticalOffset = horizontalOffset / finalPopupAspectRatio;
-        if(verticalOffset * 2 > Screen.height)
-        {
-            verticalOffset = Screen.height * 0.5f;
-            horizontalOffset = verticalOffset * finalPopupAspectRatio;
-        }
+        float desiredAspectRatio = CalculateDeisredAspecRatio();
+        Vector2 offsets = GetSizeToFit(desiredAspectRatio) * 0.5f;
 
+        //Set final popup size
         _mainContainer.anchorMin = new Vector2(0.5f, 0.5f);
         _mainContainer.anchorMax = new Vector2(0.5f, 0.5f);
-        _mainContainer.offsetMin = new Vector2(-horizontalOffset, -verticalOffset);
-        _mainContainer.offsetMax = new Vector2(horizontalOffset, verticalOffset);
+        _mainContainer.offsetMin = new Vector2(-offsets.x, -offsets.y);
+        _mainContainer.offsetMax = new Vector2(offsets.x, offsets.y);
 
+        UpdateCellMeasures();
+    }
+
+    protected void UpdateCellMeasures()
+    {
         Vector2 cellAreaSize = GetCellAreaSize();
-        CellWidth = cellAreaSize.x;
-        CellHeight = CellWidth / _cpm.Data.AspectRatio;
+        _cellWidth = cellAreaSize.x;
+        _cellHeight = _cellWidth / _cpm.Data.AspectRatio;
+    }
+
+    protected float CalculateDeisredAspecRatio()
+    {
+        Vector2 currentCellAreaSize = GetCellAreaSize();
+        float desiredCellAreaHeight = _cellHeight * _cpm.Data.PopupHeightFactor;
+        float growFactor = desiredCellAreaHeight / currentCellAreaSize.y;
+        Vector2 currentPopupSize = GetPopupSize();
+        Vector2 desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);
+        float finalPopupAspectRatio = desiredPopupSize.x / desiredPopupSize.y;
+        return finalPopupAspectRatio;
+    }
+
+    protected Vector2 GetSizeToFit(float aspectRatio)
+    {
+        float maxHorizontalSize = Screen.width - (2 * _minHorizontalMargin);
+        float maxVerticalSize = Screen.height - (2 * _minVerticalMargin);
+
+        float horizontalSize = maxHorizontalSize;
+        float verticalSize = horizontalSize / aspectRatio;
+        if(verticalSize > maxVerticalSize)
+        {
+            verticalSize = maxVerticalSize;
+            horizontalSize = verticalSize * aspectRatio;
+        }
+
+        return new Vector2(horizontalSize, verticalSize);
     }
 
     protected override void CreateCells()
     {
+        //Prepare prototype for cloning
         _cellPrototype.gameObject.SetActive(false);
         LayoutElement cellLayout = _cellPrototype.GetComponent<LayoutElement>();
-        cellLayout.preferredWidth = cellLayout.minWidth = CellWidth;
-        cellLayout.preferredHeight = cellLayout.minHeight = CellHeight;
+        cellLayout.preferredWidth = cellLayout.minWidth = _cellWidth;
+        cellLayout.preferredHeight = cellLayout.minHeight = _cellHeight;
 
         int position = 0;
         foreach(var keyValue in _cpm.Data.BannerInfo)
@@ -121,5 +145,4 @@ public class CrossPromoPopupController : BasePopupCrossPromoController
             ++position;
         }
     }
-
 }

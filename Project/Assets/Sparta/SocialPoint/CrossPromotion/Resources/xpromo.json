@@ -1,58 +1,60 @@
 {
-    "xpromo": {
-        "banners": [
-            {
-                "game": "dl",
-                "store_id": "940452319",
-                "app_id": "dragonland://",
-                "button": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/download_es.png",
-                "background": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/gr-bannerdragonland.png",
-                "icon": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-dragonland.png",
-                "id": 300,
-                "ribbon": true,
-                "current": false
-            },
-            {
-                "game": "dc",
-                "store_id": "561941526",
-                "app_id": "dragoncity://",
-                "button": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/play_es.png",
-                "background": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/gr-bannerdragoncity.png",
-                "icon": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-dragoncity.png",
-                "id": 500,
-                "ribbon": false,
-                "current": false
-            },
-            {
-                "game": "mc",
-                "store_id": "653508448",
-                "app_id": "monsterlegends://",
-                "button": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/play_es.png",
-                "background": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/gr-bannermonsterlegends.png",
-                "icon": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-monsterlegends.png",
-                "id": 800,
-                "ribbon": false,
-                "current": true
-            }
-        ],
-        "check_apps": [
-            "dragoncity://",
-            "monsterlegends://",
-            "restaurantcity://",
-            "dragonstadium://",
-            "dragonland://"
-        ],
-        "id": "566966b5-ba93-7d77-3e7b-b01c191ecfa7",
-        "icon_src": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-optionA.png",
-        "popup_title": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/title_es.png",
-        "icon_id": 1,
-        "popup_freq": 30,
-        "popup_timeout": 30,
-        "track_timeout": 30,
-        "show_icon": true,
-        "show_popup": true,
-        "legacy_xpromo_enabled": false,
-        "aspect_ratio" : 2.83,
-        "popup_height_factor" : 1.5
-    }
+"xpromo": {
+"banners": [
+{
+"game": "rc",
+"store_id": "es.parrotgames.restaurantcity",
+"app_id": "es.parrotgames.restaurantcity",
+"button": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/download_en.png",
+"background": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v3/android-mc-rc-v3-3200.png",
+"icon": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/icon-transparent.png",
+"id": 3200,
+"ribbon": false,
+"current": false,
+"aspect_ratio": 1.88
+},
+{
+"game": "dc",
+"store_id": "es.socialpoint.DragonCity",
+"app_id": "es.socialpoint.DragonCity",
+"button": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/download_en.png",
+"background": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v3/android-mc-dc-v3-3000.png",
+"icon": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-dragoncity.png",
+"id": 3000,
+"ribbon": false,
+"current": false,
+"aspect_ratio": 1.88
+},
+{
+"game": "mc",
+"store_id": "es.socialpoint.MonsterLegends",
+"app_id": "es.socialpoint.MonsterLegends",
+"button": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/play_en.png",
+"background": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v3/android-mc-mc-v3-3100.png",
+"icon": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-monsterlegends.png",
+"id": 3100,
+"ribbon": false,
+"current": true,
+"aspect_ratio": 1.88
+}
+],
+"check_apps": [
+"es.socialpoint.DragonCity",
+"es.socialpoint.MonsterLegends",
+"es.parrotgames.restaurantcity",
+"es.socialpoint.dragonland"
+],
+"id": "56bb5a11-3304-fb51-09ab-d2b637a9d65a",
+"icon_src": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/icon-option-worldchef.png",
+"popup_title": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/title_en.png",
+"icon_id": 1000,
+"popup_freq": 3600,
+"popup_timeout": 30,
+"track_timeout": 3,
+"show_icon": true,
+"show_popup": true,
+"aspect_ratio": 1.88,
+"popup_height_factor": 1.5,
+"legacy_xpromo_enabled": false
+}
 }
