@@ -26,13 +26,16 @@ namespace SpartaTools.Editor.Build
 
             public string Name { get; private set; }
 
+            public bool IsBase { get; private set; }
+
             public BuildSet Config { get; private set; }
 
-            public BuildSetViewData(string name, BuildSet config)
+            public BuildSetViewData(string name, BuildSet config, bool isBase)
             {
                 Name = name;
                 Config = config;
                 Visible = false;
+                IsBase = isBase;
             }
         }
 
@@ -76,7 +79,7 @@ namespace SpartaTools.Editor.Build
 
         static void ApplyConfig(string configName)
         {
-            var buildSet = AssetDatabase.LoadAssetAtPath<BuildSet>(BuildSet.PathForConfigName(configName));
+            var buildSet = BuildSet.Load(configName);
             if(buildSet != null)
             {
                 ApplyConfig(buildSet);
@@ -89,51 +92,7 @@ namespace SpartaTools.Editor.Build
 
         static void ApplyConfig(BuildSet config)
         {
-            if(!config.Validate())
-            {
-                throw new InvalidOperationException(string.Format("Invalid configuration for '{0}'", config.name));
-            }
-
-            if(config.OverrideIcon)
-            {
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon
-                });
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon,
-                    config.Icon
-                });
-            }
-
-            // Bundle
-            PlayerSettings.bundleIdentifier = config.BundleIdentifier;
-
-            // Flags
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, config.CommonFlags + ";" + config.AndroidFlags);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, config.CommonFlags + ";" + config.IosFlags);
-
-            if(config.ForceBundleVersionCode)
-            {
-                PlayerSettings.Android.bundleVersionCode = config.BundleVersionCode;
-            }
-
-            // Android Keystore
-            PlayerSettings.Android.keystoreName = config.KeystorePath;
-            PlayerSettings.Android.keystorePass = config.KeystoreFilePassword;
-            PlayerSettings.Android.keyaliasName = config.KeystoreAlias;
-            PlayerSettings.Android.keyaliasPass = config.KeystorePassword;
+            config.Apply();
         }
 
         #endregion
@@ -147,16 +106,19 @@ namespace SpartaTools.Editor.Build
             {
                 if(path.EndsWith(BuildSet.FileExtension))
                 {
-                    var bs = AssetDatabase.LoadAssetAtPath<BuildSet>(path);
+                    var bs = BuildSet.LoadByPath(path);
                     var assetName = Path.GetFileNameWithoutExtension(path);
                     var suffixIndex = assetName.IndexOf(BuildSet.FileSuffix);
                     if(suffixIndex > 0)
                     {
                         var configName = assetName.Substring(0, suffixIndex);
-                        configs.Add(assetName, new BuildSetViewData(configName, bs));
+                        configs.Add(assetName, new BuildSetViewData(configName, bs, false));
                     }
                 }
             }
+
+            // Add base config
+            configs.Add("Base", new BuildSetViewData("Base", BaseSettings.Load(), true));
 
             return configs;
         }
@@ -175,9 +137,10 @@ namespace SpartaTools.Editor.Build
                 }
 
                 GUILayout.BeginVertical(Styles.Group);
-                config.CommonFlags = EditorGUILayout.TextField("Common Flags", config.CommonFlags);
+                EditorGUILayout.LabelField("Common", EditorStyles.boldLabel);
+                config.CommonFlags = EditorGUILayout.TextField("Flags", config.CommonFlags);
                 config.RebuildNativePlugins = EditorGUILayout.Toggle("Rebuild native plugins", config.RebuildNativePlugins);
-                config.BundleIdentifier = EditorGUILayout.TextField("Bundle Identifier", config.BundleIdentifier);
+
                 config.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.OverrideIcon);
                 if(config.OverrideIcon)
                 {
@@ -188,6 +151,7 @@ namespace SpartaTools.Editor.Build
 
                 EditorGUILayout.LabelField("IOS", EditorStyles.boldLabel);
                 GUILayout.BeginVertical();
+                config.IosBundleIdentifier = EditorGUILayout.TextField("Bundle Identifier", config.IosBundleIdentifier);
                 config.IosFlags = EditorGUILayout.TextField("Flags", config.IosFlags);
                 config.XcodeModsPrefixes = EditorGUILayout.TextField("Xcodemods prefixes", config.XcodeModsPrefixes);
                 GUILayout.EndVertical();
@@ -195,6 +159,7 @@ namespace SpartaTools.Editor.Build
 
                 EditorGUILayout.LabelField("Android", EditorStyles.boldLabel);
                 GUILayout.BeginVertical();
+                config.AndroidBundleIdentifier = EditorGUILayout.TextField("Bundle Identifier", config.AndroidBundleIdentifier);
                 config.AndroidFlags = EditorGUILayout.TextField("Flags", config.AndroidFlags);
 
                 config.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.ForceBundleVersionCode);
@@ -203,8 +168,8 @@ namespace SpartaTools.Editor.Build
                     config.BundleVersionCode = EditorGUILayout.IntField("Bundle Version Code", config.BundleVersionCode);
                 }
 
-                config.UseKeytore = EditorGUILayout.Toggle("Use release keystore", config.UseKeytore);
-                if(config.UseKeytore)
+                config.UseKeystore = EditorGUILayout.Toggle("Use release keystore", config.UseKeystore);
+                if(config.UseKeystore)
                 {
                     config.KeystorePath = EditorGUILayout.TextField("Keystore file", config.KeystorePath);
                     config.KeystoreFilePassword = EditorGUILayout.TextField("Keystore password", config.KeystoreFilePassword);
@@ -215,31 +180,34 @@ namespace SpartaTools.Editor.Build
 
                 EditorGUILayout.Space();
 
-                GUILayout.BeginHorizontal();
-                if(GUILayout.Button("Apply", Styles.ActionButtonOptions))
+                if(!data.IsBase)
                 {
-                    try
+                    GUILayout.BeginHorizontal();
+                    if(GUILayout.Button("Apply", Styles.ActionButtonOptions))
                     {
-                        ApplyConfig(config);
+                        try
+                        {
+                            ApplyConfig(config);
 
-                        EditorUtility.DisplayDialog("Config applied successfully", 
-                            string.Format("{0} build set was applied successfully to Player Settings", data.Name), "Ok");
+                            EditorUtility.DisplayDialog("Config applied successfully", 
+                                string.Format("{0} build set was applied successfully to Player Settings", data.Name), "Ok");
+                        }
+                        catch(Exception e)
+                        {
+                            EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
+                        }
                     }
-                    catch(Exception e)
+
+                    if(GUILayout.Button("Delete", Styles.ActionButtonOptions))
                     {
-                        EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
+                        if(config.Delete())
+                        {
+                            RefreshConfigs();
+                        }
                     }
+                    GUILayout.EndHorizontal();
                 }
 
-                if(GUILayout.Button("Delete", Styles.ActionButtonOptions))
-                {
-                    var assetPath = BuildSet.ContainerPath + config.name + BuildSet.FileExtension;
-                    if(AssetDatabase.DeleteAsset(assetPath))
-                    {
-                        RefreshConfigs();
-                    }
-                }
-                GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
             }
 
@@ -280,7 +248,7 @@ namespace SpartaTools.Editor.Build
             }
             if(GUILayout.Button("New Build Set"))
             {
-                BuildSet.CreateBuildSet("NewConfig");
+                BuildSet.Create("NewConfig");
                 RefreshConfigs();
             }
 
