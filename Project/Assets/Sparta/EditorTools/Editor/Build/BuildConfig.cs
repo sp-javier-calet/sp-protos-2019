@@ -15,7 +15,9 @@ namespace SpartaTools.Editor.Build
         const string ReleaseConfigName = "Release";
         static string CurrentMode;
 
+        bool _dirty;
         Vector2 _scrollPosition = Vector2.right;
+
         Dictionary<string, BuildSetViewData> _buildSetData = null;
 
         class BuildSetViewData
@@ -33,8 +35,6 @@ namespace SpartaTools.Editor.Build
                 Visible = false;
             }
         }
-
-        static readonly BuildTargetGroup[] AvailableTargets = { BuildTargetGroup.Android, BuildTargetGroup.iOS };
 
         #region Editor options
 
@@ -76,16 +76,24 @@ namespace SpartaTools.Editor.Build
 
         static void ApplyConfig(string configName)
         {
-            var configPath = BuildSet.ContainerPath + configName + BuildSet.FileSuffix + BuildSet.FileExtension;
-            var buildSet = AssetDatabase.LoadAssetAtPath<BuildSet>(configPath);
+            var buildSet = AssetDatabase.LoadAssetAtPath<BuildSet>(BuildSet.PathForConfigName(configName));
             if(buildSet != null)
             {
                 ApplyConfig(buildSet);
+            }
+            else
+            {
+                throw new FileNotFoundException(string.Format("BuildSet {0} not found", configName));
             }
         }
 
         static void ApplyConfig(BuildSet config)
         {
+            if(!config.Validate())
+            {
+                throw new InvalidOperationException(string.Format("Invalid configuration for '{0}'", config.name));
+            }
+
             if(config.OverrideIcon)
             {
                 PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
@@ -126,8 +134,6 @@ namespace SpartaTools.Editor.Build
             PlayerSettings.Android.keystorePass = config.KeystoreFilePassword;
             PlayerSettings.Android.keyaliasName = config.KeystoreAlias;
             PlayerSettings.Android.keyaliasPass = config.KeystorePassword;
-
-
         }
 
         #endregion
@@ -212,11 +218,26 @@ namespace SpartaTools.Editor.Build
                 GUILayout.BeginHorizontal();
                 if(GUILayout.Button("Apply", Styles.ActionButtonOptions))
                 {
-                    ApplyConfig(config);
+                    try
+                    {
+                        ApplyConfig(config);
+
+                        EditorUtility.DisplayDialog("Config applied successfully", 
+                            string.Format("{0} build set was applied successfully to Player Settings", data.Name), "Ok");
+                    }
+                    catch(Exception e)
+                    {
+                        EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
+                    }
                 }
 
                 if(GUILayout.Button("Delete", Styles.ActionButtonOptions))
                 {
+                    var assetPath = BuildSet.ContainerPath + config.name + BuildSet.FileExtension;
+                    if(AssetDatabase.DeleteAsset(assetPath))
+                    {
+                        RefreshConfigs();
+                    }
                 }
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
@@ -233,9 +254,10 @@ namespace SpartaTools.Editor.Build
             GUILayout.Label("Build Sets", EditorStyles.boldLabel);
 
             // Read BuildSet definitions
-            if(_buildSetData == null)
+            if(_buildSetData == null || _dirty)
             {
                 _buildSetData = LoadViewConfig();
+                _dirty = false;
             }
 
             // Inflate config panels
@@ -254,15 +276,21 @@ namespace SpartaTools.Editor.Build
             // Common Buttons
             if(GUILayout.Button("Refresh"))
             {
-                _buildSetData = LoadViewConfig();
+                RefreshConfigs();
             }
             if(GUILayout.Button("New Build Set"))
             {
                 BuildSet.CreateBuildSet("NewConfig");
+                RefreshConfigs();
             }
 
             EditorGUILayout.Space();
             EditorGUILayout.EndScrollView();
+        }
+
+        void RefreshConfigs()
+        {
+            _dirty = true;
         }
 
         #endregion

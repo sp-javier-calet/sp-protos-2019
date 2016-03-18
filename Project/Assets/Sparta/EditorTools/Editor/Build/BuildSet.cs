@@ -33,6 +33,10 @@ namespace SpartaTools.Editor.Build
         public string KeystoreAlias;
         public string KeystorePassword;
 
+        public static string PathForConfigName(string configName)
+        {
+            return ContainerPath + configName + FileSuffix + FileExtension;
+        }
 
         public bool Validate()
         {
@@ -41,25 +45,10 @@ namespace SpartaTools.Editor.Build
 
         public static void CreateBuildSet(string configName)
         {
-            System.Type type = typeof(BuildSet);
-            var asset = ScriptableObject.CreateInstance(type);
-            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
-            if(path == "")
-            {
-                path = "Assets";
-            }
-            else if(Path.GetExtension(path) != "")
-            {
-                path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
-            }
-
-
-            string assetPath = AssetDatabase.GenerateUniqueAssetPath(ContainerPath + configName + FileSuffix + FileExtension);
+            var asset = ScriptableObject.CreateInstance(typeof(BuildSet));
+            string assetPath = AssetDatabase.GenerateUniqueAssetPath(PathForConfigName(configName));
             AssetDatabase.CreateAsset(asset, assetPath);
             AssetDatabase.SaveAssets();
-            EditorUtility.FocusProjectWindow();
-            Selection.activeObject = asset;
-
         }
     }
 }
