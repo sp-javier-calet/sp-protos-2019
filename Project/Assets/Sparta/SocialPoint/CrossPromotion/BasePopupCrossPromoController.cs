@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using SocialPoint.GUIControl;
 using SocialPoint.Utils;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class BasePopupCrossPromoController : MonoBehaviour
+    public class BasePopupCrossPromoController : UIViewController
     {
         [SerializeField]
         protected GameObject _activityView;
