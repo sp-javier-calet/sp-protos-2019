@@ -5,7 +5,7 @@ using System.Collections;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Utils;
 
-public class CrossPromoPopupController : BasePopupCrossPromoController
+public class CrossPromoPopupController : BaseCrossPromoPopupController
 {
     //Popup parent/head container
     [SerializeField]

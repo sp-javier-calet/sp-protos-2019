@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class BasePopupCrossPromoController : UIViewController
+    public class BaseCrossPromoPopupController : UIViewController
     {
         [SerializeField]
         protected GameObject _activityView;

@@ -13,7 +13,7 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     [SerializeField]
     protected Image _buttonImage;
 
-    public override void InitCell(SocialPoint.CrossPromotion.CrossPromotionManager crossPromoManager, BasePopupCrossPromoController popupController, int bannerId, int position)
+    public override void InitCell(SocialPoint.CrossPromotion.CrossPromotionManager crossPromoManager, BaseCrossPromoPopupController popupController, int bannerId, int position)
     {
         base.InitCell(crossPromoManager, popupController, bannerId, position);
 
@@ -23,7 +23,7 @@ public class CrossPromoCellController : BaseCrossPromoCellController
         UIUtils.SetImage(_buttonImage, _cpm.GetTexture2DForPopupImage(bannerData.ButtonTextImage));
     }
 
-    protected override void CheckVisibilty()
+    protected override void CheckVisibility()
     {
     }
 

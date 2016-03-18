@@ -7,6 +7,8 @@ using SocialPoint.Utils;
 
 public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionManager
 {
+    PopupsController _popupsController;
+
     [Inject]
     IEventTracker injectEventTracker
     {
@@ -26,9 +28,11 @@ public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionMa
         }
     }
 
-    public CrossPromotionManager(ICoroutineRunner coroutineRunner) :
+    public CrossPromotionManager(ICoroutineRunner coroutineRunner, PopupsController popupsController) :
         base(coroutineRunner)
     {
+        _popupsController = popupsController;
+
         CreateIcon = CreateButtonCrossPromo;
         CreatePopup = CreatePopupCrossPromo;
     }
@@ -40,10 +44,12 @@ public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionMa
 
     private void CreatePopupCrossPromo()
     {
-        //TODO: Use a UIController to add the object to GUI_Root??
         GameObject prefab = Resources.Load("CrossPromotion/PopupCrossPromo") as GameObject;
         GameObject obj = GameObject.Instantiate(prefab) as GameObject;
-        BasePopupCrossPromoController popupController = obj.GetComponent<BasePopupCrossPromoController>();
-        popupController.Init(this, null);
+        BaseCrossPromoPopupController crossPromoPopupController = obj.GetComponent<BaseCrossPromoPopupController>();
+        _popupsController.Push(crossPromoPopupController);
+        crossPromoPopupController.Init(this, () => { 
+            _popupsController.Pop();
+        });
     }
 }

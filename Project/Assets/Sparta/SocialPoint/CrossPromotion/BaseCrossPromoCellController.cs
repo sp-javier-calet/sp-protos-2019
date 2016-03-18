@@ -15,10 +15,10 @@ namespace SocialPoint.CrossPromotion
 
 
         protected CrossPromotionManager _cpm;
-        protected BasePopupCrossPromoController _pc;
+        protected BaseCrossPromoPopupController _pc;
         protected bool _sentTrack = false;
 
-        public virtual void InitCell(CrossPromotionManager crossPromoManager, BasePopupCrossPromoController popupController, int bannerId, int position)
+        public virtual void InitCell(CrossPromotionManager crossPromoManager, BaseCrossPromoPopupController popupController, int bannerId, int position)
         {
             _cpm = crossPromoManager;
             _pc = popupController;
@@ -48,10 +48,10 @@ namespace SocialPoint.CrossPromotion
 
         private void Update()
         {
-            CheckVisibilty();
+            CheckVisibility();
         }
 
-        protected virtual void CheckVisibilty()
+        protected virtual void CheckVisibility()
         {
         }
 

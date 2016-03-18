@@ -40,7 +40,11 @@ namespace SocialPoint.CrossPromotion
         {
             Reset();
             _initialized = true;
-            TextAsset data = Resources.Load("xpromo") as TextAsset;
+            #if UNITY_ANDROID
+            TextAsset data = Resources.Load("xpromo_android") as TextAsset;
+            #else
+            TextAsset data = Resources.Load("xpromo_ios") as TextAsset;
+            #endif
             AttrDic attr = new JsonAttrParser().Parse(data.bytes).AssertDic;
             _xpromo.Init(attr.Get("xpromo").AsDic);
             _xpromo.Start();

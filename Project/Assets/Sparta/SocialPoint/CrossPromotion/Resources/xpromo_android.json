@@ -42,11 +42,10 @@
 "es.socialpoint.DragonCity",
 "es.socialpoint.MonsterLegends",
 "es.parrotgames.restaurantcity",
-"es.socialpoint.dragonland"
 ],
 "id": "56bb5a11-3304-fb51-09ab-d2b637a9d65a",
-"icon_src": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/icon-option-worldchef.png",
-"popup_title": "http://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/title_en.png",
+"icon_src": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/icon-option-worldchef.png",
+"popup_title": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/title_en.png",
 "icon_id": 1000,
 "popup_freq": 3600,
 "popup_timeout": 30,
