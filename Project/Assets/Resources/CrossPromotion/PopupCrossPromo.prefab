@@ -461,10 +461,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: 640
-  m_MinHeight: 215
-  m_PreferredWidth: 640
-  m_PreferredHeight: 215
+  m_MinWidth: 60
+  m_MinHeight: 200
+  m_PreferredWidth: 60
+  m_PreferredHeight: 200
   m_FlexibleWidth: 1
   m_FlexibleHeight: 1
 --- !u!114 &11427022
@@ -1090,10 +1090,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 22465828}
   m_RootOrder: 0
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.28668603, y: 0.31747094}
+  m_AnchorMax: {x: 0.73011035, y: 0.68252903}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 197, y: 38}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &22428552
 RectTransform:
@@ -1107,10 +1107,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 22408988}
   m_RootOrder: 1
-  m_AnchorMin: {x: 0.0062642368, y: 0.33488372}
-  m_AnchorMax: {x: 0.1736902, y: 0.9767442}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 46.5, y: -43.4}
+  m_SizeDelta: {x: 84, y: 76.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &22431418
 RectTransform:
@@ -1216,10 +1216,10 @@ RectTransform:
   - {fileID: 22425338}
   m_Father: {fileID: 22408988}
   m_RootOrder: 3
-  m_AnchorMin: {x: 0.606476, y: 0.035697687}
-  m_AnchorMax: {x: 0.9639183, y: 0.5561628}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -112, y: 54.5}
+  m_SizeDelta: {x: 224, y: 109}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &22468806
 RectTransform:
@@ -1323,10 +1323,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 22408988}
   m_RootOrder: 2
-  m_AnchorMin: {x: 0.86503416, y: 0.55674416}
-  m_AnchorMax: {x: 1.0005695, y: 1.0869768}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0.99997675}
+  m_AnchoredPosition: {x: -66.6, y: -42.7}
+  m_SizeDelta: {x: 133.1, y: 85.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &100100000
 Prefab:

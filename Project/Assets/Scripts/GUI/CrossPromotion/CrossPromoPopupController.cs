@@ -79,7 +79,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     {
         UpdateCellMeasures();
 
-        float desiredAspectRatio = CalculateDeisredAspecRatio();
+        float desiredAspectRatio = CalculateDesiredAspecRatio();
         Vector2 offsets = GetSizeToFit(desiredAspectRatio) * 0.5f;
 
         //Set final popup size
@@ -98,7 +98,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
         _cellHeight = _cellWidth / _cpm.Data.AspectRatio;
     }
 
-    protected float CalculateDeisredAspecRatio()
+    protected float CalculateDesiredAspecRatio()
     {
         Vector2 currentCellAreaSize = GetCellAreaSize();
         float desiredCellAreaHeight = _cellHeight * _cpm.Data.PopupHeightFactor;
@@ -129,9 +129,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     {
         //Prepare prototype for cloning
         _cellPrototype.gameObject.SetActive(false);
-        LayoutElement cellLayout = _cellPrototype.GetComponent<LayoutElement>();
-        cellLayout.preferredWidth = cellLayout.minWidth = _cellWidth;
-        cellLayout.preferredHeight = cellLayout.minHeight = _cellHeight;
+        _cellPrototype.SetElementsSize(_cellWidth, _cellHeight);
 
         int position = 0;
         foreach(var keyValue in _cpm.Data.BannerInfo)
