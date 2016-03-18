@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace SocialPoint.EventSystems
 {
-    [AddComponentMenu("Event/Standalone Input Module")]
     public class ActionStandaloneInputModule : ActionPointerInputModule
     {
         private float m_PrevActionTime;
