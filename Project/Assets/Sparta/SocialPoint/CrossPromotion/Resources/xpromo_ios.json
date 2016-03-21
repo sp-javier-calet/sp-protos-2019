@@ -21,7 +21,7 @@
 "background": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v3/android-mc-dc-v3-3000.png",
 "icon": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-dragoncity.png",
 "id": 3000,
-"ribbon": false,
+"ribbon": true,
 "current": false,
 "aspect_ratio": 1.88
 },
