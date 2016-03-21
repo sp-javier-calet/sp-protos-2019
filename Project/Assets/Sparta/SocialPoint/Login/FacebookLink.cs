@@ -134,15 +134,13 @@ namespace SocialPoint.Login
             fbReq.FrictionLess = true;
             fbReq.Title = req.Title;
 
-            List<string> userIds = new List<string>();
             foreach(var recipient in req.Recipients)
             {
-                userIds.AddRange(recipient.GetExternalIds(LinkName));
+                fbReq.To.AddRange(recipient.GetExternalIds(LinkName));
             }
 
-            if(userIds.Count > 0)
+            if(fbReq.To.Count > 0)
             {
-                fbReq.To = userIds;
                 _facebook.SendAppRequest(fbReq, (appReq, err) => cbk(err));
             }
             else

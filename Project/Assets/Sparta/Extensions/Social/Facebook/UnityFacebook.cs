@@ -112,9 +112,9 @@ namespace SocialPoint.Social
             FB.AppRequest
             (
                 req.Message ?? string.Empty,
-                req.To.Count > 0 ? req.To.ToArray() : null,
+                req.ArrayTo,
                 filters,
-                req.ExcludeIds == null ? null : req.ExcludeIds.ToArray(),
+                req.ArrayExcludeIds,
                 null,
                 req.AdditionalDataJson(),
                 req.Title ?? string.Empty,
