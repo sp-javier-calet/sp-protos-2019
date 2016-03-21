@@ -14,6 +14,8 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     protected Image _buttonImage;
     [SerializeField]
     protected RectTransform _buttonContainer;
+    [SerializeField]
+    protected Button[] _buttons;
 
     //Guideline measures
     protected static float _defaultBannerWidth = 800f;
@@ -33,6 +35,15 @@ public class CrossPromoCellController : BaseCrossPromoCellController
         UIUtils.SetImage(_bannerImage, _cpm.GetTexture2DForPopupImage(bannerData.BgImage));
         UIUtils.SetImage(_iconImage, _cpm.GetTexture2DForPopupImage(bannerData.IconImage));
         UIUtils.SetImage(_buttonImage, _cpm.GetTexture2DForPopupImage(bannerData.ButtonTextImage));
+
+        for(int i = 0; i < _buttons.Length; i++)
+        {
+            Button button = _buttons[i];
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => {
+                OnClickBanner();
+            });
+        }
     }
 
     public void SetElementsSize(float width, float height)
@@ -79,15 +90,10 @@ public class CrossPromoCellController : BaseCrossPromoCellController
 
     protected void SetButtonSizeAndPos(float width, float height)
     {
-        //Current button image is 128x128, but visual sprite is only 80x72.
-        float imageVerticalSize = 128;
-        float imageVisualVerticalSize = 72;
-
         float scale = width / _defaultBannerWidth;
         float newButtonHeight = Mathf.Min(_buttonHeight * scale, _buttonBottomMarginToCenterPercent * height);//Visual image must be this size
-        float requiredSize = imageVerticalSize * newButtonHeight / imageVisualVerticalSize;
-        float verticalOffset = requiredSize * 0.5f;
-        float horizontalOffset = verticalOffset * 2.5f;
+        float verticalOffset = newButtonHeight * 0.5f;
+        float horizontalOffset = verticalOffset * 3.5f;
         _buttonContainer.anchorMin = new Vector2(_buttonLeftMarginToCenterPercent, _buttonBottomMarginToCenterPercent);
         _buttonContainer.anchorMax = new Vector2(_buttonLeftMarginToCenterPercent, _buttonBottomMarginToCenterPercent);
         _buttonContainer.offsetMin = new Vector2(-horizontalOffset, -verticalOffset);
