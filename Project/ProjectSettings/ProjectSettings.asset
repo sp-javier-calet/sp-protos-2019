@@ -167,8 +167,8 @@ PlayerSettings:
   AndroidTargetDevice: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: Assets/Plugins/Android/socialpoint.keystore
-  AndroidKeyaliasName: android
+  AndroidKeystoreName: 
+  AndroidKeyaliasName: 
   AndroidTVCompatibility: 1
   AndroidIsGame: 1
   androidEnableBanner: 0
