@@ -74,8 +74,7 @@ namespace SocialPoint.Hardware
                 case RuntimePlatform.Android:
                     return "android";
                 default:
-                    //return "unity";
-                    return "ios";
+                    return "unity";
                 }
             }
 
