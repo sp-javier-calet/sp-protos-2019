@@ -20,9 +20,6 @@ namespace SocialPoint.EventSystems
 
         Ray _ray;
 
-        const int _hitsArrayAllocSize = 99;
-        static RaycastHit[] _hitsArray = new RaycastHit[_hitsArrayAllocSize];
-
         public override void Raycast(PointerEventData eventData, List<RaycastResult> resultAppendList)
         {
             if(eventCamera == null)
@@ -31,17 +28,19 @@ namespace SocialPoint.EventSystems
             _ray = eventCamera.ScreenPointToRay(eventData.position);
             float dist = eventCamera.farClipPlane - eventCamera.nearClipPlane;
 
-            var hitsAmount = Physics.RaycastNonAlloc(_ray, _hitsArray, dist, finalEventMask);
+            // in PhysicsRaycaster from 5.3 they are still using RaycastAll instead of RaycastNonAlloc
+            // https://bitbucket.org/Unity-Technologies/ui/src/b5f9aae6ff7c2c63a521a1cb8b3e3da6939b191b/UnityEngine.UI/EventSystem/Raycasters/PhysicsRaycaster.cs?at=5.3&fileviewer=file-view-default
+            var hits = Physics.RaycastAll(_ray, dist, finalEventMask);
 
-            if(hitsAmount > 1)
+            if(hits.Length > 1)
             {
-                Array.Sort(_hitsArray, GetComparer());
+                Array.Sort(hits, GetComparer());
             }
 
-            if(hitsAmount != 0)
+            if(hits.Length != 0)
             {
                 // just appending the first hit
-                RaycastHit hit = _hitsArray[0];
+                RaycastHit hit = hits[0];
                 var result = new RaycastResult {
                     gameObject = hit.collider.gameObject,
                     module = this,
