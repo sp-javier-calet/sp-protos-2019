@@ -20,14 +20,28 @@ namespace SpartaTools.Editor.Utils
                 }
             };
             proc.Start();
-            while(!proc.StandardOutput.EndOfStream)
+
+            while(!proc.StandardOutput.EndOfStream || !proc.StandardError.EndOfStream)
             {
-                string line = proc.StandardOutput.ReadLine();
-                if(output != null)
+                if(!proc.StandardOutput.EndOfStream)
                 {
-                    output(line);
+                    string content = proc.StandardOutput.ReadToEnd();
+                    if(content != null)
+                    {
+                        output(content);
+                    }
+                }
+                if(!proc.StandardError.EndOfStream)
+                {
+                    string content = proc.StandardError.ReadToEnd();
+                    if(content != null)
+                    {
+                        output(string.Format("Error: {0}", content));
+                    }
                 }
             }
+
+
             proc.WaitForExit();
             int code = proc.ExitCode;
             proc.Close();

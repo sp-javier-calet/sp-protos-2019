@@ -13,7 +13,7 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Sparta/Build/Sparta libraries", false, 001)]
         public static void CompileSparta()
         {
-            Compile(Application.dataPath + "/Sparta/SocialPoint");
+            Compile(Path.Combine(Application.dataPath, "../Sources/Sparta/SocialPoint"));
         }
 
         static string InstallationPath
@@ -25,15 +25,16 @@ namespace SpartaTools.Editor.Build
             }
         }
 
-        const string UnityManagedLibrariesPath = "/Unity.app/Contents/Frameworks/Managed/";
-        const string UnityMonoPath = "/Unity.app/Contents/Frameworks/Mono/bin/gmcs";
-        const string BinariesFolderPath = "/Sparta/Binaries";
+        const string UnityExtensionsPath = "Unity.app/Contents/UnityExtensions/Unity/";
+        const string UnityManagedLibrariesPath = "Unity.app/Contents/Frameworks/Managed/";
+        const string UnityMonoPath = "Unity.app/Contents/Frameworks/Mono/bin/gmcs";
+        const string BinariesFolderPath = "Sparta/Binaries";
 
         static string Compiler
         {
             get
             {
-                return InstallationPath + UnityMonoPath;
+                return Path.Combine(InstallationPath, UnityMonoPath);
             }
         }
 
@@ -41,7 +42,7 @@ namespace SpartaTools.Editor.Build
         {
             get
             {
-                return Application.dataPath + UnityMonoPath;
+                return Path.Combine(Application.dataPath, UnityMonoPath);
             }
         }
 
@@ -50,19 +51,16 @@ namespace SpartaTools.Editor.Build
             var filesList = new StringBuilder();
             foreach(var f in files)
             {
-                //filesList.Append(f).Append(" ");
+                filesList.Append(f).Append(" ");
             }
-
-            //FIXME TEST
-            filesList.Append("/Users/manuelalvarez/repositories/sp-unity-BaseGame/Project/Assets/Sparta/SocialPoint/AdminPanel/AdminPanelController.cs ");
 
             var depList = new StringBuilder();
             foreach(var d in dependencies)
             {
-                depList.Append("/addmodule:").Append(d).Append(" ");
+                depList.Append("/reference:\"").Append(d).Append("\" ");
             }
 
-            var command = string.Format("/t:library /out:OutputPath/{0} {1} {2}", dllName, filesList, depList);
+            var command = string.Format("/t:\"library\" /out:\"{0}\" {1} {2}", Path.Combine(Application.dataPath, Path.Combine(BinariesFolderPath, dllName)), filesList, depList);
             Debug.Log(command);
             return command;
         }
@@ -72,20 +70,47 @@ namespace SpartaTools.Editor.Build
             var path = Application.dataPath;
             var filesToCompile = new List<string>();
 
-
             string[] allFiles = Directory.GetFiles(modulePath, "*.cs", SearchOption.AllDirectories);
             foreach(var f in allFiles)
             {   
-                filesToCompile.Add(f);
+                if(!f.Contains("/Editor/"))
+                {
+                    filesToCompile.Add(f);
+                }
             }
 
             var dependencies = new List<string>();
-            dependencies.Add(InstallationPath + UnityManagedLibrariesPath + "UnityEngine.dll");
-            dependencies.Add(InstallationPath + UnityManagedLibrariesPath + "UnityEditor.dll");
+            var ManagedLibrariesPath = Path.Combine(InstallationPath, UnityManagedLibrariesPath);
+            var ExtensionPath = Path.Combine(InstallationPath, UnityExtensionsPath);
+            dependencies.Add(Path.Combine(ManagedLibrariesPath, "UnityEngine.dll"));
+            dependencies.Add(Path.Combine(ExtensionPath, "GUISystem/UnityEngine.UI.dll"));
 
-            NativeConsole.RunProcess(Compiler, GetBuildCommand("Sparta.dll", filesToCompile, dependencies), path, output => {
-                Debug.Log(output);
-            });
+            string[] internalDependencies = Directory.GetFiles(modulePath, "*.dll", SearchOption.AllDirectories);
+            foreach(var d in internalDependencies)
+            {   
+                if(!d.Contains("/Editor/"))
+                {
+                    dependencies.Add(d);
+                }
+            }
+
+            try
+            {
+                int code = NativeConsole.RunProcess(Compiler, GetBuildCommand("Sparta.dll", filesToCompile, dependencies), path, output => {
+                    Debug.Log(output);
+                });
+
+                if(code != 0)
+                {
+                    Debug.LogError("Error while compiling library");
+                }
+            }
+            catch(System.ComponentModel.Win32Exception e)
+            {
+                var v = e.Message;
+
+                Debug.LogError(e);
+            }
         }
     }
 }
