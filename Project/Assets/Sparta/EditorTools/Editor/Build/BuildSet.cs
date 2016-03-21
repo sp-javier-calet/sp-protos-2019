@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System;
-using System.IO;
 
 namespace SpartaTools.Editor.Build
 {
@@ -79,11 +78,11 @@ namespace SpartaTools.Editor.Build
             }
 
             // Bundle Identifier
-            if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS && !string.IsNullOrEmpty(IosBundleIdentifier)) 
+            if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS && !string.IsNullOrEmpty(IosBundleIdentifier))
             {
                 PlayerSettings.bundleIdentifier = IosBundleIdentifier;
             }
-            else if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && !string.IsNullOrEmpty(AndroidBundleIdentifier)) 
+            else if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && !string.IsNullOrEmpty(AndroidBundleIdentifier))
             {
                 PlayerSettings.bundleIdentifier = AndroidBundleIdentifier;
             }
@@ -134,96 +133,6 @@ namespace SpartaTools.Editor.Build
         public static BuildSet LoadByPath(string path)
         {
             return AssetDatabase.LoadAssetAtPath<BuildSet>(path);
-        }
-    }
-
-    class BaseSettings : BuildSet 
-    {
-        public const string BaseSettingsAsset = ContainerPath + "BaseSettings" + FileExtension;
-
-
-        public bool Validate()
-        {
-            return true;
-        }
-
-        public static bool Exists
-        {
-            get
-            {
-                return File.Exists(BaseSettingsAsset);
-            }
-        }
-
-        public static void Create()
-        {
-            if(!Exists)
-            {
-                var asset = ScriptableObject.CreateInstance(typeof(BaseSettings));
-                AssetDatabase.CreateAsset(asset, BaseSettingsAsset);
-                AssetDatabase.SaveAssets();
-            }
-        }
-
-        public static void RevertToBase()
-        {
-            var baseSettings = Load();
-            if(baseSettings != null)
-            {
-                baseSettings.Apply();
-            }
-        }
-
-        public static BaseSettings Load()
-        {
-            return AssetDatabase.LoadAssetAtPath<BaseSettings>(BaseSettingsAsset);
-        }
-
-        public void Apply()
-        {
-
-            if(OverrideIcon)
-            {
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon
-                });
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon
-                });
-            }
-
-            // Bundle Identifier
-            if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS)
-            {
-                PlayerSettings.bundleIdentifier = IosBundleIdentifier;
-            }
-            else if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android) 
-            {
-                PlayerSettings.bundleIdentifier = AndroidBundleIdentifier;
-            }
-
-            // Flags
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, CommonFlags + ";" + AndroidFlags);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, CommonFlags + ";" + IosFlags);
-            PlayerSettings.Android.bundleVersionCode = BundleVersionCode;
-
-            // Android Keystore
-            PlayerSettings.Android.keystoreName = KeystorePath;
-            PlayerSettings.Android.keystorePass = KeystoreFilePassword;
-            PlayerSettings.Android.keyaliasName = KeystoreAlias;
-            PlayerSettings.Android.keyaliasPass = KeystorePassword;
         }
     }
 }
