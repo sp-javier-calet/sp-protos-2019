@@ -79,12 +79,12 @@ public class CrossPromoCellController : BaseCrossPromoCellController
 
     protected void SetButtonSizeAndPos(float width, float height)
     {
-        //Current button image is 128x128, but visual sprite is only 80x72
+        //Current button image is 128x128, but visual sprite is only 80x72.
         float imageVerticalSize = 128;
         float imageVisualVerticalSize = 72;
 
         float scale = width / _defaultBannerWidth;
-        float newButtonHeight = _buttonHeight * scale;//Visual image must be this size
+        float newButtonHeight = Mathf.Min(_buttonHeight * scale, _buttonBottomMarginToCenterPercent * height);//Visual image must be this size
         float requiredSize = imageVerticalSize * newButtonHeight / imageVisualVerticalSize;
         float verticalOffset = requiredSize * 0.5f;
         float horizontalOffset = verticalOffset * 2.5f;

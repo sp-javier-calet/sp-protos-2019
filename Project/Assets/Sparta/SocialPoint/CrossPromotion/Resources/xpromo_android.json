@@ -3,8 +3,8 @@
 "banners": [
 {
 "game": "rc",
-"store_id": "es.parrotgames.restaurantcity",
-"app_id": "es.parrotgames.restaurantcity",
+"store_id": "1010677881",
+"app_id": "restaurantcity://",
 "button": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/download_en.png",
 "background": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v3/android-mc-rc-v3-3200.png",
 "icon": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/icon-transparent.png",
@@ -15,8 +15,8 @@
 },
 {
 "game": "dc",
-"store_id": "es.socialpoint.DragonCity",
-"app_id": "es.socialpoint.DragonCity",
+"store_id": "561941526",
+"app_id": "dragoncity://",
 "button": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/download_en.png",
 "background": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v3/android-mc-dc-v3-3000.png",
 "icon": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-dragoncity.png",
@@ -27,8 +27,8 @@
 },
 {
 "game": "mc",
-"store_id": "es.socialpoint.MonsterLegends",
-"app_id": "es.socialpoint.MonsterLegends",
+"store_id": "653508448",
+"app_id": "monsterlegends://",
 "button": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/play_en.png",
 "background": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v3/android-mc-mc-v3-3100.png",
 "icon": "https://xpromo-static-s1.socialpointgames.com/static/xpromo/v2/ic-monsterlegends.png",

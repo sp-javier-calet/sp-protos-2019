@@ -143,4 +143,18 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
             ++position;
         }
     }
+
+    void OnEnable()
+    {
+        //Set scroll position to the top
+        StartCoroutine(SetInitialPosition());
+    }
+
+    private IEnumerator SetInitialPosition()
+    {
+        yield return null;
+        ScrollRect scrollRect = _cellContainer.GetComponent<ScrollRect>();
+        scrollRect.verticalNormalizedPosition = 1.0f;
+        scrollRect.velocity = Vector2.zero;
+    }
 }
