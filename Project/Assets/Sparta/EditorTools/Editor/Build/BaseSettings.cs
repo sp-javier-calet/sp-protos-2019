@@ -8,8 +8,11 @@ namespace SpartaTools.Editor.Build
     {
         public const string BaseSettingsAsset = ContainerPath + "BaseSettings" + FileExtension;
 
+        public override bool OverrideIcon { get { return true; } set { /* ignore */ } }
+        public override bool ForceBundleVersionCode { get { return true; } set { /* ignore */ } }
+        public override bool UseKeystore { get{ return true; } set { /* ignore */ } }
 
-        public bool Validate()
+        public override bool Validate()
         {
             return true;
         }
@@ -45,7 +48,7 @@ namespace SpartaTools.Editor.Build
             return baseSettings;
         }
 
-        public void Apply()
+        public override void Apply()
         {
             if(OverrideIcon)
             {

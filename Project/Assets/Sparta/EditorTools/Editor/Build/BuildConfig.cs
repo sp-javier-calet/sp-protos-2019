@@ -147,7 +147,7 @@ namespace SpartaTools.Editor.Build
                     config.RebuildNativePlugins = EditorGUILayout.Toggle("Rebuild native plugins", config.RebuildNativePlugins);
                     config.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.OverrideIcon);
                 }
-                if(config.OverrideIcon || data.IsBase)
+                if(config.OverrideIcon)
                 {
                     config.Icon = (Texture2D)EditorGUILayout.ObjectField("Icon", config.Icon, typeof(Texture2D), false);
                 }
@@ -173,7 +173,7 @@ namespace SpartaTools.Editor.Build
                 {
                     config.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.ForceBundleVersionCode);
                 }
-                if(config.ForceBundleVersionCode || data.IsBase)
+                if(config.ForceBundleVersionCode)
                 {
                     config.BundleVersionCode = EditorGUILayout.IntField("Bundle Version Code", config.BundleVersionCode);
                 }
@@ -182,9 +182,9 @@ namespace SpartaTools.Editor.Build
                 {
                     config.UseKeystore = EditorGUILayout.Toggle("Use release keystore", config.UseKeystore);
                 }
-                if(config.UseKeystore || data.IsBase)
+                if(config.UseKeystore)
                 {
-                    config.AndroidFlags = InheritableTextField("Keystore file", config.AndroidFlags, data.IsBase);
+                    config.KeystorePath = InheritableTextField("Keystore file", config.KeystorePath, data.IsBase);
                     config.KeystoreFilePassword = InheritableTextField("Keystore password", config.KeystoreFilePassword, data.IsBase);
                     config.KeystoreAlias = InheritableTextField("Alias", config.KeystoreAlias, data.IsBase);
                     config.KeystorePassword = InheritableTextField("Password", config.KeystorePassword, data.IsBase);
@@ -193,24 +193,24 @@ namespace SpartaTools.Editor.Build
 
                 EditorGUILayout.Space();
 
+
+                GUILayout.BeginHorizontal();
+                if(GUILayout.Button("Apply", Styles.ActionButtonOptions))
+                {
+                    try
+                    {
+                        ApplyConfig(config);
+
+                        EditorUtility.DisplayDialog("Config applied successfully", 
+                            string.Format("{0} build set was applied successfully to Player Settings", data.Name), "Ok");
+                    }
+                    catch(Exception e)
+                    {
+                        EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
+                    }
+                }
                 if(!data.IsBase)
                 {
-                    GUILayout.BeginHorizontal();
-                    if(GUILayout.Button("Apply", Styles.ActionButtonOptions))
-                    {
-                        try
-                        {
-                            ApplyConfig(config);
-
-                            EditorUtility.DisplayDialog("Config applied successfully", 
-                                string.Format("{0} build set was applied successfully to Player Settings", data.Name), "Ok");
-                        }
-                        catch(Exception e)
-                        {
-                            EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
-                        }
-                    }
-
                     if(GUILayout.Button("Delete", Styles.ActionButtonOptions))
                     {
                         if(config.Delete())
@@ -218,9 +218,8 @@ namespace SpartaTools.Editor.Build
                             RefreshConfigs();
                         }
                     }
-                    GUILayout.EndHorizontal();
                 }
-
+                GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
             }
 

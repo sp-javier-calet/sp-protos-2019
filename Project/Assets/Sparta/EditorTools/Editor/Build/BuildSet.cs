@@ -13,7 +13,7 @@ namespace SpartaTools.Editor.Build
         /* Common configuration */
         public string CommonFlags;
         public bool RebuildNativePlugins;
-        public bool OverrideIcon;
+        public virtual bool OverrideIcon { get; set; }
         public Texture2D Icon;
 
         /* iOS configuration */
@@ -25,11 +25,11 @@ namespace SpartaTools.Editor.Build
         /* Android configuration */
         public string AndroidBundleIdentifier;
         public string AndroidFlags;
-        public bool ForceBundleVersionCode;
+        public virtual bool ForceBundleVersionCode { get; set; }
         public int BundleVersionCode;
         public string[] AndroidRemovedResources;
 
-        public bool UseKeystore;
+        public virtual bool UseKeystore { get; set; }
         public string KeystorePath;
         public string KeystoreFilePassword;
         public string KeystoreAlias;
@@ -41,14 +41,17 @@ namespace SpartaTools.Editor.Build
             return ContainerPath + configName + FileSuffix + FileExtension;
         }
 
-        public bool Validate()
+        public virtual bool Validate()
         {
             return true;
         }
 
-        public void Apply()
+        public virtual void Apply()
         {
-            BaseSettings.RevertToBase();
+            var baseSettings = BaseSettings.Load();
+
+            // Revert to base settings
+            baseSettings.Apply();
 
             if(!Validate())
             {
@@ -87,9 +90,13 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.bundleIdentifier = AndroidBundleIdentifier;
             }
 
-            // Flags // TODO merge base config
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, CommonFlags + ";" + AndroidFlags);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, CommonFlags + ";" + IosFlags);
+            // Flags
+            var commonFlags = string.IsNullOrEmpty(CommonFlags)? baseSettings.CommonFlags : CommonFlags;
+            var androidFlags = string.IsNullOrEmpty(AndroidFlags)? baseSettings.AndroidFlags : AndroidFlags;
+            var iosFlags = string.IsNullOrEmpty(IosFlags)? baseSettings.IosFlags : IosFlags;
+
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, commonFlags + ";" + androidFlags);
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, commonFlags + ";" + iosFlags);
 
             if(ForceBundleVersionCode)
             {
