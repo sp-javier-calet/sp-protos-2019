@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace SpartaTools.Editor.Sync.View
+namespace SpartaTools.Editor.Utils
 {
     public static class Styles
     {

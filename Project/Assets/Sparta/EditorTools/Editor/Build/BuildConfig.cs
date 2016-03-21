@@ -3,9 +3,7 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Collections.Generic;
-
-//FIXME
-using SpartaTools.Editor.Sync.View;
+using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.Build
 {
