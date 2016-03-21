@@ -29,6 +29,12 @@ namespace SocialPoint.Notifications
         {
         }
 
-
+        public bool UserAllowsNofitication
+        {
+            get
+            {
+                return true;
+            }
+        }
     }
 }

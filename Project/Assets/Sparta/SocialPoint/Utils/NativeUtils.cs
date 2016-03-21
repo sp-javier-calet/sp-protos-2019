@@ -41,5 +41,13 @@
         {
             Utils.OpenUrl(url);
         }
+
+        static public bool UserAllowNotification
+        {
+            get
+            {
+                return Utils.UserAllowNotification;
+            }
+        }
     }
 }

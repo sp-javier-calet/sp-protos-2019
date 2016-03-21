@@ -69,6 +69,14 @@ namespace SocialPoint.Notifications
         {
         }
 
+        public override bool UserAllowsNofitication
+        {
+            get
+            {
+                // This only makes sense on IOS:
+                return true;
+            }
+        }
     }
 
 

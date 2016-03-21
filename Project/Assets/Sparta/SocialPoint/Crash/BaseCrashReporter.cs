@@ -609,41 +609,29 @@ namespace SocialPoint.Crash
 
         void SendCrashes(ReportSendType reportSendType, Action callback)
         {
-            int count = 2;
-            Action step = () => {
-                count--;
-                if(count <= 0 && callback != null)
-                {
-                    callback();
-                }
-            };
-            SendTrackedCrashes(reportSendType, step);
-            SendPendingCrashes(reportSendType, step);
+            var steps = new StepCallbackBuilder(callback);
+
+            SendTrackedCrashes(reportSendType, steps.Add());
+            SendPendingCrashes(reportSendType, steps.Add());
+
+            steps.Ready();
         }
 
         void SendTrackedCrashes(ReportSendType reportSendType, Action callback)
         {
-            int trackedCrashesToSend = TrackedCrashesToSend(reportSendType);
-
-            if(trackedCrashesToSend > 0)
+            if(HasCrashLogs)
             {
-                Action step = () => {
-                    --trackedCrashesToSend;
-                    if(trackedCrashesToSend == 0 && callback != null)
-                    {
-                        callback();
-                    }
-                };
-                if(HasCrashLogs)
+                var steps = new StepCallbackBuilder(callback);
+
+                foreach(var log in _crashStorage.StoredKeys)
                 {
-                    foreach(var log in _crashStorage.StoredKeys)
+                    if(reportSendType == GetReportSendType(log))
                     {
-                        if(reportSendType == GetReportSendType(log))
-                        {
-                            SendCrashLog(log, step);
-                        }
+                        SendCrashLog(log, steps.Add());
                     }
                 }
+
+                steps.Ready();
             }
             else if(callback != null)
             {
@@ -653,77 +641,19 @@ namespace SocialPoint.Crash
 
         void SendPendingCrashes(ReportSendType reportSendType, Action callback)
         {
-            int pendingCrashesToSend = PendingCrashesToSend(reportSendType);
-
-            if(pendingCrashesToSend > 0)
-            {
-                Action step = () => {
-                    --pendingCrashesToSend;
-                    if(pendingCrashesToSend == 0 && callback != null)
-                    {
-                        callback();
-                    }
-                };
-                if(_pendingReports.Count > 0)
-                {
-                    foreach(Report report in _pendingReports)
-                    {
-                        if(reportSendType == GetReportSendType(report.Uuid))
-                        {
-                            //trackcrash will create the log if is success
-                            TrackCrash(report, step);
-                        }
-                    }
-                }
-                else
-                {
-                    // If there are no new crashes, we can check some saved status to detect a memory crash
-                    Report memoryCrashReport = CheckMemoryCrash();
-                    if(memoryCrashReport != null)
-                    {
-                        if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
-                        {
-                            TrackCrash(memoryCrashReport, step);
-                        }
-                    }
-                }
-            }
-            else if(callback != null)
-            {
-                callback();
-            }
-
-            ClearLastSessionInfo();
-        }
-
-        int TrackedCrashesToSend(ReportSendType reportSendType)
-        {
-            int trackedCrashesToSend = 0;
-            if(HasCrashLogs)
-            {
-                foreach(var log in _crashStorage.StoredKeys)
-                {
-                    if(reportSendType == GetReportSendType(log))
-                    {
-                        ++trackedCrashesToSend;
-                    }
-                }
-            }
-            return trackedCrashesToSend;
-        }
-
-        int PendingCrashesToSend(ReportSendType reportSendType)
-        {
-            int pendingCrashesToSend = 0;
             if(_pendingReports.Count > 0)
             {
+                var steps = new StepCallbackBuilder(callback);
+
                 foreach(Report report in _pendingReports)
                 {
                     if(reportSendType == GetReportSendType(report.Uuid))
                     {
-                        ++pendingCrashesToSend;
+                        //trackcrash will create the log if is success
+                        TrackCrash(report, steps.Add());
                     }
                 }
+                steps.Ready();
             }
             else
             {
@@ -733,11 +663,16 @@ namespace SocialPoint.Crash
                 {
                     if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
                     {
-                        ++pendingCrashesToSend;
+                        TrackCrash(memoryCrashReport, callback);
                     }
                 }
+                else if(callback != null)
+                {
+                    callback();
+                }
             }
-            return pendingCrashesToSend;
+
+            ClearLastSessionInfo();
         }
 
         static void ClearLastSessionInfo()
@@ -906,12 +841,12 @@ namespace SocialPoint.Crash
                 alert.Title = type.ToString();
                 alert.Message = logString + "\n" + stackTrace;
                 alert.Signature = "Exception tracked by Crash Reporter? " + exceptionTracked;
-                alert.Buttons = new string[]{ "OK" };
+                alert.Buttons = new []{ "OK" };
                 alert.Show(result => alert.Dispose());
             }
             catch(Exception e)
             {
-                UnityEngine.Debug.Log("Exception while creating Alert View - " + e.Message);
+                Debug.Log("Exception while creating Alert View - " + e.Message);
             }
 #endif
         }

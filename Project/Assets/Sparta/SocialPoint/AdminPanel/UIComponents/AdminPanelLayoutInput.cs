@@ -1,7 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Collections;
 
 namespace SocialPoint.AdminPanel
 {
@@ -60,7 +59,7 @@ namespace SocialPoint.AdminPanel
             // Configure input
             if(onSubmit != null)
             {
-                input.onEndEdit.AddListener((value) => {
+                input.onEndEdit.AddListener(value => {
                     if(value.Length > 0)
                     {
                         onSubmit(value);
@@ -70,8 +69,8 @@ namespace SocialPoint.AdminPanel
             
             if(onValueChange != null)
             {
-                input.onValueChanged.AddListener((value) => {
-                    InputStatus status = new InputStatus(value, suggestionText.text);
+                input.onValueChanged.AddListener(value => {
+                    var status = new InputStatus(value, suggestionText.text);
 
                     onValueChange(status); 
 

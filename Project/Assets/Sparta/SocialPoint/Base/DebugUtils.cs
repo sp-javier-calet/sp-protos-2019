@@ -10,7 +10,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Runtime;
 using System.Reflection;
-using System.Text;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Base
 {
@@ -60,7 +60,7 @@ namespace SocialPoint.Base
         [Conditional("TRACE")]
         public static void StackTrace(params object[] objs)
         {
-            var sb = new StringBuilder();
+            var sb = StringUtils.StartBuilder();
             var st = new System.Diagnostics.StackTrace();
             sb.AppendLine(st.ToString());
 

@@ -29,7 +29,9 @@ namespace SocialPoint.Rating
         IAppEvents _appEvents;
 
         IAppRaterGUI _gui;
-        public IAppRaterGUI GUI {
+
+        public IAppRaterGUI GUI
+        {
             set
             {
                 if(_gui != value)
@@ -57,6 +59,7 @@ namespace SocialPoint.Rating
         public int MaxPromptsPerDay = DefaultMaxPromptsPerDay;
 
         GetUserLevelDelegate _userLevelGetDelegate;
+
         public GetUserLevelDelegate GetUserLevel
         {
             set
@@ -222,7 +225,7 @@ namespace SocialPoint.Rating
         }
 
         AttrDic SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
-                                       bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
+                                  bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
         {
             var defaults = new AttrDic();
             defaults.SetValue(CurrentVersionKey, _deviceInfo.AppInfo.Version);
@@ -252,14 +255,19 @@ namespace SocialPoint.Rating
                 return false;
             }
 
-            return PreRatingCustomConditionsHaveBeenMet(appRaterInfo);
+            if(!PreRatingCustomConditionsHaveBeenMet(appRaterInfo))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         protected virtual bool PreRatingCustomConditionsHaveBeenMet(AttrDic appRaterInfo)
         {
 
             // Check if the days passed from first use has passed
-            var timeSinceFirstLaunch = TimeUtils.Timestamp - appRaterInfo.GetValue (FirstUseDateKey).ToDouble ();
+            var timeSinceFirstLaunch = TimeUtils.Timestamp - appRaterInfo.GetValue(FirstUseDateKey).ToDouble();
             var timeUntilRate = DayInSeconds * DaysUntilPrompt;
             if(timeSinceFirstLaunch < timeUntilRate)
             {
@@ -267,13 +275,13 @@ namespace SocialPoint.Rating
             }
 
             // Check if the app has been used enough //FIXME:maybe <= ?? first session is uses 1
-            if(appRaterInfo.GetValue(UsesUntilPromptKey).ToInt () < UsesUntilPrompt)
+            if(appRaterInfo.GetValue(UsesUntilPromptKey).ToInt() < UsesUntilPrompt)
             {
                 return false;
             }
 
             // Check if the user has done enough significant events
-            if(appRaterInfo.GetValue(EventsUntilPromptKey).ToInt () < EventsUntilPrompt)
+            if(appRaterInfo.GetValue(EventsUntilPromptKey).ToInt() < EventsUntilPrompt)
             {
                 return false;
             }
@@ -294,7 +302,12 @@ namespace SocialPoint.Rating
             }
 
             // Has the user already rated the app?
-            return appRaterInfo.GetValue(RatedCurrentVersionKey).ToBool();
+            if(appRaterInfo.GetValue(RatedCurrentVersionKey).ToBool())
+            {
+                return false;
+            }
+
+            return true;
         }
 
         bool RatingConditionsHaveBeenMet

@@ -1,17 +1,12 @@
-
-using NUnit.Framework;
 using System;
-using System.Collections;
-using UnityEngine;
+using NUnit.Framework;
 
 namespace SocialPoint.Utils
 {
     [TestFixture]
     [Category("SocialPoint.Utils")]
-    internal class RandomUtilsTests
+    class RandomUtilsTests
     {
-
-        
         [SetUp]
         public void SetUp()
         {

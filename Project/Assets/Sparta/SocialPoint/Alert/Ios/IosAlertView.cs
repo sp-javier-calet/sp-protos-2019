@@ -1,12 +1,12 @@
-using UnityEngine;
 using System;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace SocialPoint.Alert
 {
     public class IosAlertViewBridge : MonoBehaviour
     {
-        [StructLayout(LayoutKind.Sequential, Pack=1)]
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Data
         {
             [MarshalAs(UnmanagedType.LPTStr)]
@@ -24,6 +24,7 @@ namespace SocialPoint.Alert
         };
 
         public delegate void ResultDelegate(int result, string input);
+
         ResultDelegate _resultDelegate;
 
         public void ResultMessage(string msg)
@@ -33,11 +34,11 @@ namespace SocialPoint.Alert
                 return;
             }
             var i = msg.IndexOf(' ');
-            int result = 0;
+            int result;
             if(i != -1)
             {
                 int.TryParse(msg.Substring(0, i), out result);
-                _resultDelegate(result, msg.Substring(i+1));
+                _resultDelegate(result, msg.Substring(i + 1));
             }
             else
             {
@@ -127,11 +128,12 @@ namespace SocialPoint.Alert
         {
             set
             {
-                _data.Input  = value;
+                _data.Input = value;
             }
         }
 
         string _inputText;
+
         public string InputText
         {
             get
@@ -145,7 +147,7 @@ namespace SocialPoint.Alert
             var go = new GameObject();
             go.name = kGameObjectName;
             _bridge = go.AddComponent<IosAlertViewBridge>();
-            _bridge.Show(_data, (int result, string inputText) => {
+            _bridge.Show(_data, (result, inputText) => {
                 _inputText = inputText;
                 if(dlg != null)
                 {
@@ -162,7 +164,7 @@ namespace SocialPoint.Alert
         public void Dispose()
         {
             _bridge.Hide();
-            GameObject.Destroy(_bridge.gameObject);
+            UnityEngine.Object.Destroy(_bridge.gameObject);
         }
 
         public object Clone()

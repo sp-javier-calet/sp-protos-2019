@@ -1,6 +1,6 @@
-using UnityEngine.UI;
-using SocialPoint.AdminPanel;
 using System;
+using SocialPoint.AdminPanel;
+using UnityEngine.UI;
 
 namespace SocialPoint.AppEvents
 {
@@ -32,7 +32,7 @@ namespace SocialPoint.AppEvents
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
 
-        void OnOpenedFromSource(AppSource source)
+        void OnOpenedFromSource(object source)
         {
             AddEvent("OpenedFromSource: " + source);
         }
