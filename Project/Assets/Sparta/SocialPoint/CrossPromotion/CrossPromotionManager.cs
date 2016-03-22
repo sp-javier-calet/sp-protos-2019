@@ -330,7 +330,7 @@ namespace SocialPoint.CrossPromotion
             {
                 sb.Remove(sb.Length - 1, 1);
             }
-            _storage.Save(kAppsChecked, new AttrString(sb.ToString()));
+            _storage.Save(kAppsChecked, new AttrString(StringUtils.FinishBuilder(sb)));
         }
 
         public string CheckedApps()

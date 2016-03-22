@@ -63,7 +63,7 @@ namespace SocialPoint.Social
                 info.Append("Age:").AppendLine(user.Age.ToString());
                 info.Append("Verification:").AppendLine(user.Verification == null ? "null" : user.Verification.ToString());
             }
-            layout.CreateTextArea(info.ToString());
+            layout.CreateTextArea(StringUtils.FinishBuilder(info));
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
@@ -144,7 +144,7 @@ namespace SocialPoint.Social
                 info.Append("Unachieved Description:").AppendLine(_achievement.UnachievedDescription);
                 info.Append("Achieved Description:").AppendLine(_achievement.AchievedDescription);
                 info.Append("Percent:").AppendLine(_achievement.Percent.ToString());
-                layout.CreateTextArea(info.ToString());
+                layout.CreateTextArea(StringUtils.FinishBuilder(info));
                 layout.CreateMargin();
 
                 var buttonText = string.Format("Increment {0}%", AchievementPercent);

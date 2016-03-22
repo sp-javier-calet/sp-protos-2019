@@ -66,7 +66,7 @@ namespace SocialPoint.Social
                 info.Append("Age:").AppendLine(user.Age.ToString());
                 info.Append("PhotoUrl:").AppendLine(user.PhotoUrl);
             }
-            layout.CreateTextArea(info.ToString());
+            layout.CreateTextArea(StringUtils.FinishBuilder(info));
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
@@ -146,7 +146,7 @@ namespace SocialPoint.Social
                 info.Append("Incremental:").AppendLine(_achievement.IsIncremental.ToString());
                 info.Append("Step ").Append(_achievement.CurrentSteps.ToString()).Append(" of ").AppendLine(_achievement.TotalSteps.ToString());
                 info.Append("Unlocked:").AppendLine(_achievement.IsUnlocked.ToString());
-                layout.CreateTextArea(info.ToString());
+                layout.CreateTextArea(StringUtils.FinishBuilder(info));
                 layout.CreateMargin();
 
                 layout.CreateButton(
@@ -213,7 +213,7 @@ namespace SocialPoint.Social
                         {
                             info.AppendLine(string.Format("{0}: {1} - {2}", entry.Rank, entry.Name, entry.Score));
                         }
-                        layout.CreateTextArea(info.ToString());
+                        layout.CreateTextArea(StringUtils.FinishBuilder(info));
 
                         layout.CreateMargin();
                         layout.CreateToggleButton("Friends only", _isFriendOnly, (status) => {

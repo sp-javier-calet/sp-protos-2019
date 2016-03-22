@@ -9,12 +9,43 @@ namespace SocialPoint.Utils
 {
     public class StringUtils
     {
-        static StringBuilder _builder = new StringBuilder();
+        static StringBuilder[] _builders = new StringBuilder[10];
 
         public static StringBuilder StartBuilder()
         {
-            _builder.Length = 0;
-            return _builder;
+            StringBuilder builder = null;
+            for(var i = 0; i < _builders.Length; i++)
+            {
+                if(_builders[i] != null)
+                {
+                    builder = _builders[i];
+                    _builders[i] = null;
+                    break;
+                }
+            }
+
+            if(builder == null)
+            {
+                builder = new StringBuilder();
+            }
+            else
+            {
+                builder.Length = 0;
+            }
+            return builder;
+        }
+
+        public static string FinishBuilder(StringBuilder builder)
+        {
+            for(var i = 0; i < _builders.Length; i++)
+            {
+                if(_builders[i] == null)
+                {
+                    _builders[i] = builder;
+                    break;
+                }
+            }
+            return builder.ToString();
         }
 
         public static string DictToString<T, V>(IEnumerable<KeyValuePair<T, V>> items, string format = "")
@@ -28,7 +59,7 @@ namespace SocialPoint.Utils
                 sb.AppendFormat(format, item.Key, item.Value);
             }
             
-            return sb.ToString(); 
+            return sb.ToString();
         }
 
         private const char QuerySeparator = '&';
