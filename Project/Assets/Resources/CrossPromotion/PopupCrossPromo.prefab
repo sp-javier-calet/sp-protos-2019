@@ -877,6 +877,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _newGameFlag: {fileID: 169826}
+  _scrollContainer: {fileID: 11406114}
   _bannerImage: {fileID: 11446184}
   _iconImage: {fileID: 11468726}
   _buttonImage: {fileID: 11451594}
@@ -1084,6 +1085,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0

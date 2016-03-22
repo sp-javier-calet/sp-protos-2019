@@ -39,7 +39,6 @@ public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionMa
 
     private void CreateButtonCrossPromo()
     {
-        //TODO: create the side bar icon panel and inject here to be used instead of HUD
         BaseCrossPromoButtonController.Create(this, "CrossPromotion/CrossPromoButton", GameObject.Find("HUD").transform);
     }
 

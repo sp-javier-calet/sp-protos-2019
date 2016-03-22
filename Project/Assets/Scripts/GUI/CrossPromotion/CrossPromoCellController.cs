@@ -7,6 +7,8 @@ using SocialPoint.Utils;
 public class CrossPromoCellController : BaseCrossPromoCellController
 {
     [SerializeField]
+    protected ScrollRect _scrollContainer;
+    [SerializeField]
     protected Image _bannerImage;
     [SerializeField]
     protected Image _iconImage;
@@ -27,9 +29,17 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     protected static float _buttonLeftMarginToCenterPercent = 0.73f;
     protected static float _buttonBottomMarginToCenterPercent = 0.2f;
 
+    private float _scrollMidPos = 0.0f;
+
     public override void InitCell(SocialPoint.CrossPromotion.CrossPromotionManager crossPromoManager, BaseCrossPromoPopupController popupController, int bannerId, int position)
     {
         base.InitCell(crossPromoManager, popupController, bannerId, position);
+
+        int totalCells = crossPromoManager.Data.BannerInfo.Count;
+        float scrollMaxPos = 1 - ((float)position / (float)totalCells);
+        float scrollMinPos = 1 - ((float)(position + 1) / (float)totalCells);
+        float size = scrollMaxPos - scrollMinPos;
+        _scrollMidPos = scrollMinPos + size * 0.5f;
 
         CrossPromotionBannerData bannerData = _cpm.Data.BannerInfo[bannerId];
         UIUtils.SetImage(_bannerImage, _cpm.GetTexture2DForPopupImage(bannerData.BgImage));
@@ -102,13 +112,21 @@ public class CrossPromoCellController : BaseCrossPromoCellController
 
     protected override void CheckVisibility()
     {
+        float heightFactorPercent = _cpm.Data.PopupHeightFactor / _cpm.Data.BannerInfo.Count;
+        float visibility = (1 - _scrollContainer.verticalNormalizedPosition) * (1 - heightFactorPercent) + heightFactorPercent;
+        if(visibility >= 1 - _scrollMidPos)
+        {
+            SendVisibilityEvent();
+        }
     }
 
     public override void SetBannerGrey()
     {
+        _bannerImage.color = Color.grey;
     }
 
     public override void SetBannerWhite()
     {
+        _bannerImage.color = Color.white;
     }
 }
