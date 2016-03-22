@@ -147,16 +147,14 @@ namespace SocialPoint.Attributes
         {
             var root = new AttrDic();
             var str = data.TrimStart(new char[]{ TokenStart });
-            var tokens = new List<string>(str.Split(new char[]{ TokenSeparator }));
-            var enumList = tokens.GetEnumerator();
-
-            while(enumList.MoveNext())
+            var tokens = str.Split(new char[]{ TokenSeparator });
+            for(var i = 0; i <tokens.Length; i++)
             {
-                var token = enumList.Current.Trim();
+                var token = tokens[i].Trim();
                 if(token.Length > 0)
                 {
-                    var parts = new List<string>(token.Split(new char[]{ TokenAssign }));
-                    if(parts.Count < 2)
+                    var parts = token.Split(new char[]{ TokenAssign });
+                    if(parts.Length < 2)
                     {
                         var rootDic = root.AsDic;
                         if(!rootDic.ContainsKey(string.Empty))
@@ -172,7 +170,6 @@ namespace SocialPoint.Attributes
                     }
                 }
             }
-            enumList.Dispose();
             return root;
         }
 
