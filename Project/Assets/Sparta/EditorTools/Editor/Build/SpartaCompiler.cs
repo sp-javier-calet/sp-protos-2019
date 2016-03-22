@@ -94,7 +94,7 @@ namespace SpartaTools.Editor.Build
             dependencies.Add(Path.Combine(ExtensionPath, "GUISystem/UnityEngine.UI.dll"));
             if(editorAssembly)
             {
-                dependencies.Add(Path.Combine(ExtensionPath, "UnityEditor.dll"));
+                dependencies.Add(Path.Combine(ManagedLibrariesPath, "UnityEditor.dll"));
             }
 
             string[] internalDependencies = Directory.GetFiles(modulePath, "*.dll", SearchOption.AllDirectories);
