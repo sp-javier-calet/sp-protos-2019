@@ -28,6 +28,8 @@ namespace SocialPoint.EventSystems
             _ray = eventCamera.ScreenPointToRay(eventData.position);
             float dist = eventCamera.farClipPlane - eventCamera.nearClipPlane;
 
+            // in PhysicsRaycaster from 5.3 they are still using RaycastAll instead of RaycastNonAlloc
+            // https://bitbucket.org/Unity-Technologies/ui/src/b5f9aae6ff7c2c63a521a1cb8b3e3da6939b191b/UnityEngine.UI/EventSystem/Raycasters/PhysicsRaycaster.cs?at=5.3&fileviewer=file-view-default
             var hits = Physics.RaycastAll(_ray, dist, finalEventMask);
 
             if(hits.Length > 1)

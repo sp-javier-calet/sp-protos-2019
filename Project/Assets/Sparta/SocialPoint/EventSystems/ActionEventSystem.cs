@@ -8,7 +8,7 @@ namespace SocialPoint.EventSystems
     public class ActionEventSystem : EventSystem, IActionEventSystem, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
         [SerializeField]
-        EventSystem _preempt = null;
+        EventSystem _preempt;
 
         [SerializeField]
         LayerMask _preemptMask;
@@ -53,11 +53,7 @@ namespace SocialPoint.EventSystems
 
         bool PreemptRaycast(PointerEventData eventData)
         {
-            var preempt = _preempt;
-            if(preempt == null)
-            {
-                preempt = this;
-            }
+            var preempt = _preempt ?? this;
             var preemptResults = new List<RaycastResult>();
             preempt.RaycastAll(eventData, preemptResults);
             foreach(var result in preemptResults)
@@ -105,7 +101,7 @@ namespace SocialPoint.EventSystems
         public event Action<PointerEventData> OnPointerExit;
         public event Action<PointerEventData> OnPointerDown;
         public event Action<PointerEventData> OnPointerUp;
-        public event Action<PointerEventData> OnPointerClick;       
+        public event Action<PointerEventData> OnPointerClick;
 
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
