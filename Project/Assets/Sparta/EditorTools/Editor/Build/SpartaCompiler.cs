@@ -55,7 +55,7 @@ namespace SpartaTools.Editor.Build
             }
         }
 
-        static string GetBuildCommand(string dllName, List<string> files, List<string> dependencies, List<string> defines)
+        static string GetBuildCommand(string dllPath, List<string> files, List<string> dependencies, List<string> defines)
         {
             var filesList = new StringBuilder();
             foreach(var f in files)
@@ -75,7 +75,7 @@ namespace SpartaTools.Editor.Build
                 defList.Append("/define:\"").Append(d).Append("\" ");
             }
 
-            var command = string.Format("/t:\"library\" /out:\"{0}\" {1} {2} {3}", Path.Combine(Application.dataPath, Path.Combine(BinariesFolderPath, dllName)), filesList, depList, defList);
+            var command = string.Format("/t:\"library\" /out:\"{0}\" {1} {2} {3}", dllPath, filesList, depList, defList);
             Debug.Log(command);
             return command;
         }
@@ -208,6 +208,30 @@ namespace SpartaTools.Editor.Build
                 }
             }
 
+
+            if(module.Type == Module.ModuleType.Extension)
+            {
+                // Add compiled sparta core dll
+                dependencies.Add(GetTempDllPathForModule("Sparta Core", target, editorAssembly));
+
+                var modules = SyncTools.GetProjectModules(Application.dataPath);
+                var core = modules["Sparta Core"];
+                // Dependencies
+                foreach(var dependency in core.Dependencies)
+                {
+                    var depPath = Path.Combine(Application.dataPath + "/..", dependency);
+                    string[] libFiles = Directory.GetFiles(depPath, "*.dll", SearchOption.AllDirectories);
+                    foreach(var lib in libFiles)
+                    {
+                        if(!lib.Contains("/Editor/") || editorAssembly)
+                        {
+                            dependencies.Add(lib);
+                        }
+                    }
+                }
+            }
+                
+
             // Defines
             var defines = new List<string>();
             defines.Add("UNITY_5_3");
@@ -227,10 +251,16 @@ namespace SpartaTools.Editor.Build
                 defines.Add("UNITY_IPHONE"); // For old code. 
             }
 
+            if(filesToCompile.Count == 0)
+            {
+                Debug.LogWarning("No files to compile");
+                return;
+            }
+                
             try
             {
-                var dllName = module.Name.Replace(" ", "") + "_" + target + (editorAssembly? "-Editor" : "" ) +".dll";
-                int code = NativeConsole.RunProcess(Compiler, GetBuildCommand(dllName, filesToCompile, dependencies, defines), path, output => {
+                var dllPath = GetTempDllPathForModule(module.Name, target, editorAssembly);
+                int code = NativeConsole.RunProcess(Compiler, GetBuildCommand(dllPath, filesToCompile, dependencies, defines), path, output => {
                     Debug.Log(output);
                 });
 
@@ -247,6 +277,11 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        static string GetTempDllPathForModule(string moduleName, BuildTarget target, bool editorAssembly)
+        {
+            var dllName =  moduleName.Replace(" ", "").Replace("/", "_") + "_" + target + (editorAssembly? "-Editor" : "" ) +".dll";
+            return Path.Combine(Application.dataPath, Path.Combine(BinariesFolderPath, dllName));
+        }
         #region Draw GUI
 
         Dictionary<string, Module> _modules;
@@ -255,7 +290,7 @@ namespace SpartaTools.Editor.Build
         {
             if(_modules == null)
             {
-                _modules = Sync.SyncTools.GetProjectModules(Application.dataPath);
+                _modules = SyncTools.GetProjectModules(Application.dataPath);
             }
 
             foreach(var module in _modules.Values)
