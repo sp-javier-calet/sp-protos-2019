@@ -186,7 +186,8 @@ namespace SpartaTools.Editor.Build
             foreach(var dependency in module.Dependencies)
             {
                 var depPath = Path.Combine(Application.dataPath + "/..", dependency);
-                //if(Directory.Exists(depPath))
+                var attr = File.GetAttributes(depPath);
+                if((attr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
                     string[] depFiles = Directory.GetFiles(depPath, "*.cs", SearchOption.AllDirectories);
                     foreach(var f in depFiles)
@@ -220,12 +221,16 @@ namespace SpartaTools.Editor.Build
                 foreach(var dependency in core.Dependencies)
                 {
                     var depPath = Path.Combine(Application.dataPath + "/..", dependency);
-                    string[] libFiles = Directory.GetFiles(depPath, "*.dll", SearchOption.AllDirectories);
-                    foreach(var lib in libFiles)
+                    var attr = File.GetAttributes(depPath);
+                    if((attr & FileAttributes.Directory) == FileAttributes.Directory)
                     {
-                        if(!lib.Contains("/Editor/") || editorAssembly)
+                        string[] libFiles = Directory.GetFiles(depPath, "*.dll", SearchOption.AllDirectories);
+                        foreach(var lib in libFiles)
                         {
-                            dependencies.Add(lib);
+                            if(!lib.Contains("/Editor/") || editorAssembly)
+                            {
+                                dependencies.Add(lib);
+                            }
                         }
                     }
                 }
@@ -234,6 +239,7 @@ namespace SpartaTools.Editor.Build
 
             // Defines
             var defines = new List<string>();
+            defines.Add("UNITY_5");
             defines.Add("UNITY_5_3");
 
             if(editorAssembly)
@@ -245,7 +251,8 @@ namespace SpartaTools.Editor.Build
             {
                 defines.Add("UNITY_ANDROID");
             }
-            else if(target == BuildTarget.iOS)
+            else
+            if(target == BuildTarget.iOS)
             {
                 defines.Add("UNITY_IOS");
                 defines.Add("UNITY_IPHONE"); // For old code. 
@@ -279,9 +286,10 @@ namespace SpartaTools.Editor.Build
 
         static string GetTempDllPathForModule(string moduleName, BuildTarget target, bool editorAssembly)
         {
-            var dllName =  moduleName.Replace(" ", "").Replace("/", "_") + "_" + target + (editorAssembly? "-Editor" : "" ) +".dll";
+            var dllName = moduleName.Replace(" ", "").Replace("/", "_") + "_" + target + (editorAssembly ? "-Editor" : "") + ".dll";
             return Path.Combine(Application.dataPath, Path.Combine(BinariesFolderPath, dllName));
         }
+
         #region Draw GUI
 
         Dictionary<string, Module> _modules;
