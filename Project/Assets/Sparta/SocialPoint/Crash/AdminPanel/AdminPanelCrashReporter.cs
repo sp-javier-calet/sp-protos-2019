@@ -127,7 +127,7 @@ namespace SocialPoint.Crash
                 crashReporterInfo.Append("Send Interval: ").Append(_crashReporter.SendInterval.ToString()).AppendLine("s")
                                  .Append("Pending Crashes: ").AppendLine(_crashReporter.HasCrashLogs ? "Yes" : "No")
                                  .Append("Pending Exceptions: ").AppendLine(_crashReporter.HasExceptionLogs ? "Yes" : "No");
-                layout.CreateTextArea(crashReporterInfo.ToString());
+                layout.CreateTextArea(StringUtils.FinishBuilder(crashReporterInfo));
             }
         }
     }

@@ -82,7 +82,7 @@ namespace SocialPoint.Attributes
             default:
                 break;
             }
-            return str.ToString();
+            return StringUtils.FinishBuilder(str);
         }
 
         public byte[] Serialize(Attr attr)

@@ -94,7 +94,7 @@ namespace SocialPoint.Utils
                     }
                 }
 
-                _textComponent.text = logContent.ToString();
+                _textComponent.text = StringUtils.FinishBuilder(logContent);
             }
         }
 
@@ -128,7 +128,7 @@ namespace SocialPoint.Utils
                               .AppendLine(message)
                               .Append(((type == LogType.Exception)? "<b>Stack:</b>"+stackTrace : ""))
                               .AppendLine("</color>");
-                Content = contentBuilder.ToString();
+                Content = StringUtils.FinishBuilder(contentBuilder);
             }
         }
     }

@@ -73,7 +73,7 @@ namespace SocialPoint.Base
                 }
             }
             #if UNITY
-            UnityEngine.Debug.Log(sb.ToString());
+            UnityEngine.Debug.Log(StringUtils.FinishBuilder(sb));
             #endif
         }
 
