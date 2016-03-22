@@ -9,43 +9,36 @@ namespace SocialPoint.Utils
 {
     public class StringUtils
     {
-        static StringBuilder[] _builders = new StringBuilder[10];
+        static Stack<StringBuilder> _builders;
+        const int _buildersMaxSize = 10;
 
         public static StringBuilder StartBuilder()
         {
-            StringBuilder builder = null;
-            for(var i = 0; i < _builders.Length; i++)
+            if(_builders == null)
             {
-                if(_builders[i] != null)
-                {
-                    builder = _builders[i];
-                    _builders[i] = null;
-                    break;
-                }
+                _builders = new Stack<StringBuilder>();
             }
-
-            if(builder == null)
+            if(_builders.Count == 0)
             {
-                builder = new StringBuilder();
+                return new StringBuilder();
             }
             else
             {
+                var builder = _builders.Pop();
                 builder.Length = 0;
+                return builder;
             }
-            return builder;
         }
 
         public static string FinishBuilder(StringBuilder builder)
         {
-            for(var i = 0; i < _builders.Length; i++)
+            var str = builder.ToString();
+            builder.Length = 0;
+            if(_builders.Count < _buildersMaxSize)
             {
-                if(_builders[i] == null)
-                {
-                    _builders[i] = builder;
-                    break;
-                }
+                _builders.Push(builder);
             }
-            return builder.ToString();
+            return str;
         }
 
         public static string DictToString<T, V>(IEnumerable<KeyValuePair<T, V>> items, string format = "")
