@@ -205,12 +205,13 @@ namespace SpartaTools.Editor.Sync
             }
         }
 
+        // FIXME Move Modules out of synctools
         /// <summary>
         /// Gets the project modules.
         /// </summary>
         /// <returns>A dictionary containing the project modules, indexing by module name.</returns>
         /// <param name="projectPath">Project path.</param>
-        static Dictionary<string, Module> GetProjectModules(string projectPath)
+        public static Dictionary<string, Module> GetProjectModules(string projectPath)
         {
             var dic = new Dictionary<string, Module>();
 
