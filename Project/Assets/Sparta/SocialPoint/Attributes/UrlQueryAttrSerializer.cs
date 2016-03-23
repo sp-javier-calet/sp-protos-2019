@@ -20,7 +20,7 @@ namespace SocialPoint.Attributes
         
         private string Convert(Attr data, string prefix)
         {
-            var str = StringUtils.StartBuilder();
+            var str = new StringBuilder();
             bool first = true;
             if(data == null)
             {

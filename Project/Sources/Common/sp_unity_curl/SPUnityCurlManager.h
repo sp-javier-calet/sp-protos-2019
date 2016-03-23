@@ -5,7 +5,7 @@
 #include <string>
 
 extern "C" {
-#include "curl/curl.h"
+#include "curl.h"
 }
 
 /* Global information, common to all connections */
