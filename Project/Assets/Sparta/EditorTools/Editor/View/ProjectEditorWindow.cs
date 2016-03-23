@@ -12,6 +12,7 @@ namespace SpartaTools.Editor.View
         string _fileContent;
         bool _showRawFile;
         bool _showLog;
+        bool _editEnabled;
 
         #region Editor options
 
@@ -42,8 +43,18 @@ namespace SpartaTools.Editor.View
 
         #region Draw GUI
 
+        void GUIToolbar()
+        {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.FlexibleSpace();
+            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enables edition mode for module files"), EditorStyles.toolbarButton);
+            GUILayout.EndHorizontal();
+        }
+
         void OnGUI()
         {
+            GUIToolbar();
+
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             GUIProjectPathInput();
@@ -53,9 +64,9 @@ namespace SpartaTools.Editor.View
             {
                 GUIProjectLog();
 
-                if(Sparta.AdvancedMode)
+                if(_editEnabled)
                 {
-                    GUIAdvancedMode();
+                    GUIFileEditor();
                 }
             }
             else
@@ -155,7 +166,7 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        void GUIAdvancedMode()
+        void GUIFileEditor()
         {
             _showRawFile = EditorGUILayout.Foldout(_showRawFile, "Raw Project file");
             if(_showRawFile)

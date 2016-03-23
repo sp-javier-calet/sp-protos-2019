@@ -113,27 +113,6 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        /*
-         * Advanced Mode configuration
-         */
-        static bool _advancedMode;
-
-        public static bool AdvancedMode
-        { 
-            get
-            { 
-                return _advancedMode; 
-            }
-            set
-            {
-                _advancedMode = value;
-                if(OnChanged != null)
-                {
-                    OnChanged(); 
-                }
-            }
-        }
-
         public static void FetchInfo()
         {
             _repoInfo = Target.GetRepositoryInfo();

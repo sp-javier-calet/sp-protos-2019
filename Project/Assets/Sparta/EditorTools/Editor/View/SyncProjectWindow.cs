@@ -38,12 +38,6 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        [MenuItem("Sparta/Sync/Advanced Mode", false, 50)]
-        public static void ToggleAdvanced()
-        {
-            Sparta.AdvancedMode = !Sparta.AdvancedMode;
-        }
-
         #endregion
 
         SyncProjectWindow()
@@ -93,6 +87,7 @@ namespace SpartaTools.Editor.View
         Vector2 _scrollPosition = Vector2.right;
         ProgressHandler _progressHandler;
         bool _refreshFinished;
+        bool _editEnabled;
 
         bool Synchronized
         {
@@ -155,8 +150,7 @@ namespace SpartaTools.Editor.View
                 RefreshModules(); 
             }
 
-            GUILayout.FlexibleSpace();
-
+            EditorGUILayout.Space();
             // Enable actions after synchronize categories and modules
             GUI.enabled &= Synchronized;
             if(GUILayout.Button(new GUIContent("Backport", "Copy back target project changes"), EditorStyles.toolbarButton))
@@ -202,6 +196,10 @@ namespace SpartaTools.Editor.View
                     RefreshModules();
                 }
             }
+
+            GUILayout.FlexibleSpace();
+            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Unlocks actions"), EditorStyles.toolbarButton);
+
             GUILayout.EndHorizontal();
             GUI.enabled = true;
         }
@@ -281,7 +279,7 @@ namespace SpartaTools.Editor.View
 
             GUILayout.Label(sync.Status.ToString(), Styles.ModuleStatus);
 
-            GUI.enabled = !sync.ReferenceModule.IsMandatory || Sparta.AdvancedMode;
+            GUI.enabled = !sync.ReferenceModule.IsMandatory || _editEnabled;
             sync.Action = (ModuleSync.SyncAction)EditorGUILayout.Popup(string.Empty, (int)sync.Action, 
                 sync.Status == ModuleSync.SyncStatus.NotInstalled ? NotInstalledModuleOptions : InstalledModuleOptions, 
                 Styles.PopupLayoutOptions);
