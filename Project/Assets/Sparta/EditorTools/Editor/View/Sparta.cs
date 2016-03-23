@@ -1,10 +1,9 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
 using System;
-using System.IO;
-using SpartaTools.Editor.Utils;
+using SpartaTools.Editor.Sync;
+using SpartaTools.Editor.SpartaProject;
 
-namespace SpartaTools.Editor.Sync
+namespace SpartaTools.Editor.View
 {
     public static class Sparta
     {
@@ -72,30 +71,13 @@ namespace SpartaTools.Editor.Sync
         /*
          * Sparta repository info
          */
-        static RepositoryInfo _repoInfo = GetRepositoryInfo();
+        static RepositoryInfo _repoInfo = Target.GetRepositoryInfo();
 
         public static RepositoryInfo RepoInfo
         {
             get
             {
                 return _repoInfo;
-            }
-        }
-
-        /*
-         * Sparta Project Base Path
-         */
-        static string _basePath;
-
-        public static string BasePath
-        {
-            get
-            {
-                if(string.IsNullOrEmpty(_basePath))
-                {
-                    _basePath = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-                }
-                return _basePath;
             }
         }
 
@@ -122,51 +104,7 @@ namespace SpartaTools.Editor.Sync
 
         public static void FetchInfo()
         {
-            _repoInfo = GetRepositoryInfo();
+            _repoInfo = Target.GetRepositoryInfo();
         }
-
-
-        #region Repository Info
-
-        public class RepositoryInfo
-        {
-            public string Commit { get; private set; }
-
-            public string User { get; private set; }
-
-            public string Branch { get; private set; }
-
-            public RepositoryInfo() : this("No commit", "No branch", "No user")
-            {
-            }
-
-            public RepositoryInfo(string commit, string branch, string user)
-            {
-                Commit = commit;
-                Branch = branch;
-                User = user;
-            }
-        }
-
-        static RepositoryInfo GetRepositoryInfo()
-        {
-            string commit = null;
-            NativeConsole.RunProcess("git", "log --pretty=format:'%H' -n 1", BasePath, line => {
-                commit = line.Trim();
-            });
-
-            string branch = null;
-            NativeConsole.RunProcess("git", "rev-parse --abbrev-ref HEAD", BasePath, line => {
-                branch = line.Trim();
-            });
-
-            string user = null;
-            NativeConsole.RunProcess("git", "config user.email", BasePath, line => {
-                user = line.Trim();
-            });
-
-            return new RepositoryInfo(commit, branch, user);
-        }
-        #endregion
     }
 }

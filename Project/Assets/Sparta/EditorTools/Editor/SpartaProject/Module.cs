@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace SpartaTools.Editor.Sync
+namespace SpartaTools.Editor.SpartaProject
 {
     public class Module
     {

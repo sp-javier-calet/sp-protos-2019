@@ -2,8 +2,10 @@
 using UnityEditor;
 using System.IO;
 using System.Text;
+using SpartaTools.Editor.Sync;
+using SpartaTools.Editor.SpartaProject;
 
-namespace SpartaTools.Editor.Sync.View
+namespace SpartaTools.Editor.View
 {
     public class ModuleEditorWindow : EditorWindow
     {

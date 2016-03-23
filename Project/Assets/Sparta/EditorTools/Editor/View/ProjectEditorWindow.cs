@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
+using SpartaTools.Editor.SpartaProject;
 
-namespace SpartaTools.Editor.Sync.View
+namespace SpartaTools.Editor.View
 {
     public class ProjectEditorWindow : EditorWindow
     {
@@ -102,7 +103,7 @@ namespace SpartaTools.Editor.Sync.View
         void GUIRepositoryStatus()
         {
             var spartaInfo = Sparta.RepoInfo;
-            Sparta.RepositoryInfo targetInfo;
+            RepositoryInfo targetInfo;
 
             if(Sparta.Target.Valid && Sparta.Target.LastEntry != null)
             {
@@ -110,7 +111,7 @@ namespace SpartaTools.Editor.Sync.View
             }
             else
             {
-                targetInfo = new Sparta.RepositoryInfo();
+                targetInfo = new RepositoryInfo();
             }
 
 

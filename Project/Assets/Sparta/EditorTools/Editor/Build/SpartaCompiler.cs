@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 using SpartaTools.Editor.Utils;
-using SpartaTools.Editor.Sync;
+using SpartaTools.Editor.SpartaProject;
 
 namespace SpartaTools.Editor.Build
 {
@@ -161,7 +161,7 @@ namespace SpartaTools.Editor.Build
                 // Add compiled sparta core dll
                 dependencies.Add(GetTempDllPathForModule("Sparta Core", target, editorAssembly));
 
-                var modules = SyncTools.GetProjectModules(Application.dataPath);
+                var modules = Project.GetModules(Application.dataPath);
                 var core = modules["Sparta Core"];
                 // Dependencies
                 foreach(var dependency in core.Dependencies)
@@ -244,7 +244,7 @@ namespace SpartaTools.Editor.Build
         {
             if(_modules == null)
             {
-                _modules = SyncTools.GetProjectModules(Application.dataPath);
+                _modules = Project.GetModules(Application.dataPath);
             }
 
             foreach(var module in _modules.Values)

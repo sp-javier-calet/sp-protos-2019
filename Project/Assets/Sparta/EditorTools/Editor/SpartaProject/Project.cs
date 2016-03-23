@@ -1,12 +1,36 @@
-﻿using System;
+﻿using UnityEngine;
+using System;
 using System.IO;
 using System.Globalization;
 using System.Collections.Generic;
+using SpartaTools.Editor.Utils;
 
-namespace SpartaTools.Editor.Sync
+namespace SpartaTools.Editor.SpartaProject
 {
     public class Project
     {
+        static Project()
+        {
+            _dataPath = Application.dataPath;
+        }
+        /*
+         * Sparta Project Base Path
+         */
+        static string _dataPath;
+        static string _basePath;
+
+        public static string BasePath
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(_basePath))
+                {
+                    _basePath = Path.GetFullPath(Path.Combine(_dataPath, ".."));
+                }
+                return _basePath;
+            }
+        }
+
         const string ProjectFileName = ".sparta_project";
 
         const string DefaultCultureName = "en-US";
@@ -26,9 +50,9 @@ namespace SpartaTools.Editor.Sync
         public class LogEntry
         {
             public DateTime Time;
-            public Sparta.RepositoryInfo RepoInfo;
+            public RepositoryInfo RepoInfo;
 
-            public LogEntry(DateTime time, Sparta.RepositoryInfo repoInfo)
+            public LogEntry(DateTime time, RepositoryInfo repoInfo)
             {
                 Time = time;
                 RepoInfo = repoInfo;
@@ -42,7 +66,7 @@ namespace SpartaTools.Editor.Sync
                 var branch = parts[2];
                 var user = parts[3];
 
-                RepoInfo = new Sparta.RepositoryInfo(commit, branch, user);
+                RepoInfo = new RepositoryInfo(commit, branch, user);
             }
 
             public override string ToString()
@@ -98,7 +122,7 @@ namespace SpartaTools.Editor.Sync
             }
         }
 
-        public void AddLog(DateTime time, Sparta.RepositoryInfo repoInfo)
+        public void AddLog(DateTime time, RepositoryInfo repoInfo)
         {
             _log.Add(new LogEntry(time, repoInfo));
         }
@@ -139,6 +163,59 @@ namespace SpartaTools.Editor.Sync
             }
             file.Flush();
             file.Close();
+        }
+
+        public Dictionary<string, Module> GetModules()
+        {
+            return GetModules(ProjectPath);
+        }
+
+        public RepositoryInfo GetRepositoryInfo()
+        {
+            string commit = null;
+            NativeConsole.RunProcess("git", "log --pretty=format:'%H' -n 1", ProjectPath, line => {
+                commit = line.Trim();
+            });
+
+            string branch = null;
+            NativeConsole.RunProcess("git", "rev-parse --abbrev-ref HEAD", ProjectPath, line => {
+                branch = line.Trim();
+            });
+
+            string user = null;
+            NativeConsole.RunProcess("git", "config user.email", ProjectPath, line => {
+                user = line.Trim();
+            });
+
+            return new RepositoryInfo(commit, branch, user);
+        }
+
+        /// <summary>
+        /// Gets the project modules.
+        /// </summary>
+        /// <returns>A dictionary containing the project modules, indexing by module name.</returns>
+        /// <param name="projectPath">Project path.</param>
+        public static Dictionary<string, Module> GetModules(string projectPath)
+        {
+            var dic = new Dictionary<string, Module>();
+
+            // TODO Implement own recursive search, stopping when a module is found to avoid conflicts.
+            string[] files = Directory.GetFiles(projectPath, Module.DefinitionFileName, SearchOption.AllDirectories);
+            foreach(var moduleFile in files)
+            {
+                var module = new Module(projectPath, moduleFile);
+                try
+                {
+                    dic.Add(module.Name, module);
+                }
+                catch(Exception e)
+                {
+                    throw new Exception(string.Format("Duplicated module with name {0} in {1} and {2}. Error: {3}", 
+                        module.Name, module.RelativePath, dic[module.Name].RelativePath, e.Message));
+                }
+            }
+
+            return dic;
         }
     }
 }

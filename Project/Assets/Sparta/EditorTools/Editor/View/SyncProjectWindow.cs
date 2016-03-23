@@ -4,9 +4,11 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using SpartaTools.Editor.Sync;
+using SpartaTools.Editor.SpartaProject;
 using SpartaTools.Editor.Utils;
 
-namespace SpartaTools.Editor.Sync.View
+namespace SpartaTools.Editor.View
 {
     public class SyncProjectWindow : EditorWindow
     {
@@ -22,7 +24,7 @@ namespace SpartaTools.Editor.Sync.View
         public static void CreateModule()
         {
             var path = EditorUtility.OpenFolderPanel("Select module root", 
-                Sparta.BasePath,
+                Project.BasePath,
                 Module.DefinitionFileName);
 
             if(!string.IsNullOrEmpty(path) && Directory.Exists(path))
@@ -74,13 +76,13 @@ namespace SpartaTools.Editor.Sync.View
         }
 
         // Options are tied to ModuleSync.SyncAction definition.
-        readonly string[] InstalledModuleOptions = new string[] {
+        readonly string[] InstalledModuleOptions = new [] {
             "None",
             "Override",
             "Uninstall" 
         };
 
-        readonly string[] NotInstalledModuleOptions = new string[] {
+        readonly string[] NotInstalledModuleOptions = new [] {
             "None",
             "Install"
         };
@@ -157,7 +159,12 @@ namespace SpartaTools.Editor.Sync.View
                 }
                 else
                 {
-                    EditorUtility.DisplayProgressBar("Synchronizing", _progressHandler.Message, _progressHandler.Percent);
+                    if(EditorUtility.DisplayCancelableProgressBar("Synchronizing", _progressHandler.Message, _progressHandler.Percent))
+                    {
+                        // TODO Cancel process
+                        _progressHandler.Cancel();
+                        _refreshFinished = true;
+                    }
                 }
             }
             else if(!Synchronized)
