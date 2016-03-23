@@ -19,6 +19,12 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     protected CrossPromoCellController _cellPrototype;
 
     [SerializeField]
+    protected RectTransform _separatorPrototype;
+
+    [SerializeField]
+    protected float _separatorCellRatio;
+
+    [SerializeField]
     protected Image _titleImage;
 
     [SerializeField]
@@ -101,7 +107,8 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     protected float CalculateDesiredAspecRatio()
     {
         Vector2 currentCellAreaSize = GetCellAreaSize();
-        float desiredCellAreaHeight = _cellHeight * _cpm.Data.PopupHeightFactor;
+        float desiredCellAreaHeight = (_cellHeight * _cpm.Data.PopupHeightFactor)
+                                      + (_cellHeight * _separatorCellRatio * (Mathf.CeilToInt(_cpm.Data.PopupHeightFactor) - 1));
         float growFactor = desiredCellAreaHeight / currentCellAreaSize.y;
         Vector2 currentPopupSize = GetPopupSize();
         Vector2 desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);
@@ -129,19 +136,31 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     {
         //Prepare prototype for cloning
         _cellPrototype.gameObject.SetActive(false);
-        _cellPrototype.SetElementsSize(_cellWidth, _cellHeight);
+        _separatorPrototype.gameObject.SetActive(false);
+        _cellPrototype.SetElementsSize(_cellWidth, _cellHeight, _separatorPrototype, _separatorCellRatio);
 
         int position = 0;
         foreach(var keyValue in _cpm.Data.BannerInfo)
         {
-            CrossPromoCellController newCell = GameObject.Instantiate(_cellPrototype) as CrossPromoCellController;
-            newCell.transform.SetParent(_cellPrototype.transform.parent);
-            newCell.transform.localScale = _cellPrototype.transform.localScale;
+            if(position > 0)
+            {
+                Clone<RectTransform>(_separatorPrototype);
+            }
+
+            CrossPromoCellController newCell = Clone<CrossPromoCellController>(_cellPrototype);
             newCell.InitCell(_cpm, this, keyValue.Value.Uid, position);
-            newCell.gameObject.SetActive(true);
 
             ++position;
         }
+    }
+
+    private static T Clone<T>(T prototype) where T : Component
+    {
+        T newObject = GameObject.Instantiate(prototype) as T;
+        newObject.transform.SetParent(prototype.transform.parent);
+        newObject.transform.localScale = prototype.transform.localScale;
+        newObject.gameObject.SetActive(true);
+        return newObject;
     }
 
     void OnEnable()

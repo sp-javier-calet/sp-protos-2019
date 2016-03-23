@@ -29,17 +29,18 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     protected static float _buttonLeftMarginToCenterPercent = 0.73f;
     protected static float _buttonBottomMarginToCenterPercent = 0.2f;
 
-    private float _scrollMidPos = 0.0f;
+    private float _visibilityPointInScroll = 0.0f;
+    private float _separatorRatio = 0.0f;
 
     public override void InitCell(SocialPoint.CrossPromotion.CrossPromotionManager crossPromoManager, BaseCrossPromoPopupController popupController, int bannerId, int position)
     {
         base.InitCell(crossPromoManager, popupController, bannerId, position);
 
         int totalCells = crossPromoManager.Data.BannerInfo.Count;
-        float scrollMaxPos = 1 - ((float)position / (float)totalCells);
-        float scrollMinPos = 1 - ((float)(position + 1) / (float)totalCells);
-        float size = scrollMaxPos - scrollMinPos;
-        _scrollMidPos = scrollMinPos + size * 0.5f;
+        float cellHeightPercent = 1 / (totalCells + (totalCells - 1) * _separatorRatio);
+        float separatorHeightPercent = cellHeightPercent * _separatorRatio;
+        float scrollMaxPos = 1 - (float)position * (cellHeightPercent + separatorHeightPercent);
+        _visibilityPointInScroll = scrollMaxPos - (cellHeightPercent * 0.49f);//Use 49% as mark for visibility to avoid missing events due to floating point precision for mid point calculation
 
         CrossPromotionBannerData bannerData = _cpm.Data.BannerInfo[bannerId];
         UIUtils.SetImage(_bannerImage, _cpm.GetTexture2DForPopupImage(bannerData.BgImage));
@@ -56,11 +57,17 @@ public class CrossPromoCellController : BaseCrossPromoCellController
         }
     }
 
-    public void SetElementsSize(float width, float height)
+    public void SetElementsSize(float width, float height, RectTransform separator, float separatorRatio)
     {
+        _separatorRatio = separatorRatio;
+
         LayoutElement cellLayout = this.GetComponent<LayoutElement>();
         cellLayout.preferredWidth = cellLayout.minWidth = width;
         cellLayout.preferredHeight = cellLayout.minHeight = height;
+
+        LayoutElement separatorLayout = separator.GetComponent<LayoutElement>();
+        separatorLayout.preferredWidth = separatorLayout.minWidth = width;
+        separatorLayout.preferredHeight = separatorLayout.minHeight = height * separatorRatio;
 
         SetIconSizeAndPos(width);
         SetNewGameFlagSizeAndPos(width);
@@ -114,7 +121,7 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     {
         float heightFactorPercent = _cpm.Data.PopupHeightFactor / _cpm.Data.BannerInfo.Count;
         float visibility = (1 - _scrollContainer.verticalNormalizedPosition) * (1 - heightFactorPercent) + heightFactorPercent;
-        if(visibility >= 1 - _scrollMidPos)
+        if(visibility >= 1 - _visibilityPointInScroll)
         {
             SendVisibilityEvent();
         }
