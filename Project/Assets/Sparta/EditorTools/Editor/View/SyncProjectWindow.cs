@@ -58,6 +58,7 @@ namespace SpartaTools.Editor.View
 
         void OnSpartaChanged()
         {
+            RefreshModules();
             Repaint();
         }
 
