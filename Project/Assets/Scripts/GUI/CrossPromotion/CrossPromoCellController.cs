@@ -102,8 +102,8 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     {
         float scale = width / _defaultBannerWidth;
         float newButtonHeight = Mathf.Min(_buttonHeight * scale, _buttonBottomMarginToCenterPercent * height);//Visual image must be this size
-        float verticalOffset = newButtonHeight * 0.5f;
-        float horizontalOffset = verticalOffset * 3.5f;
+        float verticalOffset = newButtonHeight * 0.75f;
+        float horizontalOffset = verticalOffset * 3.0f;
         _buttonContainer.anchorMin = new Vector2(_buttonLeftMarginToCenterPercent, _buttonBottomMarginToCenterPercent);
         _buttonContainer.anchorMax = new Vector2(_buttonLeftMarginToCenterPercent, _buttonBottomMarginToCenterPercent);
         _buttonContainer.offsetMin = new Vector2(-horizontalOffset, -verticalOffset);
