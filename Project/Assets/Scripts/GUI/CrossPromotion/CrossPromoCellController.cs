@@ -37,9 +37,9 @@ public class CrossPromoCellController : BaseCrossPromoCellController
         base.InitCell(crossPromoManager, popupController, bannerId, position);
 
         int totalCells = crossPromoManager.Data.BannerInfo.Count;
-        float cellHeightPercent = 1 / (totalCells + (totalCells - 1) * _separatorRatio);
+        float cellHeightPercent = 1.0f / (totalCells + (totalCells - 1) * _separatorRatio);
         float separatorHeightPercent = cellHeightPercent * _separatorRatio;
-        float scrollMaxPos = 1 - (float)position * (cellHeightPercent + separatorHeightPercent);
+        float scrollMaxPos = 1.0f - (float)position * (cellHeightPercent + separatorHeightPercent);
         _visibilityPointInScroll = scrollMaxPos - (cellHeightPercent * 0.49f);//Use 49% as mark for visibility to avoid missing events due to floating point precision for mid point calculation
 
         CrossPromotionBannerData bannerData = _cpm.Data.BannerInfo[bannerId];

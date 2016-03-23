@@ -55,13 +55,19 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
         return GetSize(_cellContainer);
     }
 
+    protected Vector2 GetVirtualScreenSize()
+    {
+        CanvasScaler canvasScaler = GetComponent<CanvasScaler>();
+        return canvasScaler.referenceResolution;
+    }
+
     /**
      * Helper function to get current size of some UI elements in the popup.
      * If current size is 0 in both axis its probably because its not yet 
      * initialized in screen by Unity nor set through script,
      * in this case an original estimated size is returned.
      * */
-    private static Vector2 GetSize(RectTransform rTransform)
+    private Vector2 GetSize(RectTransform rTransform)
     {
         Vector2 currentSize = new Vector2(rTransform.rect.width, rTransform.rect.height);
         if(currentSize.x == 0 && currentSize.y == 0)
@@ -74,11 +80,12 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     /**
      * Helper function to get original size of some UI elements in the popup.
      * */
-    private static Vector2 GetOriginalSize(RectTransform rTransform)
+    private Vector2 GetOriginalSize(RectTransform rTransform)
     {
         float widthPercent = rTransform.anchorMax.x - rTransform.anchorMin.x;
         float heightPercent = rTransform.anchorMax.y - rTransform.anchorMin.y;
-        return new Vector2(Screen.width * widthPercent, Screen.height * heightPercent);
+        Vector2 screenSize = GetVirtualScreenSize();
+        return new Vector2(screenSize.x * widthPercent, screenSize.y * heightPercent);
     }
 
     protected override void SetPopupSize()
@@ -118,8 +125,9 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
 
     protected Vector2 GetSizeToFit(float aspectRatio)
     {
-        float maxHorizontalSize = Screen.width - (2 * _minHorizontalMargin);
-        float maxVerticalSize = Screen.height - (2 * _minVerticalMargin);
+        Vector2 screenSize = GetVirtualScreenSize();
+        float maxHorizontalSize = screenSize.x - (2 * _minHorizontalMargin);
+        float maxVerticalSize = screenSize.y - (2 * _minVerticalMargin);
 
         float horizontalSize = maxHorizontalSize;
         float verticalSize = horizontalSize / aspectRatio;
