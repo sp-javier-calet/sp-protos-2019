@@ -32,6 +32,10 @@ namespace SocialPoint.Utils
 
         public static string FinishBuilder(StringBuilder builder)
         {
+            if(_builders == null)
+            {
+                _builders = new Stack<StringBuilder>();
+            }
             var str = builder.ToString();
             builder.Length = 0;
             if(_builders.Count < _buildersMaxSize)

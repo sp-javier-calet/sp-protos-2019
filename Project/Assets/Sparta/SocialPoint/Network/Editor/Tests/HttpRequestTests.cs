@@ -25,5 +25,13 @@ namespace SocialPoint.Network
             Assert.AreEqual("ee", req.Params["cc"].AsDic["dd"].ToString());
         }
 
+        [Test]
+        public void HttpRequest_AddParam()
+        {
+            var req = new HttpRequest("http://www.google.com/", HttpRequest.MethodType.POST);
+            req.AddParam("test", "aa");
+            Assert.AreEqual("test=aa", System.Text.Encoding.UTF8.GetString (req.Body));
+        }
+
     }
 }
