@@ -99,10 +99,21 @@ namespace SpartaTools.Editor.Build
             var ManagedLibrariesPath = Path.Combine(InstallationPath, UnityManagedLibrariesPath);
             var MonoLibrariesPath = Path.Combine(InstallationPath, MonoFrameworkLibrariesPath);
             var ExtensionPath = Path.Combine(InstallationPath, UnityExtensionsPath);
+            var PlayerPath = Path.Combine(InstallationPath, "PlaybackEngines/iOSSupport/");
             dependencies.Add(Path.Combine(ManagedLibrariesPath, "UnityEngine.dll"));
             dependencies.Add(Path.Combine(MonoLibrariesPath, "System.Xml.Linq.dll"));
             dependencies.Add(Path.Combine(MonoLibrariesPath, "System.Xml.dll"));
             dependencies.Add(Path.Combine(ExtensionPath, "GUISystem/UnityEngine.UI.dll"));
+
+
+            if(target == BuildTarget.iOS)
+            {
+                dependencies.Add(Path.Combine(PlayerPath, "UnityEditor.iOS.Extensions.dll"));
+                dependencies.Add(Path.Combine(PlayerPath, "UnityEditor.iOS.Extensions.Common.dll"));
+                dependencies.Add(Path.Combine(PlayerPath, "UnityEditor.iOS.Extensions.Xcode.dll"));
+            }
+
+
             if(editorAssembly)
             {
                 dependencies.Add(Path.Combine(ManagedLibrariesPath, "UnityEditor.dll"));
