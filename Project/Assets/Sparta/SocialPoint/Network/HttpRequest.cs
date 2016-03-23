@@ -90,7 +90,7 @@ namespace SocialPoint.Network
                 }
                 if(Body == null || Body.Length == 0)
                 {
-                    return false;
+                    return true;
                 }
                 if(!HasHeader(ContentTypeHeader))
                 {
