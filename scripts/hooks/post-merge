@@ -1,6 +1,7 @@
 #!/bin/sh
 
-PROJECT_NAME="Project"
+ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
+PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
 
 # Remove empty directories
 PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)

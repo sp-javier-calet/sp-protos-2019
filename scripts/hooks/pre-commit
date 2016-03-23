@@ -7,7 +7,8 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
-PROJECT_NAME="Project"
+ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
+PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
 
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
