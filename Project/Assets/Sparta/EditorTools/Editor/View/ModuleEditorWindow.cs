@@ -38,7 +38,8 @@ namespace SpartaTools.Editor.View
 
         void OnSelect()
         {
-            ModuleSync = Sparta.SelectedModule;
+            ModuleSync = Sparta.SelectedModuleSync;
+            Module = Sparta.SelectedModule;
             Repaint();
         }
 
@@ -50,7 +51,7 @@ namespace SpartaTools.Editor.View
 
         Module _module;
 
-        Module Module
+        public Module Module
         {
             get
             {
@@ -59,6 +60,11 @@ namespace SpartaTools.Editor.View
 
             set
             {
+                if(_moduleSync != null && _moduleSync.ReferenceModule != value)
+                {
+                    _moduleSync = null;
+                }
+
                 _module = value;
                 _fileContent = string.Empty;
                 if(_module != null && _module.Valid)
@@ -144,6 +150,11 @@ namespace SpartaTools.Editor.View
 
         void GUIModuleDiff()
         {
+            if(_moduleSync == null)
+            {
+                return;
+            }
+
             _showDiff = EditorGUILayout.Foldout(_showDiff, "Module diff");
             if(_showDiff)
             {

@@ -47,7 +47,7 @@ namespace SpartaTools.Editor.View
             {
                 _target = value;
 
-                SelectedModule = null;
+                SelectedModuleSync = null;
 
                 FetchInfo();
 
@@ -63,9 +63,24 @@ namespace SpartaTools.Editor.View
         /*
          * Module selection
          */
-        static ModuleSync _selectedModule;
+        static ModuleSync _selectedModuleSync;
 
-        public static ModuleSync SelectedModule
+        public static ModuleSync SelectedModuleSync
+        {
+            get
+            {
+                return _selectedModuleSync;
+            }
+            set
+            {
+                _selectedModuleSync = value;
+                SelectedModule = _selectedModuleSync.ReferenceModule;
+            }
+        }
+
+        static Module _selectedModule;
+
+        public static Module SelectedModule
         {
             get
             {
@@ -73,6 +88,10 @@ namespace SpartaTools.Editor.View
             }
             set
             {
+                if(_selectedModuleSync != null && _selectedModuleSync.ReferenceModule != value)
+                {
+                    _selectedModuleSync = null;
+                }
                 _selectedModule = value;
                 if(OnModuleSelected != null)
                 {

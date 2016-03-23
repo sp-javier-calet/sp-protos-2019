@@ -218,8 +218,7 @@ namespace SpartaTools.Editor.View
 
                 _lastSelectionTime = t;
                 _selectedVariant = variant;
-
-                //Sparta.Module = variant.Module;
+                Sparta.SelectedModule = variant.Module;
             }
         }
 
