@@ -269,7 +269,7 @@ namespace SpartaTools.Editor.View
         {
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
-            if(GUILayout.Button(new GUIContent(sync.Name, string.Format("{0}.\n{1} module.\n{2}", sync.ReferenceModule.Description, sync.Type.ToString(), sync.Path)), 
+            if(GUILayout.Button(new GUIContent(sync.Name, string.Format("{0}.\n{1} module.\n{2}", sync.ReferenceModule.Description, sync.Type, sync.Path)), 
                    sync.ReferenceModule.Valid ? EditorStyles.label : Styles.Warning))
             {
                 Sparta.SelectedModule = sync;

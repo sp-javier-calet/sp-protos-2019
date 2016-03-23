@@ -72,7 +72,7 @@ namespace SpartaTools.Editor.Build
             return command;
         }
 
-        public static string Compile(Module module, BuildTarget target, bool editorAssembly)
+        public static void Compile(Module module, BuildTarget target, bool editorAssembly)
         {
             var logContent = new StringBuilder();
             var filesToCompile = new List<string>();
@@ -201,7 +201,7 @@ namespace SpartaTools.Editor.Build
             if(filesToCompile.Count == 0)
             {
                 logContent.Append("No files to compile");
-                return logContent.ToString();
+                throw new EmptyModuleException("No files to compile");
             }
                 
             try
@@ -214,14 +214,14 @@ namespace SpartaTools.Editor.Build
                 if(code != 0)
                 {
                     logContent.AppendLine("Error while compiling library");
+                    throw new CompilerErrorException(logContent.ToString());
                 }
             }
             catch(System.ComponentModel.Win32Exception e)
             {
                 logContent.AppendLine(e.ToString());
+                throw new CompilerErrorException(logContent.ToString());
             }
-
-            return logContent.ToString();
         }
 
         static string GetTempDllPathForModule(string moduleName, BuildTarget target, bool editorAssembly)
@@ -230,4 +230,32 @@ namespace SpartaTools.Editor.Build
             return Path.Combine(Application.dataPath, Path.Combine(BinariesFolderPath, dllName));
         }
     }
+
+    #region Exceptions
+
+    public class SpartaException : Exception
+    {
+        public SpartaException(string message) 
+            : base(message)
+        {
+        }
+    }
+
+    public class EmptyModuleException : SpartaException
+    {
+        public EmptyModuleException(string message) 
+            : base(message)
+        {
+        }
+    }
+
+    public class CompilerErrorException : SpartaException
+    {
+        public CompilerErrorException(string message) 
+            : base(message)
+        {
+        }
+    }
+
+    #endregion
 }
