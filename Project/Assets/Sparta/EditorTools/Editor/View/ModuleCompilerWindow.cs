@@ -38,7 +38,6 @@ namespace SpartaTools.Editor.View
             public CompileStatus Status;
             public BuildTarget Target;
             public bool IsEditorBuild;
-            public bool Show;
             public string Log;
 
             public Variant(string name, Module module, BuildTarget target, bool editorBuild)
@@ -192,10 +191,12 @@ namespace SpartaTools.Editor.View
             catch(EmptyModuleException e)
             {
                 variant.Status = CompileStatus.NoAction;
+                variant.Log = e.ToString();
             }
             catch(CompilerErrorException e)
             {
                 variant.Status = CompileStatus.Failed;
+                variant.Log = e.ToString();
             }
 
             Repaint();

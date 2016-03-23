@@ -74,7 +74,14 @@ namespace SpartaTools.Editor.View
             set
             {
                 _selectedModuleSync = value;
-                SelectedModule = _selectedModuleSync.ReferenceModule;
+                if(_selectedModuleSync != null)
+                {
+                    SelectedModule = _selectedModuleSync.ReferenceModule;
+                }
+                else
+                {
+                    SelectedModule = null;
+                }
             }
         }
 

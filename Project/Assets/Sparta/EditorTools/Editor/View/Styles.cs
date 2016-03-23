@@ -48,7 +48,6 @@ namespace SpartaTools.Editor.View
         {
             var RedColor = new Color(0.8f, 0.1f, 0.1f, 1.0f);
             var GreenColor = new Color(0.1f, 0.8f, 0.1f, 1.0f);
-            var BlueColor = new Color(0.1f, 0.1f, 0.8f, 1.0f);
             var YellowColor = new Color(0.8f, 0.8f, 0.1f, 1.0f);
             var GrayColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
 
