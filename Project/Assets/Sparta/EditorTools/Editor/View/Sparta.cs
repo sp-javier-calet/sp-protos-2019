@@ -18,6 +18,19 @@ namespace SpartaTools.Editor.View
 
         static string _targetPath = EditorPrefs.GetString(TargetProjectKey);
 
+        static Project _current;
+        public static Project Current
+        {
+            get
+            {
+                if(_current == null)
+                {
+                    _current = new Project(Project.BasePath);
+                }
+                return _current;
+            }
+        }
+
         static Project _target;
 
         public static Project Target

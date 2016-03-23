@@ -9,14 +9,8 @@ using SpartaTools.Editor.SpartaProject;
 
 namespace SpartaTools.Editor.Build
 {
-    public class SpartaCompiler : EditorWindow
+    public class ModuleCompiler
     {
-        [MenuItem("Sparta/Build/Sparta Modules", false, 001)]
-        public static void CompileModule()
-        {
-            EditorWindow.GetWindow(typeof(SpartaCompiler), false, "Modules", true);
-        }
-
         static string InstallationPath
         {
             get
@@ -78,11 +72,11 @@ namespace SpartaTools.Editor.Build
             return command;
         }
 
-        static void Compile(Module module, BuildTarget target, bool editorAssembly)
+        public static string Compile(Module module, BuildTarget target, bool editorAssembly)
         {
-            var path = Application.dataPath;
+            var logContent = new StringBuilder();
             var filesToCompile = new List<string>();
-            var modulePath = Path.Combine(Application.dataPath, module.RelativePath);
+            var modulePath = Path.Combine(Project.BasePath, module.RelativePath);
 
             // Assembly files
             string[] allFiles = Directory.GetFiles(modulePath, "*.cs", SearchOption.AllDirectories);
@@ -206,28 +200,28 @@ namespace SpartaTools.Editor.Build
 
             if(filesToCompile.Count == 0)
             {
-                Debug.LogWarning("No files to compile");
-                return;
+                logContent.Append("No files to compile");
+                return logContent.ToString();
             }
                 
             try
             {
                 var dllPath = GetTempDllPathForModule(module.Name, target, editorAssembly);
-                int code = NativeConsole.RunProcess(Compiler, GetBuildCommand(dllPath, filesToCompile, dependencies, defines), path, output => {
-                    Debug.Log(output);
+                int code = NativeConsole.RunProcess(Compiler, GetBuildCommand(dllPath, filesToCompile, dependencies, defines), Application.dataPath, output => {
+                    logContent.AppendLine(output);
                 });
 
                 if(code != 0)
                 {
-                    Debug.LogError("Error while compiling library");
+                    logContent.AppendLine("Error while compiling library");
                 }
             }
             catch(System.ComponentModel.Win32Exception e)
             {
-                var v = e.Message;
-
-                Debug.LogError(e);
+                logContent.AppendLine(e.ToString());
             }
+
+            return logContent.ToString();
         }
 
         static string GetTempDllPathForModule(string moduleName, BuildTarget target, bool editorAssembly)
@@ -235,42 +229,5 @@ namespace SpartaTools.Editor.Build
             var dllName = moduleName.Replace(" ", "").Replace("/", "_") + "_" + target + (editorAssembly ? "-Editor" : "") + ".dll";
             return Path.Combine(Application.dataPath, Path.Combine(BinariesFolderPath, dllName));
         }
-
-        #region Draw GUI
-
-        Dictionary<string, Module> _modules;
-
-        void OnGUI()
-        {
-            if(_modules == null)
-            {
-                _modules = Project.GetModules(Application.dataPath);
-            }
-
-            foreach(var module in _modules.Values)
-            {
-                if(GUILayout.Button("Compile " + module.Name + " for Android"))
-                {
-                    Compile(module, BuildTarget.Android, false);
-                }
-
-                if(GUILayout.Button("Compile " + module.Name + " for Android - Editor"))
-                {
-                    Compile(module, BuildTarget.Android, true);
-                }
-
-                if(GUILayout.Button("Compile " + module.Name + " for iOS"))
-                {
-                    Compile(module, BuildTarget.iOS, false);
-                }
-
-                if(GUILayout.Button("Compile " + module.Name + " for iOS - Editor"))
-                {
-                    Compile(module, BuildTarget.iOS, true);
-                }
-            }
-        }
-
-        #endregion
     }
 }
