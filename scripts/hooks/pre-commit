@@ -10,6 +10,12 @@
 ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
 PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
 
+# Remove empty directories
+PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
+ASSETS_DIR=$(cd "$PROJECT_DIR/Assets" && pwd)
+find $PROJECT_DIR -name '*.DS_Store' -type f -delete
+find $PROJECT_DIR -depth -type d -empty -delete
+
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
 	against=HEAD
