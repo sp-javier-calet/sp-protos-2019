@@ -42,11 +42,10 @@ namespace SpartaTools.Editor.Utils
                     string content = proc.StandardError.ReadToEnd();
                     if(content != null)
                     {
-                        output(OutputType.Error, string.Format("Error: {0}", content));
+                        output(OutputType.Error, content);
                     }
                 }
             }
-
 
             proc.WaitForExit();
             int code = proc.ExitCode;
