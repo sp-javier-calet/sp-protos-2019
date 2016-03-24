@@ -3,11 +3,12 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using SpartaTools.Editor.Build;
 using SpartaTools.Editor.Utils;
 
-namespace SpartaTools.Editor.Build
+namespace SpartaTools.Editor.View
 {
-    public class BuildConfig : EditorWindow
+    public class BuildSetsWindow : EditorWindow
     {
         const string DebugConfigName = "Debug";
         const string ReleaseConfigName = "Release";
@@ -70,7 +71,7 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Sparta/Build/Build settings...", false, 3)]
         public static void ShowBuildSettings()
         {
-            EditorWindow.GetWindow(typeof(BuildConfig), false, "Sparta BuildSet", true);
+            EditorWindow.GetWindow(typeof(BuildSetsWindow), false, "Sparta BuildSet", true);
         }
 
         #endregion
@@ -123,7 +124,7 @@ namespace SpartaTools.Editor.Build
             return configs;
         }
 
-        void CreateConfigPanel(BuildSetViewData data)
+        void GUIConfigPanel(BuildSetViewData data)
         {
             var config = data.Config;
             GUILayout.BeginVertical();
@@ -244,8 +245,28 @@ namespace SpartaTools.Editor.Build
             return newValue;
         }
 
+        void GUIToolBar()
+        {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.FlexibleSpace();
+
+            // Common Buttons
+            if(GUILayout.Button("Refresh", EditorStyles.toolbarButton))
+            {
+                RefreshConfigs();
+            }
+            if(GUILayout.Button("Add Build Set", EditorStyles.toolbarButton))
+            {
+                BuildSet.Create("NewConfig");
+                RefreshConfigs();
+            }
+            GUILayout.EndHorizontal();
+        }
+
         void OnGUI()
         {
+            GUIToolBar();
+
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             // Read BuildSet definitions
@@ -257,7 +278,7 @@ namespace SpartaTools.Editor.Build
 
             GUILayout.Label("Base Settings", EditorStyles.boldLabel);
 
-            CreateConfigPanel(_baseSettingsData);
+            GUIConfigPanel(_baseSettingsData);
 
             GUILayout.Label("Build Sets", EditorStyles.boldLabel);
 
@@ -270,22 +291,9 @@ namespace SpartaTools.Editor.Build
             {
                 foreach(var config in _buildSetData.Values)
                 {
-                    CreateConfigPanel(config);
+                    GUIConfigPanel(config);
                 }
             }
-
-            // Common Buttons
-            if(GUILayout.Button("Refresh"))
-            {
-                RefreshConfigs();
-            }
-            if(GUILayout.Button("New Build Set"))
-            {
-                BuildSet.Create("NewConfig");
-                RefreshConfigs();
-            }
-
-            EditorGUILayout.Space();
             EditorGUILayout.EndScrollView();
         }
 

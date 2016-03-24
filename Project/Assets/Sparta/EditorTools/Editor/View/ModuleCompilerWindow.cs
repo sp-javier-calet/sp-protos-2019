@@ -13,7 +13,7 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Sparta compiler", false, 001)]
         public static void CompileModule()
         {
-            EditorWindow.GetWindow(typeof(ModuleCompilerWindow), false, "Sparta compiler", true);
+            EditorWindow.GetWindow(typeof(ModuleCompilerWindow), false, "Sparta compiler...", true);
         }
 
         Variant _selectedVariant;

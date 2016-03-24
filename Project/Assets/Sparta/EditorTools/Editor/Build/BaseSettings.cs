@@ -9,12 +9,16 @@ namespace SpartaTools.Editor.Build
         public const string BaseSettingsAsset = ContainerPath + "BaseSettings" + FileExtension;
 
         public override bool OverrideIcon { get { return true; } set { /* ignore */ } }
+
         public override bool ForceBundleVersionCode { get { return true; } set { /* ignore */ } }
-        public override bool UseKeystore { get{ return true; } set { /* ignore */ } }
+
+        public override bool UseKeystore { get { return true; } set { /* ignore */ } }
 
         public override bool Validate()
         {
-            return true;
+            return  !string.IsNullOrEmpty(AndroidBundleIdentifier) &&
+            !string.IsNullOrEmpty(IosBundleIdentifier) &&
+            Icon != null;
         }
 
         public static bool Exists
