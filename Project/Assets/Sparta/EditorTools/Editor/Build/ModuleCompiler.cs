@@ -15,7 +15,7 @@ namespace SpartaTools.Editor.Build
         const string MonoFrameworkLibrariesPath = "Unity.app/Contents/Frameworks/Mono/lib/mono/2.0/";
         const string UnityManagedLibrariesPath = "Unity.app/Contents/Frameworks/Managed/";
         const string UnityMonoPath = "Unity.app/Contents/Frameworks/Mono/bin/gmcs";
-        const string BinariesFolderPath = "../Tmp/Sparta/Binaries";
+        const string BinariesFolderPath = "Temp/Sparta/Binaries";
 
         static string InstallationPath
         {
@@ -38,7 +38,7 @@ namespace SpartaTools.Editor.Build
         {
             get
             {
-                return Path.Combine(Application.dataPath, BinariesFolderPath);
+                return Path.Combine(Project.BasePath, BinariesFolderPath);
             }
         }
 
@@ -305,6 +305,11 @@ namespace SpartaTools.Editor.Build
 
             // Generate build command
             var dllPath = GetTempDllPathForModule(_moduleName, _target, _editorAssembly.HasValue && _editorAssembly.Value);
+
+            // Create output directory if needed
+            var dir = Path.GetDirectoryName(dllPath);
+            Directory.CreateDirectory(dir);
+
             var buildCommand = string.Format(BuildCommandPattern, dllPath, _libraries, filteredReferences, _defines, filteredFiles);
 
             // Launch mono compiler
@@ -361,7 +366,7 @@ namespace SpartaTools.Editor.Build
 
         public static CompilationResult Compile(Module module, BuildTarget target, bool editorAssembly)
         {
-            var compiler = ModuleCompiler.Create(GetTempDllPathForModule(module.Name, target, editorAssembly))
+            var compiler = ModuleCompiler.Create(module.Name)
                 .SetTarget(target)
                 .SetEditorAssembly(editorAssembly);
 
