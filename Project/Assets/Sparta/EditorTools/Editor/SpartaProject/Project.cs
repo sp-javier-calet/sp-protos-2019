@@ -173,18 +173,18 @@ namespace SpartaTools.Editor.SpartaProject
         public RepositoryInfo GetRepositoryInfo()
         {
             string commit = null;
-            NativeConsole.RunProcess("git", "log --pretty=format:'%H' -n 1", ProjectPath, line => {
-                commit = line.Trim();
+            NativeConsole.RunProcess("git", "log --pretty=format:'%H' -n 1", ProjectPath, (type, output) => {
+                commit = output.Trim();
             });
 
             string branch = null;
-            NativeConsole.RunProcess("git", "rev-parse --abbrev-ref HEAD", ProjectPath, line => {
-                branch = line.Trim();
+            NativeConsole.RunProcess("git", "rev-parse --abbrev-ref HEAD", ProjectPath,  (type, output) => {
+                branch = output.Trim();
             });
 
             string user = null;
-            NativeConsole.RunProcess("git", "config user.email", ProjectPath, line => {
-                user = line.Trim();
+            NativeConsole.RunProcess("git", "config user.email", ProjectPath,  (type, output) => {
+                user = output.Trim();
             });
 
             return new RepositoryInfo(commit, branch, user);

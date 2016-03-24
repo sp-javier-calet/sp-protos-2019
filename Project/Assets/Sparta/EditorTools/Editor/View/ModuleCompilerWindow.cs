@@ -184,9 +184,9 @@ namespace SpartaTools.Editor.View
         {
             try
             {
-                ModuleCompiler.Compile(variant.Module, variant.Target, variant.IsEditorBuild);
-                variant.Status = CompileStatus.Success;
-                // TODO Detect warnings
+                var result = ModuleCompiler.Compile(variant.Module, variant.Target, variant.IsEditorBuild);
+                variant.Status = result.Success ? CompileStatus.Success : CompileStatus.HasWarnings;
+                variant.Log = result.Log;
             }
             catch(EmptyModuleException e)
             {
@@ -202,8 +202,27 @@ namespace SpartaTools.Editor.View
             Repaint();
         }
 
-
         #region GUI
+
+        void GUIShowLog(Variant variant)
+        {
+            var log = variant.Log;
+            if(!string.IsNullOrEmpty(log))
+            {
+                switch(variant.Status)
+                {
+                case CompileStatus.Failed:
+                    Debug.LogError(log);
+                    break;
+                case CompileStatus.HasWarnings:
+                    Debug.LogWarning(log);
+                    break;
+                default:
+                    Debug.Log(log);
+                    break;
+                }
+            }
+        }
 
         void GUIModuleVariant(Variant variant)
         {
@@ -219,13 +238,8 @@ namespace SpartaTools.Editor.View
 
                 _lastSelectionTime = t;
                 _selectedVariant = variant;
-
-                var log = _selectedVariant.Log;
-                if(!string.IsNullOrEmpty(log))
-                {
-                    Debug.Log(log); //FIXME
-                }
                 Sparta.SelectedModule = variant.Module;
+                GUIShowLog(variant);
             }
         }
 

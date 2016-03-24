@@ -96,6 +96,16 @@ namespace SpartaTools.Editor.Build
         BuildTarget _target;
         Dictionary<string, FilterData> _filters;
 
+        public bool HasErrorsLogs { get; private set; }
+        public bool Compiled { get; private set; }
+        public bool HasWarnings
+        {
+            get
+            {
+                return Compiled && HasErrorsLogs;
+            }
+        }
+
         ModuleCompiler(string name)
         {
             _moduleName = name;
@@ -109,6 +119,9 @@ namespace SpartaTools.Editor.Build
 
             // Default filters
             _filters.Add(EditorFilter, new FilterData(EditorFilter));
+
+            // Initialize log entry
+            _logContent.Append(Path.GetFileName(name)).AppendLine(" module compilation");
         }
 
         public static ModuleCompiler Create(string name)
@@ -283,7 +296,7 @@ namespace SpartaTools.Editor.Build
             // Check if there are files to compile.
             if(string.IsNullOrEmpty(filteredFiles))
             {
-                _logContent.Append("No files to compile");
+                _logContent.AppendLine("No files to compile");
                 throw new EmptyModuleException("No files to compile");
             }
 
@@ -294,12 +307,27 @@ namespace SpartaTools.Editor.Build
             // Launch mono compiler
             try
             {   
-                int code = NativeConsole.RunProcess(Compiler, buildCommand, Application.dataPath, output => _logContent.AppendLine(output));
+                int code = NativeConsole.RunProcess(Compiler, buildCommand, Application.dataPath, (type, output) =>
+                    {
+                        if(type == NativeConsole.OutputType.Error)
+                        {   
+                            _logContent.AppendLine(type.ToString()).AppendLine(output);
+                            HasErrorsLogs = true;
+                        }
+                        else
+                        {
+                            _logContent.AppendLine(output);
+                        }
+                    });
+                
                 if(code != 0)
                 {
                     _logContent.AppendLine(string.Format("Error while compiling library. Exit code {0}", code));
                     throw new CompilerErrorException(_logContent.ToString());
                 }
+
+                _logContent.AppendLine("Compilation success");
+                Compiled = true;
             }
             catch(System.ComponentModel.Win32Exception e)
             {
@@ -313,7 +341,22 @@ namespace SpartaTools.Editor.Build
             return _logContent.ToString();
         }
 
-        public static void Compile(Module module, BuildTarget target, bool editorAssembly)
+
+        #region Static methods
+
+        public class CompilationResult
+        {
+            public bool Success;
+            public string Log;
+
+            public CompilationResult(bool success, string log)
+            {
+                Success = success;
+                Log = log;
+            }
+        }
+
+        public static CompilationResult Compile(Module module, BuildTarget target, bool editorAssembly)
         {
             var compiler = ModuleCompiler.Create(GetTempDllPathForModule(module.Name, target, editorAssembly))
                 .SetTarget(target)
@@ -381,7 +424,7 @@ namespace SpartaTools.Editor.Build
             }
 
             compiler.Compile();
-            Debug.Log(compiler.GetLog());
+            return new CompilationResult(!compiler.HasWarnings, compiler.GetLog());
         }
 
         static string GetTempDllPathForModule(string moduleName, BuildTarget target, bool editorAssembly)
@@ -390,7 +433,10 @@ namespace SpartaTools.Editor.Build
             return Path.Combine(OutputPath, dllName);
         }
 
-        /* Platforms */
+        #endregion
+
+        #region Compiler Configurations
+
         public interface ICompilerConfiguration
         {
             void Configure(ModuleCompiler compiler);
@@ -478,5 +524,7 @@ namespace SpartaTools.Editor.Build
                 }
             }
         }
+
+        #endregion
     }
 }
