@@ -4,9 +4,11 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using SpartaTools.Editor.Sync;
+using SpartaTools.Editor.SpartaProject;
 using SpartaTools.Editor.Utils;
 
-namespace SpartaTools.Editor.Sync.View
+namespace SpartaTools.Editor.View
 {
     public class SyncProjectWindow : EditorWindow
     {
@@ -22,7 +24,7 @@ namespace SpartaTools.Editor.Sync.View
         public static void CreateModule()
         {
             var path = EditorUtility.OpenFolderPanel("Select module root", 
-                Sparta.BasePath,
+                Project.BasePath,
                 Module.DefinitionFileName);
 
             if(!string.IsNullOrEmpty(path) && Directory.Exists(path))
@@ -34,12 +36,6 @@ namespace SpartaTools.Editor.Sync.View
             {
                 EditorUtility.DisplayDialog("Create Module", string.Format("Error creating module in {0}", path), "Accept");
             }
-        }
-
-        [MenuItem("Sparta/Sync/Advanced Mode", false, 50)]
-        public static void ToggleAdvanced()
-        {
-            Sparta.AdvancedMode = !Sparta.AdvancedMode;
         }
 
         #endregion
@@ -56,6 +52,7 @@ namespace SpartaTools.Editor.Sync.View
 
         void OnSpartaChanged()
         {
+            RefreshModules();
             Repaint();
         }
 
@@ -74,13 +71,13 @@ namespace SpartaTools.Editor.Sync.View
         }
 
         // Options are tied to ModuleSync.SyncAction definition.
-        readonly string[] InstalledModuleOptions = new string[] {
+        readonly string[] InstalledModuleOptions = new [] {
             "None",
             "Override",
             "Uninstall" 
         };
 
-        readonly string[] NotInstalledModuleOptions = new string[] {
+        readonly string[] NotInstalledModuleOptions = new [] {
             "None",
             "Install"
         };
@@ -90,6 +87,7 @@ namespace SpartaTools.Editor.Sync.View
         Vector2 _scrollPosition = Vector2.right;
         ProgressHandler _progressHandler;
         bool _refreshFinished;
+        bool _editEnabled;
 
         bool Synchronized
         {
@@ -141,8 +139,76 @@ namespace SpartaTools.Editor.Sync.View
             }
         }
 
+        void GUIToolbar()
+        {
+            GUI.enabled = Sparta.Target != null && Sparta.Target.Valid && _progressHandler == null;
+
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            if(GUILayout.Button(new GUIContent("Synchronize", "Synchronize modules information between projects"), EditorStyles.toolbarButton))
+            {
+                Sparta.FetchInfo();
+                RefreshModules(); 
+            }
+
+            EditorGUILayout.Space();
+            // Enable actions after synchronize categories and modules
+            GUI.enabled &= Synchronized;
+            if(GUILayout.Button(new GUIContent("Backport", "Copy back target project changes"), EditorStyles.toolbarButton))
+            {
+                if(EditorUtility.DisplayDialog("Backport target changes", 
+                    "Override Sparta with target project changes?", 
+                    "Backport", 
+                    "Cancel"))
+                {
+                    if(Sparta.Target.LastEntry == null ||
+                        Sparta.Target.LastEntry.RepoInfo.Commit == Sparta.RepoInfo.Commit ||
+                        EditorUtility.DisplayDialog("Different commit", 
+                            "Target project was updated from a different library commit. Backport could be inconsistent.", 
+                            "Backport", 
+                            "Cancel"))
+                    {
+                        AsyncProcess.Start(progress => {
+                            progress.Update("Fetching repository info", 0.1f);
+                            Sparta.FetchInfo();
+                            progress.Update("Backporting modules", 0.5f);
+                            SyncTools.BackportModules(Sparta.Target.ProjectPath, _modules);
+                            progress.Finish();
+                        });
+                        RefreshModules();
+                    }
+                }
+            }
+
+            if(GUILayout.Button(new GUIContent("Update", "Override selected modules in target project"), EditorStyles.toolbarButton))
+            {
+                if(EditorUtility.DisplayDialog("Update target project", 
+                    "Override target project with Sparta code?", 
+                    "Override", 
+                    "Cancel"))
+                {
+                    AsyncProcess.Start(progress => {
+                        progress.Update("Fetching repository info", 0.1f);
+                        Sparta.FetchInfo();
+                        progress.Update("Updating modules", 0.5f);
+                        SyncTools.UpdateModules(Sparta.Target.ProjectPath, _modules);
+                        progress.Finish();
+                    });
+                    RefreshModules();
+                }
+            }
+
+            GUILayout.FlexibleSpace();
+            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Unlocks actions"), EditorStyles.toolbarButton);
+
+            GUILayout.EndHorizontal();
+            GUI.enabled = true;
+        }
+
+
         void OnGUI()
         {
+            GUIToolbar();
+
             if(!Sparta.Target.Valid)
             {
                 GUILayout.Label("No project selected", EditorStyles.boldLabel);
@@ -157,7 +223,12 @@ namespace SpartaTools.Editor.Sync.View
                 }
                 else
                 {
-                    EditorUtility.DisplayProgressBar("Synchronizing", _progressHandler.Message, _progressHandler.Percent);
+                    if(EditorUtility.DisplayCancelableProgressBar("Synchronizing", _progressHandler.Message, _progressHandler.Percent))
+                    {
+                        // TODO Cancel process
+                        _progressHandler.Cancel();
+                        _refreshFinished = true;
+                    }
                 }
             }
             else if(!Synchronized)
@@ -170,7 +241,6 @@ namespace SpartaTools.Editor.Sync.View
             GUILayout.Label("Registered Modules", EditorStyles.boldLabel);
 
             GUIRegisteredModules();
-            GUIActionButtons();
 
             EditorGUILayout.EndScrollView();
         }
@@ -197,79 +267,19 @@ namespace SpartaTools.Editor.Sync.View
             }
         }
 
-        void GUIActionButtons()
-        {
-            GUI.enabled = Sparta.Target != null && Sparta.Target.Valid && _progressHandler == null;
-
-            if(GUILayout.Button(new GUIContent("Synchronize", "Synchronize modules information between projects")))
-            {
-                Sparta.FetchInfo();
-                RefreshModules();
-            }
-
-            // Enable actions after synchronize categories and modules
-            GUI.enabled &= Synchronized;
-
-            GUILayout.BeginHorizontal();
-            if(GUILayout.Button(new GUIContent("Backport", "Copy back target project changes")))
-            {
-                if(EditorUtility.DisplayDialog("Backport target changes", 
-                       "Override Sparta with target project changes?", 
-                       "Backport", 
-                       "Cancel"))
-                {
-                    if(Sparta.Target.LastEntry == null ||
-                       Sparta.Target.LastEntry.RepoInfo.Commit == Sparta.RepoInfo.Commit ||
-                       EditorUtility.DisplayDialog("Different commit", 
-                           "Target project was updated from a different library commit. Backport could be inconsistent.", 
-                           "Backport", 
-                           "Cancel"))
-                    {
-                        AsyncProcess.Start(progress => {
-                            progress.Update("Fetching repository info", 0.1f);
-                            Sparta.FetchInfo();
-                            progress.Update("Backporting modules", 0.5f);
-                            SyncTools.BackportModules(Sparta.Target.ProjectPath, _modules);
-                            progress.Finish();
-                        });
-                        RefreshModules();
-                    }
-                }
-            }
-            if(GUILayout.Button(new GUIContent("Update", "Override selected modules in target project")))
-            {
-                if(EditorUtility.DisplayDialog("Update target project", 
-                       "Override target project with Sparta code?", 
-                       "Override", 
-                       "Cancel"))
-                {
-                    AsyncProcess.Start(progress => {
-                        progress.Update("Fetching repository info", 0.1f);
-                        Sparta.FetchInfo();
-                        progress.Update("Updating modules", 0.5f);
-                        SyncTools.UpdateModules(Sparta.Target.ProjectPath, _modules);
-                        progress.Finish();
-                    });
-                    RefreshModules();
-                }
-            }
-            GUILayout.EndHorizontal();
-            GUI.enabled = true;
-        }
-
         void GUIModuleStatus(ModuleSync sync)
         {
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
-            if(GUILayout.Button(new GUIContent(sync.Name, string.Format("{0}.\n{1} module.\n{2}", sync.ReferenceModule.Description, sync.Type.ToString(), sync.Path)), 
+            if(GUILayout.Button(new GUIContent(sync.Name, string.Format("{0}.\n{1} module.\n{2}", sync.ReferenceModule.Description, sync.Type, sync.Path)), 
                    sync.ReferenceModule.Valid ? EditorStyles.label : Styles.Warning))
             {
-                Sparta.SelectedModule = sync;
+                Sparta.SelectedModuleSync = sync;
             }
 
             GUILayout.Label(sync.Status.ToString(), Styles.ModuleStatus);
 
-            GUI.enabled = !sync.ReferenceModule.IsMandatory || Sparta.AdvancedMode;
+            GUI.enabled = !sync.ReferenceModule.IsMandatory || _editEnabled;
             sync.Action = (ModuleSync.SyncAction)EditorGUILayout.Popup(string.Empty, (int)sync.Action, 
                 sync.Status == ModuleSync.SyncStatus.NotInstalled ? NotInstalledModuleOptions : InstalledModuleOptions, 
                 Styles.PopupLayoutOptions);

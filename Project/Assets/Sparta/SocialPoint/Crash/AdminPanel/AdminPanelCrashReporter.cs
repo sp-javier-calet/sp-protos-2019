@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 using UnityEngine.UI;
 
 namespace SocialPoint.Crash
@@ -122,7 +123,7 @@ namespace SocialPoint.Crash
             {
                 layout.CreateLabel("CrashReporterBase");
 
-                var crashReporterInfo = new StringBuilder();
+                var crashReporterInfo = StringUtils.StartBuilder();
                 crashReporterInfo.Append("Send Interval: ").Append(_crashReporter.SendInterval.ToString()).AppendLine("s")
                                  .Append("Pending Crashes: ").AppendLine(_crashReporter.HasCrashLogs ? "Yes" : "No")
                                  .Append("Pending Exceptions: ").AppendLine(_crashReporter.HasExceptionLogs ? "Yes" : "No");

@@ -26,6 +26,11 @@ namespace SpartaTools.Editor.Utils
         {
             Finished = true;
         }
+
+        public void Cancel()
+        {
+            Finished = true;
+        }
     }
 
     public static class AsyncProcess

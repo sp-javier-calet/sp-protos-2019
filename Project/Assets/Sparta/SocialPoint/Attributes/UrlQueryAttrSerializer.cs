@@ -3,6 +3,7 @@ using System.IO;
 using System;
 using System.Text;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
@@ -19,7 +20,7 @@ namespace SocialPoint.Attributes
         
         private string Convert(Attr data, string prefix)
         {
-            var str = new StringBuilder();
+            var str = StringUtils.StartBuilder();
             bool first = true;
             if(data == null)
             {

@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.SocialPlatforms;
 using SocialPoint.AdminPanel;
-using System.Text;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -58,7 +58,7 @@ namespace SocialPoint.Social
             layout.CreateMargin(2);
             layout.CreateLabel("User");
             var user = _google.User;
-            var info = new StringBuilder();
+            var info = StringUtils.StartBuilder();
             if(user != null)
             {
                 info.Append("Id:").AppendLine(user.UserId);
@@ -139,7 +139,7 @@ namespace SocialPoint.Social
                 layout.CreateLabel(_achievement.Name);
                 layout.CreateMargin();
 
-                var info = new StringBuilder();
+                var info = StringUtils.StartBuilder();
                 info.Append("Id:").AppendLine(_achievement.Id);
                 info.Append("Name:").AppendLine(_achievement.Name);
                 info.Append("Description:").AppendLine(_achievement.Description);
@@ -204,7 +204,7 @@ namespace SocialPoint.Social
                     {
                         _mainTitle.text = _leaderboard.Title;
 
-                        var info = new StringBuilder();
+                        var info = StringUtils.StartBuilder();
                         info.Append("Id:").AppendLine(_leaderboard.Id);
                         info.Append("Title:").AppendLine(_leaderboard.Title);
                         info.Append("User score").AppendLine(_leaderboard.UserScore.ToString());

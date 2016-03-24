@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
-using SpartaTools.Editor.Utils;
+using SpartaTools.Editor.SpartaProject;
 
-namespace SpartaTools.Editor.Sync.View
+namespace SpartaTools.Editor.View
 {
     public class ProjectEditorWindow : EditorWindow
     {
@@ -12,6 +12,7 @@ namespace SpartaTools.Editor.Sync.View
         string _fileContent;
         bool _showRawFile;
         bool _showLog;
+        bool _editEnabled;
 
         #region Editor options
 
@@ -42,8 +43,18 @@ namespace SpartaTools.Editor.Sync.View
 
         #region Draw GUI
 
+        void GUIToolbar()
+        {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.FlexibleSpace();
+            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enables edition mode for module files"), EditorStyles.toolbarButton);
+            GUILayout.EndHorizontal();
+        }
+
         void OnGUI()
         {
+            GUIToolbar();
+
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             GUIProjectPathInput();
@@ -53,9 +64,9 @@ namespace SpartaTools.Editor.Sync.View
             {
                 GUIProjectLog();
 
-                if(Sparta.AdvancedMode)
+                if(_editEnabled)
                 {
-                    GUIAdvancedMode();
+                    GUIFileEditor();
                 }
             }
             else
@@ -103,7 +114,7 @@ namespace SpartaTools.Editor.Sync.View
         void GUIRepositoryStatus()
         {
             var spartaInfo = Sparta.RepoInfo;
-            Sparta.RepositoryInfo targetInfo;
+            RepositoryInfo targetInfo;
 
             if(Sparta.Target.Valid && Sparta.Target.LastEntry != null)
             {
@@ -111,7 +122,7 @@ namespace SpartaTools.Editor.Sync.View
             }
             else
             {
-                targetInfo = new Sparta.RepositoryInfo();
+                targetInfo = new RepositoryInfo();
             }
 
 
@@ -155,7 +166,7 @@ namespace SpartaTools.Editor.Sync.View
             }
         }
 
-        void GUIAdvancedMode()
+        void GUIFileEditor()
         {
             _showRawFile = EditorGUILayout.Foldout(_showRawFile, "Raw Project file");
             if(_showRawFile)
