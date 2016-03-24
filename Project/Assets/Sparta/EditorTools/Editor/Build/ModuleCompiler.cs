@@ -73,6 +73,9 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        // Name of the main Core library module. Workaround for module dependencies.
+        const string SpartaCoreModule = "Sparta Core";
+
         const string ScriptFilePattern = "*.cs";
         const string LibraryFilePattern = "*.dll";
         const string BuildCommandPattern = "/target:\"library\" /out:\"{0}\" {1} {2} {3} {4}";
@@ -396,30 +399,6 @@ namespace SpartaTools.Editor.Build
 
             compiler.ConfigureAs(new ModuleConfiguration(module));
 
-
-            if(module.Type == Module.ModuleType.Extension)
-            {
-                // Add compiled sparta core dll
-                compiler.AddReference(GetTempDllPathForModule("Sparta Core", target, editorAssembly));
-
-                var modules = Project.GetModules(Application.dataPath);
-                var core = modules["Sparta Core"];
-                // Dependencies
-                foreach(var dependency in core.Dependencies)
-                {
-                    var depPath = Path.Combine(Project.BasePath, dependency);
-                    var attr = File.GetAttributes(depPath);
-                    if((attr & FileAttributes.Directory) == FileAttributes.Directory)
-                    {
-                        string[] libFiles = Directory.GetFiles(depPath, LibraryFilePattern, SearchOption.AllDirectories);
-                        foreach(var lib in libFiles)
-                        {
-                            compiler.AddReference(lib);
-                        }
-                    }
-                }
-            }
-
             compiler.Compile();
             return new CompilationResult(!compiler.HasWarnings, compiler.GetLog());
         }
@@ -502,7 +481,7 @@ namespace SpartaTools.Editor.Build
 
                 foreach(var dependency in _module.Dependencies)
                 {
-                    var depPath = Path.Combine(Application.dataPath + "/..", dependency);
+                    var depPath = Path.Combine(Project.BasePath, dependency);
                     var attr = File.GetAttributes(depPath);
                     if((attr & FileAttributes.Directory) == FileAttributes.Directory)
                     {
@@ -516,6 +495,19 @@ namespace SpartaTools.Editor.Build
                         foreach(var lib in libFiles)
                         {
                             compiler.AddReference(lib);
+                        }
+                    }
+                }
+
+                // If it is an extension module, it always depends on Core
+                if(_module.Type == Module.ModuleType.Extension)
+                {
+                    var modules = Project.GetModules(Project.BasePath);
+                    foreach(var module in modules.Values)
+                    {
+                        if(module.Type == Module.ModuleType.Core && module.Name.Equals(SpartaCoreModule))
+                        {
+                            compiler.ConfigureAs(new ModuleConfiguration(module));
                         }
                     }
                 }
