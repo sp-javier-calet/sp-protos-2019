@@ -48,6 +48,7 @@ namespace SpartaTools.Editor.Build
             public string Name;
 
             bool? _enabled;
+
             public bool Enabled
             {
                 get
@@ -99,7 +100,9 @@ namespace SpartaTools.Editor.Build
         Dictionary<string, FilterData> _filters;
 
         public bool HasErrorsLogs { get; private set; }
+
         public bool Compiled { get; private set; }
+
         public bool HasWarnings
         {
             get
@@ -315,18 +318,17 @@ namespace SpartaTools.Editor.Build
             // Launch mono compiler
             try
             {   
-                int code = NativeConsole.RunProcess(Compiler, buildCommand, Application.dataPath, (type, output) =>
+                int code = NativeConsole.RunProcess(Compiler, buildCommand, Application.dataPath, (type, output) => {
+                    if(type == NativeConsole.OutputType.Error)
+                    {   
+                        _logContent.AppendLine(type.ToString()).AppendLine(output);
+                        HasErrorsLogs = true;
+                    }
+                    else
                     {
-                        if(type == NativeConsole.OutputType.Error)
-                        {   
-                            _logContent.AppendLine(type.ToString()).AppendLine(output);
-                            HasErrorsLogs = true;
-                        }
-                        else
-                        {
-                            _logContent.AppendLine(output);
-                        }
-                    });
+                        _logContent.AppendLine(output);
+                    }
+                });
                 
                 if(code != 0)
                 {
@@ -400,6 +402,12 @@ namespace SpartaTools.Editor.Build
                 break;
             default:
                 throw new CompilerConfigurationException(string.Format("Unsupported platform {0}", target));
+            }
+
+            // If it is an extension module, it always depends on Core
+            if(module.Type == Module.ModuleType.Extension)
+            {
+                compiler.ConfigureAs(new ExtensionModuleConfiguration(target, editorAssembly));
             }
 
             compiler.ConfigureAs(new ModuleConfiguration(module));
@@ -503,16 +511,44 @@ namespace SpartaTools.Editor.Build
                         }
                     }
                 }
+            }
+        }
 
-                // If it is an extension module, it always depends on Core
-                if(_module.Type == Module.ModuleType.Extension)
+        class ExtensionModuleConfiguration : ICompilerConfiguration
+        {
+            BuildTarget _target;
+            bool _editorAssembly;
+
+            public ExtensionModuleConfiguration(BuildTarget target, bool editorAssembly)
+            {
+                _target = target;
+                _editorAssembly = editorAssembly;
+            }
+
+            public void Configure(ModuleCompiler compiler)
+            {
+                // Add references to compiled libraries
+                var modules = Project.GetModules(Project.BasePath);
+                foreach(var module in modules.Values)
                 {
-                    var modules = Project.GetModules(Project.BasePath);
-                    foreach(var module in modules.Values)
+                    if(module.Type == Module.ModuleType.Core && module.Name.Equals(SpartaCoreModule))
                     {
-                        if(module.Type == Module.ModuleType.Core && module.Name.Equals(SpartaCoreModule))
+                        // Add reference to already compiled module
+                        compiler.AddReference(GetTempDllPathForModule(module.Name, _target, _editorAssembly));
+                       
+                        // Library dependencies
+                        foreach(var dependency in module.Dependencies)
                         {
-                            compiler.ConfigureAs(new ModuleConfiguration(module));
+                            var depPath = Path.Combine(Project.BasePath, dependency);
+                            var attr = File.GetAttributes(depPath);
+                            if((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                            {
+                                string[] libFiles = Directory.GetFiles(depPath, LibraryFilePattern, SearchOption.AllDirectories);
+                                foreach(var lib in libFiles)
+                                {
+                                    compiler.AddReference(lib);
+                                }
+                            }
                         }
                     }
                 }
