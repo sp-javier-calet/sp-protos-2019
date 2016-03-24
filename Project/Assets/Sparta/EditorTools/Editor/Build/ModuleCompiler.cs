@@ -83,8 +83,7 @@ namespace SpartaTools.Editor.Build
         const string Space = " ";
 
         const string EditorFilter = "Editor";
-        const string AndroidFilter = "Android";
-        const string IosFilter = "Ios";
+        const string TestsFilter = "Tests";
 
         List<string> _files;
         List<string> _references;
@@ -119,6 +118,7 @@ namespace SpartaTools.Editor.Build
 
             // Default filters
             _filters.Add(EditorFilter, new FilterData(EditorFilter));
+            _filters.Add(TestsFilter, new FilterData(TestsFilter));
 
             // Initialize log entry
             _logContent.Append(Path.GetFileName(name)).AppendLine(" module compilation");
@@ -407,17 +407,14 @@ namespace SpartaTools.Editor.Build
                 // Dependencies
                 foreach(var dependency in core.Dependencies)
                 {
-                    var depPath = Path.Combine(Application.dataPath + "/..", dependency);
+                    var depPath = Path.Combine(Project.BasePath, dependency);
                     var attr = File.GetAttributes(depPath);
                     if((attr & FileAttributes.Directory) == FileAttributes.Directory)
                     {
                         string[] libFiles = Directory.GetFiles(depPath, LibraryFilePattern, SearchOption.AllDirectories);
                         foreach(var lib in libFiles)
                         {
-                            if(!lib.Contains("/Editor/") || editorAssembly)
-                            {
-                                compiler.AddReference(lib);
-                            }
+                            compiler.AddReference(lib);
                         }
                     }
                 }
