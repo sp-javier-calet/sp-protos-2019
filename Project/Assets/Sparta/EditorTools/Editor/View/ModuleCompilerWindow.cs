@@ -219,7 +219,12 @@ namespace SpartaTools.Editor.View
 
                 _lastSelectionTime = t;
                 _selectedVariant = variant;
-                Debug.Log(_selectedVariant.Log); //FIXME
+
+                var log = _selectedVariant.Log;
+                if(!string.IsNullOrEmpty(log))
+                {
+                    Debug.Log(log); //FIXME
+                }
                 Sparta.SelectedModule = variant.Module;
             }
         }
