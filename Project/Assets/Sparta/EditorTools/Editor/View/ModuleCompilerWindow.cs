@@ -219,6 +219,7 @@ namespace SpartaTools.Editor.View
 
                 _lastSelectionTime = t;
                 _selectedVariant = variant;
+                Debug.Log(_selectedVariant.Log); //FIXME
                 Sparta.SelectedModule = variant.Module;
             }
         }
