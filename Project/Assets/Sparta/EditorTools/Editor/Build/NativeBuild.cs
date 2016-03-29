@@ -51,7 +51,7 @@ namespace SpartaTools.Editor.Build
             commandOutput.AppendLine(msg);
 
             AsyncProcess.Start(progress => {
-                NativeConsole.RunProcess(path + "/gradlew", string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath), path, output => {
+                NativeConsole.RunProcess(path + "/gradlew", string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath), path, (type, output) => {
                     commandOutput.AppendLine(output);
                     progress.Update(output.Substring(0, Mathf.Min(output.Length, 100)), 1.0f);
                 });
@@ -79,7 +79,7 @@ namespace SpartaTools.Editor.Build
                 Debug.Log(msg);
                 commandOutput.AppendLine(msg);
 
-                NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path, output => commandOutput.AppendLine(output));
+                NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path, (type, output) => commandOutput.AppendLine(output));
             }
             Debug.Log(commandOutput.ToString());
         }
@@ -121,7 +121,7 @@ namespace SpartaTools.Editor.Build
             Debug.Log(msg);
             commandOutput.AppendLine(msg);
 
-            NativeConsole.RunProcess("xcodebuild", string.Format("-target {0}", target), path, output => commandOutput.AppendLine(output));
+            NativeConsole.RunProcess("xcodebuild", string.Format("-target {0}", target), path, (type, output) => commandOutput.AppendLine(output));
             Debug.Log(commandOutput.ToString());
         }
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SpartaTools.Editor.SpartaProject;
 
 namespace SpartaTools.Editor.Sync
 {

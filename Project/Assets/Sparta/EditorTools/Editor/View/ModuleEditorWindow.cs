@@ -2,8 +2,10 @@
 using UnityEditor;
 using System.IO;
 using System.Text;
+using SpartaTools.Editor.Sync;
+using SpartaTools.Editor.SpartaProject;
 
-namespace SpartaTools.Editor.Sync.View
+namespace SpartaTools.Editor.View
 {
     public class ModuleEditorWindow : EditorWindow
     {
@@ -36,7 +38,8 @@ namespace SpartaTools.Editor.Sync.View
 
         void OnSelect()
         {
-            ModuleSync = Sparta.SelectedModule;
+            ModuleSync = Sparta.SelectedModuleSync;
+            Module = Sparta.SelectedModule;
             Repaint();
         }
 
@@ -45,10 +48,11 @@ namespace SpartaTools.Editor.Sync.View
         string _fileContent;
         bool _showRawFile;
         bool _showDiff;
+        bool _editEnabled;
 
         Module _module;
 
-        Module Module
+        public Module Module
         {
             get
             {
@@ -57,6 +61,11 @@ namespace SpartaTools.Editor.Sync.View
 
             set
             {
+                if(_moduleSync != null && _moduleSync.ReferenceModule != value)
+                {
+                    _moduleSync = null;
+                }
+
                 _module = value;
                 _fileContent = string.Empty;
                 if(_module != null && _module.Valid)
@@ -85,8 +94,18 @@ namespace SpartaTools.Editor.Sync.View
 
         #region Draw GUI
 
+        void GUIToolbar()
+        {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.FlexibleSpace();
+            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
+            GUILayout.EndHorizontal();
+        }
+
         void OnGUI()
         {
+            GUIToolbar();
+
             if(!Sparta.Target.Valid || Module == null)
             {
                 GUILayout.Label("No module selected", EditorStyles.boldLabel);
@@ -98,9 +117,9 @@ namespace SpartaTools.Editor.Sync.View
             GUIModuleInfo();
             GUIModuleDiff();
 
-            if(Sparta.AdvancedMode)
+            if(_editEnabled)
             {
-                GUIAdvancedMode();
+                GUIFileEditor();
             }
 
             EditorGUILayout.EndScrollView();
@@ -142,6 +161,11 @@ namespace SpartaTools.Editor.Sync.View
 
         void GUIModuleDiff()
         {
+            if(_moduleSync == null)
+            {
+                return;
+            }
+
             _showDiff = EditorGUILayout.Foldout(_showDiff, "Module diff");
             if(_showDiff)
             {
@@ -167,7 +191,7 @@ namespace SpartaTools.Editor.Sync.View
             }
         }
 
-        void GUIAdvancedMode()
+        void GUIFileEditor()
         {
             // Raw Module file editor
             _showRawFile = EditorGUILayout.Foldout(_showRawFile, "Raw Module file");
