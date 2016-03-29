@@ -318,7 +318,7 @@ namespace SpartaTools.Editor.Sync
 
             SyncReport.Log(string.Format("Comparing {0} with {1}", spartaModulePath, targetModulePath));
 
-            UpdateFolderSync(fileSync, projectPath, spartaModulePath, targetModulePath);
+            UpdateFolderSync(fileSync, module, projectPath, spartaModulePath, targetModulePath);
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace SpartaTools.Editor.Sync
 
                 if(isDirectory)
                 {
-                    UpdateFolderSync(fileSync, projectPath, spartaDependencyPath, targetDependencyPath);
+                    UpdateFolderSync(fileSync, module, projectPath, spartaDependencyPath, targetDependencyPath);
                 }
                 else
                 {
@@ -356,8 +356,8 @@ namespace SpartaTools.Editor.Sync
                     } : EmptyFileList;
 
                     // Here the BasePath is the project root since the dependencies are from there, instead of the module root
-                    UpdateFileSync(fileSync, depList1, Project.BasePath, ProjectType.Source);
-                    UpdateFileSync(fileSync, depList2, projectPath, ProjectType.Target);
+                    UpdateFileSync(fileSync, module, depList1, Project.BasePath, ProjectType.Source);
+                    UpdateFileSync(fileSync, module, depList2, projectPath, ProjectType.Target);
                 }
             }
         }
@@ -389,7 +389,7 @@ namespace SpartaTools.Editor.Sync
         /// <param name="projectPath">Project path.</param>
         /// <param name="spartaFolderPath">Sparta folder path to sync.</param>
         /// <param name="targetFolderPath">Target folder path to sync.</param>
-        static void UpdateFolderSync(IDictionary<string, ModuleSync.FileSync> fileSync, string projectPath, string spartaFolderPath, string targetFolderPath)
+        static void UpdateFolderSync(IDictionary<string, ModuleSync.FileSync> fileSync, Module module, string projectPath, string spartaFolderPath, string targetFolderPath)
         {
             var spartaModuleDir = new DirectoryInfo(spartaFolderPath);
             var targetModuleDir = new DirectoryInfo(targetFolderPath);
@@ -398,8 +398,8 @@ namespace SpartaTools.Editor.Sync
             var spartaFiles = spartaModuleDir.Exists ? spartaModuleDir.GetFiles("*.*", SearchOption.AllDirectories) : EmptyFileList;
             var targetfiles = targetModuleDir.Exists ? targetModuleDir.GetFiles("*.*", SearchOption.AllDirectories) : EmptyFileList;
 
-            UpdateFileSync(fileSync, spartaFiles, Project.BasePath, ProjectType.Source);
-            UpdateFileSync(fileSync, targetfiles, projectPath, ProjectType.Target);
+            UpdateFileSync(fileSync, module, spartaFiles, Project.BasePath, ProjectType.Source);
+            UpdateFileSync(fileSync, module, targetfiles, projectPath, ProjectType.Target);
         }
 
         /// <summary>
@@ -409,18 +409,28 @@ namespace SpartaTools.Editor.Sync
         /// <param name="files">Files.</param>
         /// <param name="basePath">Project base path.</param>
         /// <param name="projectType">Referenced project type.</param>
-        static void UpdateFileSync(IDictionary<string, ModuleSync.FileSync> fileSync, IEnumerable<FileInfo> files, string basePath, ProjectType projectType)
+        static void UpdateFileSync(IDictionary<string, ModuleSync.FileSync> fileSync, Module module, IEnumerable<FileInfo> files, string basePath, ProjectType projectType)
         {
             foreach(var file in files)
             {
-                // TODO Check required filters
-                if(file.Extension.Equals(".DS_Store"))
+                var relativePath = file.FullName.Substring(basePath.Length + 1);
+
+                // Apply module filters
+                var filtered = false;
+                foreach(var filter in module.Filters)
+                {
+                    if(filter.Apply(file, relativePath))
+                    {
+                        filtered = true;
+                        break;
+                    }
+                }
+                if(filtered)
                 {
                     continue;
                 }
 
-                var relativePath = file.FullName.Substring(basePath.Length + 1);
-
+                // Retrieve sync data if already exists 
                 ModuleSync.FileSync sync;
                 if(!fileSync.TryGetValue(relativePath, out sync))
                 {

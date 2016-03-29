@@ -90,6 +90,12 @@ namespace SpartaTools.Editor.View
                 path = EditorUtility.OpenFolderPanel("Select Target Project", 
                     Sparta.Target.ProjectPath,
                     Sparta.Target.ProjectPath);
+
+                // Check for cancelled popup
+                if(string.IsNullOrEmpty(path))
+                {
+                    path = _inputPath;
+                }
             }
 
             if(GUILayout.Button("Refresh", GUILayout.MaxWidth(60)) ||
