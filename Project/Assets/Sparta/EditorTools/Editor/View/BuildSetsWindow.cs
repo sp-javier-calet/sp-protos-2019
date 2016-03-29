@@ -315,7 +315,7 @@ namespace SpartaTools.Editor.View
                 mode = "Custom";
             }
 
-            GUILayout.Label(new GUIContent(mode, "Current Build Set"));
+            GUILayout.Label(new GUIContent(mode, "Current Build Set"), EditorStyles.toolbarTextField);
            
 
             GUILayout.FlexibleSpace();
