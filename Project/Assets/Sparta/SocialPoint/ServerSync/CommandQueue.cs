@@ -738,17 +738,17 @@ namespace SocialPoint.ServerSync
             }
             if(resp.HasError)
             {
-                if(resp.StatusCode == SessionLostErrorStatusCode)
+                switch(resp.StatusCode)
                 {
+                case SessionLostErrorStatusCode:
                     NotifyError(CommandQueueErrorType.SessionLost, resp.Error, resp.StatusCode);
-                }
-                else if(resp.StatusCode == FutureTimeStatusCode)
-                {
+                    break;
+                case FutureTimeStatusCode:
                     NotifyError(CommandQueueErrorType.ClockChange, resp.Error, resp.StatusCode);
-                }
-                else
-                {
+                    break;
+                default:
                     NotifyError(CommandQueueErrorType.HttpResponse, resp.Error, resp.StatusCode);
+                    break;
                 }
                 return null;
             }

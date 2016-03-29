@@ -33,9 +33,7 @@ namespace SocialPoint.ServerEvents
         const string HttpParamSessionId = "session_id";
 
         const int SessionLostErrorStatusCode = 482;
-        const int FutureTimeStatusCode = 472;
         const int StartEventNum = 1;
-
         static readonly string[] DefaultUnauthorizedEvents = {
             EventNameGameStart,
             EventNameGameOpen,
@@ -593,13 +591,9 @@ namespace SocialPoint.ServerEvents
             }
             if(synced && error != null && error.HasError && GeneralError != null)
             {
-                if(resp.StatusCode == SessionLostErrorStatusCode)
+                if(error.Code == SessionLostErrorStatusCode)
                 {
                     GeneralError(EventTrackerErrorType.SessionLost, error);
-                }
-                else if(resp.StatusCode == FutureTimeStatusCode)
-                {
-                    GeneralError(CommandQueueErrorType.ClockChange, error);
                 }
                 else
                 {
