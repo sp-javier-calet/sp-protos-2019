@@ -32,9 +32,30 @@ namespace SpartaTools.Editor.Build
         public static BaseSettings Create()
         {
             var asset = ScriptableObject.CreateInstance(typeof(BaseSettings)) as BaseSettings;
+            ImportConfig(asset);
             AssetDatabase.CreateAsset(asset, BaseSettingsAsset);
             AssetDatabase.SaveAssets();
             return asset;
+        }
+
+        static void ImportConfig(BaseSettings config)
+        {
+            var icons = PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.iOS);
+            if(icons != null && icons.Length > 0)
+            {
+                config.Icon = icons[0];
+            }
+            
+            config.IosBundleIdentifier = PlayerSettings.bundleIdentifier;
+            config.IosFlags = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS);
+
+            config.AndroidBundleIdentifier = PlayerSettings.bundleIdentifier;
+            config.AndroidFlags = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
+            config.BundleVersionCode = PlayerSettings.Android.bundleVersionCode;
+            config.KeystorePath = PlayerSettings.Android.keystoreName;
+            config.KeystoreFilePassword = PlayerSettings.keystorePass;
+            config.KeystoreAlias = PlayerSettings.Android.keyaliasName;
+            config.KeystorePassword = PlayerSettings.Android.keyaliasPass;
         }
 
         public static void RevertToBase()

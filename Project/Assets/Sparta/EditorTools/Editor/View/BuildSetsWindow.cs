@@ -158,6 +158,7 @@ namespace SpartaTools.Editor.View
                 GUILayout.BeginVertical();
                 config.IosBundleIdentifier = InheritableTextField("Bundle Identifier", config.IosBundleIdentifier, data.IsBase);
                 config.IosFlags = InheritableTextField("Flags", config.IosFlags, data.IsBase);
+                config.IosRemovedResources = InheritableTextField("Remove Resources", config.IosRemovedResources, data.IsBase);
                 config.XcodeModsPrefixes = InheritableTextField("Xcodemods prefixes", config.XcodeModsPrefixes, data.IsBase);
                 GUILayout.EndVertical();
                 EditorGUILayout.Space();
@@ -167,7 +168,7 @@ namespace SpartaTools.Editor.View
                 GUILayout.BeginVertical();
                 config.AndroidBundleIdentifier = InheritableTextField("Bundle Identifier", config.AndroidBundleIdentifier, data.IsBase);
                 config.AndroidFlags = InheritableTextField("Flags", config.AndroidFlags, data.IsBase);
-
+                config.AndroidRemovedResources = InheritableTextField("Remove Resources", config.AndroidRemovedResources, data.IsBase);
                 if(!data.IsBase)
                 {
                     config.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.ForceBundleVersionCode);

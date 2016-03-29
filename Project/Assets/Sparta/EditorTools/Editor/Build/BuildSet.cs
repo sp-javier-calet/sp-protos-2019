@@ -20,14 +20,14 @@ namespace SpartaTools.Editor.Build
         public string IosBundleIdentifier;
         public string IosFlags;
         public string XcodeModsPrefixes;
-        public string[] IosRemovedResources;
+        public string IosRemovedResources;
 
         /* Android configuration */
         public string AndroidBundleIdentifier;
         public string AndroidFlags;
         public virtual bool ForceBundleVersionCode { get; set; }
         public int BundleVersionCode;
-        public string[] AndroidRemovedResources;
+        public string AndroidRemovedResources;
 
         public virtual bool UseKeystore { get; set; }
         public string KeystorePath;
