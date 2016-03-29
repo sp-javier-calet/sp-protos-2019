@@ -35,7 +35,13 @@ namespace SpartaTools.Editor.Build
         public string KeystoreAlias;
         public string KeystorePassword;
 
-
+        public string Name
+        {
+            get
+            {
+                return name.Substring(0, name.IndexOf(FileSuffix));
+            }
+        }
         public static string PathForConfigName(string configName)
         {
             return ContainerPath + configName + FileSuffix + FileExtension;

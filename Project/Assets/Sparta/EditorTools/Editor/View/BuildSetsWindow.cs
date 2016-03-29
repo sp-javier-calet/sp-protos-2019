@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using SpartaTools.Editor.Build;
-using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.View
 {
@@ -13,7 +12,66 @@ namespace SpartaTools.Editor.View
         const string DebugConfigName = "Debug";
         const string ReleaseConfigName = "Release";
         const string BaseSettingsName = "Base Settings";
-        static string CurrentMode;
+        const string InheritedLabel = "<inherited>";
+        const string CurrentModeKey = "SpartaCurrentBuildSet";
+        const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
+
+        #region Static platform and buildset management
+
+        static string _currentMode;
+        static string CurrentMode
+        {
+            get
+            {
+                if(_currentMode == null)
+                {
+                    _currentMode = EditorPrefs.GetString(CurrentModeKey);
+                }
+                return _currentMode;
+            }
+            set
+            {
+                _currentMode = value;
+                EditorPrefs.SetString(CurrentModeKey, value);
+            }
+        }
+
+        static bool? _autoApply;
+        static bool AutoApply
+        {
+            get
+            {
+                if(_autoApply == null)
+                {
+                    _autoApply = EditorPrefs.GetBool(AutoApplyKey);
+                }
+                return _autoApply.Value;
+            }
+            set
+            {
+                _autoApply = value;
+                EditorPrefs.SetBool(AutoApplyKey, value);
+            }
+        }
+
+        public BuildSetsWindow()
+        {
+            // Remove previous event if exists
+            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
+            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
+        }
+
+        static void OnTargetChanged()
+        {
+            // Reapply the current config after change target platform
+            var mode = CurrentMode;
+            if(AutoApply && !string.IsNullOrEmpty(mode))
+            {
+                ApplyConfig(mode);
+            }
+        }
+
+        #endregion
 
         bool _dirty;
         Vector2 _scrollPosition = Vector2.right;
@@ -45,7 +103,6 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Debug", false, 1)]
         public static void SetDebugConfig()
         {
-            CurrentMode = DebugConfigName;
             ApplyConfig(CurrentMode);
         }
 
@@ -58,7 +115,6 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Release", false, 2)]
         public static void SetReleaseConfig()
         {
-            CurrentMode = ReleaseConfigName;
             ApplyConfig(CurrentMode);
         }
 
@@ -93,6 +149,7 @@ namespace SpartaTools.Editor.View
 
         static void ApplyConfig(BuildSet config)
         {
+            CurrentMode = config.Name;
             config.Apply();
         }
 
@@ -139,7 +196,7 @@ namespace SpartaTools.Editor.View
 
                 GUILayout.BeginVertical(Styles.Group);
                 EditorGUILayout.LabelField("Common", EditorStyles.boldLabel);
-                config.CommonFlags = InheritableTextField("Flags", config.CommonFlags, data.IsBase);
+                config.CommonFlags = InheritableTextField("Flags", "Defined symbols for all platforms", config.CommonFlags, data.IsBase);
 
                 if(!data.IsBase)
                 {
@@ -156,19 +213,19 @@ namespace SpartaTools.Editor.View
                 // IOS Condifguration
                 EditorGUILayout.LabelField("IOS", EditorStyles.boldLabel);
                 GUILayout.BeginVertical();
-                config.IosBundleIdentifier = InheritableTextField("Bundle Identifier", config.IosBundleIdentifier, data.IsBase);
-                config.IosFlags = InheritableTextField("Flags", config.IosFlags, data.IsBase);
-                config.IosRemovedResources = InheritableTextField("Remove Resources", config.IosRemovedResources, data.IsBase);
-                config.XcodeModsPrefixes = InheritableTextField("Xcodemods prefixes", config.XcodeModsPrefixes, data.IsBase);
+                config.IosBundleIdentifier = InheritableTextField("Bundle Identifier", "iOS bundle identifier", config.IosBundleIdentifier, data.IsBase);
+                config.IosFlags = InheritableTextField("Flags", "iOS specific defined symbols", config.IosFlags, data.IsBase);
+                config.IosRemovedResources = InheritableTextField("Remove Resources", "Folders and file to remove before build. AutoBuilder only", config.IosRemovedResources, data.IsBase);
+                config.XcodeModsPrefixes = InheritableTextField("Xcodemods prefixes", "Xcodemods prefixes to execute" , config.XcodeModsPrefixes, data.IsBase);
                 GUILayout.EndVertical();
                 EditorGUILayout.Space();
 
                 // Android Condifguration
                 EditorGUILayout.LabelField("Android", EditorStyles.boldLabel);
                 GUILayout.BeginVertical();
-                config.AndroidBundleIdentifier = InheritableTextField("Bundle Identifier", config.AndroidBundleIdentifier, data.IsBase);
-                config.AndroidFlags = InheritableTextField("Flags", config.AndroidFlags, data.IsBase);
-                config.AndroidRemovedResources = InheritableTextField("Remove Resources", config.AndroidRemovedResources, data.IsBase);
+                config.AndroidBundleIdentifier = InheritableTextField("Bundle Identifier", "Android buindle identifier", config.AndroidBundleIdentifier, data.IsBase);
+                config.AndroidFlags = InheritableTextField("Flags", "Android specific defined symbols", config.AndroidFlags, data.IsBase);
+                config.AndroidRemovedResources = InheritableTextField("Remove Resources", "Folders and files to remove before build. AutoBuilder only", config.AndroidRemovedResources, data.IsBase);
                 if(!data.IsBase)
                 {
                     config.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.ForceBundleVersionCode);
@@ -184,10 +241,10 @@ namespace SpartaTools.Editor.View
                 }
                 if(config.UseKeystore)
                 {
-                    config.KeystorePath = InheritableTextField("Keystore file", config.KeystorePath, data.IsBase);
-                    config.KeystoreFilePassword = InheritableTextField("Keystore password", config.KeystoreFilePassword, data.IsBase);
-                    config.KeystoreAlias = InheritableTextField("Alias", config.KeystoreAlias, data.IsBase);
-                    config.KeystorePassword = InheritableTextField("Password", config.KeystorePassword, data.IsBase);
+                    config.KeystorePath = InheritableTextField("Keystore file", "Android keystore file path. Relative to project", config.KeystorePath, data.IsBase);
+                    config.KeystoreFilePassword = InheritableTextField("Keystore password", "Keystore file password", config.KeystoreFilePassword, data.IsBase);
+                    config.KeystoreAlias = InheritableTextField("Alias", "Keystore alias", config.KeystoreAlias, data.IsBase);
+                    config.KeystorePassword = InheritableTextField("Password", "Keystore alias password", config.KeystorePassword, data.IsBase);
                 }
                 GUILayout.EndVertical();
 
@@ -227,17 +284,17 @@ namespace SpartaTools.Editor.View
             GUILayout.EndVertical();
         }
 
-        string InheritableTextField(string label, string value, bool isBaseConfig)
+        string InheritableTextField(string label, string tooltip, string value, bool isBaseConfig)
         {
             var newValue = value;
             if(!string.IsNullOrEmpty(value) || isBaseConfig)
             {
-                newValue = EditorGUILayout.TextField(label, value);
+                newValue = EditorGUILayout.TextField(new GUIContent(label, tooltip), value);
             }
             else
             {
-                var edit = EditorGUILayout.TextField(label, "<inherited>");
-                if(edit != "<inherited>")
+                var edit = EditorGUILayout.TextField(new GUIContent(label, tooltip), InheritedLabel);
+                if(edit != InheritedLabel)
                 {
                     newValue = edit;
                 }
@@ -249,18 +306,39 @@ namespace SpartaTools.Editor.View
         void GUIToolBar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+            var mode = CurrentMode;
+            var currentAutoApply = AutoApply;
+
+            if(string.IsNullOrEmpty(mode))
+            {
+                mode = "Custom";
+            }
+
+            GUILayout.Label(new GUIContent(mode, "Current Build Set"));
+           
+
             GUILayout.FlexibleSpace();
 
             // Common Buttons
-            if(GUILayout.Button("Refresh", EditorStyles.toolbarButton))
+            if(GUILayout.Button(new GUIContent("Refresh", "Refresh Build Set data from scriptable objects"), EditorStyles.toolbarButton))
             {
                 RefreshConfigs();
             }
-            if(GUILayout.Button("Add Build Set", EditorStyles.toolbarButton))
+            if(GUILayout.Button(new GUIContent("Add Build Set", "Create a new Build Set"), EditorStyles.toolbarButton))
             {
                 BuildSet.Create("NewConfig");
                 RefreshConfigs();
             }
+
+            EditorGUILayout.Space();
+
+            var autoApply = GUILayout.Toggle(currentAutoApply, new GUIContent("Auto Apply", "Apply current configuration on platform switch"), EditorStyles.toolbarButton);
+            if(autoApply != currentAutoApply)
+            {
+                AutoApply = autoApply;
+            }
+
             GUILayout.EndHorizontal();
         }
 
