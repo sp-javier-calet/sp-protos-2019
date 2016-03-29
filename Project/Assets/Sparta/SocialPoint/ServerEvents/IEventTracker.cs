@@ -11,7 +11,8 @@ namespace SocialPoint.ServerEvents
         OutOfSync,
         HttpResponse,
         SessionLost,
-        Exception
+        Exception,
+        ClockChange
     }
 
     public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type, Error err);
