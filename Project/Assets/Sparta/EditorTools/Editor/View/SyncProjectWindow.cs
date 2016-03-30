@@ -17,7 +17,7 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Project/Sync Tools", false, 9)]
         public static void ShowWindow()
         {
-            EditorWindow.GetWindow(typeof(SyncProjectWindow), false, "Sparta Sync", true);
+            EditorWindow.GetWindow(typeof(SyncProjectWindow), false, "Sync", true);
         }
 
         [MenuItem("Sparta/Project/Create module...", false, 30)]
@@ -134,6 +134,11 @@ namespace SpartaTools.Editor.View
         }
 
         #region Draw GUI
+
+        void OnEnable()
+        {
+            titleContent = new GUIContent("Sync", Sparta.Icon, "Sparta Project Sync");
+        }
 
         void OnInspectorUpdate()
         {

@@ -14,7 +14,7 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Project/Module Info", false, 5)]
         public static void ShowWindow()
         {
-            EditorWindow.GetWindow(typeof(ModuleEditorWindow), false, "Sparta Module", true);
+            EditorWindow.GetWindow(typeof(ModuleEditorWindow), false, "Module", true);
         }
 
         #endregion
@@ -43,6 +43,10 @@ namespace SpartaTools.Editor.View
             Repaint();
         }
 
+        void OnEnable()
+        {
+            titleContent = new GUIContent("Module", Sparta.Icon, "Sparta Module inspector");
+        }
 
         Vector2 _scrollPosition;
         string _fileContent;

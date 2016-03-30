@@ -127,7 +127,7 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Build settings...", false, 3)]
         public static void ShowBuildSettings()
         {
-            EditorWindow.GetWindow(typeof(BuildSetsWindow), false, "Sparta BuildSet", true);
+            EditorWindow.GetWindow(typeof(BuildSetsWindow), false, "Build Set", true);
         }
 
         #endregion
@@ -156,6 +156,11 @@ namespace SpartaTools.Editor.View
         #endregion
 
         #region Editor GUI
+
+        void OnEnable()
+        {
+            titleContent = new GUIContent("Build Set", Sparta.Icon, "Sparta Build Set configurations");
+        }
 
         Dictionary<string, BuildSetViewData> LoadViewConfig()
         {

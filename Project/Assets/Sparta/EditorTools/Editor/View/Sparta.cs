@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using UnityEngine;
+using UnityEditor;
 using System;
 using SpartaTools.Editor.Sync;
 using SpartaTools.Editor.SpartaProject;
@@ -124,6 +125,23 @@ namespace SpartaTools.Editor.View
         public static void FetchInfo()
         {
             _repoInfo = Target.GetRepositoryInfo();
+        }
+
+        /*
+         * Sparta editor window icon
+         */
+        static Texture2D _icon;
+
+        public static Texture Icon
+        {
+            get
+            {
+                if(_icon == null)
+                {
+                    _icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/sparta.icon.png");
+                }
+                return _icon;
+            }
         }
     }
 }

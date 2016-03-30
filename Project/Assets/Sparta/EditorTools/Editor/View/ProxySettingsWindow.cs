@@ -17,7 +17,7 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Editor proxy...", false, 300)]
         public static void OpenProxySettings()
         {
-            EditorWindow.GetWindow(typeof(ProxySettingsWindow), false, "Editor proxy", true);
+            EditorWindow.GetWindow(typeof(ProxySettingsWindow), false, "Proxy", true);
         }
 
         class ProxyData
@@ -65,6 +65,13 @@ namespace SpartaTools.Editor.View
             }
         }
 
+        #region Draw GUI
+
+        void OnEnable()
+        {
+            titleContent = new GUIContent("Proxy", Sparta.Icon, "Sparta Proxy settings");
+        }
+
         void OnGUI()
         {
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
@@ -93,5 +100,7 @@ namespace SpartaTools.Editor.View
 
             EditorGUILayout.EndScrollView();
         }
+
+        #endregion
     }
 }

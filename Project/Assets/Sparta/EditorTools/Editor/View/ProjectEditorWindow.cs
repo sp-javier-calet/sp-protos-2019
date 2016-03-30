@@ -19,7 +19,7 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Project/Project Info", false, 0)]
         public static void ShowWindow()
         {
-            EditorWindow.GetWindow(typeof(ProjectEditorWindow), false, "Sparta Project", true);
+            EditorWindow.GetWindow(typeof(ProjectEditorWindow), false, "Project", true);
         }
 
         #endregion
@@ -42,6 +42,11 @@ namespace SpartaTools.Editor.View
         }
 
         #region Draw GUI
+
+        void OnEnable()
+        {
+            titleContent = new GUIContent("Project", Sparta.Icon, "Sparta Target project editor");
+        }
 
         void GUIToolbar()
         {
