@@ -293,7 +293,7 @@ namespace SpartaTools.Editor.View
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
             GUILayout.FlexibleSpace();
-            if(GUILayout.Button("CompileAll", EditorStyles.toolbarButton))
+            if(GUILayout.Button("Compile All", EditorStyles.toolbarButton))
             {
                 EditorUtility.DisplayProgressBar("Compile All", "Compiling all modules and variants", 0.1f);
                 CompileAll();

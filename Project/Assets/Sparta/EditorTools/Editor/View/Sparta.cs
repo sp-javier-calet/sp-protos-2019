@@ -130,17 +130,11 @@ namespace SpartaTools.Editor.View
         /*
          * Sparta editor window icon
          */
-        static Texture2D _icon;
-
         public static Texture Icon
         {
             get
             {
-                if(_icon == null)
-                {
-                    _icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/sparta.icon.png");
-                }
-                return _icon;
+                return AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/sparta.icon.png");
             }
         }
     }

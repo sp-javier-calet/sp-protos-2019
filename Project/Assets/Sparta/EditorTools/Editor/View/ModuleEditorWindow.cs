@@ -43,11 +43,6 @@ namespace SpartaTools.Editor.View
             Repaint();
         }
 
-        void OnEnable()
-        {
-            titleContent = new GUIContent("Module", Sparta.Icon, "Sparta Module inspector");
-        }
-
         Vector2 _scrollPosition;
         string _fileContent;
         bool _showRawFile;
@@ -97,6 +92,11 @@ namespace SpartaTools.Editor.View
         }
 
         #region Draw GUI
+
+        void OnEnable()
+        {
+            titleContent = new GUIContent("Module", Sparta.Icon, "Sparta Module inspector");
+        }
 
         void GUIToolbar()
         {
