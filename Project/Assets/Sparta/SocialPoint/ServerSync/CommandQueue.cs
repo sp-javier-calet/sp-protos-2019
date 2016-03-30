@@ -557,6 +557,7 @@ namespace SocialPoint.ServerSync
         {
             if(packet == null)
             {
+                _lastSendTimestamp = CurrentTimestamp;
                 if(finish != null)
                 {
                     finish();
