@@ -52,8 +52,11 @@ namespace SpartaTools.Editor.View
 
         void OnSpartaChanged()
         {
-            RefreshModules();
-            Repaint();
+            if(_autoRefresh)
+            {
+                RefreshModules();
+                Repaint();
+            }
         }
 
         class ModuleSyncCategory
@@ -88,6 +91,7 @@ namespace SpartaTools.Editor.View
         ProgressHandler _progressHandler;
         bool _refreshFinished;
         bool _editEnabled;
+        bool _autoRefresh = true;
 
         bool Synchronized
         {
@@ -174,7 +178,11 @@ namespace SpartaTools.Editor.View
                             SyncTools.BackportModules(Sparta.Target.ProjectPath, _modules);
                             progress.Finish();
                         });
-                        RefreshModules();
+
+                        if(_autoRefresh)
+                        {
+                            RefreshModules();
+                        }
                     }
                 }
             }
@@ -193,12 +201,17 @@ namespace SpartaTools.Editor.View
                         SyncTools.UpdateModules(Sparta.Target.ProjectPath, _modules);
                         progress.Finish();
                     });
-                    RefreshModules();
+
+                    if(_autoRefresh)
+                    {
+                        RefreshModules();
+                    }
                 }
             }
 
             GUILayout.FlexibleSpace();
-            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Unlocks actions"), EditorStyles.toolbarButton);
+            _autoRefresh = GUILayout.Toggle(_autoRefresh, new GUIContent("Auto Refresh", "Synchronize automatically"), EditorStyles.toolbarButton);
+            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enable manual sync configuration"), EditorStyles.toolbarButton);
 
             GUILayout.EndHorizontal();
             GUI.enabled = true;
@@ -231,7 +244,7 @@ namespace SpartaTools.Editor.View
                     }
                 }
             }
-            else if(!Synchronized)
+            else if(!Synchronized && _autoRefresh)
             {
                 RefreshModules();
             }
