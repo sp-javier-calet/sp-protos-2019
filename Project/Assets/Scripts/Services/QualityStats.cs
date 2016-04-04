@@ -2,30 +2,14 @@
 using SocialPoint.ServerEvents;
 using SocialPoint.Hardware;
 using SocialPoint.QualityStats;
-using Zenject;
+using SocialPoint.Dependency;
 
 public class QualityStats : SocialPointQualityStats
 {
-    [Inject]
-    QualityStatsHttpClient injectQualityStatsHttpClient
-    {
-        set
-        {
-            AddQualityStatsHttpClient(value);
-        }
-    }
-
-    [Inject]
-    IEventTracker injectEventTracker
-    {
-        set
-        {
-            TrackEvent = value.TrackSystemEvent;
-        }
-    }
-
     public QualityStats(IDeviceInfo devInfo, IAppEvents appEvents) :
         base(devInfo, appEvents)
     {
+        AddQualityStatsHttpClient(ServiceLocator.Instance.Resolve<QualityStatsHttpClient>());
+        TrackEvent = ServiceLocator.Instance.Resolve<IEventTracker>().TrackSystemEvent;
     }
 }

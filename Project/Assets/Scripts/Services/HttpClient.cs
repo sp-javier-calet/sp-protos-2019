@@ -2,7 +2,7 @@
 #define CURL_SUPPORTED
 #endif
 
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
@@ -15,47 +15,19 @@ public class HttpClient :
     CurlHttpClient
     #endif
 {
-    private string _httpProxy;
-
-    [InjectOptional("http_client_proxy")]
-    string injectHttpProxy
-    {
-        set
-        {
-            _httpProxy = value;
-        }
-    }
-
-    [InjectOptional("http_client_config")]
-    string config
-    {
-        set
-        {
-#if CURL_SUPPORTED
-            Config = value;
-#endif
-        }
-    }
-
-
-    [Inject]
+    string _httpProxy;
     IDeviceInfo deviceInfo;
-
-    #if CURL_SUPPORTED
-    [Inject]
-    IAppEvents injectAppEvents
-    {
-        set
-        {
-            AppEvents = value;
-        }
-    }
-    #endif
 
     public HttpClient(ICoroutineRunner runner):
     base(runner)
     {
         RequestSetup += OnRequestSetup;
+        _httpProxy = ServiceLocator.Instance.TryResolve<string>("http_client_proxy");
+        Config = ServiceLocator.Instance.TryResolve<string>("http_client_config");
+        deviceInfo = ServiceLocator.Instance.Resolve<IDeviceInfo>();
+        #if CURL_SUPPORTED
+        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
+        #endif
     }
 
     private void OnRequestSetup(HttpRequest req)

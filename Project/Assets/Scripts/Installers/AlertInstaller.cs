@@ -1,7 +1,7 @@
 using System;
-using Zenject;
-using SocialPoint.Alert;
 using UnityEngine;
+using SocialPoint.Dependency;
+using SocialPoint.Alert;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;

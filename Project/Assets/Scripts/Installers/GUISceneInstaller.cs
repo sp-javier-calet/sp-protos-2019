@@ -1,10 +1,9 @@
 ﻿using System;
-using Zenject;
 using UnityEngine;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
-
 
 
 public class GUISceneInstaller : MonoInstaller, IInitializable

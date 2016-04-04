@@ -1,5 +1,5 @@
-using Zenject;
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 using SocialPoint.ScriptEvents;

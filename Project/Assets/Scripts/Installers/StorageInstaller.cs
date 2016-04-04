@@ -2,7 +2,7 @@
 using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Hardware;
-using Zenject;
+using SocialPoint.Dependency;
 
 public class StorageInstaller : MonoInstaller
 {
@@ -24,14 +24,14 @@ public class StorageInstaller : MonoInstaller
         PathsManager.Init();
 	}
 
-    PlayerPrefsAttrStorage CreateVolatileStorage(InjectContext ctx)
+    PlayerPrefsAttrStorage CreateVolatileStorage()
     {
         var vol = new PlayerPrefsAttrStorage();
         vol.Prefix = Settings.VolatilePrefix;
         return vol;
     }
 
-    TransitionAttrStorage CreatePersistentStorage(InjectContext ctx)
+    TransitionAttrStorage CreatePersistentStorage()
     {
         #if UNITY_IOS && !UNITY_EDITOR
         var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
@@ -42,7 +42,7 @@ public class StorageInstaller : MonoInstaller
         var persistent = new FileAttrStorage(PathsManager.AppPersistentDataPath); //TODO: doesnt work with prefixes
         #endif
 
-        var vol = ctx.Container.Resolve<IAttrStorage>("volatile");
+        var vol = Container.Resolve<IAttrStorage>("volatile");
         return new TransitionAttrStorage(vol, persistent);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
-using Zenject;
 using UnityEngine;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
@@ -70,14 +70,14 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
 
     public void Initialize()
     {
-        Container.InjectGameObject(_root);
+        //Container.InjectGameObject(_root);
     }
 
     void OnViewControllerAwake(UIViewController ctrl)
     {
         if(ctrl.gameObject.transform.parent == null)
         {
-            Container.Inject(ctrl);
+            //Container.Inject(ctrl);
         }
     }
 

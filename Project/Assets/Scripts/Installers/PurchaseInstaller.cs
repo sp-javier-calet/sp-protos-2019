@@ -1,6 +1,6 @@
-﻿using Zenject;
-using System;
+﻿using System;
 using UnityEngine;
+using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
 using SocialPoint.Purchase;
 

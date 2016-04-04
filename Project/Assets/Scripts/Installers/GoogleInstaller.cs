@@ -1,5 +1,6 @@
-﻿using Zenject;
+﻿
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
@@ -37,9 +38,9 @@ public class GoogleInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGoogle>();
     }
 
-    GooglePlayLink CreateLoginLink(InjectContext ctx)
+    GooglePlayLink CreateLoginLink()
     {
-        var google = ctx.Container.Resolve<IGoogle>();
+        var google = Container.Resolve<IGoogle>();
         return new GooglePlayLink(google, !Settings.LoginWithUi);
     }
 }

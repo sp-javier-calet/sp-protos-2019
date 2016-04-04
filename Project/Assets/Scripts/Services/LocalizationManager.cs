@@ -4,88 +4,26 @@ using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
 using SocialPoint.GUIControl;
+using SocialPoint.Dependency;
 using Zenject;
 
 public class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {
-    [Inject("locale_project_id")]
-    string injectProjectId
-    {
-        set
-        {
-            Location.ProjectId = value;
-        }
-    }
-
-    [Inject("locale_env_id")]
-    string injectEnvironmentId
-    {
-        set
-        {
-            Location.EnvironmentId = value;
-        }
-    }
-
-    [Inject("locale_secret_key")]
-    string injectSecretKey
-    {
-        set
-        {
-            Location.SecretKey = value;
-        }
-    }
-
-    [Inject("locale_supported_langs")]
-    string[] injectSupportedLanguages
-    {
-        set
-        {
-            SupportedLanguages = value;
-        }
-    }
-
-    [Inject("locale_timeout")]
-    float injectTimeout
-    {
-        set
-        {
-            Timeout = value;
-        }
-    }
-
-    
-    [Inject("locale_bundle_dir")]
-    string injectBundleDir
-    {
-        set
-        {
-            BundleDir = value;
-        }
-    }
-
-    [Inject]
-    IAppEvents injectAppEvents
-    {
-        set
-        {
-            AppEvents = value;
-        }
-    }
-
-    [Inject]
     IEventDispatcher _dispatcher;
-
-    [Inject]
     LocalizeAttributeConfiguration _localizeAttributeConfig;
 
     public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale) :
         base(client, appInfo, locale)
     {
-    }
+        Location.ProjectId = ServiceLocator.Instance.Resolve<string>("locale_project_id");
+        Location.EnvironmentId = ServiceLocator.Instance.Resolve<string>("locale_env_id");
+        Location.SecretKey = ServiceLocator.Instance.Resolve<string>("locale_secret_key");
+        Timeout = ServiceLocator.Instance.Resolve<float>("locale_timeout");
+        BundleDir = ServiceLocator.Instance.Resolve<string>("locale_bundle_dir");
+        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
+        _dispatcher = ServiceLocator.Instance.Resolve<IEventDispatcher>();
+        _localizeAttributeConfig = ServiceLocator.Instance.Resolve<LocalizeAttributeConfiguration>();
 
-    [PostInject]
-    void PostInject()
-    {
         _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
         _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }

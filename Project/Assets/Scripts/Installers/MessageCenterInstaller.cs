@@ -1,7 +1,7 @@
 ﻿using SocialPoint.AdminPanel;
 using SocialPoint.ServerMessaging;
+using SocialPoint.Dependency;
 using System;
-using Zenject;
 
 public class MessageCenterInstaller : Installer
 {

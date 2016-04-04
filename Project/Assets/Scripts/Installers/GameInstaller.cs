@@ -1,7 +1,7 @@
 
-using Zenject;
 using System;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.GameLoading;
@@ -54,12 +54,14 @@ public class GameInstaller : MonoInstaller
 
     void OnGameModelMoved(GameModel game)
     {
+        /*
         Container.Inject(game.Player);
         Container.Inject(game.Config);
         Container.Inject(game.Config.Store);
+        */
     }
 
-    GameModel CreateGameModel(InjectContext ctx)
+    GameModel CreateGameModel()
     {
         var model = new GameModel();
         model.Moved += OnGameModelMoved;

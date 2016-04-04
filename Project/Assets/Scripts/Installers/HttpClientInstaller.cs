@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Zenject;
-using SocialPoint.Network;
 using UnityEngine;
+using SocialPoint.Dependency;
+using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Base;
 

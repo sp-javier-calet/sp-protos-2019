@@ -1,21 +1,13 @@
 ﻿using System;
 using SocialPoint.Hardware;
-using Zenject;
+using SocialPoint.Dependency;
 
 class DeviceInfo : SocialPointDeviceInfo
 {
-    [InjectOptional("hardware_fake_app_info")]
-    EmptyAppInfo injectFakeAppInfo
-    {
-        set
-        {
-            #if UNITY_EDITOR
-            AppInfo = value;
-            #endif
-        }
-    }
-
     public DeviceInfo()
     {
+        #if UNITY_EDITOR
+        AppInfo = ServiceLocator.Instance.TryResolve<string>("hardware_fake_app_info");
+        #endif
     }
 }

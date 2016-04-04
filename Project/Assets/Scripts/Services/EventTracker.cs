@@ -1,4 +1,4 @@
-﻿using Zenject;
+﻿using SocialPoint.Dependency;
 using SocialPoint.ServerEvents;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
@@ -13,103 +13,19 @@ using SocialPoint.GameLoading;
 using System;
 
 class EventTracker : SocialPointEventTracker
-{
-    [InjectOptional("event_tracker_timeout")]
-    float injectTimeout
-    {
-        set
-        {
-            Timeout = value;
-        }
-    }
-
-    [InjectOptional("event_tracker_outofsync_interval")]
-    int injectMaxOutOfSyncInterval
-    {
-        set
-        {
-            MaxOutOfSyncInterval = value;
-        }
-    }
-
-    [InjectOptional("event_tracker_send_interval")]
-    int injectSendInterval
-    {
-        set
-        {
-            SendInterval = value;
-        }
-    }
-
-    [InjectOptional("event_tracker_backoff_multiplier")]
-    float injectBackoffMultiplier
-    {
-        set
-        {
-            BackoffMultiplier = value;
-        }
-    }
-
-    [Inject]
-    IHttpClient injectHttpClient
-    {
-        set
-        {
-            HttpClient = value;
-        }
-    }
-
-    [Inject]
-    IDeviceInfo injectDeviceInfo
-    {
-        set
-        {
-            DeviceInfo = value;
-        }
-    }
-
-    [Inject]
-    ICommandQueue injectCommandQueue
-    {
-        set
-        {
-            CommandQueue = value;
-        }
-    }
-
-    [Inject]
-    BreadcrumbManager injectBreadcrumbManager
-    {
-        set
-        {
-            BreadcrumbManager = value;
-        }
-    }
-
-    [Inject]
-    IAppEvents injectAppEvents
-    {
-        set
-        {
-            AppEvents = value;
-        }
-    }
-
-    [Inject]
-    ILogin injectLogin
-    {
-        set
-        {
-            RequestSetup = value.SetupHttpRequest;
-        }
-    }
-
-    [Inject]
-    IGameErrorHandler _errorHandler;
-
+{   
     public EventTracker(ICoroutineRunner runner):base(runner)
     {
-        _errorHandler.Setup(this);
+        Timeout = ServiceLocator.Instance.TryResolve<float>("event_tracker_timeout", Timeout);
+        MaxOutOfSyncInterval = ServiceLocator.Instance.TryResolve<int>("event_tracker_outofsync_interval");
+        SendInterval = ServiceLocator.Instance.TryResolve<int>("event_tracker_send_interval");
+        HttpClient = ServiceLocator.Instance.Resolve<IHttpClient>();
+        DeviceInfo = ServiceLocator.Instance.Resolve<IDeviceInfo>();
+        CommandQueue = ServiceLocator.Instance.Resolve<ICommandQueue>();
+        BreadcrumbManager = ServiceLocator.Instance.Resolve<BreadcrumbManager>();
+        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
+        RequestSetup = ServiceLocator.Instance.Resolve<ILogin>().SetupHttpRequest;
+        ServiceLocator.Instance.Resolve<IGameErrorHandler>().Setup(this);
     }
 
 }

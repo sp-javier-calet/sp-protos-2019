@@ -1,6 +1,6 @@
 using UnityEngine;
-using Zenject;
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
@@ -34,9 +34,9 @@ public class FacebookInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelFacebook>();
     }
 
-    FacebookLink CreateLoginLink(InjectContext ctx)
+    FacebookLink CreateLoginLink()
     {
-        var fb = ctx.Container.Resolve<IFacebook>();
+        var fb = Container.Resolve<IFacebook>();
         return new FacebookLink(fb, Settings.LoginWithUi);
     }
 }

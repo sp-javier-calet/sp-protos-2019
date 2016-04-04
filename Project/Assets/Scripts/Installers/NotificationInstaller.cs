@@ -1,6 +1,6 @@
-using Zenject;
 using UnityEngine;
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;

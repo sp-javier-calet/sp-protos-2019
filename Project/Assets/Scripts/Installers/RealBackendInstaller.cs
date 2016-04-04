@@ -1,11 +1,10 @@
 ﻿using System;
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.Attributes;
 using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Crash;
-using System.Text;
 
 public class RealBackendInstaller : MonoInstaller
 {

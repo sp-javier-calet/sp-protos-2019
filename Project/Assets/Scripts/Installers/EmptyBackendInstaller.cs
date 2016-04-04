@@ -1,5 +1,5 @@
 using System;
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.Attributes;
 using SocialPoint.ServerEvents;
 using SocialPoint.Login;

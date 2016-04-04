@@ -1,7 +1,7 @@
 ﻿using System;
+using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.QualityStats;
-using Zenject;
 
 public class QualityStatsInstaller : Installer
 {
@@ -14,9 +14,9 @@ public class QualityStatsInstaller : Installer
         Container.Bind<IDisposable>().ToSingle<QualityStats>();
     }
 
-    QualityStatsHttpClient CreateHttpClient(InjectContext ctx)
+    QualityStatsHttpClient CreateHttpClient()
     {
-        var client = ctx.Container.Instantiate<HttpClient>();
+        var client = Container.Instantiate<HttpClient>();
         return new QualityStatsHttpClient(client);
     }
 }

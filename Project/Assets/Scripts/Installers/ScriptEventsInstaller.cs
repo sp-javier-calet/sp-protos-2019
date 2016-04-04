@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Attributes;
 using SocialPoint.AdminPanel;
@@ -30,15 +30,15 @@ public class ScriptEventsInstaller : MonoInstaller, IInitializable
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelScriptEvents>();
     }
 
-    FamilyParser<IScriptCondition> CreateScriptConditionParser(InjectContext ctx)
+    FamilyParser<IScriptCondition> CreateScriptConditionParser()
     {
-        var children = ctx.Container.Resolve<List<IChildParser<IScriptCondition>>>();
+        var children = Container.Resolve<List<IChildParser<IScriptCondition>>>();
         return new FamilyParser<IScriptCondition>(children);
     }
 
-    ScriptModelParser CreateScriptModelParser(InjectContext ctx)
+    ScriptModelParser CreateScriptModelParser()
     {
-        var condParser = ctx.Container.Resolve<IParser<IScriptCondition>>();
+        var condParser = Container.Resolve<IParser<IScriptCondition>>();
         return new ScriptModelParser(condParser);
     }
 

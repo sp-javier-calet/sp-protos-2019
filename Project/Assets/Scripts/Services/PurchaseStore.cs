@@ -1,4 +1,5 @@
-﻿using Zenject;
+﻿
+using SocialPoint.Dependency;
 using SocialPoint.ServerEvents;
 using SocialPoint.Purchase;
 using SocialPoint.Login;
@@ -8,26 +9,10 @@ using UnityEngine;
 
 class PurchaseStore : SocialPointPurchaseStore
 {
-    [Inject]
-    IEventTracker injectEventTracker
-    {
-        set
-        {
-            TrackEvent = value.TrackSystemEvent;
-        }
-    }
-
-    [Inject]
-    ILogin injectLogin
-    {
-        set
-        {
-            RequestSetup = value.SetupHttpRequest;
-        }
-    }
-
     public PurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue, StoreModel store) : base(httpClient, commandQueue)
     {
+        TrackEvent = ServiceLocator.Instance.Resolve<IEventTracker>().TrackSystemEvent;
+        RequestSetup = ServiceLocator.Instance.Resolve<ILogin>().SetupHttpRequest;
         store.Init(this);
     }
 }

@@ -1,7 +1,6 @@
 using System;
-using Zenject;
-using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.Crash;
 using SocialPoint.Utils;
 using SocialPoint.Base;

@@ -1,4 +1,4 @@
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.Profiling;

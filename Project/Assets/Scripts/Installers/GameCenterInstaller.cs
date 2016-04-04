@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using Zenject;
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
@@ -37,13 +37,13 @@ public class GameCenterInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGameCenter>();
     }
 
-    GameCenterLink CreateLoginLink(InjectContext ctx)
+    GameCenterLink CreateLoginLink()
     {
-        var gc = ctx.Container.Resolve<IGameCenter>();
+        var gc = Container.Resolve<IGameCenter>();
         return new GameCenterLink(gc);
     }
 
-    EmptyGameCenter CreateEmptyGameCenter(InjectContext ctx)
+    EmptyGameCenter CreateEmptyGameCenter()
     {
         return new EmptyGameCenter("Test User");
     }

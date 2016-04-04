@@ -1,5 +1,6 @@
-using Zenject;
+
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
 

@@ -1,6 +1,6 @@
-﻿using Zenject;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
 

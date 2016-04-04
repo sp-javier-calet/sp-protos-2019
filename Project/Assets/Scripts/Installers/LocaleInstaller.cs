@@ -1,7 +1,7 @@
 using System;
 using SocialPoint.Locale;
 using SocialPoint.AdminPanel;
-using Zenject;
+using SocialPoint.Dependency;
 
 public class LocaleInstaller : MonoInstaller
 {
@@ -58,7 +58,7 @@ public class LocaleInstaller : MonoInstaller
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
     }
 
-    Localization CreateLocalization(InjectContext ctx)
+    Localization CreateLocalization()
     {
         var locale = new Localization();
 #if UNITY_EDITOR

@@ -1,5 +1,5 @@
 ﻿using System;
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.Rating;
 using SocialPoint.Alert;
 using SocialPoint.AdminPanel;
