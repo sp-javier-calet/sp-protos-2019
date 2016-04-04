@@ -1,11 +1,9 @@
 ﻿
 using SocialPoint.Attributes;
-
-using Zenject;
+using SocialPoint.Purchase;
 
 public class PurchaseCostParser : IChildParser<ICost>
 {
-
     #region IChildParser implementation
 
     const string NameValue = "purchase";
@@ -20,12 +18,16 @@ public class PurchaseCostParser : IChildParser<ICost>
 
     public FamilyParser<ICost> Parent{ set { } }
 
-    [Inject]
-    IFactory<string,PurchaseCost> _purchaseCostFactory;
+    IGamePurchaseStore _store;
+
+    public PurchaseCostParser(IGamePurchaseStore store)
+    {
+        _store = store;
+    }
 
     public ICost Parse(Attr data)
     {
-        return _purchaseCostFactory.Create(data.AsValue.ToString());
+        return new PurchaseCost(data.AsValue.ToString(), _store);
     }
 
     #endregion

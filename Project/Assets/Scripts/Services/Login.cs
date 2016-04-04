@@ -15,9 +15,9 @@ public class Login : SocialPointLogin
         AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
         TrackEvent = ServiceLocator.Instance.Resolve<IEventTracker>().TrackSystemEvent;
         Storage = ServiceLocator.Instance.Resolve<IAttrStorage>("persistent");
-        Timeout = ServiceLocator.Instance.TryResolve<string>("login_timeout", Timeout);
-        ActivityTimeout = ServiceLocator.Instance.TryResolve<string>("login_activity_timeout", ActivityTimeout);
-        AutoUpdateFriends = ServiceLocator.Instance.TryResolve<string>("login_autoupdate_friends", AutoUpdateFriends);
+        Timeout = ServiceLocator.Instance.TryResolve<float>("login_timeout", Timeout);
+        ActivityTimeout = ServiceLocator.Instance.TryResolve<float>("login_activity_timeout", ActivityTimeout);
+        AutoUpdateFriends = ServiceLocator.Instance.TryResolve<bool>("login_autoupdate_friends", AutoUpdateFriends);
         AutoUpdateFriendsPhotosSize = ServiceLocator.Instance.TryResolve<uint>("login_autoupdate_friends_photo_size", AutoUpdateFriendsPhotosSize);
         UserMappingsBlock = ServiceLocator.Instance.TryResolve<uint>("login_user_mappings_block", UserMappingsBlock);
         Language = ServiceLocator.Instance.TryResolve<string>("language", Language);

@@ -5,7 +5,6 @@ using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
 using SocialPoint.GUIControl;
 using SocialPoint.Dependency;
-using Zenject;
 
 public class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {

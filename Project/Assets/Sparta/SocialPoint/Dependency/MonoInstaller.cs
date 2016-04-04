@@ -11,7 +11,7 @@ namespace SocialPoint.Dependency
 
     public class Installer : IInstaller
     {
-        public ServiceLocator Container;
+        public ServiceLocator Container{ get; set; }
 
         public virtual void InstallBindings()
         {
@@ -20,7 +20,7 @@ namespace SocialPoint.Dependency
 
     public class MonoInstaller : MonoBehaviour, IInstaller
     {
-        public ServiceLocator Container;
+        public ServiceLocator Container{ get; set; }
 
         public virtual void InstallBindings()
         {
@@ -31,5 +31,11 @@ namespace SocialPoint.Dependency
     public sealed class GlobalInstallerConfig : ScriptableObject
     {
         public MonoInstaller[] Installers;
+    }
+
+
+    public interface IFactory<P,T>
+    {
+        T Create(P arg);
     }
 }

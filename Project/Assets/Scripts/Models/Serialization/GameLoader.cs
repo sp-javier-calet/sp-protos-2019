@@ -1,8 +1,8 @@
 ﻿using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Login;
+using SocialPoint.Dependency;
 using System;
-using Zenject;
 
 public interface IGameLoader
 {
@@ -20,19 +20,10 @@ public class GameLoader : IGameLoader
     string _jsonGameResource;
     string _jsonPlayerResource;
 
-    [Inject]
     IParser<GameModel> _gameParser;
-
-    [Inject]
     IParser<PlayerModel> _playerParser;
-
-    [Inject]
     ISerializer<PlayerModel> _playerSerializer;
-
-    [Inject]
     GameModel _gameModel;
-
-    [InjectOptional]
     ILogin _login;
 
     public string PlayerJsonPath
@@ -51,10 +42,16 @@ public class GameLoader : IGameLoader
         }
     }
 
-    public GameLoader([Inject("game_initial_json_game_resource")] string jsonGameResource, [Inject("game_initial_json_player_resource")] string jsonPlayerResource)
+    public GameLoader(string jsonGameResource, string jsonPlayerResource)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;
+
+        _gameParser = ServiceLocator.Instance.Resolve<IParser<GameModel>>();
+        _playerParser = ServiceLocator.Instance.Resolve<IParser<PlayerModel>>();
+        _playerSerializer = ServiceLocator.Instance.Resolve<ISerializer<PlayerModel>>();
+        _gameModel = ServiceLocator.Instance.Resolve<GameModel>();
+        _login = ServiceLocator.Instance.TryResolve<ILogin>();
     }
 
     GameModel LoadInitialGame()

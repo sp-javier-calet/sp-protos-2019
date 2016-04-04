@@ -1,25 +1,17 @@
 ﻿using System;
 using SocialPoint.Base;
 using SocialPoint.Purchase;
-using Zenject;
 
 public class PurchaseCost : ICost
 {
-
-    [Inject]
     IGamePurchaseStore _purchaseStore;
-
     string _productId;
     Action<Error> _finished;
 
-    public PurchaseCost(string productId)
+    public PurchaseCost(string productId, IGamePurchaseStore store)
     {
         _productId = productId;
-    }
-
-    [PostInject]
-    void PostInject()
-    {
+        _purchaseStore = store;
         _purchaseStore.PurchaseUpdated += OnPurchaseUpdated;
     }
 

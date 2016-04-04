@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.Crash;
@@ -10,7 +11,8 @@ public class BaseInstaller : MonoInstaller, IInitializable
     public override void InstallBindings()
     {
         Container.Bind<IInitializable>().ToSingleInstance(this);
-        Container.Rebind<UnityUpdateRunner>().ToSingleGameObject<UnityUpdateRunner>();
+        Container.Rebind<UnityUpdateRunner>().ToSingle<UnityUpdateRunner>();
+        Container.Bind<MonoBehaviour>().ToSingle<UnityUpdateRunner>();
         Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
 

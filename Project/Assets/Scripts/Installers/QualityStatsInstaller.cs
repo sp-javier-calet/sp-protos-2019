@@ -2,6 +2,7 @@
 using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.QualityStats;
+using SocialPoint.Utils;
 
 public class QualityStatsInstaller : Installer
 {
@@ -16,7 +17,7 @@ public class QualityStatsInstaller : Installer
 
     QualityStatsHttpClient CreateHttpClient()
     {
-        var client = Container.Instantiate<HttpClient>();
+        var client = new HttpClient(Container.Resolve<ICoroutineRunner>());
         return new QualityStatsHttpClient(client);
     }
 }

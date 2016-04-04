@@ -1,15 +1,14 @@
 ﻿using SocialPoint.Base;
-using Zenject;
+using SocialPoint.Dependency;
 
 public class ResourcesReward : IReward
 {
-    [Inject]
     ResourcePool _playerResources;
-
     ResourcePool _resources;
     
     public ResourcesReward(ResourcePool resources)
     {
+        _playerResources = ServiceLocator.Instance.Resolve<ResourcePool>();
         _resources = resources;
     }
 

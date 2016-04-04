@@ -8,83 +8,15 @@ using SocialPoint.Login;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Zenject;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
-    [Inject]
-    ILogin injectLogin
-    {
-        set
-        {
-            Login = value;
-        }
-    }
-
-    [Inject]
-    ICrashReporter injectCrashReporter
-    {
-        set
-        {
-            CrashReporter = value;
-        }
-    }
-
-    [Inject]
-    Localization injectLocalization
-    {
-        set
-        {
-            Localization = value;
-        }
-    }
-
-    [Inject]
-    IAppEvents injectAppEvents
-    {
-        set
-        {
-            AppEvents = value;
-        }
-    }
-
-    [Inject]
-    IGameErrorHandler injectGameErrorHandler
-    {
-        set
-        {
-            ErrorHandler = value;
-        }
-    }
-
-    [Inject]
     IGameLoader _gameLoader;
-
-    #if ADMIN_PANEL
-    [Inject]
-    #endif
     AdminPanel _adminPanel = null;
-
-    [Inject]
-    GameModel _model;
-
-    #region services that need to be loaded when the game starts
-
-    [Inject]
-    ICrashReporter _crashReporter;
-
-    [Inject]
-    IEventTracker _eventTracker;
-
-    [Inject]
     ICoroutineRunner _coroutineRunner;
-
-    [InjectOptional]
-    QualityStats _qualityStats;
-
-    #endregion
 
     [SerializeField]
     string _sceneToLoad = "Main";
@@ -96,6 +28,21 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     const float ExpectedLoadModelDuration = 1.0f;
     const float ExpectedLoadSceneDuration = 2.0f;
+
+    protected override void OnLoad()
+    {
+        Login = ServiceLocator.Instance.Resolve<ILogin>();
+        CrashReporter = ServiceLocator.Instance.Resolve<ICrashReporter>();
+        Localization = ServiceLocator.Instance.Resolve<Localization>();
+        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
+        ErrorHandler = ServiceLocator.Instance.Resolve<IGameErrorHandler>();
+        _coroutineRunner = ServiceLocator.Instance.Resolve<ICoroutineRunner>();
+        _gameLoader = ServiceLocator.Instance.Resolve<IGameLoader>();
+        #if ADMIN_PANEL
+        _adminPanel = ServiceLocator.Instance.TryResolve<AdminPanel>();
+        #endif
+        base.OnLoad();
+    }
 
     override protected void OnAppeared()
     {

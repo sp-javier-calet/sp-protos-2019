@@ -1,4 +1,4 @@
-﻿using Zenject;
+﻿using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerEvents;
@@ -14,120 +14,19 @@ using System;
 
 class CommandQueue : SocialPoint.ServerSync.CommandQueue
 {
-
-    [InjectOptional("command_queue_ignore_responses")]
-    bool injectIgnoreResponses
-    {
-        set
-        {
-            IgnoreResponses = value;
-        }
-    }
-
-    [InjectOptional("command_queue_send_interval")]
-    int injectSendInterval
-    {
-        set
-        {
-            SendInterval = value;
-        }
-    }
-
-    [InjectOptional("command_queue_outofsync_interval")]
-    int injectMaxOutOfSyncInterval
-    {
-        set
-        {
-            MaxOutOfSyncInterval = value;
-        }
-    }
-
-    [InjectOptional("command_queue_timeout")]
-    float injectTimeout
-    {
-        set
-        {
-            Timeout = value;
-        }
-    }
-
-    [InjectOptional("command_queue_backoff_multiplier")]
-    float injectBackoffMultiplier
-    {
-        set
-        {
-            BackoffMultiplier = value;
-        }
-    }
-
-    [InjectOptional("command_queue_ping_enabled")]
-    bool injectPingEnabled
-    {
-        set
-        {
-            PingEnabled = value;
-        }
-    }
-
-    [Inject]
-    IAppEvents injectAppEvents
-    {
-        set
-        {
-            AppEvents = value;
-        }
-    }
-
-    [Inject]
-    IEventTracker injectEventTracker
-    {
-        set
-        {
-            TrackEvent = value.TrackEvent;
-        }
-    }
-
-    [Inject]
-    ILogin injectLogin
-    {
-        set
-        {
-            RequestSetup = value.SetupHttpRequest;
-        }
-    }
-
-    [Inject]
-    CommandReceiver injectCommandReceiver
-    {
-        set
-        {
-            CommandReceiver = value;
-        }
-    }
-
-    [Inject]
-    ISerializer<PlayerModel> _playerSerializer;
-
-    [Inject]
-    GameModel _gameModel;
-
-    [Inject]
-    IGameErrorHandler _errorHandler;
-
-    [Inject]
-    IGameLoader gameLoader
-    {
-        set
-        {
-            AutoSync = value.OnAutoSync;
-        }
-    }
-
-    [Inject]
-    ILogin _login;
-
     public CommandQueue(ICoroutineRunner runner, IHttpClient client) : base(runner, client)
     {
-        _errorHandler.Setup(this);
+        IgnoreResponses = ServiceLocator.Instance.TryResolve<bool>("command_queue_ignore_responses", IgnoreResponses);
+        SendInterval =  ServiceLocator.Instance.TryResolve<int>("command_queue_send_interval", SendInterval);
+        MaxOutOfSyncInterval = ServiceLocator.Instance.TryResolve<int>("command_queue_outofsync_interval", MaxOutOfSyncInterval);
+        Timeout = ServiceLocator.Instance.TryResolve<float>("command_queue_timeout", Timeout);
+        BackoffMultiplier = ServiceLocator.Instance.TryResolve<float>("command_queue_backoff_multiplier", BackoffMultiplier);
+        PingEnabled = ServiceLocator.Instance.TryResolve<bool>("command_queue_ping_enabled", PingEnabled);
+        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
+        TrackEvent = ServiceLocator.Instance.Resolve<IEventTracker>().TrackEvent;
+        RequestSetup = ServiceLocator.Instance.Resolve<ILogin>().SetupHttpRequest;
+        CommandReceiver = ServiceLocator.Instance.Resolve<CommandReceiver>();
+        AutoSync = ServiceLocator.Instance.Resolve<IGameLoader>().OnAutoSync;
+        ServiceLocator.Instance.Resolve<IGameErrorHandler>().Setup(this);
     }
 }

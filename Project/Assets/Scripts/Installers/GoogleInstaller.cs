@@ -1,5 +1,6 @@
 ﻿
 using System;
+using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
@@ -26,7 +27,8 @@ public class GoogleInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IGoogle>().ToSingleGameObject<UnityGoogle>();
+            Container.Rebind<IGoogle>().ToSingle<UnityGoogle>();
+            Container.Rebind<MonoBehaviour>().ToSingle<UnityGoogle>();
         }
         if(Settings.LoginLink)
         {
