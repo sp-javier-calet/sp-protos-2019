@@ -523,11 +523,6 @@ namespace SocialPoint.ServerSync
 
         void AddPendingAcksToRequest(Attr attr)
         {
-            if(_sendingAcks.Count > 0)
-            {
-                throw new InvalidOperationException("Current sending acks have not been successfully send");
-            }
-
             if(_pendingAcks.Count > 0)
             {
                 var attrdic = attr.AsDic;
