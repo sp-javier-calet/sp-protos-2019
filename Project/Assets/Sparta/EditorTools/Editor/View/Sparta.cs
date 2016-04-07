@@ -127,14 +127,28 @@ namespace SpartaTools.Editor.View
             _repoInfo = Target.GetRepositoryInfo();
         }
 
+        public static void SetIcon(EditorWindow window, string title, string tooltip, bool advancedMode = false)
+        {
+            string paddingTitle = " " + title;
+            window.titleContent = new GUIContent(paddingTitle, advancedMode ? AdvancedIcon : Icon, tooltip);
+        }
+
         /*
          * Sparta editor window icon
          */
-        public static Texture Icon
+        static Texture Icon
         {
             get
             {
                 return AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/sparta.icon.png");
+            }
+        }
+
+        static Texture AdvancedIcon
+        {
+            get
+            {
+                return AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/sparta.icon.advanced.png");
             }
         }
     }

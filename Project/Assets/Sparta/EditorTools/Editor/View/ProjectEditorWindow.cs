@@ -14,7 +14,24 @@ namespace SpartaTools.Editor.View
         bool _showRawFile;
         bool _showLog;
         bool _showMergeLog;
+
         bool _editEnabled;
+        bool EditEnabled
+        {
+            set
+            {
+                bool changed = _editEnabled != value;
+                _editEnabled = value;
+                if(changed)
+                {
+                    RefreshIcon();
+                }
+            }
+            get
+            {
+                return _editEnabled;
+            }
+        }
 
         #region Editor options
 
@@ -53,14 +70,19 @@ namespace SpartaTools.Editor.View
 
         void OnEnable()
         {
-            titleContent = new GUIContent("Project", Sparta.Icon, "Sparta Target project editor");
+            RefreshIcon();
+        }
+
+        void RefreshIcon()
+        {
+            Sparta.SetIcon(this, "Project", "Sparta Target project editor", EditEnabled);
         }
 
         void GUIToolbar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.FlexibleSpace();
-            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enables edition mode for module files"), EditorStyles.toolbarButton);
+            EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for module files"), EditorStyles.toolbarButton);
             GUILayout.EndHorizontal();
         }
 
@@ -78,7 +100,7 @@ namespace SpartaTools.Editor.View
                 GUIProjectLog();
                 GUIMergeLog();
 
-                if(_editEnabled)
+                if(EditEnabled)
                 {
                     GUIFileEditor();
                 }

@@ -69,7 +69,7 @@ namespace SpartaTools.Editor.View
 
         void OnEnable()
         {
-            titleContent = new GUIContent("Proxy", Sparta.Icon, "Sparta Proxy settings");
+            Sparta.SetIcon(this, "Proxy", "Sparta Proxy settings");
         }
 
         void OnGUI()

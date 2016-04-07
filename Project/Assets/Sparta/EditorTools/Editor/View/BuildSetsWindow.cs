@@ -159,7 +159,7 @@ namespace SpartaTools.Editor.View
 
         void OnEnable()
         {
-            titleContent = new GUIContent("Build Set", Sparta.Icon, "Sparta Build Set configurations");
+            Sparta.SetIcon(this, "Build Set", "Sparta Build Set configurations");
         }
 
         Dictionary<string, BuildSetViewData> LoadViewConfig()
