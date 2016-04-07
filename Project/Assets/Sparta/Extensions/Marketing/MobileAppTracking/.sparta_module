@@ -1,0 +1,4 @@
+name Extension/MobileAppTracking
+desc IMarketingTraker implementation for MobileAppTracking/tune
+type extension
+depends_on Assets/Sparta/External/MobileAppTracking

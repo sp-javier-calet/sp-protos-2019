@@ -1,0 +1,4 @@
+name Extension/AppsFlyer
+desc IMarketingTraker implementation for AppsFlyer
+type extension
+depends_on Assets/Sparta/External/AppsFlyer
