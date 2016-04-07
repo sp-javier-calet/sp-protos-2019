@@ -157,9 +157,9 @@ namespace SpartaTools.Editor.View
 
         #region Editor GUI
 
-        void OnEnable()
+        void OnFocus()
         {
-            titleContent = new GUIContent("Build Set", Sparta.Icon, "Sparta Build Set configurations");
+            Sparta.SetIcon(this, "Build Set", "Sparta Build Set configurations");
         }
 
         Dictionary<string, BuildSetViewData> LoadViewConfig()
@@ -228,7 +228,7 @@ namespace SpartaTools.Editor.View
                 // Android Condifguration
                 EditorGUILayout.LabelField("Android", EditorStyles.boldLabel);
                 GUILayout.BeginVertical();
-                config.AndroidBundleIdentifier = InheritableTextField("Bundle Identifier", "Android buindle identifier", config.AndroidBundleIdentifier, data.IsBase);
+                config.AndroidBundleIdentifier = InheritableTextField("Bundle Identifier", "Android bundle identifier", config.AndroidBundleIdentifier, data.IsBase);
                 config.AndroidFlags = InheritableTextField("Flags", "Android specific defined symbols", config.AndroidFlags, data.IsBase);
                 config.AndroidRemovedResources = InheritableTextField("Remove Resources", "Folders and files to remove before build. AutoBuilder only", config.AndroidRemovedResources, data.IsBase);
                 if(!data.IsBase)

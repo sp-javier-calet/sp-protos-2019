@@ -47,7 +47,24 @@ namespace SpartaTools.Editor.View
         string _fileContent;
         bool _showRawFile;
         bool _showDiff;
+
         bool _editEnabled;
+        bool EditEnabled
+        {
+            set
+            {
+                bool changed = _editEnabled != value;
+                _editEnabled = value;
+                if(changed)
+                {
+                    RefreshIcon();
+                }
+            }
+            get
+            {
+                return _editEnabled;
+            }
+        }
 
         Module _module;
 
@@ -93,16 +110,21 @@ namespace SpartaTools.Editor.View
 
         #region Draw GUI
 
-        void OnEnable()
+        void OnFocus()
         {
-            titleContent = new GUIContent("Module", Sparta.Icon, "Sparta Module inspector");
+            RefreshIcon();
+        }
+
+        void RefreshIcon()
+        {
+            Sparta.SetIcon(this, "Module", "Sparta Module inspector", EditEnabled);
         }
 
         void GUIToolbar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.FlexibleSpace();
-            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
+            EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
             GUILayout.EndHorizontal();
         }
 
@@ -121,7 +143,7 @@ namespace SpartaTools.Editor.View
             GUIModuleInfo();
             GUIModuleDiff();
 
-            if(_editEnabled)
+            if(EditEnabled)
             {
                 GUIFileEditor();
             }

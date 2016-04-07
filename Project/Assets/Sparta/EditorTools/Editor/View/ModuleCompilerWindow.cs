@@ -204,9 +204,9 @@ namespace SpartaTools.Editor.View
 
         #region GUI
 
-        void OnEnable()
+        void OnFocus()
         {
-            titleContent = new GUIContent("Compiler", Sparta.Icon, "Sparta Module compiler");
+            Sparta.SetIcon(this, "Compiler", "Sparta Module compiler");
         }
 
         void GUIShowLog(Variant variant)

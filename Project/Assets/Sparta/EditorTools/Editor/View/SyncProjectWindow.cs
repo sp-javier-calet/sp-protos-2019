@@ -90,7 +90,25 @@ namespace SpartaTools.Editor.View
         Vector2 _scrollPosition = Vector2.right;
         ProgressHandler _progressHandler;
         bool _refreshFinished;
+
         bool _editEnabled;
+        bool EditEnabled
+        {
+            set
+            {
+                bool changed = _editEnabled != value;
+                _editEnabled = value;
+                if(changed)
+                {
+                    RefreshIcon();
+                }
+            }
+            get
+            {
+                return _editEnabled;
+            }
+        }
+
         bool _autoRefresh = true;
 
         bool Synchronized
@@ -135,9 +153,14 @@ namespace SpartaTools.Editor.View
 
         #region Draw GUI
 
-        void OnEnable()
+        void OnFocus()
         {
-            titleContent = new GUIContent("Sync", Sparta.Icon, "Sparta Project Sync");
+            RefreshIcon();
+        }
+
+        void RefreshIcon()
+        {
+            Sparta.SetIcon(this, "Sync", "Sparta Project Sync", EditEnabled);
         }
 
         void OnInspectorUpdate()
@@ -216,7 +239,7 @@ namespace SpartaTools.Editor.View
 
             GUILayout.FlexibleSpace();
             _autoRefresh = GUILayout.Toggle(_autoRefresh, new GUIContent("Auto Refresh", "Synchronize automatically"), EditorStyles.toolbarButton);
-            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enable manual sync configuration"), EditorStyles.toolbarButton);
+            EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enable manual sync configuration"), EditorStyles.toolbarButton);
 
             GUILayout.EndHorizontal();
             GUI.enabled = true;
@@ -297,7 +320,7 @@ namespace SpartaTools.Editor.View
 
             GUILayout.Label(sync.Status.ToString(), Styles.ModuleStatus);
 
-            GUI.enabled = !sync.ReferenceModule.IsMandatory || _editEnabled;
+            GUI.enabled = !sync.ReferenceModule.IsMandatory || EditEnabled;
             sync.Action = (ModuleSync.SyncAction)EditorGUILayout.Popup(string.Empty, (int)sync.Action, 
                 sync.Status == ModuleSync.SyncStatus.NotInstalled ? NotInstalledModuleOptions : InstalledModuleOptions, 
                 Styles.PopupLayoutOptions);

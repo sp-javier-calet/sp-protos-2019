@@ -67,9 +67,9 @@ namespace SpartaTools.Editor.View
 
         #region Draw GUI
 
-        void OnEnable()
+        void OnFocus()
         {
-            titleContent = new GUIContent("Proxy", Sparta.Icon, "Sparta Proxy settings");
+            Sparta.SetIcon(this, "Proxy", "Sparta Proxy settings");
         }
 
         void OnGUI()
