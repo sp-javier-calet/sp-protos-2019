@@ -113,16 +113,18 @@ namespace SpartaTools.Editor.Utils
             _path = path;
         }
 
-        public void ResetToCommit(string commit)
+        public bool ResetToCommit(string commit)
         {
             string log = string.Empty;
+            NativeConsole.RunProcess(Binary, "clean -x -d -f", _path, (type, output) => {
+                log += output.Trim();
+            });
+
             NativeConsole.RunProcess(Binary, string.Format("checkout {0}", commit), _path, (type, output) => {
                 log += output.Trim();
             });
 
-            NativeConsole.RunProcess(Binary, "clean -x -d", _path, (type, output) => {
-                log += output.Trim();
-            });
+            return GetCommit() == commit;
         }
 
         public string GetCommit()
