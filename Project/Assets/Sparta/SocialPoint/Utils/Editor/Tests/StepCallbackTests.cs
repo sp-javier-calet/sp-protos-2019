@@ -12,6 +12,7 @@ namespace SocialPoint.Utils
         [SetUp]
         public void SetUp()
         {
+            UnityEngine.Assertions.Assert.raiseExceptions = true;
             _allStepsDone = false;
         }
 
@@ -59,12 +60,13 @@ namespace SocialPoint.Utils
 
             steps.Ready();
 
-            if(_allStepsDone)
-            {
-                return;
-            }
-
-            SomeMethod(steps.Add());
+            Assert.Throws<UnityEngine.Assertions.AssertionException>(() => steps.Add());
+        }
+        
+        [TearDown]
+        public void TearDown()
+        {
+            UnityEngine.Assertions.Assert.raiseExceptions = false;
         }
 
         static void SomeMethod(Action callback)
