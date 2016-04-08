@@ -60,7 +60,7 @@ namespace SocialPoint.Attributes
                 sb.AppendLine("FastJson parsing failed");
             }
 
-            _textComponent.text = sb.ToString();
+            _textComponent.text = StringUtils.FinishBuilder(sb);
         }
     }
 }

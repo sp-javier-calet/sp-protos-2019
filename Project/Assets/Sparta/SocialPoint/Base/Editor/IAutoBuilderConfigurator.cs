@@ -1,8 +1,4 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using UnityEditor;
 using System;
 
 namespace SocialPoint.Base
@@ -24,6 +20,8 @@ namespace SocialPoint.Base
         public string AndroidKeyAliasName { get; set; }
 
         public string AndroidKeyAliasPass { get; set; }
+
+        public string BundleIdentifier { get; set; }
     }
 
     public class AutoBuilderConfiguratorFactory : Attribute

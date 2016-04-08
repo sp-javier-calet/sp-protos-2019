@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,31 +7,30 @@ namespace SocialPoint.Attributes
 {
     public class UrlQueryAttrParser : IAttrParser
     {
-        private const string TokenStart = "?";
-        private const string TokenSeparator = "&";
-        private const string TokenAssign = "=";
-        private const string TokenGroupStart = "[";
-        private const string TokenGroupEnd = "]";
+        private const char TokenStart = '?';
+        private const char TokenSeparator = '&';
+        private const char TokenAssign = '=';
+        private const char TokenGroupStart = '[';
+        private const char TokenGroupEnd = ']';
         
         public UrlQueryAttrParser()
         {
         }
         
-        List<string> SplitName(string name)
+        string[] SplitName(string name)
         {
-            List<string> iparts = name.Split(TokenGroupStart.ToCharArray()).ToList();
-            List<string> parts = new List<string>();
-            var enumList = iparts.GetEnumerator();
-            while(enumList.MoveNext())
+            var parts = name.Split(new char[]{ TokenGroupStart });
+            for(var i = 0; i < parts.Length; i++)
             {
-                parts.Add(Uri.UnescapeDataString(enumList.Current).Trim(TokenGroupEnd.ToCharArray()));
+                parts[i] = Uri.UnescapeDataString(parts[i]).Trim(new char[]{ TokenGroupEnd });
             }
             return parts;
         }
         
         Attr CreateAttr(string name)
         {
-            if(string.IsNullOrEmpty(name))
+            int i;
+            if(string.IsNullOrEmpty(name) || int.TryParse(name, out i))
             {
                 return new AttrList();
             }
@@ -42,62 +40,101 @@ namespace SocialPoint.Attributes
             }
         }
         
-        bool SetAttr(ref Attr root, List<string> name, Attr value)
+        void SetAttr(Attr attr, string[] name, Attr value)
         {
-            Attr childAttr = null;
-            List<string> childName = new List<string>(name);
-            
-            if(childName.Count == 0)
+            Attr fix = null;
+            var parents = new Attr[name.Length];
+            for(var i = 0; i < name.Length; i++)
             {
-                return false;
-            }
-            
-            string ppart = childName.Last();
-            childName.RemoveAt((childName.Count - 1));
-            
-            if(childName.Count == 0)
-            {
-                if(string.IsNullOrEmpty(ppart))
+                parents[i] = attr;
+                var last = i >= name.Length - 1;
+                var part = name[i];
+                var type = attr.AttrType;
+                if(type == AttrType.DICTIONARY)
                 {
-                    root.AsList.Add(value);
+                    var dic = attr.AsDic;
+                    if(last)
+                    {
+                        dic.Set(part, value);    
+                    }
+                    else if(dic.ContainsKey(part))
+                    {
+                        attr = dic.Get(part);
+                    }
+                    else
+                    {
+                        attr = CreateAttr(name[i + 1]);
+                        dic.Set(part, attr);
+                    }
+                }
+                else if(type == AttrType.LIST)
+                {
+                    var list = attr.AsList;
+                    int ipart = 0;
+
+                    if(string.IsNullOrEmpty(part))
+                    {
+                        ipart = list.Count;
+                    }
+                    else if(!int.TryParse(part, out ipart))
+                    {
+                        // should be a dictionary
+                        fix = new AttrDic(list);
+                    }
+                    if(fix == null)
+                    {
+                        bool exists = list.Count > ipart;
+                        while(list.Count <= ipart)
+                        {
+                            list.Add(new AttrString());
+                        }
+                        if(last)
+                        {
+                            list.Set(ipart, value);
+                        }
+                        else if(exists)
+                        {
+                            attr = list.Get(ipart);
+                        }
+                        else
+                        {
+                            attr = CreateAttr(name[i + 1]);
+                            list.Set(ipart, attr);
+                        }
+                    }
                 }
                 else
                 {
-                    root.AsDic.Set(ppart, value);
+                    // should be a list or dictionary
+                    fix = CreateAttr(part);
                 }
-                return true;
-            }
-            
-            string part = childName.Last();
-            
-            if(string.IsNullOrEmpty(ppart))
-            {
-                AttrList currList = root.AsList;
-                int s = currList.Count;
-                if(s > 0)
+                if(i > 0 && fix != null)
                 {
-                    childAttr = currList.Get(s - 1);
+                    i--;
+                    var parent = parents[i];
+                    part = name[i];
+                    type = parent.AttrType;
+                    if(type == AttrType.DICTIONARY)
+                    {
+                        parent.AsDic.Set(part, fix);
+                    }
+                    else if(type == AttrType.LIST)
+                    {
+                        var list = parent.AsList;
+                        var ipart = 0;
+                        if(string.IsNullOrEmpty(part))
+                        {
+                            ipart = list.Count - 1;
+                        }
+                        else
+                        {
+                            int.TryParse(part, out ipart);
+                        }
+                        list.Set(ipart, fix);
+                    }
+                    attr = fix;
+                    fix = null;
                 }
-                else
-                {
-                    childAttr = CreateAttr(part);
-                    currList.Add(childAttr);
-                }
-                return SetAttr(ref childAttr, childName, value);
-            }
-            else
-            {
-                AttrDic currDict = root.AsDic;
-                if(currDict.ContainsKey(ppart))
-                {
-                    childAttr = currDict.Get(ppart);
-                }
-                else
-                {
-                    childAttr = CreateAttr(part);
-                    currDict.Set(ppart, childAttr);
-                }
-                return SetAttr(ref childAttr, childName, value);
             }
         }
 
@@ -108,33 +145,31 @@ namespace SocialPoint.Attributes
         
         public Attr ParseString(string data)
         {
-            Attr root = new AttrDic();
-            string str = data.TrimStart(TokenStart.ToCharArray());
-            List<string> tokens = str.Split(TokenSeparator.ToCharArray()).ToList();
-            var enumList = tokens.GetEnumerator();
-            while(enumList.MoveNext())
+            var root = new AttrDic();
+            var str = data.TrimStart(new char[]{ TokenStart });
+            var tokens = str.Split(new char[]{ TokenSeparator });
+            for(var i = 0; i <tokens.Length; i++)
             {
-                var token = enumList.Current.Trim();
+                var token = tokens[i].Trim();
                 if(token.Length > 0)
                 {
-                    List<string> parts = token.Split(TokenAssign.ToCharArray()).ToList();
-                    if(parts.Count < 2)
+                    var parts = token.Split(new char[]{ TokenAssign });
+                    if(parts.Length < 2)
                     {
-                        AttrDic rootDic = root.AsDic;
-                        if(!rootDic.ContainsKey(""))
+                        var rootDic = root.AsDic;
+                        if(!rootDic.ContainsKey(string.Empty))
                         {
-                            rootDic.Set("", new AttrList());
+                            rootDic.Set(string.Empty, new AttrList());
                         }
-                        rootDic.Get("").AsList.AddValue(Uri.UnescapeDataString(parts[0]));
+                        rootDic.Get(string.Empty).AsList.AddValue(Uri.UnescapeDataString(parts[0]));
                     }
                     else
                     {
-                        List<string> name = SplitName(parts[0]);
-                        SetAttr(ref root, name, new AttrString(Uri.UnescapeDataString(parts[1])));
+                        var name = SplitName(Uri.UnescapeDataString(parts[0]));
+                        SetAttr(root, name, new AttrString(Uri.UnescapeDataString(parts[1])));
                     }
                 }
             }
-
             return root;
         }
 

@@ -211,7 +211,12 @@ namespace SocialPoint.Base
 
             // Note: FAT means all supported/available architectures.
             string[] targetArch = GetCommandLineArgs("targetArch");
-            if(targetArch[0] == "arm+x86")
+            if(targetArch.Length == 0)
+            {
+                UnityEngine.Debug.LogWarning("[WARNING] - Target architecture not specified. Defaulting to all supported architectures");
+                PlayerSettings.Android.targetDevice = AndroidTargetDevice.FAT;
+            }
+            else if(targetArch[0] == "arm+x86")
             {
                 PlayerSettings.Android.targetDevice = AndroidTargetDevice.FAT;
             }
@@ -222,11 +227,6 @@ namespace SocialPoint.Base
             else if(targetArch[0] == "x86")
             {
                 PlayerSettings.Android.targetDevice = AndroidTargetDevice.x86;
-            }
-            else if(targetArch.Length == 0)
-            {
-                UnityEngine.Debug.LogWarning("[WARNING] - Target architecture not specified. Defaulting to all supported architectures");
-                PlayerSettings.Android.targetDevice = AndroidTargetDevice.FAT;
             }
 
             SetDefines(BuildTargetGroup.Android);
@@ -260,7 +260,10 @@ namespace SocialPoint.Base
             {
                 PlayerSettings.Android.keyaliasPass = configuration.AndroidKeyAliasPass;
             }
-
+            if(!string.IsNullOrEmpty(configuration.BundleIdentifier))
+            {
+                PlayerSettings.bundleIdentifier = configuration.BundleIdentifier;
+            }
             configurator.Build(configuration);
         }
 

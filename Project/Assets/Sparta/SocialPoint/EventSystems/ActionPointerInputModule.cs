@@ -34,7 +34,7 @@ namespace SocialPoint.EventSystems
             m_PointerData.Remove(data.pointerId);
         }
 
-        protected PointerEventData GetTouchPointerEventData(UnityEngine.Touch input, out bool pressed, out bool released)
+        protected PointerEventData GetTouchPointerEventData(Touch input, out bool pressed, out bool released)
         {
             PointerEventData pointerData;
             var created = GetPointerData(input.fingerId, out pointerData, true);

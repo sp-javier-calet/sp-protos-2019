@@ -42,6 +42,10 @@ namespace SocialPoint.Utils
         public Action Add()
         {
             Assert.IsTrue(!_ready);
+            if(_ready)
+            {
+                throw new Exception("Add called after Ready");
+            }
             ++_stepCallback.Count;
             return DoStep;
         }

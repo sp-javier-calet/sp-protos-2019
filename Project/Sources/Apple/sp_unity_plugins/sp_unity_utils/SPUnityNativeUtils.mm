@@ -10,6 +10,9 @@ EXPORT_API bool SPUnityNativeUtilsIsInstalled(const char* appId)
 
 EXPORT_API bool SPUnityNativeUtilsUserAllowNotification()
 {
+#if UNITY_TVOS
+    return false;
+#else
     if([[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)])
     {
         // Ios 8
@@ -23,4 +26,5 @@ EXPORT_API bool SPUnityNativeUtilsUserAllowNotification()
 
         return notificationSelection & UIRemoteNotificationTypeAlert;
     }
+#endif
 }

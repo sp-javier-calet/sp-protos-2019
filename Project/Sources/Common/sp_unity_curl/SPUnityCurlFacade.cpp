@@ -6,7 +6,7 @@
 #include <cassert>
 
 extern "C" {
-#include "curl/curl.h"
+#include "curl.h"
 }
 
 #if defined(WIN32) || defined(WIN64)
@@ -127,6 +127,16 @@ static const uint8_t pinnedCertDragonStadium[] = {
         0xAF, 0x33, 0x5E, 0x7B, 0x41, 0x29, 0x0D, 0xC6, 0xCB, 0x15,
         0x4F, 0x5B, 0x42, 0x1E, 0x14, 0xF7, 0xB9, 0x4B, 0x5E, 0x5E,
         0x5B, 0x7A
+    };
+
+// sha256//RBrCiBFaBU+42LdYpectgJdYbXN6wA+wQ+i6EBB+qwA=
+static const uint8_t pinnedCertWorldChef[] = {
+        0x44, 0x63, 0x4D, 0x75, 0x77, 0x87, 0xD2, 0x55, 0x65, 0x49,
+        0x5E, 0x04, 0x2B, 0xF3, 0xBB, 0x1B, 0x75, 0x5E, 0x07, 0x73,
+        0x70, 0xFD, 0x99, 0x23, 0x47, 0x6E, 0x4F, 0x33, 0x25, 0xFB,
+        0x99, 0x23, 0x55, 0x53, 0x62, 0x71, 0x35, 0xF0, 0xD6, 0x0D,
+        0x66, 0x20, 0x45, 0x71, 0x07, 0xF3, 0xBF, 0x51, 0x46, 0x7C,
+        0x6D, 0x7A
     };
 
 CURL* SPUnityCurlCreate(SPUnityCurlRequestStruct req)
@@ -500,7 +510,12 @@ EXPORT_API void SPUnityCurlDestroy()
 
 EXPORT_API void SPUnityCurlSetConfig(const char* name)
 {
-    if(name != nullptr && strcmp(name, "dragonland") == 0)
+    if(name != nullptr && strcmp(name, "worldchef") == 0)
+    {
+        curlPinnedPublicKey = pinnedCertWorldChef;
+        curlPinnedPublicKeySize = sizeof(pinnedCertWorldChef) / sizeof(pinnedCertWorldChef[0]);
+    }
+    else if(name != nullptr && strcmp(name, "dragonland") == 0)
     {
         curlPinnedPublicKey = pinnedCertDragonLand;
         curlPinnedPublicKeySize = sizeof(pinnedCertDragonLand) / sizeof(pinnedCertDragonLand[0]);

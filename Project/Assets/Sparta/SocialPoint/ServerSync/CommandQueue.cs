@@ -35,6 +35,7 @@ namespace SocialPoint.ServerSync
         const string AttrKeySynced = "synced";
 
         const int SessionLostErrorStatusCode = 482;
+        const int FutureTimeStatusCode = 472;
         const int StartPacketId = 1;
 
         public DateTime CurrentTime
@@ -556,6 +557,7 @@ namespace SocialPoint.ServerSync
         {
             if(packet == null)
             {
+                _lastSendTimestamp = CurrentTimestamp;
                 if(finish != null)
                 {
                     finish();
@@ -737,13 +739,17 @@ namespace SocialPoint.ServerSync
             }
             if(resp.HasError)
             {
-                if(resp.StatusCode == SessionLostErrorStatusCode)
+                switch(resp.StatusCode)
                 {
+                case SessionLostErrorStatusCode:
                     NotifyError(CommandQueueErrorType.SessionLost, resp.Error, resp.StatusCode);
-                }
-                else
-                {
+                    break;
+                case FutureTimeStatusCode:
+                    NotifyError(CommandQueueErrorType.ClockChange, resp.Error, resp.StatusCode);
+                    break;
+                default:
                     NotifyError(CommandQueueErrorType.HttpResponse, resp.Error, resp.StatusCode);
+                    break;
                 }
                 return null;
             }

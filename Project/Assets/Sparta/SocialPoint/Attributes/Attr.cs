@@ -1277,7 +1277,7 @@ namespace SocialPoint.Attributes
             }
             itr.Dispose();
             b.Append("}");
-            return b.ToString();
+            return StringUtils.FinishBuilder(b);
         }
 
         public void Clear()
@@ -1563,7 +1563,7 @@ namespace SocialPoint.Attributes
             }
             set
             {
-                Set(value, idx);
+                Set(idx, value);
             }
         }
 
@@ -1596,7 +1596,7 @@ namespace SocialPoint.Attributes
                 }
             }
             b.Append("]");
-            return b.ToString();
+            return StringUtils.FinishBuilder(b);
         }
 
         public List<Attr>.Enumerator GetEnumerator()
@@ -1614,7 +1614,7 @@ namespace SocialPoint.Attributes
             return GetEnumerator();
         }
 
-        public bool Set(Attr attr, int idx)
+        public bool Set(int idx, Attr attr)
         {
             if(AllowDuplicates || (!AllowDuplicates && !Contains(attr)))
             {
@@ -1634,7 +1634,7 @@ namespace SocialPoint.Attributes
             return false;
         }
 
-        public bool AddValue(string key, bool val)
+        public bool AddValue(bool val)
         {
             return Add(new AttrBool(val));
         }
@@ -1669,9 +1669,39 @@ namespace SocialPoint.Attributes
             return Add(new AttrString(val));
         }
 
-        public bool AddValue(bool val)
+        public bool SetValue(int idx, bool val)
         {
-            return Add(new AttrBool(val));
+            return Set(idx, new AttrBool(val));
+        }
+
+        public bool SetValue(int idx, int val)
+        {
+            return Set(idx, new AttrInt(val));
+        }
+
+        public bool SetValue(int idx, short val)
+        {
+            return Set(idx, new AttrInt(val));
+        }
+
+        public bool SetValue(int idx, float val)
+        {
+            return Set(idx, new AttrFloat(val));
+        }
+
+        public bool SetValue(int idx, double val)
+        {
+            return Set(idx, new AttrDouble(val));
+        }
+
+        public bool SetValue(int idx, long val)
+        {
+            return Set(idx, new AttrLong(val));
+        }
+
+        public bool SetValue(int idx, string val)
+        {
+            return Set(idx, new AttrString(val));
         }
 
         public void Clear()
@@ -1747,7 +1777,7 @@ namespace SocialPoint.Attributes
 
             for(var i = 0; i < ra.Count; i++)
             {
-                if(la[i] != ra[i])
+                if(!la[i].Equals(ra[i]))
                 {
                     return false;
                 }

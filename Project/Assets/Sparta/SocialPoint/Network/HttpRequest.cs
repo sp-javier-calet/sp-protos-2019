@@ -33,24 +33,52 @@ namespace SocialPoint.Network
             DELETE
         }
 
+        Uri _url;
+        byte[] _body;
+        AttrDic _queryParams;
+        AttrDic _bodyParams;
 
         public string BodyEncoding;
 
         public HttpRequestPriority Priority;
 
-        public Uri Url;
-
         public MethodType Method;
 
         public Dictionary<string, string> Headers;
-
-        public byte[] Body;
 
         public float Timeout;
 
         public float ActivityTimeout;
 
         public string Proxy;
+
+        public Uri Url
+        {
+            get
+            {
+                return _url;
+            }
+
+            set
+            {
+                _url = value;
+                _queryParams = null;
+            }
+        }            
+
+        public byte[] Body
+        {
+            get
+            {
+                return _body;
+            }
+
+            set
+            {
+                _body = value;
+                _bodyParams = null;
+            }
+        }
 
         public bool ParamsInBody
         {
@@ -103,11 +131,11 @@ namespace SocialPoint.Network
         {
             get
             {
-                if(Url == null || Url.Query == null)
+                if(_queryParams == null && Url != null && Url.Query != null)
                 {
-                    return null;
+                    _queryParams = new UrlQueryAttrParser().ParseString(Url.Query).AsDic;
                 }
-                return new UrlQueryAttrParser().ParseString(Url.Query).AsDic;
+                return _queryParams;
             }
 
             set
@@ -119,6 +147,7 @@ namespace SocialPoint.Network
                 var builder = new UriBuilder(Url);
                 builder.Query = new UrlQueryAttrSerializer().SerializeString(value);
                 Url = builder.Uri;
+                _queryParams = value;
             }
         }
         
@@ -126,11 +155,11 @@ namespace SocialPoint.Network
         {
             get
             {
-                if(Body == null)
+                if(_bodyParams == null && Body != null)
                 {
-                    return null;
+                    _bodyParams = new UrlQueryAttrParser().Parse(Body).AsDic;
                 }
-                return new UrlQueryAttrParser().Parse(Body).AsDic;
+                return _bodyParams;
             }
             
             set
@@ -147,49 +176,8 @@ namespace SocialPoint.Network
                 {
                     AddHeader(ContentTypeHeader, ContentTypeUrlencoded);
                 }
+                _bodyParams = value;
             }
-        }
-
-        public Dictionary<string,string> FlatParams
-        {
-            get
-            {
-                if(Url == null || Url.Query == null)
-                {
-                    return null;
-                }
-                return StringUtils.QueryToDictionary(Url.Query);
-            }
-        }
-
-        public HttpRequest()
-        {
-            Priority = HttpRequestPriority.Normal;
-            Headers = new Dictionary<string, string>();
-            Timeout = 0.0f;
-            ActivityTimeout = 0.0f;
-            AcceptCompressed = true;
-        }
-
-        public HttpRequest(Attr data): this()
-        {
-            FromAttr(data);
-        }
-
-        public HttpRequest(HttpRequest other): this()
-        {
-            FromAttr(other.ToAttr());
-            Priority = other.Priority;
-        }
-
-        public HttpRequest(Uri url, MethodType method = MethodType.GET) : this()
-        {
-            Url = url;
-            Method = method;
-        }
-
-        public HttpRequest(string url, MethodType method = MethodType.GET) : this(new Uri(url), method)
-        {
         }
 
         public List<string> AcceptEncodings
@@ -221,19 +209,6 @@ namespace SocialPoint.Network
             get
             {
                 return HttpEncoding.IsCompressed(BodyEncoding);
-            }
-        }
-
-        public void BeforeSend()
-        {
-            Body = HttpEncoding.Encode(Body, BodyEncoding);
-            if(!string.IsNullOrEmpty(BodyEncoding) && !HasHeader(ContentEncodingHeader))
-            {
-                AddHeader(ContentEncodingHeader, BodyEncoding);
-            }
-            if(Timeout == 0.0f)
-            {
-                Timeout = 60.0f;
             }
         }
 
@@ -293,6 +268,50 @@ namespace SocialPoint.Network
                 return false;
             }
         }
+
+        public HttpRequest()
+        {
+            Priority = HttpRequestPriority.Normal;
+            Headers = new Dictionary<string, string>();
+            Timeout = 0.0f;
+            ActivityTimeout = 0.0f;
+            AcceptCompressed = true;
+        }
+
+        public HttpRequest(Attr data): this()
+        {
+            FromAttr(data);
+        }
+
+        public HttpRequest(HttpRequest other): this()
+        {
+            FromAttr(other.ToAttr());
+            Priority = other.Priority;
+        }
+
+        public HttpRequest(Uri url, MethodType method = MethodType.GET) : this()
+        {
+            Url = url;
+            Method = method;
+        }
+
+        public HttpRequest(string url, MethodType method = MethodType.GET) : this(new Uri(url), method)
+        {
+        }
+
+        public void BeforeSend()
+        {
+            Body = HttpEncoding.Encode(Body, BodyEncoding);
+            if(!string.IsNullOrEmpty(BodyEncoding) && !HasHeader(ContentEncodingHeader))
+            {
+                AddHeader(ContentEncodingHeader, BodyEncoding);
+            }
+            if(Timeout == 0.0f)
+            {
+                Timeout = 60.0f;
+            }
+        }
+
 
         public void AddHeader(string key, string value)
         {
