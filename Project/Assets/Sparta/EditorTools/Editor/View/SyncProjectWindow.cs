@@ -215,7 +215,9 @@ namespace SpartaTools.Editor.View
                         else
                         {
                             var repository = new Repository(Sparta.Current.ProjectPath);
-                            repository.ResetToCommit(Sparta.Target.LastEntry.RepoInfo.Commit);
+                            var commit = Sparta.Target.LastEntry.RepoInfo.Commit;
+                            var result = repository.ResetToCommit(commit);
+                            EditorUtility.DisplayDialog("Reset to target commit", result, "Ok");
                         }
                     }
 
