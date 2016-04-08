@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.IO;
 using SpartaTools.Editor.SpartaProject;
+using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.View
 {
@@ -213,14 +214,17 @@ namespace SpartaTools.Editor.View
 
         void GUIMergeLog()
         {
-            _showMergeLog = EditorGUILayout.Foldout(_showMergeLog, "Merge Log");
+            _showMergeLog = EditorGUILayout.Foldout(_showMergeLog, new GUIContent("Merge Log", "Last 20 merges on current branch since last update"));
             if(_showMergeLog)
             {
                 if(string.IsNullOrEmpty(_mergeLogContent))
                 {
-                    Utils.NativeConsole.RunProcess("git", "log --merges master -n 10", Sparta.Current.ProjectPath, (type, output) => {
-                        _mergeLogContent = output;
-                    });
+                    var repository = new Repository(Sparta.Current.ProjectPath);
+                    _mergeLogContent = repository.CreateLogQuery()
+                        .Since(Sparta.Target.LastEntry.Time)
+                        .WithOption("merges")
+                        .WithLimit(20)
+                        .Exec();
                 }
 
                 GUILayout.BeginVertical(Styles.Group);
