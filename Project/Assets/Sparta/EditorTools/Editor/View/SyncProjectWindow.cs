@@ -24,8 +24,8 @@ namespace SpartaTools.Editor.View
         public static void CreateModule()
         {
             var path = EditorUtility.OpenFolderPanel("Select module root", 
-                Project.BasePath,
-                Module.DefinitionFileName);
+                           Project.BasePath,
+                           Module.DefinitionFileName);
 
             if(!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
@@ -92,6 +92,7 @@ namespace SpartaTools.Editor.View
         bool _refreshFinished;
 
         bool _editEnabled;
+
         bool EditEnabled
         {
             set
@@ -188,16 +189,38 @@ namespace SpartaTools.Editor.View
             if(GUILayout.Button(new GUIContent("Backport", "Copy back target project changes"), EditorStyles.toolbarButton))
             {
                 if(EditorUtility.DisplayDialog("Backport target changes", 
-                    "Override Sparta with target project changes?", 
-                    "Backport", 
-                    "Cancel"))
+                       "Override Sparta with target project changes?", 
+                       "Backport", 
+                       "Cancel"))
                 {
-                    if(Sparta.Target.LastEntry == null ||
-                        Sparta.Target.LastEntry.RepoInfo.Commit == Sparta.RepoInfo.Commit ||
-                        EditorUtility.DisplayDialog("Different commit", 
-                            "Target project was updated from a different library commit. Backport could be inconsistent.", 
-                            "Backport", 
-                            "Cancel"))
+                    bool doBackport = Sparta.Target.LastEntry == null ||
+                                      Sparta.Target.LastEntry.RepoInfo.Commit == Sparta.RepoInfo.Commit;
+
+                    // If is not a clean backport, ask for actions
+                    if(!doBackport)
+                    {
+                        if(EditorUtility.DisplayDialog("Different commit", 
+                               "Target project was updated from a different library commit. Do you want to checkout this commit? This will remove any change in the library working copy.",
+                               "Skip", 
+                               "Checkout"))
+                        {
+                            if(EditorUtility.DisplayDialog("Different commit", 
+                                   "Target project was updated from a different library commit. Backport could be inconsistent.", 
+                                   "Backport", 
+                                   "Cancel"))
+                            {
+                                doBackport = true;
+                            }
+                        }
+                        else
+                        {
+                            var repository = new Repository(Sparta.Current.ProjectPath);
+                            repository.ResetToCommit(Sparta.Target.LastEntry.RepoInfo.Commit);
+                        }
+                    }
+
+                    // Backport
+                    if(doBackport)
                     {
                         AsyncProcess.Start(progress => {
                             progress.Update("Fetching repository info", 0.1f);
@@ -212,15 +235,16 @@ namespace SpartaTools.Editor.View
                             RefreshModules();
                         }
                     }
+
                 }
             }
 
             if(GUILayout.Button(new GUIContent("Update", "Override selected modules in target project"), EditorStyles.toolbarButton))
             {
                 if(EditorUtility.DisplayDialog("Update target project", 
-                    "Override target project with Sparta code?", 
-                    "Override", 
-                    "Cancel"))
+                       "Override target project with Sparta code?", 
+                       "Override", 
+                       "Cancel"))
                 {
                     AsyncProcess.Start(progress => {
                         progress.Update("Fetching repository info", 0.1f);
