@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
@@ -39,36 +41,48 @@ namespace SocialPoint.Dependency
         }
     }
 
+    public struct BindingKey
+    {
+        public Type Type;
+        public string Tag;
+    }
+
     public class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>
     {
+        [SerializeField]
+        IInstaller[] _installers;
 
-        public Binding<T> Bind<T>()
+        List<IInstaller> _installedInstallers = new List<IInstaller>();
+
+        Dictionary<BindingKey, List<object>> _bindings = new Dictionary<BindingKey, List<object>>();
+
+        void AddBinding(object binding, Type type, string tag=null)
         {
-            return new Binding<T>(this);
+            List<object> list;
+            var key = new BindingKey{ type, tag };
+            if(!_bindings.TryGetValue(key, out list))
+            {
+                list = new List<object>();
+                _bindings[key] = list;
+            }
+            list.Add(binding);
         }
 
-        public Binding<T> Bind<T>(string tag)
+        public Binding<T> Bind<T>(string tag = null)
         {
-            return new Binding<T>(this);
+            var bind = new Binding<T>(this);
+            AddBinding(bind, typeof(T), tag);
+            return bind;
         }
 
-        public void BindInstance<T>(string tag, T instance)
+        public bool Remove<T>(string tag = null)
         {
+            return _bindings.Remove(new BindingKey{ typeof(T), tag });
         }
 
-        public Binding<T> Rebind<T>()
+        public bool HasBinding<T>(string tag = null)
         {
-            return new Binding<T>(this);
-        }
-
-        public Binding<T> Rebind<T>(string tag)
-        {
-            return new Binding<T>(this);
-        }
-
-        public bool HasBinding<T>()
-        {
-            return false;
+            return _bindings.ContainsKey(new BindingKey{ typeof(T), tag })
         }
 
         public bool HasInstalled<T>() where T : IInstaller
@@ -80,14 +94,15 @@ namespace SocialPoint.Dependency
         {
             installer.Container = this;
             installer.InstallBindings();
-        }
-
-        public void Install<T>() where T : IInstaller
-        {
-            Install(default(T));
+            _installedInstallers.Add(installer);
         }
 
         public T Resolve<T>()
+        {
+            return default(T);
+        }
+
+        public List<T> ResolveList<T>()
         {
             return default(T);
         }
@@ -105,6 +120,41 @@ namespace SocialPoint.Dependency
         public T TryResolve<T>(string tag, T def=default(T))
         {
             return default(T);
+        }
+
+        const string GlobalInstallersResource = "GlobalInstallers";
+
+        public void Start()
+        {
+            var globalConfig = Resources.Load<GlobalInstallerConfig>(GlobalInstallersResource);
+            for(var i = 0; i < globalConfig.Installers.Length; i++)
+            {
+                Install(globalConfig.Installers[i]);
+            }
+            for(var i = 0; i < _installers.Length; i++)
+            {
+                Install(_installers[i]);
+            }
+        }
+    }
+
+    public static class ServiceLocatorExtensions
+    {
+
+        public static void Install<T>(this ServiceLocator locator) where T : IInstaller
+        {
+            locator.Install(default(T));
+        }
+
+        public static Binding<T> Rebind<T>(this ServiceLocator locator, string tag=null)
+        {
+            locator.Remove<T>(tag);
+            return locator.Bind<T>(tag);
+        }
+
+        public static void BindInstance<T>(this ServiceLocator locator, string tag, T instance)
+        {
+            locator.Bind<T>(tag).ToSingleInstance(instance);
         }
     }
 }

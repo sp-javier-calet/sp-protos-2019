@@ -36,7 +36,7 @@ public class GameInstaller : MonoInstaller
         Container.Rebind<IParser<PlayerModel>>().ToSingle<PlayerParser>();
         Container.Rebind<ISerializer<PlayerModel>>().ToSingle<PlayerParser>();
 
-        Container.Rebind<GameModel>().ToSingleMethod<GameModel>(CreateGameModel);
+        Container.Rebind<GameModel>().ToSingle<GameModel>();
         Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
         Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
 
@@ -51,21 +51,4 @@ public class GameInstaller : MonoInstaller
 
         Container.Install<EconomyInstaller>();
     }
-
-    void OnGameModelMoved(GameModel game)
-    {
-        /*
-        Container.Inject(game.Player);
-        Container.Inject(game.Config);
-        Container.Inject(game.Config.Store);
-        */
-    }
-
-    GameModel CreateGameModel()
-    {
-        var model = new GameModel();
-        model.Moved += OnGameModelMoved;
-        return model;
-    }
-
 }

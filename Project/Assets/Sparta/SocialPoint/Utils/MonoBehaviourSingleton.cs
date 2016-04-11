@@ -153,8 +153,7 @@ namespace SocialPoint.Utils
                 DontDestroyOnLoad(_instance.gameObject);
 
             }
-            else
-            if(thisInstance != _instance)
+            else if(thisInstance != _instance)
             {
                 PrintWarn(string.Format(
                     "Found a duplicated instance of a Singleton with type {0} in the GameObject {1} that will be ignored",
@@ -221,9 +220,9 @@ namespace SocialPoint.Utils
 
         [Header("Debug")]
         /// <summary>
-    ///  Set this to true either by code or in the inspector to print trace log messages
-    /// </summary>
-    public bool PrintTrace = false;
+        ///  Set this to true either by code or in the inspector to print trace log messages
+        /// </summary>
+        public bool PrintTrace = false;
 
         protected void PrintLog(string str, params object[] args)
         {
