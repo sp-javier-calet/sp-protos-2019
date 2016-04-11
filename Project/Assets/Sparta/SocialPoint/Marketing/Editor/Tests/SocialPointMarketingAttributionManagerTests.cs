@@ -107,6 +107,9 @@ namespace SocialPoint.Marketing
         }
 
         [Test]
+        #if !DEBUG
+        [Ignore("Only on Debug Mode")]
+        #endif
         public void DebugMode_set_to_trackers()
         {
             manager.DebugMode = true;

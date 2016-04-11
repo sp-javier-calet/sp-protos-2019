@@ -71,7 +71,9 @@ namespace SocialPoint.Marketing
             for(var i = 0; i < _trackers.Count; i++)
             {
                 var tracker = _trackers[i];
+                #if DEBUG
                 tracker.SetDebugMode(DebugMode);
+                #endif
                 tracker.SetUserID(handler());
 
                 tracker.TrackInstall(isNewInstall);
@@ -87,7 +89,6 @@ namespace SocialPoint.Marketing
 
         public void OnTrackerReceivedData(TrackerAttributionData data)
         {
-            DebugUtils.Log(data.data);
             if(DebugMode)
             {
                 var handler = TrackEvent;
