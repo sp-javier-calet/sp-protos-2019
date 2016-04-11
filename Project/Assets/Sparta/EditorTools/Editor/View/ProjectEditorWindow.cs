@@ -214,7 +214,7 @@ namespace SpartaTools.Editor.View
 
         void GUIMergeLog()
         {
-            _showMergeLog = EditorGUILayout.Foldout(_showMergeLog, new GUIContent("Merge Log", "Last 20 merges on current branch since last update"));
+            _showMergeLog = EditorGUILayout.Foldout(_showMergeLog, new GUIContent("Merge Log", "Last 20 merges on master branch since last update"));
             if(_showMergeLog)
             {
                 if(string.IsNullOrEmpty(_mergeLogContent))
@@ -222,7 +222,7 @@ namespace SpartaTools.Editor.View
                     var repository = new Repository(Sparta.Current.ProjectPath);
                     _mergeLogContent = repository.CreateLogQuery()
                         .Since(Sparta.Target.LastEntry.Time)
-                        .WithOption("merges")
+                        .WithOption("merges", "master")
                         .WithLimit(20)
                         .Exec();
                 }
