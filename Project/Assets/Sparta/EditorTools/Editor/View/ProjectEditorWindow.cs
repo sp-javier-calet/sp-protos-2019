@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.IO;
 using SpartaTools.Editor.SpartaProject;
+using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.View
 {
@@ -10,16 +11,35 @@ namespace SpartaTools.Editor.View
         Vector2 _scrollPosition;
         string _inputPath;
         string _fileContent;
+        string _mergeLogContent;
         bool _showRawFile;
         bool _showLog;
+        bool _showMergeLog;
+
         bool _editEnabled;
+        bool EditEnabled
+        {
+            set
+            {
+                bool changed = _editEnabled != value;
+                _editEnabled = value;
+                if(changed)
+                {
+                    RefreshIcon();
+                }
+            }
+            get
+            {
+                return _editEnabled;
+            }
+        }
 
         #region Editor options
 
-        [MenuItem("Sparta/Sync/Project Info", false, 0)]
+        [MenuItem("Sparta/Project/Project Info", false, 0)]
         public static void ShowWindow()
         {
-            EditorWindow.GetWindow(typeof(ProjectEditorWindow), false, "Sparta Project", true);
+            EditorWindow.GetWindow(typeof(ProjectEditorWindow), false, "Project", true);
         }
 
         #endregion
@@ -41,13 +61,29 @@ namespace SpartaTools.Editor.View
             Repaint();
         }
 
+        void ClearContent()
+        {
+            _fileContent = null;
+            _mergeLogContent = null;
+        }
+
         #region Draw GUI
+
+        void OnFocus()
+        {
+            RefreshIcon();
+        }
+
+        void RefreshIcon()
+        {
+            Sparta.SetIcon(this, "Project", "Sparta Target project editor", EditEnabled);
+        }
 
         void GUIToolbar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.FlexibleSpace();
-            _editEnabled = GUILayout.Toggle(_editEnabled, new GUIContent("Advanced Mode", "Enables edition mode for module files"), EditorStyles.toolbarButton);
+            EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for module files"), EditorStyles.toolbarButton);
             GUILayout.EndHorizontal();
         }
 
@@ -63,8 +99,9 @@ namespace SpartaTools.Editor.View
             if(Sparta.Target.Valid)
             {
                 GUIProjectLog();
+                GUIMergeLog();
 
-                if(_editEnabled)
+                if(EditEnabled)
                 {
                     GUIFileEditor();
                 }
@@ -90,12 +127,19 @@ namespace SpartaTools.Editor.View
                 path = EditorUtility.OpenFolderPanel("Select Target Project", 
                     Sparta.Target.ProjectPath,
                     Sparta.Target.ProjectPath);
+
+                // Check for cancelled popup
+                if(string.IsNullOrEmpty(path))
+                {
+                    path = _inputPath;
+                }
             }
 
             if(GUILayout.Button("Refresh", GUILayout.MaxWidth(60)) ||
                path != Sparta.Target.ProjectPath)
             {
                 Sparta.Target = new Project(path);
+                ClearContent();
             }
 
             EditorGUILayout.EndHorizontal();
@@ -157,11 +201,34 @@ namespace SpartaTools.Editor.View
             if(_showLog)
             {
                 GUILayout.BeginVertical(Styles.Group);
+                GUILayout.BeginVertical(EditorStyles.textArea);
                 foreach(var entry in Sparta.Target.Log)
                 {
                     EditorGUILayout.SelectableLabel(string.Format("{0} - Updated by {1} on {2} - Local branch: {3}", 
                         entry.RepoInfo.Commit, entry.RepoInfo.User, entry.Time, entry.RepoInfo.Branch));
                 }
+                GUILayout.EndVertical();
+                GUILayout.EndVertical();
+            }
+        }
+
+        void GUIMergeLog()
+        {
+            _showMergeLog = EditorGUILayout.Foldout(_showMergeLog, new GUIContent("Merge Log", "Last 20 merges on master branch since last update"));
+            if(_showMergeLog)
+            {
+                if(string.IsNullOrEmpty(_mergeLogContent))
+                {
+                    var repository = new Repository(Sparta.Current.ProjectPath);
+                    _mergeLogContent = repository.CreateLogQuery()
+                        .Since(Sparta.Target.LastEntry.Time)
+                        .WithOption("merges", "master")
+                        .WithLimit(20)
+                        .Exec();
+                }
+
+                GUILayout.BeginVertical(Styles.Group);
+                GUILayout.TextArea(_mergeLogContent);
                 GUILayout.EndVertical();
             }
         }
