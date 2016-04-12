@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 [RequireComponent(typeof(Canvas))]
 public class HUDNotificationsController : MonoBehaviour
@@ -54,16 +53,16 @@ public class HUDNotificationsController : MonoBehaviour
 
     void RepositionNotification(HUDNotification notification, int index)
     {
-        float progress = (float)index / (float)_maxConcurrentNotifications;
+        float progress = _maxConcurrentNotifications > 1 ? ((float)index / (float)(_maxConcurrentNotifications - 1)) : 0.5f;
         notification.transform.position = Vector3.Lerp(_firstNotificationTransform.position, _lastNotificationTransform.position, progress);
     }
 
     void RepositionActiveNotifications()
     {
         int index = _notificationIndex + _maxConcurrentNotifications;
-        for(int i = 1; i <= _activeNotifications; ++i)
+        for(int i = 0; i < _activeNotifications; ++i)
         {
-            RepositionNotification(_notifications[(index - i) % _maxConcurrentNotifications], i);
+            RepositionNotification(_notifications[(index - i - 1) % _maxConcurrentNotifications], i);
         }
     }
 
