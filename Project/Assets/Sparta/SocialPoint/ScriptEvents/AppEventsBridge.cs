@@ -1,6 +1,7 @@
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using System;
+using System.Collections;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -10,6 +11,11 @@ namespace SocialPoint.ScriptEvents
     }
 
     public struct AppGameWasLoadedEvent
+    {
+        public int Priority;
+    }
+
+    public struct AppAfterGameWasLoadedEvent
     {
         public int Priority;
     }
@@ -130,6 +136,7 @@ namespace SocialPoint.ScriptEvents
             _appEvents = appEvents;
             _appEvents.WillGoBackground.Add(OnWillGoBackground);
             _appEvents.GameWasLoaded.Add(OnGameWasLoaded);
+            _appEvents.AfterGameWasLoaded.Add(AfterGameWasLoaded);
             _appEvents.GameWillRestart.Add(OnGameWillRestart);
             _appEvents.WasOnBackground += OnWasOnBackground;
             _appEvents.WasCovered += OnWasCovered;
@@ -166,6 +173,7 @@ namespace SocialPoint.ScriptEvents
         {
             _appEvents.WillGoBackground.Remove(OnWillGoBackground);
             _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
+            _appEvents.AfterGameWasLoaded.Remove(AfterGameWasLoaded);
             _appEvents.GameWillRestart.Remove(OnGameWillRestart);
             _appEvents.WasOnBackground -= OnWasOnBackground;
             _appEvents.WasCovered -= OnWasCovered;
@@ -195,6 +203,18 @@ namespace SocialPoint.ScriptEvents
             _dispatcher.Raise(new AppGameWasLoadedEvent{
                 Priority = priority
             });
+        }
+
+        IEnumerator AfterGameWasLoaded(int priority)
+        {
+            if(_dispatcher == null)
+            {
+                yield break;
+            }
+            _dispatcher.Raise(new AppAfterGameWasLoadedEvent{
+                Priority = priority
+            });
+            yield break;
         }
 
         void OnGameWillRestart(int priority)

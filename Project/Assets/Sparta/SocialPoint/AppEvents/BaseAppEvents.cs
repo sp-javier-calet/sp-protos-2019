@@ -12,7 +12,7 @@ namespace SocialPoint.AppEvents
     {
         public PriorityAction GameWasLoaded { get; private set; }
 
-        public PriorityCoroutineAction AfterGameWasLoaded{ get; }
+        public PriorityCoroutineAction AfterGameWasLoaded{ get; private set;}
 
         public PriorityAction GameWillRestart { get; private set; }
 
