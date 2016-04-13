@@ -177,7 +177,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                if(To == null || To.Count == 0)
+                if(To.Count == 0)
                 {
                     return null;
                 }
@@ -231,14 +231,20 @@ namespace SocialPoint.Social
             return StringTo;
         }
 
-        public bool AddTo(string id)
+        public bool AddTo(string ids)
         {
-            if(!string.IsNullOrEmpty(id) && !To.Contains(id) && To != null)
+            var idsArr = ids.Split(ToSeparator);
+            var changed = false;
+            for(var i = 0; i < idsArr.Length; i++)
             {
-                To.Add(id);
-                return true;
+                var id = idsArr[i];
+                if(!string.IsNullOrEmpty(id) && !To.Contains(id))
+                {
+                    To.Add(id);
+                    changed = true;
+                }
             }
-            return false;
+            return changed;
         }
 
         public string ResultUrl
@@ -274,13 +280,21 @@ namespace SocialPoint.Social
 
 
                 // Facebook returns recipients in 2 forms, so we need to be prepared for both:
-                // 1. Recipients contained under "to" key
+                // 1. Recipients contained under "to" key, may be a list or a string separated by commas
                 if(value.ContainsKey(RequestToParam))
                 {
-                    var recipients = value.Get(RequestToParam).AsList;
-                    for(var i = 0; i < recipients.Count; i++)
+                    var recipients = value.Get(RequestToParam);
+                    if(recipients.AttrType == AttrType.LIST)
                     {
-                        AddTo(recipients[i].AsValue.ToString());
+                        var recList = recipients.AsList;
+                        for(var i = 0; i < recList.Count; i++)
+                        {
+                            AddTo(recList[i].AsValue.ToString());
+                        }
+                    }
+                    else if(recipients.AttrType == AttrType.VALUE)
+                    {
+                        AddTo(recipients.ToString());
                     }
                 }
 
@@ -312,8 +326,8 @@ namespace SocialPoint.Social
 
         public override string ToString()
         {
-            return string.Format("[FacebookAppRequest: RequestId={0}, Cancelled={1}, To={2}, Message={3}, Title={4}, ResultParams={5}, FrictionLess={6}, ActionType={7}, ObjectId={8}, ExcludeIds={9}, Filter={10}]",
-                RequestId, RequestCancelled, StringTo, Message, Title, ResultParams, FrictionLess, ActionType, ObjectId, ExcludeIds, Filter);
+            return string.Format("[FacebookAppRequest: RequestId={0}, Cancelled={1}, To={2} ({3}), Message={4}, Title={5}, ResultParams={6}, FrictionLess={7}, ActionType={8}, ObjectId={9}, ExcludeIds={10}, Filter={11}]",
+                RequestId, RequestCancelled, StringTo, To.Count, Message, Title, ResultParams, FrictionLess, ActionType, ObjectId, ExcludeIds, Filter);
         }
     }
 
