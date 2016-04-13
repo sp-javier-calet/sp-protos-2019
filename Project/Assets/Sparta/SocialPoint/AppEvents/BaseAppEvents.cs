@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -7,9 +8,11 @@ namespace SocialPoint.AppEvents
     /// <summary>
     /// Manage interface events and provides a common base implementation for all platform-dependent classes
     /// </summary>
-    public abstract class BaseAppEvents : MonoBehaviour, IAppEvents
+    public abstract class BaseAppEvents : MonoBehaviour, IAppEvents, ICoroutineRunner
     {
         public PriorityAction GameWasLoaded { get; private set; }
+
+        public PriorityCoroutineAction AfterGameWasLoaded{ get; }
 
         public PriorityAction GameWillRestart { get; private set; }
 
@@ -18,6 +21,7 @@ namespace SocialPoint.AppEvents
         protected BaseAppEvents()
         {
             GameWasLoaded = new PriorityAction();
+            AfterGameWasLoaded = new PriorityCoroutineAction(this);
             GameWillRestart = new PriorityAction();
             WillGoBackground = new PriorityAction();
         }
@@ -25,6 +29,7 @@ namespace SocialPoint.AppEvents
         public void Dispose()
         {
             GameWasLoaded.Clear();
+            AfterGameWasLoaded.Clear();
             GameWillRestart.Clear();
             WillGoBackground.Clear();
             WasOnBackground = null;
@@ -41,6 +46,7 @@ namespace SocialPoint.AppEvents
         protected void OnGameWasLoaded()
         {
             GameWasLoaded.Run();
+            AfterGameWasLoaded.Run();
         }
 
         public void TriggerGameWillRestart()
@@ -48,7 +54,7 @@ namespace SocialPoint.AppEvents
             OnGameWillRestart();
         }
 
-        protected  void OnGameWillRestart()
+        protected void OnGameWillRestart()
         {
             GameWillRestart.Run();
         }
@@ -141,5 +147,13 @@ namespace SocialPoint.AppEvents
             }
         }
 
+        IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
+        {
+            if(enumerator != null)
+            {
+                StartCoroutine(enumerator);
+            }
+            return enumerator;
+        }
     }
 }
