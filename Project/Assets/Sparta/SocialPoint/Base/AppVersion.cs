@@ -26,7 +26,7 @@ namespace SocialPoint.Base
         static readonly int[] _parseComponentsTmp = new int[4];
 
         /// <summary>
-        ///     Shardd instance representing a version Zero. Use it to check the format of a parsed version string.
+        ///     Shared instance representing a version Zero. Use it to check the format of a parsed version string.
         /// </summary>
         public static readonly AppVersion Zero = new AppVersion(0, 0);
 
