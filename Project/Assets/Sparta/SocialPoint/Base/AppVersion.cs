@@ -337,52 +337,28 @@ namespace SocialPoint.Base
 
             for(var idx=0; idx < versionStr.Length && !hasError; ++idx)
             {
-                switch (versionStr[idx])
-                {
-                    case '.':
-                        _parseComponentsTmp[currentComponentIdx] = currentValue;
-                        currentComponentIdx += 1;
-                        currentValue = 0;
-                        // A version string can't have more than 4 components
-                        if (currentComponentIdx > 3)
-                        {
-                            hasError = true;
-                        }
-                        break;
-                    case '0':
-                        currentValue = 0 + (currentValue * 10);
-                        break;
-                    case '1':
-                        currentValue = 1 + (currentValue * 10);
-                        break;
-                    case '2':
-                        currentValue = 2 + (currentValue * 10);
-                        break;
-                    case '3':
-                        currentValue = 3 + (currentValue * 10);
-                        break;
-                    case '4':
-                        currentValue = 4 + (currentValue * 10);
-                        break;
-                    case '5':
-                        currentValue = 5 + (currentValue * 10);
-                        break;
-                    case '6':
-                        currentValue = 6 + (currentValue * 10);
-                        break;
-                    case '7':
-                        currentValue = 7 + (currentValue * 10);
-                        break;
-                    case '8':
-                        currentValue = 8 + (currentValue * 10);
-                        break;
-                    case '9':
-                        currentValue = 9 + (currentValue * 10);
-                        break;
 
-                    default:
+                char c = versionStr[idx];
+
+
+                if (c == '.')
+                {
+                    _parseComponentsTmp[currentComponentIdx] = currentValue;
+                    currentComponentIdx += 1;
+                    currentValue = 0;
+                    // A version string can't have more than 4 components
+                    if (currentComponentIdx > 3)
+                    {
                         hasError = true;
-                        break;
+                    }
+                }
+                else if (c >= '0' && c <= '9')
+                {
+                    currentValue = (c - '0') + (currentValue * 10);
+                }
+                else
+                {
+                    hasError = true;
                 }
             }
 
