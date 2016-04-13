@@ -16,18 +16,22 @@ namespace SocialPoint.Base
     /// </remarks>
     public sealed class AppVersion
     {
-        // Needed for the Split() method when parsing string containing version numbers
-        static readonly char[] SeparatorsArray = new []{ '.' };
-
         // Used in the ToString method to avoid string allocations
         static System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
 
         // Temp used when comparing with strings to avoid creating a new AppVersion object
         static internal AppVersion _tempAppVersion = new AppVersion(0, 0);
 
-        // static version representing version Zero. Use it to check the format of a parsed
-        // version string.
+        // Temp array used to hold the components of a string containing a version
+        static readonly int[] _parseComponentsTmp = new int[4];
+
+        /// <summary>
+        ///     Shardd instance representing a version Zero. Use it to check the format of a parsed version string.
+        /// </summary>
         public static readonly AppVersion Zero = new AppVersion(0, 0);
+
+        // Saves the version in string format
+        string _versionStr;
 
         public int Major { get; private set; }
 
@@ -43,7 +47,7 @@ namespace SocialPoint.Base
         /// </summary>
         public AppVersion(string versionStr)
         {
-            this.InitVersionFromString(versionStr);
+            InitVersionFromString(versionStr);
         }
 
         /// <summary>
@@ -52,7 +56,10 @@ namespace SocialPoint.Base
         /// </summary>
         public AppVersion(int major, int minor, int revision = 0, int build = 0)
         {
-            InitVersionWithNumbers(major, minor, revision, build);
+            if (AppVersion.Zero != InitVersionWithNumbers(major, minor, revision, build))
+            {
+                _versionStr = CreateVersionString(major, minor, revision, build);
+            }
         }
 
         /// <summary>
@@ -151,29 +158,36 @@ namespace SocialPoint.Base
                 return 1;
 
             if(Major != value.Major)
-            if(Major > value.Major)
-                return 1;
-            else
-                return -1;
+            {
+                if(Major > value.Major)
+                    return 1;
+                else
+                    return -1;
+            }
 
             if(Minor != value.Minor)
-            if(Minor > value.Minor)
-                return 1;
-            else
-                return -1;
+            {
+                if(Minor > value.Minor)
+                    return 1;
+                else
+                    return -1;
+            }
 
             if(Revision != value.Revision)
-            if(Revision > value.Revision)
-                return 1;
-            else
-                return -1;
+            {
+                if(Revision > value.Revision)
+                    return 1;
+                else
+                    return -1;
+            }
 
             if(Build != value.Build)
-            if(Build > value.Build)
-                return 1;
-            else
-                return -1;
-
+            {
+                if(Build > value.Build)
+                    return 1;
+                else
+                    return -1;
+            }
             return 0;
         }
 
@@ -202,10 +216,10 @@ namespace SocialPoint.Base
             if(obj == null)
                 return false;
 
-            if((Major != obj.Major) ||
-                (Minor != obj.Minor) ||
-                (Revision != obj.Revision) ||
-                (Build != obj.Build))
+            if( (Major != obj.Major)
+             || (Minor != obj.Minor)
+             || (Revision != obj.Revision)
+             || (Build != obj.Build))
             {
                 return false;
             }
@@ -231,17 +245,22 @@ namespace SocialPoint.Base
 
         public override string ToString()
         {
-            _stringBuilder.Length = 0;
-            _stringBuilder.Append(Major).Append(".").Append(Minor);
+            return _versionStr;
+        }
 
-            if(Revision > 0)
+        static string CreateVersionString(int major, int minor, int revision, int build)
+        {
+            _stringBuilder.Length = 0;
+            _stringBuilder.Append(major).Append(".").Append(minor);
+
+            if(revision > 0)
             {
-                _stringBuilder.Append(".").Append(Revision);
+                _stringBuilder.Append(".").Append(revision);
             }
 
-            if(Build > 0)
+            if(build > 0)
             {
-                _stringBuilder.Append(".").Append(Build);
+                _stringBuilder.Append(".").Append(build);
             }
 
             return _stringBuilder.ToString();
@@ -268,65 +287,29 @@ namespace SocialPoint.Base
 
         internal AppVersion InitVersionFromString(string versionStr)
         {
-            int major, minor, revision = 0, build = 0;
+            int major = 0, minor = 0, revision = 0, build = 0;
 
-            if((Object)versionStr == null)
+            if((object)versionStr == null)
             {
                 InitZeroVersion();
             }
 
-            String[] parsedComponents = versionStr.Split(SeparatorsArray);
-            int parsedComponentsLength = parsedComponents.Length;
-            if((parsedComponentsLength < 2) || (parsedComponentsLength > 4))
+            if (ParseVersionString(versionStr, out major, out minor, out revision, out build))
             {
-                return InitZeroVersion();
-            }
-
-            if(!TryParseVersionNumber(parsedComponents[0], out major))
-            {
-                return InitZeroVersion();
-            }
-
-            if(!TryParseVersionNumber(parsedComponents[1], out minor))
-            {
-                return InitZeroVersion();
-            }
-
-            parsedComponentsLength -= 2;
-
-            if(parsedComponentsLength > 0)
-            {
-                if(!TryParseVersionNumber(parsedComponents[2], out revision))
-                {
-                    return InitZeroVersion();
-                }
-
-                parsedComponentsLength--;
-
-                if(parsedComponentsLength > 0)
-                {
-                    if(!TryParseVersionNumber(parsedComponents[3], out build))
-                    {
-                        return InitZeroVersion();
-                    }
-                    else
-                    {
-                        return InitVersionWithNumbers(major, minor, revision, build);
-                    }
-                }
-                else
-                {
-                    return InitVersionWithNumbers(major, minor, revision, build);
-                }
+                _versionStr = versionStr;
+                return InitVersionWithNumbers(major, minor, revision, build);
             }
             else
             {
-                return InitVersionWithNumbers(major, minor, revision, build);
+                _versionStr = AppVersion.Zero.ToString();
+                return AppVersion.Zero;
             }
         }
 
         internal AppVersion InitZeroVersion()
         {
+            _versionStr = AppVersion.Zero.ToString();
+
             return InitVersionWithNumbers(
                 AppVersion.Zero.Major,
                 AppVersion.Zero.Minor,
@@ -339,17 +322,89 @@ namespace SocialPoint.Base
 
         #region Helpers
 
-        static bool TryParseVersionNumber(string component, out int parsedComponent)
+        // Parse an string containing a version specified with a format of Major.minor.Revision.Build)
+        static bool ParseVersionString(string versionStr, out int major, out int minor, out int revision, out int build)
         {
-            if(!Int32.TryParse(component, out parsedComponent))
+            _parseComponentsTmp[0] = 0;
+            _parseComponentsTmp[1] = 0;
+            _parseComponentsTmp[2] = 0;
+            _parseComponentsTmp[3] = 0;
+
+            bool hasError = false;
+
+            int currentComponentIdx = 0;
+            int currentValue = 0;
+
+            for(var idx=0; idx < versionStr.Length && !hasError; ++idx)
             {
+                switch (versionStr[idx])
+                {
+                    case '.':
+                        _parseComponentsTmp[currentComponentIdx] = currentValue;
+                        currentComponentIdx += 1;
+                        currentValue = 0;
+                        // A version string can't have more than 4 components
+                        if (currentComponentIdx > 3)
+                        {
+                            hasError = true;
+                        }
+                        break;
+                    case '0':
+                        currentValue = 0 + (currentValue * 10);
+                        break;
+                    case '1':
+                        currentValue = 1 + (currentValue * 10);
+                        break;
+                    case '2':
+                        currentValue = 2 + (currentValue * 10);
+                        break;
+                    case '3':
+                        currentValue = 3 + (currentValue * 10);
+                        break;
+                    case '4':
+                        currentValue = 4 + (currentValue * 10);
+                        break;
+                    case '5':
+                        currentValue = 5 + (currentValue * 10);
+                        break;
+                    case '6':
+                        currentValue = 6 + (currentValue * 10);
+                        break;
+                    case '7':
+                        currentValue = 7 + (currentValue * 10);
+                        break;
+                    case '8':
+                        currentValue = 8 + (currentValue * 10);
+                        break;
+                    case '9':
+                        currentValue = 9 + (currentValue * 10);
+                        break;
+
+                    default:
+                        hasError = true;
+                        break;
+                }
+            }
+
+            // A version string needs at least 2 components
+            if(currentComponentIdx <= 0)
+            {
+                hasError = true;
+            }
+
+            if (hasError)
+            {
+                major = minor = revision = build = 0;
                 return false;
             }
 
-            if(parsedComponent < 0)
-            {
-                return false;
-            }
+            // Save the last component
+            _parseComponentsTmp[currentComponentIdx] = currentValue;
+
+            major       = _parseComponentsTmp[0];
+            minor       = _parseComponentsTmp[1];
+            revision    = _parseComponentsTmp[2];
+            build       = _parseComponentsTmp[3];
 
             return true;
         }

@@ -33,6 +33,8 @@ namespace SocialPoint.Base
 
             Assert.That(new AppVersion(10, 0, 0) == new AppVersion(10, 0));
             Assert.That(new AppVersion(10, 0, 0) == "10.0");
+
+            Assert.That(AppVersion.Zero.ToString() == "0.0");
         }
 
         [Test]
@@ -42,12 +44,15 @@ namespace SocialPoint.Base
 
             version = new AppVersion(2, 1);
 
+            Assert.That(version.ToString() == "2.1");
+
             Assert.That(version.Major, Is.EqualTo(2));
             Assert.That(version.Minor, Is.EqualTo(1));
             Assert.That(version.Revision, Is.EqualTo(0));
             Assert.That(version.Build, Is.EqualTo(0));
 
             version = new AppVersion(1, 20, 5);
+            Assert.That(version.ToString() == "1.20.5");
 
             Assert.That(version.Major, Is.EqualTo(1));
             Assert.That(version.Minor, Is.EqualTo(20));
@@ -56,6 +61,8 @@ namespace SocialPoint.Base
 
 
             version = new AppVersion(4, 234, 5120, 123);
+
+            Assert.That(version.ToString() == "4.234.5120.123");
 
             Assert.That(version.Major, Is.EqualTo(4));
             Assert.That(version.Minor, Is.EqualTo(234));
@@ -70,6 +77,8 @@ namespace SocialPoint.Base
 
             version = new AppVersion("20.5.56.1234");
 
+            Assert.That(version.ToString() == "20.5.56.1234");
+
             Assert.That(version.Major, Is.EqualTo(20));
             Assert.That(version.Minor, Is.EqualTo(5));
             Assert.That(version.Revision, Is.EqualTo(56));
@@ -77,6 +86,7 @@ namespace SocialPoint.Base
 
 
             version = new AppVersion("1.2");
+            Assert.That(version.ToString() == "1.2");
 
             Assert.That(version.Major, Is.EqualTo(1));
             Assert.That(version.Minor, Is.EqualTo(2));
@@ -89,12 +99,15 @@ namespace SocialPoint.Base
         {
             var version = new AppVersion(2, 6);
 
+            Assert.That(version.ToString() == "2.6");
+
             Assert.That(version.Major, Is.EqualTo(2));
             Assert.That(version.Minor, Is.EqualTo(6));
             Assert.That(version.Revision, Is.EqualTo(0));
             Assert.That(version.Build, Is.EqualTo(0));
 
             version.Parse("3.4.6");
+            Assert.That(version.ToString() == "3.4.6");
 
             Assert.That(version.Major, Is.EqualTo(3));
             Assert.That(version.Minor, Is.EqualTo(4));
@@ -112,11 +125,19 @@ namespace SocialPoint.Base
         [Test]
         public void check_create_safe_version()
         {
-            Assert.That(new AppVersion("343.33...3434"), Is.EqualTo(AppVersion.Zero));
-            Assert.That(new AppVersion("1.2.3.4.5"), Is.EqualTo(AppVersion.Zero));
-            Assert.That(new AppVersion("-1.2.3"), Is.EqualTo(AppVersion.Zero));
+            foreach (var versionStr in new [] {
+                                        "343.33...3434",
+                                        "1.2.3.4.5",
+                                        "-1.2.3"
+                                    })
+            {
+                var version = new AppVersion(versionStr);
+                Assert.That(version, Is.EqualTo(AppVersion.Zero), versionStr);
+                Assert.That(version.ToString(), Is.EqualTo(AppVersion.Zero.ToString()), versionStr);
+            }
 
             Assert.That(new AppVersion(-1, 0), Is.EqualTo(AppVersion.Zero));
+            Assert.That(new AppVersion(-1, 0).ToString(), Is.EqualTo(AppVersion.Zero.ToString()));
         }
 
         [Test]
