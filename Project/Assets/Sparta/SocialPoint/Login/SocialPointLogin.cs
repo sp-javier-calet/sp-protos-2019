@@ -747,7 +747,9 @@ namespace SocialPoint.Login
                 loginData.SetValue(AttrKeyHttpConnectionDuration, resp.ConnectionDuration);
                 loginData.SetValue(AttrKeyHttpDownloadSize, resp.DownloadSize / 1024.0);
                 loginData.SetValue(AttrKeyHttpDownloadSpeed, resp.DownloadSpeed / 1024.0);
-                TrackEvent(EventNameLogin, loginData);
+                var loginEvent = new AttrDic();
+                loginEvent.Set(AttrKeyEventLogin, loginData);
+                TrackEvent(EventNameLogin, loginEvent);
             }
 
             OnLoginEnd(err, cbk);
