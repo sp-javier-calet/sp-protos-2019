@@ -53,7 +53,7 @@ namespace SocialPoint.Utils
                     }
                     if(action != null)
                     {
-                        _runner.StartCoroutine(RunCorroutine(action, runData));
+                        _runner.StartCoroutine(RunCoroutine(action, runData));
                     }
                 }
                 while(!runData.Ended)
@@ -61,7 +61,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        IEnumerator RunCorroutine(Func<IEnumerator> corroutine, RunData data)
+        IEnumerator RunCoroutine(Func<IEnumerator> corroutine, RunData data)
         {
             data.AddCoroutine();
             yield return corroutine();
