@@ -3,10 +3,6 @@ using System.Collections;
 
 namespace SocialPoint.GUIControl
 {
-    /// <summary>
-    /// The base class for cells in a TableView. ITableViewDataSource returns pointers
-    /// to these objects
-    /// </summary>
     public abstract class UITableBaseCellController<T> : MonoBehaviour
     {
         /// <summary>

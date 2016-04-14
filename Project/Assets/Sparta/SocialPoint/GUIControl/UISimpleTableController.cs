@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIControl
 {
-    //An example implementation of a class that communicates with a TableView
     public abstract class UISimpleTableController<T, R> : UITableBaseController<R> where T : UITableBaseCellController<R>
     {
         [SerializeField]
