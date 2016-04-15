@@ -9,12 +9,20 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         T _cellPrefab;
 
+        Vector2 _elementSize;
+
         List<R> _cellsData;
 
         private int _numInstancesCreated = 0;
 
         public void UpdateTableData(List<R> cellsData)
         {
+            if(_cellPrefab != null)
+            {
+                Rect rect = (_cellPrefab.transform as RectTransform).rect;
+                _elementSize = new Vector2(rect.width, rect.height);
+            }
+
             _cellsData = cellsData;
             ScrollPosition = 0.0f;
             ReloadData();
@@ -35,6 +43,8 @@ namespace SocialPoint.GUIControl
                     visibleTableCells.Add((T)visibleCells.Current.Value);
                 }
 
+                visibleCells.Dispose();
+
                 return visibleTableCells.GetEnumerator();
             }
         }
@@ -46,7 +56,7 @@ namespace SocialPoint.GUIControl
 
         public override Vector2 GetSizeForElement(UITableBaseController<R> tableView, int index)
         {
-            return new Vector2((_cellPrefab.transform as RectTransform).rect.width, (_cellPrefab.transform as RectTransform).rect.height);
+            return _elementSize;
         }
 
         public override UITableBaseCellController<R> GetCellForIndexInTableView(UITableBaseController<R> tableView, int index)

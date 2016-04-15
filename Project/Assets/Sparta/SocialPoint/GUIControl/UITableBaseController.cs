@@ -71,7 +71,7 @@ namespace SocialPoint.GUIControl
             return cell;
         }
 
-        public bool isEmpty { get; private set; }
+        public bool IsEmpty { get; private set; }
 
         /// <summary>
         /// Reload the table view. Manually call this if the data source changed in a way that alters the basic layout
@@ -81,9 +81,9 @@ namespace SocialPoint.GUIControl
         {
             Profiler.BeginSample("UITableBaseController.ReloadData for dataSource:" + GetType().Name, this);
             _elementSizes = new float[GetNumberOfElementsForTableView(this)];
-            this.isEmpty = _elementSizes.Length == 0;
+            this.IsEmpty = _elementSizes.Length == 0;
             ClearAllElements();
-            if(this.isEmpty)
+            if(this.IsEmpty)
             {
                 return;
             }
@@ -92,11 +92,14 @@ namespace SocialPoint.GUIControl
 
             for(int i = 0; i < _elementSizes.Length; i++)
             {
-                _elementSizes[i] = GetSizeForElementInTableView(this, i);
+                float elementSize = GetSizeForElementInTableView(this, i);
+
                 if(i > 0)
                 {
-                    _elementSizes[i] += Spacing;
+                    elementSize += Spacing;
                 }
+
+                _elementSizes[i] = elementSize;
             }
 
             if(IsVertical)
@@ -172,22 +175,25 @@ namespace SocialPoint.GUIControl
             }
             _cleanCumulativeIndex = Mathf.Min(_cleanCumulativeIndex, index - 1);
             UITableBaseCellController<T> cell = GetCellAtIndex(index);
+
+            LayoutElement element = cell.GetComponent<LayoutElement>();
+
             if(cell != null)
             {
                 if(IsVertical)
                 {
-                    cell.GetComponent<LayoutElement>().preferredHeight = _elementSizes[index];
+                    element.preferredHeight = _elementSizes[index];
                     if(index > 0)
                     {
-                        cell.GetComponent<LayoutElement>().preferredHeight -= Spacing;
+                        element.preferredHeight -= Spacing;
                     }
                 }
                 else
                 {
-                    cell.GetComponent<LayoutElement>().preferredWidth = _elementSizes[index];
+                    element.preferredWidth = _elementSizes[index];
                     if(index > 0)
                     {
-                        cell.GetComponent<LayoutElement>().preferredWidth -= Spacing;
+                        element.preferredWidth -= Spacing;
                     }
                 }
             }
@@ -228,7 +234,7 @@ namespace SocialPoint.GUIControl
             }
             set
             {
-                if(this.isEmpty)
+                if(this.IsEmpty)
                 {
                     return;
                 }
@@ -317,7 +323,7 @@ namespace SocialPoint.GUIControl
         {
             base.OnAwake();
 
-            isEmpty = true;
+            IsEmpty = true;
 
             _verticalLayoutGroup = _verticalLayoutGroup ?? GetComponentInChildren<VerticalLayoutGroup>();
             _horizontalLayoutGroup = _horizontalLayoutGroup ?? GetComponentInChildren<HorizontalLayoutGroup>();
@@ -477,7 +483,7 @@ namespace SocialPoint.GUIControl
         {
             _requiresRefresh = false;
 
-            if(this.isEmpty)
+            if(this.IsEmpty)
             {
                 return;
             }
@@ -558,8 +564,8 @@ namespace SocialPoint.GUIControl
             {
                 _endContentPlaceholder.preferredWidth = endContentPlaceHolderSize - Spacing;
             }
-
-            isPreferredSize = IsVertical ? _startContentPlaceHolder.preferredHeight > 0 : _startContentPlaceHolder.preferredWidth > 0;
+                
+            isPreferredSize = IsVertical ? _endContentPlaceholder.preferredHeight > 0 : _endContentPlaceholder.preferredWidth > 0;
             _endContentPlaceholder.gameObject.SetActive(isPreferredSize);
         }
 
