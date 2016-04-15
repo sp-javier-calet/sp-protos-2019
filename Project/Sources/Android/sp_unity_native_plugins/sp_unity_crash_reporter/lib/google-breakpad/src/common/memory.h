@@ -38,6 +38,10 @@
 #include <memory>
 #include <vector>
 
+#if defined(MEMORY_SANITIZER)
+#include <sanitizer/msan_interface.h>
+#endif
+
 #ifdef __APPLE__
 #define sys_mmap mmap
 #define sys_mmap2 mmap
@@ -67,7 +71,7 @@ class PageAllocator {
     FreeAll();
   }
 
-  void *Alloc(unsigned bytes) {
+  void *Alloc(size_t bytes) {
     if (!bytes)
       return NULL;
 
@@ -82,7 +86,7 @@ class PageAllocator {
       return ret;
     }
 
-    const unsigned pages =
+    const size_t pages =
         (bytes + sizeof(PageHeader) + page_size_ - 1) / page_size_;
     uint8_t *const ret = GetNPages(pages);
     if (!ret)
@@ -109,8 +113,8 @@ class PageAllocator {
   }
 
  private:
-  uint8_t *GetNPages(unsigned num_pages) {
-#ifdef __x86_64
+  uint8_t *GetNPages(size_t num_pages) {
+#if defined(__x86_64__) || defined(__aarch64__)
     void *a = sys_mmap(NULL, page_size_ * num_pages, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #else
@@ -119,6 +123,12 @@ class PageAllocator {
 #endif
     if (a == MAP_FAILED)
       return NULL;
+
+#if defined(MEMORY_SANITIZER)
+    // We need to indicate to MSan that memory allocated through sys_mmap is
+    // initialized, since linux_syscall_support.h doesn't have MSan hooks.
+    __msan_unpoison(a, page_size_ * num_pages);
+#endif
 
     struct PageHeader *header = reinterpret_cast<PageHeader*>(a);
     header->next = last_;
@@ -139,13 +149,13 @@ class PageAllocator {
 
   struct PageHeader {
     PageHeader *next;  // pointer to the start of the next set of pages.
-    unsigned num_pages;  // the number of pages in this set.
+    size_t num_pages;  // the number of pages in this set.
   };
 
-  const unsigned page_size_;
+  const size_t page_size_;
   PageHeader *last_;
   uint8_t *current_page_;
-  unsigned page_offset_;
+  size_t page_offset_;
 };
 
 // Wrapper to use with STL containers

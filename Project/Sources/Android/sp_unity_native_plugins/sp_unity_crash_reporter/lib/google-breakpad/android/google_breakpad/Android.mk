@@ -74,6 +74,10 @@ LOCAL_SRC_FILES := \
     src/client/linux/handler/exception_handler.cc \
     src/client/linux/handler/minidump_descriptor.cc \
     src/client/linux/log/log.cc \
+    src/client/linux/dump_writer_common/thread_info.cc \
+    src/client/linux/dump_writer_common/seccomp_unwinder.cc \
+    src/client/linux/dump_writer_common/ucontext_reader.cc \
+	src/client/linux/microdump_writer/microdump_writer.cc \
     src/client/linux/minidump_writer/linux_dumper.cc \
     src/client/linux/minidump_writer/linux_ptrace_dumper.cc \
     src/client/linux/minidump_writer/minidump_writer.cc \
