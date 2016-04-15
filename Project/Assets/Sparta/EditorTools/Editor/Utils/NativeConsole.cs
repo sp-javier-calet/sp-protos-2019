@@ -5,7 +5,13 @@ namespace SpartaTools.Editor.Utils
 {
     public static class NativeConsole
     {
-        public static int RunProcess(string exe, string args, string path, Action<string> output)
+        public enum OutputType
+        {
+            Standard,
+            Error
+        }
+
+        public static int RunProcess(string exe, string args, string path, Action<OutputType, string> output)
         {
             var proc = new Process {
                 StartInfo = new ProcessStartInfo {
@@ -20,14 +26,27 @@ namespace SpartaTools.Editor.Utils
                 }
             };
             proc.Start();
-            while(!proc.StandardOutput.EndOfStream)
+
+            while(!proc.StandardOutput.EndOfStream || !proc.StandardError.EndOfStream)
             {
-                string line = proc.StandardOutput.ReadLine();
-                if(output != null)
+                if(!proc.StandardOutput.EndOfStream)
                 {
-                    output(line);
+                    string content = proc.StandardOutput.ReadToEnd();
+                    if(content != null)
+                    {
+                        output(OutputType.Standard, content);
+                    }
+                }
+                if(!proc.StandardError.EndOfStream)
+                {
+                    string content = proc.StandardError.ReadToEnd();
+                    if(content != null)
+                    {
+                        output(OutputType.Error, content);
+                    }
                 }
             }
+
             proc.WaitForExit();
             int code = proc.ExitCode;
             proc.Close();

@@ -23,8 +23,7 @@ namespace SocialPoint.ServerSync
         readonly IList<PackedCommand> _commands = new List<PackedCommand>();
         public int Id = NoId;
         public long Timestamp;
-        public FinishDelegate Finished = delegate {
-        };
+        public FinishDelegate Finished;
 
         public int Count
         {
@@ -171,7 +170,10 @@ namespace SocialPoint.ServerSync
                         }
                         else
                         {
-                            callback += pcmd.Finished;
+                            if(pcmd.Finished != null)
+                            {
+                                callback += pcmd.Finished;
+                            }
                             _commands.RemoveAt(i);
                         }
                     }

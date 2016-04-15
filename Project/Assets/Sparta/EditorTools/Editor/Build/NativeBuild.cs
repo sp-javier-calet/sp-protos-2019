@@ -39,7 +39,7 @@ namespace SpartaTools.Editor.Build
 
         #region Editor options
 
-        [MenuItem("Sparta/Build/Android Plugins", false, 101)]
+        [MenuItem("Sparta/Build/Plugins/Android Plugins", false, 101)]
         public static void CompileAndroid()
         {
             var commandOutput = new StringBuilder("Compile SPUnityPlugins for Android");
@@ -51,7 +51,7 @@ namespace SpartaTools.Editor.Build
             commandOutput.AppendLine(msg);
 
             AsyncProcess.Start(progress => {
-                NativeConsole.RunProcess(path + "/gradlew", string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath), path, output => {
+                NativeConsole.RunProcess(path + "/gradlew", string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath), path, (type, output) => {
                     commandOutput.AppendLine(output);
                     progress.Update(output.Substring(0, Mathf.Min(output.Length, 100)), 1.0f);
                 });
@@ -59,7 +59,7 @@ namespace SpartaTools.Editor.Build
             });
         }
 
-        [MenuItem("Sparta/Build/Android Native Plugins", false, 102)]
+        [MenuItem("Sparta/Build/Plugins/Android Native Plugins", false, 102)]
         public static void CompileAndroidNative()
         {
             if(string.IsNullOrEmpty(AndroidNDKPath))
@@ -79,30 +79,30 @@ namespace SpartaTools.Editor.Build
                 Debug.Log(msg);
                 commandOutput.AppendLine(msg);
 
-                NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path, output => commandOutput.AppendLine(output));
+                NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path, (type, output) => commandOutput.AppendLine(output));
             }
             Debug.Log(commandOutput.ToString());
         }
 
-        [MenuItem("Sparta/Build/iOS Plugins", false, 201)]
+        [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin");
         }
 
-        [MenuItem("Sparta/Build/tvOS Plugins", false, 202)]
+        [MenuItem("Sparta/Build/Plugins/tvOS Plugins", false, 202)]
         public static void CompileTVOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin_tvOS");
         }
 
-        [MenuItem("Sparta/Build/OSX Plugins", false, 202)]
+        [MenuItem("Sparta/Build/Plugins/OSX Plugins", false, 202)]
         public static void CompileOSX()
         {
             CompileAppleProjectTarget("generateUnityPlugin_macOS");
         }
 
-        [MenuItem("Sparta/Build/Build All", false, 500)]
+        [MenuItem("Sparta/Build/Plugins/Build All", false, 500)]
         public static void CompileAll()
         {
             CompileAndroid();
@@ -121,7 +121,7 @@ namespace SpartaTools.Editor.Build
             Debug.Log(msg);
             commandOutput.AppendLine(msg);
 
-            NativeConsole.RunProcess("xcodebuild", string.Format("-target {0}", target), path, output => commandOutput.AppendLine(output));
+            NativeConsole.RunProcess("xcodebuild", string.Format("-target {0}", target), path, (type, output) => commandOutput.AppendLine(output));
             Debug.Log(commandOutput.ToString());
         }
         #endregion

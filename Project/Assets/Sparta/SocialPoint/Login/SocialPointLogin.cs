@@ -99,7 +99,7 @@ namespace SocialPoint.Login
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
         public const bool DefaultEnableLinkConfirmRetries = false;
-        public const float DefaultTimeout = 30.0f;
+        public const float DefaultTimeout = 120.0f; //Default company timeout
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
@@ -587,6 +587,7 @@ namespace SocialPoint.Login
             Error err = null;
             AttrDic data = new AttrDic();
             AttrDic json = null;
+
             if(resp.HasError)
             {
                 try
@@ -746,7 +747,9 @@ namespace SocialPoint.Login
                 loginData.SetValue(AttrKeyHttpConnectionDuration, resp.ConnectionDuration);
                 loginData.SetValue(AttrKeyHttpDownloadSize, resp.DownloadSize / 1024.0);
                 loginData.SetValue(AttrKeyHttpDownloadSpeed, resp.DownloadSpeed / 1024.0);
-                TrackEvent(EventNameLogin, loginData);
+                var loginEvent = new AttrDic();
+                loginEvent.Set(AttrKeyEventLogin, loginData);
+                TrackEvent(EventNameLogin, loginEvent);
             }
 
             OnLoginEnd(err, cbk);
@@ -1166,13 +1169,17 @@ namespace SocialPoint.Login
                     break;
                 }
             }
-            if(NewUserEvent != null)
+
+            if(_user != null )
             {
-                NewUserEvent(gameData, userIdChanged);
-            }
-            if(NewUserChangeEvent != null)
-            {
-                NewUserChangeEvent(userIdChanged);
+                if(NewUserEvent != null)
+                {
+                    NewUserEvent(gameData, userIdChanged);
+                }
+                if(NewUserChangeEvent != null)
+                {
+                    NewUserChangeEvent(userIdChanged);
+                }
             }
 
             return err;

@@ -50,6 +50,12 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
             UIViewController.DefaultLayersController = layers;
         }
 
+        var notifications = _root.GetComponentInChildren<HUDNotificationsController>();
+        if(notifications != null)
+        {
+            Container.Rebind<HUDNotificationsController>().ToSingleInstance(notifications);
+        }
+
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
