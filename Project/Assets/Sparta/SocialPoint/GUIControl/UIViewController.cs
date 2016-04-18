@@ -42,6 +42,7 @@ namespace SocialPoint.GUIControl
 
         [HideInInspector]
         UILayersController _layersController;
+
         public UILayersController LayersController
         {
             get
@@ -301,6 +302,8 @@ namespace SocialPoint.GUIControl
             {
                 AwakeEvent(this);
             }
+
+            OnAwake();
         }
 
         void Start()
@@ -313,6 +316,11 @@ namespace SocialPoint.GUIControl
             Reset();
             HideImmediate();
             OnDestroyed();
+        }
+
+        virtual protected void OnAwake()
+        {
+            
         }
 
         virtual protected void OnStart()
