@@ -172,16 +172,16 @@ namespace SocialPoint.Purchase
         private static extern string SPGetAllSavedTransactions();
 
         // Returns a list of all the transactions that occured on this device.  They are stored in the Document directory.
-        public static List<StoreKitTransaction> GetAllSavedTransactions()
+        public static List<IosStoreTransaction> GetAllSavedTransactions()
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
             {
                 // Grab the transactions and parse them out
                 var json = SPGetAllSavedTransactions();
-                return StoreKitTransaction.transactionsFromJson(json);
+                return IosStoreTransaction.TransactionsFromJson(json);
             }
 
-            return new List<StoreKitTransaction>();
+            return new List<IosStoreTransaction>();
         }
 
 
