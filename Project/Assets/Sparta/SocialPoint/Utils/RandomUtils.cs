@@ -1,4 +1,4 @@
-#if UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS && !UNITY_EDITOR_WIN
+#if (UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR_WIN
 #define NATIVE_RANDOM
 #endif
 
@@ -34,7 +34,7 @@ namespace SocialPoint.Utils
         
         static int SPUnityUtilsGetRandomSeed()
         {
-            Debug.LogWarning("Using substandard Random implementation, this should only happen in Editor!");
+            UnityEngine.Debug.LogWarning("Using substandard Random implementation, this should only happen in Editor!");
             return TimeUtils.Timestamp.GetHashCode() ^ Guid.NewGuid().GetHashCode();
         }
 

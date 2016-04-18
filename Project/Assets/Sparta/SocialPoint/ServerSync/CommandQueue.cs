@@ -35,6 +35,7 @@ namespace SocialPoint.ServerSync
         const string AttrKeySynced = "synced";
 
         const int SessionLostErrorStatusCode = 482;
+        const int FutureTimeStatusCode = 472;
         const int StartPacketId = 1;
 
         public DateTime CurrentTime
@@ -522,11 +523,6 @@ namespace SocialPoint.ServerSync
 
         void AddPendingAcksToRequest(Attr attr)
         {
-            if(_sendingAcks.Count > 0)
-            {
-                throw new InvalidOperationException("Current sending acks have not been successfully send");
-            }
-
             if(_pendingAcks.Count > 0)
             {
                 var attrdic = attr.AsDic;
@@ -556,6 +552,7 @@ namespace SocialPoint.ServerSync
         {
             if(packet == null)
             {
+                _lastSendTimestamp = CurrentTimestamp;
                 if(finish != null)
                 {
                     finish();
@@ -737,13 +734,17 @@ namespace SocialPoint.ServerSync
             }
             if(resp.HasError)
             {
-                if(resp.StatusCode == SessionLostErrorStatusCode)
+                switch(resp.StatusCode)
                 {
+                case SessionLostErrorStatusCode:
                     NotifyError(CommandQueueErrorType.SessionLost, resp.Error, resp.StatusCode);
-                }
-                else
-                {
+                    break;
+                case FutureTimeStatusCode:
+                    NotifyError(CommandQueueErrorType.ClockChange, resp.Error, resp.StatusCode);
+                    break;
+                default:
                     NotifyError(CommandQueueErrorType.HttpResponse, resp.Error, resp.StatusCode);
+                    break;
                 }
                 return null;
             }

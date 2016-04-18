@@ -15,7 +15,8 @@ namespace SocialPoint.EventSystems
         private Vector2 m_MousePosition;
 
         protected ActionStandaloneInputModule()
-        { }
+        {
+        }
 
         [Obsolete("Mode is no longer needed on input module as it handles both mouse and keyboard simultaneously.", false)]
         public enum InputMode
@@ -129,7 +130,7 @@ namespace SocialPoint.EventSystems
 
         public override bool ShouldActivateModule()
         {
-            if (!base.ShouldActivateModule())
+            if(!base.ShouldActivateModule())
                 return false;
 
             var shouldActivate = m_ForceModuleActive;
@@ -141,13 +142,13 @@ namespace SocialPoint.EventSystems
             shouldActivate |= Input.GetMouseButtonDown(0);
 
 
-            for (int i = 0; i < Input.touchCount; ++i)
+            for(int i = 0; i < Input.touchCount; ++i)
             {
                 Touch input = Input.GetTouch(i);
 
                 shouldActivate |= input.phase == TouchPhase.Began
-                    || input.phase == TouchPhase.Moved
-                    || input.phase == TouchPhase.Stationary;
+                || input.phase == TouchPhase.Moved
+                || input.phase == TouchPhase.Stationary;
             }
             return shouldActivate;
         }
@@ -159,7 +160,7 @@ namespace SocialPoint.EventSystems
             m_LastMousePosition = Input.mousePosition;
 
             var toSelect = eventSystem.currentSelectedGameObject;
-            if (toSelect == null)
+            if(toSelect == null)
                 toSelect = eventSystem.firstSelectedGameObject;
 
             eventSystem.SetSelectedGameObject(toSelect, GetBaseEventData());
@@ -175,27 +176,27 @@ namespace SocialPoint.EventSystems
         {
             bool usedEvent = SendUpdateEventToSelectedObject();
 
-            if (eventSystem.sendNavigationEvents)
+            if(eventSystem.sendNavigationEvents)
             {
-                if (!usedEvent)
+                if(!usedEvent)
                     usedEvent |= SendMoveEventToSelectedObject();
 
-                if (!usedEvent)
+                if(!usedEvent)
                     SendSubmitEventToSelectedObject();
             }
 
             // touch needs to take precedence because of the mouse emulation layer
-            if (!ProcessTouchEvents())
+            if(!ProcessTouchEvents() && Input.mousePresent)
                 ProcessMouseEvent();
         }
 
         private bool ProcessTouchEvents()
         {
-            for (int i = 0; i < Input.touchCount; ++i)
+            for(int i = 0; i < Input.touchCount; ++i)
             {
                 Touch input = Input.GetTouch(i);
 
-                if (input.type == TouchType.Indirect)
+                if(input.type == TouchType.Indirect)
                     continue;
 
                 bool released;
@@ -204,7 +205,7 @@ namespace SocialPoint.EventSystems
 
                 ProcessTouchPress(pointer, pressed, released);
 
-                if (!released)
+                if(!released)
                 {
                     ProcessMove(pointer);
                     ProcessDrag(pointer);
@@ -220,7 +221,7 @@ namespace SocialPoint.EventSystems
             var currentOverGo = pointerEvent.pointerCurrentRaycast.gameObject;
 
             // PointerDown notification
-            if (pressed)
+            if(pressed)
             {
                 pointerEvent.eligibleForClick = true;
                 pointerEvent.delta = Vector2.zero;
@@ -231,7 +232,7 @@ namespace SocialPoint.EventSystems
 
                 DeselectIfSelectionChanged(currentOverGo, pointerEvent);
 
-                if (pointerEvent.pointerEnter != currentOverGo)
+                if(pointerEvent.pointerEnter != currentOverGo)
                 {
                     // send a pointer enter to the touched element if it isn't the one to select...
                     HandlePointerExitAndEnter(pointerEvent, currentOverGo);
@@ -244,17 +245,17 @@ namespace SocialPoint.EventSystems
                 var newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.pointerDownHandler);
 
                 // didnt find a press handler... search for a click handler
-                if (newPressed == null)
+                if(newPressed == null)
                     newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
                 // Debug.Log("Pressed: " + newPressed);
 
                 float time = Time.unscaledTime;
 
-                if (newPressed == pointerEvent.lastPress)
+                if(newPressed == pointerEvent.lastPress)
                 {
                     var diffTime = time - pointerEvent.clickTime;
-                    if (diffTime < 0.3f)
+                    if(diffTime < 0.3f)
                         ++pointerEvent.clickCount;
                     else
                         pointerEvent.clickCount = 1;
@@ -274,12 +275,12 @@ namespace SocialPoint.EventSystems
                 // Save the drag handler as well
                 pointerEvent.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
 
-                if (pointerEvent.pointerDrag != null)
+                if(pointerEvent.pointerDrag != null)
                     ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.initializePotentialDrag);
             }
 
             // PointerUp notification
-            if (released)
+            if(released)
             {
                 // Debug.Log("Executing pressup on: " + pointer.pointerPress);
                 ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
@@ -290,11 +291,11 @@ namespace SocialPoint.EventSystems
                 var pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
                 // PointerClick and Drop events
-                if (pointerEvent.pointerPress == pointerUpHandler && pointerEvent.eligibleForClick)
+                if(pointerEvent.pointerPress == pointerUpHandler && pointerEvent.eligibleForClick)
                 {
                     ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerClickHandler);
                 }
-                else if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
+                else if(pointerEvent.pointerDrag != null && pointerEvent.dragging)
                 {
                     ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.dropHandler);
                 }
@@ -303,13 +304,13 @@ namespace SocialPoint.EventSystems
                 pointerEvent.pointerPress = null;
                 pointerEvent.rawPointerPress = null;
 
-                if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
+                if(pointerEvent.pointerDrag != null && pointerEvent.dragging)
                     ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.endDragHandler);
 
                 pointerEvent.dragging = false;
                 pointerEvent.pointerDrag = null;
 
-                if (pointerEvent.pointerDrag != null)
+                if(pointerEvent.pointerDrag != null)
                     ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.endDragHandler);
 
                 pointerEvent.pointerDrag = null;
@@ -325,14 +326,14 @@ namespace SocialPoint.EventSystems
         /// </summary>
         protected bool SendSubmitEventToSelectedObject()
         {
-            if (eventSystem.currentSelectedGameObject == null)
+            if(eventSystem.currentSelectedGameObject == null)
                 return false;
 
             var data = GetBaseEventData();
-            if (Input.GetButtonDown(m_SubmitButton))
+            if(Input.GetButtonDown(m_SubmitButton))
                 ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, data, ExecuteEvents.submitHandler);
 
-            if (Input.GetButtonDown(m_CancelButton))
+            if(Input.GetButtonDown(m_CancelButton))
                 ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, data, ExecuteEvents.cancelHandler);
             return data.used;
         }
@@ -343,18 +344,18 @@ namespace SocialPoint.EventSystems
             move.x = Input.GetAxisRaw(m_HorizontalAxis);
             move.y = Input.GetAxisRaw(m_VerticalAxis);
 
-            if (Input.GetButtonDown(m_HorizontalAxis))
+            if(Input.GetButtonDown(m_HorizontalAxis))
             {
-                if (move.x < 0)
+                if(move.x < 0)
                     move.x = -1f;
-                if (move.x > 0)
+                if(move.x > 0)
                     move.x = 1f;
             }
-            if (Input.GetButtonDown(m_VerticalAxis))
+            if(Input.GetButtonDown(m_VerticalAxis))
             {
-                if (move.y < 0)
+                if(move.y < 0)
                     move.y = -1f;
-                if (move.y > 0)
+                if(move.y > 0)
                     move.y = 1f;
             }
             return move;
@@ -368,7 +369,7 @@ namespace SocialPoint.EventSystems
             float time = Time.unscaledTime;
 
             Vector2 movement = GetRawMoveVector();
-            if (Mathf.Approximately(movement.x, 0f) && Mathf.Approximately(movement.y, 0f))
+            if(Mathf.Approximately(movement.x, 0f) && Mathf.Approximately(movement.y, 0f))
             {
                 m_ConsecutiveMoveCount = 0;
                 return false;
@@ -377,26 +378,26 @@ namespace SocialPoint.EventSystems
             // If user pressed key again, always allow event
             bool allow = Input.GetButtonDown(m_HorizontalAxis) || Input.GetButtonDown(m_VerticalAxis);
             bool similarDir = (Vector2.Dot(movement, m_LastMoveVector) > 0);
-            if (!allow)
+            if(!allow)
             {
                 // Otherwise, user held down key or axis.
                 // If direction didn't change at least 90 degrees, wait for delay before allowing consequtive event.
-                if (similarDir && m_ConsecutiveMoveCount == 1)
+                if(similarDir && m_ConsecutiveMoveCount == 1)
                     allow = (time > m_PrevActionTime + m_RepeatDelay);
                 // If direction changed at least 90 degree, or we already had the delay, repeat at repeat rate.
                 else
                     allow = (time > m_PrevActionTime + 1f / m_InputActionsPerSecond);
             }
-            if (!allow)
+            if(!allow)
                 return false;
 
             // Debug.Log(m_ProcessingEvent.rawType + " axis:" + m_AllowAxisEvents + " value:" + "(" + x + "," + y + ")");
             var axisEventData = GetAxisEventData(movement.x, movement.y, 0.6f);
 
-            if (axisEventData.moveDir != MoveDirection.None)
+            if(axisEventData.moveDir != MoveDirection.None)
             {
                 ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, axisEventData, ExecuteEvents.moveHandler);
-                if (!similarDir)
+                if(!similarDir)
                     m_ConsecutiveMoveCount = 0;
                 m_ConsecutiveMoveCount++;
                 m_PrevActionTime = time;
@@ -434,7 +435,7 @@ namespace SocialPoint.EventSystems
             ProcessMousePress(mouseData.GetButtonState(PointerEventData.InputButton.Middle).eventData);
             ProcessDrag(mouseData.GetButtonState(PointerEventData.InputButton.Middle).eventData.buttonData);
 
-            if (!Mathf.Approximately(leftButtonData.buttonData.scrollDelta.sqrMagnitude, 0.0f))
+            if(!Mathf.Approximately(leftButtonData.buttonData.scrollDelta.sqrMagnitude, 0.0f))
             {
                 var scrollHandler = ExecuteEvents.GetEventHandler<IScrollHandler>(leftButtonData.buttonData.pointerCurrentRaycast.gameObject);
                 ExecuteEvents.ExecuteHierarchy(scrollHandler, leftButtonData.buttonData, ExecuteEvents.scrollHandler);
@@ -443,7 +444,7 @@ namespace SocialPoint.EventSystems
 
         protected bool SendUpdateEventToSelectedObject()
         {
-            if (eventSystem.currentSelectedGameObject == null)
+            if(eventSystem.currentSelectedGameObject == null)
                 return false;
 
             var data = GetBaseEventData();
@@ -460,7 +461,7 @@ namespace SocialPoint.EventSystems
             var currentOverGo = pointerEvent.pointerCurrentRaycast.gameObject;
 
             // PointerDown notification
-            if (data.PressedThisFrame())
+            if(data.PressedThisFrame())
             {
                 pointerEvent.eligibleForClick = true;
                 pointerEvent.delta = Vector2.zero;
@@ -477,17 +478,17 @@ namespace SocialPoint.EventSystems
                 var newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.pointerDownHandler);
 
                 // didnt find a press handler... search for a click handler
-                if (newPressed == null)
+                if(newPressed == null)
                     newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
                 // Debug.Log("Pressed: " + newPressed);
 
                 float time = Time.unscaledTime;
 
-                if (newPressed == pointerEvent.lastPress)
+                if(newPressed == pointerEvent.lastPress)
                 {
                     var diffTime = time - pointerEvent.clickTime;
-                    if (diffTime < 0.3f)
+                    if(diffTime < 0.3f)
                         ++pointerEvent.clickCount;
                     else
                         pointerEvent.clickCount = 1;
@@ -507,12 +508,12 @@ namespace SocialPoint.EventSystems
                 // Save the drag handler as well
                 pointerEvent.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
 
-                if (pointerEvent.pointerDrag != null)
+                if(pointerEvent.pointerDrag != null)
                     ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.initializePotentialDrag);
             }
 
             // PointerUp notification
-            if (data.ReleasedThisFrame())
+            if(data.ReleasedThisFrame())
             {
                 // Debug.Log("Executing pressup on: " + pointer.pointerPress);
                 ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
@@ -523,11 +524,11 @@ namespace SocialPoint.EventSystems
                 var pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
                 // PointerClick and Drop events
-                if (pointerEvent.pointerPress == pointerUpHandler && pointerEvent.eligibleForClick)
+                if(pointerEvent.pointerPress == pointerUpHandler && pointerEvent.eligibleForClick)
                 {
                     ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerClickHandler);
                 }
-                else if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
+                else if(pointerEvent.pointerDrag != null && pointerEvent.dragging)
                 {
                     ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.dropHandler);
                 }
@@ -536,7 +537,7 @@ namespace SocialPoint.EventSystems
                 pointerEvent.pointerPress = null;
                 pointerEvent.rawPointerPress = null;
 
-                if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
+                if(pointerEvent.pointerDrag != null && pointerEvent.dragging)
                     ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.endDragHandler);
 
                 pointerEvent.dragging = false;
@@ -546,7 +547,7 @@ namespace SocialPoint.EventSystems
                 // so that if we moused over somethign that ignored it before
                 // due to having pressed on something else
                 // it now gets it.
-                if (currentOverGo != pointerEvent.pointerEnter)
+                if(currentOverGo != pointerEvent.pointerEnter)
                 {
                     HandlePointerExitAndEnter(pointerEvent, null);
                     HandlePointerExitAndEnter(pointerEvent, currentOverGo);
