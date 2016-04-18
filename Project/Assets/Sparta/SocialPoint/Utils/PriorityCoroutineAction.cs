@@ -87,19 +87,11 @@ namespace SocialPoint.Utils
             _runningCoroutines--;
         }
 
-        bool _ended;
-
         public bool Ended
         {
             get
             {
-                _ended = (_started && _runningCoroutines == 0);
-                return _ended;
-            }
-
-            private set
-            {
-                _ended = value;
+                return (_started && _runningCoroutines == 0);
             }
         }
     }
