@@ -67,7 +67,7 @@ namespace SocialPoint.Login
         private const string AttrKeyEventErrorType = "error_type";
         private const string AttrKeyEventErrorCode = "error_code";
         private const string AttrKeyEventErrorMessage = "error_desc";
-        private const string AttrKeyEventErrorHttpCode = "error_code";
+        private const string AttrKeyEventErrorHttpCode = "http_code";
         private const string AttrKeyEventErrorData = "data";
         public const string AttrKeyHttpCode = "http_code";
         public const string AttrKeySignature = "signature";
@@ -99,7 +99,7 @@ namespace SocialPoint.Login
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
         public const bool DefaultEnableLinkConfirmRetries = false;
-        public const float DefaultTimeout = 30.0f;
+        public const float DefaultTimeout = 120.0f; //Default company timeout
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
@@ -587,6 +587,7 @@ namespace SocialPoint.Login
             Error err = null;
             AttrDic data = new AttrDic();
             AttrDic json = null;
+
             if(resp.HasError)
             {
                 try
@@ -619,6 +620,7 @@ namespace SocialPoint.Login
                     err = new Error("The connection could not be established.");
                 }
                 typ = ErrorType.Connection;
+                err.Code = resp.ErrorCode;
             }
             else if(json != null)
             {
@@ -1166,13 +1168,17 @@ namespace SocialPoint.Login
                     break;
                 }
             }
-            if(NewUserEvent != null)
+
+            if(_user != null )
             {
-                NewUserEvent(gameData, userIdChanged);
-            }
-            if(NewUserChangeEvent != null)
-            {
-                NewUserChangeEvent(userIdChanged);
+                if(NewUserEvent != null)
+                {
+                    NewUserEvent(gameData, userIdChanged);
+                }
+                if(NewUserChangeEvent != null)
+                {
+                    NewUserChangeEvent(userIdChanged);
+                }
             }
 
             return err;
