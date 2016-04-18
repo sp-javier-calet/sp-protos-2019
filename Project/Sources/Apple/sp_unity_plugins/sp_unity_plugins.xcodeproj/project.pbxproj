@@ -123,6 +123,8 @@
 		7B3856521C98A53800D04AEF /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38552D1C98A35300D04AEF /* libz.a */; };
 		7B3856531C98A53800D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557C1C98A35300D04AEF /* libcrypto.a */; };
 		7B3856541C98A53800D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557D1C98A35300D04AEF /* libssl.a */; };
+		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
+		F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */ = {isa = PBXBuildFile; fileRef = F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */; };
 		FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
@@ -317,6 +319,8 @@
 		7B38552D1C98A35300D04AEF /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		7B38557C1C98A35300D04AEF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		7B38557D1C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
+		F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseStore.mm; path = sp_unity_purchase/SPPurchaseStore.mm; sourceTree = "<group>"; };
+		F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseStore.h; path = sp_unity_purchase/SPPurchaseStore.h; sourceTree = "<group>"; };
 		FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCurlFacadeIos.mm; sourceTree = "<group>"; };
 		FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlFacade.cpp; sourceTree = "<group>"; };
 		FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlFacade.h; sourceTree = "<group>"; };
@@ -744,9 +748,19 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */ = {
+			isa = PBXGroup;
+			children = (
+				F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */,
+				F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */,
+			);
+			name = sp_unity_purchase;
+			sourceTree = "<group>";
+		};
 		FE448F0D1C1EE83100A10FEA = {
 			isa = PBXGroup;
 			children = (
+				F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */,
 				FE4490451C1F205800A10FEA /* SPUnityPlugins */,
 				FE448F311C1EEAD800A10FEA /* Common */,
 				FF5AF77D1C623DCF00B5573A /* sp_unity_gamecenter */,
@@ -924,6 +938,7 @@
 				46F749101C60AE77000DB6B1 /* PLCrashReportBinaryImageInfo.h in Headers */,
 				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
 				46F7491A1C60AE77000DB6B1 /* PLCrashReportSignalInfo.h in Headers */,
+				F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */,
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46F749161C60AE77000DB6B1 /* PLCrashReportMachineInfo.h in Headers */,
@@ -1229,6 +1244,7 @@
 				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
 				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
 				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
+				F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
 				06D7A6931C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
 				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,

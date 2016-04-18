@@ -46,7 +46,7 @@ namespace SocialPoint.Purchase
         public void LoadProducts(string[] productIds)
         {
             DebugLog("requesting products");
-            StoreKitBinding.requestProductData(productIds);
+            IosStoreBinding.RequestProductData(productIds);
         }
 
         public bool Purchase(string productId)
@@ -60,7 +60,7 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                StoreKitBinding.purchaseProduct(productId, 1);
+                IosStoreBinding.PurchaseProduct(productId, 1);
                 _purchasingProduct = productId;
                 PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
                 return true;
@@ -76,7 +76,7 @@ namespace SocialPoint.Purchase
         public void ForceFinishPendingTransactions()
         {
             DebugLog("ForceFinishPendingTransactions");
-            StoreKitBinding.forceFinishPendingTransactions();
+            IosStoreBinding.ForceFinishPendingTransactions();
         }
 
         public bool HasProductsLoaded
@@ -162,7 +162,7 @@ namespace SocialPoint.Purchase
                     DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
-                        StoreKitBinding.finishPendingTransaction(receipt.OrderId);
+                        IosStoreBinding.FinishPendingTransaction(receipt.OrderId);
                         PurchaseUpdated(PurchaseState.PurchaseConsumed, receipt.ProductId);
                         _pendingPurchases.Remove(receipt);
                         FinishPendingPurchases();
