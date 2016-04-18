@@ -42,7 +42,7 @@ namespace SocialPoint.Utils
         IEnumerator RunCoroutines()
         {
             var queues = CopyQueues();
-            var runData = new RunData();
+            var runData = new CoroutineRunData();
             foreach(var kvp in queues)
             {
                 foreach(var action in kvp.Value)
@@ -61,7 +61,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        IEnumerator RunCoroutine(Func<IEnumerator> corroutine, RunData data)
+        IEnumerator RunCoroutine(Func<IEnumerator> corroutine, CoroutineRunData data)
         {
             data.AddCoroutine();
             yield return corroutine();
@@ -69,7 +69,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    class RunData
+    class CoroutineRunData
     {
         int _runningCoroutines = 0;
         bool _started = false;
