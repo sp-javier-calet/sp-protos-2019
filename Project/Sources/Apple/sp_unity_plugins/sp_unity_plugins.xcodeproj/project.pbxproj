@@ -125,6 +125,7 @@
 		7B3856541C98A53800D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557D1C98A35300D04AEF /* libssl.a */; };
 		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
 		F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */ = {isa = PBXBuildFile; fileRef = F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */; };
+		F542C2221CC4EEF80045B8A9 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F542C2211CC4EEF80045B8A9 /* StoreKit.framework */; };
 		FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
@@ -321,6 +322,7 @@
 		7B38557D1C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseStore.mm; path = sp_unity_purchase/SPPurchaseStore.mm; sourceTree = "<group>"; };
 		F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseStore.h; path = sp_unity_purchase/SPPurchaseStore.h; sourceTree = "<group>"; };
+		F542C2211CC4EEF80045B8A9 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
 		FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCurlFacadeIos.mm; sourceTree = "<group>"; };
 		FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlFacade.cpp; sourceTree = "<group>"; };
 		FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlFacade.h; sourceTree = "<group>"; };
@@ -397,6 +399,7 @@
 				7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */,
 				7B3855981C98A35300D04AEF /* libz.a in Frameworks */,
 				46F749091C60AE77000DB6B1 /* CrashReporter in Frameworks */,
+				F542C2221CC4EEF80045B8A9 /* StoreKit.framework in Frameworks */,
 				7B3855E41C98A35300D04AEF /* libcrypto.a in Frameworks */,
 				7B38558C1C98A35300D04AEF /* libcurl.a in Frameworks */,
 			);
@@ -895,6 +898,7 @@
 		FEE21F3E1C20128600ECC3E2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F542C2211CC4EEF80045B8A9 /* StoreKit.framework */,
 				460B363D1C4027BB003E0D9D /* Security.framework */,
 				460B363B1C4027B7003E0D9D /* SystemConfiguration.framework */,
 				460B36391C4027B0003E0D9D /* AdSupport.framework */,

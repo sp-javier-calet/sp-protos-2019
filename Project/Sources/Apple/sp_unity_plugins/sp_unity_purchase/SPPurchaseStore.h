@@ -17,7 +17,6 @@
 
 extern "C"
 {
-
     EXPORT_API bool SPCanMakePayments();
     EXPORT_API void SPSetApplicationUsername(const char* applicationUserName);
     EXPORT_API const char* SPGetAppStoreReceiptUrl();

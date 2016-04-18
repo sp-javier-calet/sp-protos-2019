@@ -1,5 +1,6 @@
 #include "SPPurchaseStore.h"
 #import <Foundation/Foundation.h>
+#import <StoreKit/StoreKit.h>
 
 EXPORT_API bool SPCanMakePayments()
 {
