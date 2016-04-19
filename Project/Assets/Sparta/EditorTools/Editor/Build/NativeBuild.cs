@@ -39,7 +39,7 @@ namespace SpartaTools.Editor.Build
 
         #region Editor options
 
-        [MenuItem("Sparta/Build/Android Plugins", false, 101)]
+        [MenuItem("Sparta/Build/Plugins/Android Plugins", false, 101)]
         public static void CompileAndroid()
         {
             var commandOutput = new StringBuilder("Compile SPUnityPlugins for Android");
@@ -59,7 +59,7 @@ namespace SpartaTools.Editor.Build
             });
         }
 
-        [MenuItem("Sparta/Build/Android Native Plugins", false, 102)]
+        [MenuItem("Sparta/Build/Plugins/Android Native Plugins", false, 102)]
         public static void CompileAndroidNative()
         {
             if(string.IsNullOrEmpty(AndroidNDKPath))
@@ -84,25 +84,25 @@ namespace SpartaTools.Editor.Build
             Debug.Log(commandOutput.ToString());
         }
 
-        [MenuItem("Sparta/Build/iOS Plugins", false, 201)]
+        [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin");
         }
 
-        [MenuItem("Sparta/Build/tvOS Plugins", false, 202)]
+        [MenuItem("Sparta/Build/Plugins/tvOS Plugins", false, 202)]
         public static void CompileTVOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin_tvOS");
         }
 
-        [MenuItem("Sparta/Build/OSX Plugins", false, 202)]
+        [MenuItem("Sparta/Build/Plugins/OSX Plugins", false, 202)]
         public static void CompileOSX()
         {
             CompileAppleProjectTarget("generateUnityPlugin_macOS");
         }
 
-        [MenuItem("Sparta/Build/Build All", false, 500)]
+        [MenuItem("Sparta/Build/Plugins/Build All", false, 500)]
         public static void CompileAll()
         {
             CompileAndroid();

@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Globalization;
 using System.Collections.Generic;
+using SpartaTools.Editor.Sync;
 using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.SpartaProject
@@ -172,22 +173,8 @@ namespace SpartaTools.Editor.SpartaProject
 
         public RepositoryInfo GetRepositoryInfo()
         {
-            string commit = null;
-            NativeConsole.RunProcess("git", "log --pretty=format:'%H' -n 1", ProjectPath, (type, output) => {
-                commit = output.Trim();
-            });
-
-            string branch = null;
-            NativeConsole.RunProcess("git", "rev-parse --abbrev-ref HEAD", ProjectPath,  (type, output) => {
-                branch = output.Trim();
-            });
-
-            string user = null;
-            NativeConsole.RunProcess("git", "config user.email", ProjectPath,  (type, output) => {
-                user = output.Trim();
-            });
-
-            return new RepositoryInfo(commit, branch, user);
+            Repository repository = new Repository(ProjectPath);
+            return new RepositoryInfo(repository.GetCommit(), repository.GetBranch(), repository.GetUser());
         }
 
         /// <summary>

@@ -10,6 +10,8 @@ namespace SpartaTools.Editor.SpartaProject
     {
         public const string DefinitionFileName = ".sparta_module";
 
+        static readonly IModuleFilter DefaultDSFilter = new ExtensionFilter(".DS_Store");
+
         public enum ModuleType
         {
             Core,
@@ -26,6 +28,8 @@ namespace SpartaTools.Editor.SpartaProject
         public ModuleType Type { get; private set; }
 
         public IList<string> Dependencies { get; private set; }
+
+        public IList<IModuleFilter> Filters { get; private set; }
 
         public bool Valid { get; set; }
 
@@ -55,6 +59,10 @@ namespace SpartaTools.Editor.SpartaProject
 
             Type = ModuleType.Extension;
             Dependencies = new List<string>();
+
+            Filters = new List<IModuleFilter>();
+            Filters.Add(DefaultDSFilter);
+
             Valid = Parse(moduleFile);
         }
 
@@ -80,11 +88,17 @@ namespace SpartaTools.Editor.SpartaProject
         {
             string[] parts = line.Split(null, 2);
             if(parts.Length != 2)
-                return;
-
-            if(parts[0] == "type")
             {
-                switch(parts[1])
+                Debug.LogWarningFormat("Skipping parsing for module definition line: {0}", line);
+                return;
+            }
+
+            var tag = parts[0];
+            var content = parts[1];
+
+            if(tag == "type")
+            {
+                switch(content)
                 {
                 case "core":
                     Type = ModuleType.Core;
@@ -107,18 +121,71 @@ namespace SpartaTools.Editor.SpartaProject
                     break;
                 }
             }
-            else if(parts[0] == "name")
+            else if(tag == "name")
             {
-                Name = parts[1];
+                Name = content;
             }
-            else if(parts[0] == "depends_on")
+            else if(tag == "depends_on")
             {
-                Dependencies.Add(parts[1]);
+                Dependencies.Add(content);
             }
-            else if(parts[0] == "desc")
+            else if(tag == "desc")
             {
-                Description = parts[1];
+                Description = content;
+            }
+            else if(tag == "exclude_path")
+            {
+                Filters.Add(new PathFilter(content));
+            }
+            else if(tag == "exclude_extension")
+            {
+                Filters.Add(new ExtensionFilter(content));
+            }
+            else
+            {
+                Debug.LogWarningFormat("Unknown Sparta module option '{0}'", tag);
             }
         }
+
+        #region Module filtering
+
+        public interface IModuleFilter
+        {
+            bool Apply(FileInfo info, string relativePath);
+        }
+
+        class PathFilter : IModuleFilter
+        {
+            string Path;
+            string PathMeta;
+
+            public PathFilter(string path)
+            {
+                Path = path;
+                PathMeta = path + ".meta";
+            }
+
+            public bool Apply(FileInfo inf, string relativePath)
+            {
+                return Path == relativePath || PathMeta == relativePath;
+            }
+        }
+
+        class ExtensionFilter : IModuleFilter
+        {
+            string Extension;
+
+            public ExtensionFilter(string extension)
+            {
+                Extension = extension;
+            }
+
+            public bool Apply(FileInfo info, string relativePath)
+            {
+                return info.Extension.Equals(Extension);
+            }
+        }
+
+        #endregion
     }
 }

@@ -10,10 +10,10 @@ namespace SpartaTools.Editor.View
 {
     public class ModuleCompilerWindow : EditorWindow
     {
-        [MenuItem("Sparta/Build/Sparta compiler", false, 001)]
+        [MenuItem("Sparta/Build/Sparta compiler...", false, 100)]
         public static void CompileModule()
         {
-            EditorWindow.GetWindow(typeof(ModuleCompilerWindow), false, "Sparta compiler", true);
+            EditorWindow.GetWindow(typeof(ModuleCompilerWindow), false, "Compiler", true);
         }
 
         Variant _selectedVariant;
@@ -204,6 +204,11 @@ namespace SpartaTools.Editor.View
 
         #region GUI
 
+        void OnFocus()
+        {
+            Sparta.SetIcon(this, "Compiler", "Sparta Module compiler");
+        }
+
         void GUIShowLog(Variant variant)
         {
             var log = variant.Log;
@@ -288,7 +293,7 @@ namespace SpartaTools.Editor.View
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
             GUILayout.FlexibleSpace();
-            if(GUILayout.Button("CompileAll", EditorStyles.toolbarButton))
+            if(GUILayout.Button("Compile All", EditorStyles.toolbarButton))
             {
                 EditorUtility.DisplayProgressBar("Compile All", "Compiling all modules and variants", 0.1f);
                 CompileAll();

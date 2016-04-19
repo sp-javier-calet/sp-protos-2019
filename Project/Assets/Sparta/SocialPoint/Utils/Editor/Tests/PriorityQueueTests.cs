@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using NUnit.Framework;
 
 namespace SocialPoint.Utils
@@ -9,58 +10,118 @@ namespace SocialPoint.Utils
     {
         PriorityQueue<int, string> _queue;
 
+        public enum Priority {c = -100, b = 0, a = 100};
+        ArrayList list;
+
         [SetUp]
         public void SetUp()
         {
             _queue = new PriorityQueue<int, string>();
-            _queue.Add(-100, "last");
-            _queue.Add(100, "important");
-            _queue.Add(0, "normal");
+            list = new ArrayList();
+            foreach(Priority prio in Enum.GetValues(typeof(Priority)))
+            {
+                _queue.Add((int)prio,prio.ToString());
+                list.Add(prio.ToString());
+            }
+            list.Sort();
         }
 
         [Test]
-        public void OrderTest()
+        public void Order()
         {
             Assert.AreEqual(3, _queue.Count);
+            var testItr = list.GetEnumerator();
             using(var itr = _queue.GetEnumerator())
             {
-                itr.MoveNext();
-                Assert.AreEqual("important", itr.Current);
-                itr.MoveNext();
-                Assert.AreEqual("normal", itr.Current);
-                itr.MoveNext();
-                Assert.AreEqual("last", itr.Current);
+                while(testItr.MoveNext())
+                {
+                    itr.MoveNext();
+                    Assert.AreEqual(testItr.Current, itr.Current);
+                }
             }
         }
 
-        [Test]
-        public void RemoveTest()
+        [Theory, Pairwise]
+        public void Add(Priority prio1, Priority prio2, Priority prio3)
         {
-            _queue.Remove("normal");
+            list.Add(prio1.ToString());
+            list.Add(prio2.ToString());
+            list.Add(prio3.ToString());
+            list.Sort();
+            _queue.Add((int)prio1,((Priority)prio1).ToString());
+            _queue.Add((int)prio2,((Priority)prio2).ToString());
+            _queue.Add((int)prio3,((Priority)prio3).ToString());
 
-            Assert.AreEqual(2, _queue.Count);
+            var testItr = list.GetEnumerator();
             using(var itr = _queue.GetEnumerator())
             {
-                itr.MoveNext();
-                Assert.AreEqual("important", itr.Current);
-                itr.MoveNext();
-                Assert.AreEqual("last", itr.Current);
+                while(testItr.MoveNext())
+                {
+                    itr.MoveNext();
+                    Assert.AreEqual(testItr.Current, itr.Current);
+                }
+            }
+        }
+
+        [Theory, Pairwise]
+        public void Remove_most_prio(Priority prio1, Priority prio2, Priority prio3)
+        {
+            list.Add(prio1.ToString());
+            list.Add(prio2.ToString());
+            list.Add(prio3.ToString());
+            list.Sort();
+            _queue.Add((int)prio1,((Priority)prio1).ToString());
+            _queue.Add((int)prio2,((Priority)prio2).ToString());
+            _queue.Add((int)prio3,((Priority)prio3).ToString());
+
+            list.RemoveAt(0);
+            _queue.Remove();
+
+            var testItr = list.GetEnumerator();
+            using(var itr = _queue.GetEnumerator())
+            {
+                while(testItr.MoveNext())
+                {
+                    itr.MoveNext();
+                    Assert.AreEqual(testItr.Current, itr.Current);
+                }
+            }
+        }
+
+        [Theory, Pairwise]
+        public void Remove_by_value(Priority prio)
+        {
+            list.Remove(prio.ToString());
+
+            _queue.Remove(prio.ToString());
+
+            Assert.AreEqual(list.Count, _queue.Count);
+            var testItr = list.GetEnumerator();
+            using(var itr = _queue.GetEnumerator())
+            {
+                while(testItr.MoveNext())
+                {
+                    itr.MoveNext();
+                    Assert.AreEqual(testItr.Current, itr.Current);
+                }
             }
         }
 
         [Test]
-        public void CopyTest()
+        public void Copy()
         {
             var queue = new PriorityQueue<int, string>(_queue);
-            Assert.AreEqual(3, queue.Count);
-            using(var itr = queue.GetEnumerator())
+            Assert.AreEqual(_queue.Count, queue.Count);
+            using(var _itr = _queue.GetEnumerator())
             {
-                itr.MoveNext();
-                Assert.AreEqual("important", itr.Current);
-                itr.MoveNext();
-                Assert.AreEqual("normal", itr.Current);
-                itr.MoveNext();
-                Assert.AreEqual("last", itr.Current);
+                using(var itr = queue.GetEnumerator())
+                {
+                    while(_itr.MoveNext())
+                    {
+                        itr.MoveNext();
+                        Assert.AreEqual(_itr.Current, itr.Current);
+                    }
+                }
             }
         }
 
