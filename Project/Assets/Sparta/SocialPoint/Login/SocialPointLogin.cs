@@ -619,6 +619,7 @@ namespace SocialPoint.Login
                     err = new Error("The connection could not be established.");
                 }
                 typ = ErrorType.Connection;
+                err.Code = resp.ErrorCode;
             }
             else if(json != null)
             {
