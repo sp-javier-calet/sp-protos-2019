@@ -309,7 +309,6 @@ internal class BMDataAccessor
     {
         Paths.CopyOver(newPaths);
         Paths.Log();
-        Refresh();
         BundleManager.RefreshAll();
     }
 

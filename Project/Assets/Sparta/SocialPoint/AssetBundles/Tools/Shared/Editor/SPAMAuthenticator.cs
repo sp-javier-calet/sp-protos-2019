@@ -61,7 +61,7 @@ namespace SocialPoint.Tool.Shared
         private static bool destroyed;
         private AsyncDataWorker dataWorker;
         private string session_cookie;
-        private string cached_user;
+        private static string cached_user;
 
         Thread perform_request = null;
 
@@ -99,6 +99,21 @@ namespace SocialPoint.Tool.Shared
                 return null;
 
             return _session_cookie;
+        }
+
+        public static string CachedUser
+        {
+            get
+            {
+                if(cached_user != null)
+                {
+                    return cached_user;
+                }
+                else
+                {
+                    return GetCachedUser();
+                }
+            }
         }
 
         // Must be called outside a thread
@@ -460,7 +475,7 @@ namespace SocialPoint.Tool.Shared
             }
             if(perform_request != null && perform_request.IsAlive)
             {
-                perform_request.Abort();
+                //perform_request.Abort();
             }
 
             dataWorker = null;

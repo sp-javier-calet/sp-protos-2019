@@ -190,7 +190,7 @@ namespace SocialPoint.Editor.SPAMGui
                 var bundleList = new AttrList(request.bundles.Select(x => (Attr)new AttrString(x.Content)).ToList());
                 rParams.additionalInfo.AsDic["bundles"] = bundleList;
 
-                string userEmail = SPAMAuthenticator.GetCachedUser();
+                string userEmail = SPAMAuthenticator.CachedUser;
                 rParams.additionalInfo.AsDic["author"] = new AttrString(userEmail.Substring(0, userEmail.IndexOf('@')));
 
                 Request(rParams);

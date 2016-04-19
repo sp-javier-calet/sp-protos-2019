@@ -16,7 +16,8 @@ namespace SocialPoint.Tool.Server
 
         string[]                    bundlesToBuild;
         BuildPlatform               bmBuildTarget;
-        MobileTextureSubtarget       textureCompressionFormat;
+        MobileTextureSubtarget      textureCompressionFormat;
+		bool						forceRebuild;
 
         List<BuiltBundle>           builtBundles;
 
@@ -93,6 +94,8 @@ namespace SocialPoint.Tool.Server
                 textureCompressionFormat = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), txtfmt);
             }
 
+			forceRebuild = parameters.forceRebuild;
+
             var bmConfig =  new BMDataAccessor.DataFilePaths(BMDataAccessor.BasePath);
 
             if(!String.IsNullOrEmpty(parameters.bmConfiger))
@@ -141,31 +144,38 @@ namespace SocialPoint.Tool.Server
             }
         }
 
+        /// <summary>
+        /// Do a clean-merge of the build states file.
+        /// </summary>
+        /// <param name="other">Other.</param>
         void MergeInBuildStates(BundleBuildState[] other)
         {
             // Iterate over 'other' and merge in only the 'change time' value if it
             for(int i = 0; i < other.Length; ++i)
             {
                 var otherBuildState = other[i];
-                var currentBuildState = BundleManager.GetBuildStateOfBundle(otherBuildState.bundleName);
-                // only if the buildState can be found in the current BuildStates
-                if(currentBuildState != null)
+                if(!String.IsNullOrEmpty(otherBuildState.bundleName))
                 {
-                    if(otherBuildState.changeTime == -1)
+                    var currentBuildState = BundleManager.GetBuildStateOfBundle(otherBuildState.bundleName);
+                    // only if the buildState can be found in the current BuildStates
+                    if(currentBuildState != null)
                     {
-                        continue;
-                    }
-                    else if(currentBuildState.changeTime == -1)
-                    {
-                        currentBuildState.changeTime = otherBuildState.changeTime;
-                    }
-                    else
-                    {
-                        var otherChangeTime = DateTime.FromBinary(otherBuildState.changeTime);
-                        var currentChangeTime = DateTime.FromBinary(currentBuildState.changeTime);
-                        if(System.DateTime.Compare(currentChangeTime, otherChangeTime) < 0)
+                        if(otherBuildState.changeTime == -1)
+                        {
+                            continue;
+                        }
+                        else if(currentBuildState.changeTime == -1)
                         {
                             currentBuildState.changeTime = otherBuildState.changeTime;
+                        }
+                        else
+                        {
+                            var otherChangeTime = DateTime.FromBinary(otherBuildState.changeTime);
+                            var currentChangeTime = DateTime.FromBinary(currentBuildState.changeTime);
+                            if(System.DateTime.Compare(currentChangeTime, otherChangeTime) < 0)
+                            {
+                                currentBuildState.changeTime = otherBuildState.changeTime;
+                            }
                         }
                     }
                 }
@@ -224,6 +234,19 @@ namespace SocialPoint.Tool.Server
                               Enum.GetName(typeof(MobileTextureSubtarget), EditorUserBuildSettings.androidBuildSubtarget),
                               Enum.GetName(typeof(MobileTextureSubtarget), textureCompressionFormat)));
                 EditorUserBuildSettings.androidBuildSubtarget = textureCompressionFormat;
+            }
+
+            if(forceRebuild)
+            {
+                Debug.LogWarning("Force rebuild bundles was specified");
+                foreach(string bundle in bundlesToBuild)
+                {
+                    BundleBuildState buildState = BundleManager.GetBuildStateOfBundle(bundle);
+                    if(buildState != null)
+                    {
+                        buildState.lastBuildDependencies = null;
+                    }
+                }
             }
         }
 

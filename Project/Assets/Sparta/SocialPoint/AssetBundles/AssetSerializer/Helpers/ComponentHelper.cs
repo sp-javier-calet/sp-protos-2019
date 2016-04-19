@@ -312,6 +312,8 @@ namespace SocialPoint.AssetSerializer.Helpers
                 }
             }
             UnityEngine.Profiler.EndSample ();
+
+            BuildUnityObjectAnnotatorSingleton.Clear();
         }
 
         private static GameObject GetGameObjectByInstanceID( GameObject[] rootGameObjects, int[] rootGameObjectIDs, int instanceID )

@@ -439,8 +439,8 @@ public class BundleManager
     };
 
     /*
-        * Check references of every bundle exist and/or fix them
-        */
+    * Check references of every bundle exist and/or fix them
+    */
     public static void FixAllBundleReferences()
     {
         var allBundles = getInstance().bundleDict.Values;
@@ -794,7 +794,7 @@ public class BundleManager
         }
     }
 
-    private void Init()
+        private void Init()
     {
         BMDataAccessor.Refresh();
 
@@ -802,8 +802,17 @@ public class BundleManager
         includeRefDict.Clear();
         dependRefDict.Clear();
 
+        bool statesDirty = false;
+        var statesToRemove = new List<BundleBuildState>();
         foreach(BundleBuildState buildState in BMDataAccessor.BuildStates)
         {
+            if(String.IsNullOrEmpty(buildState.bundleName))
+            {
+                statesDirty = true;
+                statesToRemove.Add(buildState);
+                continue;
+            }
+
             if(!statesDict.ContainsKey(buildState.bundleName))
             {
                 statesDict.Add(buildState.bundleName, buildState);
@@ -812,6 +821,13 @@ public class BundleManager
             {
                 Debug.LogError("Bundle manger -- Cannot have two build states with same name [" + buildState.bundleName + "]");
             }
+        }
+
+        //Cleanup
+        foreach(BundleBuildState buildState in statesToRemove)
+        {
+            BMDataAccessor.BuildStates.Remove(buildState);
+            Debug.LogWarning("Removing empty build state");
         }
 
         bundleDict.Clear();
@@ -829,15 +845,20 @@ public class BundleManager
             
             if(!statesDict.ContainsKey(bundle.name))
             {
-                var newState = new BundleBuildState();
-                newState.bundleName = bundle.name;
-                statesDict.Add(bundle.name, newState);
+                var buildState = new BundleBuildState();
+                buildState.bundleName = bundle.name;
+                statesDict.Add(bundle.name, buildState);
             } // Don't have build state of the this bundle. Add a new one.
             
             foreach(string guid in bundle.includeGUIDs)
                 AddIncludeRef(guid, bundle);
 
             AddDependRefs(bundle);
+        }
+
+        if(statesDirty)
+        {
+            BMDataAccessor.SaveBundleBuildeStates();
         }
     }
 
