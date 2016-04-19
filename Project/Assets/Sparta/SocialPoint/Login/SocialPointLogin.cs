@@ -1348,7 +1348,7 @@ namespace SocialPoint.Login
                     if(DeviceInfo != null)
                     {
                         var uid = DeviceInfo.Uid;
-                        uid = uid.Substring(0, 8);
+                        uid = uid != null  && uid.Length > 7 ? uid.Substring(0, 8) : "";
                         suffix += SignatureSeparator + uid;
                     }
                 }
