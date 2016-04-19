@@ -60,7 +60,7 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                IosStoreBinding.PurchaseProduct(productId, 1);
+                IosStoreBinding.PurchaseProduct(productId);
                 _purchasingProduct = productId;
                 PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
                 return true;
@@ -112,6 +112,8 @@ namespace SocialPoint.Purchase
             {
                 throw new NotImplementedException("IosPurchaseStore only works on iOS");
             }
+
+            Debug.Log("*** TEST Initializing iOS Purchase Store");
 
             IosStoreManager.autoConfirmTransactions = false;
 

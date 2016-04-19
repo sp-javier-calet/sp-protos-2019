@@ -53,17 +53,25 @@ namespace SocialPoint.Purchase
 
             // we ignore the results of this call because our only purpose is to trigger the creation of the required listener on the native side for transaction processing.
             //IosStoreBinding.canMakePayments();
+
+            //FIXME: Create instance this way???
+            Debug.Log("*** TEST Initializing Store Manager");
+            string instanceName = "IosStoreManager";
+            GameObject instance = new GameObject(instanceName);
+            instance.AddComponent<IosStoreManager>();
+            DontDestroyOnLoad(instance);
+            IosStoreBinding.Init(instanceName);
         }
 
 
-        public void transactionUpdated(string json)
+        public void TransactionUpdated(string json)
         {
             if(TransactionUpdatedEvent != null)
                 TransactionUpdatedEvent(IosStoreTransaction.TransactionFromJson(json));
         }
 
 
-        public void productPurchaseAwaitingConfirmation(string json)
+        public void ProductPurchaseAwaitingConfirmation(string json)
         {
             if(ProductPurchaseAwaitingConfirmationEvent != null)
                 ProductPurchaseAwaitingConfirmationEvent(IosStoreTransaction.TransactionFromJson(json));
@@ -73,60 +81,67 @@ namespace SocialPoint.Purchase
         }
 
 
-        public void productPurchased(string json)
+        public void ProductPurchased(string json)
         {
             if(PurchaseSuccessfulEvent != null)
                 PurchaseSuccessfulEvent(IosStoreTransaction.TransactionFromJson(json));
         }
 
 
-        public void productPurchaseFailed(string error)
+        public void ProductPurchaseFailed(string error)
         {
             if(PurchaseFailedEvent != null)
                 PurchaseFailedEvent(error);
         }
 
 
-        public void productPurchaseCancelled(string error)
+        public void ProductPurchaseCancelled(string error)
         {
             if(PurchaseCancelledEvent != null)
                 PurchaseCancelledEvent(error);
         }
 
 
-        public void productsReceived(string json)
+        public void ProductsReceived(string json)
         {
-            if(ProductListReceivedEvent != null)
-                ProductListReceivedEvent(IosStoreProduct.ProductsFromJson(json));
+            Debug.Log("*** TEST Products Loaded!!");
+            /*if(ProductListReceivedEvent != null)
+                ProductListReceivedEvent(IosStoreProduct.ProductsFromJson(json));*/
         }
 
 
-        public void productsRequestDidFail(string error)
+        public void ProductsRequestDidFail(string error)
         {
-            if(ProductListRequestFailedEvent != null)
-                ProductListRequestFailedEvent(error);
+            Debug.Log("*** TEST Products Failed!! " + error);
+            /*if(ProductListRequestFailedEvent != null)
+                ProductListRequestFailedEvent(error);*/
         }
 
 
-        public void restoreCompletedTransactionsFailed(string error)
+        public void RestoreCompletedTransactionsFailed(string error)
         {
             if(RestoreTransactionsFailedEvent != null)
                 RestoreTransactionsFailedEvent(error);
         }
 
 
-        public void restoreCompletedTransactionsFinished(string empty)
+        public void RestoreCompletedTransactionsFinished(string empty)
         {
             if(RestoreTransactionsFinishedEvent != null)
                 RestoreTransactionsFinishedEvent();
         }
 
 
-        public void paymentQueueUpdatedDownloads(string json)
+        public void PaymentQueueUpdatedDownloads(string json)
         {
             if(PaymentQueueUpdatedDownloadsEvent != null)
                 PaymentQueueUpdatedDownloadsEvent(IosStoreDownload.DownloadsFromJson(json));
 
+        }
+
+        public void StoreDebugLog(string logMsg)
+        {
+            Debug.Log(logMsg);
         }
 
     }

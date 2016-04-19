@@ -323,6 +323,7 @@
 		F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseStore.mm; path = sp_unity_purchase/SPPurchaseStore.mm; sourceTree = "<group>"; };
 		F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseStore.h; path = sp_unity_purchase/SPPurchaseStore.h; sourceTree = "<group>"; };
 		F542C2211CC4EEF80045B8A9 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
+		F55CA1C01CC54D1200A18C4D /* SPPurchaseUtils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = SPPurchaseUtils.hpp; path = sp_unity_purchase/SPPurchaseUtils.hpp; sourceTree = "<group>"; };
 		FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCurlFacadeIos.mm; sourceTree = "<group>"; };
 		FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlFacade.cpp; sourceTree = "<group>"; };
 		FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlFacade.h; sourceTree = "<group>"; };
@@ -756,6 +757,7 @@
 			children = (
 				F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */,
 				F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */,
+				F55CA1C01CC54D1200A18C4D /* SPPurchaseUtils.hpp */,
 			);
 			name = sp_unity_purchase;
 			sourceTree = "<group>";

@@ -17,22 +17,23 @@
 
 extern "C"
 {
-    EXPORT_API bool SPCanMakePayments();
-    EXPORT_API void SPSetApplicationUsername(const char* applicationUserName);
-    EXPORT_API const char* SPGetAppStoreReceiptUrl();
-    EXPORT_API void SPSendTransactionUpdateEvents(bool sendTransactionUpdateEvents);
-    EXPORT_API void SPEnableHighDetailLogs(bool shouldEnable);
-    EXPORT_API void SPRequestProductData(const char* productIdentifier);
-    EXPORT_API void SPPurchaseProduct(const char* productIdentifier, int quantity);
-    EXPORT_API void SPFinishPendingTransactions();
-    EXPORT_API void SPForceFinishPendingTransactions();
-    EXPORT_API void SPFinishPendingTransaction(const char* transactionIdentifier);
-    EXPORT_API void SPPauseDownloads();
-    EXPORT_API void SPResumeDownloads();
-    EXPORT_API void SPCancelDownloads();
-    EXPORT_API void SPRestoreCompletedTransactions();
-    EXPORT_API const char* SPGetAllSavedTransactions();
-    EXPORT_API void SPDisplayStoreWithProductId(const char* productId, const char* affiliateToken);
+    EXPORT_API void SPStore_Init(const char* listenerObjectName);
+    EXPORT_API bool SPStore_CanMakePayments();
+    EXPORT_API void SPStore_SetApplicationUsername(const char* applicationUserName);
+    EXPORT_API const char* SPStore_GetAppStoreReceiptUrl();
+    EXPORT_API void SPStore_SendTransactionUpdateEvents(bool sendTransactionUpdateEvents);
+    EXPORT_API void SPStore_EnableHighDetailLogs(bool shouldEnable);
+    EXPORT_API void SPStore_RequestProductData(const char* productIdentifiers);
+    EXPORT_API void SPStore_PurchaseProduct(const char* productIdentifier);
+    EXPORT_API void SPStore_FinishPendingTransactions();
+    EXPORT_API void SPStore_ForceFinishPendingTransactions();
+    EXPORT_API void SPStore_FinishPendingTransaction(const char* transactionIdentifier);
+    EXPORT_API void SPStore_PauseDownloads();
+    EXPORT_API void SPStore_ResumeDownloads();
+    EXPORT_API void SPStore_CancelDownloads();
+    EXPORT_API void SPStore_RestoreCompletedTransactions();
+    EXPORT_API const char* SPStore_GetAllSavedTransactions();
+    EXPORT_API void SPStore_DisplayStoreWithProductId(const char* productId, const char* affiliateToken);
 }
     
 #endif /* SPPurchaseStore_h */
