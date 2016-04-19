@@ -457,16 +457,11 @@ namespace SocialPoint.Crash
             }
 
             WasEnabled = true;
-            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             LogCallbackHandler.RegisterLogCallback(HandleLog);
             OnEnable();
 
             _updateCoroutine = UpdateCoroutine();
             _runner.StartCoroutine(_updateCoroutine);
-        }
-
-        void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
-        {
         }
 
         protected virtual void OnEnable()
@@ -482,7 +477,6 @@ namespace SocialPoint.Crash
                 _updateCoroutine = null;
             }
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
-            AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
             OnDisable();
         }
 
