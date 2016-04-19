@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
 
 #if UNITY_IPHONE
 namespace SocialPoint.Purchase
@@ -33,19 +34,26 @@ namespace SocialPoint.Purchase
         {
             var downloadList = new List<IosStoreDownload>();
 
-            //UPDATE NEEDED!
-            List<object> downloads = null;//json.listFromJson();
-            if(downloads == null)
-                return downloadList;
-
-            foreach(Dictionary<string, object> dict in downloads)
-                downloadList.Add(DownloadFromDictionary(dict));
+            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
+            Attr parsedData = litJsonParser.ParseString(json);
+            if(parsedData.AttrType == AttrType.LIST)
+            {
+                AttrList downloads = parsedData.AsList;
+                for(int i = 0; i < downloads.Count; ++i)
+                {
+                    Attr pData = downloads[i];
+                    if(pData.AttrType == AttrType.DICTIONARY)
+                    {
+                        downloadList.Add(DownloadFromDictionary(pData.AsDic));
+                    }
+                }
+            }
 
             return downloadList;
         }
 
 
-        public static IosStoreDownload DownloadFromDictionary(Dictionary<string,object> dict)
+        public static IosStoreDownload DownloadFromDictionary(AttrDic dict)
         {
             var download = new IosStoreDownload();
 
@@ -74,7 +82,7 @@ namespace SocialPoint.Purchase
                 download._timeRemaining = double.Parse(dict["timeRemaining"].ToString());
 
             if(dict.ContainsKey("transaction"))
-                download._transaction = IosStoreTransaction.TransactionFromDictionary(dict["transaction"] as Dictionary<string,object>);
+                download._transaction = IosStoreTransaction.TransactionFromDictionary(dict["transaction"].AsDic);
 
             return download;
         }

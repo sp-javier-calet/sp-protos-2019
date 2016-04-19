@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
 
 #if UNITY_IPHONE
 namespace SocialPoint.Purchase
@@ -20,7 +21,7 @@ namespace SocialPoint.Purchase
         Restored,
 
         // The transaction is in the queue, but its final status is pending external action.
-        Deferreds
+        Deferred
     }
 
     public class IosStoreTransaction
@@ -31,10 +32,6 @@ namespace SocialPoint.Purchase
 
         public string Base64EncodedTransactionReceipt { get; private set; }
 
-        public int Quantity { get; private set; }
-
-        public int Downloads { get; private set; }
-
         public IosStoreTransactionState TransactionState { get; private set; }
 
 
@@ -43,13 +40,20 @@ namespace SocialPoint.Purchase
         {
             var transactionList = new List<IosStoreTransaction>();
 
-            //UPDATE NEEDED!
-            List<object> transactions = null;//json.listFromJson();
-            if(transactions == null)
-                return transactionList;
-
-            foreach(Dictionary<string, object> dict in transactions)
-                transactionList.Add(TransactionFromDictionary(dict));
+            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
+            Attr parsedData = litJsonParser.ParseString(json);
+            if(parsedData.AttrType == AttrType.LIST)
+            {
+                AttrList transactions = parsedData.AsList;
+                for(int i = 0; i < transactions.Count; ++i)
+                {
+                    Attr pData = transactions[i];
+                    if(pData.AttrType == AttrType.DICTIONARY)
+                    {
+                        transactionList.Add(TransactionFromDictionary(pData.AsDic));
+                    }
+                }
+            }
 
             return transactionList;
         }
@@ -57,8 +61,13 @@ namespace SocialPoint.Purchase
 
         public static IosStoreTransaction TransactionFromJson(string json)
         {
-            //UPDATE NEEDED!
-            Dictionary<string, object> dict = null;//json.dictionaryFromJson();
+            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
+            Attr parsedData = litJsonParser.ParseString(json);
+            AttrDic dict = null;
+            if(parsedData.AttrType == AttrType.DICTIONARY)
+            {
+                dict = parsedData.AsDic;
+            }
 
             if(dict == null)
                 return new IosStoreTransaction();
@@ -67,7 +76,7 @@ namespace SocialPoint.Purchase
         }
 
 
-        public static IosStoreTransaction TransactionFromDictionary(Dictionary<string, object> dict)
+        public static IosStoreTransaction TransactionFromDictionary(AttrDic dict)
         {
             var transaction = new IosStoreTransaction();
 
@@ -80,14 +89,8 @@ namespace SocialPoint.Purchase
             if(dict.ContainsKey("base64EncodedReceipt"))
                 transaction.Base64EncodedTransactionReceipt = dict["base64EncodedReceipt"].ToString();
 
-            if(dict.ContainsKey("quantity"))
-                transaction.Quantity = int.Parse(dict["quantity"].ToString());
-
             if(dict.ContainsKey("transactionState"))
                 transaction.TransactionState = (IosStoreTransactionState)int.Parse(dict["transactionState"].ToString());
-
-            if(dict.ContainsKey("downloads"))
-                transaction.Downloads = int.Parse(dict["downloads"].ToString());
 
             return transaction;
         }
@@ -95,8 +98,8 @@ namespace SocialPoint.Purchase
 
         public override string ToString()
         {
-            return string.Format("<IosStoreTransaction> ID: {0}, quantity: {1}, transactionIdentifier: {2}, transactionState: {3}, downloads: {4}",
-                ProductIdentifier, Quantity, TransactionIdentifier, TransactionState, Downloads);
+            return string.Format("<IosStoreTransaction> ID: {0}, transactionIdentifier: {1}, transactionState: {2}",
+                ProductIdentifier, TransactionIdentifier, TransactionState);
         }
 
     }

@@ -5,6 +5,24 @@
 #import <StoreKit/StoreKit.h>
 #import <string>
 
+//Enum type and values must match with enum in Unity
+typedef NS_ENUM(NSUInteger, TransactionState) {
+    // Transaction is being added to the server queue.
+    TSPurchasing = 0,
+    
+    // Transaction is in queue, user has been charged.  Client should complete the transaction.
+    TSPurchased = 1,
+    
+    // Transaction was cancelled or failed before being added to the server queue.
+    TSFailed = 2,
+    
+    // Transaction was restored from user's purchase history.  Client should complete the transaction.
+    TSRestored = 3,
+    
+    // The transaction is in the queue, but its final status is pending external action.
+    TSDeferred = 4
+};
+
 @interface PlatformPurchaseServices : NSObject<SKProductsRequestDelegate, SKPaymentTransactionObserver>
 {
     void* platformPurchaseCenter_;
@@ -16,7 +34,6 @@
 @property(strong, nonatomic) NSString* unityListenerName;
 
 - (id)initWithUnityListener:(const char*)listenerName;
-- (id)initWithPlatformInAppPurchase:(void*)platformInAppPurchase;
 
 - (BOOL)isInitializingStoreProductsIds;
 - (SKPaymentTransaction*)getPendingTransaction:(const char*)productId;
@@ -29,7 +46,7 @@
 - (BOOL)purchaseProduct:(const char*)productIdentifier;
 - (void)recordTransaction:(SKPaymentTransaction*)transaction;
 
-- (void)storeDebugLog:(const char*) logMsg;
+- (void)storeDebugLog:(NSString*) logMsg;
 @end
 
 @implementation PlatformPurchaseServices
@@ -41,16 +58,6 @@
     if((self = [super init]))
     {
         self.unityListenerName = [NSString stringWithUTF8String:listenerName];
-    }
-    
-    return self;
-}
-
-- (id)initWithPlatformInAppPurchase:(void*)platformInAppPurchase
-{
-    if((self = [super init]))
-    {
-        self.platformInAppPurchase = platformInAppPurchase;
     }
     
     return self;
@@ -130,34 +137,47 @@
     self.products = response.products;
     self.request = nil;
     
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", "SUCCESS!");
-    //[self updateDownloadedProducts];
-}
-
-- (void)updateDownloadedProducts
-{
-    //UPDATE NEEDED
-    /*
-    NSString* localizedPrice;
-    NSString* name;
-    
-    hydra::VPurchaseProductDatas datas;
-    
+    NSMutableString* jsonString = [NSMutableString stringWithString:@"["];
+    int count = 0;
     for(SKProduct* product in self.products)
     {
         NSNumberFormatter* nf = [[NSNumberFormatter alloc] init];
         nf.locale = product.priceLocale;
         nf.numberStyle = NSNumberFormatterCurrencyStyle;
-        localizedPrice = [nf stringFromNumber:product.price];
-        name = product.localizedTitle;
+        NSString* localizedPrice = [nf stringFromNumber:product.price];
+        NSString* currencySymbol = nf.currencySymbol;
+        NSString* price = [NSString stringWithFormat:@"%@", product.price];
         
-        hydra::PurchaseProductData productData([NSStringExtra safeUTF8String:product.productIdentifier], [NSStringExtra safeUTF8String:name],
-                                               [NSStringExtra safeUTF8String:localizedPrice], [product.price floatValue]);
+        NSDictionary* productData = @{
+                                      @"productIdentifier":product.productIdentifier,
+                                      @"localizedTitle":product.localizedTitle,
+                                      @"localizedDescription":product.localizedDescription,
+                                      @"price":price,
+                                      @"currencySymbol":currencySymbol,
+                                      @"formattedPrice":localizedPrice,
+                                      };
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:productData options:0 error:&error];
         
-        datas.push_back(productData);
+        if (jsonData)
+        {
+            if(count > 0)
+            {
+                [jsonString appendString:@","];
+            }
+            ++count;
+            [jsonString appendString:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
+        }
+        else
+        {
+            NSMutableString* errorMessage = [NSMutableString stringWithString:@"Error parsing product: "];
+            [errorMessage appendString:error.localizedDescription];
+            NSLog(@"%@", errorMessage);
+        }
     }
-    getPurchaseCenter()->getStatusDelegate().onProductsUpdated(hydra::DownloadProductsState::Success, "", datas);
-    //*/
+    [jsonString appendString:@"]"];
+    
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 - (void)request:(SKRequest*)request didFailWithError:(NSError*)error
@@ -165,17 +185,14 @@
     _request = nil;
     
     UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsRequestDidFail", [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding]);
-    //UPDATE NEEDED
-    /*
-    getPurchaseCenter()->getStatusDelegate().onProductsUpdated(
-                                                               hydra::DownloadProductsState::Error, [NSStringExtra safeUTF8String:error.localizedDescription], {});
-    //*/
 }
 
 #pragma mark - Start Purchase
 
 - (BOOL)purchaseProduct:(const char*)productId
 {
+    [self storeDebugLog:@"... TEST purchaseProduct"];
+    
     NSString* productIdentifier = [NSString stringWithCString:productId encoding:NSUTF8StringEncoding];
     
     for(SKProduct* prod in self.products)
@@ -189,6 +206,8 @@
         }
     }
     
+    NSString* errorDescription = [NSString stringWithFormat:@"Invalid product ID or product not loaded: %@", productIdentifier];
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
     return NO;
 }
 
@@ -262,63 +281,103 @@
      //*/
 }
 
-#pragma mark - SKPaymentTransactionObserve
+#pragma mark - SKPaymentTransactionObserver
 
-- (void)paymentQueue:(SKPaymentQueue*)queue updatedTransactions:(NSArray*)transactions
+
+// Called when there are transactions in the payment queue
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
 {
-    //UPDATE NEEDED
-    /*
-    for(SKPaymentTransaction* transaction in transactions)
+    [self storeDebugLog:[NSString stringWithFormat:@"... TEST updatedTransactions %lu", (unsigned long)transactions.count]];
+    
+    for(SKPaymentTransaction * transaction in transactions)
     {
-        hydra::PurchaseInfo purchaseInfo(hydra::PurchaseState::PurchaseFinished);
-        purchaseInfo.productId = [NSStringExtra safeUTF8String:transaction.payment.productIdentifier];
-        
-        NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
-        purchaseInfo.message = errorDescription ? [NSStringExtra safeUTF8String:errorDescription] : "";
-        
-        switch(transaction.transactionState)
+        TransactionState ts = TSPurchasing;
+        switch (transaction.transactionState )
         {
+            case SKPaymentTransactionStatePurchasing:
+                ts = TSPurchasing;
+                break;
+            case SKPaymentTransactionStateDeferred:
+                ts = TSDeferred;
+                break;
             case SKPaymentTransactionStatePurchased:
-                DLog("IAP - Complete Transaction...\n");
-                [self consumeAsync:transaction];
+                ts = TSPurchased;
                 break;
-                
+            case SKPaymentTransactionStateRestored:
+                ts = TSRestored;
+                break;
             case SKPaymentTransactionStateFailed:
-                DLog("IAP - Failed Transaction...\n");
-                [self failedTransaction:transaction];
+                ts = TSFailed;
                 break;
-                
             default:
                 break;
         }
+        
+        //Check if failed transaction to notify about error and continue with the next
+        if(ts == TSFailed)
+        {
+            NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
+            UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+            continue;
+        }
+        
+        NSString* transactionState = [NSString stringWithFormat:@"%lu", (unsigned long)ts];
+        NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
+        NSData* receiptData = [NSData dataWithContentsOfURL:receiptUrl];
+        NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];
+        
+        NSDictionary* transactionData = @{
+                                      @"productIdentifier":transaction.payment.productIdentifier,
+                                      @"transactionIdentifier":transaction.transactionIdentifier ? transaction.transactionIdentifier : @"",
+                                      @"base64EncodedReceipt":receiptBase64 ? receiptBase64 : @"",
+                                      @"transactionState":transactionState
+                                      };
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:transactionData options:0 error:&error];
+        
+        if (jsonData)
+        {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            
+            [self storeDebugLog:jsonString];
+            
+            switch (ts)
+            {
+                case TSPurchased:
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
+                    break;
+                default:
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
+                    break;
+            }
+        }
+        else
+        {
+            NSMutableString* errorMessage = [NSMutableString stringWithString:@"Error parsing transaction: "];
+            [errorMessage appendString:error.localizedDescription];
+            NSLog(@"%@", errorMessage);
+        }
     }
-     //*/
 }
 
-- (void)paymentQueue:(SKPaymentQueue*)queue removedTransactions:(NSArray*)transactions
+// Logs all transactions that have been removed from the payment queue
+- (void)paymentQueue:(SKPaymentQueue *)queue removedTransactions:(NSArray *)transactions
 {
-    //UPDATE NEEDED
-    /*
-    DLog("IAP - Removed Transaction...\n");
-    for(SKPaymentTransaction* transaction in transactions)
+    [self storeDebugLog:@"... TEST removedTransactions"];
+    
+    for(SKPaymentTransaction * transaction in transactions)
     {
-        hydra::PurchaseInfo purchaseInfo(hydra::PurchaseState::RemovedTransaction);
-        purchaseInfo.productId = [NSStringExtra safeUTF8String:transaction.payment.productIdentifier];
-        
         NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
-        purchaseInfo.message = errorDescription ? [NSStringExtra safeUTF8String:errorDescription] : "";
-        
-        getPurchaseCenter()->getStatusDelegate().onPurchaseUpdated(purchaseInfo);
+        NSLog(@"... TEST %@ was removed from the payment queue. Error: %@", transaction.payment.productIdentifier, errorDescription);
     }
-     //*/
 }
 
 #pragma mark - Debug
 
-- (void)storeDebugLog:(const char*) logMsg
+- (void)storeDebugLog:(NSString*) logMsg
 {
-    NSLog(@"Native Debug Log: %@", [NSString stringWithUTF8String:logMsg]);
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", logMsg);
+    NSLog(@"Native Debug Log: %@", logMsg);
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", [logMsg cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 #pragma mark - Receipt Encoding
@@ -369,10 +428,6 @@ public:
     
     void downloadProducts(const std::string& productList)
     {
-        //DEBUG
-        [_purchaseServices storeDebugLog:"*** TEST Downloading Products"];
-        [_purchaseServices storeDebugLog:productList.c_str()];
-        
         if([_purchaseServices isInitializingStoreProductsIds])
         {
             return;//Already initializing products
@@ -392,10 +447,6 @@ public:
     
     void purchaseProduct(const char* productIdentifier)
     {
-        //DEBUG
-        [_purchaseServices storeDebugLog:"*** TEST Purchasing Product"];
-        [_purchaseServices storeDebugLog:productIdentifier];
-        
         [_purchaseServices purchaseProduct:productIdentifier];
     }
     

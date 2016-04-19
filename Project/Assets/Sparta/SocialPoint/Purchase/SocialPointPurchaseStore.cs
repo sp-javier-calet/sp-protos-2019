@@ -472,7 +472,7 @@ namespace SocialPoint.Purchase
         void UnregisterEvents()
         {
             ProductsUpdated -= OnCheckProducts;
-            PurchaseUpdated += OnPurchaseUpdated;
+            PurchaseUpdated -= OnPurchaseUpdated;
         }
 
         void OnCheckProducts(LoadProductsState state, Error error)

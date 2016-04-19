@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
 
 #if UNITY_IPHONE
 namespace SocialPoint.Purchase
@@ -17,69 +18,52 @@ namespace SocialPoint.Purchase
 
         public string CurrencySymbol { get; private set; }
 
-        public string CurrencyCode { get; private set; }
-
         public string FormattedPrice { get; private set; }
-
-        string _countryCode;
-        string _downloadContentVersion;
-        bool _downloadable;
-        List<Int64> _downloadContentLengths = new List<Int64>();
-
 
         public static List<IosStoreProduct> ProductsFromJson(string json)
         {
             var productList = new List<IosStoreProduct>();
 
-            //UPDATE NEEDED!
-            List<object> products = null;//json.listFromJson();
-            foreach(Dictionary<string, object> ht in products)
-                productList.Add(ProductFromDictionary(ht));
+            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
+            Attr parsedData = litJsonParser.ParseString(json);
+            if(parsedData.AttrType == AttrType.LIST)
+            {
+                AttrList products = parsedData.AsList;
+                for(int i = 0; i < products.Count; ++i)
+                {
+                    Attr pData = products[i];
+                    if(pData.AttrType == AttrType.DICTIONARY)
+                    {
+                        productList.Add(ProductFromDictionary(pData.AsDic));
+                    }
+                }
+            }
 
             return productList;
         }
 
 
-        public static IosStoreProduct ProductFromDictionary(Dictionary<string,object> ht)
+        public static IosStoreProduct ProductFromDictionary(AttrDic data)
         {
             IosStoreProduct product = new IosStoreProduct();
 
-            if(ht.ContainsKey("productIdentifier"))
-                product.ProductIdentifier = ht["productIdentifier"].ToString();
+            if(data.ContainsKey("productIdentifier"))
+                product.ProductIdentifier = data["productIdentifier"].ToString();
 
-            if(ht.ContainsKey("localizedTitle"))
-                product.Title = ht["localizedTitle"].ToString();
+            if(data.ContainsKey("localizedTitle"))
+                product.Title = data["localizedTitle"].ToString();
 
-            if(ht.ContainsKey("localizedDescription"))
-                product.Description = ht["localizedDescription"].ToString();
+            if(data.ContainsKey("localizedDescription"))
+                product.Description = data["localizedDescription"].ToString();
 
-            if(ht.ContainsKey("price"))
-                product.Price = ht["price"].ToString();
+            if(data.ContainsKey("price"))
+                product.Price = data["price"].ToString();
 
-            if(ht.ContainsKey("currencySymbol"))
-                product.CurrencySymbol = ht["currencySymbol"].ToString();
-
-            if(ht.ContainsKey("currencyCode"))
-                product.CurrencyCode = ht["currencyCode"].ToString();
-
-            if(ht.ContainsKey("formattedPrice"))
-                product.FormattedPrice = ht["formattedPrice"].ToString();
-
-            if(ht.ContainsKey("countryCode"))
-                product._countryCode = ht["countryCode"].ToString();
-
-            if(ht.ContainsKey("downloadContentVersion"))
-                product._downloadContentVersion = ht["downloadContentVersion"].ToString();
-
-            if(ht.ContainsKey("downloadable"))
-                product._downloadable = bool.Parse(ht["downloadable"].ToString());
-
-            if(ht.ContainsKey("downloadContentLengths") && ht["downloadContentLengths"] is IList)
-            {
-                var tempLengths = ht["downloadContentLengths"] as List<object>;
-                foreach(var dlLength in tempLengths)
-                    product._downloadContentLengths.Add(System.Convert.ToInt64(dlLength));
-            }
+            if(data.ContainsKey("currencySymbol"))
+                product.CurrencySymbol = data["currencySymbol"].ToString();
+            
+            if(data.ContainsKey("formattedPrice"))
+                product.FormattedPrice = data["formattedPrice"].ToString();
 
             return product;
         }
@@ -87,8 +71,8 @@ namespace SocialPoint.Purchase
 
         public override string ToString()
         {
-            return String.Format("<IosStoreProduct>\nID: {0}\ntitle: {1}\ndescription: {2}\nprice: {3}\ncurrencysymbol: {4}\nformattedPrice: {5}\ncurrencyCode: {6}\ncountryCode: {7}\ndownloadContentVersion: {8}\ndownloadable: {9}",
-                ProductIdentifier, Title, Description, Price, CurrencySymbol, FormattedPrice, CurrencyCode, _countryCode, _downloadContentVersion, _downloadable);
+            return String.Format("<IosStoreProduct>\nID: {0}\ntitle: {1}\ndescription: {2}\nprice: {3}\ncurrencysymbol: {4}\nformattedPrice: {5}",
+                ProductIdentifier, Title, Description, Price, CurrencySymbol, FormattedPrice);
         }
 
     }

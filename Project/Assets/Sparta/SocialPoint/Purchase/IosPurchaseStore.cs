@@ -113,8 +113,6 @@ namespace SocialPoint.Purchase
                 throw new NotImplementedException("IosPurchaseStore only works on iOS");
             }
 
-            Debug.Log("*** TEST Initializing iOS Purchase Store");
-
             IosStoreManager.autoConfirmTransactions = false;
 
             IosStoreManager.ProductListReceivedEvent += ProductListReceived;

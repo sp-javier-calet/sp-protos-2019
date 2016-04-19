@@ -48,14 +48,7 @@ namespace SocialPoint.Purchase
 
         static IosStoreManager()
         {
-            //UPDATE NEEDED!
-            //AbstractManager.initialize(typeof(IosStoreManager));
-
-            // we ignore the results of this call because our only purpose is to trigger the creation of the required listener on the native side for transaction processing.
-            //IosStoreBinding.canMakePayments();
-
             //FIXME: Create instance this way???
-            Debug.Log("*** TEST Initializing Store Manager");
             string instanceName = "IosStoreManager";
             GameObject instance = new GameObject(instanceName);
             instance.AddComponent<IosStoreManager>();
@@ -66,6 +59,7 @@ namespace SocialPoint.Purchase
 
         public void TransactionUpdated(string json)
         {
+            Debug.Log("*** TEST IosStoreManager TransactionUpdated " + json);
             if(TransactionUpdatedEvent != null)
                 TransactionUpdatedEvent(IosStoreTransaction.TransactionFromJson(json));
         }
@@ -73,6 +67,7 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchaseAwaitingConfirmation(string json)
         {
+            Debug.Log("*** TEST IosStoreManager ProductPurchaseAwaitingConfirmation " + json);
             if(ProductPurchaseAwaitingConfirmationEvent != null)
                 ProductPurchaseAwaitingConfirmationEvent(IosStoreTransaction.TransactionFromJson(json));
 
@@ -83,6 +78,7 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchased(string json)
         {
+            Debug.Log("*** TEST IosStoreManager ProductPurchased " + json);
             if(PurchaseSuccessfulEvent != null)
                 PurchaseSuccessfulEvent(IosStoreTransaction.TransactionFromJson(json));
         }
@@ -90,6 +86,7 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchaseFailed(string error)
         {
+            Debug.Log("*** TEST IosStoreManager ProductPurchaseFailed " + error);
             if(PurchaseFailedEvent != null)
                 PurchaseFailedEvent(error);
         }
@@ -97,6 +94,7 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchaseCancelled(string error)
         {
+            Debug.Log("*** TEST IosStoreManager ProductPurchaseCancelled " + error);
             if(PurchaseCancelledEvent != null)
                 PurchaseCancelledEvent(error);
         }
@@ -104,17 +102,15 @@ namespace SocialPoint.Purchase
 
         public void ProductsReceived(string json)
         {
-            Debug.Log("*** TEST Products Loaded!!");
-            /*if(ProductListReceivedEvent != null)
-                ProductListReceivedEvent(IosStoreProduct.ProductsFromJson(json));*/
+            if(ProductListReceivedEvent != null)
+                ProductListReceivedEvent(IosStoreProduct.ProductsFromJson(json));
         }
 
 
         public void ProductsRequestDidFail(string error)
         {
-            Debug.Log("*** TEST Products Failed!! " + error);
-            /*if(ProductListRequestFailedEvent != null)
-                ProductListRequestFailedEvent(error);*/
+            if(ProductListRequestFailedEvent != null)
+                ProductListRequestFailedEvent(error);
         }
 
 
