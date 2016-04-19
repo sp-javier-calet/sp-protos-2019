@@ -67,7 +67,7 @@ namespace SocialPoint.Login
         private const string AttrKeyEventErrorType = "error_type";
         private const string AttrKeyEventErrorCode = "error_code";
         private const string AttrKeyEventErrorMessage = "error_desc";
-        private const string AttrKeyEventErrorHttpCode = "error_code";
+        private const string AttrKeyEventErrorHttpCode = "http_code";
         private const string AttrKeyEventErrorData = "data";
         public const string AttrKeyHttpCode = "http_code";
         public const string AttrKeySignature = "signature";
@@ -620,6 +620,7 @@ namespace SocialPoint.Login
                     err = new Error("The connection could not be established.");
                 }
                 typ = ErrorType.Connection;
+                err.Code = resp.ErrorCode;
             }
             else if(json != null)
             {
