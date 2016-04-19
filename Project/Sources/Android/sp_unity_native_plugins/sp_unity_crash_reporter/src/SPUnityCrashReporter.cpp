@@ -29,7 +29,7 @@
                 crashReporter->dumpCrash(descriptor.path());
             }
 
-            return succeeded;
+            return false;
         }
     }
 #else
@@ -82,7 +82,7 @@ bool SPUnityCrashReporter::disable()
 void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    
+
     // Conver to local time
     epoch_time = std::mktime(std::localtime(&epoch_time));
 
@@ -100,4 +100,16 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
     // Dump logcat
     std::string logcatCmd("logcat -d -t 200 -f " + newLogPath);
     system(logcatCmd.c_str());
+
+    _crashPaths += newCrashPath+";";
+}
+
+const std::string& SPUnityCrashReporter::getCrashPaths() const
+{
+    return _crashPaths;
+}
+
+void SPUnityCrashReporter::clearCrashPaths()
+{
+    _crashPaths.clear();
 }

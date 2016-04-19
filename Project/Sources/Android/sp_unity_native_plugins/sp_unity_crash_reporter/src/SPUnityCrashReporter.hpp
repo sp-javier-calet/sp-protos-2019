@@ -18,6 +18,7 @@ private:
     std::string _fileSeparator;
     std::string _crashExtension;
     std::string _logExtension;
+    std::string _crashPaths;
 
     google_breakpad::ExceptionHandler* _exceptionHandler;
 
@@ -32,6 +33,8 @@ public:
     bool enable();
     bool disable();
     void dumpCrash(const std::string& crashPath);
+    const std::string& getCrashPaths() const;
+    void clearCrashPaths();
 };
 
 #endif

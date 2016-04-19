@@ -8,6 +8,7 @@ using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Alert;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.Crash
@@ -138,19 +139,25 @@ namespace SocialPoint.Crash
 
         /* Native plugin interface */
         [DllImport(PluginModuleName)]
-        static extern void native_crashReporter_enable(UIntPtr ctx);
+        static extern void SPUnityCrashReporterEnable(UIntPtr ctx);
 
         [DllImport(PluginModuleName)]
-        static extern void native_crashReporter_disable(UIntPtr ctx);
+        static extern void SPUnityCrashReporterDisable(UIntPtr ctx);
 
         [DllImport(PluginModuleName)]
-        static extern void native_crashReporter_forceCrash();
+        static extern void SPUnityCrashReporterForceCrash();
 
         [DllImport(PluginModuleName)]
-        static extern UIntPtr native_crashReporter_create(string path, string version, string separator, string crashExtension, string logExtension);
+        static extern UIntPtr SPUnityCrashReporterCreate(string path, string version, string separator, string crashExtension, string logExtension);
 
         [DllImport(PluginModuleName)]
-        static extern void native_crashReporter_destroy(UIntPtr ctx);
+        static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
+
+        [DllImport(PluginModuleName)]
+        static extern IntPtr SPUnityCrashReporterGetCrashPaths(UIntPtr ctx);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityCrashReporterClearCrashPaths(UIntPtr ctx);
 
         public const string CrashesFolder = "/crashes/";
         public const string CrashExtension = ".crash";
@@ -177,32 +184,32 @@ namespace SocialPoint.Crash
             ReadPendingCrashes();
 
             // Create native object
-            _nativeObject = native_crashReporter_create(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension);
+            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension);
         }
 
         ~DeviceCrashReporter ()
         {
-            native_crashReporter_destroy(_nativeObject);
+            SPUnityCrashReporterDestroy(_nativeObject);
         }
 
         protected override void OnEnable()
         {
-            native_crashReporter_enable(_nativeObject);
+            SPUnityCrashReporterEnable(_nativeObject);
         }
 
         protected override void OnDisable()
         {
-            native_crashReporter_disable(_nativeObject);
+            SPUnityCrashReporterDisable(_nativeObject);
         }
 
         protected override void OnDestroy()
         {
-            native_crashReporter_disable(_nativeObject);
+            SPUnityCrashReporterDisable(_nativeObject);
         }
 
         public override void ForceCrash()
         {
-            native_crashReporter_forceCrash();
+            SPUnityCrashReporterForceCrash();
         }
 
         protected override List<Report> GetPendingCrashes()
@@ -236,5 +243,52 @@ namespace SocialPoint.Crash
 
             return reports;
         }
+
+        protected override void Update()
+        {
+            base.Update();
+            CleanCurrentCrashes();
+        }
+
+        void CleanCurrentCrashes()
+        {
+            var paths = CurrentCrashPaths;
+            if(paths.Length == 0)
+            {
+                return;
+            }
+            for(int i = 0; i < paths.Length; i++)
+            {
+                var path = paths[i];
+                if(FileUtils.ExistsFile(path))
+                {
+                    DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
+                    FileUtils.DeleteFile(path);
+                }
+            }
+            ClearCurrentCrashPaths();
+        }
+                   
+        const char CrashPathsSeparator = ';';
+
+        string[] CurrentCrashPaths
+        {
+            get
+            {
+                var paths = Marshal.PtrToStringAnsi(SPUnityCrashReporterGetCrashPaths(_nativeObject));
+                if(paths.Length == 0)
+                {
+                    return new string[0];
+                }
+                return paths.Split(CrashPathsSeparator);
+            }
+        }
+
+        void ClearCurrentCrashPaths()
+        {
+            SPUnityCrashReporterClearCrashPaths(_nativeObject);
+        }
+
+
     }
 }
