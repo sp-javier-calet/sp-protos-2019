@@ -1,11 +1,41 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace SocialPoint.Utils
 {
     public class IosNativeUtils : INativeUtils
     {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ForceTouchShortcutItem
+        {
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Type;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Title;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string Subtitle;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string IconPath;
+
+            /// <summary>
+            /// Struct used for the iOS Force Touch shortcuts.
+            /// The Type and Title are mandatory, while the Subtitle and IconPath are not
+            /// </summary>
+            /// <param name="type">When retrieving the the used shortcut will receive the given Type</param>
+            /// <param name="title">The localized Title</param>
+            /// <param name="subtitle">The localized Subtitle</param>
+            /// <param name="iconPath">The icon must be 70x70 and should be placed within a StreamingAssets folder</param>
+            public ForceTouchShortcutItem(string type, string title, string subtitle = "", string iconPath = "")
+            {
+                Type = type;
+                Title = title;
+                Subtitle = subtitle;
+                IconPath = string.IsNullOrEmpty(iconPath) ? "" : string.Concat("Data/Raw/", iconPath);
+            }
+        };
+
         #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         static extern bool SPUnityNativeUtilsIsInstalled(string appId);
@@ -56,5 +86,30 @@ namespace SocialPoint.Utils
                 return SPUnityNativeUtilsUserAllowNotification();
             }
         }
+
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        public static extern string SPGetForceTouchShortcut();
+
+        [DllImport("__Internal")]
+        public static extern void SPRemoveForceTouchShortcut();
+
+        [DllImport("__Internal")]
+        public static extern void SPSetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount);
+#else
+        /// <summary>
+        /// Returns the given ForceTouchShortcutItem.Type
+        /// </summary>
+        public static string SPGetForceTouchShortcut()
+        {
+            return "";
+        }
+
+        public static void SPRemoveForceTouchShortcut()
+        {}
+
+        public static void SPSetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount)
+        {}
+#endif
     }
 }

@@ -8,12 +8,14 @@
 @implementation SPUnityAppControllerSubClass
 {
     std::string _gameObjectName;
+    char* _forceTouchShortcut;
 }
 
 // AppReady flag defined in UnityAppController
 extern bool _unityAppReady;
 
 NSString* const kAppSourceKey = @"SourceApplicationKey";
+NSString* const kIosVersion9Tag = @"9.0";
 
 // Event names. The names are defined by the Status Enum in IosAppEvents
 static const std::string kStatusUpdateSource = "UPDATEDSOURCE";
@@ -31,16 +33,16 @@ std::queue<std::string> _pendingEvents;
 {
     extern const char* AppControllerClassName;
     AppControllerClassName = "SPUnityAppControllerSubClass";
-
-    /** 
+    
+    /**
      * Initialize library components
      */
     UnityGameObject::setSendMessageDelegate(
-                                       [](const std::string& name,
-                                          const std::string& method,
-                                          const std::string& message ){
-        UnitySendMessage(name.c_str(), method.c_str(), message.c_str());
-    });
+                                            [](const std::string& name,
+                                               const std::string& method,
+                                               const std::string& message ){
+                                                UnitySendMessage(name.c_str(), method.c_str(), message.c_str());
+                                            });
 }
 
 - (void) notifyStatus:( std::string ) status
@@ -94,7 +96,7 @@ std::queue<std::string> _pendingEvents;
                               [self urlEncode:value]];
             [parts addObject: part];
         }
-
+        
         NSString* url;
         if(scheme != nil)
         {
@@ -102,7 +104,7 @@ std::queue<std::string> _pendingEvents;
         } else {
             url = [parts componentsJoinedByString: @"&"];
         }
-
+        
         [self storeSource:url];
     }
     else
@@ -111,13 +113,19 @@ std::queue<std::string> _pendingEvents;
     }
 }
 
+- (BOOL)isOsVersionGreaterOrEqualThan:(NSString*)version
+{
+    return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedDescending;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [self removeForceTouchShortcut];
+    
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-
+    
     [self clearSource];
-
-
+    
 #if !UNITY_TVOS
     UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
     if (notification)
@@ -127,9 +135,12 @@ std::queue<std::string> _pendingEvents;
         [self storeSourceOptions:notification.userInfo withScheme:@"local"];
     }
 #endif
-
+    
     [self notifyStatus:kStatusUpdateSource];
-
+    
+    if([self isOsVersionGreaterOrEqualThan: kIosVersion9Tag] && launchOptions != nil)
+        [self setForceTouchShortcut:[launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey]];
+    
     return YES;
 }
 
@@ -159,6 +170,38 @@ std::queue<std::string> _pendingEvents;
     [self notifyStatus:kStatusUpdateSource];
 }
 
+- (char*)getForceTouchShortcut
+{
+    return _forceTouchShortcut;
+}
+
+- (void)removeForceTouchShortcut
+{
+    if(_forceTouchShortcut == NULL)
+        return;
+    
+    free((void*)_forceTouchShortcut);
+    _forceTouchShortcut = NULL;
+}
+
+- (void)setForceTouchShortcut:(UIApplicationShortcutItem*) shortcutItem
+{
+    [self removeForceTouchShortcut];
+    
+    if(shortcutItem == nil)
+        return;
+    
+    const char* tempChar = [[shortcutItem type] UTF8String];
+    
+    _forceTouchShortcut = (char*)malloc(strlen(tempChar));
+    strcpy(_forceTouchShortcut, tempChar);
+}
+
+- (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*) shortcutItem completionHandler:(void (^)(BOOL))completionHandler
+{
+    [self setForceTouchShortcut:shortcutItem];
+}
+
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     [super applicationDidEnterBackground:application];
@@ -181,14 +224,14 @@ std::queue<std::string> _pendingEvents;
 - (void)applicationWillResignActive:(UIApplication*)application
 {
     [self notifyStatus:kStatusWillGoBackground];
-
+    
     //aditional game loop to allow scripts response before being paused
 #if UNITY_VERSION > 500
     UnityBatchPlayerLoop();
 #else
     UnityPlayerLoop();
 #endif
-
+    
     [super applicationWillResignActive:application];
 }
 
@@ -203,7 +246,6 @@ std::queue<std::string> _pendingEvents;
     _gameObjectName = name;
 }
 
-
 @end
 
 extern "C" {
@@ -212,10 +254,62 @@ extern "C" {
         SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
         [delegate setGameObjectName:gameObjectName];
     }
-
+    
     void SPUnityAppEvents_Flush()
     {
         SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
         [delegate flush];
+    }
+    
+    char* SPGetForceTouchShortcut()
+    {
+        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
+        
+        const char* original = [delegate getForceTouchShortcut];
+        
+        if(original == NULL)
+            return NULL;
+        
+        char* copy = (char*)malloc(strlen(original));
+        
+        strcpy(copy, original);
+        
+        return copy;
+    }
+    
+    void SPRemoveForceTouchShortcut()
+    {
+        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
+        return [delegate removeForceTouchShortcut];
+    }
+    
+    bool IsNullOrEmpty(const char* str)
+    {
+        return (str == NULL || strlen(str) < 1);
+    }
+    
+    void SPSetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
+    {
+        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
+        if([delegate isOsVersionGreaterOrEqualThan: kIosVersion9Tag])
+            return;
+        
+        NSMutableArray<UIApplicationShortcutItem*>* items = [NSMutableArray arrayWithCapacity:itemsCount];
+        
+        for(int i = 0; i < itemsCount; ++i)
+        {
+            ForceTouchShortcutItem& shortcut = shortcuts[i];
+            
+            NSString* type = [NSString stringWithUTF8String:shortcut.Type];
+            NSString* title = [NSString stringWithUTF8String:shortcut.Title];
+            NSString* subtitle = IsNullOrEmpty(shortcut.Subtitle) ? nil : [NSString stringWithUTF8String:shortcut.Subtitle];
+            UIApplicationShortcutIcon* icon = IsNullOrEmpty(shortcut.IconPath) ? nil : [UIApplicationShortcutIcon iconWithTemplateImageName:[NSString stringWithUTF8String:shortcut.IconPath]];
+            UIApplicationShortcutItem* item =
+            [[UIApplicationShortcutItem alloc] initWithType:type localizedTitle:title localizedSubtitle:subtitle icon:icon userInfo:nil];
+            
+            [items addObject:item];
+        }
+        
+        [[UIApplication sharedApplication] setShortcutItems:items];
     }
 }
