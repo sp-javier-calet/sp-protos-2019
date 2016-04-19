@@ -297,6 +297,9 @@ public class Go : MonoBehaviour
 	/// </summary>
 	public static void addTween( AbstractGoTween tween )
 	{
+        if (instance == null)
+            return;
+        
 		// early out for invalid items
 		if( !tween.isValid() )
 			return;
