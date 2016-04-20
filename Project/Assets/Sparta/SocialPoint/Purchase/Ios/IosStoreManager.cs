@@ -34,17 +34,6 @@ namespace SocialPoint.Purchase
         // Fired when a product purchase is cancelled by the user or system
         public static event Action<string> PurchaseCancelledEvent;
 
-        // Fired when all transactions from the user's purchase history have successfully been added back to the queue. Note that this event will almost always
-        // fire before each individual transaction is processed.
-        public static event Action RestoreTransactionsFinishedEvent;
-
-        // Fired when an error is encountered while adding transactions from the user's purchase history back to the queue
-        public static event Action<string> RestoreTransactionsFailedEvent;
-
-        // Fired when any SKDownload objects are updated by Apple. If using hosted content you should not be confirming the transaction until all downloads are complete.
-        public static event Action<List<IosStoreDownload>> PaymentQueueUpdatedDownloadsEvent;
-
-
 
         static IosStoreManager()
         {
@@ -113,33 +102,11 @@ namespace SocialPoint.Purchase
                 ProductListRequestFailedEvent(error);
         }
 
-
-        public void RestoreCompletedTransactionsFailed(string error)
-        {
-            if(RestoreTransactionsFailedEvent != null)
-                RestoreTransactionsFailedEvent(error);
-        }
-
-
-        public void RestoreCompletedTransactionsFinished(string empty)
-        {
-            if(RestoreTransactionsFinishedEvent != null)
-                RestoreTransactionsFinishedEvent();
-        }
-
-
-        public void PaymentQueueUpdatedDownloads(string json)
-        {
-            if(PaymentQueueUpdatedDownloadsEvent != null)
-                PaymentQueueUpdatedDownloadsEvent(IosStoreDownload.DownloadsFromJson(json));
-
-        }
-
+        //May be called from Xcode plugin if needed to debug in Unity side
         public void StoreDebugLog(string logMsg)
         {
             Debug.Log(logMsg);
         }
-
     }
 }
 #endif

@@ -32,19 +32,22 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 @property(strong, nonatomic) NSArray* products;
 @property(strong, nonatomic) SKProductsRequest* request;
 @property(strong, nonatomic) NSString* unityListenerName;
+@property(strong, nonatomic) NSString* applicationUsername;
 
 - (id)initWithUnityListener:(const char*)listenerName;
 
-- (BOOL)isInitializingStoreProductsIds;
-- (SKPaymentTransaction*)getPendingTransaction:(const char*)productId;
-- (BOOL)isPendingTransaction:(const char*)productId;
-- (void)consume:(const char*)productId;//UPDATE RETURN TYPE NEEDED (hydra::IAPResult)
+- (void)setAppUsername:(const char*) userIdentifier;
 
-- (void)startSKProductsRequest:(NSMutableSet*)productIdentifiers;
+- (void)startProductsRequest:(NSMutableSet*)productIdentifiers;
 - (void)cancelRequest;
+- (BOOL)isInitializingStoreProductsIds;
 
-- (BOOL)purchaseProduct:(const char*)productIdentifier;
-- (void)recordTransaction:(SKPaymentTransaction*)transaction;
+- (void)purchaseProduct:(const char*)productIdentifier;
+
+- (SKPaymentTransaction*)getPendingTransaction:(const char*)transactionIdentifier;
+- (void)finishPendingTransaction:(const char*)transactionIdentifier;
+- (void)finishPendingTransactions;
+- (void)forceFinishPendingTransactions;
 
 - (void)storeDebugLog:(NSString*) logMsg;
 @end
@@ -57,6 +60,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 {
     if((self = [super init]))
     {
+        self.applicationUsername = nil;
         self.unityListenerName = [NSString stringWithUTF8String:listenerName];
     }
     
@@ -68,16 +72,16 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
     [self cancelRequest];
 }
 
-#pragma mark - getters
+#pragma mark - setters
 
-- (BOOL)isInitializingStoreProductsIds
+- (void)setAppUsername:(const char*) userIdentifier
 {
-    return self.request != nil;
+    self.applicationUsername = [NSString stringWithUTF8String:userIdentifier];
 }
 
-#pragma mark - Initialize Purchase products
+#pragma mark - Load Products
 
-- (void)startSKProductsRequest:(NSMutableSet*)productIdentifiers
+- (void)startProductsRequest:(NSMutableSet*)productIdentifiers
 {
     self.request = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
     self.request.delegate = self;
@@ -91,12 +95,46 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
     [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
 }
 
-- (SKPaymentTransaction*)getPendingTransaction:(const char*)productId
+- (BOOL)isInitializingStoreProductsIds
 {
-    NSString* productIdentifierNS = [NSString stringWithUTF8String:productId];
+    return self.request != nil;
+}
+
+#pragma mark - Purchase Products
+
+- (void)purchaseProduct:(const char*)productId
+{
+    [self storeDebugLog:@"... TEST purchaseProduct"];
+    
+    NSString* productIdentifier = [NSString stringWithCString:productId encoding:NSUTF8StringEncoding];
+    
+    for(SKProduct* prod in self.products)
+    {
+        if([prod.productIdentifier isEqualToString:productIdentifier])
+        {
+            SKMutablePayment* payment = [SKMutablePayment paymentWithProduct:prod];
+            if(self.applicationUsername)
+            {
+                payment.applicationUsername = self.applicationUsername;
+            }
+            [[SKPaymentQueue defaultQueue] addPayment:payment];
+            return;
+        }
+    }
+    
+    //Error if no product with matching id was found
+    NSString* errorDescription = [NSString stringWithFormat:@"Invalid product ID or product not loaded: %@", productIdentifier];
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+}
+
+#pragma mark - Transaction Operations
+
+- (SKPaymentTransaction*)getPendingTransaction:(const char*)transactionIdentifier
+{
+    NSString* transactionIdentifierNS = [NSString stringWithUTF8String:transactionIdentifier];
     for(SKPaymentTransaction* transaction in [[SKPaymentQueue defaultQueue] transactions])
     {
-        if([transaction.payment.productIdentifier isEqualToString:productIdentifierNS])
+        if([transaction.transactionIdentifier isEqualToString:transactionIdentifierNS])
         {
             return transaction;
         }
@@ -105,32 +143,43 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
     return nil;
 }
 
-- (BOOL)isPendingTransaction:(const char*)productId
+- (void)finishPendingTransaction:(const char*)transactionIdentifier
 {
-    return [self getPendingTransaction:productId] != nil;
-}
-
-- (void)consume:(const char*)productId
-{
-    SKPaymentTransaction* pendingTransaction = [self getPendingTransaction:productId];
+    [self storeDebugLog:@"... TEST finishPendingTransaction"];
+    
+    SKPaymentTransaction* pendingTransaction = [self getPendingTransaction:transactionIdentifier];
     if(pendingTransaction)
     {
         [[SKPaymentQueue defaultQueue] finishTransaction:pendingTransaction];
-        //return hydra::IAPResult(true);//UPDATE NEEDED
     }
-    
-    //return hydra::IAPResult("No pending transaction for " + productId);//UPDATE NEEDED
 }
 
-
-// Empty implementation in order to avoid unrecognized selector crashes...
-// blind fix anti hacks
-- (void)recordTransaction:(SKPaymentTransaction*)transaction
+- (void)finishPendingTransactions
 {
-    assert("This method shouldn't be called." && false);
+    [self storeDebugLog:@"... TEST finishPendingTransactions"];
+    
+    for(SKPaymentTransaction* pendingTransaction in [[SKPaymentQueue defaultQueue] transactions])
+    {
+        if (pendingTransaction.transactionState == SKPaymentTransactionStateFailed
+            || pendingTransaction.transactionState == SKPaymentTransactionStateRestored
+            || pendingTransaction.transactionState == SKPaymentTransactionStatePurchased)
+        {
+            [[SKPaymentQueue defaultQueue] finishTransaction:pendingTransaction];
+        }
+    }
 }
 
-#pragma mark - SKProductsRequest Delegate
+- (void)forceFinishPendingTransactions
+{
+    [self storeDebugLog:@"... TEST forceFinishPendingTransactions"];
+    
+    for(SKPaymentTransaction* pendingTransaction in [[SKPaymentQueue defaultQueue] transactions])
+    {
+        [[SKPaymentQueue defaultQueue] finishTransaction:pendingTransaction];
+    }
+}
+
+#pragma mark - SKProductsRequestDelegate
 
 - (void)productsRequest:(SKProductsRequest*)request didReceiveResponse:(SKProductsResponse*)response
 {
@@ -187,102 +236,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
     UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsRequestDidFail", [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
-#pragma mark - Start Purchase
-
-- (BOOL)purchaseProduct:(const char*)productId
-{
-    [self storeDebugLog:@"... TEST purchaseProduct"];
-    
-    NSString* productIdentifier = [NSString stringWithCString:productId encoding:NSUTF8StringEncoding];
-    
-    for(SKProduct* prod in self.products)
-    {
-        if([prod.productIdentifier isEqualToString:productIdentifier])
-        {
-            SKPayment* payment = [SKPayment paymentWithProduct:prod];
-            [[SKPaymentQueue defaultQueue] addPayment:payment];
-            
-            return YES;
-        }
-    }
-    
-    NSString* errorDescription = [NSString stringWithFormat:@"Invalid product ID or product not loaded: %@", productIdentifier];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
-    return NO;
-}
-
-#pragma mark - Transactions State processing
-
-- (void)consumeAsync:(SKPaymentTransaction*)transaction
-{
-    //UPDATE NEEDED
-    /*
-    std::string productId = [NSStringExtra safeUTF8String:transaction.payment.productIdentifier];
-    std::string orderId = [NSStringExtra safeUTF8String:transaction.transactionIdentifier];
-    std::string encodedReceipt = [NSStringExtra safeUTF8String:[PlatformPurchaseServices createEncodedString:[transaction transactionReceipt]]];
-    
-    NSDictionary *receiptDict = [self dictionaryFromPlistData:transaction.transactionReceipt];
-    std::string signature = [NSStringExtra safeUTF8String:[receiptDict objectForKey:@"signature"]];
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        hydra::ValidationRequest request(productId, orderId, encodedReceipt, signature);
-        hydra::ValidationResult result = getPurchaseCenter()->validate(request);
-        
-        // Create a purchase info with all data and result status
-        hydra::PurchaseInfo purchaseInfo((result.code == 0)? hydra::PurchaseState::ValidateSuccess : hydra::PurchaseState::ValidateFailed);
-        purchaseInfo.productId = productId;
-        purchaseInfo.orderId = orderId;
-        purchaseInfo.responseCode = result.code;
-        purchaseInfo.message = result.message;
-        purchaseInfo.payload = result.payload;
-        
-        getPurchaseCenter()->getStatusDelegate().onPurchaseUpdated(purchaseInfo);
-    });
-    //*/
-}
-
-- (NSDictionary *)dictionaryFromPlistData:(NSData *)data
-{
-    NSError *error;
-    NSDictionary *dictionaryParsed = [NSPropertyListSerialization propertyListWithData:data
-                                                                               options:NSPropertyListImmutable
-                                                                                format:nil
-                                                                                 error:&error];
-    if (!dictionaryParsed)
-    {
-        if (error)
-        {
-            NSLog(@"Error parsing plist");
-        }
-        return nil;
-    }
-    return dictionaryParsed;
-}
-
-- (void)failedTransaction:(SKPaymentTransaction*)transaction
-{
-    //UPDATE NEEDED
-    /*
-    hydra::PurchaseInfo purchaseInfo(hydra::PurchaseState::PurchaseCanceled);
-    purchaseInfo.productId = [NSStringExtra safeUTF8String:transaction.payment.productIdentifier];
-    
-    if(transaction.error.code != SKErrorPaymentCancelled)
-    {
-        NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
-        purchaseInfo.message = errorDescription ? [NSStringExtra safeUTF8String:errorDescription] : "";
-        purchaseInfo.state = hydra::PurchaseState::PurchaseFailed;
-        
-        DLog("IAP - Transaction Error: %s\n", purchaseInfo.message.c_str());
-    }
-    
-    getPurchaseCenter()->getStatusDelegate().onPurchaseUpdated(purchaseInfo);
-    
-    [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-     //*/
-}
-
 #pragma mark - SKPaymentTransactionObserver
-
 
 // Called when there are transactions in the payment queue
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
@@ -317,6 +271,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
         if(ts == TSFailed)
         {
             NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
+            [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
             UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
             continue;
         }
@@ -324,7 +279,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
         NSString* transactionState = [NSString stringWithFormat:@"%lu", (unsigned long)ts];
         NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
         NSData* receiptData = [NSData dataWithContentsOfURL:receiptUrl];
-        NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];
+        NSString* receiptBase64 = [PlatformPurchaseServices createEncodedString:receiptData];// [receiptData base64EncodedStringWithOptions:0];
         
         NSDictionary* transactionData = @{
                                       @"productIdentifier":transaction.payment.productIdentifier,
@@ -345,6 +300,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
             {
                 case TSPurchased:
                     UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseAwaitingConfirmation", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
                     break;
                 default:
                     UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -367,17 +323,10 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
     
     for(SKPaymentTransaction * transaction in transactions)
     {
+        //TODO: SendMessage ProductPurchaseCancelled??
         NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
         NSLog(@"... TEST %@ was removed from the payment queue. Error: %@", transaction.payment.productIdentifier, errorDescription);
     }
-}
-
-#pragma mark - Debug
-
-- (void)storeDebugLog:(NSString*) logMsg
-{
-    NSLog(@"Native Debug Log: %@", logMsg);
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", [logMsg cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 #pragma mark - Receipt Encoding
@@ -411,7 +360,16 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
     return [[NSString alloc] initWithBytes:output length:size encoding:NSASCIIStringEncoding];
 }
 
+#pragma mark - Debug
+
+- (void)storeDebugLog:(NSString*) logMsg
+{
+    NSLog(@"Native Debug Log: %@", logMsg);
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", [logMsg cStringUsingEncoding:NSUTF8StringEncoding]);
+}
+
 @end
+
 
 /* BRIDGE */
 
@@ -424,6 +382,11 @@ public:
     : _purchaseServices(nullptr)
     {
         _purchaseServices = [[PlatformPurchaseServices alloc] initWithUnityListener:listenerObjectName];
+    }
+    
+    void setApplicationUsername(const char* userIdentifier)
+    {
+        [_purchaseServices setAppUsername:userIdentifier];
     }
     
     void downloadProducts(const std::string& productList)
@@ -442,7 +405,7 @@ public:
             [productIdentifiers addObject:productId];
         }
         
-        [_purchaseServices startSKProductsRequest:productIdentifiers];
+        [_purchaseServices startProductsRequest:productIdentifiers];
     }
     
     void purchaseProduct(const char* productIdentifier)
@@ -450,16 +413,20 @@ public:
         [_purchaseServices purchaseProduct:productIdentifier];
     }
     
-    
-    /*IAPResult isPendingTransaction(const std::string& productIdentifier) const
+    void finishPendingTransaction(const char* productIdentifier)
     {
-        return IAPResult([_purchaseServices isPendingTransaction:productIdentifier]);
+        return [_purchaseServices finishPendingTransaction:productIdentifier];
     }
     
-    IAPResult consume(const std::string& productId) const
+    void finishPendingTransactions()
     {
-        return [_purchaseServices consume:productId];
-    }*/
+        return [_purchaseServices finishPendingTransactions];
+    }
+    
+    void forceFinishPendingTransactions()
+    {
+        return [_purchaseServices forceFinishPendingTransactions];
+    }
 };
 
 PlatformPurchaseCenterBridge* purchaseBridge;
@@ -471,19 +438,9 @@ EXPORT_API void SPStore_Init(const char* listenerObjectName)
     purchaseBridge = new PlatformPurchaseCenterBridge(listenerObjectName);
 }
 
-EXPORT_API bool SPStore_CanMakePayments()
-{
-    return false;
-}
-
 EXPORT_API void SPStore_SetApplicationUsername(const char* applicationUserName)
 {
-    
-}
-
-EXPORT_API const char* SPStore_GetAppStoreReceiptUrl()
-{
-    return "";
+    purchaseBridge->setApplicationUsername(applicationUserName);
 }
 
 EXPORT_API void SPStore_SendTransactionUpdateEvents(bool sendTransactionUpdateEvents)
@@ -508,45 +465,16 @@ EXPORT_API void SPStore_PurchaseProduct(const char* productIdentifier)
 
 EXPORT_API void SPStore_FinishPendingTransactions()
 {
-    
+    purchaseBridge->finishPendingTransactions();
 }
 
 EXPORT_API void SPStore_ForceFinishPendingTransactions()
 {
-    
+    purchaseBridge->forceFinishPendingTransactions();
 }
 
 EXPORT_API void SPStore_FinishPendingTransaction(const char* transactionIdentifier)
 {
-    
+    purchaseBridge->finishPendingTransaction(transactionIdentifier);
 }
 
-EXPORT_API void SPStore_PauseDownloads()
-{
-    
-}
-
-EXPORT_API void SPStore_ResumeDownloads()
-{
-    
-}
-
-EXPORT_API void SPStore_CancelDownloads()
-{
-    
-}
-
-EXPORT_API void SPStore_RestoreCompletedTransactions()
-{
-    
-}
-
-EXPORT_API const char* SPStore_GetAllSavedTransactions()
-{
-    return "";
-}
-
-EXPORT_API void SPStore_DisplayStoreWithProductId(const char* productId, const char* affiliateToken)
-{
-    
-}

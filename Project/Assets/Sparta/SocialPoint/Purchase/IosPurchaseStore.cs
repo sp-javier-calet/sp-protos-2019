@@ -160,6 +160,7 @@ namespace SocialPoint.Purchase
                 DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
                 _validatePurchase(receipt, (response) => {
                     DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
+                    UnityEngine.Debug.Log("*** TEST response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
                         IosStoreBinding.FinishPendingTransaction(receipt.OrderId);
