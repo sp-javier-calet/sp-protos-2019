@@ -22,24 +22,7 @@ namespace SocialPoint.Purchase
 
         public static List<IosStoreProduct> ProductsFromJson(string json)
         {
-            var productList = new List<IosStoreProduct>();
-
-            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
-            Attr parsedData = litJsonParser.ParseString(json);
-            if(parsedData.AttrType == AttrType.LIST)
-            {
-                AttrList products = parsedData.AsList;
-                for(int i = 0; i < products.Count; ++i)
-                {
-                    Attr pData = products[i];
-                    if(pData.AttrType == AttrType.DICTIONARY)
-                    {
-                        productList.Add(ProductFromDictionary(pData.AsDic));
-                    }
-                }
-            }
-
-            return productList;
+            return IosStoreAttrUtils.IosStoreListFromJson<IosStoreProduct>(json, ProductFromDictionary);
         }
 
 

@@ -38,41 +38,13 @@ namespace SocialPoint.Purchase
 
         public static List<IosStoreTransaction> TransactionsFromJson(string json)
         {
-            var transactionList = new List<IosStoreTransaction>();
-
-            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
-            Attr parsedData = litJsonParser.ParseString(json);
-            if(parsedData.AttrType == AttrType.LIST)
-            {
-                AttrList transactions = parsedData.AsList;
-                for(int i = 0; i < transactions.Count; ++i)
-                {
-                    Attr pData = transactions[i];
-                    if(pData.AttrType == AttrType.DICTIONARY)
-                    {
-                        transactionList.Add(TransactionFromDictionary(pData.AsDic));
-                    }
-                }
-            }
-
-            return transactionList;
+            return IosStoreAttrUtils.IosStoreListFromJson<IosStoreTransaction>(json, TransactionFromDictionary);
         }
 
 
         public static IosStoreTransaction TransactionFromJson(string json)
         {
-            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
-            Attr parsedData = litJsonParser.ParseString(json);
-            AttrDic dict = null;
-            if(parsedData.AttrType == AttrType.DICTIONARY)
-            {
-                dict = parsedData.AsDic;
-            }
-
-            if(dict == null)
-                return new IosStoreTransaction();
-
-            return TransactionFromDictionary(dict);
+            return IosStoreAttrUtils.IosStoreObjectFromJson<IosStoreTransaction>(json, TransactionFromDictionary);
         }
 
 

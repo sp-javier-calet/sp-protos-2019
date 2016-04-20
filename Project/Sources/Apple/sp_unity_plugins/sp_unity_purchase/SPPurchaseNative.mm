@@ -293,7 +293,7 @@
 {
     for(SKPaymentTransaction * transaction in transactions)
     {
-        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ was removed from the payment queue.", transaction.payment.productIdentifier]];
+        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ (Product %@) was removed from the payment queue.", transaction.transactionIdentifier, transaction.payment.productIdentifier]];
     }
 }
 

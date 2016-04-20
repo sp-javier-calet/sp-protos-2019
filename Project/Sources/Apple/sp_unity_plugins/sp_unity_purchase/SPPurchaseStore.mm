@@ -100,8 +100,7 @@ PlatformPurchaseCenterBridge* purchaseBridge = nullptr;
 
 EXPORT_API void SPStore_Init(const char* listenerObjectName)
 {
-    if(purchaseBridge)
-        purchaseBridge = new PlatformPurchaseCenterBridge(listenerObjectName);
+    purchaseBridge = new PlatformPurchaseCenterBridge(listenerObjectName);
 }
 
 EXPORT_API void SPStore_SetApplicationUsername(const char* applicationUserName)
