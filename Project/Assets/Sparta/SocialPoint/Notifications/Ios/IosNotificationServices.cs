@@ -17,6 +17,7 @@ namespace SocialPoint.Notifications
     {
         const string TokenSeparator = "-";
         const NotificationType NotificationTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
+        const float PushTokenTimeout = 30.0f;
 
         IEnumerator _checkPermissionStatusCoroutine;
 
@@ -65,34 +66,39 @@ namespace SocialPoint.Notifications
             
         public override void RequestPermissions()
         {
-            if(_checkPermissionStatusCoroutine != null)
+            if(_checkPermissionStatusCoroutine == null)
             {
-                NotificationServices.RegisterForNotifications(NotificationTypes);
+                NotificationServices.RegisterForNotifications(NotificationTypes, true);
                 _checkPermissionStatusCoroutine = _runner.StartCoroutine(CheckPermissionStatus());
             }
         }
 
         IEnumerator CheckPermissionStatus()
         {
-            byte[] byteToken = NotificationServices.deviceToken;
-            if(byteToken == null)
+            float startTime = Time.unscaledTime;
+            float currentTime = startTime;
+            byte[] byteToken = null;
+            string registrationError = null;
+            while(byteToken == null && string.IsNullOrEmpty(registrationError) && (currentTime - startTime) < PushTokenTimeout)
             {
-                string registrationError = NotificationServices.registrationError;
-                if(String.IsNullOrEmpty(registrationError))
-                {
-                    yield return null;
-                }
-                else
-                {
-                    _pushToken = "";
-                    OnRequestPermissionsFail();
-                }
+                byteToken = NotificationServices.deviceToken;
+                registrationError = NotificationServices.registrationError;
+                yield return new WaitForSeconds(1.0f);
+                currentTime = Time.unscaledTime;
             }
-            else
+
+            if(byteToken != null)
             {
                 _pushToken = BitConverter.ToString(byteToken).Replace(TokenSeparator, string.Empty).ToLower();
                 OnRequestPermissionsSuccess();
             }
+            else
+            {
+                _pushToken = "";
+                OnRequestPermissionsFail();
+            }
+
+            _checkPermissionStatusCoroutine = null;
         }
     }
 

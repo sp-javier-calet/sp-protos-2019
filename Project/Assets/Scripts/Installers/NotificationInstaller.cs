@@ -30,14 +30,14 @@ public class NotificationInstaller : Installer, IInitializable
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        Container.Rebind<NotificationManager>().ToSingle<NotificationManager>();
+        Container.Rebind<SocialPoint.Notifications.NotificationManager>().ToSingle<NotificationManager>();
         Container.Bind<IDisposable>().ToSingle<NotificationManager>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
     }
 
     public void Initialize()
     {
-        Container.Resolve<NotificationManager>();
+        Container.Resolve<SocialPoint.Notifications.NotificationManager>();
         var services = Container.Resolve<INotificationServices>();
         if(Settings.AutoRegisterForRemote)
         {

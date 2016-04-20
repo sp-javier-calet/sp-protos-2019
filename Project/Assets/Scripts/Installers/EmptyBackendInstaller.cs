@@ -50,7 +50,7 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelMessageCenter>();
         }
-        if(!Container.HasBinding<NotificationManager>())
+        if(!Container.HasBinding<SocialPoint.Notifications.NotificationManager>())
         {
             Container.Install<NotificationInstaller>();
         }

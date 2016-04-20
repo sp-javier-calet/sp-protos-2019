@@ -68,6 +68,7 @@ namespace SocialPoint.Notifications
                     msg = "Cannot retrieve push token (permission denied).";
                 }
                 layout.AdminPanel.Console.Print(msg);
+                layout.Refresh();
             }));
 
             layout.CreateMargin();
