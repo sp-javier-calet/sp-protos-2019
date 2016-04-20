@@ -18,6 +18,11 @@ namespace SocialPoint.AppEvents
         PriorityAction GameWasLoaded{ get; }
 
         /// <summary>
+        /// Occurs after the game was loaded finished all coroutines.
+        /// </summary>
+        PriorityCoroutineAction AfterGameWasLoaded{ get; }
+
+        /// <summary>
         /// Occurs before game is restarted
         /// </summary>
         PriorityAction GameWillRestart{ get; }

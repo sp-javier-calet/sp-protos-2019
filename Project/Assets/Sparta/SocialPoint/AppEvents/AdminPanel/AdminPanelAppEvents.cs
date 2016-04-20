@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using SocialPoint.AdminPanel;
 using UnityEngine.UI;
 
@@ -27,6 +28,7 @@ namespace SocialPoint.AppEvents
             _appEvents.WillGoBackground.Add(0, OnWillGoBackground);
             _appEvents.GameWillRestart.Add(0, OnGameWillRestart);
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
+            _appEvents.AfterGameWasLoaded.Add(0,AfterGameWasLoaded);
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ApplicationQuit += OnApplicationQuit;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
@@ -62,6 +64,12 @@ namespace SocialPoint.AppEvents
             AddEvent("GameWasLoaded");
         }
 
+        IEnumerator AfterGameWasLoaded()
+        {
+            AddEvent("AfterGameWasLoaded");
+            yield break;
+        }
+
         void OnLevelWasLoaded(int level)
         {
             AddEvent("LevelWasLoaded: " + level); 
@@ -85,6 +93,7 @@ namespace SocialPoint.AppEvents
             _appEvents.WillGoBackground.Remove(OnWillGoBackground);
             _appEvents.GameWillRestart.Remove(OnGameWillRestart);
             _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
+            _appEvents.AfterGameWasLoaded.Remove(AfterGameWasLoaded);
             _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             _appEvents.ApplicationQuit -= OnApplicationQuit;
             _appEvents.ReceivedMemoryWarning -= OnReceivedMemoryWarning;
