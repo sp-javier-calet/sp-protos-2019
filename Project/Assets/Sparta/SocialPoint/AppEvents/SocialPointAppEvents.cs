@@ -37,6 +37,7 @@ namespace SocialPoint.AppEvents
             #elif UNITY_ANDROID
             _appEvents = go.AddComponent<AndroidAppEvents>();
             #endif
+            _defaultCoroutine = new PriorityCoroutineAction(_appEvents);
         }
 
         void DestroyAppEvents()
@@ -52,12 +53,21 @@ namespace SocialPoint.AppEvents
 
 
         PriorityAction _default = new PriorityAction();
+        PriorityCoroutineAction _defaultCoroutine;
 
         public PriorityAction WillGoBackground
         {
             get
             {
                 return _appEvents == null ? _default : _appEvents.WillGoBackground;
+            }
+        }
+
+        public PriorityCoroutineAction AfterGameWasLoaded
+        {
+            get
+            {
+                return _appEvents == null ? _defaultCoroutine : _appEvents.AfterGameWasLoaded;
             }
         }
 

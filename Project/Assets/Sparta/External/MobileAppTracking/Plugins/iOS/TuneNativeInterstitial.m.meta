@@ -9,8 +9,13 @@ PluginImporter:
   isPreloaded: 0
   platformData:
     Any:
-      enabled: 1
+      enabled: 0
       settings: {}
+    iOS:
+      enabled: 1
+      settings:
+        CompileFlags: -fno-objc-arc
+        FrameworkDependencies: 
   userData: 
   assetBundleName: 
   assetBundleVariant: 
