@@ -19,11 +19,10 @@ extern "C"
 {
     EXPORT_API void SPStore_Init(const char* listenerObjectName);
     EXPORT_API void SPStore_SetApplicationUsername(const char* applicationUserName);
-    EXPORT_API void SPStore_SendTransactionUpdateEvents(bool sendTransactionUpdateEvents);
+    EXPORT_API void SPStore_SendTransactionUpdateEvents(bool shouldSend);
     EXPORT_API void SPStore_EnableHighDetailLogs(bool shouldEnable);
     EXPORT_API void SPStore_RequestProductData(const char* productIdentifiers);
     EXPORT_API void SPStore_PurchaseProduct(const char* productIdentifier);
-    EXPORT_API void SPStore_FinishPendingTransactions();
     EXPORT_API void SPStore_ForceFinishPendingTransactions();
     EXPORT_API void SPStore_FinishPendingTransaction(const char* transactionIdentifier);
 }

@@ -8,6 +8,7 @@ namespace SocialPoint.Purchase
 {
     public class IosStoreManager : MonoBehaviour
     {
+        //TODO:Delete
         public static bool autoConfirmTransactions = true;
 
         // Fired when the product list your required returns. Automatically serializes the productString into IosStoreProduct's.
@@ -48,7 +49,6 @@ namespace SocialPoint.Purchase
 
         public void TransactionUpdated(string json)
         {
-            Debug.Log("*** TEST IosStoreManager TransactionUpdated " + json);
             if(TransactionUpdatedEvent != null)
                 TransactionUpdatedEvent(IosStoreTransaction.TransactionFromJson(json));
         }
@@ -56,18 +56,13 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchaseAwaitingConfirmation(string json)
         {
-            Debug.Log("*** TEST IosStoreManager ProductPurchaseAwaitingConfirmation " + json);
             if(ProductPurchaseAwaitingConfirmationEvent != null)
                 ProductPurchaseAwaitingConfirmationEvent(IosStoreTransaction.TransactionFromJson(json));
-
-            if(autoConfirmTransactions)
-                IosStoreBinding.FinishPendingTransactions();
         }
 
 
         public void ProductPurchased(string json)
         {
-            Debug.Log("*** TEST IosStoreManager ProductPurchased " + json);
             if(PurchaseSuccessfulEvent != null)
                 PurchaseSuccessfulEvent(IosStoreTransaction.TransactionFromJson(json));
         }
@@ -75,7 +70,6 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchaseFailed(string error)
         {
-            Debug.Log("*** TEST IosStoreManager ProductPurchaseFailed " + error);
             if(PurchaseFailedEvent != null)
                 PurchaseFailedEvent(error);
         }
@@ -83,7 +77,6 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchaseCancelled(string error)
         {
-            Debug.Log("*** TEST IosStoreManager ProductPurchaseCancelled " + error);
             if(PurchaseCancelledEvent != null)
                 PurchaseCancelledEvent(error);
         }

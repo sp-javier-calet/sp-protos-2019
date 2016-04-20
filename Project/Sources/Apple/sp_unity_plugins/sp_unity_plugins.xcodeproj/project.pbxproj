@@ -123,6 +123,8 @@
 		7B3856521C98A53800D04AEF /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38552D1C98A35300D04AEF /* libz.a */; };
 		7B3856531C98A53800D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557C1C98A35300D04AEF /* libcrypto.a */; };
 		7B3856541C98A53800D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557D1C98A35300D04AEF /* libssl.a */; };
+		F53F90891CC7D1120020C2AC /* SPPurchaseNative.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNative.mm */; };
+		F53F908B1CC7D1300020C2AC /* SPPurchaseNative.h in Headers */ = {isa = PBXBuildFile; fileRef = F53F908A1CC7D1300020C2AC /* SPPurchaseNative.h */; };
 		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
 		F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */ = {isa = PBXBuildFile; fileRef = F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */; };
 		F542C2221CC4EEF80045B8A9 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F542C2211CC4EEF80045B8A9 /* StoreKit.framework */; };
@@ -320,10 +322,11 @@
 		7B38552D1C98A35300D04AEF /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		7B38557C1C98A35300D04AEF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		7B38557D1C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
+		F53F90881CC7D1120020C2AC /* SPPurchaseNative.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseNative.mm; path = sp_unity_purchase/SPPurchaseNative.mm; sourceTree = "<group>"; };
+		F53F908A1CC7D1300020C2AC /* SPPurchaseNative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseNative.h; path = sp_unity_purchase/SPPurchaseNative.h; sourceTree = "<group>"; };
 		F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseStore.mm; path = sp_unity_purchase/SPPurchaseStore.mm; sourceTree = "<group>"; };
 		F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseStore.h; path = sp_unity_purchase/SPPurchaseStore.h; sourceTree = "<group>"; };
 		F542C2211CC4EEF80045B8A9 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
-		F55CA1C01CC54D1200A18C4D /* SPPurchaseUtils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = SPPurchaseUtils.hpp; path = sp_unity_purchase/SPPurchaseUtils.hpp; sourceTree = "<group>"; };
 		FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCurlFacadeIos.mm; sourceTree = "<group>"; };
 		FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlFacade.cpp; sourceTree = "<group>"; };
 		FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlFacade.h; sourceTree = "<group>"; };
@@ -757,7 +760,8 @@
 			children = (
 				F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */,
 				F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */,
-				F55CA1C01CC54D1200A18C4D /* SPPurchaseUtils.hpp */,
+				F53F908A1CC7D1300020C2AC /* SPPurchaseNative.h */,
+				F53F90881CC7D1120020C2AC /* SPPurchaseNative.mm */,
 			);
 			name = sp_unity_purchase;
 			sourceTree = "<group>";
@@ -951,6 +955,7 @@
 				46F749181C60AE77000DB6B1 /* PLCrashReportProcessorInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
 				46F749111C60AE77000DB6B1 /* PLCrashReporter.h in Headers */,
+				F53F908B1CC7D1300020C2AC /* SPPurchaseNative.h in Headers */,
 				46F749141C60AE77000DB6B1 /* PLCrashReportFormatter.h in Headers */,
 				46F7490E1C60AE77000DB6B1 /* PLCrashReport.h in Headers */,
 				46F749121C60AE77000DB6B1 /* PLCrashReporterConfig.h in Headers */,
@@ -1246,6 +1251,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F53F90891CC7D1120020C2AC /* SPPurchaseNative.mm in Sources */,
 				FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */,
 				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
 				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,

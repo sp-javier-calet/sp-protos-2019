@@ -30,13 +30,13 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
-        private static extern void SPStore_SendTransactionUpdateEvents(bool sendTransactionUpdateEvents);
+        private static extern void SPStore_SendTransactionUpdateEvents(bool shouldSend);
 
         // By default, the transactionUpdatedEvent will not be called to avoid excessive string allocations. If you pass true to this method it will be called.
-        public static void SetShouldSendTransactionUpdateEvents(bool sendTransactionUpdateEvents)
+        public static void SetShouldSendTransactionUpdateEvents(bool shouldSend)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
-                SPStore_SendTransactionUpdateEvents(sendTransactionUpdateEvents);
+                SPStore_SendTransactionUpdateEvents(shouldSend);
         }
 
 
@@ -72,18 +72,6 @@ namespace SocialPoint.Purchase
                 SPStore_PurchaseProduct(productIdentifier);
         }
 
-
-        [DllImport("__Internal")]
-        private static extern void SPStore_FinishPendingTransactions();
-
-        // Finishes any pending transactions that were being tracked
-        public static void FinishPendingTransactions()
-        {
-            if(Application.platform == RuntimePlatform.IPhonePlayer)
-                SPStore_FinishPendingTransactions();
-        }
-
-
         [DllImport("__Internal")]
         private static extern void SPStore_ForceFinishPendingTransactions();
 
@@ -91,7 +79,7 @@ namespace SocialPoint.Purchase
         public static void ForceFinishPendingTransactions()
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
-                SPStore_FinishPendingTransactions();
+                SPStore_ForceFinishPendingTransactions();
         }
 
 

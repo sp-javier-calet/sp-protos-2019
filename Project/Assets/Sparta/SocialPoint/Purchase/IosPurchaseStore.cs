@@ -158,6 +158,7 @@ namespace SocialPoint.Purchase
             {
                 Receipt receipt = _pendingPurchases[0];
                 DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
+                UnityEngine.Debug.Log("*** TEST Validate Purchase Receipt: " + receipt);
                 _validatePurchase(receipt, (response) => {
                     DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
                     UnityEngine.Debug.Log("*** TEST response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
@@ -203,6 +204,8 @@ namespace SocialPoint.Purchase
             data.SetValue(Receipt.PurchaseStateKey, (int)PurchaseState.ValidateSuccess);
             data.SetValue(Receipt.OriginalJsonKey, transaction.Base64EncodedTransactionReceipt);
             data.SetValue(Receipt.StoreKey, "itunes");
+
+            UnityEngine.Debug.Log("*** TEST ProductPurchaseAwaitingConfirmation. Receipt: " + transaction.Base64EncodedTransactionReceipt);
 
             if(_pendingPurchases == null)
                 _pendingPurchases = new List<Receipt>();
