@@ -1,10 +1,8 @@
 #include <jni.h>
-#include "UnityGameObject.h"
+#include "JniObject.hpp"
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
-  JNIEnv* env = 0;
-  vm->AttachCurrentThread(&env, 0);
-  UnityGameObject::SetJniEnv(env);
-  return JNI_VERSION_1_6;
+    Jni::get().setJava(vm);
+    return JNI_VERSION_1_4;
 }

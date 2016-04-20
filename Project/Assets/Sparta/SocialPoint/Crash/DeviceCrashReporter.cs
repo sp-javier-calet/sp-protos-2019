@@ -179,7 +179,7 @@ namespace SocialPoint.Crash
             ReadPendingCrashes();
 
             // Create listener
-            var listenerGo = new GameObject("DeviceCrashReporterListener");
+            var listenerGo = new GameObject("SocialPoint.DeviceCrashReporterListener");
             _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
 
             // Create native object
