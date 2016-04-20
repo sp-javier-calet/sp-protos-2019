@@ -51,12 +51,22 @@ namespace SocialPoint.Notifications
 
             layout.CreateLabel("User allows notifications: " + _services.UserAllowsNofitication);
 
+            layout.CreateButton("Request Permissions", _services.RequestPermissions);
+
             layout.CreateButton("Clear Received", _services.ClearReceived);
 
             layout.CreateButton("Cancel Pending", _services.CancelPending);
 
-            layout.CreateButton("Register For Remote", () => _services.RegisterForRemote(token => { 
-                var msg = string.Format("Retrieved push token: {0}", token);
+            layout.CreateButton("Get Push Token", () => _services.RegisterForRemoteToken((isTokenValid, token) => {
+                string msg;
+                if(isTokenValid)
+                {
+                    msg = string.Format("Retrieved push token: {0}", token);
+                }
+                else
+                {
+                    msg = "Cannot retrieve push token (permission denied).";
+                }
                 layout.AdminPanel.Console.Print(msg);
             }));
 

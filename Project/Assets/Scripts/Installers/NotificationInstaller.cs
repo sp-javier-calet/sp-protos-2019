@@ -41,7 +41,7 @@ public class NotificationInstaller : Installer, IInitializable
         var services = Container.Resolve<INotificationServices>();
         if(Settings.AutoRegisterForRemote)
         {
-            services.RegisterForRemote();
+            services.RequestPermissions();
         }
     }
     

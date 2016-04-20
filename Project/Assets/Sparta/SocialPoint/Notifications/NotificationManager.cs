@@ -16,8 +16,7 @@ namespace SocialPoint.Notifications
 
         List<Notification> _notifications = new List<Notification>();
 
-
-        public NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue, bool requestPushNotificationAutomatically = true)
+        public NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
         {
             if(coroutineRunner == null)
             {
@@ -30,19 +29,13 @@ namespace SocialPoint.Notifications
             _appEvents = appEvents;
 
 #if UNITY_IOS && !UNITY_EDITOR
-            Services = new IosNotificationServices(coroutineRunner, commandQueue, requestPushNotificationAutomatically);
-            if(requestPushNotificationAutomatically)
-            {
-                Init();
-            }
-
+            Services = new IosNotificationServices(coroutineRunner, commandQueue);
 #elif UNITY_ANDROID && !UNITY_EDITOR
             Services = new AndroidNotificationServices(coroutineRunner, commandQueue);
-            Init();
 #else
             Services = new EmptyNotificationServices();
-            Init();
 #endif
+            Init();
         }
 
         protected NotificationManager(INotificationServices services, IAppEvents appEvents)
