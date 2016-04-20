@@ -148,16 +148,10 @@ namespace SocialPoint.Crash
         static extern void SPUnityCrashReporterForceCrash();
 
         [DllImport(PluginModuleName)]
-        static extern UIntPtr SPUnityCrashReporterCreate(string path, string version, string separator, string crashExtension, string logExtension);
+        static extern UIntPtr SPUnityCrashReporterCreate(string path, string version, string separator, string crashExtension, string logExtension, string gameObject);
 
         [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
-
-        [DllImport(PluginModuleName)]
-        static extern IntPtr SPUnityCrashReporterGetCrashPaths(UIntPtr ctx);
-
-        [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterClearCrashPaths(UIntPtr ctx);
+        static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);       
 
         public const string CrashesFolder = "/crashes/";
         public const string CrashExtension = ".crash";
@@ -167,6 +161,7 @@ namespace SocialPoint.Crash
         string _crashesBasePath;
         UIntPtr _nativeObject;
         string _appVersion;
+        DeviceCrashReporterListener _listener;
 
         public DeviceCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
             : base(runner, client, deviceInfo, breadcrumbManager, alertView)
@@ -183,8 +178,12 @@ namespace SocialPoint.Crash
 
             ReadPendingCrashes();
 
+            // Create listener
+            var listenerGo = new GameObject("DeviceCrashReporterListener");
+            _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
+
             // Create native object
-            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension);
+            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, _listener.gameObject.name);
         }
 
         ~DeviceCrashReporter ()
@@ -243,52 +242,17 @@ namespace SocialPoint.Crash
 
             return reports;
         }
+    }
 
-        protected override void Update()
+    class DeviceCrashReporterListener : MonoBehaviour
+    {
+        public void OnCrashDumped(string path)
         {
-            base.Update();
-            CleanCurrentCrashes();
-        }
-
-        void CleanCurrentCrashes()
-        {
-            var paths = CurrentCrashPaths;
-            if(paths.Length == 0)
+            if(FileUtils.ExistsFile(path))
             {
-                return;
+                DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
+                FileUtils.DeleteFile(path);
             }
-            for(int i = 0; i < paths.Length; i++)
-            {
-                var path = paths[i];
-                if(FileUtils.ExistsFile(path))
-                {
-                    DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
-                    FileUtils.DeleteFile(path);
-                }
-            }
-            ClearCurrentCrashPaths();
-        }
-                   
-        const char CrashPathsSeparator = ';';
-
-        string[] CurrentCrashPaths
-        {
-            get
-            {
-                var paths = Marshal.PtrToStringAnsi(SPUnityCrashReporterGetCrashPaths(_nativeObject));
-                if(paths.Length == 0)
-                {
-                    return new string[0];
-                }
-                return paths.Split(CrashPathsSeparator);
-            }
-        }
-
-        void ClearCurrentCrashPaths()
-        {
-            SPUnityCrashReporterClearCrashPaths(_nativeObject);
-        }
-
-
+        }  
     }
 }

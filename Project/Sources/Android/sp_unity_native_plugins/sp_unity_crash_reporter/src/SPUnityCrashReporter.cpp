@@ -3,11 +3,8 @@
 #include <cassert>
 #include <chrono>
 #include <ctime>
-#include <android/log.h>
+#include "UnityGameObject.h"
 #include "SPUnityCrashReporter.hpp"
-
-#define LOG_TAG "SPUnityCrashReporter"
-
 
 /* google_breakpad is only supported in arm architectures
  * SPUnityCrashReporter cannot be enabled in x86 builds.
@@ -17,8 +14,8 @@
     #include "client/linux/handler/exception_handler.h" // inclusion of linux header as told in README.ANDROID from google-breakpad
     #include "client/linux/handler/minidump_descriptor.h"
 
-
-    namespace {
+    namespace
+    {
         bool onCrash(const google_breakpad::MinidumpDescriptor& descriptor,
                           void* context,
                           bool succeeded)
@@ -45,13 +42,15 @@ SPUnityCrashReporter::SPUnityCrashReporter(const std::string& path,
                                            const std::string& version,
                                            const std::string& fileSeparator,
                                            const std::string& crashExtension,
-                                           const std::string& logExtension)
+                                           const std::string& logExtension,
+                                           const std::string& gameObject)
 : _exceptionHandler(nullptr)
 , _crashDirectory(path)
 , _version(version)
 , _fileSeparator(fileSeparator)
 , _crashExtension(crashExtension)
 , _logExtension(logExtension)
+, _gameObject(gameObject)
 {
 }
 
@@ -101,15 +100,8 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
     std::string logcatCmd("logcat -d -t 200 -f " + newLogPath);
     system(logcatCmd.c_str());
 
-    _crashPaths += newCrashPath+";";
-}
-
-const std::string& SPUnityCrashReporter::getCrashPaths() const
-{
-    return _crashPaths;
-}
-
-void SPUnityCrashReporter::clearCrashPaths()
-{
-    _crashPaths.clear();
+    if(!_gameObject.empty())
+    {
+        UnityGameObject(_gameObject.c_str()).SendMessage("OnCrashDumped", newLogPath);
+    }
 }

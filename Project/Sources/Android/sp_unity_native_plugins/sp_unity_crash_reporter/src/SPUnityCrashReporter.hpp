@@ -18,7 +18,7 @@ private:
     std::string _fileSeparator;
     std::string _crashExtension;
     std::string _logExtension;
-    std::string _crashPaths;
+    std::string _gameObject;
 
     google_breakpad::ExceptionHandler* _exceptionHandler;
 
@@ -28,7 +28,8 @@ public:
                     	 const std::string& version,
                      	 const std::string& fileSeparator,
                      	 const std::string& crashExtension,
-                     	 const std::string& logExtension);
+                     	 const std::string& logExtension,
+                         const std::string& gameObject);
 
     bool enable();
     bool disable();

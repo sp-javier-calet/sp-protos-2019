@@ -4,6 +4,7 @@
 #include "CrashReporter.h"
 #endif
 #include <string>
+#include "UnityGameObject.h"
 #import <Foundation/Foundation.h>
 
 
@@ -16,7 +17,7 @@ private:
     std::string _error;
     std::string _fileSeparator;
     std::string _crashExtension;
-    std::string _crashPaths;
+    std::string _gameObject;
 
     static void onCrash(siginfo_t *info, ucontext_t *uap, void *context)
     {
@@ -46,7 +47,10 @@ private:
             [crashData writeToFile:[[NSString alloc] initWithUTF8String:filePath.c_str()]
                         atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
-            _crashPaths += filePath+";";
+            if(!_gameObject.empty())
+            {
+                UnityGameObject(_gameObject.c_str()).SendMessage("OnCrashDumped", filePath.c_str());
+            }
         }
     }
 
@@ -91,12 +95,14 @@ public:
     void setConfig(const std::string& path,
                    const std::string& version,
                    const std::string& fileSeparator,
-                   const std::string& crashExtension)
+                   const std::string& crashExtension,
+                   const std::string& gameObject)
     {
         _crashDirectory = path;
         _version = version;
         _fileSeparator = fileSeparator;
         _crashExtension = crashExtension;
+        _gameObject = gameObject;
     }
 
     bool enable()
@@ -163,17 +169,6 @@ public:
         return false;
 #endif
     }
-
-    const std::string& getCrashPaths() const
-    {
-        return _crashPaths;
-    }
-
-    void clearCrashPaths()
-    {
-        _crashPaths.clear();
-    }
-
 };
 
 
@@ -183,11 +178,15 @@ public:
 extern "C" {
     SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* path, const char* version,
                                                       const char* fileSeparator, const char* crashExtension,
-                                                      const char* logExtension)
+                                                      const char* logExtension, const char* gameObject)
     {
         SPUnityCrashReporter* reporterInstance = SPUnityCrashReporter::getInstance();
-        reporterInstance->setConfig(std::string(path), std::string(version),
-                                    std::string(fileSeparator), std::string(crashExtension));
+        reporterInstance->setConfig(
+            std::string(path),
+            std::string(version),
+            std::string(fileSeparator),
+            std::string(crashExtension),
+            std::string(gameObject));
 
         return reporterInstance;
     }
@@ -210,21 +209,5 @@ extern "C" {
     void SPUnityCrashReporterForceCrash()
     {
         *((unsigned int*)0) = 0xDEAD;
-    }
-
-    int SPUnityCrashReporterGetCrashPathsLength(SPUnityCrashReporter* crashReporter)
-    {
-        return (int)crashReporter->getCrashPaths().length();
-    }
-
-    void SPUnityCrashReporterGetCrashPaths(SPUnityCrashReporter* crashReporter, char* data)
-    {
-        const std::string& paths = crashReporter->getCrashPaths();
-        memcpy(data, paths.c_str(), paths.length()*sizeof(char));
-    }
-
-    void SPUnityCrashReporterClearCrashPaths(SPUnityCrashReporter* crashReporter)
-    {
-        crashReporter->clearCrashPaths();
     }
 }

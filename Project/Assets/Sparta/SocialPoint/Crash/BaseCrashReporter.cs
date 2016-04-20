@@ -948,7 +948,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        protected virtual void Update()
+        void Update()
         {
             if(_lastSendTimestamp + (long)_currentSendInterval < TimeUtils.Timestamp)
             {

@@ -6,13 +6,14 @@
 extern "C"{
     SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* path, const char* version,
                                                       const char* fileSeparator, const char* crashExtension,
-                                                      const char* logExtension)
+                                                      const char* logExtension, const char* gameObject)
     {
         return new SPUnityCrashReporter(std::string(path),
                                         std::string(version),
                                         std::string(fileSeparator),
                                         std::string(crashExtension),
-                                        std::string(logExtension));
+                                        std::string(logExtension),
+                                        std::string(gameObject));
     }
 
     void SPUnityCrashReporterEnable(SPUnityCrashReporter* crashReporter)
@@ -33,15 +34,5 @@ extern "C"{
     void SPUnityCrashReporterForceCrash()
     {
         *((unsigned int*)0) = 0xDEAD;
-    }
-
-    const char* SPUnityCrashReporterGetCrashPaths(SPUnityCrashReporter* crashReporter)
-    {
-        return crashReporter->getCrashPaths().c_str();
-    }
-
-    void SPUnityCrashReporterClearCrashPaths(SPUnityCrashReporter* crashReporter)
-    {
-        crashReporter->clearCrashPaths();
     }
 }
