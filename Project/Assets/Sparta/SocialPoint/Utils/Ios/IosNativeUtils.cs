@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using UnityEngine;
-using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace SocialPoint.Utils
 {
@@ -89,27 +88,11 @@ namespace SocialPoint.Utils
 
 #if UNITY_IOS && !UNITY_EDITOR
         [DllImport("__Internal")]
-        public static extern string SPGetForceTouchShortcut();
-
-        [DllImport("__Internal")]
-        public static extern void SPRemoveForceTouchShortcut();
-
-        [DllImport("__Internal")]
-        public static extern void SPSetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount);
+        public static extern void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount);
 #else
-        /// <summary>
-        /// Returns the given ForceTouchShortcutItem.Type
-        /// </summary>
-        public static string SPGetForceTouchShortcut()
+        public static void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount)
         {
-            return "";
         }
-
-        public static void SPRemoveForceTouchShortcut()
-        {}
-
-        public static void SPSetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount)
-        {}
 #endif
     }
 }

@@ -30,13 +30,12 @@ namespace SocialPoint.AppEvents
         List<Status> EventStatus = new List<Status> { Status.MEMORYWARNING, Status.UPDATEDSOURCE };
         Status _previousStatus = Status.FIRSTBOOT;
 
-        #if UNITY_IOS && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Init(string name);
 
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Flush();
-
 #else
         static  void SPUnityAppEvents_Init(string name)
         {
@@ -45,7 +44,7 @@ namespace SocialPoint.AppEvents
         static void SPUnityAppEvents_Flush()
         {
         }
-        #endif
+#endif
 
         void Awake()
         {
@@ -81,7 +80,7 @@ namespace SocialPoint.AppEvents
             OnOpenedFromSource(Source); 
         }
 
-        void ClearAppSource()
+        public void ClearAppSource()
         {
             Source = new AppSource();
         }

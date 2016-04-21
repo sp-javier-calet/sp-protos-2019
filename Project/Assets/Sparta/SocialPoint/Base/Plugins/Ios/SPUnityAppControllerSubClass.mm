@@ -8,7 +8,6 @@
 @implementation SPUnityAppControllerSubClass
 {
     std::string _gameObjectName;
-    char* _forceTouchShortcut;
 }
 
 // AppReady flag defined in UnityAppController
@@ -16,6 +15,7 @@ extern bool _unityAppReady;
 
 NSString* const kAppSourceKey = @"SourceApplicationKey";
 NSString* const kIosVersion9Tag = @"9.0";
+NSString* const kEventTypeKey = @"event_type";
 
 // Event names. The names are defined by the Status Enum in IosAppEvents
 static const std::string kStatusUpdateSource = "UPDATEDSOURCE";
@@ -100,7 +100,7 @@ std::queue<std::string> _pendingEvents;
         NSString* url;
         if(scheme != nil)
         {
-            url = [NSString stringWithFormat:@"%@%@%@", scheme, @"://", [parts componentsJoinedByString: @"&"]];
+            url = [NSString stringWithFormat:@"%@%@%@", scheme, @"://?", [parts componentsJoinedByString: @"&"]];
         } else {
             url = [parts componentsJoinedByString: @"&"];
         }
@@ -120,8 +120,6 @@ std::queue<std::string> _pendingEvents;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [self removeForceTouchShortcut];
-    
     [super application:application didFinishLaunchingWithOptions:launchOptions];
     
     [self clearSource];
@@ -136,10 +134,12 @@ std::queue<std::string> _pendingEvents;
     }
 #endif
     
-    [self notifyStatus:kStatusUpdateSource];
-    
     if([self isOsVersionGreaterOrEqualThan: kIosVersion9Tag] && launchOptions != nil)
-        [self setForceTouchShortcut:[launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey]];
+    {
+        UIApplicationShortcutItem* shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+        [self storeForceTouchShortcut:shortcutItem];
+    }
+    [self notifyStatus:kStatusUpdateSource];
     
     return YES;
 }
@@ -170,36 +170,16 @@ std::queue<std::string> _pendingEvents;
     [self notifyStatus:kStatusUpdateSource];
 }
 
-- (char*)getForceTouchShortcut
+- (void)storeForceTouchShortcut:(UIApplicationShortcutItem*)shortcut
 {
-    return _forceTouchShortcut;
-}
-
-- (void)removeForceTouchShortcut
-{
-    if(_forceTouchShortcut == NULL)
-        return;
-    
-    free((void*)_forceTouchShortcut);
-    _forceTouchShortcut = NULL;
-}
-
-- (void)setForceTouchShortcut:(UIApplicationShortcutItem*) shortcutItem
-{
-    [self removeForceTouchShortcut];
-    
-    if(shortcutItem == nil)
-        return;
-    
-    const char* tempChar = [[shortcutItem type] UTF8String];
-    
-    _forceTouchShortcut = (char*)malloc(strlen(tempChar));
-    strcpy(_forceTouchShortcut, tempChar);
+    NSDictionary* dictionary = @{ kEventTypeKey:[shortcut type] };
+    [self storeSourceOptions:dictionary withScheme:@"appshortcut"];
 }
 
 - (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*) shortcutItem completionHandler:(void (^)(BOOL))completionHandler
 {
-    [self setForceTouchShortcut:shortcutItem];
+    [self storeForceTouchShortcut:shortcutItem];
+    [self notifyStatus:kStatusUpdateSource];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -261,26 +241,10 @@ extern "C" {
         [delegate flush];
     }
     
-    char* SPGetForceTouchShortcut()
+    void SPUnityRemoveForceTouchShortcut()
     {
         SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
-        
-        const char* original = [delegate getForceTouchShortcut];
-        
-        if(original == NULL)
-            return NULL;
-        
-        char* copy = (char*)malloc(strlen(original));
-        
-        strcpy(copy, original);
-        
-        return copy;
-    }
-    
-    void SPRemoveForceTouchShortcut()
-    {
-        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
-        return [delegate removeForceTouchShortcut];
+        return [delegate clearSource];
     }
     
     bool IsNullOrEmpty(const char* str)
@@ -288,7 +252,7 @@ extern "C" {
         return (str == NULL || strlen(str) < 1);
     }
     
-    void SPSetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
+    void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
     {
         SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
         if([delegate isOsVersionGreaterOrEqualThan: kIosVersion9Tag])
