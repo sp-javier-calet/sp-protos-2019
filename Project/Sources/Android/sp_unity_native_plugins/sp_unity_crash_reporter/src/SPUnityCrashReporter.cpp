@@ -3,6 +3,8 @@
 #include <cassert>
 #include <chrono>
 #include <ctime>
+#include <pthread.h>
+#include <unistd.h>
 #include "UnityGameObject.h"
 #include "SPUnityCrashReporter.hpp"
 
@@ -78,6 +80,22 @@ bool SPUnityCrashReporter::disable()
     return true;
 }
 
+struct CrashDumpedCallData
+{
+    std::string gameObject;
+    std::string logPath;
+};
+
+
+void* callOnCrashDumpedThread(void *ctx)
+{
+    usleep(1000000);
+    CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
+    UnityGameObject(data->gameObject).SendMessage("OnCrashDumped", data->logPath);
+    delete data;
+    return nullptr;
+}
+
 void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -100,8 +118,11 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
     std::string logcatCmd("logcat -d -t 200 -f " + newLogPath);
     system(logcatCmd.c_str());
 
+
     if(!_gameObject.empty())
     {
-        UnityGameObject(_gameObject.c_str()).SendMessage("OnCrashDumped", newLogPath);
+        pthread_t thread;
+        pthread_create(&thread, NULL, callOnCrashDumpedThread,
+            new CrashDumpedCallData{ _gameObject, newCrashPath });
     }
 }

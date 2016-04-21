@@ -22,7 +22,6 @@ private:
 
     google_breakpad::ExceptionHandler* _exceptionHandler;
 
-
 public:
     SPUnityCrashReporter(const std::string& path,
                     	 const std::string& version,

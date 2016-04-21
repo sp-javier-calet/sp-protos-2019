@@ -10,7 +10,6 @@ LOCAL_MODULE_FILENAME := libsp_unity_utils
 LOCAL_ARM_MODE  := arm
 LOCAL_CFLAGS    := -Werror
 LOCAL_SRC_FILES := $(SRC_PATH)/main.cpp \
-		$(SRC_PATH)/JniObject.cpp \
 		$(SRC_PATH)/UnityGameObject.cpp \
 		$(COMMON_SRC_PATH)/SPUnityUtils.cpp
 
