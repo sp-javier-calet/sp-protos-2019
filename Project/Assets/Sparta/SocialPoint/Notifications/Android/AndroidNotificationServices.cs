@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
 using UnityEngine;
@@ -8,26 +9,25 @@ namespace SocialPoint.Notifications
     #if UNITY_ANDROID
     public class AndroidNotificationServices : BaseNotificationServices
     {
-        private const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
-        private const string FullClassName = "es.socialpoint.unity.notification.NotificationBridge";
-
-        private List<int> _notifications = new List<int>();
-
-        private AndroidJavaClass _notifClass = null;
+        const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
+        const string FullClassName = "es.socialpoint.unity.notification.NotificationBridge";
+        const float PushTokenTimeout = 30.0f;
+        List<int> _notifications = new List<int>();
+        AndroidJavaClass _notifClass = null;
+        IEnumerator _checkPermissionStatusCoroutine;
 
         public AndroidNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
             : base(runner, commandqueue)
         {
-
-
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
 #endif
         }
 
-        int ColorToInt(Color c)
+        public override void Dispose()
         {
-            return (((int)(c.r * 255)) << 16) + ((int)(c.g * 255) << 8) + (int)(c.b * 255);
+            base.Dispose();
+            _runner.StopCoroutine(_checkPermissionStatusCoroutine);
         }
 
         public override void Schedule(Notification notif)
@@ -55,31 +55,50 @@ namespace SocialPoint.Notifications
             }
         }
 
-        protected override void RequestPushNotificationToken()
+        public override void RequestPermissions()
         {
             if(_notifClass != null)
             {
-                _notifClass.CallStatic("registerForRemote");
-
-                WaitForRemoteToken(() => _notifClass.CallStatic<string>("getNotificationToken"));
+                if(_checkPermissionStatusCoroutine == null)
+                {
+                    _notifClass.CallStatic("registerForRemote");
+                    _checkPermissionStatusCoroutine = _runner.StartCoroutine(CheckPermissionStatus());
+                }
             }
         }
 
-        public override void RequestLocalNotification()
+        IEnumerator CheckPermissionStatus()
         {
-        }
-
-        public override bool UserAllowsNofitication
-        {
-            get
+            if(_notifClass != null)
             {
-                // This only makes sense on IOS:
-                return true;
+                float startTime = Time.unscaledTime;
+                float currentTime = startTime;
+                string pushToken = null;
+                string pushTokenError = null;
+                while(string.IsNullOrEmpty(pushToken) && string.IsNullOrEmpty(pushTokenError) && (currentTime - startTime) < PushTokenTimeout)
+                {
+                    pushToken = _notifClass.CallStatic<string>("getNotificationToken");
+                    pushTokenError = _notifClass.CallStatic<string>("getNotificationTokenError");
+                    yield return new WaitForSeconds(1.0f);
+                    currentTime = Time.unscaledTime;
+                }
+
+                if(!string.IsNullOrEmpty(pushToken))
+                {
+                    _pushToken = pushToken;
+                    OnRequestPermissionsSuccess();
+                }
+                else
+                {
+                    _pushToken = "";
+                    OnRequestPermissionsFail();
+                }
+
+                _checkPermissionStatusCoroutine = null;
             }
         }
     }
-
-
+        
 #else
     public class AndroidNotificationServices : EmptyNotificationServices
     {
