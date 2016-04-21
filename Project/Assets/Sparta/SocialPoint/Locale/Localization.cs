@@ -19,8 +19,8 @@ namespace SocialPoint.Locale
         public const string GalicianIdentifier = "gl";
         public const string BasqueIdentifier = "eu";
         public const string CatalanIdentifier = "ca";
-        public const string SimplifiedChineseIdentifier = "zh-Hans";
-        public const string TraditionalChineseIdentifier = "zh-Hant";
+        public const string SimplifiedChineseIdentifier = "zh-hans"; //to lower case
+        public const string TraditionalChineseIdentifier = "zh-hant"; //to lower case
 
         static Localization _defaultLocalization;
 
@@ -78,14 +78,11 @@ namespace SocialPoint.Locale
             {
                 return value;
             }
-            else if(Fallback != null && Fallback.ContainsKey(key))
+            if(Fallback != null && Fallback.ContainsKey(key))
             {
                 return Fallback.Get(key);
             }
-            else
-            {
-                return GetDefault(defaultString, key);
-            }
+            return GetDefault(defaultString, key);
         }
 
         public string Get(Error err, string defaultString = null)
@@ -94,14 +91,11 @@ namespace SocialPoint.Locale
             {
                 return Get(err.ClientLocalize, err.ClientMsg);
             }
-            else if(!Debug && !string.IsNullOrEmpty(err.ClientMsg))
+            if(!Debug && !string.IsNullOrEmpty(err.ClientMsg))
             {
                 return err.ClientMsg;
             }
-            else
-            {
-                return GetDefault(defaultString, err.ClientLocalize);
-            }
+            return GetDefault(defaultString, err.ClientLocalize);
         }
 
         string GetDefault(string defaultString, string key = null)
@@ -110,10 +104,7 @@ namespace SocialPoint.Locale
             {
                 return string.Format(DefaultFormat, Language, key);
             }
-            else
-            {
-                return defaultString;
-            }
+            return defaultString;
         }
 
         public void Clear()

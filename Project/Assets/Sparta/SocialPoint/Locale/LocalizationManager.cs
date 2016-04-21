@@ -133,14 +133,19 @@ namespace SocialPoint.Locale
             Localization.TurkishIdentifier,
             Localization.ItalianIdentifier,
             Localization.PortugueseIdentifier,
+            Localization.RussianIdentifier,
             Localization.JapaneseIdentifier,
             Localization.KoreanIdentifier,
-            Localization.SimplifiedChineseIdentifier,
-            Localization.RussianIdentifier,
-            Localization.CatalanIdentifier,
+            Localization.BrasilianIdentifier,
             Localization.GalicianIdentifier,
-            Localization.BasqueIdentifier
+            Localization.BasqueIdentifier,
+            Localization.CatalanIdentifier,
+            Localization.SimplifiedChineseIdentifier,
+            Localization.TraditionalChineseIdentifier
         };
+
+        HashSet<string> _supportedFixedLanguages = new HashSet<string>();
+
         string[] _supportedLanguages = DefaultSupportedLanguages;
 
         public string[] SupportedLanguages
@@ -153,6 +158,12 @@ namespace SocialPoint.Locale
             set
             {
                 _supportedLanguages = value;
+
+                _supportedFixedLanguages.Clear();
+                foreach(var lang in _supportedLanguages)
+                {
+                    _supportedFixedLanguages.Add(FixLanguage(lang));
+                }
             }
         }
 
@@ -281,10 +292,12 @@ namespace SocialPoint.Locale
             {
                 _localization = Localization.Default;
             }
+            SupportedLanguages = DefaultSupportedLanguages; 
+
             _currentLanguage = GetSupportedLanguage(_currentLanguage);
             PathsManager.CallOnLoaded(Init);
 
-            LoadCurrentLanguage ();
+            LoadCurrentLanguage();
         }
 
         void OnGameWasLoaded()
@@ -349,13 +362,13 @@ namespace SocialPoint.Locale
             }
         }
 
-        void DownloadSupportedLanguages(Action finish, IDictionary<string,Localization> locales = null)
+        void DownloadSupportedLanguages(Action finish, IDictionary<string,Localization> locales = null, IEnumerator<string> langEnumerator = null)
         {
             if(locales == null)
             {
                 locales = new Dictionary<string, Localization>();
             }
-            if(!_running || locales.Count >= _supportedLanguages.Length)
+            if(!_running || (langEnumerator != null && !langEnumerator.MoveNext()))
             {
                 OnLanguagesLoaded(locales);
                 if(finish != null)
@@ -364,13 +377,18 @@ namespace SocialPoint.Locale
                 }
                 return;
             }
-            var lang = _supportedLanguages[locales.Count];
-            lang = FixLanguage(lang);
+            if(langEnumerator == null)
+            {
+                langEnumerator = _supportedFixedLanguages.GetEnumerator();
+                langEnumerator.MoveNext();
+            }
+            var lang = langEnumerator.Current;
+
             DownloadLocalization(lang, () => {
                 var locale = new Localization();
                 LoadLocalizationData(locale, lang);
                 locales[lang] = locale;
-                DownloadSupportedLanguages(finish, locales);
+                DownloadSupportedLanguages(finish, locales, langEnumerator);
             });
         }
 
@@ -380,7 +398,7 @@ namespace SocialPoint.Locale
             {
                 if(_loadAllSupportedLanguagesCsv)
                 {
-                    foreach(var slang in SupportedLanguages)
+                    foreach(var slang in _supportedFixedLanguages)
                     {
                         if(!locales.ContainsKey(slang))
                         {
@@ -669,29 +687,33 @@ namespace SocialPoint.Locale
         string GetSupportedLanguage(string lang = null)
         {
             string slang = null;
+            var supported = new List<string>(_supportedFixedLanguages);
+
             if(string.IsNullOrEmpty(lang))
             {
                 lang = _appInfo.Language;
-                lang = lang.ToLower();
             }
-            var supported = new List<string>(_supportedLanguages);
 
             _selectedLanguage = lang;
             SelectedCultureInfo = GetCultureInfo(_selectedLanguage);
 
+            lang = lang.ToLower();
+
             var fixlang = FixLanguage(lang);
+
             if(supported.Contains(lang) || supported.Contains(fixlang))
             {
                 slang = fixlang;
             }
+
             if(string.IsNullOrEmpty(slang))
             {
-                var i = lang.IndexOf('-');
+                var i = lang.LastIndexOf('-');
                 if(i >= 0)
                 {
                     var sublang = lang.Substring(0, i);
                     fixlang = FixLanguage(sublang);
-                    if(supported.Contains(lang) || supported.Contains(fixlang))
+                    if(supported.Contains(sublang) || supported.Contains(fixlang))
                     {
                         slang = fixlang;
                     }
