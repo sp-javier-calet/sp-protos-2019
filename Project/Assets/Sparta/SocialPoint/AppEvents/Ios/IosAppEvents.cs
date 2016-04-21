@@ -80,7 +80,7 @@ namespace SocialPoint.AppEvents
             OnOpenedFromSource(Source); 
         }
 
-        public void ClearAppSource()
+        void ClearAppSource()
         {
             Source = new AppSource();
         }

@@ -241,12 +241,6 @@ extern "C" {
         [delegate flush];
     }
     
-    void SPUnityRemoveForceTouchShortcut()
-    {
-        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
-        return [delegate clearSource];
-    }
-    
     bool IsNullOrEmpty(const char* str)
     {
         return (str == NULL || strlen(str) < 1);
