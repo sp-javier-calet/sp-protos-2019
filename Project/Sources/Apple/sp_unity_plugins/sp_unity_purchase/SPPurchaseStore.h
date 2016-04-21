@@ -19,6 +19,7 @@ extern "C"
 {
     EXPORT_API void SPStore_Init(const char* listenerObjectName);
     EXPORT_API void SPStore_SetApplicationUsername(const char* applicationUserName);
+    EXPORT_API void SPStore_SetUseAppReceipt(bool shouldUseAppReceipt);
     EXPORT_API void SPStore_SendTransactionUpdateEvents(bool shouldSend);
     EXPORT_API void SPStore_EnableHighDetailLogs(bool shouldEnable);
     EXPORT_API void SPStore_RequestProductData(const char* productIdentifiers);

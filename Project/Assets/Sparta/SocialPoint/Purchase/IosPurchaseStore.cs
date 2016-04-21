@@ -158,12 +158,13 @@ namespace SocialPoint.Purchase
             {
                 Receipt receipt = _pendingPurchases[0];
                 DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
-                UnityEngine.Debug.Log("*** TEST Validate Purchase Receipt: " + receipt);
+                UnityEngine.Debug.Log("*** TEST Validating Purchase. Caller: " + _validatePurchase);
                 _validatePurchase(receipt, (response) => {
                     DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
-                    UnityEngine.Debug.Log("*** TEST response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
+                    UnityEngine.Debug.Log("*** TEST Validation Backend Response: " + response.ToString());
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
+                        UnityEngine.Debug.Log("*** TEST Finishing Transaction");
                         IosStoreBinding.FinishPendingTransaction(receipt.OrderId);
                         PurchaseUpdated(PurchaseState.PurchaseConsumed, receipt.ProductId);
                         _pendingPurchases.Remove(receipt);
@@ -171,6 +172,7 @@ namespace SocialPoint.Purchase
                     }
                     //itunes api can only confirm a purchase(can't cancel) so we call nothing unless our backend says it's complete.
                 });
+                UnityEngine.Debug.Log("*** TEST Validation Sent");
             }
             else
             {
@@ -182,20 +184,28 @@ namespace SocialPoint.Purchase
         {
             DebugLog("PurchaseFailed " + error);
             UnityEngine.Debug.Log("*** TEST PurchaseFailed. Error: " + error);
-            PurchaseUpdated(PurchaseState.PurchaseFailed, _purchasingProduct);
+            //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
+            if(!String.IsNullOrEmpty(_purchasingProduct))
+            {
+                PurchaseUpdated(PurchaseState.PurchaseFailed, _purchasingProduct);
+            }
         }
 
         private void PurchaseCanceled(string error)
         {
             DebugLog("PurchaseCanceled " + error);
             UnityEngine.Debug.Log("*** TEST PurchaseCanceled. Error: " + error);
-            PurchaseUpdated(PurchaseState.PurchaseCanceled, _purchasingProduct);
+            //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
+            if(!String.IsNullOrEmpty(_purchasingProduct))
+            {
+                PurchaseUpdated(PurchaseState.PurchaseCanceled, _purchasingProduct);
+            }
         }
 
         private void PurchaseFinished(IosStoreTransaction transaction)
         {
             DebugLog("Purchase has finished: " + transaction.TransactionIdentifier);
-            UnityEngine.Debug.Log("*** TEST PurchaseFinished. Receipt: " + transaction.Base64EncodedTransactionReceipt);
+            UnityEngine.Debug.Log("*** TEST PurchaseFinished");
             PurchaseUpdated(PurchaseState.PurchaseFinished, transaction.ProductIdentifier);
         }
 
@@ -207,8 +217,6 @@ namespace SocialPoint.Purchase
             data.SetValue(Receipt.PurchaseStateKey, (int)PurchaseState.ValidateSuccess);
             data.SetValue(Receipt.OriginalJsonKey, transaction.Base64EncodedTransactionReceipt);
             data.SetValue(Receipt.StoreKey, "itunes");
-
-            UnityEngine.Debug.Log("*** TEST ProductPurchaseAwaitingConfirmation. Receipt: " + transaction.Base64EncodedTransactionReceipt);
 
             if(_pendingPurchases == null)
                 _pendingPurchases = new List<Receipt>();

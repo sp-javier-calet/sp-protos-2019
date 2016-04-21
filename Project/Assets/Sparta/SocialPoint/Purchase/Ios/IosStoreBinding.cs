@@ -30,6 +30,16 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
+        private static extern void SPStore_SetUseAppReceipt(bool shouldUseAppReceipt);
+
+        // By default the Transaction receipt is used, but is deprecated. Set this property to true to use the App receipt if our game/backend supports it
+        public static void SetUseAppReceipt(bool shouldUseAppReceipt)
+        {
+            if(Application.platform == RuntimePlatform.IPhonePlayer)
+                SPStore_SetUseAppReceipt(shouldUseAppReceipt);
+        }
+
+        [DllImport("__Internal")]
         private static extern void SPStore_SendTransactionUpdateEvents(bool shouldSend);
 
         // By default, the transactionUpdatedEvent will not be called to avoid excessive string allocations. If you pass true to this method it will be called.

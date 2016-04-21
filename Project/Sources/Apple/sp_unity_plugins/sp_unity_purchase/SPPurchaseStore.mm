@@ -25,6 +25,11 @@ public:
         [_purchaseServices setAppUsername:userIdentifier];
     }
     
+    void setUseAppReceipt(bool shouldUseAppReceipt)
+    {
+        [_purchaseServices setUseAppReceipt:shouldUseAppReceipt];
+    }
+    
     void sendTransactionUpdateEvents(bool shouldSend)
     {
         [_purchaseServices sendTransactionUpdateEvents:shouldSend];
@@ -107,6 +112,12 @@ EXPORT_API void SPStore_SetApplicationUsername(const char* applicationUserName)
 {
     if(purchaseBridge)
         purchaseBridge->setApplicationUsername(applicationUserName);
+}
+
+EXPORT_API void SPStore_SetUseAppReceipt(bool shouldUseAppReceipt)
+{
+    if(purchaseBridge)
+        purchaseBridge->setUseAppReceipt(shouldUseAppReceipt);
 }
 
 EXPORT_API void SPStore_SendTransactionUpdateEvents(bool shouldSend)

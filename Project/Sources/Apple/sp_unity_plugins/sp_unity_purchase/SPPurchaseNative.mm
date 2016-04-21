@@ -16,6 +16,7 @@
     if((self = [super init]))
     {
         self.applicationUsername = nil;
+        self.useAppReceipt = false;
         self.canSendTransactionUpdateEvents = false;
         self.highDetailLogsEnabled = false;
         self.unityListenerName = [NSString stringWithUTF8String:listenerName];
@@ -34,6 +35,11 @@
 - (void)setAppUsername:(const char*) userIdentifier
 {
     self.applicationUsername = [NSString stringWithUTF8String:userIdentifier];
+}
+
+- (void)setUseAppReceipt:(BOOL) shouldUseAppReceipt
+{
+    self.useApplicationReceipt = shouldUseAppReceipt;
 }
 
 - (void)sendTransactionUpdateEvents:(BOOL) shouldSend
@@ -242,8 +248,15 @@
         if(ts == TSFailed)
         {
             NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
+            if (transaction.error.code == SKErrorPaymentCancelled)
+            {
+                UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
+            }
+            else
+            {
+                UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+            }
             [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-            UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
             continue;
         }
         else if(ts != TSPurchased && !self.canSendTransactionUpdateEvents)
@@ -252,9 +265,17 @@
         }
         
         NSString* transactionState = [NSString stringWithFormat:@"%lu", (unsigned long)ts];
-        NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
-        NSData* receiptData = [NSData dataWithContentsOfURL:receiptUrl];
-        NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];//[PlatformPurchaseServices createEncodedString:receiptData];//
+        NSData* receiptData = nil;
+        if(self.useApplicationReceipt)
+        {
+            NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
+            receiptData = [NSData dataWithContentsOfURL:receiptUrl];
+        }
+        else
+        {
+            receiptData = transaction.transactionReceipt;
+        }
+        NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];
         
         NSDictionary* transactionData = @{
                                           @"productIdentifier":transaction.payment.productIdentifier,
