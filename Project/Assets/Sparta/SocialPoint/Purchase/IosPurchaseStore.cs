@@ -181,18 +181,21 @@ namespace SocialPoint.Purchase
         private void PurchaseFailed(string error)
         {
             DebugLog("PurchaseFailed " + error);
+            UnityEngine.Debug.Log("*** TEST PurchaseFailed. Error: " + error);
             PurchaseUpdated(PurchaseState.PurchaseFailed, _purchasingProduct);
         }
 
         private void PurchaseCanceled(string error)
         {
             DebugLog("PurchaseCanceled " + error);
+            UnityEngine.Debug.Log("*** TEST PurchaseCanceled. Error: " + error);
             PurchaseUpdated(PurchaseState.PurchaseCanceled, _purchasingProduct);
         }
 
         private void PurchaseFinished(IosStoreTransaction transaction)
         {
             DebugLog("Purchase has finished: " + transaction.TransactionIdentifier);
+            UnityEngine.Debug.Log("*** TEST PurchaseFinished. Receipt: " + transaction.Base64EncodedTransactionReceipt);
             PurchaseUpdated(PurchaseState.PurchaseFinished, transaction.ProductIdentifier);
         }
 
