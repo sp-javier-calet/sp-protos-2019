@@ -11,10 +11,7 @@ public struct NotEnoughResourcesEvent
 
 public class ResourcesCost : ICost
 {
-    [Inject]
     ResourcePool _playerResources;
-
-    [Inject]
     IEventDispatcher _dispatcher;
 
     ResourcePool _cost;
@@ -22,6 +19,12 @@ public class ResourcesCost : ICost
     public ResourcesCost(ResourcePool cost)
     {
         _cost = cost;
+    }
+
+    public void Init(ResourcePool playerResources, IEventDispatcher dispatcher)
+    {
+        _playerResources = playerResources;
+        _dispatcher = dispatcher;
     }
 
     #region ICost implementation

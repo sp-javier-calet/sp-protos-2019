@@ -5,8 +5,6 @@ using Zenject;
 
 public class PurchaseCost : ICost
 {
-
-    [Inject]
     IGamePurchaseStore _purchaseStore;
 
     string _productId;
@@ -17,9 +15,9 @@ public class PurchaseCost : ICost
         _productId = productId;
     }
 
-    [PostInject]
-    void PostInject()
+    public void Init(IGamePurchaseStore purchaseStore)
     {
+        _purchaseStore = purchaseStore;
         _purchaseStore.PurchaseUpdated += OnPurchaseUpdated;
     }
 
