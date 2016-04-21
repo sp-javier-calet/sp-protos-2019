@@ -1,0 +1,6 @@
+{
+    "exportWithBundle" : false,    
+    "excludedComponents" : null,    
+    "serializeNonCustomGameObjects" : false,    
+    "usePrefabCopies" : true
+}
