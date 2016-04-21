@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using SocialPoint.Base;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 
 namespace SocialPoint.Marketing
 {
     public class SocialPointMarketingAttributionManager : IMarketingAttributionManager
     {
         const string MarketingLogEventName = "log.marketing";
-        
-        public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
-
-        public delegate string GetUserIDDelegate();
 
         public const string AppPreviouslyInstalledForMarketing = "sparta_app_previously_installed_for_marketing";
-        public GetUserIDDelegate GetUserID;
-        public TrackEventDelegate TrackEvent;
 
         List<IMarketingTracker> _trackers;
         IAppEvents _appEvents;
@@ -97,6 +91,19 @@ namespace SocialPoint.Marketing
                     handler(MarketingLogEventName, data.ToAttrDic());
                 }
             }
+        }
+
+        public GetUserIDDelegate GetUserID
+        {
+            get;
+            set;
+        }
+
+
+        public TrackEventDelegate TrackEvent
+        {
+            get;
+            set;
         }
 
         #endregion
