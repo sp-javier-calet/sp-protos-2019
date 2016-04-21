@@ -29,9 +29,6 @@ namespace Zenject
         [SerializeField]
         public MonoInstaller[] Installers = new MonoInstaller[0];
 
-        [SerializeField]
-        public MonoBehaviour[] MonoBehavioursToInject = new MonoBehaviour[0];
-
         DiContainer _container;
         IFacade _rootFacade = null;
 
@@ -57,7 +54,7 @@ namespace Zenject
         {
             var extraInstallers = new List<IInstaller>();
 
-            if(_staticSettings != null)
+            if (_staticSettings != null)
             // Static settings are needed if creating a SceneCompositionRoot dynamically
             {
                 extraInstallers = _staticSettings.Installers;
@@ -77,8 +74,7 @@ namespace Zenject
                 false, GlobalCompositionRoot.Instance.Container, extraInstallers);
 
             Log.Debug("SceneCompositionRoot: Finished install phase.  Injecting into scene...");
-            //InjectObjectsInScene();
-            InjectRegisteredMonoBehaviours();
+            InjectObjectsInScene();
 
             Log.Debug("SceneCompositionRoot: Resolving root IFacade...");
             _rootFacade = _container.Resolve<IFacade>();
@@ -112,13 +108,13 @@ namespace Zenject
             container.Bind<CompositionRoot>().ToInstance(this);
             container.Bind<SceneCompositionRoot>().ToInstance(this);
 
-            if(ParentNewObjectsUnderRoot)
+            if (ParentNewObjectsUnderRoot)
             {
                 container.Bind<Transform>(ZenConstants.DefaultParentId)
                     .ToInstance<Transform>(this.transform);
             }
 
-            if(BeforeInstallHooks != null)
+            if (BeforeInstallHooks != null)
             {
                 BeforeInstallHooks(container);
                 // Reset extra bindings for next time we change scenes
@@ -129,7 +125,7 @@ namespace Zenject
 
             var allInstallers = extraInstallers.Concat(Installers).ToList();
 
-            if(allInstallers.Where(x => x != null).IsEmpty())
+            if (allInstallers.Where(x => x != null).IsEmpty())
             {
                 Log.Warn("No installers found while initializing SceneCompositionRoot");
             }
@@ -138,7 +134,7 @@ namespace Zenject
                 container.Install(allInstallers);
             }
 
-            if(AfterInstallHooks != null)
+            if (AfterInstallHooks != null)
             {
                 AfterInstallHooks(container);
                 // Reset extra bindings for next time we change scenes
@@ -161,21 +157,11 @@ namespace Zenject
                 .Select(x => x.gameObject);
         }
 
-        void InjectRegisteredMonoBehaviours()
-        {
-            Log.Debug("Injecting registered monobehaviours in scene '{0}'", this.gameObject.scene.name);
-            for(int i = 0; i < MonoBehavioursToInject.Length; ++i)
-            {
-                _container.Inject(MonoBehavioursToInject[i]);
-
-            }
-        }
-
-        void InjectObjectsInScene()
+        protected virtual void InjectObjectsInScene()
         {
             Log.Debug("Injecting all objects in scene '{0}'", this.gameObject.scene.name);
 
-            foreach(var rootObj in GetSceneRootObjects(this.gameObject.scene))
+            foreach (var rootObj in GetSceneRootObjects(this.gameObject.scene))
             {
                 _container.InjectGameObject(rootObj, true, !OnlyInjectWhenActive);
             }
@@ -189,7 +175,7 @@ namespace Zenject
         {
             var gameObject = new GameObject();
 
-            if(parent != null)
+            if (parent != null)
             {
                 gameObject.transform.SetParent(parent.transform, false);
             }
