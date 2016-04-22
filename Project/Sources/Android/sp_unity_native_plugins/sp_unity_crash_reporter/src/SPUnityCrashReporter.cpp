@@ -86,10 +86,9 @@ struct CrashDumpedCallData
     std::string logPath;
 };
 
-
 void* callOnCrashDumpedThread(void *ctx)
 {
-    usleep(1000000);
+    usleep(100000);
     CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
     UnityGameObject(data->gameObject).SendMessage("OnCrashDumped", data->logPath);
     delete data;

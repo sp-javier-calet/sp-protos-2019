@@ -42,16 +42,11 @@ UnityGameObject::UnityGameObject(const std::string name)
     _objectName = name;
 }
 
-JniEnv UnityGameObject::getEnv()
-{
-    return JniEnv(_java);
-}
-
 void UnityGameObject::setJava(JavaVM* java)
 {
     _java = java;
-    JniEnv env = getEnv();
-    _jcls = env->FindClass("com/unity3d/player/UnityPlayer");
+    JniEnv env(_java);
+    _jcls = env->FindClass("es/socialpoint/unity/base/SPUnityActivity");
     if(_jcls)
     {
         _jsendmsg = env->GetStaticMethodID(_jcls,
@@ -73,7 +68,7 @@ void UnityGameObject::SendMessage(const std::string& method, const std::string& 
         LogError("Invalid parameters.");
         return;
     }
-    JniEnv env = getEnv();
+    JniEnv env(_java);
     if(!env)
     {
         LogError("Could not get jni env.");
@@ -93,7 +88,7 @@ void UnityGameObject::SendMessage(const std::string& method, const std::string& 
         env->ReleaseStringUTFChars(jstr, str);
         LogError("Unable to call UnitySendMessage: %s", str);
         env->DeleteLocalRef(jstr);
-        // env->ExceptionDescribe();
+        env->ExceptionDescribe();
         env->DeleteLocalRef(jexc);
         env->ExceptionClear();
     }

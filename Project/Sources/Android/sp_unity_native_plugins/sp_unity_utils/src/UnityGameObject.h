@@ -32,7 +32,6 @@ private:
     static JavaVM* _java;
     static jclass _jcls;
     static jmethodID _jsendmsg;
-    static JniEnv getEnv();
 public:
     UnityGameObject(const std::string name);
     static void setJava(JavaVM* java);

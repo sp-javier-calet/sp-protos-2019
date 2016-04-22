@@ -180,6 +180,7 @@ namespace SocialPoint.Crash
 
             // Create listener
             var listenerGo = new GameObject("SocialPoint.DeviceCrashReporterListener");
+            GameObject.DontDestroyOnLoad(listenerGo);
             _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
 
             // Create native object
@@ -248,6 +249,7 @@ namespace SocialPoint.Crash
     {
         public void OnCrashDumped(string path)
         {
+            DebugUtils.LogWarning("OnCrashDumped '" + path + "'");
             if(FileUtils.ExistsFile(path))
             {
                 DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
