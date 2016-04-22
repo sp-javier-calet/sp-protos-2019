@@ -89,10 +89,17 @@ namespace SocialPoint.Utils
 #if UNITY_IOS && !UNITY_EDITOR
         [DllImport("__Internal")]
         public static extern void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount);
-#else
-        public static void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount)
-        {
-        }
 #endif
+        public static ForceTouchShortcutItem[] ForceTouchShortcutItems
+        {
+            set
+            {
+                #if UNITY_IOS && !UNITY_EDITOR
+                
+                SPUnitySetForceTouchShortcutItems(value, value.Length);
+                
+                #endif
+            }
+        }
     }
 }
