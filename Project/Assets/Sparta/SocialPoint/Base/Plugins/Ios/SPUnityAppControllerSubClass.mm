@@ -137,7 +137,9 @@ std::queue<std::string> _pendingEvents;
     if([self isOsVersionGreaterOrEqualThan: kIosVersion9Tag] && launchOptions != nil)
     {
         UIApplicationShortcutItem* shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-        [self storeForceTouchShortcut:shortcutItem];
+        
+        if(shortcutItem != nil)
+            [self storeForceTouchShortcut:shortcutItem];
     }
     [self notifyStatus:kStatusUpdateSource];
     
@@ -180,6 +182,7 @@ std::queue<std::string> _pendingEvents;
 {
     [self storeForceTouchShortcut:shortcutItem];
     [self notifyStatus:kStatusUpdateSource];
+    completionHandler(YES);
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
