@@ -266,9 +266,9 @@ namespace SocialPoint.Crash
         ICoroutineRunner _runner;
         IEnumerator _updateCoroutine;
         IAlertView _alertViewPrototype;
+
         float _currentSendInterval = DefaultSendInterval;
         WaitForSeconds _waitForSeconds = new WaitForSeconds(DefaultSendInterval);
-        long _lastSendTimestamp;
         bool _sending;
 
         public bool ExceptionLogActive
