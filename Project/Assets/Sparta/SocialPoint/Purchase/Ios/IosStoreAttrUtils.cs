@@ -14,7 +14,7 @@ namespace SocialPoint.Purchase
         {
             List<T> productList = new List<T>();
 
-            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
+            JsonAttrParser litJsonParser = new JsonAttrParser();
             Attr parsedData = litJsonParser.ParseString(json);
             if(parsedData.AttrType == AttrType.LIST)
             {
@@ -34,7 +34,7 @@ namespace SocialPoint.Purchase
 
         public static T IosStoreObjectFromJson<T>(string json, IosStoreObjectFromAttrDic<T> ObjectBuilder)
         {
-            LitJsonAttrParser litJsonParser = new LitJsonAttrParser();
+            JsonAttrParser litJsonParser = new JsonAttrParser();
             Attr parsedData = litJsonParser.ParseString(json);
             AttrDic dict = null;
             if(parsedData.AttrType == AttrType.DICTIONARY)

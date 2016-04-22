@@ -6,10 +6,10 @@
 //
 //
 
-#include "SPPurchaseNative.h"
+#include "SPPurchaseNativeServices.h"
 #include "UnityGameObject.h"
 
-@implementation PlatformPurchaseServices
+@implementation SPPurchaseNativeServices
 
 - (id)initWithUnityListener:(const char*)listenerName
 {
@@ -99,7 +99,7 @@
     //Error if no product with matching id was found
     NSString* errorDescription = [NSString stringWithFormat:@"Invalid product ID or product not loaded: %@", productIdentifier];
     [self detailedLog:[NSString stringWithFormat:@"Error Purchasing Product %@: %@", productIdentifier, errorDescription]];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
 }
 
 #pragma mark - Transaction Operations
@@ -141,7 +141,7 @@
 
 - (void)sendUnityDebugLog:(NSString*) logMsg
 {
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", [logMsg cStringUsingEncoding:NSUTF8StringEncoding]);
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", [SPPurchaseNativeServices safeUTF8String:logMsg]);
 }
 
 - (void)detailedLog:(NSString*) logMsg
@@ -174,12 +174,12 @@
         NSString* price = [NSString stringWithFormat:@"%@", product.price];
         
         NSDictionary* productData = @{
-                                      @"productIdentifier":product.productIdentifier,
-                                      @"localizedTitle":product.localizedTitle,
-                                      @"localizedDescription":product.localizedDescription,
-                                      @"price":price,
-                                      @"currencySymbol":currencySymbol,
-                                      @"formattedPrice":localizedPrice,
+                                      @"productIdentifier":[SPPurchaseNativeServices safeNSString:product.productIdentifier],
+                                      @"localizedTitle":[SPPurchaseNativeServices safeNSString:product.localizedTitle],
+                                      @"localizedDescription":[SPPurchaseNativeServices safeNSString:product.localizedDescription],
+                                      @"price":[SPPurchaseNativeServices safeNSString:price],
+                                      @"currencySymbol":[SPPurchaseNativeServices safeNSString:currencySymbol],
+                                      @"formattedPrice":[SPPurchaseNativeServices safeNSString:localizedPrice],
                                       };
         NSError *error;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:productData options:0 error:&error];
@@ -202,14 +202,14 @@
     }
     [jsonString appendString:@"]"];
     
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:jsonString]);
 }
 
 - (void)request:(SKRequest*)request didFailWithError:(NSError*)error
 {
     _request = nil;
     [self detailedLog:[NSString stringWithFormat:@"Products Request Failed: %@", error.localizedDescription]];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsRequestDidFail", [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsRequestDidFail", [SPPurchaseNativeServices safeUTF8String:error.localizedDescription]);
 }
 
 #pragma mark - SKPaymentTransactionObserver
@@ -247,14 +247,14 @@
         //Check if failed transaction to notify about error and continue with the next
         if(ts == TSFailed)
         {
-            NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : nil;
+            NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : [NSString stringWithFormat:@""];
             if (transaction.error.code == SKErrorPaymentCancelled)
             {
                 UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
             }
             else
             {
-                UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [errorDescription cStringUsingEncoding:NSUTF8StringEncoding]);
+                UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
             }
             [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
             continue;
@@ -278,10 +278,10 @@
         NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];
         
         NSDictionary* transactionData = @{
-                                          @"productIdentifier":transaction.payment.productIdentifier,
-                                          @"transactionIdentifier":transaction.transactionIdentifier ? transaction.transactionIdentifier : @"",
-                                          @"base64EncodedReceipt":receiptBase64 ? receiptBase64 : @"",
-                                          @"transactionState":transactionState
+                                          @"productIdentifier":[SPPurchaseNativeServices safeNSString:transaction.payment.productIdentifier],
+                                          @"transactionIdentifier":[SPPurchaseNativeServices safeNSString:transaction.transactionIdentifier],
+                                          @"base64EncodedReceipt":[SPPurchaseNativeServices safeNSString:receiptBase64],
+                                          @"transactionState":[SPPurchaseNativeServices safeNSString:transactionState]
                                           };
         NSError *error;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:transactionData options:0 error:&error];
@@ -292,11 +292,11 @@
             switch (ts)
             {
                 case TSPurchased:
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseAwaitingConfirmation", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:jsonString]);
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseAwaitingConfirmation", [SPPurchaseNativeServices safeUTF8String:jsonString]);
                     break;
                 default:
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [jsonString cStringUsingEncoding:NSUTF8StringEncoding]);
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [SPPurchaseNativeServices safeUTF8String:jsonString]);
                     break;
             }
         }
@@ -315,6 +315,44 @@
     for(SKPaymentTransaction * transaction in transactions)
     {
         [self detailedLog:[NSString stringWithFormat:@"Transaction %@ (Product %@) was removed from the payment queue.", transaction.transactionIdentifier, transaction.payment.productIdentifier]];
+    }
+}
+
+#pragma mark - Utils
+
++(NSString*)safeNSString:(NSString*)string
+{
+    if( string == nil )
+    {
+        return [NSString stringWithFormat:@""];
+    }
+    else
+    {
+        return string;
+    }
+}
+
++(const char *)safeUTF8String:(NSString*)string
+{
+    if( string == nil )
+    {
+        return "";
+    }
+    else
+    {
+        return [string UTF8String];
+    }
+}
+
++(const char *)safeCString:(NSString*)string usingEncoding:(NSStringEncoding)enc
+{
+    if( string == nil )
+    {
+        return "";
+    }
+    else
+    {
+        return [string cStringUsingEncoding:enc];
     }
 }
 

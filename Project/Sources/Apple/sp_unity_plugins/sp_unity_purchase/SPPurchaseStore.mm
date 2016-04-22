@@ -1,5 +1,5 @@
 #include "SPPurchaseStore.h"
-#include "SPPurchaseNative.h"
+#include "SPPurchaseNativeServices.h"
 #import <string>
 #import <vector>
 #import <sstream>
@@ -9,13 +9,13 @@
 class PlatformPurchaseCenterBridge
 {
     //Native object instance
-    PlatformPurchaseServices* _purchaseServices;
+    SPPurchaseNativeServices* _purchaseServices;
     
 public:
     PlatformPurchaseCenterBridge(const char* listenerObjectName)
     : _purchaseServices(nullptr)
     {
-        _purchaseServices = [[PlatformPurchaseServices alloc] initWithUnityListener:listenerObjectName];
+        _purchaseServices = [[SPPurchaseNativeServices alloc] initWithUnityListener:listenerObjectName];
     }
     
     /* Setters */
@@ -103,54 +103,54 @@ PlatformPurchaseCenterBridge* purchaseBridge = nullptr;
 
 /* EXPORT FUNCTIONS */
 
-EXPORT_API void SPStore_Init(const char* listenerObjectName)
+EXPORT_API void SPUnityStore_Init(const char* listenerObjectName)
 {
     purchaseBridge = new PlatformPurchaseCenterBridge(listenerObjectName);
 }
 
-EXPORT_API void SPStore_SetApplicationUsername(const char* applicationUserName)
+EXPORT_API void SPUnityStore_SetApplicationUsername(const char* applicationUserName)
 {
     if(purchaseBridge)
         purchaseBridge->setApplicationUsername(applicationUserName);
 }
 
-EXPORT_API void SPStore_SetUseAppReceipt(bool shouldUseAppReceipt)
+EXPORT_API void SPUnityStore_SetUseAppReceipt(bool shouldUseAppReceipt)
 {
     if(purchaseBridge)
         purchaseBridge->setUseAppReceipt(shouldUseAppReceipt);
 }
 
-EXPORT_API void SPStore_SendTransactionUpdateEvents(bool shouldSend)
+EXPORT_API void SPUnityStore_SendTransactionUpdateEvents(bool shouldSend)
 {
     if(purchaseBridge)
         purchaseBridge->sendTransactionUpdateEvents(shouldSend);
 }
 
-EXPORT_API void SPStore_EnableHighDetailLogs(bool shouldEnable)
+EXPORT_API void SPUnityStore_EnableHighDetailLogs(bool shouldEnable)
 {
     if(purchaseBridge)
         purchaseBridge->enableHighDetailLogs(shouldEnable);
 }
 
-EXPORT_API void SPStore_RequestProductData(const char* productIdentifiers)
+EXPORT_API void SPUnityStore_RequestProductData(const char* productIdentifiers)
 {
     if(purchaseBridge)
         purchaseBridge->downloadProducts(productIdentifiers);
 }
 
-EXPORT_API void SPStore_PurchaseProduct(const char* productIdentifier)
+EXPORT_API void SPUnityStore_PurchaseProduct(const char* productIdentifier)
 {
     if(purchaseBridge)
         purchaseBridge->purchaseProduct(productIdentifier);
 }
 
-EXPORT_API void SPStore_ForceFinishPendingTransactions()
+EXPORT_API void SPUnityStore_ForceFinishPendingTransactions()
 {
     if(purchaseBridge)
         purchaseBridge->forceFinishPendingTransactions();
 }
 
-EXPORT_API void SPStore_FinishPendingTransaction(const char* transactionIdentifier)
+EXPORT_API void SPUnityStore_FinishPendingTransaction(const char* transactionIdentifier)
 {
     if(purchaseBridge)
         purchaseBridge->finishPendingTransaction(transactionIdentifier);

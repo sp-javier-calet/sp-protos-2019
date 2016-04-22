@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef SPPurchaseNative_h
-#define SPPurchaseNative_h
+#ifndef SPPurchaseNativeServices_h
+#define SPPurchaseNativeServices_h
 
 #import <Foundation/Foundation.h>
 #import <StoreKit/StoreKit.h>
@@ -31,7 +31,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 };
 
 
-@interface PlatformPurchaseServices : NSObject<SKProductsRequestDelegate, SKPaymentTransactionObserver>
+@interface SPPurchaseNativeServices : NSObject<SKProductsRequestDelegate, SKPaymentTransactionObserver>
 {
     void* platformPurchaseCenter_;
 }
@@ -66,4 +66,4 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 
 @end
 
-#endif /* SPPurchaseNative_h */
+#endif /* SPPurchaseNativeServices_h */
