@@ -199,8 +199,6 @@ namespace SocialPoint.Purchase
         /// <param name="response">callback defined by each store implementation (usually consumes product, finishes transaction)</param>
         void SocialPointValidatePurchase(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
-            UnityEngine.Debug.Log("*** TEST SocialPointValidatePurchase 1");
-
             if(_purchaseStore is MockPurchaseStore)
             {
                 DebugLog("no validation for mockup purchase");
@@ -219,9 +217,6 @@ namespace SocialPoint.Purchase
                 DebugUtils.Log(req.Url.AbsoluteUri);
             }
 
-            UnityEngine.Debug.Log("*** TEST SocialPointValidatePurchase 2");
-
-
             #if UNITY_IOS
             req.AddParam(HttpParamOrderData, receipt.OriginalJson);
             #elif UNITY_ANDROID
@@ -230,9 +225,7 @@ namespace SocialPoint.Purchase
             paramDic.Set(HttpParamDataSignature, new AttrString(receipt.DataSignature));
             req.AddParam(HttpParamOrderData, new JsonAttrSerializer().SerializeString(paramDic));
             #endif
-            UnityEngine.Debug.Log("*** TEST SocialPointValidatePurchase Sending. Client: " + _httpClient);
             _httpClient.Send(req, (_1) => OnBackendResponse(_1, response, receipt));
-            UnityEngine.Debug.Log("*** TEST SocialPointValidatePurchase Sent");
         }
 
         /// <summary>
@@ -245,7 +238,6 @@ namespace SocialPoint.Purchase
         /// <param name="response">callback defined by each store implementation (usually consumes product, finishes transaction)</param>
         void OnBackendResponse(HttpResponse resp, ValidatePurchaseResponseDelegate response, Receipt receipt)
         {
-            UnityEngine.Debug.Log("*** TEST OnBackendResponse Status: " + resp.StatusCode);
             //parse response from backend and call response with the final decission
             //JsonAttrParser parser = new JsonAttrParser();
             //AttrDic Data = parser.Parse(resp.Body).AsDic;
@@ -255,7 +247,6 @@ namespace SocialPoint.Purchase
             switch(resp.StatusCode)
             {
             case (int)BackendResponse.ORDER_INVALID:
-                UnityEngine.Debug.Log("*** TEST OnBackendResponse ORDER_INVALID");
                 //warn client
                 _purchaseCompleted(receipt, PurchaseResponseType.Error);
                 //consume purchase
@@ -263,7 +254,6 @@ namespace SocialPoint.Purchase
                 break;
             case 200:
             case (int)BackendResponse.ORDER_NOTSYNC:
-                UnityEngine.Debug.Log("*** TEST OnBackendResponse ORDER_NOTSYNC");
                 //notify the store about validation state
                 _purchaseStore.PurchaseStateChanged(PurchaseState.ValidateSuccess, receipt.ProductId);
 
@@ -273,12 +263,11 @@ namespace SocialPoint.Purchase
                 //client have to apply changes to de user_data
                 var purchaseGameInfo = _purchaseCompleted(receipt, PurchaseResponseType.Complete);
                 TrackPurchaseStart(receipt, purchaseGameInfo);
-                //we send the packet with the purchaseSync, if there is no syncCmd we will ad one with the cmdqueue event Sync
+                //we send the packet with the purchaseSync, if there is no syncCmd we will add one with the cmdqueue event Sync
                 _commandQueue.Send();
                 break;
                 
             case (int)BackendResponse.ORDER_SYNCED:
-                UnityEngine.Debug.Log("*** TEST OnBackendResponse ORDER_SYNCED");
                 //warn client
                 _purchaseCompleted(receipt, PurchaseResponseType.Duplicated);
                 //consume purchase
@@ -286,7 +275,6 @@ namespace SocialPoint.Purchase
                 break;
 
             default:
-                UnityEngine.Debug.Log("*** TEST OnBackendResponse default");
                 response(PurchaseResponseType.Error);
                 _purchaseCompleted(receipt, PurchaseResponseType.Error);
                 break;
@@ -323,29 +311,19 @@ namespace SocialPoint.Purchase
 
         private void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
-            UnityEngine.Debug.Log("*** TEST PurchaseSync");
             var purchaseCmd = new PurchaseCommand(receipt.OrderId, receipt.Store);
-            UnityEngine.Debug.Log("*** TEST PurchaseSync Command Queue: " + _commandQueue);
             _commandQueue.Add(purchaseCmd, (data, err) => {
-                UnityEngine.Debug.Log("*** TEST PurchaseSync Callback");
                 if(Error.IsNullOrEmpty(err))
                 {
-                    UnityEngine.Debug.Log("*** TEST PurchaseSync OK");
                     DebugUtils.Log("calling ValidatePurchaseResponseDelegate"); 
                     response(PurchaseResponseType.Complete);
                 }
                 else
                 {
-                    UnityEngine.Debug.Log("*** TEST PurchaseSync Error: " + err);
                     DebugUtils.Log("command sync had an error"); 
                     //warn about an error
                 }
             });
-
-            //*** TEST
-            _commandQueue.Flush();
-            _commandQueue.Send();
-            UnityEngine.Debug.Log("*** TEST PurchaseSync Command Sent");
         }
 
         /// <summary>

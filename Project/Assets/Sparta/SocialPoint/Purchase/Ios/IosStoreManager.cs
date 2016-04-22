@@ -38,7 +38,6 @@ namespace SocialPoint.Purchase
 
         static IosStoreManager()
         {
-            //FIXME: Create instance this way???
             string instanceName = "IosStoreManager";
             GameObject instance = new GameObject(instanceName);
             instance.AddComponent<IosStoreManager>();

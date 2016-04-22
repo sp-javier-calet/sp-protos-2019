@@ -63,15 +63,14 @@ namespace SocialPoint.Notifications
             bool userAllowedNotifications = PlayerPrefs.GetInt(kPlayerAllowsNotificationKey, 0) != 0;
             if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && (pushToken != currentPushToken || userAllowedNotifications != UserAllowsNofitication))
             {
-                //*** TEST
-                /*_commandQueue.Add(new PushEnabledCommand(pushToken), (data, err) => {
+                _commandQueue.Add(new PushEnabledCommand(pushToken), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
                         PlayerPrefs.SetString(kPushTokenKey, pushToken);
                         PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, UserAllowsNofitication ? 1 : 0);
                         PlayerPrefs.Save();
                     }
-                });*/
+                });
             }
         }
 

@@ -158,13 +158,10 @@ namespace SocialPoint.Purchase
             {
                 Receipt receipt = _pendingPurchases[0];
                 DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
-                UnityEngine.Debug.Log("*** TEST Validating Purchase. Caller: " + _validatePurchase);
                 _validatePurchase(receipt, (response) => {
                     DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
-                    UnityEngine.Debug.Log("*** TEST Validation Backend Response: " + response.ToString());
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
-                        UnityEngine.Debug.Log("*** TEST Finishing Transaction");
                         IosStoreBinding.FinishPendingTransaction(receipt.OrderId);
                         PurchaseUpdated(PurchaseState.PurchaseConsumed, receipt.ProductId);
                         _pendingPurchases.Remove(receipt);
@@ -172,7 +169,6 @@ namespace SocialPoint.Purchase
                     }
                     //itunes api can only confirm a purchase(can't cancel) so we call nothing unless our backend says it's complete.
                 });
-                UnityEngine.Debug.Log("*** TEST Validation Sent");
             }
             else
             {
@@ -183,7 +179,6 @@ namespace SocialPoint.Purchase
         private void PurchaseFailed(string error)
         {
             DebugLog("PurchaseFailed " + error);
-            UnityEngine.Debug.Log("*** TEST PurchaseFailed. Error: " + error);
             //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
             if(!String.IsNullOrEmpty(_purchasingProduct))
             {
@@ -194,7 +189,6 @@ namespace SocialPoint.Purchase
         private void PurchaseCanceled(string error)
         {
             DebugLog("PurchaseCanceled " + error);
-            UnityEngine.Debug.Log("*** TEST PurchaseCanceled. Error: " + error);
             //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
             if(!String.IsNullOrEmpty(_purchasingProduct))
             {
@@ -205,7 +199,6 @@ namespace SocialPoint.Purchase
         private void PurchaseFinished(IosStoreTransaction transaction)
         {
             DebugLog("Purchase has finished: " + transaction.TransactionIdentifier);
-            UnityEngine.Debug.Log("*** TEST PurchaseFinished");
             PurchaseUpdated(PurchaseState.PurchaseFinished, transaction.ProductIdentifier);
         }
 
