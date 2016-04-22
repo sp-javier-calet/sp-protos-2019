@@ -4,7 +4,6 @@
 #include <chrono>
 #include <ctime>
 #include <pthread.h>
-#include <unistd.h>
 #include "UnityGameObject.h"
 #include "SPUnityCrashReporter.hpp"
 
@@ -88,7 +87,6 @@ struct CrashDumpedCallData
 
 void* callOnCrashDumpedThread(void *ctx)
 {
-    usleep(100000);
     CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
     UnityGameObject(data->gameObject).SendMessage("OnCrashDumped", data->logPath);
     delete data;
