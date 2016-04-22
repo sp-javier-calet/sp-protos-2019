@@ -10,15 +10,22 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		iwZJZNL0D5oUd0/AOhY552PvOs0=
+		t8xKaF/S6wFJ3aue8f7dklDJdNk=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
 		<key>Headers/UnityGameObject.h</key>
-		<data>
-		oVdNU/32kgquQhgiICxYxXCk1zE=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			oVdNU/32kgquQhgiICxYxXCk1zE=
+			</data>
+			<key>hash2</key>
+			<data>
+			WqIBUzI6tQC0lcWBL8u6ym8Op0miOxfl7K1cgV1P0OI=
+			</data>
+		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>

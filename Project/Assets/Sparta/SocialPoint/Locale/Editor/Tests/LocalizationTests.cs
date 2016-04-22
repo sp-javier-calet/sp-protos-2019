@@ -115,28 +115,26 @@ namespace SocialPoint.Locale
         [Test]
         public void ValidateSimplifiedChinese()
         {
-            // iOS
-            LocalizationManager.CurrentLanguage = "zh-Hans-ES";
-            Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.SimplifiedChineseServerIdentifier);
-
             LocalizationManager.CurrentLanguage = Localization.SimplifiedChineseIdentifier;
             Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.SimplifiedChineseServerIdentifier);
 
-            LocalizationManager.CurrentLanguage = LocalizationManager.SimplifiedChineseServerIdentifier;
+            LocalizationManager.CurrentLanguage = Localization.SimplifiedChineseIdentifierCountry;
             Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.SimplifiedChineseServerIdentifier);
         }
 
         [Test]
         public void ValidateTraditionalChinese()
         {
-            // iOS
-            LocalizationManager.CurrentLanguage = "zh-Hant-ES";
-            Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.TraditionalChineseServerIdentifier);
-
             LocalizationManager.CurrentLanguage = Localization.TraditionalChineseIdentifier;
             Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.TraditionalChineseServerIdentifier);
 
-            LocalizationManager.CurrentLanguage = LocalizationManager.TraditionalChineseServerIdentifier;
+            LocalizationManager.CurrentLanguage = Localization.TraditionalChineseIdentifierCountry;
+            Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.TraditionalChineseServerIdentifier);
+
+            LocalizationManager.CurrentLanguage = Localization.TraditionalHongKongChineseIdentifier;
+            Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.TraditionalChineseServerIdentifier);
+
+            LocalizationManager.CurrentLanguage = Localization.TraditionalHongKongChineseIdentifierCountry;
             Assert.AreEqual(LocalizationManager.CurrentLanguage, LocalizationManager.TraditionalChineseServerIdentifier);
         }
     }

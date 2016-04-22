@@ -370,6 +370,7 @@ namespace SocialPoint.Locale
             }
             if(!_running || (langEnumerator != null && !langEnumerator.MoveNext()))
             {
+                langEnumerator.Dispose();
                 OnLanguagesLoaded(locales);
                 if(finish != null)
                 {
@@ -676,8 +677,12 @@ namespace SocialPoint.Locale
             case Localization.PortugueseIdentifier:
                 return Localization.BrasilianIdentifier;
             case Localization.TraditionalChineseIdentifier:
+            case Localization.TraditionalChineseIdentifierCountry:
+            case Localization.TraditionalHongKongChineseIdentifier:
+            case Localization.TraditionalHongKongChineseIdentifierCountry:
                 return TraditionalChineseServerIdentifier;
             case Localization.SimplifiedChineseIdentifier:
+            case Localization.SimplifiedChineseIdentifierCountry:
                 return SimplifiedChineseServerIdentifier;
             default:
                 return lang;
@@ -687,17 +692,21 @@ namespace SocialPoint.Locale
         string GetSupportedLanguage(string lang = null)
         {
             string slang = null;
+            string country = null;
             var supported = new List<string>(_supportedFixedLanguages);
 
             if(string.IsNullOrEmpty(lang))
             {
                 lang = _appInfo.Language;
+                country = _appInfo.Country;
+                if(!string.IsNullOrEmpty(country))
+                {
+                    lang = lang + "-" + country;
+                }
             }
 
             _selectedLanguage = lang;
             SelectedCultureInfo = GetCultureInfo(_selectedLanguage);
-
-            lang = lang.ToLower();
 
             var fixlang = FixLanguage(lang);
 

@@ -19,13 +19,19 @@ namespace SocialPoint.Locale
         public const string GalicianIdentifier = "gl";
         public const string BasqueIdentifier = "eu";
         public const string CatalanIdentifier = "ca";
-        public const string SimplifiedChineseIdentifier = "zh-hans"; //to lower case
-        public const string TraditionalChineseIdentifier = "zh-hant"; //to lower case
+        public const string SimplifiedChineseIdentifier = "zh-Hans";
+        public const string TraditionalChineseIdentifier = "zh-Hant";
+        public const string TraditionalHongKongChineseIdentifier = "zh";
+
+        // Android can not return languageCode + script. So we need to disambiguate using the country code instead.
+        public const string SimplifiedChineseIdentifierCountry = "zh-CN";
+        public const string TraditionalChineseIdentifierCountry = "zh-TW";
+        public const string TraditionalHongKongChineseIdentifierCountry = "zh-HK";
 
         static Localization _defaultLocalization;
 
         public static Localization Default
-        { 
+        {
             get
             {
                 if(_defaultLocalization == null)
