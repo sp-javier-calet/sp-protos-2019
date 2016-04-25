@@ -62,6 +62,10 @@
 #define CPU_TYPE_ARM (static_cast<cpu_type_t>(12))
 #endif //  CPU_TYPE_ARM
 
+#ifndef CPU_TYPE_ARM64
+#define CPU_TYPE_ARM64 (static_cast<cpu_type_t>(16777228))
+#endif  // CPU_TYPE_ARM64
+
 using dwarf2reader::ByteReader;
 using google_breakpad::DwarfCUToModule;
 using google_breakpad::DwarfLineToModule;
@@ -329,6 +333,9 @@ bool DumpSymbols::ReadCFI(google_breakpad::Module *module,
     case CPU_TYPE_ARM:
       register_names = DwarfCFIToModule::RegisterNames::ARM();
       break;
+    case CPU_TYPE_ARM64:
+      register_names = DwarfCFIToModule::RegisterNames::ARM64();
+      break;
     default: {
       const NXArchInfo *arch = google_breakpad::BreakpadGetArchInfoFromCpuType(
           macho_reader.cpu_type(), macho_reader.cpu_subtype());
@@ -406,11 +413,13 @@ bool DumpSymbols::LoadCommandDumper::SegmentCommand(const Segment &segment) {
 
   if (segment.name == "__TEXT") {
     module_->SetLoadAddress(segment.vmaddr);
-    mach_o::SectionMap::const_iterator eh_frame =
-        section_map.find("__eh_frame");
-    if (eh_frame != section_map.end()) {
-      // If there is a problem reading this, don't treat it as a fatal error.
-      dumper_.ReadCFI(module_, reader_, eh_frame->second, true);
+    if (symbol_data_ != NO_CFI) {
+      mach_o::SectionMap::const_iterator eh_frame =
+          section_map.find("__eh_frame");
+      if (eh_frame != section_map.end()) {
+        // If there is a problem reading this, don't treat it as a fatal error.
+        dumper_.ReadCFI(module_, reader_, eh_frame->second, true);
+      }
     }
     return true;
   }
@@ -422,11 +431,13 @@ bool DumpSymbols::LoadCommandDumper::SegmentCommand(const Segment &segment) {
         return false;
       }
     }
-    mach_o::SectionMap::const_iterator debug_frame
-        = section_map.find("__debug_frame");
-    if (debug_frame != section_map.end()) {
-      // If there is a problem reading this, don't treat it as a fatal error.
-      dumper_.ReadCFI(module_, reader_, debug_frame->second, false);
+    if (symbol_data_ != NO_CFI) {
+      mach_o::SectionMap::const_iterator debug_frame
+          = section_map.find("__debug_frame");
+      if (debug_frame != section_map.end()) {
+        // If there is a problem reading this, don't treat it as a fatal error.
+        dumper_.ReadCFI(module_, reader_, debug_frame->second, false);
+      }
     }
   }
 
