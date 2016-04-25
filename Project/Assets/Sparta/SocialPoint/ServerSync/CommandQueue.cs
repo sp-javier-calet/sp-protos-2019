@@ -289,6 +289,7 @@ namespace SocialPoint.ServerSync
             {
                 _currentPacket = new Packet();
             }
+            _currentPacketFlushed = false;
             if(!_currentPacket.Add(cmd, callback))
             {
                 RaiseClockChangeError();
