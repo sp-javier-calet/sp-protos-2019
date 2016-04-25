@@ -1,16 +1,16 @@
 #include "SPUnityHardwareFacade.h"
-#include <string.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <mach/mach.h>
-#include <mach/mach_host.h>
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #import <AdSupport/ASIdentifierManager.h>
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import <SystemConfiguration/SystemConfiguration.h>
+#import <UIKit/UIKit.h>
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <mach/mach.h>
+#include <mach/mach_host.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
 
 char* SPUnityHardwareCreateString(const char* str)
 {

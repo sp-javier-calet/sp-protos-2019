@@ -117,13 +117,25 @@ namespace SocialPoint.Hardware
             {
                 if(_architecture == null)
                 {
-                    _architecture = string.Empty;
-                    var build = new AndroidJavaClass("android.os.Build");
-                    var supported_abis = build.GetStatic<string[]>("SUPPORTED_ABIS");
-                    for(int i = 0, supported_abisLength = supported_abis.Length; i < supported_abisLength; i++)
+                    try
                     {
-                        var abi = supported_abis[i];
-                        _architecture = _architecture + (i == 0 ? "" : ",") + abi;
+                        try
+                        {
+                            var build = new AndroidJavaClass("android.os.Build");
+                            var supported_abis = build.GetStatic<string[]>("SUPPORTED_ABIS"); // API level 21
+                            _architecture = supported_abis.Length > 0 ? supported_abis[0] : string.Empty;
+                        }
+                        catch(AndroidJavaException)
+                        {
+                            var build = new AndroidJavaClass("android.os.Build");
+                            var cpu_abi = build.GetStatic<string>("CPU_ABI"); // API level 4, deprecated in API level 21
+                            _architecture = cpu_abi;
+                        }
+                    }
+                    catch
+                    {
+                        _architecture = string.Empty;
+                        Debug.LogError("Error retrieving DeviceInfo Architecture");
                     }
                 }
                 return _architecture;
@@ -179,7 +191,7 @@ namespace SocialPoint.Hardware
                     }
                     else
                     {
-                        _advertisingId = "";
+                        _advertisingId = string.Empty;
                     }
                 }
                 return _advertisingId;
