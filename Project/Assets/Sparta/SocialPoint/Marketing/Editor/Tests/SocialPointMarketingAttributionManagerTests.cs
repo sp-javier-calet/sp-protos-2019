@@ -122,7 +122,7 @@ namespace SocialPoint.Marketing
         public void TrackEventDelegate_called_on_attribution()
         {
             manager.DebugMode = true;
-            var trackEventDelegate = Substitute.For<SocialPointMarketingAttributionManager.TrackEventDelegate>();
+            var trackEventDelegate = Substitute.For<TrackEventDelegate>();
             manager.TrackEvent = trackEventDelegate;
             tracker.TrackInstall(Arg.Do<bool>(b => tracker.OnDataReceived += Raise.Event<Action<TrackerAttributionData>>(new TrackerAttributionData{trackerName = "test2", data = "data"})));
             manager.AddTracker(tracker);

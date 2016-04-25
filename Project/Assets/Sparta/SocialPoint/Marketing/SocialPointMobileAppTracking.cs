@@ -59,7 +59,8 @@ public class SocialPointMobileAppTracking : IMarketingTracker
 
     public void Dispose()
     {
-        UnityEngine.Object.Destroy(_trackerDelegate.gameObject);
+        if(_trackerDelegate != null)
+            UnityEngine.Object.Destroy(_trackerDelegate.gameObject);
     }
 
     #endregion

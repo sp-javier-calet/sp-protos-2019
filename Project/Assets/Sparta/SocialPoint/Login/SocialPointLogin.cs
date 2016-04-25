@@ -67,7 +67,7 @@ namespace SocialPoint.Login
         private const string AttrKeyEventErrorType = "error_type";
         private const string AttrKeyEventErrorCode = "error_code";
         private const string AttrKeyEventErrorMessage = "error_desc";
-        private const string AttrKeyEventErrorHttpCode = "error_code";
+        private const string AttrKeyEventErrorHttpCode = "http_code";
         private const string AttrKeyEventErrorData = "data";
         public const string AttrKeyHttpCode = "http_code";
         public const string AttrKeySignature = "signature";
@@ -530,7 +530,7 @@ namespace SocialPoint.Login
             {
                 err = AttrUtils.GetError(json);
             }
-            if(Error.IsNullOrEmpty(err) && resp.HasError)
+            if(Error.IsNullOrEmpty(err) && resp.HasError && resp.StatusCode != MaintenanceMode)
             {
                 err = resp.Error;
             }
@@ -620,6 +620,7 @@ namespace SocialPoint.Login
                     err = new Error("The connection could not be established.");
                 }
                 typ = ErrorType.Connection;
+                err.Code = resp.ErrorCode;
             }
             else if(json != null)
             {
@@ -716,7 +717,7 @@ namespace SocialPoint.Login
                 DoLogin(cbk, resp.ErrorCode);
                 return;
             }
-            else if(resp.HasRecoverableError)
+            else if(resp.HasRecoverableError && resp.StatusCode != MaintenanceMode)
             {
                 _availableConnectivityErrorRetries--;
                 DoLogin(cbk, resp.ErrorCode);
@@ -1355,7 +1356,7 @@ namespace SocialPoint.Login
                     if(DeviceInfo != null)
                     {
                         var uid = DeviceInfo.Uid;
-                        uid = uid.Substring(0, 8);
+                        uid = uid != null  && uid.Length > 7 ? uid.Substring(0, 8) : "";
                         suffix += SignatureSeparator + uid;
                     }
                 }

@@ -131,17 +131,17 @@ namespace SpartaTools.Editor.Utils
 
         public string GetCommit()
         {
-            return CreateLogQuery().WithFormat(Format.Commit).WithLimit(1).Exec();
+            return CreateLogQuery().WithFormat(Format.Commit).WithLimit(1).Exec().Trim();
         }
 
         public string GetBranch()
         {
-            return CreateQuery("rev-parse").WithOption("abbrev-ref", "HEAD").Exec();
+            return CreateQuery("rev-parse").WithOption("abbrev-ref", "HEAD").Exec().Trim();
         }
 
         public string GetUser()
         {
-            return CreateQuery("config").WithArg("user.email").Exec();
+            return CreateQuery("config").WithArg("user.email").Exec().Trim();
         }
 
         public Query CreateQuery(string command)

@@ -157,7 +157,7 @@ namespace Zenject
                 .Select(x => x.gameObject);
         }
 
-        void InjectObjectsInScene()
+        protected virtual void InjectObjectsInScene()
         {
             Log.Debug("Injecting all objects in scene '{0}'", this.gameObject.scene.name);
 

@@ -3,14 +3,18 @@ using Zenject;
 
 public class ResourcesReward : IReward
 {
-    [Inject]
     ResourcePool _playerResources;
 
     ResourcePool _resources;
-    
+
     public ResourcesReward(ResourcePool resources)
     {
         _resources = resources;
+    }
+
+    public void Init(ResourcePool playerResources)
+    {
+        _playerResources = playerResources;
     }
 
     #region IReward implementation

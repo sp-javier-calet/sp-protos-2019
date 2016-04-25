@@ -3,15 +3,17 @@ using Zenject;
 using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.ScriptEvents;
+using SocialPoint.Purchase;
 
 public class EconomyInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.BindIFactory<ResourcePool, ResourcesCost>().ToFactory();
-        Container.BindIFactory<string, PurchaseCost>().ToMethod(CreatePurchaseCost);
+        Container.Bind<ResourcesCostFactory>().ToSingleMethod<ResourcesCostFactory>(CreateResourcesCostFactory);
+        Container.Bind<PurchaseCostFactory>().ToSingleMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
 
-        Container.BindIFactory<ResourcePool, ResourcesReward>().ToFactory();
+        Container.Bind<ResourcesRewardFactory>().ToSingleMethod<ResourcesRewardFactory>(CreateResourcesRewardFactory);
 
         Container.Bind<IChildParser<IReward>>().ToSingle<ResourcesRewardParser>();
 
@@ -34,10 +36,22 @@ public class EconomyInstaller : Installer
         return new FamilyParser<ICost>(children);
     }
 
-    PurchaseCost CreatePurchaseCost(DiContainer container, string productId)
+    ResourcesCostFactory CreateResourcesCostFactory(InjectContext ctx)
     {
-        var purchaseCost = new PurchaseCost(productId);
-        container.Inject(purchaseCost);
-        return purchaseCost;
+        var playerResources = ctx.Container.Resolve<ResourcePool>();
+        var eventDispatcher = ctx.Container.Resolve<IEventDispatcher>();
+        return new ResourcesCostFactory(playerResources, eventDispatcher);
+    }
+
+    PurchaseCostFactory CreatePurchaseCostFactory(InjectContext ctx)
+    {
+        var purchaseStore = ctx.Container.Resolve<IGamePurchaseStore>();
+        return new PurchaseCostFactory(purchaseStore);
+    }
+
+    ResourcesRewardFactory CreateResourcesRewardFactory(InjectContext ctx)
+    {
+        var playerResources = ctx.Container.Resolve<ResourcePool>();
+        return new ResourcesRewardFactory(playerResources);
     }
 }
