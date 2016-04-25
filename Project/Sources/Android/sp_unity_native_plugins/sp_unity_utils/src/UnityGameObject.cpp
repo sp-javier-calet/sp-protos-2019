@@ -35,7 +35,6 @@ JniEnv::operator bool()
 
 JavaVM* UnityGameObject::_java = nullptr;
 jclass UnityGameObject::_jcls = nullptr;
-jmethodID UnityGameObject::_jsendmsg = nullptr;
 
 UnityGameObject::UnityGameObject(const std::string name)
 {
@@ -44,15 +43,25 @@ UnityGameObject::UnityGameObject(const std::string name)
 
 void UnityGameObject::setJava(JavaVM* java)
 {
-    _java = java;
-    JniEnv env(_java);
-    _jcls = env->FindClass("es/socialpoint/unity/base/SPUnityActivity");
-    if(_jcls)
+    if(java)
     {
-        _jsendmsg = env->GetStaticMethodID(_jcls,
-            "UnitySendMessage", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+        _java = java;
+        JniEnv env(_java);
+        jclass jcls = env->FindClass("es/socialpoint/unity/base/SPUnityActivity");
+        _jcls = (jclass)env->NewGlobalRef(jcls);
+        env->DeleteLocalRef(jcls);
+        LogError("Got ref UnityPlayer=%x", (uintptr_t)_jcls);
     }
-    LogError("Got refs UnityPlayer=%x and UnitySendMessage=%x", (uintptr_t)_jcls, (uintptr_t)_jsendmsg);
+    else if(_java)
+    {
+        JniEnv env(_java);
+        LogError("Cleaning up ref UnityPlayer=%x", (uintptr_t)_jcls);
+        if(_jcls)
+        {
+            env->DeleteGlobalRef(_jcls);
+        }
+
+    }
 }
 
 void UnityGameObject::SendMessage(const std::string& method)
@@ -74,10 +83,13 @@ void UnityGameObject::SendMessage(const std::string& method, const std::string& 
         LogError("Could not get jni env.");
         return;
     }
+
+    jmethodID jsendmsg = env->GetStaticMethodID(_jcls,
+         "UnitySendMessage", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     jstring objectStr = env->NewStringUTF(_objectName.c_str());
     jstring methodStr = env->NewStringUTF(method.c_str());
     jstring parameterStr = env->NewStringUTF(parameter.c_str());
-    env->CallStaticVoidMethod(_jcls, _jsendmsg, objectStr, methodStr, parameterStr);
+    env->CallStaticVoidMethod(_jcls, jsendmsg, objectStr, methodStr, parameterStr);
     jthrowable jexc = env->ExceptionOccurred();
     if (jexc)
     {

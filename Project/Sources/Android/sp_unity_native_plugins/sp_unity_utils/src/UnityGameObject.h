@@ -31,7 +31,6 @@ private:
     std::string _objectName;
     static JavaVM* _java;
     static jclass _jcls;
-    static jmethodID _jsendmsg;
 public:
     UnityGameObject(const std::string name);
     static void setJava(JavaVM* java);
