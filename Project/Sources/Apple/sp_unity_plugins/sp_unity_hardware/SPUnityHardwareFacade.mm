@@ -217,8 +217,15 @@ EXPORT_API char* SPUnityHardwareGetAppShortVersion()
 EXPORT_API char* SPUnityHardwareGetAppLanguage()
 {
     NSArray* langs = [NSLocale preferredLanguages];
-    for(NSString* lang in langs)
+    for(NSString* language in langs)
     {
+        NSLocale* locale = [NSLocale localeWithLocaleIdentifier:language];
+        NSString* lang = [locale objectForKey:NSLocaleLanguageCode];
+        NSString* script = [locale objectForKey:NSLocaleScriptCode]; // this will return Hans or Hant for chinese language
+        if ([script length] != 0)
+        {
+            lang = [NSString stringWithFormat:@"%@-%@", lang, script]; //this will effectively return zh-Hans and zh-Hant for simplified or traditional chinese
+        }
         if(lang != nil)
         {
             return SPUnityHardwareCreateString(lang.UTF8String);
