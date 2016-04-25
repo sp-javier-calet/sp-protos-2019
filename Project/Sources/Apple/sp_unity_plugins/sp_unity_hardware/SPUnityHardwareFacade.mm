@@ -38,6 +38,67 @@ EXPORT_API char* SPUnityHardwareGetDevicePlatformVersion()
     return SPUnityHardwareCreateString(version.UTF8String);
 }
 
+EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
+{
+    size_t size;
+    cpu_type_t type;
+    cpu_subtype_t subtype;
+    
+    size = sizeof(type);
+    sysctlbyname("hw.cputype", &type, &size, NULL, 0);
+    
+    size = sizeof(subtype);
+    sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0);
+    
+    // values for cputype and cpusubtype defined in mach/machine.h
+    if(type == CPU_TYPE_ARM64)
+    {
+        switch(subtype)
+        {
+            case CPU_SUBTYPE_ARM64_V8:
+                return SPUnityHardwareCreateString("arm64-v8");
+                break;
+        }
+    }
+    else if(type == CPU_TYPE_ARM)
+    {
+        switch(subtype)
+        {
+            case CPU_SUBTYPE_ARM_V4T:
+                return SPUnityHardwareCreateString("arm-v4t");
+                break;
+            case CPU_SUBTYPE_ARM_V6:
+                return SPUnityHardwareCreateString("arm-v6");
+                break;
+            case CPU_SUBTYPE_ARM_V5TEJ:
+                return SPUnityHardwareCreateString("arm-v5tej");
+                break;
+            case CPU_SUBTYPE_ARM_XSCALE:
+                return SPUnityHardwareCreateString("arm-xscale");
+                break;
+            case CPU_SUBTYPE_ARM_V7:
+                return SPUnityHardwareCreateString("arm-v7");
+                break;
+            case CPU_SUBTYPE_ARM_V7F:
+                return SPUnityHardwareCreateString("arm-v7f");
+                break;
+            case CPU_SUBTYPE_ARM_V7S:
+                return SPUnityHardwareCreateString("arm-v7s");
+                break;
+            case CPU_SUBTYPE_ARM_V6M:
+                return SPUnityHardwareCreateString("arm-v6m");
+                break;
+            case CPU_SUBTYPE_ARM_V7M:
+                return SPUnityHardwareCreateString("arm-v7m");
+                break;
+            case CPU_SUBTYPE_ARM_V7EM:
+                return SPUnityHardwareCreateString("arm-v7em");
+                break;
+        }
+    }
+    return SPUnityHardwareCreateString("");
+}
+
 EXPORT_API char* SPUnityHardwareGetDeviceAdvertisingId()
 {
     if(NSClassFromString(@"ASIdentifierManager"))

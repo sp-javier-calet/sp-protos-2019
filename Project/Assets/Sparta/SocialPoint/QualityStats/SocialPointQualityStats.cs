@@ -155,6 +155,7 @@ namespace SocialPoint.QualityStats
             client.Set("memory_stats", GetMemoryData());
             client.Set("storage_stats", GetStorageData());
             client.Set("app_info", GetAppData());
+            client.Set("device_info", GetDeviceData());
             client.Set("network_stats", GetNetworkData());
             client.Set("performance", GetPerformanceData());
 
@@ -296,6 +297,16 @@ namespace SocialPoint.QualityStats
             dict.SetValue("language", appInfo.Language);
             dict.SetValue("country", appInfo.Country);
             dict.SetValue("stored_id", appInfo.Country);
+
+            return dict;
+        }
+
+        AttrDic GetDeviceData()
+        {
+            var architecture = _deviceInfo.Architecture;
+            var dict = new AttrDic();
+
+            dict.SetValue("arch", architecture);
 
             return dict;
         }

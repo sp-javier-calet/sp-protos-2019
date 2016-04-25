@@ -109,6 +109,28 @@ namespace SocialPoint.Hardware
             }
         }
 
+        string _architecture;
+
+        public string Architecture
+        {
+            get
+            {
+                if(_architecture == null)
+                {
+                    _architecture = string.Empty;
+                    var build = new AndroidJavaClass("android.os.Build");
+                    var supported_abis = build.GetStatic<string[]>("SUPPORTED_ABIS");
+                    for(int i = 0, supported_abisLength = supported_abis.Length; i < supported_abisLength; i++)
+                    {
+                        var abi = supported_abis[i];
+                        _architecture = _architecture + (i == 0 ? "" : ",") + abi;
+                    }
+                }
+                return _architecture;
+            }
+        }
+
+
         private bool? _isGooglePlayServicesAvailable = null;
 
         public bool IsGooglePlayServicesAvailable
