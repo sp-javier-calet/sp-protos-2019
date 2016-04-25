@@ -256,14 +256,19 @@ namespace SocialPoint.Crash
         public float SendInterval
         {
             get{ return _currentSendInterval; }
-            set{ _currentSendInterval = value; }
+            set
+            { 
+                _currentSendInterval = value; 
+                _waitForSeconds = new WaitForSeconds(_currentSendInterval);
+            }
         }
 
         ICoroutineRunner _runner;
         IEnumerator _updateCoroutine;
         IAlertView _alertViewPrototype;
+
         float _currentSendInterval = DefaultSendInterval;
-        long _lastSendTimestamp;
+        WaitForSeconds _waitForSeconds = new WaitForSeconds(DefaultSendInterval);
         bool _sending;
 
         public bool ExceptionLogActive
@@ -756,7 +761,6 @@ namespace SocialPoint.Crash
             req.Body = new JsonAttrSerializer().Serialize(exceptionLogs);
             req.CompressBody = true;
             _httpClient.Send(req, resp => OnExceptionSend(resp, storedKeys));
-            _lastSendTimestamp = TimeUtils.Timestamp;
         }
 
         void SendCrashLog(string log, Action callback)
@@ -940,19 +944,10 @@ namespace SocialPoint.Crash
 
         IEnumerator UpdateCoroutine()
         {
-            SendExceptionLogs();
             while(true)
             {
-                Update();
-                yield return true;
-            }
-        }
-
-        void Update()
-        {
-            if(_lastSendTimestamp + (long)_currentSendInterval < TimeUtils.Timestamp)
-            {
                 SendExceptionLogs();
+                yield return _waitForSeconds;
             }
         }
 
