@@ -289,7 +289,6 @@ namespace SocialPoint.ServerSync
             {
                 _currentPacket = new Packet();
             }
-            _currentPacketFlushed = false;
             if(!_currentPacket.Add(cmd, callback))
             {
                 RaiseClockChangeError();
@@ -401,6 +400,7 @@ namespace SocialPoint.ServerSync
             else
             {
                 _sending = true;
+                AddSyncCommand();
                 if(_sendingPacket != null)
                 {
                     DoSend(_sendingPacket, () => {
@@ -470,6 +470,17 @@ namespace SocialPoint.ServerSync
 
         void SendUpdate()
         {
+            AddSyncCommand();
+            if(!_sending)
+            {
+                _sending = true;
+                var packet = PrepareNextPacket(true);
+                DoSend(packet, AfterSend);
+            }
+        }
+
+        void AddSyncCommand()
+        {
             if(_autoSyncEnabled && AutoSync != null)
             {
                 Attr data = null;
@@ -491,12 +502,6 @@ namespace SocialPoint.ServerSync
                     }
                     Flush();
                 }
-            }
-            if(!_sending)
-            {
-                _sending = true;
-                var packet = PrepareNextPacket(true);
-                DoSend(packet, AfterSend);
             }
         }
 
