@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.AssetVersioning
 {
@@ -141,7 +142,7 @@ namespace SocialPoint.AssetVersioning
 
         bool IsThumb(string key)
         {
-            return key.EndsWith("_portrait") || key.EndsWith("_thumb");
+            return StringUtils.EndsWith(key, "_portrait") || StringUtils.EndsWith(key, "_thumb");
         }
 
         public List<string> GetLocalBundles()

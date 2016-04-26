@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using SocialPoint.AssetSerializer.Exceptions;
+using SocialPoint.Utils;
 
 namespace SocialPoint.AssetSerializer.Utils
 {
@@ -102,7 +103,7 @@ namespace SocialPoint.AssetSerializer.Utils
             } else if (itemType.IsEnum)
             {
                 reprType = "Enum";
-            } else if (itemType.IsClass && itemType.FullName.StartsWith("System.Collections.Generic.List"))
+            } else if (itemType.IsClass && StringUtils.StartsWith(itemType.FullName, "System.Collections.Generic.List"))
             {
                 reprType = "List";
             } else if (itemType.IsClass && (itemType == typeof(UnityEngine.Object) || itemType.IsSubclassOf(typeof(UnityEngine.Object))))
@@ -155,7 +156,7 @@ namespace SocialPoint.AssetSerializer.Utils
             //Writters are found on the Editor assemlby while Readers are found on the runtime
             string typeName = TypeNameToFactoryTypeName( itemType.Name );
             Assembly currentAssembly = Assembly.GetExecutingAssembly();
-            if (currentAssembly.GetName ().Name.EndsWith ("-Editor")) {
+            if (StringUtils.EndsWith(currentAssembly.GetName ().Name, "-Editor")) {
 
                 string writerTypeString = WRITER_TMPL.Replace("{{TYPE_NAME}}", typeName);
                 if (currentAssembly.GetType(writerTypeString) == null)
