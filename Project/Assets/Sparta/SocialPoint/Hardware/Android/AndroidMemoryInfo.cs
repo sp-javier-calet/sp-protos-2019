@@ -2,13 +2,9 @@ using UnityEngine;
 
 namespace SocialPoint.Hardware
 {
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
     public class AndroidMemoryInfo : IMemoryInfo
     {
-        public AndroidMemoryInfo()
-        {
-        }
-
         public static AndroidJavaObject MemoryInfo
         {
             get
@@ -23,7 +19,22 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                return (ulong)MemoryInfo.Get<long>("totalMem");
+                try
+                {
+                    try
+                    {
+                        return (ulong)MemoryInfo.Get<long>("totalMem"); // API level 16
+                    }
+                    catch(AndroidJavaException)
+                    {
+                        int memorySizeInMegaBytes = SystemInfo.systemMemorySize;
+                        return (ulong)(1024 * 1024 * memorySizeInMegaBytes);
+                    }
+                }
+                catch(AndroidJavaException)
+                {
+                    return 0;
+                }
             }
         }
 
@@ -31,7 +42,14 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                return (ulong)MemoryInfo.Get<long>("availMem");
+                try
+                {
+                    return (ulong)MemoryInfo.Get<long>("availMem"); // API level 1
+                }
+                catch(AndroidJavaException)
+                {
+                    return 0;
+                }
             }
         }
 
@@ -39,8 +57,7 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                var info = MemoryInfo;
-                return (ulong)(info.Get<long>("totalMem") - info.Get<long>("availMem"));
+                return TotalMemory - FreeMemory;
             }
         }
 
@@ -57,7 +74,7 @@ namespace SocialPoint.Hardware
             return InfoToStringExtension.ToString(this);
         }
     }
-#else
+    #else
     public class AndroidMemoryInfo : EmptyMemoryInfo
     {
     }

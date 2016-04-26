@@ -4,20 +4,19 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Hardware
 {
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
     public class AndroidNetworkInfo : INetworkInfo
     {
         public AndroidJavaObject SocketAddress
         {
             get
             {
-
                 return null;
             }
         }
 
-        private Uri _proxy;
-        private bool _proxyLoaded = false;
+        Uri _proxy;
+        bool _proxyLoaded;
 
         public Uri Proxy
         {
@@ -28,21 +27,24 @@ namespace SocialPoint.Hardware
                     try
                     {
                         var objResolver = AndroidContext.ContentResolver;
-                        var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure");
-                        var key = "http_proxy";
-                        var proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
+                        var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure"); // API level 3
+                        const string key = "http_proxy";
+                        var proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);  // API level 3, deprecated in API level 17
                         if(string.IsNullOrEmpty(proxyStr))
                         {
-                            try {
+                            try
+                            {
                                 clsSettings = new AndroidJavaClass("android.provider.Settings$Global");
-                                proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);
-                            } catch (Exception) {
+                                proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key); // API level 17
+                            }
+                            catch(AndroidJavaException)
+                            {
                                 
                             }
                         }
                         if(string.IsNullOrEmpty(proxyStr))
                         {
-                            var sys = new AndroidJavaClass("java.lang.System");
+                            var sys = new AndroidJavaClass("java.lang.System"); // API level 1
                             var host = sys.CallStatic<string>("getProperty", "http.proxyHost");
                             if(!string.IsNullOrEmpty(host))
                             {
@@ -50,33 +52,33 @@ namespace SocialPoint.Hardware
                                 var port = sys.CallStatic<string>("getProperty", "http.proxyPort");
                                 if(!string.IsNullOrEmpty(port))
                                 {
-                                    proxyStr +=  ":" + port;
+                                    proxyStr += ":" + port;
                                 }
                             }
                         }
                         if(string.IsNullOrEmpty(proxyStr))
                         {
-                            var proxy = new AndroidJavaClass("android.net.Proxy");
-                            var host = proxy.CallStatic<string>("getHost", AndroidContext.CurrentActivity);
+                            var proxy = new AndroidJavaClass("android.net.Proxy"); // API level 1
+                            var host = proxy.CallStatic<string>("getHost", AndroidContext.CurrentActivity); // API level 1
                             if(!string.IsNullOrEmpty(host))
                             {
                                 proxyStr = host;
-                                var port = proxy.CallStatic<string>("getPort", AndroidContext.CurrentActivity);
+                                var port = proxy.CallStatic<string>("getPort", AndroidContext.CurrentActivity); // API level 1, deprecated in API level 11
                                 if(!string.IsNullOrEmpty(port))
                                 {
-                                    proxyStr +=  ":" + port;
+                                    proxyStr += ":" + port;
                                 }
                             }
                         }
                         if(!string.IsNullOrEmpty(proxyStr))
                         {
-                            _proxy = new Uri("http://"+proxyStr);
+                            _proxy = new Uri("http://" + proxyStr);
                         }
                         _proxyLoaded = true;
                     }
                     catch(Exception e)
                     {
-                        UnityEngine.Debug.LogError("Device proxy could not be retrieved. " + e.Message);
+                        Debug.LogError("Device proxy could not be retrieved. " + e.Message);
                     }
                 }
                 return _proxy;
@@ -104,7 +106,7 @@ namespace SocialPoint.Hardware
             return InfoToStringExtension.ToString(this);
         }
     }
-#else
+    #else
     public class AndroidNetworkInfo : EmptyNetworkInfo
     {
     }

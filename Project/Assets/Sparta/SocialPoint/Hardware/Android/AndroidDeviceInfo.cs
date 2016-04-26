@@ -26,7 +26,7 @@ namespace SocialPoint.Hardware
         {
             var ctx = new AndroidJavaClass("android.content.Context");
             var val = ctx.GetStatic<string>(name);
-            return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getSystemService", val);
+            return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getSystemService", val); // API level 23
         }
 
         public static AndroidJavaObject ActivityManager
@@ -53,9 +53,9 @@ namespace SocialPoint.Hardware
             {
                 if(_string == null)
                 {
-                    var build = new AndroidJavaClass("android.os.Build");
-                    var manufacturer = build.GetStatic<string>("MANUFACTURER");
-                    var model = build.GetStatic<string>("MODEL");
+                    var build = new AndroidJavaClass("android.os.Build"); // API level 1
+                    var manufacturer = build.GetStatic<string>("MANUFACTURER"); // API level 4
+                    var model = build.GetStatic<string>("MODEL"); // API level 1
                     if(model.StartsWith(manufacturer))
                     {
                         _string = model;
@@ -78,8 +78,8 @@ namespace SocialPoint.Hardware
                 if(_uid == null)
                 {
                     var objResolver = AndroidContext.ContentResolver;
-                    var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure");
-                    _uid = clsSettings.CallStatic<string>("getString", objResolver, "android_id");
+                    var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure"); // API level 3
+                    _uid = clsSettings.CallStatic<string>("getString", objResolver, "android_id"); // API level 3
                 }
                 return _uid;
             }
@@ -103,7 +103,7 @@ namespace SocialPoint.Hardware
             {
                 if(_platformVersion == null)
                 {
-                    _platformVersion = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<string>("RELEASE");
+                    _platformVersion = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<string>("RELEASE"); // API level 1
                 }
                 return _platformVersion;
             }

@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
-using System;
-using System.Collections;
 
 namespace SocialPoint.Base
 {
 #if UNITY_ANDROID
     public static class AndroidContext 
     {
-        private static AndroidJavaObject _currentActivity;
+        static AndroidJavaObject _currentActivity;
         public static AndroidJavaObject CurrentActivity
         {
             get
@@ -21,7 +19,7 @@ namespace SocialPoint.Base
             }
         }
         
-        private static AndroidJavaObject _currentApplication;
+        static AndroidJavaObject _currentApplication;
         public static AndroidJavaObject CurrentApplication
         {
             get
@@ -35,7 +33,7 @@ namespace SocialPoint.Base
         }
 
 
-        private static AndroidJavaObject _contentResolver;
+        static AndroidJavaObject _contentResolver;
         public static AndroidJavaObject ContentResolver
         {
             get
