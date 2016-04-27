@@ -8,9 +8,6 @@ namespace SocialPoint.Purchase
 {
     public class IosStoreManager : MonoBehaviour
     {
-        //TODO:Delete
-        public static bool autoConfirmTransactions = true;
-
         // Fired when the product list your required returns. Automatically serializes the productString into IosStoreProduct's.
         public static event Action<List<IosStoreProduct>> ProductListReceivedEvent;
 
@@ -21,8 +18,7 @@ namespace SocialPoint.Purchase
         // know what state the transaction is currently in.
         public static event Action<IosStoreTransaction> TransactionUpdatedEvent;
 
-        // Fired when a product purchase has returned from Apple's servers and is awaiting completion. By default the plugin will finish transactions for you.
-        // You can change that behavior by setting autoConfirmTransactions to false which then requires that you call IosStoreBinding.finishPendingTransaction
+        // Fired when a product purchase has returned from Apple's servers and is awaiting completion. Requires that you call IosStoreBinding.FinishPendingTransaction
         // to complete a purchase.
         public static event Action<IosStoreTransaction> ProductPurchaseAwaitingConfirmationEvent;
 
@@ -49,49 +45,63 @@ namespace SocialPoint.Purchase
         public void TransactionUpdated(string json)
         {
             if(TransactionUpdatedEvent != null)
+            {
                 TransactionUpdatedEvent(IosStoreTransaction.TransactionFromJson(json));
+            }
         }
 
 
         public void ProductPurchaseAwaitingConfirmation(string json)
         {
             if(ProductPurchaseAwaitingConfirmationEvent != null)
+            {
                 ProductPurchaseAwaitingConfirmationEvent(IosStoreTransaction.TransactionFromJson(json));
+            }
         }
 
 
         public void ProductPurchased(string json)
         {
             if(PurchaseSuccessfulEvent != null)
+            {
                 PurchaseSuccessfulEvent(IosStoreTransaction.TransactionFromJson(json));
+            }
         }
 
 
         public void ProductPurchaseFailed(string error)
         {
             if(PurchaseFailedEvent != null)
+            {
                 PurchaseFailedEvent(error);
+            }
         }
 
 
         public void ProductPurchaseCancelled(string error)
         {
             if(PurchaseCancelledEvent != null)
+            {
                 PurchaseCancelledEvent(error);
+            }
         }
 
 
         public void ProductsReceived(string json)
         {
             if(ProductListReceivedEvent != null)
+            {
                 ProductListReceivedEvent(IosStoreProduct.ProductsFromJson(json));
+            }
         }
 
 
         public void ProductsRequestDidFail(string error)
         {
             if(ProductListRequestFailedEvent != null)
+            {
                 ProductListRequestFailedEvent(error);
+            }
         }
 
         //May be called from Xcode plugin if needed to debug in Unity side
