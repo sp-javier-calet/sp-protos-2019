@@ -1,0 +1,23 @@
+{
+    "downloadUrls" : 
+    {
+        "WebPlayer" : "",        
+        "Standalones" : "",        
+        "IOS" : "",        
+        "Android" : "",        
+        "WP8" : ""
+    },    
+    "outputs" : 
+    {
+        "WebPlayer" : "$(DataPath)/../AssetBundle/$(Platform)",        
+        "Standalones" : "$(DataPath)/../AssetBundle/$(Platform)",        
+        "IOS" : "$(DataPath)/../AssetBundle/$(Platform)",        
+        "Android" : "$(DataPath)/../AssetBundle/$(Platform)_$(TextureFmt)",        
+        "WP8" : "$(DataPath)/../AssetBundle/$(Platform)"
+    },    
+    "bundleTarget" : 2,    
+    "useEditorTarget" : true,    
+    "downloadFromOutput" : false,    
+    "offlineCache" : false,    
+    "androidSubTarget" : null
+}

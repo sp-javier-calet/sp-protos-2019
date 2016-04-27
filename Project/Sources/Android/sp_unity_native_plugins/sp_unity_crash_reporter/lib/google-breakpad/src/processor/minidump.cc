@@ -61,6 +61,7 @@
 #include "processor/range_map-inl.h"
 
 #include "common/scoped_ptr.h"
+#include "google_breakpad/processor/dump_context.h"
 #include "processor/basic_code_module.h"
 #include "processor/basic_code_modules.h"
 #include "processor/logging.h"
@@ -73,6 +74,30 @@ using std::ifstream;
 using std::numeric_limits;
 using std::vector;
 
+// Returns true iff |context_size| matches exactly one of the sizes of the
+// various MDRawContext* types.
+// TODO(blundell): This function can be removed once
+// http://code.google.com/p/google-breakpad/issues/detail?id=550 is fixed.
+static bool IsContextSizeUnique(uint32_t context_size) {
+  int num_matching_contexts = 0;
+  if (context_size == sizeof(MDRawContextX86))
+    num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextPPC))
+    num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextPPC64))
+    num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextAMD64))
+    num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextSPARC))
+    num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextARM))
+    num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextARM64))
+    num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextMIPS))
+    num_matching_contexts++;
+  return num_matching_contexts == 1;
+}
 
 //
 // Swapping routines
@@ -320,14 +345,55 @@ static void ConvertUTF16BufferToUTF8String(const uint16_t* utf16_data,
   }
 }
 
+
+// For fields that may or may not be valid, PrintValueOrInvalid will print the
+// string "(invalid)" if the field is not valid, and will print the value if
+// the field is valid. The value is printed as hexadecimal or decimal.
+
+enum NumberFormat {
+  kNumberFormatDecimal,
+  kNumberFormatHexadecimal,
+};
+
+static void PrintValueOrInvalid(bool valid,
+                                NumberFormat number_format,
+                                uint32_t value) {
+  if (!valid) {
+    printf("(invalid)\n");
+  } else if (number_format == kNumberFormatDecimal) {
+    printf("%d\n", value);
+  } else {
+    printf("0x%x\n", value);
+  }
+}
+
+// Converts a time_t to a string showing the time in UTC.
+string TimeTToUTCString(time_t tt) {
+  struct tm timestruct;
+#ifdef _WIN32
+  gmtime_s(&timestruct, &tt);
+#else
+  gmtime_r(&tt, &timestruct);
+#endif
+
+  char timestr[20];
+  int rv = strftime(timestr, 20, "%Y-%m-%d %H:%M:%S", &timestruct);
+  if (rv == 0) {
+    return string();
+  }
+
+  return string(timestr);
+}
+
+
 //
 // MinidumpObject
 //
 
 
 MinidumpObject::MinidumpObject(Minidump* minidump)
-    : minidump_(minidump),
-      valid_(false) {
+    : DumpObject(),
+      minidump_(minidump) {
 }
 
 
@@ -347,19 +413,32 @@ MinidumpStream::MinidumpStream(Minidump* minidump)
 
 
 MinidumpContext::MinidumpContext(Minidump* minidump)
-    : MinidumpStream(minidump),
-      context_(),
-      context_flags_(0) {
+    : DumpContext(),
+      minidump_(minidump) {
 }
-
 
 MinidumpContext::~MinidumpContext() {
-  FreeContext();
 }
-
 
 bool MinidumpContext::Read(uint32_t expected_size) {
   valid_ = false;
+
+  // Certain raw context types are currently assumed to have unique sizes.
+  if (!IsContextSizeUnique(sizeof(MDRawContextAMD64))) {
+    BPLOG(ERROR) << "sizeof(MDRawContextAMD64) cannot match the size of any "
+                 << "other raw context";
+    return false;
+  }
+  if (!IsContextSizeUnique(sizeof(MDRawContextPPC64))) {
+    BPLOG(ERROR) << "sizeof(MDRawContextPPC64) cannot match the size of any "
+                 << "other raw context";
+    return false;
+  }
+  if (!IsContextSizeUnique(sizeof(MDRawContextARM64))) {
+    BPLOG(ERROR) << "sizeof(MDRawContextARM64) cannot match the size of any "
+                 << "other raw context";
+    return false;
+  }
 
   FreeContext();
 
@@ -390,9 +469,8 @@ bool MinidumpContext::Read(uint32_t expected_size) {
     }
 
     if (cpu_type != MD_CONTEXT_AMD64) {
-      // TODO: fall through to switch below?
-      // need a Tell method to be able to SeekSet back to beginning
-      // http://code.google.com/p/google-breakpad/issues/detail?id=224
+      // TODO: Fall through to switch below.
+      // http://code.google.com/p/google-breakpad/issues/detail?id=550
       BPLOG(ERROR) << "MinidumpContext not actually amd64 context";
       return false;
     }
@@ -466,9 +544,9 @@ bool MinidumpContext::Read(uint32_t expected_size) {
       Swap(&context_amd64->last_exception_from_rip);
     }
 
-    context_flags_ = context_amd64->context_flags;
+    SetContextFlags(context_amd64->context_flags);
 
-    context_.amd64 = context_amd64.release();
+    SetContextAMD64(context_amd64.release());
   } else if (expected_size == sizeof(MDRawContextPPC64)) {
     // |context_flags| of MDRawContextPPC64 is 64 bits, but other MDRawContext
     // in the else case have 32 bits |context_flags|, so special case it here.
@@ -483,6 +561,21 @@ bool MinidumpContext::Read(uint32_t expected_size) {
     uint32_t cpu_type = context_flags & MD_CONTEXT_CPU_MASK;
     scoped_ptr<MDRawContextPPC64> context_ppc64(new MDRawContextPPC64());
 
+    if (cpu_type == 0) {
+      if (minidump_->GetContextCPUFlagsFromSystemInfo(&cpu_type)) {
+        context_ppc64->context_flags |= cpu_type;
+      } else {
+        BPLOG(ERROR) << "Failed to preserve the current stream position";
+        return false;
+      }
+    }
+
+    if (cpu_type != MD_CONTEXT_PPC64) {
+      // TODO: Fall through to switch below.
+      // http://code.google.com/p/google-breakpad/issues/detail?id=550
+      BPLOG(ERROR) << "MinidumpContext not actually ppc64 context";
+      return false;
+    }
 
     // Set the context_flags member, which has already been read, and
     // read the rest of the structure beginning with the first member
@@ -537,17 +630,102 @@ bool MinidumpContext::Read(uint32_t expected_size) {
       Swap(&context_ppc64->vector_save.save_vrvalid);
     }
 
-    context_flags_ = static_cast<uint32_t>(context_ppc64->context_flags);
+    SetContextFlags(static_cast<uint32_t>(context_ppc64->context_flags));
 
     // Check for data loss when converting context flags from uint64_t into
     // uint32_t
-    if (static_cast<uint64_t>(context_flags_) !=
+    if (static_cast<uint64_t>(GetContextFlags()) !=
         context_ppc64->context_flags) {
       BPLOG(ERROR) << "Data loss detected when converting PPC64 context_flags";
       return false;
     }
 
-    context_.ppc64 = context_ppc64.release();
+    SetContextPPC64(context_ppc64.release());
+  } else if (expected_size == sizeof(MDRawContextARM64)) {
+    // |context_flags| of MDRawContextARM64 is 64 bits, but other MDRawContext
+    // in the else case have 32 bits |context_flags|, so special case it here.
+    uint64_t context_flags;
+
+    BPLOG(INFO) << "MinidumpContext: looks like ARM64 context";
+
+    if (!minidump_->ReadBytes(&context_flags, sizeof(context_flags))) {
+      BPLOG(ERROR) << "MinidumpContext could not read context flags";
+      return false;
+    }
+    if (minidump_->swap())
+      Swap(&context_flags);
+
+    scoped_ptr<MDRawContextARM64> context_arm64(new MDRawContextARM64());
+
+    uint32_t cpu_type = context_flags & MD_CONTEXT_CPU_MASK;
+    if (cpu_type == 0) {
+      if (minidump_->GetContextCPUFlagsFromSystemInfo(&cpu_type)) {
+        context_arm64->context_flags |= cpu_type;
+      } else {
+        BPLOG(ERROR) << "Failed to preserve the current stream position";
+        return false;
+      }
+    }
+
+    if (cpu_type != MD_CONTEXT_ARM64) {
+      // TODO: Fall through to switch below.
+      // http://code.google.com/p/google-breakpad/issues/detail?id=550
+      BPLOG(ERROR) << "MinidumpContext not actually arm64 context";
+      return false;
+    }
+
+    // Set the context_flags member, which has already been read, and
+    // read the rest of the structure beginning with the first member
+    // after context_flags.
+    context_arm64->context_flags = context_flags;
+
+    size_t flags_size = sizeof(context_arm64->context_flags);
+    uint8_t* context_after_flags =
+        reinterpret_cast<uint8_t*>(context_arm64.get()) + flags_size;
+    if (!minidump_->ReadBytes(context_after_flags,
+                              sizeof(MDRawContextARM64) - flags_size)) {
+      BPLOG(ERROR) << "MinidumpContext could not read arm64 context";
+      return false;
+    }
+
+    // Do this after reading the entire MDRawContext structure because
+    // GetSystemInfo may seek minidump to a new position.
+    if (!CheckAgainstSystemInfo(cpu_type)) {
+      BPLOG(ERROR) << "MinidumpContext arm64 does not match system info";
+      return false;
+    }
+
+    if (minidump_->swap()) {
+      // context_arm64->context_flags was already swapped.
+      for (unsigned int ireg_index = 0;
+           ireg_index < MD_CONTEXT_ARM64_GPR_COUNT;
+           ++ireg_index) {
+        Swap(&context_arm64->iregs[ireg_index]);
+      }
+      Swap(&context_arm64->cpsr);
+      Swap(&context_arm64->float_save.fpsr);
+      Swap(&context_arm64->float_save.fpcr);
+      for (unsigned int fpr_index = 0;
+           fpr_index < MD_FLOATINGSAVEAREA_ARM64_FPR_COUNT;
+           ++fpr_index) {
+        // While ARM64 is bi-endian, iOS (currently the only platform
+        // for which ARM64 support has been brought up) uses ARM64 exclusively
+        // in little-endian mode.
+        Normalize128(&context_arm64->float_save.regs[fpr_index], false);
+        Swap(&context_arm64->float_save.regs[fpr_index]);
+      }
+    }
+    SetContextFlags(static_cast<uint32_t>(context_arm64->context_flags));
+
+    // Check for data loss when converting context flags from uint64_t into
+    // uint32_t
+    if (static_cast<uint64_t>(GetContextFlags()) !=
+        context_arm64->context_flags) {
+      BPLOG(ERROR) << "Data loss detected when converting ARM64 context_flags";
+      return false;
+    }
+
+    SetContextARM64(context_arm64.release());
   } else {
     uint32_t context_flags;
     if (!minidump_->ReadBytes(&context_flags, sizeof(context_flags))) {
@@ -652,7 +830,7 @@ bool MinidumpContext::Read(uint32_t expected_size) {
           // does not need to be swapped.
         }
 
-        context_.x86 = context_x86.release();
+        SetContextX86(context_x86.release());
 
         break;
       }
@@ -728,7 +906,7 @@ bool MinidumpContext::Read(uint32_t expected_size) {
           Swap(&context_ppc->vector_save.save_vrvalid);
         }
 
-        context_.ppc = context_ppc.release();
+        SetContextPPC(context_ppc.release());
 
         break;
       }
@@ -784,7 +962,7 @@ bool MinidumpContext::Read(uint32_t expected_size) {
           Swap(&context_sparc->float_save.filler);
           Swap(&context_sparc->float_save.fsr);
         }
-        context_.ctx_sparc = context_sparc.release();
+        SetContextSPARC(context_sparc.release());
 
         break;
       }
@@ -839,16 +1017,16 @@ bool MinidumpContext::Read(uint32_t expected_size) {
             Swap(&context_arm->float_save.extra[fpe_index]);
           }
         }
-        context_.arm = context_arm.release();
+        SetContextARM(context_arm.release());
 
         break;
       }
 
       case MD_CONTEXT_MIPS: {
         if (expected_size != sizeof(MDRawContextMIPS)) {
-          BPLOG(ERROR) << "MinidumpContext MIPS size mismatch, " 
-                       << expected_size 
-                       << " != " 
+          BPLOG(ERROR) << "MinidumpContext MIPS size mismatch, "
+                       << expected_size
+                       << " != "
                        << sizeof(MDRawContextMIPS);
           return false;
         }
@@ -904,7 +1082,7 @@ bool MinidumpContext::Read(uint32_t expected_size) {
           Swap(&context_mips->float_save.fpcsr);
           Swap(&context_mips->float_save.fir);
         }
-        context_.ctx_mips = context_mips.release();
+        SetContextMIPS(context_mips.release());
 
         break;
       }
@@ -918,171 +1096,12 @@ bool MinidumpContext::Read(uint32_t expected_size) {
         break;
       }
     }
-    context_flags_ = context_flags;
+    SetContextFlags(context_flags);
   }
 
   valid_ = true;
   return true;
 }
-
-
-uint32_t MinidumpContext::GetContextCPU() const {
-  if (!valid_) {
-    // Don't log a message, GetContextCPU can be legitimately called with
-    // valid_ false by FreeContext, which is called by Read.
-    return 0;
-  }
-
-  return context_flags_ & MD_CONTEXT_CPU_MASK;
-}
-
-bool MinidumpContext::GetInstructionPointer(uint64_t* ip) const {
-  BPLOG_IF(ERROR, !ip) << "MinidumpContext::GetInstructionPointer "
-                          "requires |ip|";
-  assert(ip);
-  *ip = 0;
-
-  if (!valid_) {
-    BPLOG(ERROR) << "Invalid MinidumpContext for GetInstructionPointer";
-    return false;
-  }
-
-  switch (context_flags_ & MD_CONTEXT_CPU_MASK) {
-  case MD_CONTEXT_AMD64:
-    *ip = context_.amd64->rip;
-    break;
-  case MD_CONTEXT_ARM:
-    *ip = context_.arm->iregs[MD_CONTEXT_ARM_REG_PC];
-    break;
-  case MD_CONTEXT_PPC:
-    *ip = context_.ppc->srr0;
-    break;
-  case MD_CONTEXT_PPC64:
-    *ip = context_.ppc64->srr0;
-    break;
-  case MD_CONTEXT_SPARC:
-    *ip = context_.ctx_sparc->pc;
-    break;
-  case MD_CONTEXT_X86:
-    *ip = context_.x86->eip;
-    break;
-  case MD_CONTEXT_MIPS:
-    *ip = context_.ctx_mips->epc;
-    break;
-  default:
-    // This should never happen.
-    BPLOG(ERROR) << "Unknown CPU architecture in GetInstructionPointer";
-    return false;
-  }
-  return true;
-}
-
-
-const MDRawContextX86* MinidumpContext::GetContextX86() const {
-  if (GetContextCPU() != MD_CONTEXT_X86) {
-    BPLOG(ERROR) << "MinidumpContext cannot get x86 context";
-    return NULL;
-  }
-
-  return context_.x86;
-}
-
-
-const MDRawContextPPC* MinidumpContext::GetContextPPC() const {
-  if (GetContextCPU() != MD_CONTEXT_PPC) {
-    BPLOG(ERROR) << "MinidumpContext cannot get ppc context";
-    return NULL;
-  }
-
-  return context_.ppc;
-}
-
-const MDRawContextPPC64* MinidumpContext::GetContextPPC64() const {
-  if (GetContextCPU() != MD_CONTEXT_PPC64) {
-    BPLOG(ERROR) << "MinidumpContext cannot get ppc64 context";
-    return NULL;
-  }
-
-  return context_.ppc64;
-}
-
-const MDRawContextAMD64* MinidumpContext::GetContextAMD64() const {
-  if (GetContextCPU() != MD_CONTEXT_AMD64) {
-    BPLOG(ERROR) << "MinidumpContext cannot get amd64 context";
-    return NULL;
-  }
-
-  return context_.amd64;
-}
-
-const MDRawContextSPARC* MinidumpContext::GetContextSPARC() const {
-  if (GetContextCPU() != MD_CONTEXT_SPARC) {
-    BPLOG(ERROR) << "MinidumpContext cannot get sparc context";
-    return NULL;
-  }
-
-  return context_.ctx_sparc;
-}
-
-const MDRawContextARM* MinidumpContext::GetContextARM() const {
-  if (GetContextCPU() != MD_CONTEXT_ARM) {
-    BPLOG(ERROR) << "MinidumpContext cannot get arm context";
-    return NULL;
-  }
-
-  return context_.arm;
-}
-
-const MDRawContextMIPS* MinidumpContext::GetContextMIPS() const {
-  if (GetContextCPU() != MD_CONTEXT_MIPS) {
-    BPLOG(ERROR) << "MinidumpContext cannot get MIPS context";
-    return NULL;
-  }
-
-  return context_.ctx_mips;
-}
-
-void MinidumpContext::FreeContext() {
-  switch (GetContextCPU()) {
-    case MD_CONTEXT_X86:
-      delete context_.x86;
-      break;
-
-    case MD_CONTEXT_PPC:
-      delete context_.ppc;
-      break;
-
-    case MD_CONTEXT_PPC64:
-      delete context_.ppc64;
-      break;
-
-    case MD_CONTEXT_AMD64:
-      delete context_.amd64;
-      break;
-
-    case MD_CONTEXT_SPARC:
-      delete context_.ctx_sparc;
-      break;
-
-    case MD_CONTEXT_ARM:
-      delete context_.arm;
-      break;
-
-    case MD_CONTEXT_MIPS:
-      delete context_.ctx_mips;
-      break;
-
-    default:
-      // There is no context record (valid_ is false) or there's a
-      // context record for an unknown CPU (shouldn't happen, only known
-      // records are stored by Read).
-      break;
-  }
-
-  context_flags_ = 0;
-  context_.base = NULL;
-}
-
 
 bool MinidumpContext::CheckAgainstSystemInfo(uint32_t context_cpu_type) {
   // It's OK if the minidump doesn't contain an MD_SYSTEM_INFO_STREAM,
@@ -1142,6 +1161,11 @@ bool MinidumpContext::CheckAgainstSystemInfo(uint32_t context_cpu_type) {
         return_value = true;
       break;
 
+    case MD_CONTEXT_ARM64:
+      if (system_info_cpu_type == MD_CPU_ARCHITECTURE_ARM64)
+        return_value = true;
+      break;
+
     case MD_CONTEXT_MIPS:
       if (system_info_cpu_type == MD_CPU_ARCHITECTURE_MIPS)
         return_value = true;
@@ -1154,327 +1178,6 @@ bool MinidumpContext::CheckAgainstSystemInfo(uint32_t context_cpu_type) {
                                     HexString(system_info_cpu_type);
 
   return return_value;
-}
-
-
-void MinidumpContext::Print() {
-  if (!valid_) {
-    BPLOG(ERROR) << "MinidumpContext cannot print invalid data";
-    return;
-  }
-
-  switch (GetContextCPU()) {
-    case MD_CONTEXT_X86: {
-      const MDRawContextX86* context_x86 = GetContextX86();
-      printf("MDRawContextX86\n");
-      printf("  context_flags                = 0x%x\n",
-             context_x86->context_flags);
-      printf("  dr0                          = 0x%x\n", context_x86->dr0);
-      printf("  dr1                          = 0x%x\n", context_x86->dr1);
-      printf("  dr2                          = 0x%x\n", context_x86->dr2);
-      printf("  dr3                          = 0x%x\n", context_x86->dr3);
-      printf("  dr6                          = 0x%x\n", context_x86->dr6);
-      printf("  dr7                          = 0x%x\n", context_x86->dr7);
-      printf("  float_save.control_word      = 0x%x\n",
-             context_x86->float_save.control_word);
-      printf("  float_save.status_word       = 0x%x\n",
-             context_x86->float_save.status_word);
-      printf("  float_save.tag_word          = 0x%x\n",
-             context_x86->float_save.tag_word);
-      printf("  float_save.error_offset      = 0x%x\n",
-             context_x86->float_save.error_offset);
-      printf("  float_save.error_selector    = 0x%x\n",
-             context_x86->float_save.error_selector);
-      printf("  float_save.data_offset       = 0x%x\n",
-             context_x86->float_save.data_offset);
-      printf("  float_save.data_selector     = 0x%x\n",
-             context_x86->float_save.data_selector);
-      printf("  float_save.register_area[%2d] = 0x",
-             MD_FLOATINGSAVEAREA_X86_REGISTERAREA_SIZE);
-      for (unsigned int register_index = 0;
-           register_index < MD_FLOATINGSAVEAREA_X86_REGISTERAREA_SIZE;
-           ++register_index) {
-        printf("%02x", context_x86->float_save.register_area[register_index]);
-      }
-      printf("\n");
-      printf("  float_save.cr0_npx_state     = 0x%x\n",
-             context_x86->float_save.cr0_npx_state);
-      printf("  gs                           = 0x%x\n", context_x86->gs);
-      printf("  fs                           = 0x%x\n", context_x86->fs);
-      printf("  es                           = 0x%x\n", context_x86->es);
-      printf("  ds                           = 0x%x\n", context_x86->ds);
-      printf("  edi                          = 0x%x\n", context_x86->edi);
-      printf("  esi                          = 0x%x\n", context_x86->esi);
-      printf("  ebx                          = 0x%x\n", context_x86->ebx);
-      printf("  edx                          = 0x%x\n", context_x86->edx);
-      printf("  ecx                          = 0x%x\n", context_x86->ecx);
-      printf("  eax                          = 0x%x\n", context_x86->eax);
-      printf("  ebp                          = 0x%x\n", context_x86->ebp);
-      printf("  eip                          = 0x%x\n", context_x86->eip);
-      printf("  cs                           = 0x%x\n", context_x86->cs);
-      printf("  eflags                       = 0x%x\n", context_x86->eflags);
-      printf("  esp                          = 0x%x\n", context_x86->esp);
-      printf("  ss                           = 0x%x\n", context_x86->ss);
-      printf("  extended_registers[%3d]      = 0x",
-             MD_CONTEXT_X86_EXTENDED_REGISTERS_SIZE);
-      for (unsigned int register_index = 0;
-           register_index < MD_CONTEXT_X86_EXTENDED_REGISTERS_SIZE;
-           ++register_index) {
-        printf("%02x", context_x86->extended_registers[register_index]);
-      }
-      printf("\n\n");
-
-      break;
-    }
-
-    case MD_CONTEXT_PPC: {
-      const MDRawContextPPC* context_ppc = GetContextPPC();
-      printf("MDRawContextPPC\n");
-      printf("  context_flags            = 0x%x\n",
-             context_ppc->context_flags);
-      printf("  srr0                     = 0x%x\n", context_ppc->srr0);
-      printf("  srr1                     = 0x%x\n", context_ppc->srr1);
-      for (unsigned int gpr_index = 0;
-           gpr_index < MD_CONTEXT_PPC_GPR_COUNT;
-           ++gpr_index) {
-        printf("  gpr[%2d]                  = 0x%x\n",
-               gpr_index, context_ppc->gpr[gpr_index]);
-      }
-      printf("  cr                       = 0x%x\n", context_ppc->cr);
-      printf("  xer                      = 0x%x\n", context_ppc->xer);
-      printf("  lr                       = 0x%x\n", context_ppc->lr);
-      printf("  ctr                      = 0x%x\n", context_ppc->ctr);
-      printf("  mq                       = 0x%x\n", context_ppc->mq);
-      printf("  vrsave                   = 0x%x\n", context_ppc->vrsave);
-      for (unsigned int fpr_index = 0;
-           fpr_index < MD_FLOATINGSAVEAREA_PPC_FPR_COUNT;
-           ++fpr_index) {
-        printf("  float_save.fpregs[%2d]    = 0x%" PRIx64 "\n",
-               fpr_index, context_ppc->float_save.fpregs[fpr_index]);
-      }
-      printf("  float_save.fpscr         = 0x%x\n",
-             context_ppc->float_save.fpscr);
-      // TODO(mmentovai): print the 128-bit quantities in
-      // context_ppc->vector_save.  This isn't done yet because printf
-      // doesn't support 128-bit quantities, and printing them using
-      // PRIx64 as two 64-bit quantities requires knowledge of the CPU's
-      // byte ordering.
-      printf("  vector_save.save_vrvalid = 0x%x\n",
-             context_ppc->vector_save.save_vrvalid);
-      printf("\n");
-
-      break;
-    }
-
-    case MD_CONTEXT_PPC64: {
-      const MDRawContextPPC64* context_ppc64 = GetContextPPC64();
-      printf("MDRawContextPPC64\n");
-      printf("  context_flags            = 0x%" PRIx64 "\n",
-             context_ppc64->context_flags);
-      printf("  srr0                     = 0x%" PRIx64 "\n",
-             context_ppc64->srr0);
-      printf("  srr1                     = 0x%" PRIx64 "\n",
-             context_ppc64->srr1);
-      for (unsigned int gpr_index = 0;
-           gpr_index < MD_CONTEXT_PPC64_GPR_COUNT;
-           ++gpr_index) {
-        printf("  gpr[%2d]                  = 0x%" PRIx64 "\n",
-               gpr_index, context_ppc64->gpr[gpr_index]);
-      }
-      printf("  cr                       = 0x%" PRIx64 "\n", context_ppc64->cr);
-      printf("  xer                      = 0x%" PRIx64 "\n",
-             context_ppc64->xer);
-      printf("  lr                       = 0x%" PRIx64 "\n", context_ppc64->lr);
-      printf("  ctr                      = 0x%" PRIx64 "\n",
-             context_ppc64->ctr);
-      printf("  vrsave                   = 0x%" PRIx64 "\n",
-             context_ppc64->vrsave);
-      for (unsigned int fpr_index = 0;
-           fpr_index < MD_FLOATINGSAVEAREA_PPC_FPR_COUNT;
-           ++fpr_index) {
-        printf("  float_save.fpregs[%2d]    = 0x%" PRIx64 "\n",
-               fpr_index, context_ppc64->float_save.fpregs[fpr_index]);
-      }
-      printf("  float_save.fpscr         = 0x%x\n",
-             context_ppc64->float_save.fpscr);
-      // TODO(mmentovai): print the 128-bit quantities in
-      // context_ppc64->vector_save.  This isn't done yet because printf
-      // doesn't support 128-bit quantities, and printing them using
-      // PRIx64 as two 64-bit quantities requires knowledge of the CPU's
-      // byte ordering.
-      printf("  vector_save.save_vrvalid = 0x%x\n",
-             context_ppc64->vector_save.save_vrvalid);
-      printf("\n");
-
-      break;
-    }
-
-    case MD_CONTEXT_AMD64: {
-      const MDRawContextAMD64* context_amd64 = GetContextAMD64();
-      printf("MDRawContextAMD64\n");
-      printf("  p1_home       = 0x%" PRIx64 "\n",
-             context_amd64->p1_home);
-      printf("  p2_home       = 0x%" PRIx64 "\n",
-             context_amd64->p2_home);
-      printf("  p3_home       = 0x%" PRIx64 "\n",
-             context_amd64->p3_home);
-      printf("  p4_home       = 0x%" PRIx64 "\n",
-             context_amd64->p4_home);
-      printf("  p5_home       = 0x%" PRIx64 "\n",
-             context_amd64->p5_home);
-      printf("  p6_home       = 0x%" PRIx64 "\n",
-             context_amd64->p6_home);
-      printf("  context_flags = 0x%x\n",
-             context_amd64->context_flags);
-      printf("  mx_csr        = 0x%x\n",
-             context_amd64->mx_csr);
-      printf("  cs            = 0x%x\n", context_amd64->cs);
-      printf("  ds            = 0x%x\n", context_amd64->ds);
-      printf("  es            = 0x%x\n", context_amd64->es);
-      printf("  fs            = 0x%x\n", context_amd64->fs);
-      printf("  gs            = 0x%x\n", context_amd64->gs);
-      printf("  ss            = 0x%x\n", context_amd64->ss);
-      printf("  eflags        = 0x%x\n", context_amd64->eflags);
-      printf("  dr0           = 0x%" PRIx64 "\n", context_amd64->dr0);
-      printf("  dr1           = 0x%" PRIx64 "\n", context_amd64->dr1);
-      printf("  dr2           = 0x%" PRIx64 "\n", context_amd64->dr2);
-      printf("  dr3           = 0x%" PRIx64 "\n", context_amd64->dr3);
-      printf("  dr6           = 0x%" PRIx64 "\n", context_amd64->dr6);
-      printf("  dr7           = 0x%" PRIx64 "\n", context_amd64->dr7);
-      printf("  rax           = 0x%" PRIx64 "\n", context_amd64->rax);
-      printf("  rcx           = 0x%" PRIx64 "\n", context_amd64->rcx);
-      printf("  rdx           = 0x%" PRIx64 "\n", context_amd64->rdx);
-      printf("  rbx           = 0x%" PRIx64 "\n", context_amd64->rbx);
-      printf("  rsp           = 0x%" PRIx64 "\n", context_amd64->rsp);
-      printf("  rbp           = 0x%" PRIx64 "\n", context_amd64->rbp);
-      printf("  rsi           = 0x%" PRIx64 "\n", context_amd64->rsi);
-      printf("  rdi           = 0x%" PRIx64 "\n", context_amd64->rdi);
-      printf("  r8            = 0x%" PRIx64 "\n", context_amd64->r8);
-      printf("  r9            = 0x%" PRIx64 "\n", context_amd64->r9);
-      printf("  r10           = 0x%" PRIx64 "\n", context_amd64->r10);
-      printf("  r11           = 0x%" PRIx64 "\n", context_amd64->r11);
-      printf("  r12           = 0x%" PRIx64 "\n", context_amd64->r12);
-      printf("  r13           = 0x%" PRIx64 "\n", context_amd64->r13);
-      printf("  r14           = 0x%" PRIx64 "\n", context_amd64->r14);
-      printf("  r15           = 0x%" PRIx64 "\n", context_amd64->r15);
-      printf("  rip           = 0x%" PRIx64 "\n", context_amd64->rip);
-      // TODO: print xmm, vector, debug registers
-      printf("\n");
-      break;
-    }
-
-    case MD_CONTEXT_SPARC: {
-      const MDRawContextSPARC* context_sparc = GetContextSPARC();
-      printf("MDRawContextSPARC\n");
-      printf("  context_flags       = 0x%x\n",
-             context_sparc->context_flags);
-      for (unsigned int g_r_index = 0;
-           g_r_index < MD_CONTEXT_SPARC_GPR_COUNT;
-           ++g_r_index) {
-        printf("  g_r[%2d]             = 0x%" PRIx64 "\n",
-               g_r_index, context_sparc->g_r[g_r_index]);
-      }
-      printf("  ccr                 = 0x%" PRIx64 "\n", context_sparc->ccr);
-      printf("  pc                  = 0x%" PRIx64 "\n", context_sparc->pc);
-      printf("  npc                 = 0x%" PRIx64 "\n", context_sparc->npc);
-      printf("  y                   = 0x%" PRIx64 "\n", context_sparc->y);
-      printf("  asi                 = 0x%" PRIx64 "\n", context_sparc->asi);
-      printf("  fprs                = 0x%" PRIx64 "\n", context_sparc->fprs);
-
-      for (unsigned int fpr_index = 0;
-           fpr_index < MD_FLOATINGSAVEAREA_SPARC_FPR_COUNT;
-           ++fpr_index) {
-        printf("  float_save.regs[%2d] = 0x%" PRIx64 "\n",
-               fpr_index, context_sparc->float_save.regs[fpr_index]);
-      }
-      printf("  float_save.filler   = 0x%" PRIx64 "\n",
-             context_sparc->float_save.filler);
-      printf("  float_save.fsr      = 0x%" PRIx64 "\n",
-             context_sparc->float_save.fsr);
-      break;
-    }
-
-    case MD_CONTEXT_ARM: {
-      const MDRawContextARM* context_arm = GetContextARM();
-      printf("MDRawContextARM\n");
-      printf("  context_flags       = 0x%x\n",
-             context_arm->context_flags);
-      for (unsigned int ireg_index = 0;
-           ireg_index < MD_CONTEXT_ARM_GPR_COUNT;
-           ++ireg_index) {
-        printf("  iregs[%2d]            = 0x%x\n",
-               ireg_index, context_arm->iregs[ireg_index]);
-      }
-      printf("  cpsr                = 0x%x\n", context_arm->cpsr);
-      printf("  float_save.fpscr     = 0x%" PRIx64 "\n",
-             context_arm->float_save.fpscr);
-      for (unsigned int fpr_index = 0;
-           fpr_index < MD_FLOATINGSAVEAREA_ARM_FPR_COUNT;
-           ++fpr_index) {
-        printf("  float_save.regs[%2d] = 0x%" PRIx64 "\n",
-               fpr_index, context_arm->float_save.regs[fpr_index]);
-      }
-      for (unsigned int fpe_index = 0;
-           fpe_index < MD_FLOATINGSAVEAREA_ARM_FPEXTRA_COUNT;
-           ++fpe_index) {
-        printf("  float_save.extra[%2d] = 0x%" PRIx32 "\n",
-               fpe_index, context_arm->float_save.extra[fpe_index]);
-      }
-
-      break;
-    }
-
-    case MD_CONTEXT_MIPS: {
-      const MDRawContextMIPS* context_mips = GetContextMIPS();
-      printf("MDRawContextMIPS\n");
-      printf("  context_flags        = 0x%x\n",
-             context_mips->context_flags);
-      for (int ireg_index = 0;
-           ireg_index < MD_CONTEXT_MIPS_GPR_COUNT;
-           ++ireg_index) {
-        printf("  iregs[%2d]           = 0x%" PRIx64 "\n",
-               ireg_index, context_mips->iregs[ireg_index]);
-      }
-      printf("  mdhi                 = 0x%" PRIx64 "\n",
-             context_mips->mdhi);
-      printf("  mdlo                 = 0x%" PRIx64 "\n",
-             context_mips->mdhi);
-      for (int dsp_index = 0;
-           dsp_index < MD_CONTEXT_MIPS_DSP_COUNT;
-           ++dsp_index) {
-        printf("  hi[%1d]              = 0x%" PRIx32 "\n",
-               dsp_index, context_mips->hi[dsp_index]);
-        printf("  lo[%1d]              = 0x%" PRIx32 "\n",
-               dsp_index, context_mips->lo[dsp_index]);
-      }
-      printf("  dsp_control          = 0x%" PRIx32 "\n",
-             context_mips->dsp_control);
-      printf("  epc                  = 0x%" PRIx64 "\n",
-             context_mips->epc);
-      printf("  badvaddr             = 0x%" PRIx64 "\n",
-             context_mips->badvaddr);
-      printf("  status               = 0x%" PRIx32 "\n",
-             context_mips->status);
-      printf("  cause                = 0x%" PRIx32 "\n",
-             context_mips->cause);
-
-      for (int fpr_index = 0;
-           fpr_index < MD_FLOATINGSAVEAREA_MIPS_FPR_COUNT;
-           ++fpr_index) {
-        printf("  float_save.regs[%2d] = 0x%" PRIx64 "\n",
-               fpr_index, context_mips->float_save.regs[fpr_index]);
-      }
-      printf("  float_save.fpcsr     = 0x%" PRIx32 "\n",
-             context_mips->float_save.fpcsr);
-      printf("  float_save.fir       = 0x%" PRIx32 "\n",
-             context_mips->float_save.fir);
-      break;
-    }
-
-    default: {
-      break;
-    }
-  }
 }
 
 
@@ -1640,7 +1343,7 @@ bool MinidumpMemoryRegion::GetMemoryAtAddress(uint64_t  address,
 }
 
 
-void MinidumpMemoryRegion::Print() {
+void MinidumpMemoryRegion::Print() const {
   if (!valid_) {
     BPLOG(ERROR) << "MinidumpMemoryRegion cannot print invalid data";
     return;
@@ -2588,8 +2291,9 @@ void MinidumpModule::Print() {
          module_.size_of_image);
   printf("  checksum                        = 0x%x\n",
          module_.checksum);
-  printf("  time_date_stamp                 = 0x%x\n",
-         module_.time_date_stamp);
+  printf("  time_date_stamp                 = 0x%x %s\n",
+         module_.time_date_stamp,
+         TimeTToUTCString(module_.time_date_stamp).c_str());
   printf("  module_name_rva                 = 0x%x\n",
          module_.module_name_rva);
   printf("  version_info.signature          = 0x%x\n",
@@ -2663,8 +2367,9 @@ void MinidumpModule::Print() {
              cv_record_20->cv_header.signature);
       printf("  (cv_record).cv_header.offset    = 0x%x\n",
              cv_record_20->cv_header.offset);
-      printf("  (cv_record).signature           = 0x%x\n",
-             cv_record_20->signature);
+      printf("  (cv_record).signature           = 0x%x %s\n",
+             cv_record_20->signature,
+             TimeTToUTCString(cv_record_20->signature).c_str());
       printf("  (cv_record).age                 = %d\n",
              cv_record_20->age);
       printf("  (cv_record).pdb_file_name       = \"%s\"\n",
@@ -2690,13 +2395,19 @@ void MinidumpModule::Print() {
            misc_record->length);
     printf("  (misc_record).unicode           = %d\n",
            misc_record->unicode);
-    // Don't bother printing the UTF-16, we don't really even expect to ever
-    // see this misc_record anyway.
-    if (misc_record->unicode)
+    if (misc_record->unicode) {
+      string misc_record_data_utf8;
+      ConvertUTF16BufferToUTF8String(
+          reinterpret_cast<const uint16_t*>(misc_record->data),
+          misc_record->length - offsetof(MDImageDebugMisc, data),
+          &misc_record_data_utf8,
+          false);  // already swapped
+      printf("  (misc_record).data              = \"%s\"\n",
+             misc_record_data_utf8.c_str());
+    } else {
       printf("  (misc_record).data              = \"%s\"\n",
              misc_record->data);
-    else
-      printf("  (misc_record).data              = (UTF-16)\n");
+    }
   } else {
     printf("  (misc_record)                   = (null)\n");
   }
@@ -3530,6 +3241,10 @@ string MinidumpSystemInfo::GetCPU() {
       cpu = "arm";
       break;
 
+    case MD_CPU_ARCHITECTURE_ARM64:
+      cpu = "arm64";
+      break;
+
     default:
       BPLOG(ERROR) << "MinidumpSystemInfo unknown CPU for architecture " <<
                       HexString(system_info_.processor_architecture);
@@ -3595,7 +3310,7 @@ void MinidumpSystemInfo::Print() {
   }
 
   printf("MDRawSystemInfo\n");
-  printf("  processor_architecture                     = %d\n",
+  printf("  processor_architecture                     = 0x%x\n",
          system_info_.processor_architecture);
   printf("  processor_level                            = %d\n",
          system_info_.processor_level);
@@ -3611,12 +3326,18 @@ void MinidumpSystemInfo::Print() {
          system_info_.minor_version);
   printf("  build_number                               = %d\n",
          system_info_.build_number);
-  printf("  platform_id                                = %d\n",
+  printf("  platform_id                                = 0x%x\n",
          system_info_.platform_id);
   printf("  csd_version_rva                            = 0x%x\n",
          system_info_.csd_version_rva);
   printf("  suite_mask                                 = 0x%x\n",
          system_info_.suite_mask);
+  if (system_info_.processor_architecture == MD_CPU_ARCHITECTURE_X86 ||
+      system_info_.processor_architecture == MD_CPU_ARCHITECTURE_X86_WIN64) {
+    printf("  cpu.x86_cpu_info (valid):\n");
+  } else {
+    printf("  cpu.x86_cpu_info (invalid):\n");
+  }
   for (unsigned int i = 0; i < 3; ++i) {
     printf("  cpu.x86_cpu_info.vendor_id[%d]              = 0x%x\n",
            i, system_info_.cpu.x86_cpu_info.vendor_id[i]);
@@ -3627,6 +3348,14 @@ void MinidumpSystemInfo::Print() {
          system_info_.cpu.x86_cpu_info.feature_information);
   printf("  cpu.x86_cpu_info.amd_extended_cpu_features = 0x%x\n",
          system_info_.cpu.x86_cpu_info.amd_extended_cpu_features);
+  if (system_info_.processor_architecture != MD_CPU_ARCHITECTURE_X86 &&
+      system_info_.processor_architecture != MD_CPU_ARCHITECTURE_X86_WIN64) {
+    printf("  cpu.other_cpu_info (valid):\n");
+    for (unsigned int i = 0; i < 2; ++i) {
+      printf("  cpu.other_cpu_info.processor_features[%d]   = 0x%" PRIx64 "\n",
+             i, system_info_.cpu.other_cpu_info.processor_features[i]);
+    }
+  }
   const string* csd_version = GetCSDVersion();
   if (csd_version) {
     printf("  (csd_version)                              = \"%s\"\n",
@@ -3747,43 +3476,114 @@ void MinidumpMiscInfo::Print() {
   // Print version 1 fields
   printf("  size_of_info                 = %d\n",   misc_info_.size_of_info);
   printf("  flags1                       = 0x%x\n", misc_info_.flags1);
-  printf("  process_id                   = 0x%x\n", misc_info_.process_id);
-  printf("  process_create_time          = 0x%x\n",
-         misc_info_.process_create_time);
-  printf("  process_user_time            = 0x%x\n",
-         misc_info_.process_user_time);
-  printf("  process_kernel_time          = 0x%x\n",
-         misc_info_.process_kernel_time);
+  printf("  process_id                   = ");
+  PrintValueOrInvalid(misc_info_.flags1 & MD_MISCINFO_FLAGS1_PROCESS_ID,
+                      kNumberFormatDecimal, misc_info_.process_id);
+  if (misc_info_.flags1 & MD_MISCINFO_FLAGS1_PROCESS_TIMES) {
+    printf("  process_create_time          = 0x%x %s\n",
+           misc_info_.process_create_time,
+           TimeTToUTCString(misc_info_.process_create_time).c_str());
+  } else {
+    printf("  process_create_time          = (invalid)\n");
+  }
+  printf("  process_user_time            = ");
+  PrintValueOrInvalid(misc_info_.flags1 & MD_MISCINFO_FLAGS1_PROCESS_TIMES,
+                      kNumberFormatDecimal, misc_info_.process_user_time);
+  printf("  process_kernel_time          = ");
+  PrintValueOrInvalid(misc_info_.flags1 & MD_MISCINFO_FLAGS1_PROCESS_TIMES,
+                      kNumberFormatDecimal, misc_info_.process_kernel_time);
   if (misc_info_.size_of_info > MD_MISCINFO_SIZE) {
     // Print version 2 fields
-    printf("  processor_max_mhz            = %d\n",
-           misc_info_.processor_max_mhz);
-    printf("  processor_current_mhz        = %d\n",
-           misc_info_.processor_current_mhz);
-    printf("  processor_mhz_limit          = %d\n",
-           misc_info_.processor_mhz_limit);
-    printf("  processor_max_idle_state     = 0x%x\n",
-           misc_info_.processor_max_idle_state);
-    printf("  processor_current_idle_state = 0x%x\n",
-           misc_info_.processor_current_idle_state);
+    printf("  processor_max_mhz            = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROCESSOR_POWER_INFO,
+                        kNumberFormatDecimal, misc_info_.processor_max_mhz);
+    printf("  processor_current_mhz        = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROCESSOR_POWER_INFO,
+                        kNumberFormatDecimal, misc_info_.processor_current_mhz);
+    printf("  processor_mhz_limit          = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROCESSOR_POWER_INFO,
+                        kNumberFormatDecimal, misc_info_.processor_mhz_limit);
+    printf("  processor_max_idle_state     = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROCESSOR_POWER_INFO,
+                        kNumberFormatDecimal,
+                        misc_info_.processor_max_idle_state);
+    printf("  processor_current_idle_state = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROCESSOR_POWER_INFO,
+                        kNumberFormatDecimal,
+                        misc_info_.processor_current_idle_state);
   }
   if (misc_info_.size_of_info > MD_MISCINFO2_SIZE) {
     // Print version 3 fields
-    printf("  process_integrity_level      = 0x%x\n",
-           misc_info_.process_integrity_level);
-    printf("  process_execute_flags        = 0x%x\n",
-           misc_info_.process_execute_flags);
-    printf("  protected_process            = %d\n",
-           misc_info_.protected_process);
-    printf("  time_zone_id                 = %d\n", misc_info_.time_zone_id);
-    printf("  time_zone.bias               = %d\n", misc_info_.time_zone.bias);
-    printf("  time_zone.standard_name      = %s\n", standard_name_.c_str());
-    printf("  time_zone.daylight_name      = %s\n", daylight_name_.c_str());
+    printf("  process_integrity_level      = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROCESS_INTEGRITY,
+                        kNumberFormatHexadecimal,
+                        misc_info_.process_integrity_level);
+    printf("  process_execute_flags        = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROCESS_EXECUTE_FLAGS,
+                        kNumberFormatHexadecimal,
+                        misc_info_.process_execute_flags);
+    printf("  protected_process            = ");
+    PrintValueOrInvalid(misc_info_.flags1 &
+                            MD_MISCINFO_FLAGS1_PROTECTED_PROCESS,
+                        kNumberFormatDecimal, misc_info_.protected_process);
+    printf("  time_zone_id                 = ");
+    PrintValueOrInvalid(misc_info_.flags1 & MD_MISCINFO_FLAGS1_TIMEZONE,
+                        kNumberFormatDecimal, misc_info_.time_zone_id);
+    if (misc_info_.flags1 & MD_MISCINFO_FLAGS1_TIMEZONE) {
+      printf("  time_zone.bias               = %d\n",
+             misc_info_.time_zone.bias);
+      printf("  time_zone.standard_name      = %s\n", standard_name_.c_str());
+      printf("  time_zone.standard_date      = "
+                 "%04d-%02d-%02d (%d) %02d:%02d:%02d.%03d\n",
+             misc_info_.time_zone.standard_date.year,
+             misc_info_.time_zone.standard_date.month,
+             misc_info_.time_zone.standard_date.day,
+             misc_info_.time_zone.standard_date.day_of_week,
+             misc_info_.time_zone.standard_date.hour,
+             misc_info_.time_zone.standard_date.minute,
+             misc_info_.time_zone.standard_date.second,
+             misc_info_.time_zone.standard_date.milliseconds);
+      printf("  time_zone.standard_bias      = %d\n",
+             misc_info_.time_zone.standard_bias);
+      printf("  time_zone.daylight_name      = %s\n", daylight_name_.c_str());
+      printf("  time_zone.daylight_date      = "
+                 "%04d-%02d-%02d (%d) %02d:%02d:%02d.%03d\n",
+             misc_info_.time_zone.daylight_date.year,
+             misc_info_.time_zone.daylight_date.month,
+             misc_info_.time_zone.daylight_date.day,
+             misc_info_.time_zone.daylight_date.day_of_week,
+             misc_info_.time_zone.daylight_date.hour,
+             misc_info_.time_zone.daylight_date.minute,
+             misc_info_.time_zone.daylight_date.second,
+             misc_info_.time_zone.daylight_date.milliseconds);
+      printf("  time_zone.daylight_bias      = %d\n",
+             misc_info_.time_zone.daylight_bias);
+    } else {
+      printf("  time_zone.bias               = (invalid)\n");
+      printf("  time_zone.standard_name      = (invalid)\n");
+      printf("  time_zone.standard_date      = (invalid)\n");
+      printf("  time_zone.standard_bias      = (invalid)\n");
+      printf("  time_zone.daylight_name      = (invalid)\n");
+      printf("  time_zone.daylight_date      = (invalid)\n");
+      printf("  time_zone.daylight_bias      = (invalid)\n");
+    }
   }
   if (misc_info_.size_of_info > MD_MISCINFO3_SIZE) {
     // Print version 4 fields
-    printf("  build_string                 = %s\n", build_string_.c_str());
-    printf("  dbg_bld_str                  = %s\n", dbg_bld_str_.c_str());
+    if (misc_info_.flags1 & MD_MISCINFO_FLAGS1_BUILDSTRING) {
+      printf("  build_string                 = %s\n", build_string_.c_str());
+      printf("  dbg_bld_str                  = %s\n", dbg_bld_str_.c_str());
+    } else {
+      printf("  build_string                 = (invalid)\n");
+      printf("  dbg_bld_str                  = (invalid)\n");
+    }
   }
   printf("\n");
 }
@@ -3877,19 +3677,15 @@ void MinidumpBreakpadInfo::Print() {
 
   printf("MDRawBreakpadInfo\n");
   printf("  validity             = 0x%x\n", breakpad_info_.validity);
-
-  if (breakpad_info_.validity & MD_BREAKPAD_INFO_VALID_DUMP_THREAD_ID) {
-    printf("  dump_thread_id       = 0x%x\n", breakpad_info_.dump_thread_id);
-  } else {
-    printf("  dump_thread_id       = (invalid)\n");
-  }
-
-  if (breakpad_info_.validity & MD_BREAKPAD_INFO_VALID_DUMP_THREAD_ID) {
-    printf("  requesting_thread_id = 0x%x\n",
-           breakpad_info_.requesting_thread_id);
-  } else {
-    printf("  requesting_thread_id = (invalid)\n");
-  }
+  printf("  dump_thread_id       = ");
+  PrintValueOrInvalid(breakpad_info_.validity &
+                          MD_BREAKPAD_INFO_VALID_DUMP_THREAD_ID,
+                      kNumberFormatHexadecimal, breakpad_info_.dump_thread_id);
+  printf("  requesting_thread_id = ");
+  PrintValueOrInvalid(breakpad_info_.validity &
+                          MD_BREAKPAD_INFO_VALID_REQUESTING_THREAD_ID,
+                      kNumberFormatHexadecimal,
+                      breakpad_info_.requesting_thread_id);
 
   printf("\n");
 }
@@ -4265,6 +4061,9 @@ bool Minidump::GetContextCPUFlagsFromSystemInfo(uint32_t *context_cpu_flags) {
       case MD_CPU_ARCHITECTURE_ARM:
         *context_cpu_flags = MD_CONTEXT_ARM;
         break;
+      case MD_CPU_ARCHITECTURE_ARM64:
+        *context_cpu_flags = MD_CONTEXT_ARM64;
+        break;
       case MD_CPU_ARCHITECTURE_IA64:
         *context_cpu_flags = MD_CONTEXT_IA64;
         break;
@@ -4480,6 +4279,72 @@ MinidumpMemoryInfoList* Minidump::GetMemoryInfoList() {
   return GetStream(&memory_info_list);
 }
 
+static const char* get_stream_name(uint32_t stream_type) {
+  switch (stream_type) {
+  case MD_UNUSED_STREAM:
+    return "MD_UNUSED_STREAM";
+  case MD_RESERVED_STREAM_0:
+    return "MD_RESERVED_STREAM_0";
+  case MD_RESERVED_STREAM_1:
+    return "MD_RESERVED_STREAM_1";
+  case MD_THREAD_LIST_STREAM:
+    return "MD_THREAD_LIST_STREAM";
+  case MD_MODULE_LIST_STREAM:
+    return "MD_MODULE_LIST_STREAM";
+  case MD_MEMORY_LIST_STREAM:
+    return "MD_MEMORY_LIST_STREAM";
+  case MD_EXCEPTION_STREAM:
+    return "MD_EXCEPTION_STREAM";
+  case MD_SYSTEM_INFO_STREAM:
+    return "MD_SYSTEM_INFO_STREAM";
+  case MD_THREAD_EX_LIST_STREAM:
+    return "MD_THREAD_EX_LIST_STREAM";
+  case MD_MEMORY_64_LIST_STREAM:
+    return "MD_MEMORY_64_LIST_STREAM";
+  case MD_COMMENT_STREAM_A:
+    return "MD_COMMENT_STREAM_A";
+  case MD_COMMENT_STREAM_W:
+    return "MD_COMMENT_STREAM_W";
+  case MD_HANDLE_DATA_STREAM:
+    return "MD_HANDLE_DATA_STREAM";
+  case MD_FUNCTION_TABLE_STREAM:
+    return "MD_FUNCTION_TABLE_STREAM";
+  case MD_UNLOADED_MODULE_LIST_STREAM:
+    return "MD_UNLOADED_MODULE_LIST_STREAM";
+  case MD_MISC_INFO_STREAM:
+    return "MD_MISC_INFO_STREAM";
+  case MD_MEMORY_INFO_LIST_STREAM:
+    return "MD_MEMORY_INFO_LIST_STREAM";
+  case MD_THREAD_INFO_LIST_STREAM:
+    return "MD_THREAD_INFO_LIST_STREAM";
+  case MD_HANDLE_OPERATION_LIST_STREAM:
+    return "MD_HANDLE_OPERATION_LIST_STREAM";
+  case MD_LAST_RESERVED_STREAM:
+    return "MD_LAST_RESERVED_STREAM";
+  case MD_BREAKPAD_INFO_STREAM:
+    return "MD_BREAKPAD_INFO_STREAM";
+  case MD_ASSERTION_INFO_STREAM:
+    return "MD_ASSERTION_INFO_STREAM";
+  case MD_LINUX_CPU_INFO:
+    return "MD_LINUX_CPU_INFO";
+  case MD_LINUX_PROC_STATUS:
+    return "MD_LINUX_PROC_STATUS";
+  case MD_LINUX_LSB_RELEASE:
+    return "MD_LINUX_LSB_RELEASE";
+  case MD_LINUX_CMD_LINE:
+    return "MD_LINUX_CMD_LINE";
+  case MD_LINUX_ENVIRON:
+    return "MD_LINUX_ENVIRON";
+  case MD_LINUX_AUXV:
+    return "MD_LINUX_AUXV";
+  case MD_LINUX_MAPS:
+    return "MD_LINUX_MAPS";
+  case MD_LINUX_DSO_DEBUG:
+    return "MD_LINUX_DSO_DEBUG";
+  default:
+    return "unknown";
+  }
+}
 
 void Minidump::Print() {
   if (!valid_) {
@@ -4493,16 +4358,9 @@ void Minidump::Print() {
   printf("  stream_count         = %d\n",      header_.stream_count);
   printf("  stream_directory_rva = 0x%x\n",    header_.stream_directory_rva);
   printf("  checksum             = 0x%x\n",    header_.checksum);
-  struct tm timestruct;
-#ifdef _WIN32
-  gmtime_s(&timestruct, reinterpret_cast<time_t*>(&header_.time_date_stamp));
-#else
-  gmtime_r(reinterpret_cast<time_t*>(&header_.time_date_stamp), &timestruct);
-#endif
-  char timestr[20];
-  strftime(timestr, 20, "%Y-%m-%d %H:%M:%S", &timestruct);
-  printf("  time_date_stamp      = 0x%x %s\n", header_.time_date_stamp,
-                                               timestr);
+  printf("  time_date_stamp      = 0x%x %s\n",
+         header_.time_date_stamp,
+         TimeTToUTCString(header_.time_date_stamp).c_str());
   printf("  flags                = 0x%" PRIx64 "\n",  header_.flags);
   printf("\n");
 
@@ -4513,7 +4371,8 @@ void Minidump::Print() {
 
     printf("mDirectory[%d]\n", stream_index);
     printf("MDRawDirectory\n");
-    printf("  stream_type        = %d\n",   directory_entry->stream_type);
+    printf("  stream_type        = 0x%x (%s)\n", directory_entry->stream_type,
+           get_stream_name(directory_entry->stream_type));
     printf("  location.data_size = %d\n",
            directory_entry->location.data_size);
     printf("  location.rva       = 0x%x\n", directory_entry->location.rva);
@@ -4526,7 +4385,9 @@ void Minidump::Print() {
        ++iterator) {
     uint32_t stream_type = iterator->first;
     MinidumpStreamInfo info = iterator->second;
-    printf("  stream type 0x%x at index %d\n", stream_type, info.stream_index);
+    printf("  stream type 0x%x (%s) at index %d\n", stream_type,
+           get_stream_name(stream_type),
+           info.stream_index);
   }
   printf("\n");
 }

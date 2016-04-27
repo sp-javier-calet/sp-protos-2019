@@ -35,6 +35,7 @@
 
 #include <elf.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <link.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +48,7 @@
 #include <vector>
 
 #include "common/linux/memory_mapped_file.h"
+#include "common/minidump_type_helper.h"
 #include "common/scoped_ptr.h"
 #include "google_breakpad/common/minidump_format.h"
 #include "third_party/lss/linux_syscall_support.h"
@@ -81,14 +83,23 @@
 typedef user_regs user_regs_struct;
 #endif
 
+using google_breakpad::MDTypeHelper;
 using google_breakpad::MemoryMappedFile;
 using google_breakpad::MinidumpMemoryRange;
 
+typedef MDTypeHelper<sizeof(ElfW(Addr))>::MDRawDebug MDRawDebug;
+typedef MDTypeHelper<sizeof(ElfW(Addr))>::MDRawLinkMap MDRawLinkMap;
+
 static const MDRVA kInvalidMDRVA = static_cast<MDRVA>(-1);
 static bool verbose;
+static std::string g_custom_so_basedir;
+static bool g_mangle_sonames = false;
 
 static int usage(const char* argv0) {
-  fprintf(stderr, "Usage: %s [-v] <minidump file>\n", argv0);
+  fprintf(stderr, "Usage: %s [options] <minidump file>\n", argv0);
+  fprintf(stderr,
+"  --mangle-sonames=<0|1>: Should module names be manged by adding GUID &\n"
+"                          stripping base dir. (default: 0)\n");
   return 1;
 }
 
@@ -365,7 +376,7 @@ ParseThreadRegisters(CrashedProcess::Thread* thread,
 
   for (int i = 0; i < MD_CONTEXT_MIPS_GPR_COUNT; ++i)
     thread->regs.regs[i] = rawregs->iregs[i];
-  
+
   thread->regs.lo = rawregs->mdlo;
   thread->regs.hi = rawregs->mdhi;
   thread->regs.epc = rawregs->epc;
@@ -375,7 +386,7 @@ ParseThreadRegisters(CrashedProcess::Thread* thread,
 
   for (int i = 0; i < MD_FLOATINGSAVEAREA_MIPS_FPR_COUNT; ++i)
     thread->fpregs.regs[i] = rawregs->float_save.regs[i];
-  
+
   thread->fpregs.fpcsr = rawregs->float_save.fpcsr;
   thread->fpregs.fir = rawregs->float_save.fir;
 }
@@ -575,7 +586,7 @@ static void
 ParseEnvironment(CrashedProcess* crashinfo, const MinidumpMemoryRange& range) {
   if (verbose) {
     fputs("MD_LINUX_ENVIRON:\n", stderr);
-    char *env = new char[range.length()];
+    char* env = new char[range.length()];
     memcpy(env, range.data(), range.length());
     int nul_count = 0;
     for (char *ptr = env;;) {
@@ -690,14 +701,14 @@ ParseDSODebugInfo(CrashedProcess* crashinfo, const MinidumpMemoryRange& range,
             "MD_LINUX_DSO_DEBUG:\n"
             "Version: %d\n"
             "Number of DSOs: %d\n"
-            "Brk handler: %p\n"
-            "Dynamic loader at: %p\n"
-            "_DYNAMIC: %p\n",
+            "Brk handler: 0x%" PRIx64 "\n"
+            "Dynamic loader at: 0x%" PRIx64 "\n"
+            "_DYNAMIC: 0x%" PRIx64 "\n",
             debug->version,
             debug->dso_count,
-            debug->brk,
-            debug->ldbase,
-            debug->dynamic);
+            static_cast<uint64_t>(debug->brk),
+            static_cast<uint64_t>(debug->ldbase),
+            static_cast<uint64_t>(debug->dynamic));
   }
   crashinfo->debug = *debug;
   if (range.length() > sizeof(MDRawDebug)) {
@@ -712,8 +723,9 @@ ParseDSODebugInfo(CrashedProcess* crashinfo, const MinidumpMemoryRange& range,
       if (link_map) {
         if (verbose) {
           fprintf(stderr,
-                  "#%03d: %p, %p, \"%s\"\n",
-                  i, link_map->addr, link_map->ld,
+                  "#%03d: %" PRIx64 ", %" PRIx64 ", \"%s\"\n",
+                  i, static_cast<uint64_t>(link_map->addr),
+                  static_cast<uint64_t>(link_map->ld),
                   full_file.GetAsciiMDString(link_map->name).c_str());
         }
         crashinfo->link_map.push_back(*link_map);
@@ -810,12 +822,21 @@ ParseModuleStream(CrashedProcess* crashinfo, const MinidumpMemoryRange& range,
             record->signature.data4[6], record->signature.data4[7]);
     std::string filename =
         full_file.GetAsciiMDString(rawmodule->module_name_rva);
-    size_t slash = filename.find_last_of('/');
-    std::string basename = slash == std::string::npos ?
-      filename : filename.substr(slash + 1);
-    if (strcmp(guid, "00000000-0000-0000-0000-000000000000")) {
-      crashinfo->signatures[rawmodule->base_of_image] =
-        std::string("/var/lib/breakpad/") + guid + "-" + basename;
+    if (g_mangle_sonames) {
+      size_t slash = filename.find_last_of('/');
+      std::string basename = slash == std::string::npos ?
+        filename : filename.substr(slash + 1);
+      if (strcmp(guid, "00000000-0000-0000-0000-000000000000")) {
+        std::string prefix;
+        if (!g_custom_so_basedir.empty())
+          prefix = g_custom_so_basedir;
+        else
+          prefix = std::string("/var/lib/breakpad/") + guid + "-" + basename;
+
+        crashinfo->signatures[rawmodule->base_of_image] = prefix + basename;
+      }
+    } else {
+      crashinfo->signatures[rawmodule->base_of_image] = filename;
     }
 
     if (verbose) {
@@ -974,6 +995,23 @@ main(int argc, char** argv) {
   while (argi < argc && argv[argi][0] == '-') {
     if (!strcmp(argv[argi], "-v")) {
       verbose = true;
+    } else if (!strcmp(argv[argi], "--sobasedir")) {
+      argi++;
+      if (argi >= argc) {
+        fprintf(stderr, "--sobasedir expects an argument.");
+        return usage(argv[0]);
+      }
+
+      g_custom_so_basedir = argv[argi];
+    } else if (strncmp(argv[argi], "--mangle-sonames",
+		       strlen("--mangle-sonames")) == 0) {
+      char* equals_pos = strchr(argv[argi], '=');
+      if (equals_pos == NULL) {
+        fprintf(stderr, "--mangle-sonames expects an argument (0/1).");
+        return usage(argv[0]);
+      }
+
+      g_mangle_sonames = *(equals_pos+1) == '1';
     } else {
       return usage(argv[0]);
     }
@@ -983,7 +1021,7 @@ main(int argc, char** argv) {
   if (argc != argi + 1)
     return usage(argv[0]);
 
-  MemoryMappedFile mapped_file(argv[argi]);
+  MemoryMappedFile mapped_file(argv[argi], 0);
   if (!mapped_file.data()) {
     fprintf(stderr, "Failed to mmap dump file\n");
     return 1;

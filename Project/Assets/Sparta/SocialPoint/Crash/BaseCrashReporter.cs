@@ -256,14 +256,19 @@ namespace SocialPoint.Crash
         public float SendInterval
         {
             get{ return _currentSendInterval; }
-            set{ _currentSendInterval = value; }
+            set
+            { 
+                _currentSendInterval = value; 
+                _waitForSeconds = new WaitForSeconds(_currentSendInterval);
+            }
         }
 
         ICoroutineRunner _runner;
         IEnumerator _updateCoroutine;
         IAlertView _alertViewPrototype;
+
         float _currentSendInterval = DefaultSendInterval;
-        long _lastSendTimestamp;
+        WaitForSeconds _waitForSeconds = new WaitForSeconds(DefaultSendInterval);
         bool _sending;
 
         public bool ExceptionLogActive
@@ -659,14 +664,16 @@ namespace SocialPoint.Crash
             {
                 // If there are no new crashes, we can check some saved status to detect a memory crash
                 Report memoryCrashReport = CheckMemoryCrash();
+                bool tracked = false;
                 if(memoryCrashReport != null)
                 {
                     if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
                     {
+                        tracked = true;
                         TrackCrash(memoryCrashReport, callback);
                     }
                 }
-                else if(callback != null)
+                if(!tracked && callback != null)
                 {
                     callback();
                 }
@@ -757,7 +764,6 @@ namespace SocialPoint.Crash
             req.Body = new JsonAttrSerializer().Serialize(exceptionLogs);
             req.CompressBody = true;
             _httpClient.Send(req, resp => OnExceptionSend(resp, storedKeys));
-            _lastSendTimestamp = TimeUtils.Timestamp;
         }
 
         void SendCrashLog(string log, Action callback)
@@ -941,19 +947,10 @@ namespace SocialPoint.Crash
 
         IEnumerator UpdateCoroutine()
         {
-            SendExceptionLogs();
             while(true)
             {
-                Update();
-                yield return true;
-            }
-        }
-
-        void Update()
-        {
-            if(_lastSendTimestamp + (long)_currentSendInterval < TimeUtils.Timestamp)
-            {
                 SendExceptionLogs();
+                yield return _waitForSeconds;
             }
         }
 

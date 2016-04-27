@@ -21,11 +21,11 @@ public class PurchaseCostParser : IChildParser<ICost>
     public FamilyParser<ICost> Parent{ set { } }
 
     [Inject]
-    IFactory<string,PurchaseCost> _purchaseCostFactory;
+    PurchaseCostFactory _purchaseCostFactory;
 
     public ICost Parse(Attr data)
     {
-        return _purchaseCostFactory.Create(data.AsValue.ToString());
+        return _purchaseCostFactory.CreatePurchaseCost(data.AsValue.ToString());
     }
 
     #endregion
