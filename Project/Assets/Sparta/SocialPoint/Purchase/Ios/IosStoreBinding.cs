@@ -15,7 +15,9 @@ namespace SocialPoint.Purchase
         public static void Init(string listenerObjectName)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_Init(listenerObjectName);
+            }
         }
 
         [DllImport("__Internal")]
@@ -26,7 +28,21 @@ namespace SocialPoint.Purchase
         public static void SetApplicationUsername(string applicationUserName)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_SetApplicationUsername(applicationUserName);
+            }
+        }
+
+        [DllImport("__Internal")]
+        private static extern void SPUnityStore_SetUseAppUsername(bool shouldUseAppUsername);
+
+        // By default the application username is not set as data for a payment, but this is requested by Apple and we should set it if possible
+        public static void SetUseAppUsername(bool shouldUseAppUsername)
+        {
+            if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                SPUnityStore_SetUseAppUsername(shouldUseAppUsername);
+            }
         }
 
         [DllImport("__Internal")]
@@ -36,7 +52,9 @@ namespace SocialPoint.Purchase
         public static void SetUseAppReceipt(bool shouldUseAppReceipt)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_SetUseAppReceipt(shouldUseAppReceipt);
+            }
         }
 
         [DllImport("__Internal")]
@@ -46,7 +64,9 @@ namespace SocialPoint.Purchase
         public static void SetShouldSendTransactionUpdateEvents(bool shouldSend)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_SendTransactionUpdateEvents(shouldSend);
+            }
         }
 
 
@@ -57,7 +77,9 @@ namespace SocialPoint.Purchase
         public static void EnableHighDetailLogs(bool shouldEnable)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_EnableHighDetailLogs(shouldEnable);
+            }
         }
 
 
@@ -68,7 +90,9 @@ namespace SocialPoint.Purchase
         public static void RequestProductData(string[] productIdentifiers)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_RequestProductData(string.Join(",", productIdentifiers));
+            }
         }
 
 
@@ -79,7 +103,9 @@ namespace SocialPoint.Purchase
         public static void PurchaseProduct(string productIdentifier)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_PurchaseProduct(productIdentifier);
+            }
         }
 
         [DllImport("__Internal")]
@@ -89,7 +115,9 @@ namespace SocialPoint.Purchase
         public static void ForceFinishPendingTransactions()
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_ForceFinishPendingTransactions();
+            }
         }
 
 
@@ -100,7 +128,9 @@ namespace SocialPoint.Purchase
         public static void FinishPendingTransaction(string transactionIdentifier)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
                 SPUnityStore_FinishPendingTransaction(transactionIdentifier);
+            }
         }
     }
 }

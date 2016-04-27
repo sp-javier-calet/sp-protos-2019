@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.Purchase
@@ -25,6 +26,8 @@ namespace SocialPoint.Purchase
 
         private ValidatePurchaseDelegate _validatePurchase;
 
+        private GetUserIdDelegate _getUserId;
+
         public ValidatePurchaseDelegate ValidatePurchase
         {
             set
@@ -34,6 +37,14 @@ namespace SocialPoint.Purchase
                     throw new Exception("only one callback allowed!");
                 }
                 _validatePurchase = value;
+            }
+        }
+
+        public GetUserIdDelegate GetUserId
+        {
+            set
+            {
+                _getUserId = value;
             }
         }
 
@@ -60,6 +71,7 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
+                IosStoreBinding.SetApplicationUsername(CryptographyUtils.GetHashSha256(_getUserId().ToString()));
                 IosStoreBinding.PurchaseProduct(productId);
                 _purchasingProduct = productId;
                 PurchaseUpdated(PurchaseState.PurchaseStarted, productId);

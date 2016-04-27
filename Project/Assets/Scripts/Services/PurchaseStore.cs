@@ -23,6 +23,7 @@ class PurchaseStore : SocialPointPurchaseStore
         set
         {
             RequestSetup = value.SetupHttpRequest;
+            GetUserId = () => value.UserId;
         }
     }
 

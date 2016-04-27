@@ -34,6 +34,14 @@ namespace SocialPoint.Purchase
             }
         }
 
+        public GetUserIdDelegate GetUserId
+        {
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public void LoadProducts(string[] productIds)
         {
             throw new NotImplementedException();
@@ -77,6 +85,7 @@ namespace SocialPoint.Purchase
         {
             throw new NotImplementedException();
         }
+
         #endregion
 
         #region IDisposable implementation

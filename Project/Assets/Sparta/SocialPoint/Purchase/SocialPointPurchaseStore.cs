@@ -5,6 +5,7 @@ using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Base;
 using UnityEngine.Assertions;
+using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
@@ -181,6 +182,14 @@ namespace SocialPoint.Purchase
             _purchasesInProcess = new List<string>();
             ProductListReceived = false;
             RegisterEvents();
+        }
+
+        public GetUserIdDelegate GetUserId
+        {
+            set
+            {
+                _purchaseStore.GetUserId = value;
+            }
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]

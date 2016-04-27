@@ -31,13 +31,15 @@ namespace SocialPoint.Purchase
         RemovedTransaction
     }
 
-    public delegate void ProductsUpdatedDelegate(LoadProductsState state,Error error = null);
+    public delegate void ProductsUpdatedDelegate(LoadProductsState state, Error error = null);
 
-    public delegate void PurchaseUpdatedDelegate(PurchaseState state,string productId);
+    public delegate void PurchaseUpdatedDelegate(PurchaseState state, string productId);
 
     public delegate void ValidatePurchaseResponseDelegate(PurchaseResponseType response);
 
-    public delegate void ValidatePurchaseDelegate(Receipt receipt,ValidatePurchaseResponseDelegate response);
+    public delegate void ValidatePurchaseDelegate(Receipt receipt, ValidatePurchaseResponseDelegate response);
+
+    public delegate UInt64 GetUserIdDelegate();
 
     public interface IPurchaseStore : IDisposable
     {
@@ -53,6 +55,8 @@ namespace SocialPoint.Purchase
         event PurchaseUpdatedDelegate PurchaseUpdated;
 
         ValidatePurchaseDelegate ValidatePurchase{ set; }
+
+        GetUserIdDelegate GetUserId{ set; }
 
         void ForceFinishPendingTransactions();
 
