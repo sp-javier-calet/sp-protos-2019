@@ -1,4 +1,7 @@
+#if UNITY_ANDROID
+using SocialPoint.Base;
 using UnityEngine;
+#endif
 
 namespace SocialPoint.Hardware
 {
@@ -44,7 +47,7 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                try
+                if(AndroidContext.SDKVersion >= 18)
                 {
                     try
                     {
@@ -53,16 +56,20 @@ namespace SocialPoint.Hardware
                     }
                     catch(AndroidJavaException)
                     {
-                        var fs = StatFs(DataPath);
-                        int blockCount = fs.Call<int>("getBlockCount"); // API level 1
-                        int blockSize = fs.Call<int>("getBlockSize"); // API level 1
-                        return (ulong)(blockCount * blockSize);
+                        return 0;
                     }
+                }
+                try
+                {
+                    var fs = StatFs(DataPath);
+                    int blockCount = fs.Call<int>("getBlockCount"); // API level 1
+                    int blockSize = fs.Call<int>("getBlockSize"); // API level 1
+                    return (ulong)(blockCount * blockSize);
                 }
                 catch(AndroidJavaException)
                 {
                     return 0;
-                }
+                }  
             }
         }
 
@@ -70,7 +77,7 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                try
+                if(AndroidContext.SDKVersion >= 18)
                 {
                     try
                     {
@@ -79,11 +86,15 @@ namespace SocialPoint.Hardware
                     }
                     catch(AndroidJavaException)
                     {
-                        var fs = StatFs(DataPath);
-                        int blockCount = fs.Call<int>("getFreeBlocks"); // API level 1
-                        int blockSize = fs.Call<int>("getBlockSize"); // API level 1
-                        return (ulong)(blockCount * blockSize);
+                        return 0;
                     }
+                }
+                try
+                {
+                    var fs = StatFs(DataPath);
+                    int blockCount = fs.Call<int>("getFreeBlocks"); // API level 1
+                    int blockSize = fs.Call<int>("getBlockSize"); // API level 1
+                    return (ulong)(blockCount * blockSize);
                 }
                 catch(AndroidJavaException)
                 {

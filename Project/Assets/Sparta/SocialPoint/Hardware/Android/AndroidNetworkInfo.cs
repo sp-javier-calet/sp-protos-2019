@@ -1,6 +1,8 @@
+#if UNITY_ANDROID
 using System;
-using UnityEngine;
 using SocialPoint.Base;
+using UnityEngine;
+#endif
 
 namespace SocialPoint.Hardware
 {

@@ -1,13 +1,12 @@
-using UnityEngine;
-using System;
-
 #if UNITY_ANDROID
+using System;
 using SocialPoint.Base;
+using UnityEngine;
 #endif
 
 namespace SocialPoint.Hardware
 {
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
     public class AndroidAppInfo : IAppInfo
     {
         public AndroidAppInfo()
@@ -134,7 +133,7 @@ namespace SocialPoint.Hardware
             return InfoToStringExtension.ToString(this);
         }
     }
-#else
+    #else
     public class AndroidAppInfo : EmptyAppInfo
     {
     }

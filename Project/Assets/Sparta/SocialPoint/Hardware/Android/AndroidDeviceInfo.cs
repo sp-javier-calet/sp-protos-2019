@@ -1,7 +1,9 @@
+#if UNITY_ANDROID
 using System;
-using UnityEngine;
 using SocialPoint.Base;
 using SocialPoint.IO;
+using UnityEngine;
+#endif
 
 namespace SocialPoint.Hardware
 {
@@ -12,7 +14,6 @@ namespace SocialPoint.Hardware
         AndroidStorageInfo _storageInfo;
         AndroidAppInfo _appInfo;
         AndroidNetworkInfo _networkInfo;
-        string _keychainAccessGroup;
 
         public AndroidDeviceInfo()
         {
@@ -26,7 +27,7 @@ namespace SocialPoint.Hardware
         {
             var ctx = new AndroidJavaClass("android.content.Context");
             var val = ctx.GetStatic<string>(name);
-            return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getSystemService", val); // API level 23
+            return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getSystemService", val); // API level 1
         }
 
         public static AndroidJavaObject ActivityManager
@@ -45,7 +46,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _string = null;
+        string _string;
 
         public string String
         {
@@ -69,7 +70,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _uid = null;
+        string _uid;
 
         public string Uid
         {
@@ -85,7 +86,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private readonly string _platform = "android";
+        readonly string _platform = "android";
 
         public string Platform
         {
@@ -95,7 +96,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _platformVersion = null;
+        string _platformVersion;
 
         public string PlatformVersion
         {
@@ -117,7 +118,7 @@ namespace SocialPoint.Hardware
             {
                 if(_architecture == null)
                 {
-                    try
+                    if(AndroidContext.SDKVersion >= 21)
                     {
                         try
                         {
@@ -125,17 +126,25 @@ namespace SocialPoint.Hardware
                             var supported_abis = build.GetStatic<string[]>("SUPPORTED_ABIS"); // API level 21
                             _architecture = supported_abis.Length > 0 ? supported_abis[0] : string.Empty;
                         }
-                        catch(AndroidJavaException)
+                        catch
+                        {
+                            _architecture = string.Empty;
+                            Debug.LogError("Error retrieving DeviceInfo Architecture");
+                        }
+                    }
+                    else
+                    {
+                        try
                         {
                             var build = new AndroidJavaClass("android.os.Build");
                             var cpu_abi = build.GetStatic<string>("CPU_ABI"); // API level 4, deprecated in API level 21
                             _architecture = cpu_abi;
                         }
-                    }
-                    catch
-                    {
-                        _architecture = string.Empty;
-                        Debug.LogError("Error retrieving DeviceInfo Architecture");
+                        catch
+                        {
+                            _architecture = string.Empty;
+                            Debug.LogError("Error retrieving DeviceInfo Architecture");
+                        }
                     }
                 }
                 return _architecture;
@@ -143,7 +152,7 @@ namespace SocialPoint.Hardware
         }
 
 
-        private bool? _isGooglePlayServicesAvailable = null;
+        bool? _isGooglePlayServicesAvailable;
 
         public bool IsGooglePlayServicesAvailable
         {
@@ -176,7 +185,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _advertisingId = null;
+        string _advertisingId;
 
         public string AdvertisingId
         {
@@ -187,7 +196,7 @@ namespace SocialPoint.Hardware
                     if(IsGooglePlayServicesAvailable)
                     {
                         var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
-                        _advertisingId = adInfo.Call<string>("getId").ToString();
+                        _advertisingId = adInfo.Call<string>("getId");
                     }
                     else
                     {
@@ -222,8 +231,8 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private bool _advertisingIdEnabled;
-        private bool _advertisingIdEnabledLoaded;
+        bool _advertisingIdEnabled;
+        bool _advertisingIdEnabledLoaded;
 
         public bool AdvertisingIdEnabled
         {
@@ -246,8 +255,8 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private bool _rooted;
-        private bool _rootedLoaded;
+        bool _rooted;
+        bool _rootedLoaded;
 
         public bool Rooted
         {
@@ -255,7 +264,7 @@ namespace SocialPoint.Hardware
             {
                 if(!_rootedLoaded)
                 {
-                    var paths = new String[] { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su",
+                    var paths = new [] { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su",
                         "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su", "/data/local/su"
                     };
                     foreach(var path in paths)

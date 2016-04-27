@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿#if UNITY_ANDROID
+using UnityEngine;
 
 namespace SocialPoint.Base
 {
-#if UNITY_ANDROID
     public static class AndroidContext 
     {
         static AndroidJavaObject _currentActivity;
@@ -46,10 +46,19 @@ namespace SocialPoint.Base
             }
         }
 
-        public static void RunOnMainThread(AndroidJavaRunnable runnable)
+        static int _sdkVersion;
+
+        public static int SDKVersion
         {
-            CurrentActivity.Call("runOnUiThread", runnable);
+            get
+            {
+                if(_sdkVersion == 0)
+                {
+                    _sdkVersion = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT"); // API level 4
+                }
+                return _sdkVersion;
+            }
         }
     }
-#endif
 }
+#endif

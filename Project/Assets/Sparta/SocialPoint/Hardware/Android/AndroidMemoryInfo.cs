@@ -1,4 +1,7 @@
+#if UNITY_ANDROID
+using SocialPoint.Base;
 using UnityEngine;
+#endif
 
 namespace SocialPoint.Hardware
 {
@@ -19,7 +22,7 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                try
+                if(AndroidContext.SDKVersion >= 16)
                 {
                     try
                     {
@@ -27,9 +30,13 @@ namespace SocialPoint.Hardware
                     }
                     catch(AndroidJavaException)
                     {
-                        int memorySizeInMegaBytes = SystemInfo.systemMemorySize;
-                        return (ulong)(1024 * 1024 * memorySizeInMegaBytes);
+                        return 0;
                     }
+                }
+                try
+                {
+                    int memorySizeInMegaBytes = SystemInfo.systemMemorySize;
+                    return (ulong)(1024 * 1024 * memorySizeInMegaBytes);
                 }
                 catch(AndroidJavaException)
                 {
