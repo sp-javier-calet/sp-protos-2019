@@ -3,9 +3,10 @@ using UnityEngine;
 
 namespace SocialPoint.Base
 {
-    public static class AndroidContext 
+    public static class AndroidContext
     {
         static AndroidJavaObject _currentActivity;
+
         public static AndroidJavaObject CurrentActivity
         {
             get
@@ -18,8 +19,9 @@ namespace SocialPoint.Base
                 return _currentActivity;
             }
         }
-        
+
         static AndroidJavaObject _currentApplication;
+
         public static AndroidJavaObject CurrentApplication
         {
             get
@@ -32,8 +34,8 @@ namespace SocialPoint.Base
             }
         }
 
-
         static AndroidJavaObject _contentResolver;
+
         public static AndroidJavaObject ContentResolver
         {
             get
@@ -44,6 +46,11 @@ namespace SocialPoint.Base
                 }
                 return _contentResolver;
             }
+        }
+
+        public static void RunOnMainThread(AndroidJavaRunnable runnable)
+        {
+            CurrentActivity.Call("runOnUiThread", runnable);
         }
 
         static int _sdkVersion;
