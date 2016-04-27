@@ -58,12 +58,6 @@ namespace SocialPoint.Notifications
                 return;
             }
 
-            // This if needs to be removed when PushEnabledCommand supports notifying about disabled notifications
-            if(string.IsNullOrEmpty(_pushToken))
-            {
-                return;
-            }
-
             string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
             bool userAllowedNotifications = PlayerPrefs.GetInt(kPlayerAllowsNotificationKey, 0) != 0;
 
@@ -72,10 +66,16 @@ namespace SocialPoint.Notifications
 
             if(pushTokenChanged || allowNotificationsChanged)
             {
-                _commandQueue.Add(new PushEnabledCommand(_pushToken), (data, err) => {
+                string pushTokenToSend = UserAllowsNofitication ? _pushToken : currentPushToken;
+                if(string.IsNullOrEmpty(pushTokenToSend))
+                {
+                    return;
+                }
+
+                _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, UserAllowsNofitication), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
-                        PlayerPrefs.SetString(kPushTokenKey, _pushToken);
+                        PlayerPrefs.SetString(kPushTokenKey, pushTokenToSend);
                         PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, UserAllowsNofitication ? 1 : 0);
                         PlayerPrefs.Save();
                     }
