@@ -30,7 +30,7 @@ public class BMDataWatcher : AssetPostprocessor
 
     public static void MarkChangeDate(string path)
     {
-        int[] date = BMUtility.long2doubleInt(File.GetLastWriteTime(path).ToBinary());
+        int[] date = BMUtility.long2doubleInt(BMUtils.GetLastWriteTime(path).ToBinary());
         PlayerPrefs.SetInt("BMChangeDate0", date[0]);
         PlayerPrefs.SetInt("BMChangeDate1", date[1]);
     }
@@ -42,7 +42,7 @@ public class BMDataWatcher : AssetPostprocessor
             return false;
         }
 
-        long assetChangeTime = File.GetLastWriteTime(asset).ToBinary();
+        long assetChangeTime = BMUtils.GetLastWriteTime(asset).ToBinary();
         long markedChangeTime = BMUtility.doubleInt2long(PlayerPrefs.GetInt("BMChangeDate0"), PlayerPrefs.GetInt("BMChangeDate1"));
         return assetChangeTime != markedChangeTime;
     }
