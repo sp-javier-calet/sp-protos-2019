@@ -155,7 +155,7 @@ namespace SocialPoint.QualityStats
             client.Set("memory_stats", GetMemoryData());
             client.Set("storage_stats", GetStorageData());
             client.Set("app_info", GetAppData());
-            client.Set("device_info", GetDeviceData());
+            client.Set("mobile", GetMobileData());
             client.Set("network_stats", GetNetworkData());
             client.Set("performance", GetPerformanceData());
 
@@ -301,12 +301,12 @@ namespace SocialPoint.QualityStats
             return dict;
         }
 
-        AttrDic GetDeviceData()
+        AttrDic GetMobileData()
         {
             var architecture = _deviceInfo.Architecture;
             var dict = new AttrDic();
 
-            dict.SetValue("arch", architecture);
+            dict.SetValue("arch_info", architecture);
 
             return dict;
         }
