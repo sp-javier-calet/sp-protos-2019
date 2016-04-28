@@ -20,7 +20,7 @@ namespace SocialPoint.BundleManagerTest
             bData = BundleManager.GetBundleData("NUnitTest");
 
             //Asset to include in bundle
-            guid = AssetDatabase.FindAssets("BaseMainScene t:Scene")[0];
+            guid = AssetDatabase.FindAssets("TestScene t:Scene")[0];
             path = AssetDatabase.GUIDToAssetPath(guid);
 
             //Collects dependencies and remove the main asset

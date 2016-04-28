@@ -26,10 +26,10 @@ namespace SocialPoint.BundleManagerTest
             BundleManager.CreateNewBundle("NUnitTestChild", "NUnitTest", false);
             child = BundleManager.GetBundleData("NUnitTestChild");
             //Assets to include in bundle
-            var guid = AssetDatabase.FindAssets("GUI_AlertView t:Prefab")[0];
+            var guid = AssetDatabase.FindAssets("TestPrefab t:Prefab")[0];
             var path = AssetDatabase.GUIDToAssetPath(guid);
             BundleManager.AddPathToBundle(path, parent.name);
-            var guidChild = AssetDatabase.FindAssets("GUI_AlertViewButton t:Prefab")[0];
+            var guidChild = AssetDatabase.FindAssets("TestPrefab 1 t:Prefab")[0];
             var pathChild = AssetDatabase.GUIDToAssetPath(guidChild);
             BundleManager.AddPathToBundle(pathChild, child.name);
 
@@ -67,7 +67,7 @@ namespace SocialPoint.BundleManagerTest
             Assert.IsFalse(BuildHelper.IsBundleNeedBuild(parent), "Parent bundle still needs rebuild");
             Assert.IsFalse(BuildHelper.IsBundleNeedBuild(child), "Child bundle still needs rebuild");
 
-            var guidChild = AssetDatabase.FindAssets("GUI_ExampleTransition t:Prefab")[0];
+            var guidChild = AssetDatabase.FindAssets("TestPrefab 2 t:Prefab")[0];
             var pathChild = AssetDatabase.GUIDToAssetPath(guidChild);
             BundleManager.AddPathToBundle(pathChild, child.name);
 
@@ -86,7 +86,7 @@ namespace SocialPoint.BundleManagerTest
             Assert.IsFalse(BuildHelper.IsBundleNeedBuild(parent), "Parent bundle still needs rebuild");
             Assert.IsFalse(BuildHelper.IsBundleNeedBuild(child), "Child bundle still needs rebuild");
 
-            var guidChild = AssetDatabase.FindAssets("GUI_ExampleTransition t:Prefab")[0];
+            var guidChild = AssetDatabase.FindAssets("TestPrefab 2 t:Prefab")[0];
             var pathChild = AssetDatabase.GUIDToAssetPath(guidChild);
             BundleManager.AddPathToBundle(pathChild, parent.name);
 
