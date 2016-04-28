@@ -14,9 +14,6 @@ namespace SocialPoint.Purchase
         // Fired when requesting product data fails
         public static event Action<string> ProductListRequestFailedEvent;
 
-        // Fired when old pending transactions are detected after loading the store products
-        public static event Action<List<IosStoreTransaction>> PendingTransactionsReceivedEvent;
-
         // Fired anytime Apple updates a transaction if you called setShouldSendTransactionUpdateEvents with true. Check the transaction.transactionState to
         // know what state the transaction is currently in.
         public static event Action<IosStoreTransaction> TransactionUpdatedEvent;
@@ -42,14 +39,6 @@ namespace SocialPoint.Purchase
             instance.AddComponent<IosStoreManager>();
             DontDestroyOnLoad(instance);
             IosStoreBinding.Init(instanceName);
-        }
-
-        public void PendingTransactionsReceived(string json)
-        {
-            if(PendingTransactionsReceivedEvent != null)
-            {
-                PendingTransactionsReceivedEvent(IosStoreTransaction.TransactionsFromJson(json));
-            }
         }
 
 

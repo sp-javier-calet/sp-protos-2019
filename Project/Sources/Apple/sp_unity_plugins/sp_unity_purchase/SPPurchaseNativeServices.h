@@ -59,6 +59,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 
 - (void)purchaseProduct:(const char*)productIdentifier;
 
+- (void)forceUpdatePendingTransactions;
 - (SKPaymentTransaction*)getPendingTransaction:(const char*)transactionIdentifier;
 - (void)finishPendingTransaction:(const char*)transactionIdentifier;
 - (void)forceFinishPendingTransactions;

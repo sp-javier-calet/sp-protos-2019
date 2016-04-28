@@ -25,6 +25,7 @@ extern "C"
     EXPORT_API void SPUnityStore_EnableHighDetailLogs(bool shouldEnable);
     EXPORT_API void SPUnityStore_RequestProductData(const char* productIdentifiers);
     EXPORT_API void SPUnityStore_PurchaseProduct(const char* productIdentifier);
+    EXPORT_API void SPUnityStore_ForceUpdatePendingTransactions();
     EXPORT_API void SPUnityStore_ForceFinishPendingTransactions();
     EXPORT_API void SPUnityStore_FinishPendingTransaction(const char* transactionIdentifier);
 }

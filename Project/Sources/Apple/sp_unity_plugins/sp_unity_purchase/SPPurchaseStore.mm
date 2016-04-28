@@ -73,6 +73,11 @@ public:
     
     /* Transaction Functions */
     
+    void forceUpdatePendingTransactions()
+    {
+        return [_purchaseServices forceUpdatePendingTransactions];
+    }
+    
     void finishPendingTransaction(const char* productIdentifier)
     {
         return [_purchaseServices finishPendingTransaction:productIdentifier];
@@ -166,6 +171,14 @@ EXPORT_API void SPUnityStore_PurchaseProduct(const char* productIdentifier)
     if(purchaseBridge)
     {
         purchaseBridge->purchaseProduct(productIdentifier);
+    }
+}
+
+EXPORT_API void SPUnityStore_ForceUpdatePendingTransactions()
+{
+    if(purchaseBridge)
+    {
+        purchaseBridge->forceUpdatePendingTransactions();
     }
 }
 

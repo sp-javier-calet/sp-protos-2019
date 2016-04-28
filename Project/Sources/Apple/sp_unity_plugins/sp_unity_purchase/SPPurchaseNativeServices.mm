@@ -173,6 +173,12 @@
 
 #pragma mark - Transaction Operations
 
+- (void)forceUpdatePendingTransactions
+{
+    [self detailedLog:[NSString stringWithFormat:@"Forcing Transactions Update"]];
+    [self paymentQueue:[SKPaymentQueue defaultQueue] updatedTransactions:[[SKPaymentQueue defaultQueue] transactions]];
+}
+
 - (SKPaymentTransaction*)getPendingTransaction:(const char*)transactionIdentifier
 {
     NSString* transactionIdentifierNS = [NSString stringWithUTF8String:transactionIdentifier];
@@ -357,10 +363,8 @@
     UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:productsJson]);
     [self detailedLog:[NSString stringWithFormat:@"Products Loaded: %@", productsJson]];
     
-    //Get also old incomplete transactions
-    NSMutableString* pendingTransactionsJson = [self getTransactionsJson:[[SKPaymentQueue defaultQueue] transactions] withFilter:SKPaymentTransactionStatePurchased];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("PendingTransactionsReceived", [SPPurchaseNativeServices safeUTF8String:pendingTransactionsJson]);
-    [self detailedLog:[NSString stringWithFormat:@"Pending Transactions: %@", pendingTransactionsJson]];
+    //Force an update here for all transactions in queue. Because some of them may have been updated too early (before all listeners in Unity were set)
+    [self forceUpdatePendingTransactions];
 }
 
 - (void)request:(SKRequest*)request didFailWithError:(NSError*)error
@@ -375,6 +379,7 @@
 // Called when there are transactions in the payment queue
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
 {
+    [self detailedLog:[NSString stringWithFormat:@"Updated Transactions: %lu", (unsigned long)transactions.count]];
     for(SKPaymentTransaction * transaction in transactions)
     {
         [self detailedLog:[NSString stringWithFormat:@"Transaction %@ Updated (Product ID: %@). State: %@",
