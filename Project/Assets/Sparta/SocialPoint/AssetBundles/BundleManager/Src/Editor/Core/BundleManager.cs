@@ -736,7 +736,7 @@ public class BundleManager
     
     private static void UpdateBundleChangeTime(string bundleName)
     {
-        GetBuildStateOfBundle(bundleName).changeTime = BMUtils.Now().ToBinary();
+        GetBuildStateOfBundle(bundleName).changeTime = BMUtility.Now().ToBinary();
     }
     
     private static void InsertBundleToBundleList(BundleData bundle)
