@@ -11,7 +11,7 @@ public class BaseInstaller : MonoInstaller, IInitializable
     public override void InstallBindings()
     {
         Container.Bind<IInitializable>().ToSingleInstance(this);
-        Container.Rebind<UnityUpdateRunner>().ToSingleGameObject<UnityUpdateRunner>();
+        Container.Rebind<UnityUpdateRunner>().ToSingleGameObject();
         Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
 
