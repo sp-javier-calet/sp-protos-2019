@@ -57,7 +57,7 @@ namespace SocialPoint.BundleManagerTest
         }
 
         [Test]
-        public void RebuildPolicyChilds()
+        public void RebuildPolicyChildren()
         {
             BuildHelper.BuildBundles(new string[] { "NUnitTest", "NUnitTestChild" });
 
