@@ -109,6 +109,18 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
+        private static extern void SPUnityStore_ForceUpdatePendingTransactions();
+
+        // Force update any and all pending transactions to check their current states
+        public static void ForceUpdatePendingTransactions()
+        {
+            if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                SPUnityStore_ForceUpdatePendingTransactions();
+            }
+        }
+
+        [DllImport("__Internal")]
         private static extern void SPUnityStore_ForceFinishPendingTransactions();
 
         // Force finishes any and all pending transactions including those being tracked and any random transactions in Apple's queue

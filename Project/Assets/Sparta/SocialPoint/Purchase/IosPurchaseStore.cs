@@ -28,6 +28,8 @@ namespace SocialPoint.Purchase
 
         private GetUserIdDelegate _getUserId;
 
+        private delegate void OnFinishedPendingPurchaseDelegate();
+
         public ValidatePurchaseDelegate ValidatePurchase
         {
             set
@@ -149,7 +151,6 @@ namespace SocialPoint.Purchase
             IosStoreManager.PurchaseCancelledEvent += PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent += PurchaseFinished;
             IosStoreManager.TransactionUpdatedEvent += TransactionUpdated;
-            IosStoreManager.ProductPurchaseAwaitingConfirmationEvent += ProductPurchaseAwaitingConfirmation;
         }
 
         private void ProductListReceived(List<IosStoreProduct> products)
@@ -177,11 +178,10 @@ namespace SocialPoint.Purchase
             ProductsUpdated(LoadProductsState.Success);
         }
 
-        private void FinishPendingPurchases()
+        private void FinishPendingPurchase(Receipt receipt, OnFinishedPendingPurchaseDelegate OnFinishedPendingPurchase = null)
         {
-            if(_validatePurchase != null && _pendingPurchases.Count > 0)
+            if(_validatePurchase != null)
             {
-                Receipt receipt = _pendingPurchases[0];
                 DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
                 _validatePurchase(receipt, (response) => {
                     DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
@@ -189,11 +189,26 @@ namespace SocialPoint.Purchase
                     {
                         IosStoreBinding.FinishPendingTransaction(receipt.OrderId);
                         PurchaseUpdated(PurchaseState.PurchaseConsumed, receipt.ProductId);
-                        _pendingPurchases.Remove(receipt);
-                        FinishPendingPurchases();
+                        if(_pendingPurchases != null)
+                        {
+                            _pendingPurchases.Remove(receipt);
+                        }
+                        if(OnFinishedPendingPurchase != null)
+                        {
+                            OnFinishedPendingPurchase();
+                        }
                     }
                     //itunes api can only confirm a purchase(can't cancel) so we call nothing unless our backend says it's complete.
                 });
+            }
+        }
+
+        private void FinishAllPendingPurchases()
+        {
+            if(_pendingPurchases != null && _pendingPurchases.Count > 0)
+            {
+                Receipt receipt = _pendingPurchases[0];
+                FinishPendingPurchase(receipt, FinishAllPendingPurchases);//Call again when this purchase is removed
             }
             else
             {
@@ -225,6 +240,9 @@ namespace SocialPoint.Purchase
         {
             DebugLog("Purchase has finished: " + transaction.TransactionIdentifier);
             PurchaseUpdated(PurchaseState.PurchaseFinished, transaction.ProductIdentifier);
+
+            //Validate with backend after purchase was successful
+            ProductPurchaseAwaitingConfirmation(transaction);
         }
 
         private void ProductPurchaseAwaitingConfirmation(IosStoreTransaction transaction)
@@ -239,7 +257,7 @@ namespace SocialPoint.Purchase
 
             if(_products != null && _products.Count > 0)
             {
-                FinishPendingPurchases();
+                FinishPendingPurchase(receipt);
             }
         }
 
@@ -266,7 +284,6 @@ namespace SocialPoint.Purchase
             IosStoreManager.PurchaseCancelledEvent -= PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent -= PurchaseFinished;
             IosStoreManager.TransactionUpdatedEvent -= TransactionUpdated;
-            IosStoreManager.ProductPurchaseAwaitingConfirmationEvent -= ProductPurchaseAwaitingConfirmation;
         }
 
         public void PurchaseStateChanged(PurchaseState state, string productID)

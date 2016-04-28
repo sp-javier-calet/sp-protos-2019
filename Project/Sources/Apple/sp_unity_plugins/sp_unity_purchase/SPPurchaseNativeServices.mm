@@ -396,7 +396,6 @@
                 if (transactionJson)
                 {
                     UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseAwaitingConfirmation", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
                 }
             }
                 break;

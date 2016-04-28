@@ -18,10 +18,6 @@ namespace SocialPoint.Purchase
         // know what state the transaction is currently in.
         public static event Action<IosStoreTransaction> TransactionUpdatedEvent;
 
-        // Fired when a product purchase has returned from Apple's servers and is awaiting completion. Requires that you call IosStoreBinding.FinishPendingTransaction
-        // to complete a purchase.
-        public static event Action<IosStoreTransaction> ProductPurchaseAwaitingConfirmationEvent;
-
         // Fired when a product is successfully paid for. The event will provide a IosStoreTransaction object that holds the productIdentifer and receipt of the purchased product.
         public static event Action<IosStoreTransaction> PurchaseSuccessfulEvent;
 
@@ -47,15 +43,6 @@ namespace SocialPoint.Purchase
             if(TransactionUpdatedEvent != null)
             {
                 TransactionUpdatedEvent(IosStoreTransaction.TransactionFromJson(json));
-            }
-        }
-
-
-        public void ProductPurchaseAwaitingConfirmation(string json)
-        {
-            if(ProductPurchaseAwaitingConfirmationEvent != null)
-            {
-                ProductPurchaseAwaitingConfirmationEvent(IosStoreTransaction.TransactionFromJson(json));
             }
         }
 
