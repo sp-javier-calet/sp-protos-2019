@@ -8,6 +8,9 @@ namespace SocialPoint.AssetSerializer.Utils
 {
 	public class TypeUtils
 	{
+        const string kEditorSuffix = "-Editor";
+        const string kGenericList = "System.Collections.Generic.List";
+
 		public static string LIST_COMPLETE_TYPE_NAME = "System.Collections.Generic.List`1";
 
         private static string WRITER_TMPL = "SocialPoint.AssetSerializer.Serializers.{{TYPE_NAME}}PropertyWriter";
@@ -103,7 +106,7 @@ namespace SocialPoint.AssetSerializer.Utils
             } else if (itemType.IsEnum)
             {
                 reprType = "Enum";
-            } else if (itemType.IsClass && StringUtils.StartsWith(itemType.FullName, "System.Collections.Generic.List"))
+            } else if (itemType.IsClass && StringUtils.StartsWith(itemType.FullName, kGenericList))
             {
                 reprType = "List";
             } else if (itemType.IsClass && (itemType == typeof(UnityEngine.Object) || itemType.IsSubclassOf(typeof(UnityEngine.Object))))
@@ -156,7 +159,7 @@ namespace SocialPoint.AssetSerializer.Utils
             //Writters are found on the Editor assemlby while Readers are found on the runtime
             string typeName = TypeNameToFactoryTypeName( itemType.Name );
             Assembly currentAssembly = Assembly.GetExecutingAssembly();
-            if (StringUtils.EndsWith(currentAssembly.GetName ().Name, "-Editor")) {
+            if (StringUtils.EndsWith(currentAssembly.GetName ().Name, kEditorSuffix)) {
 
                 string writerTypeString = WRITER_TMPL.Replace("{{TYPE_NAME}}", typeName);
                 if (currentAssembly.GetType(writerTypeString) == null)

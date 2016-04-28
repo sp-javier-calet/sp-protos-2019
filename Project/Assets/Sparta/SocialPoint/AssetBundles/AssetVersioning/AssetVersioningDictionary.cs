@@ -13,6 +13,8 @@ namespace SocialPoint.AssetVersioning
     }
     public class AssetVersioningDictionary : IDictionary<string, AssetVersioningData>
     {
+        const string kPortraitSuffix = "_portrait";
+        const string kThumbSuffix = "_thumb";
 
         #region Initialization
         public AssetVersioningDictionary()
@@ -142,7 +144,7 @@ namespace SocialPoint.AssetVersioning
 
         bool IsThumb(string key)
         {
-            return StringUtils.EndsWith(key, "_portrait") || StringUtils.EndsWith(key, "_thumb");
+            return StringUtils.EndsWith(key, kPortraitSuffix) || StringUtils.EndsWith(key, kThumbSuffix);
         }
 
         public List<string> GetLocalBundles()

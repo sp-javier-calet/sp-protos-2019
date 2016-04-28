@@ -17,7 +17,7 @@ using SocialPoint.Utils;
  */
 public class DownloadManager : MonoBehaviour
 {
-
+    const string kAssetFolder = "Assets/";
     const string _bundleSuffix = "assetBundle";
     const int _downloadRetryTime = 2;
     const int _downloadThreadsCount = 3;
@@ -153,7 +153,7 @@ public class DownloadManager : MonoBehaviour
     public static void LinkBehaviours(GameObject go, string path, AssetBundle bundle)
     {
         string assetPath = path;
-        if(StringUtils.StartsWith(assetPath, "Assets/"))
+        if(StringUtils.StartsWith(assetPath, kAssetFolder))
         {
             assetPath = assetPath.Substring(assetPath.IndexOf("/") + 1);
         }
