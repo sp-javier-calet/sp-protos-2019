@@ -1,6 +1,9 @@
 using UnityEngine;
 using System;
+
+#if UNITY_ANDROID
 using SocialPoint.Base;
+#endif
 
 namespace SocialPoint.Hardware
 {
@@ -40,7 +43,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private static string _packageName;
+        static string _packageName;
 
         public static string PackageName
         {
@@ -70,7 +73,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _version;
+        string _version;
 
         public string Version
         {
@@ -84,7 +87,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _shortVersion;
+        string _shortVersion;
 
         public string ShortVersion
         {
@@ -98,7 +101,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _language = null;
+        string _language;
 
         public string Language
         {
@@ -112,7 +115,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _country = null;
+        string _country;
 
         public string Country
         {
