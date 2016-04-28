@@ -229,6 +229,12 @@ namespace SocialPoint.Attributes
         {
             GC.SuppressFinalize(this);
         }
+
+        protected static void HashCombine(ref int seed, int hashToCombine)
+        {
+            // This is based on boost::hash_combine
+            seed ^= hashToCombine + 486187739 + (seed << 6) + (seed >> 2);
+        }
     }
 
     public abstract class AttrValue : Attr
@@ -1450,7 +1456,13 @@ namespace SocialPoint.Attributes
 
         public override int GetHashCode()
         {
-            return base.GetHashCode() ^ _value.GetHashCode();
+            int seed = 0;
+            foreach(var item in _value)
+            {
+                HashCombine(ref seed, item.Key.GetHashCode());
+                HashCombine(ref seed, item.Value.GetHashCode());
+            }
+            return base.GetHashCode() ^ seed;
         }
 
         public Dictionary<string,V> ToDictionary<V>()
@@ -1817,7 +1829,12 @@ namespace SocialPoint.Attributes
 
         public override int GetHashCode()
         {
-            return base.GetHashCode() ^ _value.GetHashCode();
+            int seed = 0;
+            foreach(var item in _value)
+            {
+                HashCombine(ref seed, item.GetHashCode());
+            }
+            return base.GetHashCode() ^ seed;
         }
 
         public override void Dispose()
