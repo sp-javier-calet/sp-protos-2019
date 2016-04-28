@@ -24,6 +24,9 @@ namespace SocialPoint.Purchase
         event ProductsUpdatedDelegate ProductsUpdated;
         event PurchaseUpdatedDelegate PurchaseUpdated;
 
+        //Change desired settings. Use with PlatformPurchaseSettings
+        void Setup(AttrDic settings);
+
         Product[] ProductList { get; }
 
         bool HasProductsLoaded { get; }
@@ -50,6 +53,11 @@ namespace SocialPoint.Purchase
 
         public event ProductsUpdatedDelegate ProductsUpdated;
         public event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        public void Setup(AttrDic settings)
+        {
+            //Empty
+        }
 
         public Product[] ProductList { get { return _productList; } }
 
@@ -182,6 +190,11 @@ namespace SocialPoint.Purchase
             _purchasesInProcess = new List<string>();
             ProductListReceived = false;
             RegisterEvents();
+        }
+
+        public void Setup(AttrDic settings)
+        {
+            _purchaseStore.Setup(settings);
         }
 
         public GetUserIdDelegate GetUserId

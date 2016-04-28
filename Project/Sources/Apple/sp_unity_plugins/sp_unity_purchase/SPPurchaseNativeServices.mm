@@ -15,12 +15,17 @@
 {
     if((self = [super init]))
     {
+        self.products = nil;
+        self.request = nil;
+        self.unityListenerName = [NSString stringWithUTF8String:listenerName];
         self.applicationUsername = nil;
+        
         self.useApplicationUsername = false;
         self.useApplicationReceipt = false;
         self.canSendTransactionUpdateEvents = false;
         self.highDetailLogsEnabled = false;
-        self.unityListenerName = [NSString stringWithUTF8String:listenerName];
+        
+        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     }
     
     return self;
@@ -29,6 +34,7 @@
 - (void)dealloc
 {
     [self cancelRequest];
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
 }
 
 #pragma mark - setters
@@ -41,11 +47,13 @@
 - (void)setUseAppUsername:(BOOL) shouldUseAppUsername
 {
     self.useApplicationUsername = shouldUseAppUsername;
+    [self detailedLog:[NSString stringWithFormat:@"Using Application Username Setting: %@", self.useApplicationUsername ? @"true" : @"false"]];
 }
 
 - (void)setUseAppReceipt:(BOOL) shouldUseAppReceipt
 {
     self.useApplicationReceipt = shouldUseAppReceipt;
+    [self detailedLog:[NSString stringWithFormat:@"Using Application Receipt Setting: %@", self.useApplicationReceipt ? @"true" : @"false"]];
 }
 
 - (void)sendTransactionUpdateEvents:(BOOL) shouldSend
@@ -62,18 +70,19 @@
 
 - (void)startProductsRequest:(NSMutableSet*)productIdentifiers
 {
+    [self detailedLog:[NSString stringWithFormat:@"Products Request Started"]];
     self.request = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
     self.request.delegate = self;
-    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
-    [self detailedLog:[NSString stringWithFormat:@"Products Request Started"]];
     [self.request start];
 }
 
 - (void)cancelRequest
 {
-    [self.request cancel];
+    if(self.request != nil)
+    {
+        [self.request cancel];
+    }
     [self detailedLog:[NSString stringWithFormat:@"Products Request Canceled"]];
-    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
 }
 
 - (BOOL)isInitializingStoreProductsIds
@@ -95,6 +104,7 @@
             SKMutablePayment* payment = [SKMutablePayment paymentWithProduct:prod];
             if(self.useApplicationUsername && self.applicationUsername)
             {
+                [self detailedLog:[NSString stringWithFormat:@"Using Application Username in Payment (%@)", self.applicationUsername]];
                 payment.applicationUsername = self.applicationUsername;
             }
             [[SKPaymentQueue defaultQueue] addPayment:payment];
@@ -136,7 +146,7 @@
 
 - (void)forceFinishPendingTransactions
 {
-    [self detailedLog:[NSString stringWithFormat:@"Forcefull Finishing All Transaction"]];
+    [self detailedLog:[NSString stringWithFormat:@"Forcefull Finishing All Transactions"]];
     for(SKPaymentTransaction* pendingTransaction in [[SKPaymentQueue defaultQueue] transactions])
     {
         [[SKPaymentQueue defaultQueue] finishTransaction:pendingTransaction];

@@ -1,5 +1,5 @@
-
 using System;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 
 namespace SocialPoint.Purchase
@@ -46,6 +46,8 @@ namespace SocialPoint.Purchase
         Product[] ProductList{ get; }
 
         bool HasProductsLoaded{ get; }
+
+        void Setup(AttrDic settings);
 
         void LoadProducts(string[] productIds);
 

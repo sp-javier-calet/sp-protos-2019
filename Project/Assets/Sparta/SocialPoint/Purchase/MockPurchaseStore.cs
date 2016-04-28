@@ -48,6 +48,11 @@ namespace SocialPoint.Purchase
             }
         }
 
+        public void Setup(AttrDic settings)
+        {
+            //Implement if needed
+        }
+
         public void LoadProducts(string[] productIds)
         {
             _productList = _allProducts.FindAll(p => productIds.Contains(p.Id)) ?? new List<Product>();

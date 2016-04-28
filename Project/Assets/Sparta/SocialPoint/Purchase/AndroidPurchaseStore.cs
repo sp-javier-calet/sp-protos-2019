@@ -46,6 +46,11 @@ namespace SocialPoint.Purchase
             }
         }
 
+        public void Setup(AttrDic settings)
+        {
+            //Implement if needed
+        }
+
         public void LoadProducts(string[] productIds)
         {
             if(!_isInitialized)

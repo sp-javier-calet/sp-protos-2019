@@ -48,6 +48,25 @@ namespace SocialPoint.Purchase
             }
         }
 
+        public void Setup(AttrDic settings)
+        {
+            PlatformPuchaseSettings.SetBoolSetting(settings, 
+                PlatformPuchaseSettings.IOSUseDetailedLogKey, 
+                IosStoreBinding.EnableHighDetailLogs);
+
+            PlatformPuchaseSettings.SetBoolSetting(settings, 
+                PlatformPuchaseSettings.IOSUseApplicationUsernameKey, 
+                IosStoreBinding.SetUseAppUsername);
+            
+            PlatformPuchaseSettings.SetBoolSetting(settings, 
+                PlatformPuchaseSettings.IOSUseAppReceiptKey, 
+                IosStoreBinding.SetUseAppReceipt);
+            
+            PlatformPuchaseSettings.SetBoolSetting(settings, 
+                PlatformPuchaseSettings.IOSSendTransactionUpdateEventsKey, 
+                IosStoreBinding.SetShouldSendTransactionUpdateEvents);
+        }
+
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
