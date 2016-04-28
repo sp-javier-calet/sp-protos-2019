@@ -145,6 +145,7 @@ namespace SocialPoint.Purchase
             }
 
             IosStoreManager.ProductListReceivedEvent += ProductListReceived;
+            IosStoreManager.PendingTransactionsReceivedEvent += PendingTransactionsReceived;
             IosStoreManager.PurchaseFailedEvent += PurchaseFailed;
             IosStoreManager.PurchaseCancelledEvent += PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent += PurchaseFinished;
@@ -175,6 +176,21 @@ namespace SocialPoint.Purchase
             _products.Sort((Product p1, Product p2) => p1.Price.CompareTo(p2.Price));
             DebugLog("products sorted");
             ProductsUpdated(LoadProductsState.Success);
+        }
+
+        private void PendingTransactionsReceived(List<IosStoreTransaction> transactions)
+        {
+            if(_pendingPurchases == null && transactions.Count > 0)
+            {
+                _pendingPurchases = new List<Receipt>();
+            }
+
+            for(int i = 0; i < transactions.Count; ++i)
+            {
+                Receipt receipt = GetReceiptFromTransaction(transactions[i]);
+                _pendingPurchases.Add(receipt);
+            }
+
             if(_pendingPurchases != null)
             {
                 FinishPendingPurchases();
@@ -233,17 +249,13 @@ namespace SocialPoint.Purchase
 
         private void ProductPurchaseAwaitingConfirmation(IosStoreTransaction transaction)
         {
-            var data = new AttrDic();
-            data.SetValue(Receipt.OrderIdKey, transaction.TransactionIdentifier);
-            data.SetValue(Receipt.ProductIdKey, transaction.ProductIdentifier);
-            data.SetValue(Receipt.PurchaseStateKey, (int)PurchaseState.ValidateSuccess);
-            data.SetValue(Receipt.OriginalJsonKey, transaction.Base64EncodedTransactionReceipt);
-            data.SetValue(Receipt.StoreKey, "itunes");
-
             if(_pendingPurchases == null)
+            {
                 _pendingPurchases = new List<Receipt>();
+            }
 
-            _pendingPurchases.Add(new Receipt(data));
+            Receipt receipt = GetReceiptFromTransaction(transaction);
+            _pendingPurchases.Add(receipt);
 
             if(_products != null && _products.Count > 0)
             {
@@ -256,9 +268,21 @@ namespace SocialPoint.Purchase
             DebugLog("Transaction Updated: " + transaction.TransactionState);
         }
 
+        private Receipt GetReceiptFromTransaction(IosStoreTransaction transaction)
+        {
+            AttrDic data = new AttrDic();
+            data.SetValue(Receipt.OrderIdKey, transaction.TransactionIdentifier);
+            data.SetValue(Receipt.ProductIdKey, transaction.ProductIdentifier);
+            data.SetValue(Receipt.PurchaseStateKey, (int)PurchaseState.ValidateSuccess);
+            data.SetValue(Receipt.OriginalJsonKey, transaction.Base64EncodedTransactionReceipt);
+            data.SetValue(Receipt.StoreKey, "itunes");
+            return new Receipt(data);
+        }
+
         void UnregisterEvents()
         {
             IosStoreManager.ProductListReceivedEvent -= ProductListReceived;
+            IosStoreManager.PendingTransactionsReceivedEvent -= PendingTransactionsReceived;
             IosStoreManager.PurchaseFailedEvent -= PurchaseFailed;
             IosStoreManager.PurchaseCancelledEvent -= PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent -= PurchaseFinished;

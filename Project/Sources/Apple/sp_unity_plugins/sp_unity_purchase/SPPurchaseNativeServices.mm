@@ -24,8 +24,6 @@
         self.useApplicationReceipt = false;
         self.canSendTransactionUpdateEvents = false;
         self.highDetailLogsEnabled = false;
-        
-        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     }
     
     return self;
@@ -34,7 +32,6 @@
 - (void)dealloc
 {
     [self cancelRequest];
-    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
 }
 
 #pragma mark - setters
@@ -73,6 +70,7 @@
     [self detailedLog:[NSString stringWithFormat:@"Products Request Started"]];
     self.request = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
     self.request.delegate = self;
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     [self.request start];
 }
 
@@ -82,6 +80,7 @@
     {
         [self.request cancel];
     }
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
     [self detailedLog:[NSString stringWithFormat:@"Products Request Canceled"]];
 }
 
@@ -116,6 +115,60 @@
     NSString* errorDescription = [NSString stringWithFormat:@"Invalid product ID or product not loaded: %@", productIdentifier];
     [self detailedLog:[NSString stringWithFormat:@"Error Purchasing Product %@: %@", productIdentifier, errorDescription]];
     UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
+}
+
+-(NSString*)getProductJson:(SKProduct*)product
+{
+    NSNumberFormatter* nf = [[NSNumberFormatter alloc] init];
+    nf.locale = product.priceLocale;
+    nf.numberStyle = NSNumberFormatterCurrencyStyle;
+    NSString* localizedPrice = [nf stringFromNumber:product.price];
+    NSString* currencySymbol = nf.currencySymbol;
+    NSString* price = [NSString stringWithFormat:@"%@", product.price];
+    
+    NSDictionary* productData = @{
+                                  @"productIdentifier":[SPPurchaseNativeServices safeNSString:product.productIdentifier],
+                                  @"localizedTitle":[SPPurchaseNativeServices safeNSString:product.localizedTitle],
+                                  @"localizedDescription":[SPPurchaseNativeServices safeNSString:product.localizedDescription],
+                                  @"price":[SPPurchaseNativeServices safeNSString:price],
+                                  @"currencySymbol":[SPPurchaseNativeServices safeNSString:currencySymbol],
+                                  @"formattedPrice":[SPPurchaseNativeServices safeNSString:localizedPrice],
+                                  };
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:productData options:0 error:&error];
+    
+    if (jsonData)
+    {
+        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    else
+    {
+        NSMutableString* errorMessage = [NSMutableString stringWithString:@"Error parsing product: "];
+        [errorMessage appendString:error.localizedDescription];
+        NSLog(@"%@", errorMessage);
+        return nil;
+    }
+}
+
+-(NSMutableString*)getProductsJson:(NSArray*)products
+{
+    NSMutableString* jsonString = [NSMutableString stringWithString:@"["];
+    int count = 0;
+    for(SKProduct* product in products)
+    {
+        NSString* productJson = [self getProductJson:product];
+        if(productJson)
+        {
+            if(count > 0)
+            {
+                [jsonString appendString:@","];
+            }
+            ++count;
+            [jsonString appendString:productJson];
+        }
+    }
+    [jsonString appendString:@"]"];
+    return jsonString;
 }
 
 #pragma mark - Transaction Operations
@@ -153,6 +206,105 @@
     }
 }
 
+-(NSString*)getTransactionJson:(SKPaymentTransaction*)transaction
+{
+    NSString* transactionState = [NSString stringWithFormat:@"%lu", (unsigned long)[self getTransactionStateEquivalence:transaction.transactionState]];
+    NSData* receiptData = nil;
+    if(self.useApplicationReceipt)
+    {
+        NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
+        receiptData = [NSData dataWithContentsOfURL:receiptUrl];
+    }
+    else
+    {
+        receiptData = transaction.transactionReceipt;
+    }
+    NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];
+    
+    NSDictionary* transactionData = @{
+                                      @"productIdentifier":[SPPurchaseNativeServices safeNSString:transaction.payment.productIdentifier],
+                                      @"transactionIdentifier":[SPPurchaseNativeServices safeNSString:transaction.transactionIdentifier],
+                                      @"base64EncodedReceipt":[SPPurchaseNativeServices safeNSString:receiptBase64],
+                                      @"transactionState":[SPPurchaseNativeServices safeNSString:transactionState]
+                                      };
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:transactionData options:0 error:&error];
+    
+    if (jsonData)
+    {
+        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    else
+    {
+        NSMutableString* errorMessage = [NSMutableString stringWithString:@"Error parsing transaction: "];
+        [errorMessage appendString:error.localizedDescription];
+        NSLog(@"%@", errorMessage);
+        return nil;
+    }
+}
+
+-(NSMutableString*)getTransactionsJson:(NSArray*)transactions
+{
+    return [self getTransactionsJson:transactions useFilter:false withFilter:SKPaymentTransactionStatePurchasing];
+}
+
+-(NSMutableString*)getTransactionsJson:(NSArray*)transactions withFilter:(SKPaymentTransactionState)filterState
+{
+    return [self getTransactionsJson:transactions useFilter:true withFilter:filterState];
+}
+
+-(NSMutableString*)getTransactionsJson:(NSArray*)transactions useFilter:(BOOL)doFilter withFilter:(SKPaymentTransactionState)filterState
+{
+    NSMutableString* jsonString = [NSMutableString stringWithString:@"["];
+    int count = 0;
+    for(SKPaymentTransaction * transaction in transactions)
+    {
+        if(doFilter && transaction.transactionState != filterState)
+        {
+            continue;
+        }
+        
+        NSString* transactionJson = [self getTransactionJson:transaction];
+        if(transactionJson)
+        {
+            if(count > 0)
+            {
+                [jsonString appendString:@","];
+            }
+            ++count;
+            [jsonString appendString:transactionJson];
+        }
+    }
+    [jsonString appendString:@"]"];
+    return jsonString;
+}
+
+-(TransactionState)getTransactionStateEquivalence:(SKPaymentTransactionState)transactionState
+{
+    TransactionState ts = TSPurchasing;
+    switch (transactionState)
+    {
+        case SKPaymentTransactionStatePurchasing:
+            ts = TSPurchasing;
+            break;
+        case SKPaymentTransactionStateDeferred:
+            ts = TSDeferred;
+            break;
+        case SKPaymentTransactionStatePurchased:
+            ts = TSPurchased;
+            break;
+        case SKPaymentTransactionStateRestored:
+            ts = TSRestored;
+            break;
+        case SKPaymentTransactionStateFailed:
+            ts = TSFailed;
+            break;
+        default:
+            break;
+    }
+    return ts;
+}
+
 #pragma mark - Debug
 
 - (void)sendUnityDebugLog:(NSString*) logMsg
@@ -168,6 +320,31 @@
     }
 }
 
++(NSString*)transactionStateToNSString:(SKPaymentTransactionState)transactionState
+{
+    switch (transactionState )
+    {
+        case SKPaymentTransactionStatePurchasing:
+            return [NSString stringWithFormat:@"Purchasing"];
+            break;
+        case SKPaymentTransactionStateDeferred:
+            return [NSString stringWithFormat:@"Deferred"];
+            break;
+        case SKPaymentTransactionStatePurchased:
+            return [NSString stringWithFormat:@"Purchased"];
+            break;
+        case SKPaymentTransactionStateRestored:
+            return [NSString stringWithFormat:@"Restored"];
+            break;
+        case SKPaymentTransactionStateFailed:
+            return [NSString stringWithFormat:@"Failed"];
+            break;
+        default:
+            return [NSString stringWithFormat:@"Invalid State"];
+            break;
+    }
+}
+
 #pragma mark - SKProductsRequestDelegate
 
 - (void)productsRequest:(SKProductsRequest*)request didReceiveResponse:(SKProductsResponse*)response
@@ -176,49 +353,14 @@
     self.request = nil;
     [self detailedLog:[NSString stringWithFormat:@"Total Products Loaded %lu", (unsigned long)self.products.count]];
     
-    NSMutableString* jsonString = [NSMutableString stringWithString:@"["];
-    int count = 0;
-    for(SKProduct* product in self.products)
-    {
-        [self detailedLog:[NSString stringWithFormat:@"Product Loaded: %@", product.productIdentifier]];
-        
-        NSNumberFormatter* nf = [[NSNumberFormatter alloc] init];
-        nf.locale = product.priceLocale;
-        nf.numberStyle = NSNumberFormatterCurrencyStyle;
-        NSString* localizedPrice = [nf stringFromNumber:product.price];
-        NSString* currencySymbol = nf.currencySymbol;
-        NSString* price = [NSString stringWithFormat:@"%@", product.price];
-        
-        NSDictionary* productData = @{
-                                      @"productIdentifier":[SPPurchaseNativeServices safeNSString:product.productIdentifier],
-                                      @"localizedTitle":[SPPurchaseNativeServices safeNSString:product.localizedTitle],
-                                      @"localizedDescription":[SPPurchaseNativeServices safeNSString:product.localizedDescription],
-                                      @"price":[SPPurchaseNativeServices safeNSString:price],
-                                      @"currencySymbol":[SPPurchaseNativeServices safeNSString:currencySymbol],
-                                      @"formattedPrice":[SPPurchaseNativeServices safeNSString:localizedPrice],
-                                      };
-        NSError *error;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:productData options:0 error:&error];
-        
-        if (jsonData)
-        {
-            if(count > 0)
-            {
-                [jsonString appendString:@","];
-            }
-            ++count;
-            [jsonString appendString:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
-        }
-        else
-        {
-            NSMutableString* errorMessage = [NSMutableString stringWithString:@"Error parsing product: "];
-            [errorMessage appendString:error.localizedDescription];
-            NSLog(@"%@", errorMessage);
-        }
-    }
-    [jsonString appendString:@"]"];
+    NSMutableString* productsJson = [self getProductsJson:self.products];
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:productsJson]);
+    [self detailedLog:[NSString stringWithFormat:@"Products Loaded: %@", productsJson]];
     
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:jsonString]);
+    //Get also old incomplete transactions
+    NSMutableString* pendingTransactionsJson = [self getTransactionsJson:[[SKPaymentQueue defaultQueue] transactions] withFilter:SKPaymentTransactionStatePurchased];
+    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("PendingTransactionsReceived", [SPPurchaseNativeServices safeUTF8String:pendingTransactionsJson]);
+    [self detailedLog:[NSString stringWithFormat:@"Pending Transactions: %@", pendingTransactionsJson]];
 }
 
 - (void)request:(SKRequest*)request didFailWithError:(NSError*)error
@@ -235,92 +377,54 @@
 {
     for(SKPaymentTransaction * transaction in transactions)
     {
-        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ Updated (Product ID: %@). State: %lu",
-                           transaction.transactionIdentifier, transaction.payment.productIdentifier, (unsigned long)transaction.transactionState]];
+        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ Updated (Product ID: %@). State: %@",
+                           transaction.transactionIdentifier, transaction.payment.productIdentifier,
+                           [SPPurchaseNativeServices transactionStateToNSString:transaction.transactionState]]];
         
-        TransactionState ts = TSPurchasing;
-        switch (transaction.transactionState )
+        TransactionState ts = [self getTransactionStateEquivalence:transaction.transactionState];
+        
+        switch (ts)
         {
-            case SKPaymentTransactionStatePurchasing:
-                ts = TSPurchasing;
+            case TSPurchased:
+            {
+                NSString* transactionJson = [self getTransactionJson:transaction];
+                if (transactionJson)
+                {
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseAwaitingConfirmation", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
+                }
+            }
                 break;
-            case SKPaymentTransactionStateDeferred:
-                ts = TSDeferred;
+                
+            case TSFailed:
+            {
+                NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : [NSString stringWithFormat:@""];
+                if (transaction.error.code == SKErrorPaymentCancelled)
+                {
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
+                }
+                else
+                {
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
+                }
+                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+                continue;
+            }
                 break;
-            case SKPaymentTransactionStatePurchased:
-                ts = TSPurchased;
-                break;
-            case SKPaymentTransactionStateRestored:
-                ts = TSRestored;
-                break;
-            case SKPaymentTransactionStateFailed:
-                ts = TSFailed;
-                break;
+                
             default:
+            {
+                if(!self.canSendTransactionUpdateEvents)
+                {
+                    continue;
+                }
+                NSString* transactionJson = [self getTransactionJson:transaction];
+                if (transactionJson)
+                {
+                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
+                }
+            }
                 break;
-        }
-        
-        //Check if failed transaction to notify about error and continue with the next
-        if(ts == TSFailed)
-        {
-            NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : [NSString stringWithFormat:@""];
-            if (transaction.error.code == SKErrorPaymentCancelled)
-            {
-                UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
-            }
-            else
-            {
-                UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
-            }
-            [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-            continue;
-        }
-        else if(ts != TSPurchased && !self.canSendTransactionUpdateEvents)
-        {
-            continue;
-        }
-        
-        NSString* transactionState = [NSString stringWithFormat:@"%lu", (unsigned long)ts];
-        NSData* receiptData = nil;
-        if(self.useApplicationReceipt)
-        {
-            NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
-            receiptData = [NSData dataWithContentsOfURL:receiptUrl];
-        }
-        else
-        {
-            receiptData = transaction.transactionReceipt;
-        }
-        NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];
-        
-        NSDictionary* transactionData = @{
-                                          @"productIdentifier":[SPPurchaseNativeServices safeNSString:transaction.payment.productIdentifier],
-                                          @"transactionIdentifier":[SPPurchaseNativeServices safeNSString:transaction.transactionIdentifier],
-                                          @"base64EncodedReceipt":[SPPurchaseNativeServices safeNSString:receiptBase64],
-                                          @"transactionState":[SPPurchaseNativeServices safeNSString:transactionState]
-                                          };
-        NSError *error;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:transactionData options:0 error:&error];
-        
-        if (jsonData)
-        {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            switch (ts)
-            {
-                case TSPurchased:
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:jsonString]);
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseAwaitingConfirmation", [SPPurchaseNativeServices safeUTF8String:jsonString]);
-                    break;
-                default:
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [SPPurchaseNativeServices safeUTF8String:jsonString]);
-                    break;
-            }
-        }
-        else
-        {
-            NSMutableString* errorMessage = [NSMutableString stringWithString:@"Error parsing transaction: "];
-            [errorMessage appendString:error.localizedDescription];
-            NSLog(@"%@", errorMessage);
         }
     }
 }
