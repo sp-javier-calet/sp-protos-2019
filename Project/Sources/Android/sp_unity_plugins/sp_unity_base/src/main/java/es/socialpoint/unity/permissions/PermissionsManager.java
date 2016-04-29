@@ -54,12 +54,12 @@ public enum PermissionsManager {
             return false;
         }
 
-		/* This shouldn't be needed as ContextCompat takes cares of all versions, but if for
-		 * some reason a permission is added to the manifest with api level higher than the
-		 * minimum one, ContextCompat.checkSelfPermission will return false. This happened with
-		 * the permission READ_EXTERNAL_STORAGE that has api level 16 requirements while we had
-		 * minimum api level 14.
-		 */
+        /* This shouldn't be needed as ContextCompat takes cares of all versions, but if for
+         * some reason a permission is added to the manifest with api level higher than the
+         * minimum one, ContextCompat.checkSelfPermission will return false. This happened with
+         * the permission READ_EXTERNAL_STORAGE that has api level 16 requirements while we had
+         * minimum api level 14.
+         */
         if(android.os.Build.VERSION.SDK_INT < 23)
         {
             return true;
@@ -125,47 +125,41 @@ public enum PermissionsManager {
 
     public boolean onRequestPermissionsResult(Activity activity, int requestCode, String permissions[], int[] grantResults)
     {
-        switch (requestCode)
+        if (requestCode == PERMISSIONS_REQUEST_ONE && grantResults.length > 0)
         {
-            case PERMISSIONS_REQUEST_ONE:
+            boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if(!granted)
             {
-                if(grantResults.length > 0)
+                String permission = permissions[0];
+                boolean shouldShowRequestPermissionsRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
+                if(shouldShowRequestPermissionsRationale)
                 {
-                    boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if(!granted)
-                    {
-                        String permission = permissions[0];
-                        boolean shouldShowRequestPermissionsRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
-                        if(shouldShowRequestPermissionsRationale)
-                        {
-                            showPermissionRationaleDialog(activity, permission);
-                            return false;
-                        }
-                        else
-                        {
-                            blockedPermissionsHashSet.add(permission);
-                            int permissionsToRequestSize = getPermissionsToRequest(activity).size();
-                            if(permissionsToRequestSize == 0 && !hasPermissions(activity))
-                            {
-                                showEnablePermissionsInSettingsDialog(activity);
-                                return false;
-                            }
-                            else
-                            {
-                                askPermissions(activity);
-                                return false;
-                            }
-                        }
-                    }
-                    if(hasPermissions(activity))
-                    {
-                        return true;
-                    }
-
-                    askPermissions(activity);
+                    showPermissionRationaleDialog(activity, permission);
                     return false;
                 }
+                else
+                {
+                    blockedPermissionsHashSet.add(permission);
+                    int permissionsToRequestSize = getPermissionsToRequest(activity).size();
+                    if(permissionsToRequestSize == 0 && !hasPermissions(activity))
+                    {
+                        showEnablePermissionsInSettingsDialog(activity);
+                        return false;
+                    }
+                    else
+                    {
+                        askPermissions(activity);
+                        return false;
+                    }
+                }
             }
+            if(hasPermissions(activity))
+            {
+                return true;
+            }
+
+            askPermissions(activity);
+            return false;
         }
         return false;
     }
