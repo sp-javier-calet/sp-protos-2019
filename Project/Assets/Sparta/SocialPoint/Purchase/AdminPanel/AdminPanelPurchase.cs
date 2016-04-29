@@ -23,6 +23,9 @@ namespace SocialPoint.Purchase
         //Flag to do purchase actions after some delay
         bool _purchaseWithDelay = false;
 
+        //
+        AdminPanelLayout _layout;
+
         public AdminPanelPurchase(IStoreProductSource productSource, IGamePurchaseStore purchaseStore, ICommandQueue commandQueue)
         {
             _productSource = productSource;
@@ -44,8 +47,7 @@ namespace SocialPoint.Purchase
         //IAdminPanelGUI implementation
         public void OnCreateGUI(AdminPanelLayout layout)
         {
-            _purchaseStore.ProductsUpdated += (state, error) =>  layout.Refresh();
-            _purchaseStore.PurchaseUpdated += (state, error) =>  layout.Refresh();
+            _layout = layout;
 
             //TODO: Add options to activate an "always fail", "always success" response?
 
@@ -141,11 +143,21 @@ namespace SocialPoint.Purchase
                 _lastKnownLoadState = "Unknown State; " + state.ToString();
                 break;
             }
+
+            if(_layout != null)
+            {
+                _layout.Refresh();
+            }
         }
 
         private void OnPurchaseUpdated(PurchaseState state, string productId)
         {
             _lastKnownPurchaseState[productId] = state.ToString();
+
+            if(_layout != null)
+            {
+                _layout.Refresh();
+            }
         }
 
         private void LoadProducts(string[] ids = null)
