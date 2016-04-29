@@ -4,6 +4,7 @@ using UnityEngine;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Utils;
 
 
 
@@ -90,7 +91,7 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
     string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
-        if(name.EndsWith(UIViewControllerSuffix))
+        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
         {
             name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
         }

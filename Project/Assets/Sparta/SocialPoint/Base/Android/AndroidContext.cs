@@ -1,13 +1,12 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿#if UNITY_ANDROID
+using UnityEngine;
 
 namespace SocialPoint.Base
 {
-#if UNITY_ANDROID
-    public static class AndroidContext 
+    public static class AndroidContext
     {
-        private static AndroidJavaObject _currentActivity;
+        static AndroidJavaObject _currentActivity;
+
         public static AndroidJavaObject CurrentActivity
         {
             get
@@ -20,8 +19,9 @@ namespace SocialPoint.Base
                 return _currentActivity;
             }
         }
-        
-        private static AndroidJavaObject _currentApplication;
+
+        static AndroidJavaObject _currentApplication;
+
         public static AndroidJavaObject CurrentApplication
         {
             get
@@ -34,8 +34,8 @@ namespace SocialPoint.Base
             }
         }
 
+        static AndroidJavaObject _contentResolver;
 
-        private static AndroidJavaObject _contentResolver;
         public static AndroidJavaObject ContentResolver
         {
             get
@@ -52,6 +52,20 @@ namespace SocialPoint.Base
         {
             CurrentActivity.Call("runOnUiThread", runnable);
         }
+
+        static int _sdkVersion;
+
+        public static int SDKVersion
+        {
+            get
+            {
+                if(_sdkVersion == 0)
+                {
+                    _sdkVersion = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT"); // API level 4
+                }
+                return _sdkVersion;
+            }
+        }
     }
-#endif
 }
+#endif

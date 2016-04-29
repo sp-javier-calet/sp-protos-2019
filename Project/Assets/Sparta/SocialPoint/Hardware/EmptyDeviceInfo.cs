@@ -52,6 +52,12 @@ namespace SocialPoint.Hardware
             set;
         }
 
+        public string Architecture
+        {
+            get;
+            set;
+        }
+
         public string Model
         {
             get;
