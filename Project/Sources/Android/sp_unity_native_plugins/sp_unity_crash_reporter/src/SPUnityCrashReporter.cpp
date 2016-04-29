@@ -3,11 +3,9 @@
 #include <cassert>
 #include <chrono>
 #include <ctime>
-#include <android/log.h>
+#include <pthread.h>
+#include "UnityGameObject.h"
 #include "SPUnityCrashReporter.hpp"
-
-#define LOG_TAG "SPUnityCrashReporter"
-
 
 /* google_breakpad is only supported in arm architectures
  * SPUnityCrashReporter cannot be enabled in x86 builds.
@@ -17,8 +15,8 @@
     #include "client/linux/handler/exception_handler.h" // inclusion of linux header as told in README.ANDROID from google-breakpad
     #include "client/linux/handler/minidump_descriptor.h"
 
-
-    namespace {
+    namespace
+    {
         bool onCrash(const google_breakpad::MinidumpDescriptor& descriptor,
                           void* context,
                           bool succeeded)
@@ -29,7 +27,7 @@
                 crashReporter->dumpCrash(descriptor.path());
             }
 
-            return succeeded;
+            return false;
         }
     }
 #else
@@ -45,13 +43,15 @@ SPUnityCrashReporter::SPUnityCrashReporter(const std::string& path,
                                            const std::string& version,
                                            const std::string& fileSeparator,
                                            const std::string& crashExtension,
-                                           const std::string& logExtension)
+                                           const std::string& logExtension,
+                                           const std::string& gameObject)
 : _exceptionHandler(nullptr)
 , _crashDirectory(path)
 , _version(version)
 , _fileSeparator(fileSeparator)
 , _crashExtension(crashExtension)
 , _logExtension(logExtension)
+, _gameObject(gameObject)
 {
 }
 
@@ -79,10 +79,24 @@ bool SPUnityCrashReporter::disable()
     return true;
 }
 
+struct CrashDumpedCallData
+{
+    std::string gameObject;
+    std::string logPath;
+};
+
+void* callOnCrashDumpedThread(void *ctx)
+{
+    CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
+    UnityGameObject(data->gameObject).SendMessage("OnCrashDumped", data->logPath);
+    delete data;
+    return nullptr;
+}
+
 void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    
+
     // Conver to local time
     epoch_time = std::mktime(std::localtime(&epoch_time));
 
@@ -100,4 +114,12 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
     // Dump logcat
     std::string logcatCmd("logcat -d -t 200 -f " + newLogPath);
     system(logcatCmd.c_str());
+
+
+    if(!_gameObject.empty())
+    {
+        pthread_t thread;
+        pthread_create(&thread, NULL, callOnCrashDumpedThread,
+            new CrashDumpedCallData{ _gameObject, newCrashPath });
+    }
 }

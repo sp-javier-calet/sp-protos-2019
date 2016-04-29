@@ -30,6 +30,17 @@ namespace SocialPoint.Hardware
 
         #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
+        public static extern string SPUnityHardwareGetDeviceArchitecture();
+        #else
+        public static string SPUnityHardwareGetDeviceArchitecture()
+        {
+            throw new NotImplementedException("Only iOS Supported");
+        }
+        #endif
+
+
+        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetDeviceAdvertisingId();
         #else
         public static string SPUnityHardwareGetDeviceAdvertisingId()

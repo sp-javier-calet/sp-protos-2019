@@ -481,7 +481,6 @@ namespace SocialPoint.Crash
                 _runner.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
             }
-
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
             OnDisable();
         }
