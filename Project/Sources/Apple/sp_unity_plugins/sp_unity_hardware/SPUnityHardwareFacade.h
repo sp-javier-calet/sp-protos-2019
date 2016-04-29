@@ -21,6 +21,7 @@ extern "C"
 {
     EXPORT_API char* SPUnityHardwareGetDeviceString();
     EXPORT_API char* SPUnityHardwareGetDevicePlatformVersion();
+    EXPORT_API char* SPUnityHardwareGetDeviceArchitecture();
     EXPORT_API char* SPUnityHardwareGetDeviceAdvertisingId();
     EXPORT_API bool SPUnityHardwareGetDeviceAdvertisingIdEnabled();
     EXPORT_API bool SPUnityHardwareGetDeviceRooted();
