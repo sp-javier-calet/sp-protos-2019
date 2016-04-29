@@ -7,11 +7,7 @@ namespace SocialPoint.Crash
 {
     #if !UNITY_EDITOR
     using BasePlatformCrashReporter = DeviceCrashReporter;
-    
-
-
-
-#else
+    #else
     using BasePlatformCrashReporter = BaseCrashReporter;
     #endif
 

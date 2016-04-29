@@ -41,7 +41,7 @@
 #include "google_breakpad/processor/call_stack.h"
 #include "google_breakpad/processor/code_module.h"
 #include "google_breakpad/processor/code_modules.h"
-#include "google_breakpad/processor/minidump.h"
+#include "google_breakpad/processor/dump_context.h"
 #include "google_breakpad/processor/stack_frame.h"
 #include "google_breakpad/processor/stack_frame_symbolizer.h"
 #include "google_breakpad/processor/system_info.h"
@@ -53,6 +53,7 @@
 #include "processor/stackwalker_x86.h"
 #include "processor/stackwalker_amd64.h"
 #include "processor/stackwalker_arm.h"
+#include "processor/stackwalker_arm64.h"
 #include "processor/stackwalker_mips.h"
 
 namespace google_breakpad {
@@ -189,7 +190,7 @@ bool Stackwalker::Walk(
 // static
 Stackwalker* Stackwalker::StackwalkerForCPU(
     const SystemInfo* system_info,
-    MinidumpContext* context,
+    DumpContext* context,
     MemoryRegion* memory,
     const CodeModules* modules,
     StackFrameSymbolizer* frame_symbolizer) {
@@ -239,6 +240,7 @@ Stackwalker* Stackwalker::StackwalkerForCPU(
       break;
 
     case MD_CONTEXT_ARM:
+    {
       int fp_register = -1;
       if (system_info->os_short == "ios")
         fp_register = MD_CONTEXT_ARM_REG_IOS_FP;
@@ -246,6 +248,14 @@ Stackwalker* Stackwalker::StackwalkerForCPU(
                                            context->GetContextARM(),
                                            fp_register, memory, modules,
                                            frame_symbolizer);
+      break;
+    }
+    
+    case MD_CONTEXT_ARM64:
+      cpu_stackwalker = new StackwalkerARM64(system_info,
+                                             context->GetContextARM64(),
+                                             memory, modules,
+                                             frame_symbolizer);
       break;
   }
 

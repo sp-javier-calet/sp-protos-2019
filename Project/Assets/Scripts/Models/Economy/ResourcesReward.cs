@@ -5,11 +5,16 @@ public class ResourcesReward : IReward
 {
     ResourcePool _playerResources;
     ResourcePool _resources;
-    
+
     public ResourcesReward(ResourcePool resources)
     {
         _playerResources = ServiceLocator.Instance.Resolve<ResourcePool>();
         _resources = resources;
+    }
+
+    public void Init(ResourcePool playerResources)
+    {
+        _playerResources = playerResources;
     }
 
     #region IReward implementation

@@ -505,7 +505,7 @@ namespace SocialPoint.ServerEvents
                     CatchException(e);
                 }
             }
-            if(auth && !req.HasParam(HttpParamSessionId))
+            if(auth && !req.HasQueryParam(HttpParamSessionId))
             {
                 // no session, we wait
                 if(finish != null)

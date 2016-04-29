@@ -3,7 +3,7 @@ using System;
 using SocialPoint.Base;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
-using SocialPoint.Dependency;
+
 
 public struct NotEnoughResourcesEvent
 {
@@ -16,11 +16,11 @@ public class ResourcesCost : ICost
     IEventDispatcher _dispatcher;
     ResourcePool _cost;
 
-    public ResourcesCost(ResourcePool cost)
+    public ResourcesCost(ResourcePool cost, ResourcePool playerResources, IEventDispatcher dispatcher)
     {
         _cost = cost;
-        _playerResources = ServiceLocator.Instance.Resolve<ResourcePool>();
-        _dispatcher = ServiceLocator.Instance.Resolve<IEventDispatcher>();
+        _playerResources = playerResources;
+        _dispatcher = dispatcher;
     }
 
     #region ICost implementation

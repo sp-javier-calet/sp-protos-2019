@@ -40,7 +40,7 @@
 #include "processor/pathname_stripper.h"
 
 #include "on_demand_symbol_supplier.h"
-#include "dump_syms.h"
+#include "common/mac/dump_syms.h"
 
 using std::map;
 using std::string;
@@ -165,7 +165,7 @@ OnDemandSymbolSupplier::GetCStringSymbolData(const CodeModule *module,
                                              const SystemInfo *system_info,
                                              string *symbol_file,
                                              char **symbol_data,
-                                             uint64_t *symbol_data_size) {
+                                             size_t *symbol_data_size) {
   std::string symbol_data_string;
   SymbolSupplier::SymbolResult result = GetSymbolFile(module,
                                                       system_info,

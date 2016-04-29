@@ -83,6 +83,14 @@ namespace SocialPoint.CrossPromotion
             }
         }
 
+        protected bool IsAutoOpened
+        {
+            get
+            {
+                return _isAutoOpened;
+            }
+        }
+
         public CrossPromotionManager(ICoroutineRunner coroutineRunner)
         {
             DebugUtils.Assert(coroutineRunner != null);

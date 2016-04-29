@@ -4,6 +4,7 @@ using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Utils;
 
 
 
@@ -50,6 +51,12 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
             UIViewController.DefaultLayersController = layers;
         }
 
+        var notifications = _root.GetComponentInChildren<HUDNotificationsController>();
+        if(notifications != null)
+        {
+            Container.Rebind<HUDNotificationsController>().ToSingleInstance(notifications);
+        }
+
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
@@ -84,7 +91,7 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
     string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
-        if(name.EndsWith(UIViewControllerSuffix))
+        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
         {
             name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
         }

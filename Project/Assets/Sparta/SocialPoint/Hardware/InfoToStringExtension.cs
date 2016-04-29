@@ -19,6 +19,8 @@ namespace SocialPoint.Hardware
             str.Append(info.Platform);
             str.Append(" ");
             str.Append(info.PlatformVersion);
+            str.Append("\narchitecture: ");
+            str.Append(info.Architecture);
             if(info.AppInfo != null)
             {
                 str.Append("\napp:\n");

@@ -288,7 +288,7 @@ EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct req)
 EXPORT_API int SPUnityCurlUpdate(int id)
 {
     SPUnityCurlConnInfo* conn = SPUnityCurlManager::getInstance().getConnById(id);
-    if(id != 0 && (conn == NULL || conn->responseCode != 0))
+    if(id != 0 && (conn == NULL || conn->responseCode != 0 || conn->errorCode != 0))
     {
         return 1;
     }

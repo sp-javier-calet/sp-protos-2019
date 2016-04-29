@@ -1,11 +1,13 @@
 ﻿
 using SocialPoint.Attributes;
+using SocialPoint.ScriptEvents;
 
 public class ResourcesCostParser : IChildParser<ICost>
 {
     #region IChildParser implementation
 
     const string NameValue = "resources";
+
     public string Name
     {
         get
@@ -14,12 +16,22 @@ public class ResourcesCostParser : IChildParser<ICost>
         }
     }
 
-    public FamilyParser<ICost> Parent{ set{} }
+    public FamilyParser<ICost> Parent{ set { } }
+
+    ResourcePool _playerResources;
+    IEventDispatcher _dispatcher;
+
+    ResourcesCostParser(ResourcePool playerResources, IEventDispatcher dispatcher)
+    {
+        _playerResources = playerResources;
+        _dispatcher = dispatcher;
+    }
+
 
     public ICost Parse(Attr data)
     {
         var poolParser = new ResourcePoolParser();
-        return new ResourcesCost(poolParser.Parse(data));
+        return new ResourcesCost(poolParser.Parse(data), _playerResources, _dispatcher);
     }
 
     #endregion

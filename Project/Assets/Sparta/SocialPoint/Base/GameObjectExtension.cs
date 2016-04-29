@@ -11,7 +11,7 @@ namespace SocialPoint.Base
         {
             return AddComponentIfNotFound<T>(target, null);
         }
-        
+
         public static T AddComponentIfNotFound<T>(this GameObject target, Action<T> configurator) where T : Component
         {
             var component = target.GetComponent<T>();
@@ -27,12 +27,12 @@ namespace SocialPoint.Base
 
             return component;
         }
-        
+
         public static I GetInterfaceComponent<I>(this GameObject obj) where I : class
         {
             return obj.GetComponent(typeof(I)) as I;
         }
-        
+
         public static GameObject GetParentWithInterfaceComponent<I>(this GameObject obj) where I : class
         {
             GameObject parent = obj;
@@ -50,7 +50,7 @@ namespace SocialPoint.Base
             }
             return null;
         }
-        
+
         public static I GetParentInterfaceComponent<I>(this GameObject obj) where I : class
         {
             GameObject parent = obj;
@@ -69,7 +69,7 @@ namespace SocialPoint.Base
             }
             return null;
         }
-        
+
         public static GameObject GetParentWithComponent<I>(this GameObject obj) where I : UnityEngine.Component
         {
             GameObject parent = obj;
@@ -87,7 +87,7 @@ namespace SocialPoint.Base
             }
             return null;
         }
-        
+
         public static List<I> GetInterfaceComponentsInChildren<I>(this GameObject obj) where I : class
         {
             MonoBehaviour[] monoBehaviours = obj.GetComponentsInChildren<MonoBehaviour>();
@@ -105,7 +105,7 @@ namespace SocialPoint.Base
             }
             return list;
         }
-        
+
         public static List<I> FindObjectsOfInterface<I>() where I : class
         {
             MonoBehaviour[] monoBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
@@ -123,15 +123,15 @@ namespace SocialPoint.Base
             }
             return list;
         }
-        
+
         public static T GetSafeComponent<T>(this GameObject obj) where T : MonoBehaviour
         {
             T component = obj.GetComponent<T>();
             
             if(component == null)
             {
-                Debug.LogError("Expected to find component of type " 
-                    + typeof(T) + " but found none", obj);
+                Debug.LogError("Expected to find component of type "
+                + typeof(T) + " but found none", obj);
             }
             
             return component;
@@ -203,7 +203,7 @@ namespace SocialPoint.Base
                 return currObj;
             }
         }
-        
+
         public static void GetObjectsOfTypeRecursiveDown<I>(this GameObject obj, List<I> outList) where I : class
         {
             I currObj = obj.GetComponent(typeof(I)) as I;
@@ -274,6 +274,19 @@ namespace SocialPoint.Base
                 gameObject = gameObject.transform.parent.gameObject;
             }
             return path;
+        }
+
+        public static void RemoveChildren(this GameObject gameObject, bool includeInactive = true)
+        {
+            var children = gameObject.GetComponentsInChildren(typeof(Transform), includeInactive);
+
+            for(int index = 0; index < children.Length; ++index)
+            {
+                if(children[index] != gameObject.transform)
+                {
+                    GameObject.Destroy(children[index].gameObject);
+                }
+            }
         }
     }
 }

@@ -5,8 +5,9 @@ using SocialPoint.Attributes;
 public class ResourcesRewardParser : IChildParser<IReward>
 {
     #region IChildParser implementation
-        
+
     const string NameValue = "resources";
+
     public string Name
     {
         get
@@ -15,7 +16,7 @@ public class ResourcesRewardParser : IChildParser<IReward>
         }
     }
 
-    public FamilyParser<IReward> Parent{ set{} }
+    public FamilyParser<IReward> Parent{ set { } }
 
     public IReward Parse(Attr data)
     {

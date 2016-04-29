@@ -45,6 +45,12 @@ namespace SocialPoint.Dependency
     {
         public Type Type;
         public string Tag;
+
+        public BindingKey(Type type, string tag)
+        {
+            Type = type;
+            Tag = tag;
+        }
     }
 
     public class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>
@@ -59,7 +65,7 @@ namespace SocialPoint.Dependency
         void AddBinding(object binding, Type type, string tag=null)
         {
             List<object> list;
-            var key = new BindingKey{ type, tag };
+            var key = new BindingKey( type, tag );
             if(!_bindings.TryGetValue(key, out list))
             {
                 list = new List<object>();
@@ -77,12 +83,12 @@ namespace SocialPoint.Dependency
 
         public bool Remove<T>(string tag = null)
         {
-            return _bindings.Remove(new BindingKey{ typeof(T), tag });
+            return _bindings.Remove(new BindingKey( typeof(T), tag ));
         }
 
         public bool HasBinding<T>(string tag = null)
         {
-            return _bindings.ContainsKey(new BindingKey{ typeof(T), tag })
+            return _bindings.ContainsKey(new BindingKey( typeof(T), tag ));
         }
 
         public bool HasInstalled<T>() where T : IInstaller
@@ -104,7 +110,7 @@ namespace SocialPoint.Dependency
 
         public List<T> ResolveList<T>()
         {
-            return default(T);
+            return new List<T>();
         }
 
         public T TryResolve<T>()

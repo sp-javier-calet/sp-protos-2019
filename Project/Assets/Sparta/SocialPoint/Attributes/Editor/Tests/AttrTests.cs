@@ -32,9 +32,9 @@ namespace SocialPoint.Attributes
             var list2 = new AttrList();
             list2.AddValue(0);
             list2.AddValue(true);
-            Assert.AreEqual(list1, list2);
+            Assert.AreEqual(list1.GetHashCode(), list2.GetHashCode());
             list2.AddValue("new");
-            Assert.AreNotEqual(list1, list2);
+            Assert.AreNotEqual(list1.GetHashCode(), list2.GetHashCode());
 
             var dic1 = new AttrDic();
             dic1.SetValue("key1", 0);
@@ -44,10 +44,23 @@ namespace SocialPoint.Attributes
             dic2.SetValue("key1", 0);
             dic2.SetValue("key2", true);
             dic2.Set("key3", list1);
-            Assert.AreEqual(dic1, dic2);
+            Assert.AreEqual(dic1.GetHashCode(), dic2.GetHashCode());
             dic2.Set("key2", list2);
-            Assert.AreNotEqual(dic1, dic2);
+            Assert.AreNotEqual(dic1.GetHashCode(), dic2.GetHashCode());
 
+            var sync1 = new AttrDic();
+            sync1.SetValue("level", 0);
+            var syncData1 = new AttrDic();
+            syncData1.SetValue("cash", 360);
+            sync1.Set("resources", syncData1);
+            var sync2 = new AttrDic();
+            sync2.SetValue("level", 0);
+            var syncData2 = new AttrDic();
+            syncData2.SetValue("cash", 360);
+            sync2.Set("resources", syncData2);
+            Assert.AreEqual(sync1.GetHashCode(), sync2.GetHashCode());
+            sync2.SetValue("level", 1);
+            Assert.AreNotEqual(sync1.GetHashCode(), sync2.GetHashCode());
         }
 
        

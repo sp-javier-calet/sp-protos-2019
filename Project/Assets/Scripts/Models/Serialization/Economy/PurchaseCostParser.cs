@@ -18,6 +18,7 @@ public class PurchaseCostParser : IChildParser<ICost>
 
     public FamilyParser<ICost> Parent{ set { } }
 
+
     IGamePurchaseStore _store;
 
     public PurchaseCostParser(IGamePurchaseStore store)

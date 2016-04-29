@@ -87,6 +87,9 @@ ProcessResult MinidumpProcessor::Process(
   }
   process_state->time_date_stamp_ = header->time_date_stamp;
 
+  bool has_process_create_time =
+      GetProcessCreateTime(dump, &process_state->process_create_time_);
+
   bool has_cpu_info = GetCPUInfo(dump, &process_state->system_info_);
   bool has_os_info = GetOSInfo(dump, &process_state->system_info_);
 
@@ -135,14 +138,15 @@ ProcessResult MinidumpProcessor::Process(
   }
 
   BPLOG(INFO) << "Minidump " << dump->path() << " has " <<
-      (has_cpu_info           ? "" : "no ") << "CPU info, " <<
-      (has_os_info            ? "" : "no ") << "OS info, " <<
-      (breakpad_info != NULL  ? "" : "no ") << "Breakpad info, " <<
-      (exception != NULL      ? "" : "no ") << "exception, " <<
-      (module_list != NULL    ? "" : "no ") << "module list, " <<
-      (threads != NULL        ? "" : "no ") << "thread list, " <<
-      (has_dump_thread        ? "" : "no ") << "dump thread, and " <<
-      (has_requesting_thread  ? "" : "no ") << "requesting thread";
+      (has_cpu_info            ? "" : "no ") << "CPU info, " <<
+      (has_os_info             ? "" : "no ") << "OS info, " <<
+      (breakpad_info != NULL   ? "" : "no ") << "Breakpad info, " <<
+      (exception != NULL       ? "" : "no ") << "exception, " <<
+      (module_list != NULL     ? "" : "no ") << "module list, " <<
+      (threads != NULL         ? "" : "no ") << "thread list, " <<
+      (has_dump_thread         ? "" : "no ") << "dump thread, " <<
+      (has_requesting_thread   ? "" : "no ") << "requesting thread, and " <<
+      (has_process_create_time ? "" : "no ") << "process create time";
 
   bool interrupted = false;
   bool found_requesting_thread = false;
@@ -505,6 +509,11 @@ bool MinidumpProcessor::GetCPUInfo(Minidump *dump, SystemInfo *info) {
       break;
     }
 
+    case MD_CPU_ARCHITECTURE_ARM64: {
+      info->cpu = "arm64";
+      break;
+    }
+
     case MD_CPU_ARCHITECTURE_MIPS: {
       info->cpu = "mips";
       break;
@@ -614,6 +623,32 @@ bool MinidumpProcessor::GetOSInfo(Minidump *dump, SystemInfo *info) {
 }
 
 // static
+bool MinidumpProcessor::GetProcessCreateTime(Minidump* dump,
+                                             uint32_t* process_create_time) {
+  assert(dump);
+  assert(process_create_time);
+
+  *process_create_time = 0;
+
+  MinidumpMiscInfo* minidump_misc_info = dump->GetMiscInfo();
+  if (!minidump_misc_info) {
+    return false;
+  }
+
+  const MDRawMiscInfo* md_raw_misc_info = minidump_misc_info->misc_info();
+  if (!md_raw_misc_info) {
+    return false;
+  }
+
+  if (!(md_raw_misc_info->flags1 & MD_MISCINFO_FLAGS1_PROCESS_TIMES)) {
+    return false;
+  }
+
+  *process_create_time = md_raw_misc_info->process_create_time;
+  return true;
+}
+
+// static
 string MinidumpProcessor::GetCrashReason(Minidump *dump, uint64_t *address) {
   MinidumpException *exception = dump->GetException();
   if (!exception)
@@ -668,7 +703,9 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, uint64_t *address) {
             default:
               // arm and ppc overlap
               if (raw_system_info->processor_architecture ==
-                  MD_CPU_ARCHITECTURE_ARM) {
+                  MD_CPU_ARCHITECTURE_ARM ||
+                  raw_system_info->processor_architecture ==
+                  MD_CPU_ARCHITECTURE_ARM64) {
                 switch (exception_flags) {
                   case MD_EXCEPTION_CODE_MAC_ARM_DA_ALIGN:
                     reason.append("EXC_ARM_DA_ALIGN");
@@ -708,7 +745,8 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, uint64_t *address) {
         case MD_EXCEPTION_MAC_BAD_INSTRUCTION:
           reason = "EXC_BAD_INSTRUCTION / ";
           switch (raw_system_info->processor_architecture) {
-            case MD_CPU_ARCHITECTURE_ARM: {
+            case MD_CPU_ARCHITECTURE_ARM:
+            case MD_CPU_ARCHITECTURE_ARM64: {
               switch (exception_flags) {
                 case MD_EXCEPTION_CODE_MAC_ARM_UNDEFINED:
                   reason.append("EXC_ARM_UNDEFINED");
@@ -887,7 +925,8 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, uint64_t *address) {
         case MD_EXCEPTION_MAC_BREAKPOINT:
           reason = "EXC_BREAKPOINT / ";
           switch (raw_system_info->processor_architecture) {
-            case MD_CPU_ARCHITECTURE_ARM: {
+            case MD_CPU_ARCHITECTURE_ARM:
+            case MD_CPU_ARCHITECTURE_ARM64: {
               switch (exception_flags) {
                 case MD_EXCEPTION_CODE_MAC_ARM_DA_ALIGN:
                   reason.append("EXC_ARM_DA_ALIGN");

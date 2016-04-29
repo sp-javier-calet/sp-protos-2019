@@ -8,6 +8,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.os.Looper;
+import android.os.Handler;
 
 import es.socialpoint.unity.permissions.PermissionsManager;
 
@@ -62,6 +64,16 @@ public class SPUnityActivity extends UnityPlayerActivity {
 			Log.e(TAG, "Source parameters encoding error", e);
 		}
 		return encodedUrl;
+	}
+
+	public static void UnitySendMessage(final String object, final String method, final String parameter)
+	{
+		Log.e(TAG, "UnitySendMessage "+object+" "+method+" "+parameter);
+		new Handler(getCurrentActivity().getMainLooper()).post(new Runnable(){
+			public void run(){
+				UnityPlayer.UnitySendMessage(object, method, parameter);
+			}
+		});
 	}
 
 	private void storeSourceFromIntent(Intent intent)
