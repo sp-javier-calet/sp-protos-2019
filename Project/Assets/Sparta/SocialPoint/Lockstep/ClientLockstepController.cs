@@ -75,7 +75,7 @@ namespace SocialPoint.Lockstep
         Dictionary<int, List<ILockstepCommand>> _confirmedCommands = new Dictionary<int, List<ILockstepCommand>>();
 
         public ClientLockstepController(ISimulateable model,
-                                    IUpdateScheduler updateScheduler)
+                                        IUpdateScheduler updateScheduler)
         {
             _updateScheduler = updateScheduler;				
             NeedsTurnConfirmation = true;
@@ -88,10 +88,6 @@ namespace SocialPoint.Lockstep
 
         public void Init(LockstepConfig config)
         {
-            if(config.CommandStep % config.SimulationStep != 0)
-            {
-                throw new Exception("CommandStep(" + config.CommandStep + ") should be a multiple of the simulationStep(" + config.SimulationStep + ")");
-            }
             _simulationStep = config.SimulationStep;
             _commandStep = config.CommandStep;
             ExecutionTurnAnticipation = config.ExecutionTurnAnticipation;

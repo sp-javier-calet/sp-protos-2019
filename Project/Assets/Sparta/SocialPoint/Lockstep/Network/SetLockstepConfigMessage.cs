@@ -21,7 +21,7 @@ namespace SocialPoint.Lockstep.Network
                 Config = new LockstepConfig();
             }
             base.Deserialize(reader);
-            Config.CommandStep = reader.ReadInt32();
+            Config.CommandStepFactor = reader.ReadInt32();
             Config.SimulationStep = reader.ReadInt32();
             Config.MinExecutionTurnAnticipation = reader.ReadInt32();
             Config.MaxExecutionTurnAnticipation = reader.ReadInt32();
@@ -32,7 +32,7 @@ namespace SocialPoint.Lockstep.Network
         public override void Serialize(NetworkWriter writer)
         {
             base.Serialize(writer);
-            writer.Write(Config.CommandStep);
+            writer.Write(Config.CommandStepFactor);
             writer.Write(Config.SimulationStep);
             writer.Write(Config.MinExecutionTurnAnticipation);
             writer.Write(Config.MaxExecutionTurnAnticipation);

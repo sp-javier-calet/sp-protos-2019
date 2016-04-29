@@ -56,15 +56,10 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public override bool Equals(object obj)
+        public bool Equals(ILockstepCommand obj)
         {
             var other = obj as SetTurnAnticipationLockstepCommand;
             return other != null && other.Turn == Turn && other.Anticipation == Anticipation;
-        }
-
-        public override int GetHashCode()
-        {
-            return (Anticipation * 100000 + Turn).GetHashCode();
         }
     }
 }
