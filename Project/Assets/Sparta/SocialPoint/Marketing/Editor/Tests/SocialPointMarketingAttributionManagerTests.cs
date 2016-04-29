@@ -5,6 +5,8 @@ using NUnit.Framework;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 
+using UnityEngine;
+
 namespace SocialPoint.Marketing
 {
     [TestFixture]
@@ -16,14 +18,14 @@ namespace SocialPoint.Marketing
         IAppEvents appEvents;
         IAttrStorage storage;
         IMarketingTracker tracker;
-
+        GameObject gameObject;
 
         [SetUp]
         public void SetUp()
         {
             UnityEngine.Assertions.Assert.raiseExceptions = true;
-
-            appEvents = new UnityAppEvents();
+            gameObject = new GameObject();
+            appEvents = gameObject.AddComponent<UnityAppEvents>();//new UnityAppEvents();
             storage = Substitute.For<IAttrStorage>();
             manager = new SocialPointMarketingAttributionManager(appEvents, storage);
             manager.GetUserID = () => {
@@ -124,16 +126,20 @@ namespace SocialPoint.Marketing
             manager.DebugMode = true;
             var trackEventDelegate = Substitute.For<TrackEventDelegate>();
             manager.TrackEvent = trackEventDelegate;
-            tracker.TrackInstall(Arg.Do<bool>(b => tracker.OnDataReceived += Raise.Event<Action<TrackerAttributionData>>(new TrackerAttributionData{trackerName = "test2", data = "data"})));
+            tracker.TrackInstall(Arg.Do<bool>(b => tracker.OnDataReceived += Raise.Event<Action<TrackerAttributionData>>(new TrackerAttributionData {
+                trackerName = "test2",
+                data = "data"
+            })));
             manager.AddTracker(tracker);
             appEvents.TriggerGameWasLoaded();
-            trackEventDelegate.ReceivedWithAnyArgs(1).Invoke(Arg.Any<string>(),Arg.Any<AttrDic>(),null);
+            trackEventDelegate.ReceivedWithAnyArgs(1).Invoke(Arg.Any<string>(), Arg.Any<AttrDic>(), null);
         }
 
         [TearDown]
         public void TearDown()
         {
             manager.Dispose();
+            UnityEngine.Object.DestroyImmediate(gameObject);
             UnityEngine.Assertions.Assert.raiseExceptions = false;
         }
     }
