@@ -3,6 +3,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using SocialPoint.Base;
 using LitJson;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
@@ -107,7 +108,7 @@ namespace SocialPoint.Attributes
         {
             data = data.Trim();
 
-            if(data.StartsWith(kQuoteString) && data.EndsWith(kQuoteString) && data.Length >= 2 * kQuoteString.Length)
+            if(StringUtils.StartsWith(data, kQuoteString) && StringUtils.EndsWith(data, kQuoteString) && data.Length >= 2 * kQuoteString.Length)
             {
                 data = data.Substring(kQuoteString.Length, data.Length - 2 * kQuoteString.Length);
                 var i = 0;

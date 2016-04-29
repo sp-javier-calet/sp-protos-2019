@@ -122,6 +122,8 @@ namespace SocialPoint.Network
         bool _cancelled;
         const char kHeaderEnd = '\n';
         const char kHeaderSeparator = ':';
+        const string kSlash = @"/";
+        const string kQuestionMark = @"?";
 
         public override IEnumerator Update()
         {
@@ -252,7 +254,7 @@ namespace SocialPoint.Network
                 // Uri.GetLeftPart(UriPartial.Path) returns a path with a trailing
                 // slash that  we need to remove
                 if(!string.IsNullOrEmpty(urlPath)
-                   && urlPath.EndsWith(@"/"))
+                    && StringUtils.EndsWith(urlPath, kSlash))
                 {
                     urlPath = urlPath.Substring(0, urlPath.Length - 1);
                 }
@@ -261,7 +263,7 @@ namespace SocialPoint.Network
                 // query string so we need to remove it to avoid ending with
                 // a  '??'' in the query string
                 if(!string.IsNullOrEmpty(queryParamsStr)
-                   && queryParamsStr.StartsWith(@"?"))
+                    && StringUtils.StartsWith(queryParamsStr, kQuestionMark))
                 {
                     queryParamsStr = queryParamsStr.Substring(1);
                 }
