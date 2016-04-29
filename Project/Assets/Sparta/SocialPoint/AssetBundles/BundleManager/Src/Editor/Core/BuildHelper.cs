@@ -279,7 +279,7 @@ public class BuildHelper
         }
         
         BundleBuildState bundleBuildState = BundleManager.GetBuildStateOfBundle(bundle.name);
-        DateTime lastBuildTime = File.GetLastWriteTime(outputPath);
+        DateTime lastBuildTime = BMUtility.GetLastWriteTime(outputPath);
         DateTime bundleChangeTime = bundleBuildState.changeTime == -1 ? DateTime.MaxValue : DateTime.FromBinary(bundleBuildState.changeTime);
         if(System.DateTime.Compare(lastBuildTime, bundleChangeTime) < 0)
         {
@@ -295,12 +295,12 @@ public class BuildHelper
         
         foreach(string file in dependencies)
         {
-            if(DateTime.Compare(lastBuildTime, File.GetLastWriteTime(file)) < 0)
+            if(DateTime.Compare(lastBuildTime, BMUtility.GetLastWriteTime(file)) < 0)
             {
                 return true;
             }
             string meta = file + ".meta";
-            if(DateTime.Compare(lastBuildTime, File.GetLastWriteTime(meta)) < 0)
+            if(DateTime.Compare(lastBuildTime, BMUtility.GetLastWriteTime(meta)) < 0)
             {
                 return true;
             }
@@ -862,7 +862,7 @@ public class BuildHelper
         {
             if(buildState.changeTime == -1)
             {
-                buildState.changeTime = DateTime.Now.ToBinary();
+                buildState.changeTime = BMUtility.GetLastWriteTime(outputPath).ToBinary();
             }
             buildState.lastBuildDependencies = AssetDatabase.GetDependencies(assetPaths);
             buildState.version++;
