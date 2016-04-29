@@ -25,7 +25,7 @@ namespace SocialPoint.Marketing
         {
             UnityEngine.Assertions.Assert.raiseExceptions = true;
             gameObject = new GameObject();
-            appEvents = gameObject.AddComponent<UnityAppEvents>();//new UnityAppEvents();
+            appEvents = gameObject.AddComponent<UnityAppEvents>();
             storage = Substitute.For<IAttrStorage>();
             manager = new SocialPointMarketingAttributionManager(appEvents, storage);
             manager.GetUserID = () => {
