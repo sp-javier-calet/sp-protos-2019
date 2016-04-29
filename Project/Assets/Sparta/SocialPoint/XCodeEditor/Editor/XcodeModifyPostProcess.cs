@@ -36,7 +36,7 @@ namespace SocialPoint.XCodeEditor
         {   
             get
             {
-                return GetCommandLineArg("scheme", "editor");
+                return GetCommandLineArg("scheme", "editor").ToLower();
             }
 
         }
