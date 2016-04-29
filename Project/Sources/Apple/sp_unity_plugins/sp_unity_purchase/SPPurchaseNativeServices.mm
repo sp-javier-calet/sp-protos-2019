@@ -63,7 +63,7 @@
     self.highDetailLogsEnabled = shouldEnable;
 }
 
-#pragma mark - Load Products
+#pragma mark - Product Operations
 
 - (void)startProductsRequest:(NSMutableSet*)productIdentifiers
 {
@@ -88,8 +88,6 @@
 {
     return self.request != nil;
 }
-
-#pragma mark - Purchase Products
 
 - (void)purchaseProduct:(const char*)productId
 {

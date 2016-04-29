@@ -20,7 +20,7 @@ namespace SocialPoint.Purchase
             AttrDic settings = new AttrDic();
 
             #if UNITY_IOS && !UNITY_EDITOR
-            settings.SetValue(PlatformPuchaseSettings.IOSUseApplicationUsernameKey, true);
+            settings.SetValue(PlatformPuchaseSettings.IOSUseApplicationUsernameKey, false);
             settings.SetValue(PlatformPuchaseSettings.IOSUseAppReceiptKey, false);
             settings.SetValue(PlatformPuchaseSettings.IOSUseDetailedLogKey, true);
             settings.SetValue(PlatformPuchaseSettings.IOSSendTransactionUpdateEventsKey, true);

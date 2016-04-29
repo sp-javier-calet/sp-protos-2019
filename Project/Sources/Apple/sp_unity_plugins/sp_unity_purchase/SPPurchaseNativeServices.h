@@ -32,9 +32,6 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 
 
 @interface SPPurchaseNativeServices : NSObject<SKProductsRequestDelegate, SKPaymentTransactionObserver>
-{
-    void* platformPurchaseCenter_;
-}
 
 @property(strong, nonatomic) NSArray* products;
 @property(strong, nonatomic) SKProductsRequest* request;
