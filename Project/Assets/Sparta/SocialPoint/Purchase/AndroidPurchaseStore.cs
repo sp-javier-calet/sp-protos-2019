@@ -135,6 +135,13 @@ namespace SocialPoint.Purchase
             }
 
             AndroidStoreManager.BillingSupportedEvent += BillingSupported;
+            AndroidStoreManager.BillingNotSupportedEvent += BillingNotSupported;
+            AndroidStoreManager.QueryInventorySucceededEvent += QueryInventorySucceeded;
+            AndroidStoreManager.QueryInventoryFailedEvent += QueryInventoryFailed;
+            AndroidStoreManager.PurchaseSucceededEvent += PurchaseSucceeded;
+            AndroidStoreManager.PurchaseFailedEvent += PurchaseFailed;
+            AndroidStoreManager.ConsumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
+            AndroidStoreManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
 
             OpenIABEventManager.billingSupportedEvent += BillingSupported;
             OpenIABEventManager.billingNotSupportedEvent += BillingNotSupported;
@@ -142,8 +149,8 @@ namespace SocialPoint.Purchase
             OpenIABEventManager.queryInventoryFailedEvent += QueryInventoryFailed;
             OpenIABEventManager.purchaseSucceededEvent += PurchaseSucceeded;
             OpenIABEventManager.purchaseFailedEvent += PurchaseFailed;
-            OpenIABEventManager.consumePurchaseSucceededEvent += consumePurchaseSucceeded;
-            OpenIABEventManager.consumePurchaseFailedEvent += consumePurchaseFailed;
+            OpenIABEventManager.consumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
+            OpenIABEventManager.consumePurchaseFailedEvent += ConsumePurchaseFailed;
 
             OpenIAB.enableDebugLogging(true);
             Options options = new Options();
@@ -263,12 +270,12 @@ namespace SocialPoint.Purchase
             DebugLog("BillingNotSupportedEvent" + error.ToString());
         }
 
-        public void consumePurchaseSucceeded(OnePF.Purchase obj)
+        public void ConsumePurchaseSucceeded(OnePF.Purchase obj)
         {
             PurchaseUpdated(PurchaseState.PurchaseConsumed, obj.Sku);
         }
 
-        private void consumePurchaseFailed(string error)
+        private void ConsumePurchaseFailed(string error)
         {
             DebugLog(string.Format("Purchase Cancel : errorCode = {0}",
                 error));
@@ -283,8 +290,8 @@ namespace SocialPoint.Purchase
             OpenIABEventManager.queryInventoryFailedEvent -= QueryInventoryFailed;
             OpenIABEventManager.purchaseSucceededEvent -= PurchaseSucceeded;
             OpenIABEventManager.purchaseFailedEvent -= PurchaseFailed;
-            OpenIABEventManager.consumePurchaseSucceededEvent -= consumePurchaseSucceeded;
-            OpenIABEventManager.consumePurchaseFailedEvent -= consumePurchaseFailed;
+            OpenIABEventManager.consumePurchaseSucceededEvent -= ConsumePurchaseSucceeded;
+            OpenIABEventManager.consumePurchaseFailedEvent -= ConsumePurchaseFailed;
             OpenIAB.unbindService();
         }
 
