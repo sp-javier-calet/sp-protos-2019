@@ -16,9 +16,9 @@ class EventTracker : SocialPointEventTracker
 {   
     public EventTracker(ICoroutineRunner runner):base(runner)
     {
-        Timeout = ServiceLocator.Instance.TryResolve<float>("event_tracker_timeout", Timeout);
-        MaxOutOfSyncInterval = ServiceLocator.Instance.TryResolve<int>("event_tracker_outofsync_interval");
-        SendInterval = ServiceLocator.Instance.TryResolve<int>("event_tracker_send_interval");
+        Timeout = ServiceLocator.Instance.OptResolve<float>("event_tracker_timeout", Timeout);
+        MaxOutOfSyncInterval = ServiceLocator.Instance.OptResolve<int>("event_tracker_outofsync_interval");
+        SendInterval = ServiceLocator.Instance.OptResolve<int>("event_tracker_send_interval");
         HttpClient = ServiceLocator.Instance.Resolve<IHttpClient>();
         DeviceInfo = ServiceLocator.Instance.Resolve<IDeviceInfo>();
         CommandQueue = ServiceLocator.Instance.Resolve<ICommandQueue>();

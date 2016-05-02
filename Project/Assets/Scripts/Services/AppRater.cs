@@ -14,12 +14,12 @@ public class AppRater : SocialPoint.Rating.AppRater
     {
 
         GUI = new DefaultAppRaterGUI(ServiceLocator.Instance.Resolve<IAlertView>());
-        UsesUntilPrompt = ServiceLocator.Instance.TryResolve<int>("apprater_uses_until_prompt", UsesUntilPrompt);
-        EventsUntilPrompt = ServiceLocator.Instance.TryResolve<int>("apprater_events_until_prompt", EventsUntilPrompt);
-        DaysUntilPrompt = ServiceLocator.Instance.TryResolve<long>("apprater_days_until_prompt", DaysUntilPrompt);
-        DaysBeforeReminding = ServiceLocator.Instance.TryResolve<long>("apprater_days_before_reminding", DaysBeforeReminding);
-        UserLevelUntilPrompt = ServiceLocator.Instance.TryResolve<int>("apprater_user_level_until_prompt", UserLevelUntilPrompt);
-        MaxPromptsPerDay = ServiceLocator.Instance.TryResolve<int>("apprater_max_prompts_per_day", MaxPromptsPerDay);
+        UsesUntilPrompt = ServiceLocator.Instance.OptResolve<int>("apprater_uses_until_prompt", UsesUntilPrompt);
+        EventsUntilPrompt = ServiceLocator.Instance.OptResolve<int>("apprater_events_until_prompt", EventsUntilPrompt);
+        DaysUntilPrompt = ServiceLocator.Instance.OptResolve<long>("apprater_days_until_prompt", DaysUntilPrompt);
+        DaysBeforeReminding = ServiceLocator.Instance.OptResolve<long>("apprater_days_before_reminding", DaysBeforeReminding);
+        UserLevelUntilPrompt = ServiceLocator.Instance.OptResolve<int>("apprater_user_level_until_prompt", UserLevelUntilPrompt);
+        MaxPromptsPerDay = ServiceLocator.Instance.OptResolve<int>("apprater_max_prompts_per_day", MaxPromptsPerDay);
         Init();
     }
 }

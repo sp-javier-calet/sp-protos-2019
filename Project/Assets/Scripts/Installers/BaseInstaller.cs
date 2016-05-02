@@ -21,7 +21,7 @@ public class BaseInstaller : MonoInstaller, IInitializable
     public void Initialize()
     {
         var scheduler = Container.Resolve<IUpdateScheduler>();
-        var updateables = Container.TryResolve<List<IUpdateable>>();
+        var updateables = Container.OptResolve<List<IUpdateable>>();
         if(updateables != null)
         {
             scheduler.Add(updateables);

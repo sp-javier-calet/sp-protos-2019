@@ -28,7 +28,7 @@ public class GUISceneInstaller : MonoInstaller, IInitializable
         {
             return;
         }
-        var screens = Container.TryResolve<ScreensController>();
+        var screens = Container.OptResolve<ScreensController>();
         if(screens == null)
         {
             throw new InvalidOperationException("Could not find screens controller for initial screen");

@@ -18,11 +18,11 @@ class CrashReporter : SocialPointCrashReporter
         GetUserId = () => login.UserId;
         TrackEvent = ServiceLocator.Instance.Resolve<IEventTracker>().TrackUrgentSystemEvent;
         AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
-        SendInterval = ServiceLocator.Instance.TryResolve<float>("crash_reporter_send_interval", SendInterval);
-        ErrorLogActive = ServiceLocator.Instance.TryResolve<bool>("crash_reporter_error_log_active", ErrorLogActive);
-        ExceptionLogActive = ServiceLocator.Instance.TryResolve<bool>("crash_reporter_exception_log_active", ExceptionLogActive);
-        EnableSendingCrashesBeforeLogin = ServiceLocator.Instance.TryResolve<bool>("crash_reporter_enable_sending_crashes_before_login", EnableSendingCrashesBeforeLogin);
-        NumRetriesBeforeSendingCrashBeforeLogin = ServiceLocator.Instance.TryResolve<int>("crash_reporter_num_retries_before_sending_crash_before_login", NumRetriesBeforeSendingCrashBeforeLogin);
+        SendInterval = ServiceLocator.Instance.OptResolve<float>("crash_reporter_send_interval", SendInterval);
+        ErrorLogActive = ServiceLocator.Instance.OptResolve<bool>("crash_reporter_error_log_active", ErrorLogActive);
+        ExceptionLogActive = ServiceLocator.Instance.OptResolve<bool>("crash_reporter_exception_log_active", ExceptionLogActive);
+        EnableSendingCrashesBeforeLogin = ServiceLocator.Instance.OptResolve<bool>("crash_reporter_enable_sending_crashes_before_login", EnableSendingCrashesBeforeLogin);
+        NumRetriesBeforeSendingCrashBeforeLogin = ServiceLocator.Instance.OptResolve<int>("crash_reporter_num_retries_before_sending_crash_before_login", NumRetriesBeforeSendingCrashBeforeLogin);
     }
 
 }

@@ -39,7 +39,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _coroutineRunner = ServiceLocator.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = ServiceLocator.Instance.Resolve<IGameLoader>();
         #if ADMIN_PANEL
-        _adminPanel = ServiceLocator.Instance.TryResolve<AdminPanel>();
+        _adminPanel = ServiceLocator.Instance.OptResolve<AdminPanel>();
         #endif
         base.OnLoad();
     }

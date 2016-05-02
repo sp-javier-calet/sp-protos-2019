@@ -22,8 +22,8 @@ public class HttpClient :
     base(runner)
     {
         RequestSetup += OnRequestSetup;
-        _httpProxy = ServiceLocator.Instance.TryResolve<string>("http_client_proxy");
-        Config = ServiceLocator.Instance.TryResolve<string>("http_client_config");
+        _httpProxy = ServiceLocator.Instance.OptResolve<string>("http_client_proxy");
+        Config = ServiceLocator.Instance.OptResolve<string>("http_client_config");
         deviceInfo = ServiceLocator.Instance.Resolve<IDeviceInfo>();
         #if CURL_SUPPORTED
         AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();

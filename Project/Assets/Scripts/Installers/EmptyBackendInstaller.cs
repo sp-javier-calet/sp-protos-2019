@@ -58,7 +58,7 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
 
     public void Initialize()
     {
-        var loader = Container.TryResolve<IGameLoader>();
+        var loader = Container.OptResolve<IGameLoader>();
         if(loader != null)
         {
             loader.Load(null);

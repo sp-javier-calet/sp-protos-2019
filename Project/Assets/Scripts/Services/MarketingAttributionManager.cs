@@ -11,7 +11,7 @@ public class MarketingAttributionManager : SocialPointMarketingAttributionManage
     {
         var login = ServiceLocator.Instance.Resolve<ILogin>();
         var trackers = ServiceLocator.Instance.ResolveList<IMarketingTracker>();
-        for(int i = 0; i < trackers.Count; i++)
+        for(int i = 0; i < trackers.Length; i++)
         {
             AddTracker(trackers[i]);
         }

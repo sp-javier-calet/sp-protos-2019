@@ -10,34 +10,117 @@ namespace SocialPoint.Dependency
         void Initialize();
     }
 
+    public class ResolveException : InvalidOperationException
+    {
+        public ResolveException(Type t, string tag=null):
+        base("Could not resolve type "+t+" tag "+tag+".")
+        {
+        }
+    }
+
     public class Binding<F>
     {
+        enum ToType
+        {
+            Single,
+            Lookup,
+            Method
+        }
+
+        F _instance;
+        ToType _toType;
+        Type _type;
+        Func<F> _method;
+        Func<object, F> _getter;
+        ServiceLocator _container;
+
         public Binding(ServiceLocator container)
         {
+            _container = container;
         }
 
         public void ToSingle()
         {
+            ToSingle<F>();
         }
 
         public void ToSingle<T>() where T : F
         {
+            _toType = ToType.Single;
+            _type = typeof(T);
         }
 
         public void ToSingleInstance<T>(T instance) where T : F
         {
+            _toType = ToType.Single;
+            _instance = instance;
         }
 
         public void ToLookup<T>() where T : F
         {
+            _toType = ToType.Lookup;
+            _type = typeof(T);
         }
 
         public void ToSingleMethod<T>(Func<T> method) where T : F
         {
+            _type = typeof(T);
+            _method = method;
+            _toType = ToType.Method;
         }
 
-        public void ToGetter<T>(Func<T,F> method) where T : F
+        public void ToGetter<T>(Func<T,F> method)
         {
+            _type = typeof(T);
+            _getter = (t) => method((T)t);
+            _toType = ToType.Method;
+        }
+
+        public F Resolve()
+        {
+            F val;
+            if(!TryResolve(out val))
+            {
+                throw new ResolveException(typeof(F));
+            }
+            return val;
+        }
+
+        public bool TryResolve(out F val)
+        {
+            if(_instance != null)
+            {
+                val = _instance;
+                return true;
+            }
+            if(_toType == ToType.Single)
+            {
+                _instance = (F)_container.Create(_type);
+                val = _instance;
+                return true;
+            }
+            else if(_toType == ToType.Lookup)
+            {
+                _instance = (F)_container.Resolve(_type);
+                val = _instance;
+                return true;
+            }
+            else if(_toType == ToType.Method)
+            {
+                if(_method != null)
+                {
+                    _instance = (F)_method();
+                }
+                else if(_getter != null)
+                {
+                    var param = _container.Resolve(_type);
+                    _instance = (F)_getter(param);
+                }
+                val = _instance;
+                return true;
+            }
+            val = default(F);
+            return false;
         }
     }
 
@@ -93,6 +176,14 @@ namespace SocialPoint.Dependency
 
         public bool HasInstalled<T>() where T : IInstaller
         {
+            var type = typeof(T);
+            for(int i = 0; i < _installedInstallers.Count; i++)
+            {
+                if(_installedInstallers[i].GetType() == type)
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -103,29 +194,105 @@ namespace SocialPoint.Dependency
             _installedInstallers.Add(installer);
         }
 
-        public T Resolve<T>()
+        public bool TryResolve<T>(out object val)
         {
-            return default(T);
+            return TryResolve(typeof(T), out val);
         }
 
-        public List<T> ResolveList<T>()
+        public bool TryResolve(Type type, out object val)
         {
-            return new List<T>();
+            return TryResolve(type, null, out val);
         }
 
-        public T TryResolve<T>()
+        public T Resolve<T>(string tag=null)
         {
-            return default(T);
+            return (T)Resolve(typeof(T), tag);
         }
 
-        public T Resolve<T>(string tag)
+        public object Resolve(Type type, string tag=null)
         {
-            return default(T);
+            object obj;
+            if(!TryResolve(type, tag, out obj))
+            {
+                throw new ResolveException(type, tag);
+            }
+            return obj;
         }
 
-        public T TryResolve<T>(string tag, T def=default(T))
+        public T OptResolve<T>(string tag=null, T def=default(T))
         {
-            return default(T);
+            return (T)OptResolve(typeof(T), tag, def);
+        }
+
+        public object OptResolve(Type t, string tag=null, object def=null)
+        {
+            object obj;
+            if(!TryResolve(t, tag, out obj))
+            {
+                return def;
+            }
+            return obj;
+        }
+
+        public bool TryResolve<T>(string tag, out object val)
+        {
+            return TryResolve(typeof(T), tag, out val);
+        }
+
+        public bool TryResolve(Type type, string tag, out object val)
+        {
+            List<object> objs;
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out objs))
+            {
+                if(objs.Count > 0)
+                {
+                    val = objs[0];
+                    return true;
+                }
+            }
+            val = null;
+            return false;
+        }
+
+        public List<object> ResolveList(Type type, string tag=null)
+        {
+            var objs = new List<object>();
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out objs))
+            {
+                return objs;
+            }
+            return objs;
+        }
+
+        public T[] ResolveList<T>(string tag=null)
+        {
+            var objs = new List<object>();
+            var type = typeof(T);
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out objs))
+            {
+                var arr = new T[objs.Count];
+                for(var i = 0; i < arr.Length; i++)
+                {
+                    arr[i] = (T)objs[i];
+                }
+                return arr;
+            }
+            return null;
+        }
+
+        public T Create<T>()
+        {
+            return (T)Create(typeof(T));
+        }
+
+        public object Create(Type type)
+        {
+            object obj;
+            if(TryResolve(type, out obj))
+            {
+                return obj;
+            }
+            return type.GetConstructor(new Type[]{}).Invoke(new object[]{});
         }
 
         const string GlobalInstallersResource = "GlobalInstallers";
