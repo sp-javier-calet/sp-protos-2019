@@ -15,7 +15,7 @@ namespace SocialPoint.ScriptEvents
         public string[] Buttons;
         public object[] Actions;
         public bool Input;
-    }   
+    }
 
     public class AlertActionParser : BaseScriptEventParser<AlertAction>
     {
@@ -29,12 +29,12 @@ namespace SocialPoint.ScriptEvents
 
 
         IScriptEventDispatcher _dispatcher;
-        
-        public AlertActionParser(IScriptEventDispatcher dispatcher): base("action.alert")
+
+        public AlertActionParser(IScriptEventDispatcher dispatcher) : base("action.alert")
         {
             _dispatcher = dispatcher;
         }
-        
+
         override protected AlertAction ParseEvent(Attr data)
         {
             var actions = new List<object>();
@@ -42,18 +42,18 @@ namespace SocialPoint.ScriptEvents
             {
                 actions.Add(_dispatcher.Parse(act));
             }
-            return new AlertAction{
+            return new AlertAction {
                 Id = data.AsDic[AttrKeyId].AsValue.ToString(),
                 Title = data.AsDic[AttrKeyTitle].AsValue.ToString(),
                 Message = data.AsDic[AttrKeyMessage].AsValue.ToString(),
                 Signature = data.AsDic[AttrKeySignature].AsValue.ToString(),
-                Buttons = data.AsDic[AttrKeyButtons].AsList.ToList<string>().ToArray(),
+                Buttons = data.AsDic[AttrKeyButtons].AsList.ToArray<string>(),
                 Actions = actions.ToArray(),
                 Input = data.AsDic[AttrKeyInput].AsValue.ToBool()
             };
         }
     }
-    
+
     public class AlertBridge :
         IEventsBridge, 
         IScriptEventsBridge
@@ -61,23 +61,23 @@ namespace SocialPoint.ScriptEvents
         
         IEventDispatcher _dispatcher;
         IAlertView _prototype;
-        
+
         public AlertBridge(IAlertView prototype)
         {
             _prototype = prototype;
         }
-        
+
         public void Load(IEventDispatcher dispatcher)
         {
             _dispatcher = dispatcher;
             _dispatcher.AddListener<AlertAction>(OnAlertAction);
         }
-        
+
         public void Load(IScriptEventDispatcher dispatcher)
         {
             dispatcher.AddParser(new AlertActionParser(dispatcher));
         }
-        
+
         public void Dispose()
         {
             if(_dispatcher != null)
@@ -85,7 +85,7 @@ namespace SocialPoint.ScriptEvents
                 _dispatcher.RemoveListener<AlertAction>(OnAlertAction);
             }
         }
-        
+
         void OnAlertAction(AlertAction action)
         {
             var alert = (IAlertView)_prototype.Clone();
