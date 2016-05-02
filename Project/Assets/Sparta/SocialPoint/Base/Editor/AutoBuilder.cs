@@ -219,10 +219,9 @@ namespace SocialPoint.Base
             {
                 data = buildNumber[0];
             }
-                int value = Int32.Parse(data);     
-                PlayerSettings.Android.bundleVersionCode = value;
-                UnityEngine.Debug.Log("[INFO] Android bundle version code set to: [" + PlayerSettings.Android.bundleVersionCode + "]");
-            }
+            int value = Int32.Parse(data);
+            PlayerSettings.Android.bundleVersionCode = value;
+            UnityEngine.Debug.Log("[INFO] Android bundle version code set to: [" + PlayerSettings.Android.bundleVersionCode + "]");
             PlayerSettings.Android.useAPKExpansionFiles = false;
 
             // Note: FAT means all supported/available architectures.
