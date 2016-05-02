@@ -29,15 +29,19 @@ namespace SocialPoint.Hardware
         {
             get
             {
+#if !UNITY_ANDROID || UNITY_EDITOR
                 return SystemInfo.deviceUniqueIdentifier;
+#else
+                return "0";
+#endif
             }
-         }
+        }
 
         public IMemoryInfo MemoryInfo
         {
             get;
             set;
-        } 
+        }
 
         public IStorageInfo StorageInfo
         {
@@ -58,6 +62,7 @@ namespace SocialPoint.Hardware
         }
 
         string _platform;
+
         public string Platform
         {
             get
