@@ -1,15 +1,14 @@
+#if UNITY_ANDROID
+using SocialPoint.Base;
 using UnityEngine;
+#endif
 
 namespace SocialPoint.Hardware
 {
     #if UNITY_ANDROID
     public class AndroidStorageInfo : IStorageInfo
     {
-        public AndroidStorageInfo()
-        {
-        }
-
-        private static string _rootPath;
+        static string _rootPath;
 
         public static string RootPath
         {
@@ -17,14 +16,14 @@ namespace SocialPoint.Hardware
             {
                 if(_rootPath == null)
                 {
-                    var env = new AndroidJavaClass("android.os.Environment");
-                    _rootPath = env.CallStatic<AndroidJavaObject>("getRootDirectory").Call<string>("getAbsolutePath");
+                    var env = new AndroidJavaClass("android.os.Environment"); // API level 1
+                    _rootPath = env.CallStatic<AndroidJavaObject>("getRootDirectory").Call<string>("getAbsolutePath"); // API level 1
                 }
                 return _rootPath;
             }
         }
 
-        private static string _dataPath;
+        static string _dataPath;
 
         public static string DataPath
         {
@@ -32,8 +31,8 @@ namespace SocialPoint.Hardware
             {
                 if(_dataPath == null)
                 {
-                    var env = new AndroidJavaClass("android.os.Environment");
-                    _dataPath = env.CallStatic<AndroidJavaObject>("getDataDirectory").Call<string>("getAbsolutePath");
+                    var env = new AndroidJavaClass("android.os.Environment"); // API level 1
+                    _dataPath = env.CallStatic<AndroidJavaObject>("getDataDirectory").Call<string>("getAbsolutePath"); // API level 1
                 }
                 return _dataPath;
             }
@@ -41,15 +40,36 @@ namespace SocialPoint.Hardware
 
         public static AndroidJavaObject StatFs(string path)
         {
-            return new AndroidJavaObject("android.os.StatFs", path);
+            return new AndroidJavaObject("android.os.StatFs", path); // API level 1
         }
 
         public ulong TotalStorage
         {
             get
             {
-                var fs = StatFs(DataPath);
-                return (ulong)fs.Call<long>("getTotalBytes");
+                if(AndroidContext.SDKVersion >= 18)
+                {
+                    try
+                    {
+                        var fs = StatFs(DataPath);
+                        return (ulong)fs.Call<long>("getTotalBytes"); // API level 18
+                    }
+                    catch(AndroidJavaException)
+                    {
+                        return 0;
+                    }
+                }
+                try
+                {
+                    var fs = StatFs(DataPath);
+                    int blockCount = fs.Call<int>("getBlockCount"); // API level 1
+                    int blockSize = fs.Call<int>("getBlockSize"); // API level 1
+                    return (ulong)(blockCount * blockSize);
+                }
+                catch(AndroidJavaException)
+                {
+                    return 0;
+                }  
             }
         }
 
@@ -57,8 +77,29 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                var fs = StatFs(DataPath);
-                return (ulong)fs.Call<long>("getFreeBytes");
+                if(AndroidContext.SDKVersion >= 18)
+                {
+                    try
+                    {
+                        var fs = StatFs(DataPath);
+                        return (ulong)fs.Call<long>("getFreeBytes"); // API level 18
+                    }
+                    catch(AndroidJavaException)
+                    {
+                        return 0;
+                    }
+                }
+                try
+                {
+                    var fs = StatFs(DataPath);
+                    int blockCount = fs.Call<int>("getFreeBlocks"); // API level 1
+                    int blockSize = fs.Call<int>("getBlockSize"); // API level 1
+                    return (ulong)(blockCount * blockSize);
+                }
+                catch(AndroidJavaException)
+                {
+                    return 0;
+                }
             }
         }
 

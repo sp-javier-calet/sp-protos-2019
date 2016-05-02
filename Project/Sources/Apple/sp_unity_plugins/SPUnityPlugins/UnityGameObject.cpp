@@ -18,7 +18,7 @@ void UnityGameObject::setSendMessageDelegate(const SendMessageDelegate& delegate
 
 UnityGameObject::UnityGameObject(const std::string name)
 {
-    
+
     assert(!name.empty() && "Empty GameObject name");
     _objectName = name;
 }

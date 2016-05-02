@@ -10,13 +10,14 @@ using SocialPoint.Hardware;
 using SocialPoint.IO;
 using UnityEngine;
 using Uri = System.Uri;
+using SocialPoint.Utils;
 
 /**
  * DownloadManager is a runtime class for asset steaming and WWW management.
  */
 public class DownloadManager : MonoBehaviour
 {
-
+    const string kAssetFolder = "Assets/";
     const string _bundleSuffix = "assetBundle";
     const int _downloadRetryTime = 2;
     const int _downloadThreadsCount = 3;
@@ -152,7 +153,7 @@ public class DownloadManager : MonoBehaviour
     public static void LinkBehaviours(GameObject go, string path, AssetBundle bundle)
     {
         string assetPath = path;
-        if(assetPath.StartsWith("Assets/"))
+        if(StringUtils.StartsWith(assetPath, kAssetFolder))
         {
             assetPath = assetPath.Substring(assetPath.IndexOf("/") + 1);
         }

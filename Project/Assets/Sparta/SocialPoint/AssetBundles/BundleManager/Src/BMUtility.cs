@@ -1,16 +1,20 @@
 ﻿using System.Text.RegularExpressions;
 using UnityEngine;
+#if UNITY_EDITOR
+using System;
+using System.IO;
+#endif
 
-public class BMUtility
+static public class BMUtility
 {
-    public static void Swap<T>(ref T a, ref T b)
+    static public void Swap<T>(ref T a, ref T b)
     {
         T temp = a;
         a = b;
         b = temp;
     }
 
-    public static string InterpretPath(string origPath, BuildPlatform platform, string texfmt=null)
+    static public string InterpretPath(string origPath, BuildPlatform platform, string texfmt=null)
     {
         var matches = Regex.Matches(origPath, @"\$\((\w+)\)");
         foreach(Match match in matches)
@@ -55,14 +59,14 @@ public class BMUtility
         return origPath;
     }
 
-    public static int[] long2doubleInt(long a)
+    static public int[] long2doubleInt(long a)
     {
         int a1 = (int)(a & uint.MaxValue);
         int a2 = (int)(a >> 32);
         return new int[] { a1, a2 };
     }
     
-    public static long doubleInt2long(int a1, int a2)
+    static public long doubleInt2long(int a1, int a2)
     {
         long b = a2;
         b = b << 32;
@@ -70,7 +74,7 @@ public class BMUtility
         return b;
     }
     
-    private static string EnvVarToString(string varString, BuildPlatform platform)
+    static private string EnvVarToString(string varString, BuildPlatform platform)
     {
         switch(varString)
         {
@@ -87,4 +91,18 @@ public class BMUtility
             return "";
         }
     }
+
+    #if UNITY_EDITOR
+    static public DateTime Now()
+    {
+        var d = DateTime.Now;
+        return new DateTime(d.Year, d.Month, d.Day, d.Hour, d.Minute, d.Second, 0);
+    }
+
+    static public DateTime GetLastWriteTime(string path)
+    {
+        var d = System.IO.File.GetLastWriteTime(path);
+        return new DateTime(d.Year, d.Month, d.Day, d.Hour, d.Minute, d.Second, 0);
+    }
+    #endif
 }

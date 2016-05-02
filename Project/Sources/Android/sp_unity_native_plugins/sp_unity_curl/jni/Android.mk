@@ -24,6 +24,6 @@ LOCAL_STATIC_LIBRARIES := curl ssl crypto
 include $(BUILD_SHARED_LIBRARY)
 
 # Import modules
-$(call import-add-path,$(BASE_PATH)/lib) 
+$(call import-add-path,$(BASE_PATH)/lib)
 $(call import-module,curl)
 $(call import-module,openssl)

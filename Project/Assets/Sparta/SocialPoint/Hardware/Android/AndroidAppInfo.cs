@@ -1,13 +1,12 @@
-using UnityEngine;
-using System;
-
 #if UNITY_ANDROID
+using System;
 using SocialPoint.Base;
+using UnityEngine;
 #endif
 
 namespace SocialPoint.Hardware
 {
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
     public class AndroidAppInfo : IAppInfo
     {
         public AndroidAppInfo()
@@ -22,7 +21,7 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getPackageManager");
+                return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getPackageManager"); // API level 1
             }
         }
 
@@ -30,7 +29,7 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                return PackageManager.Call<AndroidJavaObject>("getPackageInfo", PackageName, 0);
+                return PackageManager.Call<AndroidJavaObject>("getPackageInfo", PackageName, 0); // API level 1
             }
         }
 
@@ -38,8 +37,8 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                var loc = new AndroidJavaClass("java.util.Locale");
-                return loc.CallStatic<AndroidJavaObject>("getDefault");
+                var loc = new AndroidJavaClass("java.util.Locale"); // API level 1
+                return loc.CallStatic<AndroidJavaObject>("getDefault"); // API level 1
             }
         }
 
@@ -51,7 +50,7 @@ namespace SocialPoint.Hardware
             {
                 if(_packageName == null)
                 {
-                    _packageName = AndroidContext.CurrentActivity.Call<string>("getPackageName");
+                    _packageName = AndroidContext.CurrentActivity.Call<string>("getPackageName"); // API level 1
                 }
                 return _packageName;
             }
@@ -81,7 +80,7 @@ namespace SocialPoint.Hardware
             {
                 if(_version == null)
                 {
-                    _version = String.Empty + PackageInfo.Get<int>("versionCode");
+                    _version = String.Empty + PackageInfo.Get<int>("versionCode"); // API level 1
                 }
                 return _version;
             }
@@ -95,7 +94,7 @@ namespace SocialPoint.Hardware
             {
                 if(_shortVersion == null)
                 {
-                    _shortVersion = PackageInfo.Get<string>("versionName");
+                    _shortVersion = PackageInfo.Get<string>("versionName"); // API level 1
                 }
                 return _shortVersion;
             }
@@ -109,7 +108,7 @@ namespace SocialPoint.Hardware
             {
                 if(_language == null)
                 {
-                    _language = Locale.Call<string>("getLanguage");
+                    _language = Locale.Call<string>("getLanguage"); // API level 1
                 }
                 return _language;
             }
@@ -123,7 +122,7 @@ namespace SocialPoint.Hardware
             {
                 if(_country == null)
                 {
-                    _country = Locale.Call<string>("getCountry");
+                    _country = Locale.Call<string>("getCountry"); // API level 1
                 }
                 return _country;
             }
@@ -134,7 +133,7 @@ namespace SocialPoint.Hardware
             return InfoToStringExtension.ToString(this);
         }
     }
-#else
+    #else
     public class AndroidAppInfo : EmptyAppInfo
     {
     }
