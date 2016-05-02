@@ -134,6 +134,8 @@ namespace SocialPoint.Purchase
                 throw new NotImplementedException("AndroidPurchaseStore only works on Android");
             }
 
+            AndroidStoreManager.BillingSupportedEvent += BillingSupported;
+
             OpenIABEventManager.billingSupportedEvent += BillingSupported;
             OpenIABEventManager.billingNotSupportedEvent += BillingNotSupported;
             OpenIABEventManager.queryInventorySucceededEvent += QueryInventorySucceeded;

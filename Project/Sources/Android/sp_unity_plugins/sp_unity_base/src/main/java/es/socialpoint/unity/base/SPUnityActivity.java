@@ -33,6 +33,7 @@ public class SPUnityActivity extends UnityPlayerActivity {
 		PermissionsManager.instance.checkPermissionsOrRestart(this);
 		super.onCreate(savedInstanceState);
 		storeSourceFromIntent(getIntent());
+		UnityGameObject.Init(this);
 	}
 
 	// SocialPoint code

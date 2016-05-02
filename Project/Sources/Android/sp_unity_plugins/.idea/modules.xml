@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/sp_unity_notifications/sp_unity_notifications.iml" filepath="$PROJECT_DIR$/sp_unity_notifications/sp_unity_notifications.iml" />
       <module fileurl="file://$PROJECT_DIR$/sp_unity_open_iab/sp_unity_open_iab.iml" filepath="$PROJECT_DIR$/sp_unity_open_iab/sp_unity_open_iab.iml" />
       <module fileurl="file://$PROJECT_DIR$/sp_unity_plugins.iml" filepath="$PROJECT_DIR$/sp_unity_plugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sp_unity_purchase/sp_unity_purchase.iml" filepath="$PROJECT_DIR$/sp_unity_purchase/sp_unity_purchase.iml" />
     </modules>
   </component>
 </project>
