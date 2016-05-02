@@ -4,7 +4,6 @@ namespace SocialPoint.Notifications
 {
     public class EmptyNotificationServices : INotificationServices
     {
-
         public void Schedule(Notification notif)
         {
         }
@@ -17,15 +16,12 @@ namespace SocialPoint.Notifications
         {
         }
 
-        public void RegisterForRemote(Action<string> onTokenReceivedCallback = null)
+        public void RegisterForRemoteToken(Action<bool, string> callback)
         {
+            callback(false, "");
         }
 
-        public void RequestPushNotification()
-        {
-        }
-
-        public void RequestLocalNotification()
+        public void RequestPermissions()
         {
         }
 
@@ -33,7 +29,7 @@ namespace SocialPoint.Notifications
         {
             get
             {
-                return true;
+                return false;
             }
         }
     }

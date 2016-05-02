@@ -16,7 +16,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.unity3d.player.UnityPlayer;
-
 import es.socialpoint.unity.configuration.Metadata;
 
 public class NotificationBridge {
@@ -26,6 +25,7 @@ public class NotificationBridge {
     private static Handler mHandler = new Handler(Looper.getMainLooper());
     private static AsyncTask<Void, Void, Void> mRegisterTask;
     private static String mPushNotificationToken;
+    private static String mPushNotificationTokenError;
     private static String mSenderId;
     private static int mAlarmIdCounter = 0;
 
@@ -119,11 +119,15 @@ public class NotificationBridge {
                                 // Notify registered token
                                 setNotificationToken(token);
                             } else {
-                                Log.e(TAG, "Invalid sender ID for push enabled. Is " + SENDER_ID_KEY + " meta-data set?");
+                                String tokenError = "Invalid sender ID for push enabled. Is " + SENDER_ID_KEY + " meta-data set?";
+                                Log.e(TAG, tokenError);
+                                setNotificationTokenError(tokenError);
                             }
 
                         } catch (Exception e) {
-                            Log.e(TAG, "Failed to complete token refresh", e);
+                            String tokenError = "Failed to complete token refresh";
+                            Log.e(TAG, tokenError, e);
+                            setNotificationTokenError(tokenError);
                         }
                         return null;
                     }
@@ -137,7 +141,9 @@ public class NotificationBridge {
         });
 
         if(!postSuccess) {
-            Log.e(TAG, "Failed to dispatch token petition");
+            String tokenError = "Failed to dispatch token petition";
+            Log.e(TAG, tokenError);
+            setNotificationTokenError(tokenError);
         }
     }
 
@@ -147,5 +153,13 @@ public class NotificationBridge {
 
     public static synchronized String getNotificationToken() {
         return mPushNotificationToken;
+    }
+
+    private static synchronized void setNotificationTokenError(String tokenError) {
+        mPushNotificationTokenError = tokenError;
+    }
+
+    public static synchronized String getNotificationTokenError() {
+        return mPushNotificationTokenError;
     }
 }
