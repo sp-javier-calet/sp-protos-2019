@@ -135,13 +135,13 @@ namespace SocialPoint.Purchase
             }
 
             AndroidStoreManager.BillingSupportedEvent += BillingSupported;
-            AndroidStoreManager.BillingNotSupportedEvent += BillingNotSupported;
-            AndroidStoreManager.QueryInventorySucceededEvent += QueryInventorySucceeded;
-            AndroidStoreManager.QueryInventoryFailedEvent += QueryInventoryFailed;
-            AndroidStoreManager.PurchaseSucceededEvent += PurchaseSucceeded;
-            AndroidStoreManager.PurchaseFailedEvent += PurchaseFailed;
-            AndroidStoreManager.ConsumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
-            AndroidStoreManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
+            //AndroidStoreManager.BillingNotSupportedEvent += BillingNotSupported;
+            //AndroidStoreManager.QueryInventorySucceededEvent += QueryInventorySucceeded;
+            //AndroidStoreManager.QueryInventoryFailedEvent += QueryInventoryFailed;
+            //AndroidStoreManager.PurchaseSucceededEvent += PurchaseSucceeded;
+            //AndroidStoreManager.PurchaseFailedEvent += PurchaseFailed;
+            //AndroidStoreManager.ConsumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
+            //AndroidStoreManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
 
             OpenIABEventManager.billingSupportedEvent += BillingSupported;
             OpenIABEventManager.billingNotSupportedEvent += BillingNotSupported;
