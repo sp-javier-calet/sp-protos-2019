@@ -19,7 +19,7 @@ namespace SocialPoint.Utils
         {
             _autoRefresh = true;
             _entries = new List<LogEntry>();
-            _activeTypes = new Dictionary<LogType, bool>();
+            _activeTypes = new Dictionary<LogType, bool>(new EnumUtils.DictionaryComparer<LogType>());
 
             foreach(LogType type in Enum.GetValues(typeof(LogType)))
             {
