@@ -58,6 +58,9 @@ EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
             case CPU_SUBTYPE_ARM64_V8:
                 return SPUnityHardwareCreateString("arm64-v8");
                 break;
+            default:
+                return SPUnityHardwareCreateString("unknown");
+                break;
         }
     }
     else if(type == CPU_TYPE_ARM)
@@ -94,9 +97,12 @@ EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
             case CPU_SUBTYPE_ARM_V7EM:
                 return SPUnityHardwareCreateString("arm-v7em");
                 break;
+            default:
+                return SPUnityHardwareCreateString("unknown");
+                break;
         }
     }
-    return SPUnityHardwareCreateString("");
+    return SPUnityHardwareCreateString("unknown");
 }
 
 EXPORT_API char* SPUnityHardwareGetDeviceAdvertisingId()
