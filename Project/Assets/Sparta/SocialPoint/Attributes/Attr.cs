@@ -1579,20 +1579,30 @@ namespace SocialPoint.Attributes
             }
         }
 
+        public V Get<V>(int idx)
+        {
+            var elm = Get(idx);
+            return elm != null ? elm.AsValue.ToValue<V>() : default(V);
+        }
+
         public List<V> ToList<V>()
         {
             var list = new List<V>();
             for(var i = 0; i < Count; i++)
             {
-                var elm = Get(i);
-                V val = default(V);
-                if(elm != null)
-                {
-                    val = elm.AsValue.ToValue<V>();
-                }
-                list.Add(val);
+                list.Add(Get<V>(i));
             }
             return list;
+        }
+
+        public V[] ToArray<V>()
+        {
+            V[] array = new V[Count];
+            for(var i = 0; i < Count; i++)
+            {
+                array[i] = Get<V>(i);
+            }
+            return array;
         }
 
         public override string ToString()
