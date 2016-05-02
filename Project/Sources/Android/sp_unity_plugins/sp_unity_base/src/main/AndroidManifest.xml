@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest 
-    xmlns:android="http://schemas.android.com/apk/res/android" 
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="es.socialpoint.unity.base">
 
-  <uses-sdk 
+  <uses-sdk
       android:minSdkVersion="14"
       android:targetSdkVersion="21" />
     <application>
-        <meta-data android:name="application.name" android:value="@string/app_fullname"/>
         <receiver android:name="es.socialpoint.unity.ad.AdReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
@@ -31,6 +30,7 @@
 
               <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
               <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="false" />
+              <meta-data android:name="application.name" android:value="@string/app_fullname"/> To use a custom name on permission activity launcher.
             </activity>
         -->
     </application>

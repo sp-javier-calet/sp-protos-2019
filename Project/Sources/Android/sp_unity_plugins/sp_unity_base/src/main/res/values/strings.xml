@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">AndroidNotifications</string> <!-- Overridden by Unity (application android:label)-->
-    <string name="app_fullname">App Full Name</string> <!-- Not overridden by Unity, use as you please-->
     <string name="accept_permissions_title">Accept permissions</string>
     <string name="accept_permissions_message">To be able to fully enjoy your %1$s experience, please accept all the permissions.</string>
     <string name="accept_permissions_settings_title">Accept permissions in settings</string>

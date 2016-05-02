@@ -230,7 +230,9 @@ public enum PermissionsManager {
     {
         Context context = activity.getApplicationContext();
         Metadata data = new Metadata(context);
-        return data.get("application.name",context.getPackageName());
+        int labelRes = context.getApplicationInfo().labelRes;
+        String fallbackAppName = labelRes != 0 ? context.getString(labelRes) : context.getPackageName();
+        return data.get("application.name",fallbackAppName);
     }
 
     public void checkPermissionsOrRestart(Activity activity)
