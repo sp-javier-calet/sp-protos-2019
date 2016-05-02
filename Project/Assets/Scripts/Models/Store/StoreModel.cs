@@ -33,6 +33,9 @@ public class StoreModel : IStoreProductSource, IDisposable
         if(_purchaseStore != null)
         {
             _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+
+            //Each game can set the settings to its liking, it can depend on data sent by backend
+            _purchaseStore.Setup(PlatformPuchaseSettings.GetDebugSettings());
         }
     }
 
