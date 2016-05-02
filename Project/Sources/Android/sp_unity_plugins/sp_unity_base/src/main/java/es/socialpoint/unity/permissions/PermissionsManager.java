@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import es.socialpoint.unity.base.R;
+import es.socialpoint.unity.configuration.Metadata;
 
 public enum PermissionsManager {
     instance;
@@ -184,9 +186,14 @@ public enum PermissionsManager {
                 message = R.string.accept_permissions_message;
                 break;
         }
+
+        String applicationName = getApplicationName(activity);
+        Resources res = activity.getResources();
+        String messageFormatted = String.format(res.getString(message),applicationName);
+
         currentDialog = new AlertDialog.Builder(activity)
                 .setTitle(title)
-                .setMessage(message)
+                .setMessage(messageFormatted)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
@@ -201,9 +208,13 @@ public enum PermissionsManager {
 
     void showEnablePermissionsInSettingsDialog(final Activity activity)
     {
+        String applicationName = getApplicationName(activity);
+        Resources res = activity.getResources();
+        String messageFormatted = String.format(res.getString(R.string.accept_permissions_settings_message),applicationName);
+
         currentDialog = new AlertDialog.Builder(activity)
                 .setTitle(R.string.accept_permissions_settings_title)
-                .setMessage(R.string.accept_permissions_settings_message)
+                .setMessage(messageFormatted)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
@@ -213,6 +224,13 @@ public enum PermissionsManager {
                     }
                 })
                 .show();
+    }
+
+    String getApplicationName(final Activity activity)
+    {
+        Context context = activity.getApplicationContext();
+        Metadata data = new Metadata(context);
+        return data.get("application.name",context.getPackageName());
     }
 
     public void checkPermissionsOrRestart(Activity activity)

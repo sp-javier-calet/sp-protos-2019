@@ -7,6 +7,7 @@
       android:minSdkVersion="14"
       android:targetSdkVersion="21" />
     <application>
+        <meta-data android:name="application.name" android:value="@string/app_fullname"/>
         <receiver android:name="es.socialpoint.unity.ad.AdReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
