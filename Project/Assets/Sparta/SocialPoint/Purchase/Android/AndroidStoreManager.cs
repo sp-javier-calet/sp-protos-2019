@@ -46,6 +46,7 @@ namespace SocialPoint.Purchase
             GameObject instance = new GameObject(instanceName);
             instance.AddComponent<AndroidStoreManager>();
             DontDestroyOnLoad(instance);
+
             AndroidStoreBinding.Init(instanceName);
         }
 
@@ -74,15 +75,16 @@ namespace SocialPoint.Purchase
         private void OnQueryInventorySucceeded(string json)
         {
             Debug.Log("*** TEST Query Inventory Succeeded: " + json);
-            if(QueryInventorySucceededEvent != null)
+            /*if(QueryInventorySucceededEvent != null)
             {
                 AndroidStoreInventory inventory = new AndroidStoreInventory(json);
                 QueryInventorySucceededEvent(inventory);
-            }
+            }*/
         }
 
         private void OnQueryInventoryFailed(string error)
         {
+            Debug.Log("*** TEST Query Inventory Succeeded: " + error);
             if(QueryInventoryFailedEvent != null)
             {
                 QueryInventoryFailedEvent(error);

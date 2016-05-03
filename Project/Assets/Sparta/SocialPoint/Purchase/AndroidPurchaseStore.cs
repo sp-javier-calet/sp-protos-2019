@@ -53,6 +53,7 @@ namespace SocialPoint.Purchase
 
         public void LoadProducts(string[] productIds)
         {
+            Debug.Log("*** TEST LoadProducts...");
             if(!_isInitialized)
             {
                 DebugLog("OpenIAB is not ready");
@@ -60,13 +61,18 @@ namespace SocialPoint.Purchase
             }
 
             DebugLog("Mapping products on OpenIAB");
-            foreach(string productId in productIds)
+            /*foreach(string productId in productIds)
             {
-                OpenIAB.mapSku(productId, OpenIAB_Android.STORE_GOOGLE, productId);
-            }
+                //OpenIAB.mapSku(productId, OpenIAB_Android.STORE_GOOGLE, productId);
+            }*/
 
             DebugLog("Querying products");
-            OpenIAB.queryInventory(productIds);
+            foreach(var item in productIds)
+            {
+                Debug.Log("*** TEST LoadProduct: " + item);
+            }
+            //OpenIAB.queryInventory(productIds);
+            AndroidStoreBinding.RequestProductData(productIds);
         }
 
         public bool Purchase(string productId)
@@ -81,7 +87,7 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                OpenIAB.purchaseProduct(productId, string.Empty);
+                //OpenIAB.purchaseProduct(productId, string.Empty);
                 PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
                 return true;
             }
@@ -135,7 +141,7 @@ namespace SocialPoint.Purchase
             }
 
             AndroidStoreManager.BillingSupportedEvent += BillingSupported;
-            //AndroidStoreManager.BillingNotSupportedEvent += BillingNotSupported;
+            AndroidStoreManager.BillingNotSupportedEvent += BillingNotSupported;
             //AndroidStoreManager.QueryInventorySucceededEvent += QueryInventorySucceeded;
             //AndroidStoreManager.QueryInventoryFailedEvent += QueryInventoryFailed;
             //AndroidStoreManager.PurchaseSucceededEvent += PurchaseSucceeded;
@@ -143,28 +149,28 @@ namespace SocialPoint.Purchase
             //AndroidStoreManager.ConsumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
             //AndroidStoreManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
 
-            OpenIABEventManager.billingSupportedEvent += BillingSupported;
-            OpenIABEventManager.billingNotSupportedEvent += BillingNotSupported;
-            OpenIABEventManager.queryInventorySucceededEvent += QueryInventorySucceeded;
-            OpenIABEventManager.queryInventoryFailedEvent += QueryInventoryFailed;
-            OpenIABEventManager.purchaseSucceededEvent += PurchaseSucceeded;
-            OpenIABEventManager.purchaseFailedEvent += PurchaseFailed;
-            OpenIABEventManager.consumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
-            OpenIABEventManager.consumePurchaseFailedEvent += ConsumePurchaseFailed;
+            //OpenIABEventManager.billingSupportedEvent += BillingSupported;
+            //OpenIABEventManager.billingNotSupportedEvent += BillingNotSupported;
+            //OpenIABEventManager.queryInventorySucceededEvent += QueryInventorySucceeded;
+            //OpenIABEventManager.queryInventoryFailedEvent += QueryInventoryFailed;
+            //OpenIABEventManager.purchaseSucceededEvent += PurchaseSucceeded;
+            //OpenIABEventManager.purchaseFailedEvent += PurchaseFailed;
+            //OpenIABEventManager.consumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
+            //OpenIABEventManager.consumePurchaseFailedEvent += ConsumePurchaseFailed;
 
-            OpenIAB.enableDebugLogging(true);
-            Options options = new Options();
+            //OpenIAB.enableDebugLogging(true);
+            /*Options options = new Options();
             options.checkInventoryTimeoutMs = Options.INVENTORY_CHECK_TIMEOUT_MS * 2;
             options.discoveryTimeoutMs = Options.DISCOVER_TIMEOUT_MS * 2;
             options.checkInventory = false;
             options.verifyMode = OptionsVerifyMode.VERIFY_SKIP;
             options.prefferedStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
             options.availableStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
-            options.storeSearchStrategy = SearchStrategy.INSTALLER_THEN_BEST_FIT;
+            options.storeSearchStrategy = SearchStrategy.INSTALLER_THEN_BEST_FIT;*/
 
 
             DebugLog("setting options");
-            OpenIAB.init(options);
+            //OpenIAB.init(options);
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
@@ -181,7 +187,7 @@ namespace SocialPoint.Purchase
             {
                 if(_autoCompletePurchases)
                 {
-                    OpenIAB.consumeProduct(item);
+                    //OpenIAB.consumeProduct(item);
                 }
                 else
                 {
@@ -234,7 +240,7 @@ namespace SocialPoint.Purchase
                     //TODO: we have to consume the consumable items
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
-                        OpenIAB.consumeProduct(purchase);
+                        //OpenIAB.consumeProduct(purchase);
                         PurchaseUpdated(PurchaseState.PurchaseFinished, receipt.ProductId);
                     }
                 });
@@ -284,15 +290,15 @@ namespace SocialPoint.Purchase
 
         void UnregisterEvents()
         {
-            OpenIABEventManager.billingSupportedEvent -= BillingSupported;
-            OpenIABEventManager.billingNotSupportedEvent -= BillingNotSupported;
-            OpenIABEventManager.queryInventorySucceededEvent -= QueryInventorySucceeded;
-            OpenIABEventManager.queryInventoryFailedEvent -= QueryInventoryFailed;
-            OpenIABEventManager.purchaseSucceededEvent -= PurchaseSucceeded;
-            OpenIABEventManager.purchaseFailedEvent -= PurchaseFailed;
-            OpenIABEventManager.consumePurchaseSucceededEvent -= ConsumePurchaseSucceeded;
-            OpenIABEventManager.consumePurchaseFailedEvent -= ConsumePurchaseFailed;
-            OpenIAB.unbindService();
+            AndroidStoreManager.BillingSupportedEvent -= BillingSupported;
+            AndroidStoreManager.BillingNotSupportedEvent -= BillingNotSupported;
+            //OpenIABEventManager.queryInventorySucceededEvent -= QueryInventorySucceeded;
+            //OpenIABEventManager.queryInventoryFailedEvent -= QueryInventoryFailed;
+            //OpenIABEventManager.purchaseSucceededEvent -= PurchaseSucceeded;
+            //OpenIABEventManager.purchaseFailedEvent -= PurchaseFailed;
+            //OpenIABEventManager.consumePurchaseSucceededEvent -= ConsumePurchaseSucceeded;
+            //OpenIABEventManager.consumePurchaseFailedEvent -= ConsumePurchaseFailed;
+            //OpenIAB.unbindService();
         }
 
         public void PurchaseStateChanged(PurchaseState state, string productID)

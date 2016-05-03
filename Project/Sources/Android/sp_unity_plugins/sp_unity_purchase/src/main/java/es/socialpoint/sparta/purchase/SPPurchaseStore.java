@@ -1,5 +1,9 @@
 package es.socialpoint.sparta.purchase;
 
+import android.util.Log;
+
+import com.unity3d.player.UnityPlayer;
+
 import es.socialpoint.sparta.purchase.SPPurchaseNativeServices;
 
 /**
@@ -12,10 +16,7 @@ public class SPPurchaseStore {
 
     public static void Init(String listenerObjectName)
     {
-        _purchaseServices = SPPurchaseNativeServices.instance;
-        if(_purchaseServices != null) {
-            _purchaseServices.Init(listenerObjectName);
-        }
+        _purchaseServices = new SPPurchaseNativeServices(listenerObjectName);
     }
 
     public static void RequestProductData()

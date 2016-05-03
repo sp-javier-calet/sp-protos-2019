@@ -4,6 +4,12 @@ import android.app.Activity;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.unity3d.player.UnityPlayer;
+import com.unity3d.player.UnityPlayerActivity;
+import com.unity3d.player.UnityPlayerNativeActivity;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import es.socialpoint.unity.base.UnityGameObject;
@@ -17,7 +23,7 @@ import es.socialpoint.sparta.purchase.utils.Inventory;
 import es.socialpoint.sparta.purchase.utils.Purchase;
 import es.socialpoint.sparta.purchase.utils.SkuDetails;
 
-public class SPPurchaseNativeServices extends Activity implements IabBroadcastListener {
+public class SPPurchaseNativeServices implements IabBroadcastListener {
 
     //Instance reference
     public static SPPurchaseNativeServices instance;
@@ -38,33 +44,7 @@ public class SPPurchaseNativeServices extends Activity implements IabBroadcastLi
 
     private boolean _setupReady;
 
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        SPPurchaseNativeServices.instance = this;
-    }
-
-    // We're being destroyed. It's important to dispose of the helper here!
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // very important:
-        if (_broadcastReceiver != null) {
-            unregisterReceiver(_broadcastReceiver);
-        }
-
-        // very important:
-        Log.d(TAG, "Destroying helper.");
-        if (_helper != null) {
-            _helper.disposeWhenFinished();
-            _helper = null;
-        }
-    }
-
-    public void Init(String listenerObjectName)
+    public SPPurchaseNativeServices(String listenerObjectName)
     {
         _unityMessageSender = new UnityGameObject(listenerObjectName);
         _unityMessageSender.SendMessage("StoreDebugLog", "*** TEST Hello World");
@@ -72,32 +52,35 @@ public class SPPurchaseNativeServices extends Activity implements IabBroadcastLi
         _highDetailedLogEnabled = true;
         _setupReady = false;
 
-        /*
+        //*
         String base64EncodedPublicKey = "CONSTRUCT_YOUR_KEY_AND_PLACE_IT_HERE";
 
         // Create the helper, passing it our context and the public key to verify signatures with
-        Log.d(TAG, "Creating IAB helper.");
-        _helper = new IabHelper(this, base64EncodedPublicKey);
+        detailedLog("Creating IAB helper.");
+        _helper = new IabHelper(UnityPlayer.currentActivity, base64EncodedPublicKey);
 
         // enable debug logging (for a production application, you should set this to false).
         _helper.enableDebugLogging(_highDetailedLogEnabled);
 
         // Start setup. This is asynchronous and the specified listener
         // will be called once setup completes.
-        Log.d(TAG, "Starting setup.");
+        detailedLog("Starting setup.");
         _helper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             public void onIabSetupFinished(IabResult result) {
-                Log.d(TAG, "Setup finished.");
-
-                if (!result.isSuccess()) {
-                    // Oh noes, there was a problem.
-                    detailedLog("Problem setting up in-app billing: " + result);
-                    return;
-                }
+                detailedLog("Setup finished.");
                 // Have we been disposed of in the meantime? If so, quit.
                 if (_helper == null) return;
 
+                if (!result.isSuccess()) {
+                    // Oh noes, there was a problem.
+                    String errorMessage = "Problem setting up in-app billing: " + result;
+                    detailedLog(errorMessage);
+                    _unityMessageSender.SendMessage("OnBillingNotSupported", errorMessage);
+                    return;
+                }
+
                 _setupReady = true;
+                _unityMessageSender.SendMessage("OnBillingSupported", "");
 
                 // Important: Dynamically register for broadcast messages about updated purchases.
                 // We register the receiver here instead of as a <receiver> in the Manifest
@@ -108,29 +91,12 @@ public class SPPurchaseNativeServices extends Activity implements IabBroadcastLi
                 // IabHelper is setup, but before first call to getPurchases().
                 _broadcastReceiver = new IabBroadcastReceiver(SPPurchaseNativeServices.this);
                 IntentFilter broadcastFilter = new IntentFilter(IabBroadcastReceiver.ACTION);
-                registerReceiver(_broadcastReceiver, broadcastFilter);
+                UnityPlayer.currentActivity.registerReceiver(_broadcastReceiver, broadcastFilter);
 
                 // IAB is fully set up.
             }
         });
-        */
-    }
-
-    public void LoadProducts()
-    {
-        if(!IsHelperReady()) {
-            _unityMessageSender.SendMessage("OnQueryInventoryFailed", "Setup not ready");
-            return;
-        }
-
-        detailedLog("Products Request Started");
-        try {
-            _helper.queryInventoryAsync(_gotInventoryListener);
-        } catch (IabAsyncInProgressException e) {
-            String errorMessage = "Products Request Cancelled: Another async operation in progress";
-            detailedLog(errorMessage);
-            _unityMessageSender.SendMessage("OnQueryInventoryFailed", errorMessage);
-        }
+        //*/
     }
 
     private boolean IsHelperReady() {
@@ -139,6 +105,32 @@ public class SPPurchaseNativeServices extends Activity implements IabBroadcastLi
 
 
     /* Product Operations */
+
+    public void LoadProducts()
+    {
+        detailedLog("Products Request Started");
+
+        if(!IsHelperReady()) {
+            _unityMessageSender.SendMessage("OnQueryInventoryFailed", "Setup not ready");
+            return;
+        }
+
+        UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    //*** TEST (pass as final param)
+                    ArrayList<String> productIds = new ArrayList<String>();
+                    productIds.add(0, "iap_1");
+
+                    _helper.queryInventoryAsync(true, productIds, null, _gotInventoryListener);
+                } catch (IabAsyncInProgressException e) {
+                    String errorMessage = "Products Request Cancelled: Another async operation in progress";
+                    detailedLog(errorMessage);
+                    _unityMessageSender.SendMessage("OnQueryInventoryFailed", errorMessage);
+                }
+            }
+        });
+    }
 
     private String GetProductJson(SkuDetails product)
     {
@@ -193,7 +185,6 @@ public class SPPurchaseNativeServices extends Activity implements IabBroadcastLi
     IabHelper.QueryInventoryFinishedListener _gotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
         public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
             detailedLog("Query inventory finished.");
-
             // Have we been disposed of in the meantime? If so, quit.
             if (_helper == null) return;
 
@@ -206,8 +197,14 @@ public class SPPurchaseNativeServices extends Activity implements IabBroadcastLi
 
             detailedLog("Query inventory was successful.");
 
+            //TODO: Filter only ids that the user requested in Unity
             List<SkuDetails> skus = inventory.getAllSkuDetails();
             _unityMessageSender.SendMessage("OnQueryInventorySucceeded", GetProductsJson(skus));
+
+            SkuDetails iap_1 = inventory.getSkuDetails("iap_1");
+            if(iap_1 != null) {
+                detailedLog("Product 1: " + iap_1.getTitle());
+            }
 
 
             /*

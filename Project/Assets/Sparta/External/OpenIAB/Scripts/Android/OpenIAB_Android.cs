@@ -40,12 +40,12 @@ namespace OnePF
         public static readonly string STORE_SLIDEME;
         public static readonly string STORE_APTOIDE;
 
-#if UNITY_ANDROID
-        private static AndroidJavaObject _plugin;
+        #if UNITY_ANDROID
+        private static AndroidJavaObject _plugin = null;
 
         static OpenIAB_Android()
         {
-            if (Application.platform != RuntimePlatform.Android)
+            if(Application.platform != RuntimePlatform.Android)
             {
                 STORE_GOOGLE = "STORE_GOOGLE";
                 STORE_AMAZON = "STORE_AMAZON";
@@ -60,6 +60,8 @@ namespace OnePF
                 return;
             }
 
+            //*** TEST
+            /*
             AndroidJNI.AttachCurrentThread();
 
             // Find the plugin instance
@@ -68,24 +70,26 @@ namespace OnePF
                 _plugin = pluginClass.CallStatic<AndroidJavaObject>("instance");
             }
 
-            using (var pluginClass = new AndroidJavaClass("org.onepf.oms.OpenIabHelper"))
+
+            using(var pluginClass = new AndroidJavaClass("org.onepf.oms.OpenIabHelper"))
             {
-                STORE_GOOGLE =      pluginClass.GetStatic<string>("NAME_GOOGLE");
-                STORE_AMAZON =      pluginClass.GetStatic<string>("NAME_AMAZON");
-                STORE_SAMSUNG =     pluginClass.GetStatic<string>("NAME_SAMSUNG");
-                STORE_NOKIA =       pluginClass.GetStatic<string>("NAME_NOKIA");
-                STORE_SKUBIT =      pluginClass.GetStatic<string>("NAME_SKUBIT");
+                STORE_GOOGLE = pluginClass.GetStatic<string>("NAME_GOOGLE");
+                STORE_AMAZON = pluginClass.GetStatic<string>("NAME_AMAZON");
+                STORE_SAMSUNG = pluginClass.GetStatic<string>("NAME_SAMSUNG");
+                STORE_NOKIA = pluginClass.GetStatic<string>("NAME_NOKIA");
+                STORE_SKUBIT = pluginClass.GetStatic<string>("NAME_SKUBIT");
                 STORE_SKUBIT_TEST = pluginClass.GetStatic<string>("NAME_SKUBIT_TEST");
-                STORE_YANDEX =      pluginClass.GetStatic<string>("NAME_YANDEX");
-                STORE_APPLAND =     pluginClass.GetStatic<string>("NAME_APPLAND");
-                STORE_SLIDEME =     pluginClass.GetStatic<string>("NAME_SLIDEME");
-                STORE_APTOIDE =     pluginClass.GetStatic<string>("NAME_APTOIDE");
-            }         
+                STORE_YANDEX = pluginClass.GetStatic<string>("NAME_YANDEX");
+                STORE_APPLAND = pluginClass.GetStatic<string>("NAME_APPLAND");
+                STORE_SLIDEME = pluginClass.GetStatic<string>("NAME_SLIDEME");
+                STORE_APTOIDE = pluginClass.GetStatic<string>("NAME_APTOIDE");
+            } 
+            */
         }
 
         private bool IsDevice()
         {
-            if (Application.platform != RuntimePlatform.Android)
+            if(Application.platform != RuntimePlatform.Android)
             {
                 //OpenIAB.EventManager.SendMessage("OnBillingNotSupported", "editor mode");
                 return false;
@@ -98,14 +102,14 @@ namespace OnePF
             var j_HashMap = new AndroidJavaObject("java.util.HashMap");
             IntPtr method_Put = AndroidJNIHelper.GetMethodID(j_HashMap.GetRawClass(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
 
-            if (storeKeys != null)
+            if(storeKeys != null)
             {
                 object[] args = new object[2];
-                foreach (KeyValuePair<string, string> kvp in storeKeys)
+                foreach(KeyValuePair<string, string> kvp in storeKeys)
                 {
-                    using (AndroidJavaObject k = new AndroidJavaObject("java.lang.String", kvp.Key))
+                    using(AndroidJavaObject k = new AndroidJavaObject("java.lang.String", kvp.Key))
                     {
-                        using (AndroidJavaObject v = new AndroidJavaObject("java.lang.String", kvp.Value))
+                        using(AndroidJavaObject v = new AndroidJavaObject("java.lang.String", kvp.Value))
                         {
                             args[0] = k;
                             args[1] = v;
@@ -120,14 +124,14 @@ namespace OnePF
 
         public void init(Options options)
         {
-            if (!IsDevice())
+            if(!IsDevice())
             {
                 // Fake init process in the editor. For test purposes
                 OpenIAB.EventManager.SendMessage("OnBillingSupported", "");
                 return;
             }
 
-            using (var j_optionsBuilder = new AndroidJavaObject("org.onepf.oms.OpenIabHelper$Options$Builder"))
+            using(var j_optionsBuilder = new AndroidJavaObject("org.onepf.oms.OpenIabHelper$Options$Builder"))
             {
                 var clazz = j_optionsBuilder.GetRawClass();
                 var objPtr = j_optionsBuilder.GetRawObject();
@@ -135,13 +139,13 @@ namespace OnePF
                 j_optionsBuilder.Call<AndroidJavaObject>("setDiscoveryTimeout", options.discoveryTimeoutMs)
                                 .Call<AndroidJavaObject>("setCheckInventory", options.checkInventory)
                                 .Call<AndroidJavaObject>("setCheckInventoryTimeout", options.checkInventoryTimeoutMs)
-                                .Call<AndroidJavaObject>("setVerifyMode", (int) options.verifyMode)
-                                .Call<AndroidJavaObject>("setStoreSearchStrategy", (int) options.storeSearchStrategy);
+                                .Call<AndroidJavaObject>("setVerifyMode", (int)options.verifyMode)
+                                .Call<AndroidJavaObject>("setStoreSearchStrategy", (int)options.storeSearchStrategy);
 
-                if (options.samsungCertificationRequestCode > 0)
+                if(options.samsungCertificationRequestCode > 0)
                     j_optionsBuilder.Call<AndroidJavaObject>("setSamsungCertificationRequestCode", options.samsungCertificationRequestCode);
 
-                foreach (var pair in options.storeKeys)
+                foreach(var pair in options.storeKeys)
                     j_optionsBuilder.Call<AndroidJavaObject>("addStoreKey", pair.Key, pair.Value);
 
                 var addPreferredStoreNameMethod = AndroidJNI.GetMethodID(clazz, "addPreferredStoreName", "([Ljava/lang/String;)Lorg/onepf/oms/OpenIabHelper$Options$Builder;");
@@ -168,9 +172,10 @@ namespace OnePF
 
         public void init(Dictionary<string, string> storeKeys = null)
         {
-            if (!IsDevice()) return;
+            if(!IsDevice())
+                return;
 
-            if (storeKeys != null)
+            if(storeKeys != null)
             {
                 AndroidJavaObject j_storeKeys = CreateJavaHashMap(storeKeys);
                 _plugin.Call("init", j_storeKeys);
@@ -180,14 +185,15 @@ namespace OnePF
 
         public void mapSku(string sku, string storeName, string storeSku)
         {
-            if (!IsDevice()) return;
+            if(!IsDevice())
+                return;
 
             _plugin.Call("mapSku", sku, storeName, storeSku);
         }
 
         public void unbindService()
         {
-            if (IsDevice())
+            if(IsDevice())
             {
                 _plugin.Call("unbindService");
             }
@@ -195,7 +201,7 @@ namespace OnePF
 
         public bool areSubscriptionsSupported()
         {
-            if (!IsDevice())
+            if(!IsDevice())
             {
                 // Fake result for editor mode
                 return true;
@@ -205,7 +211,7 @@ namespace OnePF
 
         public void queryInventory()
         {
-            if (!IsDevice())
+            if(!IsDevice())
             {
                 return;
             }
@@ -220,7 +226,7 @@ namespace OnePF
 
         private void queryInventory(string[] inAppSkus, string[] subsSkus)
         {
-            if (!IsDevice())
+            if(!IsDevice())
             {
                 return;
             }
@@ -231,7 +237,7 @@ namespace OnePF
 
         public void purchaseProduct(string sku, string developerPayload = "")
         {
-            if (!IsDevice())
+            if(!IsDevice())
             {
                 // Fake purchase in editor mode
                 OpenIAB.EventManager.SendMessage("OnPurchaseSucceeded", Purchase.CreateFromSku(sku, developerPayload).Serialize());
@@ -242,7 +248,7 @@ namespace OnePF
 
         public void purchaseSubscription(string sku, string developerPayload = "")
         {
-            if (!IsDevice())
+            if(!IsDevice())
             {
                 // Fake purchase in editor mode
                 OpenIAB.EventManager.SendMessage("OnPurchaseSucceeded", Purchase.CreateFromSku(sku, developerPayload).Serialize());
@@ -253,7 +259,7 @@ namespace OnePF
 
         public void consumeProduct(Purchase purchase)
         {
-            if (!IsDevice())
+            if(!IsDevice())
             {
                 // Fake consume in editor mode
                 OpenIAB.EventManager.SendMessage("OnConsumePurchaseSucceeded", purchase.Serialize());
@@ -280,7 +286,7 @@ namespace OnePF
         {
             _plugin.Call("enableDebugLogging", enabled, tag);
         }
-#else
+        #else
 		static OpenIAB_Android() {
             STORE_GOOGLE = "STORE_GOOGLE";
             STORE_AMAZON = "STORE_AMAZON";
