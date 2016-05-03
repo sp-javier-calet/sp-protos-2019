@@ -30,6 +30,8 @@ public enum PermissionsManager {
 
     private AlertDialog currentDialog = null;
 
+    private String cachedApplicationName = null;
+
     HashSet<String> blockedPermissionsHashSet = new HashSet<>();
 
     public boolean checkPermissions(Activity activity)
@@ -197,10 +199,7 @@ public enum PermissionsManager {
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
-                        if(!hasPermissions(activity))
-                        {
-                            askPermissions(activity);
-                        }
+                        askPermissions(activity);
                     }
                 })
                 .show();
@@ -228,11 +227,15 @@ public enum PermissionsManager {
 
     String getApplicationName(final Activity activity)
     {
-        Context context = activity.getApplicationContext();
-        Metadata data = new Metadata(context);
-        int labelRes = context.getApplicationInfo().labelRes;
-        String fallbackAppName = labelRes != 0 ? context.getString(labelRes) : context.getPackageName();
-        return data.get("application.name",fallbackAppName);
+        if(cachedApplicationName == null)
+        {
+            Context context = activity.getApplicationContext();
+            Metadata data = new Metadata(context);
+            int labelRes = context.getApplicationInfo().labelRes;
+            String fallbackAppName = labelRes != 0 ? context.getString(labelRes) : context.getPackageName();
+            cachedApplicationName = data.get("application.name", fallbackAppName);
+        }
+        return cachedApplicationName;
     }
 
     public void checkPermissionsOrRestart(Activity activity)
