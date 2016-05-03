@@ -36,7 +36,7 @@ namespace SocialPoint.ServerSync
 
         AdminPanelLayout _layout;
 
-        AdminPanelCommandReceiver(CommandReceiver receiver)
+        public AdminPanelCommandReceiver(CommandReceiver receiver)
         {
             _commandReceiver = receiver;
             _history = new List<CommandLog>();

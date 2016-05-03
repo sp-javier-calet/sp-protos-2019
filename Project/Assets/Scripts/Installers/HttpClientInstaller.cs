@@ -6,6 +6,7 @@ using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -44,7 +45,13 @@ public class HttpClientInstaller : MonoInstaller
         }
 #endif
         Container.BindInstance("http_client_config", Settings.Config);
-        Container.Rebind<IHttpClient>().ToSingle<HttpClient>();
+        Container.Rebind<IHttpClient>().ToSingleMethod<HttpClient>(CreateHttpClient);
         Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+    }
+
+    HttpClient CreateHttpClient()
+    {
+        return new HttpClient(
+            Container.Resolve<ICoroutineRunner>());
     }
 }

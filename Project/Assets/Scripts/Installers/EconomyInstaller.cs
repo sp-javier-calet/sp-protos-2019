@@ -16,22 +16,35 @@ public class EconomyInstaller : Installer
 
         Container.Bind<IChildParser<IReward>>().ToSingle<ResourcesRewardParser>();
 
-        Container.Bind<IChildParser<ICost>>().ToSingle<ResourcesCostParser>();
-        Container.Bind<IChildParser<ICost>>().ToSingle<PurchaseCostParser>();
+        Container.Bind<IChildParser<ICost>>().ToSingleMethod<ResourcesCostParser>(CreateResourcesCostParser);
+        Container.Bind<IChildParser<ICost>>().ToSingleMethod<PurchaseCostParser>(CreatePurchaseCostParser);
 
         Container.Rebind<IParser<IReward>>().ToSingleMethod<FamilyParser<IReward>>(CreateRewardParser);
         Container.Rebind<IParser<ICost>>().ToSingleMethod<FamilyParser<ICost>>(CreateCostParser);
     }
 
+    ResourcesCostParser CreateResourcesCostParser()
+    {
+        return new ResourcesCostParser(
+            Container.Resolve<ResourcePool>(),
+            Container.Resolve<IEventDispatcher>());
+    }
+
+    PurchaseCostParser CreatePurchaseCostParser()
+    {
+        return new PurchaseCostParser(
+            Container.Resolve<IGamePurchaseStore>());
+    }
+
     FamilyParser<IReward> CreateRewardParser()
     {
-        var children = Container.Resolve<List<IChildParser<IReward>>>();
+        var children = Container.ResolveList<IChildParser<IReward>>();
         return new FamilyParser<IReward>(children);
     }
 
     FamilyParser<ICost> CreateCostParser()
     {
-        var children = Container.Resolve<List<IChildParser<ICost>>>();
+        var children = Container.ResolveList<IChildParser<ICost>>();
         return new FamilyParser<ICost>(children);
     }
 

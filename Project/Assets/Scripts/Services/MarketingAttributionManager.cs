@@ -10,7 +10,7 @@ public class MarketingAttributionManager : SocialPointMarketingAttributionManage
     public MarketingAttributionManager(IAppEvents appEvents, IAttrStorage storage) : base(appEvents, storage)
     {
         var login = ServiceLocator.Instance.Resolve<ILogin>();
-        var trackers = ServiceLocator.Instance.ResolveList<IMarketingTracker>();
+        var trackers = ServiceLocator.Instance.ResolveArray<IMarketingTracker>();
         for(int i = 0; i < trackers.Length; i++)
         {
             AddTracker(trackers[i]);

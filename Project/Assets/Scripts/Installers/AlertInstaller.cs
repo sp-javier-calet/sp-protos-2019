@@ -34,9 +34,15 @@ public class AlertInstaller : MonoInstaller
             Container.Bind<IDisposable>().ToLookup<IAlertView>();
         }
 
-        Container.Bind<IEventsBridge>().ToSingle<AlertBridge>();
-        Container.Bind<IScriptEventsBridge>().ToSingle<AlertBridge>();
+        Container.Bind<AlertBridge>().ToSingleMethod<AlertBridge>(CreateAlertBridge);
+        Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
+        Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
     }
+
+    public AlertBridge CreateAlertBridge()
+    {
+        return new AlertBridge(Container.Resolve<IAlertView>());
+    }        
 
     void ShowUnityAlert(GameObject go)
     {

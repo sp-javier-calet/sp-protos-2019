@@ -2,6 +2,7 @@
 using SocialPoint.Dependency;
 using SocialPoint.ServerEvents;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Utils;
 
 public class ServerEventsInstaller : Installer
 {
@@ -22,10 +23,24 @@ public class ServerEventsInstaller : Installer
         Container.BindInstance("event_tracker_outofsync_interval", Settings.MaxOutOfSyncInterval);
         Container.BindInstance("event_tracker_send_interval", Settings.SendInterval);
         Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
-        Container.Rebind<IEventTracker>().ToSingle<EventTracker>();
+        Container.Rebind<EventTracker>().ToSingleMethod<EventTracker>(CreateEventTracker);
+        Container.Rebind<IEventTracker>().ToLookup<EventTracker>();
         Container.Bind<IDisposable>().ToLookup<IEventTracker>();
 
-        Container.Bind<IEventsBridge>().ToSingle<ServerEventsBridge>();
-        Container.Bind<IScriptEventsBridge>().ToSingle<ServerEventsBridge>();
+        Container.Rebind<ServerEventsBridge>().ToSingleMethod<ServerEventsBridge>(CreateBridge);
+        Container.Bind<IEventsBridge>().ToLookup<ServerEventsBridge>();
+        Container.Bind<IScriptEventsBridge>().ToLookup<ServerEventsBridge>();
 	}
+
+    ServerEventsBridge CreateBridge()
+    {
+        return new ServerEventsBridge(
+            Container.Resolve<IEventTracker>());
+    }
+
+    EventTracker CreateEventTracker()
+    {
+        return new EventTracker(
+            Container.Resolve<ICoroutineRunner>());
+    }
 }

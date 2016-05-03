@@ -10,7 +10,7 @@ namespace SocialPoint.Locale
         readonly ILocalizationManager _manager;
         AdminPanel.AdminPanel _adminPanel;
 
-        AdminPanelLocale(ILocalizationManager manager)
+        public AdminPanelLocale(ILocalizationManager manager)
         {
             _manager = manager;
         }

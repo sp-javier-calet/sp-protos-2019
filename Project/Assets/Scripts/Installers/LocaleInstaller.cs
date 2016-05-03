@@ -2,6 +2,9 @@ using System;
 using SocialPoint.Locale;
 using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
+using SocialPoint.Network;
+using SocialPoint.Hardware;
+using SocialPoint.Utils;
 
 public class LocaleInstaller : MonoInstaller
 {
@@ -50,12 +53,33 @@ public class LocaleInstaller : MonoInstaller
         Container.BindInstance("locale_supported_langs", Settings.SupportedLanguages);
         Container.BindInstance("locale_timeout", Settings.Timeout);
         Container.BindInstance("locale_bundle_dir", Settings.BundleDir);
-        Container.Rebind<ILocalizationManager>().ToSingle<LocalizationManager>();
+        Container.Rebind<ILocalizationManager>().ToSingleMethod<LocalizationManager>(CreateLocalizationManager);
         Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
          
-        Container.Rebind<LocalizeAttributeConfiguration>().ToSingle();
+        Container.Rebind<LocalizeAttributeConfiguration>().ToSingleMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelLocale>(CreateAdminPanel);
+    }
+
+    LocalizeAttributeConfiguration CreateLocalizeAttributeConfiguration()
+    {
+        return new LocalizeAttributeConfiguration(
+            Container.Resolve<Localization>(),
+            Container.ResolveList<IMemberAttributeObserver<LocalizeAttribute>>());
+    }
+
+    AdminPanelLocale CreateAdminPanel()
+    {
+        return new AdminPanelLocale(
+            Container.Resolve<ILocalizationManager>());
+    }
+
+    LocalizationManager CreateLocalizationManager()
+    {
+        return new LocalizationManager(
+            Container.Resolve<IHttpClient>(),
+            Container.Resolve<IAppInfo>(),
+            Container.Resolve<Localization>());
     }
 
     Localization CreateLocalization()

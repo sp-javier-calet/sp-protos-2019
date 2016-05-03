@@ -16,12 +16,12 @@ class CommandQueue : SocialPoint.ServerSync.CommandQueue
 {
     public CommandQueue(ICoroutineRunner runner, IHttpClient client) : base(runner, client)
     {
-        IgnoreResponses = ServiceLocator.Instance.OptResolve<bool>("command_queue_ignore_responses", IgnoreResponses);
-        SendInterval =  ServiceLocator.Instance.OptResolve<int>("command_queue_send_interval", SendInterval);
-        MaxOutOfSyncInterval = ServiceLocator.Instance.OptResolve<int>("command_queue_outofsync_interval", MaxOutOfSyncInterval);
-        Timeout = ServiceLocator.Instance.OptResolve<float>("command_queue_timeout", Timeout);
-        BackoffMultiplier = ServiceLocator.Instance.OptResolve<float>("command_queue_backoff_multiplier", BackoffMultiplier);
-        PingEnabled = ServiceLocator.Instance.OptResolve<bool>("command_queue_ping_enabled", PingEnabled);
+        IgnoreResponses = ServiceLocator.Instance.Resolve<bool>("command_queue_ignore_responses", IgnoreResponses);
+        SendInterval =  ServiceLocator.Instance.Resolve<int>("command_queue_send_interval", SendInterval);
+        MaxOutOfSyncInterval = ServiceLocator.Instance.Resolve<int>("command_queue_outofsync_interval", MaxOutOfSyncInterval);
+        Timeout = ServiceLocator.Instance.Resolve<float>("command_queue_timeout", Timeout);
+        BackoffMultiplier = ServiceLocator.Instance.Resolve<float>("command_queue_backoff_multiplier", BackoffMultiplier);
+        PingEnabled = ServiceLocator.Instance.Resolve<bool>("command_queue_ping_enabled", PingEnabled);
         AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
         TrackEvent = ServiceLocator.Instance.Resolve<IEventTracker>().TrackEvent;
         RequestSetup = ServiceLocator.Instance.Resolve<ILogin>().SetupHttpRequest;

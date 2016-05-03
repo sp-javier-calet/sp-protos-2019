@@ -3,6 +3,9 @@ using SocialPoint.Dependency;
 using SocialPoint.Rating;
 using SocialPoint.Alert;
 using SocialPoint.AdminPanel;
+using SocialPoint.Hardware;
+using SocialPoint.Attributes;
+using SocialPoint.AppEvents;
 
 public class RatingInstaller : MonoInstaller, IInitializable
 {
@@ -29,9 +32,26 @@ public class RatingInstaller : MonoInstaller, IInitializable
         Container.BindInstance("apprater_days_before_reminding", Settings.DaysBeforeReminding);
         Container.BindInstance("apprater_user_level_until_prompt", Settings.UserLevelUntilPrompt);
         Container.BindInstance("apprater_max_prompts_per_day", Settings.MaxPromptsPerDay);
-        Container.Rebind<IAppRater>().ToSingle<AppRater>();
-        Container.Bind<IDisposable>().ToSingle<AppRater>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppRater>();
+        Container.Rebind<AppRater>().ToSingleMethod<AppRater>(CreateAppRater);
+        Container.Rebind<IAppRater>().ToLookup<AppRater>();
+        Container.Bind<IDisposable>().ToLookup<AppRater>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelAppRater>(CreateAdminPanel);
+    }
+
+    AdminPanelAppRater CreateAdminPanel()
+    {
+        return new AdminPanelAppRater(
+            Container.Resolve<IAppRater>());
+    }
+
+    AppRater CreateAppRater()
+    {
+        var rater = new AppRater(
+            Container.Resolve<IDeviceInfo>(),
+            Container.Resolve<IAttrStorage>("volatile"),
+            Container.Resolve<IAppEvents>());
+
+        return rater;
     }
 
     public void Initialize()

@@ -12,13 +12,37 @@ namespace SocialPoint.Dependency
 
     public class ResolveException : InvalidOperationException
     {
-        public ResolveException(Type t, string tag=null):
-        base("Could not resolve type "+t+" tag "+tag+".")
+        public ResolveException(string msg):base(msg)
         {
         }
     }
 
-    public class Binding<F>
+    public interface IBinding
+    {
+        object Resolve();
+    }
+
+    public class UnityComponentBinding<F> : IBinding where F : Component
+    {
+        ServiceLocator _container;
+
+        public UnityComponentBinding(ServiceLocator container)
+        {
+            _container = container;
+        }
+
+        public object Resolve()
+        {
+            return _container.gameObject.AddComponent<F>();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[UnityComponentBinding {0}]", typeof(F));
+        }
+    }
+
+    public class Binding<F> : IBinding
     {
         enum ToType
         {
@@ -39,12 +63,7 @@ namespace SocialPoint.Dependency
             _container = container;
         }
 
-        public void ToSingle()
-        {
-            ToSingle<F>();
-        }
-
-        public void ToSingle<T>() where T : F
+        public void ToSingle<T>() where T : F, new()
         {
             _toType = ToType.Single;
             _type = typeof(T);
@@ -65,7 +84,7 @@ namespace SocialPoint.Dependency
         public void ToSingleMethod<T>(Func<T> method) where T : F
         {
             _type = typeof(T);
-            _method = method;
+            _method = () => method();
             _toType = ToType.Method;
         }
 
@@ -76,34 +95,19 @@ namespace SocialPoint.Dependency
             _toType = ToType.Method;
         }
 
-        public F Resolve()
-        {
-            F val;
-            if(!TryResolve(out val))
-            {
-                throw new ResolveException(typeof(F));
-            }
-            return val;
-        }
-
-        public bool TryResolve(out F val)
+        public object Resolve()
         {
             if(_instance != null)
             {
-                val = _instance;
-                return true;
             }
-            if(_toType == ToType.Single)
+            else if(_toType == ToType.Single)
             {
                 _instance = (F)_container.Create(_type);
-                val = _instance;
-                return true;
             }
             else if(_toType == ToType.Lookup)
             {
                 _instance = (F)_container.Resolve(_type);
-                val = _instance;
-                return true;
+
             }
             else if(_toType == ToType.Method)
             {
@@ -116,11 +120,13 @@ namespace SocialPoint.Dependency
                     var param = _container.Resolve(_type);
                     _instance = (F)_getter(param);
                 }
-                val = _instance;
-                return true;
             }
-            val = default(F);
-            return false;
+            return _instance;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[Binding {0} -> {1} {2}]", typeof(F), _toType, _type);
         }
     }
 
@@ -136,22 +142,19 @@ namespace SocialPoint.Dependency
         }
     }
 
-    public class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>
+    public sealed class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>
     {
-        [SerializeField]
-        IInstaller[] _installers;
-
         List<IInstaller> _installedInstallers = new List<IInstaller>();
+        //List<IInitializable> _initializedInitializables = new List<IInitializable>();
+        Dictionary<BindingKey, List<IBinding>> _bindings = new Dictionary<BindingKey, List<IBinding>>();
 
-        Dictionary<BindingKey, List<object>> _bindings = new Dictionary<BindingKey, List<object>>();
-
-        void AddBinding(object binding, Type type, string tag=null)
+        void AddBinding(IBinding binding, Type type, string tag=null)
         {
-            List<object> list;
+            List<IBinding> list;
             var key = new BindingKey( type, tag );
             if(!_bindings.TryGetValue(key, out list))
             {
-                list = new List<object>();
+                list = new List<IBinding>();
                 _bindings[key] = list;
             }
             list.Add(binding);
@@ -162,6 +165,12 @@ namespace SocialPoint.Dependency
             var bind = new Binding<T>(this);
             AddBinding(bind, typeof(T), tag);
             return bind;
+        }
+
+        public void BindUnityComponent<T>(string tag = null) where T : Component
+        {
+            var bind = new UnityComponentBinding<T>(this);
+            AddBinding(bind, typeof(T), tag);
         }
 
         public bool Remove<T>(string tag = null)
@@ -194,86 +203,77 @@ namespace SocialPoint.Dependency
             _installedInstallers.Add(installer);
         }
 
-        public bool TryResolve<T>(out object val)
+        public void Install(IInstaller[] installers)
         {
-            return TryResolve(typeof(T), out val);
-        }
-
-        public bool TryResolve(Type type, out object val)
-        {
-            return TryResolve(type, null, out val);
-        }
-
-        public T Resolve<T>(string tag=null)
-        {
-            return (T)Resolve(typeof(T), tag);
-        }
-
-        public object Resolve(Type type, string tag=null)
-        {
-            object obj;
-            if(!TryResolve(type, tag, out obj))
+            for(var i = 0; i < installers.Length; i++)
             {
-                throw new ResolveException(type, tag);
+                Install(installers[i]);
             }
-            return obj;
         }
 
-        public T OptResolve<T>(string tag=null, T def=default(T))
+        public void Initialize()
         {
-            return (T)OptResolve(typeof(T), tag, def);
-        }
-
-        public object OptResolve(Type t, string tag=null, object def=null)
-        {
-            object obj;
-            if(!TryResolve(t, tag, out obj))
+            /*
+            var inits = ResolveArray<IInitializable>();
+            for(var i = 0; i < inits.Length; i++)
             {
-                return def;
-            }
-            return obj;
-        }
-
-        public bool TryResolve<T>(string tag, out object val)
-        {
-            return TryResolve(typeof(T), tag, out val);
-        }
-
-        public bool TryResolve(Type type, string tag, out object val)
-        {
-            List<object> objs;
-            if(_bindings.TryGetValue(new BindingKey(type, tag), out objs))
-            {
-                if(objs.Count > 0)
+                var init = inits[i];
+                if(!_initializedInitializables.Contains(init))
                 {
-                    val = objs[0];
-                    return true;
+                    init.Initialize();
+                    _initializedInitializables.Add(init);
+                }
+            }*/
+        }
+
+        void AddBindedComponents()
+        {
+            List<IBinding> bindings;
+            var type = typeof(MonoBehaviour);
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
+            {
+
+            }
+        }
+
+
+        public T Resolve<T>(string tag=null, T def=default(T))
+        {
+            return (T)Resolve(typeof(T), tag, def);
+        }
+
+        public object Resolve(Type type, string tag=null, object def=null)
+        {
+            List<IBinding> bindings;
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
+            {
+                if(bindings.Count > 0)
+                {
+                    var binding = bindings[0];
+                    Debug.Log("resolve " + binding);
+                    return binding.Resolve();
                 }
             }
-            val = null;
-            return false;
+            return def;
         }
 
-        public List<object> ResolveList(Type type, string tag=null)
+        public List<T> ResolveList<T>(string tag=null)
         {
-            var objs = new List<object>();
-            if(_bindings.TryGetValue(new BindingKey(type, tag), out objs))
-            {
-                return objs;
-            }
-            return objs;
+            return new List<T>(ResolveArray<T>(tag));
         }
 
-        public T[] ResolveList<T>(string tag=null)
+        public T[] ResolveArray<T>(string tag=null)
         {
-            var objs = new List<object>();
+            var objs = new List<IBinding>();
             var type = typeof(T);
             if(_bindings.TryGetValue(new BindingKey(type, tag), out objs))
             {
                 var arr = new T[objs.Count];
                 for(var i = 0; i < arr.Length; i++)
                 {
-                    arr[i] = (T)objs[i];
+                    var binding = objs[i];
+                    Debug.Log("resolve array " + binding);
+                    arr[i] = (T)binding.Resolve();
                 }
                 return arr;
             }
@@ -287,36 +287,37 @@ namespace SocialPoint.Dependency
 
         public object Create(Type type)
         {
+            /*
             object obj;
             if(TryResolve(type, out obj))
             {
                 return obj;
+            }*/
+            var construct = type.GetConstructor(new Type[]{ });
+            if(construct == null)
+            {
+                throw new ResolveException("Type " + type + " does not have a default constructor");
             }
-            return type.GetConstructor(new Type[]{}).Invoke(new object[]{});
+            return construct.Invoke(new object[]{});
         }
 
         const string GlobalInstallersResource = "GlobalInstallers";
 
-        public void Start()
+        override protected void SingletonAwakened()
         {
-            var globalConfig = Resources.Load<GlobalInstallerConfig>(GlobalInstallersResource);
-            for(var i = 0; i < globalConfig.Installers.Length; i++)
+            var globalConfig = Resources.Load<GlobalDependencyConfigurer>(GlobalInstallersResource);
+            if(globalConfig != null)
             {
-                Install(globalConfig.Installers[i]);
-            }
-            for(var i = 0; i < _installers.Length; i++)
-            {
-                Install(_installers[i]);
+                Install(globalConfig.Installers);
             }
         }
     }
 
     public static class ServiceLocatorExtensions
     {
-
-        public static void Install<T>(this ServiceLocator locator) where T : IInstaller
+        public static void Install<T>(this ServiceLocator locator) where T : IInstaller, new()
         {
-            locator.Install(default(T));
+            locator.Install(new T());
         }
 
         public static Binding<T> Rebind<T>(this ServiceLocator locator, string tag=null)

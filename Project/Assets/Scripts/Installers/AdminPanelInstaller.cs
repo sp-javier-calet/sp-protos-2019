@@ -12,14 +12,20 @@ public class AdminPanelInstaller : MonoInstaller, IInitializable
     {
 #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
         Container.Bind<IInitializable>().ToSingleInstance(this);
-        Container.Rebind<AdminPanel>().ToSingle<AdminPanel>();       
+        Container.Rebind<AdminPanel>().ToSingleMethod<AdminPanel>(CreateAdminPanel);
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
-        Container.Bind<ConsoleProRemoteServer>().ToSingle<GameObject>();
+        Container.BindUnityComponent<ConsoleProRemoteServer>();
 #endif
+    }
+
+    AdminPanel CreateAdminPanel()
+    {
+        return new AdminPanel(
+            Container.ResolveList<IAdminPanelConfigurer>());
     }
 
     public void Initialize()

@@ -4,6 +4,7 @@ using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 
 public class FacebookInstaller : MonoInstaller
 {
@@ -25,13 +26,25 @@ public class FacebookInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IFacebook>().ToSingle<UnityFacebook>();
+            Container.Rebind<IFacebook>().ToSingleMethod<UnityFacebook>(CreateUnityFacebook);
         }
         if(Settings.LoginLink)
         {
             Container.Bind<ILink>().ToSingleMethod<FacebookLink>(CreateLoginLink);
         }
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelFacebook>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelFacebook>(CreateAdminPanel);
+    }
+
+    AdminPanelFacebook CreateAdminPanel()
+    {
+        return new AdminPanelFacebook(
+            Container.Resolve<IFacebook>());
+    }
+
+    UnityFacebook CreateUnityFacebook()
+    {
+        return new UnityFacebook(
+            Container.Resolve<ICoroutineRunner>());
     }
 
     FacebookLink CreateLoginLink()

@@ -8,12 +8,28 @@ public class AppEventsInstaller : MonoInstaller
 {
 	public override void InstallBindings()
 	{
-        Container.Rebind<IAppEvents>().ToSingle<SocialPointAppEvents>();
+        Container.Rebind<IAppEvents>().ToSingleMethod<SocialPointAppEvents>(CreateAppEvents);
         Container.Bind<IDisposable>().ToLookup<IAppEvents>();
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAppEvents>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelAppEvents>(CreateAdminPanelAppEvents);
 
-        Container.Bind<IEventsBridge>().ToSingle<AppEventsBridge>();
-        Container.Bind<IScriptEventsBridge>().ToSingle<AppEventsBridge>();
+        Container.Bind<AppEventsBridge>().ToSingleMethod<AppEventsBridge>(CreateAppEventsBridge);
+        Container.Bind<IEventsBridge>().ToLookup<AppEventsBridge>();
+        Container.Bind<IScriptEventsBridge>().ToLookup<AppEventsBridge>();
 	}
+
+    SocialPointAppEvents CreateAppEvents()
+    {
+        return new SocialPointAppEvents(Container.gameObject.transform);
+    }
+
+    AdminPanelAppEvents CreateAdminPanelAppEvents()
+    {
+        return new AdminPanelAppEvents(Container.Resolve<IAppEvents>());
+    }
+
+    AppEventsBridge CreateAppEventsBridge()
+    {
+        return new AppEventsBridge(Container.Resolve<IAppEvents>());
+    }
 }

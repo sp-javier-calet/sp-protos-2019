@@ -3,6 +3,8 @@ using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
 using SocialPoint.ServerSync;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Utils;
+using SocialPoint.Network;
 
 public class ServerSyncInstaller : Installer
 {
@@ -28,14 +30,33 @@ public class ServerSyncInstaller : Installer
         Container.BindInstance("command_queue_backoff_multiplier", Settings.BackoffMultiplier);
         Container.BindInstance("command_queue_ping_enabled", Settings.PingEnabled);
 
-        Container.Rebind<IGameLoader>().ToSingle<GameLoader>();
-        Container.Rebind<ICommandQueue>().ToSingle<CommandQueue>();
+        Container.Rebind<ICommandQueue>().ToSingleMethod<CommandQueue>(CreateCommandQueue);
         Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
 
-        Container.Bind<IEventsBridge>().ToSingle<ServerSyncBridge>();
-        Container.Bind<IScriptEventsBridge>().ToSingle<ServerSyncBridge>();
+        Container.Rebind<ServerSyncBridge>().ToSingleMethod<ServerSyncBridge>(CreateBridge);
+        Container.Bind<IEventsBridge>().ToLookup<ServerSyncBridge>();
+        Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
 
         Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCommandReceiver>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelCommandReceiver>(CreateAdminPanelCommandReceiver);
+    }
+
+    CommandQueue CreateCommandQueue()
+    {
+        return new CommandQueue(
+            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<IHttpClient>());
+    }
+
+    ServerSyncBridge CreateBridge()
+    {
+        return new ServerSyncBridge(
+            Container.Resolve<ICommandQueue>());
+    }
+
+    AdminPanelCommandReceiver CreateAdminPanelCommandReceiver()
+    {
+        return new AdminPanelCommandReceiver(
+            Container.Resolve<CommandReceiver>());
     }
 }

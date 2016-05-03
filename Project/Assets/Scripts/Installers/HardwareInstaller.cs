@@ -40,6 +40,12 @@ public class HardwareInstaller : MonoInstaller
         Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
         Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelHardware>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelHardware>(CreateAdminPanel);
 	}
+
+    AdminPanelHardware CreateAdminPanel()
+    {
+        return new AdminPanelHardware(
+            Container.Resolve<IDeviceInfo>());
+    }
 }

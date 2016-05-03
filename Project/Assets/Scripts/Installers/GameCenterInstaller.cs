@@ -34,7 +34,13 @@ public class GameCenterInstaller : MonoInstaller
         #else
         Container.Rebind<IGameCenter>().ToSingleMethod<EmptyGameCenter>(CreateEmptyGameCenter);
         #endif
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGameCenter>();
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelGameCenter>(CreateGameCenter);
+    }
+
+    AdminPanelGameCenter CreateGameCenter()
+    {
+        return new AdminPanelGameCenter(
+            Container.Resolve<IGameCenter>());
     }
 
     GameCenterLink CreateLoginLink()

@@ -21,7 +21,7 @@ public class ResourcesCostParser : IChildParser<ICost>
     ResourcePool _playerResources;
     IEventDispatcher _dispatcher;
 
-    ResourcesCostParser(ResourcePool playerResources, IEventDispatcher dispatcher)
+    public ResourcesCostParser(ResourcePool playerResources, IEventDispatcher dispatcher)
     {
         _playerResources = playerResources;
         _dispatcher = dispatcher;

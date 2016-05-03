@@ -30,9 +30,23 @@ public class NotificationInstaller : Installer, IInitializable
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        Container.Rebind<NotificationManager>().ToSingle<NotificationManager>();
-        Container.Bind<IDisposable>().ToSingle<NotificationManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
+        Container.Rebind<NotificationManager>().ToSingleMethod<NotificationManager>(CreateNotificationManager);
+        Container.Bind<IDisposable>().ToSingleMethod<NotificationManager>(CreateNotificationManager);
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelNotifications>(CreateAdminPanel);
+    }
+
+    AdminPanelNotifications CreateAdminPanel()
+    {
+        return new AdminPanelNotifications(
+            Container.Resolve<INotificationServices>());
+    }
+
+    NotificationManager CreateNotificationManager()
+    {
+        return new NotificationManager(
+            Container.Resolve<INotificationServices>(),
+            Container.Resolve<IAppEvents>()
+        );
     }
 
     public void Initialize()

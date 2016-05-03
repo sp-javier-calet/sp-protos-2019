@@ -22,7 +22,7 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
         if(!Container.HasBinding<ILogin>())
         {
             Container.Bind<IInitializable>().ToSingleInstance(this);
-            Container.Bind<ILogin>().ToSingle<EmptyLogin>();
+            Container.Bind<ILogin>().ToSingleMethod<EmptyLogin>(CreateEmptyLogin);
             Container.Bind<IDisposable>().ToLookup<ILogin>();
         }
         if(!Container.HasInstalled<LoginAdminPanelInstaller>())
@@ -36,19 +36,19 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
         }
         if(!Container.HasBinding<BreadcrumbManager>())
         {
-            Container.Bind<BreadcrumbManager>().ToSingle();
+            Container.Bind<BreadcrumbManager>().ToSingle<BreadcrumbManager>();
         }
         if(!Container.HasBinding<ICrashReporter>())
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
-            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelCrashReporter>(CreateAdminPanelCrashRepoter);
         }
         if(!Container.HasBinding<IMessageCenter>())
         {
             Container.Bind<IMessageCenter>().ToSingle<EmptyMessageCenter>();
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
-            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelMessageCenter>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelMessageCenter>(CreateAdminPanelMessageCenter);
         }
         if(!Container.HasBinding<SocialPoint.CrossPromotion.CrossPromotionManager>())
         {
@@ -56,9 +56,28 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
         }
     }
 
+    AdminPanelCrashReporter CreateAdminPanelCrashRepoter()
+    {
+        return new AdminPanelCrashReporter(
+            Container.Resolve<ICrashReporter>(),
+            Container.Resolve<BreadcrumbManager>());
+    }
+
+    AdminPanelMessageCenter CreateAdminPanelMessageCenter()
+    {
+        return new AdminPanelMessageCenter(
+            Container.Resolve<IMessageCenter>(),
+            Container.Resolve<ILogin>());
+    }
+
+    EmptyLogin CreateEmptyLogin()
+    {
+        return new EmptyLogin(null);
+    }
+
     public void Initialize()
     {
-        var loader = Container.OptResolve<IGameLoader>();
+        var loader = Container.Resolve<IGameLoader>();
         if(loader != null)
         {
             loader.Load(null);

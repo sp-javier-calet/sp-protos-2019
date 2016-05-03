@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
+using SocialPoint.Network;
 
 public class LoginInstaller : Installer
 {
@@ -40,7 +41,14 @@ public class LoginInstaller : Installer
         Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
         Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
 
-        Container.Rebind<ILogin>().ToSingle<Login>();
+        Container.Rebind<ILogin>().ToSingleMethod<Login>(CreateLogin);
         Container.Bind<IDisposable>().ToLookup<ILogin>();
+    }
+
+    Login CreateLogin()
+    {
+        return new Login(
+            Container.Resolve<IHttpClient>(),
+            Container.Resolve<Login.LoginConfig>());
     }
 }

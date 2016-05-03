@@ -3,6 +3,8 @@ using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.QualityStats;
 using SocialPoint.Utils;
+using SocialPoint.Hardware;
+using SocialPoint.AppEvents;
 
 public class QualityStatsInstaller : Installer
 {
@@ -11,8 +13,15 @@ public class QualityStatsInstaller : Installer
         Container.Rebind<QualityStatsHttpClient>().ToSingleMethod<QualityStatsHttpClient>(CreateHttpClient);
         Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
         Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
-        Container.Rebind<QualityStats>().ToSingle<QualityStats>();
-        Container.Bind<IDisposable>().ToSingle<QualityStats>();
+        Container.Rebind<QualityStats>().ToSingleMethod<QualityStats>(CreateQualityStats);
+        Container.Bind<IDisposable>().ToLookup<QualityStats>();
+    }
+
+    QualityStats CreateQualityStats()
+    {
+        return new QualityStats(
+            Container.Resolve<IDeviceInfo>(),
+            Container.Resolve<IAppEvents>());
     }
 
     QualityStatsHttpClient CreateHttpClient()

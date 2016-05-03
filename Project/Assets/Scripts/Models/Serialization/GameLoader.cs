@@ -51,7 +51,7 @@ public class GameLoader : IGameLoader
         _playerParser = ServiceLocator.Instance.Resolve<IParser<PlayerModel>>();
         _playerSerializer = ServiceLocator.Instance.Resolve<ISerializer<PlayerModel>>();
         _gameModel = ServiceLocator.Instance.Resolve<GameModel>();
-        _login = ServiceLocator.Instance.OptResolve<ILogin>();
+        _login = ServiceLocator.Instance.Resolve<ILogin>();
     }
 
     GameModel LoadInitialGame()

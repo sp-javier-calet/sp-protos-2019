@@ -8,9 +8,6 @@ public class SceneAdditiveLoader : MonoBehaviour
     [SerializeField]
     List<string> _scenes = new List<string>();
 
-    [SerializeField]
-    MonoBehaviour[] _monoBehavioursToInject;
-
     void Start()
     {
         for(int i = 0; i < _scenes.Count; ++i)
