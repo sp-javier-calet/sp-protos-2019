@@ -106,7 +106,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
 
     /* Product Operations */
 
-    public void LoadProducts()
+    public void LoadProducts(final List<String> productIds)
     {
         detailedLog("Products Request Started");
 
@@ -118,10 +118,6 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
         UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
             public void run() {
                 try {
-                    //*** TEST (pass as final param)
-                    ArrayList<String> productIds = new ArrayList<String>();
-                    productIds.add(0, "iap_1");
-
                     _helper.queryInventoryAsync(true, productIds, null, _gotInventoryListener);
                 } catch (IabAsyncInProgressException e) {
                     String errorMessage = "Products Request Cancelled: Another async operation in progress";
@@ -134,7 +130,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
 
     private String GetProductJson(SkuDetails product)
     {
-        /*String json = "{"
+        String json = "{"
                 + "itemType:" + product.getItemType() + ","
                 + "sku:" +  product.getSku() + ","
                 + "type:" + product.getType() + ","
@@ -144,8 +140,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
                 + "currencyCode:" +  product.getPriceCurrencyCode() + ","
                 + "priceValue:" + product.getPriceAmountMicros()
                 + "}";
-        return json;*/
-        return product.toString();
+        return json;
     }
 
     private String GetProductsJson(List<SkuDetails> products)
@@ -178,7 +173,8 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
     public void receivedBroadcast() {
         // Received a broadcast notification that the inventory of items has changed
         detailedLog("Received broadcast notification. Querying inventory.");
-        LoadProducts();
+        //TODO: Is this intended for updated products or purchases??
+        //LoadProducts();
     }
 
     // Listener that's called when we finish querying the items and subscriptions we own
@@ -200,12 +196,6 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
             //TODO: Filter only ids that the user requested in Unity
             List<SkuDetails> skus = inventory.getAllSkuDetails();
             _unityMessageSender.SendMessage("OnQueryInventorySucceeded", GetProductsJson(skus));
-
-            SkuDetails iap_1 = inventory.getSkuDetails("iap_1");
-            if(iap_1 != null) {
-                detailedLog("Product 1: " + iap_1.getTitle());
-            }
-
 
             /*
              * Check for items we own. Notice that for each purchase, we check

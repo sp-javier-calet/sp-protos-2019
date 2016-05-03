@@ -26,7 +26,7 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                _notifClass.CallStatic("RequestProductData");
+                _notifClass.CallStatic("RequestProductData", string.Join(",", productIdentifiers));
             }
         }
     }

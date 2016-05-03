@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.unity3d.player.UnityPlayer;
 
+import java.util.ArrayList;
+
 import es.socialpoint.sparta.purchase.SPPurchaseNativeServices;
 
 /**
@@ -19,10 +21,15 @@ public class SPPurchaseStore {
         _purchaseServices = new SPPurchaseNativeServices(listenerObjectName);
     }
 
-    public static void RequestProductData()
+    public static void RequestProductData(String productIds)
     {
         if(_purchaseServices != null) {
-            _purchaseServices.LoadProducts();
+            String[] ids = productIds.split(",");
+            ArrayList<String> skus  = new ArrayList<String>();
+            for (String p : ids) {
+                skus.add(p);
+            }
+            _purchaseServices.LoadProducts(skus);
         }
     }
 }

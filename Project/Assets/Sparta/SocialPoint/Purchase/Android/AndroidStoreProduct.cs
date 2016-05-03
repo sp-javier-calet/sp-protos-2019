@@ -21,6 +21,7 @@ namespace SocialPoint.Purchase
 
         public string CurrencyCode { get; private set; }
 
+        //x1.000.000
         public string PriceValue { get; private set; }
 
 
