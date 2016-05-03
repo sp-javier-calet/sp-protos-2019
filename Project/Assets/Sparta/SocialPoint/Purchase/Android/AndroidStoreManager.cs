@@ -73,6 +73,7 @@ namespace SocialPoint.Purchase
 
         private void OnQueryInventorySucceeded(string json)
         {
+            Debug.Log("*** TEST Query Inventory Succeeded: " + json);
             if(QueryInventorySucceededEvent != null)
             {
                 AndroidStoreInventory inventory = new AndroidStoreInventory(json);

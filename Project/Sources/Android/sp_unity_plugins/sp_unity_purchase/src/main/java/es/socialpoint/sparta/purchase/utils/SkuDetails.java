@@ -34,6 +34,7 @@ public class SkuDetails {
         mDescription = o.optString("description");
     }
 
+    public String getItemType() { return mItemType; }
     public String getSku() { return mSku; }
     public String getType() { return mType; }
     public String getPrice() { return mPrice; }

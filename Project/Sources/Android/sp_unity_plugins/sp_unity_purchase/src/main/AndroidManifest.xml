@@ -1,6 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="es.socialpoint.sparta.purchase">
 
+    <application>
+        <activity android:name="es.socialpoint.sparta.purchase.SPPurchaseNativeServices"
+            android:launchMode="singleTask"
+            android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen"
+            android:screenOrientation="sensorLandscape">
+        </activity>
+    </application>
+
     <uses-permission android:name="com.android.vending.BILLING" />
 
 </manifest>
