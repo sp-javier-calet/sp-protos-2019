@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace SocialPoint.Purchase
 {
@@ -13,7 +14,7 @@ namespace SocialPoint.Purchase
         public static event Action<string> BillingNotSupportedEvent;
 
         //Successful QueryInventory callback. Purchase history and store listings are returned/
-        public static event Action<AndroidStoreInventory> QueryInventorySucceededEvent;
+        public static event Action<List<AndroidStoreProduct>> QueryInventorySucceededEvent;
 
         //Failed QueryInventory callback.
         public static event Action<string> QueryInventoryFailedEvent;
@@ -75,16 +76,15 @@ namespace SocialPoint.Purchase
         private void OnQueryInventorySucceeded(string json)
         {
             Debug.Log("*** TEST Query Inventory Succeeded: " + json);
-            /*if(QueryInventorySucceededEvent != null)
+            if(QueryInventorySucceededEvent != null)
             {
-                AndroidStoreInventory inventory = new AndroidStoreInventory(json);
-                QueryInventorySucceededEvent(inventory);
-            }*/
+                QueryInventorySucceededEvent(AndroidStoreProduct.ProductsFromJson(json));
+            }
         }
 
         private void OnQueryInventoryFailed(string error)
         {
-            Debug.Log("*** TEST Query Inventory Succeeded: " + error);
+            Debug.Log("*** TEST Query Inventory Failed: " + error);
             if(QueryInventoryFailedEvent != null)
             {
                 QueryInventoryFailedEvent(error);
@@ -93,6 +93,7 @@ namespace SocialPoint.Purchase
 
         private void OnPurchaseSucceeded(string json)
         {
+            Debug.Log("*** TEST OnPurchaseSucceeded: " + json);
             if(PurchaseSucceededEvent != null)
             {
                 PurchaseSucceededEvent(AndroidStoreTransaction.TransactionFromJson(json));
@@ -101,6 +102,7 @@ namespace SocialPoint.Purchase
 
         private void OnPurchaseFailed(string message)
         {
+            Debug.Log("*** TEST OnPurchaseFailed: " + message);
             int errorCode = -1;
             string errorMessage = "Unknown error";
 
@@ -126,6 +128,7 @@ namespace SocialPoint.Purchase
 
         private void OnConsumePurchaseSucceeded(string json)
         {
+            Debug.Log("*** TEST OnConsumePurchaseSucceeded: " + json);
             if(ConsumePurchaseSucceededEvent != null)
             {
                 ConsumePurchaseSucceededEvent(AndroidStoreTransaction.TransactionFromJson(json));
@@ -134,6 +137,7 @@ namespace SocialPoint.Purchase
 
         private void OnConsumePurchaseFailed(string error)
         {
+            Debug.Log("*** TEST OnConsumePurchaseFailed: " + error);
             if(ConsumePurchaseFailedEvent != null)
             {
                 ConsumePurchaseFailedEvent(error);

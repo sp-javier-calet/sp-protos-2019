@@ -1,6 +1,7 @@
 package es.socialpoint.sparta.purchase.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +63,14 @@ public class Inventory {
     }
 
     /** Returns a list of all purchases. */
-    List<Purchase> getAllPurchases() {
+    public List<Purchase> getAllPurchases() {
         return new ArrayList<Purchase>(mPurchaseMap.values());
     }
 
     public List<SkuDetails> getAllSkuDetails() {
-        return new ArrayList<SkuDetails>(mSkuMap.values());
+        ArrayList<SkuDetails> skuDetails = new ArrayList<SkuDetails>(mSkuMap.values());
+        Collections.reverse(skuDetails);//Reverse because it is stored in inverse order to the one needed by the games
+        return skuDetails;
     }
 
     void addSkuDetails(SkuDetails d) {

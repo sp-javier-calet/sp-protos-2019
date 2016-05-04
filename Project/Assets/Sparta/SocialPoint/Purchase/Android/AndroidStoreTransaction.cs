@@ -57,11 +57,6 @@ namespace SocialPoint.Purchase
         /// </summary>
         public string Signature { get; private set; }
 
-        /// <summary>
-        /// Current store name
-        /// </summary>
-        public string AppstoreName { get; private set; }
-
 
         public static List<AndroidStoreTransaction> TransactionsFromJson(string json)
         {
@@ -109,9 +104,7 @@ namespace SocialPoint.Purchase
             if(dict.ContainsKey("signature"))
                 transaction.Signature = dict["signature"].ToString();
 
-            if(dict.ContainsKey("appstoreName"))
-                transaction.AppstoreName = dict["appstoreName"].ToString();
-
+            UnityEngine.Debug.Log("*** TEST Transaction Loaded: " + transaction.ToString());
             return transaction;
         }
 
@@ -154,7 +147,6 @@ namespace SocialPoint.Purchase
             dic.SetValue("token", Token);
             dic.SetValue("originalJson", OriginalJson);
             dic.SetValue("signature", Signature);
-            dic.SetValue("appstoreName", AppstoreName);
             return dic.ToString();
         }
     }

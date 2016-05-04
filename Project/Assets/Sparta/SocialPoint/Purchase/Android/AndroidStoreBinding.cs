@@ -29,6 +29,22 @@ namespace SocialPoint.Purchase
                 _notifClass.CallStatic("RequestProductData", string.Join(",", productIdentifiers));
             }
         }
+
+        public static void PurchaseProduct(string productIdentifier)
+        {
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                _notifClass.CallStatic("PurchaseProduct", productIdentifier);
+            }
+        }
+
+        public static void FinishPendingTransaction(string productIdentifier)
+        {
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                _notifClass.CallStatic("FinishPendingTransaction", productIdentifier);
+            }
+        }
     }
     #endif
 }

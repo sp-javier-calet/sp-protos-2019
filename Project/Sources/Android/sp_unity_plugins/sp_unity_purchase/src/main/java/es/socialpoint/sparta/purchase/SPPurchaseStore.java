@@ -32,4 +32,23 @@ public class SPPurchaseStore {
             _purchaseServices.LoadProducts(skus);
         }
     }
+
+    public static void PurchaseProduct(String productIdentifier)
+    {
+        //Possible debug ids:
+        //android.test.purchased
+        //android.test.canceled
+        //android.test.refunded
+        //android.test.item_unavailable
+        if(_purchaseServices != null) {
+            _purchaseServices.PurchaseProduct(productIdentifier);
+        }
+    }
+
+    public void FinishPendingTransaction(String productIdentifier)
+    {
+        if(_purchaseServices != null) {
+            _purchaseServices.FinishPendingTransaction(productIdentifier);
+        }
+    }
 }

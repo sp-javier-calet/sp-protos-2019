@@ -21,7 +21,6 @@ namespace SocialPoint.Purchase
 
         public string CurrencyCode { get; private set; }
 
-        //x1.000.000
         public string PriceValue { get; private set; }
 
 
@@ -61,7 +60,18 @@ namespace SocialPoint.Purchase
                 product.CurrencyCode = data["currencyCode"].ToString();
 
             if(data.ContainsKey("priceValue"))
-                product.PriceValue = data["priceValue"].ToString();
+            {
+                try
+                {
+                    float value = float.Parse(data["priceValue"].ToString());
+                    value /= 1000000;//Prices in store are stored x1.000.000
+                    product.PriceValue = value.ToString();
+                }
+                catch
+                {
+                    product.PriceValue = "";
+                }
+            }
 
             return product;
         }
