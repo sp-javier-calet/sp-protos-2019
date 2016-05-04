@@ -59,7 +59,7 @@ EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
                 return SPUnityHardwareCreateString("arm64-v8");
                 break;
             default:
-                return SPUnityHardwareCreateString("unknown");
+                return SPUnityHardwareCreateString("arm64-unknown");
                 break;
         }
     }
@@ -98,7 +98,7 @@ EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
                 return SPUnityHardwareCreateString("arm-v7em");
                 break;
             default:
-                return SPUnityHardwareCreateString("unknown");
+                return SPUnityHardwareCreateString("arm-unknown");
                 break;
         }
     }
