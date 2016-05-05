@@ -1,5 +1,6 @@
 package es.socialpoint.sparta.purchase;
 
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
@@ -7,6 +8,8 @@ import com.unity3d.player.UnityPlayer;
 
 import java.util.List;
 
+import es.socialpoint.unity.base.SPUnityActivityEventListener;
+import es.socialpoint.unity.base.SPUnityActivityEventManager;
 import es.socialpoint.unity.base.UnityGameObject;
 
 import es.socialpoint.sparta.purchase.utils.IabBroadcastReceiver;
@@ -18,7 +21,7 @@ import es.socialpoint.sparta.purchase.utils.Inventory;
 import es.socialpoint.sparta.purchase.utils.Purchase;
 import es.socialpoint.sparta.purchase.utils.SkuDetails;
 
-public class SPPurchaseNativeServices implements IabBroadcastListener {
+public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityActivityEventListener {
 
     // Type values must match the possible states defined by google
     //http://developer.android.com/intl/es/google/play/billing/billing_reference.html
@@ -86,6 +89,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
                 }
 
                 _setupReady = true;
+                SPUnityActivityEventManager.Register(SPPurchaseNativeServices.this);
                 _unityMessageSender.SendMessage("OnBillingSupported", "");
 
                 // Important: Dynamically register for broadcast messages about updated purchases.
@@ -216,6 +220,28 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
         });
     }
 
+    public void ForceFinishPendingTransactions()
+    {
+        detailedLog("Forcefull Finishing All Transactions.");
+
+        if(!IsHelperReady() || _inventory == null) {
+            return;
+        }
+
+        UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    List<Purchase> allTransactions = _inventory.getAllPurchases();
+                    _helper.consumeAsync(allTransactions, _consumeMultiFinishedListener);
+                } catch (IabAsyncInProgressException e) {
+                    String errorMessage = "Consume Product Cancelled: Another async operation in progress";
+                    detailedLog(errorMessage);
+                    _unityMessageSender.SendMessage("OnConsumePurchaseFailed", errorMessage);
+                }
+            }
+        });
+    }
+
     private void UpdateTransaction(Purchase purchase)
     {
         if(purchase == null)
@@ -322,11 +348,21 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
     /* Listeners */
 
     @Override
-    public void receivedBroadcast() {
+    public void receivedBroadcast()
+    {
         // Received a broadcast notification that the inventory of items has changed
         detailedLog("Received broadcast notification. Querying inventory.");
         //TODO: Is this intended for updated products or purchases??
         //LoadProducts();
+    }
+
+    @Override
+    public void HandleActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(IsHelperReady())
+        {
+           _helper.handleActivityResult(requestCode, resultCode, data);
+        }
     }
 
     // Listener that's called when we finish querying the items and subscriptions we own
@@ -392,6 +428,24 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
 
             detailedLog("Consume successful: " + purchase.getSku());
             _unityMessageSender.SendMessage("OnConsumePurchaseSucceeded", GetTransactionJson(purchase));
+        }
+    };
+
+    // Callback that notifies when a multi-item consumption operation finishes.
+    IabHelper.OnConsumeMultiFinishedListener _consumeMultiFinishedListener = new IabHelper.OnConsumeMultiFinishedListener() {
+        public void onConsumeMultiFinished(List<Purchase> purchases, List<IabResult> results) {
+            detailedLog("Multi Consumption Finished.");
+            // if we were disposed of in the meantime, quit.
+            if (_helper == null) return;
+
+            int totalPurchases = purchases.size();
+            int totalResults = results.size();
+            if(totalPurchases != totalResults) return;
+
+            for(int i = 0; i < totalPurchases; ++i)
+            {
+                _consumeFinishedListener.onConsumeFinished(purchases.get(i), results.get(i));
+            }
         }
     };
 }

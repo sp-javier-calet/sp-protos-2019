@@ -44,6 +44,12 @@ public class SPUnityActivity extends UnityPlayerActivity {
 		storeSourceFromIntent(intent);
 	}
 
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		SPUnityActivityEventManager.HandleActivityResult(requestCode, resultCode, data);
+	}
+
 	public String collectApplicationSource() {
 		/* Application source is cleaned after collect.
 		 * Otherwise, the source will be repeated when the app comes to foreground

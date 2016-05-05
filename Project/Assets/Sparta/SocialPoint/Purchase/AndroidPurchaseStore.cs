@@ -15,7 +15,6 @@ namespace SocialPoint.Purchase
 
         private bool _isInitialized;
         private List<Product> _products;
-        bool _autoCompletePurchases = false;
         string _productId = string.Empty;
 
         #region IPurchaseStore implementation
@@ -120,7 +119,7 @@ namespace SocialPoint.Purchase
         //TODO: Change to do the force in one go (as Mock and iOS stores)
         public void ForceFinishPendingTransactions()
         {
-            _autoCompletePurchases = true;
+            AndroidStoreBinding.ForceFinishPendingTransactions();
         }
 
         #endregion
@@ -173,10 +172,6 @@ namespace SocialPoint.Purchase
 
         private void QueryInventorySucceeded(Inventory inventory)
         {
-            if(_autoCompletePurchases)
-            {
-                //Just to avoid error for not using while testing
-            }
             /*
             //revise all pending purchases
             DebugLog(inventory.ToString());

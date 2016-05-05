@@ -23,10 +23,12 @@ public class SPPurchaseStore {
 
     public static void RequestProductData(String productIds)
     {
-        if(_purchaseServices != null) {
+        if(_purchaseServices != null)
+        {
             String[] ids = productIds.split(",");
             ArrayList<String> skus  = new ArrayList<String>();
-            for (String p : ids) {
+            for (String p : ids)
+            {
                 skus.add(p);
             }
             _purchaseServices.LoadProducts(skus);
@@ -40,15 +42,25 @@ public class SPPurchaseStore {
         //android.test.canceled
         //android.test.refunded
         //android.test.item_unavailable
-        if(_purchaseServices != null) {
+        if(_purchaseServices != null)
+        {
             _purchaseServices.PurchaseProduct(productIdentifier);
         }
     }
 
-    public void FinishPendingTransaction(String productIdentifier)
+    public static void FinishPendingTransaction(String productIdentifier)
     {
-        if(_purchaseServices != null) {
+        if(_purchaseServices != null)
+        {
             _purchaseServices.FinishPendingTransaction(productIdentifier);
+        }
+    }
+
+    public static void ForceFinishPendingTransactions()
+    {
+        if(_purchaseServices != null)
+        {
+            _purchaseServices.ForceFinishPendingTransactions();
         }
     }
 }

@@ -45,6 +45,14 @@ namespace SocialPoint.Purchase
                 _notifClass.CallStatic("FinishPendingTransaction", productIdentifier);
             }
         }
+
+        public static void ForceFinishPendingTransactions()
+        {
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                _notifClass.CallStatic("ForceFinishPendingTransactions");
+            }
+        }
     }
     #endif
 }
