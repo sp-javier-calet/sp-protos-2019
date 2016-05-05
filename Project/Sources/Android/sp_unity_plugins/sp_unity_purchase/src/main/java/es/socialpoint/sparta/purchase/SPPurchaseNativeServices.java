@@ -1,15 +1,10 @@
 package es.socialpoint.sparta.purchase;
 
-import android.app.Activity;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.unity3d.player.UnityPlayer;
-import com.unity3d.player.UnityPlayerActivity;
-import com.unity3d.player.UnityPlayerNativeActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import es.socialpoint.unity.base.UnityGameObject;
@@ -163,14 +158,14 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
     private String GetProductJson(SkuDetails product)
     {
         String json = "{"
-                + dictionaryKeyFormat("itemType") + dictionaryValueFormat(product.getItemType(), false)
-                + dictionaryKeyFormat("sku") +  dictionaryValueFormat(product.getSku(), false)
-                + dictionaryKeyFormat("type") + dictionaryValueFormat(product.getType(), false)
-                + dictionaryKeyFormat("price") + dictionaryValueFormat(product.getPrice(), false)
-                + dictionaryKeyFormat("title") +  dictionaryValueFormat(product.getTitle(), false)
-                + dictionaryKeyFormat("description") +  dictionaryValueFormat(product.getDescription(), false)
-                + dictionaryKeyFormat("currencyCode") +  dictionaryValueFormat(product.getPriceCurrencyCode(), false)
-                + dictionaryKeyFormat("priceValue") + dictionaryValueFormat(Long.toString(product.getPriceAmountMicros()), true)
+                + dictionaryKeyFormat("itemType") + dictionaryStringValueFormat(product.getItemType(), false)
+                + dictionaryKeyFormat("sku") +  dictionaryStringValueFormat(product.getSku(), false)
+                + dictionaryKeyFormat("type") + dictionaryStringValueFormat(product.getType(), false)
+                + dictionaryKeyFormat("price") + dictionaryStringValueFormat(product.getPrice(), false)
+                + dictionaryKeyFormat("title") +  dictionaryStringValueFormat(product.getTitle(), false)
+                + dictionaryKeyFormat("description") +  dictionaryStringValueFormat(product.getDescription(), false)
+                + dictionaryKeyFormat("currencyCode") +  dictionaryStringValueFormat(product.getPriceCurrencyCode(), false)
+                + dictionaryKeyFormat("priceValue") + dictionaryLongValueFormat(product.getPriceAmountMicros(), true)
                 + "}";
         return json;
     }
@@ -251,16 +246,16 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
     private String GetTransactionJson(Purchase purchase)
     {
         String json = "{"
-                + dictionaryKeyFormat("itemType") + dictionaryValueFormat(purchase.getItemType(), false)
-                + dictionaryKeyFormat("orderId") + dictionaryValueFormat(purchase.getOrderId(), false)
-                + dictionaryKeyFormat("packageName") + dictionaryValueFormat(purchase.getPackageName(), false)
-                + dictionaryKeyFormat("sku") + dictionaryValueFormat(purchase.getSku(), false)
-                + dictionaryKeyFormat("purchaseTime") +  dictionaryValueFormat(Long.toString(purchase.getPurchaseTime()), false)
-                + dictionaryKeyFormat("purchaseState") +  dictionaryValueFormat(Integer.toString(purchase.getPurchaseState()), false)
-                + dictionaryKeyFormat("developerPayload") +  dictionaryValueFormat(purchase.getDeveloperPayload(), false)
-                + dictionaryKeyFormat("token") +  dictionaryValueFormat(purchase.getToken(), false)
-                + dictionaryKeyFormat("originalJson") +  purchase.getOriginalJson() + ","
-                + dictionaryKeyFormat("signature") + dictionaryValueFormat(purchase.getSignature(), true)
+                + dictionaryKeyFormat("itemType") + dictionaryStringValueFormat(purchase.getItemType(), false)
+                + dictionaryKeyFormat("orderId") + dictionaryStringValueFormat(purchase.getOrderId(), false)
+                + dictionaryKeyFormat("packageName") + dictionaryStringValueFormat(purchase.getPackageName(), false)
+                + dictionaryKeyFormat("sku") + dictionaryStringValueFormat(purchase.getSku(), false)
+                + dictionaryKeyFormat("purchaseTime") +  dictionaryLongValueFormat(purchase.getPurchaseTime(), false)
+                + dictionaryKeyFormat("purchaseState") +  dictionaryIntValueFormat(purchase.getPurchaseState(), false)
+                + dictionaryKeyFormat("developerPayload") +  dictionaryStringValueFormat(purchase.getDeveloperPayload(), false)
+                + dictionaryKeyFormat("token") +  dictionaryStringValueFormat(purchase.getToken(), false)
+                + dictionaryKeyFormat("originalJson") +  dictionaryRawValueFormat(purchase.getOriginalJson(), false)
+                + dictionaryKeyFormat("signature") + dictionaryStringValueFormat(purchase.getSignature(), true)
                 + "}";
         return json;
     }
@@ -294,14 +289,34 @@ public class SPPurchaseNativeServices implements IabBroadcastListener {
         return "\"" + key + "\":";
     }
 
-    String dictionaryValueFormat(String value, boolean isFinalValue)
+    String dictionaryStringValueFormat(String value, boolean isFinalValue)
     {
-        String finalString = "\"";
+        return "\"" + value + "\"" + getConcatString(isFinalValue);
+    }
+
+    String dictionaryRawValueFormat(String value, boolean isFinalValue)
+    {
+        return value + getConcatString(isFinalValue);
+    }
+
+    String dictionaryLongValueFormat(Long value, boolean isFinalValue)
+    {
+        return Long.toString(value) + getConcatString(isFinalValue);
+    }
+
+    String dictionaryIntValueFormat(int value, boolean isFinalValue)
+    {
+        return Integer.toString(value) + getConcatString(isFinalValue);
+    }
+
+    String getConcatString(boolean isFinalValue)
+    {
+        String concatString = "";
         if(!isFinalValue)
         {
-            finalString += ",";
+            concatString += ",";
         }
-        return "\"" + value + finalString;
+        return concatString;
     }
 
     /* Listeners */

@@ -73,6 +73,7 @@ namespace SocialPoint.Purchase
                 }
             }
 
+            UnityEngine.Debug.Log("*** TEST Product Loaded: " + product.ToString());
             return product;
         }
 

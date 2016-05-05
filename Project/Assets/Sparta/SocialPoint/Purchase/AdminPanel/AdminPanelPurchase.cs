@@ -162,6 +162,12 @@ namespace SocialPoint.Purchase
 
         private void LoadProducts(string[] ids = null)
         {
+            //*** TEST
+            ids = new string[2];
+            ids[0] = "dl_gems_1";
+            ids[1] = "dl_gems_2";
+
+
             #if UNITY_EDITOR
             //Mockup available products with latest data
             SetMockupProducts();
