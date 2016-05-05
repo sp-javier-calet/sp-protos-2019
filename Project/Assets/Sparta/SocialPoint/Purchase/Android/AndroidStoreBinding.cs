@@ -22,6 +22,15 @@ namespace SocialPoint.Purchase
             }
         }
 
+        // Enables/disables high detail logs
+        public static void EnableHighDetailLogs(bool shouldEnable)
+        {
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                _notifClass.CallStatic("EnableHighDetailLogs", shouldEnable);
+            }
+        }
+
         public static void RequestProductData(string[] productIdentifiers)
         {
             if(Application.platform == RuntimePlatform.Android)

@@ -35,6 +35,14 @@ public class SPPurchaseStore {
         }
     }
 
+    public static void EnableHighDetailLogs(boolean shouldEnable)
+    {
+        if(_purchaseServices != null)
+        {
+            _purchaseServices.EnableHighDetailLogs(shouldEnable);
+        }
+    }
+
     public static void PurchaseProduct(String productIdentifier)
     {
         //Possible debug ids:

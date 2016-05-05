@@ -47,7 +47,9 @@ namespace SocialPoint.Purchase
 
         public void Setup(AttrDic settings)
         {
-            //Implement if needed
+            PlatformPuchaseSettings.SetBoolSetting(settings, 
+                PlatformPuchaseSettings.AndroidUseDetailedLogKey, 
+                AndroidStoreBinding.EnableHighDetailLogs);
         }
 
         public void LoadProducts(string[] productIds)

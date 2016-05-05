@@ -417,7 +417,6 @@ public class IabHelper {
     public void launchPurchaseFlow(Activity act, String sku, String itemType, List<String> oldSkus,
                                    int requestCode, OnIabPurchaseFinishedListener listener, String extraData)
             throws IabAsyncInProgressException {
-        Log.d("[SP-IAP]", "launchPurchaseFlow");
         checkNotDisposed();
         checkSetupDone("launchPurchaseFlow");
         flagStartAsync("launchPurchaseFlow");
@@ -435,12 +434,10 @@ public class IabHelper {
             logDebug("Constructing buy intent for " + sku + ", item type: " + itemType);
             Bundle buyIntentBundle;
             if (oldSkus == null || oldSkus.isEmpty()) {
-                Log.d("[SP-IAP]", "Purchasing a new item");
                 // Purchasing a new item or subscription re-signup
                 buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType,
                         extraData);
             } else {
-                Log.d("[SP-IAP]", "Subscription upgrade/downgrade");
                 // Subscription upgrade/downgrade
                 if (!mSubscriptionUpdateSupported) {
                     IabResult r = new IabResult(IABHELPER_SUBSCRIPTION_UPDATE_NOT_AVAILABLE,
@@ -454,7 +451,6 @@ public class IabHelper {
             }
             int response = getResponseCodeFromBundle(buyIntentBundle);
             if (response != BILLING_RESPONSE_RESULT_OK) {
-                Log.d("[SP-IAP]", "Unable to buy item, Error response: " + getResponseDesc(response));
                 logError("Unable to buy item, Error response: " + getResponseDesc(response));
                 flagEndAsync();
                 result = new IabResult(response, "Unable to buy item");
@@ -463,7 +459,6 @@ public class IabHelper {
             }
 
             PendingIntent pendingIntent = buyIntentBundle.getParcelable(RESPONSE_BUY_INTENT);
-            Log.d("[SP-IAP]", "Launching buy intent for " + sku + ". Request code: " + requestCode);
             logDebug("Launching buy intent for " + sku + ". Request code: " + requestCode);
             mRequestCode = requestCode;
             mPurchaseListener = listener;
@@ -506,7 +501,6 @@ public class IabHelper {
      */
     public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
         IabResult result;
-        Log.d("[SP-IAP]", "handleActivityResult requestCode: " + requestCode);
         if (requestCode != mRequestCode) return false;
 
         checkNotDisposed();
@@ -516,7 +510,6 @@ public class IabHelper {
         flagEndAsync();
 
         if (data == null) {
-            Log.d("[SP-IAP]", "Null data in IAB activity result.");
             logError("Null data in IAB activity result.");
             result = new IabResult(IABHELPER_BAD_RESPONSE, "Null data in IAB result");
             if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
@@ -528,7 +521,6 @@ public class IabHelper {
         String dataSignature = data.getStringExtra(RESPONSE_INAPP_SIGNATURE);
 
         if (resultCode == Activity.RESULT_OK && responseCode == BILLING_RESPONSE_RESULT_OK) {
-            Log.d("[SP-IAP]", "Successful resultcode from purchase activity.");
             logDebug("Successful resultcode from purchase activity.");
             logDebug("Purchase data: " + purchaseData);
             logDebug("Data signature: " + dataSignature);
@@ -536,7 +528,6 @@ public class IabHelper {
             logDebug("Expected item type: " + mPurchasingItemType);
 
             if (purchaseData == null || dataSignature == null) {
-                Log.d("[SP-IAP]", "BUG: either purchaseData or dataSignature is null.");
                 logError("BUG: either purchaseData or dataSignature is null.");
                 logDebug("Extras: " + data.getExtras().toString());
                 result = new IabResult(IABHELPER_UNKNOWN_ERROR, "IAB returned null purchaseData or dataSignature");
@@ -552,7 +543,6 @@ public class IabHelper {
                 // Verify signature
                 //!Security.verifyPurchase(mSignatureBase64, purchaseData, dataSignature)
                 if (false) {
-                    Log.d("[SP-IAP]", "Purchase signature verification FAILED for sku " + sku);
                     logError("Purchase signature verification FAILED for sku " + sku);
                     result = new IabResult(IABHELPER_VERIFICATION_FAILED, "Signature verification failed for sku " + sku);
                     if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, purchase);
@@ -561,7 +551,6 @@ public class IabHelper {
                 logDebug("Purchase signature successfully verified.");
             }
             catch (JSONException e) {
-                Log.d("[SP-IAP]", "Failed to parse purchase data.");
                 logError("Failed to parse purchase data.");
                 e.printStackTrace();
                 result = new IabResult(IABHELPER_BAD_RESPONSE, "Failed to parse purchase data.");
@@ -570,7 +559,6 @@ public class IabHelper {
             }
 
             if (mPurchaseListener != null) {
-                Log.d("[SP-IAP]", "BILLING_RESPONSE_RESULT_OK");
                 mPurchaseListener.onIabPurchaseFinished(new IabResult(BILLING_RESPONSE_RESULT_OK, "Success"), purchase);
             }
         }

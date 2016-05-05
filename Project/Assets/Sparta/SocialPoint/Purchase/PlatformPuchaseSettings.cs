@@ -6,10 +6,15 @@ namespace SocialPoint.Purchase
 {
     public class PlatformPuchaseSettings
     {
+        //IOS
         public const string IOSUseApplicationUsernameKey = "IOSUseApplicationUsernameKey";
         public const string IOSUseAppReceiptKey = "IOSUseAppReceiptKey";
         public const string IOSUseDetailedLogKey = "IOSUseDetailedLogKey";
         public const string IOSSendTransactionUpdateEventsKey = "IOSSendTransactionUpdateEventsKey";
+
+        //ANDROID
+        public const string AndroidUseDetailedLogKey = "AndroidUseDetailedLogKey";
+
 
         public delegate void SetBoolSettingDelegate(bool settingValue);
 
@@ -26,6 +31,7 @@ namespace SocialPoint.Purchase
             settings.SetValue(PlatformPuchaseSettings.IOSSendTransactionUpdateEventsKey, true);
             #elif UNITY_ANDROID && !UNITY_EDITOR
             //Add Android-only keys if needed
+            settings.SetValue(PlatformPuchaseSettings.AndroidUseDetailedLogKey, true);
             #elif UNITY_EDITOR
             //Add Editor-only keys if needed
             #endif
