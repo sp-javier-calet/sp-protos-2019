@@ -20,6 +20,11 @@ public class SPUnityActivity extends UnityPlayerActivity {
 
 	private static final String TAG = "SPUnityActivity";
 
+	static
+	{
+		System.loadLibrary("sp_unity_utils");
+	}
+
 	/* Provides global access to the current acivity without the unity3d package dependency */
 	public static Activity getCurrentActivity() {
 		return UnityPlayer.currentActivity;
