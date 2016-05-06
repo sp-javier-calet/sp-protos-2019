@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.unity3d.player.UnityPlayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import es.socialpoint.unity.base.SPUnityActivityEventListener;
@@ -31,26 +32,22 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         public static final int Refunded = 2;
     }
 
-    //Instance reference
-    public static SPPurchaseNativeServices instance;
-
     // Debug tag, for logging
     private static final String TAG = "[SP-IAP]";
 
     //Class to send messages to Unity
     private UnityGameObject _unityMessageSender;
-
     // The helper object
     private IabHelper _helper;
-
     // Provides purchase notification while this app is running
     private IabBroadcastReceiver _broadcastReceiver;
 
     // Updated inventory
     private Inventory _inventory;
+    // Latest requested products
+    List<String> _lastRequestedProductIds;
 
     private boolean _highDetailedLogEnabled;
-
     private boolean _setupReady;
 
     public SPPurchaseNativeServices(String listenerObjectName)
@@ -58,23 +55,22 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         _unityMessageSender = new UnityGameObject(listenerObjectName);
         _unityMessageSender.SendMessage("StoreDebugLog", "*** TEST Hello World");
 
+        _lastRequestedProductIds = new ArrayList<String>();
+
         _setupReady = false;
 
-        //*** TEST Possible to ignore public key?? Or should be good to set it and use it??
-        String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxvk2mHxFc+WpJojVkT+3Sh62zsfHT91bDKsxHH3JM6RSi72a5ynCrIhAzGckH0mjNafvEh0Bf1m3T0XF+Wk8fBCXXKZSmLz85A7VX80RF0oBlo0d+QCvrafgSHWy8XsZ45hQPIN9hvfcGnx4zqJjsGVKin5WGH48cGCS3R/O3pXNuuQqLZ3TaI34yOVmg+Ov2nzgl1VFGjiepEiIeOqqs/Usg0OIEbDRdQc/Nl1bbXw6vW0tF7amEdeTKk7pCloKIaLm7kA9H7txa/3JKge+NkZJN8JIKc4LEZ57PFz+7+ayPd42GTmfUaO16saE7JEw8tWJ5dOopGfNa2FdhfFJiQIDAQAB";
-
         // Create the helper, passing it our context and the public key to verify signatures with
-        DetailedLog("Creating IAB helper.");
-        _helper = new IabHelper(UnityPlayer.currentActivity, base64EncodedPublicKey);
+        detailedLog("Creating IAB helper.");
+        _helper = new IabHelper(UnityPlayer.currentActivity);
 
         // Start setup. This is asynchronous and the specified listener
         // will be called once setup completes.
-        DetailedLog("Starting setup.");
+        detailedLog("Starting setup.");
         _helper.startSetup(new IabHelper.OnIabSetupFinishedListener()
         {
             public void onIabSetupFinished(IabResult result)
             {
-                DetailedLog("Setup finished.");
+                detailedLog("Setup finished.");
                 // Have we been disposed of in the meantime? If so, quit.
                 if (_helper == null) return;
 
@@ -82,13 +78,13 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 {
                     // Oh noes, there was a problem.
                     String errorMessage = "Problem setting up in-app billing: " + result;
-                    DetailedLog(errorMessage);
+                    detailedLog(errorMessage);
                     _unityMessageSender.SendMessage("OnBillingNotSupported", errorMessage);
                     return;
                 }
 
                 _setupReady = true;
-                SPUnityActivityEventManager.Register(SPPurchaseNativeServices.this);
+                SPUnityActivityEventManager.register(SPPurchaseNativeServices.this);
 
                 // Important: Dynamically register for broadcast messages about updated purchases.
                 // We register the receiver here instead of as a <receiver> in the Manifest
@@ -108,7 +104,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         });
     }
 
-    public void EnableHighDetailLogs(boolean shouldEnable)
+    public void enableHighDetailLogs(boolean shouldEnable)
     {
         _highDetailedLogEnabled = shouldEnable;
         if(_helper != null)
@@ -117,7 +113,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         }
     }
 
-    private boolean IsHelperReady()
+    private boolean isHelperReady()
     {
         return _setupReady && (_helper != null);
     }
@@ -125,11 +121,13 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
     /* Product Operations */
 
-    public void LoadProducts(final List<String> productIds)
+    public void loadProducts(final List<String> productIds)
     {
-        DetailedLog("Products Request Started");
+        detailedLog("Products Request Started");
 
-        if(!IsHelperReady())
+        _lastRequestedProductIds = productIds;
+
+        if(!isHelperReady())
         {
             _unityMessageSender.SendMessage("OnQueryInventoryFailed", "Setup not ready");
             return;
@@ -146,18 +144,18 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 catch (IabAsyncInProgressException e)
                 {
                     String errorMessage = "Products Request Cancelled: Another async operation in progress";
-                    DetailedLog(errorMessage);
+                    detailedLog(errorMessage);
                     _unityMessageSender.SendMessage("OnQueryInventoryFailed", errorMessage);
                 }
             }
         });
     }
 
-    public void PurchaseProduct(final String productIdentifier)
+    public void purchaseProduct(final String productIdentifier)
     {
-        DetailedLog("Product Purchase Started: " + productIdentifier);
+        detailedLog("Product Purchase Started: " + productIdentifier);
 
-        if(!IsHelperReady())
+        if(!isHelperReady())
         {
             _unityMessageSender.SendMessage("OnPurchaseFailed", "Setup not ready");
             return;
@@ -175,29 +173,29 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 catch (IabAsyncInProgressException e)
                 {
                     String errorMessage = "Product Purchase Cancelled: Another async operation in progress";
-                    DetailedLog(errorMessage);
+                    detailedLog(errorMessage);
                     _unityMessageSender.SendMessage("OnPurchaseFailed", errorMessage);
                 }
             }
         });
     }
 
-    private String GetProductJson(SkuDetails product)
+    private String getProductJson(SkuDetails product)
     {
         String json = "{"
-                + dictionaryKeyFormat("itemType") + dictionaryStringValueFormat(product.getItemType(), false)
-                + dictionaryKeyFormat("sku") +  dictionaryStringValueFormat(product.getSku(), false)
-                + dictionaryKeyFormat("type") + dictionaryStringValueFormat(product.getType(), false)
-                + dictionaryKeyFormat("price") + dictionaryStringValueFormat(product.getPrice(), false)
-                + dictionaryKeyFormat("title") +  dictionaryStringValueFormat(product.getTitle(), false)
-                + dictionaryKeyFormat("description") +  dictionaryStringValueFormat(product.getDescription(), false)
-                + dictionaryKeyFormat("currencyCode") +  dictionaryStringValueFormat(product.getPriceCurrencyCode(), false)
-                + dictionaryKeyFormat("priceValue") + dictionaryLongValueFormat(product.getPriceAmountMicros(), true)
+                + dictionaryKeyFormat("itemType") + dictionaryValueFormat_String(product.getItemType(), false)
+                + dictionaryKeyFormat("sku") +  dictionaryValueFormat_String(product.getSku(), false)
+                + dictionaryKeyFormat("type") + dictionaryValueFormat_String(product.getType(), false)
+                + dictionaryKeyFormat("price") + dictionaryValueFormat_String(product.getPrice(), false)
+                + dictionaryKeyFormat("title") +  dictionaryValueFormat_String(product.getTitle(), false)
+                + dictionaryKeyFormat("description") +  dictionaryValueFormat_String(product.getDescription(), false)
+                + dictionaryKeyFormat("currencyCode") +  dictionaryValueFormat_String(product.getPriceCurrencyCode(), false)
+                + dictionaryKeyFormat("priceValue") + dictionaryValueFormat_Long(product.getPriceAmountMicros(), true)
                 + "}";
         return json;
     }
 
-    private String GetProductsJson(List<SkuDetails> products)
+    private String getProductsJson(List<SkuDetails> products)
     {
         int count = 0;
         String json = "[";
@@ -208,7 +206,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 json += ",";
             }
             ++count;
-            json += GetProductJson(p);
+            json += getProductJson(p);
         }
         json += "]";
         return json;
@@ -216,11 +214,11 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
     /* Transaction Operations */
 
-    public void FinishPendingTransaction(final String productIdentifier)
+    public void finishPendingTransaction(final String productIdentifier)
     {
-        DetailedLog("Finishing Transaction: " + productIdentifier);
+        detailedLog("Finishing Transaction: " + productIdentifier);
 
-        if(!IsHelperReady() || _inventory == null)
+        if(!isHelperReady() || _inventory == null)
         {
             _unityMessageSender.SendMessage("OnConsumePurchaseFailed", "Setup not ready");
             return;
@@ -245,18 +243,18 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 catch (IabAsyncInProgressException e)
                 {
                     String errorMessage = "Consume Product Cancelled: Another async operation in progress";
-                    DetailedLog(errorMessage);
+                    detailedLog(errorMessage);
                     _unityMessageSender.SendMessage("OnConsumePurchaseFailed", errorMessage);
                 }
             }
         });
     }
 
-    public void ForceFinishPendingTransactions()
+    public void forceFinishPendingTransactions()
     {
-        DetailedLog("Forcefull Finishing All Transactions.");
+        detailedLog("Forcefull Finishing All Transactions.");
 
-        if(!IsHelperReady() || _inventory == null)
+        if(!isHelperReady() || _inventory == null)
         {
             return;
         }
@@ -273,14 +271,14 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 catch (IabAsyncInProgressException e)
                 {
                     String errorMessage = "Consume Product Cancelled: Another async operation in progress";
-                    DetailedLog(errorMessage);
+                    detailedLog(errorMessage);
                     _unityMessageSender.SendMessage("OnConsumePurchaseFailed", errorMessage);
                 }
             }
         });
     }
 
-    private void UpdateTransaction(Purchase purchase)
+    private void updateTransaction(Purchase purchase)
     {
         if(purchase == null)
         {
@@ -291,21 +289,21 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         {
             case PurchaseState.Purchased:
             {
-                DetailedLog("Purchase successful: " + purchase.getSku());
-                _unityMessageSender.SendMessage("OnPurchaseSucceeded", GetTransactionJson(purchase));
+                detailedLog("Purchase successful: " + purchase.getSku());
+                _unityMessageSender.SendMessage("OnPurchaseSucceeded", getTransactionJson(purchase));
             }
                 break;
             case PurchaseState.Canceled:
             {
                 String message = "Purchase canceled: " + purchase.getSku();
-                DetailedLog(message);
+                detailedLog(message);
                 _unityMessageSender.SendMessage("OnPurchaseFailed", message);
             }
                 break;
             case PurchaseState.Refunded:
             {
                 String message = "Purchase refunded: " + purchase.getSku();
-                DetailedLog(message);
+                detailedLog(message);
                 //Implement refund logic if needed...
             }
             break;
@@ -314,24 +312,24 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         }
     }
 
-    private String GetTransactionJson(Purchase purchase)
+    private String getTransactionJson(Purchase purchase)
     {
         String json = "{"
-                + dictionaryKeyFormat("itemType") + dictionaryStringValueFormat(purchase.getItemType(), false)
-                + dictionaryKeyFormat("orderId") + dictionaryStringValueFormat(purchase.getOrderId(), false)
-                + dictionaryKeyFormat("packageName") + dictionaryStringValueFormat(purchase.getPackageName(), false)
-                + dictionaryKeyFormat("sku") + dictionaryStringValueFormat(purchase.getSku(), false)
-                + dictionaryKeyFormat("purchaseTime") +  dictionaryLongValueFormat(purchase.getPurchaseTime(), false)
-                + dictionaryKeyFormat("purchaseState") +  dictionaryIntValueFormat(purchase.getPurchaseState(), false)
-                + dictionaryKeyFormat("developerPayload") +  dictionaryStringValueFormat(purchase.getDeveloperPayload(), false)
-                + dictionaryKeyFormat("token") +  dictionaryStringValueFormat(purchase.getToken(), false)
-                + dictionaryKeyFormat("originalJson") +  dictionaryRawValueFormat(purchase.getOriginalJson(), false)
-                + dictionaryKeyFormat("signature") + dictionaryStringValueFormat(purchase.getSignature(), true)
+                + dictionaryKeyFormat("itemType") + dictionaryValueFormat_String(purchase.getItemType(), false)
+                + dictionaryKeyFormat("orderId") + dictionaryValueFormat_String(purchase.getOrderId(), false)
+                + dictionaryKeyFormat("packageName") + dictionaryValueFormat_String(purchase.getPackageName(), false)
+                + dictionaryKeyFormat("sku") + dictionaryValueFormat_String(purchase.getSku(), false)
+                + dictionaryKeyFormat("purchaseTime") +  dictionaryValueFormat_Long(purchase.getPurchaseTime(), false)
+                + dictionaryKeyFormat("purchaseState") +  dictionaryValueFormat_Int(purchase.getPurchaseState(), false)
+                + dictionaryKeyFormat("developerPayload") +  dictionaryValueFormat_String(purchase.getDeveloperPayload(), false)
+                + dictionaryKeyFormat("token") +  dictionaryValueFormat_String(purchase.getToken(), false)
+                + dictionaryKeyFormat("originalJson") +  dictionaryValueFormat_Raw(purchase.getOriginalJson(), false)
+                + dictionaryKeyFormat("signature") + dictionaryValueFormat_String(purchase.getSignature(), true)
                 + "}";
         return json;
     }
 
-    private String GetTransactionsJson(List<Purchase> purchases)
+    private String getTransactionsJson(List<Purchase> purchases)
     {
         int count = 0;
         String json = "[";
@@ -342,7 +340,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 json += ",";
             }
             ++count;
-            json += GetTransactionJson(p);
+            json += getTransactionJson(p);
         }
         json += "]";
         return json;
@@ -350,7 +348,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
     /* Debug */
 
-    void DetailedLog(String message)
+    void detailedLog(String message)
     {
         if(_highDetailedLogEnabled)
         {
@@ -363,22 +361,22 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         return "\"" + key + "\":";
     }
 
-    String dictionaryStringValueFormat(String value, boolean isFinalValue)
+    String dictionaryValueFormat_String(String value, boolean isFinalValue)
     {
         return "\"" + value + "\"" + getConcatString(isFinalValue);
     }
 
-    String dictionaryRawValueFormat(String value, boolean isFinalValue)
+    String dictionaryValueFormat_Raw(String value, boolean isFinalValue)
     {
         return value + getConcatString(isFinalValue);
     }
 
-    String dictionaryLongValueFormat(Long value, boolean isFinalValue)
+    String dictionaryValueFormat_Long(Long value, boolean isFinalValue)
     {
         return Long.toString(value) + getConcatString(isFinalValue);
     }
 
-    String dictionaryIntValueFormat(int value, boolean isFinalValue)
+    String dictionaryValueFormat_Int(int value, boolean isFinalValue)
     {
         return Integer.toString(value) + getConcatString(isFinalValue);
     }
@@ -399,15 +397,14 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     public void receivedBroadcast()
     {
         // Received a broadcast notification that the inventory of items has changed
-        DetailedLog("Received broadcast notification. Querying inventory.");
-        //TODO: Is this intended for updated products or purchases??
-        //LoadProducts();
+        detailedLog("Received broadcast notification. Querying inventory.");
+        loadProducts(_lastRequestedProductIds);
     }
 
     @Override
-    public void HandleActivityResult(int requestCode, int resultCode, Intent data)
+    public void handleActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if(IsHelperReady())
+        if(isHelperReady())
         {
            _helper.handleActivityResult(requestCode, resultCode, data);
         }
@@ -418,30 +415,30 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     {
         public void onQueryInventoryFinished(IabResult result, Inventory inventory)
         {
-            DetailedLog("Query inventory finished.");
+            detailedLog("Query inventory finished.");
             // Have we been disposed of in the meantime? If so, quit.
             if (_helper == null) return;
 
             // Is it a failure?
             if (result.isFailure() || inventory == null)
             {
-                DetailedLog("Failed to query inventory: " + result);
+                detailedLog("Failed to query inventory: " + result);
                 _unityMessageSender.SendMessage("OnQueryInventoryFailed", result.toString());
                 return;
             }
 
-            DetailedLog("Query inventory was successful.");
+            detailedLog("Query inventory was successful.");
             _inventory = inventory;
 
             // Loaded products
             List<SkuDetails> skus = inventory.getAllSkuDetails();
-            _unityMessageSender.SendMessage("OnQueryInventorySucceeded", GetProductsJson(skus));
+            _unityMessageSender.SendMessage("OnQueryInventorySucceeded", getProductsJson(skus));
 
             //Pending purchases
             List<Purchase> purchases = inventory.getAllPurchases();
             for (Purchase p : purchases)
             {
-                UpdateTransaction(p);
+                updateTransaction(p);
             }
         }
     };
@@ -451,13 +448,13 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     {
         public void onIabPurchaseFinished(IabResult result, Purchase purchase)
         {
-            DetailedLog("Purchase finished: " + result + ", purchase: " + purchase);
+            detailedLog("Purchase finished: " + result + ", purchase: " + purchase);
             // if we were disposed of in the meantime, quit.
             if (_helper == null) return;
 
             if (result.isFailure() || purchase == null)
             {
-                DetailedLog("Purchase failed: " + result);
+                detailedLog("Purchase failed: " + result);
                 _unityMessageSender.SendMessage("OnPurchaseFailed", result.toString());
                 return;
             }
@@ -469,7 +466,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 _inventory.addPurchase(purchase);
             }
 
-            UpdateTransaction(purchase);
+            updateTransaction(purchase);
         }
     };
 
@@ -478,20 +475,20 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     {
         public void onConsumeFinished(Purchase purchase, IabResult result)
         {
-            DetailedLog("Consumption finished. Purchase: " + purchase + ", result: " + result);
+            detailedLog("Consumption finished. Purchase: " + purchase + ", result: " + result);
             // if we were disposed of in the meantime, quit.
             if (_helper == null) return;
 
             if (result.isFailure() || purchase == null)
             {
-                DetailedLog("Consume failed: " + result);
+                detailedLog("Consume failed: " + result);
                 _unityMessageSender.SendMessage("OnConsumePurchaseFailed", result.toString());
                 return;
             }
 
             _inventory.erasePurchase(purchase.getSku());
-            DetailedLog("Consume successful: " + purchase.getSku());
-            _unityMessageSender.SendMessage("OnConsumePurchaseSucceeded", GetTransactionJson(purchase));
+            detailedLog("Consume successful: " + purchase.getSku());
+            _unityMessageSender.SendMessage("OnConsumePurchaseSucceeded", getTransactionJson(purchase));
         }
     };
 
@@ -500,7 +497,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     {
         public void onConsumeMultiFinished(List<Purchase> purchases, List<IabResult> results)
         {
-            DetailedLog("Multi Consumption Finished.");
+            detailedLog("Multi Consumption Finished.");
             // if we were disposed of in the meantime, quit.
             if (_helper == null) return;
 

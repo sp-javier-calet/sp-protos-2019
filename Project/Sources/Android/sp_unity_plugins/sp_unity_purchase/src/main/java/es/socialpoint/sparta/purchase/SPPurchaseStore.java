@@ -1,12 +1,6 @@
 package es.socialpoint.sparta.purchase;
 
-import android.util.Log;
-
-import com.unity3d.player.UnityPlayer;
-
 import java.util.ArrayList;
-
-import es.socialpoint.sparta.purchase.SPPurchaseNativeServices;
 
 /**
  * Created by abarrera on 02/05/16.
@@ -31,7 +25,7 @@ public class SPPurchaseStore {
             {
                 skus.add(p);
             }
-            _purchaseServices.LoadProducts(skus);
+            _purchaseServices.loadProducts(skus);
         }
     }
 
@@ -39,7 +33,7 @@ public class SPPurchaseStore {
     {
         if(_purchaseServices != null)
         {
-            _purchaseServices.EnableHighDetailLogs(shouldEnable);
+            _purchaseServices.enableHighDetailLogs(shouldEnable);
         }
     }
 
@@ -52,7 +46,7 @@ public class SPPurchaseStore {
         //android.test.item_unavailable
         if(_purchaseServices != null)
         {
-            _purchaseServices.PurchaseProduct(productIdentifier);
+            _purchaseServices.purchaseProduct(productIdentifier);
         }
     }
 
@@ -60,7 +54,7 @@ public class SPPurchaseStore {
     {
         if(_purchaseServices != null)
         {
-            _purchaseServices.FinishPendingTransaction(productIdentifier);
+            _purchaseServices.finishPendingTransaction(productIdentifier);
         }
     }
 
@@ -68,7 +62,7 @@ public class SPPurchaseStore {
     {
         if(_purchaseServices != null)
         {
-            _purchaseServices.ForceFinishPendingTransactions();
+            _purchaseServices.forceFinishPendingTransactions();
         }
     }
 }
