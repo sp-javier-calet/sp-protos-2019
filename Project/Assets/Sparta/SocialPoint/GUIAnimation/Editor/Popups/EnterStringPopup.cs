@@ -19,7 +19,6 @@ namespace SocialPoint.GUIAnimation
 		public string Value;
 
 		string _title = "Animation Name";
-		Action _onExit;
 		
 		void OnGUI()
 		{

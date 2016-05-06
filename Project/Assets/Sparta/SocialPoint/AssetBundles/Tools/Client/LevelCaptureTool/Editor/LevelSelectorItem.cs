@@ -9,7 +9,6 @@ namespace SocialPoint.Editor.LevelCaptureTool
 	{
 		
 		static readonly GUILayoutOption[]   rowInnerLayoutOptions;
-		static readonly TLStyle             version_stl;
 		
 		//Contents
 		TLWCheck                            levelCb = null;
