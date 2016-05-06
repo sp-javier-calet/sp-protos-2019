@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using SocialPoint.Base;
 using SocialPoint.Attributes;
-using OnePF;
 
 namespace SocialPoint.Purchase
 {
@@ -22,7 +21,7 @@ namespace SocialPoint.Purchase
 
         
 
-#region IPurchaseStore implementation
+        #region IPurchaseStore implementation
 
         
         public event ProductsUpdatedDelegate ProductsUpdated;
@@ -132,12 +131,12 @@ namespace SocialPoint.Purchase
 
         
 
-#endregion
+        #endregion
 
         
         
 
-#region IDisposable implementation
+        #region IDisposable implementation
 
         
         virtual public void Dispose()
@@ -147,7 +146,7 @@ namespace SocialPoint.Purchase
 
         
 
-#endregion
+        #endregion
 
         
         public AndroidPurchaseStore()
@@ -185,47 +184,6 @@ namespace SocialPoint.Purchase
         void DebugLog(string msg)
         {
             DebugUtils.Log(string.Format("AndroidPurchaseStore {0}", msg));
-        }
-
-        private void QueryInventorySucceeded(Inventory inventory)
-        {
-            /*
-            //revise all pending purchases
-            DebugLog(inventory.ToString());
-            foreach(var item in inventory.GetAllPurchases())
-            {
-                if(_autoCompletePurchases)
-                {
-                    //OpenIAB.consumeProduct(item);
-                }
-                else
-                {
-                    DebugLog("pending purchase: " + item);
-                    PurchaseSucceeded(item);
-                }
-            }
-            //This bool is set to false again to make the ForceFinishPendingTransactions a one time only action (check comments on function)
-            _autoCompletePurchases = false;
-
-            Debug.Log("received total products: " + inventory.GetAllAvailableSkus().Count);
-            try
-            {
-                _products = new List<Product>();
-                foreach(SkuDetails sk in inventory.GetAllAvailableSkus())
-                {
-                    Product parsedProduct = new Product(sk.Sku, sk.Title, float.Parse(sk.PriceValue), sk.CurrencyCode, sk.Price);
-                    DebugLog(parsedProduct.ToString());
-                    _products.Add(parsedProduct);
-                }
-            }
-            catch(Exception ex)
-            {
-                DebugLog("parsing went wrong");
-                ProductsUpdated(LoadProductsState.Error, new Error(ex.Message));
-            }
-            DebugLog("all products parsed");
-            ProductsUpdated(LoadProductsState.Success, null);
-            //*/
         }
 
         private void QueryInventoryFailed(string error)
