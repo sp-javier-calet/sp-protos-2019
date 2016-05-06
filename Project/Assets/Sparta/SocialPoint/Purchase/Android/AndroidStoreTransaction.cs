@@ -105,7 +105,6 @@ namespace SocialPoint.Purchase
             if(dict.ContainsKey("signature"))
                 transaction.Signature = dict["signature"].ToString();
 
-            UnityEngine.Debug.Log("*** TEST Transaction Loaded: " + transaction.ToString());
             return transaction;
         }
 

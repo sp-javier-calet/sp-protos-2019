@@ -65,4 +65,12 @@ public class SPPurchaseStore {
             _purchaseServices.forceFinishPendingTransactions();
         }
     }
+
+    public static void Unbind()
+    {
+        if(_purchaseServices != null)
+        {
+            _purchaseServices.unbind();
+        }
+    }
 }

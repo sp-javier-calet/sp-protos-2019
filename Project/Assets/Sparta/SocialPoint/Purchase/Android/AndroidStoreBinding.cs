@@ -62,6 +62,14 @@ namespace SocialPoint.Purchase
                 _notifClass.CallStatic("ForceFinishPendingTransactions");
             }
         }
+
+        public static void Unbind()
+        {
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                _notifClass.CallStatic("Unbind");
+            }
+        }
     }
 }
 #endif

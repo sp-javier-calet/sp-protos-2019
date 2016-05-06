@@ -24,7 +24,10 @@ namespace SocialPoint.Purchase
         public static event Action<AndroidStoreTransaction> PurchaseSucceededEvent;
 
         //Failed purchase callback
-        public static event Action<int, string> PurchaseFailedEvent;
+        public static event Action<string> PurchaseFailedEvent;
+
+        //Canceled purchase callback
+        public static event Action<string> PurchaseCancelledEvent;
 
         //Successful consume attempt callback
         public static event Action<AndroidStoreTransaction> ConsumePurchaseSucceededEvent;
@@ -103,26 +106,18 @@ namespace SocialPoint.Purchase
         private void OnPurchaseFailed(string message)
         {
             Debug.Log("*** TEST OnPurchaseFailed: " + message);
-            int errorCode = -1;
-            string errorMessage = "Unknown error";
-
-            if(!string.IsNullOrEmpty(message))
-            {
-                string[] tokens = message.Split('|');
-
-                if(tokens.Length >= 2)
-                {
-                    Int32.TryParse(tokens[0], out errorCode);
-                    errorMessage = tokens[1];
-                }
-                else
-                {
-                    errorMessage = message;
-                }
-            }
             if(PurchaseFailedEvent != null)
             {
-                PurchaseFailedEvent(errorCode, errorMessage);
+                PurchaseFailedEvent(message);
+            }
+        }
+
+        private void OnPurchaseCancelled(string message)
+        {
+            Debug.Log("*** TEST OnPurchaseCancelled: " + message);
+            if(PurchaseFailedEvent != null)
+            {
+                PurchaseCancelledEvent(message);
             }
         }
 

@@ -96,12 +96,16 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 _broadcastReceiver = new IabBroadcastReceiver(SPPurchaseNativeServices.this);
                 IntentFilter broadcastFilter = new IntentFilter(IabBroadcastReceiver.ACTION);
                 UnityPlayer.currentActivity.registerReceiver(_broadcastReceiver, broadcastFilter);
-                //TODO: is the broadcast receiver really needed?
 
                 // IAB is fully set up.
                 _unityMessageSender.SendMessage("OnBillingSupported", "");
             }
         });
+    }
+
+    public void unbind()
+    {
+        SPUnityActivityEventManager.unregister(SPPurchaseNativeServices.this);
     }
 
     public void enableHighDetailLogs(boolean shouldEnable)
@@ -455,7 +459,19 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
             if (result.isFailure() || purchase == null)
             {
                 detailedLog("Purchase failed: " + result);
-                _unityMessageSender.SendMessage("OnPurchaseFailed", result.toString());
+                switch (result.getResponse())
+                {
+                    case IabHelper.IABHELPER_USER_CANCELLED:
+                    {
+                        _unityMessageSender.SendMessage("OnPurchaseCancelled", result.toString());
+                    }
+                        break;
+                    default:
+                    {
+                        _unityMessageSender.SendMessage("OnPurchaseFailed", result.toString());
+                    }
+                        break;
+                }
                 return;
             }
 
