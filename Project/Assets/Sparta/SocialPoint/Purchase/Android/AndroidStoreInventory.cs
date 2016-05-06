@@ -4,6 +4,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+#if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
     public class AndroidStoreInventory
@@ -152,3 +153,4 @@ namespace SocialPoint.Purchase
         }
     }
 }
+#endif

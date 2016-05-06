@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 
+#if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
     public class AndroidStoreProduct
@@ -85,3 +86,4 @@ namespace SocialPoint.Purchase
         }
     }
 }
+#endif

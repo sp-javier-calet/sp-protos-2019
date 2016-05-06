@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+#if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
-    #if UNITY_ANDROID
     public class AndroidStoreBinding
     {
         private const string FullClassName = "es.socialpoint.sparta.purchase.SPPurchaseStore";
@@ -63,5 +63,5 @@ namespace SocialPoint.Purchase
             }
         }
     }
-    #endif
 }
+#endif

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+#if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
     public class AndroidStoreManager : MonoBehaviour
@@ -51,7 +52,6 @@ namespace SocialPoint.Purchase
             AndroidStoreBinding.Init(instanceName);
         }
 
-        #if UNITY_ANDROID
         private void OnMapSkuFailed(string exception)
         {
             Debug.LogError("SKU mapping failed: " + exception);
@@ -173,6 +173,6 @@ namespace SocialPoint.Purchase
         {
             Debug.Log(logMsg);
         }
-        #endif
     }
 }
+#endif

@@ -9,16 +9,22 @@ using OnePF;
 namespace SocialPoint.Purchase
 {
     public class AndroidPurchaseStore
+    #if UNITY_ANDROID
         : IPurchaseStore
+    #endif
     {
+        #if UNITY_ANDROID
         const int RESULT_USER_CANCELED = 1;
 
         private bool _isInitialized;
         private List<Product> _products;
         string _productId = string.Empty;
 
-        #region IPurchaseStore implementation
+        
 
+#region IPurchaseStore implementation
+
+        
         public event ProductsUpdatedDelegate ProductsUpdated;
 
         public event PurchaseUpdatedDelegate PurchaseUpdated;
@@ -124,17 +130,26 @@ namespace SocialPoint.Purchase
             AndroidStoreBinding.ForceFinishPendingTransactions();
         }
 
-        #endregion
+        
 
-        #region IDisposable implementation
+#endregion
 
+        
+        
+
+#region IDisposable implementation
+
+        
         virtual public void Dispose()
         {
             UnregisterEvents();
         }
 
-        #endregion
+        
 
+#endregion
+
+        
         public AndroidPurchaseStore()
         {
             if(Application.platform != RuntimePlatform.Android)
@@ -329,5 +344,6 @@ namespace SocialPoint.Purchase
         {
             PurchaseUpdated(state, productID);
         }
+        #endif
     }
 }

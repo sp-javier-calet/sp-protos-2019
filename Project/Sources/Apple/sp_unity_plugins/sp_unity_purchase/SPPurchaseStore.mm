@@ -25,11 +25,6 @@ public:
         [_purchaseServices setAppUsername:userIdentifier];
     }
     
-    void setUseAppUsername(bool shouldUseAppUsername)
-    {
-        [_purchaseServices setUseAppUsername:shouldUseAppUsername];
-    }
-    
     void setUseAppReceipt(bool shouldUseAppReceipt)
     {
         [_purchaseServices setUseAppReceipt:shouldUseAppReceipt];
@@ -123,14 +118,6 @@ EXPORT_API void SPUnityStore_SetApplicationUsername(const char* applicationUserN
     if(purchaseBridge)
     {
         purchaseBridge->setApplicationUsername(applicationUserName);
-    }
-}
-
-EXPORT_API void SPUnityStore_SetUseAppUsername(bool shouldUseAppUsername)
-{
-    if(purchaseBridge)
-    {
-        purchaseBridge->setUseAppUsername(shouldUseAppUsername);
     }
 }
 
