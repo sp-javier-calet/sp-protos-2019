@@ -13,7 +13,7 @@ public class NotificationInstaller : Installer, IInitializable
     {
         public bool AutoRegisterForRemote = true;
     }
-    
+
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
@@ -22,7 +22,7 @@ public class NotificationInstaller : Installer, IInitializable
 
 #if UNITY_EDITOR
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
-#elif UNITY_ANDROID 
+#elif UNITY_ANDROID
         Container.Rebind<INotificationServices>().ToSingle<AndroidNotificationServices>();
 #elif UNITY_IOS
         Container.Rebind<INotificationServices>().ToSingle<IosNotificationServices>();
@@ -51,12 +51,12 @@ public class NotificationInstaller : Installer, IInitializable
 
     public void Initialize()
     {
-        Container.Resolve<NotificationManager>();
+        Container.Resolve<SocialPoint.Notifications.NotificationManager>();
         var services = Container.Resolve<INotificationServices>();
         if(Settings.AutoRegisterForRemote)
         {
-            services.RegisterForRemote();
+            services.RequestPermissions();
         }
     }
-    
+
 }

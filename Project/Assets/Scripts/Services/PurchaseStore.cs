@@ -12,7 +12,9 @@ class PurchaseStore : SocialPointPurchaseStore
     public PurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue, StoreModel store) : base(httpClient, commandQueue)
     {
         TrackEvent = ServiceLocator.Instance.Resolve<IEventTracker>().TrackSystemEvent;
-        RequestSetup = ServiceLocator.Instance.Resolve<ILogin>().SetupHttpRequest;
+        var login = ServiceLocator.Instance.Resolve<ILogin>();
+        RequestSetup = login.SetupHttpRequest;
+        GetUserId = () => login.UserId;
         store.Init(this);
     }
 }

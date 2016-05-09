@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using LitJson;
+using SocialPointEditor.Assets.PlatformEx;
 
 [InitializeOnLoad]
 internal class BMDataAccessor
 {
     static readonly string UNIQUE_PLATFORM_PTH_TMP = "Assets/BM_$(Platform)_$(TextureFmt)";
     static readonly string PREFERRED_DATA_PATH = "Assets/BundleManager";
+    static readonly string[] MOST_LIKELY_SRC_PATHS = new string[] {"Assets/Sparta/AssetBundles/BundleManager", "Assets/Sparta", "Assets/Libraries/External/BundleManager", "Assets/Libraries"};
 
     public class DataFilePaths
     {
@@ -345,18 +347,26 @@ internal class BMDataAccessor
     /// <returns>The base path or null.</returns>
     static private string FindBasePath()
     {
-        string[] folders = AssetDatabase.FindAssets("BundleManager t:Object");
-        foreach(string possibleBasePathGuid in folders)
+        string fullSysPath = Path.Combine(Application.dataPath, PREFERRED_DATA_PATH.Substring("Assets/".Length)).ToSysPath();
+        string possiblePath;
+        if (Directory.Exists(fullSysPath))
         {
-            string possibleBasePath = AssetDatabase.GUIDToAssetPath(possibleBasePathGuid);
-
-            // the matching folder should have BundleData.txt nested
-            if(AssetDatabase.LoadAssetAtPath<TextAsset>(possibleBasePath + "/BundleData.txt") != null)
+            possiblePath = Path.Combine(fullSysPath, "BundleData.txt");
+            if (File.Exists(possiblePath))
             {
-                return possibleBasePath;
+                return PREFERRED_DATA_PATH;
             }
         }
-        Debug.LogWarning("Could not find a base path for BundleManager data");
+
+        string fullSrcSysPath = Path.Combine(Application.dataPath, SrcPath.Substring("Assets/".Length)).ToSysPath();
+        possiblePath = Path.Combine(fullSrcSysPath, "BundleData.txt");
+        if (File.Exists(possiblePath))
+        {
+            Debug.LogWarning("Path for BundleManager data is the same as for source code. This is not recomended.");
+            return SrcPath;
+        }
+
+        Debug.LogWarning(String.Format("Could not find a base path for BundleManager data. It should be either in {0} or in the source path {1}.", PREFERRED_DATA_PATH, SrcPath));
         return null;
     }
 
@@ -366,8 +376,8 @@ internal class BMDataAccessor
     static private string FreshInitData()
     {
         //Create and save data files
-        var absDataPath = Path.Combine(Application.dataPath, PREFERRED_DATA_PATH.Substring("Assets/".Length));
-        if (!Directory.Exists(absDataPath))
+        var fullSysPath = Path.Combine(Application.dataPath, PREFERRED_DATA_PATH.Substring("Assets/".Length)).ToSysPath();
+        if (!Directory.Exists(fullSysPath))
         {
             AssetDatabase.CreateFolder(Path.GetDirectoryName(PREFERRED_DATA_PATH), 
                 Path.GetFileNameWithoutExtension(PREFERRED_DATA_PATH));
@@ -378,18 +388,25 @@ internal class BMDataAccessor
 
     static private string FindSrcPath()
     {
-        string[] folders = AssetDatabase.FindAssets("BundleManager t:Object");
-        foreach(string possibleBasePathGuid in folders)
+        foreach(string mostLikelyPath in MOST_LIKELY_SRC_PATHS)
         {
-            string possibleBasePath = AssetDatabase.GUIDToAssetPath(possibleBasePathGuid);
-
-            // the matching folder should have BundleData.txt nested
-            if(AssetDatabase.LoadAssetAtPath<GUIStyleSet>(possibleBasePath + "/customStyles.asset") != null)
+            string fullSysPath = Path.Combine(Application.dataPath, mostLikelyPath.Substring("Assets/".Length)).ToSysPath();
+            if (Directory.Exists(fullSysPath))
             {
-                return possibleBasePath;
+                var matchedFiles = Directory.GetFiles(fullSysPath, "customStyles.asset", SearchOption.AllDirectories);
+                if(matchedFiles.Length > 0)
+                {
+                    if(matchedFiles.Length != 1)
+                    {
+                        throw new Exception("Could not find a src path for BundleManager. More than one 'customStyles.asset' files found in the project.");
+                    }
+
+                    return Path.GetDirectoryName(matchedFiles[0]).NormalizedReplace(Application.dataPath, "Assets");
+                }
             }
         }
-        throw new Exception("Could not find a src path for BundleManager.");
+
+        throw new Exception("Could not find a src path for BundleManager. No suitable folder found.");
     }
     
     static private List<BundleData> m_Bundles = null;

@@ -40,6 +40,19 @@ namespace SocialPoint.Purchase
             }
         }
 
+        public GetUserIdDelegate GetUserId
+        {
+            set
+            {
+                //set if the user id is needed for this store
+            }
+        }
+
+        public void Setup(AttrDic settings)
+        {
+            //Implement if needed
+        }
+
         public void LoadProducts(string[] productIds)
         {
             _productList = _allProducts.FindAll(p => productIds.Contains(p.Id)) ?? new List<Product>();

@@ -950,7 +950,7 @@ public class DownloadManager : MonoBehaviour
 
         public static string ClientToPath(string client)
         {
-            return "v" + client.Replace(".", "_");
+            return "v" + client.Replace(".", "_").Replace(",", "_");
         }
     }
 }

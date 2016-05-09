@@ -5,6 +5,7 @@ using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Base;
 using UnityEngine.Assertions;
+using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
@@ -22,6 +23,9 @@ namespace SocialPoint.Purchase
     {
         event ProductsUpdatedDelegate ProductsUpdated;
         event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        //Change desired settings. Use with PlatformPurchaseSettings
+        void Setup(AttrDic settings);
 
         Product[] ProductList { get; }
 
@@ -49,6 +53,11 @@ namespace SocialPoint.Purchase
 
         public event ProductsUpdatedDelegate ProductsUpdated;
         public event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        public void Setup(AttrDic settings)
+        {
+            //Empty
+        }
 
         public Product[] ProductList { get { return _productList; } }
 
@@ -183,6 +192,19 @@ namespace SocialPoint.Purchase
             RegisterEvents();
         }
 
+        public void Setup(AttrDic settings)
+        {
+            _purchaseStore.Setup(settings);
+        }
+
+        public GetUserIdDelegate GetUserId
+        {
+            set
+            {
+                _purchaseStore.GetUserId = value;
+            }
+        }
+
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
@@ -216,6 +238,7 @@ namespace SocialPoint.Purchase
                 RequestSetup(req, UriPayment);
                 DebugUtils.Log(req.Url.AbsoluteUri);
             }
+
             #if UNITY_IOS
             req.AddParam(HttpParamOrderData, receipt.OriginalJson);
             #elif UNITY_ANDROID
@@ -262,7 +285,7 @@ namespace SocialPoint.Purchase
                 //client have to apply changes to de user_data
                 var purchaseGameInfo = _purchaseCompleted(receipt, PurchaseResponseType.Complete);
                 TrackPurchaseStart(receipt, purchaseGameInfo);
-                //we send the packet with the purchaseSync, if there is no syncCmd we will ad one with the cmdqueue event Sync
+                //we send the packet with the purchaseSync, if there is no syncCmd we will add one with the cmdqueue event Sync
                 _commandQueue.Send();
                 break;
                 
@@ -472,7 +495,7 @@ namespace SocialPoint.Purchase
         void UnregisterEvents()
         {
             ProductsUpdated -= OnCheckProducts;
-            PurchaseUpdated += OnPurchaseUpdated;
+            PurchaseUpdated -= OnPurchaseUpdated;
         }
 
         void OnCheckProducts(LoadProductsState state, Error error)
