@@ -193,6 +193,7 @@ std::queue<std::string> _pendingEvents;
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+    application.applicationIconBadgeNumber = 0;
     [super applicationWillEnterForeground:application];
     // applicationWillEnterForeground: might sometimes arrive *before* actually initing unity (e.g. locking on startup)
     [self notifyStatus:kStatusWillGoForeground];
