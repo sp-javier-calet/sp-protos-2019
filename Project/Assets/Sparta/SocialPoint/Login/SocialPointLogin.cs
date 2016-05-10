@@ -52,6 +52,24 @@ namespace SocialPoint.Login
         private const string HttpParamRequestIds = "request_ids";
         private const string HttpParamPrivilegeToken = "privileged_session_token";
 
+        private const string HttpParamDeviceTotalMemory = "device_total_memory";
+        private const string HttpParamDeviceUsedMemory = "device_used_memory";
+        private const string HttpParamDeviceTotalStorage = "device_total_storage";
+        private const string HttpParamDeviceUsedStorage = "device_used_storage";
+        private const string HttpParamDeviceMaxTextureSize = "device_max_texture_size";
+        private const string HttpParamDeviceScreenWidth = "device_screen_width";
+        private const string HttpParamDeviceScreenHeight = "device_screen_height";
+        private const string HttpParamDeviceScreenDpi = "device_screen_dpi";
+        private const string HttpParamDeviceCpuCores = "device_cpu_cores";
+        private const string HttpParamDeviceCpuFreq = "device_cpu_freq";
+        private const string HttpParamDeviceCpuModel = "device_cpu_model";
+        private const string HttpParamDeviceOpenglVendor = "device_opengl_vendor";
+        private const string HttpParamDeviceOpenglRenderer = "device_opengl_renderer";
+        private const string HttpParamDeviceOpenglShading = "device_opengl_shading";
+        private const string HttpParamDeviceOpenglVersion = "device_opengl_version";
+        private const string HttpParamDeviceOpenglMemory = "device_opengl_memory";
+
+
         private const string AttrKeySessionId = "session_id";
         private const string AttrKeyLinksData = "linked_accounts";
         private const string AttrKeyUserId = "user_id";
@@ -99,7 +117,8 @@ namespace SocialPoint.Login
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
         public const bool DefaultEnableLinkConfirmRetries = false;
-        public const float DefaultTimeout = 120.0f; //Default company timeout
+        public const float DefaultTimeout = 120.0f;
+        //Default company timeout
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
@@ -1171,7 +1190,7 @@ namespace SocialPoint.Login
                 }
             }
 
-            if(_user != null )
+            if(_user != null)
             {
                 if(NewUserEvent != null)
                 {
@@ -1356,7 +1375,7 @@ namespace SocialPoint.Login
                     if(DeviceInfo != null)
                     {
                         var uid = DeviceInfo.Uid;
-                        uid = uid != null  && uid.Length > 7 ? uid.Substring(0, 8) : "";
+                        uid = uid != null && uid.Length > 7 ? uid.Substring(0, 8) : "";
                         suffix += SignatureSeparator + uid;
                     }
                 }
@@ -1834,6 +1853,70 @@ namespace SocialPoint.Login
                 if(!req.HasParam(HttpParamPrivilegeToken) && !string.IsNullOrEmpty(PrivilegeToken))
                 {
                     req.AddParam(HttpParamPrivilegeToken, PrivilegeToken);
+                }
+                if(!req.HasParam(HttpParamDeviceTotalMemory))
+                {
+                    req.AddParam(HttpParamDeviceTotalMemory, DeviceInfo.MemoryInfo.TotalMemory.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceUsedMemory))
+                {
+                    req.AddParam(HttpParamDeviceUsedMemory, DeviceInfo.MemoryInfo.UsedMemory.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceTotalStorage))
+                {
+                    req.AddParam(HttpParamDeviceTotalStorage, DeviceInfo.StorageInfo.TotalStorage.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceUsedStorage))
+                {
+                    req.AddParam(HttpParamDeviceUsedStorage, DeviceInfo.StorageInfo.UsedStorage.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceMaxTextureSize))
+                {
+                    req.AddParam(HttpParamDeviceMaxTextureSize, DeviceInfo.MaxTextureSize.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenWidth))
+                {
+                    req.AddParam(HttpParamDeviceScreenWidth, DeviceInfo.ScreenSize.x.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenHeight))
+                {
+                    req.AddParam(HttpParamDeviceScreenHeight, DeviceInfo.ScreenSize.y.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenDpi))
+                {
+                    req.AddParam(HttpParamDeviceScreenDpi, DeviceInfo.ScreenDpi.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuCores))
+                {
+                    req.AddParam(HttpParamDeviceCpuCores, DeviceInfo.CpuCores.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuFreq))
+                {
+                    req.AddParam(HttpParamDeviceCpuFreq, DeviceInfo.CpuFreq.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuModel))
+                {
+                    req.AddParam(HttpParamDeviceCpuModel, DeviceInfo.CpuModel);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglVendor))
+                {
+                    req.AddParam(HttpParamDeviceOpenglVendor, DeviceInfo.OpenglVendor);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglRenderer))
+                {
+                    req.AddParam(HttpParamDeviceOpenglRenderer, DeviceInfo.OpenglRenderer);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglShading))
+                {
+                    req.AddParam(HttpParamDeviceOpenglShading, DeviceInfo.OpenglShadingVersion.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglVersion))
+                {
+                    req.AddParam(HttpParamDeviceOpenglVersion, DeviceInfo.OpenglVersion);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglMemory))
+                {
+                    req.AddParam(HttpParamDeviceOpenglMemory, DeviceInfo.OpenglMemorySize.ToString());
                 }
             }
         }

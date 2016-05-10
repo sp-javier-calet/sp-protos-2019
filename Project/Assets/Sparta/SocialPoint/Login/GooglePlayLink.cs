@@ -141,6 +141,10 @@ namespace SocialPoint.Login
 
         public void GetFriendsData(List<UserMapping> mappings)
         {
+            if(_googlePlay.Friends == null)
+            {
+                return;
+            }
             var enumerator = _googlePlay.Friends.GetEnumerator();
             while(enumerator.MoveNext())
             {

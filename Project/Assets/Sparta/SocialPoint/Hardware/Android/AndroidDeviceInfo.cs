@@ -188,6 +188,113 @@ namespace SocialPoint.Hardware
             }
         }
 
+        public int MaxTextureSize
+        {
+            get
+            {
+                return SystemInfo.maxTextureSize;
+            }
+        }
+
+        private Vector2 _screenSize = Vector2.zero;
+
+        public Vector2 ScreenSize
+        {
+            get
+            {
+                if(_screenSize == Vector2.zero)
+                {
+                    _screenSize.x = Screen.width;
+                    _screenSize.y = Screen.height;
+                }
+                return _screenSize;
+            }
+        }
+
+        public float ScreenDpi
+        {
+            get
+            {
+                return Screen.dpi;
+            }
+        }
+
+        public int CpuCores
+        {
+            get
+            {
+                return SystemInfo.processorCount;
+            }
+        }
+
+        public int CpuFreq
+        {
+            get
+            {
+                return SystemInfo.processorFrequency;
+            }
+        }
+
+        public string CpuModel
+        {
+            get
+            {
+                return SystemInfo.processorType;
+            }
+        }
+
+        public string CpuArchitecture
+        {
+            get;
+            set;
+        }
+
+        public string OpenglVendor
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceVendor;
+            }
+        }
+
+        public string OpenglRenderer
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceName;
+            }
+        }
+
+        public string OpenglExtensions
+        {
+            get;
+            set;
+        }
+
+        public int OpenglShadingVersion
+        {
+            get
+            {
+                return SystemInfo.graphicsShaderLevel;
+            }
+        }
+
+        public string OpenglVersion
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceVersion;
+            }
+        }
+
+        public int OpenglMemorySize
+        {
+            get
+            {
+                return SystemInfo.graphicsMemorySize;
+            }
+        }
+
         private bool _advertisingIdEnabled;
         private bool _advertisingIdEnabledLoaded;
 

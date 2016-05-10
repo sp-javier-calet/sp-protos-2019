@@ -24,6 +24,7 @@ namespace SocialPoint.Hardware
         }
 
         private string _string = null;
+
         public string String
         {
             get
@@ -37,6 +38,7 @@ namespace SocialPoint.Hardware
         }
 
         private string _uid = null;
+
         public string Uid
         {
             get
@@ -54,7 +56,7 @@ namespace SocialPoint.Hardware
                         }
                         catch(KeychainItemException e)
                         {
-                            UnityEngine.Debug.LogError("Could not write IosDeviceInfo.Uid to ios keychain: "+e);
+                            UnityEngine.Debug.LogError("Could not write IosDeviceInfo.Uid to ios keychain: " + e);
                         }
                     }
                 }
@@ -63,6 +65,7 @@ namespace SocialPoint.Hardware
         }
 
         private readonly string _platform = "ios";
+
         public string Platform
         {
             get
@@ -72,6 +75,7 @@ namespace SocialPoint.Hardware
         }
 
         private string _platformVersion = null;
+
         public string PlatformVersion
         {
             get
@@ -85,6 +89,7 @@ namespace SocialPoint.Hardware
         }
 
         private string _advertisingId = null;
+
         public string AdvertisingId
         {
             get
@@ -118,6 +123,113 @@ namespace SocialPoint.Hardware
             get
             {
                 return AdvertisingId;
+            }
+        }
+
+        public int MaxTextureSize
+        {
+            get
+            {
+                return SystemInfo.maxTextureSize;
+            }
+        }
+
+        private Vector2 _screenSize = Vector2.zero;
+
+        public Vector2 ScreenSize
+        {
+            get
+            {
+                if(_screenSize == Vector2.zero)
+                {
+                    _screenSize.x = Screen.width;
+                    _screenSize.y = Screen.height;
+                }
+                return _screenSize;
+            }
+        }
+
+        public float ScreenDpi
+        {
+            get
+            {
+                return Screen.dpi;
+            }
+        }
+
+        public int CpuCores
+        {
+            get
+            {
+                return SystemInfo.processorCount;
+            }
+        }
+
+        public int CpuFreq
+        {
+            get
+            {
+                return SystemInfo.processorFrequency;
+            }
+        }
+
+        public string CpuModel
+        {
+            get
+            {
+                return SystemInfo.processorType;
+            }
+        }
+
+        public string CpuArchitecture
+        {
+            get;
+            set;
+        }
+
+        public string OpenglVendor
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceVendor;
+            }
+        }
+
+        public string OpenglRenderer
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceName;
+            }
+        }
+
+        public string OpenglExtensions
+        {
+            get;
+            set;
+        }
+
+        public int OpenglShadingVersion
+        {
+            get
+            {
+                return SystemInfo.graphicsShaderLevel;
+            }
+        }
+
+        public string OpenglVersion
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceVersion;
+            }
+        }
+
+        public int OpenglMemorySize
+        {
+            get
+            {
+                return SystemInfo.graphicsMemorySize;
             }
         }
 

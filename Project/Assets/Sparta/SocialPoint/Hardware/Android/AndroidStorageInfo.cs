@@ -48,8 +48,12 @@ namespace SocialPoint.Hardware
         {
             get
             {
+    #if UNITY_ANDROID
+                return 0;
+    #else
                 var fs = StatFs(DataPath);
                 return (ulong)fs.Call<long>("getTotalBytes");
+    #endif
             }
         }
 
@@ -57,8 +61,12 @@ namespace SocialPoint.Hardware
         {
             get
             {
+    #if UNITY_ANDROID
+                return 0;
+    #else
                 var fs = StatFs(DataPath);
                 return (ulong)fs.Call<long>("getFreeBytes");
+    #endif
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
+using SocialPoint.Hardware;
 
 namespace SocialPoint.Profiling
 {
@@ -123,10 +124,85 @@ namespace SocialPoint.Profiling
         }
     }
 
+
+    [StructLayout(LayoutKind.Sequential, Pack = 2)]
+    public struct DeviceInfo
+    {
+        public string DeviceModel;
+        public ulong DeviceTotalMemory;
+        public ulong DeviceUsedMemory;
+        public ulong DeviceTotalStorage;
+        public ulong DeviceUsedStorage;
+        public string Platform;
+        public string DeviceOS;
+        public int DeviceMaxTextureSize;
+        public float DeviceScreenWidth;
+        public float DeviceScreenHeight;
+        public float DeviceScreenDPI;
+        public int DevicesCPUCores;
+        public int DeviceCPUFreq;
+        public string DeviceCPUModel;
+        public string DeviceCPUArchitecture;
+        public string DeviceOpenGlVendor;
+        public string DeviceOpenGlRenderer;
+        public string DeviceOpenGlExtensions;
+        public int DeviceOpenGlShading;
+        public string DeviceOpenGlVersion;
+        public int DeviceOpenGlMemorySize;
+
+        override public string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.AppendFormat("DeviceModel {0}", DeviceModel);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceTotalMemory {0}", DeviceTotalMemory);
+            builder.Append(", ");
+            builder.AppendFormat("DeviceUsedMemory {0}", DeviceUsedMemory);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceTotalStorage {0}", DeviceTotalStorage);
+            builder.Append(", ");
+            builder.AppendFormat("DeviceUsedStorage {0}", DeviceUsedStorage);
+            builder.Append("\n");
+            builder.AppendFormat("Platform {0}", Platform);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceOS {0}", DeviceOS);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceMaxTextureSize {0}", DeviceMaxTextureSize);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceScreenWidth {0}", DeviceScreenWidth);
+            builder.Append(", ");
+            builder.AppendFormat("DeviceScreenHeight {0}", DeviceScreenHeight);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceScreenDPI {0}", DeviceScreenDPI);
+            builder.Append("\n");
+            builder.AppendFormat("DevicesCPUCores {0}", DevicesCPUCores);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceCPUFreq {0}", DeviceCPUFreq);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceCPUModel {0}", DeviceCPUModel);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceCPUArch {0}", DeviceCPUArchitecture);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceOpenGgVendor {0}", DeviceOpenGlVendor);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceOpenGgRenderer {0}", DeviceOpenGlRenderer);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceOpenGgExtensions {0}", DeviceOpenGlExtensions);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceOpenGgShading {0}", DeviceOpenGlShading);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceOpenGlVersion {0}", DeviceOpenGlVersion);
+            builder.Append("\n");
+            builder.AppendFormat("DeviceOpenGlMemorySize {0}", DeviceOpenGlMemorySize);
+            return builder.ToString();
+        }
+    }
+
     public class PerfInfo : IDisposable
     {
         public FrameInfo Frame;
         public GarbageInfo Garbage;
+        public DeviceInfo Device;
 
         MonoBehaviour _behaviour;
         Coroutine _updateCoroutine;
@@ -138,6 +214,8 @@ namespace SocialPoint.Profiling
             _updateInterval = updateInterval;
             _behaviour = behaviour;
             _updateCoroutine = behaviour.StartCoroutine(UpdateCoroutine());
+
+            Device = SPUnityProfilerGetDeviceInfo();
         }
 
         public void Dispose()
@@ -182,6 +260,9 @@ namespace SocialPoint.Profiling
             builder.AppendLine("\n----");
             builder.AppendLine("garbage collector");
             builder.Append(Garbage.ToString());
+            builder.AppendLine("\n----");
+            builder.AppendLine("device info");
+            builder.Append(Device.ToString());
             return builder.ToString();
         }
 
@@ -216,16 +297,24 @@ namespace SocialPoint.Profiling
         [DllImport(PluginModuleName)]
         public static extern FrameInfo SPUnityProfilerGetFrameInfo();
         
+
 #else
         public static FrameInfo SPUnityProfilerGetFrameInfo()
         {
             var stats = new FrameInfo();
 
             stats.FrameTime = Time.smoothDeltaTime*1000;
+
             foreach(MeshFilter mf in GameObject.FindObjectsOfType(typeof(MeshFilter)))
             {
-                stats.Verts += (uint)mf.sharedMesh.vertexCount;
-                stats.Tris += (uint)mf.sharedMesh.triangles.Length;
+                if(mf.sharedMesh != null)
+                {
+                    if(mf.sharedMesh.isReadable)
+                    {
+                        stats.Verts += (uint)mf.sharedMesh.vertexCount;
+                        stats.Tris += (uint)mf.sharedMesh.triangles.Length;
+                    }
+                }
             }
             return stats;
         }
@@ -235,6 +324,7 @@ namespace SocialPoint.Profiling
         [DllImport(PluginModuleName)]
         public static extern GarbageInfo SPUnityProfilerGetGarbageInfo();
         
+
 #else
         public static GarbageInfo SPUnityProfilerGetGarbageInfo()
         {
@@ -244,5 +334,37 @@ namespace SocialPoint.Profiling
             return stats;
         }
         #endif
+
+
+        public static DeviceInfo SPUnityProfilerGetDeviceInfo()
+        {
+            IDeviceInfo deviceInfo = ServiceLocator.DeviceInfo;
+            var stats = new DeviceInfo();
+
+            stats.DeviceModel = deviceInfo.Model;
+            stats.DeviceTotalMemory = deviceInfo.MemoryInfo.TotalMemory;
+            stats.DeviceUsedMemory = deviceInfo.MemoryInfo.UsedMemory;
+            stats.DeviceTotalStorage = deviceInfo.StorageInfo.TotalStorage;
+            stats.DeviceUsedStorage = deviceInfo.StorageInfo.UsedStorage;
+            stats.Platform = deviceInfo.Platform;
+            stats.DeviceOS = deviceInfo.PlatformVersion;
+            stats.DeviceMaxTextureSize = deviceInfo.MaxTextureSize;
+            stats.DeviceScreenWidth = deviceInfo.ScreenSize.x;
+            stats.DeviceScreenHeight = deviceInfo.ScreenSize.y;
+            stats.DeviceScreenDPI = deviceInfo.ScreenDpi;
+            stats.DevicesCPUCores = deviceInfo.CpuCores;
+            stats.DeviceCPUFreq = deviceInfo.CpuFreq;
+            stats.DeviceCPUModel = deviceInfo.CpuModel;
+            stats.DeviceCPUArchitecture = deviceInfo.CpuArchitecture;
+            stats.DeviceOpenGlVendor = deviceInfo.OpenglVendor;
+            stats.DeviceOpenGlRenderer = deviceInfo.OpenglRenderer;
+            stats.DeviceOpenGlExtensions = deviceInfo.OpenglExtensions;
+            stats.DeviceOpenGlShading = deviceInfo.OpenglShadingVersion;
+            stats.DeviceOpenGlVersion = deviceInfo.OpenglVersion;
+            stats.DeviceOpenGlMemorySize = deviceInfo.OpenglMemorySize;
+
+            return stats;
+        }
+
     }
 }

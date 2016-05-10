@@ -9,6 +9,7 @@ namespace SocialPoint.Profiling
         PerfInfoGUI _perfInfoGUI;
         Text _frameText;
         Text _garbageText;
+        Text _deviceInfoText;
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
@@ -33,6 +34,10 @@ namespace SocialPoint.Profiling
 
                 layout.CreateLabel("Garbage Info");
                 _garbageText = layout.CreateVerticalScrollLayout().CreateTextArea(_perfInfoGUI.Info.Garbage.ToString());
+
+                layout.CreateLabel("Device Info");
+                _deviceInfoText = layout.CreateVerticalScrollLayout().CreateTextArea(_perfInfoGUI.Info.Device.ToString());
+
             }
             else
             {
@@ -46,6 +51,7 @@ namespace SocialPoint.Profiling
             {
                 _frameText.text = _perfInfoGUI.Info.Frame.ToString();
                 _garbageText.text = _perfInfoGUI.Info.Garbage.ToString();
+                _deviceInfoText.text = _perfInfoGUI.Info.Device.ToString();
             }
         }
     }

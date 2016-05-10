@@ -1,6 +1,7 @@
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Utils;
+using System;
 
 namespace SocialPoint.Crash
 {
@@ -67,10 +68,19 @@ namespace SocialPoint.Crash
 
         public void Log(string info)
         {
+            if(!FileUtils.ExistsFile(BreadcrumbLogPath()))
+                return;
             var breadcrumb = new Breadcrumb(info);
             using(var file = new StreamWriter(BreadcrumbLogPath(), true))
             {
-                file.WriteLine(breadcrumb);
+                try
+                {
+                    file.WriteLine(breadcrumb);
+                }
+                catch(Exception e)
+                {
+                    //IOException: Disk full
+                }
             }
         }
 
