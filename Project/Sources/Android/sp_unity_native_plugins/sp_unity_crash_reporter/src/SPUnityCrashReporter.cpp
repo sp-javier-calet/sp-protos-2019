@@ -54,7 +54,7 @@ SPUnityCrashReporter::SPUnityCrashReporter(const std::string& path,
 , _logExtension(logExtension)
 , _gameObject(gameObject)
 {
-    _breadcrumbManager = SPUnityBreadcrumbManager::getInstance();
+    _breadcrumbManager = socialpoint::SPUnityBreadcrumbManager::getInstance();
 }
 
 bool SPUnityCrashReporter::enable()
