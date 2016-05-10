@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include "UnityGameObject.h"
 #include "SPUnityCrashReporter.hpp"
+#include "SPUnityBreadcrumbManager.hpp"
 
 /* google_breakpad is only supported in arm architectures
  * SPUnityCrashReporter cannot be enabled in x86 builds.
@@ -53,6 +54,7 @@ SPUnityCrashReporter::SPUnityCrashReporter(const std::string& path,
 , _logExtension(logExtension)
 , _gameObject(gameObject)
 {
+    _breadcrumbManager = SPUnityBreadcrumbManager::getInstance();
 }
 
 bool SPUnityCrashReporter::enable()
