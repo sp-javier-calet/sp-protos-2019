@@ -12,7 +12,8 @@ LOCAL_CFLAGS    := -Werror
 LOCAL_SRC_FILES := $(SRC_PATH)/main.cpp \
 		$(SRC_PATH)/UnityGameObject.cpp \
 		$(COMMON_SRC_PATH)/SPUnityUtils.cpp \
-		$(COMMON_SRC_PATH)/breadcrumbs/SPUnityBreadcrumbManager.cpp
+		$(COMMON_SRC_PATH)/breadcrumbs/SPUnityBreadcrumbManager.cpp \
+        $(COMMON_SRC_PATH)/breadcrumbs/SPUnityBreadcrumbManagerFacade.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(SRC_PATH)\
 		$(COMMON_SRC_PATH)/breadcrumbs
