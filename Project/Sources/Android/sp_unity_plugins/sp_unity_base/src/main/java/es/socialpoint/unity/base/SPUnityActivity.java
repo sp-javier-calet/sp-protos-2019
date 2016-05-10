@@ -20,6 +20,17 @@ public class SPUnityActivity extends UnityPlayerActivity {
 
 	private static final String TAG = "SPUnityActivity";
 
+	static
+	{
+		/*
+		 * library loaded here ince it contains
+		 * some methods that can be called directly from other native
+		 * libraries (UnitySendMessage for example). If it is not loaded
+		 * by hand, loading those libraries fails in some older android
+		 * versions. */
+		System.loadLibrary("sp_unity_utils");
+	}
+
 	/* Provides global access to the current acivity without the unity3d package dependency */
 	public static Activity getCurrentActivity() {
 		return UnityPlayer.currentActivity;
@@ -83,9 +94,9 @@ public class SPUnityActivity extends UnityPlayerActivity {
 			mApplicationSource = "";
 
 			String uri = intent.getDataString();
-            if(uri != null && uri != "")
-            {
-            	mApplicationSource = uri;
+			if(uri != null && uri != "")
+			{
+				mApplicationSource = uri;
 			}
 			else
 			{
@@ -93,18 +104,18 @@ public class SPUnityActivity extends UnityPlayerActivity {
 
 				if(intent != null)
 				{
-				    extras = intent.getExtras();
+					extras = intent.getExtras();
 				}
 				if(extras != null)
 				{
-				    String extrasStr = "";
-				    Set<String> keys = extras.keySet();
-				    for(String key : keys)
-				    {
-				        extrasStr += urlEncode(key) + "=" + urlEncode(extras.get(key).toString()) + "&";
-				    }
+					String extrasStr = "";
+					Set<String> keys = extras.keySet();
+					for(String key : keys)
+					{
+						extrasStr += urlEncode(key) + "=" + urlEncode(extras.get(key).toString()) + "&";
+					}
 
-				    mApplicationSource = extrasStr;
+					mApplicationSource = extrasStr;
 				}
 			}
 
