@@ -1,13 +1,13 @@
 #if UNITY_IOS
 using UnityEngine;
 using System;
+using System.Collections;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
 
 using LocalNotification = UnityEngine.iOS.LocalNotification;
 using NotificationServices = UnityEngine.iOS.NotificationServices;
-using LocalNotificationType = UnityEngine.iOS.NotificationType;
-using RemoteNotificationType = UnityEngine.iOS.NotificationType;
+using NotificationType = UnityEngine.iOS.NotificationType;
 #endif
 
 namespace SocialPoint.Notifications
@@ -16,16 +16,20 @@ namespace SocialPoint.Notifications
     public class IosNotificationServices : BaseNotificationServices
     {
         const string TokenSeparator = "-";
-        const LocalNotificationType _localNotifyTypes = LocalNotificationType.Alert | LocalNotificationType.Badge | LocalNotificationType.Sound;
-        const RemoteNotificationType _remoteNotifyTypes = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
+        const NotificationType NotificationTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
+        const float PushTokenTimeout = 30.0f;
 
-        public IosNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue, bool requestPushNotificationAutomatically = true)
-            : base(runner, commandqueue, requestPushNotificationAutomatically)
+        IEnumerator _checkPermissionStatusCoroutine;
+
+        public IosNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
+            : base(runner, commandqueue)
         {
-            if(requestPushNotificationAutomatically)
-            {
-                RegisterForLocal();
-            }
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            _runner.StopCoroutine(_checkPermissionStatusCoroutine);
         }
 
         public override void Schedule(Notification notif)
@@ -50,47 +54,47 @@ namespace SocialPoint.Notifications
             NotificationServices.CancelAllLocalNotifications();
         }
 
-        protected override void RequestPushNotificationToken()
-        {
-            NotificationServices.RegisterForNotifications(_remoteNotifyTypes, true);
-
-            WaitForRemoteToken(() => {
-                string token = null;
-                byte[] byteToken = NotificationServices.deviceToken;
-                if(byteToken != null)
-                {
-                    token = BitConverter.ToString(byteToken).Replace(TokenSeparator, string.Empty).ToLower();
-                }
-                return token;
-            });
-        }
-
         public override void ClearReceived()
         {
             NotificationServices.ClearRemoteNotifications();
             NotificationServices.ClearLocalNotifications();
-            var unotif = new LocalNotification();
-            unotif.fireDate = DateTime.Now.ToLocalTime();
-            unotif.applicationIconBadgeNumber = -1;
-            NotificationServices.PresentLocalNotificationNow(unotif);
         }
 
-        public override void RequestLocalNotification()
+        public override void RequestPermissions()
         {
-            RegisterForLocal();
-        }
-
-        void RegisterForLocal()
-        {
-            NotificationServices.RegisterForNotifications(_localNotifyTypes, false);
-        }
-
-        public override bool UserAllowsNofitication
-        {
-            get
+            if(_checkPermissionStatusCoroutine == null)
             {
-                return NativeUtils.UserAllowNotification;
+                NotificationServices.RegisterForNotifications(NotificationTypes, true);
+                _checkPermissionStatusCoroutine = _runner.StartCoroutine(CheckPermissionStatus());
             }
+        }
+
+        IEnumerator CheckPermissionStatus()
+        {
+            float startTime = Time.unscaledTime;
+            float currentTime = startTime;
+            byte[] byteToken = null;
+            string registrationError = null;
+            while(byteToken == null && string.IsNullOrEmpty(registrationError) && (currentTime - startTime) < PushTokenTimeout)
+            {
+                byteToken = NotificationServices.deviceToken;
+                registrationError = NotificationServices.registrationError;
+                yield return new WaitForSeconds(1.0f);
+                currentTime = Time.unscaledTime;
+            }
+
+            if(byteToken != null)
+            {
+                _pushToken = BitConverter.ToString(byteToken).Replace(TokenSeparator, string.Empty).ToLower();
+                OnRequestPermissionsSuccess();
+            }
+            else
+            {
+                _pushToken = "";
+                OnRequestPermissionsFail();
+            }
+
+            _checkPermissionStatusCoroutine = null;
         }
     }
 

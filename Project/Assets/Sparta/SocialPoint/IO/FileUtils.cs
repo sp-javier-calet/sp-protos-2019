@@ -490,7 +490,7 @@ namespace SocialPoint.IO
             foreach(var srcPath in files)
             {
                 string dstPath = dst;
-                if(dir != null && srcPath.StartsWith(dir))
+                if(dir != null && StringUtils.StartsWith(srcPath, dir))
                 {
                     var srcRelPath = srcPath.Substring(dir.Length);
                     dstPath = Path.Combine(dstPath, srcRelPath);
@@ -536,7 +536,7 @@ namespace SocialPoint.IO
             foreach(var srcPath in srcFiles)
             {
                 string dstPath = dst;
-                if(srcDir != null && srcPath.StartsWith(srcDir))
+                if(srcDir != null && StringUtils.StartsWith(srcPath, srcDir))
                 {
                     var srcRelPath = srcPath.Substring(srcDir.Length);
                     dstPath = Path.Combine(dstPath, srcRelPath);
@@ -567,7 +567,7 @@ namespace SocialPoint.IO
                 foreach(var dstPath in dstFiles)
                 {
                     string srcPath = srcDir;
-                    if(dstDir != null && dstPath.StartsWith(dstDir))
+                    if(dstDir != null && StringUtils.StartsWith(dstPath, dstDir))
                     {
                         var dstRelPath = dstPath.Substring(dstDir.Length);
                         srcPath = Path.Combine(srcPath, dstRelPath);
@@ -605,7 +605,7 @@ namespace SocialPoint.IO
 
         static public string SetDefaultFileName(string path, string filename)
         {
-            if(ExistsDirectory(path) || path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
+            if(ExistsDirectory(path) || StringUtils.EndsWith(path, System.IO.Path.DirectorySeparatorChar.ToString()))
             {
                 return System.IO.Path.Combine(path, filename);
             }

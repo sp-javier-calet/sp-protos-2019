@@ -42,6 +42,11 @@ namespace SocialPoint.Hardware
         string PlatformVersion { get; }
 
         /**
+         *  Returns the Architecture of the device
+         */
+        string Architecture { get; }
+
+        /**
          *  Returns the Model of the device
          */
         string Model { get; }

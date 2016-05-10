@@ -114,6 +114,7 @@ typedef struct {
 
 #include "minidump_cpu_amd64.h"
 #include "minidump_cpu_arm.h"
+#include "minidump_cpu_arm64.h"
 #include "minidump_cpu_mips.h"
 #include "minidump_cpu_ppc.h"
 #include "minidump_cpu_ppc64.h"
@@ -341,7 +342,7 @@ typedef enum {
   MD_LINUX_ENVIRON               = 0x47670007,  /* /proc/$x/environ   */
   MD_LINUX_AUXV                  = 0x47670008,  /* /proc/$x/auxv      */
   MD_LINUX_MAPS                  = 0x47670009,  /* /proc/$x/maps      */
-  MD_LINUX_DSO_DEBUG             = 0x4767000A   /* MDRawDebug         */
+  MD_LINUX_DSO_DEBUG             = 0x4767000A   /* MDRawDebug{32,64}  */
 } MDStreamType;  /* MINIDUMP_STREAM_TYPE */
 
 
@@ -636,6 +637,7 @@ typedef enum {
       /* PROCESSOR_ARCHITECTURE_IA32_ON_WIN64 (WoW64) */
   MD_CPU_ARCHITECTURE_SPARC     = 0x8001, /* Breakpad-defined value for SPARC */
   MD_CPU_ARCHITECTURE_PPC64     = 0x8002, /* Breakpad-defined value for PPC64 */
+  MD_CPU_ARCHITECTURE_ARM64     = 0x8003, /* Breakpad-defined value for ARM64 */
   MD_CPU_ARCHITECTURE_UNKNOWN   = 0xffff  /* PROCESSOR_ARCHITECTURE_UNKNOWN */
 } MDCPUArchitecture;
 
@@ -722,8 +724,8 @@ typedef struct {
   uint32_t process_kernel_time;  /* seconds of kernel CPU time */
 
   /* The following fields are not present in MINIDUMP_MISC_INFO but are
-   * in MINIDUMP_MISC_INFO_2.  When this struct is populated, these value
-   * may not be set.  Use flags1 or size_of_info to determine whether these
+   * in MINIDUMP_MISC_INFO_2.  When this struct is populated, these values
+   * may not be set.  Use flags1 and size_of_info to determine whether these
    * values are present.  These are only valid when flags1 contains
    * MD_MISCINFO_FLAGS1_PROCESSOR_POWER_INFO. */
   uint32_t processor_max_mhz;
@@ -733,8 +735,8 @@ typedef struct {
   uint32_t processor_current_idle_state;
 
   /* The following fields are not present in MINIDUMP_MISC_INFO_2 but are
-   * in MINIDUMP_MISC_INFO_3.  When this struct is populated, these value
-   * may not be set.  Use flags1 or size_of_info to determine whether these
+   * in MINIDUMP_MISC_INFO_3.  When this struct is populated, these values
+   * may not be set.  Use flags1 and size_of_info to determine whether these
    * values are present. */
    
   /* The following field is only valid if flags1 contains
@@ -755,16 +757,17 @@ typedef struct {
   MDTimeZoneInformation time_zone;
 
   /* The following fields are not present in MINIDUMP_MISC_INFO_3 but are
-   * in MINIDUMP_MISC_INFO_4.  When this struct is populated, these value
-   * may not be set.  Use size_of_info to determine whether these values are 
-   * present. */
+   * in MINIDUMP_MISC_INFO_4.  When this struct is populated, these values
+   * may not be set.  Use flags1 and size_of_info to determine whether these
+   * values are present. */
 
-  /* The following 2 fields are only valid if
-   * size_of_info is >= MD_MISCINFO4_SIZE */
+  /* The following 2 fields are only valid if flags1 contains
+   * MD_MISCINFO_FLAGS1_BUILDSTRING. */
   uint16_t build_string[MD_MAX_PATH];  /* UTF-16-encoded, 0-terminated */
   uint16_t dbg_bld_str[40];            /* UTF-16-encoded, 0-terminated */
-} MDRawMiscInfo;  /* MINIDUMP_MISC_INFO, MINIDUMP_MISC_INFO2,
-                   * MINIDUMP_MISC_INFO3, MINIDUMP_MISC_INFO4 */
+} MDRawMiscInfo;  /* MINIDUMP_MISC_INFO, MINIDUMP_MISC_INFO_2,
+                   * MINIDUMP_MISC_INFO_3, MINIDUMP_MISC_INFO_4,
+                   * MINIDUMP_MISC_INFO_N */
 
 static const size_t MD_MISCINFO_SIZE =
     offsetof(MDRawMiscInfo, processor_max_mhz);
@@ -791,6 +794,8 @@ typedef enum {
       /* MINIDUMP_MISC3_TIMEZONE */
   MD_MISCINFO_FLAGS1_PROTECTED_PROCESS     = 0x00000080,
       /* MINIDUMP_MISC3_PROTECTED_PROCESS */
+  MD_MISCINFO_FLAGS1_BUILDSTRING           = 0x00000100,
+      /* MINIDUMP_MISC4_BUILDSTRING */
 } MDMiscInfoFlags1;
 
 /*
@@ -925,21 +930,39 @@ typedef enum {
 } MDAssertionInfoData;
 
 /* These structs are used to store the DSO debug data in Linux minidumps,
- * which is necessary for converting minidumps to usable coredumps. */
+ * which is necessary for converting minidumps to usable coredumps.
+ * Because of a historical accident, several fields are variably encoded
+ * according to client word size, so tools potentially need to support both. */
+
 typedef struct {
-  void*     addr;
+  uint32_t  addr;
   MDRVA     name;
-  void*     ld;
-} MDRawLinkMap;
+  uint32_t  ld;
+} MDRawLinkMap32;
 
 typedef struct {
   uint32_t  version;
-  MDRVA     map;
+  MDRVA     map;  /* array of MDRawLinkMap32 */
   uint32_t  dso_count;
-  void*     brk;
-  void*     ldbase;
-  void*     dynamic;
-} MDRawDebug;
+  uint32_t  brk;
+  uint32_t  ldbase;
+  uint32_t  dynamic;
+} MDRawDebug32;
+
+typedef struct {
+  uint64_t  addr;
+  MDRVA     name;
+  uint64_t  ld;
+} MDRawLinkMap64;
+
+typedef struct {
+  uint32_t  version;
+  MDRVA     map;  /* array of MDRawLinkMap64 */
+  uint32_t  dso_count;
+  uint64_t  brk;
+  uint64_t  ldbase;
+  uint64_t  dynamic;
+} MDRawDebug64;
 
 #if defined(_MSC_VER)
 #pragma warning(pop)

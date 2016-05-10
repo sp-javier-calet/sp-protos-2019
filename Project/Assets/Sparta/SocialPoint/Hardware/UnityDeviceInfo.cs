@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 namespace SocialPoint.Hardware
@@ -62,8 +61,7 @@ namespace SocialPoint.Hardware
             set;
         }
 
-        private string _platform;
-
+        string _platform;
         public string Platform
         {
             get
@@ -94,6 +92,14 @@ namespace SocialPoint.Hardware
             get
             {
                 return SystemInfo.operatingSystem;
+            }
+        }
+
+        public string Architecture
+        {
+            get
+            {
+                return "";
             }
         }
 

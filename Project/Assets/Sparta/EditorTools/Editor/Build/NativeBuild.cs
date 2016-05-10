@@ -19,6 +19,14 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        static string AndroidSDKPath
+        {
+            get
+            {
+                return EditorPrefs.GetString("AndroidSdkRoot");
+            }
+        }
+
         static string AndroidNDKPath
         {
             get
@@ -46,6 +54,18 @@ namespace SpartaTools.Editor.Build
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_plugins");
             var unityPath = InstallationPath;
 
+            /* Check prerequisites. 
+             * Android build requires a project-update to update the local configuration, 
+             * including the path to the Android SDK. This file is created by Android Studio 
+             * after importing, but we can fake it using the SDK location configured within Unity.
+             */
+            var localFile = Path.Combine(path, "local.properties");
+            if(!File.Exists(localFile))
+            {
+                File.WriteAllText(localFile, "sdk.dir=" + AndroidSDKPath); 
+            }
+
+            // Start Build
             var msg = string.Format("Building Android SPUnityPlugins {0}", path);
             Debug.Log(msg);
             commandOutput.AppendLine(msg);

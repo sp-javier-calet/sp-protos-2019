@@ -191,6 +191,22 @@ static bool DoneCallback(const MinidumpDescriptor& descriptor,
   return true;
 }
 
+#ifndef ADDRESS_SANITIZER
+
+// This is a replacement for "*reinterpret_cast<volatile int*>(NULL) = 0;"
+// It is needed because GCC is allowed to assume that the program will
+// not execute any undefined behavior (UB) operation. Further, when GCC
+// observes that UB statement is reached, it can assume that all statements
+// leading to the UB one are never executed either, and can completely
+// optimize them out. In the case of ExceptionHandlerTest::ExternalDumper,
+// GCC-4.9 optimized out the entire set up of ExceptionHandler, causing
+// test failure.
+volatile int *p_null;  // external linkage, so GCC can't tell that it
+                       // remains NULL. Volatile just for a good measure.
+static void DoNullPointerDereference() {
+  *p_null = 1;
+}
+
 void ChildCrash(bool use_fd) {
   AutoTempDir temp_dir;
   int fds[2] = {0};
@@ -217,7 +233,7 @@ void ChildCrash(bool use_fd) {
                                            true, -1));
       }
       // Crash with the exception handler in scope.
-      *reinterpret_cast<volatile int*>(NULL) = 0;
+      DoNullPointerDereference();
     }
   }
   if (!use_fd)
@@ -241,6 +257,8 @@ TEST(ExceptionHandlerTest, ChildCrashWithPath) {
 TEST(ExceptionHandlerTest, ChildCrashWithFD) {
   ASSERT_NO_FATAL_FAILURE(ChildCrash(true));
 }
+
+#endif  // !ADDRESS_SANITIZER
 
 static bool DoneCallbackReturnFalse(const MinidumpDescriptor& descriptor,
                                     void* context,
@@ -283,13 +301,15 @@ static bool InstallRaiseSIGKILL() {
   return sigaction(SIGSEGV, &sa, NULL) != -1;
 }
 
+#ifndef ADDRESS_SANITIZER
+
 static void CrashWithCallbacks(ExceptionHandler::FilterCallback filter,
                                ExceptionHandler::MinidumpCallback done,
                                string path) {
   ExceptionHandler handler(
       MinidumpDescriptor(path), filter, done, NULL, true, -1);
   // Crash with the exception handler in scope.
-  *reinterpret_cast<volatile int*>(NULL) = 0;
+  DoNullPointerDereference();
 }
 
 TEST(ExceptionHandlerTest, RedeliveryOnFilterCallbackFalse) {
@@ -380,7 +400,7 @@ TEST(ExceptionHandlerTest, RedeliveryOnBadSignalHandlerFlag) {
               reinterpret_cast<void*>(SIG_ERR));
 
     // Crash with the exception handler in scope.
-    *reinterpret_cast<volatile int*>(NULL) = 0;
+    DoNullPointerDereference();
   }
   // SIGKILL means Breakpad's signal handler didn't crash.
   ASSERT_NO_FATAL_FAILURE(WaitForProcessToTerminate(child, SIGKILL));
@@ -449,6 +469,8 @@ TEST(ExceptionHandlerTest, StackedHandlersUnhandledToBottom) {
   }
   ASSERT_NO_FATAL_FAILURE(WaitForProcessToTerminate(child, SIGKILL));
 }
+
+#endif  // !ADDRESS_SANITIZER
 
 const unsigned char kIllegalInstruction[] = {
 #if defined(__mips__)
@@ -731,10 +753,6 @@ TEST(ExceptionHandlerTest, InstructionPointerMemoryMaxBound) {
   unlink(minidump_path.c_str());
 }
 
-// If AddressSanitizer is used, NULL pointer dereferences generate SIGILL
-// (illegal instruction) instead of SIGSEGV (segmentation fault).  Also,
-// the number of memory regions differs, so there is no point in running
-// this test if AddressSanitizer is used.
 #ifndef ADDRESS_SANITIZER
 
 // Ensure that an extra memory block doesn't get added when the instruction
@@ -781,7 +799,8 @@ TEST(ExceptionHandlerTest, InstructionPointerMemoryNullPointer) {
 
   unlink(minidump_path.c_str());
 }
-#endif // !ADDRESS_SANITIZER
+
+#endif  // !ADDRESS_SANITIZER
 
 // Test that anonymous memory maps can be annotated with names and IDs.
 TEST(ExceptionHandlerTest, ModuleInfo) {
@@ -902,6 +921,8 @@ CrashHandler(const void* crash_context, size_t crash_context_size,
   return true;
 }
 
+#ifndef ADDRESS_SANITIZER
+
 TEST(ExceptionHandlerTest, ExternalDumper) {
   int fds[2];
   ASSERT_NE(socketpair(AF_UNIX, SOCK_DGRAM, 0, fds), -1);
@@ -915,7 +936,7 @@ TEST(ExceptionHandlerTest, ExternalDumper) {
     ExceptionHandler handler(MinidumpDescriptor("/tmp1"), NULL, NULL,
                              reinterpret_cast<void*>(fds[1]), true, -1);
     handler.set_crash_handler(CrashHandler);
-    *reinterpret_cast<volatile int*>(NULL) = 0;
+    DoNullPointerDereference();
   }
   close(fds[1]);
   struct msghdr msg = {0};
@@ -973,6 +994,8 @@ TEST(ExceptionHandlerTest, ExternalDumper) {
   ASSERT_GT(st.st_size, 0);
   unlink(templ.c_str());
 }
+
+#endif  // !ADDRESS_SANITIZER
 
 TEST(ExceptionHandlerTest, WriteMinidumpExceptionStream) {
   AutoTempDir temp_dir;

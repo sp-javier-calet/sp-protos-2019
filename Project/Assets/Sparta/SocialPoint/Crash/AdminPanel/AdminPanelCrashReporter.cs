@@ -83,6 +83,11 @@ namespace SocialPoint.Crash
                 layout.CreateConfirmButton("Force Exception", ButtonColor.Red, () => {
                     throw new AdminPanelCrashReporterException();
                 });
+                layout.CreateConfirmButton("Force NullReferenceException", ButtonColor.Red, () => {
+                    #pragma warning disable 1720
+                    ((string)null).Trim();
+                    #pragma warning restore 1720
+                });
                 layout.CreateConfirmButton("Force Handled Exception", ButtonColor.Red, () => {
                     try
                     {

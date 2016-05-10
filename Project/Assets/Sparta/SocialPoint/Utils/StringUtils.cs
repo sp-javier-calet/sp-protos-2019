@@ -189,7 +189,7 @@ namespace SocialPoint.Utils
                 return null;
             }
             // Ensure the URL always contains a trailing slash
-            if(!uri.EndsWith(UriSeparator.ToString()))
+            if(!EndsWith(uri, UriSeparator.ToString()))
             {
                 uri += UriSeparator;
             }

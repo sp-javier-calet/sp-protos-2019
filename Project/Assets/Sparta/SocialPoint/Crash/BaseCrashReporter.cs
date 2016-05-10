@@ -481,7 +481,6 @@ namespace SocialPoint.Crash
                 _runner.StopCoroutine(_updateCoroutine);
                 _updateCoroutine = null;
             }
-
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
             OnDisable();
         }
@@ -664,14 +663,16 @@ namespace SocialPoint.Crash
             {
                 // If there are no new crashes, we can check some saved status to detect a memory crash
                 Report memoryCrashReport = CheckMemoryCrash();
+                bool tracked = false;
                 if(memoryCrashReport != null)
                 {
                     if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
                     {
+                        tracked = true;
                         TrackCrash(memoryCrashReport, callback);
                     }
                 }
-                else if(callback != null)
+                if(!tracked && callback != null)
                 {
                     callback();
                 }

@@ -10,19 +10,17 @@ namespace SocialPoint.Notifications
 {
     public abstract class BaseNotificationServices : INotificationServices, IDisposable
     {
-        protected delegate string PollPushNotificationToken();
-
         const string kPushTokenKey = "notifications_push_token";
         const string kPlayerAllowsNotificationKey = "player_allow_notification";
-        ICoroutineRunner _runner;
+
+        protected ICoroutineRunner _runner;
+        protected string _pushToken;
+        bool _validPushToken;
+
         ICommandQueue _commandQueue;
+        IList<Action<bool, string>> _pushTokenReceivedListeners;
 
-        string _pushToken = null;
-        IEnumerator _checkPushTokenCoroutine;
-        readonly IList<Action<string>> _pushTokenReceivedListeners;
-        bool _requestPushNotificationAutomatically;
-
-        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null, bool requestPushNotificationAutomatically = true)
+        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
         {
             if(runner == null)
             {
@@ -31,42 +29,53 @@ namespace SocialPoint.Notifications
 
             _runner = runner;
             _commandQueue = commandqueue;
-            _requestPushNotificationAutomatically = requestPushNotificationAutomatically;
-            _pushTokenReceivedListeners = new List<Action<string>>();
+            _pushTokenReceivedListeners = new List<Action<bool, string>>();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            _runner.StopCoroutine(_checkPushTokenCoroutine);
+            
         }
 
-        protected void WaitForRemoteToken(PollPushNotificationToken pollDelegate)
+        protected void OnRequestPermissionsSuccess()
         {
-            _checkPushTokenCoroutine = CheckPushNotificationToken(pollDelegate);
-            _runner.StartCoroutine(_checkPushTokenCoroutine);
+            _validPushToken = true;
+            SendPushToken();
+            NotifyPushTokenReceived();
         }
 
-        IEnumerator CheckPushNotificationToken(PollPushNotificationToken pollDelegate)
+        protected void OnRequestPermissionsFail()
         {
-            while(_pushToken == null)
+            _validPushToken = false;
+            SendPushToken();
+            NotifyPushTokenReceived();
+        }
+
+        void SendPushToken()
+        {
+            if(_commandQueue == null || _pushToken == null)
             {
-                _pushToken = pollDelegate();
-                yield return null;
+                return;
             }
-            SendPushToken(_pushToken);
-            NotifyPushTokenReceived(_pushToken);
-        }
 
-        void SendPushToken(string pushToken)
-        {
             string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
             bool userAllowedNotifications = PlayerPrefs.GetInt(kPlayerAllowsNotificationKey, 0) != 0;
-            if(_commandQueue != null && !string.IsNullOrEmpty(pushToken) && (pushToken != currentPushToken || userAllowedNotifications != UserAllowsNofitication))
+
+            bool pushTokenChanged = _pushToken != currentPushToken;
+            bool allowNotificationsChanged = userAllowedNotifications != UserAllowsNofitication;
+
+            if(pushTokenChanged || allowNotificationsChanged)
             {
-                _commandQueue.Add(new PushEnabledCommand(pushToken), (data, err) => {
+                string pushTokenToSend = UserAllowsNofitication ? _pushToken : currentPushToken;
+                if(string.IsNullOrEmpty(pushTokenToSend))
+                {
+                    return;
+                }
+
+                _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, UserAllowsNofitication), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
-                        PlayerPrefs.SetString(kPushTokenKey, pushToken);
+                        PlayerPrefs.SetString(kPushTokenKey, _pushToken);
                         PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, UserAllowsNofitication ? 1 : 0);
                         PlayerPrefs.Save();
                     }
@@ -74,46 +83,41 @@ namespace SocialPoint.Notifications
             }
         }
 
-        void NotifyPushTokenReceived(string token)
+        void NotifyPushTokenReceived()
         {
-            foreach(var cbk in _pushTokenReceivedListeners)
+            for(int i = 0; i < _pushTokenReceivedListeners.Count; ++i)
             {
-                cbk(token);
+                var listener = _pushTokenReceivedListeners[i];
+                if(listener != null)
+                {
+                    listener(_validPushToken, _pushToken);
+                }
             }
             _pushTokenReceivedListeners.Clear();
         }
 
-        public void RegisterForRemote(Action<string> onTokenReceivedCallback = null)
+        public void RegisterForRemoteToken(Action<bool, string> callback)
         {
-            if(onTokenReceivedCallback != null)
+            if(callback != null)
             {
                 if(_pushToken != null)
                 {
-                    onTokenReceivedCallback(_pushToken);
+                    callback(_validPushToken, _pushToken);
                 }
                 else
                 {
-                    _pushTokenReceivedListeners.Add(onTokenReceivedCallback);
+                    _pushTokenReceivedListeners.Add(callback);
                 }
             }
-
-            if(_requestPushNotificationAutomatically)
-            {
-                RequestPushNotification();
-            }
         }
 
-        public void RequestPushNotification()
+        public bool UserAllowsNofitication
         {
-            // Start registering proccess if it is not already running
-            if(_checkPushTokenCoroutine == null)
+            get
             {
-                RequestPushNotificationToken();
+                return NativeUtils.UserAllowNotification;
             }
         }
-
-        protected abstract void RequestPushNotificationToken();
-
 
         #region INotificationServices implementation
 
@@ -123,9 +127,7 @@ namespace SocialPoint.Notifications
 
         public abstract void CancelPending();
 
-        public abstract void RequestLocalNotification();
-
-        public abstract bool UserAllowsNofitication{ get; }
+        public abstract void RequestPermissions();
 
         #endregion
     }

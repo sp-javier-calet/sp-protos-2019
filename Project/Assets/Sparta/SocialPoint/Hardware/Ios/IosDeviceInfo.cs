@@ -1,6 +1,5 @@
-using System;
-using UnityEngine;
 using SocialPoint.IosKeychain;
+using UnityEngine;
 
 namespace SocialPoint.Hardware
 {
@@ -23,8 +22,7 @@ namespace SocialPoint.Hardware
             _networkInfo = new IosNetworkInfo();
         }
 
-        private string _string = null;
-
+        string _string;
         public string String
         {
             get
@@ -37,8 +35,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _uid = null;
-
+        string _uid;
         public string Uid
         {
             get
@@ -56,7 +53,7 @@ namespace SocialPoint.Hardware
                         }
                         catch(KeychainItemException e)
                         {
-                            UnityEngine.Debug.LogError("Could not write IosDeviceInfo.Uid to ios keychain: " + e);
+                            Debug.LogError("Could not write IosDeviceInfo.Uid to ios keychain: "+e);
                         }
                     }
                 }
@@ -65,7 +62,6 @@ namespace SocialPoint.Hardware
         }
 
         private readonly string _platform = "ios";
-
         public string Platform
         {
             get
@@ -75,7 +71,6 @@ namespace SocialPoint.Hardware
         }
 
         private string _platformVersion = null;
-
         public string PlatformVersion
         {
             get
@@ -88,8 +83,20 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _advertisingId = null;
+        string _architecture;
+        public string Architecture
+        {
+            get
+            {
+                if(_architecture == null)
+                {
+                    _architecture = IosHardwareBridge.SPUnityHardwareGetDeviceArchitecture();
+                }
+                return _architecture;
+            }
+        }
 
+        string _advertisingId;
         public string AdvertisingId
         {
             get
@@ -241,8 +248,8 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private bool _rooted;
-        private bool _rootedLoaded;
+        bool _rooted;
+        bool _rootedLoaded;
 
         public bool Rooted
         {

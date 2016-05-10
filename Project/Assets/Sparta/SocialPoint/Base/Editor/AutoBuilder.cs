@@ -178,6 +178,11 @@ namespace SocialPoint.Base
             }, BuildTargetGroup.Standalone);
         }
 
+        static void PerformiOSNewBuild()
+        {
+            PerformiOSBuild();
+        }
+
         [MenuItem("File/AutoBuilder/iOS")]
         static void PerformiOSBuild()
         {
@@ -187,6 +192,11 @@ namespace SocialPoint.Base
                 Target = BuildTarget.iOS,
                 Options = GetBuildOptions()
             }, BuildTargetGroup.iOS);
+        }
+
+        static void PerformAndroidNewBuild()
+        {
+            PerformAndroidBuild();
         }
 
         [MenuItem("File/AutoBuilder/Android")]
@@ -199,14 +209,19 @@ namespace SocialPoint.Base
             }
 
             // Setup Android Version Info
+            string data = "";
             string[] buildNumber = GetCommandLineArgs("build");
             if(buildNumber.Length == 0)
             {
-                string data = System.DateTime.Today.ToString("yyMMddhmm");
-                int value = Int32.Parse(data);     
-                PlayerSettings.Android.bundleVersionCode = value;
-                UnityEngine.Debug.Log("[INFO] Android bundle version code set to: [" + PlayerSettings.Android.bundleVersionCode + "]");
+                data = DateTime.Today.ToString("yyMMddhhmm");
             }
+            else
+            {
+                data = buildNumber[0];
+            }
+            int value = Int32.Parse(data);
+            PlayerSettings.Android.bundleVersionCode = value;
+            UnityEngine.Debug.Log("[INFO] Android bundle version code set to: [" + PlayerSettings.Android.bundleVersionCode + "]");
             PlayerSettings.Android.useAPKExpansionFiles = false;
 
             // Note: FAT means all supported/available architectures.
