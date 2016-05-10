@@ -23,6 +23,18 @@ namespace SocialPoint.Lockstep
         int _maxRetries;
         bool _missingTurn;
 
+        float _simulationSpeed;
+
+        public float SimulationSpeed
+        {
+            get
+            {
+                return _simulationSpeed * DesiredSimulationSpeed;
+            }
+        }
+
+        public float DesiredSimulationSpeed { get; set; }
+
         public long LastConfirmedTurn
         {
             get
@@ -31,7 +43,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        const long _maxCatchUpSpeed = 10;
+        const float _maxCatchUpSpeed = 10;
 
         public int ExecutionTurnAnticipation { get; set; }
 
@@ -69,6 +81,9 @@ namespace SocialPoint.Lockstep
         public event Action<ILockstepCommand> PendingCommandAdded;
         public event Action<long> SimulationStartScheduled;
         public event Action SimulationStarted;
+        public event Action<ILockstepCommand> CommandApplied;
+
+        public LockstepConfig LockstepConfig { get; protected set; }
 
         Dictionary<int, List<ILockstepCommand>> _pendingCommands = new Dictionary<int, List<ILockstepCommand>>();
 
@@ -84,10 +99,12 @@ namespace SocialPoint.Lockstep
             _lastConfirmedTurnTime = 0;
             _lastConfirmedTurn = 0;
             TurnAnticipationAdjustmentFactor = 0.7f;
+            DesiredSimulationSpeed = 1f;
         }
 
         public void Init(LockstepConfig config)
         {
+            LockstepConfig = config;
             _simulationStep = config.SimulationStep;
             _commandStep = config.CommandStep;
             ExecutionTurnAnticipation = config.ExecutionTurnAnticipation;
@@ -256,7 +273,7 @@ namespace SocialPoint.Lockstep
                             if(pendingCommand.Equals(command))
                             {
                                 ReportPendingCommandResult(true);
-                                pendingCommand.Apply();
+                                ApplyCommand(pendingCommand);
                                 applied = true;
                                 pendingCommands.Remove(pendingCommand);
                                 break;
@@ -265,7 +282,7 @@ namespace SocialPoint.Lockstep
                     }
                     if(!applied)
                     {
-                        command.Apply();
+                        ApplyCommand(command);
                     }
                 }
                 _confirmedCommands.Remove(turn);
@@ -298,12 +315,21 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        void ApplyCommand(ILockstepCommand command)
+        {
+            command.Apply();
+            if(CommandApplied != null)
+            {
+                CommandApplied(command);
+            }
+        }
+
         #region IUpdateable implementation
 
         public void Update()
         {
             long timestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
-            long elapsedTime = timestamp - _lastTimestamp;
+            long elapsedTime = (long)(DesiredSimulationSpeed * (float)(timestamp - _lastTimestamp));
             if(elapsedTime <= 0)
             {
                 return;
@@ -315,31 +341,32 @@ namespace SocialPoint.Lockstep
                     SimulationStarted();
                 }
             }
-            _lastTimestamp = timestamp;
             _simulationTime += elapsedTime;
             UpdateTurnConfirmations();
 
-            long maxConfirmedSimulationTime = _lastConfirmedTurnTime + _commandStep - _simulationStep;
+            long maxConfirmedSimulationTime = NeedsTurnConfirmation ? _lastConfirmedTurnTime + _commandStep - _simulationStep : long.MaxValue;
             if(_lastModelSimulationTime <= maxConfirmedSimulationTime)
             {
                 long nextModelSimulationTime = Math.Min(maxConfirmedSimulationTime, _simulationTime);
-                long elapsedSteps = (nextModelSimulationTime - _lastModelSimulationTime) / _simulationStep;
-                long timeMultiplicator = (nextModelSimulationTime - _lastModelSimulationTime) / elapsedTime;
-                if(timeMultiplicator > _maxCatchUpSpeed)
+                long elapsedSimulationTime = nextModelSimulationTime - _lastModelSimulationTime;
+                elapsedSimulationTime = Math.Min((long)(_maxCatchUpSpeed * (float)elapsedTime), elapsedSimulationTime);
+                for(long nextST = _lastModelSimulationTime + _simulationStep; nextST <= nextModelSimulationTime; nextST += _simulationStep)
                 {
-                    elapsedSteps = (long)((float)elapsedSteps * ((float)_maxCatchUpSpeed / (float)timeMultiplicator));
-                }
-                while(elapsedSteps > 0)
-                {
-                    _lastModelSimulationTime += _simulationStep;
+                    _lastModelSimulationTime = nextST;
                     _model.Simulate(_lastModelSimulationTime);
-                    if(_lastModelSimulationTime == _lastAppliedTurnTime + _commandStep)
+                    if(_lastModelSimulationTime >= _lastAppliedTurnTime + _commandStep)
                     {
                         ConsumeTurn(_lastAppliedTurn + 1);
                     }
-                    elapsedSteps--;
                 }
+                _lastModelSimulationTime = nextModelSimulationTime;
+                _simulationSpeed = (float)elapsedSimulationTime / (float)elapsedTime;
             }
+            else
+            {
+                _simulationSpeed = 0f;
+            }
+            _lastTimestamp = timestamp;
         }
 
         #endregion
