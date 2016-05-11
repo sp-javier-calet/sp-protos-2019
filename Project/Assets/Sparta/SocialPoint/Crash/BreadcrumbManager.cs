@@ -26,6 +26,7 @@ namespace SocialPoint.Crash
     {
         const string LastSessionBreadcrumbsName = "old";
         static bool _initialized;
+        ICrashReporter _crashReporter;
 
         /*
          * InitializeBreadcrumbFile function ensures that every 
@@ -61,15 +62,19 @@ namespace SocialPoint.Crash
 
         #region BreadcrumbManager implementation
 
-        public BreadcrumbManager()
+        public BreadcrumbManager(ICrashReporter crashReporter)
         {
+            _crashReporter = crashReporter;
             PathsManager.CallOnLoaded(InitializeBreadcrumbFile);
         }
 
         public void Log(string info)
         {
             if(!FileUtils.ExistsFile(BreadcrumbLogPath()))
+            {
                 return;
+            }
+
             var breadcrumb = new Breadcrumb(info);
             using(var file = new StreamWriter(BreadcrumbLogPath(), true))
             {
@@ -77,9 +82,9 @@ namespace SocialPoint.Crash
                 {
                     file.WriteLine(breadcrumb);
                 }
-                catch
+                catch(Exception e)
                 {
-                    //IOException: Disk full
+                    _crashReporter.ReportHandledException(e);
                 }
             }
         }

@@ -239,7 +239,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private Vector2 _screenSize = Vector2.zero;
+        Vector2 _screenSize = Vector2.zero;
 
         public Vector2 ScreenSize
         {
@@ -338,8 +338,8 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private bool _advertisingIdEnabled;
-        private bool _advertisingIdEnabledLoaded;
+        bool _advertisingIdEnabled;
+        bool _advertisingIdEnabledLoaded;
 
         public bool AdvertisingIdEnabled
         {
