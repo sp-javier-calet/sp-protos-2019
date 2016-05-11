@@ -1,5 +1,4 @@
 #if UNITY_ANDROID
-using SocialPoint.Base;
 using UnityEngine;
 #endif
 
@@ -8,10 +7,6 @@ namespace SocialPoint.Hardware
     #if UNITY_ANDROID
     public class AndroidStorageInfo : IStorageInfo
     {
-        public AndroidStorageInfo()
-        {
-        }
-
         static string _rootPath;
 
         public static string RootPath
