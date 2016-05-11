@@ -69,6 +69,9 @@ namespace SocialPoint.Lockstep
         public event Action<ILockstepCommand> PendingCommandAdded;
         public event Action<long> SimulationStartScheduled;
         public event Action SimulationStarted;
+        public event Action<ILockstepCommand> CommandApplied;
+
+        public LockstepConfig LockstepConfig { get; protected set; }
 
         Dictionary<int, List<ILockstepCommand>> _pendingCommands = new Dictionary<int, List<ILockstepCommand>>();
 
@@ -88,6 +91,7 @@ namespace SocialPoint.Lockstep
 
         public void Init(LockstepConfig config)
         {
+            LockstepConfig = config;
             _simulationStep = config.SimulationStep;
             _commandStep = config.CommandStep;
             ExecutionTurnAnticipation = config.ExecutionTurnAnticipation;
@@ -256,7 +260,7 @@ namespace SocialPoint.Lockstep
                             if(pendingCommand.Equals(command))
                             {
                                 ReportPendingCommandResult(true);
-                                pendingCommand.Apply();
+                                ApplyCommand(pendingCommand);
                                 applied = true;
                                 pendingCommands.Remove(pendingCommand);
                                 break;
@@ -265,7 +269,7 @@ namespace SocialPoint.Lockstep
                     }
                     if(!applied)
                     {
-                        command.Apply();
+                        ApplyCommand(command);
                     }
                 }
                 _confirmedCommands.Remove(turn);
@@ -295,6 +299,15 @@ namespace SocialPoint.Lockstep
             {
                 _lastAppliedTurn = turn;
                 _lastAppliedTurnTime = turn * _commandStep;
+            }
+        }
+
+        void ApplyCommand(ILockstepCommand command)
+        {
+            command.Apply();
+            if(CommandApplied != null)
+            {
+                CommandApplied(command);
             }
         }
 
