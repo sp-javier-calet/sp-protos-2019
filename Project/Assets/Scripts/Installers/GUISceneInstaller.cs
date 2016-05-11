@@ -19,7 +19,7 @@ public class GUISceneInstaller : MonoInstaller, IInitializable
 
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
     }
 
     public void Initialize()

@@ -18,7 +18,7 @@ public class NotificationInstaller : Installer, IInitializable
 
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
 
 #if UNITY_EDITOR
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
@@ -30,9 +30,9 @@ public class NotificationInstaller : Installer, IInitializable
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        Container.Rebind<NotificationManager>().ToSingleMethod<NotificationManager>(CreateNotificationManager);
-        Container.Bind<IDisposable>().ToSingleMethod<NotificationManager>(CreateNotificationManager);
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelNotifications>(CreateAdminPanel);
+        Container.Rebind<NotificationManager>().ToMethod<NotificationManager>(CreateNotificationManager);
+        Container.Bind<IDisposable>().ToMethod<NotificationManager>(CreateNotificationManager);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
     }
 
     AdminPanelNotifications CreateAdminPanel()

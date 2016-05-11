@@ -20,22 +20,43 @@ namespace SocialPoint.Dependency
     public interface IBinding
     {
         object Resolve();
+        void OnResolutionFinished();
     }
 
     public class UnityComponentBinding<F> : IBinding where F : Component
     {
         ServiceLocator _container;
+        Action<F> _setup;
+        F _instance;
 
         public UnityComponentBinding(ServiceLocator container)
         {
             _container = container;
         }
+            
+        public UnityComponentBinding<F> WithSetup<T>(Action<F> setup)
+        {
+            _setup = setup;
+            return this;
+        }
 
         public object Resolve()
         {
-            return _container.gameObject.AddComponent<F>();
+            if(_instance == null)
+            {
+                _instance = _container.gameObject.AddComponent<F>();
+            }
+            return _instance;
         }
 
+        public void OnResolutionFinished()
+        {
+            if(_setup != null && _instance != null)
+            {
+                _setup(_instance);
+            }
+        }
+            
         public override string ToString()
         {
             return string.Format("[UnityComponentBinding {0}]", typeof(F));
@@ -56,6 +77,7 @@ namespace SocialPoint.Dependency
         Type _type;
         string _tag;
         Func<F> _method;
+        Action<object> _setup;
         Func<object, F> _getter;
         ServiceLocator _container;
 
@@ -70,7 +92,7 @@ namespace SocialPoint.Dependency
             _type = typeof(T);
         }
 
-        public void ToSingleInstance<T>(T instance) where T : F
+        public void ToInstance<T>(T instance) where T : F
         {
             _toType = ToType.Single;
             _instance = instance;
@@ -83,11 +105,19 @@ namespace SocialPoint.Dependency
             _tag = tag;
         }
 
-        public void ToSingleMethod<T>(Func<T> method) where T : F
+        public void ToMethod<T>(Func<T> method, Action<T> setup=null) where T : F
         {
             _type = typeof(T);
             _method = () => method();
             _toType = ToType.Method;
+
+            _setup = null;
+            if(setup != null)
+            {
+                _setup = (result) => {
+                    setup((T)result);
+                };
+            }
         }
 
         public void ToGetter<T>(Func<T,F> method, string tag=null)
@@ -105,7 +135,9 @@ namespace SocialPoint.Dependency
             }
             else if(_toType == ToType.Single)
             {
-                _instance = (F)_container.Create(_type);
+                var construct = _type.GetConstructor(new Type[]{ });
+                _instance = (F) construct.Invoke(new object[]{});
+
             }
             else if(_toType == ToType.Lookup)
             {
@@ -124,6 +156,15 @@ namespace SocialPoint.Dependency
                 }
             }
             return _instance;
+        }
+
+        public void OnResolutionFinished()
+        {
+            if(_setup != null && _instance != null)
+            {
+                Debug.Log("OnResolutionFinished " + this);
+                _setup(_instance);
+            }
         }
 
         public override string ToString()
@@ -147,9 +188,10 @@ namespace SocialPoint.Dependency
     public sealed class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>
     {
         List<IInstaller> _installedInstallers = new List<IInstaller>();
-        //List<IInitializable> _initializedInitializables = new List<IInitializable>();
+        List<IInitializable> _initializedInitializables = new List<IInitializable>();
         Dictionary<BindingKey, List<IBinding>> _bindings = new Dictionary<BindingKey, List<IBinding>>();
         HashSet<IBinding> _resolving = new HashSet<IBinding>();
+        List<IBinding> _resolved = new List<IBinding>();
 
         void AddBinding(IBinding binding, Type type, string tag=null)
         {
@@ -216,7 +258,6 @@ namespace SocialPoint.Dependency
 
         public void Initialize()
         {
-            /*
             var inits = ResolveArray<IInitializable>();
             for(var i = 0; i < inits.Length; i++)
             {
@@ -226,7 +267,7 @@ namespace SocialPoint.Dependency
                     init.Initialize();
                     _initializedInitializables.Add(init);
                 }
-            }*/
+            }
         }
 
         void AddBindedComponents()
@@ -246,12 +287,28 @@ namespace SocialPoint.Dependency
 
         public List<T> ResolveList<T>(string tag=null)
         {
-            return new List<T>(ResolveArray<T>(tag));
+            var bindings = new List<IBinding>();
+            var type = typeof(T);
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
+            {
+                var list = new List<T>();
+                for(var i = 0; i < bindings.Count; i++)
+                {
+                    object result;
+                    if(TryResolve(bindings[i], out result))
+                    {
+                        list.Add((T)result);
+                    }
+                }
+                return list;
+            }
+            return new List<T>();
         }
 
         public object Resolve(Type type, string tag=null, object def=null)
         {
             List<IBinding> bindings;
+            Debug.Log("Resolve " + type + " " + tag);
             if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
             {
                 for(var i = 0; i < bindings.Count; i++)
@@ -268,22 +325,7 @@ namespace SocialPoint.Dependency
             
         public T[] ResolveArray<T>(string tag=null)
         {
-            var bindings = new List<IBinding>();
-            var type = typeof(T);
-            if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
-            {
-                var arr = new T[bindings.Count];
-                for(var i = 0; i < arr.Length; i++)
-                {
-                    object result;
-                    if(TryResolve(bindings[i], out result))
-                    {
-                        arr[i] = (T)result;
-                    }
-                }
-                return arr;
-            }
-            return null;
+            return ResolveList<T>(tag).ToArray();
         }
 
         bool TryResolve(IBinding binding, out object result)
@@ -293,31 +335,21 @@ namespace SocialPoint.Dependency
                 result = null;
                 return false;
             }
+
             _resolving.Add(binding);
             result = binding.Resolve();
             _resolving.Remove(binding);
-            return true;
-        }
-
-        public T Create<T>()
-        {
-            return (T)Create(typeof(T));
-        }
-
-        public object Create(Type type)
-        {
-            /*
-            object obj;
-            if(TryResolve(type, out obj))
+            _resolved.Add(binding);
+            if(_resolving.Count == 0)
             {
-                return obj;
-            }*/
-            var construct = type.GetConstructor(new Type[]{ });
-            if(construct == null)
-            {
-                throw new ResolveException("Type " + type + " does not have a default constructor");
+                var resolved = _resolved.ToArray();
+                _resolved.Clear();
+                for(var i = 0; i < resolved.Length; i++)
+                {
+                    resolved[i].OnResolutionFinished();
+                }
             }
-            return construct.Invoke(new object[]{});
+            return true;
         }
 
         public void Clear()
@@ -352,7 +384,7 @@ namespace SocialPoint.Dependency
 
         public static void BindInstance<T>(this ServiceLocator locator, string tag, T instance)
         {
-            locator.Bind<T>(tag).ToSingleInstance(instance);
+            locator.Bind<T>(tag).ToInstance(instance);
         }
     }
 }

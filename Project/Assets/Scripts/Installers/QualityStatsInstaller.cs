@@ -11,23 +11,24 @@ public class QualityStatsInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.Rebind<QualityStatsHttpClient>().ToSingleMethod<QualityStatsHttpClient>(CreateHttpClient);
+        Container.Rebind<QualityStatsHttpClient>().ToMethod<QualityStatsHttpClient>(CreateHttpClient);
         Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
         Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
-        Container.Rebind<SocialPointQualityStats>().ToSingleMethod<SocialPointQualityStats>(CreateQualityStats);
+        Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
         Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
     }
 
     SocialPointQualityStats CreateQualityStats()
     {
-        var stats = new SocialPointQualityStats(
+        return new SocialPointQualityStats(
             Container.Resolve<IDeviceInfo>(),
             Container.Resolve<IAppEvents>());
+    }
 
+    void SetupQualityStats(SocialPointQualityStats stats)
+    {
         stats.AddQualityStatsHttpClient(Container.Resolve<QualityStatsHttpClient>());
         stats.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
-
-        return stats;
     }
 
     QualityStatsHttpClient CreateHttpClient()

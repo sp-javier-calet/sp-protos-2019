@@ -26,13 +26,13 @@ public class FacebookInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IFacebook>().ToSingleMethod<UnityFacebook>(CreateUnityFacebook);
+            Container.Rebind<IFacebook>().ToMethod<UnityFacebook>(CreateUnityFacebook);
         }
         if(Settings.LoginLink)
         {
-            Container.Bind<ILink>().ToSingleMethod<FacebookLink>(CreateLoginLink);
+            Container.Bind<ILink>().ToMethod<FacebookLink>(CreateLoginLink);
         }
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelFacebook>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelFacebook>(CreateAdminPanel);
     }
 
     AdminPanelFacebook CreateAdminPanel()

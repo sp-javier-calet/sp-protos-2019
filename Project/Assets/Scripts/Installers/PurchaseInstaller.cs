@@ -12,9 +12,9 @@ public class PurchaseInstaller : MonoInstaller
 {
     public override void InstallBindings()
     {
-        Container.Rebind<IGamePurchaseStore>().ToSingleMethod<SocialPointPurchaseStore>(CreatePurchaseStore);
+        Container.Rebind<IGamePurchaseStore>().ToMethod<SocialPointPurchaseStore>(CreatePurchaseStore, SetupPurchaseStore);
         Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelPurchase>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelPurchase>(CreateAdminPanel);
     }
 
     AdminPanelPurchase CreateAdminPanel()
@@ -27,10 +27,13 @@ public class PurchaseInstaller : MonoInstaller
 
     SocialPointPurchaseStore CreatePurchaseStore()
     {
-        var store = new SocialPointPurchaseStore(
+        return new SocialPointPurchaseStore(
             Container.Resolve<IHttpClient>(),
             Container.Resolve<ICommandQueue>());
+    }
 
+    void SetupPurchaseStore(SocialPointPurchaseStore store)
+    {
         store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
         var login = Container.Resolve<ILogin>();
         store.RequestSetup = login.SetupHttpRequest;
@@ -38,7 +41,5 @@ public class PurchaseInstaller : MonoInstaller
 
         var model = Container.Resolve<StoreModel>();
         model.Init(store);
-
-        return store;
     }
 }

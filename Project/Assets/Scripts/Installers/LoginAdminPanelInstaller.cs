@@ -10,7 +10,7 @@ public class LoginAdminPanelInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelLogin>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLogin>(CreateAdminPanel);
     }
 
     AdminPanelLogin CreateAdminPanel()

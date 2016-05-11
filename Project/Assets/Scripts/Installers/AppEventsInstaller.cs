@@ -8,12 +8,12 @@ public class AppEventsInstaller : MonoInstaller
 {
 	public override void InstallBindings()
 	{
-        Container.Rebind<IAppEvents>().ToSingleMethod<SocialPointAppEvents>(CreateAppEvents);
+        Container.Rebind<IAppEvents>().ToMethod<SocialPointAppEvents>(CreateAppEvents);
         Container.Bind<IDisposable>().ToLookup<IAppEvents>();
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelAppEvents>(CreateAdminPanelAppEvents);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAppEvents>(CreateAdminPanelAppEvents);
 
-        Container.Bind<AppEventsBridge>().ToSingleMethod<AppEventsBridge>(CreateAppEventsBridge);
+        Container.Bind<AppEventsBridge>().ToMethod<AppEventsBridge>(CreateAppEventsBridge);
         Container.Bind<IEventsBridge>().ToLookup<AppEventsBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<AppEventsBridge>();
 	}

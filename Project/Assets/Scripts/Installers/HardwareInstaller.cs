@@ -22,6 +22,22 @@ public class HardwareInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
+        Container.Rebind<IDeviceInfo>().ToMethod<SocialPointDeviceInfo>(CreateDeviceInfo, SetupDeviceInfo);
+        Container.Rebind<IMemoryInfo>().ToGetter<IDeviceInfo>(x => x.MemoryInfo);
+        Container.Rebind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
+        Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
+        Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHardware>(CreateAdminPanel);
+	}
+
+    SocialPointDeviceInfo CreateDeviceInfo()
+    {
+        return new SocialPointDeviceInfo();
+    }
+
+    void SetupDeviceInfo(SocialPointDeviceInfo info)
+    {
+        #if UNITY_EDITOR
         if(Settings.FakeAppData)
         {
             var appInfo = new EmptyAppInfo();
@@ -31,25 +47,9 @@ public class HardwareInstaller : MonoInstaller
             appInfo.ShortVersion = Settings.AppShortVersion;
             appInfo.Language = Settings.AppLanguage;
             appInfo.Country = Settings.AppCountry;
-            Container.BindInstance("hardware_fake_app_info", appInfo);
+            info.AppInfo = appInfo;
         }
-
-        Container.Rebind<IDeviceInfo>().ToSingleMethod<SocialPointDeviceInfo>(CreateDeviceInfo);
-        Container.Rebind<IMemoryInfo>().ToGetter<IDeviceInfo>(x => x.MemoryInfo);
-        Container.Rebind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
-        Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
-        Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
-
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelHardware>(CreateAdminPanel);
-	}
-
-    SocialPointDeviceInfo CreateDeviceInfo()
-    {
-        var info = new SocialPointDeviceInfo();
-        #if UNITY_EDITOR
-        info.AppInfo = Container.Resolve<IAppInfo>("hardware_fake_app_info");
         #endif
-        return info;
     }
 
     AdminPanelHardware CreateAdminPanel()

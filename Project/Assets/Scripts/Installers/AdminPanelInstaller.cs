@@ -11,8 +11,8 @@ public class AdminPanelInstaller : MonoInstaller, IInitializable
     public override void InstallBindings()
     {
 #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
-        Container.Bind<IInitializable>().ToSingleInstance(this);
-        Container.Rebind<AdminPanel>().ToSingleMethod<AdminPanel>(CreateAdminPanel);
+        Container.Bind<IInitializable>().ToInstance(this);
+        Container.Rebind<AdminPanel>().ToMethod<AdminPanel>(CreateAdminPanel);
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
 

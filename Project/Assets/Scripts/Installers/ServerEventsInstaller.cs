@@ -26,15 +26,12 @@ public class ServerEventsInstaller : Installer
 
 	public override void InstallBindings()
 	{
-        Container.BindInstance("event_tracker_timeout", Settings.Timeout);
-        Container.BindInstance("event_tracker_outofsync_interval", Settings.MaxOutOfSyncInterval);
-        Container.BindInstance("event_tracker_send_interval", Settings.SendInterval);
-        Container.BindInstance("event_tracker_backoff_multiplier", Settings.BackoffMultiplier);
-        Container.Rebind<SocialPointEventTracker>().ToSingleMethod<SocialPointEventTracker>(CreateEventTracker);
+        Container.Rebind<SocialPointEventTracker>()
+            .ToMethod<SocialPointEventTracker>(CreateEventTracker, SetupEventTracker);
         Container.Rebind<IEventTracker>().ToLookup<SocialPointEventTracker>();
         Container.Bind<IDisposable>().ToLookup<IEventTracker>();
 
-        Container.Rebind<ServerEventsBridge>().ToSingleMethod<ServerEventsBridge>(CreateBridge);
+        Container.Rebind<ServerEventsBridge>().ToMethod<ServerEventsBridge>(CreateBridge);
         Container.Bind<IEventsBridge>().ToLookup<ServerEventsBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<ServerEventsBridge>();
 	}
@@ -47,12 +44,16 @@ public class ServerEventsInstaller : Installer
 
     SocialPointEventTracker CreateEventTracker()
     {
-        var tracker = new SocialPointEventTracker(
+        return new SocialPointEventTracker(
             Container.Resolve<ICoroutineRunner>());
+    }
 
-        tracker.Timeout = Container.Resolve<float>("event_tracker_timeout", tracker.Timeout);
-        tracker.MaxOutOfSyncInterval = Container.Resolve<int>("event_tracker_outofsync_interval");
-        tracker.SendInterval = Container.Resolve<int>("event_tracker_send_interval");
+    void SetupEventTracker(SocialPointEventTracker tracker)
+    {
+        tracker.Timeout = Settings.Timeout;
+        tracker.MaxOutOfSyncInterval = Settings.MaxOutOfSyncInterval;
+        tracker.SendInterval = Settings.SendInterval;
+        tracker.BackoffMultiplier = Settings.BackoffMultiplier;
         tracker.HttpClient = Container.Resolve<IHttpClient>();
         tracker.DeviceInfo = Container.Resolve<IDeviceInfo>();
         tracker.CommandQueue = Container.Resolve<ICommandQueue>();
@@ -60,7 +61,5 @@ public class ServerEventsInstaller : Installer
         tracker.AppEvents = Container.Resolve<IAppEvents>();
         tracker.RequestSetup = Container.Resolve<ILogin>().SetupHttpRequest;
         Container.Resolve<IGameErrorHandler>().Setup(tracker);
-
-        return tracker;
     }
 }

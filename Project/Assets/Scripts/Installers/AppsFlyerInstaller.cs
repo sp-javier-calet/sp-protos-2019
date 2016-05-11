@@ -30,8 +30,8 @@ public class AppsFlyerInstaller : MonoInstaller
         Container.Bind<IMarketingTracker>().ToSingle<EmptyAppsFlyer>();
         Container.Bind<IDisposable>().ToSingle<EmptyAppsFlyer>();
         #else
-        Container.Bind<IMarketingTracker>().ToSingleMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
-        Container.Bind<IDisposable>().ToSingleMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
+        Container.Bind<IMarketingTracker>().ToMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
+        Container.Bind<IDisposable>().ToMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
         #endif
     }
 

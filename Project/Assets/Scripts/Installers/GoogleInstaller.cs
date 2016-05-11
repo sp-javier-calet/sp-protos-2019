@@ -32,12 +32,12 @@ public class GoogleInstaller : MonoInstaller
         }
         if(Settings.LoginLink)
         {
-            Container.Bind<ILink>().ToSingleMethod<GooglePlayLink>(CreateLoginLink);
+            Container.Bind<ILink>().ToMethod<GooglePlayLink>(CreateLoginLink);
         }
         #else
         Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
         #endif
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelGoogle>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGoogle>(CreateAdminPanel);
     }
 
     AdminPanelGoogle CreateAdminPanel()

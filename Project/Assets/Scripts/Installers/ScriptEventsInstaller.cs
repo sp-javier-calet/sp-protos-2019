@@ -10,7 +10,7 @@ public class ScriptEventsInstaller : MonoInstaller, IInitializable
 {
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
 
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<FixedConditionParser>();
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NameConditionParser>();
@@ -19,17 +19,17 @@ public class ScriptEventsInstaller : MonoInstaller, IInitializable
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<OrConditionParser>();
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NotConditionParser>();
 
-        Container.Bind<ScriptBridge>().ToSingleMethod<ScriptBridge>(CreateScriptBridge);
+        Container.Bind<ScriptBridge>().ToMethod<ScriptBridge>(CreateScriptBridge);
         Container.Bind<IEventsBridge>().ToLookup<ScriptBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<ScriptBridge>();
         
-        Container.Rebind<IParser<IScriptCondition>>().ToSingleMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
-        Container.Rebind<IParser<ScriptModel>>().ToSingleMethod<ScriptModelParser>(CreateScriptModelParser);
+        Container.Rebind<IParser<IScriptCondition>>().ToMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
+        Container.Rebind<IParser<ScriptModel>>().ToMethod<ScriptModelParser>(CreateScriptModelParser);
 
         Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
-        Container.Rebind<IScriptEventDispatcher>().ToSingleMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
+        Container.Rebind<IScriptEventDispatcher>().ToMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelScriptEvents>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelScriptEvents>(CreateAdminPanel);
     }
 
     AdminPanelScriptEvents CreateAdminPanel()

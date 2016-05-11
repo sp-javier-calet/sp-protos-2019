@@ -45,7 +45,7 @@ public class HttpClientInstaller : MonoInstaller
         }
 #endif
         Container.BindInstance("http_client_config", Settings.Config);
-        Container.Rebind<IHttpClient>().ToSingleMethod<HttpClient>(CreateHttpClient);
+        Container.Rebind<IHttpClient>().ToMethod<HttpClient>(CreateHttpClient);
         Container.Bind<IDisposable>().ToLookup<IHttpClient>();
     }
 

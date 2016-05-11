@@ -10,7 +10,7 @@ public class BaseInstaller : MonoInstaller, IInitializable
 {
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
         Container.BindUnityComponent<UnityUpdateRunner>();
         Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();

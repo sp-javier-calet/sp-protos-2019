@@ -14,15 +14,8 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
     public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale) :
         base(client, appInfo, locale)
     {
-        Location.ProjectId = ServiceLocator.Instance.Resolve<string>("locale_project_id");
-        Location.EnvironmentId = ServiceLocator.Instance.Resolve<string>("locale_env_id");
-        Location.SecretKey = ServiceLocator.Instance.Resolve<string>("locale_secret_key");
-        Timeout = ServiceLocator.Instance.Resolve<float>("locale_timeout");
-        BundleDir = ServiceLocator.Instance.Resolve<string>("locale_bundle_dir");
-        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
-        _dispatcher = ServiceLocator.Instance.Resolve<IEventDispatcher>();
         _localizeAttributeConfig = ServiceLocator.Instance.Resolve<LocalizeAttributeConfiguration>();
-
+        _dispatcher = ServiceLocator.Instance.Resolve<IEventDispatcher>();
         _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
         _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }

@@ -10,17 +10,17 @@ public class EconomyInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.Bind<ResourcesCostFactory>().ToSingleMethod<ResourcesCostFactory>(CreateResourcesCostFactory);
-        Container.Bind<PurchaseCostFactory>().ToSingleMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
-        Container.Bind<ResourcesRewardFactory>().ToSingleMethod<ResourcesRewardFactory>(CreateResourcesRewardFactory);
+        Container.Bind<ResourcesCostFactory>().ToMethod<ResourcesCostFactory>(CreateResourcesCostFactory);
+        Container.Bind<PurchaseCostFactory>().ToMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
+        Container.Bind<ResourcesRewardFactory>().ToMethod<ResourcesRewardFactory>(CreateResourcesRewardFactory);
 
         Container.Bind<IChildParser<IReward>>().ToSingle<ResourcesRewardParser>();
 
-        Container.Bind<IChildParser<ICost>>().ToSingleMethod<ResourcesCostParser>(CreateResourcesCostParser);
-        Container.Bind<IChildParser<ICost>>().ToSingleMethod<PurchaseCostParser>(CreatePurchaseCostParser);
+        Container.Bind<IChildParser<ICost>>().ToMethod<ResourcesCostParser>(CreateResourcesCostParser);
+        Container.Bind<IChildParser<ICost>>().ToMethod<PurchaseCostParser>(CreatePurchaseCostParser);
 
-        Container.Rebind<IParser<IReward>>().ToSingleMethod<FamilyParser<IReward>>(CreateRewardParser);
-        Container.Rebind<IParser<ICost>>().ToSingleMethod<FamilyParser<ICost>>(CreateCostParser);
+        Container.Rebind<IParser<IReward>>().ToMethod<FamilyParser<IReward>>(CreateRewardParser);
+        Container.Rebind<IParser<ICost>>().ToMethod<FamilyParser<ICost>>(CreateCostParser);
     }
 
     ResourcesCostParser CreateResourcesCostParser()

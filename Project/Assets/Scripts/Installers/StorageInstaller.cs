@@ -17,8 +17,8 @@ public class StorageInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{		
-        Container.Bind<IAttrStorage>("volatile").ToSingleMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
-        Container.Bind<IAttrStorage>("persistent").ToSingleMethod<TransitionAttrStorage>(CreatePersistentStorage);
+        Container.Bind<IAttrStorage>("volatile").ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
+        Container.Bind<IAttrStorage>("persistent").ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
 
         // cannot move this into Initialize as creation of storages depends on it
         PathsManager.Init();

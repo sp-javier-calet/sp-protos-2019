@@ -86,7 +86,7 @@ namespace SocialPoint.Dependency
         {       
             var locator = ServiceLocator.Instance;
             locator.Bind<ITestService>().ToSingle<TestService>();
-            locator.Bind<DependentService>().ToSingleMethod<DependentService>(() => {
+            locator.Bind<DependentService>().ToMethod<DependentService>(() => {
                 return new DependentService(locator.Resolve<ITestService>());
             });
             var service = locator.Resolve<DependentService>();
@@ -109,7 +109,7 @@ namespace SocialPoint.Dependency
         {
             var locator = ServiceLocator.Instance;
             var instance = new TestService();
-            locator.Bind<ITestService>().ToSingleInstance(instance);
+            locator.Bind<ITestService>().ToInstance(instance);
             var service = locator.Resolve<ITestService>();
             Assert.AreEqual(instance, service);
         }
@@ -128,10 +128,10 @@ namespace SocialPoint.Dependency
         public void ResolveDoubleLoopTest()
         {
             var locator = ServiceLocator.Instance;
-            locator.Bind<ITestService>().ToSingleMethod(() => {
+            locator.Bind<ITestService>().ToMethod(() => {
                 return new LoopTestService(locator.Resolve<DependentService>());
             });
-            locator.Bind<DependentService>().ToSingleMethod<DependentService>(() => {
+            locator.Bind<DependentService>().ToMethod<DependentService>(() => {
                 return new DependentService(locator.Resolve<ITestService>());
             });
             Assert.Throws<InvalidOperationException>(() => {

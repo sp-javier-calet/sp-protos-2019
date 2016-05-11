@@ -30,11 +30,11 @@ public class AlertInstaller : MonoInstaller
         else
         {
             var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
-            Container.Rebind<IAlertView>().ToSingleInstance(unityAlertView);
+            Container.Rebind<IAlertView>().ToInstance(unityAlertView);
             Container.Bind<IDisposable>().ToLookup<IAlertView>();
         }
 
-        Container.Bind<AlertBridge>().ToSingleMethod<AlertBridge>(CreateAlertBridge);
+        Container.Bind<AlertBridge>().ToMethod<AlertBridge>(CreateAlertBridge);
         Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
     }

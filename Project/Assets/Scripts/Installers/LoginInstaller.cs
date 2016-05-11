@@ -33,37 +33,34 @@ public class LoginInstaller : Installer
         {
             Container.Install<LoginAdminPanelInstaller>();
         }
-        Container.Rebind<SocialPointLogin.LoginConfig>().ToSingleInstance<SocialPointLogin.LoginConfig>(new SocialPointLogin.LoginConfig {
+        Container.Rebind<SocialPointLogin.LoginConfig>().ToInstance<SocialPointLogin.LoginConfig>(new SocialPointLogin.LoginConfig {
             BaseUrl = Settings.Environment.GetUrl(),
             SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
             ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
             EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
         });
-        Container.BindInstance("login_timeout", Settings.Timeout);
-        Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
-        Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
-        Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
-        Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
-
-        Container.Rebind<ILogin>().ToSingleMethod<SocialPointLogin>(CreateLogin);
+        Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
         Container.Bind<IDisposable>().ToLookup<ILogin>();
     }
 
     SocialPointLogin CreateLogin()
     {
-        var login = new SocialPointLogin(
+        return new SocialPointLogin(
             Container.Resolve<IHttpClient>(),
             Container.Resolve<SocialPointLogin.LoginConfig>());
+    }
 
+    void SetupLogin(SocialPointLogin login)
+    {
         login.DeviceInfo = Container.Resolve<IDeviceInfo>();
         login.AppEvents = Container.Resolve<IAppEvents>();
         login.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
         login.Storage = Container.Resolve<IAttrStorage>("persistent");
-        login.Timeout = Container.Resolve<float>("login_timeout", login.Timeout);
-        login.ActivityTimeout = Container.Resolve<float>("login_activity_timeout", login.ActivityTimeout);
-        login.AutoUpdateFriends = Container.Resolve<bool>("login_autoupdate_friends", login.AutoUpdateFriends);
-        login.AutoUpdateFriendsPhotosSize = Container.Resolve<uint>("login_autoupdate_friends_photo_size", login.AutoUpdateFriendsPhotosSize);
-        login.UserMappingsBlock = Container.Resolve<uint>("login_user_mappings_block", login.UserMappingsBlock);
+        login.Timeout = Settings.Timeout;
+        login.ActivityTimeout = Settings.ActivityTimeout;
+        login.AutoUpdateFriends = Settings.AutoupdateFriends;
+        login.AutoUpdateFriendsPhotosSize = Settings.AutoupdateFriendsPhotoSize;
+        login.UserMappingsBlock = Settings.UserMappingsBlock;
         login.Language = Container.Resolve<string>("language", login.Language);
 
         var links = Container.ResolveArray<ILink>();
@@ -71,7 +68,5 @@ public class LoginInstaller : Installer
         {
             login.AddLink(links[i]);
         }
-
-        return login;
     }
 }

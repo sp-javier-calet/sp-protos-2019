@@ -18,9 +18,9 @@ public class MarketingInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.Bind<IMarketingAttributionManager>().ToSingleMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager);
+        Container.Bind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager);
         Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
     }
 
     public IMarketingAttributionManager CreateMarketingAttributionManager()

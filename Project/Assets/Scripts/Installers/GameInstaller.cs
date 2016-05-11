@@ -24,32 +24,30 @@ public class GameInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.BindInstance("game_initial_json_game_resource", Settings.InitialJsonGameResource);
-        Container.BindInstance("game_initial_json_player_resource", Settings.InitialJsonPlayerResource);
 #if UNITY_EDITOR
         Container.BindInstance("game_debug", Settings.EditorDebug);
 #else
         Container.BindInstance("game_debug", UnityEngine.Debug.isDebugBuild);
 #endif
 
-        Container.Rebind<IGameErrorHandler>().ToSingleMethod<GameErrorHandler>(CreateErrorHandler);
+        Container.Rebind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        Container.Rebind<IParser<GameModel>>().ToSingleMethod<GameParser>(CreateGameParser);
-        Container.Rebind<IParser<ConfigModel>>().ToSingleMethod<ConfigParser>(CreateConfigParser);
-        Container.Rebind<PlayerParser>().ToSingleMethod<PlayerParser>(CreatePlayerParser);
+        Container.Rebind<IParser<GameModel>>().ToMethod<GameParser>(CreateGameParser);
+        Container.Rebind<IParser<ConfigModel>>().ToMethod<ConfigParser>(CreateConfigParser);
+        Container.Rebind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
         Container.Rebind<IParser<PlayerModel>>().ToLookup<PlayerParser>();
         Container.Rebind<ISerializer<PlayerModel>>().ToLookup<PlayerParser>();
 
-        Container.Rebind<GameModel>().ToSingleMethod<GameModel>(CreateGameModel);
+        Container.Rebind<GameModel>().ToMethod<GameModel>(CreateGameModel);
         Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
         Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
 
-        Container.Rebind<IGameLoader>().ToSingleMethod<GameLoader>(CreateGameLoader);
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelGame>(CreateAdminPanel);
+        Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
 
-        Container.Rebind<IParser<StoreModel>>().ToSingleMethod<StoreParser>(CreateStoreParser);
-        Container.Rebind<IParser<IDictionary<string, IReward>>>().ToSingleMethod<PurchaseRewardsParser>(CreatePurchaseRewardsParser);
+        Container.Rebind<IParser<StoreModel>>().ToMethod<StoreParser>(CreateStoreParser);
+        Container.Rebind<IParser<IDictionary<string, IReward>>>().ToMethod<PurchaseRewardsParser>(CreatePurchaseRewardsParser);
 
         Container.Rebind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
         Container.Rebind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
@@ -80,8 +78,8 @@ public class GameInstaller : MonoInstaller
     GameLoader CreateGameLoader()
     {
         return new GameLoader(
-            Container.Resolve<string>("game_initial_json_game_resource"),
-            Container.Resolve<string>("game_initial_json_player_resource"));
+            Settings.InitialJsonGameResource,
+            Settings.InitialJsonPlayerResource);
     }
 
     GameModel CreateGameModel()

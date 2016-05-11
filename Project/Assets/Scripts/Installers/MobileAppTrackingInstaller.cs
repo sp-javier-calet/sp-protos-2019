@@ -22,8 +22,8 @@ public class MobileAppTrackingInstaller : MonoInstaller
         #elif UNITY_IOS
         if(!Settings.ActiveOnIOS) return;
         #endif
-        Container.Bind<IMarketingTracker>().ToSingleMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
-        Container.Bind<IDisposable>().ToSingleMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
+        Container.Bind<IMarketingTracker>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
+        Container.Bind<IDisposable>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
     }
 
     SocialPointMobileAppTracking CreateMobileAppTracking()

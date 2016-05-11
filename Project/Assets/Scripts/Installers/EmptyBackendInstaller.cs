@@ -21,8 +21,8 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
         }
         if(!Container.HasBinding<ILogin>())
         {
-            Container.Bind<IInitializable>().ToSingleInstance(this);
-            Container.Bind<ILogin>().ToSingleMethod<EmptyLogin>(CreateEmptyLogin);
+            Container.Bind<IInitializable>().ToInstance(this);
+            Container.Bind<ILogin>().ToMethod<EmptyLogin>(CreateEmptyLogin);
             Container.Bind<IDisposable>().ToLookup<ILogin>();
         }
         if(!Container.HasInstalled<LoginAdminPanelInstaller>())
@@ -42,13 +42,13 @@ public class EmptyBackendInstaller : MonoInstaller, IInitializable
         {
             Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
-            Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelCrashReporter>(CreateAdminPanelCrashRepoter);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrashReporter>(CreateAdminPanelCrashRepoter);
         }
         if(!Container.HasBinding<IMessageCenter>())
         {
             Container.Bind<IMessageCenter>().ToSingle<EmptyMessageCenter>();
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
-            Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelMessageCenter>(CreateAdminPanelMessageCenter);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanelMessageCenter);
         }
         if(!Container.HasBinding<SocialPoint.Notifications.NotificationManager>())
         {

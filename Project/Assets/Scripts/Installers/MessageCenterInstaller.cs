@@ -10,9 +10,9 @@ public class MessageCenterInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.Bind<IMessageCenter>().ToSingleMethod<MessageCenter>(CreateMessageCenter);
+        Container.Bind<IMessageCenter>().ToMethod<MessageCenter>(CreateMessageCenter);
         Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelMessageCenter>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanel);
     }
 
     AdminPanelMessageCenter CreateAdminPanel()

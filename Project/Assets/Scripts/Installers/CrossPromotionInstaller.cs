@@ -11,9 +11,9 @@ public class CrossPromotionInstaller : Installer
 {
     public override void InstallBindings()
     {
-        Container.Bind<SocialPoint.CrossPromotion.CrossPromotionManager>().ToSingleMethod<CrossPromotionManager>(CreateCrossPromotionManager);
+        Container.Bind<SocialPoint.CrossPromotion.CrossPromotionManager>().ToMethod<CrossPromotionManager>(CreateManager, SetupManager);
         Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelCrossPromotion>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrossPromotion>(CreateAdminPanel);
     }
 
     AdminPanelCrossPromotion CreateAdminPanel()
@@ -21,13 +21,16 @@ public class CrossPromotionInstaller : Installer
         return new AdminPanelCrossPromotion(Container.Resolve<SocialPoint.CrossPromotion.CrossPromotionManager>());
     }
 
-    CrossPromotionManager CreateCrossPromotionManager()
+    CrossPromotionManager CreateManager()
     {
-        var mng = new CrossPromotionManager(Container.Resolve<ICoroutineRunner>());
+        return new CrossPromotionManager(Container.Resolve<ICoroutineRunner>());
+    }
+
+    void SetupManager(CrossPromotionManager mng)
+    {
         var eventTracker = Container.Resolve<IEventTracker>();
         mng.TrackSystemEvent = eventTracker.TrackSystemEvent;
         mng.TrackUrgentSystemEvent = eventTracker.TrackUrgentSystemEvent;
         mng.AppEvents = Container.Resolve<IAppEvents>();
-        return mng;
     }
 }
