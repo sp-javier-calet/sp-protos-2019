@@ -45,7 +45,7 @@ public class GameCenterInstaller : MonoInstaller
     UnityGameCenter CreateUnity()
     {
         return new UnityGameCenter(
-            Container.gameObject.transform);
+            Container.Resolve<Transform>());
     }
 
 

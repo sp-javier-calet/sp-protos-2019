@@ -68,16 +68,16 @@ public class ScriptEventsInstaller : MonoInstaller, IInitializable
     {
         {
             var dispatcher = Container.Resolve<IEventDispatcher>();
-            var bridges = Container.ResolveArray<IEventsBridge>();
-            for(var i = 0; i < bridges.Length; i++)
+            var bridges = Container.ResolveList<IEventsBridge>();
+            for(var i = 0; i < bridges.Count; i++)
             {
                 dispatcher.AddBridge(bridges[i]);
             }
         }
         {
             var dispatcher = Container.Resolve<IScriptEventDispatcher>();
-            var bridges = Container.ResolveArray<IScriptEventsBridge>();
-            for(var i = 0; i < bridges.Length; i++)
+            var bridges = Container.ResolveList<IScriptEventsBridge>();
+            for(var i = 0; i < bridges.Count; i++)
             {
                 dispatcher.AddBridge(bridges[i]);
             }

@@ -4,14 +4,14 @@ namespace SocialPoint.Dependency
 {
     public interface IInstaller
     {
-        ServiceLocator Container { set; }
+        DependencyContainer Container { set; }
 
         void InstallBindings();
     }
 
     public class Installer : IInstaller
     {
-        public ServiceLocator Container{ get; set; }
+        public DependencyContainer Container{ get; set; }
 
         public virtual void InstallBindings()
         {
@@ -20,7 +20,7 @@ namespace SocialPoint.Dependency
 
     public class MonoInstaller : MonoBehaviour, IInstaller
     {
-        public ServiceLocator Container{ get; set; }
+        public DependencyContainer Container{ get; set; }
 
         public virtual void InstallBindings()
         {

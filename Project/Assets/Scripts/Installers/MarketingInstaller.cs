@@ -28,8 +28,8 @@ public class MarketingInstaller : MonoInstaller
         var manager = new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
         manager.DebugMode = Settings.DebugMode;
         var login = Container.Resolve<ILogin>();
-        var trackers = Container.ResolveArray<IMarketingTracker>();
-        for(int i = 0; i < trackers.Length; i++)
+        var trackers = Container.ResolveList<IMarketingTracker>();
+        for(int i = 0; i < trackers.Count; i++)
         {
             manager.AddTracker(trackers[i]);
         }

@@ -60,82 +60,76 @@ namespace SocialPoint.Dependency
 
     [TestFixture]
     [Category("SocialPoint.Dependency")]
-    internal class ServiceLocatorTests
+    internal class DependencyContainerTests
     {
 
-        [SetUp]
-        public void SetUp()
-        {
-            var locator = ServiceLocator.Instance;
-            locator.Clear();
-        }
 
         [Test]
         public void SingleResolveTest()
         {       
-            var locator = ServiceLocator.Instance;
-            locator.Bind<ITestService>().ToSingle<TestService>();
-            var service = locator.Resolve<ITestService>();
+            var container = new DependencyContainer();
+            container.Bind<ITestService>().ToSingle<TestService>();
+            var service = container.Resolve<ITestService>();
             Assert.AreEqual("test", service.TestMethod());
-            var service2 = locator.Resolve<ITestService>();
+            var service2 = container.Resolve<ITestService>();
             Assert.AreEqual(service, service2);
         }
 
         [Test]
         public void SingleMethodResolveTest()
         {       
-            var locator = ServiceLocator.Instance;
-            locator.Bind<ITestService>().ToSingle<TestService>();
-            locator.Bind<DependentService>().ToMethod<DependentService>(() => {
-                return new DependentService(locator.Resolve<ITestService>());
+            var container = new DependencyContainer();
+            container.Bind<ITestService>().ToSingle<TestService>();
+            container.Bind<DependentService>().ToMethod<DependentService>(() => {
+                return new DependentService(container.Resolve<ITestService>());
             });
-            var service = locator.Resolve<DependentService>();
+            var service = container.Resolve<DependentService>();
             Assert.AreEqual("test", service.TestMethod());
         }
 
         [Test]
         public void LookupResolveTest()
         {
-            var locator = ServiceLocator.Instance;
-            locator.Bind<TestService>().ToSingle<TestService>();
-            locator.Bind<IDisposable>().ToLookup<TestService>();
-            var service = locator.Resolve<TestService>();
-            var disposable = locator.Resolve<IDisposable>();
+            var container = new DependencyContainer();
+            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<IDisposable>().ToLookup<TestService>();
+            var service = container.Resolve<TestService>();
+            var disposable = container.Resolve<IDisposable>();
             Assert.AreEqual(service, disposable);
         }
 
         [Test]
         public void InstanceResolveTest()
         {
-            var locator = ServiceLocator.Instance;
+            var container = new DependencyContainer();
             var instance = new TestService();
-            locator.Bind<ITestService>().ToInstance(instance);
-            var service = locator.Resolve<ITestService>();
+            container.Bind<ITestService>().ToInstance(instance);
+            var service = container.Resolve<ITestService>();
             Assert.AreEqual(instance, service);
         }
 
         [Test]
         public void ResolveLoopTest()
         {
-            var locator = ServiceLocator.Instance;
+            var container = new DependencyContainer();
             var instance = new TestService();
-            locator.Bind<ITestService>().ToLookup<ITestService>();
-            var service = locator.Resolve<ITestService>();
+            container.Bind<ITestService>().ToLookup<ITestService>();
+            var service = container.Resolve<ITestService>();
             Assert.IsNull(service);
         }
 
         [Test]
         public void ResolveDoubleLoopTest()
         {
-            var locator = ServiceLocator.Instance;
-            locator.Bind<ITestService>().ToMethod(() => {
-                return new LoopTestService(locator.Resolve<DependentService>());
+            var container = new DependencyContainer();
+            container.Bind<ITestService>().ToMethod(() => {
+                return new LoopTestService(container.Resolve<DependentService>());
             });
-            locator.Bind<DependentService>().ToMethod<DependentService>(() => {
-                return new DependentService(locator.Resolve<ITestService>());
+            container.Bind<DependentService>().ToMethod<DependentService>(() => {
+                return new DependentService(container.Resolve<ITestService>());
             });
             Assert.Throws<InvalidOperationException>(() => {
-                locator.Resolve<ITestService>();
+                container.Resolve<ITestService>();
             });
         }
     }

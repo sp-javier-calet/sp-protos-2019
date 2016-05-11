@@ -63,8 +63,8 @@ public class LoginInstaller : Installer
         login.UserMappingsBlock = Settings.UserMappingsBlock;
         login.Language = Container.Resolve<string>("language", login.Language);
 
-        var links = Container.ResolveArray<ILink>();
-        for(var i = 0; i < links.Length; i++)
+        var links = Container.ResolveList<ILink>();
+        for(var i = 0; i < links.Count; i++)
         {
             login.AddLink(links[i]);
         }

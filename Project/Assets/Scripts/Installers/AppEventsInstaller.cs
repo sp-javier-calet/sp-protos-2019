@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
@@ -20,7 +21,7 @@ public class AppEventsInstaller : MonoInstaller
 
     SocialPointAppEvents CreateAppEvents()
     {
-        return new SocialPointAppEvents(Container.gameObject.transform);
+        return new SocialPointAppEvents(Container.Resolve<Transform>());
     }
 
     AdminPanelAppEvents CreateAdminPanelAppEvents()
