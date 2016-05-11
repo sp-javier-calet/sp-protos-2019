@@ -20,7 +20,6 @@
         self.unityListenerName = [NSString stringWithUTF8String:listenerName];
         self.applicationUsername = nil;
         
-        self.useApplicationUsername = false;
         self.useApplicationReceipt = false;
         self.canSendTransactionUpdateEvents = false;
         self.highDetailLogsEnabled = false;
@@ -39,12 +38,6 @@
 - (void)setAppUsername:(const char*) userIdentifier
 {
     self.applicationUsername = [NSString stringWithUTF8String:userIdentifier];
-}
-
-- (void)setUseAppUsername:(BOOL) shouldUseAppUsername
-{
-    self.useApplicationUsername = shouldUseAppUsername;
-    [self detailedLog:[NSString stringWithFormat:@"Using Application Username Setting: %@", self.useApplicationUsername ? @"true" : @"false"]];
 }
 
 - (void)setUseAppReceipt:(BOOL) shouldUseAppReceipt
@@ -99,7 +92,7 @@
         if([prod.productIdentifier isEqualToString:productIdentifier])
         {
             SKMutablePayment* payment = [SKMutablePayment paymentWithProduct:prod];
-            if(self.useApplicationUsername && self.applicationUsername)
+            if(self.applicationUsername)
             {
                 [self detailedLog:[NSString stringWithFormat:@"Using Application Username in Payment (%@)", self.applicationUsername]];
                 payment.applicationUsername = self.applicationUsername;

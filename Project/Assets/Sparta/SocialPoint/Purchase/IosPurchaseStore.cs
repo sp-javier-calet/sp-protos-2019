@@ -55,10 +55,6 @@ namespace SocialPoint.Purchase
             PlatformPuchaseSettings.SetBoolSetting(settings, 
                 PlatformPuchaseSettings.IOSUseDetailedLogKey, 
                 IosStoreBinding.EnableHighDetailLogs);
-
-            PlatformPuchaseSettings.SetBoolSetting(settings, 
-                PlatformPuchaseSettings.IOSUseApplicationUsernameKey, 
-                IosStoreBinding.SetUseAppUsername);
             
             PlatformPuchaseSettings.SetBoolSetting(settings, 
                 PlatformPuchaseSettings.IOSUseAppReceiptKey, 
@@ -92,11 +88,21 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                IosStoreBinding.SetApplicationUsername(CryptographyUtils.GetHashSha256(_getUserId().ToString()));
-                IosStoreBinding.PurchaseProduct(productId);
-                _purchasingProduct = productId;
-                PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
-                return true;
+                if(_getUserId != null)
+                {
+                    IosStoreBinding.SetApplicationUsername(CryptographyUtils.GetHashSha256(_getUserId().ToString()));
+                    IosStoreBinding.PurchaseProduct(productId);
+                    _purchasingProduct = productId;
+                    PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
+                    return true;
+                }
+                else
+                {
+                    PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+                    string errorMessage = "An Application Username must be set before attempting to purchase. The game must provide a delegate through the SocialPointPurchaseStore.GetUserId setter.";
+                    Debug.LogError(errorMessage);
+                    throw new Exception(errorMessage);
+                }
             }
             else
             {

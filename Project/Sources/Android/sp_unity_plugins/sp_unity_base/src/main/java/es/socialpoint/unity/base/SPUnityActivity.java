@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.os.Looper;
 import android.os.Handler;
 
 import es.socialpoint.unity.permissions.PermissionsManager;
@@ -44,6 +43,7 @@ public class SPUnityActivity extends UnityPlayerActivity {
 		PermissionsManager.instance.checkPermissionsOrRestart(this);
 		super.onCreate(savedInstanceState);
 		storeSourceFromIntent(getIntent());
+		UnityGameObject.Init(this);
 	}
 
 	// SocialPoint code
@@ -52,6 +52,12 @@ public class SPUnityActivity extends UnityPlayerActivity {
 		super.onNewIntent(intent);
 		setIntent(intent);
 		storeSourceFromIntent(intent);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		SPUnityActivityEventManager.handleActivityResult(requestCode, resultCode, data);
 	}
 
 	public String collectApplicationSource() {
