@@ -4,6 +4,8 @@ using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.CrossPromotion;
+using SocialPoint.AppEvents;
+using SocialPoint.ServerEvents;
 
 public class CrossPromotionInstaller : Installer
 {
@@ -21,6 +23,11 @@ public class CrossPromotionInstaller : Installer
 
     CrossPromotionManager CreateCrossPromotionManager()
     {
-        return new CrossPromotionManager(Container.Resolve<ICoroutineRunner>());
+        var mng = new CrossPromotionManager(Container.Resolve<ICoroutineRunner>());
+        var eventTracker = Container.Resolve<IEventTracker>();
+        mng.TrackSystemEvent = eventTracker.TrackSystemEvent;
+        mng.TrackUrgentSystemEvent = eventTracker.TrackUrgentSystemEvent;
+        mng.AppEvents = Container.Resolve<IAppEvents>();
+        return mng;
     }
 }

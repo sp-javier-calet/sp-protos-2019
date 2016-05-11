@@ -51,6 +51,15 @@ public class RatingInstaller : MonoInstaller, IInitializable
             Container.Resolve<IAttrStorage>("volatile"),
             Container.Resolve<IAppEvents>());
 
+        rater.GUI = new DefaultAppRaterGUI(ServiceLocator.Instance.Resolve<IAlertView>());
+        rater.UsesUntilPrompt = Container.Resolve<int>("apprater_uses_until_prompt", rater.UsesUntilPrompt);
+        rater.EventsUntilPrompt = Container.Resolve<int>("apprater_events_until_prompt", rater.EventsUntilPrompt);
+        rater.DaysUntilPrompt = Container.Resolve<long>("apprater_days_until_prompt", rater.DaysUntilPrompt);
+        rater.DaysBeforeReminding = Container.Resolve<long>("apprater_days_before_reminding", rater.DaysBeforeReminding);
+        rater.UserLevelUntilPrompt = Container.Resolve<int>("apprater_user_level_until_prompt", rater.UserLevelUntilPrompt);
+        rater.MaxPromptsPerDay = Container.Resolve<int>("apprater_max_prompts_per_day", rater.MaxPromptsPerDay);
+        rater.Init();
+
         return rater;
     }
 

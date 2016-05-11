@@ -34,7 +34,7 @@ public class HardwareInstaller : MonoInstaller
             Container.BindInstance("hardware_fake_app_info", appInfo);
         }
 
-        Container.Rebind<IDeviceInfo>().ToSingle<DeviceInfo>();
+        Container.Rebind<IDeviceInfo>().ToSingleMethod<SocialPointDeviceInfo>(CreateDeviceInfo);
         Container.Rebind<IMemoryInfo>().ToGetter<IDeviceInfo>(x => x.MemoryInfo);
         Container.Rebind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
         Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
@@ -42,6 +42,15 @@ public class HardwareInstaller : MonoInstaller
 
         Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelHardware>(CreateAdminPanel);
 	}
+
+    SocialPointDeviceInfo CreateDeviceInfo()
+    {
+        var info = new SocialPointDeviceInfo();
+        #if UNITY_EDITOR
+        info.AppInfo = Container.Resolve<IAppInfo>("hardware_fake_app_info");
+        #endif
+        return info;
+    }
 
     AdminPanelHardware CreateAdminPanel()
     {

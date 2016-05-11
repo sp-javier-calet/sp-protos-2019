@@ -25,8 +25,15 @@ public class MarketingInstaller : MonoInstaller
 
     public IMarketingAttributionManager CreateMarketingAttributionManager()
     {
-        var manager = new MarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
+        var manager = new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
         manager.DebugMode = Settings.DebugMode;
+        var login = Container.Resolve<ILogin>();
+        var trackers = Container.ResolveArray<IMarketingTracker>();
+        for(int i = 0; i < trackers.Length; i++)
+        {
+            manager.AddTracker(trackers[i]);
+        }
+        manager.GetUserID = () => login.UserId.ToString();
         return manager;
     }
 

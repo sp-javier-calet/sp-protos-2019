@@ -5,12 +5,14 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Purchase;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
+using SocialPoint.Login;
+using SocialPoint.ServerEvents;
 
 public class PurchaseInstaller : MonoInstaller
 {
     public override void InstallBindings()
     {
-        Container.Rebind<IGamePurchaseStore>().ToSingleMethod<PurchaseStore>(CreatePurchaseStore);
+        Container.Rebind<IGamePurchaseStore>().ToSingleMethod<SocialPointPurchaseStore>(CreatePurchaseStore);
         Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
         Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelPurchase>(CreateAdminPanel);
     }
@@ -23,11 +25,20 @@ public class PurchaseInstaller : MonoInstaller
             Container.Resolve<ICommandQueue>());
     }
 
-    PurchaseStore CreatePurchaseStore()
+    SocialPointPurchaseStore CreatePurchaseStore()
     {
-        return new PurchaseStore(
+        var store = new SocialPointPurchaseStore(
             Container.Resolve<IHttpClient>(),
-            Container.Resolve<ICommandQueue>(),
-            Container.Resolve<StoreModel>());
+            Container.Resolve<ICommandQueue>());
+
+        store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
+        var login = Container.Resolve<ILogin>();
+        store.RequestSetup = login.SetupHttpRequest;
+        store.GetUserId = () => login.UserId;
+
+        var model = Container.Resolve<StoreModel>();
+        model.Init(store);
+
+        return store;
     }
 }
