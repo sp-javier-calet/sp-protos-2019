@@ -23,6 +23,7 @@ namespace SocialPoint.Hardware
         }
 
         string _string;
+
         public string String
         {
             get
@@ -36,6 +37,7 @@ namespace SocialPoint.Hardware
         }
 
         string _uid;
+
         public string Uid
         {
             get
@@ -53,7 +55,7 @@ namespace SocialPoint.Hardware
                         }
                         catch(KeychainItemException e)
                         {
-                            Debug.LogError("Could not write IosDeviceInfo.Uid to ios keychain: "+e);
+                            Debug.LogError("Could not write IosDeviceInfo.Uid to ios keychain: " + e);
                         }
                     }
                 }
@@ -62,6 +64,7 @@ namespace SocialPoint.Hardware
         }
 
         private readonly string _platform = "ios";
+
         public string Platform
         {
             get
@@ -71,6 +74,7 @@ namespace SocialPoint.Hardware
         }
 
         private string _platformVersion = null;
+
         public string PlatformVersion
         {
             get
@@ -84,6 +88,7 @@ namespace SocialPoint.Hardware
         }
 
         string _architecture;
+
         public string Architecture
         {
             get
@@ -97,6 +102,7 @@ namespace SocialPoint.Hardware
         }
 
         string _advertisingId;
+
         public string AdvertisingId
         {
             get
@@ -141,7 +147,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private Vector2 _screenSize = Vector2.zero;
+        Vector2 _screenSize = Vector2.zero;
 
         public Vector2 ScreenSize
         {

@@ -62,6 +62,7 @@ namespace SocialPoint.Hardware
         }
 
         string _platform;
+
         public string Platform
         {
             get
@@ -141,7 +142,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private Vector2 _screenSize = Vector2.zero;
+        Vector2 _screenSize = Vector2.zero;
 
         public Vector2 ScreenSize
         {

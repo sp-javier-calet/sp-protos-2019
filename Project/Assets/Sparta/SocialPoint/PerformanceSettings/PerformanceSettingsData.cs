@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using SocialPoint.Attributes;
+﻿using SocialPoint.Attributes;
 
 namespace SocialPoint.PerformanceSettings
 {
-    public class  PerformanceSettingsData
+    public class PerformanceSettingsData
     {
         public int FrameRate { get; private set; }
 

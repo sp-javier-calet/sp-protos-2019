@@ -7,11 +7,11 @@ namespace SocialPoint.PerformanceSettings
 {
     public class PerformanceSettingsManager : IDisposable
     {
-        private ILogin _login;
+        ILogin _login;
 
-        private PerformanceSettingsData _data;
+        PerformanceSettingsData _data;
 
-        private IAttrStorage _storage = null;
+        IAttrStorage _storage = null;
 
         const string kscreenRatio = "screen_ratio";
 
@@ -29,11 +29,11 @@ namespace SocialPoint.PerformanceSettings
             }
         }
 
-		public PerformanceSettingsManager(ILogin login, IAttrStorage storage = null)
+        public PerformanceSettingsManager(ILogin login, IAttrStorage storage = null)
         {
             _login = login;
 
-			_storage = storage;
+            _storage = storage;
 
             InitLoginServices();
 
@@ -42,8 +42,10 @@ namespace SocialPoint.PerformanceSettings
 
         void ApplyInitialPerformanceSettings()
         {
-			if(_storage == null)
-            	_storage = new PlayerPrefsAttrStorage();
+            if(_storage == null)
+            {
+                _storage = new PlayerPrefsAttrStorage();
+            }
 
             if(_storage.Has(kscreenRatio))
             {
@@ -80,13 +82,17 @@ namespace SocialPoint.PerformanceSettings
             ApplyPerformanceSettings();	
         }
 
-        private void ApplyPerformanceSettings()
+        void ApplyPerformanceSettings()
         {
             if(Application.targetFrameRate != _data.FrameRate)
+            {
                 Application.targetFrameRate = _data.FrameRate;
+            }
             
             if(Time.fixedDeltaTime != _data.FixedTimestep)
+            {
                 Time.fixedDeltaTime = _data.FixedTimestep;
+            }
 
             if(_data.ScreenRatio != 1)
             {
@@ -95,41 +101,57 @@ namespace SocialPoint.PerformanceSettings
             else
             {
                 if(_storage.Has(kscreenRatio))
+                {
                     _storage.Remove(kscreenRatio);
+                }
             }
 
             if(Shader.globalMaximumLOD != _data.MaxShaderLod)
+            {
                 Shader.globalMaximumLOD = _data.MaxShaderLod;
+            }
 
             QualitySettings.antiAliasing = _data.AntiAliasing ? 1 : 0;
 
             if(QualitySettings.asyncUploadBufferSize != _data.AsyncUploadBufferSize)
+            {
                 QualitySettings.asyncUploadBufferSize = _data.AsyncUploadBufferSize;
+            }
 
             if(QualitySettings.asyncUploadTimeSlice != _data.AsyncUploadTimeSlice)
+            {
                 QualitySettings.asyncUploadTimeSlice = _data.AsyncUploadTimeSlice;
+            }
 
             if(QualitySettings.blendWeights != (BlendWeights)_data.BlendWeights)
+            {
                 QualitySettings.blendWeights = (BlendWeights)_data.BlendWeights;
+            }
 
             if(QualitySettings.lodBias != _data.LodBias)
+            {
                 QualitySettings.lodBias = _data.LodBias;
+            }
 
             if(QualitySettings.masterTextureLimit != _data.MasterTextureLimit)
+            {
                 QualitySettings.masterTextureLimit = _data.MasterTextureLimit;
+            }
 
             if(QualitySettings.maximumLODLevel != _data.MaxLodLevel)
+            {
                 QualitySettings.maximumLODLevel = _data.MaxLodLevel;
+            }
 
             QualitySettings.vSyncCount = _data.Vsync ? 1 : 0;
         }
 
-        public virtual  void Dispose()
+        public virtual void Dispose()
         {
             Reset();
         }
 
-        private void Reset()
+        void Reset()
         {
             _data = null;
             _login = null;
