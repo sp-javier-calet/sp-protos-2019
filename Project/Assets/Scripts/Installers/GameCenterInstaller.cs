@@ -21,23 +21,35 @@ public class GameCenterInstaller : MonoInstaller
         #if UNITY_IOS
         if(Settings.UseEmpty)
         {
-            Container.Rebind<IGameCenter>().ToSingle<EmptyGameCenter>();
+            Container.Rebind<IGameCenter>().ToSingleMethod<EmptyGameCenter>(CreateEmpty);
         }
         else
         {
-            Container.Rebind<IGameCenter>().ToSingle<UnityGameCenter>();
+            Container.Rebind<IGameCenter>().ToSingleMethod<UnityGameCenter>(CreateUnity);
         }
         if(Settings.LoginLink)
         {
-        Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
+            Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
         }
         #else
         Container.Rebind<IGameCenter>().ToSingleMethod<EmptyGameCenter>(CreateEmptyGameCenter);
         #endif
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelGameCenter>(CreateGameCenter);
+        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelGameCenter>(CreateAdminPanel);
     }
 
-    AdminPanelGameCenter CreateGameCenter()
+    EmptyGameCenter CreateEmpty()
+    {
+        return new EmptyGameCenter(null);
+    }
+
+    UnityGameCenter CreateUnity()
+    {
+        return new UnityGameCenter(
+            Container.gameObject.transform);
+    }
+
+
+    AdminPanelGameCenter CreateAdminPanel()
     {
         return new AdminPanelGameCenter(
             Container.Resolve<IGameCenter>());

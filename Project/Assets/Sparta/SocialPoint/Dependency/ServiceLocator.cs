@@ -54,6 +54,7 @@ namespace SocialPoint.Dependency
         F _instance;
         ToType _toType;
         Type _type;
+        string _tag;
         Func<F> _method;
         Func<object, F> _getter;
         ServiceLocator _container;
@@ -75,10 +76,11 @@ namespace SocialPoint.Dependency
             _instance = instance;
         }
 
-        public void ToLookup<T>() where T : F
+        public void ToLookup<T>(string tag=null) where T : F
         {
             _toType = ToType.Lookup;
             _type = typeof(T);
+            _tag = tag;
         }
 
         public void ToSingleMethod<T>(Func<T> method) where T : F
@@ -88,10 +90,11 @@ namespace SocialPoint.Dependency
             _toType = ToType.Method;
         }
 
-        public void ToGetter<T>(Func<T,F> method)
+        public void ToGetter<T>(Func<T,F> method, string tag=null)
         {
             _type = typeof(T);
             _getter = (t) => method((T)t);
+            _tag = tag;
             _toType = ToType.Method;
         }
 
@@ -106,8 +109,7 @@ namespace SocialPoint.Dependency
             }
             else if(_toType == ToType.Lookup)
             {
-                _instance = (F)_container.Resolve(_type);
-
+                _instance = (F)_container.Resolve(_type, _tag, null);
             }
             else if(_toType == ToType.Method)
             {
@@ -117,7 +119,7 @@ namespace SocialPoint.Dependency
                 }
                 else if(_getter != null)
                 {
-                    var param = _container.Resolve(_type);
+                    var param = _container.Resolve(_type, _tag, null);
                     _instance = (F)_getter(param);
                 }
             }
@@ -147,6 +149,7 @@ namespace SocialPoint.Dependency
         List<IInstaller> _installedInstallers = new List<IInstaller>();
         //List<IInitializable> _initializedInitializables = new List<IInitializable>();
         Dictionary<BindingKey, List<IBinding>> _bindings = new Dictionary<BindingKey, List<IBinding>>();
+        HashSet<IBinding> _resolving = new HashSet<IBinding>();
 
         void AddBinding(IBinding binding, Type type, string tag=null)
         {
@@ -235,26 +238,10 @@ namespace SocialPoint.Dependency
 
             }
         }
-
-
+            
         public T Resolve<T>(string tag=null, T def=default(T))
         {
             return (T)Resolve(typeof(T), tag, def);
-        }
-
-        public object Resolve(Type type, string tag=null, object def=null)
-        {
-            List<IBinding> bindings;
-            if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
-            {
-                if(bindings.Count > 0)
-                {
-                    var binding = bindings[0];
-                    Debug.Log("resolve " + binding);
-                    return binding.Resolve();
-                }
-            }
-            return def;
         }
 
         public List<T> ResolveList<T>(string tag=null)
@@ -262,22 +249,54 @@ namespace SocialPoint.Dependency
             return new List<T>(ResolveArray<T>(tag));
         }
 
+        public object Resolve(Type type, string tag=null, object def=null)
+        {
+            List<IBinding> bindings;
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
+            {
+                for(var i = 0; i < bindings.Count; i++)
+                {
+                    object result;
+                    if(TryResolve(bindings[i], out result))
+                    {
+                        return result;
+                    }
+                }
+            }
+            return def;
+        }
+            
         public T[] ResolveArray<T>(string tag=null)
         {
-            var objs = new List<IBinding>();
+            var bindings = new List<IBinding>();
             var type = typeof(T);
-            if(_bindings.TryGetValue(new BindingKey(type, tag), out objs))
+            if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
             {
-                var arr = new T[objs.Count];
+                var arr = new T[bindings.Count];
                 for(var i = 0; i < arr.Length; i++)
                 {
-                    var binding = objs[i];
-                    Debug.Log("resolve array " + binding);
-                    arr[i] = (T)binding.Resolve();
+                    object result;
+                    if(TryResolve(bindings[i], out result))
+                    {
+                        arr[i] = (T)result;
+                    }
                 }
                 return arr;
             }
             return null;
+        }
+
+        bool TryResolve(IBinding binding, out object result)
+        {
+            if(_resolving.Contains(binding))
+            {
+                result = null;
+                return false;
+            }
+            _resolving.Add(binding);
+            result = binding.Resolve();
+            _resolving.Remove(binding);
+            return true;
         }
 
         public T Create<T>()
@@ -299,6 +318,11 @@ namespace SocialPoint.Dependency
                 throw new ResolveException("Type " + type + " does not have a default constructor");
             }
             return construct.Invoke(new object[]{});
+        }
+
+        public void Clear()
+        {
+            _bindings.Clear();
         }
 
         const string GlobalInstallersResource = "GlobalInstallers";

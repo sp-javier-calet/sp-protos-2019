@@ -27,6 +27,10 @@ namespace SocialPoint.Dependency
 
         public DependentService(ITestService test)
         {
+            if(test == null)
+            {
+                throw new InvalidOperationException("Need a test service");
+            }
             _test = test;
         }
 
@@ -37,10 +41,35 @@ namespace SocialPoint.Dependency
     }
 
 
+    class LoopTestService : ITestService
+    {
+        public LoopTestService(DependentService dep)
+        {
+        }
+
+        public string TestMethod()
+        {
+            return "loop";
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+
     [TestFixture]
     [Category("SocialPoint.Dependency")]
     internal class ServiceLocatorTests
     {
+
+        [SetUp]
+        public void SetUp()
+        {
+            var locator = ServiceLocator.Instance;
+            locator.Clear();
+        }
+
         [Test]
         public void SingleResolveTest()
         {       
@@ -85,5 +114,29 @@ namespace SocialPoint.Dependency
             Assert.AreEqual(instance, service);
         }
 
+        [Test]
+        public void ResolveLoopTest()
+        {
+            var locator = ServiceLocator.Instance;
+            var instance = new TestService();
+            locator.Bind<ITestService>().ToLookup<ITestService>();
+            var service = locator.Resolve<ITestService>();
+            Assert.IsNull(service);
+        }
+
+        [Test]
+        public void ResolveDoubleLoopTest()
+        {
+            var locator = ServiceLocator.Instance;
+            locator.Bind<ITestService>().ToSingleMethod(() => {
+                return new LoopTestService(locator.Resolve<DependentService>());
+            });
+            locator.Bind<DependentService>().ToSingleMethod<DependentService>(() => {
+                return new DependentService(locator.Resolve<ITestService>());
+            });
+            Assert.Throws<InvalidOperationException>(() => {
+                locator.Resolve<ITestService>();
+            });
+        }
     }
 }
