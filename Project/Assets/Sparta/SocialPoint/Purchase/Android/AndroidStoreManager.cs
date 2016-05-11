@@ -78,7 +78,6 @@ namespace SocialPoint.Purchase
 
         private void OnQueryInventorySucceeded(string json)
         {
-            Debug.Log("*** TEST Query Inventory Succeeded: " + json);
             if(QueryInventorySucceededEvent != null)
             {
                 QueryInventorySucceededEvent(AndroidStoreProduct.ProductsFromJson(json));
@@ -87,7 +86,6 @@ namespace SocialPoint.Purchase
 
         private void OnQueryInventoryFailed(string error)
         {
-            Debug.Log("*** TEST Query Inventory Failed: " + error);
             if(QueryInventoryFailedEvent != null)
             {
                 QueryInventoryFailedEvent(error);
@@ -96,7 +94,6 @@ namespace SocialPoint.Purchase
 
         private void OnPurchaseSucceeded(string json)
         {
-            Debug.Log("*** TEST OnPurchaseSucceeded: " + json);
             if(PurchaseSucceededEvent != null)
             {
                 PurchaseSucceededEvent(AndroidStoreTransaction.TransactionFromJson(json));
@@ -105,7 +102,6 @@ namespace SocialPoint.Purchase
 
         private void OnPurchaseFailed(string message)
         {
-            Debug.Log("*** TEST OnPurchaseFailed: " + message);
             if(PurchaseFailedEvent != null)
             {
                 PurchaseFailedEvent(message);
@@ -114,7 +110,6 @@ namespace SocialPoint.Purchase
 
         private void OnPurchaseCancelled(string message)
         {
-            Debug.Log("*** TEST OnPurchaseCancelled: " + message);
             if(PurchaseFailedEvent != null)
             {
                 PurchaseCancelledEvent(message);
@@ -123,7 +118,6 @@ namespace SocialPoint.Purchase
 
         private void OnConsumePurchaseSucceeded(string json)
         {
-            Debug.Log("*** TEST OnConsumePurchaseSucceeded: " + json);
             if(ConsumePurchaseSucceededEvent != null)
             {
                 ConsumePurchaseSucceededEvent(AndroidStoreTransaction.TransactionFromJson(json));
@@ -132,7 +126,6 @@ namespace SocialPoint.Purchase
 
         private void OnConsumePurchaseFailed(string error)
         {
-            Debug.Log("*** TEST OnConsumePurchaseFailed: " + error);
             if(ConsumePurchaseFailedEvent != null)
             {
                 ConsumePurchaseFailedEvent(error);

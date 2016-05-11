@@ -266,7 +266,6 @@ namespace SocialPoint.Purchase
             DebugLog("parsing backend response");
 
             //switch(Data[AttrKeyStatus].AsValue.ToInt())
-            UnityEngine.Debug.Log("*** TEST OnBackendResponse: " + resp.StatusCode);
             switch(resp.StatusCode)
             {
             case (int)BackendResponse.ORDER_INVALID:

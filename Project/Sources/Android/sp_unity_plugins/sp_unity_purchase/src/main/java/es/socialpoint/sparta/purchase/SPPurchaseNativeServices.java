@@ -53,7 +53,6 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     public SPPurchaseNativeServices(String listenerObjectName)
     {
         _unityMessageSender = new UnityGameObject(listenerObjectName);
-        _unityMessageSender.SendMessage("StoreDebugLog", "*** TEST Hello World");
 
         _lastRequestedProductIds = new ArrayList<String>();
 

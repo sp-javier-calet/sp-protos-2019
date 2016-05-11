@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using SocialPoint.Attributes;
 
 #if UNITY_ANDROID
@@ -148,6 +149,62 @@ namespace SocialPoint.Purchase
             dic.SetValue("originalJson", OriginalJson);
             dic.SetValue("signature", Signature);
             return dic.ToString();
+        }
+
+        public string GetValidationData()
+        {
+            StringBuilder jsonData = new StringBuilder();
+            jsonData.Append("{");
+            jsonData.Append(KeyValuePair<string>("orderId", OrderId, false));
+            jsonData.Append(KeyValuePair<string>("packageName", PackageName, false));
+            jsonData.Append(KeyValuePair<string>("productId", Sku, false));
+            jsonData.Append(KeyValuePair<long>("purchaseTime", PurchaseTime, false));
+            jsonData.Append(KeyValuePair<int>("purchaseState", PurchaseState, false));
+            jsonData.Append(KeyValuePair<string>("purchaseToken", Token, true));
+            jsonData.Append("}");
+            return jsonData.ToString();
+        }
+
+        private string KeyValuePair<T>(string key, T value, bool lastValue)
+        {
+            StringBuilder pair = new StringBuilder(GetKeyFormat(key));
+            if(typeof(T) == typeof(string))
+            {
+                pair.Append(GetValueFormat_String(value));
+            }
+            else
+            {
+                pair.Append(GetValueFormat_Raw<T>(value));
+            }
+
+            if(!lastValue)
+            {
+                pair.Append(",");
+            }
+            return pair.ToString();
+        }
+
+        private string GetKeyFormat(string key)
+        {
+            StringBuilder format = new StringBuilder();
+            format.Append("\"");
+            format.Append(key);
+            format.Append("\":");
+            return format.ToString();
+        }
+
+        private string GetValueFormat_String<T>(T value)
+        {
+            StringBuilder format = new StringBuilder();
+            format.Append("\"");
+            format.Append(value.ToString());
+            format.Append("\"");
+            return format.ToString();
+        }
+
+        private string GetValueFormat_Raw<T>(T value)
+        {
+            return value.ToString();
         }
     }
 }

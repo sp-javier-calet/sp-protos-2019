@@ -189,18 +189,15 @@ namespace SocialPoint.Purchase
             data.SetValue(Receipt.OrderIdKey, purchase.OrderId);
             data.SetValue(Receipt.ProductIdKey, purchase.Sku);
             data.SetValue(Receipt.PurchaseStateKey, (int)PurchaseState.ValidateSuccess);
-            data.SetValue(Receipt.OriginalJsonKey, purchase.OriginalJson);
+            data.SetValue(Receipt.OriginalJsonKey, purchase.GetValidationData());//purchase.OriginalJson
             data.SetValue(Receipt.StoreKey, "google_play");
             data.SetValue(Receipt.DataSignatureKey, purchase.Signature);
-            UnityEngine.Debug.Log("*** TEST PurchaseSucceeded _validatePurchase: " + _validatePurchase);
             if(_validatePurchase != null)
             {
                 Receipt receipt = new Receipt(data);
                 _validatePurchase(receipt, (response) => {
-                    UnityEngine.Debug.Log("*** TEST response from backend: " + response);
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
-                        UnityEngine.Debug.Log("*** TEST Consuming product");
                         AndroidStoreBinding.FinishPendingTransaction(purchase.Sku);
                         PurchaseUpdated(PurchaseState.PurchaseFinished, receipt.ProductId);
                     }
