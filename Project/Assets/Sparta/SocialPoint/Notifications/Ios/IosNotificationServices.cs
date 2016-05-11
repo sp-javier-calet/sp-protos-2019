@@ -58,12 +58,8 @@ namespace SocialPoint.Notifications
         {
             NotificationServices.ClearRemoteNotifications();
             NotificationServices.ClearLocalNotifications();
-            var unotif = new LocalNotification();
-            unotif.fireDate = DateTime.Now.ToLocalTime();
-            unotif.applicationIconBadgeNumber = -1;
-            NotificationServices.PresentLocalNotificationNow(unotif);
         }
-            
+
         public override void RequestPermissions()
         {
             if(_checkPermissionStatusCoroutine == null)

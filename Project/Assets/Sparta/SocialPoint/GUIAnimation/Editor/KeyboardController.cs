@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
 	// Class that encapsulates the Keyboard state
 	public class KeyboardController
 	{
-		Dictionary<KeyCode, bool> _keys = new Dictionary<KeyCode, bool>();
+        Dictionary<KeyCode, bool> _keys = new Dictionary<KeyCode, bool>(new EnumUtils.DictionaryComparer<KeyCode>());
 
 		public void UpdateState()
 		{
