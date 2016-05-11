@@ -338,7 +338,7 @@ namespace SocialPoint.Profiling
 
         public static DeviceInfo SPUnityProfilerGetDeviceInfo()
         {
-            IDeviceInfo deviceInfo = ServiceLocator.DeviceInfo;
+            IDeviceInfo deviceInfo = new SocialPointDeviceInfo();
             var stats = new DeviceInfo();
 
             stats.DeviceModel = deviceInfo.Model;

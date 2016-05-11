@@ -77,7 +77,7 @@ namespace SocialPoint.Crash
                 {
                     file.WriteLine(breadcrumb);
                 }
-                catch(Exception e)
+                catch
                 {
                     //IOException: Disk full
                 }

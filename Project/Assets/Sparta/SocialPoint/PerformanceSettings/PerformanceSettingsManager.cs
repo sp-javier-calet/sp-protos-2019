@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
 using System;
-using DS.Common.Services;
-using SocialPoint.Network;
 using SocialPoint.Attributes;
+using SocialPoint.Login;
 
 namespace SocialPoint.PerformanceSettings
 {
     public class PerformanceSettingsManager : IDisposable
     {
-        private ILoginService _login;
+        private ILogin _login;
 
         private PerformanceSettingsData _data;
 
@@ -30,7 +29,7 @@ namespace SocialPoint.PerformanceSettings
             }
         }
 
-		public PerformanceSettingsManager(ILoginService login, IAttrStorage storage = null)
+		public PerformanceSettingsManager(ILogin login, IAttrStorage storage = null)
         {
             _login = login;
 
@@ -59,9 +58,9 @@ namespace SocialPoint.PerformanceSettings
 
         public virtual void InitLoginServices()
         {
-            _login.NewGenericData -= ParsePerformanceSettings;
+            _login.NewGenericDataEvent -= ParsePerformanceSettings;
 
-            _login.NewGenericData += ParsePerformanceSettings;
+            _login.NewGenericDataEvent += ParsePerformanceSettings;
         }
 
         void ParsePerformanceSettings(Attr data)
