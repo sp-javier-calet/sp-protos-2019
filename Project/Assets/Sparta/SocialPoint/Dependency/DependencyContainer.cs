@@ -33,26 +33,29 @@ namespace SocialPoint.Dependency
             _container = container;
         }
 
-        public void ToSingle<T>() where T : F, new()
+        public Binding<F> ToSingle<T>() where T : F, new()
         {
             _toType = ToType.Single;
             _type = typeof(T);
+            return this;
         }
 
-        public void ToInstance<T>(T instance) where T : F
+        public Binding<F> ToInstance<T>(T instance) where T : F
         {
             _toType = ToType.Single;
             _instance = instance;
+            return this;
         }
 
-        public void ToLookup<T>(string tag=null) where T : F
+        public Binding<F> ToLookup<T>(string tag=null) where T : F
         {
             _toType = ToType.Lookup;
             _type = typeof(T);
             _tag = tag;
+            return this;
         }
 
-        public void ToMethod<T>(Func<T> method, Action<T> setup=null) where T : F
+        public Binding<F> ToMethod<T>(Func<T> method, Action<T> setup=null) where T : F
         {
             _type = typeof(T);
             _method = () => method();
@@ -65,14 +68,16 @@ namespace SocialPoint.Dependency
                     setup((T)result);
                 };
             }
+            return this;
         }
 
-        public void ToGetter<T>(Func<T,F> method, string tag=null)
+        public Binding<F> ToGetter<T>(Func<T,F> method, string tag=null)
         {
             _type = typeof(T);
             _getter = (t) => method((T)t);
-            _tag = tag;
             _toType = ToType.Method;
+            _tag = null;
+            return this;
         }
 
         public object Resolve()
@@ -179,8 +184,6 @@ namespace SocialPoint.Dependency
             installer.InstallBindings();
             _installed.Add(installer);
         }
-
-
 
         public List<T> ResolveList<T>(string tag=null)
         {

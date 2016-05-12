@@ -9,21 +9,17 @@ namespace SocialPoint.Dependency
         void InstallBindings();
     }
 
-    public class Installer : IInstaller
+    public abstract class Installer : IInstaller
     {
         public DependencyContainer Container{ get; set; }
 
-        public virtual void InstallBindings()
-        {
-        }
+        public abstract void InstallBindings();
     }
 
-    public class MonoInstaller : MonoBehaviour, IInstaller
+    public abstract class MonoInstaller : MonoBehaviour, IInstaller
     {
         public DependencyContainer Container{ get; set; }
 
-        public virtual void InstallBindings()
-        {
-        }
+        public abstract void InstallBindings();
     }
 }
