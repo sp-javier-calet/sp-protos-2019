@@ -6,6 +6,7 @@
 #include <string>
 #include "UnityGameObject.h"
 #import <Foundation/Foundation.h>
+#include "SPUnityBreadcrumbManager.hpp"
 
 
 class SPUnityCrashReporter
@@ -18,6 +19,7 @@ private:
     std::string _fileSeparator;
     std::string _crashExtension;
     std::string _gameObject;
+    socialpoint::SPUnityBreadcrumbManager* _breadcrumbManager;
 
     static void onCrash(siginfo_t *info, ucontext_t *uap, void *context)
     {
@@ -89,6 +91,7 @@ public:
 
     SPUnityCrashReporter()
     : _enabled(false)
+    , _breadcrumbManager(socialpoint::SPUnityBreadcrumbManager::getInstance())
     {
     }
 
@@ -169,6 +172,12 @@ public:
         return false;
 #endif
     }
+    
+    //*** TEST
+    void debug()
+    {
+        UnityGameObject(_gameObject).SendMessage("DebugLog", _breadcrumbManager->getLog());
+    }
 };
 
 
@@ -209,5 +218,11 @@ extern "C" {
     void SPUnityCrashReporterForceCrash()
     {
         *((unsigned int*)0) = 0xDEAD;
+    }
+    
+    //*** TEST
+    void SPUnityCrashReporterDebug(SPUnityCrashReporter* crashReporter)
+    {
+        crashReporter->debug();
     }
 }

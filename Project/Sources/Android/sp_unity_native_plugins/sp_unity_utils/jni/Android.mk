@@ -14,6 +14,7 @@ LOCAL_SRC_FILES := $(SRC_PATH)/main.cpp \
 		$(COMMON_SRC_PATH)/SPUnityUtils.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(SRC_PATH)
+
 LOCAL_LDLIBS := -llog
 
 include $(BUILD_SHARED_LIBRARY)
