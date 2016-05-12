@@ -112,7 +112,6 @@ namespace SocialPoint.Dependency
         public void ResolveLoopTest()
         {
             var container = new DependencyContainer();
-            var instance = new TestService();
             container.Bind<ITestService>().ToLookup<ITestService>();
             var service = container.Resolve<ITestService>();
             Assert.IsNull(service);

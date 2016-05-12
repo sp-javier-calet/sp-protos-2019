@@ -4,11 +4,6 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
-    public interface IInitializable
-    {
-        void Initialize();
-    }
-
     public interface IBinding
     {
         object Resolve();
@@ -138,8 +133,7 @@ namespace SocialPoint.Dependency
 
     public class DependencyContainer
     {
-        List<IInstaller> _installedInstallers = new List<IInstaller>();
-        List<IInitializable> _initializedInitializables = new List<IInitializable>();
+        List<IInstaller> _installed = new List<IInstaller>();
         Dictionary<BindingKey, List<IBinding>> _bindings = new Dictionary<BindingKey, List<IBinding>>();
         HashSet<IBinding> _resolving = new HashSet<IBinding>();
         List<IBinding> _resolved = new List<IBinding>();
@@ -169,9 +163,9 @@ namespace SocialPoint.Dependency
         public bool HasInstalled<T>() where T : IInstaller
         {
             var type = typeof(T);
-            for(int i = 0; i < _installedInstallers.Count; i++)
+            for(int i = 0; i < _installed.Count; i++)
             {
-                if(_installedInstallers[i].GetType() == type)
+                if(_installed[i].GetType() == type)
                 {
                     return true;
                 }
@@ -183,22 +177,10 @@ namespace SocialPoint.Dependency
         {
             installer.Container = this;
             installer.InstallBindings();
-            _installedInstallers.Add(installer);
+            _installed.Add(installer);
         }
 
-        public void Initialize()
-        {
-            var inits = ResolveList<IInitializable>();
-            for(var i = 0; i < inits.Count; i++)
-            {
-                var init = inits[i];
-                if(!_initializedInitializables.Contains(init))
-                {
-                    init.Initialize();
-                    _initializedInitializables.Add(init);
-                }
-            }
-        }
+
 
         public List<T> ResolveList<T>(string tag=null)
         {
@@ -264,8 +246,7 @@ namespace SocialPoint.Dependency
         public void Clear()
         {
             _bindings.Clear();
-            _initializedInitializables.Clear();
-            _installedInstallers.Clear();
+            _installed.Clear();
             _resolved.Clear();
             _resolving.Clear();
         }

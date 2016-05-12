@@ -10,5 +10,10 @@ namespace SocialPoint.Dependency
         {
             ServiceLocator.Instance.Install(Installers);
         }
+
+        void Start()
+        {
+            ServiceLocator.Instance.Initialize();
+        }
     }
 }

@@ -60,7 +60,8 @@ namespace SocialPoint.Dependency
 
     public sealed class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>
     {
-        DependencyContainer _container = new DependencyContainer();
+        DependencyContainer _container;
+        InitializableManager _initializables;
 
         public T Resolve<T>(string tag=null, T def=default(T))
         {
@@ -82,11 +83,19 @@ namespace SocialPoint.Dependency
             _container.Install(installers);
         }
 
+        public void Initialize()
+        {
+            _initializables.Initialize();
+        }
+
         const string GlobalInstallersResource = "GlobalInstallers";
 
         override protected void SingletonAwakened()
         {
             base.SingletonAwakened();
+
+            _container = new DependencyContainer();
+            _initializables = new InitializableManager(_container);
 
             _container.Bind<GameObject>().ToInstance(gameObject);
             _container.Bind<Transform>().ToGetter<GameObject>((go) => go.transform);
@@ -97,16 +106,16 @@ namespace SocialPoint.Dependency
                 Install(globalConfig.Installers);
             }
         }
-
+            
         protected override void SingletonStarted()
         {
             base.SingletonStarted();
-            _container.Initialize();
+            Initialize();
         }
 
         void OnLevelWasLoaded(int level)
         {
-            _container.Initialize();
+            Initialize();
         }
     }
 }
