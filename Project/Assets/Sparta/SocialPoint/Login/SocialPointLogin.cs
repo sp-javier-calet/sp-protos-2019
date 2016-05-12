@@ -670,7 +670,7 @@ namespace SocialPoint.Login
             OnLoginEnd(null, cbk);
         }
 
-        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0)
+        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0, byte[] responseBody = null)
         {
             if(_appEvents != null)
             {
@@ -685,6 +685,12 @@ namespace SocialPoint.Login
             }
             else if(_availableConnectivityErrorRetries < 0)
             {
+                #if DEBUG
+                if (responseBody != null && responseBody.Length > 0) {
+                    DebugUtils.Log(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
+                }
+                #endif
+
                 var err = new Error(lastErrCode, "There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
@@ -720,7 +726,7 @@ namespace SocialPoint.Login
             else if(resp.HasRecoverableError && resp.StatusCode != MaintenanceMode)
             {
                 _availableConnectivityErrorRetries--;
-                DoLogin(cbk, resp.ErrorCode);
+                DoLogin(cbk, resp.ErrorCode, resp.Body);
                 return;
             }
 
