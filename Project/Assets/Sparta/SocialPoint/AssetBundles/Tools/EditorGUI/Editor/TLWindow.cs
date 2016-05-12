@@ -63,7 +63,6 @@ namespace SocialPoint.Tool.Shared.TLGUI
 
 		Texture2D		        _prevTex;
 		int				        _callCount;
-		Event			        _prevEvent;
 		string			        _prevTooltip;
         string                  _prevFocusedControl;
 

@@ -20,7 +20,6 @@ namespace SocialPoint.GUIAnimation
 		public System.Type Value;
 
 		string _title = "Select The Action";
-		Action _onExit;
 
 		List<StepData> _actions = new List<StepData>();
 

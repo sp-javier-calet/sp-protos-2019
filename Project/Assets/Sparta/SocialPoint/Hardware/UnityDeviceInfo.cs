@@ -4,11 +4,6 @@ namespace SocialPoint.Hardware
 {
     public class UnityDeviceInfo : IDeviceInfo
     {
-        EmptyMemoryInfo _memoryInfo;
-        EmptyStorageInfo _storageInfo;
-        EmptyAppInfo _appInfo;
-        EmptyNetworkInfo _networkInfo;
-
         public UnityDeviceInfo()
         {
             MemoryInfo = new EmptyMemoryInfo();
