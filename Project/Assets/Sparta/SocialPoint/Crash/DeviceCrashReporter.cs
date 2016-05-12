@@ -151,7 +151,11 @@ namespace SocialPoint.Crash
         static extern UIntPtr SPUnityCrashReporterCreate(string path, string version, string separator, string crashExtension, string logExtension, string gameObject);
 
         [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);       
+        static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
+
+        //*** TEST
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityCrashReporterDebug(UIntPtr ctx);
 
         public const string CrashesFolder = "/crashes/";
         public const string CrashExtension = ".crash";
@@ -179,12 +183,17 @@ namespace SocialPoint.Crash
             ReadPendingCrashes();
 
             // Create listener
-            var listenerGo = new GameObject("SocialPoint.DeviceCrashReporterListener");
+            GameObject listenerGo = new GameObject("SocialPoint.DeviceCrashReporterListener");
             GameObject.DontDestroyOnLoad(listenerGo);
             _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
 
             // Create native object
             _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, _listener.gameObject.name);
+            UnityEngine.Debug.Log("*** TEST Creating Native Crash Reporter. Path: " + _crashesBasePath);
+
+            //*** TEST
+            UnityEngine.Debug.Log("*** TEST Crash Reporter Debug");
+            SPUnityCrashReporterDebug(_nativeObject);
         }
 
         ~DeviceCrashReporter ()
@@ -249,12 +258,18 @@ namespace SocialPoint.Crash
     {
         public void OnCrashDumped(string path)
         {
+            Debug.Log("*** TEST OnCrashDumped: " + path);
             DebugUtils.LogWarning("OnCrashDumped '" + path + "'");
             if(FileUtils.ExistsFile(path))
             {
                 DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
                 FileUtils.DeleteFile(path);
             }
-        }  
+        }
+
+        public void DebugLog(string message)
+        {
+            Debug.Log("*** TEST: " + message);
+        }
     }
 }

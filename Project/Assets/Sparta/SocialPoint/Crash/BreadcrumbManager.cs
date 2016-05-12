@@ -39,7 +39,9 @@ namespace SocialPoint.Crash
                 string breadCrumbDirectoryPath = PathsManager.AppPersistentDataPath + "/breadcrumb/";
 
                 FileUtils.CreateDirectory(breadCrumbDirectoryPath);
-                
+                UnityEngine.Debug.Log("*** TEST Creating Bradcrumb File. Path: " + breadCrumbDirectoryPath);
+                UnityEngine.Debug.Log("*** TEST BreadcrumbLogPath: " + BreadcrumbLogPath());
+
                 if(FileUtils.ExistsFile(BreadcrumbLogPath()))
                 {
                     FileUtils.CopyFile(BreadcrumbLogPath(), BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
@@ -63,15 +65,23 @@ namespace SocialPoint.Crash
         public BreadcrumbManager()
         {
             PathsManager.CallOnLoaded(InitializeBreadcrumbFile);
+
+            //*** TEST
+            UnityEngine.Debug.Log("*** TEST Leaving some breadcrumbs");
+            Log("Test Breadcrumb 1");
+            Log("Test Breadcrumb 2");
+            Log("Test Breadcrumb 3");
         }
 
         public void Log(string info)
         {
-            var breadcrumb = new Breadcrumb(info);
+            Breadcrumb breadcrumb = new Breadcrumb(info);
+            /*
             using(var file = new StreamWriter(BreadcrumbLogPath(), true))
             {
                 file.WriteLine(breadcrumb);
-            }
+            }*/
+            BreadcrumbManagerBinding.Log(breadcrumb.ToString());
         }
 
         public void RemoveData()

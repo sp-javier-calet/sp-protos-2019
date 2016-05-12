@@ -79,6 +79,9 @@ namespace SocialPoint.Crash
                 crash.Set(AttrKeyLogcat, new AttrString(report.Log));
                 crash.Set(AttrKeyBreadcrumb, new AttrString(breadcrumb));
 
+                //*** TEST
+                UnityEngine.Debug.Log("*** TEST Crash Stack Trace: " + report.StackTrace);
+
                 // Add actual crash data if available
                 if(report.Timestamp > 0)
                 {
@@ -563,27 +566,34 @@ namespace SocialPoint.Crash
 
         protected void ReadPendingCrashes()
         {
+            UnityEngine.Debug.Log("*** TEST Reading Pending Crashes");
             _pendingReports = GetPendingCrashes();
 
             if(_pendingReports.Count > 0)
             {
+                UnityEngine.Debug.Log("*** TEST _pendingReports.Count: " + _pendingReports.Count);
                 foreach(Report report in _pendingReports)
                 {
+                    //UnityEngine.Debug.Log("*** TEST Report Log: " + report.Log);
+                    //UnityEngine.Debug.Log("*** TEST Report Stack: " + report.StackTrace);
                     AddRetry(report.Uuid);
                 }
             }
             else
             {
+                UnityEngine.Debug.Log("*** TEST no new crashes");
                 // If there are no new crashes, we can check some saved status to detect a memory crash
                 Report memoryCrashReport = CheckMemoryCrash();
                 if(memoryCrashReport != null)
                 {
+                    UnityEngine.Debug.Log("*** TEST memoryCrashReport Created");
                     AddRetry(memoryCrashReport.Uuid);
                 }
             }
 
             if(HasCrashLogs)
             {
+                UnityEngine.Debug.Log("*** TEST HasCrashLogs");
                 foreach(var log in _crashStorage.StoredKeys)
                 {
                     AddRetry(log);
@@ -613,6 +623,7 @@ namespace SocialPoint.Crash
 
         void SendCrashes(ReportSendType reportSendType, Action callback)
         {
+            UnityEngine.Debug.Log("*** TEST Sending Crashes " + reportSendType);
             var steps = new StepCallbackBuilder(callback);
 
             SendTrackedCrashes(reportSendType, steps.Add());
@@ -690,6 +701,7 @@ namespace SocialPoint.Crash
 
         Report CheckMemoryCrash()
         {
+            UnityEngine.Debug.Log("*** TEST CheckMemoryCrash");
             Report memoryCrashReport = null;
             /* *
              * We can assume that we had a memory crash if 
@@ -802,6 +814,7 @@ namespace SocialPoint.Crash
 
         void OnCrashSend(HttpResponse resp, string log, Action callback)
         {
+            UnityEngine.Debug.Log("*** TEST OnCrashSend (Http Callback)");
             if(!resp.HasError)
             {
                 _crashStorage.Remove(log);
@@ -890,6 +903,7 @@ namespace SocialPoint.Crash
 
         void TrackCrash(Report report, Action callback)
         {
+            UnityEngine.Debug.Log("*** TEST TrackCrash");
             if(TrackEvent != null)
             {
                 var data = new AttrDic();
@@ -1050,6 +1064,7 @@ namespace SocialPoint.Crash
 
         static void AddRetry(string reportUuid, int retriesToAdd = 1)
         {
+            UnityEngine.Debug.Log("*** TEST AddRetry " + reportUuid);
             var retriesKey = GetRetriesKey(reportUuid);
             var retries = GetRetries(reportUuid);
             PlayerPrefs.SetInt(retriesKey, retries + retriesToAdd);
@@ -1058,6 +1073,7 @@ namespace SocialPoint.Crash
 
         static void SubtractRetry(string reportUuid, int retriesToRemove = 1)
         {
+            UnityEngine.Debug.Log("*** TEST SubtractRetry " + reportUuid);
             var retriesKey = GetRetriesKey(reportUuid);
             var retries = GetRetries(reportUuid);
             PlayerPrefs.SetInt(retriesKey, Math.Max(retries - retriesToRemove, 0));
@@ -1066,6 +1082,7 @@ namespace SocialPoint.Crash
 
         static void EraseRetryKey(string reportUuid)
         {
+            UnityEngine.Debug.Log("*** TEST EraseRetryKey " + reportUuid);
             var retriesKey = GetRetriesKey(reportUuid);
             PlayerPrefs.DeleteKey(retriesKey);
             PlayerPrefs.Save();

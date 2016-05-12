@@ -46,15 +46,15 @@ SPUnityCrashReporter::SPUnityCrashReporter(const std::string& path,
                                            const std::string& crashExtension,
                                            const std::string& logExtension,
                                            const std::string& gameObject)
-: _exceptionHandler(nullptr)
-, _crashDirectory(path)
+: _crashDirectory(path)
 , _version(version)
 , _fileSeparator(fileSeparator)
 , _crashExtension(crashExtension)
 , _logExtension(logExtension)
 , _gameObject(gameObject)
+, _exceptionHandler(nullptr)
+, _breadcrumbManager(socialpoint::SPUnityBreadcrumbManager::getInstance())
 {
-    _breadcrumbManager = socialpoint::SPUnityBreadcrumbManager::getInstance();
 }
 
 bool SPUnityCrashReporter::enable()
@@ -99,7 +99,7 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-    // Conver to local time
+    // Convert to local time
     epoch_time = std::mktime(std::localtime(&epoch_time));
 
     std::stringstream ss;
@@ -117,11 +117,16 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
     std::string logcatCmd("logcat -d -t 200 -f " + newLogPath);
     system(logcatCmd.c_str());
 
-
     if(!_gameObject.empty())
     {
         pthread_t thread;
         pthread_create(&thread, NULL, callOnCrashDumpedThread,
             new CrashDumpedCallData{ _gameObject, newCrashPath });
     }
+}
+
+//*** TEST
+void SPUnityCrashReporter::debug()
+{
+    UnityGameObject(_gameObject).SendMessage("DebugLog", _breadcrumbManager->getLog());
 }

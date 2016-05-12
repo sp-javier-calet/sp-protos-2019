@@ -42,6 +42,9 @@ public:
     void dumpCrash(const std::string& crashPath);
     const std::string& getCrashPaths() const;
     void clearCrashPaths();
+
+    //*** TEST
+    void debug();
 };
 
 #endif
