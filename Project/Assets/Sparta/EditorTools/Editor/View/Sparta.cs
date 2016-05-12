@@ -112,7 +112,7 @@ namespace SpartaTools.Editor.View
         /*
          * Sparta repository info
          */
-        static RepositoryInfo _repoInfo = Target.GetRepositoryInfo();
+        static RepositoryInfo _repoInfo = Current.GetRepositoryInfo();
 
         public static RepositoryInfo RepoInfo
         {
@@ -124,7 +124,7 @@ namespace SpartaTools.Editor.View
 
         public static void FetchInfo()
         {
-            _repoInfo = Target.GetRepositoryInfo();
+            _repoInfo = Current.GetRepositoryInfo();
         }
 
         public static void SetIcon(EditorWindow window, string title, string tooltip, bool advancedMode = false)

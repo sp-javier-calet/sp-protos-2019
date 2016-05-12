@@ -19,7 +19,6 @@ namespace SocialPoint.GUIAnimation
 		public string Value;
 
 		string _title = "Confirm";
-		Action _onExit;
 
 		void OnGUI()
 		{
