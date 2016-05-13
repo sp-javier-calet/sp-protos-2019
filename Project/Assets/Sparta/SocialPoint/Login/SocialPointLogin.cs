@@ -1265,7 +1265,7 @@ namespace SocialPoint.Login
 
             if(info != null)
             {
-                linkConfirmTypeCode = (int)info.ConfirmType;
+                linkConfirmTypeCode = GetLinkConfirmTypeCode(info.ConfirmType);
                 // unset link info to prevent multiple confirms
                 info.Token = "";
                 info.ConfirmType = LinkConfirmType.None;
