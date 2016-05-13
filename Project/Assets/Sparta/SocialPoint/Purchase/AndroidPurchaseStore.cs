@@ -189,7 +189,7 @@ namespace SocialPoint.Purchase
             data.SetValue(Receipt.OrderIdKey, purchase.OrderId);
             data.SetValue(Receipt.ProductIdKey, purchase.Sku);
             data.SetValue(Receipt.PurchaseStateKey, (int)PurchaseState.ValidateSuccess);
-            data.SetValue(Receipt.OriginalJsonKey, purchase.GetValidationData());//purchase.OriginalJson
+            data.SetValue(Receipt.OriginalJsonKey, purchase.OriginalJson);
             data.SetValue(Receipt.StoreKey, "google_play");
             data.SetValue(Receipt.DataSignatureKey, purchase.Signature);
             if(_validatePurchase != null)

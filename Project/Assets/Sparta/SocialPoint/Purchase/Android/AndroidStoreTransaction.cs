@@ -59,6 +59,17 @@ namespace SocialPoint.Purchase
         /// </summary>
         public string Signature { get; private set; }
 
+        private const string _itemTypeKey = "itemType";
+        private const string _orderIdKey = "orderId";
+        private const string _packageNameKey = "packageName";
+        private const string _skuKey = "sku";
+        private const string _purchaseTimeKey = "purchaseTime";
+        private const string _purchaseStateKey = "purchaseState";
+        private const string _developerPayloadKey = "developerPayload";
+        private const string _tokenKey = "token";
+        private const string _originalJsonKey = "originalJson";
+        private const string _signatureKey = "signature";
+
 
         public static List<AndroidStoreTransaction> TransactionsFromJson(string json)
         {
@@ -76,35 +87,55 @@ namespace SocialPoint.Purchase
         {
             AndroidStoreTransaction transaction = new AndroidStoreTransaction();
 
-            if(dict.ContainsKey("itemType"))
-                transaction.ItemType = dict["itemType"].ToString();
+            if(dict.ContainsKey(_itemTypeKey))
+            {
+                transaction.ItemType = dict[_itemTypeKey].ToString();
+            }
 
-            if(dict.ContainsKey("orderId"))
-                transaction.OrderId = dict["orderId"].ToString();
+            if(dict.ContainsKey(_orderIdKey))
+            {
+                transaction.OrderId = dict[_orderIdKey].ToString();
+            }
 
-            if(dict.ContainsKey("packageName"))
-                transaction.PackageName = dict["packageName"].ToString();
+            if(dict.ContainsKey(_packageNameKey))
+            {
+                transaction.PackageName = dict[_packageNameKey].ToString();
+            }
 
-            if(dict.ContainsKey("sku"))
-                transaction.Sku = dict["sku"].ToString();
+            if(dict.ContainsKey(_skuKey))
+            {
+                transaction.Sku = dict[_skuKey].ToString();
+            }
 
-            if(dict.ContainsKey("purchaseTime") && dict["purchaseTime"].IsValue)
-                transaction.PurchaseTime = dict["purchaseTime"].AsValue.ToLong();
+            if(dict.ContainsKey(_purchaseTimeKey) && dict[_purchaseTimeKey].IsValue)
+            {
+                transaction.PurchaseTime = dict[_purchaseTimeKey].AsValue.ToLong();
+            }
 
-            if(dict.ContainsKey("purchaseState") && dict["purchaseState"].IsValue)
-                transaction.PurchaseState = dict["purchaseState"].AsValue.ToInt();
+            if(dict.ContainsKey(_purchaseStateKey) && dict[_purchaseStateKey].IsValue)
+            {
+                transaction.PurchaseState = dict[_purchaseStateKey].AsValue.ToInt();
+            }
 
-            if(dict.ContainsKey("developerPayload"))
-                transaction.DeveloperPayload = dict["developerPayload"].ToString();
+            if(dict.ContainsKey(_developerPayloadKey))
+            {
+                transaction.DeveloperPayload = dict[_developerPayloadKey].ToString();
+            }
 
-            if(dict.ContainsKey("token"))
-                transaction.Token = dict["token"].ToString();
+            if(dict.ContainsKey(_tokenKey))
+            {
+                transaction.Token = dict[_tokenKey].ToString();
+            }
 
-            if(dict.ContainsKey("originalJson"))
-                transaction.OriginalJson = dict["originalJson"].ToString();
+            if(dict.ContainsKey(_originalJsonKey))
+            {
+                transaction.OriginalJson = dict[_originalJsonKey].ToString();
+            }
             
-            if(dict.ContainsKey("signature"))
-                transaction.Signature = dict["signature"].ToString();
+            if(dict.ContainsKey(_signatureKey))
+            {
+                transaction.Signature = dict[_signatureKey].ToString();
+            }
 
             return transaction;
         }
@@ -127,84 +158,7 @@ namespace SocialPoint.Purchase
 
         public override string ToString()
         {
-            return "SKU:" + Sku + ";" + OriginalJson;
-        }
-
-
-        /**
-         * Serilize to json
-         * @return json string
-         */ 
-        public string Serialize()
-        {
-            AttrDic dic = new AttrDic();
-            dic.SetValue("itemType", ItemType);
-            dic.SetValue("orderId", OrderId);
-            dic.SetValue("packageName", PackageName);
-            dic.SetValue("sku", Sku);
-            dic.SetValue("purchaseTime", PurchaseTime);
-            dic.SetValue("purchaseState", PurchaseState);
-            dic.SetValue("developerPayload", DeveloperPayload);
-            dic.SetValue("token", Token);
-            dic.SetValue("originalJson", OriginalJson);
-            dic.SetValue("signature", Signature);
-            return dic.ToString();
-        }
-
-        public string GetValidationData()
-        {
-            StringBuilder jsonData = new StringBuilder();
-            jsonData.Append("{");
-            jsonData.Append(KeyValuePair<string>("orderId", OrderId, false));
-            jsonData.Append(KeyValuePair<string>("packageName", PackageName, false));
-            jsonData.Append(KeyValuePair<string>("productId", Sku, false));
-            jsonData.Append(KeyValuePair<long>("purchaseTime", PurchaseTime, false));
-            jsonData.Append(KeyValuePair<int>("purchaseState", PurchaseState, false));
-            jsonData.Append(KeyValuePair<string>("purchaseToken", Token, true));
-            jsonData.Append("}");
-            return jsonData.ToString();
-        }
-
-        private string KeyValuePair<T>(string key, T value, bool lastValue)
-        {
-            StringBuilder pair = new StringBuilder(GetKeyFormat(key));
-            if(typeof(T) == typeof(string))
-            {
-                pair.Append(GetValueFormat_String(value));
-            }
-            else
-            {
-                pair.Append(GetValueFormat_Raw<T>(value));
-            }
-
-            if(!lastValue)
-            {
-                pair.Append(",");
-            }
-            return pair.ToString();
-        }
-
-        private string GetKeyFormat(string key)
-        {
-            StringBuilder format = new StringBuilder();
-            format.Append("\"");
-            format.Append(key);
-            format.Append("\":");
-            return format.ToString();
-        }
-
-        private string GetValueFormat_String<T>(T value)
-        {
-            StringBuilder format = new StringBuilder();
-            format.Append("\"");
-            format.Append(value.ToString());
-            format.Append("\"");
-            return format.ToString();
-        }
-
-        private string GetValueFormat_Raw<T>(T value)
-        {
-            return value.ToString();
+            return string.Format("[AndroidStoreTransaction: SKU = {0}, OriginalJson = {1}", Sku, OriginalJson);
         }
     }
 }

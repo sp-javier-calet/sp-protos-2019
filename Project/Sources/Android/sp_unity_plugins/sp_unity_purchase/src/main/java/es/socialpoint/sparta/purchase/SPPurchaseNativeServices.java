@@ -9,6 +9,10 @@ import com.unity3d.player.UnityPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import es.socialpoint.unity.base.SPUnityActivityEventListener;
 import es.socialpoint.unity.base.SPUnityActivityEventManager;
 import es.socialpoint.unity.base.UnityGameObject;
@@ -65,16 +69,13 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         // Start setup. This is asynchronous and the specified listener
         // will be called once setup completes.
         detailedLog("Starting setup.");
-        _helper.startSetup(new IabHelper.OnIabSetupFinishedListener()
-        {
-            public void onIabSetupFinished(IabResult result)
-            {
+        _helper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+            public void onIabSetupFinished(IabResult result) {
                 detailedLog("Setup finished.");
                 // Have we been disposed of in the meantime? If so, quit.
                 if (_helper == null) return;
 
-                if (!result.isSuccess())
-                {
+                if (!result.isSuccess()) {
                     // Oh noes, there was a problem.
                     String errorMessage = "Problem setting up in-app billing: " + result;
                     detailedLog(errorMessage);
@@ -183,35 +184,34 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         });
     }
 
-    private String getProductJson(SkuDetails product)
+    private JSONObject getProductJson(SkuDetails product) throws JSONException
     {
-        String json = "{"
-                + dictionaryKeyFormat("itemType") + dictionaryValueFormat_String(product.getItemType(), false)
-                + dictionaryKeyFormat("sku") +  dictionaryValueFormat_String(product.getSku(), false)
-                + dictionaryKeyFormat("type") + dictionaryValueFormat_String(product.getType(), false)
-                + dictionaryKeyFormat("price") + dictionaryValueFormat_String(product.getPrice(), false)
-                + dictionaryKeyFormat("title") +  dictionaryValueFormat_String(product.getTitle(), false)
-                + dictionaryKeyFormat("description") +  dictionaryValueFormat_String(product.getDescription(), false)
-                + dictionaryKeyFormat("currencyCode") +  dictionaryValueFormat_String(product.getPriceCurrencyCode(), false)
-                + dictionaryKeyFormat("priceValue") + dictionaryValueFormat_Long(product.getPriceAmountMicros(), true)
-                + "}";
-        return json;
+        JSONObject json = new JSONObject();
+        json.put("itemType", product.getItemType());
+        json.put("sku", product.getSku());
+        json.put("type", product.getType());
+        json.put("price", product.getPrice());
+        json.put("title", product.getTitle());
+        json.put("description", product.getDescription());
+        json.put("currencyCode", product.getPriceCurrencyCode());
+        json.put("priceValue", product.getPriceAmountMicros());
+        return  json;
     }
 
-    private String getProductsJson(List<SkuDetails> products)
+    private JSONArray getProductsJson(List<SkuDetails> products)
     {
-        int count = 0;
-        String json = "[";
+        JSONArray json = new JSONArray();
         for (SkuDetails p : products)
         {
-            if(count > 0)
+            try
             {
-                json += ",";
+                json.put(getProductJson(p));
             }
-            ++count;
-            json += getProductJson(p);
+            catch (JSONException e)
+            {
+                detailedLog("Failed creating product Json: " + p.getSku());
+            }
         }
-        json += "]";
         return json;
     }
 
@@ -293,7 +293,14 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
             case PurchaseState.Purchased:
             {
                 detailedLog("Purchase successful: " + purchase.getSku());
-                _unityMessageSender.SendMessage("OnPurchaseSucceeded", getTransactionJson(purchase));
+                try
+                {
+                    _unityMessageSender.SendMessage("OnPurchaseSucceeded", getTransactionJson(purchase).toString());
+                }
+                catch (JSONException e)
+                {
+                    detailedLog("Failed creating transaction Json: " + purchase.getSku());
+                }
             }
                 break;
             case PurchaseState.Canceled:
@@ -315,37 +322,36 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
         }
     }
 
-    private String getTransactionJson(Purchase purchase)
+    private JSONObject getTransactionJson(Purchase purchase) throws JSONException
     {
-        String json = "{"
-                + dictionaryKeyFormat("itemType") + dictionaryValueFormat_String(purchase.getItemType(), false)
-                + dictionaryKeyFormat("orderId") + dictionaryValueFormat_String(purchase.getOrderId(), false)
-                + dictionaryKeyFormat("packageName") + dictionaryValueFormat_String(purchase.getPackageName(), false)
-                + dictionaryKeyFormat("sku") + dictionaryValueFormat_String(purchase.getSku(), false)
-                + dictionaryKeyFormat("purchaseTime") +  dictionaryValueFormat_Long(purchase.getPurchaseTime(), false)
-                + dictionaryKeyFormat("purchaseState") +  dictionaryValueFormat_Int(purchase.getPurchaseState(), false)
-                + dictionaryKeyFormat("developerPayload") +  dictionaryValueFormat_String(purchase.getDeveloperPayload(), false)
-                + dictionaryKeyFormat("token") +  dictionaryValueFormat_String(purchase.getToken(), false)
-                + dictionaryKeyFormat("originalJson") +  dictionaryValueFormat_Raw(purchase.getOriginalJson(), false)
-                + dictionaryKeyFormat("signature") + dictionaryValueFormat_String(purchase.getSignature(), true)
-                + "}";
-        return json;
+        JSONObject json = new JSONObject();
+        json.put("itemType", purchase.getItemType());
+        json.put("orderId", purchase.getOrderId());
+        json.put("packageName", purchase.getPackageName());
+        json.put("sku", purchase.getSku());
+        json.put("purchaseTime", purchase.getPurchaseTime());
+        json.put("purchaseState", purchase.getPurchaseState());
+        json.put("developerPayload", purchase.getDeveloperPayload());
+        json.put("token", purchase.getToken());
+        json.put("originalJson", purchase.getOriginalJson());
+        json.put("signature", purchase.getSignature());
+        return  json;
     }
 
-    private String getTransactionsJson(List<Purchase> purchases)
+    private JSONArray getTransactionsJson(List<Purchase> purchases)
     {
-        int count = 0;
-        String json = "[";
+        JSONArray json = new JSONArray();
         for (Purchase p : purchases)
         {
-            if(count > 0)
+            try
             {
-                json += ",";
+                json.put(getTransactionJson(p));
             }
-            ++count;
-            json += getTransactionJson(p);
+            catch (JSONException e)
+            {
+                detailedLog("Failed creating transaction Json: " + p.getSku());
+            }
         }
-        json += "]";
         return json;
     }
 
@@ -435,7 +441,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
             // Loaded products
             List<SkuDetails> skus = inventory.getAllSkuDetails();
-            _unityMessageSender.SendMessage("OnQueryInventorySucceeded", getProductsJson(skus));
+            _unityMessageSender.SendMessage("OnQueryInventorySucceeded", getProductsJson(skus).toString());
 
             //Pending purchases
             List<Purchase> purchases = inventory.getAllPurchases();
@@ -503,7 +509,15 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
             _inventory.erasePurchase(purchase.getSku());
             detailedLog("Consume successful: " + purchase.getSku());
-            _unityMessageSender.SendMessage("OnConsumePurchaseSucceeded", getTransactionJson(purchase));
+            try
+            {
+                _unityMessageSender.SendMessage("OnConsumePurchaseSucceeded", getTransactionJson(purchase).toString());
+            }
+            catch (JSONException e)
+            {
+                detailedLog("Failed creating transaction Json: " + purchase.getSku());
+            }
+
         }
     };
 
