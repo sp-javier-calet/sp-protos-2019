@@ -11,11 +11,11 @@ namespace SocialPoint.Console
         public string HelpText;
 
         public event ConsoleCommandDelegate BeforeCommandExecute;
-     
-        private IDictionary<string, ConsoleCommand> _cmds = new Dictionary<string, ConsoleCommand>();
-        private IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
-        private ConsoleHelpCommand _helpCmd;
-        public ConsoleCommand CurrentCommand = null;
+
+        IDictionary<string, ConsoleCommand> _cmds = new Dictionary<string, ConsoleCommand>();
+        IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
+        readonly ConsoleHelpCommand _helpCmd;
+        public ConsoleCommand CurrentCommand;
 
         public ConsoleApplication()
         {
@@ -42,7 +42,7 @@ namespace SocialPoint.Console
         {
             return GetEnumerator();
         }
-        
+
         public ConsoleCommand this[string name]
         {
             get
@@ -65,7 +65,7 @@ namespace SocialPoint.Console
             return opt;
         }
 
-        public ConsoleCommand AddCommand(string name, ConsoleCommand cmd=null)
+        public ConsoleCommand AddCommand(string name, ConsoleCommand cmd = null)
         {
             if(cmd == null)
             {
@@ -77,9 +77,9 @@ namespace SocialPoint.Console
             return cmd;
         }
 
-        private int MatchCommandName(string name, IEnumerable<string> args)
+        static int MatchCommandName(string name, IEnumerable<string> args)
         {
-            var parts = name.Split(new char[]{' '});
+            var parts = name.Split(new []{ ' ' });
             int i = 0;
             foreach(var arg in args)
             {
@@ -95,15 +95,15 @@ namespace SocialPoint.Console
         public ConsoleCommand FindCommand(string name)
         {
             ConsoleCommand cmd;
-            FindCommand(name.Split(new char[]{' '}), out cmd);
+            FindCommand(name.Split(new []{ ' ' }), out cmd);
             return cmd;
         }
 
-        private int FindCommand(IEnumerable<string> args, out ConsoleCommand cmd)
+        int FindCommand(IEnumerable<string> args, out ConsoleCommand cmd)
         {
             foreach(var pair in _cmds)
             {
-                var names = pair.Key.Split(new char[]{'|'});
+                var names = pair.Key.Split(new []{ '|' });
                 foreach(var name in names)
                 {
                     var cname = name.Replace(' ', '-');
@@ -123,7 +123,7 @@ namespace SocialPoint.Console
             int bestI = 0;
             foreach(var pair in _cmds)
             {
-                var names = pair.Key.Split(new char[]{'|'});
+                var names = pair.Key.Split(new []{ '|' });
                 foreach(var name in names)
                 {
                     int i = MatchCommandName(name, args);
@@ -153,7 +153,7 @@ namespace SocialPoint.Console
             else
             {
                 int i = FindCommand(args, out CurrentCommand);
-                for(; i>0; i--)
+                for(; i > 0; i--)
                 {
                     args.RemoveAt(0);
                 }

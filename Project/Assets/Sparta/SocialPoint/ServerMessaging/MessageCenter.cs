@@ -9,7 +9,7 @@ namespace SocialPoint.ServerMessaging
 {
     public class MessageCenter : IMessageCenter
     {
-        public delegate void GetMessagesDelegate(Error Error,List<Message> messages);
+        public delegate void GetMessagesDelegate(Error Error, List<Message> messages);
 
         public const int MsgDontExistError = 1;
 

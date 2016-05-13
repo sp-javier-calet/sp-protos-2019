@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Reflection;
 
 namespace SocialPoint.Utils
 {
@@ -82,7 +81,7 @@ namespace SocialPoint.Utils
         
         object Apply(object prop, Type type, A attr)
         {
-            IMemberAttributeObserver<A> observer = null;
+            IMemberAttributeObserver<A> observer;
             if(!_observers.TryGetValue(attr, out observer))
             {
                 foreach(var proto in _prototypes)

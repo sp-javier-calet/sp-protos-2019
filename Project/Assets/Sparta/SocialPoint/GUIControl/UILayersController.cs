@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace SocialPoint.GUIControl
@@ -51,21 +51,21 @@ namespace SocialPoint.GUIControl
 
         IDictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        IDictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
+        readonly IDictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        IDictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
+        readonly IDictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
 
         List<UIViewController> _controllers = new List<UIViewController>();
 
         IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
 
-        int _currentOrderInLayer = 0;
+        int _currentOrderInLayer;
 
         void Awake()
         {
             Assert.AreEqual(_cameras[0].Type, UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
 
-            List<UICameraData> cameras = new List<UICameraData>(_cameras);
+            var cameras = new List<UICameraData>(_cameras);
             cameras.Reverse();
 
             foreach(UICameraData cameraData in cameras)
@@ -174,7 +174,7 @@ namespace SocialPoint.GUIControl
                     ActivateNextUILayer(UICameraData.CameraType.GUI2D);
                 }
 
-                UICameraData previousCameraAssigned = null;
+                UICameraData previousCameraAssigned;
 
                 // check if we are changing the camera assigned to this controller
                 if(!_uiCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
@@ -206,7 +206,7 @@ namespace SocialPoint.GUIControl
 
         void AssignOrderInCameraLayer(GameObject uiElement)
         {
-            List<Canvas> uiCanvas = new List<Canvas>();
+            var uiCanvas = new List<Canvas>();
 
             GetCanvasFromElement(uiElement, uiCanvas);
 
@@ -216,11 +216,11 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
+        static void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
         {
             int layer = LayerMask.NameToLayer(camera.LayerName);
 
-            List<Canvas> uiCanvas = new List<Canvas>();
+            var uiCanvas = new List<Canvas>();
 
             GetCanvasFromElement(uiElement, uiCanvas);
 
@@ -237,12 +237,12 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void AssignCameraTo3DContainer(GameObject uiElement, UICameraData camera)
+        static void AssignCameraTo3DContainer(GameObject uiElement, UICameraData camera)
         {
             SetLayerRecursively(uiElement, camera.Layer);
         }
 
-        void SetLayerRecursively(GameObject gameObject, LayerMask layer)
+        static void SetLayerRecursively(GameObject gameObject, LayerMask layer)
         {
             var children = gameObject.GetComponentsInChildren<Transform>();
             Array.ForEach(children, child => child.gameObject.layer = layer);
@@ -267,7 +267,7 @@ namespace SocialPoint.GUIControl
 
         public void Add3DContainer(UIViewController controller, GameObject go)
         {
-            List<GameObject> objectsAdded = null;
+            List<GameObject> objectsAdded;
 
             if(_3dObjectsByController.TryGetValue(controller, out objectsAdded))
             {
@@ -287,7 +287,7 @@ namespace SocialPoint.GUIControl
 
         public void Remove3DContainer(UIViewController controller, GameObject go)
         {
-            List<GameObject> objectsAdded = null;
+            List<GameObject> objectsAdded;
 
             if(_3dObjectsByController.TryGetValue(controller, out objectsAdded))
             {

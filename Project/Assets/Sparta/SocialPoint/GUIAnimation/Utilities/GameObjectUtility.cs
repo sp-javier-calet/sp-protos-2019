@@ -1,109 +1,107 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
-using System;
 using System.Reflection;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
-    public class GameObjectUtility
+    public static class GameObjectUtility
     {
-        public static T AddComponent<T> (GameObject go, int offsetStartPos, int positionFromOffset) where T : Component
+        public static T AddComponent<T>(GameObject go, int offsetStartPos, int positionFromOffset) where T : Component
         {
-            List<Component> originalComps = new List<Component> (go.GetComponents<Component> ());
+            var originalComps = new List<Component>(go.GetComponents<Component>());
 
-            List<Component> copyComps = new List<Component> ();
+            var copyComps = new List<Component>();
 
             // Save previous comps in copy Go
-            GameObject copyGo = new GameObject ();
-            for (int i = offsetStartPos; i < originalComps.Count; ++i)
+            var copyGo = new GameObject();
+            for(int i = offsetStartPos; i < originalComps.Count; ++i)
             {
-                Component copy = copyGo.AddComponent (originalComps [i].GetType ());
-                copy = GetCopyOf (copy, originalComps [i]);
-                copyComps.Add (copy);
+                Component copy = copyGo.AddComponent(originalComps[i].GetType());
+                copy = GetCopyOf(copy, originalComps[i]);
+                copyComps.Add(copy);
             }
 
             // Set the new component in the right position in the copy GO
-            Component newComp = copyGo.AddComponent<T> ();
-            copyComps.Insert (positionFromOffset, newComp);
+            Component newComp = copyGo.AddComponent<T>();
+            copyComps.Insert(positionFromOffset, newComp);
 
             // Destroy all original components that were just copied
-            for (int i = offsetStartPos; i < originalComps.Count; ++i)
+            for(int i = offsetStartPos; i < originalComps.Count; ++i)
             {
-                GameObject.DestroyImmediate (originalComps [i]);
+                GameObject.DestroyImmediate(originalComps[i]);
             }
 
             // Copy back all the new components
-            for (int i = 0; i < copyComps.Count; ++i)
+            for(int i = 0; i < copyComps.Count; ++i)
             {
-                Component copy = go.AddComponent (copyComps [i].GetType ());
-                copy = GetCopyOf (copy, copyComps [i]);
+                go.AddComponent(copyComps[i].GetType());
             }
 
             // Destroy the copy GO
-            GameObject.DestroyImmediate (copyGo);
+            GameObject.DestroyImmediate(copyGo);
 
-            return (T)go.GetComponents<Component> () [offsetStartPos + positionFromOffset];
+            return (T)go.GetComponents<Component>()[offsetStartPos + positionFromOffset];
         }
 
-        public static GameObject CopyGameObject<T> (GameObject target, GameObject source) where T : Component
+        public static GameObject CopyGameObject<T>(GameObject target, GameObject source) where T : Component
         {
-            List<Component> originalComps = new List<Component> (source.GetComponents<Component> ());
+            var originalComps = new List<Component>(source.GetComponents<Component>());
 			
-            for (int i = 0; i < originalComps.Count; ++i)
+            for(int i = 0; i < originalComps.Count; ++i)
             {
-                Component copy = target.AddComponent (originalComps [i].GetType ());
-                copy = GetCopyOf (copy, originalComps [i]);
+                target.AddComponent(originalComps[i].GetType());
             }
 
             return target;
         }
 
-        public static T GetCopyOf<T> (T dest, T src) where T : Component
+        public static T GetCopyOf<T>(T dest, T src) where T : Component
         {
-            Type type = dest.GetType ();
-            if (type != src.GetType ())
+            Type type = dest.GetType();
+            if(type != src.GetType())
                 return null; // type mis-match
             BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
-            PropertyInfo[] pinfos = type.GetProperties (flags);
-            foreach (var pinfo in pinfos)
+            PropertyInfo[] pinfos = type.GetProperties(flags);
+            foreach(var pinfo in pinfos)
             {
-                if (pinfo.CanWrite)
+                if(pinfo.CanWrite)
                 {
                     try
                     {
-                        pinfo.SetValue (dest, pinfo.GetValue (src, null), null);
+                        pinfo.SetValue(dest, pinfo.GetValue(src, null), null);
                     }
                     catch
                     {
                     } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
                 }
             }
-            FieldInfo[] finfos = type.GetFields (flags);
-            foreach (var finfo in finfos)
+            FieldInfo[] finfos = type.GetFields(flags);
+            foreach(var finfo in finfos)
             {
-                finfo.SetValue (dest, finfo.GetValue (src));
+                finfo.SetValue(dest, finfo.GetValue(src));
             }
-            return dest as T;
+            return dest;
         }
 
-        public static void SetLayerRecursively (GameObject gameObject, int layer)
+        public static void SetLayerRecursively(GameObject gameObject, int layer)
         {
             gameObject.layer = layer;
-            for (int k = 0; k < gameObject.transform.childCount; k++)
+            for(int k = 0; k < gameObject.transform.childCount; k++)
             {
-                Transform child = gameObject.transform.GetChild (k);
-                SetLayerRecursively (child.gameObject, layer);
+                Transform child = gameObject.transform.GetChild(k);
+                SetLayerRecursively(child.gameObject, layer);
             }
         }
 
-        public static Vector3 GetAccumulatedLocalPosition (Transform trans)
+        public static Vector3 GetAccumulatedLocalPosition(Transform trans)
         {
-            if (trans == null)
+            if(trans == null)
             {
                 return Vector3.zero;
             }
 
-            return trans.localPosition + GetAccumulatedLocalPosition (trans.parent);
+            return trans.localPosition + GetAccumulatedLocalPosition(trans.parent);
         }
     }
 }

@@ -1,8 +1,7 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 using SocialPoint.AssetSerializer.Exceptions;
-
+using UnityEngine;
 
 namespace SocialPoint.AssetSerializer.Utils
 {
@@ -16,7 +15,7 @@ namespace SocialPoint.AssetSerializer.Utils
 
         static string ScenePrefix;
 
-        static List<KeyValuePair<string, string>> NestedNodePrefix = new List<KeyValuePair<string, string>>();
+        static readonly List<KeyValuePair<string, string>> NestedNodePrefix = new List<KeyValuePair<string, string>>();
 
         static SerializerLogger()
         {

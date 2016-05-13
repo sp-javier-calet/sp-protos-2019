@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using UnityEngine;
+
 #if UNITY_EDITOR
 using System;
-using System.IO;
 #endif
 
 static public class BMUtility
@@ -14,27 +14,27 @@ static public class BMUtility
         b = temp;
     }
 
-    static public string InterpretPath(string origPath, BuildPlatform platform, string texfmt=null)
+    static public string InterpretPath(string origPath, BuildPlatform platform, string texfmt = null)
     {
         var matches = Regex.Matches(origPath, @"\$\((\w+)\)");
         foreach(Match match in matches)
         {
             string var = match.Groups[1].Value;
             string token = @"$(" + var + ")";
-            if (var == "TextureFmt")
+            if(var == "TextureFmt")
             {
                 //Replace and if specifies a full directory try to remove slashes from path
-                if (texfmt == null || platform != BuildPlatform.Android)
+                if(texfmt == null || platform != BuildPlatform.Android)
                 {
                     var idx = origPath.IndexOf(token);
                     var last_idx = idx + token.Length - 1;
                     //Remove ending slashes?
-                    if(idx == 0 && origPath.Length>=last_idx+2 && origPath[last_idx+1]=='/')
+                    if(idx == 0 && origPath.Length >= last_idx + 2 && origPath[last_idx + 1] == '/')
                     {
                         origPath = origPath.Replace(token + "/", "");
                     }
                     //Remove leading slashes?
-                    else if(idx > 0 && origPath[idx-1]=='/' && (origPath.Length<last_idx+2 || origPath[last_idx+1]=='/'))
+                    else if(idx > 0 && origPath[idx - 1] == '/' && (origPath.Length < last_idx + 2 || origPath[last_idx + 1] == '/'))
                     {
                         origPath = origPath.Replace("/" + token, "");
                     }
@@ -63,9 +63,9 @@ static public class BMUtility
     {
         int a1 = (int)(a & uint.MaxValue);
         int a2 = (int)(a >> 32);
-        return new int[] { a1, a2 };
+        return new [] { a1, a2 };
     }
-    
+
     static public long doubleInt2long(int a1, int a2)
     {
         long b = a2;
@@ -73,8 +73,8 @@ static public class BMUtility
         b = b | (uint)a1;
         return b;
     }
-    
-    static private string EnvVarToString(string varString, BuildPlatform platform)
+
+    static string EnvVarToString(string varString, BuildPlatform platform)
     {
         switch(varString)
         {

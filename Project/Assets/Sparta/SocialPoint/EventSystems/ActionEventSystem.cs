@@ -61,7 +61,7 @@ namespace SocialPoint.EventSystems
                 var go = result.gameObject;
                 while(go != null)
                 {
-                    if((_preemptMask.value & 1<<go.layer) != 0)
+                    if((_preemptMask.value & 1 << go.layer) != 0)
                     {
                         return true;
                     }

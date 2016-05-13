@@ -1,9 +1,8 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using SocialPoint.Base;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Utils
@@ -18,7 +17,7 @@ namespace SocialPoint.Utils
 
     public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
-        HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
+        readonly HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
 
         public void Add(IUpdateable elm)
         {
@@ -122,7 +121,7 @@ namespace SocialPoint.Utils
                 }
                 var bundle = www.assetBundle;
                 www.Dispose();
-                AssetBundleRequest req = null;
+                AssetBundleRequest req;
                 if(string.IsNullOrEmpty(def.Name))
                 {
                     req = bundle.LoadAllAssetsAsync();
@@ -149,7 +148,7 @@ namespace SocialPoint.Utils
                 }
                 else
                 {
-                    cbk(new T[]{ req.asset as T }, null);
+                    cbk(new []{ req.asset as T }, null);
                 }
             }
         }

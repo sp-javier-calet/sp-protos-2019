@@ -1,13 +1,12 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace SocialPoint.Utils
 {
-    public class StringUtils
+    public static class StringUtils
     {
         static Stack<StringBuilder> _builders;
         const int _buildersMaxSize = 10;
@@ -59,8 +58,8 @@ namespace SocialPoint.Utils
             return sb.ToString();
         }
 
-        private const char QuerySeparator = '&';
-        private const char QueryAssign = '=';
+        const char QuerySeparator = '&';
+        const char QueryAssign = '=';
 
         public static string DictionaryToQuery(IDictionary<string,string> parms)
         {
@@ -118,15 +117,15 @@ namespace SocialPoint.Utils
 
         public static byte[] GetBytes(string str)
         {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            var bytes = new byte[str.Length * sizeof(char)];
+            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
             return bytes;
         }
 
         public static string GetString(byte[] bytes)
         {
-            char[] chars = new char[bytes.Length / sizeof(char)];
-            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            var chars = new char[bytes.Length / sizeof(char)];
+            Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
             return new string(chars);
         }
 
@@ -137,7 +136,7 @@ namespace SocialPoint.Utils
         
         static public bool IsWildcard(string path)
         {
-            var i = path.IndexOfAny(new char[]{ WildcardOneChar, WildcardMultiChar });
+            var i = path.IndexOfAny(new []{ WildcardOneChar, WildcardMultiChar });
             return i != -1;
         }
 
@@ -164,7 +163,7 @@ namespace SocialPoint.Utils
             return string.Join(sep, strs.ToArray());
         }
 
-        private const char UriSeparator = '/';
+        const char UriSeparator = '/';
 
         public static string FixBaseUri(string uri)
         {

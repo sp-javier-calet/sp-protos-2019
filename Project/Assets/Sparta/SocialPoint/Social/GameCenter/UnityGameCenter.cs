@@ -1,22 +1,18 @@
 using System;
 using System.Collections.Generic;
-
+using SocialPoint.Base;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.SocialPlatforms.GameCenter;
-
-using SocialPoint.Base;
-using SocialPoint.Network;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
     public delegate void GameCenterValidationDelegate(Error error, GameCenterUserVerification ver);
     public class UnityGameCenter : IGameCenter
     {
-
-        private readonly static string PhotosCacheFolder = "GameCenter";
-        private GameCenterUser _user;
+        static readonly string PhotosCacheFolder = "GameCenter";
+        GameCenterUser _user;
 
         public GameCenterUser User
         {
@@ -34,10 +30,10 @@ namespace SocialPoint.Social
             }
         }
 
-        private List<GameCenterAchievement> _achievements;
-        private bool _connecting = false;
-        private GameCenterPlatform _platform;
-        private List<GameCenterUser> _friends;
+        List<GameCenterAchievement> _achievements;
+        bool _connecting;
+        GameCenterPlatform _platform;
+        List<GameCenterUser> _friends;
 
         SocialPointGameCenterVerification _verification;
 
@@ -103,7 +99,7 @@ namespace SocialPoint.Social
             var localUser = _platform.localUser;
             if((localUser.friends == null || localUser.friends.Length == 0) && initial)
             {
-                localUser.LoadFriends((bool success) => {
+                localUser.LoadFriends(success => {
                     if(success)
                     {
                         LoginDownloadFriends(cbk, false);
@@ -118,21 +114,18 @@ namespace SocialPoint.Social
                 });
                 return;
             }
-            else
+            Friends.Clear();
+            if(localUser.friends != null)
             {
-                Friends.Clear();
-                if(localUser.friends != null)
+                for(int k = 0; k < localUser.friends.Length; k++)
                 {
-                    for(int k = 0; k < localUser.friends.Length; k++)
+                    if(localUser.friends[k] != null && localUser.friends[k] is IUserProfile)
                     {
-                        if(localUser.friends[k] != null && localUser.friends[k] is IUserProfile)
-                        {
-                            IUserProfile friendData = localUser.friends[k];
+                        IUserProfile friendData = localUser.friends[k];
                             
-                            Friends.Add(new GameCenterUser(friendData.id,
-                                friendData.userName,
-                                friendData.userName));
-                        }
+                        Friends.Add(new GameCenterUser(friendData.id,
+                            friendData.userName,
+                            friendData.userName));
                     }
                 }
             }
@@ -152,38 +145,34 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            _platform.LoadAchievementDescriptions((IAchievementDescription[] descs) => {
-                _platform.LoadAchievements((IAchievement[] achis) => {
-                    if(achis != null)
+            _platform.LoadAchievementDescriptions(descs => _platform.LoadAchievements(achis => {
+                if(achis != null)
+                {
+                    _achievements = new List<GameCenterAchievement>();
+                    foreach(var d in descs)
                     {
-                        _achievements = new List<GameCenterAchievement>();
-                        foreach(var d in descs)
+                        var percent = 0.0f;
+                        foreach(var a in achis)
                         {
-                            var percent = 0.0f;
-                            foreach(var a in achis)
+                            if(a.id == d.id)
                             {
-                                if(a.id == d.id)
-                                {
-                                    percent = (float)a.percentCompleted;
-                                    break;
-                                }
+                                percent = (float)a.percentCompleted;
+                                break;
                             }
-                            _achievements.Add(new GameCenterAchievement(
-                                d.id, percent, d.points, d.hidden, d.title,
-                                d.unachievedDescription, d.achievedDescription));
                         }
+                        _achievements.Add(new GameCenterAchievement(d.id, percent, d.points, d.hidden, d.title, d.unachievedDescription, d.achievedDescription));
                     }
-                    if(cbk != null)
+                }
+                if(cbk != null)
+                {
+                    Error err = null;
+                    if(_achievements == null)
                     {
-                        Error err = null;
-                        if(_achievements == null)
-                        {
-                            err = new Error("Could not download achievements.");
-                        }
-                        cbk(err);
+                        err = new Error("Could not download achievements.");
                     }
-                });
-            });
+                    cbk(err);
+                }
+            }));
         }
 
         public UnityGameCenter(Transform parent = null, bool showAchievements = true)
@@ -204,9 +193,9 @@ namespace SocialPoint.Social
             _verification = go.AddComponent<SocialPointGameCenterVerification>();
         }
 
-        private void RequestGameCenterVerification(ErrorDelegate cbk)
+        void RequestGameCenterVerification(ErrorDelegate cbk)
         {
-            _verification.LoadData((Error error, GameCenterUserVerification ver) => {
+            _verification.LoadData((error, ver) => {
                 if(Error.IsNullOrEmpty(error))
                 {
                     _user.Verification = ver;
@@ -236,7 +225,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public void Login(ErrorDelegate cbk=null)
+        public void Login(ErrorDelegate cbk = null)
         {
             if(IsConnected)
             {
@@ -247,26 +236,24 @@ namespace SocialPoint.Social
                 return;
             }
             _connecting = true;
-            _platform.localUser.Authenticate((bool success) => {
+            _platform.localUser.Authenticate(success => {
                 if(success)
                 {
-                    LoginLoadPlayerData((err) => {
+                    LoginLoadPlayerData(err => {
                         if(!Error.IsNullOrEmpty(err))
                         {
                             OnLoginEnd(err, cbk);
                         }
                         else
                         {
-                            LoginDownloadFriends((err2) => {
+                            LoginDownloadFriends(err2 => {
                                 if(!Error.IsNullOrEmpty(err2))
                                 {
                                     OnLoginEnd(err2, cbk);
                                 }
                                 else
                                 {
-                                    DownloadAchievements((err3) => {
-                                        OnLoginEnd(err3, cbk);
-                                    });
+                                    DownloadAchievements(err3 => OnLoginEnd(err3, cbk));
                                 }
                             });
                         }
@@ -288,9 +275,9 @@ namespace SocialPoint.Social
                     cbk(score, new Error("GameCenter is not logged in"));
                 }
                 return;
-            }                
+            }
 
-            _platform.ReportScore(score.Value, score.Category, (bool success) => {
+            _platform.ReportScore(score.Value, score.Category, success => {
                 if(cbk != null)
                 {
                     Error err = null;
@@ -313,7 +300,7 @@ namespace SocialPoint.Social
                 }
                 return;
             }
-            UnityEngine.SocialPlatforms.GameCenter.GameCenterPlatform.ResetAllAchievements((bool success) => {
+            GameCenterPlatform.ResetAllAchievements(success => {
                 if(!success)
                 {
                     if(cbk != null)
@@ -328,7 +315,7 @@ namespace SocialPoint.Social
                     {
                         achi.Percent = 0.0f;
                     }
-                    _platform.LoadAchievements((IAchievement[] achis) => {
+                    _platform.LoadAchievements(achis => {
                         if(cbk != null)
                         {
                             cbk(null);
@@ -358,7 +345,7 @@ namespace SocialPoint.Social
             }
             var achiId = achi.Id;
             var achiPercent = achi.Percent;
-            _platform.ReportProgress(achiId, achiPercent, (bool success) => {
+            _platform.ReportProgress(achiId, achiPercent, success => {
                 if(cbk != null)
                 {
                     Error err = null;
@@ -384,7 +371,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public void LoadPhoto(string userId, uint photoSize, GameCenterPhotoDelegate cbk = null)
+        public void LoadPhoto(string userId, uint photoSize, GameCenterPhotoDelegate cbk)
         {
             if(!IsConnected)
             {
@@ -395,19 +382,19 @@ namespace SocialPoint.Social
                 return;
             }
 
-            string tmpFilePath = Application.temporaryCachePath + "/" + PhotosCacheFolder + "/" + userId + "_" + photoSize.ToString() + ".png";
-            _platform.LoadUsers(new string[]{ userId }, (users) => {
-                Error err = null;
+            string tmpFilePath = Application.temporaryCachePath + "/" + PhotosCacheFolder + "/" + userId + "_" + photoSize + ".png";
+            _platform.LoadUsers(new []{ userId }, users => {
+                Error err;
                 if(users == null || users.Length == 0)
                 {
                     err = new Error(string.Format("User with id {0} not found.", userId));
                 }
                 else
                 {
-                    IUserProfile u = users[0] as IUserProfile;
+                    var u = users[0];
                     if(u.image != null)
                     {
-                        Texture2D newTexture = Texture2D.Instantiate(u.image) as Texture2D;
+                        var newTexture = Texture2D.Instantiate(u.image);
                         newTexture.Resize((int)photoSize, (int)photoSize);
                         err = ImageUtils.SaveTextureToFile(newTexture, tmpFilePath);
                     }

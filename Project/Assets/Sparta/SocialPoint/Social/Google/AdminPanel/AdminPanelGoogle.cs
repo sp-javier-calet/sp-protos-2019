@@ -1,18 +1,18 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SocialPlatforms;
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
+using UnityEngine;
+using UnityEngine.SocialPlatforms;
+using UnityEngine.UI;
 
 namespace SocialPoint.Social
 {
     public class AdminPanelGoogle : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        IGoogle _google;
+        readonly IGoogle _google;
         AdminPanel.AdminPanel _adminPanel;
 
         Toggle _toggleLogin;
-        AdminPanelGoogleLeaderboardIdHandler _leaderboardId;
+        readonly AdminPanelGoogleLeaderboardIdHandler _leaderboardId;
 
         public AdminPanelGoogle(IGoogle google)
         {
@@ -36,11 +36,11 @@ namespace SocialPoint.Social
             layout.CreateLabel("Google Play");
             layout.CreateMargin();
            
-            _toggleLogin = layout.CreateToggleButton("Logged In", _google.IsConnected, (status) => {
+            _toggleLogin = layout.CreateToggleButton("Logged In", _google.IsConnected, status => {
                 if(status)
                 {
                     _adminPanel.Console.Print("Logging in to Google Play Games");
-                    _google.Login((err) => {
+                    _google.Login(err => {
                         _toggleLogin.isOn = (err == null);
                         _adminPanel.Console.Print("Login finished." + err);
                     });
@@ -77,15 +77,13 @@ namespace SocialPoint.Social
             layout.CreateLabel("Leaderboards");
 
             groupLayout = layout.CreateVerticalLayout();
-            var ldbInput = groupLayout.CreateTextInput("leaderboard id", (text) => {
+            var ldbInput = groupLayout.CreateTextInput("leaderboard id", text => {
                 _leaderboardId.Id = text;
             }, connected);
             ldbInput.text = _leaderboardId.Id;
             groupLayout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelGoogleLeaderboard(_google, _leaderboardId), connected);
 
-            layout.CreateConfirmButton("Show Leaderboards UI", () => {
-                _google.ShowLeaderboardsUI(_leaderboardId.Id);
-            }, connected);
+            layout.CreateConfirmButton("Show Leaderboards UI", () => _google.ShowLeaderboardsUI(_leaderboardId.Id), connected);
 
             layout.CreateMargin(2);
             layout.CreateLabel("Quests");
@@ -94,16 +92,14 @@ namespace SocialPoint.Social
             var eventIdField = groupLayout.CreateTextInput("Event id", connected);
             groupLayout.CreateButton("+", () => _google.IncrementEvent(eventIdField.text), connected);
 
-            layout.CreateConfirmButton("Show Quests UI", () => _google.ShowViewQuestsUI((evt, err) => {
-                layout.AdminPanel.Console.Print("Event " + evt + ". " + err);
-            }), connected);
+            layout.CreateConfirmButton("Show Quests UI", () => _google.ShowViewQuestsUI((evt, err) => layout.AdminPanel.Console.Print("Event " + evt + ". " + err)), connected);
         }
 
         #region Achievements panels
 
         class AdminPanelGoogleAchievementList : IAdminPanelGUI
         {
-            IGoogle _google;
+            readonly IGoogle _google;
 
             public AdminPanelGoogleAchievementList(IGoogle google)
             {
@@ -125,8 +121,8 @@ namespace SocialPoint.Social
 
         class AdminPanelGoogleAchievement : IAdminPanelGUI
         {
-            GoogleAchievement _achievement;
-            IGoogle _google;
+            readonly GoogleAchievement _achievement;
+            readonly IGoogle _google;
 
             public AdminPanelGoogleAchievement(IGoogle google, GoogleAchievement achievement)
             {
@@ -173,9 +169,9 @@ namespace SocialPoint.Social
 
         class AdminPanelGoogleLeaderboard :IAdminPanelGUI
         {
-            IGoogle _google;
+            readonly IGoogle _google;
             GoogleLeaderboard _leaderboard;
-            AdminPanelGoogleLeaderboardIdHandler _idHandler;
+            readonly AdminPanelGoogleLeaderboardIdHandler _idHandler;
             Text _mainTitle;
             bool _isFriendOnly;
             bool _playerCentered;
@@ -216,12 +212,12 @@ namespace SocialPoint.Social
                         layout.CreateTextArea(StringUtils.FinishBuilder(info));
 
                         layout.CreateMargin();
-                        layout.CreateToggleButton("Friends only", _isFriendOnly, (status) => {
+                        layout.CreateToggleButton("Friends only", _isFriendOnly, status => {
                             _isFriendOnly = status;
                             layout.Refresh();
                         });
 
-                        layout.CreateToggleButton("Player Centered", _playerCentered, (status) => {
+                        layout.CreateToggleButton("Player Centered", _playerCentered, status => {
                             _playerCentered = status;
                             layout.Refresh();
                         });

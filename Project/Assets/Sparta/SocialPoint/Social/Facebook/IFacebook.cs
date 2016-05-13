@@ -1,12 +1,10 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using UnityEngine;
+using System.Text;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using SocialPoint.Attributes;
+using UnityEngine;
 
 namespace SocialPoint.Social
 {
@@ -47,18 +45,10 @@ namespace SocialPoint.Social
         {
             if(System.Object.ReferenceEquals(lu, null))
             {
-                if(System.Object.ReferenceEquals(ru, null))
-                {
-                    return true;
-                }
-                return false;
+                return System.Object.ReferenceEquals(ru, null);
             }
-            else if(System.Object.ReferenceEquals(ru, null))
-            {
-                return false;
-            }
+            return !System.Object.ReferenceEquals(ru, null) && (lu.UserId == ru.UserId);
 
-            return (lu.UserId == ru.UserId);
         }
 
         public static bool operator !=(FacebookUser lu, FacebookUser ru)
@@ -177,11 +167,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                if(To.Count == 0)
-                {
-                    return null;
-                }
-                return To.ToArray();
+                return To.Count == 0 ? null : To.ToArray();
             }
         }
 
@@ -204,18 +190,14 @@ namespace SocialPoint.Social
                 To.Clear();
                 if(!string.IsNullOrEmpty(value))
                 {
-                    To.AddRange(value.Split(new char[]{ ToSeparator }));
+                    To.AddRange(value.Split(new []{ ToSeparator }));
                 }
             }
 
             get
             {
                 var arr = ArrayTo;
-                if(arr == null)
-                {
-                    return null;
-                }
-                return string.Join(ToSeparator.ToString(), arr);
+                return arr == null ? null : string.Join(ToSeparator.ToString(), arr);
             }
         }
 
@@ -391,7 +373,7 @@ namespace SocialPoint.Social
             for(int k = 0; k < Actions.Count; k++)
             {
                 FacebookWallPostAction data = Actions[k];
-                AttrDic dic = new AttrDic();
+                var dic = new AttrDic();
                 dic.Set("name", new AttrString(data.Name));
                 dic.Set("link", new AttrString(data.Link));
                 list.Add(dic);

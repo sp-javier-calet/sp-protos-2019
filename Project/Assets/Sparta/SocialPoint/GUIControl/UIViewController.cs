@@ -22,11 +22,11 @@ namespace SocialPoint.GUIControl
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
-        private bool _loaded = false;
-        private ViewState _viewState = ViewState.Initial;
-        private Coroutine _showCoroutine;
-        private Coroutine _hideCoroutine;
-        private UIViewAnimation _animation;
+        bool _loaded;
+        ViewState _viewState = ViewState.Initial;
+        Coroutine _showCoroutine;
+        Coroutine _hideCoroutine;
+        UIViewAnimation _animation;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -35,7 +35,7 @@ namespace SocialPoint.GUIControl
         public static UIViewControllerFactory Factory = new UIViewControllerFactory();
 
         [HideInInspector]
-        public bool DestroyOnHide = false;
+        public bool DestroyOnHide;
 
         [HideInInspector]
         public static UILayersController DefaultLayersController;
@@ -73,7 +73,7 @@ namespace SocialPoint.GUIControl
         }
 
         [SerializeField]
-        private List<GameObject> _containers3d = new List<GameObject>();
+        List<GameObject> _containers3d = new List<GameObject>();
 
         IList<Material> Materials3d
         {
@@ -182,13 +182,13 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        Vector2 FixSize(Vector2 size)
+        static Vector2 FixSize(Vector2 size)
         {
-            if(size.x == 0)
+            if(Math.Abs(size.x) < Single.Epsilon)
             {
                 size.x = Screen.width;
             }
-            if(size.y == 0)
+            if(Math.Abs(size.y) < Single.Epsilon)
             {
                 size.y = Screen.height;
             }
@@ -255,12 +255,7 @@ namespace SocialPoint.GUIControl
             {
                 _containers3d.Add(gameObject);
 
-                var container = gameObject.GetComponent<UI3DContainer>();
-
-                if(container == null)
-                {
-                    container = gameObject.AddComponent<UI3DContainer>();
-                }
+                var container = gameObject.GetComponent<UI3DContainer>() ?? gameObject.AddComponent<UI3DContainer>();
 
                 container.OnDestroyed += On3dContainerDestroyed;
 
@@ -429,10 +424,7 @@ namespace SocialPoint.GUIControl
                 StartShowCoroutine(enm);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public IEnumerator ShowCoroutine()
@@ -487,10 +479,7 @@ namespace SocialPoint.GUIControl
                 StartHideCoroutine(enm);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public IEnumerator HideCoroutine(bool destroy = false)
@@ -508,10 +497,7 @@ namespace SocialPoint.GUIControl
             }
             else if(_viewState == ViewState.Disappearing && _hideCoroutine != null)
             {
-                if(destroy)
-                {
-                    DestroyOnHide = true;
-                }
+                DestroyOnHide |= destroy;
                 yield return _hideCoroutine;
             }
             else if(_viewState != ViewState.Hidden)

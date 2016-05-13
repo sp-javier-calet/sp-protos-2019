@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 
@@ -8,10 +7,10 @@ namespace SocialPoint.Console
 
     public class ConsoleCommand : IEnumerable<ConsoleCommandOption>
     {
-        public ConsoleCommandDelegate Delegate = null;
-        public string Description = null;
-        public IEnumerable<string> Arguments = null;
-        private IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
+        public ConsoleCommandDelegate Delegate;
+        public string Description;
+        public IEnumerable<string> Arguments;
+        IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
 
         public IEnumerator<ConsoleCommandOption> GetEnumerator()
         {
@@ -72,7 +71,7 @@ namespace SocialPoint.Console
         {
         }
 
-        private int MatchRepeat(string all, string part)
+        static int MatchRepeat(string all, string part)
         {
             int f = all.Length / part.Length;
             var parts = string.Empty;
@@ -80,14 +79,10 @@ namespace SocialPoint.Console
             {
                 parts += part;
             }
-            if(all == parts)
-            {
-                return f;
-            }
-            return 0;
+            return all == parts ? f : 0;
         }
 
-        private bool SetOptionValue(string name, string value)
+        bool SetOptionValue(string name, string value)
         {
             var option = this[name];
             if(option != null)
@@ -138,7 +133,7 @@ namespace SocialPoint.Console
                 if(arg.Length > 0 && arg[0] == OptionStartChar)
                 {
                     lastOpt = null;
-                    var opt = arg.Trim(new char[]{OptionStartChar});
+                    var opt = arg.Trim(new []{ OptionStartChar });
                     var p = opt.IndexOf(OptionValueOperator);
                     if(p == -1)
                     {

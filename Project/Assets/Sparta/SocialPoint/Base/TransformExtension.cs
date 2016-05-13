@@ -83,7 +83,7 @@ namespace SocialPoint.Base
                 var OriginalIndex = This.GetSiblingIndex();
                 
                 This.SetSiblingIndex(int.MaxValue);
-                if (This.GetSiblingIndex() == 0)
+                if(This.GetSiblingIndex() == 0)
                 {
                     return true;
                 }
@@ -96,6 +96,7 @@ namespace SocialPoint.Base
                 Object.DestroyImmediate(TempObject);
             }
         }
+
         public static T SafeGetComponentInChildren<T>(this Transform parent) where T : Component
         {
             T parentComponent = parent.GetComponent<T>();
@@ -116,7 +117,7 @@ namespace SocialPoint.Base
 
         public static List<T> SafeGetComponentsInChildren<T>(this Transform parent) where T : Component
         {
-            List<T> componentsList = new List<T>();
+            var componentsList = new List<T>();
 
             T parentComponent = parent.GetComponent<T>();
 

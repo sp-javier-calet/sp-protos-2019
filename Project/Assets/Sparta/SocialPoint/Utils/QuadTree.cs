@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
 using UnityEngine;
 
 namespace SocialPoint.Utils
@@ -76,12 +75,12 @@ namespace SocialPoint.Utils
 
 		public bool Contains(QuadTreeRect rect)
         {
-            if(rect.Left < this.Left ||
-                rect.Right > this.Right)
+            if(rect.Left < Left ||
+                rect.Right > Right)
                 return false;
 
-            if(rect.Top < this.Top ||
-                rect.Bottom > this.Bottom)
+            if(rect.Top < Top ||
+               rect.Bottom > Bottom)
                 return false;
 
             return true;
@@ -113,10 +112,10 @@ namespace SocialPoint.Utils
         {
             get
             {
-                return (x == Double.PositiveInfinity &&
-                y == Double.PositiveInfinity &&
-                width == Double.NegativeInfinity &&
-                height == Double.NegativeInfinity);
+                return (double.IsPositiveInfinity(x) &&
+                double.IsPositiveInfinity(y) &&
+                double.IsNegativeInfinity(width) &&
+                double.IsNegativeInfinity(height));
             }
         }
 
@@ -247,17 +246,17 @@ namespace SocialPoint.Utils
 
     public class QuadTree<T> where T : class, IQuadObject
     {
-        private readonly bool sort;
-        private readonly QuadTreeSize minLeafSize;
-        private readonly int maxObjectsPerLeaf;
-        private QuadTreeNode root = null;
-        private Dictionary<T, QuadTreeNode> objectToNodeLookup = new Dictionary<T, QuadTreeNode>();
-        private Dictionary<T, int> objectSortOrder = new Dictionary<T, int>();
+        readonly bool sort;
+        readonly QuadTreeSize minLeafSize;
+        readonly int maxObjectsPerLeaf;
+        QuadTreeNode root;
+        Dictionary<T, QuadTreeNode> objectToNodeLookup = new Dictionary<T, QuadTreeNode>();
+        Dictionary<T, int> objectSortOrder = new Dictionary<T, int>();
 
         public QuadTreeNode Root { get { return root; } }
 
-        private object syncLock = new object();
-        private int objectSortId = 0;
+        object syncLock = new object();
+        int objectSortId;
 
         public QuadTree(QuadTreeSize minLeafSize, int maxObjectsPerLeaf)
         {
@@ -269,12 +268,7 @@ namespace SocialPoint.Utils
         {
             lock(objectSortOrder)
             {
-                if(!objectSortOrder.ContainsKey(quadObject))
-                    return -1;
-                else
-                {
-                    return objectSortOrder[quadObject];
-                }
+                return !objectSortOrder.ContainsKey(quadObject) ? -1 : objectSortOrder[quadObject];
             }
         }
 
@@ -326,18 +320,16 @@ namespace SocialPoint.Utils
         {
             lock(syncLock)
             {
-                List<T> results = new List<T>();
+                var results = new List<T>();
                 if(root != null)
                     Query(bounds, root, results);
                 if(sort)
-                    results.Sort((a, b) => {
-                        return objectSortOrder[a].CompareTo(objectSortOrder[b]);
-                    });
+                    results.Sort((a, b) => objectSortOrder[a].CompareTo(objectSortOrder[b]));
                 return results;
             }
         }
 
-        private void Query(QuadTreeRect bounds, QuadTreeNode node, List<T> results)
+        void Query(QuadTreeRect bounds, QuadTreeNode node, List<T> results)
         {
             lock(syncLock)
             {
@@ -360,7 +352,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void ExpandRoot(QuadTreeRect newChildBounds)
+        void ExpandRoot(QuadTreeRect newChildBounds)
         {
             lock(syncLock)
             {
@@ -384,14 +376,14 @@ namespace SocialPoint.Utils
                     ? root.Bounds.Y
                     : root.Bounds.Y - root.Bounds.Height;
                 var newRootBounds = new QuadTreeRect(newX, newY, root.Bounds.Width * 2, root.Bounds.Height * 2);
-                QuadTreeNode newRoot = new QuadTreeNode(newRootBounds);
+                var newRoot = new QuadTreeNode(newRootBounds);
                 SetupChildNodes(newRoot);
                 newRoot[rootDirection] = root;
                 root = newRoot;
             }
         }
 
-        private void InsertNodeObject(QuadTreeNode node, T quadObject)
+        void InsertNodeObject(QuadTreeNode node, T quadObject)
         {
             lock(syncLock)
             {
@@ -402,8 +394,8 @@ namespace SocialPoint.Utils
                 {
                     SetupChildNodes(node);
 
-                    List<T> childObjects = new List<T>(node.Objects);
-                    List<T> childrenToRelocate = new List<T>();
+                    var childObjects = new List<T>(node.Objects);
+                    var childrenToRelocate = new List<T>();
 
                     foreach(T childObject in childObjects)
                     {
@@ -442,11 +434,11 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void ClearQuadObjectsFromNode(QuadTreeNode node)
+        void ClearQuadObjectsFromNode(QuadTreeNode node)
         {
             lock(syncLock)
             {
-                List<T> quadObjects = new List<T>(node.Objects);
+                var quadObjects = new List<T>(node.Objects);
                 foreach(T quadObject in quadObjects)
                 {
                     RemoveQuadObjectFromNode(quadObject);
@@ -454,24 +446,24 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void RemoveQuadObjectFromNode(T quadObject)
+        void RemoveQuadObjectFromNode(T quadObject)
         {
             lock(syncLock)
             {
                 QuadTreeNode node = objectToNodeLookup[quadObject];
                 node.quadObjects.Remove(quadObject);
                 objectToNodeLookup.Remove(quadObject);
-                quadObject.BoundsChanged -= new EventHandler(OnObjectBoundsChanged);
+                quadObject.BoundsChanged -= OnObjectBoundsChanged;
             }
         }
 
-        private void AddQuadObjectToNode(QuadTreeNode node, T quadObject)
+        void AddQuadObjectToNode(QuadTreeNode node, T quadObject)
         {
             lock(syncLock)
             {
                 node.quadObjects.Add(quadObject);
                 objectToNodeLookup.Add(quadObject, node);
-                quadObject.BoundsChanged += new EventHandler(OnObjectBoundsChanged);
+                quadObject.BoundsChanged += OnObjectBoundsChanged;
             }
         }
 
@@ -479,7 +471,7 @@ namespace SocialPoint.Utils
         {
             lock(syncLock)
             {
-                T quadObject = sender as T;
+                var quadObject = sender as T;
                 if(quadObject != null)
                 {
                     QuadTreeNode node = objectToNodeLookup[quadObject];
@@ -496,7 +488,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void SetupChildNodes(QuadTreeNode node)
+        void SetupChildNodes(QuadTreeNode node)
         {
             lock(syncLock)
             {
@@ -540,7 +532,7 @@ namespace SocialPoint.Utils
 
 
 
-        private void CheckChildNodes(QuadTreeNode node)
+        void CheckChildNodes(QuadTreeNode node)
         {
             lock(syncLock)
             {
@@ -609,11 +601,11 @@ namespace SocialPoint.Utils
         }
 
 
-        private List<T> GetChildObjects(QuadTreeNode node)
+        List<T> GetChildObjects(QuadTreeNode node)
         {
             lock(syncLock)
             {
-                List<T> results = new List<T>();
+                var results = new List<T>();
                 results.AddRange(node.quadObjects);
                 foreach(QuadTreeNode childNode in node.Nodes)
                 {
@@ -635,7 +627,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private int GetObjectCount(QuadTreeNode node)
+        int GetObjectCount(QuadTreeNode node)
         {
             lock(syncLock)
             {
@@ -662,7 +654,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private int GetNodeCount(QuadTreeNode node, int count)
+        int GetNodeCount(QuadTreeNode node, int count)
         {
             lock(syncLock)
             {
@@ -682,7 +674,7 @@ namespace SocialPoint.Utils
         {
             lock(syncLock)
             {
-                List<QuadTreeNode> results = new List<QuadTreeNode>();
+                var results = new List<QuadTreeNode>();
                 if(root != null)
                 {
                     results.Add(root);
@@ -692,7 +684,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void GetChildNodes(QuadTreeNode node, ICollection<QuadTreeNode> results)
+        void GetChildNodes(QuadTreeNode node, ICollection<QuadTreeNode> results)
         {
             lock(syncLock)
             {
@@ -709,12 +701,12 @@ namespace SocialPoint.Utils
 
         public class QuadTreeNode
         {
-            private static int _id = 0;
+            static int _id;
             public readonly int ID = _id++;
 
             public QuadTreeNode Parent { get; internal set; }
 
-            private QuadTreeNode[] _nodes = new QuadTreeNode[4];
+            readonly QuadTreeNode[] _nodes = new QuadTreeNode[4];
 
             public QuadTreeNode this[Direction direction]
             {
@@ -790,22 +782,22 @@ namespace SocialPoint.Utils
 #if UNITY_4_6 || UNITY_5
             foreach(var node in GetAllNodes())
             {
-                var botomLeft = new UnityEngine.Vector3((float)node.Bounds.X, 0, (float)node.Bounds.Y);
-                var botomRight = new UnityEngine.Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)node.Bounds.Y);
-                var topLeft = new UnityEngine.Vector3((float)(node.Bounds.X), 0, (float)(node.Bounds.Y + node.Bounds.Height));
-                var topRight = new UnityEngine.Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)(node.Bounds.Y + node.Bounds.Height));
+                var botomLeft = new Vector3((float)node.Bounds.X, 0, (float)node.Bounds.Y);
+                var botomRight = new Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)node.Bounds.Y);
+                var topLeft = new Vector3((float)(node.Bounds.X), 0, (float)(node.Bounds.Y + node.Bounds.Height));
+                var topRight = new Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)(node.Bounds.Y + node.Bounds.Height));
 
-                UnityEngine.Debug.DrawLine(botomLeft, botomRight, UnityEngine.Color.red);
-                UnityEngine.Debug.DrawLine(botomLeft, topLeft, UnityEngine.Color.red);
-                UnityEngine.Debug.DrawLine(topLeft, topRight, UnityEngine.Color.red);
-                UnityEngine.Debug.DrawLine(topRight, botomRight, UnityEngine.Color.red);
+                Debug.DrawLine(botomLeft, botomRight, Color.red);
+                Debug.DrawLine(botomLeft, topLeft, Color.red);
+                Debug.DrawLine(topLeft, topRight, Color.red);
+                Debug.DrawLine(topRight, botomRight, Color.red);
             }
 #endif
         }
 
     }
 
-    public enum Direction : int
+    public enum Direction
     {
         NW = 0,
         NE = 1,

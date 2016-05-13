@@ -1,8 +1,5 @@
 using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace SocialPoint.Utils
 {    
@@ -11,7 +8,7 @@ namespace SocialPoint.Utils
     {
         Action<T> _defaultAction;
 
-        public PriorityAction():base()
+        public PriorityAction()
         {
         }
 
@@ -56,7 +53,7 @@ namespace SocialPoint.Utils
 
     public class PriorityAction : PriorityAction<int>
     {
-        public PriorityAction():base()
+        public PriorityAction()
         {
         }
         

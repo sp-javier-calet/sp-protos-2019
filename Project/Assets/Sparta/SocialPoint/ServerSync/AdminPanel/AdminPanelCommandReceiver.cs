@@ -86,7 +86,7 @@ namespace SocialPoint.ServerSync
 
             layout.CreateLabel("STC Command History");
 
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
             if(_history.Count > 0)
             {
                 foreach(var log in _history)
@@ -123,7 +123,7 @@ namespace SocialPoint.ServerSync
                 var registeredCommands = Reflection.GetPrivateField<CommandReceiver, Dictionary<string, ISTCCommandFactory>>(_commandReceiver, "_registeredCommands");
                 if(registeredCommands != null)
                 {
-                    StringBuilder content = new StringBuilder();
+                    var content = new StringBuilder();
                     foreach(var kpv in registeredCommands)
                     {
                         content.AppendLine(kpv.Key);

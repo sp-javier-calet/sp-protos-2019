@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Social;
@@ -10,10 +8,10 @@ namespace SocialPoint.Login
 {
     public class GameCenterLink : ILink
     {
-        private IGameCenter _gameCenter;
-        
-        private event StateChangeDelegate _eventStateChange;
-        
+        IGameCenter _gameCenter;
+
+        event StateChangeDelegate _eventStateChange;
+
         public readonly static string LinkName = "gc";
 
         LinkState _state;
@@ -23,13 +21,13 @@ namespace SocialPoint.Login
             _gameCenter = new UnityGameCenter();
             Init();
         }
-        
+
         public GameCenterLink(IGameCenter gameCenter)
         {
             _gameCenter = gameCenter;
             Init();
         }
-        
+
         void Init()
         {
             _state = _gameCenter.IsConnected ? LinkState.Connected : LinkState.Disconnected;
@@ -40,7 +38,7 @@ namespace SocialPoint.Login
         {
             _gameCenter.StateChangeEvent -= OnStateChanged;
         }
-        
+
         void GetUserIdsFromLinkData(Attr linkData, List<string> userIds)
         {
             if(linkData.AttrType == AttrType.VALUE)
@@ -56,7 +54,7 @@ namespace SocialPoint.Login
                 GetUserIdsFromLinkData(linkData.AsDic.Get(Name), userIds);
             }
         }
-        
+
         GameCenterUser GetGameCenterUser(User user)
         {
             List<string> userIds = user.GetExternalIds(LinkName);
@@ -75,7 +73,7 @@ namespace SocialPoint.Login
             
             return null;
         }
-        
+
         public string Name
         {
             get
@@ -96,30 +94,23 @@ namespace SocialPoint.Login
         {
             _eventStateChange += cbk;
         }
-        
+
         void OnStateChanged()
         {
             
             if(_eventStateChange != null && _gameCenter != null && !_gameCenter.IsConnecting)
             {
-                if(_gameCenter.IsConnected)
-                {
-                    _state = LinkState.Connected;
-                }
-                else
-                {
-                    _state = LinkState.Disconnected;
-                }
+                _state = _gameCenter.IsConnected ? LinkState.Connected : LinkState.Disconnected;
                 _eventStateChange(_state);
             }
         }
-        
+
         public void Login(ErrorDelegate cbk)
         {            
-            _gameCenter.Login((err) => OnLogin(err, cbk));
+            _gameCenter.Login(err => OnLogin(err, cbk));
         }
 
-        void OnLogin(Error err, ErrorDelegate cbk)
+        static void OnLogin(Error err, ErrorDelegate cbk)
         {
             if(!Error.IsNullOrEmpty(err) && err.Code == GameCenterErrors.LoginCancelled)
             {
@@ -139,7 +130,7 @@ namespace SocialPoint.Login
                 cbk(null);
             }
         }
-        
+
         public void UpdateUser(User user)
         {
             GameCenterUser gcUser = GetGameCenterUser(user);
@@ -148,7 +139,7 @@ namespace SocialPoint.Login
                 user.AddName(gcUser.Alias);
             }
         }
-        
+
         public void UpdateLocalUser(LocalUser user)
         {
             if(_gameCenter.IsConnected && _gameCenter.User != null)
@@ -157,11 +148,11 @@ namespace SocialPoint.Login
                 user.AddName(_gameCenter.User.Alias, Name);
             }
         }
-        
+
         public AttrDic GetLinkData()
         {
             GameCenterUser user = _gameCenter.User;
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
             data.SetValue("gc_external_id", user.UserId);
             data.SetValue("alias", user.Alias);
             string ageGroup = "unknown";
@@ -195,7 +186,7 @@ namespace SocialPoint.Login
             }
             return data;
         }
-        
+
         public void GetFriendsData(List<UserMapping> mappings)
         {
             foreach(var friend in _gameCenter.Friends)
@@ -203,15 +194,14 @@ namespace SocialPoint.Login
                 mappings.Add(new UserMapping(friend.UserId, Name));
             }
         }
-        
+
         public void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
         {
             List<string> userIds = user.GetExternalIds(LinkName);
             if(userIds.Count > 0 && !string.IsNullOrEmpty(userIds[0]))
             {
                 string linkName = Name;
-                _gameCenter.LoadPhoto(userIds[0], photoSize, (path, err) =>
-                {
+                _gameCenter.LoadPhoto(userIds[0], photoSize, (path, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
                         user.AddPhotoPath(path, linkName);
@@ -230,12 +220,12 @@ namespace SocialPoint.Login
                 }
             }
         }
-        
+
         public bool IsFriend(User user)
         {
             return GetGameCenterUser(user) != null;
         }
-        
+
         public void Logout()
         {
             return;

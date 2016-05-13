@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using SocialPoint.Attributes;
 using System.Collections.Generic;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.CrossPromotion
 {
@@ -57,7 +56,7 @@ namespace SocialPoint.CrossPromotion
             AttrDic bannerInfoDict = config.Get("banners").AsDic;
             foreach(var data in bannerInfoDict)
             {
-                CrossPromotionBannerData crossPromoData = new CrossPromotionBannerData(data.Value.AsDic);
+                var crossPromoData = new CrossPromotionBannerData(data.Value.AsDic);
                 if(!BannerInfo.ContainsKey(crossPromoData.Uid))
                 { 
                     BannerInfo.Add(crossPromoData.Uid, crossPromoData);

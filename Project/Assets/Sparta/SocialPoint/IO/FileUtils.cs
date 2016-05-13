@@ -2,29 +2,28 @@
 #define UNITY
 #endif
 
-
 #if UNITY
 using UnityEngine;
 #endif
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.IO;
 using SocialPoint.Utils;
 
 namespace SocialPoint.IO
 {
     public class FileUtils
     {
-
         #if UNITY
-        private static WWW Download(string path)
+        static WWW Download(string path)
         {
             var www = new WWW(path);
             while(!www.isDone)
-                ;
+            {
+            }
             return www;
         }
         #endif
@@ -52,21 +51,14 @@ namespace SocialPoint.IO
             }
             else
             {
-                var info = new System.IO.FileInfo(path);
+                var info = new FileInfo(path);
                 return !info.Exists || !info.IsReadOnly; // FIXME IF file doesnt exist, check folder permissions
             }
         }
 
         public static string Combine(string basePath, string relPath)
         {
-            if(IsUrl(basePath))
-            {
-                return new Uri(new Uri(basePath), relPath).AbsoluteUri;
-            }
-            else
-            {
-                return Path.Combine(basePath, relPath);
-            }
+            return IsUrl(basePath) ? new Uri(new Uri(basePath), relPath).AbsoluteUri : Path.Combine(basePath, relPath);
         }
 
         public static bool CopyFile(string from, string to, bool overwrite = false)
@@ -97,10 +89,7 @@ namespace SocialPoint.IO
                 throw new IOException("Url paths are not supported.");
 #endif
             }
-            else
-            {
-                return System.IO.File.Exists(path);
-            }
+            return File.Exists(path);
         }
 
         public static bool ExistsDirectory(string path)
@@ -115,10 +104,7 @@ namespace SocialPoint.IO
                 throw new IOException("Url paths are not supported.");
 #endif
             }
-            else
-            {
-                return System.IO.Directory.Exists(path);
-            }
+            return Directory.Exists(path);
         }
 
         public static bool IsUrl(string path)
@@ -137,10 +123,7 @@ namespace SocialPoint.IO
                 throw new IOException("Url paths are not supported.");
 #endif
             }
-            else
-            {
-                return System.IO.File.ReadAllText(path);
-            }
+            return File.ReadAllText(path);
         }
 
         public static byte[] ReadAllBytes(string path)
@@ -154,10 +137,7 @@ namespace SocialPoint.IO
                 throw new IOException("Url paths are not supported.");
 #endif
             }
-            else
-            {
-                return System.IO.File.ReadAllBytes(path);
-            }
+            return File.ReadAllBytes(path);
         }
 
         public static void WriteAllBytes(string path, byte[] bytes)
@@ -248,7 +228,7 @@ namespace SocialPoint.IO
             return true;
         }
 
-        private static void CheckWritablePath(string path)
+        static void CheckWritablePath(string path)
         {
             if(!IsWritable(path))
             {
@@ -256,7 +236,7 @@ namespace SocialPoint.IO
             }
         }
 
-        private static void CheckLocalPath(string path)
+        static void CheckLocalPath(string path)
         {
             if(IsUrl(path))
             {
@@ -266,7 +246,7 @@ namespace SocialPoint.IO
 
         public static string MakeRelativePath(string startFile, string targetFile)
         {
-            StringBuilder newpath = new StringBuilder();
+            var newpath = new StringBuilder();
             
             if(startFile == null || targetFile == null)
             {
@@ -300,7 +280,7 @@ namespace SocialPoint.IO
             int ixdiff = 0;
             for(; ixdiff < cmpdepth; ixdiff++)
             {
-                if(false == StringComparer.OrdinalIgnoreCase.Equals(sfpath[ixdiff], tfpath[ixdiff]))
+                if(!StringComparer.OrdinalIgnoreCase.Equals(sfpath[ixdiff], tfpath[ixdiff]))
                 {
                     break;
                 }
@@ -411,7 +391,7 @@ namespace SocialPoint.IO
 
         static public string CleanPath(string path)
         {
-            return path.TrimEnd(new char[]{ Path.DirectorySeparatorChar });
+            return path.TrimEnd(new []{ Path.DirectorySeparatorChar });
         }
 
         static public string[] Find(string src)
@@ -450,14 +430,7 @@ namespace SocialPoint.IO
                     search = SearchOption.TopDirectoryOnly;
                 }
                 dir = GetWildcardBasePath(src);
-                if(src.Length > dir.Length)
-                {
-                    pattern = src.Substring(dir.Length + 1);
-                }
-                else
-                {
-                    pattern = StringUtils.WildcardMultiChar.ToString();
-                }
+                pattern = src.Length > dir.Length ? src.Substring(dir.Length + 1) : StringUtils.WildcardMultiChar.ToString();
             }
 
             string[] files;
@@ -468,14 +441,9 @@ namespace SocialPoint.IO
             }
             else
             {
-                if(ExistsFile(src))
-                {
-                    files = new string[]{ src };
-                }
-                else
-                {
-                    files = new string[0];
-                }
+                files = ExistsFile(src) ? new[] {
+                    src
+                } : new string[0];
             }
 
             dirOut = dir;
@@ -505,9 +473,7 @@ namespace SocialPoint.IO
 
         static public Dictionary<string,string> Compare(string src, string dst)
         {
-            return Compare(src, dst, (srcPath, dstPath) => {
-                return !CompareFiles(srcPath, dstPath);
-            });
+            return Compare(src, dst, (srcPath, dstPath) => !CompareFiles(srcPath, dstPath));
         }
 
         static public Dictionary<string,string> Compare(string src, string dst, OperationFilter op)
@@ -522,9 +488,7 @@ namespace SocialPoint.IO
 
         static public Dictionary<string,string> CompareSource(string src, string dst)
         {            
-            return Compare(src, dst, false, (srcPath, dstPath) => {
-                return !CompareFiles(srcPath, dstPath);
-            });
+            return Compare(src, dst, false, (srcPath, dstPath) => !CompareFiles(srcPath, dstPath));
         }
 
         static public Dictionary<string,string> Compare(string src, string dst, bool checkDst, OperationFilter op)
@@ -590,24 +554,20 @@ namespace SocialPoint.IO
         static public string GetWildcardBasePath(string path)
         {
             path = CleanPath(path);
-            var i = path.IndexOfAny(new char[]{ StringUtils.WildcardOneChar, StringUtils.WildcardMultiChar });
+            var i = path.IndexOfAny(new []{ StringUtils.WildcardOneChar, StringUtils.WildcardMultiChar });
             if(i == -1)
             {
                 return path;
             }
             i = path.LastIndexOf(Path.DirectorySeparatorChar, i, i + 1);
-            if(i == -1)
-            {
-                return string.Empty;
-            }
-            return path.Substring(0, i);
+            return i == -1 ? string.Empty : path.Substring(0, i);
         }
 
         static public string SetDefaultFileName(string path, string filename)
         {
-            if(ExistsDirectory(path) || StringUtils.EndsWith(path, System.IO.Path.DirectorySeparatorChar.ToString()))
+            if(ExistsDirectory(path) || StringUtils.EndsWith(path, Path.DirectorySeparatorChar.ToString()))
             {
-                return System.IO.Path.Combine(path, filename);
+                return Path.Combine(path, filename);
             }
             return path;
         }

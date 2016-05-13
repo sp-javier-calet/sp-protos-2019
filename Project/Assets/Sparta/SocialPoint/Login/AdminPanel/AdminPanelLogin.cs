@@ -1,20 +1,17 @@
-﻿using UnityEngine;
-using System;
-using System.Text;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using SocialPoint.AppEvents;
+using System.Text;
 using SocialPoint.AdminPanel;
+using SocialPoint.AppEvents;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
-
     public class AdminPanelLogin : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        ILogin _login;
-        IDictionary<string, string> _environments;
-        IAppEvents _appEvents;
+        readonly ILogin _login;
+        readonly IDictionary<string, string> _environments;
+        readonly IAppEvents _appEvents;
 
         public AdminPanelLogin(ILogin login)
         {
@@ -111,7 +108,7 @@ namespace SocialPoint.Login
 
         void OnEnvironmentChange(string name)
         {
-            string url = null;
+            string url;
             if(!_environments.TryGetValue(name, out url))
             {
                 throw new InvalidOperationException(string.Format("Could not find url for env '{0}'", name));

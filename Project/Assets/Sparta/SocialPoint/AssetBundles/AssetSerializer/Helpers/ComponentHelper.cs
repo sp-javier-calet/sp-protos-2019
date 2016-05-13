@@ -1,50 +1,57 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using System.Reflection;
+using System.Text;
+using SocialPoint.AssetSerializer.Exceptions;
+using SocialPoint.AssetSerializer.Serializers;
+using SocialPoint.AssetSerializer.Utils;
 using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 using SocialPoint.Attributes;
-using System.Text;
-using SocialPoint.AssetSerializer.Serializers;
-using SocialPoint.AssetSerializer.Exceptions;
-using SocialPoint.AssetSerializer.Utils;
+using UnityEngine;
 
 namespace SocialPoint.AssetSerializer.Helpers
 {
-    public class ComponentHelper
+    public static class ComponentHelper
     {
         // Ignored Assemblies
         // 'UnityEngine' components are not meant to be reconstructed, they must be ignored.
-        // 'ProBuilderCore' is a tool for mofifying geometry in the editor, not required at runtime. 
+        // 'ProBuilderCore' is a tool for mofifying geometry in the editor, not required at runtime.
         // 'PlayMaker' is a tool for visual scripting encapsulated into a DLL, which we are not able to serialize/deserialize the components, etc.
         // This components on the modifyied game objects must be ignored.
-        public static string[] AssembliesExcluded = { "UnityEngine", "ProBuilderCore", "ProBuilderCore-Unity5", "PlayMaker", "DOTweenPro" };
-        public static string[] ComponentsExcluded = {};
+        public static string[] AssembliesExcluded = {
+            "UnityEngine",
+            "ProBuilderCore",
+            "ProBuilderCore-Unity5",
+            "PlayMaker",
+            "DOTweenPro"
+        };
+        public static string[] ComponentsExcluded = { };
 
-        public static List<Component> GetComponentsFromObject (UnityEngine.Object obj, bool excludeComponents = true)
+        public static List<Component> GetComponentsFromObject(UnityEngine.Object obj, bool excludeComponents = true)
         {
-            if (obj is GameObject)
+            var gameObject = obj as GameObject;
+            if(gameObject != null)
             {
-                GameObject gameObj = obj as GameObject;
-                List<Component> components = gameObj.GetComponents<Component> ().ToList ();
-                for (int i = (components.Count-1); i >= 0; i--)
+                GameObject gameObj = gameObject;
+                List<Component> components = gameObj.GetComponents<Component>().ToList();
+                for(int i = (components.Count - 1); i >= 0; i--)
                 {
-                    Component component = components [i];
+                    Component component = components[i];
 
-                    if (TypeUtils.CompareToNull(component)) {
-                        SerializerLogger.LogError("Missing Component. Please relink or remove it to continue.");
-                        components.RemoveAt (i);
-                    }
-                    else if (!excludeComponents || (excludeComponents && IsExcludedComponent (component)))
+                    if(TypeUtils.CompareToNull(component))
                     {
-                        components.RemoveAt (i);
+                        SerializerLogger.LogError("Missing Component. Please relink or remove it to continue.");
+                        components.RemoveAt(i);
+                    }
+                    else if(!excludeComponents || (excludeComponents && IsExcludedComponent(component)))
+                    {
+                        components.RemoveAt(i);
                     }
                 }
                 return components;
             }
-            return new List<Component> ();
+            return new List<Component>();
         }
 
         /// <summary>
@@ -55,38 +62,41 @@ namespace SocialPoint.AssetSerializer.Helpers
         /// <returns>The sorted removable components from object.</returns>
         /// <param name="obj">Object.</param>
         /// <param name="excludeComponents">If set to <c>true</c> exclude components.</param>
-        public static List<Component> GetSortedRemovableComponentsFromObject (UnityEngine.Object obj, bool excludeComponents = true)
+        public static List<Component> GetSortedRemovableComponentsFromObject(UnityEngine.Object obj, bool excludeComponents = true)
         {
             List<Component> components = GetComponentsFromObject(obj, excludeComponents);
-            List<KeyValuePair<Component, HashSet<Type>>> componentsAndRequirements = new List<KeyValuePair<Component, HashSet<Type>>> ();
+            var componentsAndRequirements = new List<KeyValuePair<Component, HashSet<Type>>>();
 
             // Obtain required components for each component
-            foreach (Component comp in components) {
+            foreach(Component comp in components)
+            {
                 Type compType = comp.GetType();
-                HashSet<Type> requiredComponentTypes = new HashSet<Type>();
+                var requiredComponentTypes = new HashSet<Type>();
 
-                foreach ( object attr in compType.GetCustomAttributes(true)) {
-                    if (attr.GetType() == typeof(RequireComponent)) {
-
-                        RequireComponent reqAttr = (attr as RequireComponent);
+                foreach(object attr in compType.GetCustomAttributes(true))
+                {
+                    var requireComponent = attr as RequireComponent;
+                    if(requireComponent != null)
+                    {
+                        RequireComponent reqAttr = requireComponent;
                         // Up to three required types can be specified in a single declaration
                         Type reqCompType = reqAttr.m_Type0;
-                        if (reqCompType != null)
+                        if(reqCompType != null)
                             requiredComponentTypes.Add(reqCompType);
 
                         reqCompType = reqAttr.m_Type1;
-                        if (reqCompType != null)
+                        if(reqCompType != null)
                             requiredComponentTypes.Add(reqCompType);
 
                         reqCompType = reqAttr.m_Type2;
-                        if (reqCompType != null)
+                        if(reqCompType != null)
                             requiredComponentTypes.Add(reqCompType);
                     }
                 }
 
-                KeyValuePair<Component, HashSet<Type>> componentAndRequirements = new KeyValuePair<Component, HashSet<Type>> (comp, requiredComponentTypes);
+                var componentAndRequirements = new KeyValuePair<Component, HashSet<Type>>(comp, requiredComponentTypes);
 
-                componentsAndRequirements.Add (componentAndRequirements);
+                componentsAndRequirements.Add(componentAndRequirements);
             }
 
             // Sort
@@ -94,37 +104,35 @@ namespace SocialPoint.AssetSerializer.Helpers
             // - components that don't have requisites go last
             // - components with requisites go just before one requisite is found in the list and always before non requisite
             componentsAndRequirements.Sort(delegate(KeyValuePair<Component, HashSet<Type>> compA,
-                                                    KeyValuePair<Component, HashSet<Type>> compB )
-            {
-                if (compA.Value.Count == 0 && compB.Value.Count == 0) return 0;
-                else if (compA.Value.Count == 0) return 1;
-                else if (compB.Value.Count == 0) return -1;
-                else {
-                    // Component B is a requirement of Component A. A should go first
-                    if (compA.Value.Contains(compB.Key.GetType())) return -1;
-                    // If is the other way around or none of them are dependant, pass A through
-                    else return 1;
-                }
+                                                    KeyValuePair<Component, HashSet<Type>> compB) {
+                if(compA.Value.Count == 0 && compB.Value.Count == 0)
+                    return 0;
+                if(compA.Value.Count == 0)
+                    return 1;
+                if(compB.Value.Count == 0)
+                    return -1;
+                // Component B is a requirement of Component A. A should go first
+                return compA.Value.Contains(compB.Key.GetType()) ? -1 : 1;
             });
 
-            List<Component> sortedComponents = new List<Component> ();
-            foreach (KeyValuePair<Component, HashSet<Type>> comp in componentsAndRequirements)
+            var sortedComponents = new List<Component>();
+            foreach(KeyValuePair<Component, HashSet<Type>> comp in componentsAndRequirements)
                 sortedComponents.Add(comp.Key);
 
             return sortedComponents;
         }
 
-        private static bool IsExcludedComponent (Component comp)
+        static bool IsExcludedComponent(Component comp)
         {
-            string AssemblyName = comp.GetType ().Assembly.GetName().Name;
-            return AssembliesExcluded.Contains (AssemblyName);
+            string AssemblyName = comp.GetType().Assembly.GetName().Name;
+            return AssembliesExcluded.Contains(AssemblyName);
         }
 
-        private static bool AreAllExcludedComponents (IEnumerable<Component> components)
+        static bool AreAllExcludedComponents(IEnumerable<Component> components)
         {
-            foreach (Component comp in components)
+            foreach(Component comp in components)
             {
-                if (!IsExcludedComponent (comp))
+                if(!IsExcludedComponent(comp))
                 {
                     return false;
                 }
@@ -132,161 +140,167 @@ namespace SocialPoint.AssetSerializer.Helpers
             return true;
         }
 
-        public static Dictionary<string, KeyValuePair<Type, object>> GetFieldsFromComponent (Component comp, 
-                              BindingFlags flags = ( ( BindingFlags.Public | BindingFlags.Instance ) & 
-                              ~( BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.GetField | BindingFlags.SetField ) ) )
+        public static Dictionary<string, KeyValuePair<Type, object>> GetFieldsFromComponent(Component comp, 
+                                                                                            BindingFlags flags = ((BindingFlags.Public | BindingFlags.Instance) &
+                                                                                            ~(BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.GetField | BindingFlags.SetField)))
         {
-            Dictionary<string, KeyValuePair<Type, object>> compDic = new Dictionary<string, KeyValuePair<Type, object>> ();
+            var compDic = new Dictionary<string, KeyValuePair<Type, object>>();
 
-            foreach ( FieldInfo fi in comp.GetType().GetFields( flags ) ) {
-                if ( ( fi.Attributes & FieldAttributes.Literal ) == 0 ) {
-                    object[] attributes = fi.GetCustomAttributes ( true );
-                    if ( AllowFieldInfo ( attributes ) ) {
-                        object val = fi.GetValue ( comp );
-                        compDic.Add ( fi.Name, new KeyValuePair<Type, object>(fi.FieldType, val) );
+            foreach(FieldInfo fi in comp.GetType().GetFields( flags ))
+            {
+                if((fi.Attributes & FieldAttributes.Literal) == 0)
+                {
+                    object[] attributes = fi.GetCustomAttributes(true);
+                    if(AllowFieldInfo(attributes))
+                    {
+                        object val = fi.GetValue(comp);
+                        compDic.Add(fi.Name, new KeyValuePair<Type, object>(fi.FieldType, val));
                     }
                 }
             }
 
-            foreach ( PropertyInfo pi in comp.GetType().GetProperties( flags ) ) {
-                if ( pi.GetGetMethod() == null ) {
-                    object[] attributes = pi.GetCustomAttributes ( true );
-                    if ( AllowFieldInfo ( attributes ) && ( pi.CanWrite && pi.CanRead ) ) {
-                        compDic.Add ( pi.Name, new KeyValuePair<Type, object>(pi.PropertyType, GetPropertyValue ( comp, pi )) );
+            foreach(PropertyInfo pi in comp.GetType().GetProperties( flags ))
+            {
+                if(pi.GetGetMethod() == null)
+                {
+                    object[] attributes = pi.GetCustomAttributes(true);
+                    if(AllowFieldInfo(attributes) && (pi.CanWrite && pi.CanRead))
+                    {
+                        compDic.Add(pi.Name, new KeyValuePair<Type, object>(pi.PropertyType, GetPropertyValue(comp, pi)));
                     }
                 }
             }
 
             return compDic;
         }
-        
-        public static void RemoveAllBehaviorFromList( UnityEngine.Object[] objArr, bool destroyImmediate = false )
+
+        public static void RemoveAllBehaviorFromList(UnityEngine.Object[] objArr, bool destroyImmediate = false)
         {
-            for ( int i = 0; i < objArr.Length; i++ ) {
-                RemoveAllBehaviours( objArr[i], destroyImmediate );
+            for(int i = 0; i < objArr.Length; i++)
+            {
+                RemoveAllBehaviours(objArr[i], destroyImmediate);
             }
         }
 
-        public static void RemoveAllBehaviours (UnityEngine.Object obj, bool destroyImmediate = false)
+        public static void RemoveAllBehaviours(UnityEngine.Object obj, bool destroyImmediate = false)
         {
-            if (!obj)
+            if(!obj)
             {
                 return;
             }
             
             // Destroy own components
-            List<Component> components = GetSortedRemovableComponentsFromObject (obj);
-            foreach (Component comp in components)
+            List<Component> components = GetSortedRemovableComponentsFromObject(obj);
+            foreach(Component comp in components)
             {
-                if (comp is Behaviour)
+                if(comp is Behaviour)
                 {
                     try
                     {
-                        if (destroyImmediate)
+                        if(destroyImmediate)
                         {
-                            UnityEngine.Object.DestroyImmediate (comp, true);
+                            UnityEngine.Object.DestroyImmediate(comp, true);
                         }
                         else
                         {
-                            UnityEngine.Object.Destroy (comp);
+                            UnityEngine.Object.Destroy(comp);
                         }
                     }
                     //Seems that is not throwed
-                    catch (Exception e)
+                    catch(Exception e)
                     {
-                        Debug.Log ("CATCH EXCEPTION " + e);
+                        Debug.Log("CATCH EXCEPTION " + e);
                     }
                 }
             }
 
             // destroy components of childs
-            if ( obj is GameObject) {
-                GameObject gameObject = obj as GameObject;
-                for ( int i = 0; i < gameObject.transform.childCount; i++ ) {
+            var gameObject = obj as GameObject;
+            if(gameObject != null)
+            {
+                for(int i = 0; i < gameObject.transform.childCount; i++)
+                {
                     GameObject child = gameObject.transform.GetChild(i).gameObject;
-                    RemoveAllBehaviours( child, destroyImmediate );
+                    RemoveAllBehaviours(child, destroyImmediate);
                 }
             }
         }
 
-        public static void RemoveAllComponents (UnityEngine.Object obj, bool excludeComponents = true)
+        public static void RemoveAllComponents(UnityEngine.Object obj, bool excludeComponents = true)
         {
-            if (!obj)
+            if(!obj)
             {
                 return;
             }
 
-            List<Component> components = GetSortedRemovableComponentsFromObject (obj, excludeComponents);
+            List<Component> components = GetSortedRemovableComponentsFromObject(obj, excludeComponents);
             bool exit = false;
             int index = (components.Count - 1);
-            while (!exit)
+            while(!exit)
             {
-                Component component = components [index];
+                Component component = components[index];
 
-                if (component != null)
+                if(component != null)
                 {
-                    Debug.Log ("PRE " + component.name + " / TYPE: " + component.GetType ());
+                    Debug.Log("PRE " + component.name + " / TYPE: " + component.GetType());
 
-                    if (!component.GetType ().Equals (typeof(Transform)))
+                    if(!component.GetType().Equals(typeof(Transform)))
                     {
                         try
                         {
-                            UnityEngine.Object.DestroyImmediate (component);
+                            UnityEngine.Object.DestroyImmediate(component);
                         }
                         //Seems that is not throwed
-                        catch (Exception e)
+                        catch(Exception e)
                         {
-                            Debug.Log ("CATCH EXCEPTION " + e);
+                            Debug.Log("CATCH EXCEPTION " + e);
                         }
                     }
 
-                    if (component != null)
+                    if(component != null)
                     {
-                        Debug.Log ("POST " + component.name + " / TYPE: " + component.GetType ());
+                        Debug.Log("POST " + component.name + " / TYPE: " + component.GetType());
                     }
                     else
                     {
-                        Debug.Log ("COMPONENT HAS BEEN DESTROYED");
+                        Debug.Log("COMPONENT HAS BEEN DESTROYED");
                     }
                 }
                 else
                 {
-                    Debug.Log ("COMPONENT IS NULL!");
+                    Debug.Log("COMPONENT IS NULL!");
                 }
 
-                components = GetSortedRemovableComponentsFromObject (obj, excludeComponents);
+                components = GetSortedRemovableComponentsFromObject(obj, excludeComponents);
 
-                Debug.Log ("COMPONENTS: " + components.Count);
+                Debug.Log("COMPONENTS: " + components.Count);
 
-                foreach (Component c in components)
+                foreach(Component c in components)
                 {
-                    Debug.Log ("EXIST COMPONENT " + c.name + " -> TYPE: " + c.GetType ());
+                    Debug.Log("EXIST COMPONENT " + c.name + " -> TYPE: " + c.GetType());
                 }
 
                 index--;
-                if (index < 0)
+                if(index < 0)
                 {
                     index = (components.Count - 1);
                 }
 
-                if (components.Count == 0 || (components.Count == 1 && components [0].GetType ().Equals (typeof(Transform))) || AreAllExcludedComponents (components))
-                {
-                    exit = true;
-                }
+                exit |= components.Count == 0 || (components.Count == 1 && components[0].GetType().Equals(typeof(Transform))) || AreAllExcludedComponents(components);
             }
         }
 
-        static bool AllowFieldInfo (object[] attributes)
+        static bool AllowFieldInfo(object[] attributes)
         {
-            if (attributes == null)
+            if(attributes == null)
             {
                 return true;
             }
 
-            foreach (object attribute in attributes)
+            foreach(object attribute in attributes)
             {
-                if (attribute.GetType () == typeof(HideInInspector)
-                    || attribute.GetType () == typeof(ObsoleteAttribute))
+                if(attribute is HideInInspector
+                   || attribute is ObsoleteAttribute)
                 {
                     return false;
                 }
@@ -294,32 +308,36 @@ namespace SocialPoint.AssetSerializer.Helpers
             return true;
         }
 
-        public static void DeserializeScene( JSONSceneContainer jsonSceneContainer )
+        public static void DeserializeScene(JSONSceneContainer jsonSceneContainer)
         {
-            UnityEngine.Profiler.BeginSample ("DeserializeScene");
+            Profiler.BeginSample("DeserializeScene");
 #if ATTR_USING_SIMPLEJSON
             IAttrParser jsonAttrParser = new SimpleJsonAttrParser ();
 #else
-            IAttrParser jsonAttrParser = new LitJsonAttrParser ();
+            IAttrParser jsonAttrParser = new LitJsonAttrParser();
 #endif
-            JsonData jsonData = JsonData.Parse ( jsonSceneContainer.serializationJSONData.text, jsonAttrParser );
-            for ( int i = 0; i < jsonData.Count; i++ ) {
+            JsonData jsonData = JsonData.Parse(jsonSceneContainer.serializationJSONData.text, jsonAttrParser);
+            for(int i = 0; i < jsonData.Count; i++)
+            {
                 JsonData objData = jsonData[i];
-                int gameObjectInstanceID = (int) objData["instanceID"];
-                GameObject go = GetGameObjectByInstanceID( jsonSceneContainer.rootGameObjects, jsonSceneContainer.rootGameObjectIDs, gameObjectInstanceID );
-                if ( go != null ) {
-                    DeserializeObject( go, objData );
+                int gameObjectInstanceID = (int)objData["instanceID"];
+                GameObject go = GetGameObjectByInstanceID(jsonSceneContainer.rootGameObjects, jsonSceneContainer.rootGameObjectIDs, gameObjectInstanceID);
+                if(go != null)
+                {
+                    DeserializeObject(go, objData);
                 }
             }
-            UnityEngine.Profiler.EndSample ();
+            Profiler.EndSample();
 
             BuildUnityObjectAnnotatorSingleton.Clear();
         }
 
-        private static GameObject GetGameObjectByInstanceID( GameObject[] rootGameObjects, int[] rootGameObjectIDs, int instanceID )
+        static GameObject GetGameObjectByInstanceID(GameObject[] rootGameObjects, int[] rootGameObjectIDs, int instanceID)
         {
-            for ( int i = 0; i < rootGameObjectIDs.Length; i++ ) {
-                if ( rootGameObjectIDs[i] == instanceID ) {
+            for(int i = 0; i < rootGameObjectIDs.Length; i++)
+            {
+                if(rootGameObjectIDs[i] == instanceID)
+                {
                     return rootGameObjects[i];
                 }
             }
@@ -327,28 +345,30 @@ namespace SocialPoint.AssetSerializer.Helpers
             return null;
         }
 
-        public static void DeserializeObject ( UnityEngine.Object obj, string data, IAttrParser attrParser=null )
+        public static void DeserializeObject(UnityEngine.Object obj, string data, IAttrParser attrParser = null)
         {
-            JsonData jsonData = JsonData.Parse ( data, attrParser );
-            DeserializeObject( obj, jsonData );
+            JsonData jsonData = JsonData.Parse(data, attrParser);
+            DeserializeObject(obj, jsonData);
         }
 
-        public static void DeserializeObject ( UnityEngine.Object obj, JsonData jsonData )
+        public static void DeserializeObject(UnityEngine.Object obj, JsonData jsonData)
         {
             // Process obj
             BuildUnityObjectAnnotatorSingleton.BeginBuilding();
 
-            DeserializeObjectRec( obj, jsonData );
+            DeserializeObjectRec(obj, jsonData);
 
             BuildUnityObjectAnnotatorSingleton.EndBuilding();
 
             BuildUnityObjectAnnotatorSingleton.LinkActions();
         }
-        
-        private static void DeserializeObjectRec( UnityEngine.Object obj, JsonData jsonData, bool allowAllAttributres = true )
+
+        static void DeserializeObjectRec(UnityEngine.Object obj, JsonData jsonData, bool allowAllAttributres = true)
         {
-            if ( !(obj is GameObject) ) return;
-            GameObject gameObj = (GameObject) obj;
+            var gameObject = obj as GameObject;
+            if(gameObject == null)
+                return;
+            var gameObj = gameObject;
 
             // GameObjects should be disabled until they components are fully assigned, otherwise
             // the method Awake of the MonoBehaviours will be prematurely called when the behaviour
@@ -357,93 +377,108 @@ namespace SocialPoint.AssetSerializer.Helpers
             bool shouldBeReactivated = gameObj.activeSelf;
             gameObj.SetActive(false);
 
-            int gameObjectInstanceID = (int) jsonData["instanceID"];
+            int gameObjectInstanceID = (int)jsonData["instanceID"];
 
             BuildUnityObjectAnnotatorSingleton.AddObjectAndID(gameObj, gameObjectInstanceID);
 
-            List<string> missingComponents = new List<string> ();
-            List<string> missingFields     = new List<string> ();
-            List<string> missingReaders    = new List<string> ();
-            List<string> missingTypes      = new List<string> ();
+            var missingComponents = new List<string>();
+            var missingFields = new List<string>();
+            var missingReaders = new List<string>();
+            var missingTypes = new List<string>();
 
             // Process components
-            JsonData components = jsonData ["components"];
-            for ( int i = 0; i < components.Count; i++ ) {
+            JsonData components = jsonData["components"];
+            for(int i = 0; i < components.Count; i++)
+            {
 
-                string name = (string) components[i]["name"];
-                int instanceID = (int) components[i]["instanceID"];
-                bool active = (bool) components[i]["active"];
+                string name = (string)components[i]["name"];
+                int instanceID = (int)components[i]["instanceID"];
+                bool active = (bool)components[i]["active"];
 
-                Type type = GetType ( name );
+                Type type = GetType(name);
                 
-                if ( type == null ) {
-                    missingComponents.Add ( name );
-					continue;
+                if(type == null)
+                {
+                    missingComponents.Add(name);
+                    continue;
                 }
 
                 // The GameObject must be disabled at this point to prevent a premature call to
                 // Awake in the component
 
-                Component comp = gameObj.AddComponent ( type );
+                Component comp = gameObj.AddComponent(type);
 
-                if ( comp != null ) {
+                if(comp != null)
+                {
 
                     // set it's active state
-                    if (comp is Behaviour)
-                        (comp as Behaviour).enabled = active;
+                    var behaviour = comp as Behaviour;
+                    if(behaviour != null)
+                        behaviour.enabled = active;
 
                     BuildUnityObjectAnnotatorSingleton.AddObjectAndID(comp, instanceID);
 
                     JsonData props = components[i]["props"];
-                    for ( int j = 0; j < props.Count; j++ ) {
+                    for(int j = 0; j < props.Count; j++)
+                    {
 
                         // Must be list/array deserializable
 
                         JsonData propDef = props[j];
-                        string propName = (string) propDef["name"];
-                        string propTypeName = (string) propDef["type"];
-                        object objValue = null;
+                        string propName = (string)propDef["name"];
+                        string propTypeName = (string)propDef["type"];
+                        object objValue;
 
                         AbstractPropertyReader propReader = null;
-                        try {
-                            propReader = ReaderSerializerFactory.GetPropertyReader (propTypeName, propDef);
+                        try
+                        {
+                            propReader = ReaderSerializerFactory.GetPropertyReader(propTypeName, propDef);
                         }
-                        catch (Exception e) {
-                            missingTypes.Add (e.ToString());
+                        catch(Exception e)
+                        {
+                            missingTypes.Add(e.ToString());
                         }
 
                         if(propReader != null)
                         {
-                            objValue = propReader.ReadValueObject ();
+                            objValue = propReader.ReadValueObject();
 
-                            FieldInfo fieldInfo = type.GetField ( propName );
-                            if (fieldInfo != null) {
+                            FieldInfo fieldInfo = type.GetField(propName);
+                            if(fieldInfo != null)
+                            {
 
-                                if (propReader is UnityObjectReferencePropertyReader && objValue != null) {
-                                    LinkActionArguments linkAction = new LinkActionArguments();
+                                if(propReader is UnityObjectReferencePropertyReader && objValue != null)
+                                {
+                                    var linkAction = new LinkActionArguments();
                                     linkAction.actionType = LinkActionArguments.LinkActionType.LINK_OBJECT_TO_FIELD;
                                     linkAction.instanceObject = comp;
                                     linkAction.fieldInfo = fieldInfo;
                                     linkAction.refObjectId = (int)objValue;
                                     BuildUnityObjectAnnotatorSingleton.AddLinkAction(linkAction);
 
-                                    fieldInfo.SetValue ( comp, null );
+                                    fieldInfo.SetValue(comp, null);
                                 }
-                                else {
-                                    if ( allowAllAttributres || AllowFieldInfo ( fieldInfo.GetCustomAttributes ( true ) ) ) {
-                                        fieldInfo.SetValue ( comp, objValue );
+                                else
+                                {
+                                    if(allowAllAttributres || AllowFieldInfo(fieldInfo.GetCustomAttributes(true)))
+                                    {
+                                        fieldInfo.SetValue(comp, objValue);
                                     }
                                 }
                             }
-                            else {
-                                PropertyInfo propInfo = type.GetProperty ( propName );
-                                if ( propInfo != null ) {
-                                    if ( allowAllAttributres || AllowFieldInfo ( propInfo.GetCustomAttributes ( true ) ) ) {
-                                        propInfo.SetValue ( comp, objValue, null );
+                            else
+                            {
+                                PropertyInfo propInfo = type.GetProperty(propName);
+                                if(propInfo != null)
+                                {
+                                    if(allowAllAttributres || AllowFieldInfo(propInfo.GetCustomAttributes(true)))
+                                    {
+                                        propInfo.SetValue(comp, objValue, null);
                                     }
                                 }
-                                else {
-                                    missingFields.Add ( name + "." + propName );
+                                else
+                                {
+                                    missingFields.Add(name + "." + propName);
                                 }
                             }
                         }
@@ -455,8 +490,9 @@ namespace SocialPoint.AssetSerializer.Helpers
                 }
             }
             
-            if ( missingComponents.Count > 0 || missingFields.Count > 0 || missingReaders.Count > 0 ) {
-                DeserializationException excpt = new DeserializationException ();
+            if(missingComponents.Count > 0 || missingFields.Count > 0 || missingReaders.Count > 0)
+            {
+                var excpt = new DeserializationException();
                 excpt.MissingFields = missingFields;
                 excpt.MissingComponents = missingComponents;
                 excpt.MissingReaders = missingReaders;
@@ -469,61 +505,64 @@ namespace SocialPoint.AssetSerializer.Helpers
             // index the childs by their names: (log errors if duplicated names were found)
             Dictionary<string, GameObject> childDict = null;
 
-            for ( int i = 0; i < childrenData.Count; i++ ) {
+            for(int i = 0; i < childrenData.Count; i++)
+            {
                 JsonData childData = childrenData[i];
-                string childTypeName   = (string) childData["type"];
+                string childTypeName = (string)childData["type"];
 
                 //BACKWARDS-COMPATIBLE: if 'childID' is present, use the legacy 'usecure' deserialization method
                 bool bUseLegacyChildDeserialization = childData.ContainsKey("childID");
-                if ( childTypeName == "UnityEngine.GameObject" ) {
+                if(childTypeName == "UnityEngine.GameObject")
+                {
 
-                    if (bUseLegacyChildDeserialization)
+                    if(bUseLegacyChildDeserialization)
                     {
-                        int childID   = (int) childData["childID"];
+                        int childID = (int)childData["childID"];
 
-                        Transform t = gameObj.transform.GetChild( childID );
-                        if ( t != null ) {
-                            DeserializeObjectRec( t.gameObject, childData );
+                        Transform t = gameObj.transform.GetChild(childID);
+                        if(t != null)
+                        {
+                            DeserializeObjectRec(t.gameObject, childData);
                         }
                     }
                     else
                     {
-                        if (childDict == null)
+                        if(childDict == null)
                         {
                             childDict = GetChildDict(gameObj.transform);
                         }
 
                         //Find child by a guaranteed-unique name
-                        string childName = (string) childData["prefab"];
+                        string childName = (string)childData["prefab"];
                         GameObject childGo;
 
                         if(childDict.TryGetValue(childName, out childGo))
                         {
-                            DeserializeObjectRec( childGo, childData );
+                            DeserializeObjectRec(childGo, childData);
                         }
                     }
                 }
             }
 
             // TODO: This is being tested ...
-            if (shouldBeReactivated)
+            if(shouldBeReactivated)
                 gameObj.SetActive(true);
         }
 
 
-        private static Dictionary<string, GameObject> GetChildDict(Transform parent)
+        static Dictionary<string, GameObject> GetChildDict(Transform parent)
         {
-            Dictionary<string, GameObject> childDict = new Dictionary<string, GameObject> ();
-            StringBuilder parentPrefix = new StringBuilder(""); // for error login purposes
+            var childDict = new Dictionary<string, GameObject>();
+            var parentPrefix = new StringBuilder(""); // for error login purposes
 
             foreach(Transform child in parent)
             {
-                if (child != null)
+                if(child != null)
                 {
                     var childGo = child.gameObject;
-                    if (childDict.ContainsKey(childGo.name))
+                    if(childDict.ContainsKey(childGo.name))
                     {
-                        if (parentPrefix.ToString() == "")
+                        if(parentPrefix.ToString() == "")
                         {
                             var parentTransform = parent;
                             parentPrefix.Append(parentTransform.name + " - ");
@@ -533,7 +572,7 @@ namespace SocialPoint.AssetSerializer.Helpers
                                 parentPrefix.Insert(0, parentTransform.name + " - ");
                             }
                         }
-                        DuplicatedChildNameException excpt = new DuplicatedChildNameException(childGo.name, parentPrefix.ToString());
+                        var excpt = new DuplicatedChildNameException(childGo.name, parentPrefix.ToString());
                         Debug.LogError(excpt.ToString());
                     }
                     else
@@ -547,29 +586,26 @@ namespace SocialPoint.AssetSerializer.Helpers
         }
 
 
-        private static object ReadValueObject (JsonData propDef )
+        static object ReadValueObject(JsonData propDef)
         {
-            string propType = (string)propDef ["type"];
-            AbstractPropertyReader propReader = ReaderSerializerFactory.GetPropertyReader (propType, propDef);
-            if (propReader != null)
+            string propType = (string)propDef["type"];
+            AbstractPropertyReader propReader = ReaderSerializerFactory.GetPropertyReader(propType, propDef);
+            if(propReader != null)
             {
-                return propReader.ReadValueObject ();
+                return propReader.ReadValueObject();
             }
-            else
-            {
-                throw new Exception ("No reader found for property of type '" + propDef ["type"] + "'");
-            }     
+            throw new Exception("No reader found for property of type '" + propDef["type"] + "'");
         }
-        
-        public static Type GetType (string TypeName)
+
+        public static Type GetType(string TypeName)
         {
             
             // Try Type.GetType() first. This will work with types defined
             // by the Mono runtime, in the same assembly as the caller, etc.
-            var type = Type.GetType (TypeName);
+            var type = Type.GetType(TypeName);
             
             // If it worked, then we're done here
-            if (type != null)
+            if(type != null)
             {
                 return type;
             }            
@@ -579,21 +615,21 @@ namespace SocialPoint.AssetSerializer.Helpers
             // If we still haven't found the proper type, we can enumerate all of the 
             // loaded assemblies and see if any of them define the type
             
-            System.Reflection.Assembly[] assemblies = System.AppDomain.CurrentDomain.GetAssemblies ();
-            foreach (var currentAssembly in assemblies)
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach(var currentAssembly in assemblies)
             {
-                var referencedAssemblies = currentAssembly.GetReferencedAssemblies ();
-                foreach (var assemblyName in referencedAssemblies)
+                var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
+                foreach(var assemblyName in referencedAssemblies)
                 {
                     try
                     {
                         // Load the referenced assembly
-                        var assembly = Assembly.Load (assemblyName);
-                        if (assembly != null)
+                        var assembly = Assembly.Load(assemblyName);
+                        if(assembly != null)
                         {
                             // See if that assembly defines the named type
-                            type = assembly.GetType (TypeName);
-                            if (type != null)
+                            type = assembly.GetType(TypeName);
+                            if(type != null)
                             {
                                 return type;
                             }
@@ -610,35 +646,33 @@ namespace SocialPoint.AssetSerializer.Helpers
             return null;
         }
 
-        public static bool IsCustomGameObject( UnityEngine.Object obj )
+        public static bool IsCustomGameObject(UnityEngine.Object obj)
         {
             // Is this is a GameObject that contains custom components ?
-            if (GetComponentsFromObject(obj, true).Count > 0)
+            if(GetComponentsFromObject(obj).Count > 0)
                 return true;
 
             // Is any of its children a custom game object ?
-            if ( obj is GameObject ) {
-                GameObject gameObject = obj as GameObject;
-                for ( int i = 0; i < gameObject.transform.childCount; i++ ) {
-                    GameObject child = gameObject.transform.GetChild( i ).gameObject;
-                    if (IsCustomGameObject(child))
+            var gameObject = obj as GameObject;
+            if(gameObject != null)
+            {
+                for(int i = 0; i < gameObject.transform.childCount; i++)
+                {
+                    GameObject child = gameObject.transform.GetChild(i).gameObject;
+                    if(IsCustomGameObject(child))
                         return true;
                 }
             }
 
             return false;
-        } 
+        }
 
-        private static object GetPropertyValue (Component comp, PropertyInfo pi)
+        static object GetPropertyValue(Component comp, PropertyInfo pi)
         {
-            object value = pi.GetValue (comp, null);
+            object value = pi.GetValue(comp, null);
             
-            if (value != null)
-            {
-                return value;
-            }
+            return value;
 
-            return null;
         }
     }
 }

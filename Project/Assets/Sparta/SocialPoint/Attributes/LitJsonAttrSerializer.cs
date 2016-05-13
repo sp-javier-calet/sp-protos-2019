@@ -8,10 +8,6 @@ namespace SocialPoint.Attributes
     {
         public bool PrettyPrint;
 
-        public LitJsonAttrSerializer()
-        {
-        }
-
         public void Serialize(Attr attr, JsonWriter writer)
         {
             if(attr == null)
@@ -124,11 +120,7 @@ namespace SocialPoint.Attributes
                     var str = attr.ToString().Replace(kQuoteString, kEscapeString + kQuoteString);
                     return kQuoteString + str + kQuoteString;
                 }
-                else if(attrval.AttrValueType == AttrValueType.EMPTY)
-                {
-                    return NullString;
-                }
-                return attr.ToString();
+                return attrval.AttrValueType == AttrValueType.EMPTY ? NullString : attr.ToString();
             }
             var writer = new JsonWriter();
             writer.PrettyPrint = PrettyPrint;

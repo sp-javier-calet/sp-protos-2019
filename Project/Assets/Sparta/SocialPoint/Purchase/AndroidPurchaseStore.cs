@@ -1,10 +1,9 @@
-
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using SocialPoint.Base;
-using SocialPoint.Attributes;
 using OnePF;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.Purchase
 {
@@ -13,9 +12,9 @@ namespace SocialPoint.Purchase
     {
         const int RESULT_USER_CANCELED = 1;
 
-        private bool _isInitialized;
-        private List<Product> _products;
-        bool _autoCompletePurchases = false;
+        bool _isInitialized;
+        List<Product> _products;
+        bool _autoCompletePurchases;
         string _productId = string.Empty;
 
         #region IPurchaseStore implementation
@@ -24,7 +23,7 @@ namespace SocialPoint.Purchase
 
         public event PurchaseUpdatedDelegate PurchaseUpdated;
 
-        private ValidatePurchaseDelegate _validatePurchase;
+        ValidatePurchaseDelegate _validatePurchase;
 
         public ValidatePurchaseDelegate ValidatePurchase
         {
@@ -85,12 +84,9 @@ namespace SocialPoint.Purchase
                 PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
                 return true;
             }
-            else
-            {
-                DebugLog("product doesn't exist: " + productId);
-                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
-                return false;
-            }
+            DebugLog("product doesn't exist: " + productId);
+            PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+            return false;
         }
 
         public bool HasProductsLoaded
@@ -144,13 +140,13 @@ namespace SocialPoint.Purchase
             OpenIABEventManager.consumePurchaseFailedEvent += consumePurchaseFailed;
 
             OpenIAB.enableDebugLogging(true);
-            Options options = new Options();
+            var options = new Options();
             options.checkInventoryTimeoutMs = Options.INVENTORY_CHECK_TIMEOUT_MS * 2;
             options.discoveryTimeoutMs = Options.DISCOVER_TIMEOUT_MS * 2;
             options.checkInventory = false;
             options.verifyMode = OptionsVerifyMode.VERIFY_SKIP;
-            options.prefferedStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
-            options.availableStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
+            options.prefferedStoreNames = new [] { OpenIAB_Android.STORE_GOOGLE };
+            options.availableStoreNames = new [] { OpenIAB_Android.STORE_GOOGLE };
             options.storeSearchStrategy = SearchStrategy.INSTALLER_THEN_BEST_FIT;
 
 
@@ -164,7 +160,7 @@ namespace SocialPoint.Purchase
             DebugUtils.Log(string.Format("AndroidPurchaseStore {0}", msg));
         }
 
-        private void QueryInventorySucceeded(Inventory inventory)
+        void QueryInventorySucceeded(Inventory inventory)
         {
             //revise all pending purchases
             DebugLog(inventory.ToString());
@@ -189,7 +185,7 @@ namespace SocialPoint.Purchase
                 _products = new List<Product>();
                 foreach(SkuDetails sk in inventory.GetAllAvailableSkus())
                 {
-                    Product parsedProduct = new Product(sk.Sku, sk.Title, float.Parse(sk.PriceValue), sk.CurrencyCode, sk.Price);
+                    var parsedProduct = new Product(sk.Sku, sk.Title, float.Parse(sk.PriceValue), sk.CurrencyCode, sk.Price);
                     DebugLog(parsedProduct.ToString());
                     _products.Add(parsedProduct);
                 }
@@ -203,13 +199,13 @@ namespace SocialPoint.Purchase
             ProductsUpdated(LoadProductsState.Success, null);
         }
 
-        private void QueryInventoryFailed(string error)
+        void QueryInventoryFailed(string error)
         {
             DebugLog("Query inventory failed");
             ProductsUpdated(LoadProductsState.Error, new Error(error));
         }
 
-        private void PurchaseSucceeded(OnePF.Purchase purchase)
+        void PurchaseSucceeded(OnePF.Purchase purchase)
         {
             var data = new AttrDic();
             data.SetValue(Receipt.OrderIdKey, purchase.OrderId);
@@ -220,8 +216,8 @@ namespace SocialPoint.Purchase
             data.SetValue(Receipt.DataSignatureKey, purchase.Signature);
             if(_validatePurchase != null)
             {
-                Receipt receipt = new Receipt(data);
-                _validatePurchase(receipt, (response) => {
+                var receipt = new Receipt(data);
+                _validatePurchase(receipt, response => {
                     //TODO: we have to consume the consumable items
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
@@ -232,7 +228,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void PurchaseFailed(int errorCode, string error)
+        void PurchaseFailed(int errorCode, string error)
         {
             switch(errorCode)
             {
@@ -249,16 +245,16 @@ namespace SocialPoint.Purchase
             DebugLog(errorCode.ToString());
         }
 
-        private void BillingSupported()
+        void BillingSupported()
         {
             _isInitialized = true;
 
             DebugLog("billingSupportedEvent");
         }
 
-        private void BillingNotSupported(string error)
+        void BillingNotSupported(string error)
         {
-            DebugLog("BillingNotSupportedEvent" + error.ToString());
+            DebugLog("BillingNotSupportedEvent" + error);
         }
 
         public void consumePurchaseSucceeded(OnePF.Purchase obj)
@@ -266,7 +262,7 @@ namespace SocialPoint.Purchase
             PurchaseUpdated(PurchaseState.PurchaseConsumed, obj.Sku);
         }
 
-        private void consumePurchaseFailed(string error)
+        void consumePurchaseFailed(string error)
         {
             DebugLog(string.Format("Purchase Cancel : errorCode = {0}",
                 error));

@@ -7,15 +7,25 @@ namespace SocialPoint.ScriptEvents
     public interface IScriptEventDispatcher : IDisposable
     {
         void AddListener(string name, Action<Attr> listener);
+
         void AddListener(Action<string, Attr> listener);
+
         void AddListener(IScriptCondition condition, Action<string, Attr> listener);
+
         bool RemoveListener(Action<Attr> listener);
+
         bool RemoveListener(Action<string, Attr> listener);
+
         void AddConverter(IScriptEventConverter converter);
+
         void AddSerializer(IScriptEventSerializer serializer);
+
         void AddParser(IScriptEventParser parser);
+
         void AddBridge(IScriptEventsBridge bridge);
+
         void Raise(string name, Attr args);
+
         object Parse(string name, Attr args);
     }
 
@@ -32,22 +42,19 @@ namespace SocialPoint.ScriptEvents
                     data.AsDic[AttrKeyActionName].AsValue.ToString(),
                     data.AsDic[AttrKeyActionArguments]);
             }
-            else if(data.AttrType == AttrType.LIST)
+            if(data.AttrType == AttrType.LIST)
             {
                 return dispatcher.Parse(
                     data.AsList[0].AsValue.ToString(),
                     data.AsList[1]);
             }
-            else if(data.AttrType == AttrType.VALUE)
+            if(data.AttrType == AttrType.VALUE)
             {
                 return dispatcher.Parse(
                     data.AsValue.ToString(),
                     new AttrEmpty());
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 
@@ -60,7 +67,7 @@ namespace SocialPoint.ScriptEvents
     {
         bool Matches(string name, Attr arguments);
     }
-        
+
     public struct ScriptEventAction
     {
         public string Name;
@@ -100,7 +107,7 @@ namespace SocialPoint.ScriptEvents
             }
             Clear();
         }
-        
+
         public void Clear()
         {
             _listeners.Clear();
@@ -160,25 +167,15 @@ namespace SocialPoint.ScriptEvents
             bool found = false;
             foreach(var kvp in _listeners)
             {
-                if(kvp.Value.Remove(listener))
-                {
-                    found = true;
-                }
+                found |= kvp.Value.Remove(listener);
             }
             return found;
         }
-        
+
         public bool RemoveListener(Action<string, Attr> listener)
         {           
-            bool found = false;
-            if(_defaultListeners.Remove(listener))
-            {
-                found = true;
-            }
-            if(_conditionListeners.RemoveAll(l => l.Action == listener) > 0)
-            {
-                found = true;
-            }
+            bool found = false || _defaultListeners.Remove(listener);
+            found |= _conditionListeners.RemoveAll(l => l.Action == listener) > 0;
             return found;
         }
 
@@ -187,7 +184,7 @@ namespace SocialPoint.ScriptEvents
             AddSerializer(converter);
             AddParser(converter);
         }
-                
+
         public void AddSerializer(IScriptEventSerializer serializer)
         {
             if(!_serializers.Contains(serializer))
@@ -195,7 +192,7 @@ namespace SocialPoint.ScriptEvents
                 _serializers.Add(serializer);
             }
         }
-        
+
         public void AddParser(IScriptEventParser parser)
         {
             if(!_parsers.Contains(parser))
@@ -218,7 +215,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return parser.Parse(args);
             }
-            return new ScriptEventAction{
+            return new ScriptEventAction {
                 Name = name,
                 Arguments = args
             };

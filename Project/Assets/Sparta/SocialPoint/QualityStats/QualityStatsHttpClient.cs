@@ -125,7 +125,7 @@ namespace SocialPoint.QualityStats
         }
 
         IHttpClient _client;
-        MStats _data;
+        readonly MStats _data;
 
         public QualityStatsHttpClient(IHttpClient client)
         {

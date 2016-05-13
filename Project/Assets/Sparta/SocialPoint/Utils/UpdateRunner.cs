@@ -1,5 +1,3 @@
-
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -13,12 +11,14 @@ namespace SocialPoint.Utils
     public interface ICoroutineRunner
     {
         IEnumerator StartCoroutine(IEnumerator enumerator);
+
         void StopCoroutine(IEnumerator enumerator);
     }
 
     public interface IUpdateScheduler
     {
         void Add(IUpdateable elm);
+
         void Remove(IUpdateable elm);
     }
 

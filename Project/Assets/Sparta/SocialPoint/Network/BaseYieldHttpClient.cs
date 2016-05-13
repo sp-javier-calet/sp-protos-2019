@@ -1,8 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -14,7 +13,7 @@ namespace SocialPoint.Network
 
         HttpResponseDelegate _callback;
 
-        public BaseYieldHttpConnection(HttpResponseDelegate callback)
+        protected BaseYieldHttpConnection(HttpResponseDelegate callback)
         {
             _callback = callback;
         }
@@ -42,12 +41,12 @@ namespace SocialPoint.Network
 
     public abstract class BaseYieldHttpClient : IHttpClient
     {
-        protected BaseYieldHttpConnection Current = null;
+        protected BaseYieldHttpConnection Current;
         protected PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection> Pending;
-        ICoroutineRunner _runner = null;
-        IEnumerator _updateCoroutine = null;
+        ICoroutineRunner _runner;
+        IEnumerator _updateCoroutine;
 
-        public BaseYieldHttpClient(ICoroutineRunner runner)
+        protected BaseYieldHttpClient(ICoroutineRunner runner)
         {
             _runner = runner;
             Pending = new PriorityQueue<HttpRequestPriority, BaseYieldHttpConnection>();
@@ -55,7 +54,7 @@ namespace SocialPoint.Network
 
         protected abstract BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del);
 
-        private string _defaultProxy;
+        string _defaultProxy;
 
         /// <summary>
         ///     Default proxy address that will be set for any connection created using

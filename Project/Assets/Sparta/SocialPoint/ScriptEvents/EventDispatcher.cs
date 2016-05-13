@@ -1,25 +1,29 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
-using SocialPoint.Attributes;
+using System.Reflection;
 
 namespace SocialPoint.ScriptEvents
 {
     public interface IEventDispatcher : IDisposable
     {
         void AddListener<T>(Action<T> listener);
+
         void AddDefaultListener(Action<object> listener);
+
         bool RemoveListener<T>(Action<T> listener);
+
         void RemoveDefaultListener(Action<object> listener);
+
         void AddBridge(IEventsBridge bridge);
+
         void Raise(object e);
     }
 
     public static class EventDispatcherExtensions
     {
-        public static Action<F> Connect<F,T>(this IEventDispatcher dispatcher, Func<F, T> conversion=null)
+        public static Action<F> Connect<F,T>(this IEventDispatcher dispatcher, Func<F, T> conversion = null)
         {
-            Action<F> action = (from) => {
+            Action<F> action = from => {
                 if(conversion == null)
                 {
                     dispatcher.Raise(default(T));
@@ -81,7 +85,7 @@ namespace SocialPoint.ScriptEvents
                 _bridges.Add(bridge);
             }
         }
-        
+
         public void AddDispatcher(IEventDispatcher dispatcher)
         {
             if(dispatcher != null && !_dispatchers.Contains(dispatcher))
@@ -89,12 +93,12 @@ namespace SocialPoint.ScriptEvents
                 _dispatchers.Add(dispatcher);
             }
         }
-        
+
         public bool RemoveDispatcher(IEventDispatcher dispatcher)
         {
             return _dispatchers.Remove(dispatcher);
         }
-        
+
         public void AddListener<T>(Action<T> listener)
         {
             List<Delegate> d;
@@ -109,7 +113,7 @@ namespace SocialPoint.ScriptEvents
                 d.Add(listener);
             }
         }
-        
+
         public bool RemoveListener<T>(Action<T> listener)
         {
             List<Delegate> d;
@@ -120,7 +124,7 @@ namespace SocialPoint.ScriptEvents
             }
             return false;
         }
-        
+
         public void AddDefaultListener(Action<object> listener)
         {
             if(!_defaultListeners.Contains(listener))
@@ -128,7 +132,7 @@ namespace SocialPoint.ScriptEvents
                 _defaultListeners.Add(listener);
             }
         }
-        
+
         public void RemoveDefaultListener(Action<object> listener)
         {
             _defaultListeners.Remove(listener);
@@ -184,7 +188,7 @@ namespace SocialPoint.ScriptEvents
                         {
                             // TODO: find solution that does not use reflection
                             var method = dlg.GetType().GetMethod("Invoke");
-                            method.Invoke(dlg, new object[]{ ev });
+                            method.Invoke(dlg, new []{ ev });
                         }
                         catch(Exception ex)
                         {

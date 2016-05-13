@@ -1,13 +1,11 @@
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace SocialPoint.Console
 {
     public class ConsoleHelpCommand : ConsoleCommand
     {
-        private ConsoleApplication _app;
+        readonly ConsoleApplication _app;
 
         public ConsoleHelpCommand(ConsoleApplication app)
         {
@@ -22,7 +20,7 @@ namespace SocialPoint.Console
         }
 
 
-        private void WriteCommandInfo(string name, ConsoleCommand cmd)
+        static void WriteCommandInfo(string name, ConsoleCommand cmd)
         {
             ConsoleUtils.SetForegroundColor(ConsoleColor.DarkYellow);
             System.Console.Write(name);
@@ -30,7 +28,7 @@ namespace SocialPoint.Console
             System.Console.WriteLine(": {0}", cmd.Description);
         }
 
-        private void WriteOptionInfo(ConsoleCommandOption opt)
+        static void WriteOptionInfo(ConsoleCommandOption opt)
         {
             ConsoleUtils.SetForegroundColor(ConsoleColor.Yellow);
             System.Console.Write(opt.Config);

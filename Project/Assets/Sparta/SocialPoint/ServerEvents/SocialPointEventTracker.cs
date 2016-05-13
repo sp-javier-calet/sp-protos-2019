@@ -399,11 +399,8 @@ namespace SocialPoint.ServerEvents
 
                 return true;
             }
-            else
-            {
-                _sendPending = true;
-                return false;
-            }
+            _sendPending = true;
+            return false;
         }
 
         void AfterSend()

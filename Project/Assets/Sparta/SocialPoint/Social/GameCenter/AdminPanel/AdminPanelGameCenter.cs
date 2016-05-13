@@ -1,15 +1,13 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SocialPlatforms;
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using UnityEngine.UI;
 
 namespace SocialPoint.Social
 {
     public class AdminPanelGameCenter : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        IGameCenter _gameCenter;
+        readonly IGameCenter _gameCenter;
         AdminPanel.AdminPanel _adminPanel;
         Toggle _toggleLogin;
         AdminPanelGameCenterAchievementList _achisPanel;
@@ -37,11 +35,11 @@ namespace SocialPoint.Social
             layout.CreateLabel("Game Center");
             layout.CreateMargin();
            
-            _toggleLogin = layout.CreateToggleButton("Logged In", _gameCenter.IsConnected, (status) => {
+            _toggleLogin = layout.CreateToggleButton("Logged In", _gameCenter.IsConnected, status => {
                 if(status)
                 {
                     _adminPanel.Console.Print("Logging in to Game Center");
-                    _gameCenter.Login((err) => {
+                    _gameCenter.Login(err => {
                         _toggleLogin.isOn = (err == null);
                         _adminPanel.Console.Print("Login finished." + err);
                     });
@@ -76,7 +74,7 @@ namespace SocialPoint.Social
         void ResetAchievements()
         {
             _adminPanel.Console.Print("Reseting achievements...");
-            _gameCenter.ResetAchievements((err) => {
+            _gameCenter.ResetAchievements(err => {
                 if(Error.IsNullOrEmpty(err))
                 {
                     _adminPanel.Console.Print("Achievements were reset.");
@@ -93,7 +91,7 @@ namespace SocialPoint.Social
 
         class AdminPanelGameCenterAchievementList : IAdminPanelGUI
         {
-            IGameCenter _gameCenter;
+            readonly IGameCenter _gameCenter;
             AdminPanelLayout _layout;
 
             public AdminPanelGameCenterAchievementList(IGameCenter gameCenter)
@@ -122,8 +120,8 @@ namespace SocialPoint.Social
 
         class AdminPanelAchievement : IAdminPanelGUI
         {
-            GameCenterAchievement _achievement;
-            IGameCenter _gameCenter;
+            readonly GameCenterAchievement _achievement;
+            readonly IGameCenter _gameCenter;
 
             public AdminPanelAchievement(IGameCenter gameCenter, GameCenterAchievement achievement)
             {

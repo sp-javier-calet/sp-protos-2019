@@ -5,13 +5,13 @@ namespace SocialPoint.Utils
 {
     public static class TimeUtils
     {
-        static private readonly DateTime Epoch = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+        static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public delegate void OffsetChangeDelegate(TimeSpan change);
 
         static public event OffsetChangeDelegate OffsetChanged;
 
-        static private TimeSpan _offset = new TimeSpan();
+        static TimeSpan _offset;
 
         static public TimeSpan Offset
         {
@@ -134,39 +134,18 @@ namespace SocialPoint.Utils
 
             if( ts.Days > 0 )
             {
-                if(ts.Hours > 0)
-                {
-                    return ts.FormatTime("{0}d {1}h");
-                }
-                else
-                {
-                    return ts.FormatTime("{0}d");
-                }
+                return ts.Hours > 0 ? ts.FormatTime("{0}d {1}h") : ts.FormatTime("{0}d");
             }
 
             if( ts.Hours > 0 )
             {
-                if(ts.Minutes > 0)
-                {
-                    return ts.FormatTime("{1}h {2}m");
-                }
-                else
-                {
-                    return ts.FormatTime("{1}h");
-                }
+                return ts.Minutes > 0 ? ts.FormatTime("{1}h {2}m") : ts.FormatTime("{1}h");
 
             }
 
             if( ts.Minutes > 0 )
             {
-                if(ts.Seconds > 0)
-                {
-                    return ts.FormatTime("{2}m {3}s");
-                }
-                else
-                {
-                    return ts.FormatTime("{2}m ");
-                }
+                return ts.Seconds > 0 ? ts.FormatTime("{2}m {3}s") : ts.FormatTime("{2}m ");
             }
 
             return ts.FormatTime("{3}s");

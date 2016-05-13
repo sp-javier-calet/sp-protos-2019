@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using UnityEngine;
 using SocialPoint.Base;
 
 namespace SocialPoint.Utils
@@ -10,7 +9,7 @@ namespace SocialPoint.Utils
         ICoroutineRunner _runner;
         Func<T, IEnumerator> _defaultPriorityAction;
 
-        public PriorityCoroutineAction(ICoroutineRunner runner) : base()
+        public PriorityCoroutineAction(ICoroutineRunner runner)
         {
             _runner = runner;
         }
@@ -61,7 +60,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        IEnumerator RunCoroutine(Func<IEnumerator> corroutine, CoroutineRunData data)
+        static IEnumerator RunCoroutine(Func<IEnumerator> corroutine, CoroutineRunData data)
         {
             data.AddCoroutine();
             yield return corroutine();
@@ -71,8 +70,8 @@ namespace SocialPoint.Utils
 
     class CoroutineRunData
     {
-        int _runningCoroutines = 0;
-        bool _started = false;
+        int _runningCoroutines;
+        bool _started;
 
         public void AddCoroutine()
         {

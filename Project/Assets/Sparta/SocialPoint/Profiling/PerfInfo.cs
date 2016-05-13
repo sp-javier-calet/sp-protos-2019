@@ -34,14 +34,11 @@ namespace SocialPoint.Profiling
         {
             get
             {
-                if(FrameTime != 0f)
+                if(Math.Abs(FrameTime) > Single.Epsilon)
                 {
                     return 1000f / FrameTime;
                 }
-                else
-                {
-                    return 0f;
-                }
+                return 0f;
             }
         }
 
@@ -130,8 +127,8 @@ namespace SocialPoint.Profiling
 
         MonoBehaviour _behaviour;
         Coroutine _updateCoroutine;
-        float _updateInterval = 0.0f;
-        float _currentInterval = 0.0f;
+        float _updateInterval;
+        float _currentInterval;
 
         public PerfInfo(MonoBehaviour behaviour, float updateInterval = 1.0f)
         {
@@ -201,7 +198,7 @@ namespace SocialPoint.Profiling
         {
             var stats = new FrameInfo();
             stats.FrameTime = UnityEditor.UnityStats.frameTime;
-            if(stats.FrameTime == 0)
+            if(Math.Abs(stats.FrameTime) < Single.Epsilon)
             {
                 stats.FrameTime = Time.smoothDeltaTime * 1000;
             }
@@ -215,8 +212,7 @@ namespace SocialPoint.Profiling
         #elif UNITY_IOS && SPARTA_PROFILER_ENABLED
         [DllImport(PluginModuleName)]
         public static extern FrameInfo SPUnityProfilerGetFrameInfo();
-        
-#else
+        #else
         public static FrameInfo SPUnityProfilerGetFrameInfo()
         {
             var stats = new FrameInfo();
@@ -239,8 +235,8 @@ namespace SocialPoint.Profiling
         public static GarbageInfo SPUnityProfilerGetGarbageInfo()
         {
             var stats = new GarbageInfo();
-            stats.AllocatedHeap = UnityEngine.Profiler.GetMonoHeapSize();
-            stats.UsedHeap = UnityEngine.Profiler.usedHeapSize;
+            stats.AllocatedHeap = Profiler.GetMonoHeapSize();
+            stats.UsedHeap = Profiler.usedHeapSize;
             return stats;
         }
         #endif
