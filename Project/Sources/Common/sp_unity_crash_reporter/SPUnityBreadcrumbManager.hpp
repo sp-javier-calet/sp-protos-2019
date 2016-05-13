@@ -1,5 +1,5 @@
-#ifndef __hydra__SPUnityBreadcrumbManager__
-#define __hydra__SPUnityBreadcrumbManager__
+#ifndef __SPUnityBreadcrumbManager__
+#define __SPUnityBreadcrumbManager__
 
 #include <string>
 #include <list>
@@ -39,4 +39,4 @@ namespace socialpoint
     };
 }
 
-#endif /* defined(__hydra__SPUnityBreadcrumbManager__) */
+#endif /* defined(__SPUnityBreadcrumbManager__) */

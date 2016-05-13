@@ -148,7 +148,8 @@ namespace SocialPoint.Crash
         static extern void SPUnityCrashReporterForceCrash();
 
         [DllImport(PluginModuleName)]
-        static extern UIntPtr SPUnityCrashReporterCreate(string path, string version, string separator, string crashExtension, string logExtension, string gameObject);
+        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension, 
+                                                         string breadcrumbPath, string breadcrumbFile, string gameObject);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
@@ -188,12 +189,13 @@ namespace SocialPoint.Crash
             _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
 
             // Create native object
-            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, _listener.gameObject.name);
+            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, 
+                BreadcrumbManager.BreadcrumbDirectoryPath(), BreadcrumbManager.BreadcrumbFilename(), _listener.gameObject.name);
             UnityEngine.Debug.Log("*** TEST Creating Native Crash Reporter. Path: " + _crashesBasePath);
 
             //*** TEST
-            UnityEngine.Debug.Log("*** TEST Crash Reporter Debug");
-            SPUnityCrashReporterDebug(_nativeObject);
+            //UnityEngine.Debug.Log("*** TEST Crash Reporter Debug");
+            //SPUnityCrashReporterDebug(_nativeObject);
         }
 
         ~DeviceCrashReporter ()
@@ -258,12 +260,28 @@ namespace SocialPoint.Crash
     {
         public void OnCrashDumped(string path)
         {
+            //*** TEST
             Debug.Log("*** TEST OnCrashDumped: " + path);
             DebugUtils.LogWarning("OnCrashDumped '" + path + "'");
             if(FileUtils.ExistsFile(path))
             {
                 DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
                 FileUtils.DeleteFile(path);
+            }
+        }
+
+        public void OnBreadcrumbsDumped(string path)
+        {
+            //*** TEST
+            Debug.Log("*** TEST OnBreadcrumbsDumped: " + path);
+            if(FileUtils.ExistsFile(path))
+            {
+                Debug.Log("*** TEST Breadcumbs file exists");
+                Debug.Log("*** TEST Content: " + FileUtils.ReadAllText(BreadcrumbManager.BreadcrumbLogPath()));
+            }
+            else
+            {
+                Debug.Log("*** TEST Breadcumbs file NOT exists");
             }
         }
 

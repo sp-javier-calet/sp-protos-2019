@@ -586,7 +586,6 @@ namespace SocialPoint.Crash
                 Report memoryCrashReport = CheckMemoryCrash();
                 if(memoryCrashReport != null)
                 {
-                    UnityEngine.Debug.Log("*** TEST memoryCrashReport Created");
                     AddRetry(memoryCrashReport.Uuid);
                 }
             }
@@ -634,6 +633,7 @@ namespace SocialPoint.Crash
 
         void SendTrackedCrashes(ReportSendType reportSendType, Action callback)
         {
+            UnityEngine.Debug.Log("*** TEST SendTrackedCrashes " + reportSendType);
             if(HasCrashLogs)
             {
                 var steps = new StepCallbackBuilder(callback);
@@ -642,6 +642,7 @@ namespace SocialPoint.Crash
                 {
                     if(reportSendType == GetReportSendType(log))
                     {
+                        UnityEngine.Debug.Log("*** TEST SendCrashLog " + log);
                         SendCrashLog(log, steps.Add());
                     }
                 }
@@ -656,10 +657,12 @@ namespace SocialPoint.Crash
 
         void SendPendingCrashes(ReportSendType reportSendType, Action callback)
         {
+            UnityEngine.Debug.Log("*** TEST SendPendingCrashes " + reportSendType);
             if(_pendingReports.Count > 0)
             {
                 var steps = new StepCallbackBuilder(callback);
 
+                UnityEngine.Debug.Log("*** TEST pending reports " + _pendingReports.Count);
                 foreach(Report report in _pendingReports)
                 {
                     if(reportSendType == GetReportSendType(report.Uuid))
@@ -713,6 +716,7 @@ namespace SocialPoint.Crash
                _breadcrumbManager.OldBreadcrumb != null &&
                _wasActiveInLastSession)
             {
+                UnityEngine.Debug.Log("*** TEST memoryCrashReport Created. Breadcrumbs: " + _breadcrumbManager.OldBreadcrumb);
                 memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp);
             }
 

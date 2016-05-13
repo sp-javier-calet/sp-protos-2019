@@ -7,6 +7,8 @@
 #include "UnityGameObject.h"
 #include "SPUnityCrashReporter.hpp"
 #include "SPUnityBreadcrumbManager.hpp"
+#include "SPUnityFileUtils.hpp"
+using namespace socialpoint;
 
 /* google_breakpad is only supported in arm architectures
  * SPUnityCrashReporter cannot be enabled in x86 builds.
@@ -25,6 +27,7 @@
             if(context)
             {
                 SPUnityCrashReporter* crashReporter = static_cast<SPUnityCrashReporter*>(context);
+                crashReporter->dumpBreadcrumbs();
                 crashReporter->dumpCrash(descriptor.path());
             }
 
@@ -40,17 +43,21 @@
     }
 #endif
 
-SPUnityCrashReporter::SPUnityCrashReporter(const std::string& path,
+SPUnityCrashReporter::SPUnityCrashReporter(const std::string& crashPath,
                                            const std::string& version,
                                            const std::string& fileSeparator,
                                            const std::string& crashExtension,
                                            const std::string& logExtension,
+                                           const std::string& breadcrumbPath,
+                                           const std::string& breadcrumbFile,
                                            const std::string& gameObject)
-: _crashDirectory(path)
+: _crashDirectory(crashPath)
 , _version(version)
 , _fileSeparator(fileSeparator)
 , _crashExtension(crashExtension)
 , _logExtension(logExtension)
+, _breadcrumbDirectory(breadcrumbPath)
+, _breadcrumbFile(breadcrumbFile)
 , _gameObject(gameObject)
 , _exceptionHandler(nullptr)
 , _breadcrumbManager(socialpoint::SPUnityBreadcrumbManager::getInstance())
@@ -95,6 +102,14 @@ void* callOnCrashDumpedThread(void *ctx)
     return nullptr;
 }
 
+void* callOnBreadcrumbsDumpedThread(void *ctx)
+{
+    CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
+    UnityGameObject(data->gameObject).SendMessage("OnBreadcrumbsDumped", data->logPath);
+    delete data;
+    return nullptr;
+}
+
 void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -124,6 +139,23 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
             new CrashDumpedCallData{ _gameObject, newCrashPath });
     }
 }
+
+void SPUnityCrashReporter::dumpBreadcrumbs()
+{
+    if(SPUnityFileUtils::createDirectory(_breadcrumbDirectory))
+    {
+        std::string filePath(_breadcrumbDirectory + _breadcrumbFile);
+        SPUnityFileUtils::createFileWithData(_breadcrumbManager->getLog(), filePath);
+
+        if(!_gameObject.empty())
+        {
+            pthread_t thread;
+            pthread_create(&thread, NULL, callOnBreadcrumbsDumpedThread,
+                new CrashDumpedCallData{ _gameObject, filePath });
+        }
+    }
+}
+
 
 //*** TEST
 void SPUnityCrashReporter::debug()

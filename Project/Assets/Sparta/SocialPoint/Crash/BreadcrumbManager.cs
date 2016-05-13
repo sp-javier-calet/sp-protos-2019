@@ -36,28 +36,38 @@ namespace SocialPoint.Crash
             if(!_initialized)
             {
                 _initialized = true;
-                string breadCrumbDirectoryPath = PathsManager.AppPersistentDataPath + "/breadcrumb/";
+                string breadCrumbDirectoryPath = BreadcrumbDirectoryPath();
+                string breadCrumbLogPath = BreadcrumbLogPath();
 
                 FileUtils.CreateDirectory(breadCrumbDirectoryPath);
-                UnityEngine.Debug.Log("*** TEST Creating Bradcrumb File. Path: " + breadCrumbDirectoryPath);
-                UnityEngine.Debug.Log("*** TEST BreadcrumbLogPath: " + BreadcrumbLogPath());
+                UnityEngine.Debug.Log("*** TEST Creating Breadcrumb File. Directory: " + breadCrumbDirectoryPath);
+                UnityEngine.Debug.Log("*** TEST BreadcrumbLogPath: " + breadCrumbLogPath);
 
-                if(FileUtils.ExistsFile(BreadcrumbLogPath()))
+                if(FileUtils.ExistsFile(breadCrumbLogPath))
                 {
-                    FileUtils.CopyFile(BreadcrumbLogPath(), BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
+                    FileUtils.CopyFile(breadCrumbLogPath, BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
                 }
 
-                using(var file = new StreamWriter(BreadcrumbLogPath(), false))
+                using(var file = new StreamWriter(breadCrumbLogPath, false))
                 {
                     file.WriteLine(string.Format("Breadcrumb log {0}", TimeUtils.GetTime(TimeUtils.Timestamp).ToString("yyyy/MM/dd HH:mm:ss")));
                 }
             }
         }
 
+        public static string BreadcrumbDirectoryPath()
+        {
+            return PathsManager.AppPersistentDataPath + "/breadcrumb/";
+        }
+
+        public static string BreadcrumbFilename(string uuid = "")
+        {
+            return string.Format("Breadcrumb{0}.log", uuid != "" ? "-" + uuid : "");
+        }
+
         public static string BreadcrumbLogPath(string uuid = "")
         {
-            return string.Format("{0}/breadcrumb/Breadcrumb{1}.log", PathsManager.AppPersistentDataPath,
-                uuid != "" ? "-" + uuid : "");
+            return BreadcrumbDirectoryPath() + BreadcrumbFilename(uuid);
         }
 
         #region BreadcrumbManager implementation
