@@ -6,6 +6,7 @@ using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
+using SocialPoint.ScriptEvents;
 
 public class LocaleInstaller : MonoInstaller
 {
@@ -61,7 +62,9 @@ public class LocaleInstaller : MonoInstaller
         return new LocalizationManager(
             Container.Resolve<IHttpClient>(),
             Container.Resolve<IAppInfo>(),
-            Container.Resolve<Localization>());
+            Container.Resolve<Localization>(),
+            Container.Resolve<LocalizeAttributeConfiguration>(),
+            Container.Resolve<IEventDispatcher>());
     }
 
     void SetupLocalizationManager(LocalizationManager mng)

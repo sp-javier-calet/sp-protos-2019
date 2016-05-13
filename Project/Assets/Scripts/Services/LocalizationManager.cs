@@ -11,11 +11,11 @@ public class LocalizationManager : SocialPoint.Locale.LocalizationManager
     IEventDispatcher _dispatcher;
     LocalizeAttributeConfiguration _localizeAttributeConfig;
 
-    public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale) :
+    public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale, LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher) :
         base(client, appInfo, locale)
     {
-        _localizeAttributeConfig = ServiceLocator.Instance.Resolve<LocalizeAttributeConfiguration>();
-        _dispatcher = ServiceLocator.Instance.Resolve<IEventDispatcher>();
+        _localizeAttributeConfig = attrConfig;
+        _dispatcher = dispatcher;
         _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
         _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }

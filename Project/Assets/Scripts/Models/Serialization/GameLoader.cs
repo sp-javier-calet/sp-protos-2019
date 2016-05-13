@@ -42,16 +42,16 @@ public class GameLoader : IGameLoader
         }
     }
 
-    public GameLoader(string jsonGameResource, string jsonPlayerResource)
+    public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser,
+        IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILogin login)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;
-
-        _gameParser = ServiceLocator.Instance.Resolve<IParser<GameModel>>();
-        _playerParser = ServiceLocator.Instance.Resolve<IParser<PlayerModel>>();
-        _playerSerializer = ServiceLocator.Instance.Resolve<ISerializer<PlayerModel>>();
-        _gameModel = ServiceLocator.Instance.Resolve<GameModel>();
-        _login = ServiceLocator.Instance.Resolve<ILogin>();
+        _gameParser = gameParser;
+        _playerParser = playerParser;
+        _playerSerializer = playerSerializer;
+        _gameModel = game;
+        _login = login;
     }
 
     GameModel LoadInitialGame()

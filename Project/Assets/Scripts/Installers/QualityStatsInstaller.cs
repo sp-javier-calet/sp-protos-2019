@@ -33,7 +33,6 @@ public class QualityStatsInstaller : Installer
 
     QualityStatsHttpClient CreateHttpClient()
     {
-        var client = new HttpClient(Container.Resolve<ICoroutineRunner>());
-        return new QualityStatsHttpClient(client);
+        return new QualityStatsHttpClient(Container.Resolve<IHttpClient>("internal"));
     }
 }

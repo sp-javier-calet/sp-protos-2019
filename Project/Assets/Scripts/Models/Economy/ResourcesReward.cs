@@ -1,5 +1,4 @@
 ﻿using SocialPoint.Base;
-using SocialPoint.Dependency;
 
 public class ResourcesReward : IReward
 {
@@ -8,7 +7,6 @@ public class ResourcesReward : IReward
 
     public ResourcesReward(ResourcePool resources)
     {
-        _playerResources = ServiceLocator.Instance.Resolve<ResourcePool>();
         _resources = resources;
     }
 

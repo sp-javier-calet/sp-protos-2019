@@ -268,7 +268,6 @@ namespace SocialPoint.Dependency
             return container.Bind<T>(tag);
         }
 
-
         public static Binding<T> Bind<T>(this DependencyContainer container, string tag = null)
         {
             var bind = new Binding<T>(container);
@@ -280,7 +279,7 @@ namespace SocialPoint.Dependency
         {
             container.Bind<T>(tag).ToInstance(instance);
         }
-            
+
         public static void Install(this DependencyContainer container, IInstaller[] installers)
         {
             for(var i = 0; i < installers.Length; i++)

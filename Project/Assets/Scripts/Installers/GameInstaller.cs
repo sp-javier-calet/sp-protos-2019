@@ -9,6 +9,7 @@ using SocialPoint.Alert;
 using SocialPoint.Locale;
 using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Login;
 
 public class GameInstaller : MonoInstaller
 {
@@ -79,7 +80,12 @@ public class GameInstaller : MonoInstaller
     {
         return new GameLoader(
             Settings.InitialJsonGameResource,
-            Settings.InitialJsonPlayerResource);
+            Settings.InitialJsonPlayerResource,
+            Container.Resolve<IParser<GameModel>>(),
+            Container.Resolve<IParser<PlayerModel>>(),
+            Container.Resolve<ISerializer<PlayerModel>>(),
+            Container.Resolve<GameModel>(),
+            Container.Resolve<ILogin>());
     }
 
     GameModel CreateGameModel()
@@ -112,7 +118,8 @@ public class GameInstaller : MonoInstaller
         return new GameErrorHandler(
             Container.Resolve<IAlertView>(),
             Container.Resolve<Localization>(),
-            Container.Resolve<IAppEvents>());
+            Container.Resolve<IAppEvents>(),
+            Container.Resolve<bool>("game_debug"));
 
     }
 }

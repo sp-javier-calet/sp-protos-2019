@@ -7,6 +7,9 @@ using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using SocialPoint.AppEvents;
+using SocialPoint.Hardware;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -35,23 +38,30 @@ public class HttpClientInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-#if UNITY_EDITOR
-        var proxyPath = FileUtils.Combine(Application.dataPath, "../.proxy");
-        if(FileUtils.ExistsFile(proxyPath))
-        {
-            var proxy = FileUtils.ReadAllText(proxyPath).Trim();
-            DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
-            Container.BindInstance("http_client_proxy", proxy);
-        }
-#endif
-        Container.BindInstance("http_client_config", Settings.Config);
-        Container.Rebind<IHttpClient>().ToMethod<HttpClient>(CreateHttpClient);
+        Container.Rebind<HttpClient>().ToMethod<HttpClient>(CreateHttpClient);
+        Container.Rebind<IHttpClient>("internal").ToLookup<HttpClient>();
+        Container.Rebind<IHttpClient>().ToLookup<HttpClient>();
         Container.Bind<IDisposable>().ToLookup<IHttpClient>();
     }
 
     HttpClient CreateHttpClient()
     {
-        return new HttpClient(
-            Container.Resolve<ICoroutineRunner>());
+        string proxy = null;
+        #if UNITY_EDITOR
+        var proxyPath = FileUtils.Combine(Application.dataPath, "../.proxy");
+        if(FileUtils.ExistsFile(proxyPath))
+        {
+            proxy = FileUtils.ReadAllText(proxyPath).Trim();
+            DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
+        }
+        #endif
+
+        var client = new HttpClient(
+            Container.Resolve<ICoroutineRunner>(), proxy,
+            Container.Resolve<IDeviceInfo>(),
+            Container.Resolve<IAppEvents>()
+        );
+        client.Config = Settings.Config;
+        return client;
     }
 }

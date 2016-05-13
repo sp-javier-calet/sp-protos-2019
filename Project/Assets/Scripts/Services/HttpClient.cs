@@ -16,17 +16,16 @@ public class HttpClient :
     #endif
 {
     string _httpProxy;
-    IDeviceInfo deviceInfo;
+    IDeviceInfo _deviceInfo;
 
-    public HttpClient(ICoroutineRunner runner):
+    public HttpClient(ICoroutineRunner runner, string proxy, IDeviceInfo deviceInfo, IAppEvents appEvents):
     base(runner)
     {
         RequestSetup += OnRequestSetup;
-        _httpProxy = ServiceLocator.Instance.Resolve<string>("http_client_proxy");
-        Config = ServiceLocator.Instance.Resolve<string>("http_client_config");
-        deviceInfo = ServiceLocator.Instance.Resolve<IDeviceInfo>();
+        _httpProxy = proxy;
+        _deviceInfo = deviceInfo;
         #if CURL_SUPPORTED
-        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
+        AppEvents = appEvents;
         #endif
     }
 
@@ -36,9 +35,9 @@ public class HttpClient :
         {
             req.Proxy = _httpProxy;
         }
-        if(string.IsNullOrEmpty(req.Proxy) && deviceInfo.NetworkInfo.Proxy != null)
+        if(string.IsNullOrEmpty(req.Proxy) && _deviceInfo.NetworkInfo.Proxy != null)
         {
-            req.Proxy = deviceInfo.NetworkInfo.Proxy.ToString();
+            req.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
         }
     }
 }
