@@ -20,6 +20,14 @@ namespace SocialPoint.Purchase
 
         public string FormattedPrice { get; private set; }
 
+        private const string _productIdentifierKey = "productIdentifier";
+        private const string _localizedTitleKey = "localizedTitle";
+        private const string _localizedDescriptionKey = "localizedDescription";
+        private const string _priceKey = "price";
+        private const string _currencySymbolKey = "currencySymbol";
+        private const string _formattedPriceKey = "formattedPrice";
+
+
         public static List<IosStoreProduct> ProductsFromJson(string json)
         {
             return IosStoreAttrUtils.IosStoreListFromJson<IosStoreProduct>(json, ProductFromDictionary);
@@ -30,23 +38,35 @@ namespace SocialPoint.Purchase
         {
             IosStoreProduct product = new IosStoreProduct();
 
-            if(data.ContainsKey("productIdentifier"))
-                product.ProductIdentifier = data["productIdentifier"].ToString();
+            if(data.ContainsKey(_productIdentifierKey))
+            {
+                product.ProductIdentifier = data[_productIdentifierKey].ToString();
+            }
 
-            if(data.ContainsKey("localizedTitle"))
-                product.Title = data["localizedTitle"].ToString();
+            if(data.ContainsKey(_localizedTitleKey))
+            {
+                product.Title = data[_localizedTitleKey].ToString();
+            }
 
-            if(data.ContainsKey("localizedDescription"))
-                product.Description = data["localizedDescription"].ToString();
+            if(data.ContainsKey(_localizedDescriptionKey))
+            {
+                product.Description = data[_localizedDescriptionKey].ToString();
+            }
 
-            if(data.ContainsKey("price"))
-                product.Price = data["price"].ToString();
+            if(data.ContainsKey(_priceKey))
+            {
+                product.Price = data[_priceKey].ToString();
+            }
 
-            if(data.ContainsKey("currencySymbol"))
-                product.CurrencySymbol = data["currencySymbol"].ToString();
+            if(data.ContainsKey(_currencySymbolKey))
+            {
+                product.CurrencySymbol = data[_currencySymbolKey].ToString();
+            }
             
-            if(data.ContainsKey("formattedPrice"))
-                product.FormattedPrice = data["formattedPrice"].ToString();
+            if(data.ContainsKey(_formattedPriceKey))
+            {
+                product.FormattedPrice = data[_formattedPriceKey].ToString();
+            }
 
             return product;
         }

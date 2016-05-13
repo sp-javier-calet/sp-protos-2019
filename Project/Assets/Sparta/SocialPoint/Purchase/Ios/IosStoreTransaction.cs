@@ -34,6 +34,10 @@ namespace SocialPoint.Purchase
 
         public IosStoreTransactionState TransactionState { get; private set; }
 
+        private const string _productIdentifierKey = "productIdentifier";
+        private const string _transactionIdentifierKey = "transactionIdentifier";
+        private const string _base64EncodedReceiptKey = "base64EncodedReceipt";
+        private const string _transactionStateKey = "transactionState";
 
 
         public static List<IosStoreTransaction> TransactionsFromJson(string json)
@@ -52,17 +56,25 @@ namespace SocialPoint.Purchase
         {
             var transaction = new IosStoreTransaction();
 
-            if(dict.ContainsKey("productIdentifier"))
-                transaction.ProductIdentifier = dict["productIdentifier"].ToString();
+            if(dict.ContainsKey(_productIdentifierKey))
+            {
+                transaction.ProductIdentifier = dict[_productIdentifierKey].ToString();
+            }
 
-            if(dict.ContainsKey("transactionIdentifier"))
-                transaction.TransactionIdentifier = dict["transactionIdentifier"].ToString();
+            if(dict.ContainsKey(_transactionIdentifierKey))
+            {
+                transaction.TransactionIdentifier = dict[_transactionIdentifierKey].ToString();
+            }
 
-            if(dict.ContainsKey("base64EncodedReceipt"))
-                transaction.Base64EncodedTransactionReceipt = dict["base64EncodedReceipt"].ToString();
+            if(dict.ContainsKey(_base64EncodedReceiptKey))
+            {
+                transaction.Base64EncodedTransactionReceipt = dict[_base64EncodedReceiptKey].ToString();
+            }
 
-            if(dict.ContainsKey("transactionState"))
-                transaction.TransactionState = (IosStoreTransactionState)int.Parse(dict["transactionState"].ToString());
+            if(dict.ContainsKey(_transactionStateKey))
+            {
+                transaction.TransactionState = (IosStoreTransactionState)int.Parse(dict[_transactionStateKey].ToString());
+            }
 
             return transaction;
         }
