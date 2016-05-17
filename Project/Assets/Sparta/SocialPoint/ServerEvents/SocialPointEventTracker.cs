@@ -720,6 +720,10 @@ namespace SocialPoint.ServerEvents
             operation.SetValue("lost_amount", Math.Abs(op.LostAmount));
             operation.SetValue("type", op.Resource);
 
+            var item = new AttrDic();
+            data.Set("item", item);
+            item.SetValue("reference", op.ItemId);
+
             TrackEvent(name, data);
         }
 

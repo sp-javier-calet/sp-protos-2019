@@ -1,11 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace SocialPoint.Utils
 {
+    public static class StringBuilderExtension
+    {
+        public static void Append(this StringBuilder builder, params string[] strList)
+        {
+            for(int i = 0, count = strList.Length; i < count; ++i)
+            {
+                builder.Append(strList[i]);
+            }
+        }
+
+        public static bool IsNullOrEmpty(this StringBuilder builder)
+        {
+            return builder.Length == 0;
+        }
+    }
+
     public static class StringUtils
     {
         static Stack<StringBuilder> _builders;
@@ -49,11 +64,13 @@ namespace SocialPoint.Utils
             format = String.IsNullOrEmpty(format) ? "{0}='{1}' " : format; 
 
             var sb = StartBuilder();
-            for(int k = 0; k < items.Count(); k++)
+            var itr = items.GetEnumerator();
+            while(itr.MoveNext())
             {
-                KeyValuePair<T,V> item = items.ElementAt(k);
+                var item = itr.Current;
                 sb.AppendFormat(format, item.Key, item.Value);
             }
+            itr.Dispose();
             
             return sb.ToString();
         }
@@ -73,6 +90,7 @@ namespace SocialPoint.Utils
                 sepChar = String.Empty + QuerySeparator;
             }
             itr.Dispose();
+
             return query;
         }
 
@@ -113,6 +131,7 @@ namespace SocialPoint.Utils
         public static string GetJoinedUrlParams(KeyValuePair<string,string>[] parms)
         {
             string result = "";
+
             for(int i = 0, parmsLength = parms.Length; i < parmsLength; i++)
             {
                 KeyValuePair<string, string> param = parms[i];
@@ -169,6 +188,7 @@ namespace SocialPoint.Utils
                 }
             }
             itr.Dispose();
+
             return string.Join(sep, strs.ToArray());
         }
 

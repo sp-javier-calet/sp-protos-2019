@@ -50,6 +50,26 @@ namespace SocialPoint.Login
         const string HttpParamLinkType = "provider_type";
         const string HttpParamRequestIds = "request_ids";
         const string HttpParamPrivilegeToken = "privileged_session_token";
+        const string HttpParamLinkChange = "link_change";
+        const string HttpParamLinkChangeCode = "link_change_code";
+
+        const string HttpParamDeviceTotalMemory = "device_total_memory";
+        const string HttpParamDeviceUsedMemory = "device_used_memory";
+        const string HttpParamDeviceTotalStorage = "device_total_storage";
+        const string HttpParamDeviceUsedStorage = "device_used_storage";
+        const string HttpParamDeviceMaxTextureSize = "device_max_texture_size";
+        const string HttpParamDeviceScreenWidth = "device_screen_width";
+        const string HttpParamDeviceScreenHeight = "device_screen_height";
+        const string HttpParamDeviceScreenDpi = "device_screen_dpi";
+        const string HttpParamDeviceCpuCores = "device_cpu_cores";
+        const string HttpParamDeviceCpuFreq = "device_cpu_freq";
+        const string HttpParamDeviceCpuModel = "device_cpu_model";
+        const string HttpParamDeviceOpenglVendor = "device_opengl_vendor";
+        const string HttpParamDeviceOpenglRenderer = "device_opengl_renderer";
+        const string HttpParamDeviceOpenglShading = "device_opengl_shading";
+        const string HttpParamDeviceOpenglVersion = "device_opengl_version";
+        const string HttpParamDeviceOpenglMemory = "device_opengl_memory";
+
 
         const string AttrKeySessionId = "session_id";
         const string AttrKeyLinksData = "linked_accounts";
@@ -99,7 +119,6 @@ namespace SocialPoint.Login
         public const int DefaultMaxConnectivityErrorRetries = 0;
         public const bool DefaultEnableLinkConfirmRetries = false;
         public const float DefaultTimeout = 120.0f;
-        //Default company timeout
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
@@ -132,6 +151,8 @@ namespace SocialPoint.Login
         bool _userHasRegistered;
         bool _userHasRegisteredLoaded;
         string _securityToken;
+        bool _linkChange;
+        int _linkChangeCode;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -652,7 +673,7 @@ namespace SocialPoint.Login
             OnLoginEnd(null, cbk);
         }
 
-        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0)
+        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0, byte[] responseBody = null)
         {
             if(_appEvents != null)
             {
@@ -667,6 +688,13 @@ namespace SocialPoint.Login
             }
             else if(_availableConnectivityErrorRetries < 0)
             {
+                #if DEBUG
+                if(responseBody != null && responseBody.Length > 0)
+                {
+                    DebugUtils.Log(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
+                }
+                #endif
+
                 var err = new Error(lastErrCode, "There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
@@ -702,7 +730,7 @@ namespace SocialPoint.Login
             if(resp.HasRecoverableError && resp.StatusCode != MaintenanceMode)
             {
                 _availableConnectivityErrorRetries--;
-                DoLogin(cbk, resp.ErrorCode);
+                DoLogin(cbk, resp.ErrorCode, resp.Body);
                 return;
             }
 
@@ -778,6 +806,11 @@ namespace SocialPoint.Login
             // Reset retry values
             _availableConnectivityErrorRetries = _loginConfig.ConnectivityErrors;
             _availableSecurityTokenErrorRetries = _loginConfig.SecurityTokenErrors;
+            if(Error.IsNullOrEmpty(err))
+            {
+                _linkChange = false;
+                _linkChangeCode = 0;
+            }
             if(cbk != null)
             {
                 cbk(err);
@@ -1197,6 +1230,21 @@ namespace SocialPoint.Login
             return err;
         }
 
+        static int GetLinkConfirmTypeCode(LinkConfirmType type)
+        {
+            switch(type)
+            {
+            case LinkConfirmType.LinkedToLinked:
+                return LinkedToLinkedError;
+            case LinkConfirmType.LinkedToLoose:
+                return LinkedToLooseError;
+            case LinkConfirmType.LooseToLinked:
+                return LooseToLinkedError;
+            default:
+                return 0;
+            }
+        }
+
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
             if((resp.HasRecoverableError) && _availableConnectivityErrorRetries > 0 && _loginConfig.EnableOnLinkConfirm)
@@ -1213,8 +1261,11 @@ namespace SocialPoint.Login
             }
             bool restartNeeded = false;
 
+            var linkConfirmTypeCode = 0;
+
             if(info != null)
             {
+                linkConfirmTypeCode = GetLinkConfirmTypeCode(info.ConfirmType);
                 // unset link info to prevent multiple confirms
                 info.Token = "";
                 info.ConfirmType = LinkConfirmType.None;
@@ -1239,6 +1290,9 @@ namespace SocialPoint.Login
                                 // if confirm returns a new user id we need to relogin
                                 if(newUserId != UserId)
                                 {
+                                    _linkChangeCode = linkConfirmTypeCode;
+                                    _linkChange = true;
+
                                     UserId = newUserId;
                                     restartNeeded = true;
                                 }
@@ -1472,7 +1526,7 @@ namespace SocialPoint.Login
 
         void OnUpdateFriendsEnd(List<UserMapping> mappings, Error err, UsersDelegate cbk)
         {
-            var friendsSelection = Friends.Where(u => (mappings.Count(map => u.HasLink(map.Id)) > 0)).ToList();
+            var friendsSelection = Friends.Where(u => (mappings.Where(map => u.HasLink(map.Id)).Count() > 0)).ToList();
 
             if(AutoUpdateFriendsPhotosSize > 0 && friendsSelection.Count > 0)
             {
@@ -1808,6 +1862,78 @@ namespace SocialPoint.Login
                 {
                     req.AddParam(HttpParamPrivilegeToken, PrivilegeToken);
                 }
+                if(!req.HasParam(HttpParamDeviceTotalMemory))
+                {
+                    req.AddParam(HttpParamDeviceTotalMemory, DeviceInfo.MemoryInfo.TotalMemory.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceUsedMemory))
+                {
+                    req.AddParam(HttpParamDeviceUsedMemory, DeviceInfo.MemoryInfo.UsedMemory.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceTotalStorage))
+                {
+                    req.AddParam(HttpParamDeviceTotalStorage, DeviceInfo.StorageInfo.TotalStorage.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceUsedStorage))
+                {
+                    req.AddParam(HttpParamDeviceUsedStorage, DeviceInfo.StorageInfo.UsedStorage.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceMaxTextureSize))
+                {
+                    req.AddParam(HttpParamDeviceMaxTextureSize, DeviceInfo.MaxTextureSize.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenWidth))
+                {
+                    req.AddParam(HttpParamDeviceScreenWidth, DeviceInfo.ScreenSize.x.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenHeight))
+                {
+                    req.AddParam(HttpParamDeviceScreenHeight, DeviceInfo.ScreenSize.y.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenDpi))
+                {
+                    req.AddParam(HttpParamDeviceScreenDpi, DeviceInfo.ScreenDpi.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuCores))
+                {
+                    req.AddParam(HttpParamDeviceCpuCores, DeviceInfo.CpuCores.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuFreq))
+                {
+                    req.AddParam(HttpParamDeviceCpuFreq, DeviceInfo.CpuFreq.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuModel))
+                {
+                    req.AddParam(HttpParamDeviceCpuModel, DeviceInfo.CpuModel);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglVendor))
+                {
+                    req.AddParam(HttpParamDeviceOpenglVendor, DeviceInfo.OpenglVendor);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglRenderer))
+                {
+                    req.AddParam(HttpParamDeviceOpenglRenderer, DeviceInfo.OpenglRenderer);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglShading))
+                {
+                    req.AddParam(HttpParamDeviceOpenglShading, DeviceInfo.OpenglShadingVersion.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglVersion))
+                {
+                    req.AddParam(HttpParamDeviceOpenglVersion, DeviceInfo.OpenglVersion);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglMemory))
+                {
+                    req.AddParam(HttpParamDeviceOpenglMemory, DeviceInfo.OpenglMemorySize.ToString());
+                }
+            }
+            if(!req.HasParam(HttpParamLinkChange))
+            {
+                req.AddParam(HttpParamLinkChange, _linkChange ? "1" : "0");
+            }
+            if(!req.HasParam(HttpParamLinkChangeCode))
+            {
+                req.AddParam(HttpParamLinkChangeCode, new AttrInt(_linkChangeCode));
             }
         }
 

@@ -22,6 +22,7 @@ namespace SocialPoint.ServerEvents
         public int Amount;
         public string Category;
         public string Subcategory;
+        public string ItemId;
         public AttrDic AdditionalData;
 
         bool _potentialAmountSet;

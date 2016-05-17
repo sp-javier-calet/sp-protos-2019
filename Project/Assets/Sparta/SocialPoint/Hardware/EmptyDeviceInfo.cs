@@ -1,3 +1,4 @@
+using UnityEngine;
 
 namespace SocialPoint.Hardware
 {
@@ -15,7 +16,7 @@ namespace SocialPoint.Hardware
 
         public string Uid { get; set; }
 
-        public IMemoryInfo MemoryInfo { get; set; } 
+        public IMemoryInfo MemoryInfo { get; set; }
 
         public IStorageInfo StorageInfo
         {
@@ -86,6 +87,84 @@ namespace SocialPoint.Hardware
         }
 
         public bool Rooted
+        {
+            get;
+            set;
+        }
+
+        public int MaxTextureSize
+        {
+            get;
+            set;
+        }
+
+        public Vector2 ScreenSize
+        {
+            get;
+            set;
+        }
+
+        public float ScreenDpi
+        {
+            get;
+            set;
+        }
+
+        public int CpuCores
+        {
+            get;
+            set;
+        }
+
+        public int CpuFreq
+        {
+            get;
+            set;
+        }
+
+        public string CpuModel
+        {
+            get;
+            set;
+        }
+
+        public string CpuArchitecture
+        {
+            get;
+            set;
+        }
+
+        public string OpenglVendor
+        {
+            get;
+            set;
+        }
+
+        public string OpenglRenderer
+        {
+            get;
+            set;
+        }
+
+        public string OpenglExtensions
+        {
+            get;
+            set;
+        }
+
+        public int OpenglShadingVersion
+        {
+            get;
+            set;
+        }
+
+        public string OpenglVersion
+        {
+            get;
+            set;
+        }
+
+        public int OpenglMemorySize
         {
             get;
             set;
