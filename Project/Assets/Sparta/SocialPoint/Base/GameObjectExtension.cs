@@ -302,7 +302,7 @@ namespace SocialPoint.Base
             }
         }
 
-        public static void GetChildWithTagRecursive(this GameObject gameObject, string tag, List<GameObject> outList)
+        public static void GetChildrenWithTagRecursive(this GameObject gameObject, string tag, List<GameObject> outList)
         {
             if( gameObject.CompareTag(tag) )
             {
@@ -311,7 +311,7 @@ namespace SocialPoint.Base
 
             for(int k = 0; k < gameObject.transform.childCount; k++)
             {
-                GetChildWithTagRecursive(gameObject.transform.GetChild(k).gameObject, tag, outList);
+                GetChildrenWithTagRecursive(gameObject.transform.GetChild(k).gameObject, tag, outList);
             }
         }
     }
