@@ -342,7 +342,7 @@ namespace SocialPoint.Locale
 
             if(CopyAllFilesToBundleFolder)
             {
-                DownloadSupportedLanguages(LoadCurrentLanguage);
+                DownloadSupportedLanguages(() => LoadCurrentLanguage());
             }
             else
             {
@@ -385,12 +385,15 @@ namespace SocialPoint.Locale
             }
             var lang = langEnumerator.Current;
 
-            DownloadLocalization(lang, () => {
-                var locale = new Localization();
-                LoadLocalizationData(locale, lang);
-                locales[lang] = locale;
-                DownloadSupportedLanguages(finish, locales, langEnumerator);
-            });
+            DownloadLocalization(lang, () => OnDownloadLocalization(lang, finish, locales, langEnumerator));
+        }
+
+        void OnDownloadLocalization(string lang, Action finish, IDictionary<string, Localization> locales, IEnumerator<string> langEnumerator)
+        {
+            var locale = new Localization();
+            LoadLocalizationData(locale, lang);
+            locales[lang] = locale;
+            DownloadSupportedLanguages(finish, locales, langEnumerator);
         }
 
         void OnLanguagesLoaded(IDictionary<string, Localization> locales)
@@ -438,15 +441,22 @@ namespace SocialPoint.Locale
                 return;
             }
 
-            DownloadLocalization(FallbackLanguage, () => DownloadLocalization(CurrentLanguage, LoadCurrentLanguage));
+            DownloadLocalization(CurrentLanguage, OnDownloadLocalization);
         }
 
-        void LoadCurrentLanguage()
+        void OnDownloadLocalization()
         {
+            if(!LoadCurrentLanguage())
+            {
+                DownloadLocalization(FallbackLanguage, () => LoadCurrentLanguage());
+            }
+        }
 
+        bool LoadCurrentLanguage()
+        {
             if(_localization == null)
             {
-                return;
+                return false;
             }
 
             // load fallback localization
@@ -456,10 +466,15 @@ namespace SocialPoint.Locale
                 _localization.Fallback = new Localization();
                 LoadLocalizationData(_localization.Fallback, flang);
             }
-            LoadLocalizationData(_localization, CurrentLanguage);
-            var locales = new Dictionary<string, Localization>();
-            locales[CurrentLanguage] = _localization;
-            OnLanguagesLoaded(locales);
+
+            if(LoadLocalizationData(_localization, CurrentLanguage))
+            {
+                var locales = new Dictionary<string, Localization>();
+                locales[CurrentLanguage] = _localization;
+                OnLanguagesLoaded(locales);
+                return true;
+            }
+            return false;
         }
 
         static string LocalizationsToCsv(IDictionary<string,Localization> locales)
@@ -530,7 +545,7 @@ namespace SocialPoint.Locale
                 return false;
             }
             var data = FileUtils.ReadAllBytes(file);
-            AttrList attr = null;
+            AttrList attr;
             try
             {
                 attr = new JsonAttrParser().Parse(data).AssertList;
@@ -541,6 +556,7 @@ namespace SocialPoint.Locale
                 {
                     FileUtils.DeleteFile(file);
                 }
+                return false;
             }
             if(attr == null)
             {
@@ -692,7 +708,7 @@ namespace SocialPoint.Locale
         string GetSupportedLanguage(string lang = null)
         {
             string slang = null;
-            string country = null;
+            string country;
             var supported = new List<string>(_supportedFixedLanguages);
 
             if(string.IsNullOrEmpty(lang))
