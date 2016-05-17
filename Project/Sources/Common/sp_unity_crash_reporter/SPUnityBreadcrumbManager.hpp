@@ -25,9 +25,6 @@ namespace socialpoint
         void clear();
 
       private:
-      	//Singleton instance
-      	static SPUnityBreadcrumbManager* _instance;
-
       	static const unsigned kDefaultSizeLogs;
 
       	size_t _maxLogs;

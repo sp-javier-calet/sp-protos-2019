@@ -5,12 +5,6 @@
 #include <dirent.h>
 #include <map>
 
-/*#ifdef TARGET_OS_IPHONE
-extern int errno;
-#else
-extern volatile int errno;
-#endif*/
-
 namespace socialpoint
 {
     const std::map<SPUnityFileUtils::AccessMode, const char*> kAccessModeCodes = {{SPUnityFileUtils::AccessMode::Read, "r"},

@@ -3,17 +3,13 @@
 
 namespace socialpoint
 {
-    SPUnityBreadcrumbManager* SPUnityBreadcrumbManager::_instance = nullptr;
-
     const unsigned SPUnityBreadcrumbManager::kDefaultSizeLogs = 50;
 
     SPUnityBreadcrumbManager* SPUnityBreadcrumbManager::getInstance()
     {
-        if(!_instance)
-        {
-            _instance = new SPUnityBreadcrumbManager();
-        }
-        return _instance;
+        //Singleton instance
+        static SPUnityBreadcrumbManager instance;
+        return &instance;
     }
 
     SPUnityBreadcrumbManager::SPUnityBreadcrumbManager()
