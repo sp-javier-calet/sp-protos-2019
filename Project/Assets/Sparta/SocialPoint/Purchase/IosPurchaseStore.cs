@@ -153,6 +153,7 @@ namespace SocialPoint.Purchase
             }
 
             IosStoreManager.ProductListReceivedEvent += ProductListReceived;
+            IosStoreManager.ProductListRequestFailedEvent += ProductListFailed;
             IosStoreManager.PurchaseFailedEvent += PurchaseFailed;
             IosStoreManager.PurchaseCancelledEvent += PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent += PurchaseFinished;
@@ -182,6 +183,11 @@ namespace SocialPoint.Purchase
             _products.Sort((Product p1, Product p2) => p1.Price.CompareTo(p2.Price));
             DebugLog("products sorted");
             ProductsUpdated(LoadProductsState.Success);
+        }
+
+        private void ProductListFailed(Error error)
+        {
+            DebugLog("ProductListFailed " + error);
         }
 
         private void FinishPendingPurchase(Receipt receipt, OnFinishedPendingPurchaseDelegate OnFinishedPendingPurchase = null)
@@ -222,7 +228,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void PurchaseFailed(string error)
+        private void PurchaseFailed(Error error)
         {
             DebugLog("PurchaseFailed " + error);
             //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
@@ -232,7 +238,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void PurchaseCanceled(string error)
+        private void PurchaseCanceled(Error error)
         {
             DebugLog("PurchaseCanceled " + error);
             //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
@@ -286,6 +292,7 @@ namespace SocialPoint.Purchase
         void UnregisterEvents()
         {
             IosStoreManager.ProductListReceivedEvent -= ProductListReceived;
+            IosStoreManager.ProductListRequestFailedEvent -= ProductListFailed;
             IosStoreManager.PurchaseFailedEvent -= PurchaseFailed;
             IosStoreManager.PurchaseCancelledEvent -= PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent -= PurchaseFinished;

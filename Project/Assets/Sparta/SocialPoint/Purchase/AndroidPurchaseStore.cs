@@ -155,10 +155,10 @@ namespace SocialPoint.Purchase
             DebugUtils.Log(string.Format("AndroidPurchaseStore {0}", msg));
         }
 
-        private void QueryInventoryFailed(string error)
+        private void QueryInventoryFailed(Error error)
         {
             DebugLog("Query inventory failed");
-            ProductsUpdated(LoadProductsState.Error, new Error(error));
+            ProductsUpdated(LoadProductsState.Error, error);
         }
 
         private void ProductListReceived(List<AndroidStoreProduct> products)
@@ -205,13 +205,13 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void PurchaseFailed(string error)
+        private void PurchaseFailed(Error error)
         {
             PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
             DebugLog(string.Format("Purchase failed : error message = {0}", error));
         }
 
-        private void PurchaseCancelled(string error)
+        private void PurchaseCancelled(Error error)
         {
             PurchaseUpdated(PurchaseState.PurchaseCanceled, _productId);
             DebugLog(string.Format("Purchase cancelled : error message = {0}", error));
@@ -223,7 +223,7 @@ namespace SocialPoint.Purchase
             DebugLog("BillingSupportedEvent");
         }
 
-        private void BillingNotSupported(string error)
+        private void BillingNotSupported(Error error)
         {
             DebugLog("BillingNotSupportedEvent" + error.ToString());
         }
@@ -233,7 +233,7 @@ namespace SocialPoint.Purchase
             PurchaseUpdated(PurchaseState.PurchaseConsumed, purchase.Sku);
         }
 
-        private void ConsumePurchaseFailed(string error)
+        private void ConsumePurchaseFailed(Error error)
         {
             DebugLog(string.Format("Purchase Cancel : errorCode = {0}", error));
             PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);

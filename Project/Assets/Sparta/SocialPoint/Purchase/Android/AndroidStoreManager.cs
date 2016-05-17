@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 #if UNITY_ANDROID
 namespace SocialPoint.Purchase
@@ -12,37 +13,28 @@ namespace SocialPoint.Purchase
         public static event Action BillingSupportedEvent;
 
         //Failed Init callback. Billing is not supported on current platform
-        public static event Action<string> BillingNotSupportedEvent;
+        public static event Action<Error> BillingNotSupportedEvent;
 
         //Successful QueryInventory callback. Purchase history and store listings are returned/
         public static event Action<List<AndroidStoreProduct>> QueryInventorySucceededEvent;
 
         //Failed QueryInventory callback.
-        public static event Action<string> QueryInventoryFailedEvent;
+        public static event Action<Error> QueryInventoryFailedEvent;
 
         //Successful purchase callback. Fired after purchase of a product or a subscription
         public static event Action<AndroidStoreTransaction> PurchaseSucceededEvent;
 
         //Failed purchase callback
-        public static event Action<string> PurchaseFailedEvent;
+        public static event Action<Error> PurchaseFailedEvent;
 
         //Canceled purchase callback
-        public static event Action<string> PurchaseCancelledEvent;
+        public static event Action<Error> PurchaseCancelledEvent;
 
         //Successful consume attempt callback
         public static event Action<AndroidStoreTransaction> ConsumePurchaseSucceededEvent;
 
         //Failed consume attempt callback
-        public static event Action<string> ConsumePurchaseFailedEvent;
-
-        //Fired when transaction was restored
-        public static event Action<string> TransactionRestoredEvent;
-
-        //Fired when transaction restoration process failed
-        public static event Action<string> RestoreFailedEvent;
-
-        //Fired when transaction restoration process succeeded
-        public static event Action RestoreSucceededEvent;
+        public static event Action<Error> ConsumePurchaseFailedEvent;
 
 
         static AndroidStoreManager()
@@ -53,11 +45,6 @@ namespace SocialPoint.Purchase
             DontDestroyOnLoad(instance);
 
             AndroidStoreBinding.Init(instanceName);
-        }
-
-        private void OnMapSkuFailed(string exception)
-        {
-            Debug.LogError("SKU mapping failed: " + exception);
         }
 
         private void OnBillingSupported(string empty)
@@ -72,7 +59,7 @@ namespace SocialPoint.Purchase
         {
             if(BillingNotSupportedEvent != null)
             {
-                BillingNotSupportedEvent(error);
+                BillingNotSupportedEvent(new Error(error));
             }
         }
 
@@ -88,7 +75,7 @@ namespace SocialPoint.Purchase
         {
             if(QueryInventoryFailedEvent != null)
             {
-                QueryInventoryFailedEvent(error);
+                QueryInventoryFailedEvent(new Error(error));
             }
         }
 
@@ -104,7 +91,7 @@ namespace SocialPoint.Purchase
         {
             if(PurchaseFailedEvent != null)
             {
-                PurchaseFailedEvent(message);
+                PurchaseFailedEvent(new Error(message));
             }
         }
 
@@ -112,7 +99,7 @@ namespace SocialPoint.Purchase
         {
             if(PurchaseFailedEvent != null)
             {
-                PurchaseCancelledEvent(message);
+                PurchaseCancelledEvent(new Error(message));
             }
         }
 
@@ -128,31 +115,7 @@ namespace SocialPoint.Purchase
         {
             if(ConsumePurchaseFailedEvent != null)
             {
-                ConsumePurchaseFailedEvent(error);
-            }
-        }
-
-        public void OnTransactionRestored(string sku)
-        {
-            if(TransactionRestoredEvent != null)
-            {
-                TransactionRestoredEvent(sku);
-            }
-        }
-
-        public void OnRestoreTransactionFailed(string error)
-        {
-            if(RestoreFailedEvent != null)
-            {
-                RestoreFailedEvent(error);
-            }
-        }
-
-        public void OnRestoreTransactionSucceeded(string message)
-        {
-            if(RestoreSucceededEvent != null)
-            {
-                RestoreSucceededEvent();
+                ConsumePurchaseFailedEvent(new Error(error));
             }
         }
 
