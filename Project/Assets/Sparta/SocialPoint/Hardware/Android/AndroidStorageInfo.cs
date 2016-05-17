@@ -1,4 +1,5 @@
 #if UNITY_ANDROID
+using SocialPoint.Base;
 using UnityEngine;
 #endif
 
