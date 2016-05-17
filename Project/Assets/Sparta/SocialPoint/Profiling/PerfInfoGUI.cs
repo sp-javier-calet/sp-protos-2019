@@ -6,11 +6,14 @@ namespace SocialPoint.Profiling
     {
         public PerfInfo Info;
 
-        public TextAnchor Anchor; 
+        public TextAnchor Anchor;
         public Vector2 Border = new Vector2(5.0f, 5.0f);
         public Color Color = Color.green;
         public bool ShortText = false;
         public bool StartEnabled = false;
+
+        private float defaultSize = 20;
+        private float defaultWidth = 1280;
 
         void Start()
         {
@@ -25,12 +28,13 @@ namespace SocialPoint.Profiling
         void OnGUI()
         {
             var rect = new Rect(Border.x, Border.y,
-                Screen.width-2*Border.x, Screen.height-2*Border.x);
+                           Screen.width - 2 * Border.x, Screen.height - 2 * Border.x);
 
             var style = new GUIStyle();
             style.fontStyle = FontStyle.Bold;
             style.normal.textColor = Color;
             style.alignment = Anchor;
+            style.fontSize = Mathf.RoundToInt(defaultSize * Screen.width / (defaultWidth * 1.0f));
 
             string text;
             if(ShortText)

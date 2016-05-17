@@ -68,13 +68,14 @@ namespace SocialPoint.Login
 
         public UInt64 UserId{ get; set; }
 
-        public string SessionId{ get{ return null; } }
+        public string SessionId{ get { return null; } }
 
-        public string PrivilegeToken{ set{} }
+        public string PrivilegeToken{ set { } }
 
         public GenericData Data{ get; set; }
 
         string _baseUrl;
+
         public string BaseUrl
         {
             get
