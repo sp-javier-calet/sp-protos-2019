@@ -21,8 +21,10 @@ namespace SocialPoint.ObjectPool
             public GameObject prefab;
         }
 
+        public bool AllowAutoPoolCreation = false;
         public StartupPoolModeEnum StartupPoolMode;
         public StartupPool[] StartupPools;
+
         private static ObjectPool _instance;
 
         public static ObjectPool Instance
@@ -156,6 +158,12 @@ namespace SocialPoint.ObjectPool
 
             GameObject obj;
             List<GameObject> list;
+
+            if(!Instance._pooledObjects.TryGetValue(prefab, out list) && Instance.AllowAutoPoolCreation)
+            {
+                CreatePool(prefab, 1);
+            }
+
             if(Instance._pooledObjects.TryGetValue(prefab, out list))
             {
                 obj = null;
