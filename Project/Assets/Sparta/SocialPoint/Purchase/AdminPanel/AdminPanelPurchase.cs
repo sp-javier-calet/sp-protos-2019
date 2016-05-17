@@ -83,16 +83,18 @@ namespace SocialPoint.Purchase
             layout.CreateLabel("Products");
             if(_purchaseStore.HasProductsLoaded)
             {
-                foreach(Product product in _purchaseStore.ProductList)
+                for(int i = 0, _purchaseStoreProductListLength = _purchaseStore.ProductList.Length; i < _purchaseStoreProductListLength; i++)
                 {
+                    Product product = _purchaseStore.ProductList[i];
                     AdminPanelLayout.VerticalLayout pLayout = layout.CreateVerticalLayout();
-                    string id = product.Id;//Caching id to avoid passing reference to lambda
+                    string id = product.Id;
+                    //Caching id to avoid passing reference to lambda
                     //Purchase product button
                     pLayout.CreateButton(product.Locale, () => PurchaseProduct(id));
                     //Label with purchase state
                     if(_lastKnownPurchaseState.ContainsKey(id) && !string.IsNullOrEmpty(_lastKnownPurchaseState[id]))
                     {
-                        var infoPanel = layout.CreatePanelLayout(product.Locale + " - Purchase Info", () => {
+                        var infoPanel = layout.CreatePanelLayout(product.Locale + " - Purchase Info", () =>  {
                             _lastKnownPurchaseState[id] = string.Empty;
                             layout.Refresh();
                         });

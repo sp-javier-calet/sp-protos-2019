@@ -39,8 +39,10 @@ namespace SocialPoint.Attributes
                 return;
             }
             writer.WriteObjectStart();
-            foreach(var pair in attr)
+            var itr = attr.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 if(pair.Key == null)
                 {
                     throw new InvalidOperationException("Dictionary key cannot be null.");
@@ -48,6 +50,7 @@ namespace SocialPoint.Attributes
                 writer.WritePropertyName(pair.Key);
                 Serialize(pair.Value, writer);
             }
+            itr.Dispose();
             writer.WriteObjectEnd();
         }
 
@@ -59,10 +62,13 @@ namespace SocialPoint.Attributes
                 return;
             }
             writer.WriteArrayStart();
-            foreach(var child in attr)
+            var itr = attr.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var child = itr.Current;
                 Serialize(child, writer);
             }
+            itr.Dispose();
             writer.WriteArrayEnd();
         }
 

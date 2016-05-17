@@ -218,8 +218,9 @@ namespace SocialPoint.Profiling
             var stats = new FrameInfo();
 
             stats.FrameTime = Time.smoothDeltaTime*1000;
-            foreach(MeshFilter mf in GameObject.FindObjectsOfType(typeof(MeshFilter)))
+            for(int i = 0, maxLength = GameObject.FindObjectsOfType(typeof(MeshFilter)).Length; i < maxLength; i++)
             {
+                var mf = (MeshFilter)GameObject.FindObjectsOfType(typeof(MeshFilter))[i];
                 stats.Verts += (uint)mf.sharedMesh.vertexCount;
                 stats.Tris += (uint)mf.sharedMesh.triangles.Length;
             }

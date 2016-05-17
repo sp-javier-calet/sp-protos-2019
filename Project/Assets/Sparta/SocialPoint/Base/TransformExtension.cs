@@ -104,12 +104,16 @@ namespace SocialPoint.Base
             if(parentComponent != null)
                 return parentComponent;
 
-            foreach(Transform child in parent)
+            var itr = parent.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var child = (Transform)itr.Current;
                 T childComponent = child.SafeGetComponentInChildren<T>();
 
                 if(childComponent != null)
+                {
                     return childComponent;
+                }
             }
 
             return null;
@@ -122,10 +126,14 @@ namespace SocialPoint.Base
             T parentComponent = parent.GetComponent<T>();
 
             if(parentComponent != null)
-                componentsList.Add(parentComponent);
-
-            foreach(Transform child in parent)
             {
+                componentsList.Add(parentComponent);
+            }
+
+            var itr = parent.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var child = (Transform)itr.Current;
                 componentsList.AddRange(child.SafeGetComponentsInChildren<T>());
             }
 

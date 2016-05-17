@@ -22,8 +22,11 @@ namespace SocialPoint.Network
 
             if(req.Headers != null)
             {
-                foreach(var pair in req.Headers)
+                var itr = req.Headers.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pair = itr.Current;
+
                     switch(pair.Key)
                     {
                     case "Accept":
@@ -75,6 +78,7 @@ namespace SocialPoint.Network
                         break;
                     }
                 }
+                itr.Dispose();
             }
 
             if(string.IsNullOrEmpty(wreq.ContentType))

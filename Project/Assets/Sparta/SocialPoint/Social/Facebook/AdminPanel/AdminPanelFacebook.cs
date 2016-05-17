@@ -94,8 +94,9 @@ namespace SocialPoint.Social
             {
                 var friends = new string[_facebook.Friends.Count];
                 var i = 0;
-                foreach(var friend in _facebook.Friends)
+                for(int j = 0, _facebookFriendsCount = _facebook.Friends.Count; j < _facebookFriendsCount; j++)
                 {
+                    var friend = _facebook.Friends[j];
                     friends[i++] = friend.ToString();
                 }
                 _friendsText.text = string.Join("\n", friends);

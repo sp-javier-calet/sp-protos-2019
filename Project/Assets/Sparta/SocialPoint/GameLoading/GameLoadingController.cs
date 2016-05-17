@@ -111,8 +111,9 @@ namespace SocialPoint.GameLoading
                 float totalExpected = 0.0f;
                 float finishedExpected = 0.0f;
                 int i = 0;
-                foreach(var op in _operations)
+                for(int j = 0, _operationsCount = _operations.Count; j < _operationsCount; j++)
                 {
+                    var op = _operations[j];
                     if(!op.HasExpectedDuration)
                     {
                         allOpsExpected = false;
@@ -125,10 +126,11 @@ namespace SocialPoint.GameLoading
                         {
                             finishedExpected += CurrentOperationProgress * opExpected;
                         }
-                        else if(i < _currentOperationIndex)
-                        {
-                            finishedExpected += opExpected;
-                        }
+                        else
+                            if(i < _currentOperationIndex)
+                            {
+                                finishedExpected += opExpected;
+                            }
                         totalExpected += opExpected;
                     }
                     i++;

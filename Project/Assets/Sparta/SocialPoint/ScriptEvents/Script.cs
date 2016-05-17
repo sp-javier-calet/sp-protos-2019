@@ -81,10 +81,14 @@ namespace SocialPoint.ScriptEvents
         public ScriptModel Parse(Attr data)
         {
             var steps = new List<ScriptStepModel>();
-            foreach(var step in data.AsList)
+            var itr = data.AsList.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var step = itr.Current;
                 steps.Add(_stepParser.Parse(step));
             }
+            itr.Dispose();
+
             return new ScriptModel{ Steps = steps.ToArray() };
         }
     }
@@ -229,8 +233,9 @@ namespace SocialPoint.ScriptEvents
                 throw new ArgumentNullException("dispatcher");
             }
             _dispatcher = dispatcher;
-            foreach(var stepModel in model.Steps)
+            for(int i = 0, modelStepsLength = model.Steps.Length; i < modelStepsLength; i++)
             {
+                var stepModel = model.Steps[i];
                 _steps.Add(new ScriptStep(_dispatcher, stepModel));
             }
             Reset();

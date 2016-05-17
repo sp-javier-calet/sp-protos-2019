@@ -155,13 +155,16 @@ namespace SocialPoint.AssetVersioning
         public List<string> GetLocalBundles()
         {
             var result = new List<string>();
-            foreach(KeyValuePair<string, AssetVersioningData> pair in _data)
+            var itr = _data.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 if(DownloadManager.Instance.IsLocalBundleVersion(pair.Key, pair.Value.Version, pair.Value.Client) && !IsThumb(pair.Key))
                 {
                     result.Add(pair.Key);
                 }
             }
+            itr.Dispose();
 
             return result;
         }
@@ -169,13 +172,16 @@ namespace SocialPoint.AssetVersioning
         public List<string> GetLocalTextureNames()
         {
             var result = new List<string>();
-            foreach(KeyValuePair<string, AssetVersioningData> pair in _data)
+            var itr = _data.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 if(DownloadManager.Instance.IsLocalBundleVersion(pair.Key, pair.Value.Version, pair.Value.Client) && IsThumb(pair.Key))
                 {
                     result.Add(pair.Key.Replace("/GUI/Thumbnails/", ""));
                 }
             }
+            itr.Dispose();
             
             return result;
         }
@@ -211,11 +217,14 @@ namespace SocialPoint.AssetVersioning
             var sb = new System.Text.StringBuilder();
             sb.AppendFormat("EntityDictionary: {0}", GetType().Name).AppendLine();
 
-            foreach(AssetVersioningData e in Values)
+            var itr = Values.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var e = itr.Current;
                 sb.AppendFormat("\tId: {0}", e).AppendLine();
                 sb.AppendFormat("\t{0}", e).AppendLine();
             }
+            itr.Dispose();
 
             return sb.ToString();
         }

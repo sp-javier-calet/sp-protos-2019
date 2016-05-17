@@ -110,12 +110,15 @@ namespace SocialPoint.Social
             {
                 layout.CreateLabel("Achievements");
 
-                foreach(var achievement in _google.Achievements)
+                var itr = _google.Achievements.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var achievement = itr.Current;
                     layout.CreateOpenPanelButton(achievement.Name,
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
                         new AdminPanelGoogleAchievement(_google, achievement));
                 }
+                itr.Dispose();
             }
         }
 
@@ -205,8 +208,9 @@ namespace SocialPoint.Social
                         info.Append("Title:").AppendLine(_leaderboard.Title);
                         info.Append("User score").AppendLine(_leaderboard.UserScore.ToString());
 
-                        foreach(var entry in _leaderboard.Scores)
+                        for(int i = 0, _leaderboardScoresCount = _leaderboard.Scores.Count; i < _leaderboardScoresCount; i++)
                         {
+                            var entry = _leaderboard.Scores[i];
                             info.AppendLine(string.Format("{0}: {1} - {2}", entry.Rank, entry.Name, entry.Score));
                         }
                         layout.CreateTextArea(StringUtils.FinishBuilder(info));

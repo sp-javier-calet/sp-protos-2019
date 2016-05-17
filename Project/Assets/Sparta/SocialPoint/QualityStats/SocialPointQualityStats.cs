@@ -120,19 +120,23 @@ namespace SocialPoint.QualityStats
             SendClientPerformance(stats, kClientPerformanceStats);
 
             var httpRequests = GetHttpRequests();
-            foreach(var request in httpRequests)
+            var itr = httpRequests.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var request = itr.Current;
                 var requestDic = request.AsDic;
                 SendClientPerformance(requestDic, kClientPerformanceHttpRequest);
             }
+            itr.Dispose();
         }
 
         #endregion
 
         void ResetQualityStatsHttpClients()
         {
-            foreach(var client in _qualityStatsHttpClients)
+            for(int i = 0, _qualityStatsHttpClientsCount = _qualityStatsHttpClients.Count; i < _qualityStatsHttpClientsCount; i++)
             {
+                var client = _qualityStatsHttpClients[i];
                 client.Reset();
             }
         }
@@ -168,14 +172,20 @@ namespace SocialPoint.QualityStats
 
             var data = GetClientStats();
 
-            foreach(var statsIt in data)
+            var itr = data.GetEnumerator();
+            while(itr.MoveNext())
             {
-                foreach(var dataIt in statsIt.Value.Requests)
+                var statsIt = itr.Current;
+                var itr2 = statsIt.Value.Requests.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var dataIt = itr2.Current;
                     var request = GetPerformanceRequest(statsIt, dataIt);
                     requestList.Add(request);
                 }
+                itr2.Dispose();
             }
+            itr.Dispose();
 
             return requestList;
         }
@@ -183,11 +193,14 @@ namespace SocialPoint.QualityStats
         QualityStatsHttpClient.MStats GetClientStats()
         {
             var data = new QualityStatsHttpClient.MStats();
-            foreach(var client in _qualityStatsHttpClients)
+            for(int i = 0, _qualityStatsHttpClientsCount = _qualityStatsHttpClients.Count; i < _qualityStatsHttpClientsCount; i++)
             {
+                var client = _qualityStatsHttpClients[i];
                 QualityStatsHttpClient.MStats clientData = client.getStats();
-                foreach(var statsIt in clientData)
+                var itr = clientData.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var statsIt = itr.Current;
                     QualityStatsHttpClient.Stats mergedStats;
                     if(!data.TryGetValue(statsIt.Key, out mergedStats))
                     {
@@ -198,8 +211,10 @@ namespace SocialPoint.QualityStats
                     var stats = statsIt.Value;
                     mergedStats.DataDownloaded += stats.DataDownloaded;
                     mergedStats.SumDownloadSpeed += stats.SumDownloadSpeed;
-                    foreach(var dataIt in stats.Requests)
+                    var itr2 = stats.Requests.GetEnumerator();
+                    while(itr2.MoveNext())
                     {
+                        var dataIt = itr2.Current;
                         QualityStatsHttpClient.Data requestMergedData;
                         if(!mergedStats.Requests.TryGetValue(dataIt.Key, out requestMergedData))
                         {
@@ -208,7 +223,9 @@ namespace SocialPoint.QualityStats
                         requestMergedData += dataIt.Value;
                         mergedStats.Requests[dataIt.Key] = requestMergedData;
                     }
+                    itr2.Dispose();
                 }
+                itr.Dispose();
             }
             ResetQualityStatsHttpClients();
             return data;

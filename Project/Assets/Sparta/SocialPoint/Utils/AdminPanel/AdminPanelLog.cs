@@ -20,8 +20,10 @@ namespace SocialPoint.Utils
             _entries = new List<LogEntry>();
             _activeTypes = new Dictionary<LogType, bool>();
 
-            foreach(LogType type in Enum.GetValues(typeof(LogType)))
+            var array = Enum.GetValues(typeof(LogType));
+            for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
             {
+                var type = (LogType)array.GetValue(i);
                 _activeTypes[type] = true;
             }
 
@@ -57,10 +59,12 @@ namespace SocialPoint.Utils
             layout.CreateMargin();
             layout.CreateLabel("Log level");
 
-            foreach(LogType type in Enum.GetValues(typeof(LogType)))
+            var array = Enum.GetValues(typeof(LogType));
+            for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
             {
                 // Each lambda must capture a diferent reference, so it has to be a local variable
-                LogType aType = type; 
+                var type = (LogType)array.GetValue(i);
+                LogType aType = type;
                 layout.CreateToggleButton(aType.ToString(), _activeTypes[aType], value => ActivateLogType(aType, value));
             }
 
@@ -81,8 +85,9 @@ namespace SocialPoint.Utils
             if(_textComponent != null)
             {
                 var logContent = StringUtils.StartBuilder();
-                foreach(LogEntry entry in _entries)
+                for(int i = 0, _entriesCount = _entries.Count; i < _entriesCount; i++)
                 {
+                    LogEntry entry = _entries[i];
                     if(_activeTypes[entry.Type])
                     {
                         logContent.Append(entry.Content);

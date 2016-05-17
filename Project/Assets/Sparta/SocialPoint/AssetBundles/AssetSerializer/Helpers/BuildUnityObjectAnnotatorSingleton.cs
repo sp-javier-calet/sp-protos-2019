@@ -86,11 +86,14 @@ namespace SocialPoint.AssetSerializer.Helpers
             var assets = new List<UnityEngine.Object>();
             var assetIDs = new List<int>();
 
-            foreach(KeyValuePair<int, UnityEngine.Object> entry in assetidmapperDict)
+            var itr = assetidmapperDict.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var entry = itr.Current;
                 assets.Add(entry.Value);
                 assetIDs.Add(entry.Key);
             }
+            itr.Dispose();
 
             serializedAssets = assets.ToArray();
             serializedAssetIDs = assetIDs.ToArray();
@@ -120,14 +123,13 @@ namespace SocialPoint.AssetSerializer.Helpers
 
         public static void LinkActions()
         {
-            foreach(LinkActionArguments linkAction in linkActionsList)
+            for(int i = 0, linkActionsListCount = linkActionsList.Count; i < linkActionsListCount; i++)
             {
+                LinkActionArguments linkAction = linkActionsList[i];
                 UnityEngine.Object refObject;
                 assetidmapperDict.TryGetValue(linkAction.refObjectId, out refObject);
-
                 if(TypeUtils.CompareToNull(refObject))
                     throw new Exception("BuildUnityObjectAnnotatorSingleton referenced object not in the map.");
-
                 switch(linkAction.actionType)
                 {
                 case LinkActionArguments.LinkActionType.LINK_OBJECT_TO_FIELD:
@@ -148,13 +150,15 @@ namespace SocialPoint.AssetSerializer.Helpers
                         object instance = linkAction.instanceObject;
                         Type instanceType = instance.GetType();
                         PropertyInfo listItemProp = instanceType.GetProperty("Item");
-                        listItemProp.SetValue(instance, refObject, new object[] { linkAction.containerPosition });
+                        listItemProp.SetValue(instance, refObject, new object[] {
+                            linkAction.containerPosition
+                        });
                     }
                     break;
                 default:
-                    {
-                        throw new Exception("BuildUnityObjectAnnotatorSingleton link action type not supported.");
-                    }
+                {
+                    throw new Exception("BuildUnityObjectAnnotatorSingleton link action type not supported.");
+                }
                 }
             }
 

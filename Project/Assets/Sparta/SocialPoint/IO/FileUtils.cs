@@ -325,23 +325,32 @@ namespace SocialPoint.IO
         {
             CheckLocalPath(path);
             var regexes = new Dictionary<Regex,string>();
-            foreach(var repl in repls)
+            var itr = repls.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var repl = itr.Current;
                 regexes.Add(new Regex(repl.Key), repl.Value);
             }
+            itr.Dispose();
+
             var files = Directory.GetFiles(path);
-            foreach(var src in files)
+            for(int i = 0, filesLength = files.Length; i < filesLength; i++)
             {
+                var src = files[i];
                 var filename = Path.GetFileName(src);
                 if(!GlobMatch(pattern, filename))
                 {
                     continue;
                 }
                 var dst = filename;
-                foreach(var regex in regexes)
+                var itr2 = regexes.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var regex = itr2.Current;
                     dst = regex.Key.Replace(dst, regex.Value);
                 }
+                itr2.Dispose();
+
                 dst = Path.Combine(path, dst);
                 if(src != dst)
                 {
@@ -353,17 +362,22 @@ namespace SocialPoint.IO
                 }
             }
             var dirs = Directory.GetDirectories(path);
-            foreach(var src in dirs)
+            for(int i = 0, dirsLength = dirs.Length; i < dirsLength; i++)
             {
+                var src = dirs[i];
                 var dir = src;
                 var dirname = Path.GetFileName(src);
                 if(GlobMatch(pattern, dirname))
                 {
                     var dst = dirname;
-                    foreach(var regex in regexes)
+                    var itr2 = regexes.GetEnumerator();
+                    while(itr2.MoveNext())
                     {
+                        var regex = itr2.Current;
                         dst = regex.Key.Replace(dst, regex.Value);
                     }
+                    itr2.Dispose();
+
                     dst = Path.Combine(path, dst);
                     if(src != dst)
                     {
@@ -382,10 +396,15 @@ namespace SocialPoint.IO
         static public void ReplaceTextInFile(string path, IDictionary<string,string> repls)
         {
             string text = ReadAllText(path);
-            foreach(var repl in repls)
+
+            var itr = repls.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var repl = itr.Current;
                 text = new Regex(repl.Key).Replace(text, repl.Value);
             }
+            itr.Dispose();
+
             WriteAllText(path, text);
         }
 
@@ -455,15 +474,15 @@ namespace SocialPoint.IO
             CheckLocalPath(dst);
             string dir;
             var files = Find(src, out dir);
-            foreach(var srcPath in files)
+            for(int i = 0, filesLength = files.Length; i < filesLength; i++)
             {
+                var srcPath = files[i];
                 string dstPath = dst;
                 if(dir != null && StringUtils.StartsWith(srcPath, dir))
                 {
                     var srcRelPath = srcPath.Substring(dir.Length);
                     dstPath = Path.Combine(dstPath, srcRelPath);
                 }
-
                 if(each == null || each(srcPath, dstPath))
                 {
                     CopyFile(srcPath, dstPath, true);
@@ -497,8 +516,9 @@ namespace SocialPoint.IO
 
             string srcDir;
             var srcFiles = Find(src, out srcDir);
-            foreach(var srcPath in srcFiles)
+            for(int i = 0, srcFilesLength = srcFiles.Length; i < srcFilesLength; i++)
             {
+                var srcPath = srcFiles[i];
                 string dstPath = dst;
                 if(srcDir != null && StringUtils.StartsWith(srcPath, srcDir))
                 {
@@ -528,8 +548,9 @@ namespace SocialPoint.IO
                 }
                 string dstDir;
                 var dstFiles = Find(dst, out dstDir); 
-                foreach(var dstPath in dstFiles)
+                for(int i = 0, dstFilesLength = dstFiles.Length; i < dstFilesLength; i++)
                 {
+                    var dstPath = dstFiles[i];
                     string srcPath = srcDir;
                     if(dstDir != null && StringUtils.StartsWith(dstPath, dstDir))
                     {

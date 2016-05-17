@@ -59,8 +59,9 @@ namespace SocialPoint.Purchase
             }
 
             DebugLog("Mapping products on OpenIAB");
-            foreach(string productId in productIds)
+            for(int i = 0, productIdsLength = productIds.Length; i < productIdsLength; i++)
             {
+                string productId = productIds[i];
                 OpenIAB.mapSku(productId, OpenIAB_Android.STORE_GOOGLE, productId);
             }
 
@@ -164,8 +165,9 @@ namespace SocialPoint.Purchase
         {
             //revise all pending purchases
             DebugLog(inventory.ToString());
-            foreach(var item in inventory.GetAllPurchases())
+            for(int i = 0, maxCount = inventory.GetAllPurchases().Count; i < maxCount; i++)
             {
+                var item = inventory.GetAllPurchases()[i];
                 if(_autoCompletePurchases)
                 {
                     OpenIAB.consumeProduct(item);
@@ -183,8 +185,9 @@ namespace SocialPoint.Purchase
             try
             {
                 _products = new List<Product>();
-                foreach(SkuDetails sk in inventory.GetAllAvailableSkus())
+                for(int i = 0, maxCount = inventory.GetAllAvailableSkus().Count; i < maxCount; i++)
                 {
+                    SkuDetails sk = inventory.GetAllAvailableSkus()[i];
                     var parsedProduct = new Product(sk.Sku, sk.Title, float.Parse(sk.PriceValue), sk.CurrencyCode, sk.Price);
                     DebugLog(parsedProduct.ToString());
                     _products.Add(parsedProduct);

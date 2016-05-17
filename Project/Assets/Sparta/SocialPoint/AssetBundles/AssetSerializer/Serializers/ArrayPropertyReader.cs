@@ -53,8 +53,9 @@ namespace SocialPoint.AssetSerializer.Serializers
 
             object arrayInstance = toArray_methodInfo.Invoke(instance, null);
 
-            foreach(LinkActionArguments linkAction in tmpLinkActions)
+            for(int i = 0, tmpLinkActionsCount = tmpLinkActions.Count; i < tmpLinkActionsCount; i++)
             {
+                LinkActionArguments linkAction = tmpLinkActions[i];
                 linkAction.instanceObject = arrayInstance;
                 BuildUnityObjectAnnotatorSingleton.AddLinkAction(linkAction);
             }

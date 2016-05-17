@@ -34,20 +34,26 @@ namespace SocialPoint.Utils
         public void Run()
         {
             var queues = CopyQueues();
-            foreach(var kvp in queues)
+            var itr = queues.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var kvp = itr.Current;
                 if(_defaultAction != null)
                 {
                     _defaultAction(kvp.Key);
                 }
-                foreach(var action in kvp.Value)
+                var itr2 = kvp.Value.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var action = itr2.Current;
                     if(action != null)
                     {
                         action();
                     }
                 }
+                itr2.Dispose();
             }
+            itr.Dispose();
         }
     }
 

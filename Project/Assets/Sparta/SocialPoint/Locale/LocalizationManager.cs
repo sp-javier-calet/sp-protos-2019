@@ -160,8 +160,9 @@ namespace SocialPoint.Locale
                 _supportedLanguages = value;
 
                 _supportedFixedLanguages.Clear();
-                foreach(var lang in _supportedLanguages)
+                for(int i = 0, _supportedLanguagesLength = _supportedLanguages.Length; i < _supportedLanguagesLength; i++)
                 {
+                    var lang = _supportedLanguages[i];
                     _supportedFixedLanguages.Add(FixLanguage(lang));
                 }
             }
@@ -399,8 +400,10 @@ namespace SocialPoint.Locale
             {
                 if(_loadAllSupportedLanguagesCsv)
                 {
-                    foreach(var slang in _supportedFixedLanguages)
+                    var itr = _supportedFixedLanguages.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var slang = itr.Current;
                         if(!locales.ContainsKey(slang))
                         {
                             var slocale = new Localization();
@@ -410,6 +413,7 @@ namespace SocialPoint.Locale
                             }
                         }
                     }
+                    itr.Dispose();
                 }
                 var csv = LocalizationsToCsv(locales);
                 if(CsvLoaded != null)
@@ -469,8 +473,10 @@ namespace SocialPoint.Locale
 
             builder.Append("KEY");
             builder.Append(CsvSeparator);
-            foreach(var pair in locales)
+            var itr = locales.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 string lang = pair.Key;
                 builder.Append(lang);
                 builder.Append(CsvSeparator);
@@ -479,34 +485,46 @@ namespace SocialPoint.Locale
                     keys = new HashSet<string>(pair.Value.Strings.Keys);
                     if(pair.Value.Fallback != null)
                     {
-                        foreach(var fkey in pair.Value.Fallback.Strings.Keys)
+                        var itr2 = pair.Value.Fallback.Strings.Keys.GetEnumerator();
+                        while(itr2.MoveNext())
                         {
+                            var fkey = itr2.Current;
                             if(!keys.Contains(fkey))
                             {
                                 keys.Add(fkey);
                             }
                         }
+                        itr2.Dispose();
                     }
                 }
             }
+            itr.Dispose();
+
             builder.Remove(builder.Length - 1, 1);
             builder.AppendLine();
 
-            foreach(var key in keys)
+            var itrHashSet = keys.GetEnumerator();
+            while(itrHashSet.MoveNext())
             {
+                var key = itrHashSet.Current;
                 builder.Append(key);
                 builder.Append(CsvSeparator);
-                foreach(var pair in locales)
+                itr = locales.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pair = itr.Current;
                     var val = pair.Value.Get(key, string.Empty);
                     val = val.Replace("\n", @"\n");
                     val = val.Replace("\t", @"\t");
                     builder.Append("\"" + val + "\"");
                     builder.Append(CsvSeparator);
                 }
+                itr.Dispose();
                 builder.Remove(builder.Length - 1, 1);
                 builder.AppendLine();
             }
+            itrHashSet.Dispose();
+
             builder.Remove(builder.Length - 1, 1);
             builder.AppendLine();
 
@@ -546,16 +564,23 @@ namespace SocialPoint.Locale
             {
                 return false;
             }
-            foreach(var elm in attr)
+
+            var itr = attr.GetEnumerator();
+            while(itr.MoveNext())
             {
-                foreach(var entry in elm.AssertDic)
+                var elm = itr.Current;
+                var itr2 = elm.AssertDic.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var entry = itr2.Current;
                     var val = entry.Value.AsValue.ToString();
                     val = val.Replace(@"\n", "\n");
                     val = val.Replace(@"\t", "\t");
                     locale.Set(entry.Key, val);
                 }
+                itr2.Dispose();
             }
+            itr.Dispose();
                 
             if(CopyAllFilesToBundleFolder)
             {
@@ -581,22 +606,19 @@ namespace SocialPoint.Locale
             }
 
             var prefix = GetLocalizationPathPrefix(lang);
-            foreach(var file in files)
+            for(int i = 0, filesLength = files.Length; i < filesLength; i++)
             {
+                var file = files[i];
                 var fileExtension = Path.GetExtension(file).ToLower();
-
                 if(JsonExtension != fileExtension)
                 {
                     continue;
                 }
-
                 if(!file.Contains(prefix))
                 {
                     continue;
                 }
-
                 return file;
-
             }
             return string.Empty;
         }

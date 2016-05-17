@@ -115,10 +115,13 @@ namespace SocialPoint.ScriptEvents
             data.SetValue(AttrKeyScheme, ev.Source.Scheme);
             var parms = new AttrDic();
             data.Set(AttrKeyParameters, parms);
-            foreach(var kvp in ev.Source.Parameters)
+            var itr = ev.Source.Parameters.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var kvp = itr.Current;
                 parms.SetValue(kvp.Key, kvp.Value);
             }
+            itr.Dispose();
             return data;
         }
     }

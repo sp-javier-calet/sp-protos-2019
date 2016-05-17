@@ -100,9 +100,11 @@ namespace SocialPoint.GUIAnimation
             {
                 return currObj;
             }
-			
-            foreach(Transform child in obj.transform)
+
+            var itr = obj.transform.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var child = (Transform)itr.Current;
                 currObj = GetComponentRecursiveDown<T>(child.gameObject);
                 if(currObj != null)
                 {

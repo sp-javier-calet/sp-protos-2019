@@ -155,8 +155,9 @@ namespace SocialPoint.Purchase
             DebugLog("received total products: " + products.Count);
             try
             {
-                foreach(IosStoreProduct product in products)
+                for(int i = 0, productsCount = products.Count; i < productsCount; i++)
                 {
+                    IosStoreProduct product = products[i];
                     var parsedProduct = new Product(product.ProductIdentifier, product.Title, float.Parse(product.Price), product.CurrencySymbol, product.FormattedPrice);
                     DebugLog(product.ToString());
                     _products.Add(parsedProduct);

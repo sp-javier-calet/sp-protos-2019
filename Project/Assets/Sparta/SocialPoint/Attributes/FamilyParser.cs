@@ -26,8 +26,9 @@ namespace SocialPoint.Attributes
         public FamilyParser(List<IChildParser<T>> children)
         {
             _children = children;
-            foreach(var child in _children)
+            for(int i = 0, _childrenCount = _children.Count; i < _childrenCount; i++)
             {
+                var child = _children[i];
                 child.Parent = this;
             }
         }

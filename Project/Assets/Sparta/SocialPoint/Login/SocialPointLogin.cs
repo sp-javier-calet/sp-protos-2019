@@ -888,10 +888,13 @@ namespace SocialPoint.Login
             SetupHttpRequest(req, LinkUri);
             req.AddParam(HttpParamSecurityToken, SecurityToken);
             req.AddParam(HttpParamLinkType, info.Link.Name);
-            foreach(var pair in info.LinkData)
+            var itr = info.LinkData.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 req.AddParam(pair.Key, pair.Value);
             }
+            itr.Dispose();
             DebugLog("link\n----\n" + req + "----\n");
             _httpClient.Send(req, resp => OnNewLinkResponse(info, state, resp));
         }
@@ -1011,23 +1014,29 @@ namespace SocialPoint.Login
             if(data.AttrType == AttrType.LIST)
             {
                 var linksAttr = data.AsList;
-                foreach(var elm in linksAttr)
+                var itr = linksAttr.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var elm = itr.Current;
                     var link = elm.AsDic;
                     var provider = link.GetValue(AttrKeyLinkProvider).AsValue.ToString();
                     var externalId = link.GetValue(AttrKeyLinkExternalId).AsValue.ToString();
                     links.Add(new UserMapping(externalId, provider));
                 }
+                itr.Dispose();
             }
             else if(data.AttrType == AttrType.DICTIONARY)
             {
                 var linksAttr = data.AsDic;
-                foreach(var elm in linksAttr)
+                var itr = linksAttr.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var elm = itr.Current;
                     var provider = elm.Key;
                     var externalId = elm.Value.AsValue.ToString();
                     links.Add(new UserMapping(externalId, provider));
                 }
+                itr.Dispose();
             }
             return links;
         }
@@ -1168,8 +1177,9 @@ namespace SocialPoint.Login
             if(Error.IsNullOrEmpty(err))
             {
                 UserHasRegistered = true;
-                foreach(var linkInfo in _links)
+                for(int i = 0, _linksCount = _links.Count; i < _linksCount; i++)
                 {
+                    var linkInfo = _links[i];
                     linkInfo.Link.OnNewLocalUser(User);
                 }
             }
@@ -1593,19 +1603,23 @@ namespace SocialPoint.Login
                     return new Error(e.ToString());
                 }
 
-                foreach(var elm in data)
+                var itr = data.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var elm = itr.Current;
                     var friendDict = elm.AsDic;
                     var tmpUser = LoadUser(friendDict);
 
-                    foreach(var linkInfo in _links)
+                    for(int i = 0, _linksCount = _links.Count; i < _linksCount; i++)
                     {
+                        var linkInfo = _links[i];
                         linkInfo.Link.UpdateUser(tmpUser);
                     }
 
                     users.RemoveAll(u => u == tmpUser);
                     users.Add(tmpUser);
                 }
+                itr.Dispose();
             }
             return null;
         }
@@ -1648,19 +1662,18 @@ namespace SocialPoint.Login
 
         void UpdateUsersCache(List<User> tmpUsers)
         {
-            foreach(var user in tmpUsers)
+            for(int i = 0, tmpUsersCount = tmpUsers.Count; i < tmpUsersCount; i++)
             {
+                var user = tmpUsers[i];
                 if(User == user)
                 {
                     User.Combine(user);
                 }
-
                 User resultFriend = Friends.FirstOrDefault(item => item == user);
                 if(resultFriend != null)
                 {
                     resultFriend.Combine(user);
                 }
-
                 User resultUser = _users.FirstOrDefault(item => item == user);
                 if(resultUser != null)
                 {
@@ -1708,8 +1721,9 @@ namespace SocialPoint.Login
                 max = mappings.Count;
             }
 
-            foreach(var um in mappings)
+            for(int i = 0, mappingsCount = mappings.Count; i < mappingsCount; i++)
             {
+                var um = mappings[i];
                 if(!param.ContainsKey(um.Provider))
                 {
                     param.Set(um.Provider, new AttrList());
@@ -1917,8 +1931,9 @@ namespace SocialPoint.Login
          */
         public void GetFriendsByTempId(List<string> userIds, List<User> users)
         {
-            foreach(var friend in Friends)
+            for(int i = 0, FriendsCount = Friends.Count; i < FriendsCount; i++)
             {
+                var friend = Friends[i];
                 string tmp = userIds.FirstOrDefault(tmpId => tmpId == friend.TempId);
                 if(!string.IsNullOrEmpty(tmp))
                 {
@@ -1954,8 +1969,9 @@ namespace SocialPoint.Login
         public void UpdateFriends(UsersDelegate cbk = null)
         {
             var mappings = new List<UserMapping>();
-            foreach(var linkInfo in _links)
+            for(int i = 0, _linksCount = _links.Count; i < _linksCount; i++)
             {
+                var linkInfo = _links[i];
                 linkInfo.Link.GetFriendsData(mappings);
             }
             UpdateFriends(mappings, cbk);
@@ -2006,8 +2022,9 @@ namespace SocialPoint.Login
         {
             var users = new List<User>();
 
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
+                var userId = userIds[i];
                 var u = new User();
                 if(GetCachedUserByTempId(userId, u))
                 {
@@ -2032,8 +2049,9 @@ namespace SocialPoint.Login
             var users = new List<User>();
             var mappings = new List<UserMapping>();
 
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
+                var userId = userIds[i];
                 var cacheUser = new User();
                 if(GetCachedUserById(userId, cacheUser))
                 {
@@ -2056,8 +2074,9 @@ namespace SocialPoint.Login
          */
         public void GetCachedUsersById(List<UInt64> userIds, List<User> users)
         {
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
+                var userId = userIds[i];
                 var u = new User();
                 if(GetCachedUserById(userId, u))
                 {
@@ -2068,8 +2087,9 @@ namespace SocialPoint.Login
 
         public void GetCachedUsersByTempId(List<string> userIds, List<User> users)
         {
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
+                var userId = userIds[i];
                 var u = new User();
                 if(GetCachedUserByTempId(userId, u))
                 {
@@ -2097,8 +2117,9 @@ namespace SocialPoint.Login
 
             var toParam = new AttrDic();
 
-            foreach(var user in req.Recipients)
+            for(int i = 0, reqRecipientsCount = req.Recipients.Count; i < reqRecipientsCount; i++)
             {
+                var user = req.Recipients[i];
                 var mapping = user.AppRequestRecipient;
                 if(mapping.Id != null)
                 {
@@ -2153,23 +2174,29 @@ namespace SocialPoint.Login
                         if(data.AttrType == AttrType.DICTIONARY)
                         {
                             var receivedAppRequest = data.AsDic;
-                            foreach(var elm in receivedAppRequest)
+                            var itr = receivedAppRequest.GetEnumerator();
+                            while(itr.MoveNext())
                             {
+                                var elm = itr.Current;
                                 AttrDic requestData = elm.Value.AsDic;
                                 requestData["id"] = new AttrString(elm.Key);
                                 var req = new AppRequest(requestData["type"].AsValue.ToString(), requestData);
                                 reqs.Add(req);
                             }
+                            itr.Dispose();
                         }
                         else if(data.AttrType == AttrType.LIST)
                         {
                             var receivedAppRequest = data.AsList;
-                            foreach(var elm in receivedAppRequest)
+                            var itr = receivedAppRequest.GetEnumerator();
+                            while(itr.MoveNext())
                             {
+                                var elm = itr.Current;
                                 var requestData = elm.AsDic;
                                 var type = requestData.GetValue("type").AsValue.ToString();
                                 reqs.Add(new AppRequest(type, requestData));
                             }
+                            itr.Dispose();
                         }
 
                     }

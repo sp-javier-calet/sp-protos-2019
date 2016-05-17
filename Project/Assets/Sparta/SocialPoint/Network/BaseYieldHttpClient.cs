@@ -89,10 +89,14 @@ namespace SocialPoint.Network
 
         public virtual void Dispose()
         {
-            foreach(var connection in Pending)
+            var itr = Pending.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var connection = itr.Current;
                 connection.Cancel();
             }
+            itr.Dispose();
+
             _runner.StopCoroutine(_updateCoroutine);
         }
 

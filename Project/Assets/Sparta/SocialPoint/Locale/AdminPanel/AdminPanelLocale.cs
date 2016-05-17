@@ -37,10 +37,11 @@ namespace SocialPoint.Locale
         {
             layout.CreateLabel("Change Language");
             _langButtons = new Dictionary<string,Toggle>();
-            foreach(var lang in _manager.SupportedLanguages)
+            for(int i = 0, _managerSupportedLanguagesLength = _manager.SupportedLanguages.Length; i < _managerSupportedLanguagesLength; i++)
             {
+                var lang = _manager.SupportedLanguages[i];
                 var blang = lang;
-                _langButtons[lang] = layout.CreateToggleButton(blang, false, enabled => {
+                _langButtons[lang] = layout.CreateToggleButton(blang, false, enabled =>  {
                     _manager.CurrentLanguage = blang;
                     UpdateLangButtons();
                 });
@@ -50,8 +51,9 @@ namespace SocialPoint.Locale
 
         void UpdateLangButtons()
         {
-            foreach(var lang in _manager.SupportedLanguages)
+            for(int i = 0, _managerSupportedLanguagesLength = _manager.SupportedLanguages.Length; i < _managerSupportedLanguagesLength; i++)
             {
+                var lang = _manager.SupportedLanguages[i];
                 Toggle button;
                 if(_langButtons.TryGetValue(lang, out button))
                 {

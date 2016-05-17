@@ -178,8 +178,9 @@ namespace SocialPoint.ScriptEvents
 
         public bool Matches(string name, Attr arguments)
         {
-            foreach(var cond in _conditions)
+            for(int i = 0, _conditionsCount = _conditions.Count; i < _conditionsCount; i++)
             {
+                var cond = _conditions[i];
                 if(!cond.Matches(name, arguments))
                 {
                     return false;
@@ -199,10 +200,13 @@ namespace SocialPoint.ScriptEvents
         public IScriptCondition Parse(Attr data)
         {
             var children = new List<IScriptCondition>();
-            foreach(var elm in data.AsList)
+            var itr = data.AsList.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var elm = itr.Current;
                 children.Add(Parent.Parse(elm));
             }
+            itr.Dispose();
             return new AndCondition(children);
         }
 
@@ -229,8 +233,9 @@ namespace SocialPoint.ScriptEvents
 
         public bool Matches(string name, Attr arguments)
         {
-            foreach(var cond in _conditions)
+            for(int i = 0, _conditionsCount = _conditions.Count; i < _conditionsCount; i++)
             {
+                var cond = _conditions[i];
                 if(cond.Matches(name, arguments))
                 {
                     return true;
@@ -250,10 +255,13 @@ namespace SocialPoint.ScriptEvents
         public IScriptCondition Parse(Attr data)
         {
             var children = new List<IScriptCondition>();
-            foreach(var elm in data.AsList)
+            var itr = data.AsList.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var elm = itr.Current;
                 children.Add(Parent.Parse(elm));
             }
+            itr.Dispose();
             return new OrCondition(children);
         }
 

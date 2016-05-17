@@ -286,11 +286,14 @@ namespace SocialPoint.EventSystems
         {
             var baseEventData = GetBaseEventData();
 
-            foreach(var pointer in m_PointerData.Values)
+            var itr = m_PointerData.Values.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pointer = itr.Current;
                 // clear all selection
                 HandlePointerExitAndEnter(pointer, null);
             }
+            itr.Dispose();
 
             m_PointerData.Clear();
             eventSystem.SetSelectedGameObject(null, baseEventData);
@@ -300,13 +303,17 @@ namespace SocialPoint.EventSystems
         {
             var sb = new StringBuilder("<b>Pointer Input Module of type: </b>" + GetType());
             sb.AppendLine();
-            foreach(var pointer in m_PointerData)
+            var itr = m_PointerData.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pointer = itr.Current;
                 if(pointer.Value == null)
                     continue;
                 sb.AppendLine("<B>Pointer:</b> " + pointer.Key);
                 sb.AppendLine(pointer.Value.ToString());
             }
+            itr.Dispose();
+
             return sb.ToString();
         }
 

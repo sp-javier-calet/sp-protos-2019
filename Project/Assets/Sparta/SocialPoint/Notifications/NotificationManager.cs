@@ -108,8 +108,9 @@ namespace SocialPoint.Notifications
         void ScheduleNotifications()
         {
             AddGameNotifications();
-            foreach(var notif in _notifications)
+            for(int i = 0, _notificationsCount = _notifications.Count; i < _notificationsCount; i++)
             {
+                var notif = _notifications[i];
                 Services.Schedule(notif);
             }
             _notifications.Clear();

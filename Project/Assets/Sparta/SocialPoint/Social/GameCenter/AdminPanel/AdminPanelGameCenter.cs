@@ -109,12 +109,15 @@ namespace SocialPoint.Social
                 _layout = layout;
                 _layout.CreateLabel("Achievements");
 
-                foreach(var achievement in _gameCenter.Achievements)
+                var itr = _gameCenter.Achievements.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var achievement = itr.Current;
                     _layout.CreateOpenPanelButton(achievement.Title,
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
                         new AdminPanelAchievement(_gameCenter, achievement));
                 }
+                itr.Dispose();
             }
         }
 

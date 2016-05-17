@@ -67,8 +67,9 @@ namespace SocialPoint.Base
             if(objs.Length > 0)
             {
                 sb.AppendLine("OBJECTS:");
-                foreach(var obj in objs)
+                for(int i = 0, objsLength = objs.Length; i < objsLength; i++)
                 {
+                    var obj = objs[i];
                     sb.AppendLine(obj.ToString());
                 }
             }

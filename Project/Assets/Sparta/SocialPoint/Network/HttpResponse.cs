@@ -168,13 +168,16 @@ namespace SocialPoint.Network
         {
             var str = new StringBuilder();
 
-            foreach(KeyValuePair<string, string> data in Headers)
+            var itr = Headers.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var data = itr.Current;
                 str.Append(data.Key);
                 str.Append(kHeaderSeparator);
                 str.Append(data.Value);
                 str.Append(kNewline);
             }
+            itr.Dispose();
 
             return str.ToString();
         }

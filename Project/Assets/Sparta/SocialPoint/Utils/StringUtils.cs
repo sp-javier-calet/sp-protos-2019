@@ -65,11 +65,14 @@ namespace SocialPoint.Utils
         {
             string query = string.Empty;
             string sepChar = string.Empty;
-            foreach(KeyValuePair<string, string> entry in parms)
+            var itr = parms.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var entry = itr.Current;
                 query += sepChar + entry.Key + QueryAssign + entry.Value;
                 sepChar = String.Empty + QuerySeparator;
             }
+            itr.Dispose();
             return query;
         }
 
@@ -110,8 +113,11 @@ namespace SocialPoint.Utils
         public static string GetJoinedUrlParams(KeyValuePair<string,string>[] parms)
         {
             string result = "";
-            foreach(KeyValuePair<string,string> param in parms)
+            for(int i = 0, parmsLength = parms.Length; i < parmsLength; i++)
+            {
+                KeyValuePair<string, string> param = parms[i];
                 result += "&" + param.Key + "=" + Uri.EscapeDataString(param.Value);
+            }
             return result;
         }
 
@@ -153,13 +159,16 @@ namespace SocialPoint.Utils
                 sep = DefaultJoinSeparator;
             }
             var strs = new List<string>();
-            foreach(var obj in objs)
+            var itr = objs.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var obj = itr.Current;
                 if(obj != null)
                 {
                     strs.Add(obj.ToString());
                 }
             }
+            itr.Dispose();
             return string.Join(sep, strs.ToArray());
         }
 

@@ -80,8 +80,9 @@ namespace SocialPoint.GUIControl
             get
             {
                 var materials = new List<Material>();
-                foreach(var element in _containers3d)
+                for(int i = 0, _containers3dCount = _containers3d.Count; i < _containers3dCount; i++)
                 {
+                    var element = _containers3d[i];
                     var renderer = element.GetComponent<Renderer>();
                     if(renderer != null && renderer.material != null)
                     {
@@ -101,8 +102,9 @@ namespace SocialPoint.GUIControl
                 {
                     group.alpha = value;
                 }
-                foreach(var mat in Materials3d)
+                for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
+                    var mat = Materials3d[i];
                     mat.color = new Color(mat.color.r, mat.color.g, mat.color.b, value);
                 }
             }
@@ -115,8 +117,9 @@ namespace SocialPoint.GUIControl
                 {
                     alpha = group.alpha;
                 }
-                foreach(var mat in Materials3d)
+                for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
+                    var mat = Materials3d[i];
                     alpha = Mathf.Max(alpha, mat.color.a);
                 }
                 return alpha;
@@ -128,10 +131,13 @@ namespace SocialPoint.GUIControl
             set
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                foreach(var canvas in canvases)
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
                 {
-                    foreach(RectTransform child in canvas.transform)
+                    var canvas = canvases[i];
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (Transform)itr.Current;
                         child.localPosition = value;
                     }
                 }
@@ -142,8 +148,10 @@ namespace SocialPoint.GUIControl
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
                 if(canvases.Count > 0)
                 {
-                    foreach(RectTransform child in canvases[0].transform)
+                    var itr = canvases[0].transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (Transform)itr.Current;
                         return child.localPosition;
                     }
                 }
@@ -157,10 +165,13 @@ namespace SocialPoint.GUIControl
             {
                 var size = FixSize(value);
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                foreach(var canvas in canvases)
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
                 {
-                    foreach(RectTransform child in canvas.transform)
+                    var canvas = canvases[i];
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (RectTransform)itr.Current;
                         child.sizeDelta = size;
                     }
                 }
@@ -172,8 +183,10 @@ namespace SocialPoint.GUIControl
                 var size = Vector2.zero;
                 if(canvases.Count > 0)
                 {
-                    foreach(RectTransform child in canvases[0].transform)
+                    var itr = canvases[0].transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (RectTransform)itr.Current;
                         size.x = Mathf.Max(size.x, child.sizeDelta.x);
                         size.y = Mathf.Max(size.y, child.sizeDelta.y);
                     }
@@ -238,8 +251,9 @@ namespace SocialPoint.GUIControl
             {
                 LayersController.Add(this);
 
-                foreach(GameObject ui3DContainer in _containers3d)
+                for(int i = 0, _containers3dCount = _containers3d.Count; i < _containers3dCount; i++)
                 {
+                    GameObject ui3DContainer = _containers3d[i];
                     LayersController.Add3DContainer(this, ui3DContainer);
                 }
             }

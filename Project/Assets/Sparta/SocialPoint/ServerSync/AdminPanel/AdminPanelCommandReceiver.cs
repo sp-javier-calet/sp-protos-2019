@@ -89,8 +89,9 @@ namespace SocialPoint.ServerSync
             var content = new StringBuilder();
             if(_history.Count > 0)
             {
-                foreach(var log in _history)
+                for(int i = 0, _historyCount = _history.Count; i < _historyCount; i++)
                 {
+                    var log = _history[i];
                     content.AppendLine(log.ToString());
                 }
             }
@@ -124,10 +125,13 @@ namespace SocialPoint.ServerSync
                 if(registeredCommands != null)
                 {
                     var content = new StringBuilder();
-                    foreach(var kpv in registeredCommands)
+                    var itr = registeredCommands.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var kpv = itr.Current;
                         content.AppendLine(kpv.Key);
                     }
+                    itr.Dispose();
 
                     layout.CreateTextArea(content.ToString());
                 }

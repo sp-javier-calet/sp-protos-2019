@@ -151,8 +151,10 @@ namespace SocialPoint.AdminPanel
         public void RefreshPanel(bool force = false)
         {
             // Categories panel
-            foreach(Transform child in _categoriesPanelContent.Parent)
+            var itr = _categoriesPanelContent.Parent.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var child = (Transform)itr.Current;
                 Destroy(child.gameObject);
             }
 
@@ -163,8 +165,10 @@ namespace SocialPoint.AdminPanel
             if(_mainPanelDirty || force)
             {
                 // Destroy current content and hide main panel
-                foreach(Transform child in _mainPanelContent.Parent)
+                var itr2 =  _mainPanelContent.Parent.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var child = (Transform)itr2.Current;
                     Destroy(child.gameObject);
                 }
                 _mainPanel.SetActive(false);
@@ -196,10 +200,13 @@ namespace SocialPoint.AdminPanel
             public void OnCreateGUI(AdminPanelLayout layout)
             {
                 // Inflate categories panel
-                foreach(var category in _categories)
+                var itr = _categories.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var category = itr.Current;
                     layout.CreateOpenPanelButton(category.Key, category.Value, true, true);
                 }
+                itr.Dispose();
             }
         }
 

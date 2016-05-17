@@ -63,8 +63,9 @@ namespace SocialPoint.GUIAnimation
                 return null; // type mis-match
             BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
             PropertyInfo[] pinfos = type.GetProperties(flags);
-            foreach(var pinfo in pinfos)
+            for(int i = 0, pinfosLength = pinfos.Length; i < pinfosLength; i++)
             {
+                var pinfo = pinfos[i];
                 if(pinfo.CanWrite)
                 {
                     try
@@ -73,12 +74,14 @@ namespace SocialPoint.GUIAnimation
                     }
                     catch
                     {
-                    } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
+                    }
+                    // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
                 }
             }
             FieldInfo[] finfos = type.GetFields(flags);
-            foreach(var finfo in finfos)
+            for(int i = 0, finfosLength = finfos.Length; i < finfosLength; i++)
             {
+                var finfo = finfos[i];
                 finfo.SetValue(dest, finfo.GetValue(src));
             }
             return dest;

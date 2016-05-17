@@ -47,15 +47,20 @@ namespace SocialPoint.CrossPromotion
 
             AppsToCheck = new List<string>();
             AttrDic appsToCheckDict = config.Get("check_apps").AsDic;
-            foreach(var data in appsToCheckDict)
+            var itr = appsToCheckDict.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var data = itr.Current;
                 AppsToCheck.Add(data.Value.AsValue.ToString());
             }
+            itr.Dispose();
 
             BannerInfo = new Dictionary<int, CrossPromotionBannerData>();
             AttrDic bannerInfoDict = config.Get("banners").AsDic;
-            foreach(var data in bannerInfoDict)
+            itr = bannerInfoDict.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var data = itr.Current;
                 var crossPromoData = new CrossPromotionBannerData(data.Value.AsDic);
                 if(!BannerInfo.ContainsKey(crossPromoData.Uid))
                 { 
@@ -66,6 +71,7 @@ namespace SocialPoint.CrossPromotion
                     UnityEngine.Debug.LogWarning("CrossPromo UID is not unique: " + crossPromoData.Uid);
                 }
             }
+            itr.Dispose();
         }
     }
 }

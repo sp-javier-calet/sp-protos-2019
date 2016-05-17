@@ -63,8 +63,9 @@ namespace SocialPoint.Login
                 return _gameCenter.User;
             }
 
-            foreach(var friend in _gameCenter.Friends)
+            for(int i = 0, _gameCenterFriendsCount = _gameCenter.Friends.Count; i < _gameCenterFriendsCount; i++)
             {
+                var friend = _gameCenter.Friends[i];
                 if(userIds.Contains(friend.UserId))
                 {
                     return friend;
@@ -189,8 +190,9 @@ namespace SocialPoint.Login
 
         public void GetFriendsData(List<UserMapping> mappings)
         {
-            foreach(var friend in _gameCenter.Friends)
+            for(int i = 0, _gameCenterFriendsCount = _gameCenter.Friends.Count; i < _gameCenterFriendsCount; i++)
             {
+                var friend = _gameCenter.Friends[i];
                 mappings.Add(new UserMapping(friend.UserId, Name));
             }
         }

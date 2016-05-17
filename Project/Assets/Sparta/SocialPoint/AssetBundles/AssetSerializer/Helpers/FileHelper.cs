@@ -19,16 +19,18 @@ namespace SocialPoint.AssetSerializer.Helpers
         static void GetFilesFromDirectoryWithSearchPattern(ref List<FileInfo> files, DirectoryInfo dir, string searchPattern, bool recursive = false)
         {
             FileInfo[] items = dir.GetFiles(searchPattern);
-            foreach(FileInfo info in items)
+            for(int i = 0, itemsLength = items.Length; i < itemsLength; i++)
             {
+                FileInfo info = items[i];
                 files.Add(info);
             }
 
             if(recursive)
             {
                 DirectoryInfo[] directories = dir.GetDirectories();
-                foreach(DirectoryInfo tmpDir in directories)
+                for(int i = 0, directoriesLength = directories.Length; i < directoriesLength; i++)
                 {
+                    DirectoryInfo tmpDir = directories[i];
                     GetFilesFromDirectoryWithSearchPattern(ref files, tmpDir, searchPattern, recursive);
                 }
             }

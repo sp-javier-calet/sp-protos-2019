@@ -45,8 +45,9 @@ namespace SocialPoint.ServerSync
         {
             get
             {
-                foreach(var pcmd in _commands)
+                for(int i = 0, _commandsCount = _commands.Count; i < _commandsCount; i++)
                 {
+                    var pcmd = _commands[i];
                     if(!pcmd.Command.Atomic)
                     {
                         return false;
@@ -107,10 +108,13 @@ namespace SocialPoint.ServerSync
             if(dic.ContainsKey(CommandsKey))
             {
                 var cmds = dic.Get(CommandsKey).AsList;
-                foreach(var cmd in cmds)
+                var itr = cmds.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var cmd = itr.Current;
                     Add(new Command(cmd));
                 }
+                itr.Dispose();
             }
         }
 
@@ -118,8 +122,9 @@ namespace SocialPoint.ServerSync
         {
             var data = new AttrDic();
             var cmds = new AttrList();
-            foreach(var pcmd in _commands)
+            for(int i = 0, _commandsCount = _commands.Count; i < _commandsCount; i++)
             {
+                var pcmd = _commands[i];
                 var cmd = pcmd.Command;
                 if(cmd != null)
                 {
@@ -138,8 +143,9 @@ namespace SocialPoint.ServerSync
             if(_commands.Count > 0)
             {
                 var cmds = new AttrList();
-                foreach(var pcmd in _commands)
+                for(int i = 0, _commandsCount = _commands.Count; i < _commandsCount; i++)
                 {
+                    var pcmd = _commands[i];
                     var cmd = pcmd.Command;
                     if(cmd != null)
                     {
@@ -187,8 +193,9 @@ namespace SocialPoint.ServerSync
 
         public PackedCommand GetCommand(string id)
         {
-            foreach(var pcmd in _commands)
+            for(int i = 0, _commandsCount = _commands.Count; i < _commandsCount; i++)
             {
+                var pcmd = _commands[i];
                 if(pcmd.Command.Id == id)
                 {
                     return pcmd;

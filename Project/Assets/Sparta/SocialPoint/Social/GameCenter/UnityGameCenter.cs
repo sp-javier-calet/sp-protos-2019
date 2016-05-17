@@ -149,11 +149,13 @@ namespace SocialPoint.Social
                 if(achis != null)
                 {
                     _achievements = new List<GameCenterAchievement>();
-                    foreach(var d in descs)
+                    for(int i = 0, descsLength = descs.Length; i < descsLength; i++)
                     {
+                        var d = descs[i];
                         var percent = 0.0f;
-                        foreach(var a in achis)
+                        for(int j = 0, achisLength = achis.Length; j < achisLength; j++)
                         {
+                            var a = achis[j];
                             if(a.id == d.id)
                             {
                                 percent = (float)a.percentCompleted;
@@ -311,8 +313,9 @@ namespace SocialPoint.Social
                 }
                 else
                 {
-                    foreach(var achi in _achievements)
+                    for(int i = 0, _achievementsCount = _achievements.Count; i < _achievementsCount; i++)
                     {
+                        var achi = _achievements[i];
                         achi.Percent = 0.0f;
                     }
                     _platform.LoadAchievements(achis => {
@@ -356,8 +359,9 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        foreach(var a in _achievements)
+                        for(int i = 0, _achievementsCount = _achievements.Count; i < _achievementsCount; i++)
                         {
+                            var a = _achievements[i];
                             if(a.Id == achiId)
                             {
                                 achi2 = a;

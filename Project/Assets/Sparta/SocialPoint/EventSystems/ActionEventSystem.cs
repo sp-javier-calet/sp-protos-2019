@@ -56,8 +56,9 @@ namespace SocialPoint.EventSystems
             var preempt = _preempt ?? this;
             var preemptResults = new List<RaycastResult>();
             preempt.RaycastAll(eventData, preemptResults);
-            foreach(var result in preemptResults)
+            for(int i = 0, preemptResultsCount = preemptResults.Count; i < preemptResultsCount; i++)
             {
+                var result = preemptResults[i];
                 var go = result.gameObject;
                 while(go != null)
                 {

@@ -52,10 +52,13 @@ namespace SocialPoint.Utils
 
         void Update()
         {
-            foreach(var elm in _elements)
+            var itr = _elements.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var elm = itr.Current;
                 elm.Update();
             }
+            itr.Dispose();
         }
     }
 
@@ -140,8 +143,9 @@ namespace SocialPoint.Utils
                 {
                     var elms = new T[req.allAssets.Length];
                     int i = 0;
-                    foreach(var asset in req.allAssets)
+                    for(int j = 0, reqallAssetsLength = req.allAssets.Length; j < reqallAssetsLength; j++)
                     {
+                        var asset = req.allAssets[j];
                         elms[i++] = asset as T;
                     }
                     cbk(elms, null);

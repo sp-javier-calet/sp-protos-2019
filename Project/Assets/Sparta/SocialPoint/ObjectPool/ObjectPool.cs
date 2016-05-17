@@ -308,13 +308,16 @@ namespace SocialPoint.ObjectPool
 
         public static void RecycleAll(GameObject prefab)
         {
-            foreach(var item in Instance._spawnedObjects)
+            var itr = Instance._spawnedObjects.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var item = itr.Current;
                 if(item.Value == prefab)
                 {
                     _recycleList.Add(item.Key);
                 }
             }
+            itr.Dispose();
 
             for(int i = 0; i < _recycleList.Count; ++i)
             {
@@ -357,23 +360,31 @@ namespace SocialPoint.ObjectPool
         public static int CountSpawned(GameObject prefab)
         {
             int count = 0;
-            foreach(var instancePrefab in Instance._spawnedObjects.Values)
+            var itr = Instance._spawnedObjects.Values.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var instancePrefab = itr.Current;
                 if(prefab == instancePrefab)
                 {
                     ++count;
                 }
             }
+            itr.Dispose();
+
             return count;
         }
 
         public static int CountAllPooled()
         {
             int count = 0;
-            foreach(var list in Instance._pooledObjects.Values)
+            var itr = Instance._pooledObjects.Values.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var list = itr.Current;
                 count += list.Count;
             }
+            itr.Dispose();
+
             return count;
         }
 
@@ -426,13 +437,17 @@ namespace SocialPoint.ObjectPool
             {
                 list.Clear();
             }
-            foreach(var item in Instance._spawnedObjects)
+            var itr = Instance._spawnedObjects.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var item = itr.Current;
                 if(item.Value == prefab)
                 {
                     list.Add(item.Key);
                 }
             }
+            itr.Dispose();
+
             return list;
         }
 
@@ -447,13 +462,17 @@ namespace SocialPoint.ObjectPool
                 list.Clear();
             }
             var prefabObj = prefab.gameObject;
-            foreach(var item in Instance._spawnedObjects)
+            var itr = Instance._spawnedObjects.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var item = itr.Current;
                 if(item.Value == prefabObj)
                 {
                     list.Add(item.Key.GetComponent<T>());
                 }
             }
+            itr.Dispose();
+
             return list;
         }
 

@@ -158,8 +158,9 @@ namespace SocialPoint.AppEvents
             string[] filters;
             if(SourceFilters.TryGetValue(scheme, out filters))
             {
-                foreach(string filter in filters)
+                for(int i = 0, filtersLength = filters.Length; i < filtersLength; i++)
                 {
+                    string filter = filters[i];
                     parms.Remove(filter);
                 }
             }

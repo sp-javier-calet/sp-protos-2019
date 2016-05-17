@@ -17,8 +17,10 @@ static public class BMUtility
     static public string InterpretPath(string origPath, BuildPlatform platform, string texfmt = null)
     {
         var matches = Regex.Matches(origPath, @"\$\((\w+)\)");
-        foreach(Match match in matches)
+        var itr = matches.GetEnumerator();
+        while(itr.MoveNext())
         {
+            var match = (Match)itr.Current;
             string var = match.Groups[1].Value;
             string token = @"$(" + var + ")";
             if(var == "TextureFmt")

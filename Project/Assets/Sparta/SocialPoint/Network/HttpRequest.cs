@@ -191,8 +191,9 @@ namespace SocialPoint.Network
             {
                 var parts = AcceptEncodings ?? new List<string>();
 
-                foreach(var part in HttpEncoding.CompressedEncodings)
+                for(int i = 0, HttpEncodingCompressedEncodingsLength = HttpEncoding.CompressedEncodings.Length; i < HttpEncodingCompressedEncodingsLength; i++)
                 {
+                    var part = HttpEncoding.CompressedEncodings[i];
                     if(value)
                     {
                         if(!parts.Contains(part))
@@ -225,8 +226,9 @@ namespace SocialPoint.Network
                 {
                     return false;
                 }
-                foreach(var part in HttpEncoding.CompressedEncodings)
+                for(int i = 0, HttpEncodingCompressedEncodingsLength = HttpEncoding.CompressedEncodings.Length; i < HttpEncodingCompressedEncodingsLength; i++)
                 {
+                    var part = HttpEncoding.CompressedEncodings[i];
                     if(parts.Contains(part))
                     {
                         return true;
@@ -422,13 +424,16 @@ namespace SocialPoint.Network
         {
             var str = new StringBuilder();
 
-            foreach(KeyValuePair<string, string> data in Headers)
+            var itr = Headers.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var data = itr.Current;
                 str.Append(data.Key);
                 str.Append(kHeaderSeparator);
                 str.Append(data.Value);
                 str.Append(kNewline);
             }
+            itr.Dispose();
 
             return str.ToString();
         }
@@ -479,10 +484,14 @@ namespace SocialPoint.Network
                 Url = new Uri(dataDic.Get(AttrKeyUrl).AsValue.ToString());
             }
             Method = (MethodType)Enum.Parse(typeof(MethodType), dataDic.Get(AttrKeyMethod).AsValue.ToString());
-            foreach(var header in dataDic.Get(AttrKeyHeaders).AsDic)
+            var itr = dataDic.Get(AttrKeyHeaders).AsDic.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var header = itr.Current;
                 AddHeader(header.Key, header.Value.AsValue.ToString());
             }
+            itr.Dispose();
+
             Body = null;
             if(dataDic.ContainsKey(AttrKeyBody))
             {

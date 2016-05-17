@@ -536,8 +536,9 @@ namespace SocialPoint.ServerSync
                 {
                     var attracks = new AttrList();
                     _sendingAcks = new List<string>(_pendingAcks);
-                    foreach(var ack in _sendingAcks)
+                    for(int i = 0, _sendingAcksCount = _sendingAcks.Count; i < _sendingAcksCount; i++)
                     {
+                        var ack = _sendingAcks[i];
                         attracks.AddValue(ack);
                     }
                     attrdic.Set(AttrKeyAcks, attracks);
@@ -547,8 +548,9 @@ namespace SocialPoint.ServerSync
 
         void RemoveNotifiedAcks()
         {
-            foreach(var ack in _sendingAcks)
+            for(int i = 0, _sendingAcksCount = _sendingAcks.Count; i < _sendingAcksCount; i++)
             {
+                var ack = _sendingAcks[i];
                 _pendingAcks.Remove(ack);
             }
             _sendingAcks.Clear();
@@ -626,13 +628,16 @@ namespace SocialPoint.ServerSync
             if(IgnoreResponses)
             {
                 AfterPacketSent(packet, true);
-                foreach(var pcmd in packet)
+                var itr = packet.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pcmd = itr.Current;
                     if(pcmd.Finished != null)
                     {
                         pcmd.Finished(null, null);
                     }
                 }
+                itr.Dispose();
                 if(packet.Finished != null)
                 {
                     packet.Finished(null);
@@ -766,8 +771,9 @@ namespace SocialPoint.ServerSync
             int id;
             if(int.TryParse(sid, out id))
             {
-                foreach(var p in _sentPackets)
+                for(int i = 0, _sentPacketsCount = _sentPackets.Count; i < _sentPacketsCount; i++)
                 {
+                    var p = _sentPackets[i];
                     if(id == p.Id)
                     {
                         return p;
@@ -817,13 +823,16 @@ namespace SocialPoint.ServerSync
                     packet.Finished(err);
                 }
                 NotifyError(CommandQueueErrorType.ResponseJson, err);
-                foreach(var pcmd in packet)
+                var itr = packet.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pcmd = itr.Current;
                     if(pcmd.Finished != null)
                     {
                         pcmd.Finished(data, err);
                     }
                 }
+                itr.Dispose();
                 _sentPackets.Remove(packet);
                 return;
             }
@@ -831,8 +840,10 @@ namespace SocialPoint.ServerSync
             if(datadic.ContainsKey(AttrKeyCommands))
             {
                 var cmdsAttr = datadic.Get(AttrKeyCommands).AsDic;
-                foreach(var cmdAttrPair in cmdsAttr)
+                var itr = cmdsAttr.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var cmdAttrPair = itr.Current;
                     var pcmd = packet.GetCommand(cmdAttrPair.Key);
                     ValidateResponse(cmdAttrPair.Value, pcmd);
                     packet.Remove(pcmd);
@@ -841,6 +852,7 @@ namespace SocialPoint.ServerSync
                         _pendingAcks.Add(pcmd.Command.Id);
                     }
                 }
+                itr.Dispose();
             }
             if(packet.Count == 0)
             {
@@ -863,18 +875,23 @@ namespace SocialPoint.ServerSync
 
             var packsAttr = data.Get(AttrKeyPackets).AsDic;
 
-            foreach(var packAttrPair in packsAttr)
+            var itr = packsAttr.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var packAttrPair = itr.Current;
                 var packet = GetSentPacket(packAttrPair.Key);
                 ValidateResponse(packAttrPair.Value, packet);
             }
+            itr.Dispose();
 
             // Handle Server to Client Commands
             var pushAttr = data.Get(AttrKeyPush).AsDic;
             var pushCommands = pushAttr.Get(AttrKeyCommands).AsDic;
 
-            foreach(var pushCommand in pushCommands)
+            var itr2 = pushCommands.GetEnumerator();
+            while(itr2.MoveNext())
             {
+                var pushCommand = itr2.Current;
                 string commandId = STCCommand.getId(pushCommand.Value.AsDic);
                 if(CommandReceiver != null)
                 {
@@ -883,6 +900,7 @@ namespace SocialPoint.ServerSync
                 // Add a pending ack for the command response
                 _pendingAcks.Add(commandId);
             }
+            itr2.Dispose();
 
             RemoveNotifiedAcks();
         }

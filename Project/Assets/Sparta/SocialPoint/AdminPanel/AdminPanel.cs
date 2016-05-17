@@ -44,8 +44,9 @@ namespace SocialPoint.AdminPanel
 
         public void RegisterConfigurers(List<IAdminPanelConfigurer> configurers)
         {
-            foreach(var config in configurers)
+            for(int i = 0, configurersCount = configurers.Count; i < configurersCount; i++)
             {
+                var config = configurers[i];
                 RegisterConfigurer(config);
             }
         }

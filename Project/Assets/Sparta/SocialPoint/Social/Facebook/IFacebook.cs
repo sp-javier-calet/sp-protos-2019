@@ -386,8 +386,9 @@ namespace SocialPoint.Social
         {
             var actions = new string[Actions.Count];
             var i = 0;
-            foreach(var action in Actions)
+            for(int j = 0, ActionsCount = Actions.Count; j < ActionsCount; j++)
             {
+                var action = Actions[j];
                 actions[i++] = action.ToString();
             }
             return string.Format("[FacebookWallPost: To={0}, Picture={1}, Link={2}, Name={3}, Caption={4}, " +

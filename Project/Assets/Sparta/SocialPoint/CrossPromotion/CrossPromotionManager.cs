@@ -213,20 +213,26 @@ namespace SocialPoint.CrossPromotion
             assetsToDownload.Add(Data.IconImage);
             assetsToDownload.Add(Data.PopupTitleImage);
              
-            foreach(var keyValue in Data.BannerInfo)
+            var itr = Data.BannerInfo.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var keyValue = itr.Current;
                 CrossPromotionBannerData banner = keyValue.Value;
                 assetsToDownload.Add(banner.ButtonTextImage);
                 assetsToDownload.Add(banner.BgImage);
                 assetsToDownload.Add(banner.IconImage);
             }
+            itr.Dispose();
 
             _remainingAssetsToDownload = assetsToDownload.Count;
-             
-            foreach(var url in assetsToDownload)
+
+            var itrHashSet = assetsToDownload.GetEnumerator();
+            while(itrHashSet.MoveNext())
             {
+                var url = itrHashSet.Current;
                 LoadAssetFromCacheOrDownload(url, OnAssetDownloaded);
             }
+            itrHashSet.Dispose();
         }
 
         bool AreAssetsReady()
@@ -240,13 +246,16 @@ namespace SocialPoint.CrossPromotion
             allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(Data.IconImage)));
             allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(Data.PopupTitleImage)));
 
-            foreach(var keyValue in Data.BannerInfo)
+            var itr = Data.BannerInfo.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var keyValue = itr.Current;
                 CrossPromotionBannerData banner = keyValue.Value;
                 allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.ButtonTextImage)));
                 allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.BgImage)));
                 allReady &= FileUtils.ExistsFile(FileUtils.Combine(_assetsPath, Path.GetFileName(banner.IconImage)));
             }
+            itr.Dispose();
 
             return allReady;
         }
@@ -328,8 +337,9 @@ namespace SocialPoint.CrossPromotion
         void SaveGamesToCheck()
         {
             var sb = StringUtils.StartBuilder();
-            foreach(var app in Data.AppsToCheck)
+            for(int i = 0, DataAppsToCheckCount = Data.AppsToCheck.Count; i < DataAppsToCheckCount; i++)
             {
+                var app = Data.AppsToCheck[i];
                 sb.Append(app);
                 sb.Append(",");
             }
@@ -359,8 +369,9 @@ namespace SocialPoint.CrossPromotion
             var sb = new StringBuilder();
             string appsToCheck = CheckedApps();
             string[] appsToCheckArray = appsToCheck.Split(',');
-            foreach(var app in appsToCheckArray)
+            for(int i = 0, appsToCheckArrayLength = appsToCheckArray.Length; i < appsToCheckArrayLength; i++)
             {
+                var app = appsToCheckArray[i];
                 if(NativeUtils.IsInstalled(app))
                 {
                     sb.Append(app);
@@ -431,8 +442,10 @@ namespace SocialPoint.CrossPromotion
         {
             var bannerList = new AttrList();
             int position = 0;
-            foreach(var keyValue in Data.BannerInfo)
+            var itr = Data.BannerInfo.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var keyValue = itr.Current;
                 CrossPromotionBannerData banner = keyValue.Value;
                 var bannerData = new AttrDic();
                 bannerData.SetValue("id", banner.Uid);
@@ -442,6 +455,7 @@ namespace SocialPoint.CrossPromotion
                 bannerList.Add(bannerData);
                 ++position;
             }
+            itr.Dispose();
             data.Set("banners", bannerList);
         }
 
@@ -536,8 +550,9 @@ namespace SocialPoint.CrossPromotion
             var data = new AttrDic();
             data.SetValue("error", kCrossFailByAssetFailedErrorCode);
             var assetsFailed = new AttrList();
-            foreach(var asset in _assetsFailed)
+            for(int i = 0, _assetsFailedCount = _assetsFailed.Count; i < _assetsFailedCount; i++)
             {
+                var asset = _assetsFailed[i];
                 var assetData = new AttrDic();
                 assetData.SetValue("src", asset);
                 assetsFailed.Add(assetData);
@@ -627,13 +642,16 @@ namespace SocialPoint.CrossPromotion
 
         public void DisposePopupTextures()
         {
-            foreach(var keyValue in _textures)
+            var itr = _textures.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var keyValue = itr.Current;
                 if(keyValue.Value != null)
                 {
                     keyValue.Value.Destroy();
                 }
             }
+            itr.Dispose();
             _textures.Clear();
         }
 

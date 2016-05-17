@@ -336,8 +336,10 @@ public class DownloadManager : MonoBehaviour
 
     public void DisposeAll()
     {
-        foreach(var kvp in _succeedRequest.Concat(_failedRequest))
+        var itr = _succeedRequest.Concat(_failedRequest).GetEnumerator();
+        while(itr.MoveNext())
         {
+            var kvp = itr.Current;
             try
             {
                 var bundle = kvp.Value.www.assetBundle;
@@ -351,33 +353,40 @@ public class DownloadManager : MonoBehaviour
                 Debug.LogError("Failed to unload bundle: " + kvp.Key);
             }
         }
+        itr.Dispose();
 
         if(_assetVersioningDictionary != null)
         {
-            foreach(KeyValuePair<string, AssetVersioningData> pair in _assetVersioningDictionary)
+            var itr2 = _assetVersioningDictionary.GetEnumerator();
+            while(itr2.MoveNext())
             {
+                var pair = itr2.Current;
                 DisposeWWW(pair.Key + "." + _bundleSuffix);
             }
+            itr2.Dispose();
         }
     }
 
     HashSet<string> GetDependenciesWaitingAndProcessingRequest()
     {
         var dependencies = new HashSet<string>();
-        foreach(WWWRequest request in _waitingRequests)
+        for(int i = 0, _waitingRequestsCount = _waitingRequests.Count; i < _waitingRequestsCount; i++)
         {
+            WWWRequest request = _waitingRequests[i];
             List<string> reqDependencies = getDependList(request.bundleName);
-            for(int i = 0; i < reqDependencies.Count; ++i)
+            for(int j = 0; j < reqDependencies.Count; ++j)
             {
-                if(!dependencies.Contains(reqDependencies[i]))
+                if(!dependencies.Contains(reqDependencies[j]))
                 {
-                    dependencies.Add(reqDependencies[i]);
+                    dependencies.Add(reqDependencies[j]);
                 }
             }
         }
 
-        foreach(var kvp in _processingRequest)
+        var itr = _processingRequest.GetEnumerator();
+        while(itr.MoveNext())
         {
+            var kvp = itr.Current;
             List<string> reqDependencies = getDependList(kvp.Key);
             for(int i = 0; i < reqDependencies.Count; ++i)
             {
@@ -387,25 +396,9 @@ public class DownloadManager : MonoBehaviour
                 }
             }
         }
-        return dependencies;
-    }
+        itr.Dispose();
 
-    public void DisposeSucceedRequests()
-    {
-//        HashSet<string> waitingAndProcessingDependencies = GetDependenciesWaitingAndProcessingRequest();
-//        var succeeds = new List<WWWRequest>(_succeedRequest.Select(kvp => kvp.Value));
-//        foreach(var req in succeeds)
-//        {
-//            if(req.www != null && !waitingAndProcessingDependencies.Contains(req.bundleName))
-//            {
-//                if(req.www.assetBundle != null)
-//                {
-//                    req.www.assetBundle.Unload(false);
-//                }
-//                req.www.Dispose();
-//                _succeedRequest.Remove(req.bundleName);
-//            }
-//        }
+        return dependencies;
     }
 
     /**
@@ -430,13 +423,18 @@ public class DownloadManager : MonoBehaviour
 
     bool BundleIsParent(string bundleName)
     {
-        foreach(var kvp in _assetVersioningDictionary)
+        var itr = _assetVersioningDictionary.GetEnumerator();
+        while(itr.MoveNext())
         {
+            var kvp = itr.Current;
             if(kvp.Value.Parent == bundleName)
             {
+                itr.Dispose();
                 return true;
             }
         }
+        itr.Dispose();
+
         return false;
     }
 
@@ -447,9 +445,14 @@ public class DownloadManager : MonoBehaviour
     {
         _requestedBeforeInit.Clear();
         _waitingRequests.Clear();
-        
-        foreach(WWWRequest request in _processingRequest.Values)
+
+        var itr = _processingRequest.Values.GetEnumerator();
+        while(itr.MoveNext())
+        {
+            var request = itr.Current;
             request.www.Dispose();
+        }
+        itr.Dispose();
         
         _processingRequest.Clear();
     }
@@ -520,8 +523,10 @@ public class DownloadManager : MonoBehaviour
         // Check if any WWW is finished or errored
         var newFinisheds = new List<string>();
         var newFaileds = new List<string>();
-        foreach(WWWRequest request in _processingRequest.Values)
+        var itr = _processingRequest.Values.GetEnumerator();
+        while(itr.MoveNext())
         {
+            var request = itr.Current;
             if(request.www.error != null)
             {
                 if(request.triedTimes - 1 < _downloadRetryTime)
@@ -554,17 +559,20 @@ public class DownloadManager : MonoBehaviour
                 }
             }
         }
+        itr.Dispose();
         
         // Move complete bundles out of downloading list
-        foreach(string finishedBundles in newFinisheds)
+        for(int i = 0, newFinishedsCount = newFinisheds.Count; i < newFinishedsCount; i++)
         {
+            string finishedBundles = newFinisheds[i];
             _succeedRequest.Add(finishedBundles, _processingRequest[finishedBundles]);
             _processingRequest.Remove(finishedBundles);
         }
         
         // Move failed bundles out of downloading list
-        foreach(string finishedBundles in newFaileds)
+        for(int i = 0, newFailedsCount = newFaileds.Count; i < newFailedsCount; i++)
         {
+            string finishedBundles = newFaileds[i];
             if(!_failedRequest.ContainsKey(finishedBundles))
             {
                 _failedRequest.Add(finishedBundles, _processingRequest[finishedBundles]);
@@ -592,8 +600,9 @@ public class DownloadManager : MonoBehaviour
     bool isBundleDependenciesReady(string bundleName)
     {
         List<string> dependencies = getDependList(bundleName);
-        foreach(string dependBundle in dependencies)
+        for(int i = 0, dependenciesCount = dependencies.Count; i < dependenciesCount; i++)
         {
+            string dependBundle = dependencies[i];
             if(!_succeedRequest.ContainsKey(dependBundle))
             {
                 return false;
@@ -648,8 +657,9 @@ public class DownloadManager : MonoBehaviour
         if(useAssetVersioning)
         {
             List<string> dependlist = getDependList(bundleName);
-            foreach(string dependantBundleName in dependlist)
+            for(int i = 0, dependlistCount = dependlist.Count; i < dependlistCount; i++)
             {
+                string dependantBundleName = dependlist[i];
                 if(!_processingRequest.ContainsKey(dependantBundleName) && !_succeedRequest.ContainsKey(dependantBundleName) && !isInWaitingList(dependantBundleName))
                 {
                     var dependRequest = new WWWRequest();
@@ -672,8 +682,9 @@ public class DownloadManager : MonoBehaviour
 
     bool isInWaitingList(string bundleName)
     {
-        foreach(WWWRequest request in _waitingRequests)
+        for(int i = 0, _waitingRequestsCount = _waitingRequests.Count; i < _waitingRequestsCount; i++)
         {
+            WWWRequest request = _waitingRequests[i];
             if(request.bundleName == bundleName)
             {
                 return true;
@@ -703,8 +714,9 @@ public class DownloadManager : MonoBehaviour
 
     WWWRequest getDownloadingWWW(string assetBundleName)
     {
-        foreach(WWWRequest request in _waitingRequests)
+        for(int i = 0, _waitingRequestsCount = _waitingRequests.Count; i < _waitingRequestsCount; i++)
         {
+            WWWRequest request = _waitingRequests[i];
             if(request.bundleName == assetBundleName)
             {
                 return request;
@@ -811,8 +823,9 @@ public class DownloadManager : MonoBehaviour
 
         List<string> res = getDependList(bundleName);
         res.Add(bundleName);
-        foreach(string dependency in res)
+        for(int i = 0, resCount = res.Count; i < resCount; i++)
         {
+            string dependency = res[i];
             version = _assetVersioningDictionary[dependency].Version;
             if(!IsLocalBundleVersion(bundleName, version, _assetVersioningDictionary[bundleName].Client) && !Caching.IsVersionCached(bundleName + "." + _bundleSuffix, version))
             {

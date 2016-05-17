@@ -52,8 +52,9 @@ namespace SocialPoint.Login
                 return _facebook.User;
             }
 
-            foreach(var friend in _facebook.Friends)
+            for(int i = 0, _facebookFriendsCount = _facebook.Friends.Count; i < _facebookFriendsCount; i++)
             {
+                var friend = _facebook.Friends[i];
                 if(userIds.Contains(friend.UserId))
                 {
                     return friend;
@@ -127,8 +128,9 @@ namespace SocialPoint.Login
             fbReq.FrictionLess = true;
             fbReq.Title = req.Title;
 
-            foreach(var recipient in req.Recipients)
+            for(int i = 0, reqRecipientsCount = req.Recipients.Count; i < reqRecipientsCount; i++)
             {
+                var recipient = req.Recipients[i];
                 fbReq.To.AddRange(recipient.GetExternalIds(LinkName));
             }
 
@@ -174,8 +176,9 @@ namespace SocialPoint.Login
 
         public void GetFriendsData(List<UserMapping> mappings)
         {
-            foreach(var friend in _facebook.Friends)
+            for(int i = 0, _facebookFriendsCount = _facebook.Friends.Count; i < _facebookFriendsCount; i++)
             {
+                var friend = _facebook.Friends[i];
                 mappings.Add(new UserMapping(friend.UserId, Name));
             }
         }

@@ -68,13 +68,14 @@ namespace SocialPoint.AssetSerializer.Helpers
             var componentsAndRequirements = new List<KeyValuePair<Component, HashSet<Type>>>();
 
             // Obtain required components for each component
-            foreach(Component comp in components)
+            for(int i = 0, componentsCount = components.Count; i < componentsCount; i++)
             {
+                Component comp = components[i];
                 Type compType = comp.GetType();
                 var requiredComponentTypes = new HashSet<Type>();
-
-                foreach(object attr in compType.GetCustomAttributes(true))
+                for(int j = 0, maxLength = compType.GetCustomAttributes(true).Length; j < maxLength; j++)
                 {
+                    object attr = compType.GetCustomAttributes(true)[j];
                     var requireComponent = attr as RequireComponent;
                     if(requireComponent != null)
                     {
@@ -83,19 +84,15 @@ namespace SocialPoint.AssetSerializer.Helpers
                         Type reqCompType = reqAttr.m_Type0;
                         if(reqCompType != null)
                             requiredComponentTypes.Add(reqCompType);
-
                         reqCompType = reqAttr.m_Type1;
                         if(reqCompType != null)
                             requiredComponentTypes.Add(reqCompType);
-
                         reqCompType = reqAttr.m_Type2;
                         if(reqCompType != null)
                             requiredComponentTypes.Add(reqCompType);
                     }
                 }
-
                 var componentAndRequirements = new KeyValuePair<Component, HashSet<Type>>(comp, requiredComponentTypes);
-
                 componentsAndRequirements.Add(componentAndRequirements);
             }
 
@@ -116,8 +113,11 @@ namespace SocialPoint.AssetSerializer.Helpers
             });
 
             var sortedComponents = new List<Component>();
-            foreach(KeyValuePair<Component, HashSet<Type>> comp in componentsAndRequirements)
+            for(int i = 0, componentsAndRequirementsCount = componentsAndRequirements.Count; i < componentsAndRequirementsCount; i++)
+            {
+                KeyValuePair<Component, HashSet<Type>> comp = componentsAndRequirements[i];
                 sortedComponents.Add(comp.Key);
+            }
 
             return sortedComponents;
         }
@@ -130,13 +130,17 @@ namespace SocialPoint.AssetSerializer.Helpers
 
         static bool AreAllExcludedComponents(IEnumerable<Component> components)
         {
-            foreach(Component comp in components)
+            var itr = components.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var comp = itr.Current;
                 if(!IsExcludedComponent(comp))
                 {
+                    itr.Dispose();
                     return false;
                 }
             }
+            itr.Dispose();
             return true;
         }
 
@@ -146,8 +150,9 @@ namespace SocialPoint.AssetSerializer.Helpers
         {
             var compDic = new Dictionary<string, KeyValuePair<Type, object>>();
 
-            foreach(FieldInfo fi in comp.GetType().GetFields( flags ))
+            for(int i = 0, maxLength = comp.GetType().GetFields(flags).Length; i < maxLength; i++)
             {
+                FieldInfo fi = comp.GetType().GetFields(flags)[i];
                 if((fi.Attributes & FieldAttributes.Literal) == 0)
                 {
                     object[] attributes = fi.GetCustomAttributes(true);
@@ -159,8 +164,9 @@ namespace SocialPoint.AssetSerializer.Helpers
                 }
             }
 
-            foreach(PropertyInfo pi in comp.GetType().GetProperties( flags ))
+            for(int i = 0, maxLength = comp.GetType().GetProperties(flags).Length; i < maxLength; i++)
             {
+                PropertyInfo pi = comp.GetType().GetProperties(flags)[i];
                 if(pi.GetGetMethod() == null)
                 {
                     object[] attributes = pi.GetCustomAttributes(true);
@@ -191,8 +197,9 @@ namespace SocialPoint.AssetSerializer.Helpers
             
             // Destroy own components
             List<Component> components = GetSortedRemovableComponentsFromObject(obj);
-            foreach(Component comp in components)
+            for(int i = 0, componentsCount = components.Count; i < componentsCount; i++)
             {
+                Component comp = components[i];
                 if(comp is Behaviour)
                 {
                     try
@@ -275,8 +282,9 @@ namespace SocialPoint.AssetSerializer.Helpers
 
                 Debug.Log("COMPONENTS: " + components.Count);
 
-                foreach(Component c in components)
+                for(int i = 0, componentsCount = components.Count; i < componentsCount; i++)
                 {
+                    Component c = components[i];
                     Debug.Log("EXIST COMPONENT " + c.name + " -> TYPE: " + c.GetType());
                 }
 
@@ -297,10 +305,10 @@ namespace SocialPoint.AssetSerializer.Helpers
                 return true;
             }
 
-            foreach(object attribute in attributes)
+            for(int i = 0, attributesLength = attributes.Length; i < attributesLength; i++)
             {
-                if(attribute is HideInInspector
-                   || attribute is ObsoleteAttribute)
+                object attribute = attributes[i];
+                if(attribute is HideInInspector || attribute is ObsoleteAttribute)
                 {
                     return false;
                 }
@@ -555,8 +563,10 @@ namespace SocialPoint.AssetSerializer.Helpers
             var childDict = new Dictionary<string, GameObject>();
             var parentPrefix = new StringBuilder(""); // for error login purposes
 
-            foreach(Transform child in parent)
+            var itr = parent.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var child = (Transform)itr.Current;
                 if(child != null)
                 {
                     var childGo = child.gameObject;
@@ -616,11 +626,13 @@ namespace SocialPoint.AssetSerializer.Helpers
             // loaded assemblies and see if any of them define the type
             
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach(var currentAssembly in assemblies)
+            for(int i = 0, assembliesLength = assemblies.Length; i < assembliesLength; i++)
             {
+                var currentAssembly = assemblies[i];
                 var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
-                foreach(var assemblyName in referencedAssemblies)
+                for(int j = 0, referencedAssembliesLength = referencedAssemblies.Length; j < referencedAssembliesLength; j++)
                 {
+                    var assemblyName = referencedAssemblies[j];
                     try
                     {
                         // Load the referenced assembly

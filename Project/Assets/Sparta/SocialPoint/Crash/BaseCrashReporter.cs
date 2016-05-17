@@ -567,8 +567,9 @@ namespace SocialPoint.Crash
 
             if(_pendingReports.Count > 0)
             {
-                foreach(Report report in _pendingReports)
+                for(int i = 0, _pendingReportsCount = _pendingReports.Count; i < _pendingReportsCount; i++)
                 {
+                    Report report = _pendingReports[i];
                     AddRetry(report.Uuid);
                 }
             }
@@ -584,8 +585,9 @@ namespace SocialPoint.Crash
 
             if(HasCrashLogs)
             {
-                foreach(var log in _crashStorage.StoredKeys)
+                for(int i = 0, _crashStorageStoredKeysLength = _crashStorage.StoredKeys.Length; i < _crashStorageStoredKeysLength; i++)
                 {
+                    var log = _crashStorage.StoredKeys[i];
                     AddRetry(log);
                 }
             }
@@ -627,8 +629,9 @@ namespace SocialPoint.Crash
             {
                 var steps = new StepCallbackBuilder(callback);
 
-                foreach(var log in _crashStorage.StoredKeys)
+                for(int i = 0, _crashStorageStoredKeysLength = _crashStorage.StoredKeys.Length; i < _crashStorageStoredKeysLength; i++)
                 {
+                    var log = _crashStorage.StoredKeys[i];
                     if(reportSendType == GetReportSendType(log))
                     {
                         SendCrashLog(log, steps.Add());
@@ -649,8 +652,9 @@ namespace SocialPoint.Crash
             {
                 var steps = new StepCallbackBuilder(callback);
 
-                foreach(Report report in _pendingReports)
+                for(int i = 0, _pendingReportsCount = _pendingReports.Count; i < _pendingReportsCount; i++)
                 {
+                    Report report = _pendingReports[i];
                     if(reportSendType == GetReportSendType(report.Uuid))
                     {
                         //trackcrash will create the log if is success
@@ -750,8 +754,9 @@ namespace SocialPoint.Crash
             }
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             var exceptionLogs = new AttrList();
-            foreach(var storedKey in storedKeys)
+            for(int i = 0, storedKeysLength = storedKeys.Length; i < storedKeysLength; i++)
             {
+                var storedKey = storedKeys[i];
                 try
                 {
                     exceptionLogs.Add(_exceptionStorage.Load(storedKey));
@@ -793,8 +798,9 @@ namespace SocialPoint.Crash
             _sending = false;
             if(!resp.HasError)
             {
-                foreach(var key in storedKeys)
+                for(int i = 0, storedKeysLength = storedKeys.Length; i < storedKeysLength; i++)
                 {
+                    var key = storedKeys[i];
                     _exceptionStorage.Remove(key);
                 }
             }

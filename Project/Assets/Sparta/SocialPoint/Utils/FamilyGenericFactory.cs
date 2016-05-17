@@ -11,8 +11,9 @@ namespace SocialPoint.Utils
         {
             if(factories != null)
             {
-                foreach(var factory in factories)
+                for(int i = 0, factoriesCount = factories.Count; i < factoriesCount; i++)
                 {
+                    var factory = factories[i];
                     Add(factory);
                 }
             }
@@ -34,13 +35,17 @@ namespace SocialPoint.Utils
 
         IGenericFactory<M, C> GetSpecificFactory(M model)
         {
-            foreach(var factory in _factories)
+            var itr = _factories.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var factory = itr.Current;
                 if(factory.SupportsModel(model))
                 {
+                    itr.Dispose();
                     return factory;
                 }
             }
+            itr.Dispose();
             return null;
         }
 

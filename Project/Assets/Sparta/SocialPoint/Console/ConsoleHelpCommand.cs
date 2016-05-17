@@ -65,18 +65,24 @@ namespace SocialPoint.Console
                 {
                     WriteCommandInfo(cmdName, cmd);
                     System.Console.WriteLine("----");
-                    foreach(var opt in cmd)
+                    var itr = cmd.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var opt = itr.Current;
                         WriteOptionInfo(opt);
                     }
+                    itr.Dispose();
                 }
             }
             else
             {
-                foreach(var pair in _app)
+                var itr = _app.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pair = itr.Current;
                     WriteCommandInfo(pair.Key, pair.Value);
                 }
+                itr.Dispose();
             }
         }
     }

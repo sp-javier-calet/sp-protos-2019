@@ -42,10 +42,14 @@ namespace SocialPoint.Utils
         {
             var queues = CopyQueues();
             var runData = new CoroutineRunData();
-            foreach(var kvp in queues)
+            var itr = queues.GetEnumerator();
+            while(itr.MoveNext())
             {
-                foreach(var action in kvp.Value)
+                var kvp = itr.Current;
+                var itr2 = kvp.Value.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var action = itr2.Current;
                     if(_defaultPriorityAction != null)
                     {
                         _defaultPriorityAction(kvp.Key);
@@ -55,9 +59,11 @@ namespace SocialPoint.Utils
                         _runner.StartCoroutine(RunCoroutine(action, runData));
                     }
                 }
+                itr2.Dispose();
                 while(!runData.Ended)
                     yield return null;
             }
+            itr.Dispose();
         }
 
         static IEnumerator RunCoroutine(Func<IEnumerator> corroutine, CoroutineRunData data)

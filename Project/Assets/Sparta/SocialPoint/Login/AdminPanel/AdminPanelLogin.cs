@@ -42,8 +42,10 @@ namespace SocialPoint.Login
                 var envNames = new string[_environments.Count];
                 int i = 0;
                 StringBuilder envInfo = null;
-                foreach(var kvp in _environments)
+                var itr = _environments.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var kvp = itr.Current;
                     envNames[i++] = kvp.Key;
                     var envUrl = StringUtils.FixBaseUri(kvp.Value);
                     if(envInfo == null && _login.BaseUrl == envUrl)
@@ -53,6 +55,7 @@ namespace SocialPoint.Login
                         envInfo.Append("URL: ").AppendLine(kvp.Value);
                     }
                 }
+                itr.Dispose();
                 if(envInfo != null)
                 {
                     layout.CreateTextArea(envInfo.ToString());
@@ -85,14 +88,16 @@ namespace SocialPoint.Login
             }
 
             var links = new StringBuilder();
-            foreach(var link in _login.User.Links)
+            for(int i = 0, _loginUserLinksCount = _login.User.Links.Count; i < _loginUserLinksCount; i++)
             {
+                var link = _login.User.Links[i];
                 links.AppendLine(link.ToString());
             }
             
             var friends = new StringBuilder();
-            foreach(var friend in _login.Friends)
+            for(int i = 0, _loginFriendsCount = _login.Friends.Count; i < _loginFriendsCount; i++)
             {
+                var friend = _login.Friends[i];
                 friends.AppendLine(friend.ToString());
             }
             
