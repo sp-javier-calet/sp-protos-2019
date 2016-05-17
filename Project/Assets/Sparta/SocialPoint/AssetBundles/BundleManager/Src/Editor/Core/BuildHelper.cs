@@ -752,9 +752,33 @@ public class BuildHelper
                 for(int i = 0; i < assetsAtPath.Length; ++i)
                 {
                     //Missing Components cause to get null entries
-                    if (assetsAtPath[i] != null)
+                    if(assetsAtPath[i] != null)
                     {
-                        assetsNames.Add(assetsAtPath[i].name);
+                        string name_in_bundle = assetsAtPath[i].name;
+
+                        // To prevent the problem of two nested gameobjects with the same name not being able to be fetch from the assetbundle consistently,
+                        // we'll rename the childs with the same name as the parent depending on the depth occurences
+                        var go = assetsAtPath[i] as GameObject;
+                        if(go != null)
+                        {
+                            var dupChildCount = 0;
+                            var go_name = go.name;
+                            while(go.transform.parent != null)
+                            {
+                                if(go.transform.parent.gameObject.name == go_name)
+                                {
+                                    dupChildCount++;
+                                }
+
+                                go = go.transform.parent.gameObject;
+                            }
+
+                            if(dupChildCount > 0)
+                            {
+                                name_in_bundle += "_ch" + dupChildCount.ToString();
+                            }
+                        }
+                        assetsNames.Add(name_in_bundle);
                         assets.Add(assetsAtPath[i]);
                     }
                 }
