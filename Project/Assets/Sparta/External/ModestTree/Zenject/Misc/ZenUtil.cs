@@ -123,7 +123,7 @@ namespace Zenject
             }
         }
 
-#if UNITY_5_3
+#if UNITY_5_3_2
         public static IEnumerator LoadSceneAdditiveWithContainerAsync(string levelName, DiContainer parentContainer)
         {
             return LoadSceneAdditiveWithContainerAsync(levelName, parentContainer, null);
