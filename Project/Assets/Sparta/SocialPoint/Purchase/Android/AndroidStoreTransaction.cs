@@ -59,16 +59,16 @@ namespace SocialPoint.Purchase
         /// </summary>
         public string Signature { get; private set; }
 
-        private const string _itemTypeKey = "itemType";
-        private const string _orderIdKey = "orderId";
-        private const string _packageNameKey = "packageName";
-        private const string _skuKey = "sku";
-        private const string _purchaseTimeKey = "purchaseTime";
-        private const string _purchaseStateKey = "purchaseState";
-        private const string _developerPayloadKey = "developerPayload";
-        private const string _tokenKey = "token";
-        private const string _originalJsonKey = "originalJson";
-        private const string _signatureKey = "signature";
+        private const string ItemTypeKey = "itemType";
+        private const string OrderIdKey = "orderId";
+        private const string PackageNameKey = "packageName";
+        private const string SkuKey = "sku";
+        private const string PurchaseTimeKey = "purchaseTime";
+        private const string PurchaseStateKey = "purchaseState";
+        private const string DeveloperPayloadKey = "developerPayload";
+        private const string TokenKey = "token";
+        private const string OriginalJsonKey = "originalJson";
+        private const string SignatureKey = "signature";
 
 
         public static List<AndroidStoreTransaction> TransactionsFromJson(string json)
@@ -87,54 +87,54 @@ namespace SocialPoint.Purchase
         {
             AndroidStoreTransaction transaction = new AndroidStoreTransaction();
 
-            if(dict.ContainsKey(_itemTypeKey))
+            if(dict.ContainsKey(ItemTypeKey))
             {
-                transaction.ItemType = dict[_itemTypeKey].ToString();
+                transaction.ItemType = dict[ItemTypeKey].ToString();
             }
 
-            if(dict.ContainsKey(_orderIdKey))
+            if(dict.ContainsKey(OrderIdKey))
             {
-                transaction.OrderId = dict[_orderIdKey].ToString();
+                transaction.OrderId = dict[OrderIdKey].ToString();
             }
 
-            if(dict.ContainsKey(_packageNameKey))
+            if(dict.ContainsKey(PackageNameKey))
             {
-                transaction.PackageName = dict[_packageNameKey].ToString();
+                transaction.PackageName = dict[PackageNameKey].ToString();
             }
 
-            if(dict.ContainsKey(_skuKey))
+            if(dict.ContainsKey(SkuKey))
             {
-                transaction.Sku = dict[_skuKey].ToString();
+                transaction.Sku = dict[SkuKey].ToString();
             }
 
-            if(dict.ContainsKey(_purchaseTimeKey) && dict[_purchaseTimeKey].IsValue)
+            if(dict.ContainsKey(PurchaseTimeKey) && dict[PurchaseTimeKey].IsValue)
             {
-                transaction.PurchaseTime = dict[_purchaseTimeKey].AsValue.ToLong();
+                transaction.PurchaseTime = dict[PurchaseTimeKey].AsValue.ToLong();
             }
 
-            if(dict.ContainsKey(_purchaseStateKey) && dict[_purchaseStateKey].IsValue)
+            if(dict.ContainsKey(PurchaseStateKey) && dict[PurchaseStateKey].IsValue)
             {
-                transaction.PurchaseState = dict[_purchaseStateKey].AsValue.ToInt();
+                transaction.PurchaseState = dict[PurchaseStateKey].AsValue.ToInt();
             }
 
-            if(dict.ContainsKey(_developerPayloadKey))
+            if(dict.ContainsKey(DeveloperPayloadKey))
             {
-                transaction.DeveloperPayload = dict[_developerPayloadKey].ToString();
+                transaction.DeveloperPayload = dict[DeveloperPayloadKey].ToString();
             }
 
-            if(dict.ContainsKey(_tokenKey))
+            if(dict.ContainsKey(TokenKey))
             {
-                transaction.Token = dict[_tokenKey].ToString();
+                transaction.Token = dict[TokenKey].ToString();
             }
 
-            if(dict.ContainsKey(_originalJsonKey))
+            if(dict.ContainsKey(OriginalJsonKey))
             {
-                transaction.OriginalJson = dict[_originalJsonKey].ToString();
+                transaction.OriginalJson = dict[OriginalJsonKey].ToString();
             }
             
-            if(dict.ContainsKey(_signatureKey))
+            if(dict.ContainsKey(SignatureKey))
             {
-                transaction.Signature = dict[_signatureKey].ToString();
+                transaction.Signature = dict[SignatureKey].ToString();
             }
 
             return transaction;

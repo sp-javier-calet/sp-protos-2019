@@ -24,14 +24,14 @@ namespace SocialPoint.Purchase
 
         public string PriceValue { get; private set; }
 
-        private const string _itemTypeKey = "itemType";
-        private const string _skuKey = "sku";
-        private const string _typeKey = "type";
-        private const string _priceKey = "price";
-        private const string _titleKey = "title";
-        private const string _descriptionKey = "description";
-        private const string _currencyCodeKey = "currencyCode";
-        private const string _priceValueKey = "priceValue";
+        private const string ItemTypeKey = "itemType";
+        private const string SkuKey = "sku";
+        private const string TypeKey = "type";
+        private const string PriceKey = "price";
+        private const string TitleKey = "title";
+        private const string DescriptionKey = "description";
+        private const string CurrencyCodeKey = "currencyCode";
+        private const string PriceValueKey = "priceValue";
 
 
         public static List<AndroidStoreProduct> ProductsFromJson(string json)
@@ -48,46 +48,46 @@ namespace SocialPoint.Purchase
         {
             AndroidStoreProduct product = new AndroidStoreProduct();
 
-            if(data.ContainsKey(_itemTypeKey))
+            if(data.ContainsKey(ItemTypeKey))
             {
-                product.ItemType = data[_itemTypeKey].ToString();
+                product.ItemType = data[ItemTypeKey].ToString();
             }
 
-            if(data.ContainsKey(_skuKey))
+            if(data.ContainsKey(SkuKey))
             {
-                product.Sku = data[_skuKey].ToString();
+                product.Sku = data[SkuKey].ToString();
             }
 
-            if(data.ContainsKey(_typeKey))
+            if(data.ContainsKey(TypeKey))
             {
-                product.Type = data[_typeKey].ToString();
+                product.Type = data[TypeKey].ToString();
             }
 
-            if(data.ContainsKey(_priceKey))
+            if(data.ContainsKey(PriceKey))
             {
-                product.Price = data[_priceKey].ToString();
+                product.Price = data[PriceKey].ToString();
             }
 
-            if(data.ContainsKey(_titleKey))
+            if(data.ContainsKey(TitleKey))
             {
-                product.Title = data[_titleKey].ToString();
+                product.Title = data[TitleKey].ToString();
             }
 
-            if(data.ContainsKey(_descriptionKey))
+            if(data.ContainsKey(DescriptionKey))
             {
-                product.Description = data[_descriptionKey].ToString();
+                product.Description = data[DescriptionKey].ToString();
             }
 
-            if(data.ContainsKey(_currencyCodeKey))
+            if(data.ContainsKey(CurrencyCodeKey))
             {
-                product.CurrencyCode = data[_currencyCodeKey].ToString();
+                product.CurrencyCode = data[CurrencyCodeKey].ToString();
             }
 
-            if(data.ContainsKey(_priceValueKey))
+            if(data.ContainsKey(PriceValueKey))
             {
                 try
                 {
-                    float value = float.Parse(data[_priceValueKey].ToString());
+                    float value = float.Parse(data[PriceValueKey].ToString());
                     value /= 1000000;//Prices in store are stored x1.000.000
                     product.PriceValue = value.ToString();
                 }

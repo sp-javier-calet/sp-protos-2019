@@ -8,13 +8,13 @@ namespace SocialPoint.Purchase
     {
         private const string FullClassName = "es.socialpoint.sparta.purchase.SPPurchaseStore";
 
-        private const string Function_Init = "Init";
-        private const string Function_EnableHighDetailLogs = "EnableHighDetailLogs";
-        private const string Function_RequestProductData = "RequestProductData";
-        private const string Function_PurchaseProduct = "PurchaseProduct";
-        private const string Function_FinishPendingTransaction = "FinishPendingTransaction";
-        private const string Function_ForceFinishPendingTransactions = "ForceFinishPendingTransactions";
-        private const string Function_Unbind = "Unbind";
+        private const string FunctionInit = "Init";
+        private const string FunctionEnableHighDetailLogs = "EnableHighDetailLogs";
+        private const string FunctionRequestProductData = "RequestProductData";
+        private const string FunctionPurchaseProduct = "PurchaseProduct";
+        private const string FunctionFinishPendingTransaction = "FinishPendingTransaction";
+        private const string FunctionForceFinishPendingTransactions = "ForceFinishPendingTransactions";
+        private const string FunctionUnbind = "Unbind";
 
         private static AndroidJavaClass _notifClass = null;
 
@@ -22,11 +22,8 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                if(Application.platform == RuntimePlatform.Android)
-                {
-                    _notifClass = new AndroidJavaClass(FullClassName);
-                    _notifClass.CallStatic(Function_Init, listenerObjectName);
-                }
+                _notifClass = new AndroidJavaClass(FullClassName);
+                _notifClass.CallStatic(FunctionInit, listenerObjectName);
             }
         }
 
@@ -35,7 +32,7 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                _notifClass.CallStatic(Function_EnableHighDetailLogs, shouldEnable);
+                _notifClass.CallStatic(FunctionEnableHighDetailLogs, shouldEnable);
             }
         }
 
@@ -43,7 +40,7 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                _notifClass.CallStatic(Function_RequestProductData, string.Join(",", productIdentifiers));
+                _notifClass.CallStatic(FunctionRequestProductData, string.Join(",", productIdentifiers));
             }
         }
 
@@ -51,7 +48,7 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                _notifClass.CallStatic(Function_PurchaseProduct, productIdentifier);
+                _notifClass.CallStatic(FunctionPurchaseProduct, productIdentifier);
             }
         }
 
@@ -59,7 +56,7 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                _notifClass.CallStatic(Function_FinishPendingTransaction, productIdentifier);
+                _notifClass.CallStatic(FunctionFinishPendingTransaction, productIdentifier);
             }
         }
 
@@ -67,7 +64,7 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                _notifClass.CallStatic(Function_ForceFinishPendingTransactions);
+                _notifClass.CallStatic(FunctionForceFinishPendingTransactions);
             }
         }
 
@@ -75,7 +72,7 @@ namespace SocialPoint.Purchase
         {
             if(Application.platform == RuntimePlatform.Android)
             {
-                _notifClass.CallStatic(Function_Unbind);
+                _notifClass.CallStatic(FunctionUnbind);
             }
         }
     }

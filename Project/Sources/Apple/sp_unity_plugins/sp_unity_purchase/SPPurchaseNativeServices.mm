@@ -8,6 +8,7 @@
 
 #include "SPPurchaseNativeServices.h"
 #include "UnityGameObject.h"
+#include "SPUnityNativeUtils.h"
 
 @implementation SPPurchaseNativeServices
 
@@ -92,7 +93,7 @@
         if([prod.productIdentifier isEqualToString:productIdentifier])
         {
             SKMutablePayment* payment = [SKMutablePayment paymentWithProduct:prod];
-            if(self.applicationUsername)
+            if(self.applicationUsername && SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV7))
             {
                 [self detailedLog:[NSString stringWithFormat:@"Using Application Username in Payment (%@)", self.applicationUsername]];
                 payment.applicationUsername = self.applicationUsername;
