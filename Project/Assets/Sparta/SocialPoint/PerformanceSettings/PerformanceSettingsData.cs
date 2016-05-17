@@ -4,6 +4,20 @@ namespace SocialPoint.PerformanceSettings
 {
     public class PerformanceSettingsData
     {
+        const string kFramerate = "frame_rate";
+        const string kFixedtimestep = "fixed_timestep";
+        const string kAssetquality = "asset_quality";
+        const string kScreenratio = "screen_ratio";
+        const string kCulling = "culling";
+        const string kMaxshaderlod = "max_shader_lod";
+        const string kAntialiasing = "anti_aliasing";
+        const string kAsyncuploadbuffersize = "async_upload_buffer_size";
+        const string kBlendWeights = "blend_weights";
+        const string kLodBias = "lod_bias";
+        const string kMasterTextureLimit = "master_texture_limit";
+        const string kMaxLodLevel = "max_lod_level";
+        const string kVsync = "vsync";
+
         public int FrameRate { get; private set; }
 
         public float FixedTimestep { get; private set; }
@@ -34,20 +48,20 @@ namespace SocialPoint.PerformanceSettings
 
         public PerformanceSettingsData(AttrDic config)
         {
-            FrameRate = config.GetValue("frame_rate").ToInt();
-            FixedTimestep = config.GetValue("fixed_timestep").ToFloat();
-            AssetQuality = config.GetValue("asset_quality").ToString();
-            ScreenRatio = config.GetValue("screen_ratio").ToFloat();
-            Culling = config.GetValue("culling").ToFloat();
-            MaxShaderLod = config.GetValue("max_shader_lod").ToInt();
-            AntiAliasing = config.GetValue("anti_aliasing").ToBool();
-            AsyncUploadBufferSize = config.GetValue("async_upload_buffer_size").ToInt();
-            AsyncUploadTimeSlice = config.GetValue("async_upload_time_slice").ToInt();
-            BlendWeights = config.GetValue("blend_weights").ToInt();
-            LodBias = config.GetValue("lod_bias").ToFloat();
-            MasterTextureLimit = config.GetValue("master_texture_limit").ToInt();
-            MaxLodLevel = config.GetValue("max_lod_level").ToInt();
-            Vsync = config.GetValue("vsync").ToBool();
+            FrameRate = config.GetValue(kFramerate).ToInt();
+            FixedTimestep = config.GetValue(kFixedtimestep).ToFloat();
+            AssetQuality = config.GetValue(kAssetquality).ToString();
+            ScreenRatio = config.GetValue(kScreenratio).ToFloat();
+            Culling = config.GetValue(kCulling).ToFloat();
+            MaxShaderLod = config.GetValue(kMaxshaderlod).ToInt();
+            AntiAliasing = config.GetValue(kAntialiasing).ToBool();
+            AsyncUploadBufferSize = config.GetValue(kAsyncuploadbuffersize).ToInt();
+            AsyncUploadTimeSlice = config.GetValue(kAsyncuploadbuffersize).ToInt();
+            BlendWeights = config.GetValue(kBlendWeights).ToInt();
+            LodBias = config.GetValue(kLodBias).ToFloat();
+            MasterTextureLimit = config.GetValue(kMasterTextureLimit).ToInt();
+            MaxLodLevel = config.GetValue(kMaxLodLevel).ToInt();
+            Vsync = config.GetValue(kVsync).ToBool();
         }
     }
 }

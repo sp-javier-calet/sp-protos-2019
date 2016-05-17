@@ -11,11 +11,12 @@ namespace SocialPoint.PerformanceSettings
 
         PerformanceSettingsData _data;
 
-        IAttrStorage _storage = null;
+        IAttrStorage _storage;
 
         const string kscreenRatio = "screen_ratio";
+        const string kPerformancesettings = "performance_settings";
 
-        static bool _screenRatioApplied = false;
+        static bool _screenRatioApplied;
 
         public static bool ScreenRatioApplied
         {
@@ -69,9 +70,9 @@ namespace SocialPoint.PerformanceSettings
         {
             AttrDic dic = data.AsDic;
           
-            if(dic.ContainsKey("performance_settings"))
+            if(dic.ContainsKey(kPerformancesettings))
             {
-                Init(dic.Get("performance_settings").AsDic);
+                Init(dic.Get(kPerformancesettings).AsDic);
             }
         }
 

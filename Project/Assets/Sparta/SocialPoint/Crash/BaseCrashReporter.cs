@@ -561,6 +561,11 @@ namespace SocialPoint.Crash
             get{ return (_crashStorage != null && _crashStorage.StoredKeys.Length > 0); }
         }
 
+        public bool HasBreadcrumbException
+        {
+            get{ return _breadcrumbManager.LogException != null; }
+        }
+
         protected void ReadPendingCrashes()
         {
             _pendingReports = GetPendingCrashes();
@@ -719,6 +724,12 @@ namespace SocialPoint.Crash
                 Array.Copy(storedKeys, keysToSend, len);
 
                 SendExceptions(keysToSend);
+            }
+
+            if( HasBreadcrumbException )
+            {
+                ReportHandledException(_breadcrumbManager.LogException);
+                _breadcrumbManager.LogException = null;
             }
         }
 

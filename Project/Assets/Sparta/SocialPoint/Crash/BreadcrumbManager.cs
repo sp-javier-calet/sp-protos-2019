@@ -26,7 +26,8 @@ namespace SocialPoint.Crash
     {
         const string LastSessionBreadcrumbsName = "old";
         static bool _initialized;
-        ICrashReporter _crashReporter;
+
+        public Exception LogException {get; set;}
 
         /*
          * InitializeBreadcrumbFile function ensures that every 
@@ -62,9 +63,8 @@ namespace SocialPoint.Crash
 
         #region BreadcrumbManager implementation
 
-        public BreadcrumbManager(ICrashReporter crashReporter)
+        public BreadcrumbManager()
         {
-            _crashReporter = crashReporter;
             PathsManager.CallOnLoaded(InitializeBreadcrumbFile);
         }
 
@@ -84,7 +84,7 @@ namespace SocialPoint.Crash
                 }
                 catch(Exception e)
                 {
-                    _crashReporter.ReportHandledException(e);
+                    LogException = e;
                 }
             }
         }
