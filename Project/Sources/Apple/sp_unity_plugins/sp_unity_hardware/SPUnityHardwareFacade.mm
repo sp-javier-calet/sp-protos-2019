@@ -253,15 +253,12 @@ EXPORT_API char* SPUnityHardwareGetAppCountry()
 
 EXPORT_API char* SPUnityHardwareGetNetworkConnectivity()
 {
-    struct sockaddr_in zeroAddress;
-    bzero(&zeroAddress, sizeof(zeroAddress));
-    zeroAddress.sin_len = sizeof(zeroAddress);
-    zeroAddress.sin_family = AF_INET;
-    SCNetworkReachabilityRef ref = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr*)&zeroAddress);
+    SCNetworkReachabilityRef ref = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [@"www.google.com" UTF8String]);
     SCNetworkReachabilityFlags flags = 0;
     
     if(SCNetworkReachabilityGetFlags(ref, &flags)) 
     {
+        CFRelease(ref);
         if((flags & kSCNetworkReachabilityFlagsReachable))
         {
             if((flags & kSCNetworkReachabilityFlagsIsWWAN))
@@ -278,8 +275,8 @@ EXPORT_API char* SPUnityHardwareGetNetworkConnectivity()
             return SPUnityHardwareCreateString("none");
         }
     }
-    
-    return SPUnityHardwareCreateString("");
+    CFRelease(ref);
+    return SPUnityHardwareCreateString("none");
 }
 
 const size_t kProxyBufferLength = 4096;
@@ -317,21 +314,35 @@ EXPORT_API char* SPUnityHardwareGetNetworkProxy()
 
 EXPORT_API char* SPUnityHardwareGetNetworkIpAddress()
 {
-    struct ifaddrs* interfaces = NULL;
-    struct ifaddrs* temp_addr = NULL;
+    char* addr = nullptr;
+    struct ifaddrs* interfaces = nullptr;
+    struct ifaddrs* temp_addr = nullptr;
     int success = 0;
-    char* addr = NULL;
+
     success = getifaddrs(&interfaces);
     if (success == 0)
     {
         temp_addr = interfaces;
-        while(temp_addr != NULL)
+        while(temp_addr != nullptr)
         {
-            if(temp_addr->ifa_addr->sa_family == AF_INET)
+            if(temp_addr->ifa_addr->sa_family == AF_INET6)
+            {
+                // Check if interface is en0 which is the wifi connection on the iPhone
+                if(strcmp(temp_addr->ifa_name, "en0") == 0)
+                {
+                    char str[INET6_ADDRSTRLEN];
+                    inet_ntop(AF_INET6, &(((struct sockaddr_in6*)temp_addr->ifa_addr)->sin6_addr), str, INET6_ADDRSTRLEN);
+                    addr = str;
+                    break;
+                }
+            }
+            else if(temp_addr->ifa_addr->sa_family == AF_INET)
             {
                 if(strcmp(temp_addr->ifa_name, "en0") == 0)
                 {
-                    addr = inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr);
+                    char str[INET_ADDRSTRLEN];
+                    inet_ntop(AF_INET, &(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr), str, INET_ADDRSTRLEN);
+                    addr = str;
                     break;
                 }
             }
@@ -339,7 +350,7 @@ EXPORT_API char* SPUnityHardwareGetNetworkIpAddress()
         }
     }
     freeifaddrs(interfaces);
-    if(addr == NULL)
+    if(addr == nullptr)
     {
         return SPUnityHardwareCreateString("");
     }

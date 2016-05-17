@@ -88,6 +88,9 @@ namespace SpartaTools.Editor.Build
 
         const string EditorFilter = "Editor";
         const string TestsFilter = "Tests";
+        const string PlatformWSAFilter = "Plugins/WSA";
+        const string PlatformAndroidFilter = "Plugins/Android";
+        const string PlatformIosFilter = "Plugins/Ios";
 
         List<string> _files;
         List<string> _references;
@@ -125,6 +128,9 @@ namespace SpartaTools.Editor.Build
             // Default filters
             _filters.Add(EditorFilter, new FilterData(EditorFilter));
             _filters.Add(TestsFilter, new FilterData(TestsFilter));
+            _filters.Add(PlatformWSAFilter, new FilterData(PlatformWSAFilter));
+            _filters.Add(PlatformAndroidFilter, new FilterData(PlatformAndroidFilter));
+            _filters.Add(PlatformIosFilter, new FilterData(PlatformIosFilter));
 
             // Initialize log entry
             _logContent.Append(Path.GetFileName(name)).AppendLine(" module compilation");
@@ -381,6 +387,7 @@ namespace SpartaTools.Editor.Build
             compiler.AddReference("System.Xml.Linq.dll");
             compiler.AddReference("System.Xml.dll");
             compiler.AddReference("GUISystem/UnityEngine.UI.dll");
+            compiler.AddReference("Networking/UnityEngine.Networking.dll");
 
             // FIXME Read default symbols from unity
             compiler.AddDefinedSymbol("UNITY_5");
@@ -399,6 +406,16 @@ namespace SpartaTools.Editor.Build
                 break;
             case BuildTarget.iOS:
                 compiler.ConfigureAs(new IosPlatformConfiguration());
+                break;
+            case BuildTarget.StandaloneLinux:
+            case BuildTarget.StandaloneLinux64:
+            case BuildTarget.StandaloneLinuxUniversal:
+            case BuildTarget.StandaloneOSXIntel:
+            case BuildTarget.StandaloneOSXIntel64:
+            case BuildTarget.StandaloneOSXUniversal:
+            case BuildTarget.StandaloneWindows:
+            case BuildTarget.StandaloneWindows64:
+                compiler.ConfigureAs(new StandAlonePlatformConfiguration());
                 break;
             default:
                 throw new CompilerConfigurationException(string.Format("Unsupported platform {0}", target));
@@ -431,11 +448,20 @@ namespace SpartaTools.Editor.Build
             void Configure(ModuleCompiler compiler);
         }
 
+        class StandAlonePlatformConfiguration : ICompilerConfiguration
+        {
+            public void Configure(ModuleCompiler compiler)
+            {
+                compiler.AddDefinedSymbol("UNITY_STANDALONE");
+            }
+        }
+
         class AndroidPlatformConfiguration : ICompilerConfiguration
         {
             public void Configure(ModuleCompiler compiler)
             {
                 compiler.AddDefinedSymbol("UNITY_ANDROID");
+                compiler.DisableFilter(PlatformAndroidFilter);
             }
         }
 
@@ -452,6 +478,7 @@ namespace SpartaTools.Editor.Build
 
                 compiler.AddDefinedSymbol("UNITY_IOS");
                 compiler.AddDefinedSymbol("UNITY_IPHONE");
+                compiler.DisableFilter(PlatformIosFilter);
             }
         }
 

@@ -4,11 +4,6 @@ namespace SocialPoint.Hardware
 {
     public class EmptyDeviceInfo : IDeviceInfo
     {
-        EmptyMemoryInfo _memoryInfo;
-        EmptyStorageInfo _storageInfo;
-        EmptyAppInfo _appInfo;
-        EmptyNetworkInfo _networkInfo;
-
         public EmptyDeviceInfo()
         {
             MemoryInfo = new EmptyMemoryInfo();

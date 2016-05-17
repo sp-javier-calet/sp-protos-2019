@@ -24,8 +24,6 @@ public class DownloadManager : MonoBehaviour
     static bool _useCache = true;
     static bool _useCrc = false;
 
-    static string _buildStatesText;
-
     string _localBundlesJson;
 
 

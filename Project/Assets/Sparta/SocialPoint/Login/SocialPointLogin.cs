@@ -11,7 +11,7 @@ using SocialPoint.AppEvents;
 
 namespace SocialPoint.Login
 {
-    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
+    public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
 
     public class SocialPointLogin : ILogin
     {
@@ -51,6 +51,8 @@ namespace SocialPoint.Login
         const string HttpParamLinkType = "provider_type";
         const string HttpParamRequestIds = "request_ids";
         const string HttpParamPrivilegeToken = "privileged_session_token";
+        const string HttpParamLinkChange = "link_change";
+        const string HttpParamLinkChangeCode = "link_change_code";
 
         const string HttpParamDeviceTotalMemory = "device_total_memory";
         const string HttpParamDeviceUsedMemory = "device_used_memory";
@@ -151,6 +153,8 @@ namespace SocialPoint.Login
         bool _userHasRegistered;
         bool _userHasRegisteredLoaded;
         string _securityToken;
+        bool _linkChange;
+        int _linkChangeCode;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -688,7 +692,7 @@ namespace SocialPoint.Login
             OnLoginEnd(null, cbk);
         }
 
-        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0)
+        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0, byte[] responseBody = null)
         {
             if(_appEvents != null)
             {
@@ -703,6 +707,12 @@ namespace SocialPoint.Login
             }
             else if(_availableConnectivityErrorRetries < 0)
             {
+                #if DEBUG
+                if (responseBody != null && responseBody.Length > 0) {
+                    DebugUtils.Log(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
+                }
+                #endif
+
                 var err = new Error(lastErrCode, "There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
@@ -738,7 +748,7 @@ namespace SocialPoint.Login
             else if(resp.HasRecoverableError && resp.StatusCode != MaintenanceMode)
             {
                 _availableConnectivityErrorRetries--;
-                DoLogin(cbk, resp.ErrorCode);
+                DoLogin(cbk, resp.ErrorCode, resp.Body);
                 return;
             }
 
@@ -814,6 +824,11 @@ namespace SocialPoint.Login
             // Reset retry values
             _availableConnectivityErrorRetries = _loginConfig.ConnectivityErrors;
             _availableSecurityTokenErrorRetries = _loginConfig.SecurityTokenErrors;
+            if(Error.IsNullOrEmpty(err))
+            {
+                _linkChange = false;
+                _linkChangeCode = 0;
+            }
             if(cbk != null)
             {
                 cbk(err);
@@ -1237,6 +1252,21 @@ namespace SocialPoint.Login
             return err;
         }
 
+        int GetLinkConfirmTypeCode(LinkConfirmType type)
+        {
+            switch(type)
+            {
+            case LinkConfirmType.LinkedToLinked:
+                return LinkedToLinkedError;
+            case LinkConfirmType.LinkedToLoose:
+                return LinkedToLooseError;
+            case LinkConfirmType.LooseToLinked:
+                return LooseToLinkedError;
+            default:
+                return 0;
+            }
+        }
+
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
             if((resp.HasRecoverableError) && _availableConnectivityErrorRetries > 0 && _loginConfig.EnableOnLinkConfirm)
@@ -1253,8 +1283,11 @@ namespace SocialPoint.Login
             }
             bool restartNeeded = false;
 
+            var linkConfirmTypeCode = 0;
+
             if(info != null)
             {
+                linkConfirmTypeCode = GetLinkConfirmTypeCode(info.ConfirmType);
                 // unset link info to prevent multiple confirms
                 info.Token = "";
                 info.ConfirmType = LinkConfirmType.None;
@@ -1279,6 +1312,9 @@ namespace SocialPoint.Login
                                 // if confirm returns a new user id we need to relogin
                                 if(newUserId != UserId)
                                 {
+                                    _linkChangeCode = linkConfirmTypeCode;
+                                    _linkChange = true;
+
                                     UserId = newUserId;
                                     restartNeeded = true;
                                 }
@@ -1915,6 +1951,14 @@ namespace SocialPoint.Login
                 {
                     req.AddParam(HttpParamDeviceOpenglMemory, DeviceInfo.OpenglMemorySize.ToString());
                 }
+            }
+            if(!req.HasParam(HttpParamLinkChange))
+            {
+                req.AddParam(HttpParamLinkChange, _linkChange ? "1" : "0");
+            }
+            if(!req.HasParam(HttpParamLinkChangeCode))
+            {
+                req.AddParam(HttpParamLinkChangeCode, new AttrInt(_linkChangeCode));
             }
         }
 

@@ -72,6 +72,7 @@ namespace SocialPoint.Crash
         {
             if(!FileUtils.ExistsFile(BreadcrumbLogPath()))
             {
+                LogException = new FileNotFoundException();
                 return;
             }
 

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -77,8 +76,7 @@ namespace SocialPoint.GUIAnimation
             return _instance;
         }
 
-        Dictionary<EaseType, IEase> _easeTypes = new Dictionary<EaseType, IEase>(
-            new EnumUtils.DictionaryComparer<EaseType>());
+        Dictionary<EaseType, IEase> _easeTypes = new Dictionary<EaseType, IEase> ();
 
         public void Add (EaseType type, IEase ease)
         {

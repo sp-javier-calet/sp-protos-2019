@@ -84,6 +84,8 @@ namespace SpartaTools.Editor.View
                 Variants.Add(new Variant("Android-Editor", module, BuildTarget.Android, true));
                 Variants.Add(new Variant("iOS", module, BuildTarget.iOS, false));
                 Variants.Add(new Variant("iOS-Editor", module, BuildTarget.iOS, true));
+                Variants.Add(new Variant("Win Standalone", module, BuildTarget.StandaloneWindows, false));
+                Variants.Add(new Variant("Win-Editor", module, BuildTarget.StandaloneWindows, true));
             }
         }
 
