@@ -289,7 +289,7 @@ namespace SocialPoint.Base
             }
         }
 
-        public static void GetChildsRecursive(this GameObject gameObject, string name, List<GameObject> outList)
+        public static void GetChildrenRecursive(this GameObject gameObject, string name, List<GameObject> outList)
         {
             if( gameObject.name.CompareTo(name) == 0 )
             {
@@ -298,7 +298,7 @@ namespace SocialPoint.Base
 
             for(int k = 0; k < gameObject.transform.childCount; k++)
             {
-                GetChildsRecursive(gameObject.transform.GetChild(k).gameObject, name, outList);
+                GetChildrenRecursive(gameObject.transform.GetChild(k).gameObject, name, outList);
             }
         }
 
