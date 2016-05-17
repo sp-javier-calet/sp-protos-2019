@@ -288,6 +288,31 @@ namespace SocialPoint.Base
                 }
             }
         }
+
+        public static void GetChildrenRecursive(this GameObject gameObject, string name, List<GameObject> outList)
+        {
+            if( gameObject.name.CompareTo(name) == 0 )
+            {
+                outList.Add(gameObject);
+            }
+
+            for(int k = 0; k < gameObject.transform.childCount; k++)
+            {
+                GetChildrenRecursive(gameObject.transform.GetChild(k).gameObject, name, outList);
+            }
+        }
+
+        public static void GetChildrenWithTagRecursive(this GameObject gameObject, string tag, List<GameObject> outList)
+        {
+            if( gameObject.CompareTag(tag) )
+            {
+                outList.Add(gameObject);
+            }
+
+            for(int k = 0; k < gameObject.transform.childCount; k++)
+            {
+                GetChildrenWithTagRecursive(gameObject.transform.GetChild(k).gameObject, tag, outList);
+            }
+        }
     }
 }
-
