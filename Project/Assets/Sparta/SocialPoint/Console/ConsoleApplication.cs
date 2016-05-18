@@ -123,6 +123,7 @@ namespace SocialPoint.Console
                         if(id > 0)
                         {
                             cmd = pair.Value;
+                            itr.Dispose();
                             return id;
                         }
                     }

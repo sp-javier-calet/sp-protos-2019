@@ -150,9 +150,10 @@ namespace SocialPoint.AssetSerializer.Helpers
         {
             var compDic = new Dictionary<string, KeyValuePair<Type, object>>();
 
-            for(int i = 0, maxLength = comp.GetType().GetFields(flags).Length; i < maxLength; i++)
+            var fieldInfo = comp.GetType().GetFields(flags);
+            for(int i = 0, maxLength = fieldInfo.Length; i < maxLength; i++)
             {
-                FieldInfo fi = comp.GetType().GetFields(flags)[i];
+                FieldInfo fi = fieldInfo[i];
                 if((fi.Attributes & FieldAttributes.Literal) == 0)
                 {
                     object[] attributes = fi.GetCustomAttributes(true);
@@ -164,9 +165,10 @@ namespace SocialPoint.AssetSerializer.Helpers
                 }
             }
 
-            for(int i = 0, maxLength = comp.GetType().GetProperties(flags).Length; i < maxLength; i++)
+            var propertyInfo = comp.GetType().GetProperties(flags);
+            for(int i = 0, maxLength = propertyInfo.Length; i < maxLength; i++)
             {
-                PropertyInfo pi = comp.GetType().GetProperties(flags)[i];
+                PropertyInfo pi = propertyInfo[i];
                 if(pi.GetGetMethod() == null)
                 {
                     object[] attributes = pi.GetCustomAttributes(true);

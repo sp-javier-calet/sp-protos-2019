@@ -461,6 +461,7 @@ namespace SocialPoint.Network
             {
                 hdrs.SetValue(itr.Current.Key, itr.Current.Value);
             }
+            itr.Dispose();
             if(Body != null)
             {
                 data.SetValue(AttrKeyBody, Convert.ToBase64String(Body));

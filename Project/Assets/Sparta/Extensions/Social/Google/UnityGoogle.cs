@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.Quests;
@@ -77,13 +78,14 @@ namespace SocialPoint.Social
                 if(descriptions.Length > 0)
                 {
                     DebugUtils.Log("Got " + descriptions.Length + " achievement descriptions");
-                    string achievementDescriptions = "Achievement Descriptions:\n";
+                    var achievementDescriptions = new StringBuilder();
+                    achievementDescriptions.Append("Achievement Descriptions:\n");
                     for(int i = 0, descriptionsLength = descriptions.Length; i < descriptionsLength; i++)
                     {
                         IAchievementDescription ad = descriptions[i];
-                        achievementDescriptions += "\t" + ad.id + " " + ad.title + " " + ad.unachievedDescription + "\n";
+                        achievementDescriptions.Append("\t").Append(ad.id).Append(" ").Append(ad.title).Append(" ").Append(ad.unachievedDescription).AppendLine();
                     }
-                    DebugUtils.Log(achievementDescriptions);
+                    DebugUtils.Log(achievementDescriptions.ToString());
                 }
                 else
                 {
