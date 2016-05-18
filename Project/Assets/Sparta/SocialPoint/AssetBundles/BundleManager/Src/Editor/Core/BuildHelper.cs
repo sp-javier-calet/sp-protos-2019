@@ -728,7 +728,7 @@ public class BuildHelper
             throw new BuildProcessException("No assets were provided for the asset bundle");
         }
 
-        // Load all of assets in this bundle
+        // Load all assets that will go in this bundle
         List<UnityEngine.Object> assets = new List<UnityEngine.Object>();
         List<string> assetsNames = new List<string>();
         foreach(string assetPath in assetsList)
@@ -751,21 +751,21 @@ public class BuildHelper
             {
                 for(int i = 0; i < assetsAtPath.Length; ++i)
                 {
-                    //Missing Components cause to get null entries
+                    // Missing Components cause getting null instances
                     if(assetsAtPath[i] != null)
                     {
-                        string name_in_bundle = assetsAtPath[i].name;
+                        string nameInBundle = assetsAtPath[i].name;
 
                         // To prevent the problem of two nested gameobjects with the same name not being able to be fetch from the assetbundle consistently,
-                        // we'll rename the childs with the same name as the parent depending on the depth occurences
+                        // we'll rename the children with the same name as the parent depending on the depth occurences
                         var go = assetsAtPath[i] as GameObject;
                         if(go != null)
                         {
                             var dupChildCount = 0;
-                            var go_name = go.name;
+                            var goName = go.name;
                             while(go.transform.parent != null)
                             {
-                                if(go.transform.parent.gameObject.name == go_name)
+                                if(go.transform.parent.gameObject.name == goName)
                                 {
                                     dupChildCount++;
                                 }
@@ -775,10 +775,10 @@ public class BuildHelper
 
                             if(dupChildCount > 0)
                             {
-                                name_in_bundle += "_ch" + dupChildCount.ToString();
+                                nameInBundle += "_ch" + dupChildCount.ToString();
                             }
                         }
-                        assetsNames.Add(name_in_bundle);
+                        assetsNames.Add(nameInBundle);
                         assets.Add(assetsAtPath[i]);
                     }
                 }
