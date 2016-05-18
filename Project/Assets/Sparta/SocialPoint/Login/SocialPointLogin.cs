@@ -11,95 +11,115 @@ using SocialPoint.AppEvents;
 
 namespace SocialPoint.Login
 {
-    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
+    public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
 
     public class SocialPointLogin : ILogin
     {
-        private const string DefaultBaseUrl = "http://localhost/";
-        private const string BaseUri = "{0}/{1}";
+        const string DefaultBaseUrl = "http://localhost/";
+        const string BaseUri = "{0}/{1}";
         // UserId, DeviceId
-        private const string LoginUri = "user/login";
-        private const string LinkUri = "user/link";
-        private const string LinkConfirmUri = "user/link/confirm";
-        private const string UserMappingUri = "user/link/mapping";
-        private const string AppRequestsUri = "requests";
+        const string LoginUri = "user/login";
+        const string LinkUri = "user/link";
+        const string LinkConfirmUri = "user/link/confirm";
+        const string UserMappingUri = "user/link/mapping";
+        const string AppRequestsUri = "requests";
 
-        private const string SecurityTokenStorageKey = "SocialPointLoginClientToken";
-        private const string UserIdStorageKey = "SocialPointLoginUserId";
-        private const string UserHasRegisteredStorageKey = "SocialPointLoginHasRegistered";
+        const string SecurityTokenStorageKey = "SocialPointLoginClientToken";
+        const string UserIdStorageKey = "SocialPointLoginUserId";
+        const string UserHasRegisteredStorageKey = "SocialPointLoginHasRegistered";
 
-        private const string HttpParamSessionId = "session_id";
-        private const string HttpParamDeviceModel = "device_model";
-        private const string HttpParamSecurityToken = "security_token";
-        private const string HttpParamClientVersion = "client_version";
-        private const string HttpParamPlatform = "platform";
-        private const string HttpParamClientLanguage = "client_language";
-        private const string HttpParamDeviceLanguage = "device_language";
-        private const string HttpParamUserIds = "ids";
-        private const string HttpParamSocialPointUserIds = "sp";
-        private const string HttpParamAppRequestUserIds = "to";
-        private const string HttpParamAppRequestType = "type";
-        private const string HttpParamTimestamp = "ts";
-        private const string HttpParamPlatformVersion = "device_os";
-        private const string HttpParamDeviceAid = "device_adid";
-        private const string HttpParamDeviceAidEnabled = "device_adid_enabled";
-        private const string HttpParamDeviceRooted = "device_rooted";
-        private const string HttpParamClientBuild = "client_build";
-        private const string HttpParamClientAppId = "client_appid";
-        private const string HttpParamLinkConfirmToken = "confirm_link_token";
-        private const string HttpParamLinkDecision = "decision";
-        private const string HttpParamLinkType = "provider_type";
-        private const string HttpParamRequestIds = "request_ids";
-        private const string HttpParamPrivilegeToken = "privileged_session_token";
+        const string HttpParamSessionId = "session_id";
+        const string HttpParamDeviceModel = "device_model";
+        const string HttpParamSecurityToken = "security_token";
+        const string HttpParamClientVersion = "client_version";
+        const string HttpParamPlatform = "platform";
+        const string HttpParamClientLanguage = "client_language";
+        const string HttpParamDeviceLanguage = "device_language";
+        const string HttpParamUserIds = "ids";
+        const string HttpParamSocialPointUserIds = "sp";
+        const string HttpParamAppRequestUserIds = "to";
+        const string HttpParamAppRequestType = "type";
+        const string HttpParamTimestamp = "ts";
+        const string HttpParamPlatformVersion = "device_os";
+        const string HttpParamDeviceAid = "device_adid";
+        const string HttpParamDeviceAidEnabled = "device_adid_enabled";
+        const string HttpParamDeviceRooted = "device_rooted";
+        const string HttpParamClientBuild = "client_build";
+        const string HttpParamClientAppId = "client_appid";
+        const string HttpParamLinkConfirmToken = "confirm_link_token";
+        const string HttpParamLinkDecision = "decision";
+        const string HttpParamLinkType = "provider_type";
+        const string HttpParamRequestIds = "request_ids";
+        const string HttpParamPrivilegeToken = "privileged_session_token";
+        const string HttpParamLinkChange = "link_change";
+        const string HttpParamLinkChangeCode = "link_change_code";
 
-        private const string AttrKeySessionId = "session_id";
-        private const string AttrKeyLinksData = "linked_accounts";
-        private const string AttrKeyUserId = "user_id";
-        private const string AttrKeyLinkProvider = "provider_type";
-        private const string AttrKeyLinkExternalId = "external_id";
-        private const string AttrKeyConfirmLinkToken = "confirm_link_token";
-        private const string AttrKeyLoginData = "login_data";
-        private const string AttrKeyGameData = "game_data";
-        private const string AttrKeyGenericData = "generic_data";
+        const string HttpParamDeviceTotalMemory = "device_total_memory";
+        const string HttpParamDeviceUsedMemory = "device_used_memory";
+        const string HttpParamDeviceTotalStorage = "device_total_storage";
+        const string HttpParamDeviceUsedStorage = "device_used_storage";
+        const string HttpParamDeviceMaxTextureSize = "device_max_texture_size";
+        const string HttpParamDeviceScreenWidth = "device_screen_width";
+        const string HttpParamDeviceScreenHeight = "device_screen_height";
+        const string HttpParamDeviceScreenDpi = "device_screen_dpi";
+        const string HttpParamDeviceCpuCores = "device_cpu_cores";
+        const string HttpParamDeviceCpuFreq = "device_cpu_freq";
+        const string HttpParamDeviceCpuModel = "device_cpu_model";
+        const string HttpParamDeviceOpenglVendor = "device_opengl_vendor";
+        const string HttpParamDeviceOpenglRenderer = "device_opengl_renderer";
+        const string HttpParamDeviceOpenglShading = "device_opengl_shading";
+        const string HttpParamDeviceOpenglVersion = "device_opengl_version";
+        const string HttpParamDeviceOpenglMemory = "device_opengl_memory";
+
+
+        const string AttrKeySessionId = "session_id";
+        const string AttrKeyLinksData = "linked_accounts";
+        const string AttrKeyUserId = "user_id";
+        const string AttrKeyLinkProvider = "provider_type";
+        const string AttrKeyLinkExternalId = "external_id";
+        const string AttrKeyConfirmLinkToken = "confirm_link_token";
+        const string AttrKeyLoginData = "login_data";
+        const string AttrKeyGameData = "game_data";
+        const string AttrKeyGenericData = "generic_data";
         public const string AttrKeyData = "data";
-        private const string AttrKeyEventError = "error";
-        private const string AttrKeyEventLogin = "login";
-        private const string AttrKeyEventErrorType = "error_type";
-        private const string AttrKeyEventErrorCode = "error_code";
-        private const string AttrKeyEventErrorMessage = "error_desc";
-        private const string AttrKeyEventErrorHttpCode = "http_code";
-        private const string AttrKeyEventErrorData = "data";
+        const string AttrKeyEventError = "error";
+        const string AttrKeyEventLogin = "login";
+        const string AttrKeyEventErrorType = "error_type";
+        const string AttrKeyEventErrorCode = "error_code";
+        const string AttrKeyEventErrorMessage = "error_desc";
+        const string AttrKeyEventErrorHttpCode = "http_code";
+        const string AttrKeyEventErrorData = "data";
         public const string AttrKeyHttpCode = "http_code";
         public const string AttrKeySignature = "signature";
-        private const string AttrKeyHttpDuration = "duration";
-        private const string AttrKeyHttpTransferDuration = "transfer_duration";
-        private const string AttrKeyHttpConnectionDuration = "connection_duration";
-        private const string AttrKeyHttpDownloadSize = "download_size";
-        private const string AttrKeyHttpDownloadSpeed = "download_speed";
+        const string AttrKeyHttpDuration = "duration";
+        const string AttrKeyHttpTransferDuration = "transfer_duration";
+        const string AttrKeyHttpConnectionDuration = "connection_duration";
+        const string AttrKeyHttpDownloadSize = "download_size";
+        const string AttrKeyHttpDownloadSpeed = "download_speed";
 
-        private const string EventNameLoading = "game.loading";
-        private const string EventNameLogin = "game.login";
-        private const string EventNameError = "errors.login_error";
+        const string EventNameLoading = "game.loading";
+        const string EventNameLogin = "game.login";
+        const string EventNameError = "errors.login_error";
 
-        private const string SignatureSeparator = ":";
-        private const string SignatureCodeSeparator = "-";
+        const string SignatureSeparator = ":";
+        const string SignatureCodeSeparator = "-";
 
-        private const int InvalidSecurityTokenError = 480;
-        private const int InvalidSessionError = 482;
-        private const int InvalidLinkDataError = 483;
-        private const int InvalidProviderTokenError = 484;
-        private const int InvalidPrivilegeTokenError = 486;
-        private const int MaintenanceMode = 503;
-        private const int LooseToLinkedError = 264;
-        private const int LinkedToLooseError = 265;
-        private const int LinkedToSameError = 266;
-        private const int LinkedToLinkedError = 267;
-        private const int ForceUpgradeError = 485;
+        const int InvalidSecurityTokenError = 480;
+        const int InvalidSessionError = 482;
+        const int InvalidLinkDataError = 483;
+        const int InvalidProviderTokenError = 484;
+        const int InvalidPrivilegeTokenError = 486;
+        const int MaintenanceMode = 503;
+        const int LooseToLinkedError = 264;
+        const int LinkedToLooseError = 265;
+        const int LinkedToSameError = 266;
+        const int LinkedToLinkedError = 267;
+        const int ForceUpgradeError = 485;
 
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
         public const bool DefaultEnableLinkConfirmRetries = false;
-        public const float DefaultTimeout = 120.0f; //Default company timeout
+        public const float DefaultTimeout = 120.0f;
         public const float DefaultActivityTimeout = 15.0f;
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
@@ -133,6 +153,8 @@ namespace SocialPoint.Login
         bool _userHasRegistered;
         bool _userHasRegisteredLoaded;
         string _securityToken;
+        bool _linkChange;
+        int _linkChangeCode;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -444,7 +466,7 @@ namespace SocialPoint.Login
             DebugUtils.Log(string.Format("SocialPointLogin {0}", msg));
         }
 
-        private void Init()
+        void Init()
         {
             _userId = 0;
             ImpersonatedUserId = 0;
@@ -670,7 +692,7 @@ namespace SocialPoint.Login
             OnLoginEnd(null, cbk);
         }
 
-        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0)
+        void DoLogin(ErrorDelegate cbk, int lastErrCode = 0, byte[] responseBody = null)
         {
             if(_appEvents != null)
             {
@@ -685,6 +707,12 @@ namespace SocialPoint.Login
             }
             else if(_availableConnectivityErrorRetries < 0)
             {
+                #if DEBUG
+                if (responseBody != null && responseBody.Length > 0) {
+                    DebugUtils.Log(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
+                }
+                #endif
+
                 var err = new Error(lastErrCode, "There was an error with the connection.");
                 NotifyError(ErrorType.Connection, err);
                 OnLoginEnd(err, cbk);
@@ -720,7 +748,7 @@ namespace SocialPoint.Login
             else if(resp.HasRecoverableError && resp.StatusCode != MaintenanceMode)
             {
                 _availableConnectivityErrorRetries--;
-                DoLogin(cbk, resp.ErrorCode);
+                DoLogin(cbk, resp.ErrorCode, resp.Body);
                 return;
             }
 
@@ -796,6 +824,11 @@ namespace SocialPoint.Login
             // Reset retry values
             _availableConnectivityErrorRetries = _loginConfig.ConnectivityErrors;
             _availableSecurityTokenErrorRetries = _loginConfig.SecurityTokenErrors;
+            if(Error.IsNullOrEmpty(err))
+            {
+                _linkChange = false;
+                _linkChangeCode = 0;
+            }
             if(cbk != null)
             {
                 cbk(err);
@@ -954,8 +987,6 @@ namespace SocialPoint.Login
             case LinkedToSameError:
                     // duplicated link attempt, do nothing
                 resp.StatusCode = (int)HttpResponse.StatusCodeType.Success;
-                break;
-            default:
                 break;
             }
 
@@ -1171,7 +1202,7 @@ namespace SocialPoint.Login
                 }
             }
 
-            if(_user != null )
+            if(_user != null)
             {
                 if(NewUserEvent != null)
                 {
@@ -1221,6 +1252,21 @@ namespace SocialPoint.Login
             return err;
         }
 
+        int GetLinkConfirmTypeCode(LinkConfirmType type)
+        {
+            switch(type)
+            {
+            case LinkConfirmType.LinkedToLinked:
+                return LinkedToLinkedError;
+            case LinkConfirmType.LinkedToLoose:
+                return LinkedToLooseError;
+            case LinkConfirmType.LooseToLinked:
+                return LooseToLinkedError;
+            default:
+                return 0;
+            }
+        }
+
         void OnLinkConfirmResponse(string linkToken, LinkInfo info, LinkConfirmDecision decision, HttpResponse resp, ErrorDelegate cbk)
         {
             if((resp.HasRecoverableError) && _availableConnectivityErrorRetries > 0 && _loginConfig.EnableOnLinkConfirm)
@@ -1237,8 +1283,11 @@ namespace SocialPoint.Login
             }
             bool restartNeeded = false;
 
+            var linkConfirmTypeCode = 0;
+
             if(info != null)
             {
+                linkConfirmTypeCode = GetLinkConfirmTypeCode(info.ConfirmType);
                 // unset link info to prevent multiple confirms
                 info.Token = "";
                 info.ConfirmType = LinkConfirmType.None;
@@ -1263,6 +1312,9 @@ namespace SocialPoint.Login
                                 // if confirm returns a new user id we need to relogin
                                 if(newUserId != UserId)
                                 {
+                                    _linkChangeCode = linkConfirmTypeCode;
+                                    _linkChange = true;
+
                                     UserId = newUserId;
                                     restartNeeded = true;
                                 }
@@ -1356,7 +1408,7 @@ namespace SocialPoint.Login
                     if(DeviceInfo != null)
                     {
                         var uid = DeviceInfo.Uid;
-                        uid = uid != null  && uid.Length > 7 ? uid.Substring(0, 8) : "";
+                        uid = uid != null && uid.Length > 7 ? uid.Substring(0, 8) : "";
                         suffix += SignatureSeparator + uid;
                     }
                 }
@@ -1835,6 +1887,78 @@ namespace SocialPoint.Login
                 {
                     req.AddParam(HttpParamPrivilegeToken, PrivilegeToken);
                 }
+                if(!req.HasParam(HttpParamDeviceTotalMemory))
+                {
+                    req.AddParam(HttpParamDeviceTotalMemory, DeviceInfo.MemoryInfo.TotalMemory.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceUsedMemory))
+                {
+                    req.AddParam(HttpParamDeviceUsedMemory, DeviceInfo.MemoryInfo.UsedMemory.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceTotalStorage))
+                {
+                    req.AddParam(HttpParamDeviceTotalStorage, DeviceInfo.StorageInfo.TotalStorage.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceUsedStorage))
+                {
+                    req.AddParam(HttpParamDeviceUsedStorage, DeviceInfo.StorageInfo.UsedStorage.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceMaxTextureSize))
+                {
+                    req.AddParam(HttpParamDeviceMaxTextureSize, DeviceInfo.MaxTextureSize.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenWidth))
+                {
+                    req.AddParam(HttpParamDeviceScreenWidth, DeviceInfo.ScreenSize.x.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenHeight))
+                {
+                    req.AddParam(HttpParamDeviceScreenHeight, DeviceInfo.ScreenSize.y.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceScreenDpi))
+                {
+                    req.AddParam(HttpParamDeviceScreenDpi, DeviceInfo.ScreenDpi.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuCores))
+                {
+                    req.AddParam(HttpParamDeviceCpuCores, DeviceInfo.CpuCores.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuFreq))
+                {
+                    req.AddParam(HttpParamDeviceCpuFreq, DeviceInfo.CpuFreq.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceCpuModel))
+                {
+                    req.AddParam(HttpParamDeviceCpuModel, DeviceInfo.CpuModel);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglVendor))
+                {
+                    req.AddParam(HttpParamDeviceOpenglVendor, DeviceInfo.OpenglVendor);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglRenderer))
+                {
+                    req.AddParam(HttpParamDeviceOpenglRenderer, DeviceInfo.OpenglRenderer);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglShading))
+                {
+                    req.AddParam(HttpParamDeviceOpenglShading, DeviceInfo.OpenglShadingVersion.ToString());
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglVersion))
+                {
+                    req.AddParam(HttpParamDeviceOpenglVersion, DeviceInfo.OpenglVersion);
+                }
+                if(!req.HasParam(HttpParamDeviceOpenglMemory))
+                {
+                    req.AddParam(HttpParamDeviceOpenglMemory, DeviceInfo.OpenglMemorySize.ToString());
+                }
+            }
+            if(!req.HasParam(HttpParamLinkChange))
+            {
+                req.AddParam(HttpParamLinkChange, _linkChange ? "1" : "0");
+            }
+            if(!req.HasParam(HttpParamLinkChangeCode))
+            {
+                req.AddParam(HttpParamLinkChangeCode, new AttrInt(_linkChangeCode));
             }
         }
 

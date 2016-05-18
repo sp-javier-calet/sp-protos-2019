@@ -72,11 +72,6 @@ namespace SocialPoint.Purchase
             //Force pending transactions
             layout.CreateButton("Finish Pending Transactions", () => {
                 _purchaseStore.ForceFinishPendingTransactions();
-                #if UNITY_ANDROID && !UNITY_EDITOR
-                //Reload... this is needed in Android. 
-                //TODO: Check Mock and iOS versions to update Android version without needing to reload
-                LoadProducts(null);
-                #endif
             });
             //Force command queue flush
             layout.CreateConfirmButton("Flush Command Queue", () => {

@@ -7,6 +7,22 @@ using System.IO;
 
 namespace SocialPoint.Utils
 {
+    public static class StringBuilderExtension
+    {
+        public static void Append(this StringBuilder builder, params string[] strList)
+        {
+            for(int i = 0, count = strList.Length; i < count; ++i)
+            {
+                builder.Append(strList[i]);
+            }
+        }
+
+        public static bool IsNullOrEmpty(this StringBuilder builder)
+        {
+            return builder.Length == 0;
+        }
+    }
+
     public class StringUtils
     {
         static Stack<StringBuilder> _builders;

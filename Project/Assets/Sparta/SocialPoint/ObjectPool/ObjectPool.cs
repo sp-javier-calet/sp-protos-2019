@@ -21,8 +21,10 @@ namespace SocialPoint.ObjectPool
             public GameObject prefab;
         }
 
+        public bool AllowAutoPoolCreation = false;
         public StartupPoolModeEnum StartupPoolMode;
         public StartupPool[] StartupPools;
+
         private static ObjectPool _instance;
 
         public static ObjectPool Instance
@@ -85,21 +87,34 @@ namespace SocialPoint.ObjectPool
             }
         }
 
-        public static void CreatePool<T>(T prefab, int initialPoolSize) where T : Component
+        bool GetOrCreatePool(GameObject prefab, out List<GameObject> list)
         {
-            CreatePool(prefab.gameObject, initialPoolSize);
+            bool found = Instance._pooledObjects.TryGetValue(prefab, out list);
+            if(!found && AllowAutoPoolCreation)
+            {
+                list = CreatePool(prefab, 1);
+                found = list != null;
+            }
+            return found;
         }
 
-        public static void CreatePool(GameObject prefab, int initialPoolSize)
+        public static List<GameObject> CreatePool<T>(T prefab, int initialPoolSize) where T : Component
         {
+            return CreatePool(prefab.gameObject, initialPoolSize);
+        }
+
+        public static List<GameObject> CreatePool(GameObject prefab, int initialPoolSize)
+        {
+            List<GameObject> list = null;
+
             if(prefab == null || initialPoolSize == 0)
             {
-                return;
+                return null;
             }
 
             if(!Instance._pooledObjects.ContainsKey(prefab))
             {
-                var list = new List<GameObject>();
+                list = new List<GameObject>();
                 Instance._pooledObjects.Add(prefab, list);
 
                 bool active = prefab.activeSelf;
@@ -115,6 +130,8 @@ namespace SocialPoint.ObjectPool
                 }
                 prefab.SetActive(active);
             }
+
+            return list;
         }
 
         public static T Spawn<T>(T prefab, Transform parent, Vector3 position, Quaternion rotation) where T : Component
@@ -156,7 +173,8 @@ namespace SocialPoint.ObjectPool
 
             GameObject obj;
             List<GameObject> list;
-            if(Instance._pooledObjects.TryGetValue(prefab, out list))
+
+            if(Instance.GetOrCreatePool(prefab, out list))
             {
                 obj = null;
                 if(list.Count > 0)

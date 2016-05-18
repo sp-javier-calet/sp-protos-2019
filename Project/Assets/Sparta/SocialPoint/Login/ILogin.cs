@@ -31,16 +31,16 @@ namespace SocialPoint.Login
 
         UInt64 UserId { get; }
 
-        string SessionId { get; }       
+        string SessionId { get; }
 
         GenericData Data { get; }
 
-		void Login(ErrorDelegate cbk = null);
+        void Login(ErrorDelegate cbk = null);
 
         void ClearStoredUser();
 
         string BaseUrl { get; set; }
-        
+
         void SetupHttpRequest(HttpRequest req, string uri);
     }
 
