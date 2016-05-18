@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
+using UnityEngine;
 
-
-#if UNITY_IPHONE
+#if UNITY_IOS
 namespace SocialPoint.Purchase
 {
     public class IosStoreManager : MonoBehaviour
@@ -12,7 +12,7 @@ namespace SocialPoint.Purchase
         public static event Action<List<IosStoreProduct>> ProductListReceivedEvent;
 
         // Fired when requesting product data fails
-        public static event Action<string> ProductListRequestFailedEvent;
+        public static event Action<Error> ProductListRequestFailedEvent;
 
         // Fired anytime Apple updates a transaction if you called setShouldSendTransactionUpdateEvents with true. Check the transaction.transactionState to
         // know what state the transaction is currently in.
@@ -22,16 +22,16 @@ namespace SocialPoint.Purchase
         public static event Action<IosStoreTransaction> PurchaseSuccessfulEvent;
 
         // Fired when a product purchase fails
-        public static event Action<string> PurchaseFailedEvent;
+        public static event Action<Error> PurchaseFailedEvent;
 
         // Fired when a product purchase is cancelled by the user or system
-        public static event Action<string> PurchaseCancelledEvent;
+        public static event Action<Error> PurchaseCancelledEvent;
 
+        const string instanceName = "IosStoreManager";
 
         static IosStoreManager()
         {
-            string instanceName = "IosStoreManager";
-            GameObject instance = new GameObject(instanceName);
+            var instance = new GameObject(instanceName);
             instance.AddComponent<IosStoreManager>();
             DontDestroyOnLoad(instance);
             IosStoreBinding.Init(instanceName);
@@ -60,7 +60,7 @@ namespace SocialPoint.Purchase
         {
             if(PurchaseFailedEvent != null)
             {
-                PurchaseFailedEvent(error);
+                PurchaseFailedEvent(new Error(error));
             }
         }
 
@@ -69,7 +69,7 @@ namespace SocialPoint.Purchase
         {
             if(PurchaseCancelledEvent != null)
             {
-                PurchaseCancelledEvent(error);
+                PurchaseCancelledEvent(new Error(error));
             }
         }
 
@@ -87,7 +87,7 @@ namespace SocialPoint.Purchase
         {
             if(ProductListRequestFailedEvent != null)
             {
-                ProductListRequestFailedEvent(error);
+                ProductListRequestFailedEvent(new Error(error));
             }
         }
 

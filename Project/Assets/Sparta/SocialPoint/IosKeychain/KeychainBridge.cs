@@ -21,7 +21,7 @@ namespace SocialPoint.IosKeychain
             AccessGroup;
         };
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         public static extern int SPUnityKeychainSet(ItemStruct item, string value);
         #else
@@ -31,7 +31,7 @@ namespace SocialPoint.IosKeychain
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         public static extern string SPUnityKeychainGet(ItemStruct item);
         #else
@@ -41,7 +41,7 @@ namespace SocialPoint.IosKeychain
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         public static extern int SPUnityKeychainClear(ItemStruct item);
         #else
@@ -51,7 +51,7 @@ namespace SocialPoint.IosKeychain
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         public static extern string SPUnityKeychainGetDefaultAccessGroup();
         #else

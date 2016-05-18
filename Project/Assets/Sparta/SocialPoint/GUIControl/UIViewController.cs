@@ -322,9 +322,12 @@ namespace SocialPoint.GUIControl
 
         void OnDestroy()
         {
-            Reset();
-            HideImmediate();
-            OnDestroyed();
+            if(_loaded)
+            {
+                Reset();
+                HideImmediate();
+                OnDestroyed();
+            }
         }
 
         virtual protected void OnAwake()
@@ -537,7 +540,9 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppearing");
             _viewState = ViewState.Appearing;
+#if !NGUI
             AddLayers();
+#endif
             NotifyViewEvent();
         }
 
@@ -592,7 +597,7 @@ namespace SocialPoint.GUIControl
             {
                 _viewState = ViewState.Destroying;
                 NotifyViewEvent();
-                GameObject.Destroy(gameObject);
+                Factory.Destroy(this);
                 _viewState = ViewState.Destroyed;
                 NotifyViewEvent();
             }

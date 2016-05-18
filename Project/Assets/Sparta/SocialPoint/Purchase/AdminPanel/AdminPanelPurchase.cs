@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using SocialPoint.AdminPanel;
+﻿using UnityEngine;
+using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.ServerSync;
+using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
-using UnityEngine;
+using SocialPoint.ServerSync;
 
 namespace SocialPoint.Purchase
 {
@@ -94,7 +94,7 @@ namespace SocialPoint.Purchase
                     //Label with purchase state
                     if(_lastKnownPurchaseState.ContainsKey(id) && !string.IsNullOrEmpty(_lastKnownPurchaseState[id]))
                     {
-                        var infoPanel = layout.CreatePanelLayout(product.Locale + " - Purchase Info", () =>  {
+                        var infoPanel = layout.CreatePanelLayout(product.Locale + " - Purchase Info", () => {
                             _lastKnownPurchaseState[id] = string.Empty;
                             layout.Refresh();
                         });

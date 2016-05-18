@@ -1,16 +1,13 @@
-﻿using UnityEngine;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using UnityEngine;
 
-
-#if UNITY_IPHONE
+#if UNITY_IOS
 namespace SocialPoint.Purchase
 {
-    public class IosStoreBinding
+    public static class IosStoreBinding
     {
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_Init(string listenerObjectName);
+        static extern void SPUnityStore_Init(string listenerObjectName);
 
         public static void Init(string listenerObjectName)
         {
@@ -21,9 +18,10 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_SetApplicationUsername(string applicationUserName);
+        static extern void SPUnityStore_SetApplicationUsername(string applicationUserName);
 
-        // iOS 7+ only. This is used to help the store detect irregular activity.
+        // IMPORTANT: This is mandatory!
+        // This is used to help the store detect irregular activity. Is requested by Apple for future featurings. Works in iOS 7+.
         // The recommended implementation is to use a one-way hash of the user's account name to calculate the value for this property.
         public static void SetApplicationUsername(string applicationUserName)
         {
@@ -34,19 +32,7 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_SetUseAppUsername(bool shouldUseAppUsername);
-
-        // By default the application username is not set as data for a payment, but this is requested by Apple and we should set it if possible
-        public static void SetUseAppUsername(bool shouldUseAppUsername)
-        {
-            if(Application.platform == RuntimePlatform.IPhonePlayer)
-            {
-                SPUnityStore_SetUseAppUsername(shouldUseAppUsername);
-            }
-        }
-
-        [DllImport("__Internal")]
-        private static extern void SPUnityStore_SetUseAppReceipt(bool shouldUseAppReceipt);
+        static extern void SPUnityStore_SetUseAppReceipt(bool shouldUseAppReceipt);
 
         // By default the Transaction receipt is used, but is deprecated. Set this property to true to use the App receipt if our game/backend supports it
         public static void SetUseAppReceipt(bool shouldUseAppReceipt)
@@ -58,7 +44,7 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_SendTransactionUpdateEvents(bool shouldSend);
+        static extern void SPUnityStore_SendTransactionUpdateEvents(bool shouldSend);
 
         // By default, the transactionUpdatedEvent will not be called to avoid excessive string allocations. If you pass true to this method it will be called.
         public static void SetShouldSendTransactionUpdateEvents(bool shouldSend)
@@ -71,7 +57,7 @@ namespace SocialPoint.Purchase
 
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_EnableHighDetailLogs(bool shouldEnable);
+        static extern void SPUnityStore_EnableHighDetailLogs(bool shouldEnable);
 
         // Enables/disables high detail logs
         public static void EnableHighDetailLogs(bool shouldEnable)
@@ -84,7 +70,7 @@ namespace SocialPoint.Purchase
 
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_RequestProductData(string productIdentifiers);
+        static extern void SPUnityStore_RequestProductData(string productIdentifiers);
 
         // Accepts an array of product identifiers. All of the products you have for sale should be requested in one call.
         public static void RequestProductData(string[] productIdentifiers)
@@ -97,7 +83,7 @@ namespace SocialPoint.Purchase
 
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_PurchaseProduct(string productIdentifier);
+        static extern void SPUnityStore_PurchaseProduct(string productIdentifier);
 
         // Purchases the given product and quantity
         public static void PurchaseProduct(string productIdentifier)
@@ -109,7 +95,7 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_ForceUpdatePendingTransactions();
+        static extern void SPUnityStore_ForceUpdatePendingTransactions();
 
         // Force update any and all pending transactions to check their current states
         public static void ForceUpdatePendingTransactions()
@@ -121,7 +107,7 @@ namespace SocialPoint.Purchase
         }
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_ForceFinishPendingTransactions();
+        static extern void SPUnityStore_ForceFinishPendingTransactions();
 
         // Force finishes any and all pending transactions including those being tracked and any random transactions in Apple's queue
         public static void ForceFinishPendingTransactions()
@@ -134,7 +120,7 @@ namespace SocialPoint.Purchase
 
 
         [DllImport("__Internal")]
-        private static extern void SPUnityStore_FinishPendingTransaction(string transactionIdentifier);
+        static extern void SPUnityStore_FinishPendingTransaction(string transactionIdentifier);
 
         // Finishes the pending transaction identified by the transactionIdentifier
         public static void FinishPendingTransaction(string transactionIdentifier)

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
 
-#if UNITY_IPHONE
+#if UNITY_IOS
 namespace SocialPoint.Purchase
 {
     public enum IosStoreTransactionState
@@ -34,6 +32,10 @@ namespace SocialPoint.Purchase
 
         public IosStoreTransactionState TransactionState { get; private set; }
 
+        const string ProductIdentifierKey = "productIdentifier";
+        const string TransactionIdentifierKey = "transactionIdentifier";
+        const string Base64EncodedReceiptKey = "base64EncodedReceipt";
+        const string TransactionStateKey = "transactionState";
 
 
         public static List<IosStoreTransaction> TransactionsFromJson(string json)
@@ -52,17 +54,25 @@ namespace SocialPoint.Purchase
         {
             var transaction = new IosStoreTransaction();
 
-            if(dict.ContainsKey("productIdentifier"))
-                transaction.ProductIdentifier = dict["productIdentifier"].ToString();
+            if(dict.ContainsKey(ProductIdentifierKey))
+            {
+                transaction.ProductIdentifier = dict[ProductIdentifierKey].ToString();
+            }
 
-            if(dict.ContainsKey("transactionIdentifier"))
-                transaction.TransactionIdentifier = dict["transactionIdentifier"].ToString();
+            if(dict.ContainsKey(TransactionIdentifierKey))
+            {
+                transaction.TransactionIdentifier = dict[TransactionIdentifierKey].ToString();
+            }
 
-            if(dict.ContainsKey("base64EncodedReceipt"))
-                transaction.Base64EncodedTransactionReceipt = dict["base64EncodedReceipt"].ToString();
+            if(dict.ContainsKey(Base64EncodedReceiptKey))
+            {
+                transaction.Base64EncodedTransactionReceipt = dict[Base64EncodedReceiptKey].ToString();
+            }
 
-            if(dict.ContainsKey("transactionState"))
-                transaction.TransactionState = (IosStoreTransactionState)int.Parse(dict["transactionState"].ToString());
+            if(dict.ContainsKey(TransactionStateKey))
+            {
+                transaction.TransactionState = (IosStoreTransactionState)int.Parse(dict[TransactionStateKey].ToString());
+            }
 
             return transaction;
         }
@@ -73,7 +83,6 @@ namespace SocialPoint.Purchase
             return string.Format("<IosStoreTransaction> ID: {0}, transactionIdentifier: {1}, transactionState: {2}",
                 ProductIdentifier, TransactionIdentifier, TransactionState);
         }
-
     }
 }
 #endif

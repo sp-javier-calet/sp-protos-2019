@@ -1,9 +1,11 @@
+#if UNITY_IOS
 using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine;
+#endif
 
 namespace SocialPoint.Purchase
 {
@@ -54,10 +56,6 @@ namespace SocialPoint.Purchase
             PlatformPuchaseSettings.SetBoolSetting(settings, 
                 PlatformPuchaseSettings.IOSUseDetailedLogKey, 
                 IosStoreBinding.EnableHighDetailLogs);
-
-            PlatformPuchaseSettings.SetBoolSetting(settings, 
-                PlatformPuchaseSettings.IOSUseApplicationUsernameKey, 
-                IosStoreBinding.SetUseAppUsername);
             
             PlatformPuchaseSettings.SetBoolSetting(settings, 
                 PlatformPuchaseSettings.IOSUseAppReceiptKey, 
@@ -91,15 +89,28 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                IosStoreBinding.SetApplicationUsername(CryptographyUtils.GetHashSha256(_getUserId().ToString()));
-                IosStoreBinding.PurchaseProduct(productId);
-                _purchasingProduct = productId;
-                PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
-                return true;
+                if(_getUserId != null)
+                {
+                    IosStoreBinding.SetApplicationUsername(CryptographyUtils.GetHashSha256(_getUserId().ToString()));
+                    IosStoreBinding.PurchaseProduct(productId);
+                    _purchasingProduct = productId;
+                    PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
+                    return true;
+                }
+                else
+                {
+                    PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+                    string errorMessage = "An Application Username must be set before attempting to purchase. The game must provide a delegate through the SocialPointPurchaseStore.GetUserId setter.";
+                    Debug.LogError(errorMessage);
+                    throw new Exception(errorMessage);
+                }
             }
-            DebugLog("product doesn't exist: " + productId);
-            PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
-            return false;
+            else
+            {
+                DebugLog("product doesn't exist: " + productId);
+                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+                return false;
+            }
         }
 
         public void ForceFinishPendingTransactions()
@@ -124,17 +135,26 @@ namespace SocialPoint.Purchase
             }
         }
 
+        
+
         #endregion
+
+        
+        
 
         #region IDisposable implementation
 
+        
         virtual public void Dispose()
         {
             UnregisterEvents();
         }
 
+        
+
         #endregion
 
+        
         public IosPurchaseStore()
         {
             if(Application.platform != RuntimePlatform.IPhonePlayer)
@@ -143,6 +163,7 @@ namespace SocialPoint.Purchase
             }
 
             IosStoreManager.ProductListReceivedEvent += ProductListReceived;
+            IosStoreManager.ProductListRequestFailedEvent += ProductListFailed;
             IosStoreManager.PurchaseFailedEvent += PurchaseFailed;
             IosStoreManager.PurchaseCancelledEvent += PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent += PurchaseFinished;
@@ -155,9 +176,8 @@ namespace SocialPoint.Purchase
             DebugLog("received total products: " + products.Count);
             try
             {
-                for(int i = 0, productsCount = products.Count; i < productsCount; i++)
+                foreach(IosStoreProduct product in products)
                 {
-                    IosStoreProduct product = products[i];
                     var parsedProduct = new Product(product.ProductIdentifier, product.Title, float.Parse(product.Price), product.CurrencySymbol, product.FormattedPrice);
                     DebugLog(product.ToString());
                     _products.Add(parsedProduct);
@@ -170,18 +190,23 @@ namespace SocialPoint.Purchase
                 ProductsUpdated(LoadProductsState.Error, new Error(ex.Message));
             }
 
-            _products.Sort((p1, p2) => p1.Price.CompareTo(p2.Price));
+            _products.Sort((Product p1, Product p2) => p1.Price.CompareTo(p2.Price));
             DebugLog("products sorted");
             ProductsUpdated(LoadProductsState.Success);
+        }
+
+        void ProductListFailed(Error error)
+        {
+            DebugLog("ProductListFailed " + error);
         }
 
         void FinishPendingPurchase(Receipt receipt, OnFinishedPendingPurchaseDelegate OnFinishedPendingPurchase = null)
         {
             if(_validatePurchase != null)
             {
-                DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt);
-                _validatePurchase(receipt, response => {
-                    DebugLog("response given to IosPurchaseStore: " + response + " for transaction: " + receipt.OrderId);
+                DebugLog("ProductPurchaseAwaitingConfirmation: " + receipt.ToString());
+                _validatePurchase(receipt, (response) => {
+                    DebugLog("response given to IosPurchaseStore: " + response.ToString() + " for transaction: " + receipt.OrderId);
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
                         IosStoreBinding.FinishPendingTransaction(receipt.OrderId);
@@ -213,7 +238,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        void PurchaseFailed(string error)
+        void PurchaseFailed(Error error)
         {
             DebugLog("PurchaseFailed " + error);
             //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
@@ -223,7 +248,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        void PurchaseCanceled(string error)
+        void PurchaseCanceled(Error error)
         {
             DebugLog("PurchaseCanceled " + error);
             //_purchasingProduct may be uninitialized if the event comes when loading old (not consumed) transactions when the store is initialized
@@ -277,6 +302,7 @@ namespace SocialPoint.Purchase
         void UnregisterEvents()
         {
             IosStoreManager.ProductListReceivedEvent -= ProductListReceived;
+            IosStoreManager.ProductListRequestFailedEvent -= ProductListFailed;
             IosStoreManager.PurchaseFailedEvent -= PurchaseFailed;
             IosStoreManager.PurchaseCancelledEvent -= PurchaseCanceled;
             IosStoreManager.PurchaseSuccessfulEvent -= PurchaseFinished;
