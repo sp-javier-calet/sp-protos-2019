@@ -23,25 +23,14 @@ namespace SocialPoint.Purchase
         [DllImport("__Internal")]
         private static extern void SPUnityStore_SetApplicationUsername(string applicationUserName);
 
-        // iOS 7+ only. This is used to help the store detect irregular activity.
+        // IMPORTANT: This is mandatory!
+        // This is used to help the store detect irregular activity. Is requested by Apple for future featurings. Works in iOS 7+.
         // The recommended implementation is to use a one-way hash of the user's account name to calculate the value for this property.
         public static void SetApplicationUsername(string applicationUserName)
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
             {
                 SPUnityStore_SetApplicationUsername(applicationUserName);
-            }
-        }
-
-        [DllImport("__Internal")]
-        private static extern void SPUnityStore_SetUseAppUsername(bool shouldUseAppUsername);
-
-        // By default the application username is not set as data for a payment, but this is requested by Apple and we should set it if possible
-        public static void SetUseAppUsername(bool shouldUseAppUsername)
-        {
-            if(Application.platform == RuntimePlatform.IPhonePlayer)
-            {
-                SPUnityStore_SetUseAppUsername(shouldUseAppUsername);
             }
         }
 

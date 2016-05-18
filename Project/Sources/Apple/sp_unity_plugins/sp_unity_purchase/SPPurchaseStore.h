@@ -19,7 +19,6 @@ extern "C"
 {
     EXPORT_API void SPUnityStore_Init(const char* listenerObjectName);
     EXPORT_API void SPUnityStore_SetApplicationUsername(const char* applicationUserName);
-    EXPORT_API void SPUnityStore_SetUseAppUsername(bool shouldUseAppUsername);
     EXPORT_API void SPUnityStore_SetUseAppReceipt(bool shouldUseAppReceipt);
     EXPORT_API void SPUnityStore_SendTransactionUpdateEvents(bool shouldSend);
     EXPORT_API void SPUnityStore_EnableHighDetailLogs(bool shouldEnable);

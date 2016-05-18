@@ -37,7 +37,6 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 @property(strong, nonatomic) SKProductsRequest* request;
 @property(strong, nonatomic) NSString* unityListenerName;
 @property(strong, nonatomic) NSString* applicationUsername;
-@property(nonatomic) BOOL useApplicationUsername;
 @property(nonatomic) BOOL useApplicationReceipt;
 @property(nonatomic) BOOL canSendTransactionUpdateEvents;
 @property(nonatomic) BOOL highDetailLogsEnabled;
@@ -45,7 +44,6 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 - (id)initWithUnityListener:(const char*)listenerName;
 
 - (void)setAppUsername:(const char*) userIdentifier;
-- (void)setUseAppUsername:(BOOL) shouldUseAppUsername;
 - (void)setUseAppReceipt:(BOOL) shouldUseAppReceipt;
 - (void)sendTransactionUpdateEvents:(BOOL) shouldSend;
 - (void)enableHighDetailLogs:(BOOL) shouldEnable;
