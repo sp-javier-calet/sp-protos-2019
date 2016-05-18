@@ -728,7 +728,7 @@ public class BuildHelper
             throw new BuildProcessException("No assets were provided for the asset bundle");
         }
 
-        // Load all of assets in this bundle
+        // Load all assets that will go in this bundle
         List<UnityEngine.Object> assets = new List<UnityEngine.Object>();
         List<string> assetsNames = new List<string>();
         foreach(string assetPath in assetsList)
@@ -751,10 +751,34 @@ public class BuildHelper
             {
                 for(int i = 0; i < assetsAtPath.Length; ++i)
                 {
-                    //Missing Components cause to get null entries
-                    if (assetsAtPath[i] != null)
+                    // Missing Components cause getting null instances
+                    if(assetsAtPath[i] != null)
                     {
-                        assetsNames.Add(assetsAtPath[i].name);
+                        string nameInBundle = assetsAtPath[i].name;
+
+                        // To prevent the problem of two nested gameobjects with the same name not being able to be fetch from the assetbundle consistently,
+                        // we'll rename the children with the same name as the parent depending on the depth occurences
+                        var go = assetsAtPath[i] as GameObject;
+                        if(go != null)
+                        {
+                            var dupChildCount = 0;
+                            var goName = go.name;
+                            while(go.transform.parent != null)
+                            {
+                                if(go.transform.parent.gameObject.name == goName)
+                                {
+                                    dupChildCount++;
+                                }
+
+                                go = go.transform.parent.gameObject;
+                            }
+
+                            if(dupChildCount > 0)
+                            {
+                                nameInBundle += "_ch" + dupChildCount.ToString();
+                            }
+                        }
+                        assetsNames.Add(nameInBundle);
                         assets.Add(assetsAtPath[i]);
                     }
                 }
