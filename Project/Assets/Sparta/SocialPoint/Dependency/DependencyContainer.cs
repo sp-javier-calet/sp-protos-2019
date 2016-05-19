@@ -52,6 +52,7 @@ namespace SocialPoint.Dependency
             _toType = ToType.Lookup;
             _type = typeof(T);
             _tag = tag;
+            _container.AddLookup(this, _type, _tag);
             return this;
         }
 
@@ -77,6 +78,7 @@ namespace SocialPoint.Dependency
             _getter = (t) => method((T)t);
             _toType = ToType.Method;
             _tag = null;
+            _container.AddLookup(this, _type, _tag);
             return this;
         }
 
@@ -137,12 +139,14 @@ namespace SocialPoint.Dependency
         }
     }
 
-    public class DependencyContainer
+    public class DependencyContainer : IDisposable
     {
         List<IInstaller> _installed = new List<IInstaller>();
         Dictionary<BindingKey, List<IBinding>> _bindings = new Dictionary<BindingKey, List<IBinding>>();
         HashSet<IBinding> _resolving = new HashSet<IBinding>();
         List<IBinding> _resolved = new List<IBinding>();
+        Dictionary<IBinding, HashSet<object>> _instances = new Dictionary<IBinding, HashSet<object>>();
+        Dictionary<IBinding, BindingKey> _lookups = new Dictionary<IBinding, BindingKey>();
 
         public void AddBinding(IBinding binding, Type type, string tag=null)
         {
@@ -156,9 +160,16 @@ namespace SocialPoint.Dependency
             list.Add(binding);
         }
 
+        public void AddLookup(IBinding binding, Type type, string tag=null)
+        {
+            _lookups[binding] = new BindingKey(type, tag);
+        }
+
         public bool Remove<T>(string tag = null)
         {
-            return _bindings.Remove(new BindingKey( typeof(T), tag ));
+            var key = new BindingKey(typeof(T), tag);
+            DisposeInstances(key);
+            return _bindings.Remove(key);
         }
 
         public bool HasBinding<T>(string tag = null)
@@ -244,15 +255,86 @@ namespace SocialPoint.Dependency
                     resolved[i].OnResolutionFinished();
                 }
             }
+            HashSet<object> instances;
+            if(!_instances.TryGetValue(binding, out instances))
+            {
+                instances = new HashSet<object>();
+                _instances[binding] = instances;
+            }
+            instances.Add(result);
             return true;
         }
 
         public void Clear()
         {
+            Dispose();
             _bindings.Clear();
             _installed.Clear();
             _resolved.Clear();
             _resolving.Clear();
+            _lookups.Clear();
+        }
+
+        HashSet<object> FindInstances(Type from, BindingKey key, bool remove=false)
+        {
+            var instances = new HashSet<object>();
+            var itr = _bindings.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                if(itr.Current.Key.Type != from)
+                {
+                    continue;
+                }
+                HashSet<object> bindingInstances;
+                var bindings = itr.Current.Value;
+                for(var i = 0; i<bindings.Count ; i++)
+                {
+                    var binding = bindings[i];
+                    if(key.Type != null)
+                    {
+                        BindingKey lookup;
+                        if(_lookups.TryGetValue(binding, out lookup))
+                        {
+                            if(lookup.Type != key.Type || lookup.Tag != key.Tag)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    if(_instances.TryGetValue(binding, out bindingInstances))
+                    {
+                        var itr2 = bindingInstances.GetEnumerator();
+                        while(itr2.MoveNext())
+                        {
+                            instances.Add(itr2.Current);
+                        }
+                        itr2.Dispose();
+                        if(remove)
+                        {
+                            _instances.Remove(binding);
+                        }
+                    }
+                }
+            }
+            itr.Dispose();
+            return instances;
+        }
+
+        public void Dispose()
+        {
+            DisposeInstances(new BindingKey(null, null));
+            _instances.Clear();
+        }
+
+        void DisposeInstances(BindingKey key)
+        {
+            var disposables = FindInstances(typeof(IDisposable), key, true);
+            var itr = disposables.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                ((IDisposable)itr.Current).Dispose();
+            }
+            itr.Dispose();
         }
     }
 
