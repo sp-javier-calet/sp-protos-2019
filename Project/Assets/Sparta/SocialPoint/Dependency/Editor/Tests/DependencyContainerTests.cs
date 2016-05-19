@@ -213,5 +213,21 @@ namespace SocialPoint.Dependency
             var service = container.Resolve<ITestService>();
             Assert.IsInstanceOf<TestService>(service);
         }
+
+        [Test]
+        public void DontSetupTwiceTest()
+        {
+            var container = new DependencyContainer();
+            var count = 0;
+            container.Bind<ITestService>().ToMethod<TestService>(() => {
+                return new TestService();
+            }, (service) => {
+                count++;
+            });
+            container.Resolve<ITestService>();
+            container.Resolve<ITestService>();
+
+            Assert.AreEqual(1, count);
+        }
     }
 }

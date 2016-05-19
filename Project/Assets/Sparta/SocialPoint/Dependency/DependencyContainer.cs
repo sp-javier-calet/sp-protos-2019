@@ -115,6 +115,7 @@ namespace SocialPoint.Dependency
             if(_setup != null && _instance != null)
             {
                 _setup(_instance);
+                _setup = null;
             }
         }
 
