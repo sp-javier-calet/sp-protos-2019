@@ -6,7 +6,7 @@ using SocialPoint.Crash;
 using SocialPoint.Utils;
 using SocialPoint.Base;
 
-public class BaseInstaller : MonoInstaller, IInitializable
+public class BaseInstaller : Installer, IInitializable
 {
     public override void InstallBindings()
     {

@@ -6,7 +6,7 @@ using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
 
-public class AlertInstaller : MonoInstaller
+public class AlertInstaller : Installer
 {
     [Serializable]
     public class SettingsData

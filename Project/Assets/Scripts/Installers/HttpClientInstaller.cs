@@ -26,7 +26,7 @@ public class HttpClientInstallerEditor: Editor
 }
 #endif
 
-public class HttpClientInstaller : MonoInstaller
+public class HttpClientInstaller : Installer
 {
     [Serializable]
     public class SettingsData

@@ -4,7 +4,7 @@ using SocialPoint.IO;
 using SocialPoint.Hardware;
 using SocialPoint.Dependency;
 
-public class StorageInstaller : MonoInstaller
+public class StorageInstaller : Installer
 {
     [Serializable]
     public class SettingsData

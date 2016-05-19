@@ -2,7 +2,7 @@
 using SocialPoint.Dependency;
 using SocialPoint.Marketing;
 
-public class MobileAppTrackingInstaller : MonoInstaller
+public class MobileAppTrackingInstaller : Installer
 {
     [Serializable]
     public class SettingsData

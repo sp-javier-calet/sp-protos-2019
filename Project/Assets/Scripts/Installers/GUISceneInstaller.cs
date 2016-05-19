@@ -6,7 +6,7 @@ using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
 
 
-public class GUISceneInstaller : MonoInstaller, IInitializable
+public class GUISceneInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData

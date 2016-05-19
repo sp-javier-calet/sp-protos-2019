@@ -6,7 +6,7 @@ using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
 
-public class GoogleInstaller : MonoInstaller
+public class GoogleInstaller : Installer
 {
     [Serializable]
     public class SettingsData

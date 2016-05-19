@@ -11,7 +11,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Login;
 
-public class GameInstaller : MonoInstaller
+public class GameInstaller : Installer
 {
     [Serializable]
     public class SettingsData

@@ -4,6 +4,6 @@ namespace SocialPoint.Dependency
 {
     public sealed class GlobalDependencyConfigurer : ScriptableObject
     {
-        public MonoInstaller[] Installers;
+        public Installer[] Installers;
     }
 }

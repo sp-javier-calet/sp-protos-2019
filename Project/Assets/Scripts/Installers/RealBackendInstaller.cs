@@ -6,7 +6,7 @@ using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Crash;
 
-public class RealBackendInstaller : MonoInstaller
+public class RealBackendInstaller : Installer
 {
     [Serializable]
     public class SettingsData

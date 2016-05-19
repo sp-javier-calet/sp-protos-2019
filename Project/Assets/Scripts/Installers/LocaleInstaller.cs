@@ -8,7 +8,7 @@ using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
 
-public class LocaleInstaller : MonoInstaller
+public class LocaleInstaller : Installer
 {
     public enum EnvironmentID
     {

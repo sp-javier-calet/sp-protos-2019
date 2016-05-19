@@ -8,7 +8,7 @@ using SocialPoint.Utils;
 
 
 
-public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
+public class GUIInstaller : Installer, IInitializable, IDisposable
 {
     const string UIViewControllerSuffix = "Controller";
     const string GUIRootPrefab = "GUI_Root";

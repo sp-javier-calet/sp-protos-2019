@@ -5,7 +5,7 @@ using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
 
-public class GameCenterInstaller : MonoInstaller
+public class GameCenterInstaller : Installer
 {
     [Serializable]
     public class SettingsData

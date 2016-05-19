@@ -10,7 +10,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.ServerMessaging;
 using System.Text;
 
-public class EmptyBackendInstaller : MonoInstaller, IInitializable
+public class EmptyBackendInstaller : Installer, IInitializable
 {
     public override void InstallBindings()
     {

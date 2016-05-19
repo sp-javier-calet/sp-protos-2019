@@ -6,7 +6,7 @@ using SocialPoint.Login;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 
-public class FacebookInstaller : MonoInstaller
+public class FacebookInstaller : Installer
 {
     [Serializable]
     public class SettingsData

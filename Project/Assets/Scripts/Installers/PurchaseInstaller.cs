@@ -8,7 +8,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.Login;
 using SocialPoint.ServerEvents;
 
-public class PurchaseInstaller : MonoInstaller
+public class PurchaseInstaller : Installer
 {
     public override void InstallBindings()
     {

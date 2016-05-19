@@ -6,7 +6,7 @@ using SocialPoint.Attributes;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 
-public class ScriptEventsInstaller : MonoInstaller, IInitializable
+public class ScriptEventsInstaller : Installer, IInitializable
 {
     public override void InstallBindings()
     {

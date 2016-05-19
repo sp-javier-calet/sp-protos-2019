@@ -6,7 +6,7 @@ using SocialPoint.Attributes;
 using FlyingWormConsole3;
 using UnityEngine;
 
-public class AdminPanelInstaller : MonoInstaller, IInitializable
+public class AdminPanelInstaller : Installer, IInitializable
 {
     public override void InstallBindings()
     {

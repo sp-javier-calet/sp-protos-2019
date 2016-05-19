@@ -1,4 +1,6 @@
+#if UNITY_5
 using UnityEngine;
+#endif
 
 namespace SocialPoint.Dependency
 {
@@ -9,17 +11,15 @@ namespace SocialPoint.Dependency
         void InstallBindings();
     }
 
-    public abstract class Installer : IInstaller
+    public abstract class Installer : 
+    #if UNITY_5
+    MonoBehaviour,
+    #endif
+    IInstaller
     {
         public DependencyContainer Container{ get; set; }
 
         public abstract void InstallBindings();
     }
 
-    public abstract class MonoInstaller : MonoBehaviour, IInstaller
-    {
-        public DependencyContainer Container{ get; set; }
-
-        public abstract void InstallBindings();
-    }
 }
