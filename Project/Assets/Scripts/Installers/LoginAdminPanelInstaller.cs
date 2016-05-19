@@ -6,7 +6,7 @@ using SocialPoint.Social;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 
-public class LoginAdminPanelInstaller : Installer
+public class LoginAdminPanelInstaller : SubInstaller
 {
     public override void InstallBindings()
     {

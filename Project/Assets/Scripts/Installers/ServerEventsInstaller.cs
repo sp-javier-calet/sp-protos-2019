@@ -11,7 +11,7 @@ using SocialPoint.Crash;
 using SocialPoint.AppEvents;
 using SocialPoint.GameLoading;
 
-public class ServerEventsInstaller : Installer
+public class ServerEventsInstaller : SubInstaller
 {
 	[Serializable]
     public class SettingsData

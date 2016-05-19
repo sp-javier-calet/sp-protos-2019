@@ -7,7 +7,7 @@ using SocialPoint.CrossPromotion;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerEvents;
 
-public class CrossPromotionInstaller : Installer
+public class CrossPromotionInstaller : SubInstaller
 {
     public override void InstallBindings()
     {

@@ -10,7 +10,7 @@ using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.GameLoading;
 
-public class ServerSyncInstaller : Installer
+public class ServerSyncInstaller : SubInstaller
 {
     [Serializable]
     public class SettingsData

@@ -6,7 +6,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.Login;
 using System;
 
-public class MessageCenterInstaller : Installer
+public class MessageCenterInstaller : SubInstaller
 {
     public override void InstallBindings()
     {

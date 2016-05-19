@@ -11,6 +11,14 @@ namespace SocialPoint.Dependency
         void InstallBindings();
     }
 
+
+    public abstract class SubInstaller : IInstaller
+    {
+        public DependencyContainer Container{ get; set; }
+
+        public abstract void InstallBindings();
+    }
+
     public abstract class Installer : 
     #if UNITY_5
     MonoBehaviour,

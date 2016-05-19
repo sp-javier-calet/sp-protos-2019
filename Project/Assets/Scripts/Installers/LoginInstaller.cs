@@ -9,7 +9,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.ServerEvents;
 using SocialPoint.Attributes;
 
-public class LoginInstaller : Installer
+public class LoginInstaller : SubInstaller
 {
     [Serializable]
     public class SettingsData

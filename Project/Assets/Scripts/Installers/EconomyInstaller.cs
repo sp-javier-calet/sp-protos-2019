@@ -6,7 +6,7 @@ using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Purchase;
 
-public class EconomyInstaller : Installer
+public class EconomyInstaller : SubInstaller
 {
     public override void InstallBindings()
     {

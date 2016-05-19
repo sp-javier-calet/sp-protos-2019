@@ -7,7 +7,7 @@ using SocialPoint.Hardware;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerEvents;
 
-public class QualityStatsInstaller : Installer
+public class QualityStatsInstaller : SubInstaller
 {
     public override void InstallBindings()
     {

@@ -11,7 +11,7 @@ using SocialPoint.Login;
 using SocialPoint.ServerEvents;
 using SocialPoint.AppEvents;
 
-public class CrashInstaller : Installer
+public class CrashInstaller : SubInstaller
 {
 	[Serializable]
 	public class SettingsData
