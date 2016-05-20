@@ -154,8 +154,9 @@ namespace SocialPoint.Purchase
             DebugLog("received total products: " + products.Count);
             try
             {
-                foreach(AndroidStoreProduct product in products)
+                for(int i = 0, productsCount = products.Count; i < productsCount; i++)
                 {
+                    AndroidStoreProduct product = products[i];
                     var parsedProduct = new Product(product.Sku, product.Title, float.Parse(product.PriceValue), product.CurrencyCode, product.Price);
                     DebugLog(parsedProduct.ToString());
                     _products.Add(parsedProduct);
