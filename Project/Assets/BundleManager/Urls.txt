@@ -15,7 +15,7 @@
         "Android" : "$(DataPath)/../AssetBundle/$(Platform)_$(TextureFmt)",        
         "WP8" : "$(DataPath)/../AssetBundle/$(Platform)"
     },    
-    "bundleTarget" : 1,    
+    "bundleTarget" : 2,    
     "useEditorTarget" : true,    
     "downloadFromOutput" : false,    
     "offlineCache" : false,    

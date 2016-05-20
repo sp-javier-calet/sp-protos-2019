@@ -27,7 +27,7 @@ public class ServerSyncInstaller : SubInstaller
 
     public override void InstallBindings()
     {
-        Container.Rebind<ICommandQueue>().ToMethod<CommandQueue>(CreateCommandQueue);
+        Container.Rebind<ICommandQueue>().ToMethod<CommandQueue>(CreateCommandQueue, SetupCommandQueue);
         Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
 
         Container.Rebind<ServerSyncBridge>().ToMethod<ServerSyncBridge>(CreateBridge);
