@@ -5,6 +5,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;
 using SocialPoint.Notifications;
+using SocialPoint.Utils;
 
 public class NotificationInstaller : SubInstaller, IInitializable
 {
@@ -23,9 +24,9 @@ public class NotificationInstaller : SubInstaller, IInitializable
 #if UNITY_EDITOR
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #elif UNITY_ANDROID
-        Container.Rebind<INotificationServices>().ToSingle<AndroidNotificationServices>();
+        Container.Rebind<INotificationServices>().ToMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
 #elif UNITY_IOS
-        Container.Rebind<INotificationServices>().ToSingle<IosNotificationServices>();
+        Container.Rebind<INotificationServices>().ToMethod<IosNotificationServices>(CreateIosNotificationServices);
 #else
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
@@ -34,6 +35,20 @@ public class NotificationInstaller : SubInstaller, IInitializable
         Container.Bind<IDisposable>().ToMethod<NotificationManager>(CreateNotificationManager);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
     }
+
+#if !UNITY_EDITOR
+#if UNITY_IOS
+    IosNotificationServices CreateIosNotificationServices()
+    {
+        return new IosNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+    }
+#elif UNITY_ANDROID
+    AndroidNotificationServices CreateAndroidNotificationServices()
+    {
+        return new AndroidNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+    }
+#endif
+#endif
 
     AdminPanelNotifications CreateAdminPanel()
     {

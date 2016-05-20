@@ -36,7 +36,7 @@ public class StorageInstaller : Installer
         #if UNITY_IOS && !UNITY_EDITOR
         var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
         #elif UNITY_ANDROID && !UNITY_EDITOR
-        var devInfo = ctx.Container.Resolve<IDeviceInfo>();
+        var devInfo = Container.Resolve<IDeviceInfo>();
         var persistent = new PersistentAttrStorage(devInfo.Uid, Settings.PersistentPrefix);
         #else
         var persistent = new FileAttrStorage(PathsManager.AppPersistentDataPath); //TODO: doesnt work with prefixes
