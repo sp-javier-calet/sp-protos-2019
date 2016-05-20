@@ -1,6 +1,6 @@
 ﻿
 using SocialPoint.Attributes;
-using Zenject;
+
 
 public class ResourcesRewardParser : IChildParser<IReward>
 {
@@ -18,13 +18,10 @@ public class ResourcesRewardParser : IChildParser<IReward>
 
     public FamilyParser<IReward> Parent{ set { } }
 
-    [Inject]
-    ResourcesRewardFactory resourceRewardFactory;
-
     public IReward Parse(Attr data)
     {
         var poolParser = new ResourcePoolParser();
-        return resourceRewardFactory.CreateResourcesReward(poolParser.Parse(data));
+        return new ResourcesReward(poolParser.Parse(data));
     }
 
     #endregion

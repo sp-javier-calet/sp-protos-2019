@@ -1,23 +1,28 @@
-﻿using Zenject;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
+using SocialPoint.Network;
+using SocialPoint.Hardware;
+using SocialPoint.AppEvents;
+using SocialPoint.ServerEvents;
+using SocialPoint.Attributes;
 
-public class LoginInstaller : Installer
+public class LoginInstaller : SubInstaller
 {
     [Serializable]
     public class SettingsData
     {
         public BackendEnvironment Environment = BackendEnvironment.Develpoment;
-        public float Timeout = Login.DefaultTimeout;
-        public float ActivityTimeout = Login.DefaultActivityTimeout;
-        public bool AutoupdateFriends = Login.DefaultAutoUpdateFriends;
-        public uint AutoupdateFriendsPhotoSize = Login.DefaultAutoUpdateFriendsPhotoSize;
-        public uint MaxSecurityTokenErrorRetries = Login.DefaultMaxSecurityTokenErrorRetries;
-        public uint MaxConnectivityErrorRetries = Login.DefaultMaxConnectivityErrorRetries;
-        public bool EnableLinkConfirmRetries = Login.DefaultEnableLinkConfirmRetries;
-        public uint UserMappingsBlock = Login.DefaultUserMappingsBlock;
+        public float Timeout = SocialPointLogin.DefaultTimeout;
+        public float ActivityTimeout = SocialPointLogin.DefaultActivityTimeout;
+        public bool AutoupdateFriends = SocialPointLogin.DefaultAutoUpdateFriends;
+        public uint AutoupdateFriendsPhotoSize = SocialPointLogin.DefaultAutoUpdateFriendsPhotoSize;
+        public uint MaxSecurityTokenErrorRetries = SocialPointLogin.DefaultMaxSecurityTokenErrorRetries;
+        public uint MaxConnectivityErrorRetries = SocialPointLogin.DefaultMaxConnectivityErrorRetries;
+        public bool EnableLinkConfirmRetries = SocialPointLogin.DefaultEnableLinkConfirmRetries;
+        public uint UserMappingsBlock = SocialPointLogin.DefaultUserMappingsBlock;
 	}
 
     public SettingsData Settings = new SettingsData();
@@ -28,19 +33,40 @@ public class LoginInstaller : Installer
         {
             Container.Install<LoginAdminPanelInstaller>();
         }
-        Container.Rebind<Login.LoginConfig>().ToSingleInstance<Login.LoginConfig>(new Login.LoginConfig {
+        Container.Rebind<SocialPointLogin.LoginConfig>().ToInstance<SocialPointLogin.LoginConfig>(new SocialPointLogin.LoginConfig {
             BaseUrl = Settings.Environment.GetUrl(),
             SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
             ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
             EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
         });
-        Container.BindInstance("login_timeout", Settings.Timeout);
-        Container.BindInstance("login_activity_timeout", Settings.ActivityTimeout);
-        Container.BindInstance("login_autoupdate_friends", Settings.AutoupdateFriends);
-        Container.BindInstance("login_autoupdate_friends_photo_size", Settings.AutoupdateFriendsPhotoSize);
-        Container.BindInstance("login_user_mappings_block", Settings.UserMappingsBlock);
-
-        Container.Rebind<ILogin>().ToSingle<Login>();
+        Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
         Container.Bind<IDisposable>().ToLookup<ILogin>();
+    }
+
+    SocialPointLogin CreateLogin()
+    {
+        return new SocialPointLogin(
+            Container.Resolve<IHttpClient>(),
+            Container.Resolve<SocialPointLogin.LoginConfig>());
+    }
+
+    void SetupLogin(SocialPointLogin login)
+    {
+        login.DeviceInfo = Container.Resolve<IDeviceInfo>();
+        login.AppEvents = Container.Resolve<IAppEvents>();
+        login.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
+        login.Storage = Container.Resolve<IAttrStorage>("persistent");
+        login.Timeout = Settings.Timeout;
+        login.ActivityTimeout = Settings.ActivityTimeout;
+        login.AutoUpdateFriends = Settings.AutoupdateFriends;
+        login.AutoUpdateFriendsPhotosSize = Settings.AutoupdateFriendsPhotoSize;
+        login.UserMappingsBlock = Settings.UserMappingsBlock;
+        login.Language = Container.Resolve<string>("language", login.Language);
+
+        var links = Container.ResolveList<ILink>();
+        for(var i = 0; i < links.Count; i++)
+        {
+            login.AddLink(links[i]);
+        }
     }
 }

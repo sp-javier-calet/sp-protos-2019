@@ -1,12 +1,12 @@
 using System;
-using Zenject;
-using SocialPoint.Alert;
 using UnityEngine;
+using SocialPoint.Dependency;
+using SocialPoint.Alert;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
 
-public class AlertInstaller : MonoInstaller
+public class AlertInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -30,13 +30,19 @@ public class AlertInstaller : MonoInstaller
         else
         {
             var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
-            Container.Rebind<IAlertView>().ToSingleInstance(unityAlertView);
+            Container.Rebind<IAlertView>().ToInstance(unityAlertView);
             Container.Bind<IDisposable>().ToLookup<IAlertView>();
         }
 
-        Container.Bind<IEventsBridge>().ToSingle<AlertBridge>();
-        Container.Bind<IScriptEventsBridge>().ToSingle<AlertBridge>();
+        Container.Bind<AlertBridge>().ToMethod<AlertBridge>(CreateAlertBridge);
+        Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
+        Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
     }
+
+    public AlertBridge CreateAlertBridge()
+    {
+        return new AlertBridge(Container.Resolve<IAlertView>());
+    }        
 
     void ShowUnityAlert(GameObject go)
     {

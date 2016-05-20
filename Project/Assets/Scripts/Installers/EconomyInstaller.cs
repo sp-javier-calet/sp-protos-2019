@@ -1,57 +1,69 @@
 
-using Zenject;
 using System;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Purchase;
 
-public class EconomyInstaller : Installer
+public class EconomyInstaller : SubInstaller
 {
     public override void InstallBindings()
     {
-        Container.Bind<ResourcesCostFactory>().ToSingleMethod<ResourcesCostFactory>(CreateResourcesCostFactory);
-        Container.Bind<PurchaseCostFactory>().ToSingleMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
-
-        Container.Bind<ResourcesRewardFactory>().ToSingleMethod<ResourcesRewardFactory>(CreateResourcesRewardFactory);
+        Container.Bind<ResourcesCostFactory>().ToMethod<ResourcesCostFactory>(CreateResourcesCostFactory);
+        Container.Bind<PurchaseCostFactory>().ToMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
+        Container.Bind<ResourcesRewardFactory>().ToMethod<ResourcesRewardFactory>(CreateResourcesRewardFactory);
 
         Container.Bind<IChildParser<IReward>>().ToSingle<ResourcesRewardParser>();
 
-        Container.Bind<IChildParser<ICost>>().ToSingle<ResourcesCostParser>();
-        Container.Bind<IChildParser<ICost>>().ToSingle<PurchaseCostParser>();
+        Container.Bind<IChildParser<ICost>>().ToMethod<ResourcesCostParser>(CreateResourcesCostParser);
+        Container.Bind<IChildParser<ICost>>().ToMethod<PurchaseCostParser>(CreatePurchaseCostParser);
 
-        Container.Rebind<IParser<IReward>>().ToSingleMethod<FamilyParser<IReward>>(CreateRewardParser);
-        Container.Rebind<IParser<ICost>>().ToSingleMethod<FamilyParser<ICost>>(CreateCostParser);
+        Container.Rebind<IParser<IReward>>().ToMethod<FamilyParser<IReward>>(CreateRewardParser);
+        Container.Rebind<IParser<ICost>>().ToMethod<FamilyParser<ICost>>(CreateCostParser);
     }
 
-    FamilyParser<IReward> CreateRewardParser(InjectContext ctx)
+    ResourcesCostParser CreateResourcesCostParser()
     {
-        var children = Container.Resolve<List<IChildParser<IReward>>>();
+        return new ResourcesCostParser(
+            Container.Resolve<ResourcePool>(),
+            Container.Resolve<IEventDispatcher>());
+    }
+
+    PurchaseCostParser CreatePurchaseCostParser()
+    {
+        return new PurchaseCostParser(
+            Container.Resolve<IGamePurchaseStore>());
+    }
+
+    FamilyParser<IReward> CreateRewardParser()
+    {
+        var children = Container.ResolveList<IChildParser<IReward>>();
         return new FamilyParser<IReward>(children);
     }
 
-    FamilyParser<ICost> CreateCostParser(InjectContext ctx)
+    FamilyParser<ICost> CreateCostParser()
     {
-        var children = Container.Resolve<List<IChildParser<ICost>>>();
+        var children = Container.ResolveList<IChildParser<ICost>>();
         return new FamilyParser<ICost>(children);
     }
 
-    ResourcesCostFactory CreateResourcesCostFactory(InjectContext ctx)
+    ResourcesCostFactory CreateResourcesCostFactory()
     {
-        var playerResources = ctx.Container.Resolve<ResourcePool>();
-        var eventDispatcher = ctx.Container.Resolve<IEventDispatcher>();
+        var playerResources = Container.Resolve<ResourcePool>();
+        var eventDispatcher = Container.Resolve<IEventDispatcher>();
         return new ResourcesCostFactory(playerResources, eventDispatcher);
     }
 
-    PurchaseCostFactory CreatePurchaseCostFactory(InjectContext ctx)
+    PurchaseCostFactory CreatePurchaseCostFactory()
     {
-        var purchaseStore = ctx.Container.Resolve<IGamePurchaseStore>();
-        return new PurchaseCostFactory(purchaseStore);
+        var store = Container.Resolve<IGamePurchaseStore>();
+        return new PurchaseCostFactory(store);
     }
 
-    ResourcesRewardFactory CreateResourcesRewardFactory(InjectContext ctx)
+    ResourcesRewardFactory CreateResourcesRewardFactory()
     {
-        var playerResources = ctx.Container.Resolve<ResourcePool>();
+        var playerResources = Container.Resolve<ResourcePool>();
         return new ResourcesRewardFactory(playerResources);
     }
 }

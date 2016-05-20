@@ -1,10 +1,8 @@
 ﻿using SocialPoint.Base;
-using Zenject;
 
 public class ResourcesReward : IReward
 {
     ResourcePool _playerResources;
-
     ResourcePool _resources;
 
     public ResourcesReward(ResourcePool resources)

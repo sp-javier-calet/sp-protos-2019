@@ -2,7 +2,7 @@
 #define CURL_SUPPORTED
 #endif
 
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using SocialPoint.AppEvents;
@@ -15,47 +15,18 @@ public class HttpClient :
     CurlHttpClient
     #endif
 {
-    private string _httpProxy;
+    string _httpProxy;
+    IDeviceInfo _deviceInfo;
 
-    [InjectOptional("http_client_proxy")]
-    string injectHttpProxy
-    {
-        set
-        {
-            _httpProxy = value;
-        }
-    }
-
-    [InjectOptional("http_client_config")]
-    string config
-    {
-        set
-        {
-#if CURL_SUPPORTED
-            Config = value;
-#endif
-        }
-    }
-
-
-    [Inject]
-    IDeviceInfo deviceInfo;
-
-    #if CURL_SUPPORTED
-    [Inject]
-    IAppEvents injectAppEvents
-    {
-        set
-        {
-            AppEvents = value;
-        }
-    }
-    #endif
-
-    public HttpClient(ICoroutineRunner runner):
+    public HttpClient(ICoroutineRunner runner, string proxy, IDeviceInfo deviceInfo, IAppEvents appEvents):
     base(runner)
     {
         RequestSetup += OnRequestSetup;
+        _httpProxy = proxy;
+        _deviceInfo = deviceInfo;
+        #if CURL_SUPPORTED
+        AppEvents = appEvents;
+        #endif
     }
 
     private void OnRequestSetup(HttpRequest req)
@@ -64,9 +35,9 @@ public class HttpClient :
         {
             req.Proxy = _httpProxy;
         }
-        if(string.IsNullOrEmpty(req.Proxy) && deviceInfo.NetworkInfo.Proxy != null)
+        if(string.IsNullOrEmpty(req.Proxy) && _deviceInfo.NetworkInfo.Proxy != null)
         {
-            req.Proxy = deviceInfo.NetworkInfo.Proxy.ToString();
+            req.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
         }
     }
 }

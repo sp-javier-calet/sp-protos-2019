@@ -1,9 +1,14 @@
 using System;
 using SocialPoint.Locale;
 using SocialPoint.AdminPanel;
-using Zenject;
+using SocialPoint.Dependency;
+using SocialPoint.Network;
+using SocialPoint.Hardware;
+using SocialPoint.Utils;
+using SocialPoint.AppEvents;
+using SocialPoint.ScriptEvents;
 
-public class LocaleInstaller : MonoInstaller
+public class LocaleInstaller : Installer
 {
     public enum EnvironmentID
     {
@@ -30,9 +35,40 @@ public class LocaleInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.Rebind<Localization>().ToSingleMethod<Localization>(CreateLocalization);
-        Container.BindInstance("locale_project_id", Settings.ProjectId);
-        Container.BindInstance("locale_env_id", Settings.EnvironmentId.ToString());
+        Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
+        Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
+        Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
+         
+        Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
+
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
+    }
+
+    LocalizeAttributeConfiguration CreateLocalizeAttributeConfiguration()
+    {
+        return new LocalizeAttributeConfiguration(
+            Container.Resolve<Localization>(),
+            Container.ResolveList<IMemberAttributeObserver<LocalizeAttribute>>());
+    }
+
+    AdminPanelLocale CreateAdminPanel()
+    {
+        return new AdminPanelLocale(
+            Container.Resolve<ILocalizationManager>());
+    }
+
+    LocalizationManager CreateLocalizationManager()
+    {
+        return new LocalizationManager(
+            Container.Resolve<IHttpClient>(),
+            Container.Resolve<IAppInfo>(),
+            Container.Resolve<Localization>(),
+            Container.Resolve<LocalizeAttributeConfiguration>(),
+            Container.Resolve<IEventDispatcher>());
+    }
+
+    void SetupLocalizationManager(LocalizationManager mng)
+    {
         string secretKey;
         if(Settings.EnvironmentId == EnvironmentID.dev)
         {
@@ -46,19 +82,15 @@ public class LocaleInstaller : MonoInstaller
         {
             secretKey = Settings.SecretKeyProd;
         }
-        Container.BindInstance("locale_secret_key", secretKey);
-        Container.BindInstance("locale_supported_langs", Settings.SupportedLanguages);
-        Container.BindInstance("locale_timeout", Settings.Timeout);
-        Container.BindInstance("locale_bundle_dir", Settings.BundleDir);
-        Container.Rebind<ILocalizationManager>().ToSingle<LocalizationManager>();
-        Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
-         
-        Container.Rebind<LocalizeAttributeConfiguration>().ToSingle();
-
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLocale>();
+        mng.Location.ProjectId = Settings.ProjectId;
+        mng.Location.EnvironmentId = Settings.EnvironmentId.ToString();
+        mng.Location.SecretKey = secretKey;
+        mng.Timeout = Settings.Timeout;
+        mng.BundleDir = Settings.BundleDir;
+        mng.AppEvents = Container.Resolve<IAppEvents>();
     }
 
-    Localization CreateLocalization(InjectContext ctx)
+    Localization CreateLocalization()
     {
         var locale = new Localization();
 #if UNITY_EDITOR

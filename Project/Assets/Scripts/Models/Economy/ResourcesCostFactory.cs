@@ -1,5 +1,4 @@
-﻿using Zenject;
-using System;
+﻿using System;
 using SocialPoint.Base;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
@@ -17,8 +16,7 @@ public class ResourcesCostFactory
 
     public ResourcesCost CreateResourcesCost(ResourcePool resources)
     {
-        var cost = new ResourcesCost(resources);
-        cost.Init(_playerResources, _dispatcher);
+        var cost = new ResourcesCost(resources, _playerResources, _dispatcher);
         return cost;
     }
 }

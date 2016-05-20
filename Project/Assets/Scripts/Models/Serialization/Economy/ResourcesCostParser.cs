@@ -1,11 +1,9 @@
 ﻿
 using SocialPoint.Attributes;
-
-using Zenject;
+using SocialPoint.ScriptEvents;
 
 public class ResourcesCostParser : IChildParser<ICost>
 {
-
     #region IChildParser implementation
 
     const string NameValue = "resources";
@@ -20,13 +18,20 @@ public class ResourcesCostParser : IChildParser<ICost>
 
     public FamilyParser<ICost> Parent{ set { } }
 
-    [Inject]
-    ResourcesCostFactory _resourcesCostFactory;
+    ResourcePool _playerResources;
+    IEventDispatcher _dispatcher;
+
+    public ResourcesCostParser(ResourcePool playerResources, IEventDispatcher dispatcher)
+    {
+        _playerResources = playerResources;
+        _dispatcher = dispatcher;
+    }
+
 
     public ICost Parse(Attr data)
     {
         var poolParser = new ResourcePoolParser();
-        return _resourcesCostFactory.CreateResourcesCost(poolParser.Parse(data));
+        return new ResourcesCost(poolParser.Parse(data), _playerResources, _dispatcher);
     }
 
     #endregion

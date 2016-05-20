@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using Zenject;
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
 
-public class GameCenterInstaller : MonoInstaller
+public class GameCenterInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -21,31 +21,43 @@ public class GameCenterInstaller : MonoInstaller
         #if UNITY_IOS
         if(Settings.UseEmpty)
         {
-            Container.Rebind<IGameCenter>().ToSingle<EmptyGameCenter>();
+            Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);
         }
         else
         {
-            Container.Rebind<IGameCenter>().ToSingle<UnityGameCenter>();
+            Container.Rebind<IGameCenter>().ToMethod<UnityGameCenter>(CreateUnity);
         }
         if(Settings.LoginLink)
         {
-        Container.Bind<ILink>().ToSingleMethod<GameCenterLink>(CreateLoginLink);
+            Container.Bind<ILink>().ToMethod<GameCenterLink>(CreateLoginLink);
         }
         #else
-        Container.Rebind<IGameCenter>().ToSingleMethod<EmptyGameCenter>(CreateEmptyGameCenter);
+        Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);
         #endif
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGameCenter>();
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGameCenter>(CreateAdminPanel);
     }
 
-    GameCenterLink CreateLoginLink(InjectContext ctx)
+    EmptyGameCenter CreateEmpty()
     {
-        var gc = ctx.Container.Resolve<IGameCenter>();
+        return new EmptyGameCenter("test");
+    }
+
+    UnityGameCenter CreateUnity()
+    {
+        return new UnityGameCenter(
+            Container.Resolve<Transform>());
+    }
+
+
+    AdminPanelGameCenter CreateAdminPanel()
+    {
+        return new AdminPanelGameCenter(
+            Container.Resolve<IGameCenter>());
+    }
+
+    GameCenterLink CreateLoginLink()
+    {
+        var gc = Container.Resolve<IGameCenter>();
         return new GameCenterLink(gc);
     }
-
-    EmptyGameCenter CreateEmptyGameCenter(InjectContext ctx)
-    {
-        return new EmptyGameCenter("Test User");
-    }
-
 }

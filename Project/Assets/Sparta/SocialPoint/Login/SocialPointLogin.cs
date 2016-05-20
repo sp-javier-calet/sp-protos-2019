@@ -254,19 +254,19 @@ namespace SocialPoint.Login
 
         public IDeviceInfo DeviceInfo { private get; set; }
 
-        public IAttrStorage Storage { private get; set; }
+        public IAttrStorage Storage { get; set; }
 
-        public float Timeout { private get; set; }
+        public float Timeout { get; set; }
 
-        public float ActivityTimeout { private get; set; }
+        public float ActivityTimeout { get; set; }
 
-        public bool AutoUpdateFriends { private get; set; }
+        public bool AutoUpdateFriends { get; set; }
 
-        public uint AutoUpdateFriendsPhotosSize { private get; set; }
+        public uint AutoUpdateFriendsPhotosSize { get; set; }
 
-        public uint UserMappingsBlock { private get; set; }
+        public uint UserMappingsBlock { get; set; }
 
-        public string Language { private get; set; }
+        public string Language { get; set; }
 
         public GenericData Data { get; private set; }
 

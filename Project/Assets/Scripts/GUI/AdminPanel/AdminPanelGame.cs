@@ -2,18 +2,19 @@
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using UnityEngine;
-using Zenject;
 
 public class AdminPanelGame : IAdminPanelConfigurer
 {
-    [Inject]
     IAppEvents _appEvents;
-
-    [Inject]
+    IGameLoader _gameLoader;
     GameModel _model;
 
-    [Inject]
-    IGameLoader _gameLoader;
+    public AdminPanelGame(IAppEvents appEvents, IGameLoader gameLoader, GameModel model)
+    {
+        _appEvents = appEvents;
+        _gameLoader = gameLoader;
+        _model = model;
+    }
 
     public void OnConfigure(AdminPanel adminPanel)
     {
@@ -47,7 +48,6 @@ public class AdminPanelGame : IAdminPanelConfigurer
 
     private class AdminPanelGameModel : IAdminPanelGUI
     {
-        [Inject]
         GameModel _model;
 
         public AdminPanelGameModel(GameModel model)

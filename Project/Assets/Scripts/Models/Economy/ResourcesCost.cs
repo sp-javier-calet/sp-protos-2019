@@ -1,8 +1,9 @@
-﻿using Zenject;
+﻿
 using System;
 using SocialPoint.Base;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
+
 
 public struct NotEnoughResourcesEvent
 {
@@ -13,16 +14,11 @@ public class ResourcesCost : ICost
 {
     ResourcePool _playerResources;
     IEventDispatcher _dispatcher;
-
     ResourcePool _cost;
 
-    public ResourcesCost(ResourcePool cost)
+    public ResourcesCost(ResourcePool cost, ResourcePool playerResources, IEventDispatcher dispatcher)
     {
         _cost = cost;
-    }
-
-    public void Init(ResourcePool playerResources, IEventDispatcher dispatcher)
-    {
         _playerResources = playerResources;
         _dispatcher = dispatcher;
     }

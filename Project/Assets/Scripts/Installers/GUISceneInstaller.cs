@@ -1,13 +1,12 @@
 ﻿using System;
-using Zenject;
 using UnityEngine;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
 
 
-
-public class GUISceneInstaller : MonoInstaller, IInitializable
+public class GUISceneInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData
@@ -20,7 +19,7 @@ public class GUISceneInstaller : MonoInstaller, IInitializable
 
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
     }
 
     public void Initialize()
@@ -29,7 +28,7 @@ public class GUISceneInstaller : MonoInstaller, IInitializable
         {
             return;
         }
-        var screens = Container.TryResolve<ScreensController>();
+        var screens = Container.Resolve<ScreensController>();
         if(screens == null)
         {
             throw new InvalidOperationException("Could not find screens controller for initial screen");

@@ -1,4 +1,4 @@
-﻿using Zenject;
+﻿
 using System;
 using SocialPoint.Base;
 using SocialPoint.Locale;

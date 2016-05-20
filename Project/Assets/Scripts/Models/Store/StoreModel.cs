@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using SocialPoint.Purchase;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using Zenject;
 
 public class StoreModel : IStoreProductSource, IDisposable
 {

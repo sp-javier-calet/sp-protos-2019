@@ -1,34 +1,69 @@
-using Zenject;
-using System;
-using SocialPoint.Crash;
-using SocialPoint.AdminPanel;
 
-public class CrashInstaller : Installer
+using System;
+using SocialPoint.Dependency;
+using SocialPoint.Crash;
+using SocialPoint.Utils;
+using SocialPoint.Network;
+using SocialPoint.Hardware;
+using SocialPoint.Alert;
+using SocialPoint.AdminPanel;
+using SocialPoint.Login;
+using SocialPoint.ServerEvents;
+using SocialPoint.AppEvents;
+
+public class CrashInstaller : SubInstaller
 {
 	[Serializable]
 	public class SettingsData
 	{
-        public float SendInterval = CrashReporter.DefaultSendInterval;
-        public bool ErrorLogActive = CrashReporter.DefaultErrorLogActive;
-        public bool ExceptionLogActive = CrashReporter.DefaultExceptionLogActive;
-        public bool EnableSendingCrashesBeforeLogin = CrashReporter.DefaultEnableSendingCrashesBeforeLogin;
-        public int NumRetriesBeforeSendingCrashBeforeLogin = CrashReporter.DefaultNumRetriesBeforeSendingCrashBeforeLogin;
+        public float SendInterval = SocialPointCrashReporter.DefaultSendInterval;
+        public bool ErrorLogActive = SocialPointCrashReporter.DefaultErrorLogActive;
+        public bool ExceptionLogActive = SocialPointCrashReporter.DefaultExceptionLogActive;
+        public bool EnableSendingCrashesBeforeLogin = SocialPointCrashReporter.DefaultEnableSendingCrashesBeforeLogin;
+        public int NumRetriesBeforeSendingCrashBeforeLogin = SocialPointCrashReporter.DefaultNumRetriesBeforeSendingCrashBeforeLogin;
     }
 
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
-        Container.BindInstance("crash_reporter_send_interval", Settings.SendInterval);
-        Container.BindInstance("crash_reporter_error_log_active", Settings.ErrorLogActive);
-        Container.BindInstance("crash_reporter_exception_log_active", Settings.ExceptionLogActive);
-        Container.BindInstance("crash_reporter_enable_sending_crashes_before_login", Settings.EnableSendingCrashesBeforeLogin);
-        Container.BindInstance("crash_reporter_num_retries_before_sending_crash_before_login", Settings.NumRetriesBeforeSendingCrashBeforeLogin);
-        Container.Rebind<BreadcrumbManager>().ToSingle();
-        Container.Rebind<ICrashReporter>().ToSingle<CrashReporter>();
+        Container.Rebind<BreadcrumbManager>().ToSingle<BreadcrumbManager>();
+        Container.Rebind<ICrashReporter>().ToMethod<SocialPointCrashReporter>(
+            CreateCrashReporter, SetupCrashReporter);
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelCrashReporter>();
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrashReporter>(CreateAdminPanel);
+    }
+
+    AdminPanelCrashReporter CreateAdminPanel()
+    {
+        return new AdminPanelCrashReporter(
+            Container.Resolve<ICrashReporter>(),
+            Container.Resolve<BreadcrumbManager>());
+    }
+
+    SocialPointCrashReporter CreateCrashReporter()
+    {
+        return new SocialPointCrashReporter(
+            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<IHttpClient>(),
+            Container.Resolve<IDeviceInfo>(),
+            Container.Resolve<BreadcrumbManager>(),
+            Container.Resolve<IAlertView>());
+    }
+
+    void SetupCrashReporter(SocialPointCrashReporter reporter)
+    {
+        var login = Container.Resolve<ILogin>();
+        reporter.RequestSetup = login.SetupHttpRequest;
+        reporter.GetUserId = () => login.UserId;
+        reporter.TrackEvent = Container.Resolve<IEventTracker>().TrackUrgentSystemEvent;
+        reporter.AppEvents = Container.Resolve<IAppEvents>();
+        reporter.SendInterval = Settings.SendInterval;
+        reporter.ErrorLogActive = Settings.ErrorLogActive;
+        reporter.ExceptionLogActive = Settings.ExceptionLogActive;
+        reporter.EnableSendingCrashesBeforeLogin = Settings.EnableSendingCrashesBeforeLogin;
+        reporter.NumRetriesBeforeSendingCrashBeforeLogin = Settings.NumRetriesBeforeSendingCrashBeforeLogin;
     }
 
 }

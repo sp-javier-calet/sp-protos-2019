@@ -1,5 +1,4 @@
-﻿using Zenject;
-using System;
+﻿using System;
 using SocialPoint.Base;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
@@ -7,17 +6,15 @@ using SocialPoint.Purchase;
 
 public class PurchaseCostFactory
 {
-    IGamePurchaseStore _purchaseStore;
+    IGamePurchaseStore _store;
 
-    public PurchaseCostFactory(IGamePurchaseStore purchaseStore)
+    public PurchaseCostFactory(IGamePurchaseStore store)
     {
-        _purchaseStore = purchaseStore;
+        _store = store;
     }
 
     public PurchaseCost CreatePurchaseCost(string productId)
     {
-        var cost = new PurchaseCost(productId);
-        cost.Init(_purchaseStore);
-        return cost;
+        return new PurchaseCost(productId, _store);
     }
 }

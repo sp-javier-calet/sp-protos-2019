@@ -1,38 +1,67 @@
-using Zenject;
 using UnityEngine;
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;
 using SocialPoint.Notifications;
+using SocialPoint.Utils;
 
-public class NotificationInstaller : Installer, IInitializable
+public class NotificationInstaller : SubInstaller, IInitializable
 {
     [Serializable]
     public class SettingsData
     {
         public bool AutoRegisterForRemote = true;
     }
-    
+
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
 
 #if UNITY_EDITOR
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
-#elif UNITY_ANDROID 
-        Container.Rebind<INotificationServices>().ToSingle<AndroidNotificationServices>();
+#elif UNITY_ANDROID
+        Container.Rebind<INotificationServices>().ToMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
 #elif UNITY_IOS
-        Container.Rebind<INotificationServices>().ToSingle<IosNotificationServices>();
+        Container.Rebind<INotificationServices>().ToMethod<IosNotificationServices>(CreateIosNotificationServices);
 #else
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        Container.Rebind<SocialPoint.Notifications.NotificationManager>().ToSingle<NotificationManager>();
-        Container.Bind<IDisposable>().ToSingle<NotificationManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelNotifications>();
+        Container.Rebind<NotificationManager>().ToMethod<NotificationManager>(CreateNotificationManager);
+        Container.Bind<IDisposable>().ToMethod<NotificationManager>(CreateNotificationManager);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
+    }
+
+#if !UNITY_EDITOR
+#if UNITY_IOS
+    IosNotificationServices CreateIosNotificationServices()
+    {
+        return new IosNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+    }
+#elif UNITY_ANDROID
+    AndroidNotificationServices CreateAndroidNotificationServices()
+    {
+        return new AndroidNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+    }
+#endif
+#endif
+
+    AdminPanelNotifications CreateAdminPanel()
+    {
+        return new AdminPanelNotifications(
+            Container.Resolve<INotificationServices>());
+    }
+
+    NotificationManager CreateNotificationManager()
+    {
+        return new NotificationManager(
+            Container.Resolve<INotificationServices>(),
+            Container.Resolve<IAppEvents>()
+        );
     }
 
     public void Initialize()
@@ -44,5 +73,5 @@ public class NotificationInstaller : Installer, IInitializable
             services.RequestPermissions();
         }
     }
-    
+
 }

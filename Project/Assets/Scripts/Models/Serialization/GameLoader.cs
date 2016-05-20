@@ -1,8 +1,8 @@
 ﻿using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Login;
+using SocialPoint.Dependency;
 using System;
-using Zenject;
 
 public interface IGameLoader
 {
@@ -20,19 +20,10 @@ public class GameLoader : IGameLoader
     string _jsonGameResource;
     string _jsonPlayerResource;
 
-    [Inject]
     IParser<GameModel> _gameParser;
-
-    [Inject]
     IParser<PlayerModel> _playerParser;
-
-    [Inject]
     ISerializer<PlayerModel> _playerSerializer;
-
-    [Inject]
     GameModel _gameModel;
-
-    [InjectOptional]
     ILogin _login;
 
     public string PlayerJsonPath
@@ -51,10 +42,16 @@ public class GameLoader : IGameLoader
         }
     }
 
-    public GameLoader([Inject("game_initial_json_game_resource")] string jsonGameResource, [Inject("game_initial_json_player_resource")] string jsonPlayerResource)
+    public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser,
+        IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILogin login)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;
+        _gameParser = gameParser;
+        _playerParser = playerParser;
+        _playerSerializer = playerSerializer;
+        _gameModel = game;
+        _login = login;
     }
 
     GameModel LoadInitialGame()
