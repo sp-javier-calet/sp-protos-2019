@@ -1,12 +1,13 @@
-﻿using UnityEngine;
-using UnityEngine.SocialPlatforms;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.Quests;
 using SocialPoint.Base;
+using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 namespace SocialPoint.Social
 {
@@ -22,15 +23,14 @@ namespace SocialPoint.Social
             }
         }
 
-        bool _loadDescriptionAchievements = false;
         GoogleUser _user;
         PlayGamesPlatform _platform;
-        Dictionary<string, GoogleAchievement> _achievements = null;
+        Dictionary<string, GoogleAchievement> _achievements;
         bool _loginSuccess;
         ErrorDelegate _loginCallback;
         List<GoogleUser> _friends;
-        bool _connecting = false;
-        string _accessToken = null;
+        bool _connecting;
+        string _accessToken;
 
         public List<GoogleUser> Friends
         {
@@ -57,7 +57,7 @@ namespace SocialPoint.Social
             _platform = PlayGamesPlatform.Instance;
             _connecting = true;
             _loginCallback = cbk;
-            _platform.Authenticate((bool success) => {
+            _platform.Authenticate(success => {
                 _loginSuccess = success;
                 DispatchMainThread(UpdateAfterLogin);
             }, silent);
@@ -78,16 +78,14 @@ namespace SocialPoint.Social
                 if(descriptions.Length > 0)
                 {
                     DebugUtils.Log("Got " + descriptions.Length + " achievement descriptions");
-                    string achievementDescriptions = "Achievement Descriptions:\n";
-                    foreach(IAchievementDescription ad in descriptions)
+                    var achievementDescriptions = new StringBuilder();
+                    achievementDescriptions.Append("Achievement Descriptions:\n");
+                    for(int i = 0, descriptionsLength = descriptions.Length; i < descriptionsLength; i++)
                     {
-                        achievementDescriptions += "\t" +
-                            
-                        ad.id + " " +
-                        ad.title + " " +
-                        ad.unachievedDescription + "\n";
+                        IAchievementDescription ad = descriptions[i];
+                        achievementDescriptions.Append("\t").Append(ad.id).Append(" ").Append(ad.title).Append(" ").Append(ad.unachievedDescription).AppendLine();
                     }
-                    DebugUtils.Log(achievementDescriptions);
+                    DebugUtils.Log(achievementDescriptions.ToString());
                 }
                 else
                 {
@@ -100,20 +98,14 @@ namespace SocialPoint.Social
         {
             if(_loginSuccess)
             {
-
-                if(_loadDescriptionAchievements)
-                {
-                    LoadDescriptionAchievements();
-                }
-                
-                LoginLoadPlayerData((Error err) => {
+                LoginLoadPlayerData(err => {
                     if(!Error.IsNullOrEmpty(err))
                     {
                         DispatchMainThread(() => OnLoginEnd(err, _loginCallback));
                     }
                     else
                     {
-                        DownloadAchievements((err2) => DispatchMainThread(() => OnLoginEnd(err2, _loginCallback)));
+                        DownloadAchievements(err2 => DispatchMainThread(() => OnLoginEnd(err2, _loginCallback)));
                     }
                 });
             }
@@ -166,9 +158,10 @@ namespace SocialPoint.Social
                     _platform.LoadFriends(_platform.localUser, bolean => {
                         _friends = new List<GoogleUser>();
                         IUserProfile[] friends = _platform.GetFriends();
-                        foreach(IUserProfile friend in friends)
+                        for(int i = 0, friendsLength = friends.Length; i < friendsLength; i++)
                         {
-                            _friends.Add(new GoogleUser(friend.id, friend.userName, string.Empty, GoogleUser.AgeGroup.Unknown));
+                            IUserProfile friend = friends[i];
+                            _friends.Add(new GoogleUser(friend.id, friend.userName, string.Empty));
                         }
 
                         if(cbk != null)
@@ -237,12 +230,11 @@ namespace SocialPoint.Social
             if(!string.IsNullOrEmpty(accessToken))
             {
                 string uri = string.Format("https://www.googleapis.com/games/v1management/achievements/{0}/reset", achi.Id);
-                var form = new UnityEngine.WWWForm();
+                var form = new WWWForm();
                 form.AddField("access_token", accessToken);
-                var www = new UnityEngine.WWW(uri, form);
+                var www = new WWW(uri, form);
                 while(!www.isDone)
                 {
-                    ;
                 }
                 if(!string.IsNullOrEmpty(www.error))
                 {
@@ -263,8 +255,9 @@ namespace SocialPoint.Social
         public Texture2D GetUserPhoto(string userID)
         {
             IUserProfile[] users = _platform.GetFriends();
-            foreach(IUserProfile user in users)
+            for(int i = 0, usersLength = users.Length; i < usersLength; i++)
             {
+                IUserProfile user = users[i];
                 if(user.id == userID)
                 {
                     return user.image;
@@ -284,7 +277,7 @@ namespace SocialPoint.Social
                 return;
             }
 
-            DownloadAchievements((err) => {
+            DownloadAchievements(err => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(cbk != null)
@@ -320,7 +313,7 @@ namespace SocialPoint.Social
                     if(currStatus.IsIncremental)
                     {
                         // TODO SetStepAtLeast
-                        _platform.IncrementAchievement(id, steps, (success) => {
+                        _platform.IncrementAchievement(id, steps, success => {
                             _achievements[id] = GetAchievement(id);
                             if(cbk != null)
                             {
@@ -330,7 +323,7 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        _platform.ReportProgress(id, 100, (success) => {
+                        _platform.ReportProgress(id, 100, success => {
                             _achievements[id] = GetAchievement(id);
                             if(cbk != null)
                             {
@@ -434,7 +427,7 @@ namespace SocialPoint.Social
                 (int)rowCount, 
                 ldb.FriendsOnly ? LeaderboardCollection.Social : LeaderboardCollection.Public,
                 (LeaderboardTimeSpan)ldb.Scope,
-                (scoredata) => {
+                scoredata => {
                     if(cbk != null)
                     {
                         if(scoredata.Valid)
@@ -443,8 +436,9 @@ namespace SocialPoint.Social
                                                   scoredata.PlayerScore.value, ldb.FriendsOnly, ldb.PlayerCentered, ldb.Scope);
                             // Update scores for users
                             var scores = new Dictionary<string, GoogleLeaderboardScoreEntry>();
-                            foreach(var score in scoredata.Scores)
+                            for(int i = 0, scoredataScoresLength = scoredata.Scores.Length; i < scoredataScoresLength; i++)
                             {
+                                var score = scoredata.Scores[i];
                                 var entry = new GoogleLeaderboardScoreEntry();
                                 entry.Score = score.value;
                                 entry.Rank = score.rank;
@@ -453,9 +447,10 @@ namespace SocialPoint.Social
                             }
 
                             // Load user names
-                            _platform.LoadUsers(scores.Keys.ToArray(), (users) => {
-                                foreach(var user in users)
+                            _platform.LoadUsers(scores.Keys.ToArray(), users => {
+                                for(int i = 0, usersLength = users.Length; i < usersLength; i++)
                                 {
+                                    var user = users[i];
                                     scores[user.id].Name = user.userName;
                                 }
 
@@ -484,7 +479,7 @@ namespace SocialPoint.Social
                 return;
             }
 
-            _platform.ReportScore(ldb.UserScore, ldb.Id, (success) => {
+            _platform.ReportScore(ldb.UserScore, ldb.Id, success => {
                 if(cbk != null)
                 {
                     cbk(ldb, success ? null : new Error("Couldn't update leaderboard"));
@@ -525,7 +520,7 @@ namespace SocialPoint.Social
             }
 
             _platform.Quests.ShowAllQuestsUI(
-                (QuestUiResult result, IQuest quest, IQuestMilestone milestone) => {
+                (result, quest, milestone) => {
                     switch(result)
                     {
                     case QuestUiResult.UserRequestsQuestAcceptance:
@@ -539,7 +534,7 @@ namespace SocialPoint.Social
                     default:
                         if(cbk != null)
                         {
-                            cbk(GoogleQuestEvent.Empty, new Error((int)result, "Quest view error: " + result.ToString()));
+                            cbk(GoogleQuestEvent.Empty, new Error((int)result, "Quest view error: " + result));
                         }
                         break;
                     }
@@ -549,7 +544,7 @@ namespace SocialPoint.Social
         void AcceptQuest(IQuest toAccept, GoogleQuestEventDelegate cbk = null)
         {
             _platform.Quests.Accept(toAccept,
-                (QuestAcceptStatus status, IQuest quest) => {
+                (status, quest) => {
                     switch(status)
                     {
                     case QuestAcceptStatus.Success:
@@ -573,7 +568,7 @@ namespace SocialPoint.Social
         void ClaimMilestone(IQuestMilestone toClaim, GoogleQuestEventDelegate cbk = null)
         {
             _platform.Quests.ClaimMilestone(toClaim,
-                (QuestClaimMilestoneStatus status, IQuest quest, IQuestMilestone milestone) => {
+                (status, quest, milestone) => {
                     switch(status)
                     {
                     case  QuestClaimMilestoneStatus.Success:

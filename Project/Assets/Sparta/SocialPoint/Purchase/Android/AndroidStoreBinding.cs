@@ -1,22 +1,21 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 #if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
-    public class AndroidStoreBinding
+    public static class AndroidStoreBinding
     {
-        private const string FullClassName = "es.socialpoint.sparta.purchase.SPPurchaseStore";
+        const string FullClassName = "es.socialpoint.sparta.purchase.SPPurchaseStore";
 
-        private const string FunctionInit = "Init";
-        private const string FunctionEnableHighDetailLogs = "EnableHighDetailLogs";
-        private const string FunctionRequestProductData = "RequestProductData";
-        private const string FunctionPurchaseProduct = "PurchaseProduct";
-        private const string FunctionFinishPendingTransaction = "FinishPendingTransaction";
-        private const string FunctionForceFinishPendingTransactions = "ForceFinishPendingTransactions";
-        private const string FunctionUnbind = "Unbind";
+        const string FunctionInit = "Init";
+        const string FunctionEnableHighDetailLogs = "EnableHighDetailLogs";
+        const string FunctionRequestProductData = "RequestProductData";
+        const string FunctionPurchaseProduct = "PurchaseProduct";
+        const string FunctionFinishPendingTransaction = "FinishPendingTransaction";
+        const string FunctionForceFinishPendingTransactions = "ForceFinishPendingTransactions";
+        const string FunctionUnbind = "Unbind";
 
-        private static AndroidJavaClass _notifClass = null;
+        static AndroidJavaClass _notifClass;
 
         public static void Init(string listenerObjectName)
         {

@@ -1,9 +1,7 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.IO;
+using System.Text;
 
 namespace SocialPoint.Utils
 {
@@ -23,7 +21,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class StringUtils
+    public static class StringUtils
     {
         static Stack<StringBuilder> _builders;
         const int _buildersMaxSize = 10;
@@ -66,27 +64,33 @@ namespace SocialPoint.Utils
             format = String.IsNullOrEmpty(format) ? "{0}='{1}' " : format; 
 
             var sb = StartBuilder();
-            for(int k = 0; k < items.Count(); k++)
+            var itr = items.GetEnumerator();
+            while(itr.MoveNext())
             {
-                KeyValuePair<T,V> item = items.ElementAt(k);
+                var item = itr.Current;
                 sb.AppendFormat(format, item.Key, item.Value);
             }
+            itr.Dispose();
             
             return sb.ToString();
         }
 
-        private const char QuerySeparator = '&';
-        private const char QueryAssign = '=';
+        const char QuerySeparator = '&';
+        const char QueryAssign = '=';
 
         public static string DictionaryToQuery(IDictionary<string,string> parms)
         {
             string query = string.Empty;
             string sepChar = string.Empty;
-            foreach(KeyValuePair<string, string> entry in parms)
+            var itr = parms.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var entry = itr.Current;
                 query += sepChar + entry.Key + QueryAssign + entry.Value;
                 sepChar = String.Empty + QuerySeparator;
             }
+            itr.Dispose();
+
             return query;
         }
 
@@ -127,22 +131,26 @@ namespace SocialPoint.Utils
         public static string GetJoinedUrlParams(KeyValuePair<string,string>[] parms)
         {
             string result = "";
-            foreach(KeyValuePair<string,string> param in parms)
+
+            for(int i = 0, parmsLength = parms.Length; i < parmsLength; i++)
+            {
+                KeyValuePair<string, string> param = parms[i];
                 result += "&" + param.Key + "=" + Uri.EscapeDataString(param.Value);
+            }
             return result;
         }
 
         public static byte[] GetBytes(string str)
         {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            var bytes = new byte[str.Length * sizeof(char)];
+            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
             return bytes;
         }
 
         public static string GetString(byte[] bytes)
         {
-            char[] chars = new char[bytes.Length / sizeof(char)];
-            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            var chars = new char[bytes.Length / sizeof(char)];
+            Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
             return new string(chars);
         }
 
@@ -153,7 +161,7 @@ namespace SocialPoint.Utils
         
         static public bool IsWildcard(string path)
         {
-            var i = path.IndexOfAny(new char[]{ WildcardOneChar, WildcardMultiChar });
+            var i = path.IndexOfAny(new []{ WildcardOneChar, WildcardMultiChar });
             return i != -1;
         }
 
@@ -170,17 +178,21 @@ namespace SocialPoint.Utils
                 sep = DefaultJoinSeparator;
             }
             var strs = new List<string>();
-            foreach(var obj in objs)
+            var itr = objs.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var obj = itr.Current;
                 if(obj != null)
                 {
                     strs.Add(obj.ToString());
                 }
             }
+            itr.Dispose();
+
             return string.Join(sep, strs.ToArray());
         }
 
-        private const char UriSeparator = '/';
+        const char UriSeparator = '/';
 
         public static string FixBaseUri(string uri)
         {

@@ -1,6 +1,6 @@
 using System;
-using System.Net;
 using System.Collections.Generic;
+using System.Net;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 
@@ -13,17 +13,20 @@ namespace SocialPoint.Network
         {
         }
 
-        private HttpWebRequest ConvertRequest(HttpRequest req)
+        static HttpWebRequest ConvertRequest(HttpRequest req)
         {
-            HttpWebRequest wreq = (HttpWebRequest)WebRequest.Create(req.Url);
+            var wreq = (HttpWebRequest)WebRequest.Create(req.Url);
 
             wreq.Timeout = (int)req.Timeout * 1000; // Value is in milliseconds
             wreq.ReadWriteTimeout = (int)req.ActivityTimeout * 1000; // Value is in milliseconds
 
             if(req.Headers != null)
             {
-                foreach(var pair in req.Headers)
+                var itr = req.Headers.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pair = itr.Current;
+
                     switch(pair.Key)
                     {
                     case "Accept":
@@ -33,7 +36,7 @@ namespace SocialPoint.Network
                         wreq.Connection = pair.Value;
                         break;
                     case "Content-Length":
-                        long num = 0;
+                        long num;
                         long.TryParse(pair.Value, out num);
                         wreq.ContentLength = num;
                         break;
@@ -44,7 +47,7 @@ namespace SocialPoint.Network
                         wreq.Expect = pair.Value;
                         break;
                     case "If-Modified-Since":
-                        DateTime date = new DateTime();
+                        DateTime date;
                         DateTime.TryParse(pair.Value, out date);
                         wreq.IfModifiedSince = date;
                         break;
@@ -75,6 +78,7 @@ namespace SocialPoint.Network
                         break;
                     }
                 }
+                itr.Dispose();
             }
 
             if(string.IsNullOrEmpty(wreq.ContentType))
@@ -83,19 +87,12 @@ namespace SocialPoint.Network
             }
             wreq.Method = req.Method.ToString();
 
-            if(!string.IsNullOrEmpty(req.Proxy))
-            {
-                wreq.Proxy = new System.Net.WebProxy(req.Proxy);
-            }
-            else
-            {
-                wreq.Proxy = WebRequest.DefaultWebProxy;
-            }
+            wreq.Proxy = !string.IsNullOrEmpty(req.Proxy) ? new WebProxy(req.Proxy) : WebRequest.DefaultWebProxy;
 
             return wreq;
         }
 
-        private void LogUnsupportedHeader(string name)
+        static void LogUnsupportedHeader(string name)
         {
             DebugUtils.Log(string.Format("HttpWebRequest does not support the '{0}' header", name));
         }

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
 
 #if UNITY_ANDROID
@@ -24,14 +22,14 @@ namespace SocialPoint.Purchase
 
         public string PriceValue { get; private set; }
 
-        private const string ItemTypeKey = "itemType";
-        private const string SkuKey = "sku";
-        private const string TypeKey = "type";
-        private const string PriceKey = "price";
-        private const string TitleKey = "title";
-        private const string DescriptionKey = "description";
-        private const string CurrencyCodeKey = "currencyCode";
-        private const string PriceValueKey = "priceValue";
+        const string ItemTypeKey = "itemType";
+        const string SkuKey = "sku";
+        const string TypeKey = "type";
+        const string PriceKey = "price";
+        const string TitleKey = "title";
+        const string DescriptionKey = "description";
+        const string CurrencyCodeKey = "currencyCode";
+        const string PriceValueKey = "priceValue";
 
 
         public static List<AndroidStoreProduct> ProductsFromJson(string json)
@@ -46,7 +44,7 @@ namespace SocialPoint.Purchase
 
         public static AndroidStoreProduct ProductFromDictionary(AttrDic data)
         {
-            AndroidStoreProduct product = new AndroidStoreProduct();
+            var product = new AndroidStoreProduct();
 
             if(data.ContainsKey(ItemTypeKey))
             {

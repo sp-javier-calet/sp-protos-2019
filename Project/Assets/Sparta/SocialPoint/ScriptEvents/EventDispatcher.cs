@@ -1,25 +1,29 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
-using SocialPoint.Attributes;
+using System.Reflection;
 
 namespace SocialPoint.ScriptEvents
 {
     public interface IEventDispatcher : IDisposable
     {
         void AddListener<T>(Action<T> listener);
+
         void AddDefaultListener(Action<object> listener);
+
         bool RemoveListener<T>(Action<T> listener);
+
         void RemoveDefaultListener(Action<object> listener);
+
         void AddBridge(IEventsBridge bridge);
+
         void Raise(object e);
     }
 
     public static class EventDispatcherExtensions
     {
-        public static Action<F> Connect<F,T>(this IEventDispatcher dispatcher, Func<F, T> conversion=null)
+        public static Action<F> Connect<F,T>(this IEventDispatcher dispatcher, Func<F, T> conversion = null)
         {
-            Action<F> action = (from) => {
+            Action<F> action = from => {
                 if(conversion == null)
                 {
                     dispatcher.Raise(default(T));
@@ -50,8 +54,9 @@ namespace SocialPoint.ScriptEvents
 
         public void Dispose()
         {
-            foreach(var bridge in _bridges)
+            for(int i = 0, _bridgesCount = _bridges.Count; i < _bridgesCount; i++)
             {
+                var bridge = _bridges[i];
                 bridge.Dispose();
             }
             Clear();
@@ -67,10 +72,13 @@ namespace SocialPoint.ScriptEvents
 
         public void AddBridges(IEnumerable<IEventsBridge> bridges)
         {
-            foreach(var bridge in bridges)
+            var itr = bridges.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var bridge = itr.Current;
                 AddBridge(bridge);
             }
+            itr.Dispose();
         }
 
         public void AddBridge(IEventsBridge bridge)
@@ -81,7 +89,7 @@ namespace SocialPoint.ScriptEvents
                 _bridges.Add(bridge);
             }
         }
-        
+
         public void AddDispatcher(IEventDispatcher dispatcher)
         {
             if(dispatcher != null && !_dispatchers.Contains(dispatcher))
@@ -89,12 +97,12 @@ namespace SocialPoint.ScriptEvents
                 _dispatchers.Add(dispatcher);
             }
         }
-        
+
         public bool RemoveDispatcher(IEventDispatcher dispatcher)
         {
             return _dispatchers.Remove(dispatcher);
         }
-        
+
         public void AddListener<T>(Action<T> listener)
         {
             List<Delegate> d;
@@ -109,7 +117,7 @@ namespace SocialPoint.ScriptEvents
                 d.Add(listener);
             }
         }
-        
+
         public bool RemoveListener<T>(Action<T> listener)
         {
             List<Delegate> d;
@@ -120,7 +128,7 @@ namespace SocialPoint.ScriptEvents
             }
             return false;
         }
-        
+
         public void AddDefaultListener(Action<object> listener)
         {
             if(!_defaultListeners.Contains(listener))
@@ -128,7 +136,7 @@ namespace SocialPoint.ScriptEvents
                 _defaultListeners.Add(listener);
             }
         }
-        
+
         public void RemoveDefaultListener(Action<object> listener)
         {
             _defaultListeners.Remove(listener);
@@ -143,8 +151,9 @@ namespace SocialPoint.ScriptEvents
 
             // default listeners
             var ddlgList = new List<Action<object>>(_defaultListeners);
-            foreach(var action in ddlgList)
+            for(int i = 0, ddlgListCount = ddlgList.Count; i < ddlgListCount; i++)
             {
+                var action = ddlgList[i];
                 if(action != null)
                 {
                     try
@@ -176,15 +185,18 @@ namespace SocialPoint.ScriptEvents
                 // into problems. This can happen, for example, if the event listener unregisters itself
                 dlgList = new List<Delegate>(dlgList);
 
-                foreach(var dlg in dlgList)
+                for(int i = 0, dlgListCount = dlgList.Count; i < dlgListCount; i++)
                 {
+                    var dlg = dlgList[i];
                     if(dlg != null)
                     {
                         try
                         {
                             // TODO: find solution that does not use reflection
                             var method = dlg.GetType().GetMethod("Invoke");
-                            method.Invoke(dlg, new object[]{ ev });
+                            method.Invoke(dlg, new[] {
+                                ev
+                            });
                         }
                         catch(Exception ex)
                         {
@@ -201,8 +213,9 @@ namespace SocialPoint.ScriptEvents
                 }
             }
 
-            foreach(var dispatcher in _dispatchers)
+            for(int i = 0, _dispatchersCount = _dispatchers.Count; i < _dispatchersCount; i++)
             {
+                var dispatcher = _dispatchers[i];
                 dispatcher.Raise(ev);
             }
         }

@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 
@@ -8,10 +7,10 @@ namespace SocialPoint.Console
 
     public class ConsoleCommand : IEnumerable<ConsoleCommandOption>
     {
-        public ConsoleCommandDelegate Delegate = null;
-        public string Description = null;
-        public IEnumerable<string> Arguments = null;
-        private IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
+        public ConsoleCommandDelegate Delegate;
+        public string Description;
+        public IEnumerable<string> Arguments;
+        IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
 
         public IEnumerator<ConsoleCommandOption> GetEnumerator()
         {
@@ -27,10 +26,12 @@ namespace SocialPoint.Console
         {
             get
             {
-                foreach(var opt in _options)
+                for(int i = 0, _optionsCount = _options.Count; i < _optionsCount; i++)
                 {
-                    foreach(var name in opt.Names)
+                    var opt = _options[i];
+                    for(int j = 0, optNamesLength = opt.Names.Length; j < optNamesLength; j++)
                     {
+                        var name = opt.Names[j];
                         if(name == value)
                         {
                             return opt;
@@ -43,8 +44,9 @@ namespace SocialPoint.Console
 
         public ConsoleCommand WithOptions(IList<ConsoleCommandOption> opts)
         {
-            foreach(var opt in opts)
+            for(int i = 0, optsCount = opts.Count; i < optsCount; i++)
             {
+                var opt = opts[i];
                 WithOption(opt);
             }
             return this;
@@ -72,7 +74,7 @@ namespace SocialPoint.Console
         {
         }
 
-        private int MatchRepeat(string all, string part)
+        static int MatchRepeat(string all, string part)
         {
             int f = all.Length / part.Length;
             var parts = string.Empty;
@@ -80,14 +82,10 @@ namespace SocialPoint.Console
             {
                 parts += part;
             }
-            if(all == parts)
-            {
-                return f;
-            }
-            return 0;
+            return all == parts ? f : 0;
         }
 
-        private bool SetOptionValue(string name, string value)
+        bool SetOptionValue(string name, string value)
         {
             var option = this[name];
             if(option != null)
@@ -96,14 +94,16 @@ namespace SocialPoint.Console
             }
             if(option == null && string.IsNullOrEmpty(value))
             {
-                foreach(var opt in _options)
+                for(int i = 0, _optionsCount = _options.Count; i < _optionsCount; i++)
                 {
-                    foreach(var optName in opt.Names)
+                    var opt = _options[i];
+                    for(int j = 0, optNamesLength = opt.Names.Length; j < optNamesLength; j++)
                     {
-                        int i = MatchRepeat(name, optName);
-                        if(i > 0)
+                        var optName = opt.Names[j];
+                        int id = MatchRepeat(name, optName);
+                        if(id > 0)
                         {
-                            opt.Value = i.ToString();
+                            opt.Value = id.ToString();
                         }
                     }
                 }
@@ -123,8 +123,9 @@ namespace SocialPoint.Console
             int i = 0;
 
             string defVal = null;
-            foreach(var opt in _options)
+            for(int j = 0, _optionsCount = _options.Count; j < _optionsCount; j++)
             {
+                var opt = _options[j];
                 var parts = new List<string>(opt.Names);
                 if(parts.Contains(WildcardString))
                 {
@@ -133,12 +134,14 @@ namespace SocialPoint.Console
                 }
             }
 
-            foreach(var arg in args)
+            var itr = args.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var arg = itr.Current;
                 if(arg.Length > 0 && arg[0] == OptionStartChar)
                 {
                     lastOpt = null;
-                    var opt = arg.Trim(new char[]{OptionStartChar});
+                    var opt = arg.Trim(new []{ OptionStartChar });
                     var p = opt.IndexOf(OptionValueOperator);
                     if(p == -1)
                     {
@@ -174,6 +177,7 @@ namespace SocialPoint.Console
                     i++;
                 }
             }
+            itr.Dispose();
             if(defVal != null)
             {
                 SetOptionValue(WildcardString, defVal);

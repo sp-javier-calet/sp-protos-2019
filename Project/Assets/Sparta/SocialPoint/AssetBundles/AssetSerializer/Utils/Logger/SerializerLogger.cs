@@ -1,8 +1,7 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 using SocialPoint.AssetSerializer.Exceptions;
-
+using UnityEngine;
 
 namespace SocialPoint.AssetSerializer.Utils
 {
@@ -16,7 +15,7 @@ namespace SocialPoint.AssetSerializer.Utils
 
         static string ScenePrefix;
 
-        static List<KeyValuePair<string, string>> NestedNodePrefix = new List<KeyValuePair<string, string>>();
+        static readonly List<KeyValuePair<string, string>> NestedNodePrefix = new List<KeyValuePair<string, string>>();
 
         static SerializerLogger()
         {
@@ -89,18 +88,21 @@ namespace SocialPoint.AssetSerializer.Utils
 
         public static void ShowLogAndExceptIfNeeded()
         {
-            foreach(string log in SerializationLogs)
+            for(int i = 0, SerializationLogsCount = SerializationLogs.Count; i < SerializationLogsCount; i++)
             {
+                string log = SerializationLogs[i];
                 Debug.Log(log);
             }
 
-            foreach(string log in SerializationWarnings)
+            for(int i = 0, SerializationWarningsCount = SerializationWarnings.Count; i < SerializationWarningsCount; i++)
             {
+                string log = SerializationWarnings[i];
                 Debug.LogWarning(log);
             }
 
-            foreach(string log in SerializationErrors)
+            for(int i = 0, SerializationErrorsCount = SerializationErrors.Count; i < SerializationErrorsCount; i++)
             {
+                string log = SerializationErrors[i];
                 Debug.LogError(log);
             }
 
@@ -117,12 +119,13 @@ namespace SocialPoint.AssetSerializer.Utils
             {
                 fullMsg += String.Format("On Scene {0}", ScenePrefix);
             }
-			
-            foreach(KeyValuePair<string, string> node in NestedNodePrefix)
+
+            for(int i = 0, NestedNodePrefixCount = NestedNodePrefix.Count; i < NestedNodePrefixCount; i++)
             {
+                KeyValuePair<string, string> node = NestedNodePrefix[i];
                 fullMsg += String.Format(" - ({0}, {1})", node.Key, node.Value);
             }
-			
+
             fullMsg += ": " + msg;
 
             return fullMsg;

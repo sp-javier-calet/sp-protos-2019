@@ -1,9 +1,10 @@
-
+#if UNITY_ANDROID
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using UnityEngine;
+#endif
 
 namespace SocialPoint.Purchase
 {
@@ -13,19 +14,17 @@ namespace SocialPoint.Purchase
     #endif
     {
         #if UNITY_ANDROID
-        private bool _isInitialized;
-        private List<Product> _products;
+        bool _isInitialized;
+        List<Product> _products;
         string _productId = string.Empty;
-
 
         #region IPurchaseStore implementation
 
-        
         public event ProductsUpdatedDelegate ProductsUpdated;
 
         public event PurchaseUpdatedDelegate PurchaseUpdated;
 
-        private ValidatePurchaseDelegate _validatePurchase;
+        ValidatePurchaseDelegate _validatePurchase;
 
         public ValidatePurchaseDelegate ValidatePurchase
         {
@@ -82,12 +81,9 @@ namespace SocialPoint.Purchase
                 PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
                 return true;
             }
-            else
-            {
-                DebugLog("product doesn't exist: " + productId);
-                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
-                return false;
-            }
+            DebugLog("product doesn't exist: " + productId);
+            PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+            return false;
         }
 
         public bool HasProductsLoaded
@@ -111,26 +107,17 @@ namespace SocialPoint.Purchase
             AndroidStoreBinding.ForceFinishPendingTransactions();
         }
 
-        
-
         #endregion
-
-        
-        
 
         #region IDisposable implementation
 
-        
         virtual public void Dispose()
         {
             UnregisterEvents();
         }
 
-        
-
         #endregion
 
-        
         public AndroidPurchaseStore()
         {
             if(Application.platform != RuntimePlatform.Android)
@@ -155,21 +142,22 @@ namespace SocialPoint.Purchase
             DebugUtils.Log(string.Format("AndroidPurchaseStore {0}", msg));
         }
 
-        private void QueryInventoryFailed(Error error)
+        void QueryInventoryFailed(Error error)
         {
             DebugLog("Query inventory failed");
             ProductsUpdated(LoadProductsState.Error, error);
         }
 
-        private void ProductListReceived(List<AndroidStoreProduct> products)
+        void ProductListReceived(List<AndroidStoreProduct> products)
         {
             _products = new List<Product>();
             DebugLog("received total products: " + products.Count);
             try
             {
-                foreach(AndroidStoreProduct product in products)
+                for(int i = 0, productsCount = products.Count; i < productsCount; i++)
                 {
-                    Product parsedProduct = new Product(product.Sku, product.Title, float.Parse(product.PriceValue), product.CurrencyCode, product.Price);
+                    AndroidStoreProduct product = products[i];
+                    var parsedProduct = new Product(product.Sku, product.Title, float.Parse(product.PriceValue), product.CurrencyCode, product.Price);
                     DebugLog(parsedProduct.ToString());
                     _products.Add(parsedProduct);
                 }
@@ -183,7 +171,7 @@ namespace SocialPoint.Purchase
             ProductsUpdated(LoadProductsState.Success, null);
         }
 
-        private void PurchaseSucceeded(AndroidStoreTransaction purchase)
+        void PurchaseSucceeded(AndroidStoreTransaction purchase)
         {
             var data = new AttrDic();
             data.SetValue(Receipt.OrderIdKey, purchase.OrderId);
@@ -194,8 +182,8 @@ namespace SocialPoint.Purchase
             data.SetValue(Receipt.DataSignatureKey, purchase.Signature);
             if(_validatePurchase != null)
             {
-                Receipt receipt = new Receipt(data);
-                _validatePurchase(receipt, (response) => {
+                var receipt = new Receipt(data);
+                _validatePurchase(receipt, response => {
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
                         AndroidStoreBinding.FinishPendingTransaction(purchase.Sku);
@@ -205,27 +193,27 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void PurchaseFailed(Error error)
+        void PurchaseFailed(Error error)
         {
             PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
             DebugLog(string.Format("Purchase failed : error message = {0}", error));
         }
 
-        private void PurchaseCancelled(Error error)
+        void PurchaseCancelled(Error error)
         {
             PurchaseUpdated(PurchaseState.PurchaseCanceled, _productId);
             DebugLog(string.Format("Purchase cancelled : error message = {0}", error));
         }
 
-        private void BillingSupported()
+        void BillingSupported()
         {
             _isInitialized = true;
             DebugLog("BillingSupportedEvent");
         }
 
-        private void BillingNotSupported(Error error)
+        void BillingNotSupported(Error error)
         {
-            DebugLog("BillingNotSupportedEvent" + error.ToString());
+            DebugLog("BillingNotSupportedEvent" + error);
         }
 
         public void ConsumePurchaseSucceeded(AndroidStoreTransaction purchase)
@@ -233,7 +221,7 @@ namespace SocialPoint.Purchase
             PurchaseUpdated(PurchaseState.PurchaseConsumed, purchase.Sku);
         }
 
-        private void ConsumePurchaseFailed(Error error)
+        void ConsumePurchaseFailed(Error error)
         {
             DebugLog(string.Format("Purchase Cancel : errorCode = {0}", error));
             PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);

@@ -1,10 +1,9 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
-
-#if UNITY_IPHONE
+#if UNITY_IOS
 namespace SocialPoint.Purchase
 {
     public class IosStoreManager : MonoBehaviour
@@ -28,11 +27,11 @@ namespace SocialPoint.Purchase
         // Fired when a product purchase is cancelled by the user or system
         public static event Action<Error> PurchaseCancelledEvent;
 
+        const string instanceName = "IosStoreManager";
 
         static IosStoreManager()
         {
-            string instanceName = "IosStoreManager";
-            GameObject instance = new GameObject(instanceName);
+            var instance = new GameObject(instanceName);
             instance.AddComponent<IosStoreManager>();
             DontDestroyOnLoad(instance);
             IosStoreBinding.Init(instanceName);

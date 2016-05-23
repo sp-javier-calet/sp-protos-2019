@@ -9,7 +9,7 @@ namespace SocialPoint.ServerMessaging
 {
     public class MessageCenter : IMessageCenter
     {
-        public delegate void GetMessagesDelegate(Error Error,List<Message> messages);
+        public delegate void GetMessagesDelegate(Error Error, List<Message> messages);
 
         public const int MsgDontExistError = 1;
 
@@ -64,8 +64,9 @@ namespace SocialPoint.ServerMessaging
             var ids = new AttrList();
 
             //check messages exist
-            foreach(var message in messages)
+            for(int i = 0, messagesCount = messages.Count; i < messagesCount; i++)
             {
+                var message = messages[i];
                 if(_messages.ContainsKey(message.Id))
                 {
                     ids.Add(new AttrString(message.Id));
@@ -78,8 +79,9 @@ namespace SocialPoint.ServerMessaging
             }
 
             //now that we know sure that messages were waiting for deletion
-            foreach(var message in messages)
+            for(int i = 0, messagesCount = messages.Count; i < messagesCount; i++)
             {
+                var message = messages[i];
                 _messages.Remove(message.Id);
                 _deletedMessages.Add(message.Id);
             }

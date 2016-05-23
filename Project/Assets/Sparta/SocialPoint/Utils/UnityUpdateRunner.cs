@@ -1,9 +1,8 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using SocialPoint.Base;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Utils
@@ -18,7 +17,7 @@ namespace SocialPoint.Utils
 
     public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
-        HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
+        readonly HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
 
         public void Add(IUpdateable elm)
         {
@@ -53,10 +52,13 @@ namespace SocialPoint.Utils
 
         void Update()
         {
-            foreach(var elm in _elements)
+            var itr = _elements.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var elm = itr.Current;
                 elm.Update();
             }
+            itr.Dispose();
         }
     }
 
@@ -122,7 +124,7 @@ namespace SocialPoint.Utils
                 }
                 var bundle = www.assetBundle;
                 www.Dispose();
-                AssetBundleRequest req = null;
+                AssetBundleRequest req;
                 if(string.IsNullOrEmpty(def.Name))
                 {
                     req = bundle.LoadAllAssetsAsync();
@@ -141,15 +143,16 @@ namespace SocialPoint.Utils
                 {
                     var elms = new T[req.allAssets.Length];
                     int i = 0;
-                    foreach(var asset in req.allAssets)
+                    for(int j = 0, reqallAssetsLength = req.allAssets.Length; j < reqallAssetsLength; j++)
                     {
+                        var asset = req.allAssets[j];
                         elms[i++] = asset as T;
                     }
                     cbk(elms, null);
                 }
                 else
                 {
-                    cbk(new T[]{ req.asset as T }, null);
+                    cbk(new []{ req.asset as T }, null);
                 }
             }
         }

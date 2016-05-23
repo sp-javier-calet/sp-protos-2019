@@ -11,7 +11,7 @@ namespace SocialPoint.Social
     public class AdminPanelFacebook : IAdminPanelConfigurer, IAdminPanelGUI
     {
         AdminPanel.AdminPanel _adminPanel;
-        IFacebook _facebook;
+        readonly IFacebook _facebook;
         Toggle _loggedInToggle;
         Text _userText;
         Text _friendsText;
@@ -46,7 +46,7 @@ namespace SocialPoint.Social
         {
             var query = new FacebookGraphQuery();
 
-            query.Method = (FacebookGraphQuery.MethodType) Enum.Parse(typeof(FacebookGraphQuery.MethodType), cmd["method"].Value, true);
+            query.Method = (FacebookGraphQuery.MethodType)Enum.Parse(typeof(FacebookGraphQuery.MethodType), cmd["method"].Value, true);
             var uri = new Uri("http://localhost" + cmd["path"].Value);
             query.Path = uri.AbsolutePath;
             query.Params = new UrlQueryAttrParser().ParseString(uri.Query).AsDic;
@@ -66,23 +66,20 @@ namespace SocialPoint.Social
             });
         }
 
-        private void PrintLog(string msg)
+        void PrintLog(string msg)
         {
             _adminPanel.Console.Print(string.Format("Facebook: {0}", msg));
         }
 
-        private bool PrintError(string what, Error err)
+        bool PrintError(string what, Error err)
         {
             if(Error.IsNullOrEmpty(err))
             {
                 PrintLog(string.Format("success when {0}", what));
                 return false;
             }
-            else
-            {
-                PrintLog(string.Format("error when {0}: {1}", what, err));
-                return true;
-            }
+            PrintLog(string.Format("error when {0}: {1}", what, err));
+            return true;
         }
 
         void UpdateLoggedIn()
@@ -92,20 +89,14 @@ namespace SocialPoint.Social
             _loggedInToggle.isOn = _facebook.IsConnected;
             _loggedInToggle.onValueChanged = ev;
 
-            if(_facebook.User != null)
-            {
-                _userText.text = _facebook.User.ToString();
-            }
-            else
-            {
-                _userText.text = string.Empty;
-            }
+            _userText.text = _facebook.User != null ? _facebook.User.ToString() : string.Empty;
             if(_facebook.Friends != null)
             {
                 var friends = new string[_facebook.Friends.Count];
                 var i = 0;
-                foreach(var friend in _facebook.Friends)
+                for(int j = 0, _facebookFriendsCount = _facebook.Friends.Count; j < _facebookFriendsCount; j++)
                 {
+                    var friend = _facebook.Friends[j];
                     friends[i++] = friend.ToString();
                 }
                 _friendsText.text = string.Join("\n", friends);
@@ -135,23 +126,23 @@ namespace SocialPoint.Social
             layout.CreateLabel("Facebook User");
 
             var hlayout = layout.CreateHorizontalLayout();
-            _userPhoto = hlayout.CreateImage(new Vector2(100,100));
+            _userPhoto = hlayout.CreateImage(new Vector2(100, 100));
             _userText = hlayout.CreateVerticalScrollLayout().CreateTextArea();
 
             layout.CreateLabel("Facebook Friends");
             _friendsText = layout.CreateVerticalScrollLayout().CreateTextArea();
 
-            _loggedInToggle = layout.CreateToggleButton("Logged In", _facebook.IsConnected, (status) => {
+            _loggedInToggle = layout.CreateToggleButton("Logged In", _facebook.IsConnected, status => {
                 if(status)
                 {
-                    _facebook.Login((err) => {
+                    _facebook.Login(err => {
                         UpdateLoggedIn();
                         PrintError("logging in", err);
                     });
                 }
                 else
                 {
-                    _facebook.Logout((err) => {
+                    _facebook.Logout(err => {
                         UpdateLoggedIn();
                         PrintError("logging out", err);
                     });

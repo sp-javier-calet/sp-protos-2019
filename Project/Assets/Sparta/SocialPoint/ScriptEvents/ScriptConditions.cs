@@ -1,18 +1,16 @@
-﻿using SocialPoint.Attributes;
+﻿using System.Collections.Generic;
+using SocialPoint.Attributes;
 using SocialPoint.Utils;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SocialPoint.ScriptEvents
 {
-
     public static class ScriptConditions
     {
         public static IChildParser<IScriptCondition>[] BasicParsers
         {
             get
             {
-                return new IChildParser<IScriptCondition>[]{
+                return new IChildParser<IScriptCondition>[] {
                     new FixedConditionParser(),
                     new AllConditionParser(),
                     new NoneConditionParser(),
@@ -36,7 +34,7 @@ namespace SocialPoint.ScriptEvents
 
     public class FixedCondition : IScriptCondition
     {
-        bool _result;
+        readonly bool _result;
 
         public FixedCondition(bool result)
         {
@@ -61,10 +59,11 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(data.AsValue.ToBool());
         }
 
-        public FamilyParser<IScriptCondition> Parent { set{} }
+        public FamilyParser<IScriptCondition> Parent { set { } }
 
         const string ConditionName = "fixed";
-        public string Name { get{ return ConditionName; } }
+
+        public string Name { get { return ConditionName; } }
     }
 
     public class AllConditionParser : IChildParser<IScriptCondition>
@@ -74,10 +73,11 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(true);
         }
 
-        public FamilyParser<IScriptCondition> Parent { set{} }
+        public FamilyParser<IScriptCondition> Parent { set { } }
 
         const string ConditionName = "all";
-        public string Name { get{ return ConditionName; } }
+
+        public string Name { get { return ConditionName; } }
     }
 
     public class NoneConditionParser : IChildParser<IScriptCondition>
@@ -87,15 +87,16 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(false);
         }
 
-        public FamilyParser<IScriptCondition> Parent { set{} }
+        public FamilyParser<IScriptCondition> Parent { set { } }
 
         const string ConditionName = "none";
-        public string Name { get{ return ConditionName; } }
+
+        public string Name { get { return ConditionName; } }
     }
 
     public class NameCondition : IScriptCondition
     {
-        string _pattern;
+        readonly string _pattern;
 
         public NameCondition(string pattern)
         {
@@ -120,15 +121,16 @@ namespace SocialPoint.ScriptEvents
             return new NameCondition(data.ToString());
         }
 
-        public FamilyParser<IScriptCondition> Parent { set{} }
+        public FamilyParser<IScriptCondition> Parent { set { } }
 
         const string ConditionName = "name";
-        public string Name { get{ return ConditionName; } }
+
+        public string Name { get { return ConditionName; } }
     }
 
     public class ArgumentsCondition : IScriptCondition
     {
-        Attr _arguments;
+        readonly Attr _arguments;
 
         public ArgumentsCondition(Attr arguments)
         {
@@ -153,17 +155,18 @@ namespace SocialPoint.ScriptEvents
             return new ArgumentsCondition((Attr)data.Clone());
         }
 
-        public FamilyParser<IScriptCondition> Parent { set{} }
+        public FamilyParser<IScriptCondition> Parent { set { } }
 
         const string ConditionName = "args";
-        public string Name { get{ return ConditionName; } }
+
+        public string Name { get { return ConditionName; } }
     }
 
     public class AndCondition : IScriptCondition
     {
         readonly List<IScriptCondition> _conditions;
 
-        public AndCondition(IScriptCondition[] conditions):
+        public AndCondition(IScriptCondition[] conditions) :
             this(new List<IScriptCondition>(conditions))
         {
         }
@@ -175,8 +178,9 @@ namespace SocialPoint.ScriptEvents
 
         public bool Matches(string name, Attr arguments)
         {
-            foreach(var cond in _conditions)
+            for(int i = 0, _conditionsCount = _conditions.Count; i < _conditionsCount; i++)
             {
+                var cond = _conditions[i];
                 if(!cond.Matches(name, arguments))
                 {
                     return false;
@@ -196,24 +200,28 @@ namespace SocialPoint.ScriptEvents
         public IScriptCondition Parse(Attr data)
         {
             var children = new List<IScriptCondition>();
-            foreach(var elm in data.AsList)
+            var itr = data.AsList.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var elm = itr.Current;
                 children.Add(Parent.Parse(elm));
             }
+            itr.Dispose();
             return new AndCondition(children);
         }
 
         public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "and";
-        public string Name { get{ return ConditionName; } }
+
+        public string Name { get { return ConditionName; } }
     }
 
     public class OrCondition : IScriptCondition
     {
         readonly List<IScriptCondition> _conditions;
 
-        public OrCondition(IScriptCondition[] conditions):
+        public OrCondition(IScriptCondition[] conditions) :
             this(new List<IScriptCondition>(conditions))
         {
         }
@@ -225,8 +233,9 @@ namespace SocialPoint.ScriptEvents
 
         public bool Matches(string name, Attr arguments)
         {
-            foreach(var cond in _conditions)
+            for(int i = 0, _conditionsCount = _conditions.Count; i < _conditionsCount; i++)
             {
+                var cond = _conditions[i];
                 if(cond.Matches(name, arguments))
                 {
                     return true;
@@ -246,17 +255,21 @@ namespace SocialPoint.ScriptEvents
         public IScriptCondition Parse(Attr data)
         {
             var children = new List<IScriptCondition>();
-            foreach(var elm in data.AsList)
+            var itr = data.AsList.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var elm = itr.Current;
                 children.Add(Parent.Parse(elm));
             }
+            itr.Dispose();
             return new OrCondition(children);
         }
 
         public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "or";
-        public string Name { get{ return ConditionName; } }
+
+        public string Name { get { return ConditionName; } }
     }
 
     public class NotCondition : IScriptCondition
@@ -289,6 +302,7 @@ namespace SocialPoint.ScriptEvents
         public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "not";
-        public string Name { get{ return ConditionName; } }
-    }   
+
+        public string Name { get { return ConditionName; } }
+    }
 }

@@ -9,11 +9,11 @@ namespace SocialPoint.Profiling
         public TextAnchor Anchor;
         public Vector2 Border = new Vector2(5.0f, 5.0f);
         public Color Color = Color.green;
-        public bool ShortText = false;
-        public bool StartEnabled = false;
+        public bool ShortText;
+        public bool StartEnabled;
 
-        private float defaultSize = 20;
-        private float defaultWidth = 1280;
+        const float defaultSize = 20;
+        const float defaultWidth = 1280;
 
         void Start()
         {
@@ -37,17 +37,10 @@ namespace SocialPoint.Profiling
             style.fontSize = Mathf.RoundToInt(defaultSize * Screen.width / (defaultWidth * 1.0f));
 
             string text;
-            if(ShortText)
-            {
-                text = Info.ToShortString();
-            }
-            else
-            {
-                text = Info.ToString();
-            }
-            UnityEngine.GUI.BeginGroup(rect);
-            UnityEngine.GUI.Label(new Rect(0.0f, 0.0f, rect.width, rect.height), text, style);
-            UnityEngine.GUI.EndGroup();
+            text = ShortText ? Info.ToShortString() : Info.ToString();
+            GUI.BeginGroup(rect);
+            GUI.Label(new Rect(0.0f, 0.0f, rect.width, rect.height), text, style);
+            GUI.EndGroup();
         }
     }
 }

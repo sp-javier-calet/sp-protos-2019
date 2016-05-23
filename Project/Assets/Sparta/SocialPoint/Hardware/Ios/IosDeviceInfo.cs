@@ -63,7 +63,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private readonly string _platform = "ios";
+        readonly string _platform = "ios";
 
         public string Platform
         {
@@ -73,7 +73,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _platformVersion = null;
+        string _platformVersion = null;
 
         public string PlatformVersion
         {

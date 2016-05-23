@@ -130,10 +130,13 @@ namespace SocialPoint.Locale
 
         public void Add(Localization other)
         {
-            foreach(var pair in other._strings)
+            var itr = other._strings.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 Set(pair.Key, pair.Value);
             }
+            itr.Dispose();
         }
 
         public override string ToString()

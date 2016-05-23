@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
 
 #if UNITY_ANDROID
@@ -12,9 +10,9 @@ namespace SocialPoint.Purchase
 
         public static List<T> AndroidStoreListFromJson<T>(string json, AndroidStoreObjectFromAttrDic<T> ObjectBuilder)
         {
-            List<T> productList = new List<T>();
+            var productList = new List<T>();
 
-            JsonAttrParser jsonParser = new JsonAttrParser();
+            var jsonParser = new JsonAttrParser();
             Attr parsedData = jsonParser.ParseString(json);
             if(parsedData.AttrType == AttrType.LIST)
             {
@@ -34,18 +32,14 @@ namespace SocialPoint.Purchase
 
         public static T AndroidStoreObjectFromJson<T>(string json, AndroidStoreObjectFromAttrDic<T> ObjectBuilder)
         {
-            JsonAttrParser litJsonParser = new JsonAttrParser();
+            var litJsonParser = new JsonAttrParser();
             Attr parsedData = litJsonParser.ParseString(json);
             AttrDic dict = null;
             if(parsedData.AttrType == AttrType.DICTIONARY)
             {
                 dict = parsedData.AsDic;
             }
-
-            if(dict == null)
-                return default(T);
-
-            return ObjectBuilder(dict);
+            return dict == null ? default(T) : ObjectBuilder(dict);
         }
     }
 }

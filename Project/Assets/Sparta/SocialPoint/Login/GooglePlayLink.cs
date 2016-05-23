@@ -181,9 +181,11 @@ namespace SocialPoint.Login
                 GoogleUser friend = itr.Current;
                 if(userIds.Contains(friend.UserId))
                 {
+                    itr.Dispose();
                     return friend;
                 }
             }
+            itr.Dispose();
             
             return null;
         }

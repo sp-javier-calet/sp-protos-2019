@@ -195,9 +195,11 @@ namespace SocialPoint.Login
                     var data = itr.Current;
                     if(!string.IsNullOrEmpty(data.Value))
                     {
+                        itr.Dispose();
                         return data.Value;
                     }
                 }
+                itr.Dispose();
                 return null;
             }
         }
@@ -230,9 +232,11 @@ namespace SocialPoint.Login
                     var data = itr.Current;
                     if(!string.IsNullOrEmpty(data.Value))
                     {
+                        itr.Dispose();
                         return data.Value;
                     }
                 }
+                itr.Dispose();
                 return null;
             }
         }

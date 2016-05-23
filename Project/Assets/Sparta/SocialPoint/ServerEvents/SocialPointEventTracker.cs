@@ -205,8 +205,9 @@ namespace SocialPoint.ServerEvents
         public void Reset()
         {
             _lastEventNum = StartEventNum;
-            foreach(var ev in _pendingEvents)
+            for(int i = 0, _pendingEventsCount = _pendingEvents.Count; i < _pendingEventsCount; i++)
             {
+                var ev = _pendingEvents[i];
                 ev.Num = Event.NoNum;
             }
             if(_httpConn != null)
@@ -399,11 +400,8 @@ namespace SocialPoint.ServerEvents
 
                 return true;
             }
-            else
-            {
-                _sendPending = true;
-                return false;
-            }
+            _sendPending = true;
+            return false;
         }
 
         void AfterSend()
@@ -437,8 +435,9 @@ namespace SocialPoint.ServerEvents
 
         bool IsEventUnauthorized(string evName)
         {
-            foreach(var pattern in UnauthorizedEvents)
+            for(int i = 0, UnauthorizedEventsCount = UnauthorizedEvents.Count; i < UnauthorizedEventsCount; i++)
             {
+                var pattern = UnauthorizedEvents[i];
                 if(StringUtils.GlobMatch(pattern, evName))
                 {
                     return true;
@@ -451,8 +450,9 @@ namespace SocialPoint.ServerEvents
         {
             var evs = new AttrList();
             var sentEvents = new List<Event>();
-            foreach(var ev in _pendingEvents)
+            for(int i = 0, _pendingEventsCount = _pendingEvents.Count; i < _pendingEventsCount; i++)
             {
+                var ev = _pendingEvents[i];
                 var evauth = !IsEventUnauthorized(ev.Name);
                 if(auth == evauth)
                 {
@@ -578,8 +578,9 @@ namespace SocialPoint.ServerEvents
                 {
                 }
             }
-            foreach(var ev in sentEvents)
+            for(int i = 0, sentEventsCount = sentEvents.Count; i < sentEventsCount; i++)
             {
+                var ev = sentEvents[i];
                 if(synced || ev != null && !ev.CanRetry)
                 {
                     if(ev != null && ev.ResponseDelegate != null)

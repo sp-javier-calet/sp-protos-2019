@@ -374,8 +374,9 @@ namespace SocialPoint.Hardware
                     var paths = new [] { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su",
                         "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su", "/data/local/su"
                     };
-                    foreach(var path in paths)
+                    for(int i = 0, pathsLength = paths.Length; i < pathsLength; i++)
                     {
+                        var path = paths[i];
                         if(FileUtils.ExistsFile(path))
                         {
                             _rooted = true;

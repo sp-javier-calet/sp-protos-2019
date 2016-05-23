@@ -32,7 +32,7 @@ namespace SocialPoint.GameLoading
         public IAppEvents AppEvents;
         public ICrashReporter CrashReporter;
         public IGameErrorHandler ErrorHandler;
-        public bool Paused = false;
+        public bool Paused;
 
         [SerializeField]
         GameObject _progressContainer;
@@ -96,16 +96,10 @@ namespace SocialPoint.GameLoading
                     if(HasFinished(opProgress))
                     {
                         return Mathf.Lerp(opProgress, 1.0f, 1.0f - (expected - duration) / _speedUpTime);
-                    }
-                    else
-                    {   
-                        return duration / expected;
-                    }
+                    }   
+                    return duration / expected;
                 }
-                else
-                {
-                    return op.Progress;
-                }
+                return op.Progress;
             }
         }
 
@@ -117,8 +111,9 @@ namespace SocialPoint.GameLoading
                 float totalExpected = 0.0f;
                 float finishedExpected = 0.0f;
                 int i = 0;
-                foreach(var op in _operations)
+                for(int j = 0, _operationsCount = _operations.Count; j < _operationsCount; j++)
                 {
+                    var op = _operations[j];
                     if(!op.HasExpectedDuration)
                     {
                         allOpsExpected = false;
@@ -131,10 +126,11 @@ namespace SocialPoint.GameLoading
                         {
                             finishedExpected += CurrentOperationProgress * opExpected;
                         }
-                        else if(i < _currentOperationIndex)
-                        {
-                            finishedExpected += opExpected;
-                        }
+                        else
+                            if(i < _currentOperationIndex)
+                            {
+                                finishedExpected += opExpected;
+                            }
                         totalExpected += opExpected;
                     }
                     i++;
@@ -144,10 +140,7 @@ namespace SocialPoint.GameLoading
                 {
                     return finishedExpected / totalExpected;
                 }
-                else
-                {
-                    return (_currentOperationIndex + CurrentOperationProgress) / _operations.Count;
-                }
+                return (_currentOperationIndex + CurrentOperationProgress) / _operations.Count;
             }
         }
 
