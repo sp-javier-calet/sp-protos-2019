@@ -26,7 +26,7 @@ public class VideoAdsInstaller : MonoInstaller
 
         Container.BindInstance("videoads_appid", settings.AppID);
         Container.BindInstance("videoads_userid", settings.UserID);
-        Container.Bind<VideoAds>().ToSingle();
+        Container.Bind<VideoAds>().ToSingleGameObject();
         Container.Bind<IVideoAdsManager>().ToLookup<VideoAds>();
         Container.Bind<IDisposable>().ToLookup<IVideoAdsManager>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelVideoAds>();

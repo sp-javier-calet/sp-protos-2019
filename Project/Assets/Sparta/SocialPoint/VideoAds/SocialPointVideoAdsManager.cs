@@ -1,11 +1,12 @@
 ﻿using FyberPlugin;
 using SocialPoint.Base;
 using System;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace SocialPoint.VideoAds
 {
-    public class SocialPointVideoAdsManager : IVideoAdsManager
+    public class SocialPointVideoAdsManager : MonoBehaviour, IVideoAdsManager
     {
         string _appId;
 
@@ -29,6 +30,32 @@ namespace SocialPoint.VideoAds
 
         bool _enabled = false;
         Ad _rewardedVideoAd;
+
+        //fix for adcolony
+        #if UNITY_ANDROID && !UNITY_EDITOR
+        bool was_paused = true;
+
+        void Start()
+        {
+            FyberAdColonyFix.AndroidInitializePlugin();
+        }
+
+        void OnApplicationPause(bool pauseStatus)
+        {
+            was_paused = true;
+            FyberAdColonyFix.AndroidPause();
+        }
+
+        void Update()
+        {
+            if (was_paused)
+            {
+                was_paused = false;
+                FyberAdColonyFix.AndroidResume();
+            }
+        }
+        #endif
+
 
         #region IVideoAdsManager implementation
 
