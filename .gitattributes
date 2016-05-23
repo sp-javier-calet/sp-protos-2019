@@ -1,6 +1,9 @@
+*.cs diff=csharp
 *.unity binary
 *.prefab binary
 *.asset binary
+*.anim binary
+*.controller binary
 *.meta binary
 *.a	filter=lfs diff=lfs merge=lfs -text
 *.aar	filter=lfs diff=lfs merge=lfs -text
