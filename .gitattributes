@@ -1,6 +1,7 @@
 *.unity binary
 *.prefab binary
 *.asset binary
+*.meta binary
 *.a	filter=lfs diff=lfs merge=lfs -text
 *.aar	filter=lfs diff=lfs merge=lfs -text
 *.bundle	filter=lfs diff=lfs merge=lfs -text
