@@ -11,6 +11,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 926e2218f960c4944b5d77ce259000de, type: 3}
   m_Name: FyberSettings
   m_EditorClassIdentifier: 
-  bundlesJson: '{"adapters":[{"name":"Applifier","qualifiedName":"com.fyber.mediation.unityads.UnityAdsMediationAdapter"}]}'
-  configJson: '{"adapters":[{"name":"Applifier","settings":{"game.id.key":"113878","zone.id.rewarded.video":"rewardedVideoZone"}}]}'
-  bundlesCount: 1
+  bundlesJson: '{"adapters":[{"name":"Applifier","qualifiedName":"com.fyber.mediation.unityads.UnityAdsMediationAdapter"},{"name":"Chartboost","qualifiedName":"com.fyber.mediation.chartboost.ChartboostMediationAdapter"}]}'
+  configJson: '{"adapters":[{"name":"Applifier","settings":{"game.id.key":"113878","zone.id.rewarded.video":"rewardedVideoZone"}},{"name":"Chartboost","settings":{"AppId":"5731ebf604b01663ca084543","AppSignature":"833ec070a9931f218130ae50a952d7c4e972d531"}}]}'
+  bundlesCount: 2
