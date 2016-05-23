@@ -11,6 +11,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 926e2218f960c4944b5d77ce259000de, type: 3}
   m_Name: FyberSettings
   m_EditorClassIdentifier: 
-  bundlesJson: '{"adapters":[]}'
-  configJson: '{"adapters":[]}'
-  bundlesCount: 0
+  bundlesJson: '{"adapters":[{"name":"Applifier","qualifiedName":"com.fyber.mediation.unityads.UnityAdsMediationAdapter"}]}'
+  configJson: '{"adapters":[{"name":"Applifier","settings":{"game.id.key":"113878","zone.id.rewarded.video":"rewardedVideoZone"}}]}'
+  bundlesCount: 1

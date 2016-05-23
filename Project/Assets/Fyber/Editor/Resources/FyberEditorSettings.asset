@@ -11,11 +11,11 @@ MonoBehaviour:
   m_Script: {fileID: -1767868503, guid: 237e7d1c83f244fe39e5dd7b3b167eb9, type: 3}
   m_Name: FyberEditorSettings
   m_EditorClassIdentifier: 
-  manifestChecker: {fileID: 11490066}
+  manifestChecker: {fileID: 11493360}
   shouldProcessAdapters: 1
   orientationManager: {fileID: 0}
   shouldAutogenerateAssets: 1
---- !u!114 &11490066
+--- !u!114 &11493360
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
