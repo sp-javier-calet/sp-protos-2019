@@ -1,15 +1,16 @@
-﻿using SocialPoint.AdminPanel;
+﻿using System;
+using SocialPoint.AdminPanel;
+using SocialPoint.Dependency;
+using SocialPoint.Login;
 using SocialPoint.VideoAds;
-using System;
-using Zenject;
+using UnityEngine;
 
-public class VideoAdsInstaller : MonoInstaller
+public class VideoAdsInstaller : Installer
 {
     [Serializable]
     public class SettingsData
     {
         public string AppID;
-        public string UserID;
         public string SecurityToken;
     }
 
@@ -18,23 +19,36 @@ public class VideoAdsInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        Container.BindUnityComponent<SocialPointVideoAdsManager>();
+        Container.Bind<IVideoAdsManager>().ToMethod<SocialPointVideoAdsManager>(CreateVideoAdManager);
+        Container.Bind<IDisposable>().ToLookup<IVideoAdsManager>();
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelVideoAds>(CreateAdminPanelVideoAds);
+    }
+
+    SocialPointVideoAdsManager CreateVideoAdManager()
+    {
+        var videoAdsManager = Container.Resolve<SocialPointVideoAdsManager>();
+
         SettingsData settings;
         #if UNITY_IOS
         settings = iOSSettings;
         #elif UNITY_ANDROID
         settings = AndroidSettings;
         #endif
+        var login = Container.Resolve<ILogin>();
 
-        Container.BindInstance("videoads_appid", settings.AppID);
-        Container.BindInstance("videoads_userid", settings.UserID);
-        Container.BindInstance("videoads_securitytoken", settings.SecurityToken);
+        videoAdsManager.AppId = settings.AppID;
+        videoAdsManager.GetUserID = () => login.UserId.ToString();
+        videoAdsManager.SecurityToken = settings.SecurityToken;
 
-        Container.Bind<VideoAds>().ToSingleGameObject();
-        Container.Bind<IVideoAdsManager>().ToLookup<VideoAds>();
-        Container.Bind<IDisposable>().ToLookup<IVideoAdsManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelVideoAds>();
+        return videoAdsManager;
     }
-    
+
+    AdminPanelVideoAds CreateAdminPanelVideoAds()
+    {
+        return new AdminPanelVideoAds(
+            Container.Resolve<IVideoAdsManager>());
+    }
 }
 
 

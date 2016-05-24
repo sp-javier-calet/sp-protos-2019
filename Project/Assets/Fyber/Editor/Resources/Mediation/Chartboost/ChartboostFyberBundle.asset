@@ -12,11 +12,9 @@ MonoBehaviour:
   m_Name: ChartboostFyberBundle
   m_EditorClassIdentifier: 
   enabled: 1
-  overridenConfigs:
-  - appId
-  - appSignature
-  appId: 5731ebf604b01663ca084543
-  appSignature: 833ec070a9931f218130ae50a952d7c4e972d531
+  overridenConfigs: []
+  appId: 
+  appSignature: 
   logLevel: 
   cacheInterstitials: 0
   cacheRewardedVideo: 0

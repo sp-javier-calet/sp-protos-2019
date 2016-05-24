@@ -8,27 +8,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd6e1e73473c3d14e9ecd75348863ab9, type: 3}
-  m_Name: ZenjectGlobalInstallers
+  m_Script: {fileID: 11500000, guid: 098cf9f709cd241c6aaf4ab8fd099f75, type: 3}
+  m_Name: GlobalInstallers
   m_EditorClassIdentifier: 
   Installers:
-  - {fileID: 11484044, guid: a8e61605f1da34b3ba1a7d39d17bfad5, type: 2}
-  - {fileID: 11484044, guid: 23b1b4df347a94d849adb0e3e4a66243, type: 2}
-  - {fileID: 11484044, guid: def6245989467450a98d3348bf5be8fb, type: 2}
-  - {fileID: 11484044, guid: f9d152286a771461faee8133c13c70c2, type: 2}
-  - {fileID: 11438326, guid: b2c722c134c71431987992b0f68c4086, type: 2}
-  - {fileID: 11484044, guid: 698b551b55af641e09e770dd70f69703, type: 2}
   - {fileID: 11403586, guid: 7e26bdd7e434c49c9991161db5b7967b, type: 2}
-  - {fileID: 11487468, guid: a448606e777494c26bdd8841637a4298, type: 2}
+  - {fileID: 11419032, guid: 56a7bf3a7b71f44db8aa6ac677f219e3, type: 2}
+  - {fileID: 11484044, guid: 23b1b4df347a94d849adb0e3e4a66243, type: 2}
+  - {fileID: 11484044, guid: c27027fe427e2438b92b1c884acad926, type: 2}
+  - {fileID: 11484044, guid: a8e61605f1da34b3ba1a7d39d17bfad5, type: 2}
   - {fileID: 11484044, guid: dfb68457a36684a99b1386288a032e4d, type: 2}
   - {fileID: 11484044, guid: 9ffb783520b6d44f69950b3e401d10c2, type: 2}
-  - {fileID: 11451866, guid: 844fde8dee3404e10941e879f615bd30, type: 2}
-  - {fileID: 11419032, guid: 56a7bf3a7b71f44db8aa6ac677f219e3, type: 2}
-  - {fileID: 11484044, guid: c27027fe427e2438b92b1c884acad926, type: 2}
-  - {fileID: 11403586, guid: 3bebd388509214b25ad72533f20ab127, type: 2}
   - {fileID: 11499634, guid: 51514a49acb214418ab4287faa1e0de2, type: 2}
+  - {fileID: 11451866, guid: 844fde8dee3404e10941e879f615bd30, type: 2}
   - {fileID: 11485220, guid: 6d688887680454880bb8fe9f42cc3d21, type: 2}
-  - {fileID: 11493826, guid: 78cf50ad1ec2145db95c23fb3da311ac, type: 2}
-  - {fileID: 11489698, guid: cc5c29ed7688d47718a7a0dd2c18a0e6, type: 2}
+  - {fileID: 11484044, guid: def6245989467450a98d3348bf5be8fb, type: 2}
+  - {fileID: 11438326, guid: b2c722c134c71431987992b0f68c4086, type: 2}
+  - {fileID: 11484044, guid: 698b551b55af641e09e770dd70f69703, type: 2}
   - {fileID: 11493102, guid: 1a4da2bdec39941e2a8f88e983ce6316, type: 2}
+  - {fileID: 11489698, guid: cc5c29ed7688d47718a7a0dd2c18a0e6, type: 2}
+  - {fileID: 11487468, guid: a448606e777494c26bdd8841637a4298, type: 2}
+  - {fileID: 11403586, guid: 3bebd388509214b25ad72533f20ab127, type: 2}
+  - {fileID: 11484044, guid: f9d152286a771461faee8133c13c70c2, type: 2}
   - {fileID: 11421474, guid: 89949fe0fc3104a9fa24ac2e47ce1ef5, type: 2}

@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Name: AdColonyFyberBundle
   m_EditorClassIdentifier: 
   enabled: 1
-  overridenConfigs:
-  - appId
-  - zoneIdsRewardedVideo
-  appId: app394eb0af919d4fffb6
-  zoneIdsRewardedVideo: vze3bf9e43ee9e440ba2
+  overridenConfigs: []
+  appId: 
+  zoneIdsRewardedVideo: 
   zoneIdsInterstitial: 
   clientOptions: 

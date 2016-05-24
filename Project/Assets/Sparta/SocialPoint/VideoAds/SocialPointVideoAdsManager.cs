@@ -6,6 +6,8 @@ using UnityEngine.Assertions;
 
 namespace SocialPoint.VideoAds
 {
+    public delegate string GetUserIDDelegate();
+
     public class SocialPointVideoAdsManager : MonoBehaviour, IVideoAdsManager
     {
         string _appId;
@@ -18,15 +20,7 @@ namespace SocialPoint.VideoAds
             }
         }
 
-        string _userId;
-
-        public string UserId
-        {
-            set
-            {
-                _userId = value;
-            }
-        }
+        public GetUserIDDelegate GetUserID { get; set; }
 
         string _securityToken;
 
@@ -98,9 +92,9 @@ namespace SocialPoint.VideoAds
         public void Enable()
         {
             Assert.IsNotNull(_appId);
-            Assert.IsNotNull(_userId);
+            Assert.IsNotNull(GetUserID());
             Assert.IsNotNull(_securityToken);
-            Fyber.With(_appId).WithUserId(_userId).WithSecurityToken(_securityToken).Start();
+            Fyber.With(_appId).WithUserId(GetUserID()).WithSecurityToken(_securityToken).Start();
             FyberCallback.NativeError += OnNativeExceptionReceivedFromSDK;
             _enabled = true;
         }

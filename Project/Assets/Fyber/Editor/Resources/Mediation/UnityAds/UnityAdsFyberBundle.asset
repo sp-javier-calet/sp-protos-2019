@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Name: UnityAdsFyberBundle
   m_EditorClassIdentifier: 
   enabled: 1
-  overridenConfigs:
-  - gameIdKey
-  - zoneIdRewardedVideo
-  gameIdKey: 113878
+  overridenConfigs: []
+  gameIdKey: 
   debugMode: 0
   zoneIdInterstitial: 
-  zoneIdRewardedVideo: rewardedVideoZone
+  zoneIdRewardedVideo: 
