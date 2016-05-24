@@ -10,6 +10,7 @@ public class VideoAdsInstaller : MonoInstaller
     {
         public string AppID;
         public string UserID;
+        public string SecurityToken;
     }
 
     public SettingsData iOSSettings;
@@ -26,6 +27,8 @@ public class VideoAdsInstaller : MonoInstaller
 
         Container.BindInstance("videoads_appid", settings.AppID);
         Container.BindInstance("videoads_userid", settings.UserID);
+        Container.BindInstance("videoads_securitytoken", settings.SecurityToken);
+
         Container.Bind<VideoAds>().ToSingleGameObject();
         Container.Bind<IVideoAdsManager>().ToLookup<VideoAds>();
         Container.Bind<IDisposable>().ToLookup<IVideoAdsManager>();

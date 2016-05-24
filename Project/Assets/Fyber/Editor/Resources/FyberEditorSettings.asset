@@ -26,6 +26,6 @@ MonoBehaviour:
   m_Script: {fileID: 164397092, guid: 237e7d1c83f244fe39e5dd7b3b167eb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  checkOnStart: 1
+  checkOnStart: 0
   firstRun: 0
   showConfirmationDialogs: 1

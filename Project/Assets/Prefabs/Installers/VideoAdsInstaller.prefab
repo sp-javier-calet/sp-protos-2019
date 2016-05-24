@@ -43,9 +43,11 @@ MonoBehaviour:
   iOSSettings:
     AppID: 44750
     UserID: Test
+    SecurityToken: 5737bde09f69b1d7eadac4aae5f38880
   AndroidSettings:
     AppID: 44745
     UserID: Test
+    SecurityToken: 01386b6f46d5a5168b4f846c46316b8c
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

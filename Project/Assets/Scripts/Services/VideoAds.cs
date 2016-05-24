@@ -5,7 +5,7 @@ using Zenject;
 public class VideoAds : SocialPointVideoAdsManager
 {
     [InjectOptional("videoads_appid")]
-    string userLevelUntilPrompt
+    string VideoAdsAppId
     {
         set
         {
@@ -14,13 +14,23 @@ public class VideoAds : SocialPointVideoAdsManager
     }
 
     [InjectOptional("videoads_userid")]
-    string maxPromptsPerDay
+    string VideoAdsUserId
     {
         set
         {
             UserId = value;
         }
     }
+
+    [InjectOptional("videoads_securitytoken")]
+    string VideoAdsSecurityToken
+    {
+        set
+        {
+            SecurityToken = value;
+        }
+    }
+
 }
 
 

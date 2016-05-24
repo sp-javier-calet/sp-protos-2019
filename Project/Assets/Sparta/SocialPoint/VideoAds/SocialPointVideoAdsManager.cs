@@ -28,6 +28,16 @@ namespace SocialPoint.VideoAds
             }
         }
 
+        string _securityToken;
+
+        public string SecurityToken
+        {
+            set
+            {
+                _securityToken = value;
+            }
+        }
+
         bool _enabled = false;
         Ad _rewardedVideoAd;
 
@@ -89,7 +99,8 @@ namespace SocialPoint.VideoAds
         {
             Assert.IsNotNull(_appId);
             Assert.IsNotNull(_userId);
-            Fyber.With(_appId).WithUserId(_userId).Start();
+            Assert.IsNotNull(_securityToken);
+            Fyber.With(_appId).WithUserId(_userId).WithSecurityToken(_securityToken).Start();
             FyberCallback.NativeError += OnNativeExceptionReceivedFromSDK;
             _enabled = true;
         }

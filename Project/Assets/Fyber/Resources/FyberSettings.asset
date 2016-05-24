@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Name: FyberSettings
   m_EditorClassIdentifier: 
   bundlesJson: '{"adapters":[{"name":"AdColony","qualifiedName":"com.fyber.mediation.adcolony.AdColonyMediationAdapter"},{"name":"Chartboost","qualifiedName":"com.fyber.mediation.chartboost.ChartboostMediationAdapter"},{"name":"Applifier","qualifiedName":"com.fyber.mediation.unityads.UnityAdsMediationAdapter"}]}'
-  configJson: '{"adapters":[{"name":"AdColony","settings":{"app.id":"app394eb0af919d4fffb6","zone.ids.rewarded.video":"vze3bf9e43ee9e440ba2"}},{"name":"Chartboost","settings":{"AppId":"5731ebf604b01663ca084543","AppSignature":"833ec070a9931f218130ae50a952d7c4e972d531"}},{"name":"Applifier","settings":{"game.id.key":"113878","zone.id.rewarded.video":"rewardedVideoZone"}}]}'
+  configJson: '{"adapters":[{"name":"AdColony","settings":{}},{"name":"Chartboost","settings":{}},{"name":"Applifier","settings":{}}]}'
   bundlesCount: 3
