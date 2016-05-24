@@ -196,6 +196,14 @@ namespace SocialPoint.Login
          */
         GameDataParse
     }
+
+    public static class ErrorTypeExtensions
+    {
+        public static bool IsLinkError(this ErrorType type)
+        {
+            return type == ErrorType.Link || type == ErrorType.LinkConfirm || type == ErrorType.LinkConfirmParse || type == ErrorType.LinkLogin || type == ErrorType.LinkParse;
+        }
+    }
     
     public enum LinkMode
     {
