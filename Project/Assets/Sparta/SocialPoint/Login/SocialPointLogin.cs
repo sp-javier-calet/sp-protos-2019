@@ -98,7 +98,8 @@ namespace SocialPoint.Login
 
         const string EventNameLoading = "game.loading";
         const string EventNameLogin = "game.login";
-        const string EventNameError = "errors.login_error";
+        const string EventNameLoginError = "errors.login_error";
+        const string EventNameLinkError = "errors.link_error";
 
         const string SignatureSeparator = ":";
         const string SignatureCodeSeparator = "-";
@@ -163,6 +164,7 @@ namespace SocialPoint.Login
         public event NewLinkDelegate NewLinkAfterFriendsEvent = null;
         public event ConfirmLinkDelegate ConfirmLinkEvent = null;
         public event LoginErrorDelegate ErrorEvent = null;
+        public event LoginErrorDelegate LinkErrorEvent = null;
         public event RestartDelegate RestartEvent = null;
 
         public LocalUser User
@@ -1430,12 +1432,30 @@ namespace SocialPoint.Login
                 }
                 loginData.SetValue(AttrKeyEventErrorHttpCode, code);
                 loginData.Set(AttrKeyEventErrorData, data);
-                TrackEvent(EventNameError, evData);
+                if(type.IsLinkError())
+                {
+                    TrackEvent(EventNameLinkError, evData);
+                }
+                else
+                {
+                    TrackEvent(EventNameLoginError, evData);
+                }
             }
-            if(ErrorEvent != null)
+            if(!type.IsLinkError())
             {
-                ErrorEvent(type, err, data);
+                if(ErrorEvent != null)
+                {
+                    ErrorEvent(type, err, data);
+                }
             }
+            else
+            {
+                if(LinkErrorEvent != null)
+                {
+                    LinkErrorEvent(type, err, data);
+                }
+            }
+
         }
 
         void OnAppRequestResponse(HttpResponse resp, AppRequest req, ErrorDelegate cbk)
