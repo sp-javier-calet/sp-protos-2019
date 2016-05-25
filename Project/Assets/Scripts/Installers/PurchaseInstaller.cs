@@ -40,6 +40,7 @@ public class PurchaseInstaller : Installer
         store.GetUserId = () => login.UserId;
 
         var model = Container.Resolve<StoreModel>();
-        model.Init(store);
+        var player = Container.Resolve<PlayerModel>();
+        model.Init(store, player);
     }
 }

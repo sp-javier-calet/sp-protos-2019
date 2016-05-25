@@ -19,16 +19,16 @@ public class PurchaseCostParser : IChildParser<ICost>
     public FamilyParser<ICost> Parent{ set { } }
 
 
-    IGamePurchaseStore _store;
+    PurchaseCostFactory _purchaseCostFactory;
 
-    public PurchaseCostParser(IGamePurchaseStore store)
+    public PurchaseCostParser(PurchaseCostFactory purchaseCostFactory)
     {
-        _store = store;
+        _purchaseCostFactory = purchaseCostFactory;
     }
 
     public ICost Parse(Attr data)
     {
-        return new PurchaseCost(data.AsValue.ToString(), _store);
+        return _purchaseCostFactory.CreatePurchaseCost(data.AsValue.ToString());
     }
 
     #endregion
