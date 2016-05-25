@@ -1,23 +1,25 @@
 ﻿using SocialPoint.Lockstep.Network;
 using UnityEngine.Networking;
+using System.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
     public static class LockstepReplayLoader
     {
-        public static void LoadReplay(NetworkReader networkReader, 
+        public static void LoadReplay(IReaderWrapper reader, 
                                       ClientLockstepController clientLockstep,
-                                      NetworkLockstepCommandDataFactory commandDataFactory)
+                                      LockstepCommandDataFactory commandDataFactory)
         {
             SetLockstepConfigMessage configMessage = new SetLockstepConfigMessage();
-            configMessage.Deserialize(networkReader);
+            configMessage.Deserialize(reader);
             clientLockstep.Init(configMessage.Config);
-            int count = networkReader.ReadInt32();
+            int count = reader.ReadInt32();
             clientLockstep.NeedsTurnConfirmation = false;
             for(int i = 0; i < count; ++i)
             {
-                int turn = networkReader.ReadInt32();
-                var command = commandDataFactory.CreateNetworkLockstepCommandData(turn, networkReader).LockstepCommand;
+                int turn = reader.ReadInt32();
+                var command = commandDataFactory.CreateNetworkLockstepCommandData(turn, reader).LockstepCommand;
                 clientLockstep.AddConfirmedCommand(command);
             }
         }
