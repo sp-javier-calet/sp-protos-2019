@@ -18,7 +18,10 @@ public static class CostExtensions
             {
                 cost.Spend(playerModel);
             }
-            finished(error);
+            if(finished != null)
+            {
+                finished(error);
+            }
         });
     }
 }
