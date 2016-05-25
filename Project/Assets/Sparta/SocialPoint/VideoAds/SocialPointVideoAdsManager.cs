@@ -69,7 +69,7 @@ namespace SocialPoint.VideoAds
 
         public void RequestAd(RequestVideoDelegate cbk = null)
         {
-            if(_rewardedVideoAd != null)
+            if(AdAvailable)
             {
                 cbk(new Error("VideoAd already requested"), RequestVideoResult.Error);
                 return;
@@ -82,11 +82,13 @@ namespace SocialPoint.VideoAds
 
         public void ShowAd(ShowVideoDelegate cbk = null)
         {
-            if(_rewardedVideoAd != null)
+            if(!AdAvailable)
             {
-                _rewardedVideoAd.WithCallback(new SocialPointVideoAdsManager.SPFyberAdCallback(cbk, this))
-                    .Start();
+                cbk(new Error("VideoAd not requested"), ShowVideoResult.Error);
+                return;
             }
+            _rewardedVideoAd.WithCallback(new SocialPointVideoAdsManager.SPFyberAdCallback(cbk, this))
+                .Start();
         }
 
         public void Enable()
