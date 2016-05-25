@@ -1,10 +1,10 @@
 ﻿using System;
 using SocialPoint.Base;
 
+public delegate void PurchaseDelegate(string productId, Action<Error> finished);
+
 public class PurchaseCost : ICost
 {
-    public delegate void PurchaseDelegate(string productId, Action<Error> finished);
-
     PurchaseDelegate _purchase;
 
     string _productId;

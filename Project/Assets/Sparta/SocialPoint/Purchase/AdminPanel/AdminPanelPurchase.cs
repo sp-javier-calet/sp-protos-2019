@@ -180,9 +180,7 @@ namespace SocialPoint.Purchase
             }
             else
             {
-                _purchaseStore.Purchase(productId, (PurchaseResponseType obj) => {
-                    UnityEngine.Debug.Log("Response TEST: " + obj);
-                });
+                _purchaseStore.Purchase(productId);
             }
         }
 

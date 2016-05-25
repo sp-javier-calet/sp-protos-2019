@@ -5,6 +5,7 @@ using SocialPoint.Dependency;
 using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Purchase;
+using SocialPoint.Base;
 
 public class EconomyInstaller : SubInstaller
 {
@@ -41,7 +42,23 @@ public class EconomyInstaller : SubInstaller
 
     PurchaseCostFactory CreatePurchaseCostFactory()
     {
-        var store = Container.Resolve<IGamePurchaseStore>();
-        return new PurchaseCostFactory(store);
+        return new PurchaseCostFactory(Purchase);
+    }
+
+    void Purchase(string productId, Action<Error> finished)
+    {
+        Action<PurchaseResponseType> callback = null;
+        if(finished != null)
+        {
+            callback = (PurchaseResponseType responseType) => {
+                Error error = null;
+                if(responseType != PurchaseResponseType.Complete)
+                {
+                    error = new Error("Purchase error: " + responseType);
+                }
+                finished(error);
+            };
+        }
+        Container.Resolve<IGamePurchaseStore>().Purchase(productId, callback);
     }
 }
