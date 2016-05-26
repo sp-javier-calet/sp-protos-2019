@@ -343,7 +343,6 @@ namespace SocialPoint.GUIAnimation
                 switch (mode)
                 {
                 case PlayMode.Once:
-                    TriggerOnEndCallback ();
                     ChangeState (State.Idle);
                     break;
                 case PlayMode.Loop:
@@ -354,6 +353,7 @@ namespace SocialPoint.GUIAnimation
                     DoPlay ();
                     break;
                 }
+				TriggerOnEndCallback ();
             }
         }
 
