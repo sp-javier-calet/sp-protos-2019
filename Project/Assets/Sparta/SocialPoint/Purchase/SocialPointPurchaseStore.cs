@@ -31,7 +31,7 @@ namespace SocialPoint.Purchase
             Callback = pDelegate;
             _active = true;
             _timeout = timeout;
-            _creationDateTimestamp = TimeUtils.TimestampDouble;
+            _creationDateTimestamp = GetTimestampDouble();
         }
 
         public bool IsExpired()
@@ -41,7 +41,7 @@ namespace SocialPoint.Purchase
                 return false;//Expire only if a positive timeout was set
             }
 
-            double deltaTime = TimeUtils.TimestampDouble - _creationDateTimestamp;
+            double deltaTime = GetTimestampDouble() - _creationDateTimestamp;
             return (deltaTime > _timeout);
         }
 
@@ -53,6 +53,11 @@ namespace SocialPoint.Purchase
         public void Cancel()
         {
             _active = false;
+        }
+
+        private double GetTimestampDouble()
+        {
+            return TimeUtils.GetTimestampDouble(DateTime.Now);
         }
     }
 
@@ -598,12 +603,18 @@ namespace SocialPoint.Purchase
 
         private bool IsUpdatedFromStore(string productId)
         {
-            Product[] currentProducts = ProductList;
-            for(int i = 0; i < currentProducts.Length; ++i)
+            if(_purchaseStore.HasProductsLoaded)
             {
-                if(currentProducts[i].Id == productId)
+                Product[] currentProducts = ProductList;
+                if(currentProducts != null)
                 {
-                    return true;
+                    for(int i = 0; i < currentProducts.Length; ++i)
+                    {
+                        if(currentProducts[i].Id == productId)
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
             return false;
@@ -635,21 +646,23 @@ namespace SocialPoint.Purchase
 
         void OnCheckProducts(LoadProductsState state, Error error)
         {
-            Product[] currentProducts = ProductList;
-
             if(state == LoadProductsState.Success)
             {
-                if(currentProducts.Length > 0)
+                Product[] loadedProducts = ProductList;
+                if(loadedProducts != null)
                 {
-                    Currency = currentProducts[0].Currency;
+                    if(loadedProducts.Length > 0)
+                    {
+                        Currency = loadedProducts[0].Currency;
+                    }
+
+                    ProductListReceived = true;
+
+                    for(int i = 0; i < loadedProducts.Length; ++i)
+                    {
+                        UpdateProductReadyPetitions(loadedProducts[i].Id);
+                    }
                 }
-
-                ProductListReceived = true;
-            }
-
-            for(int i = 0; i < currentProducts.Length; ++i)
-            {
-                UpdateProductReadyPetitions(currentProducts[i].Id);
             }
         }
 
