@@ -675,10 +675,9 @@ namespace SocialPoint.Purchase
             case PurchaseState.PurchaseConsumed:
                 UnityEngine.Debug.Log("OnPurchaseUpdated: " + state + " " + productId);
                 _purchasesInProcess.Remove(productId);
+                UpdateProductReadyPetitions(productId);
                 break;
             }
-
-            UpdateProductReadyPetitions(productId);
         }
 
         public void SetProductMockList(IEnumerable<Product> productMockList)
