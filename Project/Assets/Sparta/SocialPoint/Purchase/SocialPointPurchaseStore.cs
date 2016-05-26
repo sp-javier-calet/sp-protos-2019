@@ -83,7 +83,9 @@ namespace SocialPoint.Purchase
 
         void ForceFinishPendingTransactions();
 
-        ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout = 0.0f);
+        ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate);
+
+        ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout);
     }
 
     //TODO: Verify behaviour for desired empty store
@@ -160,6 +162,11 @@ namespace SocialPoint.Purchase
 
         public void ForceFinishPendingTransactions()
         {
+        }
+
+        public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+            return RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
         }
 
         public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
@@ -531,6 +538,11 @@ namespace SocialPoint.Purchase
         public void ForceFinishPendingTransactions()
         {
             _purchaseStore.ForceFinishPendingTransactions();
+        }
+
+        public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+            return RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
         }
 
         public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
