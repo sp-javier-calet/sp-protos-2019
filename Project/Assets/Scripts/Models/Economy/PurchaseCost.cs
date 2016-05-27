@@ -3,6 +3,16 @@ using SocialPoint.Base;
 
 public delegate void PurchaseDelegate(string productId, Action<Error> finished);
 
+public class PurchaseCostError : CostError
+{
+    public Error Error { get; private set; }
+
+    public PurchaseCostError(Error error)
+    {
+        Error = error;
+    }
+}
+
 public class PurchaseCost : ICost
 {
     PurchaseDelegate _purchase;
@@ -17,11 +27,23 @@ public class PurchaseCost : ICost
 
     #region ICost implementation
 
-    public void Validate(PlayerModel playerModel, Action<Error> finished)
+    public void Validate(PlayerModel playerModel, Action<CostError> finished)
     {
         if(_purchase != null)
         {
-            _purchase(_productId, finished);
+            Action<Error> purchaseFinished = null;
+            if(finished != null)
+            {
+                purchaseFinished = (Error error) => {
+                    PurchaseCostError costError = null;
+                    if(!Error.IsNullOrEmpty(error))
+                    {
+                        costError = new PurchaseCostError(error);
+                    }
+                    finished(costError);
+                };
+            }
+            _purchase(_productId, purchaseFinished);
         }
         else if(finished != null)
         {
