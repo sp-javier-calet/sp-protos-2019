@@ -2,32 +2,29 @@
 using SocialPoint.Base;
 using System;
 
-public abstract class CostError
-{
-}
 
 public class CostException : Exception
 {
-    public CostError CostError { get; private set; }
+    public ModelError Error { get; private set; }
 
-    public CostException(CostError costError) : base(costError.ToString())
+    public CostException(ModelError error) : base(error.ToString())
     {
-        CostError = costError;
+        Error = error;
     }
 }
 
 public interface ICost
 {
-    void Validate(PlayerModel playerModel, Action<CostError> finished);
+    void Validate(PlayerModel playerModel, Action<ModelError> finished);
 
     void Spend(PlayerModel playerModel);
 }
 
 public static class CostExtensions
 {
-    public static void ValidateAndSpend(this ICost cost, PlayerModel playerModel, Action<CostError> finished)
+    public static void ValidateAndSpend(this ICost cost, PlayerModel playerModel, Action<ModelError> finished)
     {
-        cost.Validate(playerModel, (CostError error) => {
+        cost.Validate(playerModel, (ModelError error) => {
             if(error == null)
             {
                 cost.Spend(playerModel);
