@@ -15,9 +15,22 @@ namespace SocialPoint.Utils
         public bool All;
     }
 
-    public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
+    public class FixedUpdateableData
+    {
+        public readonly double Interval;
+        public double Current;
+
+        public FixedUpdateableData(double interval)
+        {
+            Interval = interval;
+            Current = 0.0;
+        }
+    }
+
+    public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler, IFixedUpdateScheduler
     {
         readonly HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
+        readonly Dictionary<IUpdateable, FixedUpdateableData> _fixedElements = new Dictionary<IUpdateable, FixedUpdateableData>();
 
         public void Add(IUpdateable elm)
         {
@@ -33,6 +46,21 @@ namespace SocialPoint.Utils
             _elements.Remove(elm);
         }
 
+        public void AddFixed(IUpdateable elm, double interval)
+        {
+            if(elm == null)
+            {
+                throw new ArgumentException("elm cannot be null");
+            }
+            var fixedUpdateable = new FixedUpdateableData(interval);
+            _fixedElements.Add(elm, fixedUpdateable);
+        }
+
+        public void RemoveFixed(IUpdateable elm)
+        {
+            _fixedElements.Remove(elm);
+        }
+            
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
         {
             if(enumerator != null)
@@ -59,6 +87,22 @@ namespace SocialPoint.Utils
                 elm.Update();
             }
             itr.Dispose();
+
+            var deltaTime = Time.deltaTime;
+            var itr2 = _fixedElements.GetEnumerator();
+            while(itr2.MoveNext())
+            {
+                var interval = itr2.Current.Value.Interval;
+                var current = itr2.Current.Value.Current;
+                if(current >= interval)
+                {
+                    var elm = itr2.Current.Key;
+                    elm.Update();
+                    itr2.Current.Value.Current = current - interval;
+                }
+                itr2.Current.Value.Current += deltaTime;
+            }
+            itr2.Dispose();
         }
     }
 

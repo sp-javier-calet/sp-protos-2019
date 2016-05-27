@@ -22,6 +22,13 @@ namespace SocialPoint.Utils
         void Remove(IUpdateable elm);
     }
 
+    public interface IFixedUpdateScheduler
+    {
+        void AddFixed(IUpdateable elm, double interval);
+
+        void RemoveFixed(IUpdateable elm);
+    }
+
     public static class UpdateSchedulerExtension
     {
         public static void Add(this IUpdateScheduler scheduler, IEnumerable<IUpdateable> elements = null)
