@@ -3,11 +3,11 @@ using SocialPoint.Base;
 
 public delegate void PurchaseDelegate(string productId, Action<Error> finished);
 
-public class PurchaseCostError : ModelError
+public class PurchaseError : ModelError
 {
     public Error Error { get; private set; }
 
-    public PurchaseCostError(Error error)
+    public PurchaseError(Error error)
     {
         Error = error;
     }
@@ -35,10 +35,10 @@ public class PurchaseCost : ICost
             if(finished != null)
             {
                 purchaseFinished = (Error error) => {
-                    PurchaseCostError costError = null;
+                    PurchaseError costError = null;
                     if(!Error.IsNullOrEmpty(error))
                     {
-                        costError = new PurchaseCostError(error);
+                        costError = new PurchaseError(error);
                     }
                     finished(costError);
                 };
