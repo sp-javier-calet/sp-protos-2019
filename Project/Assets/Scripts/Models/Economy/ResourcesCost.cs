@@ -43,7 +43,7 @@ public class ResourcesCost : ICost
         ModelError error = CheckEnoughResources(playerModel);
         if(error != null)
         {
-            throw new CostException(error);
+            throw new ModelException(error);
         }
         playerModel.Resources.Substract(_cost);
     }

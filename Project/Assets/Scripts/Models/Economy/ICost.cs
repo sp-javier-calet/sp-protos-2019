@@ -1,17 +1,5 @@
-
 using SocialPoint.Base;
 using System;
-
-
-public class CostException : Exception
-{
-    public ModelError Error { get; private set; }
-
-    public CostException(ModelError error) : base(error.ToString())
-    {
-        Error = error;
-    }
-}
 
 public interface ICost
 {
