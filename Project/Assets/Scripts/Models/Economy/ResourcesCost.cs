@@ -3,11 +3,11 @@ using SocialPoint.Base;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
 
-public class NotEnoughResourcesError : CostError
+public class NotEnoughResourcesCostError : CostError
 {
     public ResourcePool MissingResources { get; private set; }
 
-    public NotEnoughResourcesError(ResourcePool missingResources)
+    public NotEnoughResourcesCostError(ResourcePool missingResources)
     {
         MissingResources = missingResources;
     }
@@ -33,7 +33,7 @@ public class ResourcesCost : ICost
         {
             return null;
         }
-        return new NotEnoughResourcesError(playerModel.GetMissingResources(_cost));
+        return new NotEnoughResourcesCostError(playerModel.GetMissingResources(_cost));
     }
 
     #region ICost implementation
