@@ -18,49 +18,6 @@ namespace SocialPoint.Purchase
         public AttrDic AdditionalData;
     }
 
-    public class ProductReadyPetition
-    {
-        public ProductReadyDelegate Callback { get; private set; }
-
-        private bool _active;
-        private float _timeout;
-        private double _creationDateTimestamp;
-
-        public ProductReadyPetition(ProductReadyDelegate pDelegate, float timeout)
-        {
-            Callback = pDelegate;
-            _active = true;
-            _timeout = timeout;
-            _creationDateTimestamp = GetTimestampDouble();
-        }
-
-        public bool IsExpired()
-        {
-            if(_timeout <= 0.0f)
-            {
-                return false;//Expire only if a positive timeout was set
-            }
-
-            double deltaTime = GetTimestampDouble() - _creationDateTimestamp;
-            return (deltaTime > _timeout);
-        }
-
-        public bool IsActive()
-        {
-            return _active;
-        }
-
-        public void Cancel()
-        {
-            _active = false;
-        }
-
-        private double GetTimestampDouble()
-        {
-            return TimeUtils.GetTimestampDouble(DateTime.Now);
-        }
-    }
-
     public delegate void ProductReadyDelegate(string productId);
     public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
 
@@ -88,9 +45,13 @@ namespace SocialPoint.Purchase
 
         void ForceFinishPendingTransactions();
 
-        ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate);
+        void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate);
 
-        ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout);
+        void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout);
+
+        void UnregisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate);
+
+        void UnregisterProductReadyDelegate(ProductReadyDelegate pDelegate);
     }
 
     //TODO: Verify behaviour for desired empty store
@@ -169,25 +130,61 @@ namespace SocialPoint.Purchase
         {
         }
 
-        public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
         {
-            return RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
+            RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
         }
 
-        public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
         {
-            ProductReadyPetition petition = new ProductReadyPetition(pDelegate, timeout);
-            if(petition.Callback != null)
+            if(pDelegate != null)
             {
-                petition.Callback(productId);
+                pDelegate(productId);
             }
-            petition.Cancel();
-            return petition;
+        }
+
+        public void UnregisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+        }
+
+        public void UnregisterProductReadyDelegate(ProductReadyDelegate pDelegate)
+        {
         }
     }
 
     public class SocialPointPurchaseStore : IGamePurchaseStore
     {
+        private class ProductReadyPetition
+        {
+            public ProductReadyDelegate Callback { get; private set; }
+
+            private float _timeout;
+            private double _creationDateTimestamp;
+
+            public ProductReadyPetition(ProductReadyDelegate pDelegate, float timeout)
+            {
+                Callback = pDelegate;
+                _timeout = timeout;
+                _creationDateTimestamp = GetTimestampDouble();
+            }
+
+            public bool IsExpired()
+            {
+                if(_timeout <= 0.0f)
+                {
+                    return false;//Expire only if a positive timeout was set
+                }
+
+                double deltaTime = GetTimestampDouble() - _creationDateTimestamp;
+                return (deltaTime > _timeout);
+            }
+
+            private double GetTimestampDouble()
+            {
+                return TimeUtils.GetTimestampDouble(DateTime.Now);
+            }
+        }
+
         IPurchaseStore _purchaseStore = null;
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
@@ -545,26 +542,24 @@ namespace SocialPoint.Purchase
             _purchaseStore.ForceFinishPendingTransactions();
         }
 
-        public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
         {
-            return RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
+            RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
         }
 
-        public ProductReadyPetition RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
         {
             ProductReadyPetition petition = new ProductReadyPetition(pDelegate, timeout);
 
             if(petition.Callback == null)
             {
-                petition.Cancel();
-                return petition;
+                return;
             }
 
             if(IsProductReady(productId))
             {
                 petition.Callback(productId);
-                petition.Cancel();
-                return petition;
+                return;
             }
 
             List<ProductReadyPetition> onProductReadyPetitions;
@@ -574,7 +569,29 @@ namespace SocialPoint.Purchase
                 _productReadyPetitions.Add(productId, onProductReadyPetitions);
             }
             onProductReadyPetitions.Add(petition);
-            return petition;
+            return;
+        }
+
+        public void UnregisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+            List<ProductReadyPetition> onProductReadyPetitions;
+            if(_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
+            {
+                onProductReadyPetitions.RemoveAll(petition => {
+                    return petition.Callback == pDelegate;
+                });
+            }
+        }
+
+        public void UnregisterProductReadyDelegate(ProductReadyDelegate pDelegate)
+        {
+            var itr = _productReadyPetitions.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var entry = itr.Current;
+                UnregisterProductReadyDelegate(entry.Key, pDelegate);
+            }
+            itr.Dispose();
         }
 
         private void UpdateProductReadyPetitions(string productId)
@@ -585,11 +602,10 @@ namespace SocialPoint.Purchase
                 for(int i = 0; i < onProductReadyPetitions.Count; ++i)
                 {
                     ProductReadyPetition petition = onProductReadyPetitions[i];
-                    if(petition.Callback != null && petition.IsActive() && !petition.IsExpired())
+                    if(petition.Callback != null && !petition.IsExpired())
                     {
                         petition.Callback(productId);
                     }
-                    petition.Cancel();
                 }
 
                 onProductReadyPetitions.Clear();
