@@ -134,7 +134,7 @@ namespace SocialPoint.Crash
             get
             {
                 string oldPath = BreadcrumbLogPath(LastSessionBreadcrumbsName);
-                return !HasOldBreadcrumb ? null : FileUtils.ReadAllText(oldPath);
+                return !FileUtils.ExistsFile(oldPath) ? null : FileUtils.ReadAllText(oldPath);
             }
         }
 

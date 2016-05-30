@@ -447,6 +447,10 @@ namespace SocialPoint.Crash
             _pendingReports = new List<Report>();
 
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
+
+            UnityEngine.Debug.Log("*** TEST BaseCrashReporter WasOnBackground: " + WasOnBackground);
+            UnityEngine.Debug.Log("*** TEST BaseCrashReporter WasEnabled: " + WasEnabled);
+            UnityEngine.Debug.Log("*** TEST BaseCrashReporter LastMemoryWarningTimestamp: " + LastMemoryWarningTimestamp);
         }
 
         public bool IsEnabled
@@ -590,7 +594,7 @@ namespace SocialPoint.Crash
             }
             else
             {
-                UnityEngine.Debug.Log("*** TEST no new crashes");
+                UnityEngine.Debug.Log("*** TEST no new crashes (ReadPendingCrashes)");
                 // If there are no new crashes, we can check some saved status to detect a memory crash
                 Report memoryCrashReport = CheckMemoryCrash();
                 if(memoryCrashReport != null)
@@ -684,6 +688,7 @@ namespace SocialPoint.Crash
             }
             else
             {
+                UnityEngine.Debug.Log("*** TEST no new crashes (SendPendingCrashes)");
                 // If there are no new crashes, we can check some saved status to detect a memory crash
                 Report memoryCrashReport = CheckMemoryCrash();
                 bool tracked = false;
@@ -713,7 +718,10 @@ namespace SocialPoint.Crash
 
         Report CheckMemoryCrash()
         {
-            UnityEngine.Debug.Log("*** TEST CheckMemoryCrash");
+            UnityEngine.Debug.Log("*** TEST CheckMemoryCrash: "
+            + (_breadcrumbManager != null)
+            + " && " + (_breadcrumbManager != null ? _breadcrumbManager.HasOldBreadcrumb.ToString() : "null")
+            + " && " + _wasActiveInLastSession);
             Report memoryCrashReport = null;
             /* *
              * We can assume that we had a memory crash if 
@@ -725,7 +733,7 @@ namespace SocialPoint.Crash
                _breadcrumbManager.HasOldBreadcrumb &&
                _wasActiveInLastSession)
             {
-                UnityEngine.Debug.Log("*** TEST memoryCrashReport Created. Breadcrumbs: " + _breadcrumbManager.OldBreadcrumb);
+                UnityEngine.Debug.Log("*** TEST memoryCrashReport Created (ts:" + LastMemoryWarningTimestamp + "). Breadcrumbs: " + _breadcrumbManager.OldBreadcrumb);
                 memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp);
             }
 
