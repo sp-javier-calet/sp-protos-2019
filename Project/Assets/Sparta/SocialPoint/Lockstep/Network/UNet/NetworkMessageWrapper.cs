@@ -10,6 +10,8 @@ namespace SocialPoint.Lockstep.Network.UNet
     {
         public INetworkMessage NetworkMessage { get; private set; }
 
+        public int NetworkTimestamp { get; private set; }
+
         public NetworkMessageWrapper(INetworkMessage networkMessage)
         {
             NetworkMessage = networkMessage;
@@ -20,7 +22,7 @@ namespace SocialPoint.Lockstep.Network.UNet
             NetworkReaderWrapper readerWrapper = new NetworkReaderWrapper(reader);
             if(NetworkMessage.RequiresSync)
             {
-                readerWrapper.ReadInt32();
+                NetworkTimestamp = readerWrapper.ReadInt32();
             }
             NetworkMessage.Deserialize(readerWrapper);
         }
@@ -30,7 +32,8 @@ namespace SocialPoint.Lockstep.Network.UNet
             NetworkWriterWrapper writerWrapper = new NetworkWriterWrapper(writer);
             if(NetworkMessage.RequiresSync)
             {
-                writerWrapper.Write(NetworkTransport.GetNetworkTimestamp());
+                NetworkTimestamp = NetworkTransport.GetNetworkTimestamp();
+                writerWrapper.Write(NetworkTimestamp);
             }
             NetworkMessage.Serialize(writerWrapper);
         }
