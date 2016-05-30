@@ -33,6 +33,11 @@ extern "C"{
         crashReporter->disable();
     }
 
+    void SPUnityCrashReporterSaveBreadcrumbs(SPUnityCrashReporter* crashReporter)
+    {
+        crashReporter->dumpBreadcrumbs();
+    }
+
     void SPUnityCrashReporterDestroy(SPUnityCrashReporter* crashReporter)
     {
         delete crashReporter;

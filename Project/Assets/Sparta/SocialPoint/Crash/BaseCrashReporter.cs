@@ -492,6 +492,15 @@ namespace SocialPoint.Crash
         {
         }
 
+        protected void Save()
+        {
+            OnSave();
+        }
+
+        protected virtual void OnSave()
+        {
+        }
+
         [Obsolete("Use Dispose()")]
         public void Destroy()
         {
@@ -713,7 +722,7 @@ namespace SocialPoint.Crash
              * cleaned (as in any clean stop. See OnApplicationQuit())
              * */
             if(_breadcrumbManager != null &&
-               _breadcrumbManager.OldBreadcrumb != null &&
+               _breadcrumbManager.HasOldBreadcrumb &&
                _wasActiveInLastSession)
             {
                 UnityEngine.Debug.Log("*** TEST memoryCrashReport Created. Breadcrumbs: " + _breadcrumbManager.OldBreadcrumb);
@@ -995,6 +1004,7 @@ namespace SocialPoint.Crash
 
         void OnMemoryWarning()
         {
+            Debug.Log("*** TEST OnMemoryWarning");
             if(_breadcrumbManager != null)
             {
                 _breadcrumbManager.Log("Memory Warning");
@@ -1002,6 +1012,8 @@ namespace SocialPoint.Crash
 
             // Store memory warning timestamp
             LastMemoryWarningTimestamp = TimeUtils.Timestamp;
+
+            Save();
         }
 
         void OnLevelWasLoaded(int level)

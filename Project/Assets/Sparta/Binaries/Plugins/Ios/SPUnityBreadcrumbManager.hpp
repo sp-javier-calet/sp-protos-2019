@@ -1,5 +1,5 @@
-#ifndef __hydra__SPUnityBreadcrumbManager__
-#define __hydra__SPUnityBreadcrumbManager__
+#ifndef __SPUnityBreadcrumbManager__
+#define __SPUnityBreadcrumbManager__
 
 #include <string>
 #include <list>
@@ -25,9 +25,6 @@ namespace socialpoint
         void clear();
 
       private:
-      	//Singleton instance
-      	static SPUnityBreadcrumbManager* _instance;
-
       	static const unsigned kDefaultSizeLogs;
 
       	size_t _maxLogs;
@@ -39,4 +36,4 @@ namespace socialpoint
     };
 }
 
-#endif /* defined(__hydra__SPUnityBreadcrumbManager__) */
+#endif /* defined(__SPUnityBreadcrumbManager__) */

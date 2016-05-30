@@ -154,6 +154,9 @@ namespace SocialPoint.Crash
         [DllImport(PluginModuleName)]
         static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
 
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityCrashReporterSaveBreadcrumbs(UIntPtr ctx);
+
         //*** TEST
         [DllImport(PluginModuleName)]
         static extern void SPUnityCrashReporterDebug(UIntPtr ctx);
@@ -211,6 +214,11 @@ namespace SocialPoint.Crash
         protected override void OnDisable()
         {
             SPUnityCrashReporterDisable(_nativeObject);
+        }
+
+        protected override void OnSave()
+        {
+            SPUnityCrashReporterSaveBreadcrumbs(_nativeObject);
         }
 
         protected override void OnDestroy()
