@@ -45,7 +45,7 @@ public class CrashInstaller : SubInstaller
     SocialPointCrashReporter CreateCrashReporter()
     {
         return new SocialPointCrashReporter(
-            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<IFixedUpdateScheduler>(),
             Container.Resolve<IHttpClient>(),
             Container.Resolve<IDeviceInfo>(),
             Container.Resolve<BreadcrumbManager>(),

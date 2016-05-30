@@ -80,6 +80,8 @@ namespace SocialPoint.Utils
 
         void Update()
         {
+            //TODO add try catch??
+
             var itr = _elements.GetEnumerator();
             while(itr.MoveNext())
             {

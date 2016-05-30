@@ -18,7 +18,7 @@ namespace SocialPoint.Crash
     /*
      * Crash reporter Base implementation
      */
-    public class BaseCrashReporter : ICrashReporter
+    public class BaseCrashReporter : ICrashReporter , IUpdateable
     {
         #region Stored logs
 
@@ -259,16 +259,13 @@ namespace SocialPoint.Crash
             set
             { 
                 _currentSendInterval = value; 
-                _waitForSeconds = new WaitForSeconds(_currentSendInterval);
             }
         }
 
-        ICoroutineRunner _runner;
-        IEnumerator _updateCoroutine;
+        IFixedUpdateScheduler _fixedUpdateScheduler;
         IAlertView _alertViewPrototype;
 
         float _currentSendInterval = DefaultSendInterval;
-        WaitForSeconds _waitForSeconds = new WaitForSeconds(DefaultSendInterval);
         bool _sending;
 
         public bool ExceptionLogActive
@@ -425,10 +422,10 @@ namespace SocialPoint.Crash
             }
         }
 
-        public BaseCrashReporter(ICoroutineRunner runner, IHttpClient client, 
+        public BaseCrashReporter(IFixedUpdateScheduler fixedUpdateScheduler, IHttpClient client, 
                                  IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
-            _runner = runner;
+            _fixedUpdateScheduler = fixedUpdateScheduler;
             _httpClient = client;
             _deviceInfo = deviceInfo;
             _alertViewPrototype = alertView;
@@ -444,13 +441,18 @@ namespace SocialPoint.Crash
             _pendingReports = new List<Report>();
 
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
+
+            if(_fixedUpdateScheduler != null)
+            { 
+                _fixedUpdateScheduler.AddFixed(this, SendInterval);
+            }
         }
 
         public bool IsEnabled
         {
             get
             {
-                return _updateCoroutine != null;
+                return WasEnabled;
             }
         }
 
@@ -465,8 +467,6 @@ namespace SocialPoint.Crash
             LogCallbackHandler.RegisterLogCallback(HandleLog);
             OnEnable();
 
-            _updateCoroutine = UpdateCoroutine();
-            _runner.StartCoroutine(_updateCoroutine);
         }
 
         protected virtual void OnEnable()
@@ -476,11 +476,6 @@ namespace SocialPoint.Crash
         public void Disable()
         {
             WasEnabled = false;
-            if(_updateCoroutine != null)
-            {
-                _runner.StopCoroutine(_updateCoroutine);
-                _updateCoroutine = null;
-            }
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
             OnDisable();
         }
@@ -497,6 +492,11 @@ namespace SocialPoint.Crash
 
         public void Dispose()
         {
+            if(_fixedUpdateScheduler != null)
+            { 
+                _fixedUpdateScheduler.RemoveFixed(this);
+            }
+
             Disable();
             if(_appEvents != null)
             {
@@ -961,15 +961,6 @@ namespace SocialPoint.Crash
             report.Remove(); // we remove the report in order to not track it again :)
         }
 
-        IEnumerator UpdateCoroutine()
-        {
-            while(true)
-            {
-                SendExceptionLogs();
-                yield return _waitForSeconds;
-            }
-        }
-
         #region App Events
 
         void ConnectAppEvents(IAppEvents appEvents)
@@ -1086,6 +1077,15 @@ namespace SocialPoint.Crash
             var retriesKey = GetRetriesKey(reportUuid);
             PlayerPrefs.DeleteKey(retriesKey);
             PlayerPrefs.Save();
+        }
+
+        #endregion
+
+        #region IUpdateable implementation
+
+        public void Update()
+        {
+            SendExceptionLogs();
         }
 
         #endregion

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
@@ -9,7 +8,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.ServerSync
 {
-    public class CommandQueue : ICommandQueue
+    public class CommandQueue : ICommandQueue, IUpdateable
     {
         public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
@@ -219,7 +218,7 @@ namespace SocialPoint.ServerSync
 
 
         IHttpClient _httpClient;
-        ICoroutineRunner _runner;
+        IFixedUpdateScheduler _fixedUpdateScheduler;
         Packet _sendingPacket;
         Packet _currentPacket;
         List<Packet> _sentPackets;
@@ -230,24 +229,23 @@ namespace SocialPoint.ServerSync
         bool _synced;
         bool _currentPacketFlushed;
         long _syncTimestamp;
-        IEnumerator _updateCoroutine;
         int _lastPacketId;
         long _lastSendTimestamp;
         float _currentTimeout;
-        float _currentSendInterval;
         IHttpConnection _httpConn;
         Action _sendFinish;
         long _goToBackgroundTS;
 
 
-        public CommandQueue(ICoroutineRunner runner, IHttpClient client)
+        public CommandQueue(IFixedUpdateScheduler fixedUpdateScheduler, IHttpClient client)
         {
-            DebugUtils.Assert(runner != null);
+            DebugUtils.Assert(fixedUpdateScheduler != null);
             DebugUtils.Assert(client != null);
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
-            _runner = runner;
+            _fixedUpdateScheduler = fixedUpdateScheduler;
             _httpClient = client;
             _synced = true;
+            _running = false;
             Reset();
         }
 
@@ -271,7 +269,6 @@ namespace SocialPoint.ServerSync
         {
             _lastSendTimestamp = CurrentTimestamp - SendInterval;
             _currentTimeout = Timeout;
-            _currentSendInterval = SendInterval;
             _syncTimestamp = CurrentTimestamp;
             _synced = true;
         }
@@ -336,27 +333,28 @@ namespace SocialPoint.ServerSync
             {
                 throw new InvalidOperationException("Request setup callback not assigned.");
             }
-            if(_updateCoroutine == null)
+            if(_fixedUpdateScheduler != null)
             {
-                _updateCoroutine = UpdateCoroutine();
-                _runner.StartCoroutine(_updateCoroutine);
+                _fixedUpdateScheduler.AddFixed(this, SendInterval);
+                _running = true;
             }
         }
 
         public void Stop()
         {
-            if(_updateCoroutine != null)
+            if(_fixedUpdateScheduler != null)
             {
-                _runner.StopCoroutine(_updateCoroutine);
-                _updateCoroutine = null;
+                _fixedUpdateScheduler.RemoveFixed(this);
+                _running = false;
             }
         }
 
+        bool _running;
         public bool Running
         {
             get
             {
-                return _updateCoroutine != null;
+                return _running;
             }
         }
 
@@ -373,22 +371,14 @@ namespace SocialPoint.ServerSync
             TimeUtils.OffsetChanged -= OnTimeOffsetChanged;
         }
 
-        IEnumerator UpdateCoroutine()
+        #region IUpdateable implementation
+
+        public void Update()
         {
-            while(true)
-            {
-                Update();
-                yield return true;
-            }
+            SendUpdate();
         }
 
-        void Update()
-        {
-            if(_lastSendTimestamp + (long)_currentSendInterval < CurrentTimestamp)
-            {
-                SendUpdate();
-            }
-        }
+        #endregion
 
         public void Send(Action finish = null)
         {
