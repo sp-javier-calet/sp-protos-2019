@@ -1,5 +1,7 @@
 #include "SPUnityBreadcrumbManager.hpp"
+#include "SPUnityFileUtils.hpp"
 #include <sstream>
+#include <pthread.h>
 
 namespace socialpoint
 {
@@ -15,6 +17,8 @@ namespace socialpoint
     SPUnityBreadcrumbManager::SPUnityBreadcrumbManager()
     : _maxLogs(kDefaultSizeLogs)
     , _logList()
+    , _breadcrumbDirectory()
+    , _breadcrumbFile()
     {
 
     }
@@ -54,5 +58,31 @@ namespace socialpoint
         {
             _logList.resize(_maxLogs);
         }
+    }
+
+    void SPUnityBreadcrumbManager::setDumpFilePath(const std::string& directory, const std::string& file)
+    {
+        _breadcrumbDirectory = directory;
+        _breadcrumbFile = file;
+    }
+
+    std::string SPUnityBreadcrumbManager::dumpToFile()
+    {
+        if(!_breadcrumbDirectory.empty() && !_breadcrumbFile.empty())
+        {
+            return dumpToFile(_breadcrumbDirectory, _breadcrumbFile);
+        }
+        return std::string();
+    }
+
+    std::string SPUnityBreadcrumbManager::dumpToFile(const std::string& directory, const std::string& file)
+    {
+        if(SPUnityFileUtils::createDirectory(_breadcrumbDirectory))
+        {
+            std::string filePath(_breadcrumbDirectory + _breadcrumbFile);
+            SPUnityFileUtils::createFileWithData(getLog(), filePath);
+            return filePath;
+        }
+        return std::string();
     }
 }

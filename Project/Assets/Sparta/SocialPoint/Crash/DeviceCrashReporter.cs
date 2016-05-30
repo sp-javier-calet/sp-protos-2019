@@ -148,14 +148,10 @@ namespace SocialPoint.Crash
         static extern void SPUnityCrashReporterForceCrash();
 
         [DllImport(PluginModuleName)]
-        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension, 
-                                                         string breadcrumbPath, string breadcrumbFile, string gameObject);
+        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension, string gameObject);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
-
-        [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterSaveBreadcrumbs(UIntPtr ctx);
 
         //*** TEST
         [DllImport(PluginModuleName)]
@@ -192,8 +188,7 @@ namespace SocialPoint.Crash
             _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
 
             // Create native object
-            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, 
-                BreadcrumbManager.BreadcrumbDirectoryPath(), BreadcrumbManager.BreadcrumbFilename(), _listener.gameObject.name);
+            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, _listener.gameObject.name);
             UnityEngine.Debug.Log("*** TEST Creating Native Crash Reporter. Path: " + _crashesBasePath);
 
             //*** TEST
@@ -214,11 +209,6 @@ namespace SocialPoint.Crash
         protected override void OnDisable()
         {
             SPUnityCrashReporterDisable(_nativeObject);
-        }
-
-        protected override void OnSave()
-        {
-            SPUnityCrashReporterSaveBreadcrumbs(_nativeObject);
         }
 
         protected override void OnDestroy()

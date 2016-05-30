@@ -37,7 +37,10 @@ namespace SocialPoint.Crash
             {
                 _initialized = true;
                 string breadCrumbDirectoryPath = BreadcrumbDirectoryPath();
+                string breadCrumbFilename = BreadcrumbFilename();
                 string breadCrumbLogPath = BreadcrumbLogPath();
+
+                BreadcrumbManagerBinding.SetDumpFilePath(breadCrumbDirectoryPath, breadCrumbFilename);
 
                 //*** TEST Commented to leave directory and file creation to native
                 //FileUtils.CreateDirectory(breadCrumbDirectoryPath);
@@ -98,6 +101,11 @@ namespace SocialPoint.Crash
                 file.WriteLine(breadcrumb);
             }*/
             BreadcrumbManagerBinding.Log(breadcrumb.ToString());
+        }
+
+        public void DumpToFile()
+        {
+            BreadcrumbManagerBinding.DumpToFile();
         }
 
         public void RemoveData()

@@ -18,8 +18,6 @@ private:
     std::string _error;
     std::string _fileSeparator;
     std::string _crashExtension;
-    std::string _breadcrumbDirectory;
-    std::string _breadcrumbFile;
     std::string _gameObject;
     socialpoint::SPUnityBreadcrumbManager* _breadcrumbManager;
 
@@ -56,6 +54,31 @@ private:
                 UnityGameObject(_gameObject.c_str()).SendMessage("OnCrashDumped", filePath.c_str());
             }
         }
+    }
+    
+    void dumpBreadcrumbs()
+    {
+        std::string filePath = _breadcrumbManager->dumpToFile();
+        
+        if(!_gameObject.empty())
+        {
+            UnityGameObject(_gameObject.c_str()).SendMessage("OnBreadcrumbsDumped", filePath.c_str());
+        }
+        
+        //*** TEST objective c code
+        /*if([[NSFileManager defaultManager] createDirectoryAtPath:[[NSString alloc] initWithUTF8String:_breadcrumbDirectory.c_str()]
+                                     withIntermediateDirectories:YES attributes:nil error:nil])
+        {
+            std::string filePath(_breadcrumbDirectory + _breadcrumbFile);
+            NSString* breadcrumbLog = [NSString stringWithCString:_breadcrumbManager->getLog().c_str() encoding:NSUTF8StringEncoding];
+            [breadcrumbLog writeToFile:[[NSString alloc] initWithUTF8String:filePath.c_str()]
+                            atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            
+            if(!_gameObject.empty())
+            {
+                UnityGameObject(_gameObject.c_str()).SendMessage("OnBreadcrumbsDumped", filePath.c_str());
+            }
+        }*/
     }
 
     bool initializePLCrashReporter()
@@ -101,21 +124,13 @@ public:
                    const std::string& version,
                    const std::string& fileSeparator,
                    const std::string& crashExtension,
-                   const std::string& breadcrumbPath,
-                   const std::string& breadcrumbFile,
                    const std::string& gameObject)
     {
         _crashDirectory = path;
         _version = version;
         _fileSeparator = fileSeparator;
         _crashExtension = crashExtension;
-        _breadcrumbDirectory = breadcrumbPath;
-        _breadcrumbFile = breadcrumbFile;
         _gameObject = gameObject;
-        
-        //*** TEST
-        NSLog(@"*** TEST (native) config _breadcrumbDirectory: %@", [[NSString alloc] initWithUTF8String:_breadcrumbDirectory.c_str()]);
-        NSLog(@"*** TEST (native) config _breadcrumbFile: %@", [[NSString alloc] initWithUTF8String:_breadcrumbFile.c_str()]);
     }
 
     bool enable()
@@ -184,23 +199,6 @@ public:
 #endif
     }
     
-    void dumpBreadcrumbs()
-    {
-        if([[NSFileManager defaultManager] createDirectoryAtPath:[[NSString alloc] initWithUTF8String:_breadcrumbDirectory.c_str()]
-                                     withIntermediateDirectories:YES attributes:nil error:nil])
-        {
-            std::string filePath(_breadcrumbDirectory + _breadcrumbFile);
-            NSString* breadcrumbLog = [NSString stringWithCString:_breadcrumbManager->getLog().c_str() encoding:NSUTF8StringEncoding];
-            [breadcrumbLog writeToFile:[[NSString alloc] initWithUTF8String:filePath.c_str()]
-                            atomically:YES encoding:NSUTF8StringEncoding error:nil];
-            
-            if(!_gameObject.empty())
-            {
-                UnityGameObject(_gameObject.c_str()).SendMessage("OnBreadcrumbsDumped", filePath.c_str());
-            }
-        }
-    }
-    
     //*** TEST
     void debug()
     {
@@ -218,8 +216,6 @@ extern "C" {
                                                      const char* fileSeparator,
                                                      const char* crashExtension,
                                                      const char* logExtension,
-                                                     const char* breadcrumbPath,
-                                                     const char* breadcrumbFile,
                                                      const char* gameObject)
     {
         SPUnityCrashReporter* reporterInstance = SPUnityCrashReporter::getInstance();
@@ -228,8 +224,6 @@ extern "C" {
             std::string(version),
             std::string(fileSeparator),
             std::string(crashExtension),
-            std::string(breadcrumbPath),
-            std::string(breadcrumbFile),
             std::string(gameObject));
 
         return reporterInstance;
@@ -243,11 +237,6 @@ extern "C" {
     void SPUnityCrashReporterDisable(SPUnityCrashReporter* crashReporter)
     {
         crashReporter->disable();
-    }
-    
-    void SPUnityCrashReporterSaveBreadcrumbs(SPUnityCrashReporter* crashReporter)
-    {
-        crashReporter->dumpBreadcrumbs();
     }
 
     void SPUnityCrashReporterDestroy(SPUnityCrashReporter* crashReporter)

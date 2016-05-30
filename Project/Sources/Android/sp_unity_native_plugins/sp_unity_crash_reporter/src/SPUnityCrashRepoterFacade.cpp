@@ -8,9 +8,7 @@ extern "C"{
                                                       const char* version,
                                                       const char* fileSeparator, 
                                                       const char* crashExtension,
-                                                      const char* logExtension, 
-                                                      const char* breadcrumbPath, 
-                                                      const char* breadcrumbFile, 
+                                                      const char* logExtension,
                                                       const char* gameObject)
     {
         return new SPUnityCrashReporter(std::string(crashPath),
@@ -18,8 +16,6 @@ extern "C"{
                                         std::string(fileSeparator),
                                         std::string(crashExtension),
                                         std::string(logExtension),
-                                        std::string(breadcrumbPath),
-                                        std::string(breadcrumbFile),
                                         std::string(gameObject));
     }
 
@@ -31,11 +27,6 @@ extern "C"{
     void SPUnityCrashReporterDisable(SPUnityCrashReporter* crashReporter)
     {
         crashReporter->disable();
-    }
-
-    void SPUnityCrashReporterSaveBreadcrumbs(SPUnityCrashReporter* crashReporter)
-    {
-        crashReporter->dumpBreadcrumbs();
     }
 
     void SPUnityCrashReporterDestroy(SPUnityCrashReporter* crashReporter)

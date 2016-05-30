@@ -23,8 +23,6 @@ private:
     std::string _fileSeparator;
     std::string _crashExtension;
     std::string _logExtension;
-    std::string _breadcrumbDirectory;
-    std::string _breadcrumbFile;
     std::string _gameObject;
 
     google_breakpad::ExceptionHandler* _exceptionHandler;
@@ -37,8 +35,6 @@ public:
                          const std::string& fileSeparator,
                          const std::string& crashExtension,
                          const std::string& logExtension,
-                         const std::string& breadcrumbPath,
-                         const std::string& breadcrumbFile,
                          const std::string& gameObject);
 
     bool enable();

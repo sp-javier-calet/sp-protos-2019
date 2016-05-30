@@ -48,16 +48,12 @@ SPUnityCrashReporter::SPUnityCrashReporter(const std::string& crashPath,
                                            const std::string& fileSeparator,
                                            const std::string& crashExtension,
                                            const std::string& logExtension,
-                                           const std::string& breadcrumbPath,
-                                           const std::string& breadcrumbFile,
                                            const std::string& gameObject)
 : _crashDirectory(crashPath)
 , _version(version)
 , _fileSeparator(fileSeparator)
 , _crashExtension(crashExtension)
 , _logExtension(logExtension)
-, _breadcrumbDirectory(breadcrumbPath)
-, _breadcrumbFile(breadcrumbFile)
 , _gameObject(gameObject)
 , _exceptionHandler(nullptr)
 , _breadcrumbManager(socialpoint::SPUnityBreadcrumbManager::getInstance())
@@ -142,17 +138,13 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 
 void SPUnityCrashReporter::dumpBreadcrumbs()
 {
-    if(SPUnityFileUtils::createDirectory(_breadcrumbDirectory))
-    {
-        std::string filePath(_breadcrumbDirectory + _breadcrumbFile);
-        SPUnityFileUtils::createFileWithData(_breadcrumbManager->getLog(), filePath);
+    std::string filePath = _breadcrumbManager->dumpToFile();
 
-        if(!_gameObject.empty())
-        {
-            pthread_t thread;
-            pthread_create(&thread, NULL, callOnBreadcrumbsDumpedThread,
-                new CrashDumpedCallData{ _gameObject, filePath });
-        }
+    if(!_gameObject.empty())
+    {
+        pthread_t thread;
+        pthread_create(&thread, NULL, callOnBreadcrumbsDumpedThread,
+            new CrashDumpedCallData{ _gameObject, filePath });
     }
 }
 

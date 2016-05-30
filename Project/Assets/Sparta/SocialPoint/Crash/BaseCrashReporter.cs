@@ -498,11 +498,7 @@ namespace SocialPoint.Crash
 
         protected void Save()
         {
-            OnSave();
-        }
-
-        protected virtual void OnSave()
-        {
+            _breadcrumbManager.DumpToFile();
         }
 
         [Obsolete("Use Dispose()")]

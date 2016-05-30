@@ -24,11 +24,17 @@ namespace socialpoint
         std::string getLog() const;
         void clear();
 
+        void setDumpFilePath(const std::string& directory, const std::string& file);
+        std::string dumpToFile();
+        std::string dumpToFile(const std::string& directory, const std::string& file);
+
       private:
       	static const unsigned kDefaultSizeLogs;
 
       	size_t _maxLogs;
         LogList _logList;
+        std::string _breadcrumbDirectory;
+        std::string _breadcrumbFile;
 
         SPUnityBreadcrumbManager();
 
