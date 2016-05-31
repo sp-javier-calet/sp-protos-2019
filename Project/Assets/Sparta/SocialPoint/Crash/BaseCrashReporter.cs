@@ -235,8 +235,10 @@ namespace SocialPoint.Crash
         readonly FileAttrStorage _exceptionStorage;
         FileAttrStorage _crashStorage;
         List<Report> _pendingReports;
-        BreadcrumbManager _breadcrumbManager;
         HashSet<string> _uniqueExceptions;
+
+        protected BreadcrumbManager _breadcrumbManager;
+
         public RequestSetupDelegate RequestSetup;
         public TrackEventDelegate TrackEvent;
         public GetUserIdDelegate GetUserId;
@@ -570,6 +572,7 @@ namespace SocialPoint.Crash
         {
             _pendingReports = GetPendingCrashes();
 
+            UnityEngine.Debug.Log("*** TEST ReadPendingCrashes _pendingReports: " + _pendingReports.Count);
             if(_pendingReports.Count > 0)
             {
                 foreach(Report report in _pendingReports)
@@ -780,6 +783,10 @@ namespace SocialPoint.Crash
                 CatchException(e);
             }
             SetupCrashHttpRequest(req, log);
+
+            //*** TEST
+            UnityEngine.Debug.Log("*** TEST Sending Crash Log: " + req);
+
             _httpClient.Send(req, resp => OnCrashSend(resp, log, callback));
         }
 

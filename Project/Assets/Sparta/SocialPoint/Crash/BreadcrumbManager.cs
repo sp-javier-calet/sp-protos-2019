@@ -44,6 +44,7 @@ namespace SocialPoint.Crash
 
                 if(FileUtils.ExistsFile(breadCrumbLogPath))
                 {
+                    UnityEngine.Debug.Log("*** TEST Breadcrumb File Found: " + FileUtils.ReadAllText(breadCrumbLogPath));
                     FileUtils.CopyFile(breadCrumbLogPath, BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
                 }
 

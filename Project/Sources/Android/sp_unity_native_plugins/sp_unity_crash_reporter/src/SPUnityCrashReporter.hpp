@@ -44,6 +44,9 @@ public:
     void clearCrashPaths();
 
     void dumpBreadcrumbs();
+
+    //*** TEST
+    void debug();
 };
 
 #endif

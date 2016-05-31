@@ -98,8 +98,30 @@ void* callOnCrashDumpedThread(void *ctx)
     return nullptr;
 }
 
+//*** TEST
+void* callOnDebugThread(void *ctx)
+{
+    CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
+    UnityGameObject(data->gameObject).SendMessage("DebugLog", data->logPath);
+    delete data;
+    return nullptr;
+}
+//*** TEST
+void DebugLog(const std::string& gameObject, const std::string& logMsg)
+{
+    if(!gameObject.empty())
+    {
+        pthread_t thread;
+        pthread_create(&thread, NULL, callOnDebugThread,
+            new CrashDumpedCallData{ gameObject, logMsg });
+    }
+}
+
 void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
+    //*** TEST
+    DebugLog(_gameObject, "*** TEST Dumping Crash");
+
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
     // Convert to local time
@@ -113,12 +135,24 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
     std::string newCrashPath(filePath + _crashExtension);
     std::string newLogPath  (filePath + _logExtension);
 
+    //*** TEST
+    DebugLog(_gameObject, "*** TEST Creating crash file...");
+
     // Move dmp file
     rename(crashPath.c_str(), newCrashPath.c_str());
+
+    //*** TEST
+    DebugLog(_gameObject, "*** TEST Created");
+
+    //*** TEST
+    DebugLog(_gameObject, "*** TEST Creating log file...");
 
     // Dump logcat
     std::string logcatCmd("logcat -d -t 200 -f " + newLogPath);
     system(logcatCmd.c_str());
+
+    //*** TEST
+    DebugLog(_gameObject, "*** TEST Created");
 
     if(!_gameObject.empty())
     {
@@ -132,3 +166,12 @@ void SPUnityCrashReporter::dumpBreadcrumbs()
 {
     _breadcrumbManager->dumpToFile();
 }
+
+//*** TEST
+    void SPUnityCrashReporter::debug()
+    {
+        if(!_gameObject.empty())
+        {
+            UnityGameObject(_gameObject).SendMessage("DebugLog", "*** TEST DebugLog");
+        }
+    }

@@ -178,6 +178,15 @@ public:
         return false;
 #endif
     }
+    
+    //*** TEST
+    void debug()
+    {
+        if(!_gameObject.empty())
+        {
+            UnityGameObject(_gameObject.c_str()).SendMessage("DebugLog", "*** TEST DebugLog");
+        }
+    }
 };
 
 
@@ -221,5 +230,11 @@ extern "C" {
     void SPUnityCrashReporterForceCrash()
     {
         *((unsigned int*)0) = 0xDEAD;
+    }
+    
+    //*** TEST
+    void SPUnityCrashReporterDebug(SPUnityCrashReporter* crashReporter)
+    {
+        crashReporter->debug();
     }
 }
