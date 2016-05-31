@@ -58,27 +58,7 @@ private:
     
     void dumpBreadcrumbs()
     {
-        std::string filePath = _breadcrumbManager->dumpToFile();
-        
-        if(!_gameObject.empty())
-        {
-            UnityGameObject(_gameObject.c_str()).SendMessage("OnBreadcrumbsDumped", filePath.c_str());
-        }
-        
-        //*** TEST objective c code
-        /*if([[NSFileManager defaultManager] createDirectoryAtPath:[[NSString alloc] initWithUTF8String:_breadcrumbDirectory.c_str()]
-                                     withIntermediateDirectories:YES attributes:nil error:nil])
-        {
-            std::string filePath(_breadcrumbDirectory + _breadcrumbFile);
-            NSString* breadcrumbLog = [NSString stringWithCString:_breadcrumbManager->getLog().c_str() encoding:NSUTF8StringEncoding];
-            [breadcrumbLog writeToFile:[[NSString alloc] initWithUTF8String:filePath.c_str()]
-                            atomically:YES encoding:NSUTF8StringEncoding error:nil];
-            
-            if(!_gameObject.empty())
-            {
-                UnityGameObject(_gameObject.c_str()).SendMessage("OnBreadcrumbsDumped", filePath.c_str());
-            }
-        }*/
+        _breadcrumbManager->dumpToFile();
     }
 
     bool initializePLCrashReporter()
@@ -198,12 +178,6 @@ public:
         return false;
 #endif
     }
-    
-    //*** TEST
-    void debug()
-    {
-        UnityGameObject(_gameObject).SendMessage("DebugLog", _breadcrumbManager->getLog());
-    }
 };
 
 
@@ -247,11 +221,5 @@ extern "C" {
     void SPUnityCrashReporterForceCrash()
     {
         *((unsigned int*)0) = 0xDEAD;
-    }
-    
-    //*** TEST
-    void SPUnityCrashReporterDebug(SPUnityCrashReporter* crashReporter)
-    {
-        crashReporter->debug();
     }
 }

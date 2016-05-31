@@ -38,10 +38,4 @@ extern "C"{
     {
         *((unsigned int*)0) = 0xDEAD;
     }
-
-    //*** TEST
-    void SPUnityCrashReporterDebug(SPUnityCrashReporter* crashReporter)
-    {
-        crashReporter->debug();
-    }
 }

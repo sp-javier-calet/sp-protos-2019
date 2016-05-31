@@ -1,7 +1,6 @@
 #include "SPUnityBreadcrumbManager.hpp"
 #include "SPUnityFileUtils.hpp"
 #include <sstream>
-#include <pthread.h>
 
 namespace socialpoint
 {

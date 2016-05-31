@@ -42,19 +42,9 @@ namespace SocialPoint.Crash
 
                 BreadcrumbManagerBinding.SetDumpFilePath(breadCrumbDirectoryPath, breadCrumbFilename);
 
-                //*** TEST Commented to leave directory and file creation to native
-                //FileUtils.CreateDirectory(breadCrumbDirectoryPath);
-                UnityEngine.Debug.Log("*** TEST BreadCrumbDirectoryPath: " + breadCrumbDirectoryPath);
-                UnityEngine.Debug.Log("*** TEST BreadcrumbLogPath: " + breadCrumbLogPath);
-
                 if(FileUtils.ExistsFile(breadCrumbLogPath))
                 {
-                    UnityEngine.Debug.Log("*** TEST Old breadcrumbs file found. Content: " + FileUtils.ReadAllText(BreadcrumbManager.BreadcrumbLogPath()));
                     FileUtils.CopyFile(breadCrumbLogPath, BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
-                }
-                else
-                {
-                    UnityEngine.Debug.Log("*** TEST Old breadcrumbs file NOT found");
                 }
 
                 using(var file = new StreamWriter(breadCrumbLogPath, false))
@@ -84,22 +74,11 @@ namespace SocialPoint.Crash
         public BreadcrumbManager()
         {
             PathsManager.CallOnLoaded(InitializeBreadcrumbFile);
-
-            //*** TEST
-            UnityEngine.Debug.Log("*** TEST Leaving some breadcrumbs");
-            Log("Test Breadcrumb 1");
-            Log("Test Breadcrumb 2");
-            Log("Test Breadcrumb 3");
         }
 
         public void Log(string info)
         {
             Breadcrumb breadcrumb = new Breadcrumb(info);
-            /*
-            using(var file = new StreamWriter(BreadcrumbLogPath(), true))
-            {
-                file.WriteLine(breadcrumb);
-            }*/
             BreadcrumbManagerBinding.Log(breadcrumb.ToString());
         }
 
@@ -110,22 +89,8 @@ namespace SocialPoint.Crash
 
         public void RemoveData()
         {
-            //*** TEST booleans to know if files existed
-            bool breadcrumbsExisted = false;
-            bool oldBreadcrumbsExisted = false;
-
-            breadcrumbsExisted = FileUtils.DeleteFile(BreadcrumbLogPath());
-            oldBreadcrumbsExisted = FileUtils.DeleteFile(BreadcrumbLogPath(LastSessionBreadcrumbsName));
-
-            //*** TEST
-            if(breadcrumbsExisted)
-                UnityEngine.Debug.Log("*** TEST Breadcrumb file deleted");
-            else
-                UnityEngine.Debug.Log("*** TEST Breadcrumb file didn't exist");
-            if(oldBreadcrumbsExisted)
-                UnityEngine.Debug.Log("*** TEST OLD Breadcrumb file deleted");
-            else
-                UnityEngine.Debug.Log("*** TEST OLD Breadcrumb file didn't exist");
+            FileUtils.DeleteFile(BreadcrumbLogPath());
+            FileUtils.DeleteFile(BreadcrumbLogPath(LastSessionBreadcrumbsName));
         }
 
         public string CurrentBreadcrumb

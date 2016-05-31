@@ -79,9 +79,6 @@ namespace SocialPoint.Crash
                 crash.Set(AttrKeyLogcat, new AttrString(report.Log));
                 crash.Set(AttrKeyBreadcrumb, new AttrString(breadcrumb));
 
-                //*** TEST
-                UnityEngine.Debug.Log("*** TEST Crash Stack Trace: " + report.StackTrace);
-
                 // Add actual crash data if available
                 if(report.Timestamp > 0)
                 {
@@ -447,10 +444,6 @@ namespace SocialPoint.Crash
             _pendingReports = new List<Report>();
 
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
-
-            UnityEngine.Debug.Log("*** TEST BaseCrashReporter WasOnBackground: " + WasOnBackground);
-            UnityEngine.Debug.Log("*** TEST BaseCrashReporter WasEnabled: " + WasEnabled);
-            UnityEngine.Debug.Log("*** TEST BaseCrashReporter LastMemoryWarningTimestamp: " + LastMemoryWarningTimestamp);
         }
 
         public bool IsEnabled
@@ -575,12 +568,10 @@ namespace SocialPoint.Crash
 
         protected void ReadPendingCrashes()
         {
-            UnityEngine.Debug.Log("*** TEST Reading Pending Crashes");
             _pendingReports = GetPendingCrashes();
 
             if(_pendingReports.Count > 0)
             {
-                UnityEngine.Debug.Log("*** TEST _pendingReports.Count: " + _pendingReports.Count);
                 foreach(Report report in _pendingReports)
                 {
                     AddRetry(report.Uuid);
@@ -588,7 +579,6 @@ namespace SocialPoint.Crash
             }
             else
             {
-                UnityEngine.Debug.Log("*** TEST no new crashes (ReadPendingCrashes)");
                 // If there are no new crashes, we can check some saved status to detect a memory crash
                 Report memoryCrashReport = CheckMemoryCrash();
                 if(memoryCrashReport != null)
@@ -600,7 +590,6 @@ namespace SocialPoint.Crash
 
             if(HasCrashLogs)
             {
-                UnityEngine.Debug.Log("*** TEST HasCrashLogs");
                 foreach(var log in _crashStorage.StoredKeys)
                 {
                     AddRetry(log);
@@ -630,7 +619,6 @@ namespace SocialPoint.Crash
 
         void SendCrashes(ReportSendType reportSendType, Action callback)
         {
-            UnityEngine.Debug.Log("*** TEST Sending Crashes " + reportSendType);
             var steps = new StepCallbackBuilder(callback);
 
             SendTrackedCrashes(reportSendType, steps.Add());
@@ -641,7 +629,6 @@ namespace SocialPoint.Crash
 
         void SendTrackedCrashes(ReportSendType reportSendType, Action callback)
         {
-            UnityEngine.Debug.Log("*** TEST SendTrackedCrashes " + reportSendType);
             if(HasCrashLogs)
             {
                 var steps = new StepCallbackBuilder(callback);
@@ -650,7 +637,6 @@ namespace SocialPoint.Crash
                 {
                     if(reportSendType == GetReportSendType(log))
                     {
-                        UnityEngine.Debug.Log("*** TEST SendCrashLog " + log);
                         SendCrashLog(log, steps.Add());
                     }
                 }
@@ -665,12 +651,10 @@ namespace SocialPoint.Crash
 
         void SendPendingCrashes(ReportSendType reportSendType, Action callback)
         {
-            UnityEngine.Debug.Log("*** TEST SendPendingCrashes " + reportSendType);
             if(_pendingReports.Count > 0)
             {
                 var steps = new StepCallbackBuilder(callback);
 
-                UnityEngine.Debug.Log("*** TEST pending reports " + _pendingReports.Count);
                 foreach(Report report in _pendingReports)
                 {
                     if(reportSendType == GetReportSendType(report.Uuid))
@@ -701,10 +685,6 @@ namespace SocialPoint.Crash
 
         Report CheckMemoryCrash()
         {
-            UnityEngine.Debug.Log("*** TEST CheckMemoryCrash: "
-            + (_breadcrumbManager != null)
-            + " && " + (_breadcrumbManager != null ? _breadcrumbManager.HasOldBreadcrumb.ToString() : "null")
-            + " && " + _wasActiveInLastSession);
             Report memoryCrashReport = null;
             /* *
              * We can assume that we had a memory crash if 
@@ -716,7 +696,6 @@ namespace SocialPoint.Crash
                _breadcrumbManager.HasOldBreadcrumb &&
                _wasActiveInLastSession)
             {
-                UnityEngine.Debug.Log("*** TEST memoryCrashReport Created (ts:" + LastMemoryWarningTimestamp + "). Breadcrumbs: " + _breadcrumbManager.OldBreadcrumb);
                 memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp);
             }
 
@@ -818,7 +797,6 @@ namespace SocialPoint.Crash
 
         void OnCrashSend(HttpResponse resp, string log, Action callback)
         {
-            UnityEngine.Debug.Log("*** TEST OnCrashSend (Http Callback)");
             if(!resp.HasError)
             {
                 _crashStorage.Remove(log);
@@ -907,7 +885,6 @@ namespace SocialPoint.Crash
 
         void TrackCrash(Report report, Action callback)
         {
-            UnityEngine.Debug.Log("*** TEST TrackCrash");
             if(TrackEvent != null)
             {
                 var data = new AttrDic();
@@ -995,7 +972,6 @@ namespace SocialPoint.Crash
 
         void OnMemoryWarning()
         {
-            Debug.Log("*** TEST OnMemoryWarning");
             if(_breadcrumbManager != null)
             {
                 _breadcrumbManager.Log("Memory Warning");
@@ -1071,7 +1047,6 @@ namespace SocialPoint.Crash
 
         static void AddRetry(string reportUuid, int retriesToAdd = 1)
         {
-            UnityEngine.Debug.Log("*** TEST AddRetry " + reportUuid);
             var retriesKey = GetRetriesKey(reportUuid);
             var retries = GetRetries(reportUuid);
             PlayerPrefs.SetInt(retriesKey, retries + retriesToAdd);
@@ -1080,7 +1055,6 @@ namespace SocialPoint.Crash
 
         static void SubtractRetry(string reportUuid, int retriesToRemove = 1)
         {
-            UnityEngine.Debug.Log("*** TEST SubtractRetry " + reportUuid);
             var retriesKey = GetRetriesKey(reportUuid);
             var retries = GetRetries(reportUuid);
             PlayerPrefs.SetInt(retriesKey, Math.Max(retries - retriesToRemove, 0));
@@ -1089,7 +1063,6 @@ namespace SocialPoint.Crash
 
         static void EraseRetryKey(string reportUuid)
         {
-            UnityEngine.Debug.Log("*** TEST EraseRetryKey " + reportUuid);
             var retriesKey = GetRetriesKey(reportUuid);
             PlayerPrefs.DeleteKey(retriesKey);
             PlayerPrefs.Save();

@@ -98,14 +98,6 @@ void* callOnCrashDumpedThread(void *ctx)
     return nullptr;
 }
 
-void* callOnBreadcrumbsDumpedThread(void *ctx)
-{
-    CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
-    UnityGameObject(data->gameObject).SendMessage("OnBreadcrumbsDumped", data->logPath);
-    delete data;
-    return nullptr;
-}
-
 void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -138,19 +130,5 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 
 void SPUnityCrashReporter::dumpBreadcrumbs()
 {
-    std::string filePath = _breadcrumbManager->dumpToFile();
-
-    if(!_gameObject.empty())
-    {
-        pthread_t thread;
-        pthread_create(&thread, NULL, callOnBreadcrumbsDumpedThread,
-            new CrashDumpedCallData{ _gameObject, filePath });
-    }
-}
-
-
-//*** TEST
-void SPUnityCrashReporter::debug()
-{
-    UnityGameObject(_gameObject).SendMessage("DebugLog", _breadcrumbManager->getLog());
+    _breadcrumbManager->dumpToFile();
 }
