@@ -165,19 +165,6 @@ namespace SocialPoint.Crash
         [DllImport(PluginModuleName)]
         static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
 
-        //*** TEST
-        [DllImport(PluginModuleName)]
-        static extern void SPUnityCrashReporterDebug(UIntPtr ctx);
-
-        //*** TEST
-        public static DeviceCrashReporter testInstance = null;
-
-        //*** TEST
-        public void NativeDebug()
-        {
-            SPUnityCrashReporterDebug(_nativeObject);
-        }
-
         public const string CrashesFolder = "/crashes/";
         public const string CrashExtension = ".crash";
         public const string LogExtension = ".logcat";
@@ -193,9 +180,6 @@ namespace SocialPoint.Crash
         {
             _appVersion = deviceInfo.AppInfo.Version;
             PathsManager.CallOnLoaded(OnPathsLoaded);
-
-            //*** TEST
-            testInstance = this;
         }
 
         void OnPathsLoaded()
@@ -263,10 +247,8 @@ namespace SocialPoint.Crash
                 var dir = new DirectoryInfo(_crashesBasePath);
                 FileInfo[] info = dir.GetFiles();
 
-                UnityEngine.Debug.Log("*** TEST GetPendingCrashes Files: " + info.Length);
                 foreach(FileInfo f in info)
                 {
-                    UnityEngine.Debug.Log("*** TEST File: " + f.FullName + " (Directory: " + f.DirectoryName + ")");
                     // Creates a report for each .crash/.logcat pair
                     if(f.Extension == CrashExtension)
                     {
@@ -278,12 +260,10 @@ namespace SocialPoint.Crash
             }
             catch(DirectoryNotFoundException)
             {
-                UnityEngine.Debug.Log("*** TEST GetPendingCrashes DirectoryNotFoundException");
                 Debug.LogError(string.Format("Crash folder '{0}' not found.", _crashesBasePath));
             }
             catch(Exception e)
             {
-                UnityEngine.Debug.Log("*** TEST GetPendingCrashes Exception");
                 Debug.LogError(string.Format("Exception getting pending crashes: {0}", e));
             }
 
@@ -311,7 +291,6 @@ namespace SocialPoint.Crash
         //If this function is called from native code, it means that a crash was detected but the Unity app is still running (non-killing crash)
         public void OnCrashDumped(string path)
         {
-            UnityEngine.Debug.Log("*** TEST OnCrashDumped '" + path + "'");
             DebugUtils.LogWarning("OnCrashDumped '" + path + "'");
 
             //A non-killing crash may not "crash" the app, but the native crash detection may stop working after it, and future crashes may not be tracked.
@@ -323,9 +302,7 @@ namespace SocialPoint.Crash
                 LeaveBreadcrumb("Non-Killing Crash StackTrace - Start");
                 LeaveBreadcrumb(DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
                 LeaveBreadcrumb("Non-Killing Crash StackTrace - End");
-                UnityEngine.Debug.Log("*** TEST Non-Killing Crash Stack: " + DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
 
-                UnityEngine.Debug.Log("*** TEST Removing non-killing crash file '" + path + "'...");
                 DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
                 FileUtils.DeleteFile(path);
             }
@@ -337,9 +314,6 @@ namespace SocialPoint.Crash
             {
                 _breadcrumbManager.DumpToFile();
             }
-
-            //*** TEST
-            DeviceCrashReporter.testInstance.NativeDebug();
         }
 
         public void DebugLog(string message)
