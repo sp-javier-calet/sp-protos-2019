@@ -583,8 +583,6 @@ namespace SocialPoint.Crash
                 UnityEngine.Debug.Log("*** TEST _pendingReports.Count: " + _pendingReports.Count);
                 foreach(Report report in _pendingReports)
                 {
-                    //UnityEngine.Debug.Log("*** TEST Report Log: " + report.Log);
-                    //UnityEngine.Debug.Log("*** TEST Report Stack: " + report.StackTrace);
                     AddRetry(report.Uuid);
                 }
             }
@@ -595,6 +593,7 @@ namespace SocialPoint.Crash
                 Report memoryCrashReport = CheckMemoryCrash();
                 if(memoryCrashReport != null)
                 {
+                    _pendingReports.Add(memoryCrashReport);
                     AddRetry(memoryCrashReport.Uuid);
                 }
             }
@@ -611,17 +610,17 @@ namespace SocialPoint.Crash
 
         void SendCrashesAfterLogin(Action callback = null)
         {
-            SendCrashes(ReportSendType.AfterLogin, () => {
-                if(callback != null)
-                {
-                    callback();
-                }
-            });
+            SendCrashesWithSafeCallback(ReportSendType.AfterLogin, callback);
         }
 
         public void SendCrashesBeforeLogin(Action callback)
         {
-            SendCrashes(ReportSendType.BeforeLogin, () => {
+            SendCrashesWithSafeCallback(ReportSendType.BeforeLogin, callback);
+        }
+
+        void SendCrashesWithSafeCallback(ReportSendType reportSendType, Action callback)
+        {
+            SendCrashes(reportSendType, () => {
                 if(callback != null)
                 {
                     callback();
@@ -684,19 +683,7 @@ namespace SocialPoint.Crash
             }
             else
             {
-                UnityEngine.Debug.Log("*** TEST no new crashes (SendPendingCrashes)");
-                // If there are no new crashes, we can check some saved status to detect a memory crash
-                Report memoryCrashReport = CheckMemoryCrash();
-                bool tracked = false;
-                if(memoryCrashReport != null)
-                {
-                    if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
-                    {
-                        tracked = true;
-                        TrackCrash(memoryCrashReport, callback);
-                    }
-                }
-                if(!tracked && callback != null)
+                if(callback != null)
                 {
                     callback();
                 }
