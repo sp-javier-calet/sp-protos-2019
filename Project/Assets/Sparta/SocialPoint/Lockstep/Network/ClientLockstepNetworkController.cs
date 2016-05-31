@@ -1,14 +1,13 @@
 ﻿using System;
-using UnityEngine.Networking;
 using SocialPoint.Utils;
-using UnityEngine.Networking.NetworkSystem;
+using System.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
     public class ClientLockstepNetworkController : IDisposable
     {
-        NetworkClient _client;
-        NetworkLockstepCommandDataFactory _networkCommandDataFactory;
+        INetworkMessageController _client;
+        LockstepCommandDataFactory _networkCommandDataFactory;
         ClientLockstepController _clientLockstep;
         LockstepConfig _lockstepConfig;
 
@@ -26,7 +25,7 @@ namespace SocialPoint.Lockstep.Network
 
         public event Action<LockstepConfig> LockstepConfigReceived;
 
-        public ClientLockstepNetworkController(NetworkClient client,
+        public ClientLockstepNetworkController(INetworkMessageController client,
                                                short lockstepCommandMsgType = 2002,
                                                short confirmTurnsMsgType = 2003,
                                                short confirmTurnsReceptionMsgType = 2004,
@@ -41,13 +40,11 @@ namespace SocialPoint.Lockstep.Network
             SetLockstepConfigMsgType = setLockstepConfigMsgType;
             ClientReadyMsgType = clientReadyMsgType;
             AllClientsReadyMsgType = allClientsReadyMsgType;
-
             RegisterHandlers();
-
         }
 
         public void Init(ClientLockstepController clientLockstep,
-                         NetworkLockstepCommandDataFactory networkCommandDataFactory)
+                         LockstepCommandDataFactory networkCommandDataFactory)
         {
             _clientLockstep = clientLockstep;
             _networkCommandDataFactory = networkCommandDataFactory;
@@ -61,7 +58,7 @@ namespace SocialPoint.Lockstep.Network
         {
             _client.RegisterHandler(ConfirmTurnsMsgType, OnConfirmTurnsReceived);
             _client.RegisterHandler(SetLockstepConfigMsgType, OnSetLockstepConfigReceived);
-            _client.RegisterHandler(AllClientsReadyMsgType, OnAllClientsReadyMsgTypeReceived);
+            _client.RegisterSyncHandler(AllClientsReadyMsgType, OnAllClientsReadyMsgTypeReceived);
         }
 
         void UnregisterHandlers()
@@ -71,17 +68,17 @@ namespace SocialPoint.Lockstep.Network
             _client.UnregisterHandler(AllClientsReadyMsgType);
         }
 
-        void OnConfirmTurnsReceived(NetworkMessage netMsg)
+        void OnConfirmTurnsReceived(NetworkMessageData data)
         {
             ConfirmTurnsMessage turnsAction = new ConfirmTurnsMessage(_networkCommandDataFactory);
-            turnsAction.Deserialize(netMsg.reader);
+            turnsAction.Deserialize(data.Reader);
             _clientLockstep.ConfirmTurns(turnsAction.ConfirmedTurns);
         }
 
-        void OnSetLockstepConfigReceived(NetworkMessage netMsg)
+        void OnSetLockstepConfigReceived(NetworkMessageData data)
         {
             var msg = new SetLockstepConfigMessage();
-            msg.Deserialize(netMsg.reader);
+            msg.Deserialize(data.Reader);
             _lockstepConfig = msg.Config;
             if(LockstepConfigReceived != null)
             {
@@ -94,11 +91,11 @@ namespace SocialPoint.Lockstep.Network
             _client.Send(ClientReadyMsgType, new EmptyMessage());
         }
 
-        void OnAllClientsReadyMsgTypeReceived(NetworkMessage netMsg)
+        void OnAllClientsReadyMsgTypeReceived(SyncNetworkMessageData data)
         {
             AllClientsReadyMessage msg = new AllClientsReadyMessage();
-            msg.Deserialize(netMsg.reader);
-            int remaining = msg.GetRemaningMillisecondsToStart(netMsg.conn.hostId, netMsg.conn.connectionId);
+            msg.Deserialize(data.Reader);
+            int remaining = msg.RemainingMillisecondsToStart - data.ServerDelay;
             _clientLockstep.Start(SocialPoint.Utils.TimeUtils.TimestampMilliseconds + (long)remaining);
         }
 

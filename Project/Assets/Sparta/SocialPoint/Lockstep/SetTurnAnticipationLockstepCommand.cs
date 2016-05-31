@@ -16,7 +16,7 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return Network.NetworkLockstepCommandDataTypes.SetTurnAnticipation;
+                return LockstepCommandDataTypes.SetTurnAnticipation;
             }
         }
 
