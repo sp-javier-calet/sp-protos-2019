@@ -8,16 +8,9 @@ public class BundleCreatorEditor : EditorWindow
 
     enum BundleType
     {
-        Evo,
         Simple,
         SimpleCombined,
         Scene
-    }
-
-    [MenuItem("Assets/Bundle Creator/Create Evo Bundle")]
-    static void CreateBundle()
-    {
-        CreateBundles(BundleType.Evo, false);
     }
 
     [MenuItem("Assets/Bundle Creator/Create Simple Bundle")]
@@ -36,12 +29,6 @@ public class BundleCreatorEditor : EditorWindow
     static void CreateSceneBundle()
     {
         CreateBundles(BundleType.Scene, false);
-    }
-
-    [MenuItem("Assets/Bundle Creator/Create and Build Evo Bundle")]
-    static void CreateEvoBundle()
-    {
-        CreateBundles(BundleType.Evo, true);
     }
 
     [MenuItem("Assets/Bundle Creator/Create and Build Simple Bundle")]
@@ -68,11 +55,6 @@ public class BundleCreatorEditor : EditorWindow
         string errorLog = "";
         switch(type)
         {
-        case BundleType.Evo:
-            {
-                errorLog = creator.CreateEvoBundle(fixedSelection, build);
-                break;
-            }
         case BundleType.Scene:
             {
                 errorLog = creator.CreateSimpleBundle(fixedSelection, true, build);
