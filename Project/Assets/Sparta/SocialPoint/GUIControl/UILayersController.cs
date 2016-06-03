@@ -459,8 +459,10 @@ namespace SocialPoint.GUIControl
 
         public UICameraData GetCameraDataByLayer(int layer)
         {
-            foreach(var cameraData in _cameras)
+            for(int index = 0; index < _cameras.Count; ++index)
             {
+                var cameraData = _cameras[index];
+
                 if(cameraData.Layer == layer)
                 {
                     return cameraData;
