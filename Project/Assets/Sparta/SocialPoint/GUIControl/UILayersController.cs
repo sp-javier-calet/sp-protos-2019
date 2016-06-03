@@ -49,23 +49,23 @@ namespace SocialPoint.GUIControl
 
         Stack<UICameraData> _activeCameras = new Stack<UICameraData>();
 
-        IDictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
+        Dictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        readonly IDictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
+        readonly Dictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        readonly IDictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
+        readonly Dictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
 
         List<UIViewController> _controllers = new List<UIViewController>();
 
         List<UIViewController> _overlappedControllers = new List<UIViewController>();
 
-        IDictionary<GameObject, List<UIViewController>> _overlappedScenePrefabs = new Dictionary<GameObject, List<UIViewController>>();
+        Dictionary<GameObject, List<UIViewController>> _overlappedScenePrefabs = new Dictionary<GameObject, List<UIViewController>>();
 
         List<UIViewController> _actualSceneOverlappedControllers = new List<UIViewController>();
 
         GameObject _lastDisplayedScene;
 
-        IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
+        Dictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
 
         int _currentOrderInLayer;
 
