@@ -46,11 +46,6 @@ namespace SocialPoint.Crash
                 {
                     FileUtils.CopyFile(breadCrumbLogPath, BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
                 }
-
-                using(var file = new StreamWriter(breadCrumbLogPath, false))
-                {
-                    file.WriteLine(string.Format("Breadcrumb log {0}", TimeUtils.GetTime(TimeUtils.Timestamp).ToString("yyyy/MM/dd HH:mm:ss")));
-                }
             }
         }
 
@@ -73,6 +68,7 @@ namespace SocialPoint.Crash
 
         public BreadcrumbManager()
         {
+            Log("Breadcrumb Log");
             PathsManager.CallOnLoaded(InitializeBreadcrumbFile);
         }
 
