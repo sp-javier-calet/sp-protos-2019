@@ -119,7 +119,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWasLoaded()
         {
-            if(!Running)
+            if(!_running)
             {
                 Start();
             }
@@ -127,7 +127,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWillRestart()
         {
-            if(Running)
+            if(_running)
             {
                 Stop();
                 Send();
@@ -138,7 +138,7 @@ namespace SocialPoint.ServerSync
         void OnAppWillGoBackground()
         {
             _goToBackgroundTS = TimeUtils.Timestamp;
-            if(Running)
+            if(_running)
             {
                 SendUpdate();
             }
@@ -235,7 +235,7 @@ namespace SocialPoint.ServerSync
         IHttpConnection _httpConn;
         Action _sendFinish;
         long _goToBackgroundTS;
-
+        bool _running;
 
         public CommandQueue(IFixedUpdateScheduler fixedUpdateScheduler, IHttpClient client)
         {
@@ -327,6 +327,11 @@ namespace SocialPoint.ServerSync
 
         public void Start()
         {
+            if(_running)
+            {
+                return;
+            }
+
             SetStartValues();
 
             if(RequestSetup == null)
@@ -346,15 +351,6 @@ namespace SocialPoint.ServerSync
             {
                 _fixedUpdateScheduler.RemoveFixed(this);
                 _running = false;
-            }
-        }
-
-        bool _running;
-        public bool Running
-        {
-            get
-            {
-                return _running;
             }
         }
 

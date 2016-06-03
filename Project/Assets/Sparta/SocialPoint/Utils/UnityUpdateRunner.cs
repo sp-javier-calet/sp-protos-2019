@@ -27,10 +27,30 @@ namespace SocialPoint.Utils
         }
     }
 
+    public class IUpdateableComparer : IEqualityComparer<IUpdateable>
+    {
+        public bool Equals(IUpdateable x, IUpdateable y)
+        {
+            return ReferenceEquals(x, y);
+        }
+
+        public int GetHashCode(IUpdateable obj)
+        {
+            return obj.GetType().GetHashCode();
+        }
+    }
+
     public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler, IFixedUpdateScheduler
     {
         readonly HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
-        readonly Dictionary<IUpdateable, FixedUpdateableData> _fixedElements = new Dictionary<IUpdateable, FixedUpdateableData>();
+        readonly Dictionary<IUpdateable, FixedUpdateableData> _fixedElements;
+        IUpdateableComparer _comparer;
+
+        public UnityUpdateRunner()
+        {
+            _comparer = new IUpdateableComparer();
+            _fixedElements = new Dictionary<IUpdateable, FixedUpdateableData>(_comparer);
+        }
 
         public void Add(IUpdateable elm)
         {
@@ -60,7 +80,7 @@ namespace SocialPoint.Utils
         {
             _fixedElements.Remove(elm);
         }
-            
+
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
         {
             if(enumerator != null)

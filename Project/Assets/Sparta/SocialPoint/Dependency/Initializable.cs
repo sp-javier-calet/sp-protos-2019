@@ -7,16 +7,16 @@ namespace SocialPoint.Dependency
         void Initialize();
     }
 
-    public class InitializableComparer : IEqualityComparer<IInitializable>
+    public class IInitializableComparer : IEqualityComparer<IInitializable>
     {
-        public int GetHashCode(IInitializable obj)
-        {
-            return obj.GetType().GetHashCode();
-        }
-
         public bool Equals(IInitializable x, IInitializable y)
         {
             return ReferenceEquals(x, y);
+        }
+
+        public int GetHashCode(IInitializable obj)
+        {
+            return obj.GetType().GetHashCode();
         }
     }
 
@@ -24,12 +24,12 @@ namespace SocialPoint.Dependency
     {
         Dictionary<IInitializable,int> _initialized;
         DependencyContainer _container;
-        InitializableComparer _comparer;
+        IInitializableComparer _comparer;
 
         public InitializableManager(DependencyContainer container)
         {
             _container = container;
-            _comparer = new InitializableComparer();
+            _comparer = new IInitializableComparer();
             _initialized = new Dictionary<IInitializable, int>(_comparer);
         }
 

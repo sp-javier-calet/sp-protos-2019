@@ -15,7 +15,7 @@ namespace SocialPoint.ServerEvents
 
     [TestFixture]
     [Category("SocialPoint.Events")]
-    internal class SocialPointEventTrackerTests
+    class SocialPointEventTrackerTests
     {
         SocialPointEventTracker SocialPointEventTracker;
         GameObject GO;

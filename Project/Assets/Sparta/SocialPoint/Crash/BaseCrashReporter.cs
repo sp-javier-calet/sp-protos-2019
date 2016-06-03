@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using SocialPoint.Alert;
@@ -267,6 +266,7 @@ namespace SocialPoint.Crash
 
         float _currentSendInterval = DefaultSendInterval;
         bool _sending;
+        bool _running;
 
         public bool ExceptionLogActive
         {
@@ -426,6 +426,7 @@ namespace SocialPoint.Crash
                                  IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
             _fixedUpdateScheduler = fixedUpdateScheduler;
+            _running = false;
             _httpClient = client;
             _deviceInfo = deviceInfo;
             _alertViewPrototype = alertView;
@@ -441,18 +442,13 @@ namespace SocialPoint.Crash
             _pendingReports = new List<Report>();
 
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
-
-            if(_fixedUpdateScheduler != null)
-            { 
-                _fixedUpdateScheduler.AddFixed(this, SendInterval);
-            }
         }
 
         public bool IsEnabled
         {
             get
             {
-                return WasEnabled;
+                return _running;
             }
         }
 
@@ -465,8 +461,14 @@ namespace SocialPoint.Crash
 
             WasEnabled = true;
             LogCallbackHandler.RegisterLogCallback(HandleLog);
-            OnEnable();
 
+            if(_fixedUpdateScheduler != null)
+            { 
+                _fixedUpdateScheduler.AddFixed(this, SendInterval);
+                _running = true;
+            }
+
+            OnEnable();
         }
 
         protected virtual void OnEnable()
@@ -477,6 +479,13 @@ namespace SocialPoint.Crash
         {
             WasEnabled = false;
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
+
+            if(_fixedUpdateScheduler != null)
+            { 
+                _fixedUpdateScheduler.RemoveFixed(this);
+                _running = false;
+            }
+
             OnDisable();
         }
 
@@ -492,11 +501,6 @@ namespace SocialPoint.Crash
 
         public void Dispose()
         {
-            if(_fixedUpdateScheduler != null)
-            { 
-                _fixedUpdateScheduler.RemoveFixed(this);
-            }
-
             Disable();
             if(_appEvents != null)
             {
