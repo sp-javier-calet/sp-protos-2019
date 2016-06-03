@@ -1,39 +1,46 @@
 ﻿using System;
-using UnityEngine.Networking;
 using System.Collections.Generic;
+using System.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class LockstepCommandMessage : MessageBase
+    public class LockstepCommandMessage : INetworkMessage
     {
         public ILockstepCommand LockstepCommand { get; private set; }
 
         public int Client;
 
-        NetworkLockstepCommandDataFactory _commandDataFactory;
+        LockstepCommandDataFactory _commandDataFactory;
 
-        public LockstepCommandMessage(NetworkLockstepCommandDataFactory commandDataFactory, ILockstepCommand command = null)
+        public LockstepCommandMessage(LockstepCommandDataFactory commandDataFactory, ILockstepCommand command = null)
         {
             _commandDataFactory = commandDataFactory;
             LockstepCommand = command;
         }
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(IReaderWrapper reader)
         {
-            base.Deserialize(reader);
             int turn = reader.ReadInt32();
             var commandData = _commandDataFactory.CreateNetworkLockstepCommandData(turn, reader);
             LockstepCommand = commandData.LockstepCommand;
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(IWriterWrapper writer)
         {
-            base.Serialize(writer);
             if(LockstepCommand != null)
             {
                 writer.Write(LockstepCommand.Turn);
                 var commandData = _commandDataFactory.CreateNetworkLockstepCommandData(LockstepCommand);
                 commandData.Serialize(writer);
+            }
+        }
+
+        public bool RequiresSync
+        {
+            get
+            {
+                return false;
             }
         }
     }

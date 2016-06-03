@@ -195,8 +195,15 @@ namespace SocialPoint.Hardware
                 {
                     if(IsGooglePlayServicesAvailable)
                     {
-                        var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
-                        _advertisingId = adInfo.Call<string>("getId");
+                        try
+                        {
+                            var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
+                            _advertisingId = adInfo.Call<string>("getId");
+                        }
+                        catch(AndroidJavaException)
+                        {
+                            _advertisingId = string.Empty;
+                        }
                     }
                     else
                     {
@@ -349,8 +356,15 @@ namespace SocialPoint.Hardware
                 {
                     if(IsGooglePlayServicesAvailable)
                     {
-                        var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
-                        _advertisingIdEnabled = !adInfo.Call<bool>("isLimitAdTrackingEnabled");
+                        try
+                        {
+                            var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
+                            _advertisingIdEnabled = !adInfo.Call<bool>("isLimitAdTrackingEnabled");
+                        }
+                        catch(AndroidJavaException)
+                        {
+                            _advertisingIdEnabled = false;
+                        }
                     }
                     else
                     {

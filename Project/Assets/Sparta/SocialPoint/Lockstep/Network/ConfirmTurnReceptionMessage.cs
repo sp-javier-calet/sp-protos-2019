@@ -1,9 +1,10 @@
 ﻿using System;
-using UnityEngine.Networking;
+using System.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class ConfirmTurnsReceptionMessage : MessageBase
+    public class ConfirmTurnsReceptionMessage : INetworkMessage
     {
         public int[] ConfirmedTurns { get; private set; }
 
@@ -14,11 +15,9 @@ namespace SocialPoint.Lockstep.Network
             ConfirmedTurns = confirmedTurns;
         }
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(IReaderWrapper reader)
         {
-            base.Deserialize(reader);
             int length = (int)reader.ReadByte();
-
             ConfirmedTurns = new int[length];
             for(int i = 0; i < length; ++i)
             {
@@ -26,14 +25,20 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(IWriterWrapper writer)
         {
-            base.Serialize(writer);
-
             writer.Write((byte)ConfirmedTurns.Length);
             for(int i = 0; i < ConfirmedTurns.Length; ++i)
             {
                 writer.Write(ConfirmedTurns[i]);
+            }
+        }
+
+        public bool RequiresSync
+        {
+            get
+            {
+                return false;
             }
         }
     }

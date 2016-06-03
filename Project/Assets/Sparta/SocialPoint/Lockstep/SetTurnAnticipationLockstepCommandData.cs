@@ -1,15 +1,16 @@
 ﻿using System;
-using UnityEngine.Networking;
+using SocialPoint.Utils;
 using System.Collections.Generic;
+using System.IO;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
-    public class NetworkSetTurnAnticipationLockstepCommandData : NetworkLockstepCommandData
+    public class SetTurnAnticipationLockstepCommandData : LockstepCommandData
     {
         ClientLockstepController _lockstepController;
 
-        public NetworkSetTurnAnticipationLockstepCommandData(int turn, ClientLockstepController lockstepController)
-            : base(turn, NetworkLockstepCommandDataTypes.SetTurnAnticipation)
+        public SetTurnAnticipationLockstepCommandData(int turn, ClientLockstepController lockstepController)
+            : base(turn, LockstepCommandDataTypes.SetTurnAnticipation)
         {
             _lockstepController = lockstepController;
         }
@@ -28,7 +29,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public override void DeserializeCustomData(NetworkReader reader)
+        public override void DeserializeCustomData(IReaderWrapper reader)
         {
         
             byte anticipation = reader.ReadByte();
@@ -39,7 +40,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public override void SerializeCustomData(NetworkWriter writer)
+        public override void SerializeCustomData(IWriterWrapper writer)
         {
             writer.Write((byte)_lockstepCommand.Anticipation);
         }
