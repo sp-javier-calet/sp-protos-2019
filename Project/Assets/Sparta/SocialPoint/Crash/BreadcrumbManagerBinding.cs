@@ -18,9 +18,6 @@ namespace SocialPoint.Crash
 
         #if !UNITY_EDITOR
         [DllImport(PluginModuleName)]
-        private static extern UIntPtr SPUnityBreadcrumbManager_Get();
-
-        [DllImport(PluginModuleName)]
         private static extern void SPUnityBreadcrumbManager_SetMaxLogs(int maxLogs);
 
         [DllImport(PluginModuleName)]
@@ -38,15 +35,6 @@ namespace SocialPoint.Crash
 
 
         /* Game interface */
-
-        public static UIntPtr GetNativeObjectPointer()
-        {
-            #if !UNITY_EDITOR
-            return SPUnityBreadcrumbManager_Get();
-            #else
-            return default(UIntPtr);
-            #endif
-        }
 
         public static void SetMaxLogs(int maxLogs)
         {

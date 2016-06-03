@@ -19,7 +19,7 @@ private:
     std::string _fileSeparator;
     std::string _crashExtension;
     std::string _gameObject;
-    socialpoint::SPUnityBreadcrumbManager* _breadcrumbManager;
+    SPUnityBreadcrumbManager& _breadcrumbManager;
 
     static void onCrash(siginfo_t *info, ucontext_t *uap, void *context)
     {
@@ -58,7 +58,7 @@ private:
     
     void dumpBreadcrumbs()
     {
-        _breadcrumbManager->dumpToFile();
+        _breadcrumbManager.dumpToFile();
     }
 
     bool initializePLCrashReporter()
@@ -96,7 +96,7 @@ public:
 
     SPUnityCrashReporter()
     : _enabled(false)
-    , _breadcrumbManager(socialpoint::SPUnityBreadcrumbManager::getInstance())
+    , _breadcrumbManager(SPUnityBreadcrumbManager::getInstance())
     {
     }
 

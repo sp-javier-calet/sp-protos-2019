@@ -9,10 +9,7 @@ namespace google_breakpad
     class ExceptionHandler;
 }
 
-namespace socialpoint
-{
-    class SPUnityBreadcrumbManager;
-}
+class SPUnityBreadcrumbManager;
 
 class SPUnityCrashReporter
 {
@@ -27,7 +24,7 @@ private:
 
     google_breakpad::ExceptionHandler* _exceptionHandler;
 
-    socialpoint::SPUnityBreadcrumbManager* _breadcrumbManager;
+    SPUnityBreadcrumbManager& _breadcrumbManager;
 
 public:
     SPUnityCrashReporter(const std::string& crashPath,

@@ -8,7 +8,6 @@
 #include "SPUnityCrashReporter.hpp"
 #include "SPUnityBreadcrumbManager.hpp"
 #include "SPUnityFileUtils.hpp"
-using namespace socialpoint;
 
 /* google_breakpad is only supported in arm architectures
  * SPUnityCrashReporter cannot be enabled in x86 builds.
@@ -56,7 +55,7 @@ SPUnityCrashReporter::SPUnityCrashReporter(const std::string& crashPath,
 , _logExtension(logExtension)
 , _gameObject(gameObject)
 , _exceptionHandler(nullptr)
-, _breadcrumbManager(socialpoint::SPUnityBreadcrumbManager::getInstance())
+, _breadcrumbManager(SPUnityBreadcrumbManager::getInstance())
 {
 }
 
@@ -130,5 +129,5 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 
 void SPUnityCrashReporter::dumpBreadcrumbs()
 {
-    _breadcrumbManager->dumpToFile();
+    _breadcrumbManager.dumpToFile();
 }

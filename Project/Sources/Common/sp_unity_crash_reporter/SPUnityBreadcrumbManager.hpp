@@ -4,42 +4,39 @@
 #include <string>
 #include <list>
 
-namespace socialpoint
+class SPUnityBreadcrumbManager
 {
-    class SPUnityBreadcrumbManager
-    {
-      public:
-        typedef std::list<std::string> LogList;
+  public:
+    typedef std::list<std::string> LogList;
 
-        static SPUnityBreadcrumbManager* getInstance();
+    static SPUnityBreadcrumbManager& getInstance();
 
-        //Non-copyable
-        SPUnityBreadcrumbManager(SPUnityBreadcrumbManager const&) = delete;
-        SPUnityBreadcrumbManager& operator=(SPUnityBreadcrumbManager const&) = delete;
-        
-        ~SPUnityBreadcrumbManager() = default;
+    //Non-copyable
+    SPUnityBreadcrumbManager(SPUnityBreadcrumbManager const&) = delete;
+    SPUnityBreadcrumbManager& operator=(SPUnityBreadcrumbManager const&) = delete;
+    
+    ~SPUnityBreadcrumbManager() = default;
 
-        void leaveBreadcrumb(const std::string& info);
-        void setMaxLogs(size_t maxLogs);
-        std::string getLog() const;
-        void clear();
+    void leaveBreadcrumb(const std::string& info);
+    void setMaxLogs(size_t maxLogs);
+    std::string getLog() const;
+    void clear();
 
-        void setDumpFilePath(const std::string& directory, const std::string& file);
-        std::string dumpToFile();
-        std::string dumpToFile(const std::string& directory, const std::string& file);
+    void setDumpFilePath(const std::string& directory, const std::string& file);
+    std::string dumpToFile() const;
+    std::string dumpToFile(const std::string& directory, const std::string& file) const;
 
-      private:
-      	static const unsigned kDefaultSizeLogs;
+  private:
+  	static const unsigned kDefaultSizeLogs;
 
-      	size_t _maxLogs;
-        LogList _logList;
-        std::string _breadcrumbDirectory;
-        std::string _breadcrumbFile;
+  	size_t _maxLogs;
+    LogList _logList;
+    std::string _breadcrumbDirectory;
+    std::string _breadcrumbFile;
 
-        SPUnityBreadcrumbManager();
+    SPUnityBreadcrumbManager();
 
-        void resizeIfNeeded();
-    };
-}
+    void resizeIfNeeded();
+};
 
 #endif /* defined(__SPUnityBreadcrumbManager__) */
