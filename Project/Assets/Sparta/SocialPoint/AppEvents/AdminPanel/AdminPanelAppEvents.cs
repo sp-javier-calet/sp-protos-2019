@@ -124,11 +124,6 @@ namespace SocialPoint.AppEvents
             });
 
             layout.CreateConfirmButton("Kill Game", () => _appEvents.KillGame());
-
-            //*** TEST
-            #if UNITY_ANDROID && !UNITY_EDITOR
-            layout.CreateConfirmButton("Ultra Kill Game", () => System.Diagnostics.Process.GetCurrentProcess().Kill());
-            #endif
         }
 
         void RefreshContent()
