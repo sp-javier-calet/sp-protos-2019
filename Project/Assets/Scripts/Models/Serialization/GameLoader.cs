@@ -22,6 +22,7 @@ public class GameLoader : IGameLoader
 
     IParser<GameModel> _gameParser;
     IParser<PlayerModel> _playerParser;
+    IParser<ConfigModel> _configParser;
     ISerializer<PlayerModel> _playerSerializer;
     GameModel _gameModel;
     ILogin _login;
@@ -42,12 +43,13 @@ public class GameLoader : IGameLoader
         }
     }
 
-    public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser,
-        IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILogin login)
+    public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser, IParser<ConfigModel> configParser,
+                      IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILogin login)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;
         _gameParser = gameParser;
+        _configParser = configParser;
         _playerParser = playerParser;
         _playerSerializer = playerSerializer;
         _gameModel = game;
@@ -61,6 +63,13 @@ public class GameLoader : IGameLoader
         return _gameParser.Parse(gameData);
     }
 
+    ConfigModel LoadConfigModel()
+    {
+        var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+        var gameData = new JsonAttrParser().ParseString(json);
+        return _configParser.Parse(gameData.AsDic["config"]);
+    }
+
     GameModel LoadSavedGame()
     {
         string json = null;
@@ -71,11 +80,11 @@ public class GameLoader : IGameLoader
 
         if(!string.IsNullOrEmpty(json))
         {
-            var gameModel = LoadInitialGame();
+            var gameConfig = LoadConfigModel();
             var playerData = new JsonAttrParser().ParseString(json);
             var player = _playerParser.Parse(playerData);
 
-            gameModel.LoadPlayer(player);
+            var gameModel = new GameModel(gameConfig, player);
 
             return gameModel;
         }
@@ -84,36 +93,27 @@ public class GameLoader : IGameLoader
 
     public GameModel Load(Attr data)
     {
-        GameModel newModel = null;
         if(data != null)
         {
-            newModel = _gameParser.Parse(data);
+            _gameModel = _gameParser.Parse(data);
             data.Dispose();
         }
-        if(newModel == null && IsLocalGame)
+
+        if(_gameModel == null && IsLocalGame)
         {
-            newModel = LoadSavedGame();
+            _gameModel = LoadSavedGame();
         }
-        if(newModel == null)
+
+        if(_gameModel == null)
         {
-            newModel = LoadInitialGame();
+            _gameModel = LoadInitialGame();
         }
-        if(newModel != null && newModel.Player == null)
-        {
-            var ini = LoadInitialGame();
-            if(ini != null)
-            {
-                newModel.Player.Move(ini.Player);
-            }
-        }
-        if(newModel == null)
+
+        if(_gameModel == null)
         {
             throw new InvalidOperationException("Could not load the game.");
         }
-        else
-        {
-            _gameModel.Move(newModel);
-        }
+
         return _gameModel;
     }
 

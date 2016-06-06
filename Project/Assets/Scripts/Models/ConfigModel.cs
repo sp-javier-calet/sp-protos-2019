@@ -12,8 +12,6 @@ public class ConfigModel : IDisposable
     IDictionary<string, ResourceType> _resourceTypes;
     StoreModel _store;
 
-    public event Action<ConfigModel> Moved;
-
     public IEnumerable<ScriptModel> Scripts
     {
         get
@@ -66,25 +64,6 @@ public class ConfigModel : IDisposable
             store = new StoreModel();
         }
         _store = store;
-    }
-
-    public void Move(ConfigModel other)
-    {
-        _globals = other._globals;
-        _scripts = other._scripts;
-        _resourceTypes = other._resourceTypes;
-        _store.Move(other._store);
-
-        other._globals = null;
-        other._scripts = null;
-        other._resourceTypes = null;
-        other._store = null;
-        other.Dispose();
-
-        if(Moved != null)
-        {
-            Moved(this);
-        }
     }
 
     public Attr GetGlobal(string name)

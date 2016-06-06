@@ -6,10 +6,6 @@ public class GameModel : IDisposable
 
     public PlayerModel Player{ get; private set; }
 
-    public event Action<GameModel> Moved;
-
-    public bool IsMoved{ get; private set; }
-
     public GameModel(ConfigModel config = null, PlayerModel player = null)
     {
         if(config == null)
@@ -22,29 +18,6 @@ public class GameModel : IDisposable
             player = new PlayerModel();
         }
         Player = player;
-    }
-
-    public void Move(GameModel other)
-    {
-        IsMoved = true;
-        if(Player != other.Player)
-        {
-            Player.Move(other.Player);
-        }
-
-        if(Config != other.Config)
-        {
-            Config.Move(other.Config);
-        }
-
-        other.Player = null;
-        other.Config = null;
-        other.Dispose();
-
-        if(Moved != null)
-        {
-            Moved(this);
-        }
     }
 
     public void LoadPlayer(PlayerModel player)

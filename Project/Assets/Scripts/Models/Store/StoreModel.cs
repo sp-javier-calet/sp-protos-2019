@@ -8,8 +8,6 @@ public class StoreModel : IStoreProductSource, IDisposable
 {
     public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
 
-    public event Action<StoreModel> Moved;
-
     public string[] ProductIds
     {
         get
@@ -43,19 +41,6 @@ public class StoreModel : IStoreProductSource, IDisposable
         if(_purchaseStore != null)
         {
             _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-        }
-    }
-
-    public void Move(StoreModel other)
-    {
-        PurchaseRewards = other.PurchaseRewards;
-
-        other.PurchaseRewards = null;
-        other.Dispose();
-
-        if(Moved != null)
-        {
-            Moved(this);
         }
     }
 
