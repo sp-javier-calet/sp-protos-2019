@@ -124,15 +124,10 @@
 		7B3856531C98A53800D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557C1C98A35300D04AEF /* libcrypto.a */; };
 		7B3856541C98A53800D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557D1C98A35300D04AEF /* libssl.a */; };
 		F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
-		F523B6521CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in CopyFiles */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
 		F523B6531CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */; };
-		F523B6541CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in CopyFiles */ = {isa = PBXBuildFile; fileRef = F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */; };
 		F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
-		F53B19151CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in CopyFiles */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
 		F53B19161CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */; };
-		F53B19171CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in CopyFiles */ = {isa = PBXBuildFile; fileRef = F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */; };
 		F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
-		F53B19191CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in CopyFiles */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
 		F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */; };
 		F53F908B1CC7D1300020C2AC /* SPPurchaseNativeServices.h in Headers */ = {isa = PBXBuildFile; fileRef = F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */; };
 		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
@@ -224,12 +219,7 @@
 			dstPath = "$(PROJECT_DIR)/../../../Assets/Sparta/Binaries/Plugins/Ios";
 			dstSubfolderSpec = 0;
 			files = (
-				F53B19171CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in CopyFiles */,
-				F53B19191CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in CopyFiles */,
-				F523B6521CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in CopyFiles */,
 				460B35371C3E7AFE003E0D9D /* SPUnityPlugins.framework in CopyFiles */,
-				F53B19151CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in CopyFiles */,
-				F523B6541CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -132,19 +132,6 @@ namespace SocialPoint.Crash
 
         #if UNITY_ANDROID
         const string PluginModuleName = "sp_unity_crash_reporter";
-        
-        
-
-
-
-
-
-
-
-
-
-
-
         #else
         const string PluginModuleName = "__Internal";
         #endif
@@ -191,7 +178,7 @@ namespace SocialPoint.Crash
             ReadPendingCrashes();
 
             // Create listener
-            GameObject listenerGo = new GameObject("SocialPoint.DeviceCrashReporterListener");
+            var listenerGo = new GameObject("SocialPoint.DeviceCrashReporterListener");
             GameObject.DontDestroyOnLoad(listenerGo);
             _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
             _listener.SetBreadcrumbManager(_breadcrumbManager);
@@ -202,14 +189,14 @@ namespace SocialPoint.Crash
 
         public static string GetLogPathFromCrashPath(string fullCrashPath)
         {
-            string fileName = Path.GetFileNameWithoutExtension(fullCrashPath);
-            string logPath = Path.GetDirectoryName(fullCrashPath) + Path.DirectorySeparatorChar + fileName + DeviceCrashReporter.LogExtension;
+            string fileName = Path.GetFileNameWithoutExtension(fullCrashPath) + DeviceCrashReporter.LogExtension;
+            string logPath = Path.Combine(Path.GetDirectoryName(fullCrashPath), fileName);
             return logPath;
         }
 
         public static string ReadStackTraceFromCrashPath(string fullCrashPath)
         {
-            DeviceReport report = new DeviceReport(fullCrashPath);
+            var report = new DeviceReport(fullCrashPath);
             return report.StackTrace;
         }
 
