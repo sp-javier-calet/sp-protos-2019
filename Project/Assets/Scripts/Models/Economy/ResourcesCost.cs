@@ -33,7 +33,7 @@ public class ResourcesCost : ICost
         {
             return null;
         }
-        return new NotEnoughResourcesError(playerModel.Resources.GetMissingResources(_cost));
+        return new NotEnoughResourcesError(ResourcePool.Missing(playerModel.Resources, _cost));
     }
 
     #region ICost implementation
@@ -57,23 +57,4 @@ public class ResourcesCost : ICost
     }
 
     #endregion
-}
-
-public static class ResourcePoolCostExtensions
-{
-    public static ResourcePool GetMissingResources(this ResourcePool playerResources, ResourcePool resources)
-    {
-        ResourcePool missingResources = new ResourcePool();
-        var enumerator = resources.GetEnumerator();
-        while(enumerator.MoveNext())
-        {
-            long playerAmount = playerResources[enumerator.Current.Key];
-            if(playerAmount < enumerator.Current.Value)
-            {
-                missingResources[enumerator.Current.Key] = enumerator.Current.Value - playerAmount;
-            }
-        }
-        enumerator.Dispose();
-        return missingResources;
-    }
 }
