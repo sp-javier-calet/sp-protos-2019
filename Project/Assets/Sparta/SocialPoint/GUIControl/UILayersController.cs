@@ -384,9 +384,7 @@ namespace SocialPoint.GUIControl
 
             if(_overlappedControllers.Contains(controller))
             {
-                bool found = _actualSceneOverlappedControllers.Contains(controller);
-
-                if(found)
+                if(_actualSceneOverlappedControllers.Contains(controller))
                 {
                     _actualSceneOverlappedControllers.Remove(controller);
                 }
@@ -394,19 +392,14 @@ namespace SocialPoint.GUIControl
                 {
                     var overlappedScenesEnumerator = _overlappedScenePrefabs.GetEnumerator();
 
-                    while(overlappedScenesEnumerator.MoveNext() && !found)
+                    while(overlappedScenesEnumerator.MoveNext())
                     {
                         var overlappedControllers = overlappedScenesEnumerator.Current.Value;
 
-                        for(int index = 0; !found && index < overlappedControllers.Count; ++index)
+                        if(overlappedControllers.Contains(controller))
                         {
-                            var overlappedController = overlappedControllers[index];
-
-                            if(overlappedController == controller)
-                            {
-                                overlappedControllers.Remove(overlappedController);
-                                found = true;
-                            }
+                            overlappedControllers.Remove(controller);
+                            break;
                         }
                     }
 
