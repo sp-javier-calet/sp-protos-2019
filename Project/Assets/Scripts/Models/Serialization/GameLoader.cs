@@ -80,38 +80,41 @@ public class GameLoader : IGameLoader
 
         if(!string.IsNullOrEmpty(json))
         {
-            var gameConfig = LoadConfigModel();
+            LoadConfigModel();
             var playerData = new JsonAttrParser().ParseString(json);
-            var player = _playerParser.Parse(playerData);
+            _playerParser.Parse(playerData);
 
-            var gameModel = new GameModel(gameConfig, player);
-
-            return gameModel;
+            return _gameModel;
         }
         return null;
     }
 
     public GameModel Load(Attr data)
     {
+        GameModel newModel = null;
         if(data != null)
         {
-            _gameModel = _gameParser.Parse(data);
+            newModel = _gameParser.Parse(data);
             data.Dispose();
         }
 
-        if(_gameModel == null && IsLocalGame)
+        if(newModel == null && IsLocalGame)
         {
-            _gameModel = LoadSavedGame();
+            newModel = LoadSavedGame();
         }
 
-        if(_gameModel == null)
+        if(newModel == null)
         {
-            _gameModel = LoadInitialGame();
+            newModel = LoadInitialGame();
         }
 
-        if(_gameModel == null)
+        if(newModel == null)
         {
             throw new InvalidOperationException("Could not load the game.");
+        }
+        else
+        {
+            _gameModel.Init();
         }
 
         return _gameModel;

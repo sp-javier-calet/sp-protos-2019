@@ -29,6 +29,7 @@ public class GameModelInstaller : SubInstaller
     GameParser CreateGameParser()
     {
         return new GameParser(
+            Container.Resolve<GameModel>(),
             Container.Resolve<IParser<ConfigModel>>(),
             Container.Resolve<IParser<PlayerModel>>());
     }
@@ -36,6 +37,7 @@ public class GameModelInstaller : SubInstaller
     ConfigParser CreateConfigParser()
     {
         return new ConfigParser(
+            Container.Resolve<ConfigModel>(),
             Container.Resolve<IParser<StoreModel>>(),
             Container.Resolve<IParser<ScriptModel>>());
     }
@@ -43,13 +45,20 @@ public class GameModelInstaller : SubInstaller
     PlayerParser CreatePlayerParser()
     {
         return new PlayerParser(
+            Container.Resolve<PlayerModel>(),
             Container.Resolve<ConfigModel>());
     }
 
     GameModel CreateGameModel()
     {
         var gameModel = new GameModel();
+        gameModel.Initialized += OnGameModelInitialized;
         return gameModel;
+    }
+
+    void OnGameModelInitialized(GameModel game)
+    {
+        
     }
 
     PurchaseRewardsParser CreatePurchaseRewardsParser()
@@ -61,6 +70,7 @@ public class GameModelInstaller : SubInstaller
     StoreParser CreateStoreParser()
     {
         return new StoreParser(
+            Container.Resolve<StoreModel>(),
             Container.Resolve<IParser<IDictionary<string, IReward>>>());
     }
 }

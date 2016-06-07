@@ -5,8 +5,11 @@ public class PlayerParser : IParser<PlayerModel>, ISerializer<PlayerModel>
     const string AttrKeyLevel = "level";
     const string AttrKeyResourcePool = "resources";
 
-    public PlayerParser(ConfigModel config)
+    PlayerModel _playerModel;
+
+    public PlayerParser(PlayerModel playerModel, ConfigModel config)
     {
+        _playerModel = playerModel;
     }
 
     public PlayerModel Parse(Attr data)
@@ -14,7 +17,7 @@ public class PlayerParser : IParser<PlayerModel>, ISerializer<PlayerModel>
         var level = data.AsDic[AttrKeyLevel].AsValue.ToInt();
         var respoolParser = new ResourcePoolParser();
         var resources = respoolParser.Parse(data.AsDic[AttrKeyResourcePool]);
-        return new PlayerModel(level, resources);
+        return _playerModel.Init(level, resources);
     }
 
     public Attr Serialize(PlayerModel player)

@@ -6,15 +6,13 @@ public class PlayerModel : IDisposable
 
     public ResourcePool Resources{ get; private set; }
 
-    public PlayerModel(long level = 0, ResourcePool resources = null)
+    public PlayerModel Init(long level, ResourcePool resources)
     {
         Level = level;
 
-        if(resources == null)
-        {
-            resources = new ResourcePool();
-        }
         Resources = resources;
+
+        return this;
     }
 
     override public string ToString()

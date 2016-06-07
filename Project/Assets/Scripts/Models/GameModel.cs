@@ -6,18 +6,22 @@ public class GameModel : IDisposable
 
     public PlayerModel Player{ get; private set; }
 
-    public GameModel(ConfigModel config = null, PlayerModel player = null)
+    public event Action<GameModel> Initialized;
+
+    public GameModel()
     {
-        if(config == null)
+        Config = new ConfigModel();
+        Player = new PlayerModel();
+    }
+
+    public GameModel Init()
+    {
+        if(Initialized != null)
         {
-            config = new ConfigModel();
+            Initialized(this);
         }
-        Config = config;
-        if(player == null)
-        {
-            player = new PlayerModel();
-        }
-        Player = player;
+
+        return this;
     }
 
     public void LoadPlayer(PlayerModel player)

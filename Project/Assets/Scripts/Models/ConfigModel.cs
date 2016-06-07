@@ -36,34 +36,20 @@ public class ConfigModel : IDisposable
         }
     }
 
-    public ConfigModel(IDictionary<string, Attr> globals = null, 
-                       IList<ScriptModel> scripts = null,
-                       IDictionary<string, ResourceType> resourceTypes = null,
-                       StoreModel store = null)
+    public ConfigModel()
     {
-        if(globals == null)
-        {
-            globals = new Dictionary<string, Attr>();
-        }
+        _store = new StoreModel();
+    }
+
+    public ConfigModel Init(IDictionary<string, Attr> globals, 
+                            IList<ScriptModel> scripts,
+                            IDictionary<string, ResourceType> resourceTypes)
+    {
         _globals = globals;
-
-        if(scripts == null)
-        {
-            scripts = new List<ScriptModel>();
-        }
         _scripts = scripts;
-
-        if(resourceTypes == null)
-        {
-            resourceTypes = new Dictionary<string, ResourceType>();
-        }
         _resourceTypes = resourceTypes;
 
-        if(store == null)
-        {
-            store = new StoreModel();
-        }
-        _store = store;
+        return this;
     }
 
     public Attr GetGlobal(string name)

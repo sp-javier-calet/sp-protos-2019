@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 
 public class StoreModel : IStoreProductSource, IDisposable
 {
-    public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
+    public IDictionary<string, IReward> PurchaseRewards { get; private set; }
 
     public string[] ProductIds
     {
@@ -22,18 +22,32 @@ public class StoreModel : IStoreProductSource, IDisposable
         }
     }
 
+    public IGamePurchaseStore PurchaseStore
+    {
+        set
+        {
+            _purchaseStore = value;
+            if(_purchaseStore != null)
+            {
+                _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+
+                //Each game can set the settings to its liking, it can depend on data sent by backend
+                _purchaseStore.Setup(PlatformPuchaseSettings.GetDebugSettings());
+            }
+        }
+        get
+        {
+            return _purchaseStore;
+        }
+    }
+
     IGamePurchaseStore _purchaseStore;
 
-    public void Init(IGamePurchaseStore purchaseStore)
+    public StoreModel Init(IDictionary<string, IReward> purchaseRewards)
     {
-        _purchaseStore = purchaseStore;
-        if(_purchaseStore != null)
-        {
-            _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+        PurchaseRewards = purchaseRewards;
 
-            //Each game can set the settings to its liking, it can depend on data sent by backend
-            _purchaseStore.Setup(PlatformPuchaseSettings.GetDebugSettings());
-        }
+        return this;
     }
 
     public void Dispose()
