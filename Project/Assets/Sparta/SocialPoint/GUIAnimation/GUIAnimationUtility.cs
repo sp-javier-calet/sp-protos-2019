@@ -75,8 +75,8 @@ namespace SocialPoint.GUIAnimation
                 return;
             }
 
-            List<Animation> children = new List<Animation> (animationsRoot.GetComponentsInChildren<Animation> (true));
-            for (int i = 0; i < children.Count; ++i)
+            List<Animation> children = new List<Animation>(animationsRoot.GetComponentsInChildren<Animation>(true));
+            for(int i = 0; i < children.Count; ++i)
             {
                 if(children[i].gameObject.activeSelf != isActive)
                 {
