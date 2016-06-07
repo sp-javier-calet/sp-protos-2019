@@ -77,7 +77,9 @@ public class BundleManager
             for(int i = 0; i < parents.Count; i++)
             {
                 if (parents[i].children.Count > 0)
+                {
                     SortChilds(parents[i]);
+                }
             }
 
             return parents;
@@ -92,7 +94,9 @@ public class BundleManager
         {
             var bData = BundleManager.GetBundleData(parent.children[i]);
             if (bData.children.Count > 0)
+            {
                 SortChilds(bData);
+            }
         }
     }
     
