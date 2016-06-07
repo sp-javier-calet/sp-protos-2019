@@ -154,18 +154,17 @@ namespace SocialPoint.Dependency
     {
         List<IInstaller> _installed = new List<IInstaller>();
         Dictionary<BindingKey, List<IBinding>> _bindings = new Dictionary<BindingKey, List<IBinding>>();
-        HashSet<IBinding> _resolving = new HashSet<IBinding>();
+        HashSet<IBinding> _resolving;
         List<IBinding> _resolved = new List<IBinding>();
         Dictionary<IBinding, HashSet<object>> _instances;
         Dictionary<IBinding, BindingKey> _lookups;
 
-        IBindingComparer _comparer;
-
         public DependencyContainer()
         {
-            _comparer = new IBindingComparer();
-            _instances = new Dictionary<IBinding, HashSet<object>>(_comparer);
-            _lookups = new Dictionary<IBinding, BindingKey>(_comparer);
+            var comparer = new IBindingComparer();
+            _resolving = new HashSet<IBinding>(comparer);
+            _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
+            _lookups = new Dictionary<IBinding, BindingKey>(comparer);
         }
 
         public void AddBinding(IBinding binding, Type type, string tag = null)

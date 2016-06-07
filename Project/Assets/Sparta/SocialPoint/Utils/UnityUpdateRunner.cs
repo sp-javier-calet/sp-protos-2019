@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using SocialPoint.Base;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -18,12 +19,12 @@ namespace SocialPoint.Utils
     public class FixedUpdateableData
     {
         public readonly double Interval;
-        public double Current;
+        public double CurrentTime;
 
         public FixedUpdateableData(double interval)
         {
             Interval = interval;
-            Current = 0.0;
+            CurrentTime = 0.0;
         }
     }
 
@@ -42,14 +43,15 @@ namespace SocialPoint.Utils
 
     public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler, IFixedUpdateScheduler
     {
-        readonly HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
+        readonly HashSet<IUpdateable> _elements;
         readonly Dictionary<IUpdateable, FixedUpdateableData> _fixedElements;
-        IUpdateableComparer _comparer;
+        readonly List<Exception> _exceptions = new List<Exception>();
 
         public UnityUpdateRunner()
         {
-            _comparer = new IUpdateableComparer();
-            _fixedElements = new Dictionary<IUpdateable, FixedUpdateableData>(_comparer);
+            var comparer = new IUpdateableComparer();
+            _elements = new HashSet<IUpdateable>(comparer);
+            _fixedElements = new Dictionary<IUpdateable, FixedUpdateableData>(comparer);
         }
 
         public void Add(IUpdateable elm)
@@ -100,13 +102,20 @@ namespace SocialPoint.Utils
 
         void Update()
         {
-            //TODO add try catch??
+            _exceptions.Clear();
 
             var itr = _elements.GetEnumerator();
             while(itr.MoveNext())
             {
                 var elm = itr.Current;
-                elm.Update();
+                try
+                {
+                    elm.Update();
+                }
+                catch(Exception e)
+                {
+                    _exceptions.Add(e);
+                }
             }
             itr.Dispose();
 
@@ -114,17 +123,38 @@ namespace SocialPoint.Utils
             var itr2 = _fixedElements.GetEnumerator();
             while(itr2.MoveNext())
             {
-                var interval = itr2.Current.Value.Interval;
-                var current = itr2.Current.Value.Current;
-                if(current >= interval)
+                itr2.Current.Value.CurrentTime += deltaTime;
+
+                var data = itr2.Current.Value;
+                var interval = data.Interval;
+                var currentTime = data.CurrentTime;
+                if(currentTime >= interval)
                 {
                     var elm = itr2.Current.Key;
-                    elm.Update();
-                    itr2.Current.Value.Current = current - interval;
+                    try
+                    {
+                        elm.Update();
+                    }
+                    catch(Exception e)
+                    {
+                        _exceptions.Add(e);
+                    }
+                    itr2.Current.Value.CurrentTime = currentTime - interval;
                 }
-                itr2.Current.Value.Current += deltaTime;
             }
             itr2.Dispose();
+
+            var exceptionsCount = _exceptions.Count;
+            if(exceptionsCount > 0)
+            {
+                var sb = new StringBuilder();
+                for(int i = 0; i < exceptionsCount; i++)
+                {
+                    var ex = _exceptions[i];
+                    sb.Append(ex.Message);
+                }
+                throw new Exception(sb.ToString());
+            }
         }
     }
 
