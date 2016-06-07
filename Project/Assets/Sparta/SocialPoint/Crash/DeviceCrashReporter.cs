@@ -163,8 +163,8 @@ namespace SocialPoint.Crash
         string _appVersion;
         DeviceCrashReporterListener _listener;
 
-        public DeviceCrashReporter(IFixedUpdateScheduler fixedUpdateScheduler, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
-            : base(fixedUpdateScheduler, client, deviceInfo, breadcrumbManager, alertView)
+        public DeviceCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+            : base(updateScheduler, client, deviceInfo, breadcrumbManager, alertView)
         {
             _appVersion = deviceInfo.AppInfo.Version;
             PathsManager.CallOnLoaded(OnPathsLoaded);

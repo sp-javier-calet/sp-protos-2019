@@ -9,7 +9,6 @@ public class BaseInstaller : Installer, IInitializable
         Container.BindUnityComponent<UnityUpdateRunner>();
         Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
-        Container.Rebind<IFixedUpdateScheduler>().ToLookup<UnityUpdateRunner>();
     }
 
     public void Initialize()

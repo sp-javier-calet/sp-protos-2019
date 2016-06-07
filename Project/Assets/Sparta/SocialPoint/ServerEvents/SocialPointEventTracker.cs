@@ -66,7 +66,7 @@ namespace SocialPoint.ServerEvents
         public ICommandQueue CommandQueue;
 
         List<Event> _pendingEvents;
-        IFixedUpdateScheduler _fixedUpdateScheduler;
+        IUpdateScheduler _updateScheduler;
         bool _sending;
         int _lastEventNum;
         long _lastSendTimestamp;
@@ -187,9 +187,9 @@ namespace SocialPoint.ServerEvents
 
         #endregion
 
-        public SocialPointEventTracker(IFixedUpdateScheduler fixedUpdateScheduler, bool autoStart = true)
+        public SocialPointEventTracker(IUpdateScheduler updateScheduler, bool autoStart = true)
         {
-            _fixedUpdateScheduler = fixedUpdateScheduler;
+            _updateScheduler = updateScheduler;
             UnauthorizedEvents = new List<string>(DefaultUnauthorizedEvents);
             _pendingEvents = new List<Event>();
             _running = false;
@@ -336,9 +336,9 @@ namespace SocialPoint.ServerEvents
 
             SetStartValues();
 
-            if(_fixedUpdateScheduler != null)
+            if(_updateScheduler != null)
             {
-                _fixedUpdateScheduler.AddFixed(this, SendInterval);
+                _updateScheduler.AddFixed(this, SendInterval);
                 _running = true;
             }
 
@@ -347,9 +347,9 @@ namespace SocialPoint.ServerEvents
 
         public void Stop()
         {
-            if(_fixedUpdateScheduler != null)
+            if(_updateScheduler != null)
             {
-                _fixedUpdateScheduler.RemoveFixed(this);
+                _updateScheduler.Remove(this);
                 _running = false;
             }
         }

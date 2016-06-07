@@ -261,7 +261,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        IFixedUpdateScheduler _fixedUpdateScheduler;
+        IUpdateScheduler _updateScheduler;
         IAlertView _alertViewPrototype;
 
         float _currentSendInterval = DefaultSendInterval;
@@ -422,10 +422,10 @@ namespace SocialPoint.Crash
             }
         }
 
-        public BaseCrashReporter(IFixedUpdateScheduler fixedUpdateScheduler, IHttpClient client, 
+        public BaseCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, 
                                  IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
-            _fixedUpdateScheduler = fixedUpdateScheduler;
+            _updateScheduler = updateScheduler;
             _running = false;
             _httpClient = client;
             _deviceInfo = deviceInfo;
@@ -462,9 +462,9 @@ namespace SocialPoint.Crash
             WasEnabled = true;
             LogCallbackHandler.RegisterLogCallback(HandleLog);
 
-            if(_fixedUpdateScheduler != null)
+            if(_updateScheduler != null)
             { 
-                _fixedUpdateScheduler.AddFixed(this, SendInterval);
+                _updateScheduler.AddFixed(this, SendInterval);
                 _running = true;
             }
 
@@ -480,9 +480,9 @@ namespace SocialPoint.Crash
             WasEnabled = false;
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
 
-            if(_fixedUpdateScheduler != null)
+            if(_updateScheduler != null)
             { 
-                _fixedUpdateScheduler.RemoveFixed(this);
+                _updateScheduler.Remove(this);
                 _running = false;
             }
 

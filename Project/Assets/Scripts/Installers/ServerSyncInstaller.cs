@@ -41,7 +41,7 @@ public class ServerSyncInstaller : SubInstaller
     CommandQueue CreateCommandQueue()
     {
         return new CommandQueue(
-            Container.Resolve<IFixedUpdateScheduler>(),
+            Container.Resolve<IUpdateScheduler>(),
             Container.Resolve<IHttpClient>());
     }
 

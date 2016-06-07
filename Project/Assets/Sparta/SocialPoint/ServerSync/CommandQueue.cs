@@ -218,7 +218,7 @@ namespace SocialPoint.ServerSync
 
 
         IHttpClient _httpClient;
-        IFixedUpdateScheduler _fixedUpdateScheduler;
+        IUpdateScheduler _updateScheduler;
         Packet _sendingPacket;
         Packet _currentPacket;
         List<Packet> _sentPackets;
@@ -237,12 +237,12 @@ namespace SocialPoint.ServerSync
         long _goToBackgroundTS;
         bool _running;
 
-        public CommandQueue(IFixedUpdateScheduler fixedUpdateScheduler, IHttpClient client)
+        public CommandQueue(IUpdateScheduler updateScheduler, IHttpClient client)
         {
-            DebugUtils.Assert(fixedUpdateScheduler != null);
+            DebugUtils.Assert(updateScheduler != null);
             DebugUtils.Assert(client != null);
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
-            _fixedUpdateScheduler = fixedUpdateScheduler;
+            _updateScheduler = updateScheduler;
             _httpClient = client;
             _synced = true;
             _running = false;
@@ -338,18 +338,18 @@ namespace SocialPoint.ServerSync
             {
                 throw new InvalidOperationException("Request setup callback not assigned.");
             }
-            if(_fixedUpdateScheduler != null)
+            if(_updateScheduler != null)
             {
-                _fixedUpdateScheduler.AddFixed(this, SendInterval);
+                _updateScheduler.AddFixed(this, SendInterval);
                 _running = true;
             }
         }
 
         public void Stop()
         {
-            if(_fixedUpdateScheduler != null)
+            if(_updateScheduler != null)
             {
-                _fixedUpdateScheduler.RemoveFixed(this);
+                _updateScheduler.Remove(this);
                 _running = false;
             }
         }

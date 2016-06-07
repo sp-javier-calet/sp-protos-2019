@@ -16,12 +16,12 @@ namespace SocialPoint.Utils
         public bool All;
     }
 
-    public class FixedUpdateableData
+    public class FixedIntervalData
     {
         public readonly double Interval;
         public double CurrentTime;
 
-        public FixedUpdateableData(double interval)
+        public FixedIntervalData(double interval)
         {
             Interval = interval;
             CurrentTime = 0.0;
@@ -41,17 +41,17 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler, IFixedUpdateScheduler
+    public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
         readonly HashSet<IUpdateable> _elements;
-        readonly Dictionary<IUpdateable, FixedUpdateableData> _fixedElements;
+        readonly Dictionary<IUpdateable, FixedIntervalData> _fixedElements;
         readonly List<Exception> _exceptions = new List<Exception>();
 
         public UnityUpdateRunner()
         {
             var comparer = new ReferenceComparer<IUpdateable>();
             _elements = new HashSet<IUpdateable>(comparer);
-            _fixedElements = new Dictionary<IUpdateable, FixedUpdateableData>(comparer);
+            _fixedElements = new Dictionary<IUpdateable, FixedIntervalData>(comparer);
         }
 
         public void Add(IUpdateable elm)
@@ -65,7 +65,17 @@ namespace SocialPoint.Utils
 
         public void Remove(IUpdateable elm)
         {
-            _elements.Remove(elm);
+            if(elm != null)
+            {
+                if(_elements.Contains(elm))
+                {
+                    _elements.Remove(elm);
+                }
+                if(_fixedElements.ContainsKey(elm))
+                {
+                    _fixedElements.Remove(elm);
+                }
+            }
         }
 
         public void AddFixed(IUpdateable elm, double interval)
@@ -74,13 +84,8 @@ namespace SocialPoint.Utils
             {
                 throw new ArgumentException("elm cannot be null");
             }
-            var fixedUpdateable = new FixedUpdateableData(interval);
-            _fixedElements.Add(elm, fixedUpdateable);
-        }
-
-        public void RemoveFixed(IUpdateable elm)
-        {
-            _fixedElements.Remove(elm);
+            var fixedIntervalData = new FixedIntervalData(interval);
+            _fixedElements.Add(elm, fixedIntervalData);
         }
 
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
