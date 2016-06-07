@@ -28,14 +28,14 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class IUpdateableComparer : IEqualityComparer<IUpdateable>
+    public class ReferenceComparer<T> : IEqualityComparer<T>
     {
-        public bool Equals(IUpdateable x, IUpdateable y)
+        public bool Equals(T x, T y)
         {
             return ReferenceEquals(x, y);
         }
 
-        public int GetHashCode(IUpdateable obj)
+        public int GetHashCode(T obj)
         {
             return obj.GetType().GetHashCode();
         }
@@ -49,7 +49,7 @@ namespace SocialPoint.Utils
 
         public UnityUpdateRunner()
         {
-            var comparer = new IUpdateableComparer();
+            var comparer = new ReferenceComparer<IUpdateable>();
             _elements = new HashSet<IUpdateable>(comparer);
             _fixedElements = new Dictionary<IUpdateable, FixedUpdateableData>(comparer);
         }

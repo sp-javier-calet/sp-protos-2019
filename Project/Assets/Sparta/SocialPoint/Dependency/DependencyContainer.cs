@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
@@ -137,19 +138,6 @@ namespace SocialPoint.Dependency
         }
     }
 
-    public class IBindingComparer : IEqualityComparer<IBinding>
-    {
-        public bool Equals(IBinding x, IBinding y)
-        {
-            return ReferenceEquals(x, y);
-        }
-
-        public int GetHashCode(IBinding obj)
-        {
-            return obj.GetType().GetHashCode();
-        }
-    }
-
     public class DependencyContainer : IDisposable
     {
         List<IInstaller> _installed = new List<IInstaller>();
@@ -161,7 +149,7 @@ namespace SocialPoint.Dependency
 
         public DependencyContainer()
         {
-            var comparer = new IBindingComparer();
+            var comparer = new ReferenceComparer<IBinding>();
             _resolving = new HashSet<IBinding>(comparer);
             _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
             _lookups = new Dictionary<IBinding, BindingKey>(comparer);
