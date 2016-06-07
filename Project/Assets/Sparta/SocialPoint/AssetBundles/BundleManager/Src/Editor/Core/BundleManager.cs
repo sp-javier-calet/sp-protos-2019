@@ -73,7 +73,26 @@ public class BundleManager
             }
             
             parents.Sort((x,y) => x.name.CompareTo(y.name));
+
+            for(int i = 0; i < parents.Count; i++)
+            {
+                if (parents[i].children.Count > 0)
+                    SortChilds(parents[i]);
+            }
+
             return parents;
+        }
+    }
+
+    private static void SortChilds(BundleData parent)
+    {
+        parent.children.Sort((x, y) => x.CompareTo(y));
+
+        for (int i = 0; i < parent.children.Count; i++)
+        {
+            var bData = BundleManager.GetBundleData(parent.children[i]);
+            if (bData.children.Count > 0)
+                SortChilds(bData);
         }
     }
     
