@@ -337,7 +337,9 @@ internal class BundleTreeWin : EditorWindow
         for(int i=0;i<CachedRoots.Count;i++)
         {
             if (CachedRoots[i].name == bundle)
+            {
                 break;
+            }
             else if((!isRoot && CachedRoots[i].children.Contains(bundle)))
             {
                 scrollPos += CachedRoots[i].children.IndexOf(bundle) * m_ItemHeight;
@@ -573,7 +575,9 @@ internal class BundleTreeWin : EditorWindow
     void GUI_UnparentMenuCallback()
     {
         foreach (string bundle in m_Selections)
+        {
             BundleManager.SetParent(bundle, "");
+        }
         
         //m_Selections.Clear();
         BundlesChanged();
@@ -799,7 +803,9 @@ internal class BundleTreeWin : EditorWindow
         rightClickMenu.AddItem(new GUIContent("Delete"), false, GUI_DeleteMenuCallback);
 
         if(hasParent)
+        {
             rightClickMenu.AddItem(new GUIContent("Unparent"), false, GUI_UnparentMenuCallback);
+        }
 
         if (IsMouseOn(itemRect) && Event.current.type == EventType.MouseUp && Event.current.button == 1)
         {
