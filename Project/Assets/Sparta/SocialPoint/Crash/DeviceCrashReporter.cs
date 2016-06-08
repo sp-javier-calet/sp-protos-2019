@@ -162,7 +162,7 @@ namespace SocialPoint.Crash
         string _appVersion;
         DeviceCrashReporterListener _listener;
 
-        public DeviceCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+        public DeviceCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
             : base(runner, client, deviceInfo, breadcrumbManager, alertView)
         {
             _appVersion = deviceInfo.AppInfo.Version;
@@ -260,7 +260,7 @@ namespace SocialPoint.Crash
 
     class DeviceCrashReporterListener : MonoBehaviour
     {
-        BreadcrumbManager _breadcrumbManager;
+        IBreadcrumbManager _breadcrumbManager;
 
         void LeaveBreadcrumb(string message)
         {
@@ -270,7 +270,7 @@ namespace SocialPoint.Crash
             }
         }
 
-        public void SetBreadcrumbManager(BreadcrumbManager breadcrumbManager)
+        public void SetBreadcrumbManager(IBreadcrumbManager breadcrumbManager)
         {
             _breadcrumbManager = breadcrumbManager;
         }

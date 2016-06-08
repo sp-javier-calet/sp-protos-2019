@@ -5,12 +5,6 @@
 #include <dirent.h>
 #include <map>
 
-const std::map<SPUnityFileUtils::AccessMode, const char*> kAccessModeCodes = {{SPUnityFileUtils::AccessMode::Read, "r"},
-                                                                              {SPUnityFileUtils::AccessMode::ReadBinary, "rb"},
-                                                                              {SPUnityFileUtils::AccessMode::Write, "w"}
-                                                                             };
-
-
 bool SPUnityFileUtils::createDirectory(const std::string& pathToDirectory)
 {
     int result = mkdir(pathToDirectory.c_str(), S_IRWXU);
@@ -61,7 +55,6 @@ bool SPUnityFileUtils::renameFile(const std::string& oldPath, const std::string&
 
 bool SPUnityFileUtils::removeFile(const std::string& pathToFile)
 {
-    // If successful, mkdir() returns 0.
     int result = remove(pathToFile.c_str());
 
     return !result;

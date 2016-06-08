@@ -78,7 +78,7 @@ class EventTracker : SocialPointEventTracker
     }
 
     [Inject]
-    BreadcrumbManager injectBreadcrumbManager
+    IBreadcrumbManager injectBreadcrumbManager
     {
         set
         {
@@ -107,7 +107,7 @@ class EventTracker : SocialPointEventTracker
     [Inject]
     IGameErrorHandler _errorHandler;
 
-    public EventTracker(ICoroutineRunner runner):base(runner)
+    public EventTracker(ICoroutineRunner runner) : base(runner)
     {
         _errorHandler.Setup(this);
     }

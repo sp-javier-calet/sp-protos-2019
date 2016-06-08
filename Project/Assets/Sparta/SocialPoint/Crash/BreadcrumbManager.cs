@@ -4,25 +4,25 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Crash
 {
-    public struct Breadcrumb
+    public class BreadcrumbManager : IBreadcrumbManager
     {
-        readonly long timestamp;
-        readonly string info;
-
-        public Breadcrumb(string info)
+        struct Breadcrumb
         {
-            timestamp = TimeUtils.Timestamp;
-            this.info = info;
+            readonly long timestamp;
+            readonly string info;
+
+            public Breadcrumb(string info)
+            {
+                timestamp = TimeUtils.Timestamp;
+                this.info = info;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("{0} \t{1}", TimeUtils.GetTime(timestamp).ToString("yyyy/MM/dd HH:mm:ss"), info);
+            }
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} \t{1}", TimeUtils.GetTime(timestamp).ToString("yyyy/MM/dd HH:mm:ss"), info);
-        }
-    }
-
-    public class BreadcrumbManager
-    {
         const string LastSessionBreadcrumbsName = "old";
         static bool _initialized;
 

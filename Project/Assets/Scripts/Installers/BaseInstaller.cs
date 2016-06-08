@@ -15,7 +15,7 @@ public class BaseInstaller : MonoInstaller, IInitializable
         Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
 
-        Container.Rebind<BreadcrumbManager>().ToSingle();
+        Container.Rebind<IBreadcrumbManager>().ToSingle<BreadcrumbManager>();
     }
 
     public void Initialize()

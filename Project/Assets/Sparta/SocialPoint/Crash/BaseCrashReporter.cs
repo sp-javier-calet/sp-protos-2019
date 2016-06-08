@@ -238,7 +238,7 @@ namespace SocialPoint.Crash
         List<Report> _pendingReports;
         HashSet<string> _uniqueExceptions;
 
-        protected BreadcrumbManager _breadcrumbManager;
+        protected IBreadcrumbManager _breadcrumbManager;
 
         public RequestSetupDelegate RequestSetup;
         public TrackEventDelegate TrackEvent;
@@ -444,7 +444,7 @@ namespace SocialPoint.Crash
         }
 
         public BaseCrashReporter(ICoroutineRunner runner, IHttpClient client, 
-                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+                                 IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
             _runner = runner;
             _httpClient = client;
@@ -456,6 +456,10 @@ namespace SocialPoint.Crash
            
             //only used when crash detected
             _breadcrumbManager = breadcrumbManager;
+            if(_breadcrumbManager == null)
+            {
+                _breadcrumbManager = new EmptyBreadcrumbManager();
+            }
 
             _uniqueExceptions = new HashSet<string>();
 
@@ -463,17 +467,17 @@ namespace SocialPoint.Crash
 
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
 
+            //Check if updated app
             string lastAppVersion = LastAppVersion;
             string currentVersion = _deviceInfo.AppInfo.Version;
             _appWasUpdated = (lastAppVersion != currentVersion) && !String.IsNullOrEmpty(lastAppVersion);
-            if(_breadcrumbManager != null)
+            //Breadcrumb for version
+            _breadcrumbManager.Log("App Version: " + currentVersion);
+            if(_appWasUpdated)
             {
-                _breadcrumbManager.Log("App Version: " + currentVersion);
-                if(_appWasUpdated)
-                {
-                    _breadcrumbManager.Log("App Was Updated. Last Version: " + lastAppVersion);
-                }
+                _breadcrumbManager.Log("App Was Updated. Last Version: " + lastAppVersion);
             }
+            //Update saved version data
             LastAppVersion = _deviceInfo.AppInfo.Version;
         }
 
@@ -732,8 +736,7 @@ namespace SocialPoint.Crash
              * last session and the BreadcrumbManager hadn't been 
              * cleaned (as in any clean stop. See OnApplicationQuit())
              * */
-            if(_breadcrumbManager != null &&
-               _breadcrumbManager.HasOldBreadcrumb &&
+            if(_breadcrumbManager.HasOldBreadcrumb &&
                _wasActiveInLastSession)
             {
                 memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp);
@@ -964,11 +967,7 @@ namespace SocialPoint.Crash
         void CreateCrashLog(Report report, Action callback)
         {
             // Create the log on our storage to be send
-            string oldBreadcrumbs = "";
-            if(_breadcrumbManager != null)
-            {
-                oldBreadcrumbs = _breadcrumbManager.OldBreadcrumb;
-            }
+            string oldBreadcrumbs = _breadcrumbManager.OldBreadcrumb;
 
             var crashLog = new SocialPointCrashLog(report, _deviceInfo, UserId, oldBreadcrumbs);
             _crashStorage.Save(report.Uuid, crashLog);
@@ -1017,11 +1016,8 @@ namespace SocialPoint.Crash
             LastMemoryWarningTimestamp = TimeUtils.Timestamp;
             _memoryWarningReceivedThisSession = true;
 
-            if(_breadcrumbManager != null)
-            {
-                _breadcrumbManager.Log("Memory Warning");
-                _breadcrumbManager.DumpToFile();
-            }
+            _breadcrumbManager.Log("Memory Warning");
+            _breadcrumbManager.DumpToFile();
         }
 
         void OnLevelWasLoaded(int level)
@@ -1037,10 +1033,7 @@ namespace SocialPoint.Crash
 
         void OnApplicationQuit()
         {
-            if(_breadcrumbManager != null)
-            {
-                _breadcrumbManager.RemoveData();
-            }
+            _breadcrumbManager.RemoveData();
         }
 
         static void OnWillGoBackground()

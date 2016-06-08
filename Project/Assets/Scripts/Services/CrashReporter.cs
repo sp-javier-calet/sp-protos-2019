@@ -84,8 +84,8 @@ class CrashReporter : SocialPointCrashReporter
         }
     }
 
-    public CrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbs, IAlertView alertView = null) :
-    base(runner, client, deviceInfo, breadcrumbs, alertView)
+    public CrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbs, IAlertView alertView = null) :
+        base(runner, client, deviceInfo, breadcrumbs, alertView)
     {
     }
 
