@@ -201,18 +201,15 @@ public class BuildConfiger
             case BuildTarget.WebPlayerStreamed:
                 BundleBuildTarget = BuildPlatform.WebPlayer;
                 break;
-#if UNITY_5
             case BuildTarget.iOS:
-#else
-            case BuildTarget.iPhone:
-#endif
+            case BuildTarget.tvOS:
                 BundleBuildTarget = BuildPlatform.IOS;
                 break;
             case BuildTarget.Android:
                 BundleBuildTarget = BuildPlatform.Android;
                 break;
             default:
-                Debug.LogError("Internal error. Bundle Manager dosn't support for platform " + value);
+                Debug.LogError("Internal error. Bundle Manager does not have support for platform " + value);
                 BundleBuildTarget = BuildPlatform.Standalones;
                 break;
             }

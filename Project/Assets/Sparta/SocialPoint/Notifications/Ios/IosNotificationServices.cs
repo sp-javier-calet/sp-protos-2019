@@ -1,4 +1,4 @@
-#if UNITY_IOS
+#if (UNITY_IOS || UNITY_TVOS)
 using UnityEngine;
 using System;
 using System.Collections;
@@ -12,7 +12,7 @@ using NotificationType = UnityEngine.iOS.NotificationType;
 
 namespace SocialPoint.Notifications
 {
-    #if UNITY_IOS
+    #if (UNITY_IOS || UNITY_TVOS)
     public class IosNotificationServices : BaseNotificationServices
     {
         const string TokenSeparator = "-";

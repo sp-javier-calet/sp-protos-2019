@@ -1,4 +1,4 @@
-#if UNITY_IOS
+#if (UNITY_IOS || UNITY_TVOS)
 using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
@@ -10,11 +10,11 @@ using UnityEngine;
 namespace SocialPoint.Purchase
 {
     public class IosPurchaseStore
-    #if UNITY_IOS
+    #if (UNITY_IOS || UNITY_TVOS)
         : IPurchaseStore
     #endif
     {
-        #if UNITY_IOS
+        #if (UNITY_IOS || UNITY_TVOS)
         List<Product> _products;
         string _purchasingProduct;
         List<Receipt> _pendingPurchases;
@@ -157,7 +157,7 @@ namespace SocialPoint.Purchase
         
         public IosPurchaseStore()
         {
-            if(Application.platform != RuntimePlatform.IPhonePlayer)
+            if(Application.platform != RuntimePlatform.IPhonePlayer && Application.platform != RuntimePlatform.tvOS)
             {
                 throw new NotImplementedException("IosPurchaseStore only works on iOS");
             }

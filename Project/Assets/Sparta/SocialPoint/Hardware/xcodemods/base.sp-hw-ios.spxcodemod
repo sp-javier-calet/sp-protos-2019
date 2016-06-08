@@ -1,7 +1,6 @@
 
 {
     "frameworks" : [
-        "CoreTelephony.framework:weak",
         "AdSupport.framework:weak",
         "Security.framework:weak"
     ],

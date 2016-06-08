@@ -1,4 +1,4 @@
-#if (UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR_WIN
+#if (UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR_WIN
 #define NATIVE_RANDOM
 #endif
 
@@ -15,8 +15,7 @@ namespace SocialPoint.Utils
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_utils";
-        
-#elif UNITY_IOS
+        #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
 

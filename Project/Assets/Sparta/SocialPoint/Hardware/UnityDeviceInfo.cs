@@ -70,6 +70,8 @@ namespace SocialPoint.Hardware
                 {
                 case RuntimePlatform.IPhonePlayer:
                     return "ios";
+                case RuntimePlatform.tvOS:
+                    return "tvos";
                 case RuntimePlatform.Android:
                     return "android";
                 default:

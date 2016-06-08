@@ -1,5 +1,5 @@
 // #defines must be placed at the start of the file #csharpfirstworldproblems
-#if UNITY_4 || UNITY_5 || UNITY_4_6
+#if UNITY_5
 #define UNITY
 #endif
 #if DEBUG || UNITY_EDITOR || UNITY_STANDALONE

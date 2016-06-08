@@ -53,11 +53,7 @@ namespace SocialPoint.XCodeEditor
         [PostProcessBuild(101)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            if(target == BuildTarget.iPhone)
-#else
-            if(target == BuildTarget.iOS)
-#endif
+            if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
             {
                 Debug.Log("executing SocialPoint DependencyManager PostProcessor on path '" + path + "'...");
                 

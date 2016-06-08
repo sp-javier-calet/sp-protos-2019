@@ -22,7 +22,7 @@ public class AppsFlyerInstaller : Installer
     {
         #if UNITY_ANDROID
         if(!Settings.ActiveOnAndroid) return;
-        #elif UNITY_IOS
+        #elif (UNITY_IOS || UNITY_TVOS)
         if(!Settings.ActiveOnIOS) return;
         #endif
 
@@ -38,7 +38,7 @@ public class AppsFlyerInstaller : Installer
     SocialPointAppFlyer CreateMobileAppTracking()
     {
         var tracker = new SocialPointAppFlyer();
-        #if UNITY_IOS
+        #if (UNITY_IOS || UNITY_TVOS)
         tracker.AppsFlyerKey = Settings.IOsAppsFlyerKey;
         tracker.AppID = Settings.IOsAppID;
         #elif UNITY_ANDROID

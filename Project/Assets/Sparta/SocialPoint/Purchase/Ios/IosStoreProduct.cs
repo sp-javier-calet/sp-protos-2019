@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 
-#if UNITY_IOS
+#if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
     public class IosStoreProduct

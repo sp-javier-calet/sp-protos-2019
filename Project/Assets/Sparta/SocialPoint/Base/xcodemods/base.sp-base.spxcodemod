@@ -1,7 +1,7 @@
 
 {
     "buildSettings": {
-        "ENABLE_BITCODE": "NO"
+        "ENABLE_BITCODE": "YES"
     },
     "headerpaths": [
         "{ROOT_PATH}/Assets/Plugins/Ios",

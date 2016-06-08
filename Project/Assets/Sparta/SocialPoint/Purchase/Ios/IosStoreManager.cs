@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.Base;
 using UnityEngine;
 
-#if UNITY_IOS
+#if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
     public class IosStoreManager : MonoBehaviour

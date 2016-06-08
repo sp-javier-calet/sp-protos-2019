@@ -3,28 +3,24 @@ using UnityEngine;
 
 namespace SocialPoint.Utils
 {
-/// <summary>
-/// Unity only handles a single delegate registered with Application.RegisterLogCallback
-/// http://feedback.unity3d.com/suggestions/change-application-dot-registerlogcallback-to-allow-multiple-callbacks
-/// 
-/// This class is used to work around that by allowing multiple delegates to hook to the log callback.
-/// source: http://blog.dreasgrech.com/2014/07/a-workaround-for-allowing-multiple.html 
-/// </summary>
+    /// <summary>
+    /// Unity only handles a single delegate registered with Application.RegisterLogCallback
+    /// http://feedback.unity3d.com/suggestions/change-application-dot-registerlogcallback-to-allow-multiple-callbacks
+    /// 
+    /// This class is used to work around that by allowing multiple delegates to hook to the log callback.
+    /// source: http://blog.dreasgrech.com/2014/07/a-workaround-for-allowing-multiple.html 
+    /// </summary>
     public static class LogCallbackHandler
     {
-        private static readonly List<Application.LogCallback> callbacks;
-    
+        static readonly List<Application.LogCallback> callbacks;
+
         static LogCallbackHandler()
         {
             callbacks = new List<Application.LogCallback>();
         
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            Application.RegisterLogCallback(HandleLog);
-#else
             Application.logMessageReceived += HandleLog;
-#endif
         }
-    
+
         /// <summary>
         /// Register a delegate to be called on log messages.
         /// </summary>
@@ -38,8 +34,8 @@ namespace SocialPoint.Utils
         {
             callbacks.Remove(logCallback);
         }
-    
-        private static void HandleLog(string condition, string stackTrace, LogType type)
+
+        static void HandleLog(string condition, string stackTrace, LogType type)
         {
             for(var i = 0; i < callbacks.Count; i++)
             {

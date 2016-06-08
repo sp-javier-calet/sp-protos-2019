@@ -32,7 +32,7 @@ namespace SocialPoint.AppEvents
             DestroyAppEvents();
             #if UNITY_EDITOR
             _appEvents = go.AddComponent<UnityAppEvents>();
-            #elif UNITY_IOS
+            #elif (UNITY_IOS || UNITY_TVOS)
             _appEvents = go.AddComponent<IosAppEvents>();
             #elif UNITY_ANDROID
             _appEvents = go.AddComponent<AndroidAppEvents>();
