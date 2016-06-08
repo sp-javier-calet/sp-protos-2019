@@ -336,22 +336,23 @@ internal class BundleTreeWin : EditorWindow
         float scrollPos = 0;
         for(int i=0;i<CachedRoots.Count;i++)
         {
-            if (CachedRoots[i].name == bundle)
+            var root = CachedRoots[i];
+            if (root.name == bundle)
             {
                 break;
             }
-            else if((!isRoot && CachedRoots[i].children.Contains(bundle)))
+            else if((!isRoot && root.children.Contains(bundle)))
             {
-                scrollPos += CachedRoots[i].children.IndexOf(bundle) * m_ItemHeight;
+                scrollPos += root.children.IndexOf(bundle) * m_ItemHeight;
                 break;
             }
             else
             {
                 scrollPos += m_ItemHeight;
 
-                if (!IsFold(CachedRoots[i].name))
+                if (!IsFold(root.name))
                 {
-                    scrollPos += CalcChildrenScrollSize(CachedRoots[i]);
+                    scrollPos += CalcChildrenScrollSize(root);
                 }
             }
         }
@@ -363,10 +364,11 @@ internal class BundleTreeWin : EditorWindow
         float size = 0;
         for(int i=0;i<parent.children.Count;i++)
         {
+            var child = parent.children[i];
             size += m_ItemHeight;
-            if (!IsFold(parent.children[i]))
+            if (!IsFold(child))
             {
-                CalcChildrenScrollSize(BundleManager.GetBundleData(parent.children[i]));
+                CalcChildrenScrollSize(BundleManager.GetBundleData(child));
             }
         }
         return size;
@@ -375,8 +377,10 @@ internal class BundleTreeWin : EditorWindow
     float CalcMaxScrollSize()
     {
         float size = 0;
-        foreach (BundleData bundleData in CachedRoots)
+        
+        for(int i=0;i<CachedRoots.Count;i++)
         {
+            var bundleData = CachedRoots[i];
             size += m_ItemHeight;
 
             if (!IsFold(bundleData.name))
