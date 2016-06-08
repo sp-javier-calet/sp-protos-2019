@@ -192,7 +192,7 @@ namespace SocialPoint.GUIControl
                     var list = _3dObjectsByController[controller];
                     var canvasList = GetCanvasFromElement(controller.gameObject);
 
-                    if(canvasList[0].renderMode == RenderMode.WorldSpace)
+                    if(canvasList.Count > 0 && canvasList[0].renderMode == RenderMode.WorldSpace)
                     {
                         _3dCameraByController[controller] = _uiCameraByController[controller];
 
