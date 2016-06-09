@@ -6,4 +6,6 @@ OUTPUT=$DIR/test_result.xml
 
 /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchMode -projectPath $DIR/../Project -runEditorTests -editorTestsResultFile $OUTPUT -quit
 
+sed '3q;d' $OUTPUT
+
 echo "Results available at "$OUTPUT
