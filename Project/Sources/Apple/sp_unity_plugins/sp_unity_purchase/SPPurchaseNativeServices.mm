@@ -9,16 +9,16 @@
 #include "SPPurchaseNativeServices.h"
 #include "UnityGameObject.h"
 #include "SPUnityNativeUtils.h"
+#include "SPNativeCallsSender.h"
 
 @implementation SPPurchaseNativeServices
 
-- (id)initWithUnityListener:(const char*)listenerName
+- (id)init
 {
     if((self = [super init]))
     {
         self.products = nil;
         self.request = nil;
-        self.unityListenerName = [NSString stringWithUTF8String:listenerName];
         self.applicationUsername = nil;
         
         self.useApplicationReceipt = false;
@@ -106,7 +106,7 @@
     //Error if no product with matching id was found
     NSString* errorDescription = [NSString stringWithFormat:@"Invalid product ID or product not loaded: %@", productIdentifier];
     [self detailedLog:[NSString stringWithFormat:@"Error Purchasing Product %@: %@", productIdentifier, errorDescription]];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
+    SPNativeCallsSender::SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
 }
 
 -(NSDictionary*)getProductJson:(SKProduct*)product
@@ -301,7 +301,7 @@
 
 - (void)sendUnityDebugLog:(NSString*) logMsg
 {
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", [SPPurchaseNativeServices safeUTF8String:logMsg]);
+    SPNativeCallsSender::SendMessage("StoreDebugLog", [SPPurchaseNativeServices safeUTF8String:logMsg]);
 }
 
 - (void)detailedLog:(NSString*) logMsg
@@ -346,7 +346,7 @@
     [self detailedLog:[NSString stringWithFormat:@"Total Products Loaded %lu", (unsigned long)self.products.count]];
     
     NSString* productsJson = [self getProductsListJsonString:self.products];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:productsJson]);
+    SPNativeCallsSender::SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:productsJson]);
     [self detailedLog:[NSString stringWithFormat:@"Products Loaded: %@", productsJson]];
     
     //Force an update here for all transactions in queue. Because some of them may have been updated too early (before all listeners in Unity were set)
@@ -357,7 +357,7 @@
 {
     _request = nil;
     [self detailedLog:[NSString stringWithFormat:@"Products Request Failed: %@", error.localizedDescription]];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsRequestDidFail", [SPPurchaseNativeServices safeUTF8String:error.localizedDescription]);
+    SPNativeCallsSender::SendMessage("ProductsRequestDidFail", [SPPurchaseNativeServices safeUTF8String:error.localizedDescription]);
 }
 
 #pragma mark - SKPaymentTransactionObserver
@@ -381,7 +381,7 @@
                 NSString* transactionJson = [self getTransactionJsonString:transaction];
                 if (transactionJson)
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
+                    SPNativeCallsSender::SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
                 }
             }
                 break;
@@ -391,11 +391,11 @@
                 NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : [NSString stringWithFormat:@""];
                 if (transaction.error.code == SKErrorPaymentCancelled)
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
+                    SPNativeCallsSender::SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
                 }
                 else
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
+                    SPNativeCallsSender::SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
                 }
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 continue;
@@ -411,7 +411,7 @@
                 NSString* transactionJson = [self getTransactionJsonString:transaction];
                 if (transactionJson)
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
+                    SPNativeCallsSender::SendMessage("TransactionUpdated", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
                 }
             }
                 break;

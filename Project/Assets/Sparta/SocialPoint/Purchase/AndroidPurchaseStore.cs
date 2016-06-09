@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using UnityEngine;
 #endif
 
@@ -17,6 +18,7 @@ namespace SocialPoint.Purchase
         bool _isInitialized;
         List<Product> _products;
         string _productId = string.Empty;
+        AndroidStoreManager _storeManager;
 
         #region IPurchaseStore implementation
 
@@ -118,22 +120,23 @@ namespace SocialPoint.Purchase
 
         #endregion
 
-        public AndroidPurchaseStore()
+        public AndroidPurchaseStore(NativeCallsHandler handler)
         {
             if(Application.platform != RuntimePlatform.Android)
             {
                 throw new NotImplementedException("AndroidPurchaseStore only works on Android");
             }
 
-            AndroidStoreManager.BillingSupportedEvent += BillingSupported;
-            AndroidStoreManager.BillingNotSupportedEvent += BillingNotSupported;
-            AndroidStoreManager.QueryInventorySucceededEvent += ProductListReceived;
-            AndroidStoreManager.QueryInventoryFailedEvent += QueryInventoryFailed;
-            AndroidStoreManager.PurchaseSucceededEvent += PurchaseSucceeded;
-            AndroidStoreManager.PurchaseFailedEvent += PurchaseFailed;
-            AndroidStoreManager.PurchaseCancelledEvent += PurchaseCancelled;
-            AndroidStoreManager.ConsumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
-            AndroidStoreManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
+            _storeManager = new AndroidStoreManager(handler);
+            _storeManager.BillingSupportedEvent += BillingSupported;
+            _storeManager.BillingNotSupportedEvent += BillingNotSupported;
+            _storeManager.QueryInventorySucceededEvent += ProductListReceived;
+            _storeManager.QueryInventoryFailedEvent += QueryInventoryFailed;
+            _storeManager.PurchaseSucceededEvent += PurchaseSucceeded;
+            _storeManager.PurchaseFailedEvent += PurchaseFailed;
+            _storeManager.PurchaseCancelledEvent += PurchaseCancelled;
+            _storeManager.ConsumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
+            _storeManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
@@ -229,15 +232,15 @@ namespace SocialPoint.Purchase
 
         void UnregisterEvents()
         {
-            AndroidStoreManager.BillingSupportedEvent -= BillingSupported;
-            AndroidStoreManager.BillingNotSupportedEvent -= BillingNotSupported;
-            AndroidStoreManager.QueryInventorySucceededEvent -= ProductListReceived;
-            AndroidStoreManager.QueryInventoryFailedEvent -= QueryInventoryFailed;
-            AndroidStoreManager.PurchaseSucceededEvent -= PurchaseSucceeded;
-            AndroidStoreManager.PurchaseFailedEvent -= PurchaseFailed;
-            AndroidStoreManager.PurchaseCancelledEvent -= PurchaseCancelled;
-            AndroidStoreManager.ConsumePurchaseSucceededEvent -= ConsumePurchaseSucceeded;
-            AndroidStoreManager.ConsumePurchaseFailedEvent -= ConsumePurchaseFailed;
+            _storeManager.BillingSupportedEvent -= BillingSupported;
+            _storeManager.BillingNotSupportedEvent -= BillingNotSupported;
+            _storeManager.QueryInventorySucceededEvent -= ProductListReceived;
+            _storeManager.QueryInventoryFailedEvent -= QueryInventoryFailed;
+            _storeManager.PurchaseSucceededEvent -= PurchaseSucceeded;
+            _storeManager.PurchaseFailedEvent -= PurchaseFailed;
+            _storeManager.PurchaseCancelledEvent -= PurchaseCancelled;
+            _storeManager.ConsumePurchaseSucceededEvent -= ConsumePurchaseSucceeded;
+            _storeManager.ConsumePurchaseFailedEvent -= ConsumePurchaseFailed;
             AndroidStoreBinding.Unbind();
         }
 

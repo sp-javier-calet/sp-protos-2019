@@ -1,4 +1,4 @@
-package es.socialpoint.sparta.purchase;
+ package es.socialpoint.sparta.purchase;
 
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,7 +15,7 @@ import org.json.JSONObject;
 
 import es.socialpoint.unity.base.SPUnityActivityEventListener;
 import es.socialpoint.unity.base.SPUnityActivityEventManager;
-import es.socialpoint.unity.base.UnityGameObject;
+import es.socialpoint.unity.base.SPNativeCallsSender;
 
 import es.socialpoint.sparta.purchase.utils.IabBroadcastReceiver;
 import es.socialpoint.sparta.purchase.utils.IabBroadcastReceiver.IabBroadcastListener;
@@ -39,8 +39,6 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     // Debug tag, for logging
     private static final String TAG = "[SP-IAP]";
 
-    //Class to send messages to Unity
-    private UnityGameObject _unityMessageSender;
     // The helper object
     private IabHelper _helper;
     // Provides purchase notification while this app is running
@@ -54,10 +52,8 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     private boolean _highDetailedLogEnabled;
     private boolean _setupReady;
 
-    public SPPurchaseNativeServices(String listenerObjectName, boolean enableLogs)
+    public SPPurchaseNativeServices(boolean enableLogs)
     {
-        _unityMessageSender = new UnityGameObject(listenerObjectName);
-
         _lastRequestedProductIds = new ArrayList<String>();
 
         _highDetailedLogEnabled = enableLogs;
@@ -81,7 +77,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                     // Oh noes, there was a problem.
                     String errorMessage = "Problem setting up in-app billing: " + result;
                     detailedLog(errorMessage);
-                    _unityMessageSender.SendMessage("OnBillingNotSupported", errorMessage);
+                    SPNativeCallsSender.SendMessage("OnBillingNotSupported", errorMessage);
                     return;
                 }
 
@@ -93,7 +89,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 UnityPlayer.currentActivity.registerReceiver(_broadcastReceiver, broadcastFilter);
 
                 // IAB is fully set up.
-                _unityMessageSender.SendMessage("OnBillingSupported", "");
+                SPNativeCallsSender.SendMessage("OnBillingSupported", "");
             }
         });
     }
@@ -128,7 +124,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
         if(!isHelperReady())
         {
-            _unityMessageSender.SendMessage("OnQueryInventoryFailed", "Setup not ready");
+            SPNativeCallsSender.SendMessage("OnQueryInventoryFailed", "Setup not ready");
             return;
         }
 
@@ -144,7 +140,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 {
                     String errorMessage = "Products Request Cancelled: Another async operation in progress";
                     detailedLog(errorMessage);
-                    _unityMessageSender.SendMessage("OnQueryInventoryFailed", errorMessage);
+                    SPNativeCallsSender.SendMessage("OnQueryInventoryFailed", errorMessage);
                 }
             }
         });
@@ -156,7 +152,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
         if(!isHelperReady())
         {
-            _unityMessageSender.SendMessage("OnPurchaseFailed", "Setup not ready");
+            SPNativeCallsSender.SendMessage("OnPurchaseFailed", "Setup not ready");
             return;
         }
 
@@ -173,7 +169,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 {
                     String errorMessage = "Product Purchase Cancelled: Another async operation in progress";
                     detailedLog(errorMessage);
-                    _unityMessageSender.SendMessage("OnPurchaseFailed", errorMessage);
+                    SPNativeCallsSender.SendMessage("OnPurchaseFailed", errorMessage);
                 }
             }
         });
@@ -218,7 +214,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
         if(!isHelperReady() || _inventory == null)
         {
-            _unityMessageSender.SendMessage("OnConsumePurchaseFailed", "Setup not ready");
+            SPNativeCallsSender.SendMessage("OnConsumePurchaseFailed", "Setup not ready");
             return;
         }
 
@@ -235,14 +231,14 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                     }
                     else
                     {
-                        _unityMessageSender.SendMessage("OnConsumePurchaseFailed", "Invalid transaction data");
+                        SPNativeCallsSender.SendMessage("OnConsumePurchaseFailed", "Invalid transaction data");
                     }
                 }
                 catch (IabAsyncInProgressException e)
                 {
                     String errorMessage = "Consume Product Cancelled: Another async operation in progress";
                     detailedLog(errorMessage);
-                    _unityMessageSender.SendMessage("OnConsumePurchaseFailed", errorMessage);
+                    SPNativeCallsSender.SendMessage("OnConsumePurchaseFailed", errorMessage);
                 }
             }
         });
@@ -270,7 +266,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 {
                     String errorMessage = "Consume Product Cancelled: Another async operation in progress";
                     detailedLog(errorMessage);
-                    _unityMessageSender.SendMessage("OnConsumePurchaseFailed", errorMessage);
+                    SPNativeCallsSender.SendMessage("OnConsumePurchaseFailed", errorMessage);
                 }
             }
         });
@@ -290,7 +286,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 detailedLog("Purchase successful: " + purchase.getSku());
                 try
                 {
-                    _unityMessageSender.SendMessage("OnPurchaseSucceeded", getTransactionJson(purchase).toString());
+                    SPNativeCallsSender.SendMessage("OnPurchaseSucceeded", getTransactionJson(purchase).toString());
                 }
                 catch (JSONException e)
                 {
@@ -302,7 +298,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
             {
                 String message = "Purchase canceled: " + purchase.getSku();
                 detailedLog(message);
-                _unityMessageSender.SendMessage("OnPurchaseFailed", message);
+                SPNativeCallsSender.SendMessage("OnPurchaseFailed", message);
             }
                 break;
             case PurchaseState.Refunded:
@@ -427,7 +423,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
             if (result.isFailure() || inventory == null)
             {
                 detailedLog("Failed to query inventory: " + result);
-                _unityMessageSender.SendMessage("OnQueryInventoryFailed", result.toString());
+                SPNativeCallsSender.SendMessage("OnQueryInventoryFailed", result.toString());
                 return;
             }
 
@@ -436,7 +432,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
             // Loaded products
             List<SkuDetails> skus = inventory.getAllSkuDetails();
-            _unityMessageSender.SendMessage("OnQueryInventorySucceeded", getProductsJson(skus).toString());
+            SPNativeCallsSender.SendMessage("OnQueryInventorySucceeded", getProductsJson(skus).toString());
 
             //Pending purchases
             List<Purchase> purchases = inventory.getAllPurchases();
@@ -463,12 +459,12 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 {
                     case IabHelper.IABHELPER_USER_CANCELLED:
                     {
-                        _unityMessageSender.SendMessage("OnPurchaseCancelled", result.toString());
+                        SPNativeCallsSender.SendMessage("OnPurchaseCancelled", result.toString());
                     }
                         break;
                     default:
                     {
-                        _unityMessageSender.SendMessage("OnPurchaseFailed", result.toString());
+                        SPNativeCallsSender.SendMessage("OnPurchaseFailed", result.toString());
                     }
                         break;
                 }
@@ -498,7 +494,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
             if (result.isFailure() || purchase == null)
             {
                 detailedLog("Consume failed: " + result);
-                _unityMessageSender.SendMessage("OnConsumePurchaseFailed", result.toString());
+                SPNativeCallsSender.SendMessage("OnConsumePurchaseFailed", result.toString());
                 return;
             }
 
@@ -506,7 +502,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
             detailedLog("Consume successful: " + purchase.getSku());
             try
             {
-                _unityMessageSender.SendMessage("OnConsumePurchaseSucceeded", getTransactionJson(purchase).toString());
+                SPNativeCallsSender.SendMessage("OnConsumePurchaseSucceeded", getTransactionJson(purchase).toString());
             }
             catch (JSONException e)
             {
