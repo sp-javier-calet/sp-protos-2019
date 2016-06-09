@@ -583,7 +583,6 @@ internal class BundleTreeWin : EditorWindow
             BundleManager.SetParent(bundle, "");
         }
         
-        //m_Selections.Clear();
         BundlesChanged();
         Repaint();
         m_ScrollPos.y = FindScrollPosOfBundle(m_Selections[0], true);
