@@ -1,25 +1,20 @@
 
-#include "UnityGameObject.h"
+#include "SPNativeCallsSender.h"
 #include <android/log.h>
 
-#define LOG_TAG "UnityGameObject"
+#define LOG_TAG "SPNativeCallsSender"
 #define  LogError(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-JavaVM* UnityGameObject::_java = nullptr;
-jclass UnityGameObject::_jcls = nullptr;
+JavaVM* SPNativeCallsSender::_java = nullptr;
+jclass SPNativeCallsSender::_jcls = nullptr;
 
-UnityGameObject::UnityGameObject(const std::string name)
-{
-    _objectName = name;
-}
-
-void UnityGameObject::setJava(JavaVM* java)
+void SPNativeCallsSender::setJava(JavaVM* java)
 {
     if(java)
     {
         _java = java;
         JniEnv env(_java);
-        jclass jcls = env->FindClass("es/socialpoint/unity/base/SPUnityActivity");
+        jclass jcls = env->FindClass("es/socialpoint/unity/base/SPNativeCallsSender");
         _jcls = (jclass)env->NewGlobalRef(jcls);
         env->DeleteLocalRef(jcls);
         LogError("Got ref UnityPlayer=%x", (uintptr_t)_jcls);
@@ -36,15 +31,15 @@ void UnityGameObject::setJava(JavaVM* java)
     }
 }
 
-void UnityGameObject::SendMessage(const std::string& method)
+void SPNativeCallsSender::SendMessage(const std::string& method)
 {
     SendMessage(method, std::string());
 }
 
-void UnityGameObject::SendMessage(const std::string& method, const std::string& parameter)
+void SPNativeCallsSender::SendMessage(const std::string& method, const std::string& parameter)
 {
-    LogError("Trying to call UnitySendMessage %s.%s(\"%s\")", _objectName.c_str(), method.c_str(), parameter.c_str());
-    if(_objectName.empty() || method.empty())
+    LogError("Trying to call UnitySendMessage %s(\"%s\")", method.c_str(), parameter.c_str());
+    if(method.empty())
     {
         LogError("Invalid parameters.");
         return;
@@ -57,11 +52,10 @@ void UnityGameObject::SendMessage(const std::string& method, const std::string& 
     }
 
     jmethodID jsendmsg = env->GetStaticMethodID(_jcls,
-         "UnitySendMessage", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
-    jstring objectStr = env->NewStringUTF(_objectName.c_str());
+         "SendMessage", "(Ljava/lang/String;Ljava/lang/String;)V");
     jstring methodStr = env->NewStringUTF(method.c_str());
     jstring parameterStr = env->NewStringUTF(parameter.c_str());
-    env->CallStaticVoidMethod(_jcls, jsendmsg, objectStr, methodStr, parameterStr);
+    env->CallStaticVoidMethod(_jcls, jsendmsg, methodStr, parameterStr);
     jthrowable jexc = env->ExceptionOccurred();
     if (jexc)
     {

@@ -11,7 +11,9 @@ LOCAL_ARM_MODE  := arm
 LOCAL_CFLAGS    := -Werror
 LOCAL_SRC_FILES := $(SRC_PATH)/main.cpp \
 		$(SRC_PATH)/UnityGameObject.cpp \
-		$(COMMON_SRC_PATH)/SPUnityUtils.cpp
+		$(COMMON_SRC_PATH)/SPUnityUtils.cpp \
+		$(SRC_PATH)/SPNativeCallsSender.cpp \
+		$(SRC_PATH)/JniEnv.cpp 
 
 LOCAL_EXPORT_C_INCLUDES := $(SRC_PATH)
 LOCAL_LDLIBS := -llog
