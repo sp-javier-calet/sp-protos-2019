@@ -1,10 +1,11 @@
 using System;
-using UnityEngine;
-using SocialPoint.Dependency;
 using SocialPoint.Alert;
-using SocialPoint.GUIControl;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
+using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Utils;
+using UnityEngine;
 
 public class AlertInstaller : Installer
 {
@@ -25,7 +26,7 @@ public class AlertInstaller : Installer
         UnityAlertView.HideDelegate = HideUnityAlert;
         if(Settings.UseNativeAlert)
         {
-            Container.Rebind<IAlertView>().ToSingle<AlertView>();
+            Container.Rebind<IAlertView>().ToMethod<AlertView>(CreateAlertView);
         }
         else
         {
@@ -42,7 +43,7 @@ public class AlertInstaller : Installer
     public AlertBridge CreateAlertBridge()
     {
         return new AlertBridge(Container.Resolve<IAlertView>());
-    }        
+    }
 
     void ShowUnityAlert(GameObject go)
     {
@@ -62,10 +63,19 @@ public class AlertInstaller : Installer
         }
     }
 
+    AlertView CreateAlertView()
+    {
+        var alert = new AlertView();
+        #if UNITY_IOS && !UNITY_EDITOR
+        alert.Handler = Container.Resolve<NativeCallsHandler>();
+        #endif
+        return alert;
+    }
+
     void HideUnityAlert(GameObject go)
     {
         var ctrl = go.GetComponent<UIViewController>();
-        DebugUtils.Assert(ctrl != null,  "GameObject doesn't have a viewController");
+        DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
         ctrl.Hide(true);
     }
 }
