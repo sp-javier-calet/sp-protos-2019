@@ -498,7 +498,6 @@ namespace SocialPoint.Purchase
             //A delegate must exist before doing any attempt
             Assert.IsNotNull(_purchaseCompleted, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
 
-            UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.Contains(productId));
             if(_purchasesInProcess.Contains(productId))
             {
                 _purchaseStore.PurchaseStateChanged(PurchaseState.AlreadyBeingPurchased, productId);
@@ -549,18 +548,18 @@ namespace SocialPoint.Purchase
 
         public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
         {
-            ProductReadyPetition petition = new ProductReadyPetition(pDelegate, timeout);
-
-            if(petition.Callback == null)
+            if(pDelegate == null)
             {
                 return;
             }
 
             if(IsProductReady(productId))
             {
-                petition.Callback(productId);
+                pDelegate(productId);
                 return;
             }
+
+            ProductReadyPetition petition = new ProductReadyPetition(pDelegate, timeout);
 
             List<ProductReadyPetition> onProductReadyPetitions;
             if(!_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
@@ -689,7 +688,7 @@ namespace SocialPoint.Purchase
             case PurchaseState.PurchaseCanceled:
             case PurchaseState.PurchaseFailed:
             case PurchaseState.PurchaseConsumed:
-                UnityEngine.Debug.Log("OnPurchaseUpdated: " + state + " " + productId);
+                DebugLog("OnPurchaseUpdated: " + state + " " + productId);
                 _purchasesInProcess.Remove(productId);
                 UpdateProductReadyPetitions(productId);
                 break;
