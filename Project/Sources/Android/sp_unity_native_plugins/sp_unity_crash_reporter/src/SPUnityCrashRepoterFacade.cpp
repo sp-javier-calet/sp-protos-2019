@@ -6,14 +6,13 @@
 extern "C"{
     SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* path, const char* version,
                                                       const char* fileSeparator, const char* crashExtension,
-                                                      const char* logExtension, const char* gameObject)
+                                                      const char* logExtension)
     {
         return new SPUnityCrashReporter(std::string(path),
                                         std::string(version),
                                         std::string(fileSeparator),
                                         std::string(crashExtension),
-                                        std::string(logExtension),
-                                        std::string(gameObject));
+                                        std::string(logExtension));
     }
 
     void SPUnityCrashReporterEnable(SPUnityCrashReporter* crashReporter)
