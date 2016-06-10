@@ -118,7 +118,7 @@ namespace SocialPoint.Login
             {
                 throw new InvalidOperationException(string.Format("Could not find url for env '{0}'", name));
             }
-            _login.BaseUrl = url;
+            _login.SetBaseUrl(url);
             if(_appEvents != null)
             {
                 _appEvents.RestartGame();

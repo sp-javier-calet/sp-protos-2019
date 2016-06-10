@@ -35,7 +35,7 @@ namespace SocialPoint.Login
         /// <summary>
         /// Base URL to the backend environment
         /// </summary>
-        string BaseUrl { get; set; }
+        string BaseUrl { get; }
 
         /// <summary>
         /// Setup delegate for Http requests
@@ -66,5 +66,7 @@ namespace SocialPoint.Login
         void Login(ErrorDelegate cbk = null);
 
         void ClearStoredUser();
+
+        void SetBaseUrl(string url);
     }
 }
