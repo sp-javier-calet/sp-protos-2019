@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
-using SocialPoint.Base;
-using UnityEngine.Assertions;
-using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
@@ -436,7 +434,7 @@ namespace SocialPoint.Purchase
         public bool Purchase(string productId, Action<PurchaseResponseType> finished = null)
         {
             //A delegate must exist before doing any attempt
-            Assert.IsNotNull(_purchaseCompleted, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
+            DebugUtils.Assert(_purchaseCompleted != null, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
 
             UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.ContainsKey(productId));
             if(_purchasesInProcess.ContainsKey(productId))

@@ -1,10 +1,9 @@
 ﻿using System;
-using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI;
-using UnityEngine.Events;
+using SocialPoint.Base;
+using UnityEngine;
 using UnityEngine.SocialPlatforms;
-using UnityEngine.Assertions;
+using UnityEngine.UI;
 
 namespace SocialPoint.GUIControl
 {
@@ -328,7 +327,7 @@ namespace SocialPoint.GUIControl
             _verticalLayoutGroup = _verticalLayoutGroup ?? GetComponentInChildren<VerticalLayoutGroup>();
             _horizontalLayoutGroup = _horizontalLayoutGroup ?? GetComponentInChildren<HorizontalLayoutGroup>();
 
-            Assert.IsTrue(_verticalLayoutGroup != null || _horizontalLayoutGroup != null, "Vertical or Horizontal layout not found");
+            DebugUtils.Assert(_verticalLayoutGroup != null || _horizontalLayoutGroup != null, "Vertical or Horizontal layout not found");
 
             _scrollRect.vertical = IsVertical;
             _scrollRect.horizontal = !IsVertical;

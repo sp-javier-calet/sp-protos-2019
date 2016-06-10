@@ -1,7 +1,5 @@
-using UnityEngine;
-using UnityEngine.Assertions;
 using System;
-using System.Collections;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Notifications
@@ -36,28 +34,28 @@ namespace SocialPoint.Notifications
          * Default max offset to apply to notifications that require it.
          * (Default value of 2 hours)
          */
-        private static int _defaultMaxOffset = 7200;
+        static int _defaultMaxOffset = 7200;
 
         /**
          * Set the maximun default offset for all notifications
          */
         public static void SetDefaultMaxOffset(int maxOffset)
         {
-            Assert.IsTrue(maxOffset > 0, "Warning: Invalid default offset settings for Notification class");
+            DebugUtils.Assert(maxOffset > 0, "Warning: Invalid default offset settings for Notification class");
             _defaultMaxOffset = maxOffset;
         }
 
         /**
          * The delay in seconds from now when the system should deliver the notification
          */
-        private long _fireDelay = 0;
+        long _fireDelay;
 
         /**
          * Amount of offset to apply to fire delay if needed
          */
-        private long _randomOffset = 0;
+        long _randomOffset;
 
-        private OffsetType _offsetType;
+        OffsetType _offsetType;
 
         /**
          * Set the maximun offset for this notification 
@@ -66,7 +64,7 @@ namespace SocialPoint.Notifications
         {
             set
             {
-                Assert.IsTrue(value > 0, "Warning: Invalid offset settings for notification");
+                DebugUtils.Assert(value > 0, "Warning: Invalid offset settings for notification");
                 _randomOffset = RandomUtils.Range(0, value + 1); //Second param is exclusive for ints, adding 1 to include it 
             }
         }
@@ -113,7 +111,7 @@ namespace SocialPoint.Notifications
          * the number to display as the application's icon badge (used for IOs compatibility)
          */
         [Obsolete("Not supported anymore")]
-        public int IconBadgeNumber = 0;
+        public int IconBadgeNumber;
 
         /**
          * The delay in seconds from now when the system should deliver the notification (taking a random offset into account if needed)
@@ -130,8 +128,6 @@ namespace SocialPoint.Notifications
                     break;
                 case OffsetType.Positive:
                     realFireDelay += _randomOffset;
-                    break;
-                default:
                     break;
                 }
                 return realFireDelay;
