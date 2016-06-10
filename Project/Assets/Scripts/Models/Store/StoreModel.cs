@@ -25,10 +25,13 @@ public class StoreModel : IStoreProductSource, IDisposable
     }
 
     IGamePurchaseStore _purchaseStore;
+    PlayerModel _playerModel;
 
-    public void Init(IGamePurchaseStore purchaseStore)
+    public void Init(IGamePurchaseStore purchaseStore, PlayerModel playerModel)
     {
         _purchaseStore = purchaseStore;
+        _playerModel = playerModel;
+
         if(_purchaseStore != null)
         {
             _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
@@ -70,10 +73,11 @@ public class StoreModel : IStoreProductSource, IDisposable
         switch(response)
         {
         case PurchaseResponseType.Complete:
-            if(PurchaseRewards[receipt.ProductId] != null)
+            IReward reward;
+            if(PurchaseRewards.TryGetValue(receipt.ProductId, out reward))
             {
                 UnityEngine.Debug.Log("purchase validation was ok " + receipt.ProductId);
-                PurchaseRewards[receipt.ProductId].Obtain();
+                reward.Obtain(_playerModel);
             }
             break;
         case PurchaseResponseType.Duplicated:
