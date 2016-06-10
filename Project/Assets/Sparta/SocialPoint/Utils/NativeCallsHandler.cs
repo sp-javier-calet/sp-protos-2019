@@ -61,7 +61,6 @@ namespace SocialPoint.Utils
             #if UNITY_IOS
             SPNativeCallsSender_Init(gameObject.name, MethodName, Separator);
             #elif UNITY_ANDROID && !UNITY_EDITOR
-            print(string.Format("calling {0} with args {1}, {2}, {3}",JavaFullClassName,gameObject.name, MethodName, Separator));
             _nativeCallsSender = new AndroidJavaClass(JavaFullClassName);
             _nativeCallsSender.CallStatic(JavaFunctionInit, gameObject.name, MethodName, Separator);
             #endif
@@ -119,7 +118,6 @@ namespace SocialPoint.Utils
         /// <param name="message">Message. A string containing the method and argument, separated by a defined separator</param>
         public void ReceiveNativeMessage(string message)
         {
-            print(string.Format("Received native message {0}", message));
             var separatorPos = message.IndexOf(Separator);
             var methodName = message.Substring(0, separatorPos);
             var arg = String.Empty;
