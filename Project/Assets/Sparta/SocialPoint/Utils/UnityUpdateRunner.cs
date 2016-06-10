@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Text;
 using SocialPoint.Base;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Utils
@@ -57,7 +56,7 @@ namespace SocialPoint.Utils
 
         public void Add(IUpdateable elm)
         {
-            Assert.IsNotNull(elm);
+            DebugUtils.Assert(elm != null);
             if(elm != null)
             {
                 _elements.Add(elm);
@@ -66,7 +65,7 @@ namespace SocialPoint.Utils
 
         public void AddFixed(IUpdateable elm, double interval)
         {
-            Assert.IsNotNull(elm);
+            DebugUtils.Assert(elm != null);
             if(elm != null)
             {
                 var fixedIntervalData = new FixedIntervalData(interval);
