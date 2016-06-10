@@ -67,11 +67,12 @@ namespace SocialPoint.VideoAds
 
         public event Action AdFinishedEvent;
 
-        public void RequestAd(RequestVideoDelegate cbk = null)
+        public void RequestAd(RequestVideoDelegate cbk)
         {
+            Assert.IsNotNull(cbk);
             if(AdAvailable)
             {
-                cbk(new Error("VideoAd already requested"), RequestVideoResult.Error);
+                cbk(null , RequestVideoResult.Available);
                 return;
             }
             RewardedVideoRequester.Create()
@@ -80,8 +81,9 @@ namespace SocialPoint.VideoAds
                 .Request();
         }
 
-        public void ShowAd(ShowVideoDelegate cbk = null)
+        public void ShowAd(ShowVideoDelegate cbk)
         {
+            Assert.IsNotNull(cbk);
             if(!AdAvailable)
             {
                 cbk(new Error("VideoAd not requested"), ShowVideoResult.Error);
