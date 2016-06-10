@@ -54,9 +54,9 @@ public class CrashInstaller : SubInstaller
 
     void SetupCrashReporter(SocialPointCrashReporter reporter)
     {
-        var login = Container.Resolve<ILogin>();
-        reporter.RequestSetup = login.SetupHttpRequest;
-        reporter.GetUserId = () => login.UserId;
+        var loginData = Container.Resolve<ILoginData>();
+        reporter.RequestSetup = loginData.SetupHttpRequest;
+        reporter.GetUserId = () => loginData.UserId;
         reporter.TrackEvent = Container.Resolve<IEventTracker>().TrackUrgentSystemEvent;
         reporter.AppEvents = Container.Resolve<IAppEvents>();
         reporter.SendInterval = Settings.SendInterval;

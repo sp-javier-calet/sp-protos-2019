@@ -17,14 +17,14 @@ public interface IGameLoader
 
 public class GameLoader : IGameLoader
 {
-    string _jsonGameResource;
-    string _jsonPlayerResource;
+    readonly string _jsonGameResource;
+    readonly string _jsonPlayerResource;
 
-    IParser<GameModel> _gameParser;
-    IParser<PlayerModel> _playerParser;
-    ISerializer<PlayerModel> _playerSerializer;
-    GameModel _gameModel;
-    ILogin _login;
+    readonly IParser<GameModel> _gameParser;
+    readonly IParser<PlayerModel> _playerParser;
+    readonly ISerializer<PlayerModel> _playerSerializer;
+    readonly GameModel _gameModel;
+    readonly ILoginData _loginData;
 
     public string PlayerJsonPath
     {
@@ -38,12 +38,12 @@ public class GameLoader : IGameLoader
     {
         get
         {
-            return _login == null || string.IsNullOrEmpty(_login.BaseUrl);
+            return _loginData == null || string.IsNullOrEmpty(_loginData.BaseUrl);
         }
     }
 
     public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser,
-        IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILogin login)
+        IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILoginData loginData)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;
@@ -51,7 +51,7 @@ public class GameLoader : IGameLoader
         _playerParser = playerParser;
         _playerSerializer = playerSerializer;
         _gameModel = game;
-        _login = login;
+        _loginData = loginData;
     }
 
     GameModel LoadInitialGame()
