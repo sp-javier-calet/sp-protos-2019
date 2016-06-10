@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using SocialPoint.Base;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Utils
@@ -56,11 +57,21 @@ namespace SocialPoint.Utils
 
         public void Add(IUpdateable elm)
         {
-            if(elm == null)
+            Assert.IsNotNull(elm);
+            if(elm != null)
             {
-                throw new ArgumentException("elm cannot be null");
+                _elements.Add(elm);
             }
-            _elements.Add(elm);
+        }
+
+        public void AddFixed(IUpdateable elm, double interval)
+        {
+            Assert.IsNotNull(elm);
+            if(elm != null)
+            {
+                var fixedIntervalData = new FixedIntervalData(interval);
+                _fixedElements.Add(elm, fixedIntervalData);
+            }
         }
 
         public void Remove(IUpdateable elm)
@@ -76,16 +87,6 @@ namespace SocialPoint.Utils
                     _fixedElements.Remove(elm);
                 }
             }
-        }
-
-        public void AddFixed(IUpdateable elm, double interval)
-        {
-            if(elm == null)
-            {
-                throw new ArgumentException("elm cannot be null");
-            }
-            var fixedIntervalData = new FixedIntervalData(interval);
-            _fixedElements.Add(elm, fixedIntervalData);
         }
 
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
