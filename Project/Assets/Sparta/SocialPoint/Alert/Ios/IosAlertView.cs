@@ -26,7 +26,7 @@ namespace SocialPoint.Alert
         public delegate void NativeResultDelegate(int result, string input);
 
         Data _data;
-        public NativeCallsHandler Handler;
+        public NativeCallsHandler NativeHandler;
         NativeResultDelegate _resultDelegate;
 
         #if UNITY_IOS && !UNITY_EDITOR
@@ -107,8 +107,8 @@ namespace SocialPoint.Alert
 
         public void Show(ResultDelegate dlg)
         {
-            Assert.IsNotNull(Handler, "Handler is null, asign a NativeCallsHandler");
-            Handler.RegisterListener("ResultMessage", ResultMessage);
+            Assert.IsNotNull(NativeHandler, "Handler is null, asign a NativeCallsHandler");
+            NativeHandler.RegisterListener("ResultMessage", ResultMessage);
 
             _resultDelegate = (result, inputText) => {
                 _inputText = inputText;
@@ -149,14 +149,14 @@ namespace SocialPoint.Alert
         public void Dispose()
         {
             SPUnityAlertViewHide();
-            Handler.RemoveListener("ResultMessage", ResultMessage);
+            NativeHandler.RemoveListener("ResultMessage", ResultMessage);
         }
 
         public object Clone()
         {
             var clone = new IosAlertView();
             clone._data = _data;
-            clone.Handler = Handler;
+            clone.NativeHandler = NativeHandler;
             return clone;
         }
 

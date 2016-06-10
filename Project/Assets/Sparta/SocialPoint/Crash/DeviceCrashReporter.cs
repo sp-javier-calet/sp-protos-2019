@@ -158,7 +158,7 @@ namespace SocialPoint.Crash
         public const string CrashExtension = ".crash";
         public const string LogExtension = ".logcat";
         public const string FileSeparator = "-";
-        public NativeCallsHandler Handler;
+        public NativeCallsHandler NativeHandler;
 
         string _crashesBasePath;
         UIntPtr _nativeObject;
@@ -190,8 +190,8 @@ namespace SocialPoint.Crash
 
         protected override void OnEnable()
         {
-            Assert.IsNotNull(Handler, "NativeCallsHandler is null");
-            Handler.RegisterListener("OnCrashDumped", OnCrashDumped);
+            Assert.IsNotNull(NativeHandler, "NativeCallsHandler is null");
+            NativeHandler.RegisterListener("OnCrashDumped", OnCrashDumped);
             SPUnityCrashReporterEnable(_nativeObject);
         }
 

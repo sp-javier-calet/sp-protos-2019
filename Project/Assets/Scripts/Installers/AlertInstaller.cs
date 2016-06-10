@@ -67,7 +67,7 @@ public class AlertInstaller : Installer
     {
         var alert = new AlertView();
         #if UNITY_IOS && !UNITY_EDITOR
-        alert.Handler = Container.Resolve<NativeCallsHandler>();
+        alert.NativeHandler = Container.Resolve<NativeCallsHandler>();
         #endif
         return alert;
     }

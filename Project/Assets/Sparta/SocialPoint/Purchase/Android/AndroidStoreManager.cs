@@ -42,15 +42,15 @@ namespace SocialPoint.Purchase
         {
             _handler = handler;
 
-            _handler.RegisterListener("OnBillingNotSupported",OnBillingNotSupported);
-            _handler.RegisterListener("OnBillingSupported",OnBillingSupported);
-            _handler.RegisterListener("OnQueryInventoryFailed",OnQueryInventoryFailed);
-            _handler.RegisterListener("OnQueryInventorySucceeded",OnQueryInventorySucceeded);
-            _handler.RegisterListener("OnPurchaseFailed",OnPurchaseFailed);
-            _handler.RegisterListener("OnPurchaseSucceeded",OnPurchaseSucceeded);
-            _handler.RegisterListener("OnPurchaseCancelled",OnPurchaseCancelled);
-            _handler.RegisterListener("OnConsumePurchaseFailed",OnConsumePurchaseFailed);
-            _handler.RegisterListener("OnConsumePurchaseSucceeded",OnConsumePurchaseSucceeded);
+            _handler.RegisterListener("OnBillingNotSupported", OnBillingNotSupported);
+            _handler.RegisterListener("OnBillingSupported", OnBillingSupported);
+            _handler.RegisterListener("OnQueryInventoryFailed", OnQueryInventoryFailed);
+            _handler.RegisterListener("OnQueryInventorySucceeded", OnQueryInventorySucceeded);
+            _handler.RegisterListener("OnPurchaseFailed", OnPurchaseFailed);
+            _handler.RegisterListener("OnPurchaseSucceeded", OnPurchaseSucceeded);
+            _handler.RegisterListener("OnPurchaseCancelled", OnPurchaseCancelled);
+            _handler.RegisterListener("OnConsumePurchaseFailed", OnConsumePurchaseFailed);
+            _handler.RegisterListener("OnConsumePurchaseSucceeded", OnConsumePurchaseSucceeded);
 
             AndroidStoreBinding.Init();
         }

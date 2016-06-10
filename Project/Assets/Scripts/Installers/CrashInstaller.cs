@@ -65,7 +65,7 @@ public class CrashInstaller : SubInstaller
         reporter.EnableSendingCrashesBeforeLogin = Settings.EnableSendingCrashesBeforeLogin;
         reporter.NumRetriesBeforeSendingCrashBeforeLogin = Settings.NumRetriesBeforeSendingCrashBeforeLogin;
         #if !UNITY_EDITOR
-        (reporter as DeviceCrashReporter).Handler = Container.Resolve<NativeCallsHandler>();
+        reporter.NativeHandler = Container.Resolve<NativeCallsHandler>();
         #endif
     }
 
