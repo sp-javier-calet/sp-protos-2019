@@ -2,8 +2,6 @@
 #include "UnityGameObject.h"
 #import <UIKit/UIKit.h>
 
-#if !UNITY_TVOS
-
 typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
 
 @interface SPAlertView : NSObject<UIAlertViewDelegate>
@@ -179,5 +177,3 @@ EXPORT_API void SPUnityAlertViewHide()
         s_spAlertView = nil;
     }
 }
-
-#endif

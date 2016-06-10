@@ -25,7 +25,7 @@ public class NotificationInstaller : SubInstaller, IInitializable
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #elif UNITY_ANDROID
         Container.Rebind<INotificationServices>().ToMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
-#elif (UNITY_IOS || UNITY_TVOS)
+#elif UNITY_IOS
         Container.Rebind<INotificationServices>().ToMethod<IosNotificationServices>(CreateIosNotificationServices);
 #else
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
@@ -37,7 +37,7 @@ public class NotificationInstaller : SubInstaller, IInitializable
     }
 
 #if !UNITY_EDITOR
-#if (UNITY_IOS || UNITY_TVOS)
+#if UNITY_IOS
     IosNotificationServices CreateIosNotificationServices()
     {
         return new IosNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());

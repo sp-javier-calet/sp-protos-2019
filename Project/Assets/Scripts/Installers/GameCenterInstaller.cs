@@ -18,7 +18,7 @@ public class GameCenterInstaller : Installer
         
     public override void InstallBindings()
     {
-        #if (UNITY_IOS || UNITY_TVOS)
+        #if UNITY_IOS
         if(Settings.UseEmpty)
         {
             Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);

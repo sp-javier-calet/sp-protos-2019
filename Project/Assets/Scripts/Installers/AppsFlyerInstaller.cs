@@ -22,11 +22,11 @@ public class AppsFlyerInstaller : Installer
     {
         #if UNITY_ANDROID
         if(!Settings.ActiveOnAndroid) return;
-        #elif (UNITY_IOS || UNITY_TVOS)
+        #elif UNITY_IOS
         if(!Settings.ActiveOnIOS) return;
         #endif
 
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || UNITY_TVOS
         Container.Bind<IMarketingTracker>().ToSingle<EmptyAppsFlyer>();
         Container.Bind<IDisposable>().ToSingle<EmptyAppsFlyer>();
         #else
@@ -38,7 +38,7 @@ public class AppsFlyerInstaller : Installer
     SocialPointAppFlyer CreateMobileAppTracking()
     {
         var tracker = new SocialPointAppFlyer();
-        #if (UNITY_IOS || UNITY_TVOS)
+        #if UNITY_IOS
         tracker.AppsFlyerKey = Settings.IOsAppsFlyerKey;
         tracker.AppID = Settings.IOsAppID;
         #elif UNITY_ANDROID

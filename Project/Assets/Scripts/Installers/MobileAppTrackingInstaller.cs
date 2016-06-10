@@ -19,7 +19,7 @@ public class MobileAppTrackingInstaller : Installer
     {
         #if UNITY_ANDROID
         if(!Settings.ActiveOnAndroid) return;
-        #elif (UNITY_IOS || UNITY_TVOS)
+        #elif UNITY_IOS
         if(!Settings.ActiveOnIOS) return;
         #endif
         Container.Bind<IMarketingTracker>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);

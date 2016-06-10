@@ -26,7 +26,7 @@ namespace SocialPoint.Notifications
             }
             _appEvents = appEvents;
 
-#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
             Services = new IosNotificationServices(coroutineRunner, commandQueue);
 #elif UNITY_ANDROID && !UNITY_EDITOR
             Services = new AndroidNotificationServices(coroutineRunner, commandQueue);

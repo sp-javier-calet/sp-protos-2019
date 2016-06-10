@@ -3,7 +3,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using UnityEngine;
 
-#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
 
@@ -18,7 +18,7 @@ namespace SocialPoint.Social
         GameCenterUserVerification _verification;
         Error _error;
 
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
         private static extern void SPUnityGameCenter_UserVerificationInit(string name);
         #else

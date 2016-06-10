@@ -33,13 +33,13 @@ public class SocialPointAppFlyer : IMarketingTracker
     {
         if(isNewInstall)
         {
-            #if (UNITY_IOS || UNITY_TVOS)
+            #if UNITY_IOS
             AppsFlyer.getConversionData();
             #elif UNITY_ANDROID
             AppsFlyer.loadConversionData("AppsFlyerTrackerCallbacks", "didReceiveConversionData", "didReceiveConversionDataWithError");
             #endif
         }
-        #if (UNITY_IOS || UNITY_TVOS) //only needed on ios, android does it automatically on the receiver
+        #if UNITY_IOS //only needed on ios, android does it automatically on the receiver
         AppsFlyer.trackAppLaunch();
         #endif
     }
