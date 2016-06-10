@@ -5,7 +5,22 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Login
 {
-    public interface ILogin : IDisposable
+    public interface ILoginData
+    {
+        LocalUser User { get; }
+
+        List<User> Friends { get; }
+
+        UInt64 UserId { get; }
+
+        string SessionId { get; }
+
+        GenericData Data { get; }
+
+        string BaseUrl { get; set; }
+    }
+
+    public interface ILogin : ILoginData, IDisposable
     {
         event NewUserDelegate NewUserEvent;
 
@@ -25,21 +40,9 @@ namespace SocialPoint.Login
 
         event RestartDelegate RestartEvent;
 
-        LocalUser User { get; }
-
-        List<User> Friends { get; }
-
-        UInt64 UserId { get; }
-
-        string SessionId { get; }
-
-        GenericData Data { get; }
-
         void Login(ErrorDelegate cbk = null);
 
         void ClearStoredUser();
-
-        string BaseUrl { get; set; }
 
         void SetupHttpRequest(HttpRequest req, string uri);
     }
