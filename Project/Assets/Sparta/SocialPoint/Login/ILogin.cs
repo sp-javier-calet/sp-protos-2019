@@ -18,6 +18,8 @@ namespace SocialPoint.Login
         GenericData Data { get; }
 
         string BaseUrl { get; set; }
+
+        void SetupHttpRequest(HttpRequest req, string uri);
     }
 
     public interface ILogin : ILoginData, IDisposable
@@ -43,8 +45,6 @@ namespace SocialPoint.Login
         void Login(ErrorDelegate cbk = null);
 
         void ClearStoredUser();
-
-        void SetupHttpRequest(HttpRequest req, string uri);
     }
 
 }

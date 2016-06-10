@@ -38,7 +38,9 @@ public class LoginInstaller : SubInstaller
             ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
             EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
         });
+
         Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
+        Container.Rebind<ILoginData>().ToLookup<ILogin>();
         Container.Bind<IDisposable>().ToLookup<ILogin>();
     }
 
