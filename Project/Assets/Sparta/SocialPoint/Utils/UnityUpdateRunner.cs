@@ -196,7 +196,7 @@ namespace SocialPoint.Utils
                     {
                         _exceptions.Add(e);
                     }
-                    data.CurrentTimeStamp = currentTimeStamp;
+                    data.CurrentTimeStamp = currentTimeStamp + timeDiff;
                 }
             }
             itr3.Dispose();
