@@ -30,7 +30,7 @@ namespace SocialPoint.Purchase
 
         void SetProductMockList(IEnumerable<Product> productMockList);
 
-        bool Purchase(string productId);
+        bool Purchase(string productId, Action<PurchaseResponseType> finished = null);
 
         void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate);
 

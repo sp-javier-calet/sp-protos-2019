@@ -37,7 +37,7 @@ namespace SocialPoint.Purchase
             //TODO: Allow mock products for this class?
         }
 
-        public bool Purchase(string productId)
+        public bool Purchase(string productId, Action<PurchaseResponseType> finished = null)
         {
             if(PurchaseUpdated != null)
             {
@@ -46,6 +46,10 @@ namespace SocialPoint.Purchase
             if(_purchaseCompleted != null)
             {
                 _purchaseCompleted(new Receipt(), PurchaseResponseType.Complete);
+            }
+            if(finished != null)
+            {
+                finished(PurchaseResponseType.Error);
             }
             return true;
         }
