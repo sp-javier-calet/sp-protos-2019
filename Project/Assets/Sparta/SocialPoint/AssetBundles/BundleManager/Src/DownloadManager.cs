@@ -31,8 +31,8 @@ public class DownloadManager : MonoBehaviour
     BuildPlatform _currentBuildPlatform;
     string _spamPort;
 
-    AssetVersioningDictionary _buildStatesLocalDict;
-    AssetVersioningDictionary _assetVersioningDictionary;
+    IAssetVersioningDictionary _buildStatesLocalDict;
+    IAssetVersioningDictionary _assetVersioningDictionary;
     IDeviceInfo _deviceInfo;
 
     // Request members
@@ -216,7 +216,7 @@ public class DownloadManager : MonoBehaviour
         return null;
     }
 
-    public void Initialize(string baseUrl, AssetVersioningDictionary assetVersioningDictionary, IDeviceInfo deviceInfo, ulong minStorageRequiredToDownload = 0, Action LowStorageConditionMetAction = null)
+    public void Initialize(string baseUrl, IAssetVersioningDictionary assetVersioningDictionary, IDeviceInfo deviceInfo, ulong minStorageRequiredToDownload = 0, Action LowStorageConditionMetAction = null)
     {
         SetCurrentPlatform();
 
