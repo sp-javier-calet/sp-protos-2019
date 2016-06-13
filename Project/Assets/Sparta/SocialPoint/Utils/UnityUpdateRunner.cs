@@ -16,15 +16,27 @@ namespace SocialPoint.Utils
         public bool All;
     }
 
-    public class FixedIntervalData
+    public class TimeScaleDependantInterval
     {
         public readonly double Interval;
-        public double CurrentTime;
+        public double AccumTime;
 
-        public FixedIntervalData(double interval)
+        public TimeScaleDependantInterval(double interval)
         {
             Interval = interval;
-            CurrentTime = 0.0;
+            AccumTime = 0.0;
+        }
+    }
+
+    public class TimeScaleNonDependantInterval
+    {
+        public readonly double Interval;
+        public double CurrentTimeStamp;
+
+        public TimeScaleNonDependantInterval(double interval)
+        {
+            Interval = interval;
+            CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
         }
     }
 
@@ -44,14 +56,16 @@ namespace SocialPoint.Utils
     public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
         readonly HashSet<IUpdateable> _elements;
-        readonly Dictionary<IUpdateable, FixedIntervalData> _fixedElements;
+        readonly Dictionary<IUpdateable, TimeScaleDependantInterval> _intervalTimeScaleDependantElements;
+        readonly Dictionary<IUpdateable, TimeScaleNonDependantInterval> _intervalTimeScaleNonDependantElements;
         readonly List<Exception> _exceptions = new List<Exception>();
 
         public UnityUpdateRunner()
         {
             var comparer = new ReferenceComparer<IUpdateable>();
             _elements = new HashSet<IUpdateable>(comparer);
-            _fixedElements = new Dictionary<IUpdateable, FixedIntervalData>(comparer);
+            _intervalTimeScaleDependantElements = new Dictionary<IUpdateable, TimeScaleDependantInterval>(comparer);
+            _intervalTimeScaleNonDependantElements = new Dictionary<IUpdateable, TimeScaleNonDependantInterval>(comparer);
         }
 
         public void Add(IUpdateable elm)
@@ -63,13 +77,21 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void AddFixed(IUpdateable elm, double interval)
+        public void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                var fixedIntervalData = new FixedIntervalData(interval);
-                _fixedElements.Add(elm, fixedIntervalData);
+                if(usesTimeScale)
+                {
+                    var intervalData = new TimeScaleDependantInterval(interval);
+                    _intervalTimeScaleDependantElements.Add(elm, intervalData);
+                }
+                else
+                {
+                    var intervalData = new TimeScaleNonDependantInterval(interval);
+                    _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
+                }
             }
         }
 
@@ -81,9 +103,13 @@ namespace SocialPoint.Utils
                 {
                     _elements.Remove(elm);
                 }
-                if(_fixedElements.ContainsKey(elm))
+                if(_intervalTimeScaleDependantElements.ContainsKey(elm))
                 {
-                    _fixedElements.Remove(elm);
+                    _intervalTimeScaleDependantElements.Remove(elm);
+                }
+                if(_intervalTimeScaleNonDependantElements.ContainsKey(elm))
+                {
+                    _intervalTimeScaleNonDependantElements.Remove(elm);
                 }
             }
         }
@@ -125,15 +151,17 @@ namespace SocialPoint.Utils
             itr.Dispose();
 
             var deltaTime = Time.deltaTime;
-            var itr2 = _fixedElements.GetEnumerator();
+            var itr2 = _intervalTimeScaleDependantElements.GetEnumerator();
             while(itr2.MoveNext())
             {
-                itr2.Current.Value.CurrentTime += deltaTime;
-
                 var data = itr2.Current.Value;
+
+                data.AccumTime += deltaTime;
+
                 var interval = data.Interval;
-                var currentTime = data.CurrentTime;
-                if(currentTime >= interval)
+                var accumTime = data.AccumTime;
+                var timeDiff = accumTime - interval;
+                if(timeDiff >= 0)
                 {
                     var elm = itr2.Current.Key;
                     try
@@ -144,10 +172,34 @@ namespace SocialPoint.Utils
                     {
                         _exceptions.Add(e);
                     }
-                    itr2.Current.Value.CurrentTime = currentTime - interval;
+                    data.AccumTime = timeDiff;
                 }
             }
             itr2.Dispose();
+
+            var currentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
+            var itr3 = _intervalTimeScaleNonDependantElements.GetEnumerator();
+            while(itr3.MoveNext())
+            {
+                var data = itr3.Current.Value;
+                var interval = data.Interval;
+                var timeStampDelta = currentTimeStamp - data.CurrentTimeStamp;
+                var timeDiff = timeStampDelta - interval;
+                if(timeDiff >= 0)
+                {
+                    var elm = itr3.Current.Key;
+                    try
+                    {
+                        elm.Update();
+                    }
+                    catch(Exception e)
+                    {
+                        _exceptions.Add(e);
+                    }
+                    data.CurrentTimeStamp = currentTimeStamp;
+                }
+            }
+            itr3.Dispose();
 
             var exceptionsCount = _exceptions.Count;
             if(exceptionsCount > 0)
