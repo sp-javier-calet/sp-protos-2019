@@ -1,43 +1,36 @@
 ﻿using System;
 using System.Text;
-using UnityEngine.Networking;
 using SocialPoint.Attributes;
+using System.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class AllClientsReadyMessage : MessageBase
+    public class AllClientsReadyMessage : INetworkMessage
     {
-        public int NetworkTimestamp { get; private set; }
-
-        long _timestamp;
-        int _remainingMillisecondsToStart;
-
-        public int GetRemaningMillisecondsToStart(int hostId, int connectionId)
-        {
-            byte error;
-            int serverDelay = hostId != -1 ? NetworkTransport.GetRemoteDelayTimeMS(hostId, connectionId, NetworkTimestamp, out error) : 0;
-            return (int)(_timestamp - SocialPoint.Utils.TimeUtils.TimestampMilliseconds) + _remainingMillisecondsToStart - serverDelay;
-        }
+        public int RemainingMillisecondsToStart { get; private set; }
 
         public AllClientsReadyMessage(int remainingMillisecondsToStart = 0)
         {
-            _timestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
-            _remainingMillisecondsToStart = remainingMillisecondsToStart;
+            RemainingMillisecondsToStart = remainingMillisecondsToStart;
         }
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(IReaderWrapper reader)
         {
-            base.Deserialize(reader);
-            NetworkTimestamp = reader.ReadInt32();
-            _timestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
-            _remainingMillisecondsToStart = reader.ReadInt32();
+            RemainingMillisecondsToStart = reader.ReadInt32();
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(IWriterWrapper writer)
         {
-            base.Serialize(writer);
-            writer.Write(NetworkTransport.GetNetworkTimestamp());
-            writer.Write(_remainingMillisecondsToStart);
+            writer.Write(RemainingMillisecondsToStart);
+        }
+
+        public bool RequiresSync
+        {
+            get
+            {
+                return true;
+            }
         }
     }
 }

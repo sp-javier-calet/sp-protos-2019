@@ -15,10 +15,11 @@ namespace SocialPoint.Lockstep.Network
         }
 
         int _clientsCount;
-        NetworkLockstepCommandDataFactory _networkCommandDataFactory;
+        LockstepCommandDataFactory _networkCommandDataFactory;
         ServerLockstepController _serverLockstep;
         int _startLockstepDelay;
         LockstepConfig _lockstepConfig;
+        INetworkMessageController _messageController;
 
         public short LockstepCommandMsgType { get; protected set; }
 
@@ -35,7 +36,8 @@ namespace SocialPoint.Lockstep.Network
         Dictionary<int, LockstepClientData> _clientDataByConnectionId;
         Dictionary<int, LockstepClientData> _clientDataByClientId;
 
-        public ServerLockstepNetworkController(int clientsCount,
+        public ServerLockstepNetworkController(INetworkMessageController messageController,
+                                               int clientsCount,
                                                LockstepConfig lockstepConfig,
                                                int startLockstepDelay = 5000,
                                                short lockstepCommandMsgType = 2002,
@@ -45,6 +47,7 @@ namespace SocialPoint.Lockstep.Network
                                                short clientReadyMsgType = 2006,
                                                short allClientsReadyMsgType = 2007)
         {
+            _messageController = messageController;
             _clientsCount = clientsCount;
             _clientDataByConnectionId = new Dictionary<int, LockstepClientData>();
             _clientDataByClientId = new Dictionary<int, LockstepClientData>();
@@ -59,7 +62,7 @@ namespace SocialPoint.Lockstep.Network
         }
 
         public void Init(ServerLockstepController serverLockstep,
-                         NetworkLockstepCommandDataFactory networkCommandDataFactory)
+                         LockstepCommandDataFactory networkCommandDataFactory)
         {
             _serverLockstep = serverLockstep;
             _serverLockstep.CommandStep = _lockstepConfig.CommandStep;
@@ -80,46 +83,46 @@ namespace SocialPoint.Lockstep.Network
                 int connectionId = data.ConnectionId;
                 var action = new ConfirmTurnsMessage(_networkCommandDataFactory);
                 action.ConfirmedTurns = turnData;
-                NetworkServer.SendToClient(connectionId, ConfirmTurnsMsgType, action);
+                _messageController.Send(ConfirmTurnsMsgType, action, connectionId);
             }
         }
 
         void RegisterHandlers()
         {
-            NetworkServer.RegisterHandler(ConfirmTurnsReceptionMsgType, OnConfirmTurnsReceptionReceived);
-            NetworkServer.RegisterHandler(LockstepCommandMsgType, OnLockstepCommandReceived);
-            NetworkServer.RegisterHandler(ClientReadyMsgType, OnClientReadyReceived);
+            _messageController.RegisterHandler(ConfirmTurnsReceptionMsgType, OnConfirmTurnsReceptionReceived);
+            _messageController.RegisterHandler(LockstepCommandMsgType, OnLockstepCommandReceived);
+            _messageController.RegisterHandler(ClientReadyMsgType, OnClientReadyReceived);
         }
 
         void UnregisterHandlers()
         {
-            NetworkServer.UnregisterHandler(ConfirmTurnsReceptionMsgType);
-            NetworkServer.UnregisterHandler(LockstepCommandMsgType);
-            NetworkServer.UnregisterHandler(ClientReadyMsgType);
+            _messageController.UnregisterHandler(ConfirmTurnsReceptionMsgType);
+            _messageController.UnregisterHandler(LockstepCommandMsgType);
+            _messageController.UnregisterHandler(ClientReadyMsgType);
         }
 
-        void OnConfirmTurnsReceptionReceived(NetworkMessage netMsg)
+        void OnConfirmTurnsReceptionReceived(NetworkMessageData data)
         {
             var msg = new ConfirmTurnsReceptionMessage();
-            int clientId = _clientDataByConnectionId[netMsg.conn.connectionId].ClientId;
-            msg.Deserialize(netMsg.reader);
+            int clientId = _clientDataByConnectionId[data.ConnectionId].ClientId;
+            msg.Deserialize(data.Reader);
             for(int i = 0; i < msg.ConfirmedTurns.Length; ++i)
             {
                 _serverLockstep.OnClientTurnReceptionConfirmed(clientId, msg.ConfirmedTurns[i]);
             }
         }
 
-        void OnLockstepCommandReceived(NetworkMessage netMsg)
+        void OnLockstepCommandReceived(NetworkMessageData data)
         {
             var msg = new LockstepCommandMessage(_networkCommandDataFactory);
-            int clientId = _clientDataByConnectionId[netMsg.conn.connectionId].ClientId;
-            msg.Deserialize(netMsg.reader);
+            int clientId = _clientDataByConnectionId[data.ConnectionId].ClientId;
+            msg.Deserialize(data.Reader);
             _serverLockstep.OnClientCommandReceived(clientId, msg.LockstepCommand);
         }
 
-        void OnClientReadyReceived(NetworkMessage netMsg)
+        void OnClientReadyReceived(NetworkMessageData data)
         {
-            var clientData = _clientDataByConnectionId[netMsg.conn.connectionId];
+            var clientData = _clientDataByConnectionId[data.ConnectionId];
             if(clientData != null && !clientData.IsReady)
             {
                 clientData.IsReady = true;
@@ -154,7 +157,7 @@ namespace SocialPoint.Lockstep.Network
             if(_serverLockstep != null)
             {
                 AllClientsReadyMessage msg = new AllClientsReadyMessage(_startLockstepDelay);
-                NetworkServer.SendToAll(AllClientsReadyMsgType, msg);
+                _messageController.SendToAll(AllClientsReadyMsgType, msg);
                 _serverLockstep.Start(SocialPoint.Utils.TimeUtils.TimestampMilliseconds + _startLockstepDelay - _serverLockstep.CommandStep);
             }
         }
@@ -173,9 +176,9 @@ namespace SocialPoint.Lockstep.Network
                         };
 
                         _clientDataByClientId[i] = _clientDataByConnectionId[connectionId] = clientData;
-                        NetworkServer.SendToClient(connectionId,
-                            SetLockstepConfigMsgType,
-                            new SetLockstepConfigMessage(_lockstepConfig));
+                        _messageController.Send(SetLockstepConfigMsgType,
+                            new SetLockstepConfigMessage(_lockstepConfig),
+                            connectionId);
                         return;
                     }
                 }

@@ -8,6 +8,7 @@ namespace SocialPoint.Purchase
         const string FullClassName = "es.socialpoint.sparta.purchase.SPPurchaseStore";
 
         const string FunctionInit = "Init";
+        const string FunctionInitWithLogs = "InitWithLogs";
         const string FunctionEnableHighDetailLogs = "EnableHighDetailLogs";
         const string FunctionRequestProductData = "RequestProductData";
         const string FunctionPurchaseProduct = "PurchaseProduct";
@@ -17,12 +18,20 @@ namespace SocialPoint.Purchase
 
         static AndroidJavaClass _notifClass;
 
-        public static void Init(string listenerObjectName)
+        //This should be the first function to call
+        public static void Init(string listenerObjectName, bool highDetailLogsEnabled = false)
         {
             if(Application.platform == RuntimePlatform.Android)
             {
                 _notifClass = new AndroidJavaClass(FullClassName);
-                _notifClass.CallStatic(FunctionInit, listenerObjectName);
+                if(highDetailLogsEnabled)
+                {
+                    _notifClass.CallStatic(FunctionInitWithLogs, listenerObjectName);
+                }
+                else
+                {
+                    _notifClass.CallStatic(FunctionInit, listenerObjectName);
+                }
             }
         }
 

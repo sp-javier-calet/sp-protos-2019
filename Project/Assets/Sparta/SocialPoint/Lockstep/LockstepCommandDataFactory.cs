@@ -1,9 +1,9 @@
 ﻿using System;
-using UnityEngine.Networking;
 using System.Collections.Generic;
 using SocialPoint.Utils;
+using System.IO;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
     public struct TurnTypeTuple
     {
@@ -11,14 +11,14 @@ namespace SocialPoint.Lockstep.Network
         public byte Type;
     }
 
-    public class NetworkLockstepCommandDataFactory : FamilyGenericFactory<TurnTypeTuple, NetworkLockstepCommandData>
+    public class LockstepCommandDataFactory : FamilyGenericFactory<TurnTypeTuple, LockstepCommandData>
     {
-        public NetworkLockstepCommandDataFactory(List<IGenericFactory<TurnTypeTuple, NetworkLockstepCommandData>> factories = null)
+        public LockstepCommandDataFactory(List<IGenericFactory<TurnTypeTuple, LockstepCommandData>> factories = null)
             : base(factories)
         {
         }
 
-        public NetworkLockstepCommandData CreateNetworkLockstepCommandData(ILockstepCommand command)
+        public LockstepCommandData CreateNetworkLockstepCommandData(ILockstepCommand command)
         {
             var commandData = Create(new TurnTypeTuple {
                 Turn = command.Turn,
@@ -28,7 +28,7 @@ namespace SocialPoint.Lockstep.Network
             return commandData;
         }
 
-        public NetworkLockstepCommandData CreateNetworkLockstepCommandData(int turn, NetworkReader reader)
+        public LockstepCommandData CreateNetworkLockstepCommandData(int turn, IReaderWrapper reader)
         {
             byte type = reader.ReadByte();
             var commandData = Create(new TurnTypeTuple {

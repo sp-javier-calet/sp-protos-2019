@@ -49,15 +49,23 @@ namespace SocialPoint.GUIControl
 
         Stack<UICameraData> _activeCameras = new Stack<UICameraData>();
 
-        IDictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
+        Dictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        readonly IDictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
+        readonly Dictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        readonly IDictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
+        readonly Dictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
 
         List<UIViewController> _controllers = new List<UIViewController>();
 
-        IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
+        List<UIViewController> _overlappedControllers = new List<UIViewController>();
+
+        Dictionary<GameObject, List<UIViewController>> _overlappedScenePrefabs = new Dictionary<GameObject, List<UIViewController>>();
+
+        List<UIViewController> _actualSceneOverlappedControllers = new List<UIViewController>();
+
+        GameObject _lastDisplayedScene;
+
+        Dictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
 
         int _currentOrderInLayer;
 
@@ -172,7 +180,12 @@ namespace SocialPoint.GUIControl
 
             for(int i = 0, _controllersCount = _controllers.Count; i < _controllersCount; i++)
             {
-                UIViewController controller = _controllers[i];
+                var controller = _controllers[i];
+
+                if(_overlappedControllers.Contains(controller))
+                {
+                    continue;
+                }
                 if(_activeCameras.Peek().Type != UICameraData.CameraType.GUI2D)
                 {
                     ActivateNextUILayer(UICameraData.CameraType.GUI2D);
@@ -261,12 +274,140 @@ namespace SocialPoint.GUIControl
             RefreshCameras();
         }
 
+        public void DisplayScene(GameObject scene = null)
+        {
+            if(_lastDisplayedScene == scene)
+            {
+                return;
+            }
+
+            OverlapPreviousControllers();
+
+            if(scene == null)
+            {
+                RemoveOverlap(_actualSceneOverlappedControllers);
+
+                _actualSceneOverlappedControllers.Clear();
+            }
+            else
+            {
+                if(_overlappedScenePrefabs.ContainsKey(scene))
+                {
+                    RemoveOverlappedScene(scene);
+                }
+            }
+
+            _lastDisplayedScene = scene;
+
+            RefreshCameras();
+        }
+
+        public void RemoveScene(GameObject scene)
+        {
+            RemoveOverlappedScene(scene);
+        }
+
+        void RemoveOverlappedScene(GameObject scene)
+        {
+            List<UIViewController> controllers;
+
+            if(_overlappedScenePrefabs.TryGetValue(scene, out controllers))
+            {
+                RemoveOverlap(controllers);
+
+                _overlappedScenePrefabs.Remove(scene);
+            }
+        }
+
+        void RemoveOverlap(List<UIViewController> controllers)
+        {
+            for(int index = 0; index < controllers.Count; ++index)
+            {
+                var controller = controllers[index];
+
+                SetCanvasEnabled(controller, true);
+
+                _overlappedControllers.Remove(controller);
+            }
+        }
+
+        void OverlapPreviousControllers()
+        {
+            for(int index = 0; index < _controllers.Count; ++index)
+            {
+                var controller = _controllers[index];
+
+                if(_overlappedControllers.Contains(controller))
+                {
+                    continue;
+                }
+
+                SetCanvasEnabled(controller, false);
+
+                _overlappedControllers.Add(controller);
+
+                if(_lastDisplayedScene == null)
+                {
+                    _actualSceneOverlappedControllers.Add(controller);
+                }
+                else
+                {
+                    List<UIViewController> lastSceneControllers;
+
+                    if(!_overlappedScenePrefabs.TryGetValue(_lastDisplayedScene, out lastSceneControllers))
+                    {
+                        lastSceneControllers = new List<UIViewController>();
+                        _overlappedScenePrefabs[_lastDisplayedScene] = lastSceneControllers;
+                    }
+
+                    lastSceneControllers.Add(controller);
+                }
+            }
+        }
+
+        void SetCanvasEnabled(UIViewController controller, bool enabled)
+        {
+            var canvasList = GetCanvasFromElement(controller.gameObject);
+
+            for(int canvasIndex = 0; canvasIndex < canvasList.Count; ++canvasIndex)
+            {
+                canvasList[canvasIndex].enabled = enabled;
+            }
+        }
+
         public void Remove(UIViewController controller)
         {
             _uiCameraByController.Remove(controller);
             _3dCameraByController.Remove(controller);
             _3dObjectsByController.Remove(controller);
             _controllers.Remove(controller);
+
+            if(_overlappedControllers.Contains(controller))
+            {
+                if(_actualSceneOverlappedControllers.Contains(controller))
+                {
+                    _actualSceneOverlappedControllers.Remove(controller);
+                }
+                else
+                {
+                    var overlappedScenesEnumerator = _overlappedScenePrefabs.GetEnumerator();
+
+                    while(overlappedScenesEnumerator.MoveNext())
+                    {
+                        var overlappedControllers = overlappedScenesEnumerator.Current.Value;
+
+                        if(overlappedControllers.Contains(controller))
+                        {
+                            overlappedControllers.Remove(controller);
+                            break;
+                        }
+                    }
+
+                    overlappedScenesEnumerator.Dispose();
+                }
+
+                _overlappedControllers.Remove(controller);
+            }
 
             RefreshCameras();
         }
@@ -307,6 +448,20 @@ namespace SocialPoint.GUIControl
                     RefreshCameras();
                 }
             }
+        }
+
+        public UICameraData GetCameraDataByLayer(int layer)
+        {
+            for(int index = 0; index < _cameras.Count; ++index)
+            {
+                var cameraData = _cameras[index];
+
+                if(cameraData.Layer == layer)
+                {
+                    return cameraData;
+                }
+            }
+            return null;
         }
     }
 }
