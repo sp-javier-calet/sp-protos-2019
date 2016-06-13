@@ -299,7 +299,9 @@ namespace SocialPoint.Dependency
             {
                 if(itr.Current.Value.Contains(binding))
                 {
-                    return itr.Current.Key;
+                    var key = itr.Current.Key;
+                    itr.Dispose();
+                    return key;
                 }
             }
             itr.Dispose();
@@ -417,7 +419,7 @@ namespace SocialPoint.Dependency
                 container.Install(installers[i]);
             }
         }
-            
+
         public static T Resolve<T>(this DependencyContainer container, string tag=null, T def=default(T))
         {
             return (T)container.Resolve(typeof(T), tag, def);
