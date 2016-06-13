@@ -11,7 +11,7 @@ public class BaseInstaller : Installer, IInitializable
     public override void InstallBindings()
     {
         Container.Bind<IInitializable>().ToInstance(this);
-        Container.BindUnityComponent<UnityUpdateRunner>();
+        Container.RebindUnityComponent<UnityUpdateRunner>();
         Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
     }
