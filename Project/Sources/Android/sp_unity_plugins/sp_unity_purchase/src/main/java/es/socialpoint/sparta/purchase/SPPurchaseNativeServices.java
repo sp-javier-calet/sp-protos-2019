@@ -54,12 +54,13 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
     private boolean _highDetailedLogEnabled;
     private boolean _setupReady;
 
-    public SPPurchaseNativeServices(String listenerObjectName)
+    public SPPurchaseNativeServices(String listenerObjectName, boolean enableLogs)
     {
         _unityMessageSender = new UnityGameObject(listenerObjectName);
 
         _lastRequestedProductIds = new ArrayList<String>();
 
+        _highDetailedLogEnabled = enableLogs;
         _setupReady = false;
 
         // Create the helper, passing it our context and the public key to verify signatures with
@@ -68,6 +69,7 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
 
         // Start setup. This is asynchronous and the specified listener
         // will be called once setup completes.
+        enableHighDetailLogs(enableLogs);
         detailedLog("Starting setup.");
         _helper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             public void onIabSetupFinished(IabResult result) {
@@ -86,13 +88,6 @@ public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityAc
                 _setupReady = true;
                 SPUnityActivityEventManager.register(SPPurchaseNativeServices.this);
 
-                // Important: Dynamically register for broadcast messages about updated purchases.
-                // We register the receiver here instead of as a <receiver> in the Manifest
-                // because we always call getPurchases() at startup, so therefore we can ignore
-                // any broadcasts sent while the app isn't running.
-                // Note: registering this listener in an Activity is a bad idea, but is done here
-                // because this is a SAMPLE. Regardless, the receiver must be registered after
-                // IabHelper is setup, but before first call to getPurchases().
                 _broadcastReceiver = new IabBroadcastReceiver(SPPurchaseNativeServices.this);
                 IntentFilter broadcastFilter = new IntentFilter(IabBroadcastReceiver.ACTION);
                 UnityPlayer.currentActivity.registerReceiver(_broadcastReceiver, broadcastFilter);

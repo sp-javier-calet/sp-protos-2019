@@ -10,9 +10,10 @@ public class StoreParser : IParser<StoreModel>
     PlayerModel _playerModel;
     IParser<IDictionary<string, IReward>> _purchaseRewardsParser;
 
-    public StoreParser(StoreModel storeModel, IParser<IDictionary<string, IReward>> purchaseRewardsParser)
+    public StoreParser(PlayerModel playerModel, StoreModel storeModel, IParser<IDictionary<string, IReward>> purchaseRewardsParser)
     {
         _storeModel = storeModel;
+        _playerModel = playerModel;
         _purchaseRewardsParser = purchaseRewardsParser;
     }
 
@@ -21,7 +22,7 @@ public class StoreParser : IParser<StoreModel>
     public StoreModel Parse(Attr data)
     {
         var purchaseRewards = _purchaseRewardsParser.Parse(data);
-        return _storeModel.Init(purchaseRewards);
+        return _storeModel.Init(purchaseRewards, _playerModel);
     }
 
     #endregion

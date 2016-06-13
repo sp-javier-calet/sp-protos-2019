@@ -35,7 +35,7 @@ namespace SocialPoint.Purchase
 
         void SetProductMockList(IEnumerable<Product> productMockList);
 
-        bool Purchase(string productId);
+        bool Purchase(string productId, Action<PurchaseResponseType> finished = null);
 
         void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate);
 
@@ -77,7 +77,7 @@ namespace SocialPoint.Purchase
             //TODO: Allow mock products for this class?
         }
 
-        public bool Purchase(string productId)
+        public bool Purchase(string productId, Action<PurchaseResponseType> finished = null)
         {
             if(PurchaseUpdated != null)
             {
@@ -86,6 +86,10 @@ namespace SocialPoint.Purchase
             if(_purchaseCompleted != null)
             {
                 _purchaseCompleted(new Receipt(), PurchaseResponseType.Complete);
+            }
+            if(finished != null)
+            {
+                finished(PurchaseResponseType.Error);
             }
             return true;
         }
@@ -126,7 +130,7 @@ namespace SocialPoint.Purchase
         IPurchaseStore _purchaseStore = null;
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
-        List<string> _purchasesInProcess;
+        Dictionary<string, Action<PurchaseResponseType>> _purchasesInProcess;
 
         /// <summary>
         /// The purchase completed function that each game defines.
@@ -187,7 +191,7 @@ namespace SocialPoint.Purchase
             _httpClient = httpClient;
             _commandQueue = commandQueue;
             _purchaseStore.ValidatePurchase = SocialPointValidatePurchase;
-            _purchasesInProcess = new List<string>();
+            _purchasesInProcess = new Dictionary<string, Action<PurchaseResponseType>>();
             ProductListReceived = false;
             RegisterEvents();
         }
@@ -429,19 +433,23 @@ namespace SocialPoint.Purchase
         /// Purchase the specified productId.
         /// </summary>
         /// <param name="productId">Product identifier.</param>
-        public bool Purchase(string productId)
+        public bool Purchase(string productId, Action<PurchaseResponseType> finished = null)
         {
             //A delegate must exist before doing any attempt
             Assert.IsNotNull(_purchaseCompleted, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
 
-            UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.Contains(productId));
-            if(_purchasesInProcess.Contains(productId))
+            UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.ContainsKey(productId));
+            if(_purchasesInProcess.ContainsKey(productId))
             {
                 //FIXME tech add purchasestate purchasealreadyinprocess
                 _purchaseStore.PurchaseStateChanged(PurchaseState.AlreadyBeingPurchased, productId);
+                if(finished != null)
+                {
+                    finished(PurchaseResponseType.Duplicated);
+                }
                 return false;
             }
-            _purchasesInProcess.Add(productId);
+            _purchasesInProcess.Add(productId, finished);
             return _purchaseStore.Purchase(productId);
         }
 
@@ -511,6 +519,19 @@ namespace SocialPoint.Purchase
             }
         }
 
+        void RemovePurchaseInProcess(string productId, PurchaseResponseType purchaseResponse)
+        {
+            Action<PurchaseResponseType> finished;
+            if(_purchasesInProcess.TryGetValue(productId, out finished))
+            {
+                _purchasesInProcess.Remove(productId);
+                if(finished != null)
+                {
+                    finished(purchaseResponse);
+                }
+            }
+        }
+
         void OnPurchaseUpdated(PurchaseState state, string productId)
         {
             switch(state)
@@ -518,8 +539,8 @@ namespace SocialPoint.Purchase
             case PurchaseState.PurchaseCanceled:
             case PurchaseState.PurchaseFailed:
             case PurchaseState.PurchaseConsumed:
-                UnityEngine.Debug.Log("OnPurchaseUpdated: " + state + " " + productId);
-                _purchasesInProcess.Remove(productId);
+                var responseType = state == PurchaseState.PurchaseConsumed ? PurchaseResponseType.Complete : PurchaseResponseType.Error;
+                RemovePurchaseInProcess(productId, responseType);
                 break;
             }
         }

@@ -1,49 +1,47 @@
-﻿
-using System;
+﻿using System;
 using SocialPoint.Base;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
 
-
-public struct NotEnoughResourcesEvent
-{
-    public ResourcePool Cost;
-}
-
 public class ResourcesCost : ICost
 {
-    ResourcePool _playerResources;
-    IEventDispatcher _dispatcher;
+    const string _notEnoughResourcesMessage = "Not enough resources!";
+
     ResourcePool _cost;
 
-    public ResourcesCost(ResourcePool cost, ResourcePool playerResources, IEventDispatcher dispatcher)
+    public ResourcesCost(ResourcePool cost)
     {
         _cost = cost;
-        _playerResources = playerResources;
-        _dispatcher = dispatcher;
+    }
+
+    bool HasEnoughResources(PlayerModel playerModel)
+    {
+        return playerModel.Resources.CanSubstract(_cost);
     }
 
     #region ICost implementation
 
-    public void Spend(Action<Error> finished)
+    public void Spend(PlayerModel playerModel)
     {
-        if(!_playerResources.CanSubstract(_cost))
+        if(!HasEnoughResources(playerModel))
         {
-            _dispatcher.Raise(new NotEnoughResourcesEvent{ Cost = _cost });
-
-            if(finished != null)
-            {
-                finished(new Error("Not enough resources!"));
-            }
-            return;
+            throw new Exception(_notEnoughResourcesMessage);
         }
-        _playerResources.Substract(_cost);
+        playerModel.Resources.Substract(_cost);
+    }
+
+    public void Validate(PlayerModel playerModel, Action<Error> finished)
+    {
+        Error error = null;
+        if(!HasEnoughResources(playerModel))
+        {
+            error = new Error(_notEnoughResourcesMessage);
+        }
         if(finished != null)
         {
-            finished(null);
+            finished(error);
         }
     }
 
     #endregion
-
 }

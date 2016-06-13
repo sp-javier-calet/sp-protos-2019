@@ -46,7 +46,7 @@ namespace SocialPoint.Purchase
             AndroidStoreBinding.Init(instanceName);
         }
 
-        static void OnBillingSupported()
+        void OnBillingSupported()
         {
             if(BillingSupportedEvent != null)
             {
@@ -54,7 +54,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnBillingNotSupported(string error)
+        void OnBillingNotSupported(string error)
         {
             if(BillingNotSupportedEvent != null)
             {
@@ -62,7 +62,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnQueryInventorySucceeded(string json)
+        void OnQueryInventorySucceeded(string json)
         {
             if(QueryInventorySucceededEvent != null)
             {
@@ -70,7 +70,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnQueryInventoryFailed(string error)
+        void OnQueryInventoryFailed(string error)
         {
             if(QueryInventoryFailedEvent != null)
             {
@@ -78,7 +78,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnPurchaseSucceeded(string json)
+        void OnPurchaseSucceeded(string json)
         {
             if(PurchaseSucceededEvent != null)
             {
@@ -86,7 +86,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnPurchaseFailed(string message)
+        void OnPurchaseFailed(string message)
         {
             if(PurchaseFailedEvent != null)
             {
@@ -94,7 +94,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnPurchaseCancelled(string message)
+        void OnPurchaseCancelled(string message)
         {
             if(PurchaseFailedEvent != null)
             {
@@ -102,7 +102,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnConsumePurchaseSucceeded(string json)
+        void OnConsumePurchaseSucceeded(string json)
         {
             if(ConsumePurchaseSucceededEvent != null)
             {
@@ -110,7 +110,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        static void OnConsumePurchaseFailed(string error)
+        void OnConsumePurchaseFailed(string error)
         {
             if(ConsumePurchaseFailedEvent != null)
             {

@@ -238,7 +238,7 @@ internal class BundleTreeWin : EditorWindow
                     }
                 }
 
-                m_VisibleRange.y = accumY;
+                m_VisibleRange.y = CalcMaxScrollSize();
 				
                 m_LastTimeShowingBundles.Clear();
                 m_LastTimeShowingBundles.AddRange(m_CurrentShowingBundles);
@@ -331,6 +331,67 @@ internal class BundleTreeWin : EditorWindow
         return yStart;
     }
 
+    float FindScrollPosOfBundle(string bundle, bool isRoot = false)
+    {
+        float scrollPos = 0;
+        for(int i=0;i<CachedRoots.Count;i++)
+        {
+            var root = CachedRoots[i];
+            if (root.name == bundle)
+            {
+                break;
+            }
+            else if((!isRoot && root.children.Contains(bundle)))
+            {
+                scrollPos += root.children.IndexOf(bundle) * m_ItemHeight;
+                break;
+            }
+            else
+            {
+                scrollPos += m_ItemHeight;
+
+                if (!IsFold(root.name))
+                {
+                    scrollPos += CalcChildrenScrollSize(root);
+                }
+            }
+        }
+        return scrollPos;
+    }
+
+    float CalcChildrenScrollSize(BundleData parent)
+    {
+        float size = 0;
+        for(int i=0;i<parent.children.Count;i++)
+        {
+            var child = parent.children[i];
+            size += m_ItemHeight;
+            if (!IsFold(child))
+            {
+                CalcChildrenScrollSize(BundleManager.GetBundleData(child));
+            }
+        }
+        return size;
+    }
+
+    float CalcMaxScrollSize()
+    {
+        float size = 0;
+        
+        for(int i=0;i<CachedRoots.Count;i++)
+        {
+            var bundleData = CachedRoots[i];
+            size += m_ItemHeight;
+
+            if (!IsFold(bundleData.name))
+            {
+                size += CalcChildrenScrollSize(bundleData);
+            }
+        }
+        return size;
+    }
+
+
     float CalcScrollDisplayEnd(float scrollYPos, float scrollWinHeight)
     {
         return scrollYPos + scrollWinHeight*2;
@@ -399,7 +460,7 @@ internal class BundleTreeWin : EditorWindow
             
             SelectProcess(itemRect, bundleName);
             
-            RightClickMenu(itemRect);
+            RightClickMenu(itemRect, !string.IsNullOrEmpty(bundleData.parent));
         }
 
         return GUI_DrawChildren(bundleName, indent, yStart, yEnd, ref accumY, ref scrollPos, prevScrollWin);
@@ -515,6 +576,18 @@ internal class BundleTreeWin : EditorWindow
         Repaint();
     }
 
+    void GUI_UnparentMenuCallback()
+    {
+        foreach (string bundle in m_Selections)
+        {
+            BundleManager.SetParent(bundle, "");
+        }
+        
+        BundlesChanged();
+        Repaint();
+        m_ScrollPos.y = FindScrollPosOfBundle(m_Selections[0], true);
+    }
+
     void ArrowKeyProcess()
     {
         if(m_LastTimeShowingBundles.Count == 0)
@@ -610,10 +683,12 @@ internal class BundleTreeWin : EditorWindow
             bool isFinishedEdit = Event.current.type == EventType.KeyUp && Event.current.keyCode == KeyCode.Return;
             if(!HasFocuse() || clickOutSideTheTextField || isFinishedEdit)
             {
+                string finalBundleName = bundleName;
                 if(IsNameValid(m_EditString))
                 {
                     BundleManager.RenameBundle(bundleName, m_EditString);
                     BundlesChanged();
+                    finalBundleName = m_EditString;
                 }
                 else
                 {
@@ -627,7 +702,11 @@ internal class BundleTreeWin : EditorWindow
 				
                 m_CurrentEditing = "";	 
                 m_EditString = "";
+
                 Repaint();
+                m_ScrollPos.y = FindScrollPosOfBundle(finalBundleName);
+                m_Selections.Clear();
+                m_Selections.Add(finalBundleName);
                 GUIUtility.keyboardControl = 0;
 				
                 return true;
@@ -721,11 +800,17 @@ internal class BundleTreeWin : EditorWindow
         }
     }
 	
-    void RightClickMenu(Rect itemRect)
+    void RightClickMenu(Rect itemRect, bool hasParent)
     {
         GenericMenu rightClickMenu = new GenericMenu();
         rightClickMenu.AddItem(new GUIContent("Delete"), false, GUI_DeleteMenuCallback);
-        if(IsMouseOn(itemRect) && Event.current.type == EventType.MouseUp && Event.current.button == 1)
+
+        if(hasParent)
+        {
+            rightClickMenu.AddItem(new GUIContent("Unparent"), false, GUI_UnparentMenuCallback);
+        }
+
+        if (IsMouseOn(itemRect) && Event.current.type == EventType.MouseUp && Event.current.button == 1)
         {
             Vector2 mousePos = Event.current.mousePosition;
             rightClickMenu.DropDown(new Rect(mousePos.x, mousePos.y, 0, 0));

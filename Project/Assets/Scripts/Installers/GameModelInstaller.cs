@@ -70,6 +70,7 @@ public class GameModelInstaller : SubInstaller
     StoreParser CreateStoreParser()
     {
         return new StoreParser(
+            Container.Resolve<PlayerModel>(),
             Container.Resolve<StoreModel>(),
             Container.Resolve<IParser<IDictionary<string, IReward>>>());
     }

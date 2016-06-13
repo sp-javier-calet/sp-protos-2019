@@ -12,7 +12,12 @@ public class SPPurchaseStore {
 
     public static void Init(String listenerObjectName)
     {
-        _purchaseServices = new SPPurchaseNativeServices(listenerObjectName);
+        _purchaseServices = new SPPurchaseNativeServices(listenerObjectName, false);
+    }
+
+    public static void InitWithLogs(String listenerObjectName)
+    {
+        _purchaseServices = new SPPurchaseNativeServices(listenerObjectName, true);
     }
 
     public static void RequestProductData(String productIds)

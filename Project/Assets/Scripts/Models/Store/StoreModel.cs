@@ -8,6 +8,9 @@ public class StoreModel : IStoreProductSource, IDisposable
 {
     public IDictionary<string, IReward> PurchaseRewards { get; private set; }
 
+    IGamePurchaseStore _purchaseStore;
+    PlayerModel _playerModel;
+
     public string[] ProductIds
     {
         get
@@ -41,11 +44,11 @@ public class StoreModel : IStoreProductSource, IDisposable
         }
     }
 
-    IGamePurchaseStore _purchaseStore;
-
-    public StoreModel Init(IDictionary<string, IReward> purchaseRewards)
+    public StoreModel Init(IDictionary<string, IReward> purchaseRewards, PlayerModel playerModel)
     {
         PurchaseRewards = purchaseRewards;
+
+        _playerModel = playerModel;
 
         return this;
     }
@@ -69,10 +72,11 @@ public class StoreModel : IStoreProductSource, IDisposable
         switch(response)
         {
         case PurchaseResponseType.Complete:
-            if(PurchaseRewards[receipt.ProductId] != null)
+            IReward reward;
+            if(PurchaseRewards.TryGetValue(receipt.ProductId, out reward))
             {
                 UnityEngine.Debug.Log("purchase validation was ok " + receipt.ProductId);
-                PurchaseRewards[receipt.ProductId].Obtain();
+                reward.Obtain(_playerModel);
             }
             break;
         case PurchaseResponseType.Duplicated:

@@ -574,6 +574,7 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppeared");
             _viewState = ViewState.Shown;
+            DestroyOnHide = false;
             NotifyViewEvent();
         }
 

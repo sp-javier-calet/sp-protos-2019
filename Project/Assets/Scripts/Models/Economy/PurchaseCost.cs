@@ -1,37 +1,37 @@
 ﻿using System;
 using SocialPoint.Base;
-using SocialPoint.Purchase;
+
+public delegate void PurchaseDelegate(string productId, Action<Error> finished);
 
 public class PurchaseCost : ICost
 {
-    IGamePurchaseStore _purchaseStore;
-    string _productId;
-    Action<Error> _finished;
+    PurchaseDelegate _purchase;
 
-    public PurchaseCost(string productId, IGamePurchaseStore store)
+    string _productId;
+
+    public PurchaseCost(string productId, PurchaseDelegate purchase)
     {
         _productId = productId;
-        _purchaseStore = store;
-        _purchaseStore.PurchaseUpdated += OnPurchaseUpdated;
-    }
-
-    void OnPurchaseUpdated(PurchaseState state, string productId)
-    {
-        if(state == PurchaseState.ValidateSuccess)
-        {
-            if(_finished != null)
-            {
-                _finished(null);
-            }
-        }
+        _purchase = purchase;
     }
 
     #region ICost implementation
 
-    public void Spend(Action<Error> finished)
+    public void Validate(PlayerModel playerModel, Action<Error> finished)
     {
-        _finished += finished;
-        _purchaseStore.Purchase(_productId);
+        if(_purchase != null)
+        {
+            _purchase(_productId, finished);
+        }
+        else if(finished != null)
+        {
+            finished(null);
+        }
+    }
+
+    public void Spend(PlayerModel playerModel)
+    {
+        // Purchase transaction is autovalidated by the IGamePurchaseStore
     }
 
     #endregion
