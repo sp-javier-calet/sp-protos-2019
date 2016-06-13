@@ -534,6 +534,27 @@ public class ResourcePool : IEnumerable<KeyValuePair<string,long>>, ICloneable
         return c;
     }
 
+    public static ResourcePool Missing(ResourcePool baseResources, ResourcePool resources)
+    {
+        ResourcePool missingResources = new ResourcePool();
+        if(resources == null || resources.IsEmpty)
+        {
+            return missingResources;
+        }
+        var enumerator = resources.GetEnumerator();
+        while(enumerator.MoveNext())
+        {
+            var current = enumerator.Current;
+            long playerAmount = baseResources[current.Key];
+            if(playerAmount < current.Value)
+            {
+                missingResources[current.Key] = current.Value - playerAmount;
+            }
+        }
+        enumerator.Dispose();
+        return missingResources;
+    }
+
     public override string ToString()
     {
         var builder = new StringBuilder();
