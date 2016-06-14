@@ -1,49 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using UnityEngine;
 
 namespace SocialPoint.Utils
 {
     public struct QuadTreeSize
     {
-		public QuadTreeSize(double width, double height)
+        public QuadTreeSize(double width, double height)
         {
-            if (width < 0 || height < 0)
-                throw new ArgumentException ("Width and Height must be non-negative.");
+            if(width < 0 || height < 0)
+                throw new ArgumentException("Width and Height must be non-negative.");
 
             this.width = width;
             this.height = height;
         }
 
-        public bool IsEmpty {
-            get {
+        public bool IsEmpty
+        {
+            get
+            {
                 return (double.IsNegativeInfinity(width) &&
                 double.IsNegativeInfinity(height));
             }
         }
 
-        public double Height {
+        public double Height
+        {
             get { return height; }
-            set {
-                if (IsEmpty)
-                    throw new InvalidOperationException ("Cannot modify this property on the Empty Size.");
+            set
+            {
+                if(IsEmpty)
+                    throw new InvalidOperationException("Cannot modify this property on the Empty Size.");
 
-                if (value < 0)
-                    throw new ArgumentException ("height must be non-negative.");
+                if(value < 0)
+                    throw new ArgumentException("height must be non-negative.");
 
                 height = value;
             }
         }
 
-        public double Width {
+        public double Width
+        {
             get { return width; }
-            set {
-                if (IsEmpty)
-                    throw new InvalidOperationException ("Cannot modify this property on the Empty Size.");
+            set
+            {
+                if(IsEmpty)
+                    throw new InvalidOperationException("Cannot modify this property on the Empty Size.");
 
-                if (value < 0)
-                    throw new ArgumentException ("width must be non-negative.");
+                if(value < 0)
+                    throw new ArgumentException("width must be non-negative.");
 
                 width = value;
             }
@@ -55,17 +60,17 @@ namespace SocialPoint.Utils
 
     public struct QuadTreeRect
     {
-		public QuadTreeRect(double x, double y, double width, double height)
+        public QuadTreeRect(double x, double y, double width, double height)
         {
-            if (width < 0 || height < 0)
-                throw new ArgumentException ("width and height must be non-negative.");
+            if(width < 0 || height < 0)
+                throw new ArgumentException("width and height must be non-negative.");
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
         }
 
-		public QuadTreeRect(QuadTreePoint location, QuadTreeSize size)
+        public QuadTreeRect(QuadTreePoint location, QuadTreeSize size)
         {
             x = location.X;
             y = location.Y;
@@ -73,10 +78,10 @@ namespace SocialPoint.Utils
             height = size.Height;
         }
 
-		public bool Contains(QuadTreeRect rect)
+        public bool Contains(QuadTreeRect rect)
         {
             if(rect.Left < Left ||
-                rect.Right > Right)
+               rect.Right > Right)
                 return false;
 
             if(rect.Top < Top ||
@@ -194,24 +199,24 @@ namespace SocialPoint.Utils
             get { return y + height; }
         }
 
-		public QuadTreePoint TopLeft
+        public QuadTreePoint TopLeft
         {
-			get { return new QuadTreePoint(Left, Top); }
+            get { return new QuadTreePoint(Left, Top); }
         }
 
-		public QuadTreePoint TopRight
+        public QuadTreePoint TopRight
         {
-			get { return new QuadTreePoint(Right, Top); }
+            get { return new QuadTreePoint(Right, Top); }
         }
 
-		public QuadTreePoint BottomLeft
+        public QuadTreePoint BottomLeft
         {
-			get { return new QuadTreePoint(Left, Bottom); }
+            get { return new QuadTreePoint(Left, Bottom); }
         }
 
-		public QuadTreePoint BottomRight
+        public QuadTreePoint BottomRight
         {
-			get { return new QuadTreePoint(Right, Bottom); }
+            get { return new QuadTreePoint(Right, Bottom); }
         }
 
         double x;
@@ -222,7 +227,7 @@ namespace SocialPoint.Utils
 
     public struct QuadTreePoint
     {
-		public QuadTreePoint(double x, double y)
+        public QuadTreePoint(double x, double y)
         {
             this.x = x;
             this.y = y;
@@ -278,7 +283,7 @@ namespace SocialPoint.Utils
         /// <param name="minLeafSize">The smallest size a leaf will split into</param>
         /// <param name="maxObjectsPerLeaf">Maximum number of objects per leaf before it forces a split into sub quadrants</param>
         /// <param name="sort">Whether or not queries will return objects in the order in which they were added</param>
-		public QuadTree(QuadTreeSize minLeafSize, int maxObjectsPerLeaf, bool sort)
+        public QuadTree(QuadTreeSize minLeafSize, int maxObjectsPerLeaf, bool sort)
             : this(minLeafSize, maxObjectsPerLeaf)
         {
             this.sort = sort;
@@ -299,10 +304,10 @@ namespace SocialPoint.Utils
                     var rootSize = new QuadTreeSize(Math.Ceiling(bounds.Width / minLeafSize.Width),
                                        Math.Ceiling(bounds.Height / minLeafSize.Height));
                     double multiplier = Math.Max(rootSize.Width, rootSize.Height);
-					rootSize = new QuadTreeSize(minLeafSize.Width * multiplier, minLeafSize.Height * multiplier);
+                    rootSize = new QuadTreeSize(minLeafSize.Width * multiplier, minLeafSize.Height * multiplier);
 
                     var center = new QuadTreePoint(bounds.X, bounds.Y);
-					var rootOrigin = new QuadTreePoint(center.X , center.Y);
+                    var rootOrigin = new QuadTreePoint(center.X, center.Y);
 
                     root = new QuadTreeNode(new QuadTreeRect(rootOrigin, rootSize));
                 }
@@ -796,14 +801,14 @@ namespace SocialPoint.Utils
             for(int i = 0, maxCount = GetAllNodes().Count; i < maxCount; i++)
             {
                 var node = GetAllNodes()[i];
-                var botomLeft = new Vector3((float)node.Bounds.X, 0, (float)node.Bounds.Y);
-                var botomRight = new Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)node.Bounds.Y);
-                var topLeft = new Vector3((float)(node.Bounds.X), 0, (float)(node.Bounds.Y + node.Bounds.Height));
-                var topRight = new Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)(node.Bounds.Y + node.Bounds.Height));
-                Debug.DrawLine(botomLeft, botomRight, Color.red);
-                Debug.DrawLine(botomLeft, topLeft, Color.red);
-                Debug.DrawLine(topLeft, topRight, Color.red);
-                Debug.DrawLine(topRight, botomRight, Color.red);
+                var botomLeft = new UnityEngine.Vector3((float)node.Bounds.X, 0, (float)node.Bounds.Y);
+                var botomRight = new UnityEngine.Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)node.Bounds.Y);
+                var topLeft = new UnityEngine.Vector3((float)(node.Bounds.X), 0, (float)(node.Bounds.Y + node.Bounds.Height));
+                var topRight = new UnityEngine.Vector3((float)(node.Bounds.X + node.Bounds.Width), 0, (float)(node.Bounds.Y + node.Bounds.Height));
+                UnityEngine.Debug.DrawLine(botomLeft, botomRight, UnityEngine.Color.red);
+                UnityEngine.Debug.DrawLine(botomLeft, topLeft, UnityEngine.Color.red);
+                UnityEngine.Debug.DrawLine(topLeft, topRight, UnityEngine.Color.red);
+                UnityEngine.Debug.DrawLine(topRight, botomRight, UnityEngine.Color.red);
             }
 #endif
         }

@@ -7,17 +7,19 @@ public class GameParser : IParser<GameModel>
 
     IParser<ConfigModel> _configParser;
     IParser<PlayerModel> _playerParser;
+    GameModel _gameModel;
 
-    public GameParser(IParser<ConfigModel> configParser, IParser<PlayerModel> playerParser)
+    public GameParser(GameModel gameModel, IParser<ConfigModel> configParser, IParser<PlayerModel> playerParser)
     {
         _configParser = configParser;
         _playerParser = playerParser;
+        _gameModel = gameModel;
     }
 
     public GameModel Parse(Attr data)
     {
-        var config = _configParser.Parse(data.AsDic[AttrKeyConfig]);
-        var player = _playerParser.Parse(data.AsDic[AttrKeyUser]);
-        return new GameModel(config, player);
+        _configParser.Parse(data.AsDic[AttrKeyConfig]);
+        _playerParser.Parse(data.AsDic[AttrKeyUser]);
+        return _gameModel;
     }
 }

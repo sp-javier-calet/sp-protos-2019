@@ -6,9 +6,10 @@ using SocialPoint.Utils;
 
 public class StoreModel : IStoreProductSource, IDisposable
 {
-    public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
+    public IDictionary<string, IReward> PurchaseRewards { get; private set; }
 
-    public event Action<StoreModel> Moved;
+    IGamePurchaseStore _purchaseStore;
+    PlayerModel _playerModel;
 
     public string[] ProductIds
     {
@@ -24,18 +25,32 @@ public class StoreModel : IStoreProductSource, IDisposable
         }
     }
 
-    IGamePurchaseStore _purchaseStore;
-
-    public void Init(IGamePurchaseStore purchaseStore)
+    public IGamePurchaseStore PurchaseStore
     {
-        _purchaseStore = purchaseStore;
-        if(_purchaseStore != null)
+        set
         {
-            _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+            _purchaseStore = value;
+            if(_purchaseStore != null)
+            {
+                _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
 
-            //Each game can set the settings to its liking, it can depend on data sent by backend
-            _purchaseStore.Setup(PlatformPuchaseSettings.GetDebugSettings());
+                //Each game can set the settings to its liking, it can depend on data sent by backend
+                _purchaseStore.Setup(PlatformPuchaseSettings.GetDebugSettings());
+            }
         }
+        get
+        {
+            return _purchaseStore;
+        }
+    }
+
+    public StoreModel Init(IDictionary<string, IReward> purchaseRewards, PlayerModel playerModel)
+    {
+        PurchaseRewards = purchaseRewards;
+
+        _playerModel = playerModel;
+
+        return this;
     }
 
     public void Dispose()
@@ -43,19 +58,6 @@ public class StoreModel : IStoreProductSource, IDisposable
         if(_purchaseStore != null)
         {
             _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-        }
-    }
-
-    public void Move(StoreModel other)
-    {
-        PurchaseRewards = other.PurchaseRewards;
-
-        other.PurchaseRewards = null;
-        other.Dispose();
-
-        if(Moved != null)
-        {
-            Moved(this);
         }
     }
 
@@ -70,10 +72,11 @@ public class StoreModel : IStoreProductSource, IDisposable
         switch(response)
         {
         case PurchaseResponseType.Complete:
-            if(PurchaseRewards[receipt.ProductId] != null)
+            IReward reward;
+            if(PurchaseRewards.TryGetValue(receipt.ProductId, out reward))
             {
                 UnityEngine.Debug.Log("purchase validation was ok " + receipt.ProductId);
-                PurchaseRewards[receipt.ProductId].Obtain();
+                reward.Obtain(_playerModel);
             }
             break;
         case PurchaseResponseType.Duplicated:

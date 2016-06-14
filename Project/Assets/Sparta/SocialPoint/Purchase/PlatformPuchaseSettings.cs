@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.Purchase
