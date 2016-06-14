@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.os.Looper;
 import android.os.Handler;
 
 import es.socialpoint.unity.permissions.PermissionsManager;
@@ -19,6 +18,17 @@ import com.unity3d.player.UnityPlayerActivity;
 public class SPUnityActivity extends UnityPlayerActivity {
 
 	private static final String TAG = "SPUnityActivity";
+
+	static
+	{
+		/*
+		 * library loaded here ince it contains
+		 * some methods that can be called directly from other native
+		 * libraries (UnitySendMessage for example). If it is not loaded
+		 * by hand, loading those libraries fails in some older android
+		 * versions. */
+		System.loadLibrary("sp_unity_utils");
+	}
 
 	/* Provides global access to the current acivity without the unity3d package dependency */
 	public static Activity getCurrentActivity() {
@@ -33,6 +43,7 @@ public class SPUnityActivity extends UnityPlayerActivity {
 		PermissionsManager.instance.checkPermissionsOrRestart(this);
 		super.onCreate(savedInstanceState);
 		storeSourceFromIntent(getIntent());
+		UnityGameObject.Init(this);
 	}
 
 	// SocialPoint code
@@ -41,6 +52,12 @@ public class SPUnityActivity extends UnityPlayerActivity {
 		super.onNewIntent(intent);
 		setIntent(intent);
 		storeSourceFromIntent(intent);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		SPUnityActivityEventManager.handleActivityResult(requestCode, resultCode, data);
 	}
 
 	public String collectApplicationSource() {
@@ -83,9 +100,9 @@ public class SPUnityActivity extends UnityPlayerActivity {
 			mApplicationSource = "";
 
 			String uri = intent.getDataString();
-            if(uri != null && uri != "")
-            {
-            	mApplicationSource = uri;
+			if(uri != null && uri != "")
+			{
+				mApplicationSource = uri;
 			}
 			else
 			{
@@ -93,18 +110,18 @@ public class SPUnityActivity extends UnityPlayerActivity {
 
 				if(intent != null)
 				{
-				    extras = intent.getExtras();
+					extras = intent.getExtras();
 				}
 				if(extras != null)
 				{
-				    String extrasStr = "";
-				    Set<String> keys = extras.keySet();
-				    for(String key : keys)
-				    {
-				        extrasStr += urlEncode(key) + "=" + urlEncode(extras.get(key).toString()) + "&";
-				    }
+					String extrasStr = "";
+					Set<String> keys = extras.keySet();
+					for(String key : keys)
+					{
+						extrasStr += urlEncode(key) + "=" + urlEncode(extras.get(key).toString()) + "&";
+					}
 
-				    mApplicationSource = extrasStr;
+					mApplicationSource = extrasStr;
 				}
 			}
 

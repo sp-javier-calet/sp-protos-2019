@@ -1,22 +1,22 @@
-﻿using Zenject;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Social;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 
-public class LoginAdminPanelInstaller : Installer
+public class LoginAdminPanelInstaller : SubInstaller
 {
     public override void InstallBindings()
     {
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelLogin>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLogin>(CreateAdminPanel);
     }
 
-    AdminPanelLogin CreateAdminPanel(InjectContext ctx)
+    AdminPanelLogin CreateAdminPanel()
     {
-        var login = ctx.Container.Resolve<ILogin>();
-        var appEvents = ctx.Container.Resolve<IAppEvents>();
+        var login = Container.Resolve<ILogin>();
+        var appEvents = Container.Resolve<IAppEvents>();
         var envs = new Dictionary<string,string>();
         foreach(BackendEnvironment env in Enum.GetValues(typeof(BackendEnvironment)))
         {

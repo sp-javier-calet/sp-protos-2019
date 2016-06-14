@@ -163,8 +163,8 @@ namespace SocialPoint.Crash
         string _appVersion;
         DeviceCrashReporterListener _listener;
 
-        public DeviceCrashReporter(ICoroutineRunner runner, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
-            : base(runner, client, deviceInfo, breadcrumbManager, alertView)
+        public DeviceCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+            : base(updateScheduler, client, deviceInfo, breadcrumbManager, alertView)
         {
             _appVersion = deviceInfo.AppInfo.Version;
             PathsManager.CallOnLoaded(OnPathsLoaded);
@@ -221,9 +221,10 @@ namespace SocialPoint.Crash
                 var dir = new DirectoryInfo(_crashesBasePath);
                 FileInfo[] info = dir.GetFiles();
 
-                foreach(FileInfo f in info)
+                for(int i = 0, infoLength = info.Length; i < infoLength; i++)
                 {
                     // Creates a report for each .crash/.logcat pair
+                    FileInfo f = info[i];
                     if(f.Extension == CrashExtension)
                     {
                         var report = new DeviceReport(f.FullName);

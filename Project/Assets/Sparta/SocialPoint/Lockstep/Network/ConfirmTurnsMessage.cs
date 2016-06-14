@@ -1,24 +1,23 @@
 ﻿using System;
-using UnityEngine.Networking;
+using System.IO;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class ConfirmTurnsMessage : MessageBase
+    public class ConfirmTurnsMessage : INetworkMessage
     {
-        NetworkLockstepCommandDataFactory _commandDataFactory;
+        LockstepCommandDataFactory _commandDataFactory;
 
         public LockstepTurnData[] ConfirmedTurns { get; set; }
 
-        public ConfirmTurnsMessage(NetworkLockstepCommandDataFactory commandDataFactory)
+        public ConfirmTurnsMessage(LockstepCommandDataFactory commandDataFactory)
         {
             _commandDataFactory = commandDataFactory;
         }
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(IReaderWrapper reader)
         {
-            base.Deserialize(reader);
-
             int turnCount = (int)reader.ReadByte();
             ConfirmedTurns = new LockstepTurnData[turnCount];
             for(int i = 0; i < turnCount; ++i)
@@ -28,17 +27,15 @@ namespace SocialPoint.Lockstep.Network
                 var commands = new List<ILockstepCommand>();
                 for(int j = 0; j < commandCount; ++j)
                 {
-                    NetworkLockstepCommandData data = _commandDataFactory.CreateNetworkLockstepCommandData(turn, reader);
+                    LockstepCommandData data = _commandDataFactory.CreateNetworkLockstepCommandData(turn, reader);
                     commands.Add(data.LockstepCommand);
                 }
                 ConfirmedTurns[i] = new LockstepTurnData(turn, commands);
             }
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(IWriterWrapper writer)
         {
-            base.Serialize(writer);
-
             writer.Write((byte)ConfirmedTurns.Length);
             for(int i = 0; i < ConfirmedTurns.Length; ++i)
             {
@@ -48,9 +45,17 @@ namespace SocialPoint.Lockstep.Network
                 for(int j = 0; j < confirmedTurn.Commands.Count; ++j)
                 {
                     var command = confirmedTurn.Commands[j];
-                    NetworkLockstepCommandData data = _commandDataFactory.CreateNetworkLockstepCommandData(command);
+                    LockstepCommandData data = _commandDataFactory.CreateNetworkLockstepCommandData(command);
                     data.Serialize(writer);
                 }
+            }
+        }
+
+        public bool RequiresSync
+        {
+            get
+            {
+                return false;
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Reflection;
 
 namespace SocialPoint.Utils
 {
@@ -56,15 +55,20 @@ namespace SocialPoint.Utils
         
         public virtual void Dispose()
         {
-            foreach(var proto in _prototypes)
+            for(int i = 0, _prototypesCount = _prototypes.Count; i < _prototypesCount; i++)
             {
+                var proto = _prototypes[i];
                 proto.Dispose();
             }
             _prototypes.Clear();
-            foreach(var kvp in _observers)
+
+            var itr = _observers.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var kvp = itr.Current;
                 kvp.Value.Dispose();
             }
+            itr.Dispose();
             _observers.Clear();
         }
         
@@ -82,11 +86,12 @@ namespace SocialPoint.Utils
         
         object Apply(object prop, Type type, A attr)
         {
-            IMemberAttributeObserver<A> observer = null;
+            IMemberAttributeObserver<A> observer;
             if(!_observers.TryGetValue(attr, out observer))
             {
-                foreach(var proto in _prototypes)
+                for(int i = 0, _prototypesCount = _prototypes.Count; i < _prototypesCount; i++)
                 {
+                    var proto = _prototypes[i];
                     if(proto.Supports(prop, type, attr))
                     {
                         observer = (IMemberAttributeObserver<A>)proto.Clone();
@@ -112,20 +117,24 @@ namespace SocialPoint.Utils
                 return;
             }
             var type = obj.GetType();
-            foreach(var prop in type.GetProperties(MemberBindingFlags))
+            for(int i = 0, maxLength = type.GetProperties(MemberBindingFlags).Length; i < maxLength; i++)
             {
-                foreach(var attrObj in prop.GetCustomAttributes(typeof(A), true))
+                var prop = type.GetProperties(MemberBindingFlags)[i];
+                for(int j = 0, maxLength2 = prop.GetCustomAttributes(typeof(A), true).Length; j < maxLength2; j++)
                 {
+                    var attrObj = prop.GetCustomAttributes(typeof(A), true)[j];
                     var attr = (A)attrObj;
                     var val = prop.GetValue(obj, null);
                     val = Apply(val, prop.PropertyType, attr);
                     prop.SetValue(obj, val, null);
                 }
             }
-            foreach(var field in type.GetFields(MemberBindingFlags))
+            for(int i = 0, maxLength = type.GetFields(MemberBindingFlags).Length; i < maxLength; i++)
             {
-                foreach(var attrObj in field.GetCustomAttributes(typeof(A), true))
+                var field = type.GetFields(MemberBindingFlags)[i];
+                for(int j = 0, maxLength2 = field.GetCustomAttributes(typeof(A), true).Length; j < maxLength2; j++)
                 {
+                    var attrObj = field.GetCustomAttributes(typeof(A), true)[j];
                     var attr = (A)attrObj;
                     var val = field.GetValue(obj);
                     val = Apply(val, field.FieldType, attr);

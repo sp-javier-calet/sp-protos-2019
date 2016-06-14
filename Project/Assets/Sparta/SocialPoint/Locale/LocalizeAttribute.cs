@@ -74,7 +74,7 @@ namespace SocialPoint.Locale
 
     public class LocalizeAttributeConfiguration : MemberAttributeConfiguration<LocalizeAttribute>
     {
-        LocalizeAttributeConfiguration(Localization locale, List<IMemberAttributeObserver<LocalizeAttribute>> prototypes=null):
+        public LocalizeAttributeConfiguration(Localization locale, List<IMemberAttributeObserver<LocalizeAttribute>> prototypes=null):
         base(prototypes)
         {
             AddObserver(new StringLocalizeAttributeObserver(locale));

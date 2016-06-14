@@ -12,11 +12,13 @@ public class ConfigParser : IParser<ConfigModel>
     const string AttrKeyGlobalKey = "key";
     const string AttrKeyGlobalValue = "value";
 
+    ConfigModel _config;
     IParser<ScriptModel> _scriptParser;
     IParser<StoreModel> _storeParser;
 
-    public ConfigParser(IParser<StoreModel> storeParser, IParser<ScriptModel> scriptParser)
+    public ConfigParser(ConfigModel config, IParser<StoreModel> storeParser, IParser<ScriptModel> scriptParser)
     {
+        _config = config;
         _scriptParser = scriptParser;
         _storeParser = storeParser;
     }
@@ -27,9 +29,9 @@ public class ConfigParser : IParser<ConfigModel>
         var scripts = ParseScripts(data);
 
         var resourceTypes = new ResourceTypesParser().Parse(data.AsDic[AttrKeyResources]);
-        var store = _storeParser.Parse(data.AsDic[AttrKeyStore]);
+        _storeParser.Parse(data.AsDic[AttrKeyStore]);
 
-        return new ConfigModel(globals, scripts, resourceTypes, store);
+        return _config.Init(globals, scripts, resourceTypes);
     }
 
     Dictionary<string, Attr> ParseGlobals(Attr data)

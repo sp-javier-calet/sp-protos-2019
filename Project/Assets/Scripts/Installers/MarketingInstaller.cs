@@ -3,10 +3,10 @@ using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Marketing;
+using SocialPoint.Dependency;
 using System;
-using Zenject;
 
-public class MarketingInstaller : MonoInstaller
+public class MarketingInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -18,23 +18,28 @@ public class MarketingInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.Bind<IMarketingAttributionManager>().ToSingleMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager);
+        Container.Bind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager);
         Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingleMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
     }
 
-    public IMarketingAttributionManager CreateMarketingAttributionManager(InjectContext context)
+    public IMarketingAttributionManager CreateMarketingAttributionManager()
     {
-        var manager = new MarketingAttributionManager(context.Container.Resolve<IAppEvents>(), context.Container.Resolve<IAttrStorage>("persistent"));
+        var manager = new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
         manager.DebugMode = Settings.DebugMode;
-        context.Container.Inject(manager);
+        var login = Container.Resolve<ILogin>();
+        var trackers = Container.ResolveList<IMarketingTracker>();
+        for(int i = 0; i < trackers.Count; i++)
+        {
+            manager.AddTracker(trackers[i]);
+        }
+        manager.GetUserID = () => login.UserId.ToString();
         return manager;
     }
 
-    public AdminPanelMarketing CreateAdminPanelMarketing(InjectContext context)
+    public AdminPanelMarketing CreateAdminPanelMarketing()
     {
-        var adminPanel = new AdminPanelMarketing(context.Container.Resolve<IMarketingAttributionManager>(), context.Container.Resolve<IAttrStorage>("persistent"));
-        context.Container.Inject(adminPanel);
+        var adminPanel = new AdminPanelMarketing(Container.Resolve<IMarketingAttributionManager>(), Container.Resolve<IAttrStorage>("persistent"));
         return adminPanel;
     }
 }

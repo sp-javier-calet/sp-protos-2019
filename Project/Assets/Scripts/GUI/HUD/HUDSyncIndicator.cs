@@ -1,16 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.ServerSync;
 
 public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [Inject]
     ICommandQueue _commandQueue;
 
-    [PostInject]
-    void PostInject()
+    void Start()
     {
+        _commandQueue = ServiceLocator.Instance.Resolve<ICommandQueue>();
         _commandQueue.SyncChange += OnCommandQueueSyncChange;
         gameObject.SetActive(false);
     }

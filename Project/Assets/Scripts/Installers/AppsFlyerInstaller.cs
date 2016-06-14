@@ -1,8 +1,8 @@
 ﻿using System;
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.Marketing;
 
-public class AppsFlyerInstaller : MonoInstaller
+public class AppsFlyerInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -30,12 +30,12 @@ public class AppsFlyerInstaller : MonoInstaller
         Container.Bind<IMarketingTracker>().ToSingle<EmptyAppsFlyer>();
         Container.Bind<IDisposable>().ToSingle<EmptyAppsFlyer>();
         #else
-        Container.Bind<IMarketingTracker>().ToSingleMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
-        Container.Bind<IDisposable>().ToSingleMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
+        Container.Bind<IMarketingTracker>().ToMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
+        Container.Bind<IDisposable>().ToMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
         #endif
     }
 
-    SocialPointAppFlyer CreateMobileAppTracking(InjectContext ctx)
+    SocialPointAppFlyer CreateMobileAppTracking()
     {
         var tracker = new SocialPointAppFlyer();
         #if UNITY_IOS

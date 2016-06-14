@@ -1,14 +1,32 @@
 ﻿using SocialPoint.AdminPanel;
 using SocialPoint.ServerMessaging;
+using SocialPoint.Dependency;
+using SocialPoint.ServerSync;
+using SocialPoint.AppEvents;
+using SocialPoint.Login;
 using System;
-using Zenject;
 
-public class MessageCenterInstaller : Installer
+public class MessageCenterInstaller : SubInstaller
 {
     public override void InstallBindings()
     {
-        Container.Bind<IMessageCenter>().ToSingle<MessageCenter>();
+        Container.Bind<IMessageCenter>().ToMethod<MessageCenter>(CreateMessageCenter);
         Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelMessageCenter>();
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanel);
+    }
+
+    AdminPanelMessageCenter CreateAdminPanel()
+    {
+        return new AdminPanelMessageCenter(
+            Container.Resolve<IMessageCenter>(),
+            Container.Resolve<ILogin>());
+    }
+
+    MessageCenter CreateMessageCenter()
+    {
+        return new MessageCenter(
+            Container.Resolve<ICommandQueue>(),
+            Container.Resolve<CommandReceiver>(),
+            Container.Resolve<IAppEvents>());
     }
 }

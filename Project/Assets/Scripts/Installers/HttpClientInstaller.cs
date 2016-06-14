@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Zenject;
-using SocialPoint.Network;
 using UnityEngine;
+using SocialPoint.Dependency;
+using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Base;
+using SocialPoint.Utils;
+using SocialPoint.AppEvents;
+using SocialPoint.Hardware;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -22,7 +26,7 @@ public class HttpClientInstallerEditor: Editor
 }
 #endif
 
-public class HttpClientInstaller : MonoInstaller
+public class HttpClientInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -34,17 +38,30 @@ public class HttpClientInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-#if UNITY_EDITOR
+        Container.Rebind<HttpClient>().ToMethod<HttpClient>(CreateHttpClient);
+        Container.Rebind<IHttpClient>("internal").ToLookup<HttpClient>();
+        Container.Rebind<IHttpClient>().ToLookup<HttpClient>();
+        Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+    }
+
+    HttpClient CreateHttpClient()
+    {
+        string proxy = null;
+        #if UNITY_EDITOR
         var proxyPath = FileUtils.Combine(Application.dataPath, "../.proxy");
         if(FileUtils.ExistsFile(proxyPath))
         {
-            var proxy = FileUtils.ReadAllText(proxyPath).Trim();
+            proxy = FileUtils.ReadAllText(proxyPath).Trim();
             DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
-            Container.BindInstance("http_client_proxy", proxy);
         }
-#endif
-        Container.BindInstance("http_client_config", Settings.Config);
-        Container.Rebind<IHttpClient>().ToSingle<HttpClient>();
-        Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+        #endif
+
+        var client = new HttpClient(
+            Container.Resolve<ICoroutineRunner>(), proxy,
+            Container.Resolve<IDeviceInfo>(),
+            Container.Resolve<IAppEvents>()
+        );
+        client.Config = Settings.Config;
+        return client;
     }
 }

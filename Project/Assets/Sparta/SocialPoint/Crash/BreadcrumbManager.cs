@@ -1,6 +1,7 @@
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Utils;
+using System;
 
 namespace SocialPoint.Crash
 {
@@ -25,6 +26,8 @@ namespace SocialPoint.Crash
     {
         const string LastSessionBreadcrumbsName = "old";
         static bool _initialized;
+
+        public Exception LogException {get; set;}
 
         /*
          * InitializeBreadcrumbFile function ensures that every 
@@ -67,10 +70,23 @@ namespace SocialPoint.Crash
 
         public void Log(string info)
         {
+            if(!FileUtils.ExistsFile(BreadcrumbLogPath()))
+            {
+                LogException = new FileNotFoundException();
+                return;
+            }
+
             var breadcrumb = new Breadcrumb(info);
             using(var file = new StreamWriter(BreadcrumbLogPath(), true))
             {
-                file.WriteLine(breadcrumb);
+                try
+                {
+                    file.WriteLine(breadcrumb);
+                }
+                catch(Exception e)
+                {
+                    LogException = e;
+                }
             }
         }
 

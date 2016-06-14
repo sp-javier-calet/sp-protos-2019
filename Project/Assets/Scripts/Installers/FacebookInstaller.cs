@@ -1,11 +1,12 @@
 using UnityEngine;
-using Zenject;
 using System;
+using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 
-public class FacebookInstaller : MonoInstaller
+public class FacebookInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -25,18 +26,30 @@ public class FacebookInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IFacebook>().ToSingle<UnityFacebook>();
+            Container.Rebind<IFacebook>().ToMethod<UnityFacebook>(CreateUnityFacebook);
         }
         if(Settings.LoginLink)
         {
-            Container.Bind<ILink>().ToSingleMethod<FacebookLink>(CreateLoginLink);
+            Container.Bind<ILink>().ToMethod<FacebookLink>(CreateLoginLink);
         }
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelFacebook>();
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelFacebook>(CreateAdminPanel);
     }
 
-    FacebookLink CreateLoginLink(InjectContext ctx)
+    AdminPanelFacebook CreateAdminPanel()
     {
-        var fb = ctx.Container.Resolve<IFacebook>();
+        return new AdminPanelFacebook(
+            Container.Resolve<IFacebook>());
+    }
+
+    UnityFacebook CreateUnityFacebook()
+    {
+        return new UnityFacebook(
+            Container.Resolve<ICoroutineRunner>());
+    }
+
+    FacebookLink CreateLoginLink()
+    {
+        var fb = Container.Resolve<IFacebook>();
         return new FacebookLink(fb, Settings.LoginWithUi);
     }
 }

@@ -31,7 +31,6 @@ public class DownloadsQueue : MonoBehaviour
 
 	public void StartDownloadQueue(List<string> bundlePaths, Action callback, Action<string> callbackByAsset = null)
     {
-        Debug.Log("---------------- StartDownloadQueue --------------");
 		StartCoroutine(StartDownloadQueueLoop(bundlePaths, callback, callbackByAsset));
     }
 
@@ -62,7 +61,6 @@ public class DownloadsQueue : MonoBehaviour
             {
     	        if (callback != null) 
     	        {
-                    Debug.Log("**************** Download Queue Calback **********************");
     	            callback();
     	        }
                 _continueDownload = false;

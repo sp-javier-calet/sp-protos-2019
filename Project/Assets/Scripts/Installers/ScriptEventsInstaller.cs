@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
-using Zenject;
+using SocialPoint.Dependency;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Attributes;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 
-public class ScriptEventsInstaller : MonoInstaller, IInitializable
+public class ScriptEventsInstaller : Installer, IInitializable
 {
     public override void InstallBindings()
     {
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
 
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<FixedConditionParser>();
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NameConditionParser>();
@@ -18,27 +19,48 @@ public class ScriptEventsInstaller : MonoInstaller, IInitializable
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<OrConditionParser>();
         Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NotConditionParser>();
 
-        Container.Bind<IEventsBridge>().ToSingle<ScriptBridge>();
-        Container.Bind<IScriptEventsBridge>().ToSingle<ScriptBridge>();
+        Container.Bind<ScriptBridge>().ToMethod<ScriptBridge>(CreateScriptBridge);
+        Container.Bind<IEventsBridge>().ToLookup<ScriptBridge>();
+        Container.Bind<IScriptEventsBridge>().ToLookup<ScriptBridge>();
         
-        Container.Rebind<IParser<IScriptCondition>>().ToSingleMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
-        Container.Rebind<IParser<ScriptModel>>().ToSingleMethod<ScriptModelParser>(CreateScriptModelParser);
+        Container.Rebind<IParser<IScriptCondition>>().ToMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
+        Container.Rebind<IParser<ScriptModel>>().ToMethod<ScriptModelParser>(CreateScriptModelParser);
 
         Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
-        Container.Rebind<IScriptEventDispatcher>().ToSingle<ScriptEventDispatcher>();
+        Container.Rebind<IScriptEventDispatcher>().ToMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelScriptEvents>();
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelScriptEvents>(CreateAdminPanel);
     }
 
-    FamilyParser<IScriptCondition> CreateScriptConditionParser(InjectContext ctx)
+    AdminPanelScriptEvents CreateAdminPanel()
     {
-        var children = ctx.Container.Resolve<List<IChildParser<IScriptCondition>>>();
+        return new AdminPanelScriptEvents(
+            Container.Resolve<IScriptEventDispatcher>(),
+            Container.Resolve<IParser<ScriptModel>>());
+    }
+
+    ScriptEventDispatcher CreateScriptEventDispatcher()
+    {
+        return new ScriptEventDispatcher(
+            Container.Resolve<IEventDispatcher>());
+    }
+
+    ScriptBridge CreateScriptBridge()
+    {
+        return new ScriptBridge(
+            Container.Resolve<IParser<ScriptModel>>(),
+            Container.Resolve<ICoroutineRunner>());
+    }
+
+    FamilyParser<IScriptCondition> CreateScriptConditionParser()
+    {
+        var children = Container.ResolveList<IChildParser<IScriptCondition>>();
         return new FamilyParser<IScriptCondition>(children);
     }
 
-    ScriptModelParser CreateScriptModelParser(InjectContext ctx)
+    ScriptModelParser CreateScriptModelParser()
     {
-        var condParser = ctx.Container.Resolve<IParser<IScriptCondition>>();
+        var condParser = Container.Resolve<IParser<IScriptCondition>>();
         return new ScriptModelParser(condParser);
     }
 
@@ -46,18 +68,18 @@ public class ScriptEventsInstaller : MonoInstaller, IInitializable
     {
         {
             var dispatcher = Container.Resolve<IEventDispatcher>();
-            var bridges = Container.Resolve<List<IEventsBridge>>();
-            foreach(var bridge in bridges)
+            var bridges = Container.ResolveList<IEventsBridge>();
+            for(var i = 0; i < bridges.Count; i++)
             {
-                dispatcher.AddBridge(bridge);
+                dispatcher.AddBridge(bridges[i]);
             }
         }
         {
             var dispatcher = Container.Resolve<IScriptEventDispatcher>();
-            var bridges = Container.Resolve<List<IScriptEventsBridge>>();
-            foreach(var bridge in bridges)
+            var bridges = Container.ResolveList<IScriptEventsBridge>();
+            for(var i = 0; i < bridges.Count; i++)
             {
-                dispatcher.AddBridge(bridge);
+                dispatcher.AddBridge(bridges[i]);
             }
         }
     }

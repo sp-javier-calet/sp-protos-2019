@@ -1,21 +1,21 @@
-
+#if UNITY_ANDROID
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
-using OnePF;
+using SocialPoint.Base;
+using UnityEngine;
+#endif
 
 namespace SocialPoint.Purchase
 {
     public class AndroidPurchaseStore
+    #if UNITY_ANDROID
         : IPurchaseStore
+    #endif
     {
-        const int RESULT_USER_CANCELED = 1;
-
-        private bool _isInitialized;
-        private List<Product> _products;
-        bool _autoCompletePurchases = false;
+        #if UNITY_ANDROID
+        bool _isInitialized;
+        List<Product> _products;
         string _productId = string.Empty;
 
         #region IPurchaseStore implementation
@@ -24,7 +24,7 @@ namespace SocialPoint.Purchase
 
         public event PurchaseUpdatedDelegate PurchaseUpdated;
 
-        private ValidatePurchaseDelegate _validatePurchase;
+        ValidatePurchaseDelegate _validatePurchase;
 
         public ValidatePurchaseDelegate ValidatePurchase
         {
@@ -48,25 +48,21 @@ namespace SocialPoint.Purchase
 
         public void Setup(AttrDic settings)
         {
-            //Implement if needed
+            PlatformPuchaseSettings.SetBoolSetting(settings, 
+                PlatformPuchaseSettings.AndroidUseDetailedLogKey, 
+                AndroidStoreBinding.EnableHighDetailLogs);
         }
 
         public void LoadProducts(string[] productIds)
         {
             if(!_isInitialized)
             {
-                DebugLog("OpenIAB is not ready");
+                DebugLog("Purchase plugin is not ready");
                 return;
             }
 
-            DebugLog("Mapping products on OpenIAB");
-            foreach(string productId in productIds)
-            {
-                OpenIAB.mapSku(productId, OpenIAB_Android.STORE_GOOGLE, productId);
-            }
-
             DebugLog("Querying products");
-            OpenIAB.queryInventory(productIds);
+            AndroidStoreBinding.RequestProductData(productIds);
         }
 
         public bool Purchase(string productId)
@@ -81,16 +77,13 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                OpenIAB.purchaseProduct(productId, string.Empty);
+                AndroidStoreBinding.PurchaseProduct(productId);
                 PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
                 return true;
             }
-            else
-            {
-                DebugLog("product doesn't exist: " + productId);
-                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
-                return false;
-            }
+            DebugLog("product doesn't exist: " + productId);
+            PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
+            return false;
         }
 
         public bool HasProductsLoaded
@@ -105,15 +98,13 @@ namespace SocialPoint.Purchase
         {
             get
             {
-                return _products.ToArray();
+                return (_products != null) ? _products.ToArray() : null;
             }
         }
 
-        //Right now this function should be coupled with a reload of the inventory (see AdminPanelPurchase for example)
-        //TODO: Change to do the force in one go (as Mock and iOS stores)
         public void ForceFinishPendingTransactions()
         {
-            _autoCompletePurchases = true;
+            AndroidStoreBinding.ForceFinishPendingTransactions();
         }
 
         #endregion
@@ -134,28 +125,15 @@ namespace SocialPoint.Purchase
                 throw new NotImplementedException("AndroidPurchaseStore only works on Android");
             }
 
-            OpenIABEventManager.billingSupportedEvent += BillingSupported;
-            OpenIABEventManager.billingNotSupportedEvent += BillingNotSupported;
-            OpenIABEventManager.queryInventorySucceededEvent += QueryInventorySucceeded;
-            OpenIABEventManager.queryInventoryFailedEvent += QueryInventoryFailed;
-            OpenIABEventManager.purchaseSucceededEvent += PurchaseSucceeded;
-            OpenIABEventManager.purchaseFailedEvent += PurchaseFailed;
-            OpenIABEventManager.consumePurchaseSucceededEvent += consumePurchaseSucceeded;
-            OpenIABEventManager.consumePurchaseFailedEvent += consumePurchaseFailed;
-
-            OpenIAB.enableDebugLogging(true);
-            Options options = new Options();
-            options.checkInventoryTimeoutMs = Options.INVENTORY_CHECK_TIMEOUT_MS * 2;
-            options.discoveryTimeoutMs = Options.DISCOVER_TIMEOUT_MS * 2;
-            options.checkInventory = false;
-            options.verifyMode = OptionsVerifyMode.VERIFY_SKIP;
-            options.prefferedStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
-            options.availableStoreNames = new string[] { OpenIAB_Android.STORE_GOOGLE };
-            options.storeSearchStrategy = SearchStrategy.INSTALLER_THEN_BEST_FIT;
-
-
-            DebugLog("setting options");
-            OpenIAB.init(options);
+            AndroidStoreManager.BillingSupportedEvent += BillingSupported;
+            AndroidStoreManager.BillingNotSupportedEvent += BillingNotSupported;
+            AndroidStoreManager.QueryInventorySucceededEvent += ProductListReceived;
+            AndroidStoreManager.QueryInventoryFailedEvent += QueryInventoryFailed;
+            AndroidStoreManager.PurchaseSucceededEvent += PurchaseSucceeded;
+            AndroidStoreManager.PurchaseFailedEvent += PurchaseFailed;
+            AndroidStoreManager.PurchaseCancelledEvent += PurchaseCancelled;
+            AndroidStoreManager.ConsumePurchaseSucceededEvent += ConsumePurchaseSucceeded;
+            AndroidStoreManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
@@ -164,32 +142,22 @@ namespace SocialPoint.Purchase
             DebugUtils.Log(string.Format("AndroidPurchaseStore {0}", msg));
         }
 
-        private void QueryInventorySucceeded(Inventory inventory)
+        void QueryInventoryFailed(Error error)
         {
-            //revise all pending purchases
-            DebugLog(inventory.ToString());
-            foreach(var item in inventory.GetAllPurchases())
-            {
-                if(_autoCompletePurchases)
-                {
-                    OpenIAB.consumeProduct(item);
-                }
-                else
-                {
-                    DebugLog("pending purchase: " + item);
-                    PurchaseSucceeded(item);
-                }
-            }
-            //This bool is set to false again to make the ForceFinishPendingTransactions a one time only action (check comments on function)
-            _autoCompletePurchases = false;
+            DebugLog("Query inventory failed");
+            ProductsUpdated(LoadProductsState.Error, error);
+        }
 
-            Debug.Log("received total products: " + inventory.GetAllAvailableSkus().Count);
+        void ProductListReceived(List<AndroidStoreProduct> products)
+        {
+            _products = new List<Product>();
+            DebugLog("received total products: " + products.Count);
             try
             {
-                _products = new List<Product>();
-                foreach(SkuDetails sk in inventory.GetAllAvailableSkus())
+                for(int i = 0, productsCount = products.Count; i < productsCount; i++)
                 {
-                    Product parsedProduct = new Product(sk.Sku, sk.Title, float.Parse(sk.PriceValue), sk.CurrencyCode, sk.Price);
+                    AndroidStoreProduct product = products[i];
+                    var parsedProduct = new Product(product.Sku, product.Title, float.Parse(product.PriceValue), product.CurrencyCode, product.Price);
                     DebugLog(parsedProduct.ToString());
                     _products.Add(parsedProduct);
                 }
@@ -203,13 +171,7 @@ namespace SocialPoint.Purchase
             ProductsUpdated(LoadProductsState.Success, null);
         }
 
-        private void QueryInventoryFailed(string error)
-        {
-            DebugLog("Query inventory failed");
-            ProductsUpdated(LoadProductsState.Error, new Error(error));
-        }
-
-        private void PurchaseSucceeded(OnePF.Purchase purchase)
+        void PurchaseSucceeded(AndroidStoreTransaction purchase)
         {
             var data = new AttrDic();
             data.SetValue(Receipt.OrderIdKey, purchase.OrderId);
@@ -220,75 +182,69 @@ namespace SocialPoint.Purchase
             data.SetValue(Receipt.DataSignatureKey, purchase.Signature);
             if(_validatePurchase != null)
             {
-                Receipt receipt = new Receipt(data);
-                _validatePurchase(receipt, (response) => {
-                    //TODO: we have to consume the consumable items
+                var receipt = new Receipt(data);
+                _validatePurchase(receipt, response => {
                     if(response == PurchaseResponseType.Complete || response == PurchaseResponseType.Duplicated)
                     {
-                        OpenIAB.consumeProduct(purchase);
+                        AndroidStoreBinding.FinishPendingTransaction(purchase.Sku);
                         PurchaseUpdated(PurchaseState.PurchaseFinished, receipt.ProductId);
                     }
                 });
             }
         }
 
-        private void PurchaseFailed(int errorCode, string error)
+        void PurchaseFailed(Error error)
         {
-            switch(errorCode)
-            {
-            case RESULT_USER_CANCELED:
-                PurchaseUpdated(PurchaseState.PurchaseCanceled, _productId);
-                break;
-            default:
-                PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
-                break;
-            }
-
-            DebugLog(string.Format("Purchase failed : errorCode = {0}, error message = {1}",
-                errorCode, error));
-            DebugLog(errorCode.ToString());
+            PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
+            DebugLog(string.Format("Purchase failed : error message = {0}", error));
         }
 
-        private void BillingSupported()
+        void PurchaseCancelled(Error error)
+        {
+            PurchaseUpdated(PurchaseState.PurchaseCanceled, _productId);
+            DebugLog(string.Format("Purchase cancelled : error message = {0}", error));
+        }
+
+        void BillingSupported()
         {
             _isInitialized = true;
-
-            DebugLog("billingSupportedEvent");
+            DebugLog("BillingSupportedEvent");
         }
 
-        private void BillingNotSupported(string error)
+        void BillingNotSupported(Error error)
         {
-            DebugLog("BillingNotSupportedEvent" + error.ToString());
+            DebugLog("BillingNotSupportedEvent" + error);
         }
 
-        public void consumePurchaseSucceeded(OnePF.Purchase obj)
+        public void ConsumePurchaseSucceeded(AndroidStoreTransaction purchase)
         {
-            PurchaseUpdated(PurchaseState.PurchaseConsumed, obj.Sku);
+            PurchaseUpdated(PurchaseState.PurchaseConsumed, purchase.Sku);
         }
 
-        private void consumePurchaseFailed(string error)
+        void ConsumePurchaseFailed(Error error)
         {
-            DebugLog(string.Format("Purchase Cancel : errorCode = {0}",
-                error));
+            DebugLog(string.Format("Purchase Cancel : errorCode = {0}", error));
             PurchaseUpdated(PurchaseState.PurchaseFailed, _productId);
         }
 
         void UnregisterEvents()
         {
-            OpenIABEventManager.billingSupportedEvent -= BillingSupported;
-            OpenIABEventManager.billingNotSupportedEvent -= BillingNotSupported;
-            OpenIABEventManager.queryInventorySucceededEvent -= QueryInventorySucceeded;
-            OpenIABEventManager.queryInventoryFailedEvent -= QueryInventoryFailed;
-            OpenIABEventManager.purchaseSucceededEvent -= PurchaseSucceeded;
-            OpenIABEventManager.purchaseFailedEvent -= PurchaseFailed;
-            OpenIABEventManager.consumePurchaseSucceededEvent -= consumePurchaseSucceeded;
-            OpenIABEventManager.consumePurchaseFailedEvent -= consumePurchaseFailed;
-            OpenIAB.unbindService();
+            AndroidStoreManager.BillingSupportedEvent -= BillingSupported;
+            AndroidStoreManager.BillingNotSupportedEvent -= BillingNotSupported;
+            AndroidStoreManager.QueryInventorySucceededEvent -= ProductListReceived;
+            AndroidStoreManager.QueryInventoryFailedEvent -= QueryInventoryFailed;
+            AndroidStoreManager.PurchaseSucceededEvent -= PurchaseSucceeded;
+            AndroidStoreManager.PurchaseFailedEvent -= PurchaseFailed;
+            AndroidStoreManager.PurchaseCancelledEvent -= PurchaseCancelled;
+            AndroidStoreManager.ConsumePurchaseSucceededEvent -= ConsumePurchaseSucceeded;
+            AndroidStoreManager.ConsumePurchaseFailedEvent -= ConsumePurchaseFailed;
+            AndroidStoreBinding.Unbind();
         }
 
         public void PurchaseStateChanged(PurchaseState state, string productID)
         {
             PurchaseUpdated(state, productID);
         }
+        #endif
     }
 }

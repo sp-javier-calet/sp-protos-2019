@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using SocialPoint.Alert;
@@ -18,7 +17,7 @@ namespace SocialPoint.Crash
     /*
      * Crash reporter Base implementation
      */
-    public class BaseCrashReporter : ICrashReporter
+    public class BaseCrashReporter : ICrashReporter , IUpdateable
     {
         #region Stored logs
 
@@ -259,17 +258,15 @@ namespace SocialPoint.Crash
             set
             { 
                 _currentSendInterval = value; 
-                _waitForSeconds = new WaitForSeconds(_currentSendInterval);
             }
         }
 
-        ICoroutineRunner _runner;
-        IEnumerator _updateCoroutine;
+        IUpdateScheduler _updateScheduler;
         IAlertView _alertViewPrototype;
 
         float _currentSendInterval = DefaultSendInterval;
-        WaitForSeconds _waitForSeconds = new WaitForSeconds(DefaultSendInterval);
         bool _sending;
+        bool _running;
 
         public bool ExceptionLogActive
         {
@@ -425,10 +422,11 @@ namespace SocialPoint.Crash
             }
         }
 
-        public BaseCrashReporter(ICoroutineRunner runner, IHttpClient client, 
+        public BaseCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, 
                                  IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
-            _runner = runner;
+            _updateScheduler = updateScheduler;
+            _running = false;
             _httpClient = client;
             _deviceInfo = deviceInfo;
             _alertViewPrototype = alertView;
@@ -450,7 +448,7 @@ namespace SocialPoint.Crash
         {
             get
             {
-                return _updateCoroutine != null;
+                return _running;
             }
         }
 
@@ -463,10 +461,14 @@ namespace SocialPoint.Crash
 
             WasEnabled = true;
             LogCallbackHandler.RegisterLogCallback(HandleLog);
-            OnEnable();
 
-            _updateCoroutine = UpdateCoroutine();
-            _runner.StartCoroutine(_updateCoroutine);
+            if(_updateScheduler != null)
+            { 
+                _updateScheduler.AddFixed(this, SendInterval);
+                _running = true;
+            }
+
+            OnEnable();
         }
 
         protected virtual void OnEnable()
@@ -476,12 +478,14 @@ namespace SocialPoint.Crash
         public void Disable()
         {
             WasEnabled = false;
-            if(_updateCoroutine != null)
-            {
-                _runner.StopCoroutine(_updateCoroutine);
-                _updateCoroutine = null;
-            }
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
+
+            if(_updateScheduler != null)
+            { 
+                _updateScheduler.Remove(this);
+                _running = false;
+            }
+
             OnDisable();
         }
 
@@ -561,14 +565,20 @@ namespace SocialPoint.Crash
             get{ return (_crashStorage != null && _crashStorage.StoredKeys.Length > 0); }
         }
 
+        public bool HasBreadcrumbException
+        {
+            get{ return (_breadcrumbManager != null && _breadcrumbManager.LogException != null); }
+        }
+
         protected void ReadPendingCrashes()
         {
             _pendingReports = GetPendingCrashes();
 
             if(_pendingReports.Count > 0)
             {
-                foreach(Report report in _pendingReports)
+                for(int i = 0, _pendingReportsCount = _pendingReports.Count; i < _pendingReportsCount; i++)
                 {
+                    Report report = _pendingReports[i];
                     AddRetry(report.Uuid);
                 }
             }
@@ -584,8 +594,9 @@ namespace SocialPoint.Crash
 
             if(HasCrashLogs)
             {
-                foreach(var log in _crashStorage.StoredKeys)
+                for(int i = 0, _crashStorageStoredKeysLength = _crashStorage.StoredKeys.Length; i < _crashStorageStoredKeysLength; i++)
                 {
+                    var log = _crashStorage.StoredKeys[i];
                     AddRetry(log);
                 }
             }
@@ -627,8 +638,9 @@ namespace SocialPoint.Crash
             {
                 var steps = new StepCallbackBuilder(callback);
 
-                foreach(var log in _crashStorage.StoredKeys)
+                for(int i = 0, _crashStorageStoredKeysLength = _crashStorage.StoredKeys.Length; i < _crashStorageStoredKeysLength; i++)
                 {
+                    var log = _crashStorage.StoredKeys[i];
                     if(reportSendType == GetReportSendType(log))
                     {
                         SendCrashLog(log, steps.Add());
@@ -649,8 +661,9 @@ namespace SocialPoint.Crash
             {
                 var steps = new StepCallbackBuilder(callback);
 
-                foreach(Report report in _pendingReports)
+                for(int i = 0, _pendingReportsCount = _pendingReports.Count; i < _pendingReportsCount; i++)
                 {
+                    Report report = _pendingReports[i];
                     if(reportSendType == GetReportSendType(report.Uuid))
                     {
                         //trackcrash will create the log if is success
@@ -720,6 +733,12 @@ namespace SocialPoint.Crash
 
                 SendExceptions(keysToSend);
             }
+
+            if(HasBreadcrumbException)
+            {
+                ReportHandledException(_breadcrumbManager.LogException);
+                _breadcrumbManager.LogException = null;
+            }
         }
 
         bool SendExceptions(string[] storedKeys)
@@ -750,8 +769,9 @@ namespace SocialPoint.Crash
             }
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             var exceptionLogs = new AttrList();
-            foreach(var storedKey in storedKeys)
+            for(int i = 0, storedKeysLength = storedKeys.Length; i < storedKeysLength; i++)
             {
+                var storedKey = storedKeys[i];
                 try
                 {
                     exceptionLogs.Add(_exceptionStorage.Load(storedKey));
@@ -793,8 +813,9 @@ namespace SocialPoint.Crash
             _sending = false;
             if(!resp.HasError)
             {
-                foreach(var key in storedKeys)
+                for(int i = 0, storedKeysLength = storedKeys.Length; i < storedKeysLength; i++)
                 {
+                    var key = storedKeys[i];
                     _exceptionStorage.Remove(key);
                 }
             }
@@ -944,15 +965,6 @@ namespace SocialPoint.Crash
             report.Remove(); // we remove the report in order to not track it again :)
         }
 
-        IEnumerator UpdateCoroutine()
-        {
-            while(true)
-            {
-                SendExceptionLogs();
-                yield return _waitForSeconds;
-            }
-        }
-
         #region App Events
 
         void ConnectAppEvents(IAppEvents appEvents)
@@ -1069,6 +1081,15 @@ namespace SocialPoint.Crash
             var retriesKey = GetRetriesKey(reportUuid);
             PlayerPrefs.DeleteKey(retriesKey);
             PlayerPrefs.Save();
+        }
+
+        #endregion
+
+        #region IUpdateable implementation
+
+        public void Update()
+        {
+            SendExceptionLogs();
         }
 
         #endregion

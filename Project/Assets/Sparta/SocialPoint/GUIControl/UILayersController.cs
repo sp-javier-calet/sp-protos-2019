@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace SocialPoint.GUIControl
@@ -49,27 +49,36 @@ namespace SocialPoint.GUIControl
 
         Stack<UICameraData> _activeCameras = new Stack<UICameraData>();
 
-        IDictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
+        Dictionary<UIViewController, UICameraData> _uiCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        IDictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
+        readonly Dictionary<UIViewController, UICameraData> _3dCameraByController = new Dictionary<UIViewController, UICameraData>();
 
-        IDictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
+        readonly Dictionary<UIViewController, List<GameObject>> _3dObjectsByController = new Dictionary<UIViewController, List<GameObject>>();
 
         List<UIViewController> _controllers = new List<UIViewController>();
 
-        IDictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
+        List<UIViewController> _overlappedControllers = new List<UIViewController>();
 
-        int _currentOrderInLayer = 0;
+        Dictionary<GameObject, List<UIViewController>> _overlappedScenePrefabs = new Dictionary<GameObject, List<UIViewController>>();
+
+        List<UIViewController> _actualSceneOverlappedControllers = new List<UIViewController>();
+
+        GameObject _lastDisplayedScene;
+
+        Dictionary<int, UICameraData> _camerasByLayer = new Dictionary<int, UICameraData>();
+
+        int _currentOrderInLayer;
 
         void Awake()
         {
             Assert.AreEqual(_cameras[0].Type, UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
 
-            List<UICameraData> cameras = new List<UICameraData>(_cameras);
+            var cameras = new List<UICameraData>(_cameras);
             cameras.Reverse();
 
-            foreach(UICameraData cameraData in cameras)
+            for(int i = 0, camerasCount = cameras.Count; i < camerasCount; i++)
             {
+                UICameraData cameraData = cameras[i];
                 InitializeCamera(cameraData);
                 _inactiveCameras.Push(cameraData);
             }
@@ -135,8 +144,10 @@ namespace SocialPoint.GUIControl
 
             if(canvas == null)
             {
-                foreach(Transform child in uiElement.transform)
+                var itr = uiElement.transform.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var child = (Transform)itr.Current;
                     GetCanvasFromElement(child.gameObject, uiCanvas);
                 }
             }
@@ -167,37 +178,56 @@ namespace SocialPoint.GUIControl
         {
             ResetCameras();
 
-            foreach(UIViewController controller in _controllers)
+            for(int i = 0, _controllersCount = _controllers.Count; i < _controllersCount; i++)
             {
+                var controller = _controllers[i];
+
+                if(_overlappedControllers.Contains(controller))
+                {
+                    continue;
+                }
                 if(_activeCameras.Peek().Type != UICameraData.CameraType.GUI2D)
                 {
                     ActivateNextUILayer(UICameraData.CameraType.GUI2D);
                 }
-
-                UICameraData previousCameraAssigned = null;
-
+                UICameraData previousCameraAssigned;
                 // check if we are changing the camera assigned to this controller
                 if(!_uiCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
                 {
                     _uiCameraByController[controller] = _activeCameras.Peek();
-                    AssignCameraToUICanvas(controller.gameObject, _activeCameras.Peek());
+                    AssignCameraToUICanvas(controller.gameObject, _activeCameras.Peek(), controller.WorldSpaceFullScreen);
                 }
-
                 AssignOrderInCameraLayer(controller.gameObject);
-
                 // if this camera is using 3d objects, then we need to activate a 3d camera and start using the next ui camera from now on
                 if(_3dObjectsByController.ContainsKey(controller))
                 {
-                    //activate next 3d camera
-                    ActivateNextUILayer(UICameraData.CameraType.GUI3D);
+                    //if 3d object canvas is world space 
+                    var list = _3dObjectsByController[controller];
+                    var canvasList = GetCanvasFromElement(controller.gameObject);
 
-                    if(!_3dCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
+                    if(canvasList.Count > 0 && canvasList[0].renderMode == RenderMode.WorldSpace)
                     {
-                        _3dCameraByController[controller] = _activeCameras.Peek();
+                        _3dCameraByController[controller] = _uiCameraByController[controller];
 
-                        foreach(GameObject go in _3dObjectsByController[controller])
+                        for(int j = 0, maxCount = list.Count; j < maxCount; j++)
                         {
-                            AssignCameraTo3DContainer(go, _activeCameras.Peek());
+                            GameObject go = list[j];
+                            AssignCameraTo3DContainer(go, _uiCameraByController[controller]);
+                        }
+                    }
+                    else
+                    {
+                        //activate next 3d camera
+                        ActivateNextUILayer(UICameraData.CameraType.GUI3D);
+                        if(!_3dCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
+                        {
+                            _3dCameraByController[controller] = _activeCameras.Peek();
+
+                            for(int j = 0, maxCount = list.Count; j < maxCount; j++)
+                            {
+                                GameObject go = list[j];
+                                AssignCameraTo3DContainer(go, _activeCameras.Peek());
+                            }
                         }
                     }
                 }
@@ -206,21 +236,51 @@ namespace SocialPoint.GUIControl
 
         void AssignOrderInCameraLayer(GameObject uiElement)
         {
-            List<Canvas> uiCanvas = new List<Canvas>();
+            var uiCanvas = new List<Canvas>();
 
             GetCanvasFromElement(uiElement, uiCanvas);
 
-            foreach(Canvas canvas in uiCanvas)
+            for(int i = 0, uiCanvasCount = uiCanvas.Count; i < uiCanvasCount; i++)
             {
+                Canvas canvas = uiCanvas[i];
                 canvas.sortingOrder = _currentOrderInLayer++;
             }
         }
 
-        void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
+        void PlaceElementFullScreen(GameObject uiElement, UICameraData camera)
+        {
+            var cam = camera.Camera.GetComponent<Camera>();
+
+            uiElement.transform.position = new Vector3(0, 0, camera.Depth);
+
+            float camHeight;
+            if(cam.orthographic)
+            {
+                camHeight = cam.orthographicSize * 2;
+            }
+            else
+            {
+                camHeight = Mathf.Tan(Mathf.Deg2Rad * (cam.fieldOfView * 0.5f)) * camera.Depth;
+            }
+
+            var rect = uiElement.GetComponent<RectTransform>().rect;
+            var currentHeight = uiElement.transform.localScale.y * rect.height;
+            var currentWidth = uiElement.transform.localScale.x * rect.width;
+            var scaleHeight = camHeight / currentHeight;
+            var camWidth = (((float)Screen.width / (float)Screen.height) * camHeight);
+            var scaleWidth = camWidth / currentWidth;
+            var finalScale = uiElement.transform.localScale;
+            finalScale.y *= scaleHeight;
+            finalScale.x *= scaleWidth;
+            finalScale.z *= scaleWidth;
+            uiElement.transform.localScale = finalScale;
+        }
+
+        void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera, bool repositionWorldSpaceController)
         {
             int layer = LayerMask.NameToLayer(camera.LayerName);
 
-            List<Canvas> uiCanvas = new List<Canvas>();
+            var uiCanvas = new List<Canvas>();
 
             GetCanvasFromElement(uiElement, uiCanvas);
 
@@ -230,22 +290,44 @@ namespace SocialPoint.GUIControl
                 return;
             }
 
-            foreach(Canvas canvas in uiCanvas)
+            bool isInWorldSpace = false;
+
+            for(int i = 0, uiCanvasCount = uiCanvas.Count; i < uiCanvasCount; i++)
             {
-                canvas.worldCamera = camera.Camera.GetComponent<Camera>();
+                Canvas canvas = uiCanvas[i];
+                var cam = camera.Camera.GetComponent<Camera>();
+                if(canvas.renderMode == RenderMode.WorldSpace)
+                {
+                    isInWorldSpace = true;
+                    if(repositionWorldSpaceController)
+                    {
+                        PlaceElementFullScreen(uiElement, camera);
+                    }
+                }
+
+                canvas.worldCamera = cam;
                 canvas.gameObject.layer = layer;
+            }
+
+            if(isInWorldSpace)
+            {
+                ActivateNextUILayer(UICameraData.CameraType.GUI2D);
             }
         }
 
-        void AssignCameraTo3DContainer(GameObject uiElement, UICameraData camera)
+        static void AssignCameraTo3DContainer(GameObject uiElement, UICameraData camera)
         {
             SetLayerRecursively(uiElement, camera.Layer);
         }
 
-        void SetLayerRecursively(GameObject gameObject, LayerMask layer)
+        static void SetLayerRecursively(GameObject gameObject, LayerMask layer)
         {
             var children = gameObject.GetComponentsInChildren<Transform>();
-            Array.ForEach(children, child => child.gameObject.layer = layer);
+            for(int i = 0; i < children.Length; i++)
+            {
+                var child = children[i];
+                child.gameObject.layer = layer;
+            }
         }
 
         public void Add(UIViewController controller)
@@ -255,6 +337,107 @@ namespace SocialPoint.GUIControl
             RefreshCameras();
         }
 
+        public void DisplayScene(GameObject scene = null)
+        {
+            if(_lastDisplayedScene == scene)
+            {
+                return;
+            }
+
+            OverlapPreviousControllers();
+
+            if(scene == null)
+            {
+                RemoveOverlap(_actualSceneOverlappedControllers);
+
+                _actualSceneOverlappedControllers.Clear();
+            }
+            else
+            {
+                if(_overlappedScenePrefabs.ContainsKey(scene))
+                {
+                    RemoveOverlappedScene(scene);
+                }
+            }
+
+            _lastDisplayedScene = scene;
+
+            RefreshCameras();
+        }
+
+        public void RemoveScene(GameObject scene)
+        {
+            RemoveOverlappedScene(scene);
+        }
+
+        void RemoveOverlappedScene(GameObject scene)
+        {
+            List<UIViewController> controllers;
+
+            if(_overlappedScenePrefabs.TryGetValue(scene, out controllers))
+            {
+                RemoveOverlap(controllers);
+
+                _overlappedScenePrefabs.Remove(scene);
+            }
+        }
+
+        void RemoveOverlap(List<UIViewController> controllers)
+        {
+            for(int index = 0; index < controllers.Count; ++index)
+            {
+                var controller = controllers[index];
+
+                SetCanvasEnabled(controller, true);
+
+                _overlappedControllers.Remove(controller);
+            }
+        }
+
+        void OverlapPreviousControllers()
+        {
+            for(int index = 0; index < _controllers.Count; ++index)
+            {
+                var controller = _controllers[index];
+
+                if(_overlappedControllers.Contains(controller))
+                {
+                    continue;
+                }
+
+                SetCanvasEnabled(controller, false);
+
+                _overlappedControllers.Add(controller);
+
+                if(_lastDisplayedScene == null)
+                {
+                    _actualSceneOverlappedControllers.Add(controller);
+                }
+                else
+                {
+                    List<UIViewController> lastSceneControllers;
+
+                    if(!_overlappedScenePrefabs.TryGetValue(_lastDisplayedScene, out lastSceneControllers))
+                    {
+                        lastSceneControllers = new List<UIViewController>();
+                        _overlappedScenePrefabs[_lastDisplayedScene] = lastSceneControllers;
+                    }
+
+                    lastSceneControllers.Add(controller);
+                }
+            }
+        }
+
+        void SetCanvasEnabled(UIViewController controller, bool enabled)
+        {
+            var canvasList = GetCanvasFromElement(controller.gameObject);
+
+            for(int canvasIndex = 0; canvasIndex < canvasList.Count; ++canvasIndex)
+            {
+                canvasList[canvasIndex].enabled = enabled;
+            }
+        }
+
         public void Remove(UIViewController controller)
         {
             _uiCameraByController.Remove(controller);
@@ -262,12 +445,39 @@ namespace SocialPoint.GUIControl
             _3dObjectsByController.Remove(controller);
             _controllers.Remove(controller);
 
+            if(_overlappedControllers.Contains(controller))
+            {
+                if(_actualSceneOverlappedControllers.Contains(controller))
+                {
+                    _actualSceneOverlappedControllers.Remove(controller);
+                }
+                else
+                {
+                    var overlappedScenesEnumerator = _overlappedScenePrefabs.GetEnumerator();
+
+                    while(overlappedScenesEnumerator.MoveNext())
+                    {
+                        var overlappedControllers = overlappedScenesEnumerator.Current.Value;
+
+                        if(overlappedControllers.Contains(controller))
+                        {
+                            overlappedControllers.Remove(controller);
+                            break;
+                        }
+                    }
+
+                    overlappedScenesEnumerator.Dispose();
+                }
+
+                _overlappedControllers.Remove(controller);
+            }
+
             RefreshCameras();
         }
 
         public void Add3DContainer(UIViewController controller, GameObject go)
         {
-            List<GameObject> objectsAdded = null;
+            List<GameObject> objectsAdded;
 
             if(_3dObjectsByController.TryGetValue(controller, out objectsAdded))
             {
@@ -287,7 +497,7 @@ namespace SocialPoint.GUIControl
 
         public void Remove3DContainer(UIViewController controller, GameObject go)
         {
-            List<GameObject> objectsAdded = null;
+            List<GameObject> objectsAdded;
 
             if(_3dObjectsByController.TryGetValue(controller, out objectsAdded))
             {
@@ -301,6 +511,20 @@ namespace SocialPoint.GUIControl
                     RefreshCameras();
                 }
             }
+        }
+
+        public UICameraData GetCameraDataByLayer(int layer)
+        {
+            for(int index = 0; index < _cameras.Count; ++index)
+            {
+                var cameraData = _cameras[index];
+
+                if(cameraData.Layer == layer)
+                {
+                    return cameraData;
+                }
+            }
+            return null;
         }
     }
 }

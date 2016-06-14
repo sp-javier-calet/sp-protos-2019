@@ -1,6 +1,7 @@
 ﻿using SocialPoint.AdminPanel;
 using SocialPoint.EventSystems;
 using SocialPoint.GUIControl;
+using SocialPoint.Dependency;
 
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,14 +10,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-using Zenject;
-
 public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [InjectOptional]
     AdminPanel _adminPanel;
-
-    [Inject]
     List<IAdminPanelConfigurer> _configurers;
 
     public float WaitTime = 1.0f;
@@ -35,9 +31,10 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         _timeSinceDown = 0.0f;
     }
 
-    [PostInject]
-    void PostInject()
+    void Start()
     {
+        _adminPanel = ServiceLocator.Instance.Resolve<AdminPanel>();
+        _configurers = ServiceLocator.Instance.ResolveList<IAdminPanelConfigurer>();
         if(_adminPanel != null)
         {
             _adminPanel.RegisterConfigurers(_configurers);

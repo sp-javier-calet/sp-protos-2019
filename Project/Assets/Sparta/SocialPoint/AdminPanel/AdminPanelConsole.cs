@@ -112,10 +112,13 @@ namespace SocialPoint.AdminPanel
                 layout.CreateLabel("Available commands");
 
                 var content = new StringBuilder();
-                foreach(KeyValuePair<string, ConsoleCommand> entry in _console.Application)
+                var itr = _console.Application.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var entry = itr.Current;
                     content.Append(entry.Key).Append(" : ").AppendLine(entry.Value.Description);
                 }
+                itr.Dispose();
 
                 layout.CreateTextArea(content.ToString());
             }

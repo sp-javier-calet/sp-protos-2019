@@ -1457,11 +1457,14 @@ namespace SocialPoint.Attributes
         public override int GetHashCode()
         {
             int seed = 0;
-            foreach(var item in _value)
+            var itr = _value.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var item = itr.Current;
                 HashCombine(ref seed, item.Key.GetHashCode());
                 HashCombine(ref seed, item.Value.GetHashCode());
             }
+            itr.Dispose();
             return base.GetHashCode() ^ seed;
         }
 
@@ -1840,10 +1843,13 @@ namespace SocialPoint.Attributes
         public override int GetHashCode()
         {
             int seed = 0;
-            foreach(var item in _value)
+            var itr = _value.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var item = itr.Current;
                 HashCombine(ref seed, item.GetHashCode());
             }
+            itr.Dispose();
             return base.GetHashCode() ^ seed;
         }
 

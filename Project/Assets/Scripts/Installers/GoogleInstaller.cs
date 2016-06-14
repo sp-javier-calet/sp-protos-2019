@@ -1,10 +1,12 @@
-﻿using Zenject;
+﻿
 using System;
+using UnityEngine;
+using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
 using SocialPoint.AdminPanel;
 
-public class GoogleInstaller : MonoInstaller
+public class GoogleInstaller : Installer
 {
     [Serializable]
     public class SettingsData
@@ -25,21 +27,28 @@ public class GoogleInstaller : MonoInstaller
         }
         else
         {
-            Container.Rebind<IGoogle>().ToSingleGameObject<UnityGoogle>();
+            Container.Rebind<IGoogle>().ToSingle<UnityGoogle>();
+            Container.Rebind<MonoBehaviour>().ToSingle<UnityGoogle>();
         }
         if(Settings.LoginLink)
         {
-            Container.Bind<ILink>().ToSingleMethod<GooglePlayLink>(CreateLoginLink);
+            Container.Bind<ILink>().ToMethod<GooglePlayLink>(CreateLoginLink);
         }
         #else
         Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
         #endif
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelGoogle>();
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGoogle>(CreateAdminPanel);
     }
 
-    GooglePlayLink CreateLoginLink(InjectContext ctx)
+    AdminPanelGoogle CreateAdminPanel()
     {
-        var google = ctx.Container.Resolve<IGoogle>();
+        return new AdminPanelGoogle(
+            Container.Resolve<IGoogle>());
+    }
+
+    GooglePlayLink CreateLoginLink()
+    {
+        var google = Container.Resolve<IGoogle>();
         return new GooglePlayLink(google, !Settings.LoginWithUi);
     }
 }

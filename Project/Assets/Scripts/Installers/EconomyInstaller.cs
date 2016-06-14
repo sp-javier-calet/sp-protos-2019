@@ -1,57 +1,64 @@
 
-using Zenject;
 using System;
 using System.Collections.Generic;
+using SocialPoint.Dependency;
 using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Purchase;
+using SocialPoint.Base;
 
-public class EconomyInstaller : Installer
+public class EconomyInstaller : SubInstaller
 {
     public override void InstallBindings()
     {
-        Container.Bind<ResourcesCostFactory>().ToSingleMethod<ResourcesCostFactory>(CreateResourcesCostFactory);
-        Container.Bind<PurchaseCostFactory>().ToSingleMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
-
-        Container.Bind<ResourcesRewardFactory>().ToSingleMethod<ResourcesRewardFactory>(CreateResourcesRewardFactory);
+        Container.Bind<PurchaseCostFactory>().ToMethod<PurchaseCostFactory>(CreatePurchaseCostFactory);
 
         Container.Bind<IChildParser<IReward>>().ToSingle<ResourcesRewardParser>();
 
         Container.Bind<IChildParser<ICost>>().ToSingle<ResourcesCostParser>();
-        Container.Bind<IChildParser<ICost>>().ToSingle<PurchaseCostParser>();
+        Container.Bind<IChildParser<ICost>>().ToMethod<PurchaseCostParser>(CreatePurchaseCostParser);
 
-        Container.Rebind<IParser<IReward>>().ToSingleMethod<FamilyParser<IReward>>(CreateRewardParser);
-        Container.Rebind<IParser<ICost>>().ToSingleMethod<FamilyParser<ICost>>(CreateCostParser);
+        Container.Rebind<IParser<IReward>>().ToMethod<FamilyParser<IReward>>(CreateRewardParser);
+        Container.Rebind<IParser<ICost>>().ToMethod<FamilyParser<ICost>>(CreateCostParser);
     }
 
-    FamilyParser<IReward> CreateRewardParser(InjectContext ctx)
+    PurchaseCostParser CreatePurchaseCostParser()
     {
-        var children = Container.Resolve<List<IChildParser<IReward>>>();
+        return new PurchaseCostParser(
+            Container.Resolve<PurchaseCostFactory>());
+    }
+
+    FamilyParser<IReward> CreateRewardParser()
+    {
+        var children = Container.ResolveList<IChildParser<IReward>>();
         return new FamilyParser<IReward>(children);
     }
 
-    FamilyParser<ICost> CreateCostParser(InjectContext ctx)
+    FamilyParser<ICost> CreateCostParser()
     {
-        var children = Container.Resolve<List<IChildParser<ICost>>>();
+        var children = Container.ResolveList<IChildParser<ICost>>();
         return new FamilyParser<ICost>(children);
     }
 
-    ResourcesCostFactory CreateResourcesCostFactory(InjectContext ctx)
+    PurchaseCostFactory CreatePurchaseCostFactory()
     {
-        var playerResources = ctx.Container.Resolve<ResourcePool>();
-        var eventDispatcher = ctx.Container.Resolve<IEventDispatcher>();
-        return new ResourcesCostFactory(playerResources, eventDispatcher);
+        return new PurchaseCostFactory(Purchase);
     }
 
-    PurchaseCostFactory CreatePurchaseCostFactory(InjectContext ctx)
+    void Purchase(string productId, Action<Error> finished)
     {
-        var purchaseStore = ctx.Container.Resolve<IGamePurchaseStore>();
-        return new PurchaseCostFactory(purchaseStore);
-    }
-
-    ResourcesRewardFactory CreateResourcesRewardFactory(InjectContext ctx)
-    {
-        var playerResources = ctx.Container.Resolve<ResourcePool>();
-        return new ResourcesRewardFactory(playerResources);
+        Action<PurchaseResponseType> callback = null;
+        if(finished != null)
+        {
+            callback = (PurchaseResponseType responseType) => {
+                Error error = null;
+                if(responseType != PurchaseResponseType.Complete)
+                {
+                    error = new Error("Purchase error: " + responseType);
+                }
+                finished(error);
+            };
+        }
+        Container.Resolve<IGamePurchaseStore>().Purchase(productId, callback);
     }
 }

@@ -21,7 +21,7 @@ namespace SocialPoint.Purchase
         Dictionary<string, string> _lastKnownPurchaseState = new Dictionary<string, string>();
 
         //Flag to do purchase actions after some delay
-        bool _purchaseWithDelay = false;
+        bool _purchaseWithDelay;
 
         //
         AdminPanelLayout _layout;
@@ -65,19 +65,12 @@ namespace SocialPoint.Purchase
 
             layout.CreateLabel("Purchase Options");
             //Use delay before purchasing? Can be used to test receiving events to refresh after closing the panel
-            layout.CreateToggleButton("Purchase with delay?", _purchaseWithDelay, (selected) => {
+            layout.CreateToggleButton("Purchase with delay?", _purchaseWithDelay, selected => {
                 _purchaseWithDelay = selected;
                 layout.Refresh();
             });
             //Force pending transactions
-            layout.CreateButton("Finish Pending Transactions", () => {
-                _purchaseStore.ForceFinishPendingTransactions();
-                #if UNITY_ANDROID && !UNITY_EDITOR
-                //Reload... this is needed in Android. 
-                //TODO: Check Mock and iOS versions to update Android version without needing to reload
-                LoadProducts(null);
-                #endif
-            });
+            layout.CreateButton("Finish Pending Transactions", _purchaseStore.ForceFinishPendingTransactions);
             //Force command queue flush
             layout.CreateConfirmButton("Flush Command Queue", () => {
                 _commandQueue.Flush();
@@ -90,14 +83,14 @@ namespace SocialPoint.Purchase
             layout.CreateLabel("Products");
             if(_purchaseStore.HasProductsLoaded)
             {
-                foreach(Product product in _purchaseStore.ProductList)
+                for(int i = 0, _purchaseStoreProductListLength = _purchaseStore.ProductList.Length; i < _purchaseStoreProductListLength; i++)
                 {
+                    Product product = _purchaseStore.ProductList[i];
                     AdminPanelLayout.VerticalLayout pLayout = layout.CreateVerticalLayout();
-                    string id = product.Id;//Caching id to avoid passing reference to lambda
+                    string id = product.Id;
+                    //Caching id to avoid passing reference to lambda
                     //Purchase product button
-                    pLayout.CreateButton(product.Locale, () => {
-                        PurchaseProduct(id);
-                    });
+                    pLayout.CreateButton(product.Locale, () => PurchaseProduct(id));
                     //Label with purchase state
                     if(_lastKnownPurchaseState.ContainsKey(id) && !string.IsNullOrEmpty(_lastKnownPurchaseState[id]))
                     {
@@ -116,20 +109,20 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void AddGUIInfoLabel(AdminPanelLayout layout, string label)
+        static void AddGUIInfoLabel(AdminPanelLayout layout, string label)
         {
             var infoLabel = layout.CreateLabel(label);
             infoLabel.fontSize /= 2;//Set info text as half the size of default label text
             infoLabel.fontStyle = FontStyle.Italic;
         }
 
-        private void AddGUISeparation(AdminPanelLayout layout)
+        static void AddGUISeparation(AdminPanelLayout layout)
         {
             layout.CreateLabel("_________________");
             layout.CreateMargin(3);
         }
 
-        private void OnProductsUpdated(LoadProductsState state, Error error)
+        void OnProductsUpdated(LoadProductsState state, Error error)
         {
             switch(state)
             {
@@ -140,7 +133,7 @@ namespace SocialPoint.Purchase
                 _lastKnownLoadState = "Load Error: " + error;
                 break;
             default:
-                _lastKnownLoadState = "Unknown State; " + state.ToString();
+                _lastKnownLoadState = "Unknown State; " + state;
                 break;
             }
 
@@ -150,7 +143,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnPurchaseUpdated(PurchaseState state, string productId)
+        void OnPurchaseUpdated(PurchaseState state, string productId)
         {
             _lastKnownPurchaseState[productId] = state.ToString();
 
@@ -160,7 +153,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void LoadProducts(string[] ids = null)
+        void LoadProducts(string[] ids = null)
         {
             #if UNITY_EDITOR
             //Mockup available products with latest data
@@ -179,13 +172,11 @@ namespace SocialPoint.Purchase
             _purchaseStore.LoadProducts(ids);
         }
 
-        private void PurchaseProduct(string productId)
+        void PurchaseProduct(string productId)
         {
             if(_purchaseWithDelay)
             {
-                ActionDelayer.Instance.FireActionWithDelay(() => {
-                    _purchaseStore.Purchase(productId);
-                }, 5.0f);
+                ActionDelayer.Instance.FireActionWithDelay(() => _purchaseStore.Purchase(productId), 5.0f);
             }
             else
             {
@@ -193,11 +184,11 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void SetMockupProducts()
+        void SetMockupProducts()
         {
             //Create mockup product objects with mock store data
             string[] storeProductIds = _productSource.ProductIds;
-            Product[] mockProducts = new Product[storeProductIds.Length];
+            var mockProducts = new Product[storeProductIds.Length];
             for(int i = 0; i < mockProducts.Length; i++)
             {
                 float price = (float)i + 0.99f;
@@ -206,7 +197,7 @@ namespace SocialPoint.Purchase
                     "Test Product " + (i + 1),
                     price,
                     "$",
-                    price.ToString() + "$"
+                    price + "$"
                 );
             }
 
@@ -214,7 +205,7 @@ namespace SocialPoint.Purchase
             _purchaseStore.SetProductMockList(mockProducts);
         }
 
-        private string MergeStrings(string[] ids)
+        static string MergeStrings(string[] ids)
         {
             string merged = string.Empty;
             for(int i = 0; i < ids.Length; i++)

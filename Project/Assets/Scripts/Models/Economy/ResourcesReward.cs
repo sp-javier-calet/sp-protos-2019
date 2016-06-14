@@ -1,10 +1,7 @@
 ﻿using SocialPoint.Base;
-using Zenject;
 
 public class ResourcesReward : IReward
 {
-    ResourcePool _playerResources;
-
     ResourcePool _resources;
 
     public ResourcesReward(ResourcePool resources)
@@ -12,16 +9,11 @@ public class ResourcesReward : IReward
         _resources = resources;
     }
 
-    public void Init(ResourcePool playerResources)
-    {
-        _playerResources = playerResources;
-    }
-
     #region IReward implementation
 
-    public Error Obtain()
+    public ModelError Obtain(PlayerModel playerModel)
     {
-        _playerResources.Add(_resources);
+        playerModel.Resources.Add(_resources);
         return null;
     }
 

@@ -1,8 +1,8 @@
 ﻿using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Login;
+using SocialPoint.Dependency;
 using System;
-using Zenject;
 
 public interface IGameLoader
 {
@@ -20,19 +20,11 @@ public class GameLoader : IGameLoader
     string _jsonGameResource;
     string _jsonPlayerResource;
 
-    [Inject]
     IParser<GameModel> _gameParser;
-
-    [Inject]
     IParser<PlayerModel> _playerParser;
-
-    [Inject]
+    IParser<ConfigModel> _configParser;
     ISerializer<PlayerModel> _playerSerializer;
-
-    [Inject]
     GameModel _gameModel;
-
-    [InjectOptional]
     ILogin _login;
 
     public string PlayerJsonPath
@@ -51,10 +43,17 @@ public class GameLoader : IGameLoader
         }
     }
 
-    public GameLoader([Inject("game_initial_json_game_resource")] string jsonGameResource, [Inject("game_initial_json_player_resource")] string jsonPlayerResource)
+    public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser, IParser<ConfigModel> configParser,
+                      IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILogin login)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;
+        _gameParser = gameParser;
+        _configParser = configParser;
+        _playerParser = playerParser;
+        _playerSerializer = playerSerializer;
+        _gameModel = game;
+        _login = login;
     }
 
     GameModel LoadInitialGame()
@@ -62,6 +61,13 @@ public class GameLoader : IGameLoader
         var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
         var gameData = new JsonAttrParser().ParseString(json);
         return _gameParser.Parse(gameData);
+    }
+
+    ConfigModel LoadConfigModel()
+    {
+        var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
+        var gameData = new JsonAttrParser().ParseString(json);
+        return _configParser.Parse(gameData.AsDic["config"]);
     }
 
     GameModel LoadSavedGame()
@@ -74,13 +80,11 @@ public class GameLoader : IGameLoader
 
         if(!string.IsNullOrEmpty(json))
         {
-            var gameModel = LoadInitialGame();
+            LoadConfigModel();
             var playerData = new JsonAttrParser().ParseString(json);
-            var player = _playerParser.Parse(playerData);
+            _playerParser.Parse(playerData);
 
-            gameModel.LoadPlayer(player);
-
-            return gameModel;
+            return _gameModel;
         }
         return null;
     }
@@ -93,30 +97,26 @@ public class GameLoader : IGameLoader
             newModel = _gameParser.Parse(data);
             data.Dispose();
         }
+
         if(newModel == null && IsLocalGame)
         {
             newModel = LoadSavedGame();
         }
+
         if(newModel == null)
         {
             newModel = LoadInitialGame();
         }
-        if(newModel != null && newModel.Player == null)
-        {
-            var ini = LoadInitialGame();
-            if(ini != null)
-            {
-                newModel.Player.Move(ini.Player);
-            }
-        }
+
         if(newModel == null)
         {
             throw new InvalidOperationException("Could not load the game.");
         }
         else
         {
-            _gameModel.Move(newModel);
+            _gameModel.Init();
         }
+
         return _gameModel;
     }
 

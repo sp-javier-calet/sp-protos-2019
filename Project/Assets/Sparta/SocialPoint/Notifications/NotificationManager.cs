@@ -1,10 +1,8 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
-
-using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.ServerSync;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Notifications
 {
@@ -16,7 +14,7 @@ namespace SocialPoint.Notifications
 
         List<Notification> _notifications = new List<Notification>();
 
-        public NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
+        protected NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
         {
             if(coroutineRunner == null)
             {
@@ -86,7 +84,7 @@ namespace SocialPoint.Notifications
         [Obsolete("Use AddNotification(Notification notification)")]
         protected void AddNotification(string action, string message, long timeStamp, int numBadge = 0)
         {
-            AddNotification(action, message, TimeUtils.ToDateTime(timeStamp), numBadge);
+            AddNotification(action, message, timeStamp.ToDateTime(), numBadge);
         }
 
         protected void AddNotification(Notification notification)
@@ -110,8 +108,9 @@ namespace SocialPoint.Notifications
         void ScheduleNotifications()
         {
             AddGameNotifications();
-            foreach(var notif in _notifications)
+            for(int i = 0, _notificationsCount = _notifications.Count; i < _notificationsCount; i++)
             {
+                var notif = _notifications[i];
                 Services.Schedule(notif);
             }
             _notifications.Clear();

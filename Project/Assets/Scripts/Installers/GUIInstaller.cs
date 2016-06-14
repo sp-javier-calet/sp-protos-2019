@@ -1,6 +1,6 @@
 ﻿using System;
-using Zenject;
 using UnityEngine;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
@@ -8,7 +8,7 @@ using SocialPoint.Utils;
 
 
 
-public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
+public class GUIInstaller : Installer, IInitializable, IDisposable
 {
     const string UIViewControllerSuffix = "Controller";
     const string GUIRootPrefab = "GUI_Root";
@@ -25,8 +25,8 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
 
     public override void InstallBindings()
     {
-        Container.Bind<IDisposable>().ToSingleInstance(this);
-        Container.Bind<IInitializable>().ToSingleInstance(this);
+        Container.Bind<IDisposable>().ToInstance(this);
+        Container.Bind<IInitializable>().ToInstance(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
         UIViewController.AwakeEvent += OnViewControllerAwake;
@@ -37,24 +37,24 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
         var popups = _root.GetComponentInChildren<PopupsController>();
         if(popups != null)
         {
-            Container.Rebind<PopupsController>().ToSingleInstance(popups);
+            Container.Rebind<PopupsController>().ToInstance(popups);
         }
         var screens = _root.GetComponentInChildren<ScreensController>();
         if(screens != null)
         {
-            Container.Rebind<ScreensController>().ToSingleInstance(screens);
+            Container.Rebind<ScreensController>().ToInstance(screens);
         }
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
-            Container.Rebind<UILayersController>().ToSingleInstance(layers);
+            Container.Rebind<UILayersController>().ToInstance(layers);
             UIViewController.DefaultLayersController = layers;
         }
 
         var notifications = _root.GetComponentInChildren<HUDNotificationsController>();
         if(notifications != null)
         {
-            Container.Rebind<HUDNotificationsController>().ToSingleInstance(notifications);
+            Container.Rebind<HUDNotificationsController>().ToInstance(notifications);
         }
 
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
@@ -77,14 +77,14 @@ public class GUIInstaller : MonoInstaller, IInitializable, IDisposable
 
     public void Initialize()
     {
-        Container.InjectGameObject(_root);
+        //Container.InjectGameObject(_root);
     }
 
     void OnViewControllerAwake(UIViewController ctrl)
     {
         if(ctrl.gameObject.transform.parent == null)
         {
-            Container.Inject(ctrl);
+            //Container.Inject(ctrl);
         }
     }
 

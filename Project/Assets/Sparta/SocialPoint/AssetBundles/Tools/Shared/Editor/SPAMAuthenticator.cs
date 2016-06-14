@@ -58,7 +58,6 @@ namespace SocialPoint.Tool.Shared
         System.Object _authLock;
 
         private static TcpListener listener;
-        private static bool destroyed;
         private AsyncDataWorker dataWorker;
         private string session_cookie;
         private static string cached_user;

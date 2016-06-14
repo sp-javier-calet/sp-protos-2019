@@ -195,8 +195,15 @@ namespace SocialPoint.Hardware
                 {
                     if(IsGooglePlayServicesAvailable)
                     {
-                        var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
-                        _advertisingId = adInfo.Call<string>("getId");
+                        try
+                        {
+                            var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
+                            _advertisingId = adInfo.Call<string>("getId");
+                        }
+                        catch(AndroidJavaException)
+                        {
+                            _advertisingId = string.Empty;
+                        }
                     }
                     else
                     {
@@ -231,6 +238,113 @@ namespace SocialPoint.Hardware
             }
         }
 
+        public int MaxTextureSize
+        {
+            get
+            {
+                return SystemInfo.maxTextureSize;
+            }
+        }
+
+        Vector2 _screenSize = Vector2.zero;
+
+        public Vector2 ScreenSize
+        {
+            get
+            {
+                if(_screenSize == Vector2.zero)
+                {
+                    _screenSize.x = Screen.width;
+                    _screenSize.y = Screen.height;
+                }
+                return _screenSize;
+            }
+        }
+
+        public float ScreenDpi
+        {
+            get
+            {
+                return Screen.dpi;
+            }
+        }
+
+        public int CpuCores
+        {
+            get
+            {
+                return SystemInfo.processorCount;
+            }
+        }
+
+        public int CpuFreq
+        {
+            get
+            {
+                return SystemInfo.processorFrequency;
+            }
+        }
+
+        public string CpuModel
+        {
+            get
+            {
+                return SystemInfo.processorType;
+            }
+        }
+
+        public string CpuArchitecture
+        {
+            get;
+            set;
+        }
+
+        public string OpenglVendor
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceVendor;
+            }
+        }
+
+        public string OpenglRenderer
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceName;
+            }
+        }
+
+        public string OpenglExtensions
+        {
+            get;
+            set;
+        }
+
+        public int OpenglShadingVersion
+        {
+            get
+            {
+                return SystemInfo.graphicsShaderLevel;
+            }
+        }
+
+        public string OpenglVersion
+        {
+            get
+            {
+                return SystemInfo.graphicsDeviceVersion;
+            }
+        }
+
+        public int OpenglMemorySize
+        {
+            get
+            {
+                return SystemInfo.graphicsMemorySize;
+            }
+        }
+
         bool _advertisingIdEnabled;
         bool _advertisingIdEnabledLoaded;
 
@@ -242,8 +356,15 @@ namespace SocialPoint.Hardware
                 {
                     if(IsGooglePlayServicesAvailable)
                     {
-                        var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
-                        _advertisingIdEnabled = !adInfo.Call<bool>("isLimitAdTrackingEnabled");
+                        try
+                        {
+                            var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
+                            _advertisingIdEnabled = !adInfo.Call<bool>("isLimitAdTrackingEnabled");
+                        }
+                        catch(AndroidJavaException)
+                        {
+                            _advertisingIdEnabled = false;
+                        }
                     }
                     else
                     {
@@ -267,8 +388,9 @@ namespace SocialPoint.Hardware
                     var paths = new [] { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su",
                         "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su", "/data/local/su"
                     };
-                    foreach(var path in paths)
+                    for(int i = 0, pathsLength = paths.Length; i < pathsLength; i++)
                     {
+                        var path = paths[i];
                         if(FileUtils.ExistsFile(path))
                         {
                             _rooted = true;

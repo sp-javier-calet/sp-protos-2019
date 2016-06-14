@@ -3,20 +3,13 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.AssetVersioning
 {
-    public class AssetVersioningData
-    {
-		public string Client;
-        public int Version;
-        public bool IsLocal;
-        public string Parent;
-        public uint CRC;
-    }
-    public class AssetVersioningDictionary : IDictionary<string, AssetVersioningData>
+    public class AssetVersioningDictionary : IAssetVersioningDictionary
     {
         const string kPortraitSuffix = "_portrait";
         const string kThumbSuffix = "_thumb";
 
         #region Initialization
+
         public AssetVersioningDictionary()
         {
             _data = new Dictionary<string, AssetVersioningData>();
@@ -25,15 +18,17 @@ namespace SocialPoint.AssetVersioning
         #endregion
 
         #region Memento Pattern
+
         internal Dictionary<string, AssetVersioningData> GetInternalData()
         {
             return _data;
         }
-        
+
         internal virtual void SetInternalData(Dictionary<string, AssetVersioningData> orig)
         {
             _data = orig;
         }
+
         #endregion
 
         #region IDictionary implementation
@@ -61,9 +56,9 @@ namespace SocialPoint.AssetVersioning
 //                if (!_data.ContainsKey(key))
 //                    UnityEngine.Debug.Log("Key not found: " + key);
 #endif
-                if (!_data.ContainsKey(key))
+                if(!_data.ContainsKey(key))
                 {
-                    AssetVersioningData data = new AssetVersioningData();
+                    var data = new AssetVersioningData();
                     data.Version = 1;
                     data.Client = DownloadManager.SpamData.Instance.client;
                     return data;
@@ -101,6 +96,7 @@ namespace SocialPoint.AssetVersioning
         {
             _data.Add(key, value);
         }
+
         public void Add(KeyValuePair<string, AssetVersioningData> item)
         {
             Add(item);
@@ -142,35 +138,41 @@ namespace SocialPoint.AssetVersioning
             }
         }
 
-        bool IsThumb(string key)
+        static bool IsThumb(string key)
         {
             return StringUtils.EndsWith(key, kPortraitSuffix) || StringUtils.EndsWith(key, kThumbSuffix);
         }
 
-        public List<string> GetLocalBundles()
+        public IList<string> GetLocalBundles()
         {
-            List<string> result = new List<string>();
-			foreach(KeyValuePair<string, AssetVersioningData> pair in _data)
+            var result = new List<string>();
+            var itr = _data.GetEnumerator();
+            while(itr.MoveNext())
             {
-                if( DownloadManager.Instance.IsLocalBundleVersion(pair.Key, pair.Value.Version, pair.Value.Client) && !IsThumb(pair.Key))
+                var pair = itr.Current;
+                if(DownloadManager.Instance.IsLocalBundleVersion(pair.Key, pair.Value.Version, pair.Value.Client) && !IsThumb(pair.Key))
                 {
                     result.Add(pair.Key);
                 }
             }
+            itr.Dispose();
 
             return result;
         }
 
-        public List<string> GetLocalTextureNames()
+        public IList<string> GetLocalTextureNames()
         {
-            List<string> result = new List<string>();
-			foreach(KeyValuePair<string, AssetVersioningData> pair in _data)
+            var result = new List<string>();
+            var itr = _data.GetEnumerator();
+            while(itr.MoveNext())
             {
-                if( DownloadManager.Instance.IsLocalBundleVersion(pair.Key, pair.Value.Version, pair.Value.Client) && IsThumb(pair.Key))
+                var pair = itr.Current;
+                if(DownloadManager.Instance.IsLocalBundleVersion(pair.Key, pair.Value.Version, pair.Value.Client) && IsThumb(pair.Key))
                 {
                     result.Add(pair.Key.Replace("/GUI/Thumbnails/", ""));
                 }
             }
+            itr.Dispose();
             
             return result;
         }
@@ -196,7 +198,9 @@ namespace SocialPoint.AssetVersioning
         #endregion
 
         #region Private data
+
         Dictionary<string, AssetVersioningData> _data;
+
         #endregion
 
         public override string ToString()
@@ -204,11 +208,14 @@ namespace SocialPoint.AssetVersioning
             var sb = new System.Text.StringBuilder();
             sb.AppendFormat("EntityDictionary: {0}", GetType().Name).AppendLine();
 
-            foreach(AssetVersioningData e in this.Values)
+            var itr = Values.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var e = itr.Current;
                 sb.AppendFormat("\tId: {0}", e).AppendLine();
-                sb.AppendFormat("\t{0}", e.ToString()).AppendLine();
+                sb.AppendFormat("\t{0}", e).AppendLine();
             }
+            itr.Dispose();
 
             return sb.ToString();
         }

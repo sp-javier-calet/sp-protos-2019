@@ -1,7 +1,6 @@
-using SocialPoint.Attributes;
-using SocialPoint.Alert;
-using System;
 using System.Collections.Generic;
+using SocialPoint.Alert;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -28,7 +27,7 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyInput = "input";
 
 
-        IScriptEventDispatcher _dispatcher;
+        readonly IScriptEventDispatcher _dispatcher;
 
         public AlertActionParser(IScriptEventDispatcher dispatcher) : base("action.alert")
         {
@@ -38,10 +37,14 @@ namespace SocialPoint.ScriptEvents
         override protected AlertAction ParseEvent(Attr data)
         {
             var actions = new List<object>();
-            foreach(var act in data.AsDic[AttrKeyActions].AsList)
+            var itr = data.AsDic[AttrKeyActions].AsList.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var act = itr.Current;
                 actions.Add(_dispatcher.Parse(act));
             }
+            itr.Dispose();
+
             return new AlertAction {
                 Id = data.AsDic[AttrKeyId].AsValue.ToString(),
                 Title = data.AsDic[AttrKeyTitle].AsValue.ToString(),
@@ -60,7 +63,7 @@ namespace SocialPoint.ScriptEvents
     {
         
         IEventDispatcher _dispatcher;
-        IAlertView _prototype;
+        readonly IAlertView _prototype;
 
         public AlertBridge(IAlertView prototype)
         {
@@ -94,7 +97,7 @@ namespace SocialPoint.ScriptEvents
             alert.Buttons = action.Buttons;
             alert.Signature = action.Signature;
             alert.Input = action.Input;
-            alert.Show((int result) => {
+            alert.Show(result => {
                 if(result >= 0 && action.Actions.Length > result)
                 {
                     _dispatcher.Raise(action.Actions[result]);

@@ -120,19 +120,23 @@ namespace SocialPoint.QualityStats
             SendClientPerformance(stats, kClientPerformanceStats);
 
             var httpRequests = GetHttpRequests();
-            foreach(var request in httpRequests)
+            var itr = httpRequests.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var request = itr.Current;
                 var requestDic = request.AsDic;
                 SendClientPerformance(requestDic, kClientPerformanceHttpRequest);
             }
+            itr.Dispose();
         }
 
         #endregion
 
         void ResetQualityStatsHttpClients()
         {
-            foreach(var client in _qualityStatsHttpClients)
+            for(int i = 0, _qualityStatsHttpClientsCount = _qualityStatsHttpClients.Count; i < _qualityStatsHttpClientsCount; i++)
             {
+                var client = _qualityStatsHttpClients[i];
                 client.Reset();
             }
         }
@@ -158,6 +162,7 @@ namespace SocialPoint.QualityStats
             client.Set("mobile", GetMobileData());
             client.Set("network_stats", GetNetworkData());
             client.Set("performance", GetPerformanceData());
+            client.Set("device_stats", GetDeviceData());
 
             return data;
         }
@@ -168,14 +173,20 @@ namespace SocialPoint.QualityStats
 
             var data = GetClientStats();
 
-            foreach(var statsIt in data)
+            var itr = data.GetEnumerator();
+            while(itr.MoveNext())
             {
-                foreach(var dataIt in statsIt.Value.Requests)
+                var statsIt = itr.Current;
+                var itr2 = statsIt.Value.Requests.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var dataIt = itr2.Current;
                     var request = GetPerformanceRequest(statsIt, dataIt);
                     requestList.Add(request);
                 }
+                itr2.Dispose();
             }
+            itr.Dispose();
 
             return requestList;
         }
@@ -183,11 +194,14 @@ namespace SocialPoint.QualityStats
         QualityStatsHttpClient.MStats GetClientStats()
         {
             var data = new QualityStatsHttpClient.MStats();
-            foreach(var client in _qualityStatsHttpClients)
+            for(int i = 0, _qualityStatsHttpClientsCount = _qualityStatsHttpClients.Count; i < _qualityStatsHttpClientsCount; i++)
             {
+                var client = _qualityStatsHttpClients[i];
                 QualityStatsHttpClient.MStats clientData = client.getStats();
-                foreach(var statsIt in clientData)
+                var itr = clientData.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var statsIt = itr.Current;
                     QualityStatsHttpClient.Stats mergedStats;
                     if(!data.TryGetValue(statsIt.Key, out mergedStats))
                     {
@@ -198,8 +212,10 @@ namespace SocialPoint.QualityStats
                     var stats = statsIt.Value;
                     mergedStats.DataDownloaded += stats.DataDownloaded;
                     mergedStats.SumDownloadSpeed += stats.SumDownloadSpeed;
-                    foreach(var dataIt in stats.Requests)
+                    var itr2 = stats.Requests.GetEnumerator();
+                    while(itr2.MoveNext())
                     {
+                        var dataIt = itr2.Current;
                         QualityStatsHttpClient.Data requestMergedData;
                         if(!mergedStats.Requests.TryGetValue(dataIt.Key, out requestMergedData))
                         {
@@ -208,7 +224,9 @@ namespace SocialPoint.QualityStats
                         requestMergedData += dataIt.Value;
                         mergedStats.Requests[dataIt.Key] = requestMergedData;
                     }
+                    itr2.Dispose();
                 }
+                itr.Dispose();
             }
             ResetQualityStatsHttpClients();
             return data;
@@ -332,6 +350,30 @@ namespace SocialPoint.QualityStats
 
             return dict;
         }
+
+        AttrDic GetDeviceData()
+        {
+            var deviceInfo = _deviceInfo;
+            var dict = new AttrDic();
+
+            dict.SetValue("max_texture_size", deviceInfo.MaxTextureSize);
+            dict.SetValue("screen_width", deviceInfo.ScreenSize.x);
+            dict.SetValue("screen_height", deviceInfo.ScreenSize.y);
+            dict.SetValue("screen_dpi", deviceInfo.ScreenDpi);
+            dict.SetValue("cpu_cores", deviceInfo.CpuCores);
+            dict.SetValue("cpu_freq", deviceInfo.CpuFreq);
+            dict.SetValue("cpu_model", deviceInfo.CpuModel);
+            dict.SetValue("cpu_arch", deviceInfo.CpuArchitecture);
+            dict.SetValue("opengl_vendor", deviceInfo.OpenglVendor);
+            dict.SetValue("opengl_renderer", deviceInfo.OpenglRenderer);
+            dict.SetValue("opengl_extensions", deviceInfo.OpenglExtensions);
+            dict.SetValue("opengl_shading", deviceInfo.OpenglShadingVersion);
+            dict.SetValue("opengl_version", deviceInfo.OpenglVersion);
+            dict.SetValue("opengl_memory", deviceInfo.OpenglMemorySize);
+
+            return dict;
+        }
+
 
         static void AddSizeCacheDir(AttrDic dict)
         {

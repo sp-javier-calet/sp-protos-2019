@@ -36,7 +36,7 @@ namespace SocialPoint.ServerSync
 
         AdminPanelLayout _layout;
 
-        AdminPanelCommandReceiver(CommandReceiver receiver)
+        public AdminPanelCommandReceiver(CommandReceiver receiver)
         {
             _commandReceiver = receiver;
             _history = new List<CommandLog>();
@@ -86,11 +86,12 @@ namespace SocialPoint.ServerSync
 
             layout.CreateLabel("STC Command History");
 
-            StringBuilder content = new StringBuilder();
+            var content = new StringBuilder();
             if(_history.Count > 0)
             {
-                foreach(var log in _history)
+                for(int i = 0, _historyCount = _history.Count; i < _historyCount; i++)
                 {
+                    var log = _history[i];
                     content.AppendLine(log.ToString());
                 }
             }
@@ -123,11 +124,14 @@ namespace SocialPoint.ServerSync
                 var registeredCommands = Reflection.GetPrivateField<CommandReceiver, Dictionary<string, ISTCCommandFactory>>(_commandReceiver, "_registeredCommands");
                 if(registeredCommands != null)
                 {
-                    StringBuilder content = new StringBuilder();
-                    foreach(var kpv in registeredCommands)
+                    var content = new StringBuilder();
+                    var itr = registeredCommands.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var kpv = itr.Current;
                         content.AppendLine(kpv.Key);
                     }
+                    itr.Dispose();
 
                     layout.CreateTextArea(content.ToString());
                 }

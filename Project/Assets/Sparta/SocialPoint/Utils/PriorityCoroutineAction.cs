@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using UnityEngine;
 using SocialPoint.Base;
 
 namespace SocialPoint.Utils
@@ -10,7 +9,7 @@ namespace SocialPoint.Utils
         ICoroutineRunner _runner;
         Func<T, IEnumerator> _defaultPriorityAction;
 
-        public PriorityCoroutineAction(ICoroutineRunner runner) : base()
+        public PriorityCoroutineAction(ICoroutineRunner runner)
         {
             _runner = runner;
         }
@@ -43,10 +42,14 @@ namespace SocialPoint.Utils
         {
             var queues = CopyQueues();
             var runData = new CoroutineRunData();
-            foreach(var kvp in queues)
+            var itr = queues.GetEnumerator();
+            while(itr.MoveNext())
             {
-                foreach(var action in kvp.Value)
+                var kvp = itr.Current;
+                var itr2 = kvp.Value.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var action = itr2.Current;
                     if(_defaultPriorityAction != null)
                     {
                         _defaultPriorityAction(kvp.Key);
@@ -56,12 +59,14 @@ namespace SocialPoint.Utils
                         _runner.StartCoroutine(RunCoroutine(action, runData));
                     }
                 }
+                itr2.Dispose();
                 while(!runData.Ended)
                     yield return null;
             }
+            itr.Dispose();
         }
 
-        IEnumerator RunCoroutine(Func<IEnumerator> corroutine, CoroutineRunData data)
+        static IEnumerator RunCoroutine(Func<IEnumerator> corroutine, CoroutineRunData data)
         {
             data.AddCoroutine();
             yield return corroutine();
@@ -71,8 +76,8 @@ namespace SocialPoint.Utils
 
     class CoroutineRunData
     {
-        int _runningCoroutines = 0;
-        bool _started = false;
+        int _runningCoroutines;
+        bool _started;
 
         public void AddCoroutine()
         {

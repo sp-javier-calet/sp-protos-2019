@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Social;
@@ -19,9 +18,9 @@ namespace SocialPoint.Login
 
         LinkState _state;
 
-        private IGoogle _googlePlay;
+        IGoogle _googlePlay;
 
-        private event StateChangeDelegate _eventStateChange;
+        event StateChangeDelegate _eventStateChange;
 
         public readonly static string LinkName = "gp";
         public bool _loginSilent;
@@ -141,6 +140,10 @@ namespace SocialPoint.Login
 
         public void GetFriendsData(List<UserMapping> mappings)
         {
+            if(_googlePlay.Friends == null)
+            {
+                return;
+            }
             var enumerator = _googlePlay.Friends.GetEnumerator();
             while(enumerator.MoveNext())
             {
@@ -178,9 +181,11 @@ namespace SocialPoint.Login
                 GoogleUser friend = itr.Current;
                 if(userIds.Contains(friend.UserId))
                 {
+                    itr.Dispose();
                     return friend;
                 }
             }
+            itr.Dispose();
             
             return null;
         }

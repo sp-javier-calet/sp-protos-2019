@@ -11,11 +11,11 @@ namespace SocialPoint.Console
         public string HelpText;
 
         public event ConsoleCommandDelegate BeforeCommandExecute;
-     
-        private IDictionary<string, ConsoleCommand> _cmds = new Dictionary<string, ConsoleCommand>();
-        private IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
-        private ConsoleHelpCommand _helpCmd;
-        public ConsoleCommand CurrentCommand = null;
+
+        IDictionary<string, ConsoleCommand> _cmds = new Dictionary<string, ConsoleCommand>();
+        IList<ConsoleCommandOption> _options = new List<ConsoleCommandOption>();
+        readonly ConsoleHelpCommand _helpCmd;
+        public ConsoleCommand CurrentCommand;
 
         public ConsoleApplication()
         {
@@ -42,7 +42,7 @@ namespace SocialPoint.Console
         {
             return GetEnumerator();
         }
-        
+
         public ConsoleCommand this[string name]
         {
             get
@@ -57,15 +57,19 @@ namespace SocialPoint.Console
 
         public ConsoleCommandOption AddOption(ConsoleCommandOption opt)
         {
-            foreach(var pair in _cmds)
+            var itr = _cmds.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 pair.Value.WithOption(opt);
             }
+            itr.Dispose();
+
             _options.Add(opt);
             return opt;
         }
 
-        public ConsoleCommand AddCommand(string name, ConsoleCommand cmd=null)
+        public ConsoleCommand AddCommand(string name, ConsoleCommand cmd = null)
         {
             if(cmd == null)
             {
@@ -77,63 +81,75 @@ namespace SocialPoint.Console
             return cmd;
         }
 
-        private int MatchCommandName(string name, IEnumerable<string> args)
+        static int MatchCommandName(string name, IEnumerable<string> args)
         {
-            var parts = name.Split(new char[]{' '});
+            var parts = name.Split(new []{ ' ' });
             int i = 0;
-            foreach(var arg in args)
+            var itr = args.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var arg = itr.Current;
                 if(parts.Length <= i || parts[i] != arg)
                 {
                     break;
                 }
                 i++;
             }
+            itr.Dispose();
             return i;
         }
 
         public ConsoleCommand FindCommand(string name)
         {
             ConsoleCommand cmd;
-            FindCommand(name.Split(new char[]{' '}), out cmd);
+            FindCommand(name.Split(new []{ ' ' }), out cmd);
             return cmd;
         }
 
-        private int FindCommand(IEnumerable<string> args, out ConsoleCommand cmd)
+        int FindCommand(IEnumerable<string> args, out ConsoleCommand cmd)
         {
-            foreach(var pair in _cmds)
+            var itr = _cmds.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var names = pair.Key.Split(new char[]{'|'});
-                foreach(var name in names)
+                var pair = itr.Current;
+                var names = pair.Key.Split(new []{ '|' });
+                for(int i = 0, namesLength = names.Length; i < namesLength; i++)
                 {
+                    var name = names[i];
                     var cname = name.Replace(' ', '-');
                     if(cname != name)
                     {
-                        int i = MatchCommandName(cname, args);
-                        if(i > 0)
+                        int id = MatchCommandName(cname, args);
+                        if(id > 0)
                         {
                             cmd = pair.Value;
-                            return i;
+                            itr.Dispose();
+                            return id;
                         }
                     }
                 }
             }
+            itr.Dispose();
 
             ConsoleCommand bestCmd = null;
             int bestI = 0;
-            foreach(var pair in _cmds)
+            itr = _cmds.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var names = pair.Key.Split(new char[]{'|'});
-                foreach(var name in names)
+                var pair = itr.Current;
+                var names = pair.Key.Split(new []{ '|' });
+                for(int i = 0, namesLength = names.Length; i < namesLength; i++)
                 {
-                    int i = MatchCommandName(name, args);
-                    if(i > bestI)
+                    var name = names[i];
+                    int id = MatchCommandName(name, args);
+                    if(id > bestI)
                     {
                         bestCmd = pair.Value;
-                        bestI = i;
+                        bestI = id;
                     }
                 }
             }
+            itr.Dispose();
             cmd = bestCmd;
             return bestI;
         }
@@ -153,7 +169,7 @@ namespace SocialPoint.Console
             else
             {
                 int i = FindCommand(args, out CurrentCommand);
-                for(; i>0; i--)
+                for(; i > 0; i--)
                 {
                     args.RemoveAt(0);
                 }

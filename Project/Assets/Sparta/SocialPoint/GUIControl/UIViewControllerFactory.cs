@@ -14,11 +14,14 @@ namespace SocialPoint.GUIControl
 
         public delegate string DefaultPrefabDelegate(Type t);
 
+        public delegate void DestructorDelegate(UIViewController view);
+
         private IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
         private IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
         private DefaultDelegate _defaultCreator;
         private DefaultPrefabDelegate _defaultPrefabCreator;
         private UIViewControllerFactory _parent;
+        private DestructorDelegate _destructor;
 
         public UIViewControllerFactory(UIViewControllerFactory parent=null)
         {
@@ -166,6 +169,22 @@ namespace SocialPoint.GUIControl
             }
             return ctrl;
         }
+
+        public void DefineDestructor(DestructorDelegate dlg)
+        {
+            _destructor = dlg;
+        }
        
+        public void Destroy(UIViewController view)
+        {
+            if(_destructor != null)
+            {
+                _destructor(view);
+            }
+            else
+            {
+                GameObject.Destroy(view.gameObject);
+            }
+        }
     }
 }

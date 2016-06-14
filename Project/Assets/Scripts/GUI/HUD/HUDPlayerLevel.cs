@@ -1,20 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-
-using Zenject;
 using UnityEngine.EventSystems;
+using SocialPoint.Dependency;
 
 public class HUDPlayerLevel: MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     Text _level;
 
-    [Inject]
     PlayerModel _player;
 
-    [PostInject]
-    void PostInject()
+    void Start()
     {
+        _player = ServiceLocator.Instance.Resolve<PlayerModel>();
         _level.text = _player.Level.ToString();
     }
 

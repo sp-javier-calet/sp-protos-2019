@@ -1,43 +1,59 @@
 ﻿using System;
 using SocialPoint.Base;
-using SocialPoint.Purchase;
-using Zenject;
+
+public delegate void PurchaseDelegate(string productId, Action<Error> finished);
+
+public class PurchaseError : ModelError
+{
+    public Error Error { get; private set; }
+
+    public PurchaseError(Error error)
+    {
+        Error = error;
+    }
+}
 
 public class PurchaseCost : ICost
 {
-    IGamePurchaseStore _purchaseStore;
+    PurchaseDelegate _purchase;
 
     string _productId;
-    Action<Error> _finished;
 
-    public PurchaseCost(string productId)
+    public PurchaseCost(string productId, PurchaseDelegate purchase)
     {
         _productId = productId;
-    }
-
-    public void Init(IGamePurchaseStore purchaseStore)
-    {
-        _purchaseStore = purchaseStore;
-        _purchaseStore.PurchaseUpdated += OnPurchaseUpdated;
-    }
-
-    void OnPurchaseUpdated(PurchaseState state, string productId)
-    {
-        if(state == PurchaseState.ValidateSuccess)
-        {
-            if(_finished != null)
-            {
-                _finished(null);
-            }
-        }
+        _purchase = purchase;
     }
 
     #region ICost implementation
 
-    public void Spend(Action<Error> finished)
+    public void Validate(PlayerModel playerModel, Action<ModelError> finished)
     {
-        _finished += finished;
-        _purchaseStore.Purchase(_productId);
+        if(_purchase != null)
+        {
+            Action<Error> purchaseFinished = null;
+            if(finished != null)
+            {
+                purchaseFinished = (Error error) => {
+                    PurchaseError costError = null;
+                    if(!Error.IsNullOrEmpty(error))
+                    {
+                        costError = new PurchaseError(error);
+                    }
+                    finished(costError);
+                };
+            }
+            _purchase(_productId, purchaseFinished);
+        }
+        else if(finished != null)
+        {
+            finished(null);
+        }
+    }
+
+    public void Spend(PlayerModel playerModel)
+    {
+        // Purchase transaction is autovalidated by the IGamePurchaseStore
     }
 
     #endregion

@@ -15,7 +15,7 @@ namespace SocialPoint.ScriptEvents
         public override string ToString()
         {
             return string.Format("[ScriptStepModel: Event={0},{1} Forward={2} Backward={3}]",
-                                 Name, Arguments, Forward, Backward);
+                Name, Arguments, Forward, Backward);
         }
     }
 
@@ -36,22 +36,21 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyForward = "forward";
         const string AttrKeyBackward = "backward";
 
-        IParser<IScriptCondition> _conditionParser;
+        readonly IParser<IScriptCondition> _conditionParser;
 
         public ScriptStepModelParser(IParser<IScriptCondition> conditionParser)
         {
             _conditionParser = conditionParser;
         }
 
-        public ScriptStepModelParser():
+        public ScriptStepModelParser() :
             this(ScriptConditions.BaseParser)
         {
         }
 
         public ScriptStepModel Parse(Attr data)
         {
-            return new ScriptStepModel
-            {
+            return new ScriptStepModel {
                 Name = data.AsDic[AttrKeyName].ToString(),
                 Arguments = (Attr)data.AsDic[AttrKeyArguments].Clone(),
                 Forward = _conditionParser.Parse(data.AsDic[AttrKeyForward]),
@@ -62,14 +61,14 @@ namespace SocialPoint.ScriptEvents
 
     public class ScriptModelParser : IParser<ScriptModel>
     {
-        IParser<ScriptStepModel> _stepParser;
+        readonly IParser<ScriptStepModel> _stepParser;
 
-        public ScriptModelParser():
+        public ScriptModelParser() :
             this(ScriptConditions.BaseParser)
         {
         }
 
-        public ScriptModelParser(IParser<IScriptCondition> conditionParser):
+        public ScriptModelParser(IParser<IScriptCondition> conditionParser) :
             this(new ScriptStepModelParser(conditionParser))
         {
         }
@@ -82,10 +81,14 @@ namespace SocialPoint.ScriptEvents
         public ScriptModel Parse(Attr data)
         {
             var steps = new List<ScriptStepModel>();
-            foreach(var step in data.AsList)
+            var itr = data.AsList.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var step = itr.Current;
                 steps.Add(_stepParser.Parse(step));
             }
+            itr.Dispose();
+
             return new ScriptModel{ Steps = steps.ToArray() };
         }
     }
@@ -94,7 +97,7 @@ namespace SocialPoint.ScriptEvents
     {
         ScriptStepModel _model;
         Action<Decision, string, Attr> _callback;
-        IScriptEventDispatcher _dispatcher;
+        readonly IScriptEventDispatcher _dispatcher;
         bool _eventRaised;
 
         public enum Decision
@@ -174,7 +177,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
     }
-    
+
     public class Script
     {
         readonly List<ScriptStep> _steps = new List<ScriptStep>();
@@ -190,11 +193,7 @@ namespace SocialPoint.ScriptEvents
         {
             get
             {
-                if(IsRunning)
-                {
-                    return _steps[CurrentStepNum];
-                }
-                return null;
+                return IsRunning ? _steps[CurrentStepNum] : null;
             }
         }
 
@@ -205,7 +204,7 @@ namespace SocialPoint.ScriptEvents
                 return _steps.Count;
             }
         }
-                
+
         public bool IsRunning
         {
             get
@@ -226,7 +225,7 @@ namespace SocialPoint.ScriptEvents
             this(dispatcher, new ScriptModel{ Steps = stepModels })
         {
         }
-        
+
         public Script(IScriptEventDispatcher dispatcher, ScriptModel model)
         {
             if(dispatcher == null)
@@ -234,8 +233,9 @@ namespace SocialPoint.ScriptEvents
                 throw new ArgumentNullException("dispatcher");
             }
             _dispatcher = dispatcher;
-            foreach(var stepModel in model.Steps)
+            for(int i = 0, modelStepsLength = model.Steps.Length; i < modelStepsLength; i++)
             {
+                var stepModel = model.Steps[i];
                 _steps.Add(new ScriptStep(_dispatcher, stepModel));
             }
             Reset();
@@ -251,7 +251,7 @@ namespace SocialPoint.ScriptEvents
             CurrentStepNum = -1;
         }
 
-        public void Run(Action finished=null)
+        public void Run(Action finished = null)
         {
             if(IsRunning)
             {
@@ -293,8 +293,6 @@ namespace SocialPoint.ScriptEvents
                 break;
             case ScriptStep.Decision.Backward:
                 CurrentStepNum--;
-                break;
-            default:
                 break;
             }
             if(CurrentStepNum < 0)

@@ -81,13 +81,17 @@ namespace SocialPoint.QualityStats
             public override string ToString()
             {
                 var sb = new StringBuilder();
-                foreach(var item in this)
+                var itr = this.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var item = itr.Current;
                     string s = string.Format(
                                    "[Request: key={0}, Value={1}]",
                                    item.Key, item.Value);
                     sb.Append(s);
                 }
+                itr.Dispose();
+
                 return sb.ToString();
             }
         }
@@ -113,19 +117,23 @@ namespace SocialPoint.QualityStats
             public override string ToString()
             {
                 var sb = new StringBuilder();
-                foreach(var item in this)
+                var itr = this.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var item = itr.Current;
                     string s = string.Format(
                                    "[Request: key={0}, Value={1}]",
                                    item.Key, item.Value);
                     sb.Append(s);
                 }
+                itr.Dispose();
+
                 return sb.ToString();
             }
         }
 
         IHttpClient _client;
-        MStats _data;
+        readonly MStats _data;
 
         public QualityStatsHttpClient(IHttpClient client)
         {

@@ -17,10 +17,9 @@ namespace SocialPoint.EventSystems
 
         protected bool GetPointerData(int id, out PointerEventData data, bool create)
         {
-            if (!m_PointerData.TryGetValue(id, out data) && create)
+            if(!m_PointerData.TryGetValue(id, out data) && create)
             {
-                data = new PointerEventData(eventSystem)
-                {
+                data = new PointerEventData(eventSystem) {
                     pointerId = id,
                 };
                 m_PointerData.Add(id, data);
@@ -44,10 +43,10 @@ namespace SocialPoint.EventSystems
             pressed = created || (input.phase == TouchPhase.Began);
             released = (input.phase == TouchPhase.Canceled) || (input.phase == TouchPhase.Ended);
 
-            if (created)
+            if(created)
                 pointerData.position = input.position;
 
-            if (pressed)
+            if(pressed)
                 pointerData.delta = Vector2.zero;
             else
                 pointerData.delta = input.position - pointerData.position;
@@ -81,23 +80,21 @@ namespace SocialPoint.EventSystems
         {
             var pressed = Input.GetMouseButtonDown(buttonId);
             var released = Input.GetMouseButtonUp(buttonId);
-            if (pressed && released)
+            if(pressed && released)
                 return PointerEventData.FramePressState.PressedAndReleased;
-            if (pressed)
+            if(pressed)
                 return PointerEventData.FramePressState.Pressed;
-            if (released)
-                return PointerEventData.FramePressState.Released;
-            return PointerEventData.FramePressState.NotChanged;
+            return released ? PointerEventData.FramePressState.Released : PointerEventData.FramePressState.NotChanged;
         }
 
         protected class ButtonState
         {
-            private PointerEventData.InputButton m_Button = PointerEventData.InputButton.Left;
+            PointerEventData.InputButton m_Button = PointerEventData.InputButton.Left;
 
             public MouseButtonEventData eventData
             {
-                get { return m_EventData; }
-                set { m_EventData = value; }
+                get;
+                set;
             }
 
             public PointerEventData.InputButton button
@@ -105,19 +102,17 @@ namespace SocialPoint.EventSystems
                 get { return m_Button; }
                 set { m_Button = value; }
             }
-
-            private MouseButtonEventData m_EventData;
         }
 
         protected class MouseState
         {
-            private List<ButtonState> m_TrackedButtons = new List<ButtonState>();
+            List<ButtonState> m_TrackedButtons = new List<ButtonState>();
 
             public bool AnyPressesThisFrame()
             {
-                for (int i = 0; i < m_TrackedButtons.Count; i++)
+                for(int i = 0; i < m_TrackedButtons.Count; i++)
                 {
-                    if (m_TrackedButtons[i].eventData.PressedThisFrame())
+                    if(m_TrackedButtons[i].eventData.PressedThisFrame())
                         return true;
                 }
                 return false;
@@ -125,9 +120,9 @@ namespace SocialPoint.EventSystems
 
             public bool AnyReleasesThisFrame()
             {
-                for (int i = 0; i < m_TrackedButtons.Count; i++)
+                for(int i = 0; i < m_TrackedButtons.Count; i++)
                 {
-                    if (m_TrackedButtons[i].eventData.ReleasedThisFrame())
+                    if(m_TrackedButtons[i].eventData.ReleasedThisFrame())
                         return true;
                 }
                 return false;
@@ -136,16 +131,16 @@ namespace SocialPoint.EventSystems
             public ButtonState GetButtonState(PointerEventData.InputButton button)
             {
                 ButtonState tracked = null;
-                for (int i = 0; i < m_TrackedButtons.Count; i++)
+                for(int i = 0; i < m_TrackedButtons.Count; i++)
                 {
-                    if (m_TrackedButtons[i].button == button)
+                    if(m_TrackedButtons[i].button == button)
                     {
                         tracked = m_TrackedButtons[i];
                         break;
                     }
                 }
 
-                if (tracked == null)
+                if(tracked == null)
                 {
                     tracked = new ButtonState { button = button, eventData = new MouseButtonEventData() };
                     m_TrackedButtons.Add(tracked);
@@ -177,7 +172,7 @@ namespace SocialPoint.EventSystems
             }
         }
 
-        private readonly MouseState m_MouseState = new MouseState();
+        readonly MouseState m_MouseState = new MouseState();
 
         protected virtual MouseState GetMousePointerEventData()
         {
@@ -192,7 +187,7 @@ namespace SocialPoint.EventSystems
 
             leftData.Reset();
 
-            if (created)
+            if(created)
                 leftData.position = Input.mousePosition;
 
             Vector2 pos = Input.mousePosition;
@@ -236,9 +231,9 @@ namespace SocialPoint.EventSystems
             return data;
         }
 
-        private static bool ShouldStartDrag(Vector2 pressPos, Vector2 currentPos, float threshold, bool useDragThreshold)
+        static bool ShouldStartDrag(Vector2 pressPos, Vector2 currentPos, float threshold, bool useDragThreshold)
         {
-            if (!useDragThreshold)
+            if(!useDragThreshold)
                 return true;
 
             return (pressPos - currentPos).sqrMagnitude >= threshold * threshold;
@@ -254,20 +249,20 @@ namespace SocialPoint.EventSystems
         {
             bool moving = pointerEvent.IsPointerMoving();
 
-            if (moving && pointerEvent.pointerDrag != null
-                && !pointerEvent.dragging
-                && ShouldStartDrag(pointerEvent.pressPosition, pointerEvent.position, eventSystem.pixelDragThreshold, pointerEvent.useDragThreshold))
+            if(moving && pointerEvent.pointerDrag != null
+               && !pointerEvent.dragging
+               && ShouldStartDrag(pointerEvent.pressPosition, pointerEvent.position, eventSystem.pixelDragThreshold, pointerEvent.useDragThreshold))
             {
                 ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.beginDragHandler);
                 pointerEvent.dragging = true;
             }
 
             // Drag notification
-            if (pointerEvent.dragging && moving && pointerEvent.pointerDrag != null)
+            if(pointerEvent.dragging && moving && pointerEvent.pointerDrag != null)
             {
                 // Before doing drag we should cancel any pointer down state
                 // And clear selection!
-                if (pointerEvent.pointerPress != pointerEvent.pointerDrag)
+                if(pointerEvent.pointerPress != pointerEvent.pointerDrag)
                 {
                     ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
 
@@ -282,7 +277,7 @@ namespace SocialPoint.EventSystems
         public override bool IsPointerOverGameObject(int pointerId)
         {
             var lastPointer = GetLastPointerEventData(pointerId);
-            if (lastPointer != null)
+            if(lastPointer != null)
                 return lastPointer.pointerEnter != null;
             return false;
         }
@@ -291,11 +286,14 @@ namespace SocialPoint.EventSystems
         {
             var baseEventData = GetBaseEventData();
 
-            foreach (var pointer in m_PointerData.Values)
+            var itr = m_PointerData.Values.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pointer = itr.Current;
                 // clear all selection
                 HandlePointerExitAndEnter(pointer, null);
             }
+            itr.Dispose();
 
             m_PointerData.Clear();
             eventSystem.SetSelectedGameObject(null, baseEventData);
@@ -305,13 +303,17 @@ namespace SocialPoint.EventSystems
         {
             var sb = new StringBuilder("<b>Pointer Input Module of type: </b>" + GetType());
             sb.AppendLine();
-            foreach (var pointer in m_PointerData)
+            var itr = m_PointerData.GetEnumerator();
+            while(itr.MoveNext())
             {
-                if (pointer.Value == null)
+                var pointer = itr.Current;
+                if(pointer.Value == null)
                     continue;
                 sb.AppendLine("<B>Pointer:</b> " + pointer.Key);
                 sb.AppendLine(pointer.Value.ToString());
             }
+            itr.Dispose();
+
             return sb.ToString();
         }
 
@@ -321,7 +323,7 @@ namespace SocialPoint.EventSystems
             var selectHandlerGO = ExecuteEvents.GetEventHandler<ISelectHandler>(currentOverGo);
             // if we have clicked something new, deselect the old thing
             // leave 'selection handling' up to the press event though.
-            if (selectHandlerGO != eventSystem.currentSelectedGameObject)
+            if(selectHandlerGO != eventSystem.currentSelectedGameObject)
                 eventSystem.SetSelectedGameObject(null, pointerEvent);
         }
     }

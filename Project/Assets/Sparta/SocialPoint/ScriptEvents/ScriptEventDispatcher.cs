@@ -7,15 +7,25 @@ namespace SocialPoint.ScriptEvents
     public interface IScriptEventDispatcher : IDisposable
     {
         void AddListener(string name, Action<Attr> listener);
+
         void AddListener(Action<string, Attr> listener);
+
         void AddListener(IScriptCondition condition, Action<string, Attr> listener);
+
         bool RemoveListener(Action<Attr> listener);
+
         bool RemoveListener(Action<string, Attr> listener);
+
         void AddConverter(IScriptEventConverter converter);
+
         void AddSerializer(IScriptEventSerializer serializer);
+
         void AddParser(IScriptEventParser parser);
+
         void AddBridge(IScriptEventsBridge bridge);
+
         void Raise(string name, Attr args);
+
         object Parse(string name, Attr args);
     }
 
@@ -32,22 +42,19 @@ namespace SocialPoint.ScriptEvents
                     data.AsDic[AttrKeyActionName].AsValue.ToString(),
                     data.AsDic[AttrKeyActionArguments]);
             }
-            else if(data.AttrType == AttrType.LIST)
+            if(data.AttrType == AttrType.LIST)
             {
                 return dispatcher.Parse(
                     data.AsList[0].AsValue.ToString(),
                     data.AsList[1]);
             }
-            else if(data.AttrType == AttrType.VALUE)
+            if(data.AttrType == AttrType.VALUE)
             {
                 return dispatcher.Parse(
                     data.AsValue.ToString(),
                     new AttrEmpty());
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 
@@ -60,7 +67,7 @@ namespace SocialPoint.ScriptEvents
     {
         bool Matches(string name, Attr arguments);
     }
-        
+
     public struct ScriptEventAction
     {
         public string Name;
@@ -94,13 +101,14 @@ namespace SocialPoint.ScriptEvents
         public void Dispose()
         {
             _dispatcher.RemoveDefaultListener(OnRaised);
-            foreach(var bridge in _bridges)
+            for(int i = 0, _bridgesCount = _bridges.Count; i < _bridgesCount; i++)
             {
+                var bridge = _bridges[i];
                 bridge.Dispose();
             }
             Clear();
         }
-        
+
         public void Clear()
         {
             _listeners.Clear();
@@ -112,10 +120,13 @@ namespace SocialPoint.ScriptEvents
 
         public void AddBridges(IEnumerable<IScriptEventsBridge> bridges)
         {
-            foreach(var bridge in bridges)
+            var itr = bridges.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var bridge = itr.Current;
                 AddBridge(bridge);
             }
+            itr.Dispose();
         }
 
         public void AddBridge(IScriptEventsBridge bridge)
@@ -158,27 +169,20 @@ namespace SocialPoint.ScriptEvents
         public bool RemoveListener(Action<Attr> listener)
         {
             bool found = false;
-            foreach(var kvp in _listeners)
+            var itr = _listeners.GetEnumerator();
+            while(itr.MoveNext())
             {
-                if(kvp.Value.Remove(listener))
-                {
-                    found = true;
-                }
+                var kvp = itr.Current;
+                found |= kvp.Value.Remove(listener);
             }
+            itr.Dispose();
             return found;
         }
-        
+
         public bool RemoveListener(Action<string, Attr> listener)
         {           
-            bool found = false;
-            if(_defaultListeners.Remove(listener))
-            {
-                found = true;
-            }
-            if(_conditionListeners.RemoveAll(l => l.Action == listener) > 0)
-            {
-                found = true;
-            }
+            bool found = false || _defaultListeners.Remove(listener);
+            found |= _conditionListeners.RemoveAll(l => l.Action == listener) > 0;
             return found;
         }
 
@@ -187,7 +191,7 @@ namespace SocialPoint.ScriptEvents
             AddSerializer(converter);
             AddParser(converter);
         }
-                
+
         public void AddSerializer(IScriptEventSerializer serializer)
         {
             if(!_serializers.Contains(serializer))
@@ -195,7 +199,7 @@ namespace SocialPoint.ScriptEvents
                 _serializers.Add(serializer);
             }
         }
-        
+
         public void AddParser(IScriptEventParser parser)
         {
             if(!_parsers.Contains(parser))
@@ -207,8 +211,9 @@ namespace SocialPoint.ScriptEvents
         public object Parse(string name, Attr args)
         {
             IScriptEventParser parser = null;
-            foreach(var p in _parsers)
+            for(int i = 0, _parsersCount = _parsers.Count; i < _parsersCount; i++)
             {
+                var p = _parsers[i];
                 if(p.Name == name)
                 {
                     parser = p;
@@ -218,7 +223,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return parser.Parse(args);
             }
-            return new ScriptEventAction{
+            return new ScriptEventAction {
                 Name = name,
                 Arguments = args
             };
@@ -249,8 +254,9 @@ namespace SocialPoint.ScriptEvents
             }
             else
             {
-                foreach(var serializer in _serializers)
+                for(int i = 0, _serializersCount = _serializers.Count; i < _serializersCount; i++)
                 {
+                    var serializer = _serializers[i];
                     if(serializer != null)
                     {
                         args = serializer.Serialize(ev);
@@ -274,8 +280,9 @@ namespace SocialPoint.ScriptEvents
         {
             // default  listeners
             var ddlgList = new List<Action<string, Attr>>(_defaultListeners);
-            foreach(var dlg in ddlgList)
+            for(int i = 0, ddlgListCount = ddlgList.Count; i < ddlgListCount; i++)
             {
+                var dlg = ddlgList[i];
                 if(dlg != null)
                 {
                     try
@@ -301,8 +308,9 @@ namespace SocialPoint.ScriptEvents
             if(_listeners.TryGetValue(name, out dlgList))
             {
                 dlgList = new List<Action<Attr>>(dlgList);
-                foreach(var dlg in dlgList)
+                for(int i = 0, dlgListCount = dlgList.Count; i < dlgListCount; i++)
                 {
+                    var dlg = dlgList[i];
                     if(dlg != null)
                     {
                         try
@@ -326,8 +334,9 @@ namespace SocialPoint.ScriptEvents
             
             // condition listeners
             var cdlgList = new List<ConditionListener>(_conditionListeners);
-            foreach(var listener in cdlgList)
+            for(int i = 0, cdlgListCount = cdlgList.Count; i < cdlgListCount; i++)
             {
+                var listener = cdlgList[i];
                 if(listener.Action != null && (listener.Condition == null || listener.Condition.Matches(name, args)))
                 {
                     try
