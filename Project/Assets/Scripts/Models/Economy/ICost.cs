@@ -1,20 +1,19 @@
-
 using SocialPoint.Base;
 using System;
 
 public interface ICost
 {
-    void Validate(PlayerModel playerModel, Action<Error> finished);
+    void Validate(PlayerModel playerModel, Action<ModelError> finished);
 
     void Spend(PlayerModel playerModel);
 }
 
 public static class CostExtensions
 {
-    public static void ValidateAndSpend(this ICost cost, PlayerModel playerModel, Action<Error> finished)
+    public static void ValidateAndSpend(this ICost cost, PlayerModel playerModel, Action<ModelError> finished)
     {
-        cost.Validate(playerModel, (Error error) => {
-            if(Error.IsNullOrEmpty(error))
+        cost.Validate(playerModel, (ModelError error) => {
+            if(error == null)
             {
                 cost.Spend(playerModel);
             }

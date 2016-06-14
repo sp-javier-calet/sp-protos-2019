@@ -245,6 +245,20 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        bool _worldSpaceFullScreen = true;
+
+        public bool WorldSpaceFullScreen
+        {
+            get
+            {
+                return _worldSpaceFullScreen;
+            }
+            set
+            {
+                _worldSpaceFullScreen = value;
+            }
+        }
+
         void AddLayers()
         {
             if(LayersController != null)
