@@ -19,6 +19,7 @@ namespace SocialPoint.Attributes
         const string ValueKey = "value";
         const string AddKey = "add";
         const string RemoveKey = "remove";
+        const string ReplaceKey = "replace";
 
         public bool Patch(AttrList patch, Attr data)
         {
@@ -39,6 +40,12 @@ namespace SocialPoint.Attributes
                     if(!Remove(path, data))
                     {
                         return false;
+                    }
+                    break;
+                case ReplaceKey:
+                    if(!Replace(path, op.GetValue(ValueKey), data))
+                    {
+                        return  false;
                     }
                     break;
                 default:
@@ -83,6 +90,27 @@ namespace SocialPoint.Attributes
             else if(parent.IsList)
             {
                 parent.AsList.RemoveAt(int.Parse(last));
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        bool Replace(string path, Attr value, Attr data)
+        {
+            var parts = SplitPath(path);
+            var last = parts[parts.Count - 1];
+            parts.RemoveAt(parts.Count - 1);
+            var parent = AttrPatcherGet(parts, data);
+            if(parent.IsDic)
+            {
+                parent.AsDic.Set(last, value);
+            }
+            else if(parent.IsList)
+            {
+                parent.AsList.Set(int.Parse(last), value);
             }
             else
             {
