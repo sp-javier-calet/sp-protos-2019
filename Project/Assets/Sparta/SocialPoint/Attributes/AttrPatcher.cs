@@ -20,6 +20,7 @@ namespace SocialPoint.Attributes
         const string ReplaceKey = "replace";
         const string MoveKey = "move";
         const string CopyKey = "copy";
+        const string TestKey = "test";
         const string PathKey = "path";
         const string ValueKey = "value";
         const string FromKey = "from";
@@ -59,6 +60,12 @@ namespace SocialPoint.Attributes
                     break;
                 case CopyKey:
                     if(!Copy(op.GetValue(FromKey).ToString(), path, data))
+                    {
+                        return false;
+                    }
+                    break;
+                case TestKey:
+                    if(!Test(path, op.GetValue(ValueKey), data))
                     {
                         return false;
                     }
@@ -185,6 +192,11 @@ namespace SocialPoint.Attributes
             return false;
         }
 
+        bool Test(string path, Attr value, Attr data)
+        {
+            return Get(path, data) == value;
+        }
+
         Attr AttrPatcherGet(List<string> parts, Attr data)
         {
             Attr elm = data;
@@ -219,6 +231,12 @@ namespace SocialPoint.Attributes
                 parts[i] = part.Replace(TokenHelper, EscapedPointerSeparator.ToString());
             }
             return parts;
+        }
+
+        Attr Get(string path, Attr data)
+        {
+            var parts = SplitPath(path);
+            return AttrPatcherGet(parts, data);
         }
     }
 }

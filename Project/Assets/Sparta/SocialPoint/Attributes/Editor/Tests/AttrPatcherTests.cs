@@ -255,6 +255,26 @@ namespace SocialPoint.Attributes
             Assert.That(data.Get("foo").AsList.Count == 3);
             Assert.That(data.GetValue("bar").ToInt() == 2);
         }
+
+        [Test]
+        public void Test()
+        {
+            AttrDic data = new AttrDic();
+            data.SetValue("foo", "bar");
+
+            AttrList patch = new AttrList();
+            AttrDic op = new AttrDic();
+            op.SetValue("op", "test");
+            op.SetValue("path", "/foo");
+            op.SetValue("value", "bar");
+            patch.Add(op);
+
+            Assert.That(_patcher.Patch(patch, data));
+
+            data.SetValue("foo","baz");
+
+            Assert.False(_patcher.Patch(patch, data));
+        }
     }
 }
 
