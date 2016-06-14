@@ -231,6 +231,30 @@ namespace SocialPoint.Attributes
             Assert.That(data.Get("bar").AttrType == AttrType.LIST);
             Assert.That(data.Get("bar").AsList.Count == 3);
         }
+
+        [Test]
+        public void Copy()
+        {
+            AttrDic data = new AttrDic();
+            AttrList dataList = new AttrList();
+            dataList.AddValue(1);
+            dataList.AddValue(2);
+            dataList.AddValue(3);
+            data.Set("foo", dataList);
+
+            AttrList patch = new AttrList();
+            AttrDic op = new AttrDic();
+            op.SetValue("op", "copy");
+            op.SetValue("from", "/foo/1");
+            op.SetValue("path", "/bar");
+            patch.Add(op);
+
+            _patcher.Patch(patch, data);
+
+            Assert.That(data.Get("foo").AttrType == AttrType.LIST);
+            Assert.That(data.Get("foo").AsList.Count == 3);
+            Assert.That(data.GetValue("bar").ToInt() == 2);
+        }
     }
 }
 

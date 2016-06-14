@@ -19,6 +19,7 @@ namespace SocialPoint.Attributes
         const string RemoveKey = "remove";
         const string ReplaceKey = "replace";
         const string MoveKey = "move";
+        const string CopyKey = "copy";
         const string PathKey = "path";
         const string ValueKey = "value";
         const string FromKey = "from";
@@ -52,6 +53,12 @@ namespace SocialPoint.Attributes
                     break;
                 case MoveKey:
                     if(!Move(op.GetValue(FromKey).ToString(), path, data))
+                    {
+                        return false;
+                    }
+                    break;
+                case CopyKey:
+                    if(!Copy(op.GetValue(FromKey).ToString(), path, data))
                     {
                         return false;
                     }
@@ -156,6 +163,25 @@ namespace SocialPoint.Attributes
                 return true;
             }
 
+            return false;
+        }
+
+        bool Copy(string origin, string path, Attr data)
+        {
+            var parts = SplitPath(origin);
+            var last = parts[parts.Count - 1];
+            parts.RemoveAt(parts.Count - 1);
+            var parent = AttrPatcherGet(parts, data);
+            if(parent.IsDic)
+            {
+                var value = parent.AsDic.Get(last);
+                return Add(path, (Attr)value.Clone(), data);
+            }
+            else if(parent.IsList)
+            {
+                var value = parent.AsList.Get(int.Parse(last));
+                return Add(path, (Attr)value.Clone(), data);
+            }
             return false;
         }
 
