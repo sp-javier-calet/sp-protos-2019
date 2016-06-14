@@ -11,7 +11,7 @@
     {
         public static C[] CreateMultiple<M, C>(this IGenericFactory<M, C> factory, M[] models)
         {
-            C[] results = new C[models.Length];
+            var results = new C[models.Length];
             for(int i = 0; i < models.Length; ++i)
             {
                 results[i] = factory.Create(models[i]);

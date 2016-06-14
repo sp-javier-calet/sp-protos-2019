@@ -2,20 +2,17 @@ using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
+using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
-using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
-using SocialPoint.Base;
-using SocialPoint.Dependency;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     IGameLoader _gameLoader;
-    AdminPanel _adminPanel = null;
+    AdminPanel _adminPanel;
     ICoroutineRunner _coroutineRunner;
 
     [SerializeField]

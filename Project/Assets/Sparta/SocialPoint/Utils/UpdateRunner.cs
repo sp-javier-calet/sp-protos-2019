@@ -19,6 +19,8 @@ namespace SocialPoint.Utils
     {
         void Add(IUpdateable elm);
 
+        void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false);
+
         void Remove(IUpdateable elm);
     }
 
