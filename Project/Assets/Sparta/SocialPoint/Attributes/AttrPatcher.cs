@@ -1,5 +1,11 @@
 ﻿//  Author:
-//    Miguel-Janer 
+//      Miguel-Janer 
+//
+//      port from: https://github.com/socialpoint/sp-hydra-engine/blob/develop/src/hydra/attr/AttrPatcher.hpp
+//      
+//  Implementation of json pointer and patch standards
+//      http://tools.ietf.org/html/rfc6901
+//      http://tools.ietf.org/html/rfc6902
 
 using System;
 using System.Collections.Generic;
