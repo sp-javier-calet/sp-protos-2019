@@ -83,5 +83,26 @@ namespace SocialPoint.Purchase
         public void ForceFinishPendingTransactions()
         {
         }
+
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+            RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
+        }
+
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
+        {
+            if(pDelegate != null)
+            {
+                pDelegate(productId);
+            }
+        }
+
+        public void UnregisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+        }
+
+        public void UnregisterProductReadyDelegate(ProductReadyDelegate pDelegate)
+        {
+        }
     }
 }
