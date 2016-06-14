@@ -18,6 +18,7 @@ namespace SocialPoint.Attributes
         const string PathKey = "path";
         const string ValueKey = "value";
         const string AddKey = "add";
+        const string RemoveKey = "remove";
 
         public bool Patch(AttrList patch, Attr data)
         {
@@ -34,7 +35,12 @@ namespace SocialPoint.Attributes
                         return false;
                     }
                     break;
-
+                case RemoveKey:
+                    if(!Remove(path, data))
+                    {
+                        return false;
+                    }
+                    break;
                 default:
                     return false;
                 }
@@ -55,7 +61,28 @@ namespace SocialPoint.Attributes
             }
             else if(parent.IsList)
             {
-                parent.AsList.Insert(int.Parse(last),value);
+                parent.AsList.Insert(int.Parse(last), value);
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        bool Remove(string path, Attr data)
+        {
+            var parts = SplitPath(path);
+            var last = parts[parts.Count - 1];
+            parts.RemoveAt(parts.Count - 1);
+            var parent = AttrPatcherGet(parts, data);
+            if(parent.IsDic)
+            {
+                parent.AsDic.Remove(last);
+            }
+            else if(parent.IsList)
+            {
+                parent.AsList.RemoveAt(int.Parse(last));
             }
             else
             {
@@ -74,8 +101,7 @@ namespace SocialPoint.Attributes
                 {
                     elm = elm.AsList.Get(int.Parse(part));
                 }
-                else
-                if(data.IsDic)
+                else if(data.IsDic)
                 {
                     elm = elm.AsDic.Get(part);
                 }

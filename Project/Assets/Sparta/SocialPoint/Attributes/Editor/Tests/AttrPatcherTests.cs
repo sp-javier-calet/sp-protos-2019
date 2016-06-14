@@ -76,7 +76,68 @@ namespace SocialPoint.Attributes
             patch.Add(op);
 
             _patcher.Patch(patch, data);
+
             Assert.That("baz" == data.Get("foo").AsList.Get(0).AsDic.Get("bar").ToString());
+        }
+
+        [Test]
+        public void Remove_Dictionary()
+        {
+            AttrDic data = new AttrDic();
+            data.SetValue("foo", "bar");
+
+            AttrList patch = new AttrList();
+            AttrDic op = new AttrDic();
+            op.SetValue("op", "remove");
+            op.SetValue("path", "/foo");
+            patch.Add(op);
+
+            _patcher.Patch(patch, data);
+
+            Assert.That(data.Count == 0);
+        }
+
+        [Test]
+        public void Remove_List()
+        {
+            AttrDic data = new AttrDic();
+            AttrList dataList = new AttrList();
+            dataList.AddValue(1);
+            dataList.AddValue(2);
+            dataList.AddValue(3);
+            data.Set("foo", dataList);
+
+            AttrList patch = new AttrList();
+            AttrDic op = new AttrDic();
+            op.SetValue("op", "remove");
+            op.SetValue("path", "/foo/1");
+            patch.Add(op);
+
+            _patcher.Patch(patch, data);
+
+            Assert.That(data.Get("foo").AsList.Count == 2);
+            Assert.That(data.Get("foo").AsList.GetValue(1).ToInt() == 3);
+        }
+
+        [Test]
+        public void Remove_Complex()
+        {
+            AttrDic data = new AttrDic();
+            AttrList dataList = new AttrList();
+            AttrDic dataDict = new AttrDic();
+            dataDict.SetValue("bar", "baz");
+            dataList.Add(dataDict);
+            data.Set("foo", dataList);
+
+            AttrList patch = new AttrList();
+            AttrDic op = new AttrDic();
+            op.SetValue("op", "remove");
+            op.SetValue("path", "/foo/0/bar");
+            patch.Add(op);
+
+            _patcher.Patch(patch, data);
+
+            Assert.That(data.Get("foo").AsList.Get(0).AsDic.Count == 0);
         }
     }
 }
