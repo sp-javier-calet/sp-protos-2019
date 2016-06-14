@@ -298,6 +298,26 @@ namespace SocialPoint.Attributes
             Assert.That(patch.Get(1).AsDic.GetValue("op").ToString() == "remove");
             Assert.That(patch.Get(1).AsDic.GetValue("path").ToString() == "/foo/2");
         }
+
+        [Test]
+        public void Diff_patch()
+        {
+            AttrDic dataFrom = new AttrDic();
+            AttrList dataList = new AttrList();
+            dataList.AddValue(1);
+            dataList.AddValue(2);
+            dataList.AddValue(3);
+            dataFrom.Set("foo", (Attr)dataList.Clone());
+
+            AttrDic dataTo = new AttrDic();
+            dataList.AddValue(4);
+            dataTo.Set("foo", (Attr)dataList.Clone());
+
+            var patch = _patcher.Diff(dataFrom, dataTo);
+            _patcher.Patch(patch, dataFrom);
+
+            Assert.That(dataFrom.Get("foo").AsList.Count == dataTo.Get("foo").AsList.Count);
+        }
     }
 }
 
