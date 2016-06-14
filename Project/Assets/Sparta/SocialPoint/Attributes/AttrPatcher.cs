@@ -78,6 +78,96 @@ namespace SocialPoint.Attributes
             return true;
         }
 
+        public AttrList Diff(Attr origin, Attr to)
+        {
+            AttrList patch = new AttrList();
+            Diff(origin, to, patch, "");
+            return patch;
+        }
+
+        public void Diff(Attr origin, Attr to, AttrList patch, string path)
+        {
+            if(origin.AttrType != to.AttrType || origin.AttrType == AttrType.VALUE)
+            {
+                if(origin != to)
+                {
+                    AttrDic op = new AttrDic();
+                    op.SetValue(OpKey, ReplaceKey);
+                    op.SetValue(PathKey, path);
+                    op.Set(ValueKey, (Attr)to.Clone());
+                    patch.Add(op);
+                }
+                return;
+            }
+            else if(origin.AttrType == AttrType.LIST)
+            {
+                var originList = origin.AsList;
+                var toList = to.AsList;
+                for(int i = 0; i < originList.Count && i < toList.Count; i++)
+                {
+                    Diff(originList.Get(i), toList.Get(i), patch, AddPath(path, i)); 
+                }
+                if(originList.Count > toList.Count)
+                {
+                    for(int i = originList.Count - 1; i >= toList.Count; i--)
+                    {
+                        AttrDic op = new AttrDic();
+                        op.SetValue(OpKey, RemoveKey);
+                        op.SetValue(PathKey, AddPath(path, i));
+                        patch.Add(op);
+                    }
+                }
+                else if(originList.Count < toList.Count)
+                {
+                    for(int i = originList.Count; i < toList.Count; i++)
+                    {
+                        AttrDic op = new AttrDic();
+                        op.SetValue(OpKey, AddKey);
+                        op.SetValue(PathKey, AddPath(path, i));
+                        op.Set(ValueKey, (Attr)toList.Get(i).Clone());
+                        patch.Add(op);
+                    }
+                }
+            }
+            else if(origin.AttrType == AttrType.DICTIONARY)
+            {
+                var originDict = origin.AsDic;
+                var toDict = to.AsDic;
+                var itr = originDict.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    var key = itr.Current.Key;
+                    var kpath = AddPath(path, key);
+                    if(toDict.ContainsKey(key))
+                    {
+                        Diff(itr.Current.Value, toDict.Get(key), patch, kpath);
+                    }
+                    else
+                    {
+                        AttrDic op = new AttrDic();
+                        op.SetValue(OpKey, RemoveKey);
+                        op.SetValue(PathKey, kpath);
+                        op.Set(ValueKey, (Attr)toDict.Get(key).Clone());
+                        patch.Add(op);
+                    }
+                }
+                itr = toDict.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    var key = itr.Current.Key;
+                    if(!originDict.ContainsKey(key))
+                    {
+                        AttrDic op = new AttrDic();
+                        op.SetValue(OpKey, AddKey);
+                        op.SetValue(PathKey, AddPath(path, key));
+                        op.Set(ValueKey, (Attr)itr.Current.Value.Clone());
+                        patch.Add(op);
+                    }
+                }
+                itr.Dispose();
+            }
+        }
+
         bool Add(string path, Attr value, Attr data)
         {
             var parts = SplitPath(path);
@@ -217,6 +307,14 @@ namespace SocialPoint.Attributes
                 }
             }
             return elm;
+        }
+
+        string AddPath<T>(string path, T key)
+        {
+            string fkey = key.ToString();
+            fkey.Replace(EscapedPointerSeparator.ToString(), EscapedEscapedPointerSeparator);
+            fkey.Replace(PointerSeparator, EscapedPointerSeparator);
+            return string.Concat(path, PointerSeparator, fkey);
         }
 
         public List<string> SplitPath(string path)
