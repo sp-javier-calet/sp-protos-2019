@@ -53,10 +53,9 @@ namespace SocialPoint.Attributes
             {
                 parent.AsDic.Set(last, value);
             }
-            else
-            if(parent.IsList)
+            else if(parent.IsList)
             {
-                parent.AsList.Add(value);
+                parent.AsList.Insert(int.Parse(last),value);
             }
             else
             {
@@ -71,14 +70,14 @@ namespace SocialPoint.Attributes
             for(int i = 0; i < parts.Count; i++)
             {
                 var part = parts[i];
-                if(data.IsList)
+                if(elm.IsList)
                 {
-                    elm = data.AsList.Get(int.Parse(part));
+                    elm = elm.AsList.Get(int.Parse(part));
                 }
                 else
                 if(data.IsDic)
                 {
-                    elm = data.AsDic.Get(part);
+                    elm = elm.AsDic.Get(part);
                 }
                 else
                 {
