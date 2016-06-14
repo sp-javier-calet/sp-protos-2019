@@ -207,6 +207,30 @@ namespace SocialPoint.Attributes
             Assert.That(data.Get("foo").AsList.Get(0).AsDic.GetValue("bar").ToInt() == 1);
             Assert.That(data.Get("foo").AsList.Get(0).AsDic.GetValue("bar").AttrValueType == AttrValueType.INT);
         }
+
+        [Test]
+        public void Move()
+        {
+            AttrDic data = new AttrDic();
+            AttrList dataList = new AttrList();
+            dataList.AddValue(1);
+            dataList.AddValue(2);
+            dataList.AddValue(3);
+            data.Set("foo", dataList);
+
+            AttrList patch = new AttrList();
+            AttrDic op = new AttrDic();
+            op.SetValue("op", "move");
+            op.SetValue("path", "/bar");
+            op.SetValue("from", "/foo");
+            patch.Add(op);
+
+            _patcher.Patch(patch, data);
+
+            Assert.False(data.ContainsKey("foo"));
+            Assert.That(data.Get("bar").AttrType == AttrType.LIST);
+            Assert.That(data.Get("bar").AsList.Count == 3);
+        }
     }
 }
 

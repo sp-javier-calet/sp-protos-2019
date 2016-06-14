@@ -15,11 +15,13 @@ namespace SocialPoint.Attributes
         const string TokenHelper = ":token:";
             
         const string OpKey = "op";
-        const string PathKey = "path";
-        const string ValueKey = "value";
         const string AddKey = "add";
         const string RemoveKey = "remove";
         const string ReplaceKey = "replace";
+        const string MoveKey = "move";
+        const string PathKey = "path";
+        const string ValueKey = "value";
+        const string FromKey = "from";
 
         public bool Patch(AttrList patch, Attr data)
         {
@@ -46,6 +48,12 @@ namespace SocialPoint.Attributes
                     if(!Replace(path, op.GetValue(ValueKey), data))
                     {
                         return  false;
+                    }
+                    break;
+                case MoveKey:
+                    if(!Move(op.GetValue(FromKey).ToString(), path, data))
+                    {
+                        return false;
                     }
                     break;
                 default:
@@ -117,6 +125,38 @@ namespace SocialPoint.Attributes
                 return false;
             }
             return true;
+        }
+
+        bool Move(string origin, string path, Attr data)
+        {
+            var parts = SplitPath(origin);
+            var last = parts[parts.Count - 1];
+            parts.RemoveAt(parts.Count - 1);
+            var parent = AttrPatcherGet(parts, data);
+            if(parent.IsDic)
+            {
+                var value = parent.AsDic.Get(last);
+                parent.AsDic.Remove(last);
+                if(!Add(path, value, data))
+                {
+                    parent.AsDic.Set(last, value);//revert
+                    return false;
+                }
+                return true;
+            }
+            else if(parent.IsList)
+            {
+                var value = parent.AsList.Get(int.Parse(last));
+                parent.AsList.RemoveAt(int.Parse(last));
+                if(!Add(path, value, data))
+                {
+                    parent.AsList.Set(int.Parse(last), value);//revert
+                    return false;
+                }
+                return true;
+            }
+
+            return false;
         }
 
         Attr AttrPatcherGet(List<string> parts, Attr data)
