@@ -269,10 +269,12 @@ namespace SocialPoint.Utils
                     {
                         cbk(null, new Error(www.error));
                     }
+                    www.Dispose();
                     yield break;
                 }
                 if(cbk == null)
                 {
+                    www.Dispose();
                     yield break;
                 }
                 var bundle = www.assetBundle;
