@@ -12,6 +12,7 @@ namespace SocialPoint.Purchase
         public AttrDic AdditionalData;
     }
 
+    public delegate void ProductReadyDelegate(string productId);
     public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
 
     public interface IGamePurchaseStore
@@ -37,6 +38,14 @@ namespace SocialPoint.Purchase
         void UnregisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate);
 
         void ForceFinishPendingTransactions();
+
+        void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate);
+
+        void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout);
+
+        void UnregisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate);
+
+        void UnregisterProductReadyDelegate(ProductReadyDelegate pDelegate);
     }
 
 }
