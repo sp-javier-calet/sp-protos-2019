@@ -1,12 +1,11 @@
-using NUnit.Framework;
 using NSubstitute;
-
-using UnityEngine;
-using SocialPoint.Network;
+using NUnit.Framework;
+using SocialPoint.Attributes;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
-using SocialPoint.Attributes;
+using SocialPoint.Network;
 using SocialPoint.Utils;
+using UnityEngine;
 
 
 namespace SocialPoint.Crash
@@ -18,7 +17,7 @@ namespace SocialPoint.Crash
     /// Crash reporter base tests.
     /// 
     /// </summary>
-    internal class CrashReporterBaseTests
+    class CrashReporterBaseTests
     {
         
         BaseCrashReporter CrashReporterBase;
@@ -64,10 +63,11 @@ namespace SocialPoint.Crash
         [Test]
         public void SendExceptions()
         {
-            var uuid = "testException";
+            const string uuid = "testException";
             var _exceptionStorage = new FileAttrStorage(string.Format("{0}/{1}", PathsManager.AppPersistentDataPath, "logs/exceptions"));
             _exceptionStorage.Save(uuid, new AttrDic());
             CrashReporterBase.Enable();
+            CrashReporterBase.Update();
             HttpClient.Received().Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
             _exceptionStorage.Remove(uuid);
         }
