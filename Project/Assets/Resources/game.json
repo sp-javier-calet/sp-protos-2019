@@ -1,5 +1,5 @@
 {
-    "config_patch": [
+    "config_patches": [
         {
             "op": "add",
             "path": "/globals/patched_global",

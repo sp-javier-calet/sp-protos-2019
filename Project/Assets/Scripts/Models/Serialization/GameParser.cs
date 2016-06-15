@@ -4,7 +4,7 @@ public class GameParser : IParser<GameModel>
 {
     const string AttrKeyConfig = "config";
     const string AttrKeyUser = "user";
-    const string AttrKeyConfigPatch = "config_patch";
+    const string AttrKeyConfigPatch = "config_patches";
 
     IParser<ConfigModel> _configParser;
     IParser<PlayerModel> _playerParser;
