@@ -140,19 +140,22 @@ namespace SocialPoint.Dependency
 
     public class DependencyContainer : IDisposable
     {
-        List<IInstaller> _installed = new List<IInstaller>();
-        Dictionary<BindingKey, List<IBinding>> _bindings = new Dictionary<BindingKey, List<IBinding>>();
+        List<IInstaller> _installed;
+        Dictionary<BindingKey, List<IBinding>> _bindings;
         HashSet<IBinding> _resolving;
-        List<IBinding> _resolved = new List<IBinding>();
+        List<IBinding> _resolved;
         Dictionary<IBinding, HashSet<object>> _instances;
-        Dictionary<IBinding, BindingKey> _lookups;
+        Dictionary<BindingKey, List<IBinding>> _lookups;
 
         public DependencyContainer()
         {
+            _installed = new List<IInstaller>();
+            _bindings = new Dictionary<BindingKey, List<IBinding>>();
+            _resolving = new HashSet<IBinding>();
+            _resolved = new List<IBinding>();
             var comparer = new ReferenceComparer<IBinding>();
-            _resolving = new HashSet<IBinding>(comparer);
             _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
-            _lookups = new Dictionary<IBinding, BindingKey>(comparer);
+            _lookups = new Dictionary<BindingKey, List<IBinding>>();
         }
 
         public void AddBinding(IBinding binding, Type type, string tag = null)
@@ -162,14 +165,21 @@ namespace SocialPoint.Dependency
             if(!_bindings.TryGetValue(key, out list))
             {
                 list = new List<IBinding>();
-                _bindings[key] = list;
+                _bindings.Add(key, list);
             }
             list.Add(binding);
         }
 
         public void AddLookup(IBinding binding, Type type, string tag = null)
         {
-            _lookups[binding] = new BindingKey(type, tag);
+            List<IBinding> list;
+            var key = new BindingKey(type, tag);
+            if(!_lookups.TryGetValue(key, out list))
+            {
+                list = new List<IBinding>();
+                _lookups.Add(key, list);
+            }
+            list.Add(binding);
         }
 
         public bool Remove<T>(string tag = null)
@@ -282,32 +292,64 @@ namespace SocialPoint.Dependency
             _lookups.Clear();
         }
 
-        HashSet<object> FindInstances(Type from, BindingKey key, bool remove = false)
+        BindingKey FindBindingKey(IBinding binding)
+        {
+            var itr = _bindings.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                if(itr.Current.Value.Contains(binding))
+                {
+                    var key = itr.Current.Key;
+                    itr.Dispose();
+                    return key;
+                }
+            }
+            itr.Dispose();
+            return new BindingKey();
+        }
+
+        bool IsLookup(BindingKey from, BindingKey to)
+        {
+            if(from.Type == to.Type && from.Tag == to.Tag)
+            {
+                return true;
+            }
+            List<IBinding> bindings;
+            var key = to;
+            if(_lookups.TryGetValue(key, out bindings))
+            {
+                for(var i = 0; i < bindings.Count; i++)
+                {
+                    var key2 = FindBindingKey(bindings[i]);
+                    if(IsLookup(from, key2))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove=false)
         {
             var instances = new HashSet<object>();
             var itr = _bindings.GetEnumerator();
             while(itr.MoveNext())
             {
-                if(itr.Current.Key.Type != from)
-                {
-                    continue;
-                }
                 HashSet<object> bindingInstances;
                 var bindings = itr.Current.Value;
+                var key = itr.Current.Key;
                 for(var i = 0; i < bindings.Count; i++)
                 {
-                    var binding = bindings[i];
-                    if(key.Type != null)
+                    if(filterKey.Type != null && (filterKey.Type != key.Type || filterKey.Tag != key.Tag))
                     {
-                        BindingKey lookup;
-                        if(_lookups.TryGetValue(binding, out lookup))
-                        {
-                            if(lookup.Type != key.Type || lookup.Tag != key.Tag)
-                            {
-                                continue;
-                            }
-                        }
+                        continue;
                     }
+                    if(!IsLookup(fromKey, key))
+                    {
+                        continue;
+                    }
+                    var binding = bindings[i];
                     if(_instances.TryGetValue(binding, out bindingInstances))
                     {
                         var itr2 = bindingInstances.GetEnumerator();
@@ -335,7 +377,7 @@ namespace SocialPoint.Dependency
 
         void DisposeInstances(BindingKey key)
         {
-            var disposables = FindInstances(typeof(IDisposable), key, true);
+            var disposables = FindInstances(new BindingKey(typeof(IDisposable), null), key, true);
             var itr = disposables.GetEnumerator();
             while(itr.MoveNext())
             {
