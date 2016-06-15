@@ -103,7 +103,10 @@ public class BundleCreatorEditor : EditorWindow
                 fixedSelection[i] = (Object)selectedGO;
             }
         }
-		
+        else
+        {
+            fixedSelection = selected;
+        }
         return fixedSelection;
     }
 }
