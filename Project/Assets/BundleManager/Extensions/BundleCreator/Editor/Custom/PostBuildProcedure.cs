@@ -12,7 +12,6 @@ namespace BM.Extensions
     public class PostBuildProcedure : BBPPostBuild
     {
         static Dictionary<string, AssetVersioningData> _assetVersioningDict = new Dictionary<string, AssetVersioningData>();
-        static Dictionary<string, AssetVersioningData> _assetVersioningDictBackup = new Dictionary<string, AssetVersioningData>();
         static string _assetVersionJson = Path.Combine(Application.streamingAssetsPath, "json/localAssetVersioningJson.json");
         static string GameJson = "/Resources/game.json";
 
@@ -82,16 +81,8 @@ namespace BM.Extensions
                 newBundle["name"] = new AttrString(bundle.bundleName);
                 if(_assetVersioningDict != null && _assetVersioningDict.ContainsKey(bundle.bundleName))
                 {
-                    if(_assetVersioningDictBackup != null && _assetVersioningDictBackup.ContainsKey(bundle.bundleName) && _assetVersioningDictBackup[bundle.bundleName].CRC != bundle.crc)
-                    {
-                        newBundle["version"] = new AttrInt(_assetVersioningDictBackup[bundle.bundleName].Version + 1);
-                        newBundle["isLocal"] = new AttrBool(_assetVersioningDict[bundle.bundleName].IsLocal);
-                    }
-                    else
-                    {
-                        newBundle["version"] = new AttrInt(_assetVersioningDict[bundle.bundleName].Version);
-                        newBundle["isLocal"] = new AttrBool(_assetVersioningDict[bundle.bundleName].IsLocal);
-                    }
+                    newBundle["version"] = new AttrInt(_assetVersioningDict[bundle.bundleName].Version);
+                    newBundle["isLocal"] = new AttrBool(_assetVersioningDict[bundle.bundleName].IsLocal);
                 }
                 else
                 {
