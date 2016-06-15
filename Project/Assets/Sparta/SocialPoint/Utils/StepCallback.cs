@@ -1,5 +1,5 @@
 ﻿using System;
-using UnityEngine.Assertions;
+using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
@@ -10,8 +10,8 @@ namespace SocialPoint.Utils
 
         public StepCallback(int count, Action callback)
         {
-            Assert.IsTrue(count > 0);
-            Assert.IsNotNull(callback);
+            DebugUtils.Assert(count > 0);
+            DebugUtils.Assert(callback != null);
 
             _callback = callback;
             Count = count;
@@ -19,8 +19,8 @@ namespace SocialPoint.Utils
 
         public void DoStep()
         {
-            Assert.IsTrue(Count > 0);
-            Assert.IsNotNull(_callback);
+            DebugUtils.Assert(Count > 0);
+            DebugUtils.Assert(_callback != null);
 
             if(--Count == 0 && _callback != null)
             {
@@ -41,7 +41,7 @@ namespace SocialPoint.Utils
 
         public Action Add()
         {
-            Assert.IsTrue(!_ready);
+            DebugUtils.Assert(!_ready);
             if(_ready)
             {
                 throw new Exception("Add called after Ready");
