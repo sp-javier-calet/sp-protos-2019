@@ -7,17 +7,9 @@ namespace SocialPoint.Utils
     #if UNITY_ANDROID
     public class AndroidNativeUtils : INativeUtils
     {
-        static AndroidJavaObject PackageManager
-        {
-            get
-            {
-                return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getPackageManager");
-            }
-        }
-
         static AndroidJavaObject GetLaunchIntentForPackage(string packageName)
         {
-            using(var packageManager = PackageManager)
+            using(var packageManager = AndroidContext.PackageManager)
             {
                 return packageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", packageName);
             }

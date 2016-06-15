@@ -17,19 +17,11 @@ namespace SocialPoint.Hardware
             }
         }
 
-        public static AndroidJavaObject PackageManager
-        {
-            get
-            {
-                return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getPackageManager"); // API level 1
-            }
-        }
-
         public static AndroidJavaObject PackageInfo
         {
             get
             {
-                using(var packageManager = PackageManager)
+                using(var packageManager = AndroidContext.PackageManager)
                 {
                     return packageManager.Call<AndroidJavaObject>("getPackageInfo", PackageName, 0); // API level 1
                 }

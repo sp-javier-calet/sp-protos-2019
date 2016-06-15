@@ -50,6 +50,14 @@ namespace SocialPoint.Base
             }
         }
 
+        public static AndroidJavaObject PackageManager
+        {
+            get
+            {
+                return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getPackageManager"); // API level 1
+            }
+        }
+
         public static void RunOnMainThread(AndroidJavaRunnable runnable)
         {
             CurrentActivity.Call("runOnUiThread", runnable);

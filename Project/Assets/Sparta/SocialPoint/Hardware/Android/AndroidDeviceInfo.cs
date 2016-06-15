@@ -40,7 +40,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        public static AndroidJavaObject AdvertisingIdClient
+        static AndroidJavaObject AdvertisingIdClient
         {
             get
             {
@@ -110,7 +110,10 @@ namespace SocialPoint.Hardware
             {
                 if(_platformVersion == null)
                 {
-                    _platformVersion = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<string>("RELEASE"); // API level 1
+                    using(var buildVersion = new AndroidJavaClass("android.os.Build$VERSION"))
+                    {
+                        _platformVersion = buildVersion.GetStatic<string>("RELEASE"); // API level 1
+                    }
                 }
                 return _platformVersion;
             }
