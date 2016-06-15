@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
@@ -9,7 +8,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.ServerSync
 {
-    public class CommandQueue : ICommandQueue
+    public class CommandQueue : ICommandQueue, IUpdateable
     {
         public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
@@ -120,7 +119,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWasLoaded()
         {
-            if(!Running)
+            if(!_running)
             {
                 Start();
             }
@@ -128,7 +127,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWillRestart()
         {
-            if(Running)
+            if(_running)
             {
                 Stop();
                 Send();
@@ -139,7 +138,7 @@ namespace SocialPoint.ServerSync
         void OnAppWillGoBackground()
         {
             _goToBackgroundTS = TimeUtils.Timestamp;
-            if(Running)
+            if(_running)
             {
                 SendUpdate();
             }
@@ -219,7 +218,7 @@ namespace SocialPoint.ServerSync
 
 
         IHttpClient _httpClient;
-        ICoroutineRunner _runner;
+        IUpdateScheduler _updateScheduler;
         Packet _sendingPacket;
         Packet _currentPacket;
         List<Packet> _sentPackets;
@@ -230,24 +229,23 @@ namespace SocialPoint.ServerSync
         bool _synced;
         bool _currentPacketFlushed;
         long _syncTimestamp;
-        IEnumerator _updateCoroutine;
         int _lastPacketId;
         long _lastSendTimestamp;
         float _currentTimeout;
-        float _currentSendInterval;
         IHttpConnection _httpConn;
         Action _sendFinish;
         long _goToBackgroundTS;
+        bool _running;
 
-
-        public CommandQueue(ICoroutineRunner runner, IHttpClient client)
+        public CommandQueue(IUpdateScheduler updateScheduler, IHttpClient client)
         {
-            DebugUtils.Assert(runner != null);
+            DebugUtils.Assert(updateScheduler != null);
             DebugUtils.Assert(client != null);
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
-            _runner = runner;
+            _updateScheduler = updateScheduler;
             _httpClient = client;
             _synced = true;
+            _running = false;
             Reset();
         }
 
@@ -271,7 +269,6 @@ namespace SocialPoint.ServerSync
         {
             _lastSendTimestamp = CurrentTimestamp - SendInterval;
             _currentTimeout = Timeout;
-            _currentSendInterval = SendInterval;
             _syncTimestamp = CurrentTimestamp;
             _synced = true;
         }
@@ -330,33 +327,30 @@ namespace SocialPoint.ServerSync
 
         public void Start()
         {
+            if(_running)
+            {
+                return;
+            }
+
             SetStartValues();
 
             if(RequestSetup == null)
             {
                 throw new InvalidOperationException("Request setup callback not assigned.");
             }
-            if(_updateCoroutine == null)
+            if(_updateScheduler != null)
             {
-                _updateCoroutine = UpdateCoroutine();
-                _runner.StartCoroutine(_updateCoroutine);
+                _updateScheduler.AddFixed(this, SendInterval);
+                _running = true;
             }
         }
 
         public void Stop()
         {
-            if(_updateCoroutine != null)
+            if(_updateScheduler != null)
             {
-                _runner.StopCoroutine(_updateCoroutine);
-                _updateCoroutine = null;
-            }
-        }
-
-        public bool Running
-        {
-            get
-            {
-                return _updateCoroutine != null;
+                _updateScheduler.Remove(this);
+                _running = false;
             }
         }
 
@@ -373,22 +367,14 @@ namespace SocialPoint.ServerSync
             TimeUtils.OffsetChanged -= OnTimeOffsetChanged;
         }
 
-        IEnumerator UpdateCoroutine()
+        #region IUpdateable implementation
+
+        public void Update()
         {
-            while(true)
-            {
-                Update();
-                yield return true;
-            }
+            SendUpdate();
         }
 
-        void Update()
-        {
-            if(_lastSendTimestamp + (long)_currentSendInterval < CurrentTimestamp)
-            {
-                SendUpdate();
-            }
-        }
+        #endregion
 
         public void Send(Action finish = null)
         {

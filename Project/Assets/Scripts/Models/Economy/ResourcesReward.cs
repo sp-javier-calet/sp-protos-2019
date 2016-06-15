@@ -11,7 +11,7 @@ public class ResourcesReward : IReward
 
     #region IReward implementation
 
-    public Error Obtain(PlayerModel playerModel)
+    public ModelError Obtain(PlayerModel playerModel)
     {
         playerModel.Resources.Add(_resources);
         return null;
