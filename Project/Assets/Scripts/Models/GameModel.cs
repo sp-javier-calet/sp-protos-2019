@@ -2,15 +2,18 @@
 
 public class GameModel : IDisposable
 {
+
     public ConfigModel Config{ get; private set; }
 
     public PlayerModel Player{ get; private set; }
+
+    public ConfigPatch ConfigPatch{ get; private set; }
 
     public event Action<GameModel> Moved;
 
     public bool IsMoved{ get; private set; }
 
-    public GameModel(ConfigModel config = null, PlayerModel player = null)
+    public GameModel(ConfigModel config = null, PlayerModel player = null, ConfigPatch configPatch = null)
     {
         if(config == null)
         {
@@ -22,6 +25,10 @@ public class GameModel : IDisposable
             player = new PlayerModel();
         }
         Player = player;
+        if(configPatch == null)
+        {
+            configPatch = new ConfigPatch();
+        }
     }
 
     public void Move(GameModel other)
@@ -39,6 +46,7 @@ public class GameModel : IDisposable
 
         other.Player = null;
         other.Config = null;
+        other.ConfigPatch = null;
         other.Dispose();
 
         if(Moved != null)

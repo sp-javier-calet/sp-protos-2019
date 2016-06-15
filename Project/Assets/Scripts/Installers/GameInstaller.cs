@@ -34,6 +34,7 @@ public class GameInstaller : Installer
         Container.Rebind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
+        Container.Rebind<IParser<ConfigPatch>>().ToSingle<ConfigPatchParser>();
         Container.Rebind<IParser<GameModel>>().ToMethod<GameParser>(CreateGameParser);
         Container.Rebind<IParser<ConfigModel>>().ToMethod<ConfigParser>(CreateConfigParser);
         Container.Rebind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
@@ -103,7 +104,9 @@ public class GameInstaller : Installer
     {
         return new GameParser(
             Container.Resolve<IParser<ConfigModel>>(),
-            Container.Resolve<IParser<PlayerModel>>());
+            Container.Resolve<IParser<PlayerModel>>(),
+            Container.Resolve<IParser<ConfigPatch>>()
+        );
     }
 
     ConfigParser CreateConfigParser()
