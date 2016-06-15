@@ -467,18 +467,7 @@ namespace SocialPoint.Crash
 
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
 
-            //Check if updated app
-            string lastAppVersion = LastAppVersion;
-            string currentVersion = _deviceInfo.AppInfo.Version;
-            _appWasUpdated = (lastAppVersion != currentVersion) && !String.IsNullOrEmpty(lastAppVersion);
-            //Breadcrumb for version
-            _breadcrumbManager.Log("App Version: " + currentVersion);
-            if(_appWasUpdated)
-            {
-                _breadcrumbManager.Log("App Was Updated. Last Version: " + lastAppVersion);
-            }
-            //Update saved version data
-            LastAppVersion = _deviceInfo.AppInfo.Version;
+            CheckAppVersion();
         }
 
         public bool IsEnabled
@@ -553,6 +542,25 @@ namespace SocialPoint.Crash
         public void ClearUniqueExceptions()
         {
             _uniqueExceptions.Clear();
+        }
+
+        void CheckAppVersion()
+        {
+            //Check if updated app
+            string lastAppVersion = LastAppVersion;
+            string currentVersion = _deviceInfo.AppInfo.Version;
+            bool newApp = String.IsNullOrEmpty(lastAppVersion);
+            _appWasUpdated = (lastAppVersion != currentVersion) && !newApp;
+
+            //Breadcrumb for version
+            _breadcrumbManager.Log("App Version: " + currentVersion);
+            if(_appWasUpdated)
+            {
+                _breadcrumbManager.Log("App Was Updated. Last Version: " + lastAppVersion);
+            }
+
+            //Update saved version data
+            LastAppVersion = _deviceInfo.AppInfo.Version;
         }
 
         protected virtual List<Report> GetPendingCrashes()
