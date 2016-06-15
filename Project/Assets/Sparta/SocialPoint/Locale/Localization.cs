@@ -110,7 +110,7 @@ namespace SocialPoint.Locale
             {
                 return string.Format(DefaultFormat, Language, key);
             }
-            return defaultString;
+			return defaultString != null ? defaultString : key;
         }
 
         public void Clear()
