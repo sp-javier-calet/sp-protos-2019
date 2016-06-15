@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
     public class AndroidNativeUtils : INativeUtils
     {
         static AndroidJavaObject PackageManager
@@ -17,41 +17,50 @@ namespace SocialPoint.Utils
 
         static AndroidJavaObject GetLaunchIntentForPackage(string packageName)
         {
-            return PackageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", packageName);
+            using(var packageManager = PackageManager)
+            {
+                return packageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", packageName);
+            }
         }
 
         public bool IsInstalled(string appId)
         {
             try
             {
-                return GetLaunchIntentForPackage(appId) != null;
+                using(var intent = GetLaunchIntentForPackage(appId))
+                {
+                    return intent != null;
+                }
             }
             catch(Exception)
             {
                 return false;
             }
         }
-        
+
         public void OpenApp(string appId)
         {
             try
             {
-                var intent = GetLaunchIntentForPackage(appId);
-                if(intent != null)
+
+                using(var intent = GetLaunchIntentForPackage(appId))
                 {
-                    AndroidContext.CurrentActivity.Call("startActivity", intent);
+                    if(intent != null)
+                    {
+                        AndroidContext.CurrentActivity.Call("startActivity", intent);
+                    }
                 }
             }
             catch(Exception)
             {
             }
         }
-        
+
         public void OpenStore(string appId)
         {
             OpenUrl(string.Format("market://details?id={0}", appId));
         }
-        
+
         public void OpenUrl(string url)
         {
             Application.OpenURL(url);
@@ -64,8 +73,8 @@ namespace SocialPoint.Utils
                 return true; // This only makes sense on IOS
             }
         }
-}
-#else
+    }
+    #else
     public class AndroidNativeUtils : EmptyNativeUtils
     {
     }

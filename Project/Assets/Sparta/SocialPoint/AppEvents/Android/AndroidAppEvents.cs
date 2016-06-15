@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
-#if UNITY_ANDROID && !UNITY_EDITOR
-
+    #if UNITY_ANDROID && !UNITY_EDITOR
+    
     public class AndroidAppEvents : BaseAppEvents
     {
         void Awake()
@@ -33,6 +33,7 @@ namespace SocialPoint.AppEvents
             Source = new AppSource(sourceUri);
         }
 
+        
         #region Events dispatch
 
         Action _dispatched;
@@ -106,15 +107,17 @@ namespace SocialPoint.AppEvents
             DispatchMainThread(OnReceivedMemoryWarning);
         }
 
+        
         #endregion
 
+        
         #region Java proxies
 
         class ApplicationLifecycleDelegate : AndroidJavaProxy
         {
             const string JavaInterface = "android.app.Application$ActivityLifecycleCallbacks";
             AndroidAppEvents _appEvents;
-            bool WasStopped = false;
+            bool WasStopped;
 
             public ApplicationLifecycleDelegate(AndroidAppEvents appEvents)
                 : base(JavaInterface)
@@ -166,7 +169,10 @@ namespace SocialPoint.AppEvents
                 : base(JavaInterface)
             {
                 _appEvents = appEvents;
-                LevelMemoryComplete = new AndroidJavaClass(JavaInterface).GetStatic<int>("TRIM_MEMORY_COMPLETE");
+                using(var javaClass = new AndroidJavaClass(JavaInterface))
+                {
+                    LevelMemoryComplete = javaClass.GetStatic<int>("TRIM_MEMORY_COMPLETE");
+                }
             }
 
             public void onConfigurationChanged(AndroidJavaObject newConfig)
@@ -183,13 +189,15 @@ namespace SocialPoint.AppEvents
         }
 
 
+        
         #endregion
-
+    
     }
 
-#else
+    
+    #else
     public class AndroidAppEvents : BaseAppEvents
     {
     }
-#endif
+    #endif
 }

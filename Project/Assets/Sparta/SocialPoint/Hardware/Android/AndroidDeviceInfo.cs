@@ -25,9 +25,11 @@ namespace SocialPoint.Hardware
 
         public static AndroidJavaObject GetSystemService(string name)
         {
-            var ctx = new AndroidJavaClass("android.content.Context");
-            var val = ctx.GetStatic<string>(name);
-            return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getSystemService", val); // API level 1
+            using(var ctx = new AndroidJavaClass("android.content.Context"))
+            {
+                var val = ctx.GetStatic<string>(name);
+                return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getSystemService", val); // API level 1
+            }
         }
 
         public static AndroidJavaObject ActivityManager
@@ -54,16 +56,18 @@ namespace SocialPoint.Hardware
             {
                 if(_string == null)
                 {
-                    var build = new AndroidJavaClass("android.os.Build"); // API level 1
-                    var manufacturer = build.GetStatic<string>("MANUFACTURER"); // API level 4
-                    var model = build.GetStatic<string>("MODEL"); // API level 1
-                    if(model.StartsWith(manufacturer))
+                    using(var build = new AndroidJavaClass("android.os.Build")) // API level 1
                     {
-                        _string = model;
-                    }
-                    else
-                    {
-                        _string = manufacturer + " " + model;
+                        var manufacturer = build.GetStatic<string>("MANUFACTURER"); // API level 4
+                        var model = build.GetStatic<string>("MODEL"); // API level 1
+                        if(model.StartsWith(manufacturer))
+                        {
+                            _string = model;
+                        }
+                        else
+                        {
+                            _string = manufacturer + " " + model;
+                        }
                     }
                 }
                 return _string;
@@ -79,8 +83,10 @@ namespace SocialPoint.Hardware
                 if(_uid == null)
                 {
                     var objResolver = AndroidContext.ContentResolver;
-                    var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure"); // API level 3
-                    _uid = clsSettings.CallStatic<string>("getString", objResolver, "android_id"); // API level 3
+                    using(var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure")) // API level 3
+                    {
+                        _uid = clsSettings.CallStatic<string>("getString", objResolver, "android_id"); // API level 3
+                    }
                 }
                 return _uid;
             }
@@ -122,9 +128,11 @@ namespace SocialPoint.Hardware
                     {
                         try
                         {
-                            var build = new AndroidJavaClass("android.os.Build");
-                            var supported_abis = build.GetStatic<string[]>("SUPPORTED_ABIS"); // API level 21
-                            _architecture = supported_abis.Length > 0 ? supported_abis[0] : string.Empty;
+                            using(var build = new AndroidJavaClass("android.os.Build"))
+                            {
+                                var supported_abis = build.GetStatic<string[]>("SUPPORTED_ABIS"); // API level 21
+                                _architecture = supported_abis.Length > 0 ? supported_abis[0] : string.Empty;
+                            }
                         }
                         catch
                         {
@@ -136,9 +144,11 @@ namespace SocialPoint.Hardware
                     {
                         try
                         {
-                            var build = new AndroidJavaClass("android.os.Build");
-                            var cpu_abi = build.GetStatic<string>("CPU_ABI"); // API level 4, deprecated in API level 21
-                            _architecture = cpu_abi;
+                            using(var build = new AndroidJavaClass("android.os.Build"))
+                            {
+                                var cpu_abi = build.GetStatic<string>("CPU_ABI"); // API level 4, deprecated in API level 21
+                                _architecture = cpu_abi;
+                            }
                         }
                         catch
                         {
@@ -164,15 +174,19 @@ namespace SocialPoint.Hardware
                     {
                         try
                         {
-                            var availabilityClass = new AndroidJavaClass("com.google.android.gms.common.GoogleApiAvailability");
-                            int availabilityCode = availabilityClass.CallStatic<int>("isGooglePlayServicesAvailable", AndroidContext.CurrentActivity);
-                            _isGooglePlayServicesAvailable = (availabilityCode == 0);
+                            using(var availabilityClass = new AndroidJavaClass("com.google.android.gms.common.GoogleApiAvailability"))
+                            {
+                                int availabilityCode = availabilityClass.CallStatic<int>("isGooglePlayServicesAvailable", AndroidContext.CurrentActivity);
+                                _isGooglePlayServicesAvailable = (availabilityCode == 0);
+                            }
                         }
                         catch(AndroidJavaException)
                         {
-                            var availabilityClass = new AndroidJavaClass("com.google.android.gms.common.GooglePlayServicesUtil");
-                            int availabilityCode = availabilityClass.CallStatic<int>("isGooglePlayServicesAvailable", AndroidContext.CurrentActivity);
-                            _isGooglePlayServicesAvailable = (availabilityCode == 0);
+                            using(var availabilityClass = new AndroidJavaClass("com.google.android.gms.common.GooglePlayServicesUtil"))
+                            {
+                                int availabilityCode = availabilityClass.CallStatic<int>("isGooglePlayServicesAvailable", AndroidContext.CurrentActivity);
+                                _isGooglePlayServicesAvailable = (availabilityCode == 0);
+                            }
                         }
                     }
                     catch
@@ -197,8 +211,13 @@ namespace SocialPoint.Hardware
                     {
                         try
                         {
-                            var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
-                            _advertisingId = adInfo.Call<string>("getId");
+                            using(var adIdClientObject = AdvertisingIdClient)
+                            {
+                                using(var adInfo = adIdClientObject.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity))
+                                {
+                                    _advertisingId = adInfo.Call<string>("getId");
+                                }
+                            }
                         }
                         catch(AndroidJavaException)
                         {
@@ -358,8 +377,13 @@ namespace SocialPoint.Hardware
                     {
                         try
                         {
-                            var adInfo = AdvertisingIdClient.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity);
-                            _advertisingIdEnabled = !adInfo.Call<bool>("isLimitAdTrackingEnabled");
+                            using(var adIdClientObject = AdvertisingIdClient)
+                            {
+                                using(var adInfo = adIdClientObject.CallStatic<AndroidJavaObject>("getAdvertisingIdInfo", AndroidContext.CurrentActivity))
+                                {
+                                    _advertisingIdEnabled = !adInfo.Call<bool>("isLimitAdTrackingEnabled");
+                                }
+                            }
                         }
                         catch(AndroidJavaException)
                         {

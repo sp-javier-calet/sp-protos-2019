@@ -631,6 +631,10 @@ namespace SocialPoint.IO
             {
                 fs1.Close();
                 fs2.Close();
+
+                fs1.Dispose();
+                fs2.Dispose();
+
                 return false;
             }
             
@@ -643,6 +647,9 @@ namespace SocialPoint.IO
             
             fs1.Close();
             fs2.Close();
+
+            fs1.Dispose();
+            fs2.Dispose();
             
             return ((file1byte - file2byte) == 0);
         }

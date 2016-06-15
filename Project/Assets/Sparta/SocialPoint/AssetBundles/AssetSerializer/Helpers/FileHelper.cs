@@ -49,6 +49,7 @@ namespace SocialPoint.AssetSerializer.Helpers
                         data += sr.ReadLine();
                     }
                 }
+                fs.Close();
             }
 
             return data;
