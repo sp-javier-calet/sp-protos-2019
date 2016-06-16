@@ -52,7 +52,7 @@ namespace SocialPoint.Social
         }
 
         /// <summary>
-        /// recieves the verification from the plugin as a serialized json
+        /// receives the verification from the plugin as a serialized json
         /// </summary>
         /// <param name="verfication">Verfication.</param>
         void Notify(string verfication)

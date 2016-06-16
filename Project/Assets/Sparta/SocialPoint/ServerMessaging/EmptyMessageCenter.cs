@@ -1,7 +1,5 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-
 using SocialPoint.Base;
 
 namespace SocialPoint.ServerMessaging

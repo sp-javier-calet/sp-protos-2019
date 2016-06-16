@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.ServerSync;
 
@@ -32,7 +32,7 @@ namespace SocialPoint.ServerMessaging
             _deletedMessages = new List<string>();
             _commandQueue = commandQueue;
             _commandReceiver = commandReceiver;
-            _commandReceiver.RegisterCommand(PendingMessagesCommandName, (cmd) => ParseMessages(cmd.Args));
+            _commandReceiver.RegisterCommand(PendingMessagesCommandName, cmd => ParseMessages(cmd.Args));
             _appEvents = appEvents;
             _appEvents.GameWillRestart.Add(0, Reset);
         }

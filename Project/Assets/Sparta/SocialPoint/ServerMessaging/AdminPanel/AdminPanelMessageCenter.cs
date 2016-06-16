@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
-
-using SocialPoint.Login;
-using SocialPoint.Hardware;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
-using UnityEngine.UI;
+using SocialPoint.Login;
 
 namespace SocialPoint.ServerMessaging
 {
     public class AdminPanelMessageCenter : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        IMessageCenter _mesageCenter;
+        readonly IMessageCenter _mesageCenter;
         ILogin _login;
 
         public AdminPanelMessageCenter(IMessageCenter messageCenter, ILogin login)
@@ -39,7 +35,7 @@ namespace SocialPoint.ServerMessaging
             layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _mesageCenter.Messages.MoveNext());
             layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _mesageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
-            _mesageCenter.UpdatedEvent += (a) => layout.Refresh();
+            _mesageCenter.UpdatedEvent += a => layout.Refresh();
         }
 
         #endregion
