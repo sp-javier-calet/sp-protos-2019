@@ -1,21 +1,19 @@
-using NUnit.Framework;
-using NSubstitute;
-
 using System;
-using UnityEngine;
-
-using SocialPoint.Attributes;
-using SocialPoint.Network;
+using NSubstitute;
+using NUnit.Framework;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Network;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.ServerSync
 {
 
     [TestFixture]
     [Category("SocialPoint.ServerSync")]
-    internal class CommandQueueTests
+    class CommandQueueTests
     {
 
         CommandQueue CommandQueue;
@@ -35,7 +33,7 @@ namespace SocialPoint.ServerSync
             CommandQueue.RequestSetup = (req, Uri) => {
                 req.Method = HttpRequest.MethodType.POST;
                 req.Url = new Uri("http://" + Uri);
-                req.AddQueryParam("session_id", new SocialPoint.Attributes.AttrString("session_id_test"));
+                req.AddQueryParam("session_id", new AttrString("session_id_test"));
             };
             var appEvents = Substitute.For<IAppEvents>();
             appEvents.WillGoBackground.Returns(new PriorityAction());
@@ -78,7 +76,7 @@ namespace SocialPoint.ServerSync
         {
             Start();
             Add_cmd_finishDelegate();
-            Assert.AreEqual(1, CommandQueue.Remove((PackedCommand item) => item.Command.Name == "Test Command"));
+            Assert.AreEqual(1, CommandQueue.Remove(item => item.Command.Name == "Test Command"));
         }
 
         [Test]

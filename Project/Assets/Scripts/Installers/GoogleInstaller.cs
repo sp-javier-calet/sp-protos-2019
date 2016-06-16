@@ -27,8 +27,8 @@ public class GoogleInstaller : Installer
         }
         else
         {
-            Container.Rebind<IGoogle>().ToSingle<UnityGoogle>();
-            Container.Rebind<MonoBehaviour>().ToSingle<UnityGoogle>();
+            Container.RebindUnityComponent<UnityGoogle>();
+            Container.Rebind<IGoogle>().ToLookup<UnityGoogle>();
         }
         if(Settings.LoginLink)
         {

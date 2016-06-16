@@ -6,15 +6,15 @@ using SocialPoint.Purchase;
 
 public class PurchaseCostFactory
 {
-    IGamePurchaseStore _store;
+    PurchaseDelegate _purchaseDelegate;
 
-    public PurchaseCostFactory(IGamePurchaseStore store)
+    public PurchaseCostFactory(PurchaseDelegate purchaseDelegate)
     {
-        _store = store;
+        _purchaseDelegate = purchaseDelegate;
     }
 
     public PurchaseCost CreatePurchaseCost(string productId)
     {
-        return new PurchaseCost(productId, _store);
+        return new PurchaseCost(productId, _purchaseDelegate);
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Text;
-using UnityEngine.Networking;
 using SocialPoint.Attributes;
+using System.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class SetLockstepConfigMessage : MessageBase
+    public class SetLockstepConfigMessage : INetworkMessage
     {
         public LockstepConfig Config { get; private set; }
 
@@ -14,13 +15,13 @@ namespace SocialPoint.Lockstep.Network
             Config = config;
         }
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(IReaderWrapper reader)
         {
             if(Config == null)
             {
                 Config = new LockstepConfig();
             }
-            base.Deserialize(reader);
+
             Config.CommandStepFactor = reader.ReadInt32();
             Config.SimulationStep = reader.ReadInt32();
             Config.MinExecutionTurnAnticipation = reader.ReadInt32();
@@ -29,15 +30,22 @@ namespace SocialPoint.Lockstep.Network
             Config.MaxRetries = reader.ReadInt32();
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(IWriterWrapper writer)
         {
-            base.Serialize(writer);
             writer.Write(Config.CommandStepFactor);
             writer.Write(Config.SimulationStep);
             writer.Write(Config.MinExecutionTurnAnticipation);
             writer.Write(Config.MaxExecutionTurnAnticipation);
             writer.Write(Config.ExecutionTurnAnticipation);
             writer.Write(Config.MaxRetries);
+        }
+
+        public bool RequiresSync
+        {
+            get
+            {
+                return false;
+            }
         }
     }
 }

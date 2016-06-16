@@ -1,10 +1,8 @@
 ﻿using System;
 using NSubstitute;
 using NUnit.Framework;
-
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
-
 using UnityEngine;
 
 namespace SocialPoint.Marketing
@@ -28,9 +26,7 @@ namespace SocialPoint.Marketing
             appEvents = gameObject.AddComponent<UnityAppEvents>();
             storage = Substitute.For<IAttrStorage>();
             manager = new SocialPointMarketingAttributionManager(appEvents, storage);
-            manager.GetUserID = () => {
-                return "1234";
-            };
+            manager.GetUserID = () => "1234";
             tracker = Substitute.For<IMarketingTracker>();
         }
 
@@ -70,9 +66,7 @@ namespace SocialPoint.Marketing
             storage.Has(SocialPointMarketingAttributionManager.AppPreviouslyInstalledForMarketing).Returns(true);
             storage.Load(SocialPointMarketingAttributionManager.AppPreviouslyInstalledForMarketing).Returns(new AttrBool(true));
             manager = new SocialPointMarketingAttributionManager(appEvents, storage);
-            manager.GetUserID = () => {
-                return "1234";
-            };
+            manager.GetUserID = () => "1234";
             manager.AddTracker(tracker);
             appEvents.TriggerGameWasLoaded();
             tracker.Received(1).TrackInstall(false);
@@ -83,9 +77,7 @@ namespace SocialPoint.Marketing
         {
             storage.Has(SocialPointMarketingAttributionManager.AppPreviouslyInstalledForMarketing).Returns(false);
             manager = new SocialPointMarketingAttributionManager(appEvents, storage);
-            manager.GetUserID = () => {
-                return "1234";
-            };
+            manager.GetUserID = () => "1234";
             manager.AddTracker(tracker);
             appEvents.TriggerGameWasLoaded();
             tracker.Received(1).TrackInstall(true);

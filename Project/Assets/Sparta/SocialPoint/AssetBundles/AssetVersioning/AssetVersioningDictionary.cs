@@ -3,16 +3,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.AssetVersioning
 {
-    public class AssetVersioningData
-    {
-        public string Client;
-        public int Version;
-        public bool IsLocal;
-        public string Parent;
-        public uint CRC;
-    }
-
-    public class AssetVersioningDictionary : IDictionary<string, AssetVersioningData>
+    public class AssetVersioningDictionary : IAssetVersioningDictionary
     {
         const string kPortraitSuffix = "_portrait";
         const string kThumbSuffix = "_thumb";
@@ -152,7 +143,7 @@ namespace SocialPoint.AssetVersioning
             return StringUtils.EndsWith(key, kPortraitSuffix) || StringUtils.EndsWith(key, kThumbSuffix);
         }
 
-        public List<string> GetLocalBundles()
+        public IList<string> GetLocalBundles()
         {
             var result = new List<string>();
             var itr = _data.GetEnumerator();
@@ -169,7 +160,7 @@ namespace SocialPoint.AssetVersioning
             return result;
         }
 
-        public List<string> GetLocalTextureNames()
+        public IList<string> GetLocalTextureNames()
         {
             var result = new List<string>();
             var itr = _data.GetEnumerator();

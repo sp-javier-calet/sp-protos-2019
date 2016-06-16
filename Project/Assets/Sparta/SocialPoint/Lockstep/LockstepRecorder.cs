@@ -12,10 +12,10 @@ namespace SocialPoint.Lockstep
     public class LockstepRecorder : IDisposable
     {
         ClientLockstepController _clientLockstep;
-        NetworkLockstepCommandDataFactory _commandDataFactory;
+        LockstepCommandDataFactory _commandDataFactory;
         List<ILockstepCommand> _recordedCommands;
 
-        public LockstepRecorder(ClientLockstepController clientLockstep, NetworkLockstepCommandDataFactory commandDataFactory)
+        public LockstepRecorder(ClientLockstepController clientLockstep, LockstepCommandDataFactory commandDataFactory)
         {
             _recordedCommands = new List<ILockstepCommand>();
             _clientLockstep = clientLockstep;
@@ -28,16 +28,16 @@ namespace SocialPoint.Lockstep
             _recordedCommands.Add(command);
         }
 
-        public void Serialize(NetworkWriter networkWriter)
+        public void Serialize(IWriterWrapper writer)
         {
             SetLockstepConfigMessage configMessage = new SetLockstepConfigMessage(_clientLockstep.LockstepConfig);
-            configMessage.Serialize(networkWriter);
-            networkWriter.Write(_recordedCommands.Count);
+            configMessage.Serialize(writer);
+            writer.Write(_recordedCommands.Count);
             for(int i = 0; i < _recordedCommands.Count; ++i)
             {
                 var command = _recordedCommands[i];
-                networkWriter.Write(command.Turn);
-                _commandDataFactory.CreateNetworkLockstepCommandData(command).Serialize(networkWriter);
+                writer.Write(command.Turn);
+                _commandDataFactory.CreateNetworkLockstepCommandData(command).Serialize(writer);
             }
         }
 

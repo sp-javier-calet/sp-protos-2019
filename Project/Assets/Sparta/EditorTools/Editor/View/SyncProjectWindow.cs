@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
@@ -110,7 +110,11 @@ namespace SpartaTools.Editor.View
             }
         }
 
+#if UNITY_EDITOR_WIN //Windows doesn't work with autorefresh enabled when opening the editorwindow.
+        bool _autoRefresh = false;
+#else
         bool _autoRefresh = true;
+#endif
 
         bool Synchronized
         {
@@ -152,7 +156,7 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        #region Draw GUI
+#region Draw GUI
 
         void OnFocus()
         {
@@ -379,6 +383,6 @@ namespace SpartaTools.Editor.View
             GUILayout.EndVertical();
         }
 
-        #endregion
+#endregion
     }
 }
