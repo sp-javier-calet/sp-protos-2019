@@ -10,7 +10,6 @@ using SocialPoint.Alert;
 using SocialPoint.Utils;
 using SocialPoint.Base;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace SocialPoint.Crash
 {
@@ -190,7 +189,7 @@ namespace SocialPoint.Crash
 
         protected override void OnEnable()
         {
-            Assert.IsNotNull(NativeHandler, "NativeCallsHandler is null");
+            DebugUtils.Assert(NativeHandler, "NativeCallsHandler is null");
             NativeHandler.RegisterListener("OnCrashDumped", OnCrashDumped);
             SPUnityCrashReporterEnable(_nativeObject);
         }
