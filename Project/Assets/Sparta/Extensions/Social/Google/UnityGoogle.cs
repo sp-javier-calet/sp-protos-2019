@@ -618,7 +618,7 @@ namespace SocialPoint.Social
 					var data = new AttrDic();
 
 					var stats = new AttrDic();
-					data.Set("AttrKeyUser", stats);
+					data.Set(AttrKeyUser, stats);
 
 					stats.SetValue(AttrKeyAvgSessionLength, playerStats.AvgSessonLength);
 					stats.SetValue(AttrKeyChurnProbability, playerStats.ChurnProbability);
