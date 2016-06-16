@@ -18,9 +18,12 @@ namespace SocialPoint.ServerMessaging
         IAppEvents _appEvents;
         Dictionary<string,Message> _messages;
         List<string> _deletedMessages;
+        List<string> _receivedMessages;
 
         const string GetMessagesCommandName = "messages.get";
         const string SendMessagesCommandName = "messages.send";
+        const string ReadMessagesCommandName = "messages.read";
+        const string ReceivedMessagesCommandName = "messages.received";
         const string DeleteMessagesCommandName = "messages.delete";
         const string DeleteIdsArg = "ids";
         const string PendingMessagesCommandName = "messages.new";
@@ -30,6 +33,7 @@ namespace SocialPoint.ServerMessaging
         {
             _messages = new Dictionary<string,Message>();
             _deletedMessages = new List<string>();
+            _receivedMessages = new List<string>();
             _commandQueue = commandQueue;
             _commandReceiver = commandReceiver;
             _commandReceiver.RegisterCommand(PendingMessagesCommandName, cmd => ParseMessages(cmd.Args));
@@ -49,6 +53,19 @@ namespace SocialPoint.ServerMessaging
         public void SendMessage(Message message, Action<Error> callback = null)
         {
             _commandQueue.Add(new Command(SendMessagesCommandName, message.ToAttr(), false, false), (resp, err) => {
+                if(!Error.IsNullOrEmpty(err))
+                {
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
+                }
+            });
+        }
+
+        public void ReadMessage(Message message, Action<Error> callback = null)
+        {
+            _commandQueue.Add(new Command(ReadMessagesCommandName, message.ToAttr(), false, false), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -130,6 +147,8 @@ namespace SocialPoint.ServerMessaging
         /// <param name="data">Data.</param>
         public void ParseMessages(Attr data)
         {
+            _receivedMessages.Clear();
+
             var messagesList = data.AsDic.Get(MessagesArg).AsList;
             var newMessages = false;
             for(int i = 0; i < messagesList.Count; i++)
@@ -138,17 +157,40 @@ namespace SocialPoint.ServerMessaging
                 if(!_messages.ContainsKey(message.Id) && !_deletedMessages.Contains(message.Id))
                 {
                     _messages.Add(message.Id, message);
+                    _receivedMessages.Add(message.Id);
                     newMessages = true;
                 }
             }
             if(newMessages)
             {
+                ReceivedMessages();
                 var handler = UpdatedEvent;
                 if(handler != null)
                 {
                     handler(this);
                 }
             }
+        }
+
+        void ReceivedMessages(Action<Error> callback = null)
+        {
+            var messageIds = new AttrList();
+
+            for(int i = 0, messagesCount = _receivedMessages.Count; i < messagesCount; i++)
+            {
+                var messageId = _receivedMessages[i];
+                messageIds.Add(new AttrString(messageId));
+            }
+
+            _commandQueue.Add(new Command(ReceivedMessagesCommandName, messageIds, false, false), (resp, err) => {
+                if(!Error.IsNullOrEmpty(err))
+                {
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
+                }
+            });
         }
 
         void ParseResponseGetMessagesCommand(Attr data, Error err, Action<Error> callback = null)
@@ -168,6 +210,7 @@ namespace SocialPoint.ServerMessaging
         {
             _messages = new Dictionary<string,Message>();
             _deletedMessages = new List<string>();
+            _receivedMessages = new List<string>();
         }
     }
 }

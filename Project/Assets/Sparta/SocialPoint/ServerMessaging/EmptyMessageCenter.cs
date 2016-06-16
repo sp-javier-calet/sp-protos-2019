@@ -29,6 +29,10 @@ namespace SocialPoint.ServerMessaging
         {
         }
 
+        public void ReadMessage(Message message, Action<Error> callback = null)
+        {
+        }
+
         public void DeleteMessages(List<Message> messages, Action<Error> callback = null)
         {
         }
