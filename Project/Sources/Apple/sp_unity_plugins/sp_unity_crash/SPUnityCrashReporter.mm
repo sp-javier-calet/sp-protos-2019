@@ -6,6 +6,7 @@
 #include <string>
 #include "UnityGameObject.h"
 #import <Foundation/Foundation.h>
+#include "SPUnityBreadcrumbManager.hpp"
 
 
 class SPUnityCrashReporter
@@ -18,6 +19,7 @@ private:
     std::string _fileSeparator;
     std::string _crashExtension;
     std::string _gameObject;
+    SPUnityBreadcrumbManager& _breadcrumbManager;
 
     static void onCrash(siginfo_t *info, ucontext_t *uap, void *context)
     {
@@ -52,6 +54,11 @@ private:
                 UnityGameObject(_gameObject.c_str()).SendMessage("OnCrashDumped", filePath.c_str());
             }
         }
+    }
+    
+    void dumpBreadcrumbs()
+    {
+        _breadcrumbManager.dumpToFile();
     }
 
     bool initializePLCrashReporter()
@@ -89,6 +96,7 @@ public:
 
     SPUnityCrashReporter()
     : _enabled(false)
+    , _breadcrumbManager(SPUnityBreadcrumbManager::getInstance())
     {
     }
 
@@ -162,6 +170,7 @@ public:
 
         [reporter purgePendingCrashReport];
 
+        dumpBreadcrumbs();
         dumpCrash(plReport);
 
         return true;
@@ -176,9 +185,12 @@ public:
  * Exported interface
  */
 extern "C" {
-    SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* path, const char* version,
-                                                      const char* fileSeparator, const char* crashExtension,
-                                                      const char* logExtension, const char* gameObject)
+    SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* path,
+                                                     const char* version,
+                                                     const char* fileSeparator,
+                                                     const char* crashExtension,
+                                                     const char* logExtension,
+                                                     const char* gameObject)
     {
         SPUnityCrashReporter* reporterInstance = SPUnityCrashReporter::getInstance();
         reporterInstance->setConfig(

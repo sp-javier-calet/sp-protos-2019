@@ -123,6 +123,11 @@
 		7B3856521C98A53800D04AEF /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38552D1C98A35300D04AEF /* libz.a */; };
 		7B3856531C98A53800D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557C1C98A35300D04AEF /* libcrypto.a */; };
 		7B3856541C98A53800D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557D1C98A35300D04AEF /* libssl.a */; };
+		F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
+		F523B6531CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */; };
+		F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
+		F53B19161CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */; };
+		F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
 		F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */; };
 		F53F908B1CC7D1300020C2AC /* SPPurchaseNativeServices.h in Headers */ = {isa = PBXBuildFile; fileRef = F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */; };
 		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
@@ -322,6 +327,11 @@
 		7B38552D1C98A35300D04AEF /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		7B38557C1C98A35300D04AEF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		7B38557D1C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
+		F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SPUnityFileUtils.cpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.cpp; sourceTree = "<group>"; };
+		F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SPUnityFileUtils.hpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.hpp; sourceTree = "<group>"; };
+		F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManager.cpp; sourceTree = "<group>"; };
+		F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SPUnityBreadcrumbManager.hpp; sourceTree = "<group>"; };
+		F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManagerFacade.cpp; sourceTree = "<group>"; };
 		F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseNativeServices.mm; path = sp_unity_purchase/SPPurchaseNativeServices.mm; sourceTree = "<group>"; };
 		F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseNativeServices.h; path = sp_unity_purchase/SPPurchaseNativeServices.h; sourceTree = "<group>"; };
 		F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseStore.mm; path = sp_unity_purchase/SPPurchaseStore.mm; sourceTree = "<group>"; };
@@ -415,6 +425,8 @@
 		069170201C75CAC500C6B0B6 /* sp_unity_utils */ = {
 			isa = PBXGroup;
 			children = (
+				F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */,
+				F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */,
 				069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */,
 				069170221C75CADE00C6B0B6 /* SPUnityUtils.h */,
 			);
@@ -755,6 +767,16 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */ = {
+			isa = PBXGroup;
+			children = (
+				F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */,
+				F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */,
+				F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */,
+			);
+			path = sp_unity_crash_reporter;
+			sourceTree = "<group>";
+		};
 		F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */ = {
 			isa = PBXGroup;
 			children = (
@@ -823,6 +845,7 @@
 		FE448F311C1EEAD800A10FEA /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */,
 				069170201C75CAC500C6B0B6 /* sp_unity_utils */,
 				FE448FE21C1EEAD800A10FEA /* sp_unity_curl */,
 			);
@@ -950,12 +973,14 @@
 				46F7491A1C60AE77000DB6B1 /* PLCrashReportSignalInfo.h in Headers */,
 				F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */,
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
+				F523B6531CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46F749161C60AE77000DB6B1 /* PLCrashReportMachineInfo.h in Headers */,
 				46F749181C60AE77000DB6B1 /* PLCrashReportProcessorInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
 				46F749111C60AE77000DB6B1 /* PLCrashReporter.h in Headers */,
 				F53F908B1CC7D1300020C2AC /* SPPurchaseNativeServices.h in Headers */,
+				F53B19161CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in Headers */,
 				46F749141C60AE77000DB6B1 /* PLCrashReportFormatter.h in Headers */,
 				46F7490E1C60AE77000DB6B1 /* PLCrashReport.h in Headers */,
 				46F749121C60AE77000DB6B1 /* PLCrashReporterConfig.h in Headers */,
@@ -1259,9 +1284,12 @@
 				F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
 				06D7A6931C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
+				F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */,
+				F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
 				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
+				F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */,
 				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,

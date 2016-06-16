@@ -34,9 +34,9 @@ public class EmptyBackendInstaller : Installer, IInitializable
             Container.Bind<ICommandQueue>().ToSingle<EmptyCommandQueue>();
             Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
         }
-        if(!Container.HasBinding<BreadcrumbManager>())
+        if(!Container.HasBinding<IBreadcrumbManager>())
         {
-            Container.Bind<BreadcrumbManager>().ToSingle<BreadcrumbManager>();
+            Container.Bind<IBreadcrumbManager>().ToSingle<EmptyBreadcrumbManager>();
         }
         if(!Container.HasBinding<ICrashReporter>())
         {

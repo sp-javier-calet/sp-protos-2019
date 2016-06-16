@@ -28,7 +28,7 @@ namespace SocialPoint.AppEvents
             _appEvents.WillGoBackground.Add(0, OnWillGoBackground);
             _appEvents.GameWillRestart.Add(0, OnGameWillRestart);
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
-            _appEvents.AfterGameWasLoaded.Add(0,AfterGameWasLoaded);
+            _appEvents.AfterGameWasLoaded.Add(0, AfterGameWasLoaded);
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ApplicationQuit += OnApplicationQuit;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
