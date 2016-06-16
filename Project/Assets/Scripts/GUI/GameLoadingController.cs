@@ -12,7 +12,7 @@ using UnityEngine;
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     IGameLoader _gameLoader;
-    AdminPanel _adminPanel;
+    AdminPanel _adminPanel = null;
     ICoroutineRunner _coroutineRunner;
 
     [SerializeField]

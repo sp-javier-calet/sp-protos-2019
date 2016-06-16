@@ -28,14 +28,14 @@ namespace SocialPoint.Lockstep.Network.UNet
             client.UnregisterHandler(MsgType);
         }
 
-        public void RegisterServer()
+        public void RegisterServer(NetworkServerSimple server)
         {
-            NetworkServer.RegisterHandler(MsgType, MessageHandler);
+            server.RegisterHandler(MsgType, MessageHandler);
         }
 
-        public void UnregisterServer()
+        public void UnregisterServer(NetworkServerSimple server)
         {
-            NetworkServer.UnregisterHandler(MsgType);
+            server.UnregisterHandler(MsgType);
         }
     }
 

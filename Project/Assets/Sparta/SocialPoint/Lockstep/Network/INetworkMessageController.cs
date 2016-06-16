@@ -16,6 +16,12 @@ namespace SocialPoint.Lockstep.Network
         public int ServerDelay;
     }
 
+    public enum NetworkChannel
+    {
+        Reliable,
+        Unreliable
+    }
+
     public interface INetworkMessageController
     {
         void RegisterHandler(short msgType, Action<NetworkMessageData> handler);
@@ -24,8 +30,8 @@ namespace SocialPoint.Lockstep.Network
 
         void UnregisterHandler(short msgType);
 
-        void Send(short msgType, INetworkMessage msg, int connectionId = 0);
+        void Send(short msgType, INetworkMessage msg, NetworkChannel channel = NetworkChannel.Reliable, int connectionId = 0);
 
-        void SendToAll(short msgType, INetworkMessage msg);
+        void SendToAll(short msgType, INetworkMessage msg, NetworkChannel channel = NetworkChannel.Reliable);
     }
 }

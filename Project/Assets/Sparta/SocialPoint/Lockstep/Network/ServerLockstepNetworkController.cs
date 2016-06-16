@@ -83,7 +83,7 @@ namespace SocialPoint.Lockstep.Network
                 int connectionId = data.ConnectionId;
                 var action = new ConfirmTurnsMessage(_networkCommandDataFactory);
                 action.ConfirmedTurns = turnData;
-                _messageController.Send(ConfirmTurnsMsgType, action, connectionId);
+                _messageController.Send(ConfirmTurnsMsgType, action, NetworkChannel.Unreliable, connectionId);
             }
         }
 
@@ -162,7 +162,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public void OnClientConnected(int connectionId)
+        public int OnClientConnected(int connectionId)
         {
             if(!_clientDataByConnectionId.ContainsKey(connectionId))
             {
@@ -177,19 +177,22 @@ namespace SocialPoint.Lockstep.Network
 
                         _clientDataByClientId[i] = _clientDataByConnectionId[connectionId] = clientData;
                         _messageController.Send(SetLockstepConfigMsgType,
-                            new SetLockstepConfigMessage(_lockstepConfig),
+                            new SetLockstepConfigMessage((byte)i, _lockstepConfig),
+                            NetworkChannel.Reliable,
                             connectionId);
-                        return;
+                        return i;
                     }
                 }
             }
+            return _clientDataByConnectionId[connectionId].ClientId;
         }
 
-        public void OnClientDisconnected(int connectionId)
+        public int OnClientDisconnected(int connectionId)
         {
             var clientId = _clientDataByConnectionId[connectionId].ClientId;
             _clientDataByClientId.Remove(clientId);
             _clientDataByConnectionId.Remove(connectionId);
+            return clientId;
         }
 
         public void Stop()

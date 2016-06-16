@@ -30,7 +30,7 @@ namespace SocialPoint.Lockstep
 
         public void Serialize(IWriterWrapper writer)
         {
-            SetLockstepConfigMessage configMessage = new SetLockstepConfigMessage(_clientLockstep.LockstepConfig);
+            SetLockstepConfigMessage configMessage = new SetLockstepConfigMessage(0, _clientLockstep.LockstepConfig);
             configMessage.Serialize(writer);
             writer.Write(_recordedCommands.Count);
             for(int i = 0; i < _recordedCommands.Count; ++i)

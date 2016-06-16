@@ -8,10 +8,13 @@ namespace SocialPoint.Lockstep.Network
 {
     public class SetLockstepConfigMessage : INetworkMessage
     {
+        public byte PlayerId { get; private set; }
+
         public LockstepConfig Config { get; private set; }
 
-        public SetLockstepConfigMessage(LockstepConfig config = null)
+        public SetLockstepConfigMessage(byte playerId = 0, LockstepConfig config = null)
         {
+            PlayerId = playerId;
             Config = config;
         }
 
@@ -22,6 +25,7 @@ namespace SocialPoint.Lockstep.Network
                 Config = new LockstepConfig();
             }
 
+            PlayerId = reader.ReadByte();
             Config.CommandStepFactor = reader.ReadInt32();
             Config.SimulationStep = reader.ReadInt32();
             Config.MinExecutionTurnAnticipation = reader.ReadInt32();
@@ -32,6 +36,7 @@ namespace SocialPoint.Lockstep.Network
 
         public void Serialize(IWriterWrapper writer)
         {
+            writer.Write(PlayerId);
             writer.Write(Config.CommandStepFactor);
             writer.Write(Config.SimulationStep);
             writer.Write(Config.MinExecutionTurnAnticipation);

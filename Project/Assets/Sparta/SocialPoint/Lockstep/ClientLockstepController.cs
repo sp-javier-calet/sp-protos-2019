@@ -15,7 +15,7 @@ namespace SocialPoint.Lockstep
         long _lastModelSimulationTime;
         long _lastTimestamp;
         long _simulationStep;
-        long _commandStep;
+        long _commandStep = 10;
         long _lastConfirmedTurnTime;
         int _lastConfirmedTurn;
         int _lastAppliedTurn;
@@ -43,7 +43,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        const float _maxCatchUpSpeed = 10;
+        const int _maxSimulationStepsPerFrame = 10;
 
         public int ExecutionTurnAnticipation { get; set; }
 
@@ -192,6 +192,7 @@ namespace SocialPoint.Lockstep
 
         public void AddPendingCommand(ILockstepCommand command)
         {
+//            UnityEngine.Debug.Log("Pending command: " + CurrentTurn + " (" + command.Turn + ")");
             List<ILockstepCommand> commands;
             if(!_pendingCommands.TryGetValue(command.Turn, out commands))
             {
@@ -252,6 +253,7 @@ namespace SocialPoint.Lockstep
 
         void ConsumeTurn(int turn)
         {
+//            UnityEngine.Debug.Log("Consume turn: " + turn + " simulation time: " + _simulationTime);
             List<ILockstepCommand> commands;
             List<ILockstepCommand> pendingCommands = null;
             if(_pendingCommands.TryGetValue(turn, out pendingCommands))
@@ -326,6 +328,8 @@ namespace SocialPoint.Lockstep
 
         #region IUpdateable implementation
 
+        long _lastRawModelSimulationTime;
+
         public void Update()
         {
             long timestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
@@ -348,8 +352,8 @@ namespace SocialPoint.Lockstep
             if(_lastModelSimulationTime <= maxConfirmedSimulationTime)
             {
                 long nextModelSimulationTime = Math.Min(maxConfirmedSimulationTime, _simulationTime);
-                long elapsedSimulationTime = nextModelSimulationTime - _lastModelSimulationTime;
-                elapsedSimulationTime = Math.Min((long)(_maxCatchUpSpeed * (float)elapsedTime), elapsedSimulationTime);
+                nextModelSimulationTime = Math.Min(nextModelSimulationTime, _lastModelSimulationTime + _maxSimulationStepsPerFrame * _simulationStep);
+                long elapsedSimulationTime = nextModelSimulationTime - _lastRawModelSimulationTime;
                 for(long nextST = _lastModelSimulationTime + _simulationStep; nextST <= nextModelSimulationTime; nextST += _simulationStep)
                 {
                     _lastModelSimulationTime = nextST;
@@ -359,7 +363,7 @@ namespace SocialPoint.Lockstep
                         ConsumeTurn(_lastAppliedTurn + 1);
                     }
                 }
-                _lastModelSimulationTime = nextModelSimulationTime;
+                _lastRawModelSimulationTime = nextModelSimulationTime;
                 _simulationSpeed = (float)elapsedSimulationTime / (float)elapsedTime;
             }
             else
