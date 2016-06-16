@@ -157,6 +157,7 @@ namespace SocialPoint.Attributes
                         patch.Add(op);
                     }
                 }
+                itr.Dispose();
                 itr = toDict.GetEnumerator();
                 while(itr.MoveNext())
                 {
