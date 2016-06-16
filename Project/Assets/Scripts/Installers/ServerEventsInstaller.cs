@@ -45,7 +45,7 @@ public class ServerEventsInstaller : SubInstaller
     SocialPointEventTracker CreateEventTracker()
     {
         return new SocialPointEventTracker(
-            Container.Resolve<ICoroutineRunner>());
+            Container.Resolve<IUpdateScheduler>());
     }
 
     void SetupEventTracker(SocialPointEventTracker tracker)

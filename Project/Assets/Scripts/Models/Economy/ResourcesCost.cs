@@ -1,49 +1,60 @@
-﻿
-using System;
+﻿using System;
 using SocialPoint.Base;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
 
-
-public struct NotEnoughResourcesEvent
+public class NotEnoughResourcesError : ModelError
 {
-    public ResourcePool Cost;
+    public ResourcePool MissingResources { get; private set; }
+
+    public NotEnoughResourcesError(ResourcePool missingResources)
+    {
+        MissingResources = missingResources;
+    }
+
+    public override string ToString()
+    {
+        return "Not enough resources. Missing resources: " + MissingResources;
+    }
 }
 
 public class ResourcesCost : ICost
 {
-    ResourcePool _playerResources;
-    IEventDispatcher _dispatcher;
     ResourcePool _cost;
 
-    public ResourcesCost(ResourcePool cost, ResourcePool playerResources, IEventDispatcher dispatcher)
+    public ResourcesCost(ResourcePool cost)
     {
         _cost = cost;
-        _playerResources = playerResources;
-        _dispatcher = dispatcher;
+    }
+
+    ModelError CheckEnoughResources(PlayerModel playerModel)
+    {
+        if(playerModel.Resources.CanSubstract(_cost))
+        {
+            return null;
+        }
+        return new NotEnoughResourcesError(ResourcePool.Missing(playerModel.Resources, _cost));
     }
 
     #region ICost implementation
 
-    public void Spend(Action<Error> finished)
+    public void Spend(PlayerModel playerModel)
     {
-        if(!_playerResources.CanSubstract(_cost))
+        ModelError error = CheckEnoughResources(playerModel);
+        if(error != null)
         {
-            _dispatcher.Raise(new NotEnoughResourcesEvent{ Cost = _cost });
-
-            if(finished != null)
-            {
-                finished(new Error("Not enough resources!"));
-            }
-            return;
+            throw new ModelException(error);
         }
-        _playerResources.Substract(_cost);
+        playerModel.Resources.Substract(_cost);
+    }
+
+    public void Validate(PlayerModel playerModel, Action<ModelError> finished)
+    {
         if(finished != null)
         {
-            finished(null);
+            finished(CheckEnoughResources(playerModel));
         }
     }
 
     #endregion
-
 }

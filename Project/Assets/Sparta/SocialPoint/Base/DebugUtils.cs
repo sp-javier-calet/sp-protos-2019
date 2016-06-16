@@ -1,15 +1,12 @@
 // #defines must be placed at the start of the file #csharpfirstworldproblems
-#if UNITY_4 || UNITY_5 || UNITY_4_6
+#if UNITY_5
 #define UNITY
 #endif
 #if DEBUG || UNITY_EDITOR || UNITY_STANDALONE
-    #define TRACE
+#define TRACE
 #endif
 using System;
-using System.Linq;
 using System.Diagnostics;
-using System.Runtime;
-using System.Reflection;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Base
@@ -17,19 +14,22 @@ namespace SocialPoint.Base
     public interface IDebugLogger
     {
         void Log(string message);
+
         void LogWarning(string message);
+
         void LogError(string message);
+
         void LogException(Exception exception);
     }
 
-#if UNITY
+    #if UNITY
     public class UnityDebugLogger : IDebugLogger
     {
         public void Log(string message)
         {
             UnityEngine.Debug.Log(message);
         }
-        
+
         public void LogWarning(string message)
         {
             UnityEngine.Debug.LogWarning(message);
@@ -46,7 +46,7 @@ namespace SocialPoint.Base
         }
     }
 
-#endif
+    #endif
 
     public static class DebugUtils
     {
@@ -81,19 +81,14 @@ namespace SocialPoint.Base
         [Conditional("DEBUG")]
         public static void Assert(bool condition, string msg = "")
         {
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            if(!condition)
-            {
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-#endif
-                LogError(msg);
-            }
-#elif UNITY
+            #if UNITY
             UnityEngine.Assertions.Assert.IsTrue(condition, msg);
-#else
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying &= condition;
+            #endif
+            #else
             LogError(msg);
-#endif
+            #endif
         }
 
         public static IDebugLogger Logger;
@@ -113,7 +108,7 @@ namespace SocialPoint.Base
             {
                 Logger.LogError(message);
             }
-        }        
+        }
 
         public static void LogException(Exception exception)
         {
@@ -130,6 +125,5 @@ namespace SocialPoint.Base
                 Logger.LogWarning(message);
             }
         }
-
     }
 }

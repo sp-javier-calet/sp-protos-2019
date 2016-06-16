@@ -57,6 +57,12 @@ namespace SocialPoint.Dependency
             var bind = new UnityComponentBinding<T>(container);
             container.AddBinding(bind, typeof(T), tag);
         }
+
+        public static void RebindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
+        {
+            container.Remove<T>(tag);
+            container.BindUnityComponent<T>(tag);
+        }
     }
 
     public sealed class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>

@@ -18,20 +18,17 @@ public class ResourcesCostParser : IChildParser<ICost>
 
     public FamilyParser<ICost> Parent{ set { } }
 
-    ResourcePool _playerResources;
-    IEventDispatcher _dispatcher;
+    ResourcePoolParser _resourcePoolParser;
 
-    public ResourcesCostParser(ResourcePool playerResources, IEventDispatcher dispatcher)
+    public ResourcesCostParser()
     {
-        _playerResources = playerResources;
-        _dispatcher = dispatcher;
+        _resourcePoolParser = new ResourcePoolParser();
     }
 
 
     public ICost Parse(Attr data)
     {
-        var poolParser = new ResourcePoolParser();
-        return new ResourcesCost(poolParser.Parse(data), _playerResources, _dispatcher);
+        return new ResourcesCost(_resourcePoolParser.Parse(data));
     }
 
     #endregion
