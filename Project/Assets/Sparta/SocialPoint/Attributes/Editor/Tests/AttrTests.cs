@@ -64,7 +64,7 @@ namespace SocialPoint.Attributes
         }
 
         [Test]
-        public void Inser_at_beggining()
+        public void Insert_at_beggining()
         {
             var list = new AttrList();
             list.AddValue(1);
@@ -75,7 +75,7 @@ namespace SocialPoint.Attributes
         }
 
         [Test]
-        public void Inser_at_end()
+        public void Insert_at_end()
         {
             var list = new AttrList();
             list.AddValue(1);
@@ -86,7 +86,7 @@ namespace SocialPoint.Attributes
         }
 
         [Test]
-        public void Inser_at_out_of_range()
+        public void Insert_at_out_of_range()
         {
             var list = new AttrList();
             list.AddValue(1);
