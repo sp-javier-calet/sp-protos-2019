@@ -181,6 +181,8 @@ namespace SocialPoint.Social
     {
         event GoogleStateChangeDelegate StateChangeEvent;
 
+		event TrackEventDelegate TrackEvent;
+
         // Login
 
         GoogleUser User{ get; }
