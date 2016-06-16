@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace SocialPoint.Alert
 {
@@ -107,7 +107,7 @@ namespace SocialPoint.Alert
 
         public void Show(ResultDelegate dlg)
         {
-            Assert.IsNotNull(NativeHandler, "Handler is null, asign a NativeCallsHandler");
+            DebugUtils.Assert(NativeHandler != null, "Handler is null, asign a NativeCallsHandler");
             NativeHandler.RegisterListener("ResultMessage", ResultMessage);
 
             _resultDelegate = (result, inputText) => {
