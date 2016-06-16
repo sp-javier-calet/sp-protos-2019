@@ -13,6 +13,7 @@ namespace SocialPoint.Lockstep
 
         long _simulationTime;
         long _lastModelSimulationTime;
+        long _lastRawModelSimulationTime;
         long _lastTimestamp;
         long _simulationStep;
         long _commandStep = 10;
@@ -192,7 +193,6 @@ namespace SocialPoint.Lockstep
 
         public void AddPendingCommand(ILockstepCommand command)
         {
-//            UnityEngine.Debug.Log("Pending command: " + CurrentTurn + " (" + command.Turn + ")");
             List<ILockstepCommand> commands;
             if(!_pendingCommands.TryGetValue(command.Turn, out commands))
             {
@@ -253,7 +253,6 @@ namespace SocialPoint.Lockstep
 
         void ConsumeTurn(int turn)
         {
-//            UnityEngine.Debug.Log("Consume turn: " + turn + " simulation time: " + _simulationTime);
             List<ILockstepCommand> commands;
             List<ILockstepCommand> pendingCommands = null;
             if(_pendingCommands.TryGetValue(turn, out pendingCommands))
@@ -327,8 +326,6 @@ namespace SocialPoint.Lockstep
         }
 
         #region IUpdateable implementation
-
-        long _lastRawModelSimulationTime;
 
         public void Update()
         {
