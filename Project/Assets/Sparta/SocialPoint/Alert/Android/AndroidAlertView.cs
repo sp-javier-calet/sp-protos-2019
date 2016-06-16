@@ -28,7 +28,6 @@ namespace SocialPoint.Alert
 
     public class AndroidAlertView : IAlertView
     {
-
         AndroidJavaObject _inputView;
         IntPtr _dialogPtr;
 
@@ -212,6 +211,7 @@ namespace SocialPoint.Alert
                 AndroidJNI.DeleteLocalRef(_dialogPtr);
                 _dialogPtr = IntPtr.Zero;
             }
+            _inputView.Dispose();
         }
 
         public object Clone()

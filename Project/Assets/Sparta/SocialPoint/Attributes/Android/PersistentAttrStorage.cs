@@ -5,7 +5,7 @@ using UnityEngine;
 namespace SocialPoint.Attributes
 {
     #if UNITY_ANDROID && !UNITY_EDITOR
-    public class PersistentAttrStorage : IAttrStorage
+    public class PersistentAttrStorage : IAttrStorage, IDisposable
     {
         public event Action<Exception> ExceptionThrown;
 
@@ -68,6 +68,15 @@ namespace SocialPoint.Attributes
         public bool Has(string key)
         {
             return _persistentAttrStorage.Call<bool>("contains", _prefix, key);
+        }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            _persistentAttrStorage.Dispose();
         }
 
         #endregion
