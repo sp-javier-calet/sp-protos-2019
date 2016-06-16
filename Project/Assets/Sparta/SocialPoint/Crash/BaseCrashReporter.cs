@@ -157,11 +157,13 @@ namespace SocialPoint.Crash
         protected class OutOfMemoryReport : Report
         {
             long _timestamp;
+            string _crashVersion;
             readonly string _message = "APP KILLED IN FOREGROUND BECAUSE OF LOW MEMORY.";
 
-            public OutOfMemoryReport(long timestamp)
+            public OutOfMemoryReport(long timestamp, string crashVersion)
             {
                 _timestamp = timestamp;
+                _crashVersion = crashVersion;
                 if(_timestamp != 0)
                 {
                     _message += string.Format(" RECEIVED MEMORY WARNING AT {0} ts: {1}", TimeUtils.GetDateTime(_timestamp).ToUniversalTime(), _timestamp);
@@ -188,6 +190,14 @@ namespace SocialPoint.Crash
                 get
                 {
                     return _message;
+                }
+            }
+
+            public override string CrashVersion
+            {
+                get
+                {
+                    return _crashVersion;
                 }
             }
         }
@@ -219,6 +229,7 @@ namespace SocialPoint.Crash
         const string AttrKeyMessage = "message";
         const string AttrKeyType = "type";
         const string AttrKeyCrashTimestamp = "crash_timestamp";
+        const string AttrKeyCrashBuildId = "crash_build_id";
 
         // Player preferences keys
         const string WasOnBackgroundPreferencesKey = "app_gone_background";
@@ -760,7 +771,7 @@ namespace SocialPoint.Crash
             if(_breadcrumbManager.HasOldBreadcrumb &&
                _wasActiveInLastSession)
             {
-                memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp);
+                memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp, _deviceInfo.AppInfo.Version);
             }
 
             return memoryCrashReport;
@@ -968,6 +979,7 @@ namespace SocialPoint.Crash
                 mobile.SetValue(AttrKeyCrashUuid, report.Uuid);
                 mobile.SetValue(AttrKeyCrashTimestamp, report.Timestamp);
                 mobile.SetValue(AttrKeyType, report.OutOfMemory ? 1 : 0);
+                mobile.SetValue(AttrKeyCrashBuildId, report.CrashVersion);
 
                 TrackEvent(CrashEventName, data, err => {
                     if(!Error.IsNullOrEmpty(err))
