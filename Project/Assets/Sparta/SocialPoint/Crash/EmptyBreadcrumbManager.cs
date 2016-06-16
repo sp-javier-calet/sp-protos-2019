@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace SocialPoint.Crash
 {
     public class EmptyBreadcrumbManager : IBreadcrumbManager
@@ -38,5 +39,7 @@ namespace SocialPoint.Crash
                 return false;
             }
         }
+
+        public Exception LogException { get; set; }
     }
 }

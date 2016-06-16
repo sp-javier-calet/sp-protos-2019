@@ -64,7 +64,7 @@ public class EmptyBackendInstaller : Installer, IInitializable
     {
         return new AdminPanelCrashReporter(
             Container.Resolve<ICrashReporter>(),
-            Container.Resolve<BreadcrumbManager>());
+            Container.Resolve<IBreadcrumbManager>());
     }
 
     AdminPanelMessageCenter CreateAdminPanelMessageCenter()

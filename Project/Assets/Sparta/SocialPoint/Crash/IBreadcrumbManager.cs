@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace SocialPoint.Crash
 {
     public interface IBreadcrumbManager
@@ -14,5 +15,7 @@ namespace SocialPoint.Crash
         string OldBreadcrumb { get; }
 
         bool HasOldBreadcrumb { get; }
+
+        Exception LogException { get; set; }
     }
 }

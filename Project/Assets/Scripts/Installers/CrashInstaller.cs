@@ -13,9 +13,9 @@ using SocialPoint.AppEvents;
 
 public class CrashInstaller : SubInstaller
 {
-	[Serializable]
-	public class SettingsData
-	{
+    [Serializable]
+    public class SettingsData
+    {
         public float SendInterval = SocialPointCrashReporter.DefaultSendInterval;
         public bool ErrorLogActive = SocialPointCrashReporter.DefaultErrorLogActive;
         public bool ExceptionLogActive = SocialPointCrashReporter.DefaultExceptionLogActive;
@@ -27,7 +27,7 @@ public class CrashInstaller : SubInstaller
 
     public override void InstallBindings()
     {
-        Container.Rebind<BreadcrumbManager>().ToSingle<BreadcrumbManager>();
+        Container.Rebind<IBreadcrumbManager>().ToSingle<BreadcrumbManager>();
         Container.Rebind<ICrashReporter>().ToMethod<SocialPointCrashReporter>(
             CreateCrashReporter, SetupCrashReporter);
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
@@ -39,7 +39,7 @@ public class CrashInstaller : SubInstaller
     {
         return new AdminPanelCrashReporter(
             Container.Resolve<ICrashReporter>(),
-            Container.Resolve<BreadcrumbManager>());
+            Container.Resolve<IBreadcrumbManager>());
     }
 
     SocialPointCrashReporter CreateCrashReporter()
@@ -48,7 +48,7 @@ public class CrashInstaller : SubInstaller
             Container.Resolve<IUpdateScheduler>(),
             Container.Resolve<IHttpClient>(),
             Container.Resolve<IDeviceInfo>(),
-            Container.Resolve<BreadcrumbManager>(),
+            Container.Resolve<IBreadcrumbManager>(),
             Container.Resolve<IAlertView>());
     }
 
