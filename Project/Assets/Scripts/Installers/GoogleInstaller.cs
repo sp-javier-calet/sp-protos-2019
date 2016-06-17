@@ -28,7 +28,7 @@ public class GoogleInstaller : Installer
         else
         {
             Container.RebindUnityComponent<UnityGoogle>();
-			Container.Rebind<IGoogle>().ToMethod<UnityGoogle>(CreateUnityGoogle, SetupUnityGoogle);
+            Container.Rebind<IGoogle>().ToMethod<UnityGoogle>(CreateUnityGoogle, SetupUnityGoogle);
         }
         if(Settings.LoginLink)
         {
@@ -52,13 +52,13 @@ public class GoogleInstaller : Installer
         return new GooglePlayLink(google, !Settings.LoginWithUi);
     }
 
-	UnityGoogle CreateUnityGoogle()
-	{
-		return Container.Resolve<UnityGoogle>();
-	}
+    UnityGoogle CreateUnityGoogle()
+    {
+        return Container.Resolve<UnityGoogle>();
+    }
 
-	void SetupUnityGoogle(UnityGoogle unityGoogle)
-	{
-		unityGoogle.TrackEvent += Container.Resolve<IEventTracker>().TrackSystemEvent;
-	}
+    void SetupUnityGoogle(UnityGoogle unityGoogle)
+    {
+        unityGoogle.TrackEvent += Container.Resolve<IEventTracker>().TrackSystemEvent;
+    }
 }

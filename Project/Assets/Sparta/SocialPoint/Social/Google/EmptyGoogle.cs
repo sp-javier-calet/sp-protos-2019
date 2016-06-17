@@ -17,7 +17,7 @@ namespace SocialPoint.Social
         }
 
         public event GoogleStateChangeDelegate StateChangeEvent;
-		public event TrackEventDelegate TrackEvent;
+        public event TrackEventDelegate TrackEvent;
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
@@ -149,6 +149,7 @@ namespace SocialPoint.Social
                 return _friends;
             }
         }
+
         #endregion
     }
 }

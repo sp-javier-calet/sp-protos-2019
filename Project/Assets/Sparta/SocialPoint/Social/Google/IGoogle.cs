@@ -6,9 +6,9 @@ using System;
 
 namespace SocialPoint.Social
 {
-    public delegate void GoogleAchievementDelegate(GoogleAchievement achi, Error err);
-    public delegate void GoogleLeaderboardDelegate(GoogleLeaderboard ldb, Error err);
-    public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt, Error err);
+    public delegate void GoogleAchievementDelegate(GoogleAchievement achi,Error err);
+    public delegate void GoogleLeaderboardDelegate(GoogleLeaderboard ldb,Error err);
+    public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt,Error err);
     public delegate void GoogleStateChangeDelegate();
 
     public class GoogleUser
@@ -181,13 +181,14 @@ namespace SocialPoint.Social
     {
         event GoogleStateChangeDelegate StateChangeEvent;
 
-		event TrackEventDelegate TrackEvent;
+        event TrackEventDelegate TrackEvent;
 
         // Login
 
         GoogleUser User{ get; }
 
         bool IsConnected{ get; }
+
         bool IsConnecting{ get; }
 
         string AccessToken{ get; }

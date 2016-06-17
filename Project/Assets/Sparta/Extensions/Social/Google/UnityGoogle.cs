@@ -15,7 +15,7 @@ namespace SocialPoint.Social
     public class UnityGoogle : MonoBehaviour, IGoogle
     {
         public event GoogleStateChangeDelegate StateChangeEvent;
-		public event TrackEventDelegate TrackEvent;
+        public event TrackEventDelegate TrackEvent;
 
         protected void NotifyStateChanged()
         {
@@ -147,7 +147,7 @@ namespace SocialPoint.Social
                     localUser.underage ? GoogleUser.AgeGroup.Underage : GoogleUser.AgeGroup.Adult
                 );
 
-				_platform.GetPlayerStats(RetrievePlayerStats);
+                _platform.GetPlayerStats(RetrievePlayerStats);
 
                 _platform.GetServerAuthCode((result, token) => {
                     if(result != CommonStatusCodes.Success)
@@ -596,44 +596,46 @@ namespace SocialPoint.Social
 
         #endregion
 
-		#region PlayerStats
-		const string AttrKeyAvgSessionLength = "avg_session_length";
-		const string AttrKeyChurnProbability = "churn_probability";
-		const string AttrKeyDaysSinceLastPlayed = "days_since_last_played";
-		const string AttrKeyNumberPurchases = "number_purchases";
-		const string AttrKeyNumberSessions = "number_sessions";
-		const string AttrKeySessionPercentile = "session_percentile";
-		const string AttrKeySpendPercentile = "spend_percentile";
-		const string AttrKeySpendProbability = "spend_probability";
-		const string AttrKeyUser = "user";
+        #region PlayerStats
 
-		const string PlayerStatsEventName = "user.google_player_stats";
+        const string AttrKeyAvgSessionLength = "avg_session_length";
+        const string AttrKeyChurnProbability = "churn_probability";
+        const string AttrKeyDaysSinceLastPlayed = "days_since_last_played";
+        const string AttrKeyNumberPurchases = "number_purchases";
+        const string AttrKeyNumberSessions = "number_sessions";
+        const string AttrKeySessionPercentile = "session_percentile";
+        const string AttrKeySpendPercentile = "spend_percentile";
+        const string AttrKeySpendProbability = "spend_probability";
+        const string AttrKeyUser = "user";
 
-		void RetrievePlayerStats(CommonStatusCodes statusCode, PlayerStats playerStats)
-		{            
-			if(CommonStatusCodes.Success == statusCode || CommonStatusCodes.SuccessCached == statusCode)
-			{
-				if(TrackEvent != null)
-				{   
-					var data = new AttrDic();
+        const string PlayerStatsEventName = "user.google_player_stats";
 
-					var stats = new AttrDic();
-					data.Set(AttrKeyUser, stats);
+        void RetrievePlayerStats(CommonStatusCodes statusCode, PlayerStats playerStats)
+        {            
+            if(CommonStatusCodes.Success == statusCode || CommonStatusCodes.SuccessCached == statusCode)
+            {
+                if(TrackEvent != null)
+                {   
+                    var data = new AttrDic();
 
-					stats.SetValue(AttrKeyAvgSessionLength, playerStats.AvgSessonLength);
-					stats.SetValue(AttrKeyChurnProbability, playerStats.ChurnProbability);
-					stats.SetValue(AttrKeyDaysSinceLastPlayed, playerStats.DaysSinceLastPlayed);
-					stats.SetValue(AttrKeyNumberPurchases, playerStats.NumberOfPurchases);
-					stats.SetValue(AttrKeyNumberSessions, playerStats.NumberOfSessions);
-					stats.SetValue(AttrKeySessionPercentile, playerStats.SessPercentile);
-					stats.SetValue(AttrKeySpendPercentile, playerStats.SpendPercentile);
-					stats.SetValue(AttrKeySpendProbability, -1f); // Not available in Unity Plugin.
+                    var stats = new AttrDic();
+                    data.Set(AttrKeyUser, stats);
 
-					TrackEvent(PlayerStatsEventName, data);
-				}                
-			}                            
-		}
-		#endregion
+                    stats.SetValue(AttrKeyAvgSessionLength, playerStats.AvgSessonLength);
+                    stats.SetValue(AttrKeyChurnProbability, playerStats.ChurnProbability);
+                    stats.SetValue(AttrKeyDaysSinceLastPlayed, playerStats.DaysSinceLastPlayed);
+                    stats.SetValue(AttrKeyNumberPurchases, playerStats.NumberOfPurchases);
+                    stats.SetValue(AttrKeyNumberSessions, playerStats.NumberOfSessions);
+                    stats.SetValue(AttrKeySessionPercentile, playerStats.SessPercentile);
+                    stats.SetValue(AttrKeySpendPercentile, playerStats.SpendPercentile);
+                    stats.SetValue(AttrKeySpendProbability, -1f); // Not available in Unity Plugin.
+
+                    TrackEvent(PlayerStatsEventName, data);
+                }                
+            }                            
+        }
+
+        #endregion
 
         #region Dispatch
 
