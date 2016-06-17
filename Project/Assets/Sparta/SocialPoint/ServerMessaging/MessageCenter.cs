@@ -25,7 +25,7 @@ namespace SocialPoint.ServerMessaging
         const string ReadMessagesCommandName = "messages.read";
         const string ReceivedMessagesCommandName = "messages.received";
         const string DeleteMessagesCommandName = "messages.delete";
-        const string DeleteIdsArg = "ids";
+        const string IdsArg = "ids";
         const string PendingMessagesCommandName = "messages.new";
         const string MessagesArg = "msgs";
 
@@ -63,9 +63,20 @@ namespace SocialPoint.ServerMessaging
             });
         }
 
-        public void ReadMessage(Message message, Action<Error> callback = null)
+        public void ReadMessages(List<Message> messages, Action<Error> callback = null)
         {
-            _commandQueue.Add(new Command(ReadMessagesCommandName, message.ToAttr(), false, false), (resp, err) => {
+            var ids = new AttrList();
+
+            for(int i = 0, messagesCount = messages.Count; i < messagesCount; i++)
+            {
+                var message = messages[i];
+                ids.Add(new AttrString(message.Id));
+            }
+
+            var arg = new AttrDic();
+            arg.Set(IdsArg, ids);
+
+            _commandQueue.Add(new Command(ReadMessagesCommandName, arg, false, false), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -110,7 +121,7 @@ namespace SocialPoint.ServerMessaging
             }
 
             var arg = new AttrDic();
-            arg.Set(DeleteIdsArg, ids);
+            arg.Set(IdsArg, ids);
 
             _commandQueue.Add(new Command(DeleteMessagesCommandName, arg, false, false), (resp, err) => {
                 if(callback != null)
@@ -208,9 +219,9 @@ namespace SocialPoint.ServerMessaging
 
         void Reset()
         {
-            _messages = new Dictionary<string,Message>();
-            _deletedMessages = new List<string>();
-            _receivedMessages = new List<string>();
+            _messages.Clear();
+            _deletedMessages.Clear();
+            _receivedMessages.Clear();
         }
     }
 }
