@@ -20,11 +20,13 @@ public class GameParser : IParser<GameModel>
     public GameModel Parse(Attr data)
     {
         var configPatch = _configPatchParser.Parse(data.AsDic[AttrKeyConfigPatch]);
-        var patcher = new AttrPatcher();
         var configData = data.AsDic[AttrKeyConfig];
-        patcher.Patch(configPatch.Patch,configData);
+        if(!new AttrPatcher().Patch(configPatch.Patch, configData))
+        {
+            configData = data.AsDic[AttrKeyConfig];
+        }
         var config = _configParser.Parse(configData);
         var player = _playerParser.Parse(data.AsDic[AttrKeyUser]);
-        return new GameModel(config, player, configPatch);
+        return new GameModel(config, player);
     }
 }
