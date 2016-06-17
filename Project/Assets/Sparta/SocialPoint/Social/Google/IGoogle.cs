@@ -2,6 +2,7 @@
 using UnityEngine.SocialPlatforms;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.Attributes;
 using System;
 
 namespace SocialPoint.Social
@@ -181,7 +182,7 @@ namespace SocialPoint.Social
     {
         event GoogleStateChangeDelegate StateChangeEvent;
 
-        event TrackEventDelegate TrackEvent;
+        Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
 
         // Login
 

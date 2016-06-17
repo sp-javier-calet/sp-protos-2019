@@ -15,7 +15,8 @@ namespace SocialPoint.Social
     public class UnityGoogle : MonoBehaviour, IGoogle
     {
         public event GoogleStateChangeDelegate StateChangeEvent;
-        public event TrackEventDelegate TrackEvent;
+
+        public Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
 
         protected void NotifyStateChanged()
         {
@@ -630,7 +631,7 @@ namespace SocialPoint.Social
                     stats.SetValue(AttrKeySpendPercentile, playerStats.SpendPercentile);
                     stats.SetValue(AttrKeySpendProbability, -1f); // Not available in Unity Plugin.
 
-                    TrackEvent(PlayerStatsEventName, data);
+                    TrackEvent(PlayerStatsEventName, data, null);
                 }                
             }                            
         }
