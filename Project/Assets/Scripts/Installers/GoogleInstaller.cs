@@ -59,6 +59,6 @@ public class GoogleInstaller : Installer
 
     void SetupUnityGoogle(UnityGoogle unityGoogle)
     {
-        unityGoogle.TrackEvent += Container.Resolve<IEventTracker>().TrackSystemEvent;
+        unityGoogle.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
     }
 }
