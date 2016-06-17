@@ -1,23 +1,21 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
-using SocialPoint.Base;
-using UnityEngine.Assertions;
-using SocialPoint.Login;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Purchase
 {
     public class SocialPointPurchaseStore : IGamePurchaseStore
     {
-        private class ProductReadyPetition
+        class ProductReadyPetition
         {
             public ProductReadyDelegate Callback { get; private set; }
 
-            private float _timeout;
-            private double _creationDateTimestamp;
+            float _timeout;
+            double _creationDateTimestamp;
 
             public ProductReadyPetition(ProductReadyDelegate pDelegate, float timeout)
             {
@@ -37,13 +35,13 @@ namespace SocialPoint.Purchase
                 return (deltaTime > _timeout);
             }
 
-            private double GetTimestampDouble()
+            static double GetTimestampDouble()
             {
                 return TimeUtils.GetTimestampDouble(DateTime.Now);
             }
         }
 
-        IPurchaseStore _purchaseStore = null;
+        IPurchaseStore _purchaseStore;
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
         Dictionary<string, Action<PurchaseResponseType>> _purchasesInProcess;
@@ -153,7 +151,7 @@ namespace SocialPoint.Purchase
 
             DebugLog("validating purchase with backend");
 
-            HttpRequest req = new HttpRequest();
+            var req = new HttpRequest();
             //get it from SocialPointLogin
             if(RequestSetup != null)
             {
@@ -169,7 +167,7 @@ namespace SocialPoint.Purchase
             paramDic.Set(HttpParamDataSignature, new AttrString(receipt.DataSignature));
             req.AddParam(HttpParamOrderData, new JsonAttrSerializer().SerializeString(paramDic));
             #endif
-            _httpClient.Send(req, (_1) => OnBackendResponse(_1, response, receipt));
+            _httpClient.Send(req, _1 => OnBackendResponse(_1, response, receipt));
         }
 
         /// <summary>
@@ -179,7 +177,9 @@ namespace SocialPoint.Purchase
         ///     264 purchase pending to sync
         ///     265 purchase already synced
         /// </summary>
+        /// <param name = "resp"></param>
         /// <param name="response">callback defined by each store implementation (usually consumes product, finishes transaction)</param>
+        /// <param name = "receipt"></param>
         void OnBackendResponse(HttpResponse resp, ValidatePurchaseResponseDelegate response, Receipt receipt)
         {
             //parse response from backend and call response with the final decission
@@ -253,7 +253,7 @@ namespace SocialPoint.Purchase
             TrackEvent(EventNameMonetizationTransactionStart, data);
         }
 
-        private void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
+        void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
             var purchaseCmd = new PurchaseCommand(receipt.OrderId, receipt.Store);
             _commandQueue.Add(purchaseCmd, (data, err) => {
@@ -351,10 +351,11 @@ namespace SocialPoint.Purchase
         /// Purchase the specified productId.
         /// </summary>
         /// <param name="productId">Product identifier.</param>
+        /// <param name = "finished"></param>
         public bool Purchase(string productId, Action<PurchaseResponseType> finished = null)
         {
             //A delegate must exist before doing any attempt
-            Assert.IsNotNull(_purchaseCompleted, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
+            DebugUtils.Assert(_purchaseCompleted != null, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
 
             UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.ContainsKey(productId));
             if(_purchasesInProcess.ContainsKey(productId))
@@ -422,7 +423,7 @@ namespace SocialPoint.Purchase
                 return;
             }
 
-            ProductReadyPetition petition = new ProductReadyPetition(pDelegate, timeout);
+            var petition = new ProductReadyPetition(pDelegate, timeout);
 
             List<ProductReadyPetition> onProductReadyPetitions;
             if(!_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
@@ -439,9 +440,7 @@ namespace SocialPoint.Purchase
             List<ProductReadyPetition> onProductReadyPetitions;
             if(_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
             {
-                onProductReadyPetitions.RemoveAll(petition => {
-                    return petition.Callback == pDelegate;
-                });
+                onProductReadyPetitions.RemoveAll(petition => petition.Callback == pDelegate);
             }
         }
 
@@ -456,7 +455,7 @@ namespace SocialPoint.Purchase
             itr.Dispose();
         }
 
-        private void UpdateProductReadyPetitions(string productId)
+        void UpdateProductReadyPetitions(string productId)
         {
             List<ProductReadyPetition> onProductReadyPetitions;
             if(_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
@@ -474,12 +473,12 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private bool IsProductReady(string productId)
+        bool IsProductReady(string productId)
         {
             return IsUpdatedFromStore(productId) && !IsPendingTransaction(productId);
         }
 
-        private bool IsUpdatedFromStore(string productId)
+        bool IsUpdatedFromStore(string productId)
         {
             if(_purchaseStore.HasProductsLoaded)
             {
@@ -498,7 +497,7 @@ namespace SocialPoint.Purchase
             return false;
         }
 
-        private bool IsPendingTransaction(string productId)
+        bool IsPendingTransaction(string productId)
         {
             return _purchasesInProcess.ContainsKey(productId);
         }
@@ -574,9 +573,10 @@ namespace SocialPoint.Purchase
 
         public void SetProductMockList(IEnumerable<Product> productMockList)
         {
-            if(_purchaseStore is MockPurchaseStore)
+            var mockPurchaseStore = _purchaseStore as MockPurchaseStore;
+            if(mockPurchaseStore != null)
             {
-                (_purchaseStore as MockPurchaseStore).SetProductMockList(productMockList);
+                mockPurchaseStore.SetProductMockList(productMockList);
             }
         }
     }

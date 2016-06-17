@@ -267,6 +267,20 @@ namespace SocialPoint.Dependency
         }
 
         [Test]
+        public void DisposeLookupTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+            container.Dispose();
+            Assert.AreEqual(0, TestDisposable.Count);
+            container.Resolve<TestDisposable>();
+            container.Dispose();
+            Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
         public void RemoveDisposableTest()
         {
             TestDisposable.Count = 0;
@@ -286,7 +300,7 @@ namespace SocialPoint.Dependency
             TestDisposable.Count = 0;
             var container = new DependencyContainer();
             container.Bind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Bind<IDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
             container.Remove<TestDisposable>();
             Assert.AreEqual(0, TestDisposable.Count);
             container.Bind<TestDisposable>().ToSingle<TestDisposable>();
@@ -303,18 +317,18 @@ namespace SocialPoint.Dependency
         {
             TestDisposable.Count = 0;
             var container = new DependencyContainer();
-            container.Bind<TestService>().ToSingle<TestService>();
-            container.Bind<IDisposable>().ToGetter<TestService>((service) => {
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToGetter<TestDisposable>((service) => {
                 return new TestDisposable();
             });
-            container.Remove<TestService>();
+            container.Remove<TestDisposable>();
             Assert.AreEqual(0, TestDisposable.Count);
-            container.Bind<TestService>().ToSingle<TestService>();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
             container.Resolve<IDisposable>();
-            container.Remove<TestService>();
+            container.Remove<TestDisposable>();
             Assert.AreEqual(1, TestDisposable.Count);
-            container.Bind<TestService>().ToSingle<TestService>();
-            container.Remove<TestService>();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Remove<TestDisposable>();
             Assert.AreEqual(1, TestDisposable.Count);
         }
     }

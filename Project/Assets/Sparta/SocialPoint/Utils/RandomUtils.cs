@@ -1,9 +1,9 @@
-#if (UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR_WIN
+#if (UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR_WIN
 #define NATIVE_RANDOM
 #endif
 
 using System;
-using UnityEngine.Assertions;
+using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
@@ -15,7 +15,7 @@ namespace SocialPoint.Utils
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_utils";
-        #elif (UNITY_IOS || UNITY_TVOS)
+        #elif (UNITY_IOS || UNITY_TVOS) 
         const string PluginModuleName = "__Internal";
         #endif
 
@@ -118,7 +118,7 @@ namespace SocialPoint.Utils
         public static int Range(int minInclusive, int maxExclusive)
         {
             Init();
-            Assert.IsTrue(minInclusive < maxExclusive, "Max needs to be more that min.");
+            DebugUtils.Assert(minInclusive < maxExclusive, "Max needs to be more that min.");
             return UnityEngine.Random.Range(minInclusive, maxExclusive);
         }
 
@@ -130,7 +130,7 @@ namespace SocialPoint.Utils
         public static float Range(float minInclusive, float maxInclusive)
         {
             Init();
-            Assert.IsTrue(minInclusive < maxInclusive, "Max needs to be more that min.");
+            DebugUtils.Assert(minInclusive < maxInclusive, "Max needs to be more that min.");
             return UnityEngine.Random.Range(minInclusive, maxInclusive);
         }
     }
