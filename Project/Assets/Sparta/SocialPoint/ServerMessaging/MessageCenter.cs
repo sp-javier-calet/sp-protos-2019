@@ -185,15 +185,18 @@ namespace SocialPoint.ServerMessaging
 
         void ReceivedMessages(Action<Error> callback = null)
         {
-            var messageIds = new AttrList();
+            var ids = new AttrList();
 
             for(int i = 0, messagesCount = _receivedMessages.Count; i < messagesCount; i++)
             {
                 var messageId = _receivedMessages[i];
-                messageIds.Add(new AttrString(messageId));
+                ids.Add(new AttrString(messageId));
             }
 
-            _commandQueue.Add(new Command(ReceivedMessagesCommandName, messageIds, false, false), (resp, err) => {
+            var arg = new AttrDic();
+            arg.Set(IdsArg, ids);
+
+            _commandQueue.Add(new Command(ReceivedMessagesCommandName, arg, false, false), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
