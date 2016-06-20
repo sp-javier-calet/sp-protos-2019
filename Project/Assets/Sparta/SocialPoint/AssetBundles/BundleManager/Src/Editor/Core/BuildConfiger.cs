@@ -193,6 +193,8 @@ public class BuildConfiger
             case BuildTarget.StandaloneLinux64:
             case BuildTarget.StandaloneLinuxUniversal:
             case BuildTarget.StandaloneOSXIntel:
+            case BuildTarget.StandaloneOSXIntel64:
+            case BuildTarget.StandaloneOSXUniversal:
             case BuildTarget.StandaloneWindows:
             case BuildTarget.StandaloneWindows64:
                 BundleBuildTarget = BuildPlatform.Standalones;

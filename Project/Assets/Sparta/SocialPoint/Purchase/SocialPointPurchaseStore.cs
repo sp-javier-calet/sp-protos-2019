@@ -99,7 +99,7 @@ namespace SocialPoint.Purchase
             _purchaseStore = new IosPurchaseStore();
             #elif UNITY_ANDROID && !UNITY_EDITOR
             _purchaseStore = new AndroidPurchaseStore();
-            #elif UNITY_EDITOR
+            #else
             _purchaseStore = new MockPurchaseStore();
             #endif
 
