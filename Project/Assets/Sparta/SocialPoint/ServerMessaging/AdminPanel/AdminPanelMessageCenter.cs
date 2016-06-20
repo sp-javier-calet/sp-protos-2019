@@ -8,13 +8,13 @@ namespace SocialPoint.ServerMessaging
 {
     public class AdminPanelMessageCenter : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        readonly IMessageCenter _mesageCenter;
-        ILogin _login;
+        readonly IMessageCenter _messageCenter;
+        ILoginData _loginData;
 
-        public AdminPanelMessageCenter(IMessageCenter messageCenter, ILogin login)
+        public AdminPanelMessageCenter(IMessageCenter messageCenter, ILoginData loginData)
         {
-            _mesageCenter = messageCenter;
-            _login = login;
+            _messageCenter = messageCenter;
+            _loginData = loginData;
         }
 
         #region IAdminPanelGUI implementation
@@ -22,20 +22,20 @@ namespace SocialPoint.ServerMessaging
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Message Center");
-            layout.CreateButton("Update messages", () => _mesageCenter.UpdateMessages());
+            layout.CreateButton("Update messages", () => _messageCenter.UpdateMessages());
             layout.CreateLabel("Messages");
-            var messages = _mesageCenter.Messages;
+            var messages = _messageCenter.Messages;
             messages.Reset();
             while(messages.MoveNext())
             {
                 var hlayout = layout.CreateHorizontalLayout();
                 hlayout.CreateTextArea(messages.Current.ToString());
-                hlayout.CreateButton("Delete", () => _mesageCenter.DeleteMessage(messages.Current));
+                hlayout.CreateButton("Delete", () => _messageCenter.DeleteMessage(messages.Current));
             }
-            layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _mesageCenter.Messages.MoveNext());
-            layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _mesageCenter.Messages.MoveNext());
+            layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _messageCenter.Messages.MoveNext());
+            layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _messageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
-            _mesageCenter.UpdatedEvent += a => layout.Refresh();
+            _messageCenter.UpdatedEvent += a => layout.Refresh();
         }
 
         #endregion
@@ -51,7 +51,7 @@ namespace SocialPoint.ServerMessaging
 
         string MessagesAsText()
         {
-            var iterator = _mesageCenter.Messages;
+            var iterator = _messageCenter.Messages;
             var stringBuilder = new StringBuilder();
             while(iterator.MoveNext())
             {
@@ -62,23 +62,23 @@ namespace SocialPoint.ServerMessaging
 
         void SendTestMessageItself()
         {
-            var message = new Message("test", new AttrDic(), new Origin("test name", "test icon"), _login.UserId.ToString()); 
-            _mesageCenter.SendMessage(message);
+            var message = new Message("test", new AttrDic(), new Origin("test name", "test icon"), _loginData.UserId.ToString()); 
+            _messageCenter.SendMessage(message);
         }
 
         void DeleteAllMessagesOneByOne()
         {
-            var iterator = _mesageCenter.Messages;
+            var iterator = _messageCenter.Messages;
             iterator.Reset();
             while(iterator.MoveNext())
             {
-                _mesageCenter.DeleteMessage(iterator.Current);
+                _messageCenter.DeleteMessage(iterator.Current);
             }
         }
 
         void DeleteAllMessagesTogether()
         {
-            var iterator = _mesageCenter.Messages;
+            var iterator = _messageCenter.Messages;
             iterator.Reset();
 
             var list = new List<Message>();
@@ -86,7 +86,7 @@ namespace SocialPoint.ServerMessaging
             {
                 list.Add(iterator.Current);
             }
-            _mesageCenter.DeleteMessages(list);
+            _messageCenter.DeleteMessages(list);
         }
     }
 }

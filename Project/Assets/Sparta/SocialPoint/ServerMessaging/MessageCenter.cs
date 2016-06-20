@@ -16,9 +16,9 @@ namespace SocialPoint.ServerMessaging
         ICommandQueue _commandQueue;
         CommandReceiver _commandReceiver;
         IAppEvents _appEvents;
-        Dictionary<string,Message> _messages;
-        List<string> _deletedMessages;
-        List<string> _receivedMessages;
+        readonly Dictionary<string,Message> _messages;
+        readonly List<string> _deletedMessages;
+        readonly List<string> _receivedMessages;
 
         const string GetMessagesCommandName = "messages.get";
         const string SendMessagesCommandName = "messages.send";
@@ -65,18 +65,30 @@ namespace SocialPoint.ServerMessaging
 
         public void ReadMessages(List<Message> messages, Action<Error> callback = null)
         {
+            var readMessages = new List<string>();
+            for(int i = 0, messagesCount = messages.Count; i < messagesCount; i++)
+            {
+                var message = messages[i];
+                readMessages.Add(message.Id);
+            }
+
+            AddCommandListMessages(ReadMessagesCommandName, readMessages, callback);
+        }
+
+        void AddCommandListMessages(string commandName, List<string> messages, Action<Error> callback = null)
+        {
             var ids = new AttrList();
 
             for(int i = 0, messagesCount = messages.Count; i < messagesCount; i++)
             {
-                var message = messages[i];
-                ids.Add(new AttrString(message.Id));
+                var messageId = messages[i];
+                ids.Add(new AttrString(messageId));
             }
 
             var arg = new AttrDic();
             arg.Set(IdsArg, ids);
 
-            _commandQueue.Add(new Command(ReadMessagesCommandName, arg, false, false), (resp, err) => {
+            _commandQueue.Add(new Command(commandName, arg, false, false), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -185,26 +197,7 @@ namespace SocialPoint.ServerMessaging
 
         void ReceivedMessages(Action<Error> callback = null)
         {
-            var ids = new AttrList();
-
-            for(int i = 0, messagesCount = _receivedMessages.Count; i < messagesCount; i++)
-            {
-                var messageId = _receivedMessages[i];
-                ids.Add(new AttrString(messageId));
-            }
-
-            var arg = new AttrDic();
-            arg.Set(IdsArg, ids);
-
-            _commandQueue.Add(new Command(ReceivedMessagesCommandName, arg, false, false), (resp, err) => {
-                if(!Error.IsNullOrEmpty(err))
-                {
-                    if(callback != null)
-                    {
-                        callback(err);
-                    }
-                }
-            });
+            AddCommandListMessages(ReceivedMessagesCommandName, _receivedMessages, callback);
         }
 
         void ParseResponseGetMessagesCommand(Attr data, Error err, Action<Error> callback = null)

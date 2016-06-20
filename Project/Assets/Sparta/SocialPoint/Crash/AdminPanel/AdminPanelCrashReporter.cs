@@ -8,8 +8,8 @@ namespace SocialPoint.Crash
 {
     public class AdminPanelCrashReporterException : Exception
     {
-        public AdminPanelCrashReporterException():
-        base("This is a forced exception.")
+        public AdminPanelCrashReporterException() :
+            base("This is a forced exception.")
         {
         }
     }
@@ -17,11 +17,11 @@ namespace SocialPoint.Crash
     public class AdminPanelCrashReporter : IAdminPanelGUI, IAdminPanelConfigurer
     {
         ICrashReporter _reporter;
-        readonly BreadcrumbManager _breadcrumbs;
+        readonly IBreadcrumbManager _breadcrumbs;
         Text _textAreaComponent;
         bool _showOldBreadcrumbs;
 
-        public AdminPanelCrashReporter(ICrashReporter reporter, BreadcrumbManager breadcrumbs)
+        public AdminPanelCrashReporter(ICrashReporter reporter, IBreadcrumbManager breadcrumbs)
         {
             _reporter = reporter;
             _breadcrumbs = breadcrumbs;
