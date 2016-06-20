@@ -18,7 +18,8 @@ private:
     std::string _error;
     std::string _fileSeparator;
     std::string _crashExtension;
-    SPUnityBreadcrumbManager& _breadcrumbManager
+    SPUnityBreadcrumbManager& _breadcrumbManager;
+    
     static void onCrash(siginfo_t *info, ucontext_t *uap, void *context)
     {
         SPUnityCrashReporter* crashReporter = (SPUnityCrashReporter*) context;
