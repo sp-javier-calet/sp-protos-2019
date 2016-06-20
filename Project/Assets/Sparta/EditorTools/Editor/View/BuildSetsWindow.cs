@@ -9,9 +9,6 @@ namespace SpartaTools.Editor.View
 {
     public class BuildSetsWindow : EditorWindow
     {
-        const string DebugConfigName = "Debug";
-        const string ReleaseConfigName = "Release";
-        const string BaseSettingsName = "Base Settings";
         const string InheritedLabel = "<inherited>";
         const string CurrentModeKey = "SpartaCurrentBuildSet";
         const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
@@ -121,25 +118,37 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Debug", false, 1)]
         public static void SetDebugConfig()
         {
-            ApplyConfig(CurrentMode);
+            ApplyConfig(BuildSet.DebugConfigName);
         }
 
         [MenuItem("Sparta/Build/Debug", true)]
         static bool ValidateSetDebugConfig()
         {
-            return CurrentMode != DebugConfigName;
+            return CurrentMode != BuildSet.DebugConfigName;
         }
 
         [MenuItem("Sparta/Build/Release", false, 2)]
         public static void SetReleaseConfig()
         {
-            ApplyConfig(CurrentMode);
+            ApplyConfig(BuildSet.ReleaseConfigName);
         }
 
         [MenuItem("Sparta/Build/Release", true)]
         static bool ValidateSetReleaseConfig()
         {
-            return CurrentMode != ReleaseConfigName;
+            return CurrentMode != BuildSet.ReleaseConfigName;
+        }
+
+        [MenuItem("Sparta/Build/Shipping", false, 2)]
+        public static void SetShippingConfig()
+        {
+            ApplyConfig(BuildSet.ShippingConfigName);
+        }
+
+        [MenuItem("Sparta/Build/Shipping", true)]
+        static bool ValidateSetShippingConfig()
+        {
+            return CurrentMode != BuildSet.ShippingConfigName;
         }
 
         [MenuItem("Sparta/Build/Build Set...", false, 3)]
@@ -211,7 +220,7 @@ namespace SpartaTools.Editor.View
             }
 
             // Load base settings
-            _baseSettingsData = new BuildSetViewData(BaseSettingsName, BaseSettings.Load(), true);
+            _baseSettingsData = new BuildSetViewData(BuildSet.BaseSettingsName, BaseSettings.Load(), true);
 
             return configs;
         }

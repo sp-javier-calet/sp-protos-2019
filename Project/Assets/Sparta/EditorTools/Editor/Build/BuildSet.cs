@@ -8,6 +8,11 @@ namespace SpartaTools.Editor.Build
 {
     public class BuildSet : ScriptableObject
     {
+        public const string DebugConfigName = "Debug";
+        public const string ReleaseConfigName = "Release";
+        public const string ShippingConfigName = "Shipping";
+        public const string BaseSettingsName = "Base Settings";
+
         public const string ContainerPath = "Assets/Sparta/Config/BuildSet/";
         public const string FileSuffix = "-BuildSet";
         public const string FileExtension = ".asset";
