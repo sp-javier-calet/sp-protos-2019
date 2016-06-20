@@ -1,6 +1,8 @@
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.AdminPanel;
+using UnityEngine;
 
 public class BaseInstaller : Installer, IInitializable
 {

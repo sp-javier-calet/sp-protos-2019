@@ -147,7 +147,7 @@ namespace SocialPoint.Crash
         static extern void SPUnityCrashReporterForceCrash();
 
         [DllImport(PluginModuleName)]
-        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension, string gameObject);
+        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
