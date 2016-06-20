@@ -50,7 +50,7 @@ namespace SocialPoint.XCodeEditor
 
         }
         
-        [PostProcessBuild(101)]
+        [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
             if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
