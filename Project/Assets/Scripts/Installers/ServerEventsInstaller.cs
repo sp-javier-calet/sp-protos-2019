@@ -59,7 +59,7 @@ public class ServerEventsInstaller : SubInstaller
         tracker.CommandQueue = Container.Resolve<ICommandQueue>();
         tracker.BreadcrumbManager = Container.Resolve<BreadcrumbManager>();
         tracker.AppEvents = Container.Resolve<IAppEvents>();
-        tracker.RequestSetup = Container.Resolve<ILogin>().SetupHttpRequest;
+        tracker.RequestSetup = Container.Resolve<ILoginData>().SetupHttpRequest;
         Container.Resolve<IGameErrorHandler>().Setup(tracker);
     }
 }
