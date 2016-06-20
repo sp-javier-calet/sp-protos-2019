@@ -131,7 +131,7 @@ namespace SocialPoint.Purchase
         {
             get
             {
-                return _products.ToArray();
+                return (_products != null) ? _products.ToArray() : null;
             }
         }
 
