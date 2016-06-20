@@ -34,6 +34,8 @@ public class VideoAdsInstaller : Installer
         settings = iOSSettings;
         #elif UNITY_ANDROID
         settings = AndroidSettings;
+        #else
+        settings = AndroidSettings;
         #endif
         var login = Container.Resolve<ILogin>();
 
