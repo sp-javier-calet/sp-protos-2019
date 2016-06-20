@@ -9,8 +9,6 @@ namespace SpartaTools.Editor.Build
 {
     public static class NativeBuild
     {
-        static ProgressHandler _handler;
-
         static string SourcesDirectoryPath
         {
             get

@@ -205,7 +205,7 @@ namespace SpartaTools.Editor.View
 
                 if(!data.IsBase)
                 {
-                    config.RebuildNativePlugins = EditorGUILayout.Toggle("Rebuild native plugins", config.RebuildNativePlugins);
+                    config.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Autobuilder Only. Build platform plugins before build player"), config.RebuildNativePlugins);
                     config.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.OverrideIcon);
                 }
                 if(config.OverrideIcon)
@@ -220,7 +220,7 @@ namespace SpartaTools.Editor.View
                 GUILayout.BeginVertical();
                 config.IosBundleIdentifier = InheritableTextField("Bundle Identifier", "iOS bundle identifier", config.IosBundleIdentifier, data.IsBase);
                 config.IosFlags = InheritableTextField("Flags", "iOS specific defined symbols", config.IosFlags, data.IsBase);
-                config.IosRemovedResources = InheritableTextField("Remove Resources", "Folders and file to remove before build. AutoBuilder only", config.IosRemovedResources, data.IsBase);
+                config.IosRemovedResources = InheritableTextField("Remove Resources", "AutoBuilder only. Folders and file to remove before build", config.IosRemovedResources, data.IsBase);
                 config.XcodeModsPrefixes = InheritableTextField("Xcodemods prefixes", "Xcodemods prefixes to execute" , config.XcodeModsPrefixes, data.IsBase);
                 GUILayout.EndVertical();
                 EditorGUILayout.Space();

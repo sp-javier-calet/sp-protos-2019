@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System;
+using System.Collections.Generic;
 
 namespace SpartaTools.Editor.Build
 {
@@ -10,10 +11,16 @@ namespace SpartaTools.Editor.Build
         public const string FileSuffix = "-BuildSet";
         public const string FileExtension = ".asset";
 
+        static readonly char[] ListSeparator = { ';' };
+
+
+
         /* Common configuration */
         public string CommonFlags;
         public bool RebuildNativePlugins;
+
         public virtual bool OverrideIcon { get; set; }
+
         public Texture2D Icon;
 
         /* iOS configuration */
@@ -25,11 +32,14 @@ namespace SpartaTools.Editor.Build
         /* Android configuration */
         public string AndroidBundleIdentifier;
         public string AndroidFlags;
+
         public virtual bool ForceBundleVersionCode { get; set; }
+
         public int BundleVersionCode;
         public string AndroidRemovedResources;
 
         public virtual bool UseKeystore { get; set; }
+
         public string KeystorePath;
         public string KeystoreFilePassword;
         public string KeystoreAlias;
@@ -42,6 +52,7 @@ namespace SpartaTools.Editor.Build
                 return name.Substring(0, name.IndexOf(FileSuffix));
             }
         }
+
         public static string PathForConfigName(string configName)
         {
             return ContainerPath + configName + FileSuffix + FileExtension;
@@ -86,20 +97,10 @@ namespace SpartaTools.Editor.Build
                 });
             }
 
-            // Bundle Identifier
-            if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS && !string.IsNullOrEmpty(IosBundleIdentifier))
-            {
-                PlayerSettings.bundleIdentifier = IosBundleIdentifier;
-            }
-            else if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && !string.IsNullOrEmpty(AndroidBundleIdentifier))
-            {
-                PlayerSettings.bundleIdentifier = AndroidBundleIdentifier;
-            }
-
             // Flags
-            var commonFlags = string.IsNullOrEmpty(CommonFlags)? baseSettings.CommonFlags : CommonFlags;
-            var androidFlags = string.IsNullOrEmpty(AndroidFlags)? baseSettings.AndroidFlags : AndroidFlags;
-            var iosFlags = string.IsNullOrEmpty(IosFlags)? baseSettings.IosFlags : IosFlags;
+            var commonFlags = string.IsNullOrEmpty(CommonFlags) ? baseSettings.CommonFlags : CommonFlags;
+            var androidFlags = string.IsNullOrEmpty(AndroidFlags) ? baseSettings.AndroidFlags : AndroidFlags;
+            var iosFlags = string.IsNullOrEmpty(IosFlags) ? baseSettings.IosFlags : IosFlags;
 
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, commonFlags + ";" + androidFlags);
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, commonFlags + ";" + iosFlags);
@@ -117,6 +118,15 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.Android.keyaliasName = KeystoreAlias;
                 PlayerSettings.Android.keyaliasPass = KeystorePassword;
             }
+
+            // Current platform configurations
+            Platform.OnApply(this);
+        }
+
+        public void ApplyExtended()
+        {
+            Apply();
+            Platform.OnApplyExtended(this);
         }
 
         public bool Delete()
@@ -147,5 +157,118 @@ namespace SpartaTools.Editor.Build
         {
             return AssetDatabase.LoadAssetAtPath<BuildSet>(path);
         }
+
+        #region Platform Processors
+
+        static readonly Dictionary<BuildTarget, PlatformProcessor> PlatformProcessors = new  Dictionary<BuildTarget, PlatformProcessor> {
+            { BuildTarget.Android, new AndroidPlatformProcessor() },
+            { BuildTarget.iOS, new IosPlatformProcessor() },
+            { BuildTarget.tvOS, new TvosPlatformProcessor() }
+        };
+
+        static PlatformProcessor Platform
+        {
+            get
+            {
+                var processor = PlatformProcessors[EditorUserBuildSettings.activeBuildTarget];
+
+                if(processor == null)
+                {
+                    processor = new PlatformProcessor();
+                }
+
+                return processor;
+            }
+        }
+
+        class PlatformProcessor
+        {
+            public virtual void OnApply(BuildSet buildSet)
+            {
+            }
+
+            public virtual void OnApplyExtended(BuildSet buildSet)
+            {
+            }
+
+            protected void SetBundleIdentifier(string bundleIdentifier)
+            {
+                if(!string.IsNullOrEmpty(bundleIdentifier))
+                {
+                    PlayerSettings.bundleIdentifier = bundleIdentifier;
+                }
+            }
+
+            protected void DiscardResources(string resources)
+            {
+                if(string.IsNullOrEmpty(resources))
+                {
+                    return;
+                }
+
+                string[] resourceList = resources.Split(ListSeparator);
+                foreach(var r in resourceList)
+                {
+                    FileUtil.DeleteFileOrDirectory(r);
+                }
+            }
+        }
+
+        class AndroidPlatformProcessor : PlatformProcessor
+        {
+            public override void OnApply(BuildSet buildSet)
+            {
+                SetBundleIdentifier(buildSet.AndroidBundleIdentifier);
+            }
+
+            public override void OnApplyExtended(BuildSet buildSet)
+            {
+                DiscardResources(buildSet.AndroidRemovedResources);
+
+                if(buildSet.RebuildNativePlugins)
+                {
+                    NativeBuild.CompileAndroid();
+                    NativeBuild.CompileAndroidNative();
+                }
+            }
+        }
+
+        class IosPlatformProcessor : PlatformProcessor
+        {
+            public override void OnApply(BuildSet buildSet)
+            {
+                SetBundleIdentifier(buildSet.IosBundleIdentifier);
+            }
+
+            public override void OnApplyExtended(BuildSet buildSet)
+            {
+                DiscardResources(buildSet.IosRemovedResources);
+
+                if(buildSet.RebuildNativePlugins)
+                {
+                    NativeBuild.CompileIOS();
+                }
+            }
+        }
+
+        class TvosPlatformProcessor : PlatformProcessor
+        {
+            public override void OnApply(BuildSet buildSet)
+            {
+                SetBundleIdentifier(buildSet.IosBundleIdentifier);
+            }
+
+            public override void OnApplyExtended(BuildSet buildSet)
+            {
+                DiscardResources(buildSet.IosRemovedResources);
+
+                if(buildSet.RebuildNativePlugins)
+                {
+                    NativeBuild.CompileTVOS();
+                }
+            }
+        }
+
+        #endregion
     }
 }
