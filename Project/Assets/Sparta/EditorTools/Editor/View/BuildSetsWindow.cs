@@ -54,6 +54,24 @@ namespace SpartaTools.Editor.View
             }
         }
 
+        bool _editEnabled;
+        bool EditEnabled
+        {
+            set
+            {
+                bool changed = _editEnabled != value;
+                _editEnabled = value;
+                if(changed)
+                {
+                    RefreshIcon();
+                }
+            }
+            get
+            {
+                return _editEnabled;
+            }
+        }
+
         public BuildSetsWindow()
         {
             // Remove previous event if exists
@@ -124,7 +142,7 @@ namespace SpartaTools.Editor.View
             return CurrentMode != ReleaseConfigName;
         }
 
-        [MenuItem("Sparta/Build/Build settings...", false, 3)]
+        [MenuItem("Sparta/Build/Build Set...", false, 3)]
         public static void ShowBuildSettings()
         {
             EditorWindow.GetWindow(typeof(BuildSetsWindow), false, "Build Set", true);
@@ -147,10 +165,17 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        static void ApplyConfig(BuildSet config)
+        static void ApplyConfig(BuildSet config, bool extended = false)
         {
             CurrentMode = config.Name;
-            config.Apply();
+            if(extended)
+            {
+                config.ApplyExtended();
+            }
+            else
+            {
+                config.Apply();
+            }
         }
 
         #endregion
@@ -159,7 +184,12 @@ namespace SpartaTools.Editor.View
 
         void OnFocus()
         {
-            Sparta.SetIcon(this, "Build Set", "Sparta Build Set configurations");
+            RefreshIcon();
+        }
+
+        void RefreshIcon()
+        {
+            Sparta.SetIcon(this, "Build Set", "Sparta Build Set configurations", EditEnabled);
         }
 
         Dictionary<string, BuildSetViewData> LoadViewConfig()
@@ -205,7 +235,7 @@ namespace SpartaTools.Editor.View
 
                 if(!data.IsBase)
                 {
-                    config.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Autobuilder Only. Build platform plugins before build player"), config.RebuildNativePlugins);
+                    config.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.RebuildNativePlugins);
                     config.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.OverrideIcon);
                 }
                 if(config.OverrideIcon)
@@ -220,7 +250,7 @@ namespace SpartaTools.Editor.View
                 GUILayout.BeginVertical();
                 config.IosBundleIdentifier = InheritableTextField("Bundle Identifier", "iOS bundle identifier", config.IosBundleIdentifier, data.IsBase);
                 config.IosFlags = InheritableTextField("Flags", "iOS specific defined symbols", config.IosFlags, data.IsBase);
-                config.IosRemovedResources = InheritableTextField("Remove Resources", "AutoBuilder only. Folders and file to remove before build", config.IosRemovedResources, data.IsBase);
+                config.IosRemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be removed before build", config.IosRemovedResources, data.IsBase);
                 config.XcodeModsPrefixes = InheritableTextField("Xcodemods prefixes", "Xcodemods prefixes to execute" , config.XcodeModsPrefixes, data.IsBase);
                 GUILayout.EndVertical();
                 EditorGUILayout.Space();
@@ -230,7 +260,7 @@ namespace SpartaTools.Editor.View
                 GUILayout.BeginVertical();
                 config.AndroidBundleIdentifier = InheritableTextField("Bundle Identifier", "Android bundle identifier", config.AndroidBundleIdentifier, data.IsBase);
                 config.AndroidFlags = InheritableTextField("Flags", "Android specific defined symbols", config.AndroidFlags, data.IsBase);
-                config.AndroidRemovedResources = InheritableTextField("Remove Resources", "Folders and files to remove before build. AutoBuilder only", config.AndroidRemovedResources, data.IsBase);
+                config.AndroidRemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be to removed before build", config.AndroidRemovedResources, data.IsBase);
                 if(!data.IsBase)
                 {
                     config.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.ForceBundleVersionCode);
@@ -271,6 +301,25 @@ namespace SpartaTools.Editor.View
                         EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
                     }
                 }
+
+                if(EditEnabled)
+                {
+                    if(GUILayout.Button(new GUIContent("Apply+", "Apply Build Set with extended features"), Styles.ActionButtonOptions))
+                    {
+                        try
+                        {
+                            ApplyConfig(config, true);
+
+                            EditorUtility.DisplayDialog("Config applied successfully with extended features", 
+                                string.Format("{0} build set was applied successfully to Player Settings.", data.Name), "Ok");
+                        }
+                        catch(Exception e)
+                        {
+                            EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
+                        }
+                    }
+                }
+
                 if(!data.IsBase)
                 {
                     if(GUILayout.Button("Delete", Styles.ActionButtonOptions))
@@ -343,6 +392,10 @@ namespace SpartaTools.Editor.View
             {
                 AutoApply = autoApply;
             }
+
+            EditorGUILayout.Space();
+
+            EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
 
             GUILayout.EndHorizontal();
         }

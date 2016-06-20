@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace SpartaTools.Editor.Build
@@ -97,7 +98,9 @@ namespace SpartaTools.Editor.Build
                 });
             }
 
-            // Flags
+            /* 
+             * Per Platform Flags
+             */
             var commonFlags = string.IsNullOrEmpty(CommonFlags) ? baseSettings.CommonFlags : CommonFlags;
             var androidFlags = string.IsNullOrEmpty(AndroidFlags) ? baseSettings.AndroidFlags : AndroidFlags;
             var iosFlags = string.IsNullOrEmpty(IosFlags) ? baseSettings.IosFlags : IosFlags;
@@ -105,6 +108,10 @@ namespace SpartaTools.Editor.Build
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, commonFlags + ";" + androidFlags);
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, commonFlags + ";" + iosFlags);
 
+           
+            /*
+             * Android-only configuration
+             */
             if(ForceBundleVersionCode)
             {
                 PlayerSettings.Android.bundleVersionCode = BundleVersionCode;
@@ -118,8 +125,17 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.Android.keyaliasName = KeystoreAlias;
                 PlayerSettings.Android.keyaliasPass = KeystorePassword;
             }
+            else
+            {
+                PlayerSettings.Android.keystoreName = string.Empty;
+                PlayerSettings.Android.keystorePass = string.Empty;
+                PlayerSettings.Android.keyaliasName = string.Empty;
+                PlayerSettings.Android.keyaliasPass = string.Empty;
+            }
 
-            // Current platform configurations
+            /*
+             * Override shared configuration for the active target platform
+             */
             Platform.OnApply(this);
         }
 
@@ -209,7 +225,17 @@ namespace SpartaTools.Editor.Build
                 string[] resourceList = resources.Split(ListSeparator);
                 foreach(var r in resourceList)
                 {
-                    FileUtil.DeleteFileOrDirectory(r);
+                    var resPath = Path.Combine(Application.dataPath, r);
+                    bool result = FileUtil.DeleteFileOrDirectory(resPath);
+
+                    if(result)
+                    {
+                        Debug.Log("Removed resources in " + resPath);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Could not remove resources in " + resPath);
+                    }
                 }
             }
         }
