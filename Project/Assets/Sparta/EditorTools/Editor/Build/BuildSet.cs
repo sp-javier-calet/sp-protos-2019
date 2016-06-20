@@ -14,11 +14,10 @@ namespace SpartaTools.Editor.Build
 
         static readonly char[] ListSeparator = { ';' };
 
-
-
         /* Common configuration */
         public string CommonFlags;
         public bool RebuildNativePlugins;
+        public bool IsDevelopmentBuild;
 
         public virtual bool OverrideIcon { get; set; }
 
@@ -134,6 +133,11 @@ namespace SpartaTools.Editor.Build
             }
 
             /*
+             * Editor build settings
+             */
+            EditorUserBuildSettings.development = IsDevelopmentBuild;
+                
+            /*
              * Override shared configuration for the active target platform
              */
             Platform.OnApply(this);
@@ -143,6 +147,21 @@ namespace SpartaTools.Editor.Build
         {
             Apply();
             Platform.OnApplyExtended(this);
+        }
+
+        public BuildOptions Options
+        {
+            get
+            {
+                var options = BuildOptions.None;
+
+                if(IsDevelopmentBuild)
+                {
+                    options |= BuildOptions.Development;
+                }
+
+                return options;
+            }
         }
 
         public bool Delete()

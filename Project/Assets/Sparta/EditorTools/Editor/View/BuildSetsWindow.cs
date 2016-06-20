@@ -236,8 +236,10 @@ namespace SpartaTools.Editor.View
                 if(!data.IsBase)
                 {
                     config.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.RebuildNativePlugins);
+                    config.IsDevelopmentBuild = EditorGUILayout.Toggle(new GUIContent("Development build", "Build as development build"), config.IsDevelopmentBuild);
                     config.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.OverrideIcon);
                 }
+
                 if(config.OverrideIcon)
                 {
                     config.Icon = (Texture2D)EditorGUILayout.ObjectField("Icon", config.Icon, typeof(Texture2D), false);

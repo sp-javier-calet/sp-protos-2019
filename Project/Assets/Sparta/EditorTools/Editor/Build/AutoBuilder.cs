@@ -150,18 +150,15 @@ namespace SpartaTools.Editor.Build
             PlayerSettings.Android.bundleVersionCode = buildNumber;
         }
 
-        static void ApplyBuildSet(string buildSetName)
+        static BuildSet LoadBuildSetByName(string buildSetName)
         {
             var buildSet = BuildSet.Load(buildSetName);
-            if(buildSet != null)
-            {
-                // TODO rebuild native
-                buildSet.ApplyExtended();
-            }
-            else
+            if(buildSet == null)
             {
                 throw new FileNotFoundException("No Build Set found for name: " + buildSetName); 
             }
+
+            return buildSet;
         }
 
         #region Public builder interface
@@ -213,15 +210,21 @@ namespace SpartaTools.Editor.Build
 
         public static void Build(BuildTarget target, string buildSetName, int buildNumber = 0)
         {
+            if(BuildPipeline.isBuildingPlayer)
+            {
+                throw new InvalidOperationException("Already building a player");
+            }
+
             SetTarget(target);
 
             SetBuildNumber(buildNumber);
 
-            ApplyBuildSet(buildSetName);
+            var buildSet = LoadBuildSetByName(buildSetName);
+            buildSet.ApplyExtended();
 
             // Start build
             var location = GetLocationForTarget(target, ProjectName);
-            string result = BuildPipeline.BuildPlayer(ScenePaths, location, target, BuildOptions.None);
+            string result = BuildPipeline.BuildPlayer(ScenePaths, location, target, buildSet.Options);
             Debug.Log(result);
         }
 
