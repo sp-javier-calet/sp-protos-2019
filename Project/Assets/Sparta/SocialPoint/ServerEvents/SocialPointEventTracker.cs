@@ -118,7 +118,7 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        public BreadcrumbManager BreadcrumbManager
+        public IBreadcrumbManager BreadcrumbManager
         {
             get;
             set;

@@ -1,7 +1,7 @@
 ﻿public enum BackendEnvironment
 {
     None,
-    Develpoment,
+    Development,
     Production,
     Test,
     Docker
@@ -20,7 +20,7 @@ public static class BackendEnvironmentExtensions
         {
         case BackendEnvironment.None:
             return null;
-        case BackendEnvironment.Develpoment:
+        case BackendEnvironment.Development:
             return DevelopmentUrl;
         case BackendEnvironment.Production:
             return ProductionUrl;

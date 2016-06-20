@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace SocialPoint.GUIControl
 {
@@ -71,7 +71,7 @@ namespace SocialPoint.GUIControl
 
         void Awake()
         {
-            Assert.AreEqual(_cameras[0].Type, UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
+            DebugUtils.Assert(_cameras[0].Type == UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
 
             var cameras = new List<UICameraData>(_cameras);
             cameras.Reverse();
@@ -88,7 +88,7 @@ namespace SocialPoint.GUIControl
 
         void InitializeCamera(UICameraData cameraData)
         {
-            Assert.IsNotNull(cameraData.Camera, "Assign all the cameras in the inspector or reduce the count");
+            DebugUtils.Assert(cameraData.Camera != null, "Assign all the cameras in the inspector or reduce the count");
             cameraData.Camera.SetActive(false);
             int layer = LayerMask.NameToLayer(cameraData.LayerName);
             cameraData.Layer = layer;
@@ -105,7 +105,7 @@ namespace SocialPoint.GUIControl
 
             if(_camerasByLayer.ContainsKey(layer))
             {
-                Assert.IsTrue(false, string.Format("There is more than one camera using the layer '{0}'.", cameraData.LayerName));
+                DebugUtils.Assert(false, string.Format("There is more than one camera using the layer '{0}'.", cameraData.LayerName));
             }
             else
             {
@@ -117,7 +117,7 @@ namespace SocialPoint.GUIControl
         {
             if(_inactiveCameras.Count == 0)
             {
-                Assert.IsTrue(false, "Trying to use more cameras than allowed");
+                DebugUtils.Assert(false, "Trying to use more cameras than allowed");
                 return;
             }
 
@@ -286,7 +286,7 @@ namespace SocialPoint.GUIControl
 
             if(uiCanvas.Count == 0)
             {
-                Assert.IsTrue(false, "Not Canvas found inside the element");
+                DebugUtils.Assert(false, "Not Canvas found inside the element");
                 return;
             }
 

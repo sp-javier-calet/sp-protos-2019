@@ -240,6 +240,7 @@ namespace SocialPoint.Social
                 {
                     err = new Error(www.error);
                 }
+                www.Dispose();
             }
             else
             {
