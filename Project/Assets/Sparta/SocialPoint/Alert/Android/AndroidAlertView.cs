@@ -1,9 +1,10 @@
 using System;
 using UnityEngine;
+using SocialPoint.Base;
 
 namespace SocialPoint.Alert
 {
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
 
     public delegate void ClickDelegate(int which);
 
@@ -27,7 +28,6 @@ namespace SocialPoint.Alert
 
     public class AndroidAlertView : IAlertView
     {
-
         AndroidJavaObject _inputView;
         IntPtr _dialogPtr;
 
@@ -91,18 +91,9 @@ namespace SocialPoint.Alert
             }
         }
 
-        static AndroidJavaObject CurrentActivity
-        {
-            get
-            {
-                var up = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-                return up.GetStatic<AndroidJavaObject>("currentActivity");
-            }
-        }
-
         public void Show(ResultDelegate dlg)
         {
-            CurrentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() => DoShow(dlg)));
+            AndroidContext.CurrentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() => DoShow(dlg)));
         }
 
         static void SetButton(AndroidJavaObject builder, string text, string method, ClickDelegate dlg, int pos)
@@ -123,88 +114,90 @@ namespace SocialPoint.Alert
 
         void DoShow(ResultDelegate dlg)
         {
-            var activity = CurrentActivity;
-            var builder = new AndroidJavaObject("android.app.AlertDialog$Builder", activity);
-            builder.Call<AndroidJavaObject>("setCancelable", false);
+            var activity = AndroidContext.CurrentActivity;
+            using(var builder = new AndroidJavaObject("android.app.AlertDialog$Builder", activity))
+            {
+                builder.Call<AndroidJavaObject>("setCancelable", false);
 
-            if(_title != null)
-            {
-                var setTitle = AndroidJNI.GetMethodID(builder.GetRawClass(), "setTitle", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
-                var setTitleParams = new jvalue[1];
-                setTitleParams[0] = new jvalue();
-                setTitleParams[0].l = AndroidJNI.NewStringUTF(_title);
-                AndroidJNI.CallVoidMethod(builder.GetRawObject(), setTitle, setTitleParams);
-            }
-            if(_message != null)
-            {
-                var setMsg = AndroidJNI.GetMethodID(builder.GetRawClass(), "setMessage", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
-                var setMsgParams = new jvalue[1];
-                setMsgParams[0] = new jvalue();
-                var msg = _message;
-                if(_signature != null)
+                if(_title != null)
                 {
-                    msg += " (" + _signature + ")";
+                    var setTitle = AndroidJNI.GetMethodID(builder.GetRawClass(), "setTitle", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
+                    var setTitleParams = new jvalue[1];
+                    setTitleParams[0] = new jvalue();
+                    setTitleParams[0].l = AndroidJNI.NewStringUTF(_title);
+                    AndroidJNI.CallVoidMethod(builder.GetRawObject(), setTitle, setTitleParams);
                 }
-                setMsgParams[0].l = AndroidJNI.NewStringUTF(msg);
-                AndroidJNI.CallVoidMethod(builder.GetRawObject(), setMsg, setMsgParams);
-            }
-            
-            if(_input)
-            {
-                _inputView = new AndroidJavaObject("android.widget.EditText", activity);
-                builder.Call<AndroidJavaObject>("setView", _inputView);
-            }
-
-            ClickDelegate clicked = which => {
-                if(_inputView != null)
+                if(_message != null)
                 {
-                    _inputText = _inputView.Call<AndroidJavaObject>("getText").Call<string>("toString");
-                }
-                if(dlg != null)
-                {
-                    dlg(which);
-                }
-            };
-                
-            if(_buttons != null && _buttons.Length > 0)
-            {
-                if(_buttons.Length == 1)
-                {
-                    SetButton(builder, _buttons[0], "setPositiveButton", clicked, 0);
-                }
-                else if(_buttons.Length == 2)
-                {
-                    SetButton(builder, _buttons[0], "setPositiveButton", clicked, 0);
-                    SetButton(builder, _buttons[1], "setNegativeButton", clicked, 1);
-                }
-                else if(_buttons.Length == 3)
-                {
-                    SetButton(builder, _buttons[0], "setPositiveButton", clicked, 0);
-                    SetButton(builder, _buttons[1], "setNegativeButton", clicked, 1);
-                    SetButton(builder, _buttons[2], "setNeutralButton", clicked, 2);
-                }
-                else
-                {
-                    var listener = new DialogClickListener(clicked);
-                    var btnArr = AndroidJNI.NewObjectArray(_buttons.Length, AndroidJNI.FindClass("java/lang/CharSequence"), IntPtr.Zero);
-                    for(int i = 0; i < _buttons.Length; i++)
+                    var setMsg = AndroidJNI.GetMethodID(builder.GetRawClass(), "setMessage", "(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;");
+                    var setMsgParams = new jvalue[1];
+                    setMsgParams[0] = new jvalue();
+                    var msg = _message;
+                    if(_signature != null)
                     {
-                        AndroidJNI.SetObjectArrayElement(btnArr, i, AndroidJNI.NewStringUTF(_buttons[i]));
+                        msg += " (" + _signature + ")";
                     }
-                    
-                    var setItems = AndroidJNI.GetMethodID(builder.GetRawClass(), "setItems", "([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;");
-                    var setItemsParams = new jvalue[2];
-                    setItemsParams[0] = new jvalue();
-                    setItemsParams[0].l = btnArr;
-                    setItemsParams[1] = new jvalue();
-                    setItemsParams[1].l = AndroidJNIHelper.CreateJavaProxy(listener);
-                    AndroidJNI.CallVoidMethod(builder.GetRawObject(), setItems, setItemsParams);
+                    setMsgParams[0].l = AndroidJNI.NewStringUTF(msg);
+                    AndroidJNI.CallVoidMethod(builder.GetRawObject(), setMsg, setMsgParams);
                 }
-            }
             
-            var show = AndroidJNI.GetMethodID(builder.GetRawClass(), "show", "()Landroid/app/AlertDialog;");
-            var showParams = new jvalue[0];
-            _dialogPtr = AndroidJNI.CallObjectMethod(builder.GetRawObject(), show, showParams);
+                if(_input)
+                {
+                    _inputView = new AndroidJavaObject("android.widget.EditText", activity);
+                    builder.Call<AndroidJavaObject>("setView", _inputView);
+                }
+
+                ClickDelegate clicked = which => {
+                    if(_inputView != null)
+                    {
+                        _inputText = _inputView.Call<AndroidJavaObject>("getText").Call<string>("toString");
+                    }
+                    if(dlg != null)
+                    {
+                        dlg(which);
+                    }
+                };
+                
+                if(_buttons != null && _buttons.Length > 0)
+                {
+                    if(_buttons.Length == 1)
+                    {
+                        SetButton(builder, _buttons[0], "setPositiveButton", clicked, 0);
+                    }
+                    else if(_buttons.Length == 2)
+                    {
+                        SetButton(builder, _buttons[0], "setPositiveButton", clicked, 0);
+                        SetButton(builder, _buttons[1], "setNegativeButton", clicked, 1);
+                    }
+                    else if(_buttons.Length == 3)
+                    {
+                        SetButton(builder, _buttons[0], "setPositiveButton", clicked, 0);
+                        SetButton(builder, _buttons[1], "setNegativeButton", clicked, 1);
+                        SetButton(builder, _buttons[2], "setNeutralButton", clicked, 2);
+                    }
+                    else
+                    {
+                        var listener = new DialogClickListener(clicked);
+                        var btnArr = AndroidJNI.NewObjectArray(_buttons.Length, AndroidJNI.FindClass("java/lang/CharSequence"), IntPtr.Zero);
+                        for(int i = 0; i < _buttons.Length; i++)
+                        {
+                            AndroidJNI.SetObjectArrayElement(btnArr, i, AndroidJNI.NewStringUTF(_buttons[i]));
+                        }
+                    
+                        var setItems = AndroidJNI.GetMethodID(builder.GetRawClass(), "setItems", "([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;");
+                        var setItemsParams = new jvalue[2];
+                        setItemsParams[0] = new jvalue();
+                        setItemsParams[0].l = btnArr;
+                        setItemsParams[1] = new jvalue();
+                        setItemsParams[1].l = AndroidJNIHelper.CreateJavaProxy(listener);
+                        AndroidJNI.CallVoidMethod(builder.GetRawObject(), setItems, setItemsParams);
+                    }
+                }
+            
+                var show = AndroidJNI.GetMethodID(builder.GetRawClass(), "show", "()Landroid/app/AlertDialog;");
+                var showParams = new jvalue[0];
+                _dialogPtr = AndroidJNI.CallObjectMethod(builder.GetRawObject(), show, showParams);
+            }
         }
 
         public void Dispose()
@@ -218,6 +211,7 @@ namespace SocialPoint.Alert
                 AndroidJNI.DeleteLocalRef(_dialogPtr);
                 _dialogPtr = IntPtr.Zero;
             }
+            _inputView.Dispose();
         }
 
         public object Clone()
@@ -234,5 +228,5 @@ namespace SocialPoint.Alert
 
     }
 
-#endif
+    #endif
 }

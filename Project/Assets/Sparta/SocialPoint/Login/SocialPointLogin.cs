@@ -218,7 +218,7 @@ namespace SocialPoint.Login
                 if(BaseUrl != val)
                 {
                     changed = true;
-                    BaseUrl = val;
+                    SetBaseUrl(val);
                 }
             }
             if(parms.TryGetValue(SourceParamPrivilegeToken, out val))
@@ -403,20 +403,21 @@ namespace SocialPoint.Login
             {
                 return _baseUrl;
             }
+        }
 
-            set
+        public void SetBaseUrl(string url)
+        {
+            var baseurl = StringUtils.FixBaseUri(url);
+            if(baseurl != null)
             {
-                var url = StringUtils.FixBaseUri(value);
-                if(url != null)
+                Uri uri;
+                if(!Uri.TryCreate(baseurl, UriKind.Absolute, out uri))
                 {
-                    Uri uri;
-                    if(!Uri.TryCreate(url, UriKind.Absolute, out uri))
-                    {
-                        throw new InvalidOperationException("Invalid base Url.");
-                    }
+                    throw new InvalidOperationException("Invalid base Url.");
                 }
-                _baseUrl = url;
             }
+            _baseUrl = baseurl;
+
         }
 
         bool FakeEnvironment
@@ -430,7 +431,7 @@ namespace SocialPoint.Login
         public SocialPointLogin(IHttpClient client, LoginConfig config)
         {
             Init();
-            BaseUrl = config.BaseUrl;
+            SetBaseUrl(config.BaseUrl);
             _httpClient = client;
             _loginConfig = config;
             _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
