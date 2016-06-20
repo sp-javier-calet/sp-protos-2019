@@ -1,12 +1,12 @@
 ﻿
 using System;
-using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.Social;
 using SocialPoint.Login;
+using SocialPoint.ServerEvents;
 using SocialPoint.AdminPanel;
 
-public class GoogleInstaller : Installer
+public class GoogleInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData
@@ -27,6 +27,8 @@ public class GoogleInstaller : Installer
         }
         else
         {
+            Container.Bind<IInitializable>().ToInstance(this);
+
             Container.RebindUnityComponent<UnityGoogle>();
             Container.Rebind<IGoogle>().ToLookup<UnityGoogle>();
         }
@@ -50,5 +52,14 @@ public class GoogleInstaller : Installer
     {
         var google = Container.Resolve<IGoogle>();
         return new GooglePlayLink(google, !Settings.LoginWithUi);
+    }        
+
+    public void Initialize()
+    { 
+        var google = Container.Resolve<IGoogle>();
+        if(google != null)
+        {
+            google.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;            
+        }
     }
 }

@@ -4,11 +4,13 @@
  * Exported interface
  */
 extern "C"{
-    SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* path, const char* version,
-                                                      const char* fileSeparator, const char* crashExtension,
+    SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* crashPath,
+                                                      const char* version,
+                                                      const char* fileSeparator,
+                                                      const char* crashExtension,
                                                       const char* logExtension)
     {
-        return new SPUnityCrashReporter(std::string(path),
+        return new SPUnityCrashReporter(std::string(crashPath),
                                         std::string(version),
                                         std::string(fileSeparator),
                                         std::string(crashExtension),

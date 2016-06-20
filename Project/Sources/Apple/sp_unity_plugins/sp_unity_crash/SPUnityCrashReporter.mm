@@ -6,6 +6,7 @@
 #include <string>
 #include "SPNativeCallsSender.h"
 #import <Foundation/Foundation.h>
+#include "SPUnityBreadcrumbManager.hpp"
 
 
 class SPUnityCrashReporter
@@ -17,7 +18,7 @@ private:
     std::string _error;
     std::string _fileSeparator;
     std::string _crashExtension;
-
+    SPUnityBreadcrumbManager& _breadcrumbManager
     static void onCrash(siginfo_t *info, ucontext_t *uap, void *context)
     {
         SPUnityCrashReporter* crashReporter = (SPUnityCrashReporter*) context;
@@ -48,6 +49,11 @@ private:
 
             SPNativeCallsSender::SendMessage("OnCrashDumped", filePath.c_str());
         }
+    }
+    
+    void dumpBreadcrumbs()
+    {
+        _breadcrumbManager.dumpToFile();
     }
 
     bool initializePLCrashReporter()
@@ -85,6 +91,7 @@ public:
 
     SPUnityCrashReporter()
     : _enabled(false)
+    , _breadcrumbManager(SPUnityBreadcrumbManager::getInstance())
     {
     }
 
@@ -156,6 +163,7 @@ public:
 
         [reporter purgePendingCrashReport];
 
+        dumpBreadcrumbs();
         dumpCrash(plReport);
 
         return true;

@@ -37,9 +37,9 @@ public class PurchaseInstaller : Installer
     void SetupPurchaseStore(SocialPointPurchaseStore store)
     {
         store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
-        var login = Container.Resolve<ILogin>();
-        store.RequestSetup = login.SetupHttpRequest;
-        store.GetUserId = () => login.UserId;
+        var loginData = Container.Resolve<ILoginData>();
+        store.RequestSetup = loginData.SetupHttpRequest;
+        store.GetUserId = () => loginData.UserId;
 
         var model = Container.Resolve<StoreModel>();
         model.PurchaseStore = store;

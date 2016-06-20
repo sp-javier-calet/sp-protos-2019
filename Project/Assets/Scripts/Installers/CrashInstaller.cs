@@ -27,7 +27,7 @@ public class CrashInstaller : SubInstaller
 
     public override void InstallBindings()
     {
-        Container.Rebind<BreadcrumbManager>().ToSingle<BreadcrumbManager>();
+        Container.Rebind<IBreadcrumbManager>().ToSingle<BreadcrumbManager>();
         Container.Rebind<ICrashReporter>().ToMethod<SocialPointCrashReporter>(
             CreateCrashReporter, SetupCrashReporter);
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
@@ -39,7 +39,7 @@ public class CrashInstaller : SubInstaller
     {
         return new AdminPanelCrashReporter(
             Container.Resolve<ICrashReporter>(),
-            Container.Resolve<BreadcrumbManager>());
+            Container.Resolve<IBreadcrumbManager>());
     }
 
     SocialPointCrashReporter CreateCrashReporter()
@@ -48,15 +48,15 @@ public class CrashInstaller : SubInstaller
             Container.Resolve<IUpdateScheduler>(),
             Container.Resolve<IHttpClient>(),
             Container.Resolve<IDeviceInfo>(),
-            Container.Resolve<BreadcrumbManager>(),
+            Container.Resolve<IBreadcrumbManager>(),
             Container.Resolve<IAlertView>());
     }
 
     void SetupCrashReporter(SocialPointCrashReporter reporter)
     {
-        var login = Container.Resolve<ILogin>();
-        reporter.RequestSetup = login.SetupHttpRequest;
-        reporter.GetUserId = () => login.UserId;
+        var loginData = Container.Resolve<ILoginData>();
+        reporter.RequestSetup = loginData.SetupHttpRequest;
+        reporter.GetUserId = () => loginData.UserId;
         reporter.TrackEvent = Container.Resolve<IEventTracker>().TrackUrgentSystemEvent;
         reporter.AppEvents = Container.Resolve<IAppEvents>();
         reporter.SendInterval = Settings.SendInterval;

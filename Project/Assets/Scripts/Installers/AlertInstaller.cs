@@ -32,8 +32,8 @@ public class AlertInstaller : Installer
         {
             var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
             Container.Rebind<IAlertView>().ToInstance(unityAlertView);
-            Container.Bind<IDisposable>().ToLookup<IAlertView>();
         }
+        Container.Bind<IDisposable>().ToLookup<IAlertView>();
 
         Container.Bind<AlertBridge>().ToMethod<AlertBridge>(CreateAlertBridge);
         Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
