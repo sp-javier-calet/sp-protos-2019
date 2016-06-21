@@ -13,14 +13,8 @@ namespace SocialPoint.AppEvents
 
         public AdminPanelAppEvents(IAppEvents appEvents)
         {
-            _appEvents = appEvents;
-        }
-
-        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
-        {
             _eventsLog = string.Empty;
-
-            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("App Events", this));
+            _appEvents = appEvents;
 
             _appEvents.OpenedFromSource += OnOpenedFromSource;
             _appEvents.WasCovered += OnWasCovered;
@@ -28,10 +22,15 @@ namespace SocialPoint.AppEvents
             _appEvents.WillGoBackground.Add(0, OnWillGoBackground);
             _appEvents.GameWillRestart.Add(0, OnGameWillRestart);
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
-            _appEvents.AfterGameWasLoaded.Add(0,AfterGameWasLoaded);
+            _appEvents.AfterGameWasLoaded.Add(0, AfterGameWasLoaded);
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ApplicationQuit += OnApplicationQuit;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
+        }
+
+        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
+        {
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("App Events", this));
         }
 
         void OnOpenedFromSource(object source)

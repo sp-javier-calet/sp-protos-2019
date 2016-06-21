@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SocialPoint.Utils
 {
@@ -7,7 +6,7 @@ namespace SocialPoint.Utils
     {
         static public void SendEmail(string mailto, string subject, string body)
         {
-            Application.OpenURL ("mailto:" + mailto + "?subject=" + EscapeUrl(subject) + "&body=" + EscapeUrl(body));
+            Application.OpenURL("mailto:" + mailto + "?subject=" + EscapeUrl(subject) + "&body=" + EscapeUrl(body));
         }
 
         static public string EscapeUrl(string url)

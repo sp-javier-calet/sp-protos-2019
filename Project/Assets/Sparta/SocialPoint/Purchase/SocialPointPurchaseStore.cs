@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
+using UnityEngine.Assertions;
 
 namespace SocialPoint.Purchase
 {
@@ -93,12 +95,12 @@ namespace SocialPoint.Purchase
         /// </summary>
         /// <param name="httpClient">Http client.</param>
         /// <param name = "commandQueue"></param>
-        public SocialPointPurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue)
+        public SocialPointPurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue, NativeCallsHandler handler)
         {
             #if UNITY_IOS && !UNITY_EDITOR
-            _purchaseStore = new IosPurchaseStore();
+            _purchaseStore = new IosPurchaseStore(handler);
             #elif UNITY_ANDROID && !UNITY_EDITOR
-            _purchaseStore = new AndroidPurchaseStore();
+            _purchaseStore = new AndroidPurchaseStore(handler);
             #elif UNITY_EDITOR
             _purchaseStore = new MockPurchaseStore();
             #endif

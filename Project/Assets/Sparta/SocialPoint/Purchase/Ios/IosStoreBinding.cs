@@ -7,13 +7,13 @@ namespace SocialPoint.Purchase
     public static class IosStoreBinding
     {
         [DllImport("__Internal")]
-        static extern void SPUnityStore_Init(string listenerObjectName);
+        static extern void SPUnityStore_Init();
 
-        public static void Init(string listenerObjectName)
+        public static void Init()
         {
             if(Application.platform == RuntimePlatform.IPhonePlayer)
             {
-                SPUnityStore_Init(listenerObjectName);
+                SPUnityStore_Init();
             }
         }
 

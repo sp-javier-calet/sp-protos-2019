@@ -9,16 +9,18 @@ namespace SocialPoint.Utils
 {
     public class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        List<LogEntry> _entries;
+        readonly List<LogEntry> _entries;
         Dictionary<LogType, bool> _activeTypes;
         Text _textComponent;
         bool _autoRefresh;
 
-        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
+        public AdminPanelLog()
         {
             _autoRefresh = true;
             _entries = new List<LogEntry>();
             _activeTypes = new Dictionary<LogType, bool>();
+
+            LogCallbackHandler.RegisterLogCallback(HandleLog);
 
             var array = Enum.GetValues(typeof(LogType));
             for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
@@ -26,9 +28,10 @@ namespace SocialPoint.Utils
                 var type = (LogType)array.GetValue(i);
                 _activeTypes[type] = true;
             }
+        }
 
-            LogCallbackHandler.RegisterLogCallback(HandleLog);
-
+        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
+        {
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Log", this));
         }
 

@@ -50,7 +50,7 @@ namespace SocialPoint.XCodeEditor
 
         }
         
-        [PostProcessBuild(101)]
+        [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
 #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6

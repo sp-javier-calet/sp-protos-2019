@@ -1,9 +1,10 @@
-﻿using UnityEngine;
-using System;
-using SocialPoint.Dependency;
-using SocialPoint.Social;
-using SocialPoint.Login;
+﻿using System;
 using SocialPoint.AdminPanel;
+using SocialPoint.Dependency;
+using SocialPoint.Login;
+using SocialPoint.Social;
+using SocialPoint.Utils;
+using UnityEngine;
 
 public class GameCenterInstaller : Installer
 {
@@ -13,9 +14,9 @@ public class GameCenterInstaller : Installer
         public bool UseEmpty = false;
         public bool LoginLink = true;
     }
-    
+
     public SettingsData Settings = new SettingsData();
-        
+
     public override void InstallBindings()
     {
         #if UNITY_IOS
@@ -45,7 +46,7 @@ public class GameCenterInstaller : Installer
     UnityGameCenter CreateUnity()
     {
         return new UnityGameCenter(
-            Container.Resolve<Transform>());
+            Container.Resolve<NativeCallsHandler>());
     }
 
 

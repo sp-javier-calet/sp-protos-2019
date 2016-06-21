@@ -9,6 +9,8 @@ namespace google_breakpad
     class ExceptionHandler;
 }
 
+class SPUnityBreadcrumbManager;
+
 class SPUnityCrashReporter
 {
 private:
@@ -18,23 +20,25 @@ private:
     std::string _fileSeparator;
     std::string _crashExtension;
     std::string _logExtension;
-    std::string _gameObject;
 
     google_breakpad::ExceptionHandler* _exceptionHandler;
 
+    SPUnityBreadcrumbManager& _breadcrumbManager;
+
 public:
-    SPUnityCrashReporter(const std::string& path,
+    SPUnityCrashReporter(const std::string& crashPath,
                     	 const std::string& version,
                      	 const std::string& fileSeparator,
                      	 const std::string& crashExtension,
-                     	 const std::string& logExtension,
-                         const std::string& gameObject);
+                     	 const std::string& logExtension);
 
     bool enable();
     bool disable();
     void dumpCrash(const std::string& crashPath);
     const std::string& getCrashPaths() const;
     void clearCrashPaths();
+
+    void dumpBreadcrumbs();
 };
 
 #endif
