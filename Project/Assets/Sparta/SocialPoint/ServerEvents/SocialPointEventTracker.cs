@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
@@ -12,7 +11,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.ServerEvents
 {
-    public class SocialPointEventTracker : IEventTracker
+    public class SocialPointEventTracker : IEventTracker, IUpdateable
     {
         public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
 
@@ -67,8 +66,7 @@ namespace SocialPoint.ServerEvents
         public ICommandQueue CommandQueue;
 
         List<Event> _pendingEvents;
-        ICoroutineRunner _runner;
-        IEnumerator _updateCoroutine;
+        IUpdateScheduler _updateScheduler;
         bool _sending;
         int _lastEventNum;
         long _lastSendTimestamp;
@@ -76,9 +74,9 @@ namespace SocialPoint.ServerEvents
         bool _sendPending;
         long _syncTimestamp;
         float _currentTimeout;
-        float _currentSendInterval;
         bool _gameStartTracked;
         bool _gameLoadedTracked;
+        bool _running;
         IHttpConnection _httpConn;
 
         public DateTime SyncTime
@@ -120,7 +118,7 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        public BreadcrumbManager BreadcrumbManager
+        public IBreadcrumbManager BreadcrumbManager
         {
             get;
             set;
@@ -155,7 +153,7 @@ namespace SocialPoint.ServerEvents
 
         void OnGameRestart()
         {
-            if(Running)
+            if(_running)
             {
                 Send();
                 Stop();
@@ -165,7 +163,7 @@ namespace SocialPoint.ServerEvents
 
         void OnGameWasLoaded()
         {
-            if(!Running)
+            if(!_running)
             {
                 Start();
             }
@@ -189,13 +187,13 @@ namespace SocialPoint.ServerEvents
 
         #endregion
 
-        public SocialPointEventTracker(ICoroutineRunner runner, bool autoStart = true)
+        public SocialPointEventTracker(IUpdateScheduler updateScheduler, bool autoStart = true)
         {
-            _runner = runner;
+            _updateScheduler = updateScheduler;
             UnauthorizedEvents = new List<string>(DefaultUnauthorizedEvents);
             _pendingEvents = new List<Event>();
+            _running = false;
             Reset();
-            SetStartValues();
             if(autoStart)
             {
                 Start();
@@ -221,7 +219,6 @@ namespace SocialPoint.ServerEvents
         {
             _lastSendTimestamp = CurrentTimestamp;
             _currentTimeout = Timeout;
-            _currentSendInterval = SendInterval;
             _syncTimestamp = CurrentTimestamp;
             _synced = true;
             _sending = false;
@@ -332,29 +329,28 @@ namespace SocialPoint.ServerEvents
 
         public void Start()
         {
-            if(_updateCoroutine == null)
+            if(_running)
             {
-                SetStartValues();
-                _updateCoroutine = UpdateCoroutine();
-                _runner.StartCoroutine(_updateCoroutine);
+                return;
             }
+
+            SetStartValues();
+
+            if(_updateScheduler != null)
+            {
+                _updateScheduler.AddFixed(this, SendInterval);
+                _running = true;
+            }
+
             TrackGameStart();
         }
 
         public void Stop()
         {
-            if(_updateCoroutine != null)
+            if(_updateScheduler != null)
             {
-                _runner.StopCoroutine(_updateCoroutine);
-                _updateCoroutine = null;
-            }
-        }
-
-        bool Running
-        {
-            get
-            {
-                return _updateCoroutine != null;
+                _updateScheduler.Remove(this);
+                _running = false;
             }
         }
 
@@ -368,22 +364,14 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        IEnumerator UpdateCoroutine()
+        #region IUpdateable implementation
+
+        public void Update()
         {
-            while(true)
-            {
-                Update();
-                yield return true;
-            }
+            Send();
         }
 
-        void Update()
-        {
-            if(_lastSendTimestamp + (long)_currentSendInterval < CurrentTimestamp)
-            {
-                Send();
-            }
-        }
+        #endregion
 
         public bool Send()
         {

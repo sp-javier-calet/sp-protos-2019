@@ -4,29 +4,22 @@ public class GameParser : IParser<GameModel>
 {
     const string AttrKeyConfig = "config";
     const string AttrKeyUser = "user";
-    const string AttrKeyConfigPatch = "config_patches";
 
     IParser<ConfigModel> _configParser;
     IParser<PlayerModel> _playerParser;
-    IParser<ConfigPatch> _configPatchParser;
+    GameModel _gameModel;
 
-    public GameParser(IParser<ConfigModel> configParser, IParser<PlayerModel> playerParser, IParser<ConfigPatch> configPatchParser)
+    public GameParser(GameModel gameModel, IParser<ConfigModel> configParser, IParser<PlayerModel> playerParser)
     {
         _configParser = configParser;
         _playerParser = playerParser;
-        _configPatchParser = configPatchParser;
+        _gameModel = gameModel;
     }
 
     public GameModel Parse(Attr data)
     {
-        var configPatch = _configPatchParser.Parse(data.AsDic[AttrKeyConfigPatch]);
-        var configData = data.AsDic[AttrKeyConfig];
-        if(!new AttrPatcher().Patch(configPatch.Patch, configData))
-        {
-            configData = data.AsDic[AttrKeyConfig];
-        }
-        var config = _configParser.Parse(configData);
-        var player = _playerParser.Parse(data.AsDic[AttrKeyUser]);
-        return new GameModel(config, player);
+        _configParser.Parse(data.AsDic[AttrKeyConfig]);
+        _playerParser.Parse(data.AsDic[AttrKeyUser]);
+        return _gameModel;
     }
 }

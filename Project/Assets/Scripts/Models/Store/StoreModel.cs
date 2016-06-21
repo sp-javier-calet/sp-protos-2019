@@ -6,9 +6,10 @@ using SocialPoint.Utils;
 
 public class StoreModel : IStoreProductSource, IDisposable
 {
-    public IDictionary<string, IReward> PurchaseRewards = new Dictionary<string, IReward>();
+    public IDictionary<string, IReward> PurchaseRewards { get; private set; }
 
-    public event Action<StoreModel> Moved;
+    IGamePurchaseStore _purchaseStore;
+    PlayerModel _playerModel;
 
     public string[] ProductIds
     {
@@ -24,21 +25,32 @@ public class StoreModel : IStoreProductSource, IDisposable
         }
     }
 
-    IGamePurchaseStore _purchaseStore;
-    PlayerModel _playerModel;
-
-    public void Init(IGamePurchaseStore purchaseStore, PlayerModel playerModel)
+    public IGamePurchaseStore PurchaseStore
     {
-        _purchaseStore = purchaseStore;
+        set
+        {
+            _purchaseStore = value;
+            if(_purchaseStore != null)
+            {
+                _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
+
+                //Each game can set the settings to its liking, it can depend on data sent by backend
+                _purchaseStore.Setup(PlatformPuchaseSettings.GetDebugSettings());
+            }
+        }
+        get
+        {
+            return _purchaseStore;
+        }
+    }
+
+    public StoreModel Init(IDictionary<string, IReward> purchaseRewards, PlayerModel playerModel)
+    {
+        PurchaseRewards = purchaseRewards;
+
         _playerModel = playerModel;
 
-        if(_purchaseStore != null)
-        {
-            _purchaseStore.RegisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-
-            //Each game can set the settings to its liking, it can depend on data sent by backend
-            _purchaseStore.Setup(PlatformPuchaseSettings.GetDebugSettings());
-        }
+        return this;
     }
 
     public void Dispose()
@@ -46,19 +58,6 @@ public class StoreModel : IStoreProductSource, IDisposable
         if(_purchaseStore != null)
         {
             _purchaseStore.UnregisterPurchaseCompletedDelegate(OnPurchaseCompleted);
-        }
-    }
-
-    public void Move(StoreModel other)
-    {
-        PurchaseRewards = other.PurchaseRewards;
-
-        other.PurchaseRewards = null;
-        other.Dispose();
-
-        if(Moved != null)
-        {
-            Moved(this);
         }
     }
 

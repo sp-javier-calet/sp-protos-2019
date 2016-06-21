@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace SocialPoint.GUIControl
 {
@@ -71,7 +71,7 @@ namespace SocialPoint.GUIControl
 
         void Awake()
         {
-            Assert.AreEqual(_cameras[0].Type, UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
+            DebugUtils.Assert(_cameras[0].Type == UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
 
             var cameras = new List<UICameraData>(_cameras);
             cameras.Reverse();
@@ -88,7 +88,7 @@ namespace SocialPoint.GUIControl
 
         void InitializeCamera(UICameraData cameraData)
         {
-            Assert.IsNotNull(cameraData.Camera, "Assign all the cameras in the inspector or reduce the count");
+            DebugUtils.Assert(cameraData.Camera != null, "Assign all the cameras in the inspector or reduce the count");
             cameraData.Camera.SetActive(false);
             int layer = LayerMask.NameToLayer(cameraData.LayerName);
             cameraData.Layer = layer;
@@ -105,7 +105,7 @@ namespace SocialPoint.GUIControl
 
             if(_camerasByLayer.ContainsKey(layer))
             {
-                Assert.IsTrue(false, string.Format("There is more than one camera using the layer '{0}'.", cameraData.LayerName));
+                DebugUtils.Assert(false, string.Format("There is more than one camera using the layer '{0}'.", cameraData.LayerName));
             }
             else
             {
@@ -117,7 +117,7 @@ namespace SocialPoint.GUIControl
         {
             if(_inactiveCameras.Count == 0)
             {
-                Assert.IsTrue(false, "Trying to use more cameras than allowed");
+                DebugUtils.Assert(false, "Trying to use more cameras than allowed");
                 return;
             }
 
@@ -195,22 +195,39 @@ namespace SocialPoint.GUIControl
                 if(!_uiCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
                 {
                     _uiCameraByController[controller] = _activeCameras.Peek();
-                    AssignCameraToUICanvas(controller.gameObject, _activeCameras.Peek());
+                    AssignCameraToUICanvas(controller.gameObject, _activeCameras.Peek(), controller.WorldSpaceFullScreen);
                 }
                 AssignOrderInCameraLayer(controller.gameObject);
                 // if this camera is using 3d objects, then we need to activate a 3d camera and start using the next ui camera from now on
                 if(_3dObjectsByController.ContainsKey(controller))
                 {
-                    //activate next 3d camera
-                    ActivateNextUILayer(UICameraData.CameraType.GUI3D);
-                    if(!_3dCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
+                    //if 3d object canvas is world space 
+                    var list = _3dObjectsByController[controller];
+                    var canvasList = GetCanvasFromElement(controller.gameObject);
+
+                    if(canvasList.Count > 0 && canvasList[0].renderMode == RenderMode.WorldSpace)
                     {
-                        _3dCameraByController[controller] = _activeCameras.Peek();
-                        var list = _3dObjectsByController[controller];
+                        _3dCameraByController[controller] = _uiCameraByController[controller];
+
                         for(int j = 0, maxCount = list.Count; j < maxCount; j++)
                         {
                             GameObject go = list[j];
-                            AssignCameraTo3DContainer(go, _activeCameras.Peek());
+                            AssignCameraTo3DContainer(go, _uiCameraByController[controller]);
+                        }
+                    }
+                    else
+                    {
+                        //activate next 3d camera
+                        ActivateNextUILayer(UICameraData.CameraType.GUI3D);
+                        if(!_3dCameraByController.TryGetValue(controller, out previousCameraAssigned) || previousCameraAssigned != _activeCameras.Peek())
+                        {
+                            _3dCameraByController[controller] = _activeCameras.Peek();
+
+                            for(int j = 0, maxCount = list.Count; j < maxCount; j++)
+                            {
+                                GameObject go = list[j];
+                                AssignCameraTo3DContainer(go, _activeCameras.Peek());
+                            }
                         }
                     }
                 }
@@ -230,7 +247,36 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        static void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera)
+        void PlaceElementFullScreen(GameObject uiElement, UICameraData camera)
+        {
+            var cam = camera.Camera.GetComponent<Camera>();
+
+            uiElement.transform.position = new Vector3(0, 0, camera.Depth);
+
+            float camHeight;
+            if(cam.orthographic)
+            {
+                camHeight = cam.orthographicSize * 2;
+            }
+            else
+            {
+                camHeight = Mathf.Tan(Mathf.Deg2Rad * (cam.fieldOfView * 0.5f)) * camera.Depth;
+            }
+
+            var rect = uiElement.GetComponent<RectTransform>().rect;
+            var currentHeight = uiElement.transform.localScale.y * rect.height;
+            var currentWidth = uiElement.transform.localScale.x * rect.width;
+            var scaleHeight = camHeight / currentHeight;
+            var camWidth = (((float)Screen.width / (float)Screen.height) * camHeight);
+            var scaleWidth = camWidth / currentWidth;
+            var finalScale = uiElement.transform.localScale;
+            finalScale.y *= scaleHeight;
+            finalScale.x *= scaleWidth;
+            finalScale.z *= scaleWidth;
+            uiElement.transform.localScale = finalScale;
+        }
+
+        void AssignCameraToUICanvas(GameObject uiElement, UICameraData camera, bool repositionWorldSpaceController)
         {
             int layer = LayerMask.NameToLayer(camera.LayerName);
 
@@ -240,15 +286,32 @@ namespace SocialPoint.GUIControl
 
             if(uiCanvas.Count == 0)
             {
-                Assert.IsTrue(false, "Not Canvas found inside the element");
+                DebugUtils.Assert(false, "Not Canvas found inside the element");
                 return;
             }
+
+            bool isInWorldSpace = false;
 
             for(int i = 0, uiCanvasCount = uiCanvas.Count; i < uiCanvasCount; i++)
             {
                 Canvas canvas = uiCanvas[i];
-                canvas.worldCamera = camera.Camera.GetComponent<Camera>();
+                var cam = camera.Camera.GetComponent<Camera>();
+                if(canvas.renderMode == RenderMode.WorldSpace)
+                {
+                    isInWorldSpace = true;
+                    if(repositionWorldSpaceController)
+                    {
+                        PlaceElementFullScreen(uiElement, camera);
+                    }
+                }
+
+                canvas.worldCamera = cam;
                 canvas.gameObject.layer = layer;
+            }
+
+            if(isInWorldSpace)
+            {
+                ActivateNextUILayer(UICameraData.CameraType.GUI2D);
             }
         }
 

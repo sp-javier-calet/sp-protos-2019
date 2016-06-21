@@ -82,12 +82,11 @@ namespace SocialPoint.Login
             {
                 return _baseUrl;
             }
-            
-            set
-            {
-                
-                _baseUrl = StringUtils.FixBaseUri(value);
-            }
+        }
+
+        public void SetBaseUrl(string url)
+        {
+            _baseUrl = StringUtils.FixBaseUri(url);
         }
 
         virtual public void Dispose()
@@ -117,7 +116,7 @@ namespace SocialPoint.Login
 
         public EmptyLogin(string baseUri = null)
         {
-            BaseUrl = baseUri;
+            SetBaseUrl(baseUri);
             User = new LocalUser();
             Friends = new List<User>();
         }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using SocialPoint.Alert;
@@ -18,7 +17,7 @@ namespace SocialPoint.Crash
     /*
      * Crash reporter Base implementation
      */
-    public class BaseCrashReporter : ICrashReporter
+    public class BaseCrashReporter : ICrashReporter , IUpdateable
     {
         #region Stored logs
 
@@ -158,11 +157,13 @@ namespace SocialPoint.Crash
         protected class OutOfMemoryReport : Report
         {
             long _timestamp;
+            string _crashVersion;
             readonly string _message = "APP KILLED IN FOREGROUND BECAUSE OF LOW MEMORY.";
 
-            public OutOfMemoryReport(long timestamp)
+            public OutOfMemoryReport(long timestamp, string crashVersion)
             {
                 _timestamp = timestamp;
+                _crashVersion = crashVersion;
                 if(_timestamp != 0)
                 {
                     _message += string.Format(" RECEIVED MEMORY WARNING AT {0} ts: {1}", TimeUtils.GetDateTime(_timestamp).ToUniversalTime(), _timestamp);
@@ -189,6 +190,14 @@ namespace SocialPoint.Crash
                 get
                 {
                     return _message;
+                }
+            }
+
+            public override string CrashVersion
+            {
+                get
+                {
+                    return _crashVersion;
                 }
             }
         }
@@ -220,10 +229,12 @@ namespace SocialPoint.Crash
         const string AttrKeyMessage = "message";
         const string AttrKeyType = "type";
         const string AttrKeyCrashTimestamp = "crash_timestamp";
+        const string AttrKeyCrashBuildId = "crash_build_id";
 
         // Player preferences keys
         const string WasOnBackgroundPreferencesKey = "app_gone_background";
         const string LastMemoryWarningPreferencesKey = "last_memory_warning";
+        const string LastAppVersionKey = "last_app_version";
         const string CrashReporterEnabledPreferencesKey = "crash_reporter_enabled";
 
         // Events
@@ -235,8 +246,10 @@ namespace SocialPoint.Crash
         readonly FileAttrStorage _exceptionStorage;
         FileAttrStorage _crashStorage;
         List<Report> _pendingReports;
-        BreadcrumbManager _breadcrumbManager;
         HashSet<string> _uniqueExceptions;
+
+        protected IBreadcrumbManager _breadcrumbManager;
+
         public RequestSetupDelegate RequestSetup;
         public TrackEventDelegate TrackEvent;
         public GetUserIdDelegate GetUserId;
@@ -248,6 +261,8 @@ namespace SocialPoint.Crash
         public const int DefaultNumRetriesBeforeSendingCrashBeforeLogin = 3;
 
         bool _wasActiveInLastSession;
+        bool _appWasUpdated;
+        bool _memoryWarningReceivedThisSession;
         bool _exceptionLogActive = DefaultExceptionLogActive;
         bool _errorLogActive = DefaultErrorLogActive;
         bool _enableSendingCrashesBeforeLogin = DefaultEnableSendingCrashesBeforeLogin;
@@ -259,17 +274,15 @@ namespace SocialPoint.Crash
             set
             { 
                 _currentSendInterval = value; 
-                _waitForSeconds = new WaitForSeconds(_currentSendInterval);
             }
         }
 
-        ICoroutineRunner _runner;
-        IEnumerator _updateCoroutine;
+        IUpdateScheduler _updateScheduler;
         IAlertView _alertViewPrototype;
 
         float _currentSendInterval = DefaultSendInterval;
-        WaitForSeconds _waitForSeconds = new WaitForSeconds(DefaultSendInterval);
         bool _sending;
+        bool _running;
 
         public bool ExceptionLogActive
         {
@@ -355,6 +368,19 @@ namespace SocialPoint.Crash
             }
         }
 
+        static string LastAppVersion
+        {
+            get
+            {
+                return PlayerPrefs.GetString(LastAppVersionKey, String.Empty);
+            }
+            set
+            {
+                PlayerPrefs.SetString(LastAppVersionKey, value);
+                PlayerPrefs.Save();
+            }
+        }
+
         public bool WasEnabled
         { 
             get
@@ -425,10 +451,11 @@ namespace SocialPoint.Crash
             }
         }
 
-        public BaseCrashReporter(ICoroutineRunner runner, IHttpClient client, 
-                                 IDeviceInfo deviceInfo, BreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
+        public BaseCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, 
+                                 IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
         {
-            _runner = runner;
+            _updateScheduler = updateScheduler;
+            _running = false;
             _httpClient = client;
             _deviceInfo = deviceInfo;
             _alertViewPrototype = alertView;
@@ -438,19 +465,25 @@ namespace SocialPoint.Crash
            
             //only used when crash detected
             _breadcrumbManager = breadcrumbManager;
+            if(_breadcrumbManager == null)
+            {
+                _breadcrumbManager = new EmptyBreadcrumbManager();
+            }
 
             _uniqueExceptions = new HashSet<string>();
 
             _pendingReports = new List<Report>();
 
             _wasActiveInLastSession = !WasOnBackground && WasEnabled;
+
+            CheckAppVersion();
         }
 
         public bool IsEnabled
         {
             get
             {
-                return _updateCoroutine != null;
+                return _running;
             }
         }
 
@@ -463,10 +496,14 @@ namespace SocialPoint.Crash
 
             WasEnabled = true;
             LogCallbackHandler.RegisterLogCallback(HandleLog);
-            OnEnable();
 
-            _updateCoroutine = UpdateCoroutine();
-            _runner.StartCoroutine(_updateCoroutine);
+            if(_updateScheduler != null)
+            { 
+                _updateScheduler.AddFixed(this, SendInterval);
+                _running = true;
+            }
+
+            OnEnable();
         }
 
         protected virtual void OnEnable()
@@ -476,12 +513,14 @@ namespace SocialPoint.Crash
         public void Disable()
         {
             WasEnabled = false;
-            if(_updateCoroutine != null)
-            {
-                _runner.StopCoroutine(_updateCoroutine);
-                _updateCoroutine = null;
-            }
             LogCallbackHandler.UnregisterLogCallback(HandleLog);
+
+            if(_updateScheduler != null)
+            { 
+                _updateScheduler.Remove(this);
+                _running = false;
+            }
+
             OnDisable();
         }
 
@@ -518,6 +557,25 @@ namespace SocialPoint.Crash
         public void ClearUniqueExceptions()
         {
             _uniqueExceptions.Clear();
+        }
+
+        void CheckAppVersion()
+        {
+            //Check if updated app
+            string lastAppVersion = LastAppVersion;
+            string currentVersion = _deviceInfo.AppInfo.Version;
+            bool newApp = String.IsNullOrEmpty(lastAppVersion);
+            _appWasUpdated = (lastAppVersion != currentVersion) && !newApp;
+
+            //Breadcrumb for version
+            _breadcrumbManager.Log("App Version: " + currentVersion);
+            if(_appWasUpdated)
+            {
+                _breadcrumbManager.Log("App Was Updated. Last Version: " + lastAppVersion);
+            }
+
+            //Update saved version data
+            LastAppVersion = _deviceInfo.AppInfo.Version;
         }
 
         protected virtual List<Report> GetPendingCrashes()
@@ -580,11 +638,17 @@ namespace SocialPoint.Crash
             }
             else
             {
-                // If there are no new crashes, we can check some saved status to detect a memory crash
-                Report memoryCrashReport = CheckMemoryCrash();
-                if(memoryCrashReport != null)
+                // If there are no new crashes, we can check some saved status to detect other crashes.
+                // But if app was just updated, ignore some checks because app may have been killed to start it with new version.
+                if(!_appWasUpdated)
                 {
-                    AddRetry(memoryCrashReport.Uuid);
+                    //Check for a memory crash
+                    Report memoryCrashReport = CheckMemoryCrash();
+                    if(memoryCrashReport != null)
+                    {
+                        _pendingReports.Add(memoryCrashReport);
+                        AddRetry(memoryCrashReport.Uuid);
+                    }
                 }
             }
 
@@ -600,17 +664,17 @@ namespace SocialPoint.Crash
 
         void SendCrashesAfterLogin(Action callback = null)
         {
-            SendCrashes(ReportSendType.AfterLogin, () => {
-                if(callback != null)
-                {
-                    callback();
-                }
-            });
+            SendCrashesWithSafeCallback(ReportSendType.AfterLogin, callback);
         }
 
         public void SendCrashesBeforeLogin(Action callback)
         {
-            SendCrashes(ReportSendType.BeforeLogin, () => {
+            SendCrashesWithSafeCallback(ReportSendType.BeforeLogin, callback);
+        }
+
+        void SendCrashesWithSafeCallback(ReportSendType reportSendType, Action callback)
+        {
+            SendCrashes(reportSendType, () => {
                 if(callback != null)
                 {
                     callback();
@@ -624,6 +688,12 @@ namespace SocialPoint.Crash
 
             SendTrackedCrashes(reportSendType, steps.Add());
             SendPendingCrashes(reportSendType, steps.Add());
+
+            //Clear last session data only after all crashs types were tracked (Before and After login)
+            if(reportSendType == ReportSendType.AfterLogin)
+            {
+                ClearLastSessionInfo();
+            }
 
             steps.Ready();
         }
@@ -670,30 +740,22 @@ namespace SocialPoint.Crash
             }
             else
             {
-                // If there are no new crashes, we can check some saved status to detect a memory crash
-                Report memoryCrashReport = CheckMemoryCrash();
-                bool tracked = false;
-                if(memoryCrashReport != null)
-                {
-                    if(reportSendType == GetReportSendType(memoryCrashReport.Uuid))
-                    {
-                        tracked = true;
-                        TrackCrash(memoryCrashReport, callback);
-                    }
-                }
-                if(!tracked && callback != null)
+                if(callback != null)
                 {
                     callback();
                 }
             }
-
-            ClearLastSessionInfo();
         }
 
-        static void ClearLastSessionInfo()
+        void ClearLastSessionInfo()
         {
-            // Clear last memory warning timestamp and set foreground status
-            LastMemoryWarningTimestamp = 0;
+            // Clear last memory warning timestamp if it is from last session 
+            if(!_memoryWarningReceivedThisSession)
+            {
+                LastMemoryWarningTimestamp = 0;
+            }
+
+            // Set foreground status
             WasOnBackground = false;
         }
 
@@ -706,11 +768,10 @@ namespace SocialPoint.Crash
              * last session and the BreadcrumbManager hadn't been 
              * cleaned (as in any clean stop. See OnApplicationQuit())
              * */
-            if(_breadcrumbManager != null &&
-               _breadcrumbManager.OldBreadcrumb != null &&
+            if(_breadcrumbManager.HasOldBreadcrumb &&
                _wasActiveInLastSession)
             {
-                memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp);
+                memoryCrashReport = new OutOfMemoryReport(LastMemoryWarningTimestamp, _deviceInfo.AppInfo.Version);
             }
 
             return memoryCrashReport;
@@ -801,6 +862,7 @@ namespace SocialPoint.Crash
                 CatchException(e);
             }
             SetupCrashHttpRequest(req, log);
+
             _httpClient.Send(req, resp => OnCrashSend(resp, log, callback));
         }
 
@@ -917,6 +979,7 @@ namespace SocialPoint.Crash
                 mobile.SetValue(AttrKeyCrashUuid, report.Uuid);
                 mobile.SetValue(AttrKeyCrashTimestamp, report.Timestamp);
                 mobile.SetValue(AttrKeyType, report.OutOfMemory ? 1 : 0);
+                mobile.SetValue(AttrKeyCrashBuildId, report.CrashVersion);
 
                 TrackEvent(CrashEventName, data, err => {
                     if(!Error.IsNullOrEmpty(err))
@@ -945,11 +1008,7 @@ namespace SocialPoint.Crash
         void CreateCrashLog(Report report, Action callback)
         {
             // Create the log on our storage to be send
-            string oldBreadcrumbs = "";
-            if(_breadcrumbManager != null)
-            {
-                oldBreadcrumbs = _breadcrumbManager.OldBreadcrumb;
-            }
+            string oldBreadcrumbs = _breadcrumbManager.OldBreadcrumb;
 
             var crashLog = new SocialPointCrashLog(report, _deviceInfo, UserId, oldBreadcrumbs);
             _crashStorage.Save(report.Uuid, crashLog);
@@ -959,15 +1018,6 @@ namespace SocialPoint.Crash
             SendCrashLog(report.Uuid, callback);
 
             report.Remove(); // we remove the report in order to not track it again :)
-        }
-
-        IEnumerator UpdateCoroutine()
-        {
-            while(true)
-            {
-                SendExceptionLogs();
-                yield return _waitForSeconds;
-            }
         }
 
         #region App Events
@@ -994,13 +1044,12 @@ namespace SocialPoint.Crash
 
         void OnMemoryWarning()
         {
-            if(_breadcrumbManager != null)
-            {
-                _breadcrumbManager.Log("Memory Warning");
-            }
-
             // Store memory warning timestamp
             LastMemoryWarningTimestamp = TimeUtils.Timestamp;
+            _memoryWarningReceivedThisSession = true;
+
+            _breadcrumbManager.Log("Memory Warning");
+            _breadcrumbManager.DumpToFile();
         }
 
         void OnLevelWasLoaded(int level)
@@ -1016,10 +1065,7 @@ namespace SocialPoint.Crash
 
         void OnApplicationQuit()
         {
-            if(_breadcrumbManager != null)
-            {
-                _breadcrumbManager.RemoveData();
-            }
+            _breadcrumbManager.RemoveData();
         }
 
         static void OnWillGoBackground()
@@ -1086,6 +1132,15 @@ namespace SocialPoint.Crash
             var retriesKey = GetRetriesKey(reportUuid);
             PlayerPrefs.DeleteKey(retriesKey);
             PlayerPrefs.Save();
+        }
+
+        #endregion
+
+        #region IUpdateable implementation
+
+        public void Update()
+        {
+            SendExceptionLogs();
         }
 
         #endregion

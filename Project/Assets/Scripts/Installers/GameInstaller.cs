@@ -30,43 +30,15 @@ public class GameInstaller : Installer
 #else
         Container.BindInstance("game_debug", UnityEngine.Debug.isDebugBuild);
 #endif
+        Container.Install<GameModelInstaller>();
 
         Container.Rebind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        Container.Rebind<IParser<ConfigPatch>>().ToSingle<ConfigPatchParser>();
-        Container.Rebind<IParser<GameModel>>().ToMethod<GameParser>(CreateGameParser);
-        Container.Rebind<IParser<ConfigModel>>().ToMethod<ConfigParser>(CreateConfigParser);
-        Container.Rebind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
-        Container.Rebind<IParser<PlayerModel>>().ToLookup<PlayerParser>();
-        Container.Rebind<ISerializer<PlayerModel>>().ToLookup<PlayerParser>();
-
-        Container.Rebind<GameModel>().ToMethod<GameModel>(CreateGameModel);
-        Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
-        Container.Rebind<ConfigModel>().ToGetter<GameModel>((game) => game.Config);
-
         Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
 
-        Container.Rebind<IParser<StoreModel>>().ToMethod<StoreParser>(CreateStoreParser);
-        Container.Rebind<IParser<IDictionary<string, IReward>>>().ToMethod<PurchaseRewardsParser>(CreatePurchaseRewardsParser);
-
-        Container.Rebind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
-        Container.Rebind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
-
         Container.Install<EconomyInstaller>();
-    }
-
-    PurchaseRewardsParser CreatePurchaseRewardsParser()
-    {
-        return new PurchaseRewardsParser(
-            Container.Resolve<IParser<IReward>>());
-    }
-
-    StoreParser CreateStoreParser()
-    {
-        return new StoreParser(
-            Container.Resolve<IParser<IDictionary<string, IReward>>>());
     }
 
     AdminPanelGame CreateAdminPanel()
@@ -83,37 +55,11 @@ public class GameInstaller : Installer
             Settings.InitialJsonGameResource,
             Settings.InitialJsonPlayerResource,
             Container.Resolve<IParser<GameModel>>(),
+            Container.Resolve<IParser<ConfigModel>>(),
             Container.Resolve<IParser<PlayerModel>>(),
             Container.Resolve<ISerializer<PlayerModel>>(),
             Container.Resolve<GameModel>(),
             Container.Resolve<ILogin>());
-    }
-
-    GameModel CreateGameModel()
-    {
-        return new GameModel();
-    }
-
-    PlayerParser CreatePlayerParser()
-    {
-        return new PlayerParser(
-            Container.Resolve<ConfigModel>());
-    }
-
-    GameParser CreateGameParser()
-    {
-        return new GameParser(
-            Container.Resolve<IParser<ConfigModel>>(),
-            Container.Resolve<IParser<PlayerModel>>(),
-            Container.Resolve<IParser<ConfigPatch>>()
-        );
-    }
-
-    ConfigParser CreateConfigParser()
-    {
-        return new ConfigParser(
-            Container.Resolve<IParser<StoreModel>>(),
-            Container.Resolve<IParser<ScriptModel>>());
     }
 
     GameErrorHandler CreateErrorHandler()

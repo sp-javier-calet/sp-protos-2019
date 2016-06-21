@@ -18,6 +18,7 @@ namespace SocialPoint.Purchase
         List<Product> _products;
         string _purchasingProduct;
         List<Receipt> _pendingPurchases;
+        IosStoreManager _storeManager;
 
         #region IPurchaseStore implementationcategoryModel
 
@@ -131,7 +132,7 @@ namespace SocialPoint.Purchase
         {
             get
             {
-                return _products.ToArray();
+                return (_products != null) ? _products.ToArray() : null;
             }
         }
 
@@ -155,19 +156,20 @@ namespace SocialPoint.Purchase
         #endregion
 
         
-        public IosPurchaseStore()
+        public IosPurchaseStore(NativeCallsHandler handler)
         {
             if(Application.platform != RuntimePlatform.IPhonePlayer)
             {
                 throw new NotImplementedException("IosPurchaseStore only works on iOS");
             }
 
-            IosStoreManager.ProductListReceivedEvent += ProductListReceived;
-            IosStoreManager.ProductListRequestFailedEvent += ProductListFailed;
-            IosStoreManager.PurchaseFailedEvent += PurchaseFailed;
-            IosStoreManager.PurchaseCancelledEvent += PurchaseCanceled;
-            IosStoreManager.PurchaseSuccessfulEvent += PurchaseFinished;
-            IosStoreManager.TransactionUpdatedEvent += TransactionUpdated;
+            _storeManager = new IosStoreManager(handler);
+            _storeManager.ProductListReceivedEvent += ProductListReceived;
+            _storeManager.ProductListRequestFailedEvent += ProductListFailed;
+            _storeManager.PurchaseFailedEvent += PurchaseFailed;
+            _storeManager.PurchaseCancelledEvent += PurchaseCanceled;
+            _storeManager.PurchaseSuccessfulEvent += PurchaseFinished;
+            _storeManager.TransactionUpdatedEvent += TransactionUpdated;
         }
 
         void ProductListReceived(List<IosStoreProduct> products)
@@ -302,12 +304,12 @@ namespace SocialPoint.Purchase
 
         void UnregisterEvents()
         {
-            IosStoreManager.ProductListReceivedEvent -= ProductListReceived;
-            IosStoreManager.ProductListRequestFailedEvent -= ProductListFailed;
-            IosStoreManager.PurchaseFailedEvent -= PurchaseFailed;
-            IosStoreManager.PurchaseCancelledEvent -= PurchaseCanceled;
-            IosStoreManager.PurchaseSuccessfulEvent -= PurchaseFinished;
-            IosStoreManager.TransactionUpdatedEvent -= TransactionUpdated;
+            _storeManager.ProductListReceivedEvent -= ProductListReceived;
+            _storeManager.ProductListRequestFailedEvent -= ProductListFailed;
+            _storeManager.PurchaseFailedEvent -= PurchaseFailed;
+            _storeManager.PurchaseCancelledEvent -= PurchaseCanceled;
+            _storeManager.PurchaseSuccessfulEvent -= PurchaseFinished;
+            _storeManager.TransactionUpdatedEvent -= TransactionUpdated;
         }
 
         public void PurchaseStateChanged(PurchaseState state, string productID)

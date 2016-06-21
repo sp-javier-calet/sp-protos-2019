@@ -5,14 +5,14 @@ using UnityEngine;
 namespace SocialPoint.Attributes
 {
     #if UNITY_ANDROID && !UNITY_EDITOR
-    public class PersistentAttrStorage : IAttrStorage
+    public class PersistentAttrStorage : IAttrStorage, IDisposable
     {
         public event Action<Exception> ExceptionThrown;
 
         readonly string _prefix;
         IAttrSerializer _serializer;
         IAttrParser _parser;
-        AndroidJavaObject persistentAttrStorage;
+        AndroidJavaObject _persistentAttrStorage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PersistentAttrStorage"/> class.
@@ -38,7 +38,7 @@ namespace SocialPoint.Attributes
             _parser = parser;
             _serializer = serializer;
             _prefix = prefix;
-            persistentAttrStorage = new AndroidJavaObject("es.socialpoint.unity.base.PersistentAttrStorage", AndroidContext.CurrentActivity, deviceUid);
+            _persistentAttrStorage = new AndroidJavaObject("es.socialpoint.unity.base.PersistentAttrStorage", AndroidContext.CurrentActivity, deviceUid);
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPPERSISTENT")]
@@ -51,23 +51,32 @@ namespace SocialPoint.Attributes
 
         public Attr Load(string key)
         {
-            var attrString = persistentAttrStorage.Call<string>("getAttrForKey", _prefix, key, String.Empty);
+            var attrString = _persistentAttrStorage.Call<string>("getAttrForKey", _prefix, key, String.Empty);
             return _parser.ParseString(attrString);
         }
 
         public void Save(string key, Attr attr)
         {
-            persistentAttrStorage.Call<bool>("setAttrForKey", _prefix, key, _serializer.SerializeString(attr));
+            _persistentAttrStorage.Call<bool>("setAttrForKey", _prefix, key, _serializer.SerializeString(attr));
         }
 
         public void Remove(string key)
         {
-            persistentAttrStorage.Call<bool>("removeAttrForKey", _prefix, key);
+            _persistentAttrStorage.Call<bool>("removeAttrForKey", _prefix, key);
         }
 
         public bool Has(string key)
         {
-            return persistentAttrStorage.Call<bool>("contains", _prefix, key);
+            return _persistentAttrStorage.Call<bool>("contains", _prefix, key);
+        }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            _persistentAttrStorage.Dispose();
         }
 
         #endregion

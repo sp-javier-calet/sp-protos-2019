@@ -31,6 +31,18 @@ namespace SocialPoint.Attributes
         const string ValueKey = "value";
         const string FromKey = "from";
 
+        AttrDic CreatePatchOperation(string key, string path, Attr value = null)
+        {
+            AttrDic op = new AttrDic();
+            op.SetValue(OpKey, key);
+            op.SetValue(PathKey, path);
+            if(value != null)
+            {
+                op.Set(ValueKey, value);
+            }
+            return op;
+        }
+
         public bool Patch(AttrList patch, Attr data)
         {
             for(int i = 0; i < patch.Count; i++)
@@ -97,10 +109,7 @@ namespace SocialPoint.Attributes
             {
                 if(origin != to)
                 {
-                    AttrDic op = new AttrDic();
-                    op.SetValue(OpKey, ReplaceKey);
-                    op.SetValue(PathKey, path);
-                    op.Set(ValueKey, (Attr)to.Clone());
+                    AttrDic op = CreatePatchOperation(ReplaceKey, path, (Attr)to.Clone());
                     patch.Add(op);
                 }
                 return;
@@ -117,9 +126,7 @@ namespace SocialPoint.Attributes
                 {
                     for(int i = originList.Count - 1; i >= toList.Count; i--)
                     {
-                        AttrDic op = new AttrDic();
-                        op.SetValue(OpKey, RemoveKey);
-                        op.SetValue(PathKey, AddPath(path, i));
+                        AttrDic op = CreatePatchOperation(RemoveKey, AddPath(path, i));
                         patch.Add(op);
                     }
                 }
@@ -127,10 +134,7 @@ namespace SocialPoint.Attributes
                 {
                     for(int i = originList.Count; i < toList.Count; i++)
                     {
-                        AttrDic op = new AttrDic();
-                        op.SetValue(OpKey, AddKey);
-                        op.SetValue(PathKey, AddPath(path, i));
-                        op.Set(ValueKey, (Attr)toList.Get(i).Clone());
+                        AttrDic op = CreatePatchOperation(AddKey, AddPath(path, i), (Attr)toList.Get(i).Clone());
                         patch.Add(op);
                     }
                 }
@@ -150,23 +154,18 @@ namespace SocialPoint.Attributes
                     }
                     else
                     {
-                        AttrDic op = new AttrDic();
-                        op.SetValue(OpKey, RemoveKey);
-                        op.SetValue(PathKey, kpath);
-                        op.Set(ValueKey, (Attr)toDict.Get(key).Clone());
+                        AttrDic op = CreatePatchOperation(RemoveKey, kpath, (Attr)toDict.Get(key).Clone());
                         patch.Add(op);
                     }
                 }
+                itr.Dispose();
                 itr = toDict.GetEnumerator();
                 while(itr.MoveNext())
                 {
                     var key = itr.Current.Key;
                     if(!originDict.ContainsKey(key))
                     {
-                        AttrDic op = new AttrDic();
-                        op.SetValue(OpKey, AddKey);
-                        op.SetValue(PathKey, AddPath(path, key));
-                        op.Set(ValueKey, (Attr)itr.Current.Value.Clone());
+                        AttrDic op = CreatePatchOperation(AddKey, AddPath(path, key), (Attr)itr.Current.Value.Clone());
                         patch.Add(op);
                     }
                 }

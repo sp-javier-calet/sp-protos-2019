@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
@@ -7,29 +8,16 @@ namespace SocialPoint.Dependency
         void Initialize();
     }
 
-    public class InitializableComparer : IEqualityComparer<IInitializable>
-    {
-        public int GetHashCode(IInitializable obj)
-        {
-            return obj.GetType().GetHashCode();
-        }
-
-        public bool Equals(IInitializable x, IInitializable y)
-        {
-            return ReferenceEquals(x, y);
-        }
-    }
-
     public class InitializableManager
     {
         Dictionary<IInitializable,int> _initialized;
         DependencyContainer _container;
-        InitializableComparer _comparer;
+        ReferenceComparer<IInitializable> _comparer;
 
         public InitializableManager(DependencyContainer container)
         {
             _container = container;
-            _comparer = new InitializableComparer();
+            _comparer = new ReferenceComparer<IInitializable>();
             _initialized = new Dictionary<IInitializable, int>(_comparer);
         }
 

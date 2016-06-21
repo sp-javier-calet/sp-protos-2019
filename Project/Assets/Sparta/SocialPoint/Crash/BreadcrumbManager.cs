@@ -5,25 +5,25 @@ using System;
 
 namespace SocialPoint.Crash
 {
-    public struct Breadcrumb
+    public class BreadcrumbManager : IBreadcrumbManager
     {
-        readonly long timestamp;
-        readonly string info;
-
-        public Breadcrumb(string info)
+        struct Breadcrumb
         {
-            timestamp = TimeUtils.Timestamp;
-            this.info = info;
+            readonly long timestamp;
+            readonly string info;
+
+            public Breadcrumb(string info)
+            {
+                timestamp = TimeUtils.Timestamp;
+                this.info = info;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("{0} \t{1}", TimeUtils.GetTime(timestamp).ToString("yyyy/MM/dd HH:mm:ss"), info);
+            }
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} \t{1}", TimeUtils.GetTime(timestamp).ToString("yyyy/MM/dd HH:mm:ss"), info);
-        }
-    }
-
-    public class BreadcrumbManager
-    {
         const string LastSessionBreadcrumbsName = "old";
         static bool _initialized;
 
@@ -39,55 +39,51 @@ namespace SocialPoint.Crash
             if(!_initialized)
             {
                 _initialized = true;
-                string breadCrumbDirectoryPath = PathsManager.AppPersistentDataPath + "/breadcrumb/";
+                string breadCrumbDirectoryPath = BreadcrumbDirectoryPath();
+                string breadCrumbFilename = BreadcrumbFilename();
+                string breadCrumbLogPath = BreadcrumbLogPath();
 
-                FileUtils.CreateDirectory(breadCrumbDirectoryPath);
-                
-                if(FileUtils.ExistsFile(BreadcrumbLogPath()))
-                {
-                    FileUtils.CopyFile(BreadcrumbLogPath(), BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
-                }
+                BreadcrumbManagerBinding.SetDumpFilePath(breadCrumbDirectoryPath, breadCrumbFilename);
 
-                using(var file = new StreamWriter(BreadcrumbLogPath(), false))
+                if(FileUtils.ExistsFile(breadCrumbLogPath))
                 {
-                    file.WriteLine(string.Format("Breadcrumb log {0}", TimeUtils.GetTime(TimeUtils.Timestamp).ToString("yyyy/MM/dd HH:mm:ss")));
+                    FileUtils.CopyFile(breadCrumbLogPath, BreadcrumbLogPath(LastSessionBreadcrumbsName), true);
                 }
             }
         }
 
+        public static string BreadcrumbDirectoryPath()
+        {
+            return PathsManager.AppPersistentDataPath + "/breadcrumb/";
+        }
+
+        public static string BreadcrumbFilename(string uuid = "")
+        {
+            return string.Format("Breadcrumb{0}.log", uuid != "" ? "-" + uuid : "");
+        }
+
         public static string BreadcrumbLogPath(string uuid = "")
         {
-            return string.Format("{0}/breadcrumb/Breadcrumb{1}.log", PathsManager.AppPersistentDataPath,
-                uuid != "" ? "-" + uuid : "");
+            return BreadcrumbDirectoryPath() + BreadcrumbFilename(uuid);
         }
 
         #region BreadcrumbManager implementation
 
         public BreadcrumbManager()
         {
+            Log("Breadcrumb Log");
             PathsManager.CallOnLoaded(InitializeBreadcrumbFile);
         }
 
         public void Log(string info)
         {
-            if(!FileUtils.ExistsFile(BreadcrumbLogPath()))
-            {
-                LogException = new FileNotFoundException();
-                return;
-            }
+            Breadcrumb breadcrumb = new Breadcrumb(info);
+            BreadcrumbManagerBinding.Log(breadcrumb.ToString());
+        }
 
-            var breadcrumb = new Breadcrumb(info);
-            using(var file = new StreamWriter(BreadcrumbLogPath(), true))
-            {
-                try
-                {
-                    file.WriteLine(breadcrumb);
-                }
-                catch(Exception e)
-                {
-                    LogException = e;
-                }
-            }
+        public void DumpToFile()
+        {
+            BreadcrumbManagerBinding.DumpToFile();
         }
 
         public void RemoveData()
@@ -111,6 +107,14 @@ namespace SocialPoint.Crash
             {
                 string oldPath = BreadcrumbLogPath(LastSessionBreadcrumbsName);
                 return !FileUtils.ExistsFile(oldPath) ? null : FileUtils.ReadAllText(oldPath);
+            }
+        }
+
+        public bool HasOldBreadcrumb
+        {
+            get
+            {
+                return FileUtils.ExistsFile(BreadcrumbLogPath(LastSessionBreadcrumbsName));
             }
         }
 
