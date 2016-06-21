@@ -224,7 +224,6 @@ namespace SpartaTools.Editor.View
 
             // Load base settings
             _baseSettingsData = new BuildSetViewData(BuildSet.BaseSettingsName, BaseSettings.Load(), true);
-
             return configs;
         }
 
@@ -365,6 +364,9 @@ namespace SpartaTools.Editor.View
 
             EditorGUILayout.Space();
             GUILayout.EndVertical();
+
+            // Update Asset content
+            EditorUtility.SetDirty(data.Config);
         }
 
         string InheritableTextField(string label, string tooltip, string value, bool isBaseConfig)

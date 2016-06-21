@@ -67,6 +67,8 @@ namespace SpartaTools.Editor.Build
             config.Android.Keystore.FilePassword = PlayerSettings.keystorePass;
             config.Android.Keystore.Alias = PlayerSettings.Android.keyaliasName;
             config.Android.Keystore.Password = PlayerSettings.Android.keyaliasPass;
+
+            EditorUtility.SetDirty(config);
         }
 
         public static void RevertToBase()
