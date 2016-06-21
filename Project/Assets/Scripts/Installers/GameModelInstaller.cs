@@ -12,6 +12,7 @@ public class GameModelInstaller : SubInstaller
         Container.Rebind<PlayerParser>().ToMethod<PlayerParser>(CreatePlayerParser);
         Container.Rebind<IParser<PlayerModel>>().ToLookup<PlayerParser>();
         Container.Rebind<ISerializer<PlayerModel>>().ToLookup<PlayerParser>();
+        Container.Rebind<IParser<ConfigPatch>>().ToSingle<ConfigPatchParser>();
 
         Container.Rebind<GameModel>().ToMethod<GameModel>(CreateGameModel);
         Container.Rebind<PlayerModel>().ToGetter<GameModel>((game) => game.Player);
@@ -31,7 +32,8 @@ public class GameModelInstaller : SubInstaller
         return new GameParser(
             Container.Resolve<GameModel>(),
             Container.Resolve<IParser<ConfigModel>>(),
-            Container.Resolve<IParser<PlayerModel>>());
+            Container.Resolve<IParser<PlayerModel>>(),
+            Container.Resolve<IParser<ConfigPatch>>());
     }
 
     ConfigParser CreateConfigParser()
