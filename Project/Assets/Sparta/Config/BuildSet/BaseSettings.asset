@@ -11,18 +11,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f12e3d075af5f4c58a65fa4f27d764ad, type: 3}
   m_Name: BaseSettings
   m_EditorClassIdentifier: 
-  CommonFlags: 
-  RebuildNativePlugins: 0
-  Icon: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
-  IosBundleIdentifier: es.socialpoint.basegame
-  IosFlags: NO_GPGS;ADMIN_PANEL
-  XcodeModsPrefixes: 
-  IosRemovedResources: 
-  AndroidBundleIdentifier: es.socialpoint.basegame
-  AndroidFlags: ADMIN_PANEL
-  BundleVersionCode: 1
-  AndroidRemovedResources: 
-  KeystorePath: Assets/Plugins/Android/socialpoint.keystore
-  KeystoreFilePassword: 
-  KeystoreAlias: android
-  KeystorePassword: 
+  Icon:
+    Texture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+    Override: 0
+  Common:
+    Flags: 
+    RebuildNativePlugins: 0
+    IsDevelopmentBuild: 0
+  Ios:
+    BundleIdentifier: es.socialpoint.basegame
+    Flags: NO_GPGS
+    XcodeModsPrefixes: 
+    RemovedResources: 
+  Android:
+    BundleIdentifier: es.socialpoint.basegame
+    BundleVersionCode: 0
+    ForceBundleVersionCode: 0
+    Flags: 
+    RemovedResources: 
+    UseKeystore: 0
+    Keystore:
+      Path: Assets/Plugins/Android/socialpoint.keystore
+      FilePassword: android
+      Alias: android
+      Password: android

@@ -11,19 +11,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
   m_Name: Shipping-BuildSet
   m_EditorClassIdentifier: 
-  CommonFlags: 
-  RebuildNativePlugins: 1
-  IsDevelopmentBuild: 0
-  Icon: {fileID: 0}
-  IosBundleIdentifier: 
-  IosFlags: 
-  XcodeModsPrefixes: 
-  IosRemovedResources: 
-  AndroidBundleIdentifier: 
-  AndroidFlags: 
-  BundleVersionCode: 0
-  AndroidRemovedResources: 
-  KeystorePath: 
-  KeystoreFilePassword: 
-  KeystoreAlias: 
-  KeystorePassword: 
+  Icon:
+    Texture: {fileID: 0}
+    Override: 0
+  Common:
+    Flags: NO_ADMIN_PANEL
+    RebuildNativePlugins: 1
+    IsDevelopmentBuild: 0
+  Ios:
+    BundleIdentifier: 
+    Flags: 
+    XcodeModsPrefixes: 
+    RemovedResources: 
+  Android:
+    BundleIdentifier: 
+    BundleVersionCode: 0
+    ForceBundleVersionCode: 0
+    Flags: 
+    RemovedResources: 
+    UseKeystore: 1
+    Keystore:
+      Path: 
+      FilePassword: 
+      Alias: 
+      Password: 
