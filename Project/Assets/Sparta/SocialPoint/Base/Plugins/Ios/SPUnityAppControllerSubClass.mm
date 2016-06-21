@@ -3,7 +3,12 @@
 #import <UIKit/UIKit.h>
 #import <AdSupport/AdSupport.h>
 #include <queue>
+
+#if !UNITY_TVOS
 #import <SPUnityPlugins/UnityGameObject.h>
+#else
+#import <SPUnityPlugins_tvOS/UnityGameObject.h>
+#endif
 
 @implementation SPUnityAppControllerSubClass
 {
@@ -134,6 +139,7 @@ std::queue<std::string> _pendingEvents;
     }
 #endif
     
+#if !UNITY_TVOS
     if([self isOsVersionGreaterOrEqualThan: kIosVersion9Tag] && launchOptions != nil)
     {
         UIApplicationShortcutItem* shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
@@ -141,6 +147,7 @@ std::queue<std::string> _pendingEvents;
         if(shortcutItem != nil)
             [self storeForceTouchShortcut:shortcutItem];
     }
+#endif
     [self notifyStatus:kStatusUpdateSource];
     
     return YES;
@@ -172,6 +179,7 @@ std::queue<std::string> _pendingEvents;
     [self notifyStatus:kStatusUpdateSource];
 }
 
+#if !UNITY_TVOS
 - (void)storeForceTouchShortcut:(UIApplicationShortcutItem*)shortcut
 {
     NSDictionary* dictionary = @{ kEventTypeKey:[shortcut type] };
@@ -184,6 +192,7 @@ std::queue<std::string> _pendingEvents;
     [self notifyStatus:kStatusUpdateSource];
     completionHandler(YES);
 }
+#endif
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
@@ -193,7 +202,9 @@ std::queue<std::string> _pendingEvents;
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+#if !UNITY_TVOS
     application.applicationIconBadgeNumber = 0;
+#endif
     [super applicationWillEnterForeground:application];
     // applicationWillEnterForeground: might sometimes arrive *before* actually initing unity (e.g. locking on startup)
     [self notifyStatus:kStatusWillGoForeground];
@@ -250,6 +261,7 @@ extern "C" {
         return (str == NULL || strlen(str) < 1);
     }
     
+#if !UNITY_TVOS
     void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
     {
         SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
@@ -274,4 +286,5 @@ extern "C" {
         
         [[UIApplication sharedApplication] setShortcutItems:items];
     }
+#endif
 }

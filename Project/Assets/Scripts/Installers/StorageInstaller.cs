@@ -33,7 +33,7 @@ public class StorageInstaller : Installer
 
     TransitionAttrStorage CreatePersistentStorage()
     {
-        #if UNITY_IOS && !UNITY_EDITOR
+        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
         #elif UNITY_ANDROID && !UNITY_EDITOR
         var devInfo = Container.Resolve<IDeviceInfo>();

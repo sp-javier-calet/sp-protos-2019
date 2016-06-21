@@ -83,30 +83,6 @@ public class ConsoleProRemoteServer : MonoBehaviour
 		listener.BeginGetContext(ListenerCallback, null);
 	}
 
-	#if UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_5 || UNITY_4_6
-
-	void OnEnable()
-	{
-		Application.RegisterLogCallback(LogCallback);
-	}
-
-	void Update()
-	{
-		Application.RegisterLogCallback(LogCallback);
-	}
-
-	void LateUpdate()
-	{
-		Application.RegisterLogCallback(LogCallback);
-	}
-
-	void OnDisable()
-	{
-		Application.RegisterLogCallback(null);
-	}
-
-	#else
-
 	void OnEnable()
 	{
 		Application.logMessageReceived += LogCallback;
@@ -116,9 +92,7 @@ public class ConsoleProRemoteServer : MonoBehaviour
 	{
 		Application.logMessageReceived -= LogCallback;
 	}
-
-	#endif
-
+            
 	public void LogCallback(string logString, string stackTrace, LogType type)
 	{
 		if(!logString.StartsWith("CPIGNORE"))

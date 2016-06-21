@@ -383,8 +383,11 @@ PlayerSettings:
   psmSplashimage: {fileID: 0}
   spritePackerPolicy: 
   scriptingDefineSymbols:
+    1: NO_GPGS;ADMIN_PANEL
     4: NO_GPGS;ADMIN_PANEL
     7: ADMIN_PANEL
+    13: NO_GPGS;ADMIN_PANEL
+    25: NO_GPGS;ADMIN_PANEL
   metroPackageName: Project
   metroPackageVersion: 
   metroCertificatePath: 

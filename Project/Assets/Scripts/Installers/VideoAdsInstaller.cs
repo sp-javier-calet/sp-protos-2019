@@ -29,7 +29,7 @@ public class VideoAdsInstaller : Installer
     {
         var videoAdsManager = Container.Resolve<SocialPointVideoAdsManager>();
 
-        SettingsData settings;
+        SettingsData settings = null;
         #if UNITY_IOS
         settings = iOSSettings;
         #elif UNITY_ANDROID
@@ -37,9 +37,12 @@ public class VideoAdsInstaller : Installer
         #endif
         var login = Container.Resolve<ILogin>();
 
-        videoAdsManager.AppId = settings.AppID;
         videoAdsManager.GetUserID = () => login.UserId.ToString();
-        videoAdsManager.SecurityToken = settings.SecurityToken;
+        if(settings != null)
+        {
+            videoAdsManager.AppId = settings.AppID;
+            videoAdsManager.SecurityToken = settings.SecurityToken;
+        }
 
         return videoAdsManager;
     }
