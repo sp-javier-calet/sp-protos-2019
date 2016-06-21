@@ -5,11 +5,8 @@ namespace SocialPoint.Hardware
 {
     public class UnityAppInfo : IAppInfo
     {
-        public UnityAppInfo()
-        {
-        }
+        string _seedId;
 
-        private string _seedId;
         public string SeedId
         {
             get
@@ -23,7 +20,8 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _id;
+        string _id;
+
         public string Id
         {
             get
@@ -43,16 +41,13 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _version;
+        string _version;
+
         public string Version
         {
             get
             {
-                if(_version == null)
-                {
-                    return DateTime.UtcNow.ToString("yyMMddHHmm");
-                }
-                return _version;
+                return _version ?? DateTime.UtcNow.ToString("yyMMddHHmm");
             }
             set
             {
@@ -60,7 +55,8 @@ namespace SocialPoint.Hardware
             }
         }
 
-        private string _shortVersion;
+        string _shortVersion;
+
         public string ShortVersion
         {
             get
@@ -68,11 +64,7 @@ namespace SocialPoint.Hardware
 #if UNITY_EDITOR
                 if(_shortVersion == null)
                 {
-#if UNITY_4
-                    _shortVersion = UnityEditor.PlayerSettings.shortBundleVersion;
-#else
-                    _shortVersion = UnityEditor.PlayerSettings.bundleVersion;                    
-#endif
+                    _shortVersion = UnityEditor.PlayerSettings.bundleVersion;
                 }
 #endif
                 return _shortVersion;
@@ -85,6 +77,7 @@ namespace SocialPoint.Hardware
         }
 
         string _language;
+
         public string Language
         {
             get
@@ -228,6 +221,7 @@ namespace SocialPoint.Hardware
         }
 
         string _country;
+
         public string Country
         {
             get

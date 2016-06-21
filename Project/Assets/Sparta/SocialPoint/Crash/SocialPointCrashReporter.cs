@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Crash
 {
-    #if !UNITY_EDITOR
+    #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
     using BasePlatformCrashReporter = DeviceCrashReporter;
 
 #else

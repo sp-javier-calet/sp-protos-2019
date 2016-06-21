@@ -290,7 +290,7 @@ namespace SocialPoint.Profiling
             stats.Verts = (uint)UnityEditor.UnityStats.vertices;
             return stats;
         }
-        #elif UNITY_IOS && SPARTA_PROFILER_ENABLED
+        #elif (UNITY_IOS || UNITY_TVOS) && SPARTA_PROFILER_ENABLED
         [DllImport(PluginModuleName)]
         public static extern FrameInfo SPUnityProfilerGetFrameInfo();
         #else
@@ -316,7 +316,7 @@ namespace SocialPoint.Profiling
         }
         #endif
 
-        #if !UNITY_EDITOR && UNITY_IOS && SPARTA_PROFILER_ENABLED
+        #if !UNITY_EDITOR && (UNITY_IOS || UNITY_TVOS) && SPARTA_PROFILER_ENABLED
         [DllImport(PluginModuleName)]
         public static extern GarbageInfo SPUnityProfilerGetGarbageInfo();
         #else

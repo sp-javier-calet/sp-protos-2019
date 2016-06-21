@@ -291,7 +291,7 @@ public class DownloadManager : MonoBehaviour
         {
             return BuildPlatform.WebPlayer;
         }
-        if(Application.platform == RuntimePlatform.IPhonePlayer)
+        if(Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.tvOS)
         {
             return BuildPlatform.IOS;
         }
@@ -501,7 +501,7 @@ public class DownloadManager : MonoBehaviour
            Application.platform == RuntimePlatform.OSXEditor)
         {
             // This allows targeting platform bundles from the Editor
-            #if UNITY_IOS
+            #if (UNITY_IOS || UNITY_TVOS)
             _currentBuildPlatform = BuildPlatform.IOS;
             #elif UNITY_ANDROID
             _currentBuildPlatform = BuildPlatform.Android;
@@ -854,16 +854,7 @@ public class DownloadManager : MonoBehaviour
             
             if(_useCache && assetVersioningData != null)
             {
-#if !(UNITY_4_2 || UNITY_4_1 || UNITY_4_0)
-                if(_useCrc)
-                {
-                    www = WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version, assetVersioningData.CRC);
-                }
-                else 
-#endif
-                {
-                    www = WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version);
-                }
+                www = _useCrc ? WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version, assetVersioningData.CRC) : WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version);
             }
             else
             {

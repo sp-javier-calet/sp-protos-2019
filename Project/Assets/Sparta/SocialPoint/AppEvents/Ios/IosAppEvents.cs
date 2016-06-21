@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if UNITY_IOS && !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
 
@@ -30,7 +30,7 @@ namespace SocialPoint.AppEvents
         List<Status> EventStatus = new List<Status> { Status.MEMORYWARNING, Status.UPDATEDSOURCE };
         Status _previousStatus = Status.FIRSTBOOT;
 
-#if UNITY_IOS && !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Init(string name);
 

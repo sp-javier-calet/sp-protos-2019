@@ -11,7 +11,9 @@ namespace SocialPoint.Login
     public class FacebookLink : ILink
     {
         readonly IFacebook _facebook;
+        #pragma warning disable 414
         bool _loginWithUi;
+        #pragma warning restore 414
 
         event StateChangeDelegate _eventStateChange;
 
@@ -96,7 +98,11 @@ namespace SocialPoint.Login
 
         public void Login(ErrorDelegate cbk)
         {
+            #if (UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL)
             _facebook.Login(err => OnLogin(err, cbk), _loginWithUi);
+            #else
+            DebugUtils.Log("Facebook API does not yet support this platform");
+            #endif
         }
 
         static void OnLogin(Error err, ErrorDelegate cbk)

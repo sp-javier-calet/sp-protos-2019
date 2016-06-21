@@ -22,13 +22,11 @@ internal class BMSettingsEditor : Editor
 
         Selection.activeObject = settingsInspectorObj;
     }
-
-#if !(UNITY_4_2 || UNITY_4_1 || UNITY_4_0)
+        
     public override bool UseDefaultMargins()
     {
         return false;
     }
-#endif
 
     public override void OnInspectorGUI()
     {
@@ -39,7 +37,6 @@ internal class BMSettingsEditor : Editor
             BuildConfiger.BundleSuffix = EditorGUILayout.TextField("Bundle Suffix", BuildConfiger.BundleSuffix);
             DownloadConfiger.useCache = EditorGUILayout.Toggle("Use Unity Cache", DownloadConfiger.useCache);
 
-#if !(UNITY_4_2 || UNITY_4_1 || UNITY_4_0)
             GUI.enabled = DownloadConfiger.useCache;
 
             if(!DownloadConfiger.useCache)
@@ -52,7 +49,6 @@ internal class BMSettingsEditor : Editor
             DownloadConfiger.useCRC = EditorGUILayout.Toggle("CRC Check", DownloadConfiger.useCRC);
 
             GUI.enabled = true;
-#endif
 
             DownloadConfiger.downloadThreadsCount = EditorGUILayout.IntField("Download Thread Limit", DownloadConfiger.downloadThreadsCount);
             DownloadConfiger.retryTime = EditorGUILayout.IntField("Error Retry Time", DownloadConfiger.retryTime);

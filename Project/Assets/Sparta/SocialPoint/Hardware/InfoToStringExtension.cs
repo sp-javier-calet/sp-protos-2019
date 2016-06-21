@@ -101,7 +101,7 @@ namespace SocialPoint.Hardware
             str.Append("conectivity: ");
             str.Append(info.Connectivity);
             str.Append("\nproxy: ");
-            str.Append(info.Proxy);
+            str.Append(info.Proxy != null ? info.Proxy.ToString() : "");
             str.Append("\nip address: ");
             str.Append(info.IpAddress);
 

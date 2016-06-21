@@ -23,6 +23,7 @@ public class GameLoader : IGameLoader
     readonly IParser<GameModel> _gameParser;
     readonly IParser<PlayerModel> _playerParser;
     readonly IParser<ConfigModel> _configParser;
+    readonly IParser<ConfigPatch> _configPatchParser;
     readonly ISerializer<PlayerModel> _playerSerializer;
     readonly GameModel _gameModel;
     readonly ILoginData _loginData;
@@ -44,13 +45,14 @@ public class GameLoader : IGameLoader
     }
 
     public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser, IParser<ConfigModel> configParser,
-        IParser<PlayerModel> playerParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILoginData loginData)
+        IParser<PlayerModel> playerParser, IParser<ConfigPatch> configPatchParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILoginData loginData)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;
         _gameParser = gameParser;
         _configParser = configParser;
         _playerParser = playerParser;
+        _configPatchParser = configPatchParser;
         _playerSerializer = playerSerializer;
         _gameModel = game;
         _loginData = loginData;
@@ -67,7 +69,14 @@ public class GameLoader : IGameLoader
     {
         var json = (UnityEngine.Resources.Load(_jsonGameResource) as UnityEngine.TextAsset).text;
         var gameData = new JsonAttrParser().ParseString(json);
-        return _configParser.Parse(gameData.AsDic["config"]);
+
+        var configPatch = _configPatchParser.Parse(gameData.AsDic[GameParser.AttrKeyConfigPatch]);
+        var configData = gameData.AsDic[GameParser.AttrKeyConfig];
+        if(!new AttrPatcher().Patch(configPatch.Patch, configData))
+        {
+            configData = gameData.AsDic[GameParser.AttrKeyConfig];
+        }
+        return _configParser.Parse(configData);
     }
 
     GameModel LoadSavedGame()

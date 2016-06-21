@@ -97,11 +97,11 @@ namespace SocialPoint.Purchase
         /// <param name = "commandQueue"></param>
         public SocialPointPurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue, NativeCallsHandler handler)
         {
-            #if UNITY_IOS && !UNITY_EDITOR
+            #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
             _purchaseStore = new IosPurchaseStore(handler);
             #elif UNITY_ANDROID && !UNITY_EDITOR
             _purchaseStore = new AndroidPurchaseStore(handler);
-            #elif UNITY_EDITOR
+            #else
             _purchaseStore = new MockPurchaseStore();
             #endif
 
@@ -161,7 +161,7 @@ namespace SocialPoint.Purchase
                 DebugUtils.Log(req.Url.AbsoluteUri);
             }
 
-            #if UNITY_IOS
+            #if (UNITY_IOS || UNITY_TVOS)
             req.AddParam(HttpParamOrderData, receipt.OriginalJson);
             #elif UNITY_ANDROID
             var paramDic = new AttrDic();
@@ -280,7 +280,7 @@ namespace SocialPoint.Purchase
         {
             get
             {
-                #if UNITY_IOS && !UNITY_EDITOR
+                #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
                 return "purchase/itunes";
                 #elif UNITY_ANDROID && !UNITY_EDITOR
                 return "purchase/google_play";
