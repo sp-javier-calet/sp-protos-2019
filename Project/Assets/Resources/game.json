@@ -1,4 +1,16 @@
 {
+    "config_patches": [
+        {
+            "op": "add",
+            "path": "/globals/patched_global",
+            "value": "foo"
+        },
+        {
+            "op": "replace",
+            "path": "/globals/example",
+            "value": "new_value"
+        }
+    ],
     "config": {
         "globals": {
             "example": "value"
