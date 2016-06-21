@@ -41,7 +41,7 @@ typedef NS_ENUM(NSUInteger, TransactionState) {
 @property(nonatomic) BOOL canSendTransactionUpdateEvents;
 @property(nonatomic) BOOL highDetailLogsEnabled;
 
-- (id)initWithUnityListener:(const char*)listenerName;
+- (id)init;
 
 - (void)setAppUsername:(const char*) userIdentifier;
 - (void)setUseAppReceipt:(BOOL) shouldUseAppReceipt;

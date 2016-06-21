@@ -1,5 +1,5 @@
 #include "SPUnityAlertViewFacade.h"
-#include "UnityGameObject.h"
+#include "SPNativeCallsSender.h"
 #import <UIKit/UIKit.h>
 
 typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
@@ -145,7 +145,6 @@ EXPORT_API void SPUnityAlertViewShow(SPUnityAlertViewDataStruct data)
     
     NSArray* buttons = [[NSString stringWithUTF8String:data.buttons]
                         componentsSeparatedByString:@"|"];
-    NSString* objName = [NSString stringWithUTF8String:data.objectname];
     NSString* title = [NSString stringWithUTF8String:data.title];
     NSString* message = [NSString stringWithUTF8String:data.message];
     NSString* signature = [NSString stringWithUTF8String:data.signature];
@@ -162,7 +161,7 @@ EXPORT_API void SPUnityAlertViewShow(SPUnityAlertViewDataStruct data)
             NSString* msg = [NSString stringWithFormat:@"%ld %@", (long)buttonIndex, inputText];
             s_spAlertView = nil;
             
-            UnityGameObject(objName.UTF8String).SendMessage("ResultMessage", msg.UTF8String);
+            SPNativeCallsSender::SendMessage("ResultMessage", msg.UTF8String);
         }];
 
     [s_spAlertView show];

@@ -12,10 +12,10 @@ class PlatformPurchaseCenterBridge
     SPPurchaseNativeServices* _purchaseServices;
     
 public:
-    PlatformPurchaseCenterBridge(const char* listenerObjectName)
+    PlatformPurchaseCenterBridge()
     : _purchaseServices(nullptr)
     {
-        _purchaseServices = [[SPPurchaseNativeServices alloc] initWithUnityListener:listenerObjectName];
+        _purchaseServices = [[SPPurchaseNativeServices alloc] init];
     }
     
     /* Setters */
@@ -108,9 +108,9 @@ PlatformPurchaseCenterBridge* purchaseBridge = nullptr;
 
 /* EXPORT FUNCTIONS */
 
-EXPORT_API void SPUnityStore_Init(const char* listenerObjectName)
+EXPORT_API void SPUnityStore_Init()
 {
-    purchaseBridge = new PlatformPurchaseCenterBridge(listenerObjectName);
+    purchaseBridge = new PlatformPurchaseCenterBridge();
 }
 
 EXPORT_API void SPUnityStore_SetApplicationUsername(const char* applicationUserName)
