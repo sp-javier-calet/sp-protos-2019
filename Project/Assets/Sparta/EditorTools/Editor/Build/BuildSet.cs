@@ -26,13 +26,14 @@ namespace SpartaTools.Editor.Build
          * Icon configuration 
          */
         [Serializable]
-        public struct IconConfiguration
+        public struct AppConfiguration
         {
-            public Texture2D Texture;
-            public bool Override;
+            public string ProductName;
+            public Texture2D IconTexture;
+            public bool OverrideIcon;
         }
 
-        public IconConfiguration Icon;
+        public AppConfiguration App;
 
         /* 
          * Common configuration 
@@ -40,6 +41,7 @@ namespace SpartaTools.Editor.Build
         [Serializable]
         public struct CommonConfiguration
         {
+
             public string Flags;
             public bool RebuildNativePlugins;
             public bool IsDevelopmentBuild;
@@ -170,25 +172,30 @@ namespace SpartaTools.Editor.Build
 
             Validate();
 
-            if(Icon.Override)
+            if(!string.IsNullOrEmpty(App.ProductName))
+            {
+                PlayerSettings.productName = App.ProductName;
+            }
+
+            if(App.OverrideIcon)
             {
                 PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture
                 });
                 PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture,
-                    Icon.Texture
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture,
+                    App.IconTexture
                 });
             }
 

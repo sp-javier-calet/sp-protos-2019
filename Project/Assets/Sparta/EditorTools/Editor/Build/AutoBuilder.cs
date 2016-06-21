@@ -13,7 +13,7 @@ namespace SpartaTools.Editor.Build
         {
             get
             {
-                // TODO
+                // Returns main project folder as ProjectName
                 string[] s = Application.dataPath.Split(Path.DirectorySeparatorChar);
                 return s[s.Length - 2];
             }

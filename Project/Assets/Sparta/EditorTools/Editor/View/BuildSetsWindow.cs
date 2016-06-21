@@ -247,18 +247,19 @@ namespace SpartaTools.Editor.View
                 EditorGUILayout.Space();
 
                 GUILayout.BeginVertical();
+                config.App.ProductName = InheritableTextField("Product Name", "Application name", config.App.ProductName, data.IsBase);
                 config.Common.Flags = InheritableTextField("Flags", "Defined symbols for all platforms", config.Common.Flags, data.IsBase);
 
                 if(!data.IsBase)
                 {
                     config.Common.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.Common.RebuildNativePlugins);
                     config.Common.IsDevelopmentBuild = EditorGUILayout.Toggle(new GUIContent("Development build", "Build as development build"), config.Common.IsDevelopmentBuild);
-                    config.Icon.Override = EditorGUILayout.Toggle("Override Icon", config.Icon.Override);
+                    config.App.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.App.OverrideIcon);
                 }
 
-                if(data.IsBase || config.Icon.Override)
+                if(data.IsBase || config.App.OverrideIcon)
                 {
-                    config.Icon.Texture = (Texture2D)EditorGUILayout.ObjectField("Icon", config.Icon.Texture, typeof(Texture2D), false);
+                    config.App.IconTexture = (Texture2D)EditorGUILayout.ObjectField("Icon", config.App.IconTexture, typeof(Texture2D), false);
                 }
                 GUILayout.EndVertical();
 

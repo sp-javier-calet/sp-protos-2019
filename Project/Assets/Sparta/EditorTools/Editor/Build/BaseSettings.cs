@@ -19,8 +19,12 @@ namespace SpartaTools.Editor.Build
                 ErrorMessage = "Ios Bundle Identifier must be defined"
             },
             new Validator {
-                Validate = (BuildSet bs) => bs.Icon.Texture != null,
+                Validate = (BuildSet bs) => bs.App.IconTexture != null,
                 ErrorMessage = "Default Icon must be defined"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.App.ProductName),
+                ErrorMessage = "Default Product Name must be provided"
             }
         };
 
@@ -51,10 +55,12 @@ namespace SpartaTools.Editor.Build
 
         static void ImportConfig(BaseSettings config)
         {
+            config.App.ProductName = PlayerSettings.productName;
+
             var icons = PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.iOS);
             if(icons != null && icons.Length > 0)
             {
-                config.Icon.Texture = icons[0];
+                config.App.IconTexture = icons[0];
             }
 
             config.Ios.BundleIdentifier = PlayerSettings.bundleIdentifier;
@@ -90,24 +96,26 @@ namespace SpartaTools.Editor.Build
         {
             Validate();
 
+            PlayerSettings.productName = App.ProductName;
+
             // Always override Icon
             PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture
             });
             PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture,
-                Icon.Texture
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture,
+                App.IconTexture
             });
                 
             // Bundle Identifier
