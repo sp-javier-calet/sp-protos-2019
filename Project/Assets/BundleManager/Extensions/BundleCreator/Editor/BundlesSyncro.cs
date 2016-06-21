@@ -20,26 +20,20 @@ public class BundlesSynchro
             AttrDic localBundlesAttr = new AttrDic();
             AttrList attrNodesList = new AttrList();
 
-            for(int i = 0; i < attrs.AsDic["asset_versioning"].AsList.Count; i++)
+            for(int i = 0; i < attrs.AsDic[BundleCreatorHelper.AttrAssetVersioningKey].AsList.Count; i++)
             {
-                var assetVersioningItem = attrs.AsDic["asset_versioning"].AsList[i].AsDic;
-                string bundleName = assetVersioningItem["name"].ToString();
-                long crc = (long)assetVersioningItem["crc"].AsValue.ToLong();
-                bool isLocal = assetVersioningItem["isLocal"].AsValue.ToBool();
-                int version = assetVersioningItem["version"].AsValue.ToInt();
+                var assetVersioningItem = attrs.AsDic[BundleCreatorHelper.AttrAssetVersioningKey].AsList[i].AsDic;
+                string bundleName = assetVersioningItem[BundleCreatorHelper.AttrAssetNameKey].ToString();
+                int version = assetVersioningItem[BundleCreatorHelper.AttrAssetVersionKey].AsValue.ToInt();
 
                 AttrDic newBundle = new AttrDic();
-                newBundle["bundleName"] = new AttrString(bundleName);
-                newBundle["bundleCRC"] = new AttrLong(crc);
-                newBundle["bundleVersion"] = new AttrInt(version);
+                newBundle[BundleCreatorHelper.AttrAssetBundleNameKey] = new AttrString(bundleName);
+                newBundle[BundleCreatorHelper.AttrAssetBundleVersionKey] = new AttrInt(version);
 
-                if(isLocal)
-                {
-                    attrNodesList.Add(newBundle);
-                }
+                attrNodesList.Add(newBundle);
             }
 
-            localBundlesAttr["bundles"] = attrNodesList;
+            localBundlesAttr[BundleCreatorHelper.AttrAssetBundlesKey] = attrNodesList;
             var jsonContent = LocalBundlesToJson(localBundlesAttr);
 
             SaveJsonFile(localBundlesJsonSPAM, jsonContent);

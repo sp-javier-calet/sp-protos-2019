@@ -8,7 +8,6 @@ using System;
 
 namespace BM.Extensions
 {
-
     public class PostBuildProcedure : BBPPostBuild
     {
         static Dictionary<string, AssetVersioningData> _assetVersioningDict = new Dictionary<string, AssetVersioningData>();
@@ -35,26 +34,26 @@ namespace BM.Extensions
                 JsonAttrParser parserJson = new JsonAttrParser();
                 AttrDic json = parserJson.Parse(System.Text.ASCIIEncoding.ASCII.GetBytes(str)).AsDic;
 
-                AttrList attrBundles = json.AsDic.Get("asset_versioning").AsList;
+                AttrList attrBundles = json.AsDic.Get(BundleCreatorHelper.AttrAssetVersioningKey).AsList;
                 for(int i = 0; i < attrBundles.Count; i++)
                 {
                     Attr obj = attrBundles[i];
 
-                    string bundleName = obj.AsDic.Get("name").ToString();
+                    string bundleName = obj.AsDic.Get(BundleCreatorHelper.AttrAssetNameKey).ToString();
 
                     AssetVersioningData assetVersioningData = new AssetVersioningData();
-                    assetVersioningData.Version = obj.AsDic.GetValue("version").ToInt();
-                    if(obj.AsDic.Get("parent").GetType() != typeof(AttrEmpty) && !string.IsNullOrEmpty(obj.AsDic.Get("parent").ToString()))
+                    assetVersioningData.Version = obj.AsDic.GetValue(BundleCreatorHelper.AttrAssetVersionKey).ToInt();
+                    if(obj.AsDic.Get(BundleCreatorHelper.AttrAssetParentKey).GetType() != typeof(AttrEmpty) && !string.IsNullOrEmpty(obj.AsDic.Get(BundleCreatorHelper.AttrAssetParentKey).ToString()))
                     {
-                        assetVersioningData.Parent = obj.AsDic.Get("parent").ToString();
+                        assetVersioningData.Parent = obj.AsDic.Get(BundleCreatorHelper.AttrAssetParentKey).ToString();
                     }
-                    if(obj.AsDic.Get("crc").GetType() != typeof(AttrEmpty) && !string.IsNullOrEmpty(obj.AsDic.Get("crc").ToString()))
+                    if(obj.AsDic.Get(BundleCreatorHelper.AttrAssetCrcKey).GetType() != typeof(AttrEmpty) && !string.IsNullOrEmpty(obj.AsDic.Get(BundleCreatorHelper.AttrAssetCrcKey).ToString()))
                     {
-                        assetVersioningData.CRC = Convert.ToUInt32(obj.AsDic.Get("crc").ToString());
+                        assetVersioningData.CRC = Convert.ToUInt32(obj.AsDic.Get(BundleCreatorHelper.AttrAssetCrcKey).ToString());
                     }
-                    if(obj.AsDic.Get("isLocal").GetType() != typeof(AttrEmpty) && !string.IsNullOrEmpty(obj.AsDic.Get("isLocal").ToString()))
+                    if(obj.AsDic.Get(BundleCreatorHelper.AttrAssetLocalKey).GetType() != typeof(AttrEmpty) && !string.IsNullOrEmpty(obj.AsDic.Get(BundleCreatorHelper.AttrAssetLocalKey).ToString()))
                     {
-                        assetVersioningData.IsLocal = obj.AsDic.GetValue("isLocal").ToBool();
+                        assetVersioningData.IsLocal = obj.AsDic.GetValue(BundleCreatorHelper.AttrAssetLocalKey).ToBool();
                     }
                     else
                     {
@@ -78,31 +77,31 @@ namespace BM.Extensions
             {
                 AttrDic newBundle = new AttrDic();
 
-                newBundle["name"] = new AttrString(bundle.bundleName);
+                newBundle[BundleCreatorHelper.AttrAssetNameKey] = new AttrString(bundle.bundleName);
                 if(_assetVersioningDict != null && _assetVersioningDict.ContainsKey(bundle.bundleName))
                 {
-                    newBundle["version"] = new AttrInt(_assetVersioningDict[bundle.bundleName].Version);
-                    newBundle["isLocal"] = new AttrBool(_assetVersioningDict[bundle.bundleName].IsLocal);
+                    newBundle[BundleCreatorHelper.AttrAssetVersionKey] = new AttrInt(_assetVersioningDict[bundle.bundleName].Version);
+                    newBundle[BundleCreatorHelper.AttrAssetLocalKey] = new AttrBool(_assetVersioningDict[bundle.bundleName].IsLocal);
                 }
                 else
                 {
-                    newBundle["version"] = new AttrInt(1);
-                    newBundle["isLocal"] = new AttrBool(true);
+                    newBundle[BundleCreatorHelper.AttrAssetVersionKey] = new AttrInt(1);
+                    newBundle[BundleCreatorHelper.AttrAssetLocalKey] = new AttrBool(true);
                 }
 
-                newBundle["crc"] = new AttrLong(bundle.crc);
+                newBundle[BundleCreatorHelper.AttrAssetCrcKey] = new AttrLong(bundle.crc);
 
                 BundleData bData = BundleManager.GetBundleData(bundle.bundleName);
                 if(bData != null && bData.parent != null)
                 {
-                    newBundle["parent"] = new AttrString(bData.parent);
+                    newBundle[BundleCreatorHelper.AttrAssetParentKey] = new AttrString(bData.parent);
                 }
 
                 attrNodesList.Add(newBundle);
             }
 
 
-            localAssetVersioningAttr["asset_versioning"] = attrNodesList;
+            localAssetVersioningAttr[BundleCreatorHelper.AttrAssetVersioningKey] = attrNodesList;
 
             JsonAttrSerializer serializer = new JsonAttrSerializer();
             var jsonContent = System.Text.Encoding.ASCII.GetString(serializer.Serialize(localAssetVersioningAttr));
@@ -116,7 +115,7 @@ namespace BM.Extensions
             var json = File.ReadAllText(Application.dataPath + GameJson);
             var gameData = new JsonAttrParser().ParseString(json);
 
-            gameData.AsDic["config"].AsDic["bundles"].AsDic["asset_versioning"] = attrNodesList;
+            gameData.AsDic[BundleCreatorHelper.AttrAssetConfigKey].AsDic[BundleCreatorHelper.AttrAssetBundlesKey].AsDic[BundleCreatorHelper.AttrAssetVersioningKey] = attrNodesList;
 
             jsonContent = System.Text.Encoding.ASCII.GetString(serializer.Serialize(gameData));
 
