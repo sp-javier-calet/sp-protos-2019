@@ -1,5 +1,8 @@
-﻿using SocialPoint.Base;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
+using SocialPoint.Attributes;
+
 
 namespace SocialPoint.Social
 {
@@ -17,6 +20,8 @@ namespace SocialPoint.Social
         }
 
         public event GoogleStateChangeDelegate StateChangeEvent;
+
+        public Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
@@ -94,7 +99,7 @@ namespace SocialPoint.Social
             {
                 cbk(GoogleQuestEvent.Empty, new Error("Empty Google implementation"));
             }
-        }
+        }            
 
         public GoogleUser User
         {
@@ -148,6 +153,7 @@ namespace SocialPoint.Social
                 return _friends;
             }
         }
+
         #endregion
     }
 }

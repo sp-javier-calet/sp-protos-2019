@@ -65,7 +65,7 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         if(Input.GetButtonDown("Submit"))
         {
             _down = true;
-            _timeSinceDown = 0.0f;
+            _timeSinceDown = WaitTime;
         }
         else if(Input.GetButtonDown("Cancel"))
         {

@@ -211,10 +211,6 @@ namespace BuildReportTool
             
             settings.EnableExplicitNullChecks = EditorUserBuildSettings.explicitNullChecks;
             
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            settings.StripPhysicsCode = PlayerSettings.stripPhysics;
-            #endif
-            
             // rendering settings
             // ---------------------------------------------------------------
             settings.ColorSpaceUsed = PlayerSettings.colorSpace.ToString();
@@ -243,14 +239,8 @@ namespace BuildReportTool
             
             settings.WebPlayerEnableStreaming = EditorUserBuildSettings.webPlayerStreamed;
             settings.WebPlayerDeployOffline = EditorUserBuildSettings.webPlayerOfflineDeployment;
-            #if !UNITY_5_3
+            #if !UNITY_5_3_OR_NEWER
             settings.WebPlayerFirstStreamedLevelWithResources = PlayerSettings.firstStreamedLevelWithResources;
-            #endif
-            
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            // flash player settings
-            // ---------------------------------------------------------------
-            settings.FlashBuildSubtarget = EditorUserBuildSettings.flashBuildSubtarget.ToString();
             #endif
         }
         
@@ -271,15 +261,7 @@ namespace BuildReportTool
             
             settings.StandaloneForceSingleInstance = PlayerSettings.forceSingleInstance;
             settings.StandaloneEnableResizableWindow = PlayerSettings.resizableWindow;
-            
-            
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            // windows only build settings
-            // ---------------------------------------------------------------
-            settings.WinUseDirect3D11IfAvailable = PlayerSettings.useDirect3D11;
-            #endif
-            
-            
+                  
             // mac only build settings
             // ---------------------------------------------------------------
             settings.MacUseAppStoreValidation = PlayerSettings.useMacAppStoreValidation;
@@ -312,10 +294,6 @@ namespace BuildReportTool
             
             // iOS only build settings
             // ---------------------------------------------------------------
-            
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            settings.iOSAppendedToProject = EditorUserBuildSettings.appendProject;
-            #endif
             settings.iOSSymlinkLibraries = EditorUserBuildSettings.symlinkLibraries;
             
             settings.iOSAppDisplayName = PlayerSettings.iOS.applicationDisplayName;
@@ -326,7 +304,7 @@ namespace BuildReportTool
             settings.iOSTargetOSVersion = PlayerSettings.iOS.targetOSVersion.ToString();
             
             settings.iOSTargetDevice = PlayerSettings.iOS.targetDevice.ToString();
-            #if !UNITY_5_3
+            #if !UNITY_5_3_OR_NEWER
             settings.iOSTargetResolution = PlayerSettings.iOS.targetResolution.ToString();
             #endif
             settings.iOSIsIconPrerendered = PlayerSettings.iOS.prerenderedIcon;
@@ -334,12 +312,8 @@ namespace BuildReportTool
             settings.iOSRequiresPersistentWiFi = PlayerSettings.iOS.requiresPersistentWiFi.ToString();
             
             settings.iOSStatusBarStyle = PlayerSettings.iOS.statusBarStyle.ToString();
-            
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            settings.iOSExitOnSuspend = PlayerSettings.iOS.exitOnSuspend;
-            #else
+
             settings.iOSExitOnSuspend = PlayerSettings.iOS.appInBackgroundBehavior == iOSAppInBackgroundBehavior.Suspend;
-            #endif
             
             settings.iOSShowProgressBarInLoadingScreen = PlayerSettings.iOS.showActivityIndicatorOnLoading.ToString();
             
@@ -353,12 +327,8 @@ namespace BuildReportTool
             
             
             settings.AndroidUseLicenseVerification = PlayerSettings.Android.licenseVerification;
-            
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            settings.AndroidUse24BitDepthBuffer = PlayerSettings.Android.use24BitDepthBuffer;
-            #else
+
             settings.AndroidUse24BitDepthBuffer = !PlayerSettings.Android.disableDepthAndStencilBuffers;
-            #endif
             
             settings.AndroidVersionCode = PlayerSettings.Android.bundleVersionCode;
             
@@ -381,10 +351,7 @@ namespace BuildReportTool
             
             settings.BlackBerryBuildSubtarget = EditorUserBuildSettings.blackberryBuildSubtarget.ToString();
             settings.BlackBerryBuildType = EditorUserBuildSettings.blackberryBuildType.ToString();
-            
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            settings.BlackBerryAuthorID = PlayerSettings.BlackBerry.authorId;
-            #endif
+
             settings.BlackBerryDeviceAddress = PlayerSettings.BlackBerry.deviceAddress;
             
             settings.BlackBerrySaveLogPath = PlayerSettings.BlackBerry.saveLogPath;
@@ -433,41 +400,6 @@ namespace BuildReportTool
             // ---------------------------------------------------------------
             
             settings.SCEBuildSubtarget = EditorUserBuildSettings.sceBuildSubtarget.ToString();
-            
-            // PS3 build settings
-            // ---------------------------------------------------------------
-            
-            // paths
-            #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-            settings.PS3TitleConfigFilePath = PlayerSettings.ps3TitleConfigPath;
-            settings.PS3DLCConfigFilePath = PlayerSettings.ps3DLCConfigPath;
-            settings.PS3ThumbnailFilePath = PlayerSettings.ps3ThumbnailPath;
-            settings.PS3BackgroundImageFilePath = PlayerSettings.ps3BackgroundPath;
-            settings.PS3BackgroundSoundFilePath = PlayerSettings.ps3SoundPath;
-            settings.PS3TrophyPackagePath = PlayerSettings.ps3TrophyPackagePath;
-            
-            settings.PS3InTrialMode = PlayerSettings.ps3TrialMode;
-            
-            settings.PS3VideoMemoryForVertexBuffers = PlayerSettings.PS3.videoMemoryForVertexBuffers;
-            settings.PS3BootCheckMaxSaveGameSizeKB = PlayerSettings.ps3BootCheckMaxSaveGameSizeKB;
-            
-            settings.PS3SaveGameSlots = PlayerSettings.ps3SaveGameSlots;
-            
-            settings.PS3NpCommsId = PlayerSettings.ps3TrophyCommId;
-            settings.PS3NpCommsSig = PlayerSettings.ps3TrophyCommSig;
-            
-            
-            
-            
-            // PS Vita build settings
-            // ---------------------------------------------------------------
-            
-            settings.PSVTrophyPackagePath = PlayerSettings.psp2NPTrophyPackPath;
-            settings.PSVParamSfxPath = PlayerSettings.psp2ParamSfxPath;
-            
-            settings.PSVNpCommsId = PlayerSettings.psp2NPCommsID;
-            settings.PSVNpCommsSig = PlayerSettings.psp2NPCommsSig;
-            #endif
         }
     }
     

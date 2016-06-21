@@ -30,13 +30,15 @@ namespace SocialPoint.AppEvents
                 go.transform.SetParent(parent);
             }
             DestroyAppEvents();
-            #if UNITY_EDITOR
-            _appEvents = go.AddComponent<UnityAppEvents>();
-            #elif UNITY_IOS
+
+            #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
             _appEvents = go.AddComponent<IosAppEvents>();
-            #elif UNITY_ANDROID
+            #elif UNITY_ANDROID && !UNITY_EDITOR
             _appEvents = go.AddComponent<AndroidAppEvents>();
+            #else
+            _appEvents = go.AddComponent<UnityAppEvents>();
             #endif
+
             _defaultCoroutine = new PriorityCoroutineAction(_appEvents);
         }
 

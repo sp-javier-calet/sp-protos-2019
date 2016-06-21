@@ -31,7 +31,7 @@ namespace SocialPoint.CrossPromotion
         const string kAssetBundleExtension = ".assetBundle";
         const string kAppsChecked = "xpromo_check_apps";
         const string kLastAutoShowPopup = "xpromo_last_auto_show_popup";
-        #if UNITY_IOS
+        #if (UNITY_IOS || UNITY_TVOS)
         const string kDefaultAppsToCheck = "dragoncity://,monsterlegends://,dragonland://,restaurantcity://,dragonstadium://";
         #elif UNITY_ANDROID
         const string kDefaultAppsToCheck = "es.socialpoint.DragonCity,es.socialpoint.MonsterLegends,es.parrotgames.restaurantcity,es.socialpoint.dragonland";

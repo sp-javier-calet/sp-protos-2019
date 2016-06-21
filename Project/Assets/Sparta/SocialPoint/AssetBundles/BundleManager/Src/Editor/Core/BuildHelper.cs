@@ -790,20 +790,12 @@ public class BuildHelper
         }
 
         // Build bundle
-#if UNITY_4_2 || UNITY_4_1 || UNITY_4_0
-        bool succeed = BuildPipeline.BuildAssetBundleExplicitAssetNames(    assets.ToArray(),
-                                                                            assetsNames.ToArray(),
-                                                                            outputPath, 
-                                                                            CurrentBuildAssetOpts,
-                                                                            BuildConfiger.UnityBuildTarget);
-#else
         bool succeed = BuildPipeline.BuildAssetBundleExplicitAssetNames(assets.ToArray(),
                                                                             assetsNames.ToArray(),
                                                                             outputPath,
                                                                             out crc,
                                                                             CurrentBuildAssetOpts,
                                                                             BuildConfiger.UnityBuildTarget);
-#endif
         return succeed;
     }
 
@@ -825,12 +817,8 @@ public class BuildHelper
         {
             throw new BuildProcessException("No scenes were provided for the scene bundle");
         }
-
-#if UNITY_4_2 || UNITY_4_1 || UNITY_4_0
-        string error = BuildPipeline.BuildPlayer (sceneList, outputPath, BuildConfiger.UnityBuildTarget, BuildOptions.BuildAdditionalStreamedScenes | CurrentBuildSceneOpts);
-#else
+            
         string error = BuildPipeline.BuildStreamedSceneAssetBundle(sceneList, outputPath, BuildConfiger.UnityBuildTarget, out crc, CurrentBuildSceneOpts);
-#endif
         return error == "";
     }
 

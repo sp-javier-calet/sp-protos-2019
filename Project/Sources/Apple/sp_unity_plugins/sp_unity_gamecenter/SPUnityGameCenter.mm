@@ -5,10 +5,9 @@
 //  Created by Miguel Janer on 1/2/16.
 //
 #include <string>
-#include "UnityGameObject.h"
+#include "SPNativeCallsSender.h"
 #import <GameKit/GameKit.h>
 
-std::string _gameObjectName;
 static const std::string kNotifyMethod = "Notify";
 
 NSURL* _publicKeyUrl;
@@ -43,16 +42,15 @@ void generateIdentityVerificationSignature()
         {
             NSData *json = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil];
             NSString *jsonString = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
-            UnityGameObject(_gameObjectName).SendMessage(kNotifyMethod, [jsonString UTF8String]);
+            SPNativeCallsSender::SendMessage(kNotifyMethod, [jsonString UTF8String]);
         }
     }];
 }
 
 extern "C"
 {
-    void SPUnityGameCenter_UserVerificationInit(const char* gameObjectName)
+    void SPUnityGameCenter_UserVerificationInit()
     {
-        _gameObjectName = gameObjectName;
         generateIdentityVerificationSignature();
     }
 }

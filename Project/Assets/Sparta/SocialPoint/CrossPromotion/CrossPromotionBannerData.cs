@@ -25,7 +25,7 @@ namespace SocialPoint.CrossPromotion
         public CrossPromotionBannerData(AttrDic config)
         {
             Uid = config.GetValue("id").ToInt();
-            #if UNITY_IOS
+            #if (UNITY_IOS || UNITY_TVOS)
             StoreId = config.GetValue("store_id").ToString();
             #elif UNITY_ANDROID
             StoreId = config.GetValue("app_id").ToString();

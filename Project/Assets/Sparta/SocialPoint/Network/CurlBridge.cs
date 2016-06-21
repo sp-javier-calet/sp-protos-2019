@@ -32,11 +32,11 @@ namespace SocialPoint.Network
         };
 
 
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || UNITY_STANDALONE
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_curl";
-        #else
+        #elif (UNITY_IOS || UNITY_TVOS) 
         const string PluginModuleName = "__Internal";
         #endif
 

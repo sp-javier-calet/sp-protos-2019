@@ -1,15 +1,15 @@
 
 using System;
-using SocialPoint.Dependency;
-using SocialPoint.Crash;
-using SocialPoint.Utils;
-using SocialPoint.Network;
-using SocialPoint.Hardware;
-using SocialPoint.Alert;
 using SocialPoint.AdminPanel;
-using SocialPoint.Login;
-using SocialPoint.ServerEvents;
+using SocialPoint.Alert;
 using SocialPoint.AppEvents;
+using SocialPoint.Crash;
+using SocialPoint.Dependency;
+using SocialPoint.Hardware;
+using SocialPoint.Login;
+using SocialPoint.Network;
+using SocialPoint.ServerEvents;
+using SocialPoint.Utils;
 
 public class CrashInstaller : SubInstaller
 {
@@ -64,6 +64,9 @@ public class CrashInstaller : SubInstaller
         reporter.ExceptionLogActive = Settings.ExceptionLogActive;
         reporter.EnableSendingCrashesBeforeLogin = Settings.EnableSendingCrashesBeforeLogin;
         reporter.NumRetriesBeforeSendingCrashBeforeLogin = Settings.NumRetriesBeforeSendingCrashBeforeLogin;
+        #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+        reporter.NativeHandler = Container.Resolve<NativeCallsHandler>();
+        #endif
     }
 
 }

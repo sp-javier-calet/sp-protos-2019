@@ -18,19 +18,18 @@ namespace SocialPoint.Purchase
 
         static AndroidJavaClass _notifClass;
 
-        //This should be the first function to call
-        public static void Init(string listenerObjectName, bool highDetailLogsEnabled = false)
+        public static void Init(bool highDetailLogsEnabled = false)
         {
             if(Application.platform == RuntimePlatform.Android)
             {
                 _notifClass = new AndroidJavaClass(FullClassName);
                 if(highDetailLogsEnabled)
                 {
-                    _notifClass.CallStatic(FunctionInitWithLogs, listenerObjectName);
+                    _notifClass.CallStatic(FunctionInitWithLogs);
                 }
                 else
                 {
-                    _notifClass.CallStatic(FunctionInit, listenerObjectName);
+                    _notifClass.CallStatic(FunctionInit);
                 }
             }
         }
