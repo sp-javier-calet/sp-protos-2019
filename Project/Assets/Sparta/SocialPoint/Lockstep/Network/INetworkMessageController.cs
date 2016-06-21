@@ -24,14 +24,14 @@ namespace SocialPoint.Lockstep.Network
 
     public interface INetworkMessageController
     {
-        void RegisterHandler(short msgType, Action<NetworkMessageData> handler);
+        void RegisterHandler(byte msgType, Action<NetworkMessageData> handler);
 
-        void RegisterSyncHandler(short msgType, Action<SyncNetworkMessageData> handler);
+        void RegisterSyncHandler(byte msgType, Action<SyncNetworkMessageData> handler);
 
-        void UnregisterHandler(short msgType);
+        void UnregisterHandler(byte msgType);
 
-        void Send(short msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable, int connectionId = 0);
+        void Send(byte msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable, int connectionId = 0);
 
-        void SendToAll(short msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable);
+        void SendToAll(byte msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable);
     }
 }

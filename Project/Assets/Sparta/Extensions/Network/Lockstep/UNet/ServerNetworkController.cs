@@ -146,23 +146,23 @@ namespace SocialPoint.Lockstep.Network.UNet
 
         #region INetworkMessageController implementation
 
-        Dictionary<short, BaseNetworkMessageHandler> _handlers = new Dictionary<short, BaseNetworkMessageHandler>();
+        Dictionary<byte, BaseNetworkMessageHandler> _handlers = new Dictionary<byte, BaseNetworkMessageHandler>();
 
-        public void RegisterHandler(short msgType, Action<NetworkMessageData> handler)
+        public void RegisterHandler(byte msgType, Action<NetworkMessageData> handler)
         {
-            var msgHandler = new NetworkMessageHandler(msgType, handler);
+            var msgHandler = new NetworkMessageHandler((short)msgType, handler);
             _handlers.Add(msgType, msgHandler);
             msgHandler.RegisterServer(_server);
         }
 
-        public void RegisterSyncHandler(short msgType, Action<SyncNetworkMessageData> handler)
+        public void RegisterSyncHandler(byte msgType, Action<SyncNetworkMessageData> handler)
         {
-            var msgHandler = new SyncNetworkMessageHandler(msgType, handler);
+            var msgHandler = new SyncNetworkMessageHandler((short)msgType, handler);
             _handlers.Add(msgType, msgHandler);
             msgHandler.RegisterServer(_server);
         }
 
-        public void UnregisterHandler(short msgType)
+        public void UnregisterHandler(byte msgType)
         {
             BaseNetworkMessageHandler handler;
             if(_handlers.TryGetValue(msgType, out handler))
@@ -177,13 +177,13 @@ namespace SocialPoint.Lockstep.Network.UNet
             return reliability == NetworkReliability.Reliable ? 0 : 1;
         }
 
-        public void Send(short msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable, int connectionId = 0)
+        public void Send(byte msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable, int connectionId = 0)
         {
             var channelId = GetChannelIdByNetworkReliability(channel);
             _server.FindConnection(connectionId).SendByChannel(msgType, new NetworkMessageWrapper(msg), channelId);
         }
 
-        public void SendToAll(short msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable)
+        public void SendToAll(byte msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable)
         {
             SendMessageToAll(msgType, new NetworkMessageWrapper(msg), channel);
         }

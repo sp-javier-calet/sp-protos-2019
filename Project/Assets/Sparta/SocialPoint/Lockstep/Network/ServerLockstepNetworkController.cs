@@ -1,6 +1,4 @@
 ﻿using System;
-using UnityEngine.Networking;
-using SocialPoint.Utils;
 using System.Collections.Generic;
 
 namespace SocialPoint.Lockstep.Network
@@ -21,17 +19,17 @@ namespace SocialPoint.Lockstep.Network
         LockstepConfig _lockstepConfig;
         INetworkMessageController _messageController;
 
-        public short LockstepCommandMsgType { get; protected set; }
+        public byte LockstepCommandMsgType { get; protected set; }
 
-        public short ConfirmTurnsMsgType { get; protected set; }
+        public byte ConfirmTurnsMsgType { get; protected set; }
 
-        public short ConfirmTurnsReceptionMsgType { get; protected set; }
+        public byte ConfirmTurnsReceptionMsgType { get; protected set; }
 
-        public short SetLockstepConfigMsgType { get; protected set; }
+        public byte SetLockstepConfigMsgType { get; protected set; }
 
-        public short AllClientsReadyMsgType { get; protected set; }
+        public byte AllClientsReadyMsgType { get; protected set; }
 
-        public short ClientReadyMsgType { get; protected set; }
+        public byte ClientReadyMsgType { get; protected set; }
 
         Dictionary<int, LockstepClientData> _clientDataByConnectionId;
         Dictionary<int, LockstepClientData> _clientDataByClientId;
@@ -40,12 +38,12 @@ namespace SocialPoint.Lockstep.Network
                                                int clientsCount,
                                                LockstepConfig lockstepConfig,
                                                int startLockstepDelay = 5000,
-                                               short lockstepCommandMsgType = 2002,
-                                               short confirmTurnsMsgType = 2003,
-                                               short confirmTurnsReceptionMsgType = 2004,
-                                               short setLockstepConfigMsgType = 2005,
-                                               short clientReadyMsgType = 2006,
-                                               short allClientsReadyMsgType = 2007)
+                                               byte lockstepCommandMsgType = 102,
+                                               byte confirmTurnsMsgType = 103,
+                                               byte confirmTurnsReceptionMsgType = 104,
+                                               byte setLockstepConfigMsgType = 105,
+                                               byte clientReadyMsgType = 106,
+                                               byte allClientsReadyMsgType = 107)
         {
             _messageController = messageController;
             _clientsCount = clientsCount;

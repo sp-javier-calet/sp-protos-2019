@@ -13,17 +13,14 @@ using SocialPoint.Lockstep.Network.UNet;
 
 namespace SocialPoint.Lockstep.Network.UNet
 {
-    public class ClientNetworkController : IDisposable, INetworkMessageController
+    public class ClientNetworkController : IClientNetworkController
     {
-        const int _packetSize = 1440;
-
         public event Action<string> Log;
         public event Action Connected;
         public event Action Disconnected;
         public event Action<int> OtherConnected;
         public event Action<int> OtherDisconnected;
         public event Action<int, string> Error;
-        public event Action<int, string> ServerError;
 
         public event Action<int, LockstepConfig> LockstepConfigReceived
         {
@@ -60,8 +57,8 @@ namespace SocialPoint.Lockstep.Network.UNet
 
         public ClientNetworkController(string serverAddress,
                                        int port,
-                                       short playerConnectedMsgType = 1000, 
-                                       short playerDisconnectedMsgType = 1001)
+                                       byte playerConnectedMsgType = 100, 
+                                       byte playerDisconnectedMsgType = 101)
         {
             _serverAddress = serverAddress;
             _port = port;
@@ -75,10 +72,10 @@ namespace SocialPoint.Lockstep.Network.UNet
         void InitClient()
         {
             NetworkTransport.Init();
-            var config = new ConnectionConfig{ PacketSize = _packetSize };
+            var config = new ConnectionConfig{ PacketSize = 1440 };
             config.AddChannel(QosType.Reliable);
             config.AddChannel(QosType.Unreliable);
-            var topology = new HostTopology(config, 1);
+            var topology = new HostTopology(config, 2);
             _client = new NetworkClient();
             _client.Configure(topology);
         }
@@ -179,9 +176,9 @@ namespace SocialPoint.Lockstep.Network.UNet
         {
             var error = msg.ReadMessage<ErrorMessage>();
 
-            if(ServerError != null)
+            if(Error != null)
             {
-                ServerError(error.errorCode, error.ToString());
+                Error(error.errorCode, error.ToString());
             }
 
             WriteLog(string.Format("Server error {0}: {1}", error.errorCode, error.ToString()));
@@ -207,23 +204,23 @@ namespace SocialPoint.Lockstep.Network.UNet
 
         #region INetworkMessageController implementation
 
-        Dictionary<short, BaseNetworkMessageHandler> _handlers = new Dictionary<short, BaseNetworkMessageHandler>();
+        Dictionary<byte, BaseNetworkMessageHandler> _handlers = new Dictionary<byte, BaseNetworkMessageHandler>();
 
-        public void RegisterHandler(short msgType, Action<NetworkMessageData> handler)
+        public void RegisterHandler(byte msgType, Action<NetworkMessageData> handler)
         {
-            var msgHandler = new NetworkMessageHandler(msgType, handler);
+            var msgHandler = new NetworkMessageHandler((short)msgType, handler);
             _handlers.Add(msgType, msgHandler);
             msgHandler.Register(_client);
         }
 
-        public void RegisterSyncHandler(short msgType, Action<SyncNetworkMessageData> handler)
+        public void RegisterSyncHandler(byte msgType, Action<SyncNetworkMessageData> handler)
         {
-            var msgHandler = new SyncNetworkMessageHandler(msgType, handler);
+            var msgHandler = new SyncNetworkMessageHandler((short)msgType, handler);
             _handlers.Add(msgType, msgHandler);
             msgHandler.Register(_client);
         }
 
-        public void UnregisterHandler(short msgType)
+        public void UnregisterHandler(byte msgType)
         {
             BaseNetworkMessageHandler handler;
             if(_handlers.TryGetValue(msgType, out handler))
@@ -233,19 +230,19 @@ namespace SocialPoint.Lockstep.Network.UNet
             }
         }
 
-        int GetChannelIdByNetworkReliability(NetworkReliability reliability)
+        int GetChannelIdByNetworkChannel(NetworkReliability reliability)
         {
             return reliability == NetworkReliability.Reliable ? 0 : 1;
         }
 
-        public void Send(short msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable, int connectionId = 0)
+        public void Send(byte msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable, int connectionId = 0)
         {
             NetworkMessageWrapper message = new NetworkMessageWrapper(msg);
-            var channelId = GetChannelIdByNetworkReliability(reliability);
+            var channelId = GetChannelIdByNetworkChannel(reliability);
             _client.SendByChannel(msgType, message, channelId);
         }
 
-        public void SendToAll(short msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable)
+        public void SendToAll(byte msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable)
         {
             Send(msgType, msg, reliability);
         }
