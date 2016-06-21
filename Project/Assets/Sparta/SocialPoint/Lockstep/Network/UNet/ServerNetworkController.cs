@@ -95,9 +95,9 @@ namespace SocialPoint.Lockstep.Network.UNet
             _server.UnregisterHandler(MsgType.Error);
         }
 
-        void SendMessageToAll(short msgType, MessageBase msg, NetworkChannel channel = NetworkChannel.Reliable)
+        void SendMessageToAll(short msgType, MessageBase msg, NetworkReliability channel = NetworkReliability.Reliable)
         {
-            var channelId = GetChannelIdByNetworkChannel(channel);
+            var channelId = GetChannelIdByNetworkReliability(channel);
             var connections = _server.connections;
             for(int i = 0; i < connections.Count; ++i)
             {
@@ -172,18 +172,18 @@ namespace SocialPoint.Lockstep.Network.UNet
             }
         }
 
-        int GetChannelIdByNetworkChannel(NetworkChannel channel)
+        int GetChannelIdByNetworkReliability(NetworkReliability reliability)
         {
-            return channel == NetworkChannel.Reliable ? 0 : 1;
+            return reliability == NetworkReliability.Reliable ? 0 : 1;
         }
 
-        public void Send(short msgType, INetworkMessage msg, NetworkChannel channel = NetworkChannel.Reliable, int connectionId = 0)
+        public void Send(short msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable, int connectionId = 0)
         {
-            var channelId = GetChannelIdByNetworkChannel(channel);
+            var channelId = GetChannelIdByNetworkReliability(channel);
             _server.FindConnection(connectionId).SendByChannel(msgType, new NetworkMessageWrapper(msg), channelId);
         }
 
-        public void SendToAll(short msgType, INetworkMessage msg, NetworkChannel channel = NetworkChannel.Reliable)
+        public void SendToAll(short msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable)
         {
             SendMessageToAll(msgType, new NetworkMessageWrapper(msg), channel);
         }

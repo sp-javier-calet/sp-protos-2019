@@ -98,7 +98,7 @@ namespace SocialPoint.Lockstep.Network
 
         public void SendClientReady()
         {
-            _client.Send(ClientReadyMsgType, new EmptyMessage(), NetworkChannel.Reliable);
+            _client.Send(ClientReadyMsgType, new EmptyMessage(), NetworkReliability.Reliable);
         }
 
         void OnAllClientsReadyMsgTypeReceived(SyncNetworkMessageData data)
@@ -112,13 +112,13 @@ namespace SocialPoint.Lockstep.Network
         void OnTurnsConfirmed(int[] turns)
         {
             var confirmTurnReception = new ConfirmTurnsReceptionMessage(turns);
-            _client.Send(ConfirmTurnsReceptionMsgType, confirmTurnReception, NetworkChannel.Unreliable);
+            _client.Send(ConfirmTurnsReceptionMsgType, confirmTurnReception, NetworkReliability.Unreliable);
         }
 
         void OnPendingCommandAdded(ILockstepCommand command)
         {
             LockstepCommandMessage action = new LockstepCommandMessage(_networkCommandDataFactory, command);
-            _client.Send(LockstepCommandMsgType, action, NetworkChannel.Unreliable);
+            _client.Send(LockstepCommandMsgType, action, NetworkReliability.Unreliable);
         }
 
         public void Dispose()

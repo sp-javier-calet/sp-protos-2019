@@ -233,21 +233,21 @@ namespace SocialPoint.Lockstep.Network.UNet
             }
         }
 
-        int GetChannelIdByNetworkChannel(NetworkChannel channel)
+        int GetChannelIdByNetworkReliability(NetworkReliability reliability)
         {
-            return channel == NetworkChannel.Reliable ? 0 : 1;
+            return reliability == NetworkReliability.Reliable ? 0 : 1;
         }
 
-        public void Send(short msgType, INetworkMessage msg, NetworkChannel channel = NetworkChannel.Reliable, int connectionId = 0)
+        public void Send(short msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable, int connectionId = 0)
         {
             NetworkMessageWrapper message = new NetworkMessageWrapper(msg);
-            var channelId = GetChannelIdByNetworkChannel(channel);
+            var channelId = GetChannelIdByNetworkReliability(reliability);
             _client.SendByChannel(msgType, message, channelId);
         }
 
-        public void SendToAll(short msgType, INetworkMessage msg, NetworkChannel channel = NetworkChannel.Reliable)
+        public void SendToAll(short msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable)
         {
-            Send(msgType, msg, channel);
+            Send(msgType, msg, reliability);
         }
 
         #endregion

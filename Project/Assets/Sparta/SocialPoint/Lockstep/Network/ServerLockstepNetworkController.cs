@@ -83,7 +83,7 @@ namespace SocialPoint.Lockstep.Network
                 int connectionId = data.ConnectionId;
                 var action = new ConfirmTurnsMessage(_networkCommandDataFactory);
                 action.ConfirmedTurns = turnData;
-                _messageController.Send(ConfirmTurnsMsgType, action, NetworkChannel.Unreliable, connectionId);
+                _messageController.Send(ConfirmTurnsMsgType, action, NetworkReliability.Unreliable, connectionId);
             }
         }
 
@@ -178,7 +178,7 @@ namespace SocialPoint.Lockstep.Network
                         _clientDataByClientId[i] = _clientDataByConnectionId[connectionId] = clientData;
                         _messageController.Send(SetLockstepConfigMsgType,
                             new SetLockstepConfigMessage((byte)i, _lockstepConfig),
-                            NetworkChannel.Reliable,
+                            NetworkReliability.Reliable,
                             connectionId);
                         return i;
                     }
