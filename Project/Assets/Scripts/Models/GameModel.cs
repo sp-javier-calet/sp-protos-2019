@@ -2,6 +2,7 @@
 
 public class GameModel : IDisposable
 {
+
     public ConfigModel Config{ get; private set; }
 
     public PlayerModel Player{ get; private set; }

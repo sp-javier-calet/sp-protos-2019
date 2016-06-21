@@ -57,6 +57,7 @@ public class GameInstaller : Installer
             Container.Resolve<IParser<GameModel>>(),
             Container.Resolve<IParser<ConfigModel>>(),
             Container.Resolve<IParser<PlayerModel>>(),
+            Container.Resolve<IParser<ConfigPatch>>(),
             Container.Resolve<ISerializer<PlayerModel>>(),
             Container.Resolve<GameModel>(),
             Container.Resolve<ILogin>());
