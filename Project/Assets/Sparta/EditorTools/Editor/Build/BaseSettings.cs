@@ -19,7 +19,7 @@ namespace SpartaTools.Editor.Build
                 ErrorMessage = "Ios Bundle Identifier must be defined"
             },
             new Validator {
-                Validate = (BuildSet bs) => bs.Icon.Texture == null,
+                Validate = (BuildSet bs) => bs.Icon.Texture != null,
                 ErrorMessage = "Default Icon must be defined"
             }
         };

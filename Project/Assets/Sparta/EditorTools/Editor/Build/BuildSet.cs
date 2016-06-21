@@ -92,7 +92,12 @@ namespace SpartaTools.Editor.Build
         {
             get
             {
-                return name.Substring(0, name.IndexOf(FileSuffix));
+                var nameLength = name.IndexOf(FileSuffix);
+                if(nameLength > 0)
+                {
+                    return name.Substring(0, nameLength);
+                }
+                return name;
             }
         }
 
@@ -197,7 +202,6 @@ namespace SpartaTools.Editor.Build
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, commonFlags + ";" + androidFlags);
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, commonFlags + ";" + iosFlags);
 
-           
             /*
              * Android-only configuration
              */
