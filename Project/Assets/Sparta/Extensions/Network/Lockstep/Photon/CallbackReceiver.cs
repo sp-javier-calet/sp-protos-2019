@@ -51,7 +51,7 @@ namespace SocialPoint.Lockstep.Network.Photon
 
         protected override void SingletonDestroyed()
         {
-            if(PhotonNetwork.SendMonoMessageTargets == null)
+            if(PhotonNetwork.SendMonoMessageTargets != null)
             {
                 PhotonNetwork.SendMonoMessageTargets.Remove(gameObject);
             }
