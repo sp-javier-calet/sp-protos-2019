@@ -2,6 +2,7 @@
 using UnityEditor;
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 namespace SpartaTools.Editor.Build
@@ -19,36 +20,73 @@ namespace SpartaTools.Editor.Build
 
         static readonly char[] ListSeparator = { ';' };
 
-        /* Common configuration */
-        public string CommonFlags;
-        public bool RebuildNativePlugins;
-        public bool IsDevelopmentBuild;
+        #region Scriptable Object Data
 
-        public virtual bool OverrideIcon { get; set; }
+        /* 
+         * Icon configuration 
+         */
+        [Serializable]
+        public struct IconConfiguration
+        {
+            public Texture2D Texture;
+            public bool Override;
+        }
 
-        public Texture2D Icon;
+        public IconConfiguration Icon;
 
-        /* iOS configuration */
-        public string IosBundleIdentifier;
-        public string IosFlags;
-        public string XcodeModsPrefixes;
-        public string IosRemovedResources;
+        /* 
+         * Common configuration 
+         */
+        [Serializable]
+        public struct CommonConfiguration
+        {
+            public string Flags;
+            public bool RebuildNativePlugins;
+            public bool IsDevelopmentBuild;
+        }
 
-        /* Android configuration */
-        public string AndroidBundleIdentifier;
-        public string AndroidFlags;
+        public CommonConfiguration Common;
 
-        public virtual bool ForceBundleVersionCode { get; set; }
+        /*
+         * iOS configuration 
+         */
+        [Serializable]
+        public struct IosConfiguration
+        {
+            public string BundleIdentifier;
+            public string Flags;
+            public string XcodeModsPrefixes;
+            public string RemovedResources;
+        }
 
-        public int BundleVersionCode;
-        public string AndroidRemovedResources;
+        public IosConfiguration Ios;
 
-        public virtual bool UseKeystore { get; set; }
+        /* 
+         * Android configuration 
+         */
+        [Serializable]
+        public struct AndroidKeystoreConfiguration
+        {
+            public string Path;
+            public string FilePassword;
+            public string Alias;
+            public string Password;
+        }
 
-        public string KeystorePath;
-        public string KeystoreFilePassword;
-        public string KeystoreAlias;
-        public string KeystorePassword;
+        [Serializable]
+        public struct AndroidConfiguration
+        {
+            public string BundleIdentifier;
+            public int BundleVersionCode;
+            public bool ForceBundleVersionCode;
+            public string Flags;
+            public string RemovedResources;
+            public bool UseKeystore;
+            public AndroidKeystoreConfiguration Keystore;
+        }
+
+        public AndroidConfiguration Android;
+
 
         public string Name
         {
@@ -63,10 +101,60 @@ namespace SpartaTools.Editor.Build
             return ContainerPath + configName + FileSuffix + FileExtension;
         }
 
-        public virtual bool Validate()
+        #endregion
+
+        #region Validation
+
+        protected delegate bool ValidatorDelegate(BuildSet bs);
+
+        protected struct Validator
         {
-            return true;
+            public ValidatorDelegate Validate;
+
+            public string ErrorMessage;
         }
+
+        protected virtual List<Validator> Validators
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public bool IsValid(out string error)
+        {
+            bool validBuildSet = true;
+            error = string.Empty;
+
+            if(Validators != null)
+            {
+                var errorBuilder = new StringBuilder();
+                foreach(var v in Validators)
+                {
+                    var valid = v.Validate(this);
+                    validBuildSet &= valid;
+                    if(!valid)
+                    {
+                        errorBuilder.AppendLine(v.ErrorMessage);
+                    }
+                }
+
+                error = errorBuilder.ToString();
+            }
+            return validBuildSet;
+        }
+
+        public void Validate()
+        {
+            string error;
+            if(!IsValid(out error))
+            {
+                throw new InvalidOperationException(string.Format("Invalid configuration for '{0}'. \n{1}", name, error));
+            }
+        }
+
+        #endregion
 
         public virtual void Apply()
         {
@@ -75,39 +163,36 @@ namespace SpartaTools.Editor.Build
             // Revert to base settings
             baseSettings.Apply();
 
-            if(!Validate())
-            {
-                throw new InvalidOperationException(string.Format("Invalid configuration for '{0}'", name));
-            }
+            Validate();
 
-            if(OverrideIcon)
+            if(Icon.Override)
             {
                 PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture
                 });
                 PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon,
-                    Icon
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture,
+                    Icon.Texture
                 });
             }
 
             /* 
              * Per Platform Flags
              */
-            var commonFlags = string.IsNullOrEmpty(CommonFlags) ? baseSettings.CommonFlags : CommonFlags;
-            var androidFlags = string.IsNullOrEmpty(AndroidFlags) ? baseSettings.AndroidFlags : AndroidFlags;
-            var iosFlags = string.IsNullOrEmpty(IosFlags) ? baseSettings.IosFlags : IosFlags;
+            var commonFlags = string.IsNullOrEmpty(Common.Flags) ? baseSettings.Common.Flags : Common.Flags;
+            var androidFlags = string.IsNullOrEmpty(Android.Flags) ? baseSettings.Android.Flags : Android.Flags;
+            var iosFlags = string.IsNullOrEmpty(Ios.Flags) ? baseSettings.Ios.Flags : Ios.Flags;
 
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, commonFlags + ";" + androidFlags);
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, commonFlags + ";" + iosFlags);
@@ -116,18 +201,18 @@ namespace SpartaTools.Editor.Build
             /*
              * Android-only configuration
              */
-            if(ForceBundleVersionCode)
+            if(Android.ForceBundleVersionCode)
             {
-                PlayerSettings.Android.bundleVersionCode = BundleVersionCode;
+                PlayerSettings.Android.bundleVersionCode = Android.BundleVersionCode;
             }
 
             // Android Keystore
-            if(UseKeystore && !string.IsNullOrEmpty(KeystorePath))
+            if(Android.UseKeystore && !string.IsNullOrEmpty(Android.Keystore.Path))
             {       
-                PlayerSettings.Android.keystoreName = KeystorePath;
-                PlayerSettings.Android.keystorePass = KeystoreFilePassword;
-                PlayerSettings.Android.keyaliasName = KeystoreAlias;
-                PlayerSettings.Android.keyaliasPass = KeystorePassword;
+                PlayerSettings.Android.keystoreName = Android.Keystore.Path;
+                PlayerSettings.Android.keystorePass = Android.Keystore.FilePassword;
+                PlayerSettings.Android.keyaliasName = Android.Keystore.Alias;
+                PlayerSettings.Android.keyaliasPass = Android.Keystore.Password;
             }
             else
             {
@@ -140,7 +225,7 @@ namespace SpartaTools.Editor.Build
             /*
              * Editor build settings
              */
-            EditorUserBuildSettings.development = IsDevelopmentBuild;
+            EditorUserBuildSettings.development = Common.IsDevelopmentBuild;
                 
             /*
              * Override shared configuration for the active target platform
@@ -160,7 +245,7 @@ namespace SpartaTools.Editor.Build
             {
                 var options = BuildOptions.None;
 
-                if(IsDevelopmentBuild)
+                if(Common.IsDevelopmentBuild)
                 {
                     options |= BuildOptions.Development;
                 }
@@ -268,14 +353,14 @@ namespace SpartaTools.Editor.Build
         {
             public override void OnApply(BuildSet buildSet)
             {
-                SetBundleIdentifier(buildSet.AndroidBundleIdentifier);
+                SetBundleIdentifier(buildSet.Android.BundleIdentifier);
             }
 
             public override void OnApplyExtended(BuildSet buildSet)
             {
-                DiscardResources(buildSet.AndroidRemovedResources);
+                DiscardResources(buildSet.Android.RemovedResources);
 
-                if(buildSet.RebuildNativePlugins)
+                if(buildSet.Common.RebuildNativePlugins)
                 {
                     NativeBuild.CompileAndroid();
                     NativeBuild.CompileAndroidNative();
@@ -287,14 +372,14 @@ namespace SpartaTools.Editor.Build
         {
             public override void OnApply(BuildSet buildSet)
             {
-                SetBundleIdentifier(buildSet.IosBundleIdentifier);
+                SetBundleIdentifier(buildSet.Ios.BundleIdentifier);
             }
 
             public override void OnApplyExtended(BuildSet buildSet)
             {
-                DiscardResources(buildSet.IosRemovedResources);
+                DiscardResources(buildSet.Ios.RemovedResources);
 
-                if(buildSet.RebuildNativePlugins)
+                if(buildSet.Common.RebuildNativePlugins)
                 {
                     NativeBuild.CompileIOS();
                 }
@@ -305,14 +390,14 @@ namespace SpartaTools.Editor.Build
         {
             public override void OnApply(BuildSet buildSet)
             {
-                SetBundleIdentifier(buildSet.IosBundleIdentifier);
+                SetBundleIdentifier(buildSet.Ios.BundleIdentifier);
             }
 
             public override void OnApplyExtended(BuildSet buildSet)
             {
-                DiscardResources(buildSet.IosRemovedResources);
+                DiscardResources(buildSet.Ios.RemovedResources);
 
-                if(buildSet.RebuildNativePlugins)
+                if(buildSet.Common.RebuildNativePlugins)
                 {
                     NativeBuild.CompileTVOS();
                 }
