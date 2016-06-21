@@ -4,7 +4,7 @@ public class UnityGameObject {
 
     static SPUnityActivity _activity;
 
-    static String _unityListenerName;
+    String _unityListenerName;
 
     static void Init(SPUnityActivity activity) {
         _activity = activity;

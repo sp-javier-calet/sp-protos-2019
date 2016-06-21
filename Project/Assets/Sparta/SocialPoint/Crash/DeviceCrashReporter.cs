@@ -147,7 +147,7 @@ namespace SocialPoint.Crash
         static extern void SPUnityCrashReporterForceCrash();
 
         [DllImport(PluginModuleName)]
-        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension, string gameObject);
+        static extern UIntPtr SPUnityCrashReporterCreate(string crashPath, string version, string separator, string crashExtension, string logExtension);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCrashReporterDestroy(UIntPtr ctx);
@@ -156,11 +156,11 @@ namespace SocialPoint.Crash
         public const string CrashExtension = ".crash";
         public const string LogExtension = ".logcat";
         public const string FileSeparator = "-";
+        public NativeCallsHandler NativeHandler;
 
         string _crashesBasePath;
         UIntPtr _nativeObject;
         string _appVersion;
-        DeviceCrashReporterListener _listener;
 
         public DeviceCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbManager = null, IAlertView alertView = null)
             : base(updateScheduler, client, deviceInfo, breadcrumbManager, alertView)
@@ -177,14 +177,8 @@ namespace SocialPoint.Crash
 
             ReadPendingCrashes();
 
-            // Create listener
-            var listenerGo = new GameObject("SocialPoint.DeviceCrashReporterListener");
-            GameObject.DontDestroyOnLoad(listenerGo);
-            _listener = listenerGo.AddComponent<DeviceCrashReporterListener>();
-            _listener.SetBreadcrumbManager(_breadcrumbManager);
-
             // Create native object
-            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension, _listener.gameObject.name);
+            _nativeObject = SPUnityCrashReporterCreate(_crashesBasePath, _appVersion, FileSeparator, CrashExtension, LogExtension);
         }
 
         public static string GetLogPathFromCrashPath(string fullCrashPath)
@@ -207,6 +201,8 @@ namespace SocialPoint.Crash
 
         protected override void OnEnable()
         {
+            DebugUtils.Assert(NativeHandler, "NativeCallsHandler is null");
+            NativeHandler.RegisterListener("OnCrashDumped", OnCrashDumped);
             SPUnityCrashReporterEnable(_nativeObject);
         }
 
@@ -223,6 +219,29 @@ namespace SocialPoint.Crash
         public override void ForceCrash()
         {
             SPUnityCrashReporterForceCrash();
+        }
+
+        public void OnCrashDumped(string path)
+        {
+            DebugUtils.LogWarning("OnCrashDumped '" + path + "'");
+            //A non-killing crash may not "crash" the app, but the native crash detection may stop working after it, and future crashes may not be tracked.
+            //We leave a breadcrumb to know that one of them was detected.
+            _breadcrumbManager.Log("Non-Killing Crash Detected");
+
+            if(FileUtils.ExistsFile(path))
+            {
+                _breadcrumbManager.Log("Non-Killing Crash StackTrace - Start");
+                _breadcrumbManager.Log(DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
+                _breadcrumbManager.Log("Non-Killing Crash StackTrace - End");
+
+                DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
+                FileUtils.DeleteFile(path);
+            }
+
+            string logPath = DeviceCrashReporter.GetLogPathFromCrashPath(path);
+            FileUtils.DeleteFile(logPath);
+
+            _breadcrumbManager.DumpToFile();
         }
 
         protected override List<Report> GetPendingCrashes()
@@ -259,54 +278,4 @@ namespace SocialPoint.Crash
         }
     }
 
-    class DeviceCrashReporterListener : MonoBehaviour
-    {
-        IBreadcrumbManager _breadcrumbManager;
-
-        void LeaveBreadcrumb(string message)
-        {
-            if(_breadcrumbManager != null)
-            {
-                _breadcrumbManager.Log(message);
-            }
-        }
-
-        public void SetBreadcrumbManager(IBreadcrumbManager breadcrumbManager)
-        {
-            _breadcrumbManager = breadcrumbManager;
-        }
-
-        //If this function is called from native code, it means that a crash was detected but the Unity app is still running (non-killing crash)
-        public void OnCrashDumped(string path)
-        {
-            DebugUtils.LogWarning("OnCrashDumped '" + path + "'");
-
-            //A non-killing crash may not "crash" the app, but the native crash detection may stop working after it, and future crashes may not be tracked.
-            //We leave a breadcrumb to know that one of them was detected.
-            LeaveBreadcrumb("Non-Killing Crash Detected");
-
-            if(FileUtils.ExistsFile(path))
-            {
-                LeaveBreadcrumb("Non-Killing Crash StackTrace - Start");
-                LeaveBreadcrumb(DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
-                LeaveBreadcrumb("Non-Killing Crash StackTrace - End");
-
-                DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
-                FileUtils.DeleteFile(path);
-            }
-
-            string logPath = DeviceCrashReporter.GetLogPathFromCrashPath(path);
-            FileUtils.DeleteFile(logPath);
-
-            if(_breadcrumbManager != null)
-            {
-                _breadcrumbManager.DumpToFile();
-            }
-        }
-
-        public void DebugLog(string message)
-        {
-            Debug.Log(message);
-        }
-    }
 }

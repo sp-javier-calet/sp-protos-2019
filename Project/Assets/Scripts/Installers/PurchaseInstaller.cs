@@ -1,12 +1,13 @@
 ﻿using System;
-using UnityEngine;
-using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
-using SocialPoint.Purchase;
-using SocialPoint.Network;
-using SocialPoint.ServerSync;
+using SocialPoint.Dependency;
 using SocialPoint.Login;
+using SocialPoint.Network;
+using SocialPoint.Purchase;
 using SocialPoint.ServerEvents;
+using SocialPoint.ServerSync;
+using SocialPoint.Utils;
+using UnityEngine;
 
 public class PurchaseInstaller : Installer
 {
@@ -29,7 +30,8 @@ public class PurchaseInstaller : Installer
     {
         return new SocialPointPurchaseStore(
             Container.Resolve<IHttpClient>(),
-            Container.Resolve<ICommandQueue>());
+            Container.Resolve<ICommandQueue>(),
+            Container.Resolve<NativeCallsHandler>());
     }
 
     void SetupPurchaseStore(SocialPointPurchaseStore store)
