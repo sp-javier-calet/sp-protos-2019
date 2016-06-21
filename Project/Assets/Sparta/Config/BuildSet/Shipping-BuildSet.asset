@@ -11,9 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
   m_Name: Shipping-BuildSet
   m_EditorClassIdentifier: 
-  Icon:
-    Texture: {fileID: 0}
-    Override: 0
+  App:
+    ProductName: 
+    IconTexture: {fileID: 0}
+    OverrideIcon: 0
   Common:
     Flags: NO_ADMIN_PANEL
     RebuildNativePlugins: 1

@@ -11,9 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f12e3d075af5f4c58a65fa4f27d764ad, type: 3}
   m_Name: BaseSettings
   m_EditorClassIdentifier: 
-  Icon:
-    Texture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
-    Override: 0
+  App:
+    ProductName: Sparta BaseGame
+    IconTexture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+    OverrideIcon: 0
   Common:
     Flags: 
     RebuildNativePlugins: 0
