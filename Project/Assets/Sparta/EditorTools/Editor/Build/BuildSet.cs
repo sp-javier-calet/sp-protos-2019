@@ -13,6 +13,8 @@ namespace SpartaTools.Editor.Build
         public const string ReleaseConfigName = "Release";
         public const string ShippingConfigName = "Shipping";
         public const string BaseSettingsName = "Base Settings";
+        public const string DebugScenePrefix = "Debug";
+        public const string XcodeModSchemesPrefsKey = "XCodeModSchemes";
 
         public const string ContainerPath = "Assets/Sparta/Config/BuildSet/";
         public const string FileSuffix = "-BuildSet";
@@ -177,11 +179,11 @@ namespace SpartaTools.Editor.Build
         {
             if(string.IsNullOrEmpty(schemes))
             {
-                EditorPrefs.DeleteKey("XCodeModSchemes");
+                EditorPrefs.DeleteKey(XcodeModSchemesPrefsKey);
             }
             else
             {
-                EditorPrefs.SetString("XCodeModSchemes", schemes);
+                EditorPrefs.SetString(XcodeModSchemesPrefsKey, schemes);
             }
         }
 
@@ -192,7 +194,7 @@ namespace SpartaTools.Editor.Build
             EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
             foreach(var scene in scenes)
             {
-                if(Path.GetFileName(scene.path).StartsWith("Debug"))
+                if(Path.GetFileName(scene.path).StartsWith(DebugScenePrefix))
                 {
                     scene.enabled = includeDebug;
                 }

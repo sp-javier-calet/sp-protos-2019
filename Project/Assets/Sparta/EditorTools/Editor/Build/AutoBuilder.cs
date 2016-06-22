@@ -98,8 +98,11 @@ namespace SpartaTools.Editor.Build
 
         static void SetVersion(string version)
         {
-            // Set build number. May be overriden by Build Set.
-            PlayerSettings.bundleVersion = version;
+            if(!string.IsNullOrEmpty(version))
+            {
+                // Set build number. May be overriden by Build Set.
+                PlayerSettings.bundleVersion = version;
+            }
         }
 
         static void SetBuildNumber(int buildNumber)
@@ -110,8 +113,11 @@ namespace SpartaTools.Editor.Build
                 buildNumber = Int32.Parse(DateTime.Today.ToString("yyMMddhhmm"));
             }
 
-            PlayerSettings.Android.bundleVersionCode = buildNumber;
-            PlayerSettings.iOS.buildNumber = buildNumber.ToString();
+            if(buildNumber > 0)
+            {
+                PlayerSettings.Android.bundleVersionCode = buildNumber;
+                PlayerSettings.iOS.buildNumber = buildNumber.ToString();
+            }
         }
 
         static BuildSet LoadBuildSetByName(string buildSetName)
@@ -127,15 +133,6 @@ namespace SpartaTools.Editor.Build
 
         #region Public builder interface
 
-        public struct BuildConfig
-        {
-            public BuildTarget Target;
-            public int VersionNumber;
-            public string VersionName;
-            public string Scheme;
-            public string BuildSetName;
-        }
-
         public static void BuildWithArgs()
         {
             // Parse Build number argument
@@ -144,14 +141,6 @@ namespace SpartaTools.Editor.Build
             if(versionArg != null)
             {
                 versionNumber = Int32.Parse(versionArg);
-            }
-
-            // Select build set
-            string scheme = "editor";
-            string schemeArg = GetCommandLineArg("scheme"); // editor/debug/release/shipping
-            if(schemeArg != null)
-            {
-                scheme = schemeArg;
             }
 
             // Parse Build number argument
@@ -163,49 +152,47 @@ namespace SpartaTools.Editor.Build
             }
 
             // Select build set
-            string builSetName = "Release";
-            string buildSetArg = GetCommandLineArg("build_type");
+            string builSetName = BuildSet.DebugConfigName;
+            string buildSetArg = GetCommandLineArg("config");
             if(buildSetArg != null)
             {
                 builSetName = buildSetArg;
             }
 
             // Launch build
-            Build(EditorUserBuildSettings.activeBuildTarget, builSetName, versionNumber);
+            Build(EditorUserBuildSettings.activeBuildTarget, builSetName, versionNumber, versionName);
         }
 
-        public static void Build(BuildTarget target, string buildSetName, int versionNumber = 0)
-        {
-            Build(new BuildConfig {
-                Target = target,
-                VersionNumber = versionNumber,
-                Scheme = "editor",
-                BuildSetName = buildSetName
-            });
-        }
-
-        public static void Build(BuildConfig config)
+        /// <summary>
+        /// Build project for the specified target and config.
+        /// </summary>
+        /// <param name="target">Target Platform</param>
+        /// <param name="buildSetName">Build set name to apply before compiling</param>
+        /// <param name="versionNumber">Version number. If zero, local current timestamp will be used. If negative, it will use the one defined in Unity Player Settings. </param>
+        /// <param name="versionName">Short Version Name. If it is null or empty, it will use the one defined in Unity Player Settings. </param>
+        public static void Build(BuildTarget target, string buildSetName, int versionNumber = -1, string versionName = "")
         {
             Debug.Log(string.Format("Sparta AutoBuilder: Starting Build <{0}> for target <{1}> with config set <{2}>", 
-                config.VersionNumber, config.Target, config.BuildSetName));
+                versionNumber, target, buildSetName));
 
             if(BuildPipeline.isBuildingPlayer)
             {
                 throw new InvalidOperationException("Already building a player");
             }
 
-            SetTarget(config.Target);
+            var buildSet = LoadBuildSetByName(buildSetName);
 
-            SetBuildNumber(config.VersionNumber);
+            SetTarget(target);
 
-            SetVersion(config.VersionName);
+            SetBuildNumber(versionNumber);
 
-            var buildSet = LoadBuildSetByName(config.BuildSetName);
+            SetVersion(versionName);
+
             buildSet.ApplyExtended();
 
             // Start build
-            var location = GetLocationForTarget(config.Target, ProjectName);
-            string result = BuildPipeline.BuildPlayer(ActiveScenes, location, config.Target, buildSet.Options);
+            var location = GetLocationForTarget(target, ProjectName);
+            string result = BuildPipeline.BuildPlayer(ActiveScenes, location, target, buildSet.Options);
 
             if(!string.IsNullOrEmpty(result))
             {
