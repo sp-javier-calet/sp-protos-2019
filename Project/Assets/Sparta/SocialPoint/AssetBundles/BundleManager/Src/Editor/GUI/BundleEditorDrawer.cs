@@ -153,11 +153,7 @@ public static class BundleEditorDrawer
     {
         if(currentBundle.includeGUIDs.Count > 0)
         {
-#if !(UNITY_4_2 || UNITY_4_1 || UNITY_4_0)
             m_FoldoutIncludes = EditorGUILayout.Foldout(m_FoldoutIncludes, "INCLUDE", BMGUIStyles.GetStyle("CFoldout"));
-#else
-            m_FoldoutIncludes = EditorGUILayout.Foldout(m_FoldoutIncludes, "INCLUDE");
-#endif
         }
         else
         {
@@ -216,11 +212,7 @@ public static class BundleEditorDrawer
     {
         if(currentBundle.dependGUIDs.Count > 0)
         {
-#if !(UNITY_4_2 || UNITY_4_1 || UNITY_4_0)
             m_FoldoutMetaFiles = EditorGUILayout.Foldout(m_FoldoutMetaFiles, "DEPEND", BMGUIStyles.GetStyle("CFoldout"));
-#else
-            m_FoldoutMetaFiles = EditorGUILayout.Foldout(m_FoldoutMetaFiles, "DEPEND");
-#endif
         }
         else
         {

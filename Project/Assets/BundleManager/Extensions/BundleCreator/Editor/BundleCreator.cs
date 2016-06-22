@@ -11,6 +11,10 @@ public class BundleCreator
         bool checkingOk = true;
 		
         List<string> bundlesToBuild = new List<string>();
+
+        System.Array.Sort(assetPrefabs, delegate(UnityEngine.Object o1, UnityEngine.Object o2) {
+            return o1.name.CompareTo(o2.name);
+        });
 		
         for(int i = 0; i < assetPrefabs.Length && checkingOk; i++)
         {
@@ -27,7 +31,7 @@ public class BundleCreator
 
             bundlesToBuild.Add(bundleName);    
 
-            if(possibleHierarchy.Length > 0)
+            if(!string.IsNullOrEmpty(possibleHierarchy))
             {
                 if(EditorUtility.DisplayDialog("Bundle Creator", "Possible Hierarchy Found\n------------------------------\n\n" +
                    possibleHierarchy + "\n          " + bundleName + "\n\n The new bundle '" + bundleName +

@@ -1,6 +1,7 @@
 ﻿using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using UnityEngine;
 
 #if UNITY_IOS && !UNITY_EDITOR
@@ -10,25 +11,28 @@ using System.Runtime.InteropServices;
 namespace SocialPoint.Social
 {
 
-    public class SocialPointGameCenterVerification : MonoBehaviour
+    public class SocialPointGameCenterVerification
     {
         bool _loaded = false;
         bool _inited = false;
         GameCenterValidationDelegate _delegate;
         GameCenterUserVerification _verification;
         Error _error;
+        NativeCallsHandler _handler;
 
         #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
-        private static extern void SPUnityGameCenter_UserVerificationInit(string name);
+        private static extern void SPUnityGameCenter_UserVerificationInit();
         #else
-        private static void SPUnityGameCenter_UserVerificationInit(string name)
+        private static void SPUnityGameCenter_UserVerificationInit()
         {
         }
         #endif
 
-        void Awake()
+        public SocialPointGameCenterVerification(NativeCallsHandler handler)
         {
+            _handler = handler;
+            _handler.RegisterListener("Notify",Notify);
         }
 
         public void LoadData(GameCenterValidationDelegate cbk)
@@ -36,7 +40,7 @@ namespace SocialPoint.Social
             if(!_inited)
             {
                 _inited = true;
-                SPUnityGameCenter_UserVerificationInit(gameObject.name);
+                SPUnityGameCenter_UserVerificationInit();
             }
             if(cbk != null)
             {

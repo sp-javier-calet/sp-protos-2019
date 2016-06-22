@@ -4,19 +4,17 @@
  * Exported interface
  */
 extern "C"{
-    SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* crashPath, 
+    SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* crashPath,
                                                       const char* version,
-                                                      const char* fileSeparator, 
+                                                      const char* fileSeparator,
                                                       const char* crashExtension,
-                                                      const char* logExtension,
-                                                      const char* gameObject)
+                                                      const char* logExtension)
     {
         return new SPUnityCrashReporter(std::string(crashPath),
                                         std::string(version),
                                         std::string(fileSeparator),
                                         std::string(crashExtension),
-                                        std::string(logExtension),
-                                        std::string(gameObject));
+                                        std::string(logExtension));
     }
 
     void SPUnityCrashReporterEnable(SPUnityCrashReporter* crashReporter)

@@ -47,7 +47,7 @@ public class FyberAdColonyFix
             method_pause = AndroidJNI.GetStaticMethodID(class_UnityADC, "pause", "(Landroid/app/Activity;)V");
             method_resume = AndroidJNI.GetStaticMethodID(class_UnityADC, "resume", "(Landroid/app/Activity;)V");
             adr_initialized = true;
-            Debug.LogError("Initialization succeeded");
+            Debug.Log("Initialization Fyber AdColony fix-plugin succeeded");
         }
         else
         {

@@ -1,4 +1,3 @@
-using UnityEngine;
 using SocialPoint.IosKeychain;
 
 namespace SocialPoint.Attributes
@@ -11,7 +10,7 @@ namespace SocialPoint.Attributes
         public string AccessGroup = string.Empty;
         public string Service = string.Empty;
 
-        public KeychainAttrStorage(string prefix=null, string accessGroup=null, string service=null)
+        public KeychainAttrStorage(string prefix = null, string accessGroup = null, string service = null)
         {
             Prefix = prefix;
             AccessGroup = accessGroup;
@@ -25,11 +24,7 @@ namespace SocialPoint.Attributes
                 key = Prefix + key;
             }
             var str = new KeychainItem(key, AccessGroup, Service).Value;
-            if(str == null)
-            {
-                return null;
-            }
-            return Parser.ParseString(str);
+            return str == null ? null : Parser.ParseString(str);
         }
 
         public bool Has(string key)
