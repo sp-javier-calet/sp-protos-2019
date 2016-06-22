@@ -19,29 +19,14 @@ namespace SpartaTools.Editor.Build
             }
         }
 
-        static bool IncludedScene(EditorBuildSettingsScene scene)
-        {
-            if(!scene.enabled)
-            {
-                return false;
-            }
-                
-#if ADMIN_PANEL || DEBUG
-            return true;
-#else
-            // Exclude '/Debug*' scenes from release builds
-            return !Path.GetFileName(scene.path).StartsWith("Debug");
-#endif 
-        }
-
-        static string[] ScenePaths
+        static string[] ActiveScenes
         {
             get
             {
                 var scenes = new List<string>();
                 foreach(var scene in EditorBuildSettings.scenes)
                 {
-                    if(IncludedScene(scene))
+                    if(scene.enabled)
                     {
                         scenes.Add(scene.path);
                     }
@@ -220,7 +205,7 @@ namespace SpartaTools.Editor.Build
 
             // Start build
             var location = GetLocationForTarget(config.Target, ProjectName);
-            string result = BuildPipeline.BuildPlayer(ScenePaths, location, config.Target, buildSet.Options);
+            string result = BuildPipeline.BuildPlayer(ActiveScenes, location, config.Target, buildSet.Options);
 
             if(!string.IsNullOrEmpty(result))
             {

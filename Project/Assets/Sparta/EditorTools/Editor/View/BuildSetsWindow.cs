@@ -254,6 +254,7 @@ namespace SpartaTools.Editor.View
                 {
                     config.Common.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.Common.RebuildNativePlugins);
                     config.Common.IsDevelopmentBuild = EditorGUILayout.Toggle(new GUIContent("Development build", "Build as development build"), config.Common.IsDevelopmentBuild);
+                    config.Common.IncludeDebugScenes = EditorGUILayout.Toggle(new GUIContent("Include debug scenes", "Include scene files starting with 'Debug'"), config.Common.IncludeDebugScenes);
                     config.App.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.App.OverrideIcon);
                 }
 

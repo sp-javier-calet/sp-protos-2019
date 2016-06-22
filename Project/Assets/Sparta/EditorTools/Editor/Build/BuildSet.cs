@@ -45,6 +45,7 @@ namespace SpartaTools.Editor.Build
             public string Flags;
             public bool RebuildNativePlugins;
             public bool IsDevelopmentBuild;
+            public bool IncludeDebugScenes;
         }
 
         public CommonConfiguration Common;
@@ -186,6 +187,19 @@ namespace SpartaTools.Editor.Build
 
         #endregion
 
+        public void SelectScenes(bool includeDebug)
+        {
+            EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
+            foreach(var scene in scenes)
+            {
+                if(Path.GetFileName(scene.path).StartsWith("Debug"))
+                {
+                    scene.enabled = includeDebug;
+                }
+            }
+            EditorBuildSettings.scenes = scenes;
+        }
+
         public virtual void Apply()
         {
             var baseSettings = BaseSettings.Load();
@@ -221,6 +235,8 @@ namespace SpartaTools.Editor.Build
                     App.IconTexture
                 });
             }
+
+            SelectScenes(Common.IncludeDebugScenes);
 
             /* 
              * Per Platform Flags
