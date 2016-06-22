@@ -12,7 +12,6 @@ namespace SocialPoint.Login
         readonly ILogin _login;
         readonly IDictionary<string, string> _environments;
         readonly IAppEvents _appEvents;
-        AdminPanelLayout _layout;
 
         public AdminPanelLogin(ILogin login)
         {
@@ -61,7 +60,7 @@ namespace SocialPoint.Login
                 {
                     layout.CreateTextArea(envInfo.ToString());
                 }
-                layout.CreateOpenPanelButton("Change environment", envNames, new AdminPanelEnvironment(_login, _environments, _appEvents));
+                layout.CreateOpenPanelButton("Change environment", new AdminPanelEnvironment(_login, _environments, _appEvents));
                 layout.CreateMargin();
             }
             
@@ -110,8 +109,6 @@ namespace SocialPoint.Login
             
             layout.CreateLabel("Friends");
             layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends.ToString() : "No friends");
-
-            _layout = layout;
         }
     }
 }

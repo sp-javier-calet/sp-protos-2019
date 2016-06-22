@@ -12,6 +12,7 @@ namespace SocialPoint.Login
         readonly ILogin _login;
         readonly IDictionary<string, string> _environments;
         readonly IAppEvents _appEvents;
+        AdminPanelLayout _layout;
 
         public AdminPanelEnvironment(ILogin login, IDictionary<string, string> envs, IAppEvents appEvents)
         {
@@ -25,7 +26,6 @@ namespace SocialPoint.Login
             layout.CreateLabel( "Environments" );
             layout.CreateMargin( 2 );
 
-            StringBuilder envInfo = null;
             var itr = _environments.GetEnumerator();
             while(itr.MoveNext())
             {
@@ -34,6 +34,8 @@ namespace SocialPoint.Login
                     OnEnvironmentChange(kvp.Key);
                 } );
             }
+
+            _layout = layout;
         }
 
         void OnEnvironmentChange(string name)
@@ -43,9 +45,11 @@ namespace SocialPoint.Login
             {
                 throw new InvalidOperationException(string.Format("Could not find url for env '{0}'", name));
             }
-            _login.BaseUrl = url;
-            BackendEnvironment environment = (BackendEnvironment) System.Enum.Parse( typeof( BackendEnvironment ), name );
-            EnvironmentSerializer.Save(environment);
+            _login.SetBaseUrl(url);
+            if(_layout != null)
+            {
+                _layout.Refresh();
+            }
             if(_appEvents != null)
             {
                 _appEvents.RestartGame();
