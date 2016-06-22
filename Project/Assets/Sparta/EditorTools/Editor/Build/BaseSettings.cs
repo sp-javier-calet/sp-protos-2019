@@ -25,6 +25,13 @@ namespace SpartaTools.Editor.Build
             new Validator {
                 Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.App.ProductName),
                 ErrorMessage = "Default Product Name must be provided"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.Android.Keystore.Path) && 
+                                            !string.IsNullOrEmpty(bs.Android.Keystore.FilePassword) &&
+                                            !string.IsNullOrEmpty(bs.Android.Keystore.Alias) &&
+                                            !string.IsNullOrEmpty(bs.Android.Keystore.Password),
+                ErrorMessage = "A Default Release Keystore data must be provided"
             }
         };
 

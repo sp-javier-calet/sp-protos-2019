@@ -107,6 +107,38 @@ namespace SpartaTools.Editor.Build
             return ContainerPath + configName + FileSuffix + FileExtension;
         }
 
+        public bool IsDefaultConfig
+        {
+            get
+            {
+                return IsDebugConfig || IsReleaseConfig || IsShippingConfig;
+            }
+        }
+
+        public bool IsDebugConfig
+        {
+            get
+            {
+                return Name.Equals(DebugConfigName);
+            }
+        }
+
+        public bool IsReleaseConfig
+        {
+            get
+            {
+                return Name.Equals(ReleaseConfigName);
+            }
+        }
+
+        public bool IsShippingConfig
+        {
+            get
+            {
+                return Name.Equals(ShippingConfigName);
+            }
+        }
+
         #endregion
 
         #region Validation
@@ -122,16 +154,28 @@ namespace SpartaTools.Editor.Build
 
         readonly List<Validator> _validators = new List<Validator> { 
             new Validator {
-                Validate = (BuildSet bs) => !bs.Name.Equals(DebugConfigName) || bs.Ios.XcodeModSchemes.Contains("debug"),
+                Validate = (BuildSet bs) => !bs.IsDebugConfig || bs.Ios.XcodeModSchemes.Contains("debug"),
                 ErrorMessage = "Debug Build Set must define the 'debug' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.Name.Equals(ReleaseConfigName) || bs.Ios.XcodeModSchemes.Contains("release"),
+                Validate = (BuildSet bs) => !bs.IsReleaseConfig || bs.Ios.XcodeModSchemes.Contains("release"),
                 ErrorMessage = "Release Build Set must define the 'release' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.Name.Equals(ShippingConfigName) || bs.Ios.XcodeModSchemes.Contains("shipping"),
+                Validate = (BuildSet bs) => !bs.IsShippingConfig || bs.Ios.XcodeModSchemes.Contains("shipping"),
                 ErrorMessage = "Shipping Build Set must define the 'shipping' scheme for XcodeMods"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !bs.IsShippingConfig || bs.Android.UseKeystore,
+                ErrorMessage = "Shipping Build Set must use a release keystore"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.IsDevelopmentBuild,
+                ErrorMessage = "Shipping Build Set cannot be set as a Development Build"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Android.ForceBundleVersionCode,
+                ErrorMessage = "Shipping Build Set cannot force bundle version code"
             }
         };
 

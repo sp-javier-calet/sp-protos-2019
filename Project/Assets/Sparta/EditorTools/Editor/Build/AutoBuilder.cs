@@ -137,10 +137,13 @@ namespace SpartaTools.Editor.Build
         {
             // Parse Build number argument
             int versionNumber = 0;
-            string versionArg = GetCommandLineArg("build");
-            if(versionArg != null)
+            try
             {
-                versionNumber = Int32.Parse(versionArg);
+                versionNumber = Int32.Parse(GetCommandLineArg("build"));
+            }
+            catch(Exception e)
+            {
+                throw new ArgumentException("A valid build number must be provided for the 'build' argument", e);
             }
 
             // Parse Build number argument
