@@ -22,7 +22,7 @@ MonoBehaviour:
   Ios:
     BundleIdentifier: es.socialpoint.basegame
     Flags: NO_GPGS
-    XcodeModsPrefixes: 
+    XcodeModSchemes: 
     RemovedResources: 
   Android:
     BundleIdentifier: es.socialpoint.basegame

@@ -22,7 +22,7 @@ MonoBehaviour:
   Ios:
     BundleIdentifier: 
     Flags: 
-    XcodeModsPrefixes: 
+    XcodeModSchemes: debug
     RemovedResources: 
   Android:
     BundleIdentifier: 
