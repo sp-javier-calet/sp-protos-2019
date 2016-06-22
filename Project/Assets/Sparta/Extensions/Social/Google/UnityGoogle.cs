@@ -6,6 +6,7 @@ using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.Quests;
 using SocialPoint.Base;
+using SocialPoint.Attributes;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
@@ -14,6 +15,8 @@ namespace SocialPoint.Social
     public class UnityGoogle : MonoBehaviour, IGoogle
     {
         public event GoogleStateChangeDelegate StateChangeEvent;
+
+        public Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
 
         protected void NotifyStateChanged()
         {
@@ -145,6 +148,8 @@ namespace SocialPoint.Social
                     localUser.underage ? GoogleUser.AgeGroup.Underage : GoogleUser.AgeGroup.Adult
                 );
 
+                _platform.GetPlayerStats(RetrievePlayerStats);
+
                 _platform.GetServerAuthCode((result, token) => {
                     if(result != CommonStatusCodes.Success)
                     {
@@ -240,6 +245,7 @@ namespace SocialPoint.Social
                 {
                     err = new Error(www.error);
                 }
+                www.Dispose();
             }
             else
             {
@@ -589,6 +595,47 @@ namespace SocialPoint.Social
         }
 
         #endregion
+
+        #endregion
+
+        #region PlayerStats
+
+        const string AttrKeyAvgSessionLength = "avg_session_length";
+        const string AttrKeyChurnProbability = "churn_probability";
+        const string AttrKeyDaysSinceLastPlayed = "days_since_last_played";
+        const string AttrKeyNumberPurchases = "number_purchases";
+        const string AttrKeyNumberSessions = "number_sessions";
+        const string AttrKeySessionPercentile = "session_percentile";
+        const string AttrKeySpendPercentile = "spend_percentile";
+        const string AttrKeySpendProbability = "spend_probability";
+        const string AttrKeyUser = "user";
+
+        const string PlayerStatsEventName = "user.google_player_stats";
+
+        void RetrievePlayerStats(CommonStatusCodes statusCode, PlayerStats playerStats)
+        {            
+            if(CommonStatusCodes.Success == statusCode || CommonStatusCodes.SuccessCached == statusCode)
+            {
+                if(TrackEvent != null)
+                {   
+                    var data = new AttrDic();
+
+                    var stats = new AttrDic();
+                    data.Set(AttrKeyUser, stats);
+
+                    stats.SetValue(AttrKeyAvgSessionLength, playerStats.AvgSessonLength);
+                    stats.SetValue(AttrKeyChurnProbability, playerStats.ChurnProbability);
+                    stats.SetValue(AttrKeyDaysSinceLastPlayed, playerStats.DaysSinceLastPlayed);
+                    stats.SetValue(AttrKeyNumberPurchases, playerStats.NumberOfPurchases);
+                    stats.SetValue(AttrKeyNumberSessions, playerStats.NumberOfSessions);
+                    stats.SetValue(AttrKeySessionPercentile, playerStats.SessPercentile);
+                    stats.SetValue(AttrKeySpendPercentile, playerStats.SpendPercentile);
+                    stats.SetValue(AttrKeySpendProbability, -1f); // Not available in Unity Plugin.
+
+                    TrackEvent(PlayerStatsEventName, data, null);
+                }                
+            }                            
+        }
 
         #endregion
 

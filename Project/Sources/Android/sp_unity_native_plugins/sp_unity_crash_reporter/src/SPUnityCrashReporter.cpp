@@ -4,8 +4,14 @@
 #include <chrono>
 #include <ctime>
 #include <pthread.h>
-#include "UnityGameObject.h"
+#include "SPNativeCallsSender.h"
 #include "SPUnityCrashReporter.hpp"
+#include "SPUnityBreadcrumbManager.hpp"
+#include "SPUnityFileUtils.hpp"
+#include <android/log.h>
+
+#define LOG_TAG "Unity"
+#define  LogError(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 /* google_breakpad is only supported in arm architectures
  * SPUnityCrashReporter cannot be enabled in x86 builds.
@@ -24,6 +30,7 @@
             if(context)
             {
                 SPUnityCrashReporter* crashReporter = static_cast<SPUnityCrashReporter*>(context);
+                crashReporter->dumpBreadcrumbs();
                 crashReporter->dumpCrash(descriptor.path());
             }
 
@@ -39,19 +46,19 @@
     }
 #endif
 
-SPUnityCrashReporter::SPUnityCrashReporter(const std::string& path,
+SPUnityCrashReporter::SPUnityCrashReporter(const std::string& crashPath,
                                            const std::string& version,
                                            const std::string& fileSeparator,
                                            const std::string& crashExtension,
-                                           const std::string& logExtension,
-                                           const std::string& gameObject)
+                                           const std::string& logExtension)
 : _exceptionHandler(nullptr)
-, _crashDirectory(path)
+, _crashDirectory(crashPath)
 , _version(version)
 , _fileSeparator(fileSeparator)
 , _crashExtension(crashExtension)
 , _logExtension(logExtension)
-, _gameObject(gameObject)
+, _breadcrumbManager(SPUnityBreadcrumbManager::getInstance())
+
 {
 }
 
@@ -81,14 +88,14 @@ bool SPUnityCrashReporter::disable()
 
 struct CrashDumpedCallData
 {
-    std::string gameObject;
     std::string logPath;
 };
 
 void* callOnCrashDumpedThread(void *ctx)
 {
     CrashDumpedCallData* data = (CrashDumpedCallData*)ctx;
-    UnityGameObject(data->gameObject).SendMessage("OnCrashDumped", data->logPath);
+    LogError("OnCrashDumped");
+    SPNativeCallsSender::SendMessage("OnCrashDumped", data->logPath);
     delete data;
     return nullptr;
 }
@@ -97,7 +104,7 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
 {
     std::time_t epoch_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-    // Conver to local time
+    // Convert to local time
     epoch_time = std::mktime(std::localtime(&epoch_time));
 
     std::stringstream ss;
@@ -115,11 +122,12 @@ void SPUnityCrashReporter::dumpCrash(const std::string& crashPath)
     std::string logcatCmd("logcat -d -t 200 -f " + newLogPath);
     system(logcatCmd.c_str());
 
+    pthread_t thread;
+    pthread_create(&thread, NULL, callOnCrashDumpedThread,
+        new CrashDumpedCallData{ newCrashPath });
+}
 
-    if(!_gameObject.empty())
-    {
-        pthread_t thread;
-        pthread_create(&thread, NULL, callOnCrashDumpedThread,
-            new CrashDumpedCallData{ _gameObject, newCrashPath });
-    }
+void SPUnityCrashReporter::dumpBreadcrumbs()
+{
+    _breadcrumbManager.dumpToFile();
 }

@@ -13,8 +13,10 @@ namespace SocialPoint.Base
             {
                 if(_currentActivity == null)
                 {
-                    var up = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-                    _currentActivity = up.GetStatic<AndroidJavaObject>("currentActivity");
+                    using(var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                    {
+                        _currentActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+                    }
                 }
                 return _currentActivity;
             }
@@ -48,6 +50,14 @@ namespace SocialPoint.Base
             }
         }
 
+        public static AndroidJavaObject PackageManager
+        {
+            get
+            {
+                return AndroidContext.CurrentActivity.Call<AndroidJavaObject>("getPackageManager"); // API level 1
+            }
+        }
+
         public static void RunOnMainThread(AndroidJavaRunnable runnable)
         {
             CurrentActivity.Call("runOnUiThread", runnable);
@@ -61,7 +71,10 @@ namespace SocialPoint.Base
             {
                 if(_sdkVersion == 0)
                 {
-                    _sdkVersion = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT"); // API level 4
+                    using(var buildVersionObject = new AndroidJavaClass("android.os.Build$VERSION"))
+                    {
+                        _sdkVersion = buildVersionObject.GetStatic<int>("SDK_INT"); // API level 4
+                    }
                 }
                 return _sdkVersion;
             }

@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 7ae31d19f1d7c49b5a3d034a54e37b23
 folderAsset: yes
-timeCreated: 1455871617
+timeCreated: 1465384953
 licenseType: Pro
 PluginImporter:
   serializedVersion: 1
@@ -48,6 +48,11 @@ PluginImporter:
         CPU: AnyCPU
     iOS:
       enabled: 0
+      settings:
+        CompileFlags: 
+        FrameworkDependencies: 
+    tvOS:
+      enabled: 1
       settings:
         CompileFlags: 
         FrameworkDependencies: 

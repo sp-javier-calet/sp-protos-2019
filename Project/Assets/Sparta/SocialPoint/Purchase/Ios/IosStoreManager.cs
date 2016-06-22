@@ -1,40 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using UnityEngine;
 
-#if UNITY_IOS
+#if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
-    public class IosStoreManager : MonoBehaviour
+    public class IosStoreManager
     {
         // Fired when the product list your required returns. Automatically serializes the productString into IosStoreProduct's.
-        public static event Action<List<IosStoreProduct>> ProductListReceivedEvent;
+        public event Action<List<IosStoreProduct>> ProductListReceivedEvent;
 
         // Fired when requesting product data fails
-        public static event Action<Error> ProductListRequestFailedEvent;
+        public event Action<Error> ProductListRequestFailedEvent;
 
         // Fired anytime Apple updates a transaction if you called setShouldSendTransactionUpdateEvents with true. Check the transaction.transactionState to
         // know what state the transaction is currently in.
-        public static event Action<IosStoreTransaction> TransactionUpdatedEvent;
+        public event Action<IosStoreTransaction> TransactionUpdatedEvent;
 
         // Fired when a product is successfully paid for. The event will provide a IosStoreTransaction object that holds the productIdentifer and receipt of the purchased product.
-        public static event Action<IosStoreTransaction> PurchaseSuccessfulEvent;
+        public event Action<IosStoreTransaction> PurchaseSuccessfulEvent;
 
         // Fired when a product purchase fails
-        public static event Action<Error> PurchaseFailedEvent;
+        public event Action<Error> PurchaseFailedEvent;
 
         // Fired when a product purchase is cancelled by the user or system
-        public static event Action<Error> PurchaseCancelledEvent;
+        public event Action<Error> PurchaseCancelledEvent;
 
-        const string instanceName = "IosStoreManager";
+        NativeCallsHandler _handler;
 
-        static IosStoreManager()
+        public IosStoreManager(NativeCallsHandler handler)
         {
-            var instance = new GameObject(instanceName);
-            instance.AddComponent<IosStoreManager>();
-            DontDestroyOnLoad(instance);
-            IosStoreBinding.Init(instanceName);
+            _handler = handler;
+            _handler.RegisterListener("StoreDebugLog", StoreDebugLog);
+            _handler.RegisterListener("ProductsReceived", ProductsReceived);
+            _handler.RegisterListener("ProductsRequestDidFail", ProductsRequestDidFail);
+            _handler.RegisterListener("ProductPurchased", ProductPurchased);
+            _handler.RegisterListener("ProductPurchaseCancelled", ProductPurchaseCancelled);
+            _handler.RegisterListener("ProductPurchaseFailed", ProductPurchaseFailed);
+            _handler.RegisterListener("TransactionUpdated", TransactionUpdated);
+
+            IosStoreBinding.Init();
         }
 
 

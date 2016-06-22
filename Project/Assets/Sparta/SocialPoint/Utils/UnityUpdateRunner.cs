@@ -276,7 +276,6 @@ namespace SocialPoint.Utils
                     yield break;
                 }
                 var bundle = www.assetBundle;
-                www.Dispose();
                 AssetBundleRequest req;
                 if(string.IsNullOrEmpty(def.Name))
                 {

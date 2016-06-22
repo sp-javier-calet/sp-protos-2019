@@ -63,7 +63,38 @@ namespace SocialPoint.Attributes
             Assert.AreNotEqual(sync1.GetHashCode(), sync2.GetHashCode());
         }
 
-       
+        [Test]
+        public void Insert_at_beggining()
+        {
+            var list = new AttrList();
+            list.AddValue(1);
+            list.AddValue(2);
+            list.InsertValue(0,3);
+            Assert.That(list.Count == 3);
+            Assert.That(list.GetValue(0).ToInt() == 3);
+        }
+
+        [Test]
+        public void Insert_at_end()
+        {
+            var list = new AttrList();
+            list.AddValue(1);
+            list.AddValue(2);
+            list.InsertValue(2,3);
+            Assert.That(list.Count == 3);
+            Assert.That(list.GetValue(2).ToInt() == 3);
+        }
+
+        [Test]
+        public void Insert_at_out_of_range()
+        {
+            var list = new AttrList();
+            list.AddValue(1);
+            list.AddValue(2);
+            var success = list.InsertValue(3,3);
+            Assert.That(list.Count == 2);
+            Assert.That(success == false);
+        }
 
     }
 }

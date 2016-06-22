@@ -13,8 +13,11 @@ namespace SocialPoint.Hardware
             get
             {
                 var info = new AndroidJavaObject("android.app.ActivityManager$MemoryInfo");
-                AndroidDeviceInfo.ActivityManager.Call("getMemoryInfo", info);
-                return info;
+                using(var activityManager = AndroidDeviceInfo.ActivityManager)
+                {
+                    activityManager.Call("getMemoryInfo", info);
+                    return info;
+                }
             }
         }
 
@@ -26,7 +29,10 @@ namespace SocialPoint.Hardware
                 {
                     try
                     {
-                        return (ulong)MemoryInfo.Get<long>("totalMem"); // API level 16
+                        using(var memoryInfoObject = MemoryInfo)
+                        {
+                            return (ulong)memoryInfoObject.Get<long>("totalMem"); // API level 16
+                        }
                     }
                     catch(AndroidJavaException)
                     {
@@ -51,7 +57,10 @@ namespace SocialPoint.Hardware
             {
                 try
                 {
-                    return (ulong)MemoryInfo.Get<long>("availMem"); // API level 1
+                    using(var memoryInfoObject = MemoryInfo)
+                    {
+                        return (ulong)memoryInfoObject.Get<long>("availMem"); // API level 1
+                    }
                 }
                 catch(AndroidJavaException)
                 {

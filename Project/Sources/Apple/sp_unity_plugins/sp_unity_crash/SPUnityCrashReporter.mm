@@ -4,8 +4,9 @@
 #include "CrashReporter.h"
 #endif
 #include <string>
-#include "UnityGameObject.h"
+#include "SPNativeCallsSender.h"
 #import <Foundation/Foundation.h>
+#include "SPUnityBreadcrumbManager.hpp"
 
 
 class SPUnityCrashReporter
@@ -17,8 +18,8 @@ private:
     std::string _error;
     std::string _fileSeparator;
     std::string _crashExtension;
-    std::string _gameObject;
-
+    SPUnityBreadcrumbManager& _breadcrumbManager;
+    
     static void onCrash(siginfo_t *info, ucontext_t *uap, void *context)
     {
         SPUnityCrashReporter* crashReporter = (SPUnityCrashReporter*) context;
@@ -47,11 +48,13 @@ private:
             [crashData writeToFile:[[NSString alloc] initWithUTF8String:filePath.c_str()]
                         atomically:YES encoding:NSUTF8StringEncoding error:nil];
 
-            if(!_gameObject.empty())
-            {
-                UnityGameObject(_gameObject.c_str()).SendMessage("OnCrashDumped", filePath.c_str());
-            }
+            SPNativeCallsSender::SendMessage("OnCrashDumped", filePath.c_str());
         }
+    }
+    
+    void dumpBreadcrumbs()
+    {
+        _breadcrumbManager.dumpToFile();
     }
 
     bool initializePLCrashReporter()
@@ -89,20 +92,19 @@ public:
 
     SPUnityCrashReporter()
     : _enabled(false)
+    , _breadcrumbManager(SPUnityBreadcrumbManager::getInstance())
     {
     }
 
     void setConfig(const std::string& path,
                    const std::string& version,
                    const std::string& fileSeparator,
-                   const std::string& crashExtension,
-                   const std::string& gameObject)
+                   const std::string& crashExtension)
     {
         _crashDirectory = path;
         _version = version;
         _fileSeparator = fileSeparator;
         _crashExtension = crashExtension;
-        _gameObject = gameObject;
     }
 
     bool enable()
@@ -162,6 +164,7 @@ public:
 
         [reporter purgePendingCrashReport];
 
+        dumpBreadcrumbs();
         dumpCrash(plReport);
 
         return true;
@@ -178,15 +181,14 @@ public:
 extern "C" {
     SPUnityCrashReporter* SPUnityCrashReporterCreate(const char* path, const char* version,
                                                       const char* fileSeparator, const char* crashExtension,
-                                                      const char* logExtension, const char* gameObject)
+                                                      const char* logExtension)
     {
         SPUnityCrashReporter* reporterInstance = SPUnityCrashReporter::getInstance();
         reporterInstance->setConfig(
             std::string(path),
             std::string(version),
             std::string(fileSeparator),
-            std::string(crashExtension),
-            std::string(gameObject));
+            std::string(crashExtension));
 
         return reporterInstance;
     }

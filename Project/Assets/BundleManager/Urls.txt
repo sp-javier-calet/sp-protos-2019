@@ -16,7 +16,7 @@
         "WP8" : "$(DataPath)/../AssetBundle/$(Platform)"
     },    
     "bundleTarget" : 2,    
-    "useEditorTarget" : true,    
+    "useEditorTarget" : false,    
     "downloadFromOutput" : false,    
     "offlineCache" : false,    
     "androidSubTarget" : null

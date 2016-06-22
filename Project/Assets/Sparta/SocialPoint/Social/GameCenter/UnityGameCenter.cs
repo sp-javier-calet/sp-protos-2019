@@ -177,22 +177,13 @@ namespace SocialPoint.Social
             }));
         }
 
-        public UnityGameCenter(Transform parent = null, bool showAchievements = true)
+        public UnityGameCenter(NativeCallsHandler handler = null, bool showAchievements = true)
         {
             _friends = new List<GameCenterUser>();
             _user = new GameCenterUser();
-            var go = new GameObject(GetType().ToString());
-            if(parent == null)
-            {
-                GameObject.DontDestroyOnLoad(go);
-            }
-            else
-            {
-                go.transform.SetParent(parent);
-            }
             _platform = new GameCenterPlatform();
             GameCenterPlatform.ShowDefaultAchievementCompletionBanner(showAchievements);
-            _verification = go.AddComponent<SocialPointGameCenterVerification>();
+            _verification = new SocialPointGameCenterVerification(handler);
         }
 
         void RequestGameCenterVerification(ErrorDelegate cbk)

@@ -84,7 +84,9 @@ namespace SocialPoint.IO
             {
 #if UNITY
                 var www = Download(path);
-                return string.IsNullOrEmpty(www.error);
+                bool exists = string.IsNullOrEmpty(www.error);
+                www.Dispose();
+                return exists;
 #else
                 throw new IOException("Url paths are not supported.");
 #endif
@@ -99,7 +101,9 @@ namespace SocialPoint.IO
 #if UNITY
                 //TODO: Is there a way to differentiate it from a URL file?
                 var www = Download(path);
-                return string.IsNullOrEmpty(www.error);
+                bool exists = string.IsNullOrEmpty(www.error);
+                www.Dispose();
+                return exists;
 #else
                 throw new IOException("Url paths are not supported.");
 #endif
@@ -118,7 +122,9 @@ namespace SocialPoint.IO
             {
 #if UNITY
                 var www = Download(path);
-                return www.text;
+                string text = www.text;
+                www.Dispose();
+                return text;
 #else
                 throw new IOException("Url paths are not supported.");
 #endif
@@ -132,7 +138,9 @@ namespace SocialPoint.IO
             {
 #if UNITY
                 var www = Download(path);
-                return www.bytes;
+                var bytes = www.bytes;
+                www.Dispose();
+                return bytes;
 #else
                 throw new IOException("Url paths are not supported.");
 #endif
@@ -623,6 +631,10 @@ namespace SocialPoint.IO
             {
                 fs1.Close();
                 fs2.Close();
+
+                fs1.Dispose();
+                fs2.Dispose();
+
                 return false;
             }
             
@@ -635,6 +647,9 @@ namespace SocialPoint.IO
             
             fs1.Close();
             fs2.Close();
+
+            fs1.Dispose();
+            fs2.Dispose();
             
             return ((file1byte - file2byte) == 0);
         }

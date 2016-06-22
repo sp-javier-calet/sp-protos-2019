@@ -75,11 +75,15 @@
 		460B361A1C3EB1B8003E0D9D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 460B36191C3EB1B8003E0D9D /* ViewController.m */; };
 		460B361D1C3EB1B8003E0D9D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 460B361B1C3EB1B8003E0D9D /* Main.storyboard */; };
 		460B36241C3EB1EE003E0D9D /* SPUnityPlugins_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */; };
+		460EFA981D19303300CDDC48 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
+		460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
+		460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
+		465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
+		465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
 		468E001A1C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
 		468E001B1C3E75E500CA07AF /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
-		468E001E1C3E75E500CA07AF /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490281C1F11D900A10FEA /* SPUnityKeychainFacade.mm */; };
 		468E00211C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
 		468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
@@ -88,6 +92,33 @@
 		468E00251C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
 		468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4490261C1F11D900A10FEA /* KeychainItemWrapper.m */; };
 		468E00301C3E75E500CA07AF /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		46D2D9DF1D086F8B00051221 /* SPPurchaseStore.h in Headers */ = {isa = PBXBuildFile; fileRef = F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */; };
+		46D2D9E01D086F8B00051221 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
+		46D2D9E11D086F8B00051221 /* SPPurchaseNativeServices.h in Headers */ = {isa = PBXBuildFile; fileRef = F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */; };
+		46D2D9E21D086F8B00051221 /* SPPurchaseNativeServices.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */; };
+		46D2D9E41D086FB500051221 /* CrashReporter in Frameworks */ = {isa = PBXBuildFile; fileRef = 46F748F11C60AE77000DB6B1 /* CrashReporter */; };
+		46D2D9E51D086FD400051221 /* CrashReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F31C60AE77000DB6B1 /* CrashReporter.h */; };
+		46D2D9E61D086FD400051221 /* PLCrashAsyncSignalInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F41C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h */; };
+		46D2D9E71D086FD400051221 /* PLCrashFeatureConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F51C60AE77000DB6B1 /* PLCrashFeatureConfig.h */; };
+		46D2D9E81D086FD400051221 /* PLCrashNamespace.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F61C60AE77000DB6B1 /* PLCrashNamespace.h */; };
+		46D2D9E91D086FD400051221 /* PLCrashReport.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F71C60AE77000DB6B1 /* PLCrashReport.h */; };
+		46D2D9EA1D086FD400051221 /* PLCrashReportApplicationInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F81C60AE77000DB6B1 /* PLCrashReportApplicationInfo.h */; };
+		46D2D9EB1D086FD400051221 /* PLCrashReportBinaryImageInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F91C60AE77000DB6B1 /* PLCrashReportBinaryImageInfo.h */; };
+		46D2D9EC1D086FD400051221 /* PLCrashReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748FA1C60AE77000DB6B1 /* PLCrashReporter.h */; };
+		46D2D9ED1D086FD400051221 /* PLCrashReporterConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748FB1C60AE77000DB6B1 /* PLCrashReporterConfig.h */; };
+		46D2D9EE1D086FD400051221 /* PLCrashReportExceptionInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748FC1C60AE77000DB6B1 /* PLCrashReportExceptionInfo.h */; };
+		46D2D9EF1D086FD400051221 /* PLCrashReportFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748FD1C60AE77000DB6B1 /* PLCrashReportFormatter.h */; };
+		46D2D9F01D086FD400051221 /* PLCrashReportMachExceptionInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748FE1C60AE77000DB6B1 /* PLCrashReportMachExceptionInfo.h */; };
+		46D2D9F11D086FD400051221 /* PLCrashReportMachineInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748FF1C60AE77000DB6B1 /* PLCrashReportMachineInfo.h */; };
+		46D2D9F21D086FD400051221 /* PLCrashReportProcessInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749001C60AE77000DB6B1 /* PLCrashReportProcessInfo.h */; };
+		46D2D9F31D086FD400051221 /* PLCrashReportProcessorInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749011C60AE77000DB6B1 /* PLCrashReportProcessorInfo.h */; };
+		46D2D9F41D086FD400051221 /* PLCrashReportRegisterInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749021C60AE77000DB6B1 /* PLCrashReportRegisterInfo.h */; };
+		46D2D9F51D086FD400051221 /* PLCrashReportSignalInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749031C60AE77000DB6B1 /* PLCrashReportSignalInfo.h */; };
+		46D2D9F61D086FD400051221 /* PLCrashReportStackFrameInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749041C60AE77000DB6B1 /* PLCrashReportStackFrameInfo.h */; };
+		46D2D9F71D086FD400051221 /* PLCrashReportSymbolInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749051C60AE77000DB6B1 /* PLCrashReportSymbolInfo.h */; };
+		46D2D9F81D086FD400051221 /* PLCrashReportSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */; };
+		46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */; };
+		46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */; };
 		46F749091C60AE77000DB6B1 /* CrashReporter in Frameworks */ = {isa = PBXBuildFile; fileRef = 46F748F11C60AE77000DB6B1 /* CrashReporter */; };
 		46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F31C60AE77000DB6B1 /* CrashReporter.h */; };
 		46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F41C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h */; };
@@ -123,6 +154,11 @@
 		7B3856521C98A53800D04AEF /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38552D1C98A35300D04AEF /* libz.a */; };
 		7B3856531C98A53800D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557C1C98A35300D04AEF /* libcrypto.a */; };
 		7B3856541C98A53800D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557D1C98A35300D04AEF /* libssl.a */; };
+		F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
+		F523B6531CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */; };
+		F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
+		F53B19161CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */; };
+		F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
 		F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */; };
 		F53F908B1CC7D1300020C2AC /* SPPurchaseNativeServices.h in Headers */ = {isa = PBXBuildFile; fileRef = F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */; };
 		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
@@ -139,7 +175,7 @@
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		FEE5C1C31C21B3380020C4DB /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
-		FF5AF7801C623DD800B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
+		FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -322,6 +358,11 @@
 		7B38552D1C98A35300D04AEF /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		7B38557C1C98A35300D04AEF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		7B38557D1C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
+		F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SPUnityFileUtils.cpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.cpp; sourceTree = "<group>"; };
+		F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SPUnityFileUtils.hpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.hpp; sourceTree = "<group>"; };
+		F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManager.cpp; sourceTree = "<group>"; };
+		F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SPUnityBreadcrumbManager.hpp; sourceTree = "<group>"; };
+		F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManagerFacade.cpp; sourceTree = "<group>"; };
 		F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseNativeServices.mm; path = sp_unity_purchase/SPPurchaseNativeServices.mm; sourceTree = "<group>"; };
 		F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPPurchaseNativeServices.h; path = sp_unity_purchase/SPPurchaseNativeServices.h; sourceTree = "<group>"; };
 		F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SPPurchaseStore.mm; path = sp_unity_purchase/SPPurchaseStore.mm; sourceTree = "<group>"; };
@@ -348,6 +389,8 @@
 		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
 		FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnityGameObject.cpp; sourceTree = "<group>"; };
 		FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityGameCenter.mm; sourceTree = "<group>"; };
+		FF68D9811CF83A39008891E2 /* SPNativeCallsSender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPNativeCallsSender.h; sourceTree = "<group>"; };
+		FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPNativeCallsSender.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -390,6 +433,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B25282E1C99BDED003C86E6 /* libssl.a in Frameworks */,
+				46D2D9E41D086FB500051221 /* CrashReporter in Frameworks */,
 				7B25282C1C99BDEC003C86E6 /* libz.a in Frameworks */,
 				7B25282B1C99BDEC003C86E6 /* libcurl.a in Frameworks */,
 				7B25282D1C99BDED003C86E6 /* libcrypto.a in Frameworks */,
@@ -415,6 +459,8 @@
 		069170201C75CAC500C6B0B6 /* sp_unity_utils */ = {
 			isa = PBXGroup;
 			children = (
+				F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */,
+				F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */,
 				069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */,
 				069170221C75CADE00C6B0B6 /* SPUnityUtils.h */,
 			);
@@ -755,6 +801,16 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */ = {
+			isa = PBXGroup;
+			children = (
+				F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */,
+				F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */,
+				F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */,
+			);
+			path = sp_unity_crash_reporter;
+			sourceTree = "<group>";
+		};
 		F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */ = {
 			isa = PBXGroup;
 			children = (
@@ -823,6 +879,7 @@
 		FE448F311C1EEAD800A10FEA /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */,
 				069170201C75CAC500C6B0B6 /* sp_unity_utils */,
 				FE448FE21C1EEAD800A10FEA /* sp_unity_curl */,
 			);
@@ -897,6 +954,8 @@
 				FE4490481C1F205800A10FEA /* Info.plist */,
 				FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */,
 				FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */,
+				FF68D9811CF83A39008891E2 /* SPNativeCallsSender.h */,
+				FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */,
 			);
 			path = SPUnityPlugins;
 			sourceTree = "<group>";
@@ -931,8 +990,32 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46D2D9F21D086FD400051221 /* PLCrashReportProcessInfo.h in Headers */,
+				46D2D9F61D086FD400051221 /* PLCrashReportStackFrameInfo.h in Headers */,
 				06D7A6921C77189500F71393 /* SPUnityNativeUtils.h in Headers */,
+				46D2D9F11D086FD400051221 /* PLCrashReportMachineInfo.h in Headers */,
+				46D2D9EF1D086FD400051221 /* PLCrashReportFormatter.h in Headers */,
+				46D2D9F51D086FD400051221 /* PLCrashReportSignalInfo.h in Headers */,
+				46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */,
+				46D2D9EB1D086FD400051221 /* PLCrashReportBinaryImageInfo.h in Headers */,
+				46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */,
+				46D2D9E71D086FD400051221 /* PLCrashFeatureConfig.h in Headers */,
+				46D2D9E81D086FD400051221 /* PLCrashNamespace.h in Headers */,
+				46D2D9E51D086FD400051221 /* CrashReporter.h in Headers */,
+				46D2D9F01D086FD400051221 /* PLCrashReportMachExceptionInfo.h in Headers */,
+				46D2D9ED1D086FD400051221 /* PLCrashReporterConfig.h in Headers */,
+				46D2D9EE1D086FD400051221 /* PLCrashReportExceptionInfo.h in Headers */,
+				46D2D9E91D086FD400051221 /* PLCrashReport.h in Headers */,
+				46D2D9F71D086FD400051221 /* PLCrashReportSymbolInfo.h in Headers */,
+				46D2D9EA1D086FD400051221 /* PLCrashReportApplicationInfo.h in Headers */,
+				46D2D9F31D086FD400051221 /* PLCrashReportProcessorInfo.h in Headers */,
+				46D2D9F81D086FD400051221 /* PLCrashReportSystemInfo.h in Headers */,
+				46D2D9E11D086F8B00051221 /* SPPurchaseNativeServices.h in Headers */,
+				46D2D9F41D086FD400051221 /* PLCrashReportRegisterInfo.h in Headers */,
 				468E00301C3E75E500CA07AF /* UnityGameObject.h in Headers */,
+				46D2D9DF1D086F8B00051221 /* SPPurchaseStore.h in Headers */,
+				46D2D9E61D086FD400051221 /* PLCrashAsyncSignalInfo.h in Headers */,
+				46D2D9EC1D086FD400051221 /* PLCrashReporter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,12 +1033,14 @@
 				46F7491A1C60AE77000DB6B1 /* PLCrashReportSignalInfo.h in Headers */,
 				F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */,
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
+				F523B6531CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46F749161C60AE77000DB6B1 /* PLCrashReportMachineInfo.h in Headers */,
 				46F749181C60AE77000DB6B1 /* PLCrashReportProcessorInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
 				46F749111C60AE77000DB6B1 /* PLCrashReporter.h in Headers */,
 				F53F908B1CC7D1300020C2AC /* SPPurchaseNativeServices.h in Headers */,
+				F53B19161CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in Headers */,
 				46F749141C60AE77000DB6B1 /* PLCrashReportFormatter.h in Headers */,
 				46F7490E1C60AE77000DB6B1 /* PLCrashReport.h in Headers */,
 				46F749121C60AE77000DB6B1 /* PLCrashReporterConfig.h in Headers */,
@@ -1099,6 +1184,7 @@
 					};
 					460B360F1C3EB1B8003E0D9D = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = PD2V9367QH;
 					};
 					FE44907B1C1F20C400A10FEA = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -1230,20 +1316,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				468E001A1C3E75E500CA07AF /* (null) in Sources */,
+				460EFA981D19303300CDDC48 /* SPNativeCallsSender.cpp in Sources */,
+				465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */,
+				460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				06D7A6941C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
 				468E001B1C3E75E500CA07AF /* SPUnityCurlFacade.cpp in Sources */,
 				468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */,
+				460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */,
 				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
+				46D2D9E21D086F8B00051221 /* SPPurchaseNativeServices.mm in Sources */,
+				46D2D9E01D086F8B00051221 /* SPPurchaseStore.mm in Sources */,
 				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
-				468E001E1C3E75E500CA07AF /* SPUnityCrashReporter.mm in Sources */,
 				468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */,
 				468E00211C3E75E500CA07AF /* (null) in Sources */,
 				468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */,
 				468E00231C3E75E500CA07AF /* SPUnityCurlManager.cpp in Sources */,
 				468E00241C3E75E500CA07AF /* (null) in Sources */,
-				FF5AF7801C623DD800B5573A /* SPUnityGameCenter.mm in Sources */,
 				468E00251C3E75E500CA07AF /* (null) in Sources */,
 				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
+				465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1258,10 +1349,14 @@
 				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
 				F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
+				FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */,
 				06D7A6931C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
+				F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */,
+				F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
 				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
+				F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */,
 				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,
@@ -1596,7 +1691,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = LinkerValidator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1641,7 +1736,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = LinkerValidator/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -1657,8 +1752,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -1672,6 +1765,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1701,7 +1795,7 @@
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 9.1;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -1709,8 +1803,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -1724,6 +1816,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1748,7 +1841,7 @@
 				SDKROOT = appletvos;
 				SUPPORTED_PLATFORMS = "appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 9.1;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1807,6 +1900,7 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_crash/libs",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -1873,6 +1967,7 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_crash/libs",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;

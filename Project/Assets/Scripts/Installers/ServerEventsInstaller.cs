@@ -13,19 +13,19 @@ using SocialPoint.GameLoading;
 
 public class ServerEventsInstaller : SubInstaller
 {
-	[Serializable]
+    [Serializable]
     public class SettingsData
-	{
+    {
         public int MaxOutOfSyncInterval = SocialPointEventTracker.DefaultMaxOutOfSyncInterval;
         public int SendInterval = SocialPointEventTracker.DefaultSendInterval;
         public float Timeout = SocialPointEventTracker.DefaultTimeout;
         public float BackoffMultiplier = SocialPointEventTracker.DefaultBackoffMultiplier;
-	}
+    }
 
-	public SettingsData Settings = new SettingsData();
+    public SettingsData Settings = new SettingsData();
 
-	public override void InstallBindings()
-	{
+    public override void InstallBindings()
+    {
         Container.Rebind<SocialPointEventTracker>()
             .ToMethod<SocialPointEventTracker>(CreateEventTracker, SetupEventTracker);
         Container.Rebind<IEventTracker>().ToLookup<SocialPointEventTracker>();
@@ -34,7 +34,7 @@ public class ServerEventsInstaller : SubInstaller
         Container.Rebind<ServerEventsBridge>().ToMethod<ServerEventsBridge>(CreateBridge);
         Container.Bind<IEventsBridge>().ToLookup<ServerEventsBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<ServerEventsBridge>();
-	}
+    }
 
     ServerEventsBridge CreateBridge()
     {
@@ -57,7 +57,7 @@ public class ServerEventsInstaller : SubInstaller
         tracker.HttpClient = Container.Resolve<IHttpClient>();
         tracker.DeviceInfo = Container.Resolve<IDeviceInfo>();
         tracker.CommandQueue = Container.Resolve<ICommandQueue>();
-        tracker.BreadcrumbManager = Container.Resolve<BreadcrumbManager>();
+        tracker.BreadcrumbManager = Container.Resolve<IBreadcrumbManager>();
         tracker.AppEvents = Container.Resolve<IAppEvents>();
         tracker.RequestSetup = Container.Resolve<ILoginData>().SetupHttpRequest;
         Container.Resolve<IGameErrorHandler>().Setup(tracker);

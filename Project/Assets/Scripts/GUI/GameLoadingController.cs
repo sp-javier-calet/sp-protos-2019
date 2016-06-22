@@ -40,6 +40,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
         #if ADMIN_PANEL
         _adminPanel = ServiceLocator.Instance.Resolve<AdminPanel>();
+        #else
+        _adminPanel = null;
         #endif
 
         base.OnLoad();
@@ -77,7 +79,10 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnAdminPanelChange()
     {
-        Paused = _adminPanel.Visible;
+        if(_adminPanel != null)
+        {
+            Paused = _adminPanel.Visible;
+        }
     }
 
     bool OnLoginNewUser(IStreamReader reader)

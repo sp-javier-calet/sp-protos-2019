@@ -202,11 +202,7 @@ public class ReportGenerator
 		{
 			buildInfo.BuildFilePath = EditorUserBuildSettings.GetBuildLocation(BuildReportTool.Util.BuildTargetOfLastBuild);
 		}
-
-
-#if (UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6)
-		buildInfo.AndroidUseAPKExpansionFiles = PlayerSettings.Android.useAPKExpansionFiles;
-#endif
+                
 		buildInfo.AndroidCreateProject = buildInfo.BuildTargetUsed == BuildTarget.Android && Util.IsFileOfType(buildInfo.BuildFilePath, ".apk") == false;
 
 		//Debug.Log("buildInfo.AndroidCreateProject: " + buildInfo.AndroidCreateProject);

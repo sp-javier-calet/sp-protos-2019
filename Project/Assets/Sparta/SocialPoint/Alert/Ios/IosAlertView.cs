@@ -1,10 +1,12 @@
 using System;
 using System.Runtime.InteropServices;
+using SocialPoint.Utils;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.Alert
 {
-    public class IosAlertViewBridge : MonoBehaviour
+    public class IosAlertView : IAlertView
     {
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Data
@@ -17,47 +19,15 @@ namespace SocialPoint.Alert
             public string Signature;
             [MarshalAs(UnmanagedType.LPTStr)]
             public string Buttons;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string ObjectName;
             [MarshalAs(UnmanagedType.SysInt)]
             public bool Input;
         };
 
-        public delegate void ResultDelegate(int result, string input);
+        public delegate void NativeResultDelegate(int result, string input);
 
-        ResultDelegate _resultDelegate;
-
-        public void ResultMessage(string msg)
-        {
-            if(_resultDelegate == null)
-            {
-                return;
-            }
-            var i = msg.IndexOf(' ');
-            int result;
-            if(i != -1)
-            {
-                int.TryParse(msg.Substring(0, i), out result);
-                _resultDelegate(result, msg.Substring(i + 1));
-            }
-            else
-            {
-                int.TryParse(msg, out result);
-                _resultDelegate(result, null);
-            }
-        }
-
-        public void Show(Data data, ResultDelegate dlg)
-        {
-            _resultDelegate = dlg;
-            data.ObjectName = gameObject.name;
-            SPUnityAlertViewShow(data);
-        }
-
-        public void Hide()
-        {
-            SPUnityAlertViewHide();
-        }
+        Data _data;
+        public NativeCallsHandler NativeHandler;
+        NativeResultDelegate _resultDelegate;
 
         #if UNITY_IOS && !UNITY_EDITOR
         [DllImport ("__Internal")]
@@ -76,13 +46,6 @@ namespace SocialPoint.Alert
         {
         }
         #endif
-    }
-
-    public class IosAlertView : IAlertView
-    {
-        IosAlertViewBridge.Data _data;
-        IosAlertViewBridge _bridge;
-        const string kGameObjectName = "SocialPoint.AlertView.IosAlertView";
 
         public IosAlertView()
         {
@@ -144,16 +107,38 @@ namespace SocialPoint.Alert
 
         public void Show(ResultDelegate dlg)
         {
-            var go = new GameObject();
-            go.name = kGameObjectName;
-            _bridge = go.AddComponent<IosAlertViewBridge>();
-            _bridge.Show(_data, (result, inputText) => {
+            DebugUtils.Assert(NativeHandler != null, "Handler is null, asign a NativeCallsHandler");
+            NativeHandler.RegisterListener("ResultMessage", ResultMessage);
+
+            _resultDelegate = (result, inputText) => {
                 _inputText = inputText;
                 if(dlg != null)
                 {
                     dlg(result);
                 }
-            });
+            };
+
+            SPUnityAlertViewShow(_data);
+        }
+
+        public void ResultMessage(string msg)
+        {
+            if(_resultDelegate == null)
+            {
+                return;
+            }
+            var i = msg.IndexOf(' ');
+            int result;
+            if(i != -1)
+            {
+                int.TryParse(msg.Substring(0, i), out result);
+                _resultDelegate(result, msg.Substring(i + 1));
+            }
+            else
+            {
+                int.TryParse(msg, out result);
+                _resultDelegate(result, null);
+            }
         }
 
         public void OnResponse(string data)
@@ -163,14 +148,15 @@ namespace SocialPoint.Alert
 
         public void Dispose()
         {
-            _bridge.Hide();
-            UnityEngine.Object.Destroy(_bridge.gameObject);
+            SPUnityAlertViewHide();
+            NativeHandler.RemoveListener("ResultMessage", ResultMessage);
         }
 
         public object Clone()
         {
             var clone = new IosAlertView();
             clone._data = _data;
+            clone.NativeHandler = NativeHandler;
             return clone;
         }
 
