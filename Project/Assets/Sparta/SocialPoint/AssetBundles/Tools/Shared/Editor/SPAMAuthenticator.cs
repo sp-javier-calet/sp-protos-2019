@@ -43,7 +43,7 @@ namespace SocialPoint.Tool.Shared
 		
 #else
 		public const string SPAM_SERVICES_HOSTNAME = "toolsserver.socialpoint.es"; // PROD
-		public const string SPAM_SERVICES_ENDPOINT = "https://toolsserver.socialpoint.es"; // PROD
+		public const string SPAM_SERVICES_ENDPOINT = "http://toolsserver.socialpoint.es"; // PROD
         public static bool PROD_SERVER = true;
 		#endif
 
