@@ -8,7 +8,7 @@ using SocialPoint.Lockstep.Network;
 using SocialPoint.Lockstep;
 using System.IO;
 
-namespace SocialPoint.Lockstep.Network.Photon
+namespace SocialPoint.Lockstep.Network.PUN
 {
     public class ClientNetworkController : IClientNetworkController
     {
