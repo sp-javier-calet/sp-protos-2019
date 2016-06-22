@@ -57,7 +57,7 @@ namespace SpartaTools.Editor.Build
         {
             public string BundleIdentifier;
             public string Flags;
-            public string XcodeModsPrefixes;
+            public string XcodeModSchemes;
             public string RemovedResources;
         }
 
@@ -95,11 +95,7 @@ namespace SpartaTools.Editor.Build
             get
             {
                 var nameLength = name.IndexOf(FileSuffix);
-                if(nameLength > 0)
-                {
-                    return name.Substring(0, nameLength);
-                }
-                return name;
+                return nameLength > 0 ? name.Substring(0, nameLength) : name;
             }
         }
 
@@ -121,11 +117,26 @@ namespace SpartaTools.Editor.Build
             public string ErrorMessage;
         }
 
+        readonly List<Validator> _validators = new List<Validator> { 
+            new Validator {
+                Validate = (BuildSet bs) => !bs.Name.Equals(DebugConfigName) || bs.Ios.XcodeModSchemes.Contains("debug"),
+                ErrorMessage = "Debug Build Set must define the 'debug' scheme for XcodeMods"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !bs.Name.Equals(ReleaseConfigName) || bs.Ios.XcodeModSchemes.Contains("release"),
+                ErrorMessage = "Release Build Set must define the 'release' scheme for XcodeMods"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !bs.Name.Equals(ShippingConfigName) || bs.Ios.XcodeModSchemes.Contains("shipping"),
+                ErrorMessage = "Shipping Build Set must define the 'shipping' scheme for XcodeMods"
+            }
+        };
+
         protected virtual List<Validator> Validators
         {
             get
             {
-                return null;
+                return _validators;
             }
         }
 
@@ -158,6 +169,18 @@ namespace SpartaTools.Editor.Build
             if(!IsValid(out error))
             {
                 throw new InvalidOperationException(string.Format("Invalid configuration for '{0}'. \n{1}", name, error));
+            }
+        }
+
+        protected void SetXcodeModSchemes(string schemes)
+        {
+            if(string.IsNullOrEmpty(schemes))
+            {
+                EditorPrefs.DeleteKey("XCodeModSchemes");
+            }
+            else
+            {
+                EditorPrefs.SetString("XCodeModSchemes", schemes);
             }
         }
 
@@ -237,7 +260,12 @@ namespace SpartaTools.Editor.Build
              * Editor build settings
              */
             EditorUserBuildSettings.development = Common.IsDevelopmentBuild;
-                
+
+            /*
+             * Set XcodeMods custom prefixes
+             */
+            SetXcodeModSchemes(Ios.XcodeModSchemes);
+
             /*
              * Override shared configuration for the active target platform
              */

@@ -273,7 +273,7 @@ namespace SpartaTools.Editor.View
                 config.Ios.BundleIdentifier = InheritableTextField("Bundle Identifier", "iOS bundle identifier", config.Ios.BundleIdentifier, data.IsBase);
                 config.Ios.Flags = InheritableTextField("Flags", "iOS specific defined symbols", config.Ios.Flags, data.IsBase);
                 config.Ios.RemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be removed before build", config.Ios.RemovedResources, data.IsBase);
-                config.Ios.XcodeModsPrefixes = InheritableTextField("Xcodemods prefixes", "Xcodemods prefixes to execute", config.Ios.XcodeModsPrefixes, data.IsBase);
+                config.Ios.XcodeModSchemes = InheritableTextField("XcodeMod Schemes", "Xcodemods schemes to apply. 'base' and 'editor' schemes are managed automatically", config.Ios.XcodeModSchemes, data.IsBase);
 
                 EditorGUILayout.Space();
 

@@ -111,6 +111,12 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        static void SetVersion(string version)
+        {
+            // Set build number. May be overriden by Build Set.
+            PlayerSettings.bundleVersion = version;
+        }
+
         static void SetBuildNumber(int buildNumber)
         {
             // Set build number. May be overriden by Build Set.
@@ -118,7 +124,9 @@ namespace SpartaTools.Editor.Build
             {
                 buildNumber = Int32.Parse(DateTime.Today.ToString("yyMMddhhmm"));
             }
+
             PlayerSettings.Android.bundleVersionCode = buildNumber;
+            PlayerSettings.iOS.buildNumber = buildNumber.ToString();
         }
 
         static BuildSet LoadBuildSetByName(string buildSetName)
@@ -134,19 +142,44 @@ namespace SpartaTools.Editor.Build
 
         #region Public builder interface
 
+        public struct BuildConfig
+        {
+            public BuildTarget Target;
+            public int VersionNumber;
+            public string VersionName;
+            public string Scheme;
+            public string BuildSetName;
+        }
+
         public static void BuildWithArgs()
         {
             // Parse Build number argument
             int versionNumber = 0;
-            string versionArg = GetCommandLineArg("version");
+            string versionArg = GetCommandLineArg("build");
             if(versionArg != null)
             {
                 versionNumber = Int32.Parse(versionArg);
             }
 
             // Select build set
+            string scheme = "editor";
+            string schemeArg = GetCommandLineArg("scheme"); // editor/debug/release/shipping
+            if(schemeArg != null)
+            {
+                scheme = schemeArg;
+            }
+
+            // Parse Build number argument
+            string versionName = string.Empty;
+            string versionNameArg = GetCommandLineArg("version");
+            if(versionNameArg != null)
+            {
+                versionName = versionNameArg;
+            }
+
+            // Select build set
             string builSetName = "Release";
-            string buildSetArg = GetCommandLineArg("build");
+            string buildSetArg = GetCommandLineArg("build_type");
             if(buildSetArg != null)
             {
                 builSetName = buildSetArg;
@@ -156,26 +189,43 @@ namespace SpartaTools.Editor.Build
             Build(EditorUserBuildSettings.activeBuildTarget, builSetName, versionNumber);
         }
 
-        public static void Build(BuildTarget target, string buildSetName, int buildNumber = 0)
+        public static void Build(BuildTarget target, string buildSetName, int versionNumber = 0)
         {
-            Debug.Log(string.Format("Sparta AutoBuilder: Starting Build <{0}> for target <{1}> with config set <{2}>", buildNumber, target, buildSetName));
+            Build(new BuildConfig {
+                Target = target,
+                VersionNumber = versionNumber,
+                Scheme = "editor",
+                BuildSetName = buildSetName
+            });
+        }
+
+        public static void Build(BuildConfig config)
+        {
+            Debug.Log(string.Format("Sparta AutoBuilder: Starting Build <{0}> for target <{1}> with config set <{2}>", 
+                config.VersionNumber, config.Target, config.BuildSetName));
 
             if(BuildPipeline.isBuildingPlayer)
             {
                 throw new InvalidOperationException("Already building a player");
             }
 
-            SetTarget(target);
+            SetTarget(config.Target);
 
-            SetBuildNumber(buildNumber);
+            SetBuildNumber(config.VersionNumber);
 
-            var buildSet = LoadBuildSetByName(buildSetName);
+            SetVersion(config.VersionName);
+
+            var buildSet = LoadBuildSetByName(config.BuildSetName);
             buildSet.ApplyExtended();
 
             // Start build
-            var location = GetLocationForTarget(target, ProjectName);
-            string result = BuildPipeline.BuildPlayer(ScenePaths, location, target, buildSet.Options);
-            Debug.Log(result);
+            var location = GetLocationForTarget(config.Target, ProjectName);
+            string result = BuildPipeline.BuildPlayer(ScenePaths, location, config.Target, buildSet.Options);
+
+            if(!string.IsNullOrEmpty(result))
+            {
+                throw new CompilerErrorException(result);
+            }
         }
 
         #endregion
@@ -185,25 +235,25 @@ namespace SpartaTools.Editor.Build
         [MenuItem("Sparta/Build/Player/Android Release", false, 101)]
         public static void BuildAndroidRelease()
         {
-            AutoBuilder.Build(BuildTarget.Android, "Release");
+            AutoBuilder.Build(BuildTarget.Android, BuildSet.ReleaseConfigName);
         }
 
         [MenuItem("Sparta/Build/Player/Android Debug", false, 102)]
         public static void BuildAndroidDebug()
         {
-            AutoBuilder.Build(BuildTarget.Android, "Debug");
+            AutoBuilder.Build(BuildTarget.Android, BuildSet.DebugConfigName);
         }
 
         [MenuItem("Sparta/Build/Player/Ios Release", false, 201)]
         public static void BuildIosRelease()
         {
-            AutoBuilder.Build(BuildTarget.iOS, "Release");
+            AutoBuilder.Build(BuildTarget.iOS, BuildSet.ReleaseConfigName);
         }
 
         [MenuItem("Sparta/Build/Player/Ios Debug", false, 202)]
         public static void BuildIosDebug()
         {
-            AutoBuilder.Build(BuildTarget.iOS, "Debug");
+            AutoBuilder.Build(BuildTarget.iOS, BuildSet.DebugConfigName);
         }
 
         #endregion

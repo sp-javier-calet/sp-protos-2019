@@ -138,6 +138,8 @@ namespace SpartaTools.Editor.Build
             PlayerSettings.Android.keystorePass = Android.Keystore.FilePassword;
             PlayerSettings.Android.keyaliasName = Android.Keystore.Alias;
             PlayerSettings.Android.keyaliasPass = Android.Keystore.Password;
+
+            SetXcodeModSchemes(Ios.XcodeModSchemes);
         }
     }
 }
