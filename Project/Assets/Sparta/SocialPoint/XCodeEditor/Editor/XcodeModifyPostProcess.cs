@@ -41,6 +41,19 @@ namespace SocialPoint.XCodeEditor
         public const string BaseScheme = "base";
         public const string EditorScheme = "editor";
 
+        /// <summary>
+        /// Discovers and manage a set of Xcodemods files.
+        /// Uses the Target Platform and Schemes to match spxcodemod files within the project.
+        /// 
+        /// XcodeMod files must have the following structure: 
+        ///     [platform.]scheme.module.spxcodemod
+        /// where:
+        /// 'platform' is an optional prefix, which is infered from build settings during compilation ('ios', 'tvos'...)
+        /// 'scheme' is the mod scheme. 'base' mods are always applied, and 'editor' is automatically applied when launched from editor.
+        ///          Other schemes include 'debug', 'release', 'shipping', or any other custom scheme.
+        /// 'module' is the module name.
+        /// 
+        /// </summary>
         class XcodeModsSet
         {
             const string XcodeModPattern = ".*.spxcodemod";
@@ -98,7 +111,6 @@ namespace SocialPoint.XCodeEditor
                 mods.Add(EditorScheme);
             }
 
-            // Apply Mods
             foreach(string file in mods.Files)
             {
                 Debug.Log(string.Format("Applying '{0}'...", file));
