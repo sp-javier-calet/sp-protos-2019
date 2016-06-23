@@ -97,7 +97,7 @@ namespace SocialPoint.XCodeEditor
 
         static void Log(string message)
         {
-            Debug.Log(string.Format("XcodeMods: {0}", message));
+            Debug.Log(string.Format("XcodeMods Editor: {0}", message));
         }
 
         public static void Apply(BuildTarget target, string path, string[] schemes)
@@ -110,7 +110,7 @@ namespace SocialPoint.XCodeEditor
             Log("Enabling 'base' scheme for xcodemods");
             mods.Add(BaseScheme);
 
-            Log(string.Format("Enabling config schemes for xcodemods {0}", string.Join(", ", schemes)));
+            Log(string.Format("Enabling config schemes for xcodemods: {0}", string.Join(", ", schemes)));
             mods.Add(schemes);
 
             if(UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
@@ -122,7 +122,7 @@ namespace SocialPoint.XCodeEditor
 
             foreach(string file in mods.Files)
             {
-                Log(string.Format("Applying file '{0}'...", file));
+                Log(string.Format("Applying file '{0}'", Path.GetFileName(file)));
                 project.ApplyMod(file);
             }
 
