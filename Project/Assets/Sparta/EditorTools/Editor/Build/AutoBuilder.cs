@@ -93,7 +93,11 @@ namespace SpartaTools.Editor.Build
             {
                 EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ETC;
                 PlayerSettings.Android.targetDevice = AndroidTargetDevice.ARMv7;
+
+                Log("Defined Android compilation for ARMv7 with ETC1 compression");
             }
+
+            Log(string.Format("Defined Build Target: '{0}'", EditorUserBuildSettings.activeBuildTarget));
         }
 
         static void SetVersion(string version)
@@ -103,6 +107,8 @@ namespace SpartaTools.Editor.Build
                 // Set build number. May be overriden by Build Set.
                 PlayerSettings.bundleVersion = version;
             }
+
+            Log(string.Format("Defined bundle version: '{0}'", PlayerSettings.bundleVersion ));
         }
 
         static void SetBuildNumber(int buildNumber)
@@ -118,6 +124,8 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.Android.bundleVersionCode = buildNumber;
                 PlayerSettings.iOS.buildNumber = buildNumber.ToString();
             }
+
+            Log(string.Format("Defined Build Number (Bundle Version Code): '{0}'", buildNumber));
         }
 
         static BuildSet LoadBuildSetByName(string buildSetName)
@@ -129,6 +137,11 @@ namespace SpartaTools.Editor.Build
             }
 
             return buildSet;
+        }
+
+        static void Log(string message)
+        {
+            Debug.Log(string.Format("Sparta-Autobuilder: {0}", message));
         }
 
         #region Public builder interface
@@ -175,7 +188,7 @@ namespace SpartaTools.Editor.Build
         /// <param name="versionName">Short Version Name. If it is null or empty, it will use the one defined in Unity Player Settings. </param>
         public static void Build(BuildTarget target, string buildSetName, int versionNumber = -1, string versionName = "")
         {
-            Debug.Log(string.Format("Sparta AutoBuilder: Starting Build <{0}> for target <{1}> with config set <{2}>", 
+            Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
 
             if(BuildPipeline.isBuildingPlayer)
@@ -185,18 +198,32 @@ namespace SpartaTools.Editor.Build
 
             var buildSet = LoadBuildSetByName(buildSetName);
 
+            Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
+                versionNumber, target, buildSetName));
+
             SetTarget(target);
 
             SetBuildNumber(versionNumber);
 
             SetVersion(versionName);
 
+            Log(string.Format("Applying '{0}' Build Set with extended features...", buildSet.Name));
             buildSet.ApplyExtended();
 
             // Start build
-            var location = GetLocationForTarget(target, ProjectName);
-            string result = BuildPipeline.BuildPlayer(ActiveScenes, location, target, buildSet.Options);
+            string[] activeScenes = ActiveScenes;
+            Log(string.Format("Building player with active scenes: '{0}'", activeScenes));
 
+            var location = GetLocationForTarget(target, ProjectName);
+            Log(string.Format("Building player in path '{0}", location));
+
+            var options = buildSet.Options;
+            Log(string.Format("Building player with options: '{0}'", options));
+
+            Log("Starting Player Build");
+            string result = BuildPipeline.BuildPlayer(activeScenes, location, target, options);
+
+            Log(string.Format("Player Build finished with result: '{0}'", result));
             if(!string.IsNullOrEmpty(result))
             {
                 throw new CompilerErrorException(result);
