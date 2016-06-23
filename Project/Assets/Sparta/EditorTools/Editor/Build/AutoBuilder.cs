@@ -223,6 +223,9 @@ namespace SpartaTools.Editor.Build
             var options = buildSet.Options;
             Log(string.Format("Building player with options: '{0}'", options));
 
+            // Dump config report after apply config
+            new BuildReport().CollectPlayerSettings().Dump();
+
             Log("Starting Player Build");
             string result = BuildPipeline.BuildPlayer(activeScenes, location, target, options);
 
