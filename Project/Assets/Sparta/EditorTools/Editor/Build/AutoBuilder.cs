@@ -212,7 +212,7 @@ namespace SpartaTools.Editor.Build
 
             // Start build
             string[] activeScenes = ActiveScenes;
-            Log(string.Format("Building player with active scenes: '{0}'", activeScenes));
+            Log(string.Format("Building player with active scenes: '{0}'", string.Join(",", activeScenes)));
 
             var location = GetLocationForTarget(target, ProjectName);
             Log(string.Format("Building player in path '{0}", location));

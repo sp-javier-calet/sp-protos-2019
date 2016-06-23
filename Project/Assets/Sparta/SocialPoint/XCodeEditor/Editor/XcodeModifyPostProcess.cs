@@ -95,25 +95,34 @@ namespace SocialPoint.XCodeEditor
             }
         }
 
+        static void Log(string message)
+        {
+            Debug.Log(string.Format("XcodeMods: {0}", message));
+        }
+
         public static void Apply(BuildTarget target, string path, string[] schemes)
         {
-            Debug.Log("Executing SocialPoint DependencyManager PostProcessor on path '" + path + "'...");
+            Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
             var project = new XCProject(path);
             var mods = new XcodeModsSet(target);
 
+            Log("Enabling 'base' scheme for xcodemods");
             mods.Add(BaseScheme);
+
+            Log(string.Format("Enabling config schemes for xcodemods {0}", string.Join(",", schemes)));
             mods.Add(schemes);
 
             if(UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
                !UnityEditorInternal.InternalEditorUtility.inBatchMode)
             {
                 mods.Add(EditorScheme);
+                Log("Enabling 'editor' scheme for xcodemods");
             }
 
             foreach(string file in mods.Files)
             {
-                Debug.Log(string.Format("Applying '{0}'...", file));
+                Log(string.Format("Applying file '{0}'...", file));
                 project.ApplyMod(file);
             }
 
