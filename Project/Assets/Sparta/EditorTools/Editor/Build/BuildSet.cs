@@ -43,7 +43,6 @@ namespace SpartaTools.Editor.Build
         [Serializable]
         public struct CommonConfiguration
         {
-
             public string Flags;
             public bool RebuildNativePlugins;
             public bool IsDevelopmentBuild;

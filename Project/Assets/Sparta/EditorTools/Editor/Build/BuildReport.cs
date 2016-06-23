@@ -42,6 +42,60 @@ namespace SpartaTools.Editor.Build
             return this;
         }
 
+        public BuildReport AddBuildSetInfo(BuildSet bs)
+        {
+            string error;
+            AddTitle("Build Set")
+                .Indent()
+                    .Add("Name", bs.Name)
+                    .Add("FileName", bs.name)
+                    .Add("Is default config", bs.IsDefaultConfig.ToString())
+                    .Add("Is Valid", bs.IsValid(out error).ToString())
+                    .Add("Validation error", error)
+
+                    .AddTitle("App")
+                    .Indent()
+                        .Add("Product Name", bs.App.ProductName)
+                        .Add("Override Icon", bs.App.OverrideIcon.ToString())
+                        .Add("Icon", bs.App.IconTexture.ToString())
+                    .IndentBack()
+
+                    .AddTitle("Common")
+                    .Indent()
+                        .Add("Flags", bs.Common.Flags)
+                        .Add("Rebuild Native Plugins", bs.Common.RebuildNativePlugins.ToString())
+                        .Add("Is Development Build", bs.Common.IsDevelopmentBuild.ToString())
+                        .Add("Include Debug Scenes", bs.Common.IncludeDebugScenes.ToString())
+                    .IndentBack()
+
+                    .AddTitle("Ios")
+                    .Indent()
+                        .Add("Bundle Identifier", bs.Ios.BundleIdentifier)
+                        .Add("Flags", bs.Ios.Flags)
+                        .Add("XcodeMod Schemes", bs.Ios.XcodeModSchemes)
+                        .Add("Removed resources", bs.Ios.RemovedResources)
+                    .IndentBack()
+
+                    .AddTitle("Android")
+                    .Indent()
+                        .Add("Bundle Identifier", bs.Android.BundleIdentifier)
+                        .Add("Force Bundle Version Code", bs.Android.ForceBundleVersionCode.ToString())
+                        .Add("Bundle Version Code", bs.Android.BundleVersionCode.ToString())
+                        .Add("Flags", bs.Android.Flags)
+                        .Add("Removed resources", bs.Android.RemovedResources)
+                        .Add("Use keystore", bs.Android.UseKeystore.ToString())
+                        .AddTitle("Keystore")
+                        .Indent()
+                            .Add("Path", bs.Android.Keystore.Path)
+                            .Add("File Password", bs.Android.Keystore.FilePassword)
+                            .Add("Alias", bs.Android.Keystore.Alias)
+                            .Add("Password", bs.Android.Keystore.Password)
+                        .IndentBack()
+                    .IndentBack()
+                .IndentBack();
+            return this;
+        }
+
         public BuildReport CollectPlayerSettings()
         {
             AddTitle("Player Settings")
