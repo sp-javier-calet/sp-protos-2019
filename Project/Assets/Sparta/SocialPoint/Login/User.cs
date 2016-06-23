@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-
-using UnityEngine;
-
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
 using SocialPoint.IO;
+using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.Login
 {
@@ -102,12 +100,8 @@ namespace SocialPoint.Login
                     return new UserMapping(Id.ToString(), null);
                 }
                 
-                if(Links.Count > 0)
-                {
-                    return Links[0];
-                }
+                return Links.Count > 0 ? Links[0] : new UserMapping();
                 
-                return new UserMapping();
             }
         }
 
@@ -119,9 +113,12 @@ namespace SocialPoint.Login
                 var link = enumerator.Current;
                 if(link.Provider == provider)
                 {
-                    return link.Id;
+                    string linkId = link.Id;
+                    enumerator.Dispose();
+                    return linkId;
                 }
             }
+            enumerator.Dispose();
             return null;
         }
 
@@ -137,6 +134,7 @@ namespace SocialPoint.Login
                     ids.Add(link.Id);
                 }
             }
+            enumerator.Dispose();
             return ids;
         }
 
@@ -150,10 +148,12 @@ namespace SocialPoint.Login
                 {
                     if(externalId == null || link.Id == externalId)
                     {
+                        enumerator.Dispose();
                         return true;
                     }
                 }
             }
+            enumerator.Dispose();
             return false;
         }
 
@@ -174,7 +174,7 @@ namespace SocialPoint.Login
 
         public string GetName(string provider)
         {
-            string name = null;
+            string name;
             Names.TryGetValue(provider, out name);
             return name;
         }
@@ -195,8 +195,9 @@ namespace SocialPoint.Login
                     var data = itr.Current;
                     if(!string.IsNullOrEmpty(data.Value))
                     {
+                        string dataValue = data.Value;
                         itr.Dispose();
-                        return data.Value;
+                        return dataValue;
                     }
                 }
                 itr.Dispose();
@@ -211,7 +212,7 @@ namespace SocialPoint.Login
 
         public string GetPhotoPath(string provider)
         {
-            string path = null;
+            string path;
             PhotoPaths.TryGetValue(provider, out path);
             return path;
         }
@@ -232,8 +233,9 @@ namespace SocialPoint.Login
                     var data = itr.Current;
                     if(!string.IsNullOrEmpty(data.Value))
                     {
+                        string dataValue = data.Value;
                         itr.Dispose();
-                        return data.Value;
+                        return dataValue;
                     }
                 }
                 itr.Dispose();
@@ -259,11 +261,7 @@ namespace SocialPoint.Login
         {
             if(System.Object.ReferenceEquals(lu, null))
             {
-                if(System.Object.ReferenceEquals(ru, null))
-                {
-                    return true;
-                }
-                return false;
+                return System.Object.ReferenceEquals(ru, null);
             }
 
             if(System.Object.ReferenceEquals(ru, null))
@@ -282,9 +280,11 @@ namespace SocialPoint.Login
                 var link = enumerator.Current;
                 if(ru.HasLink(link.Provider, link.Id))
                 {
+                    enumerator.Dispose();
                     return true;
                 }
             }
+            enumerator.Dispose();
 
             return false;
         }
@@ -301,7 +301,7 @@ namespace SocialPoint.Login
                 return false;
             }
             
-            User p = obj as User;
+            var p = obj as User;
             if((System.Object)p == null)
             {
                 return false;
