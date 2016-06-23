@@ -47,7 +47,7 @@ namespace SpartaTools.Editor.Build
         {
             if(result.Code != 0)
             {
-                throw new CompilerErrorException(string.Format("{0}\n\nFull output:\n{1}", result.Error, result.Output));
+                throw new CompilerErrorException(string.Format("Sparta Native Build compilation failed:\n{0}\n\nFull output:\n{1}", result.Error, result.Output));
             }
         }
 

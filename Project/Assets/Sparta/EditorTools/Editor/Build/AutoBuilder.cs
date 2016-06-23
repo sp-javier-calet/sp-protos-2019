@@ -198,9 +198,6 @@ namespace SpartaTools.Editor.Build
 
             var buildSet = LoadBuildSetByName(buildSetName);
 
-            Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
-                versionNumber, target, buildSetName));
-
             SetTarget(target);
 
             SetBuildNumber(versionNumber);
@@ -212,7 +209,7 @@ namespace SpartaTools.Editor.Build
 
             // Start build
             string[] activeScenes = ActiveScenes;
-            Log(string.Format("Building player with active scenes: '{0}'", string.Join(",", activeScenes)));
+            Log(string.Format("Building player with active scenes: '{0}'", string.Join(", ", activeScenes)));
 
             var location = GetLocationForTarget(target, ProjectName);
             Log(string.Format("Building player in path '{0}", location));

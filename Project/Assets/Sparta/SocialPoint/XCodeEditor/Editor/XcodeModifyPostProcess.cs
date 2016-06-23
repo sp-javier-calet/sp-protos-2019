@@ -110,7 +110,7 @@ namespace SocialPoint.XCodeEditor
             Log("Enabling 'base' scheme for xcodemods");
             mods.Add(BaseScheme);
 
-            Log(string.Format("Enabling config schemes for xcodemods {0}", string.Join(",", schemes)));
+            Log(string.Format("Enabling config schemes for xcodemods {0}", string.Join(", ", schemes)));
             mods.Add(schemes);
 
             if(UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
