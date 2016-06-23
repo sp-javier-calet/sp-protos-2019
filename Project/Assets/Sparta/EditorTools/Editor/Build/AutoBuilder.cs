@@ -100,18 +100,17 @@ namespace SpartaTools.Editor.Build
             Log(string.Format("Defined Build Target: '{0}'", EditorUserBuildSettings.activeBuildTarget));
         }
 
-        static void SetVersion(string version)
+        static void OverrideVersion(string version)
         {
             if(!string.IsNullOrEmpty(version))
             {
-                // Set build number. May be overriden by Build Set.
                 PlayerSettings.bundleVersion = version;
             }
 
             Log(string.Format("Defined bundle version: '{0}'", PlayerSettings.bundleVersion ));
         }
 
-        static void SetBuildNumber(int buildNumber)
+        static void OverrideBuildNumber(int buildNumber)
         {
             // Set build number. May be overriden by Build Set.
             if(buildNumber == 0)
@@ -196,18 +195,25 @@ namespace SpartaTools.Editor.Build
                 throw new InvalidOperationException("Already building a player");
             }
 
-            var buildSet = LoadBuildSetByName(buildSetName);
-
             SetTarget(target);
 
-            SetBuildNumber(versionNumber);
-
-            SetVersion(versionName);
-
+            var buildSet = LoadBuildSetByName(buildSetName);
             Log(string.Format("Applying '{0}' Build Set with extended features...", buildSet.Name));
             buildSet.ApplyExtended();
 
-            // Start build
+            /*
+             * Settings Override
+             */ 
+            if(!buildSet.Android.ForceBundleVersionCode)
+            {
+                OverrideBuildNumber(versionNumber);
+            }
+
+            OverrideVersion(versionName);
+
+            /*
+             * Start build
+             */ 
             string[] activeScenes = ActiveScenes;
             Log(string.Format("Building player with active scenes: '{0}'", string.Join(", ", activeScenes)));
 
