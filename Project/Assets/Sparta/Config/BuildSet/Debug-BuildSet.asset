@@ -16,9 +16,10 @@ MonoBehaviour:
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
-    Flags: ADMIN_PANEL
+    Flags: ADMIN_PANEL;SPARTA_PROFILER_ENABLED
     RebuildNativePlugins: 0
     IsDevelopmentBuild: 1
+    IncludeDebugScenes: 1
   Ios:
     BundleIdentifier: 
     Flags: 
