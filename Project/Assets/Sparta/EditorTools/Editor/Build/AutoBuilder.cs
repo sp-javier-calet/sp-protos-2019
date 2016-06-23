@@ -225,6 +225,7 @@ namespace SpartaTools.Editor.Build
 
             // Dump config report after apply config
             new BuildReport()
+                .CollectBaseSettings()
                 .AddBuildSetInfo(buildSet)
                 .CollectPlayerSettings()
                 .Dump();

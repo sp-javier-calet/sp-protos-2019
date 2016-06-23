@@ -6,7 +6,7 @@ namespace SpartaTools.Editor.Build
 {
     public class BuildReport
     {
-        readonly StringBuilder _builder = new StringBuilder("Sparta Build Report");
+        readonly StringBuilder _builder = new StringBuilder("## Sparta Build Report ## \n");
         int CurrentIndent;
 
         BuildReport Indent()
@@ -39,6 +39,12 @@ namespace SpartaTools.Editor.Build
             }
 
             _builder.AppendLine(line);
+            return this;
+        }
+
+        BuildReport Space()
+        {
+            _builder.AppendLine();
             return this;
         }
 
@@ -92,7 +98,19 @@ namespace SpartaTools.Editor.Build
                             .Add("Password", bs.Android.Keystore.Password)
                         .IndentBack()
                     .IndentBack()
-                .IndentBack();
+                .IndentBack()
+                .Space();
+            return this;
+        }
+
+        public BuildReport CollectBaseSettings()
+        {
+            var bs = BaseSettings.Load();
+            AddTitle("Base Settings")
+            .Indent()
+                .AddBuildSetInfo(BaseSettings.Load())
+            .IndentBack()
+            .Space();
             return this;
         }
 
@@ -128,7 +146,8 @@ namespace SpartaTools.Editor.Build
                         .Add("Stored Schemes", EditorPrefs.GetString(BuildSet.XcodeModSchemesPrefsKey))
                     .IndentBack()
                 .IndentBack()
-            .IndentBack();
+            .IndentBack()
+            .Space();
 
             return this;
         }
