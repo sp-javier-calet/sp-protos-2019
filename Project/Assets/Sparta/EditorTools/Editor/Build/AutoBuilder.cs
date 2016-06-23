@@ -35,9 +35,9 @@ namespace SpartaTools.Editor.Build
             }
         }
 
-        static string GetCommandLineArg(string name)
+        static string GetCommandLineArg(string name, string defaultValue)
         {
-            string value = null;
+            string value = defaultValue;
             string[] arguments = Environment.GetCommandLineArgs();
             foreach(var arg in arguments)
             {
@@ -74,7 +74,6 @@ namespace SpartaTools.Editor.Build
                 throw new NotSupportedException("Unsupported platform " + target);
             }
 
-            // TODO Correct??
             var directory = Path.GetDirectoryName(path);
             if(!Directory.Exists(directory))
             {
@@ -107,7 +106,7 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.bundleVersion = version;
             }
 
-            Log(string.Format("Defined bundle version: '{0}'", PlayerSettings.bundleVersion ));
+            Log(string.Format("Defined bundle version: '{0}'", PlayerSettings.bundleVersion));
         }
 
         static void OverrideBuildNumber(int buildNumber)
@@ -151,28 +150,16 @@ namespace SpartaTools.Editor.Build
             int versionNumber = 0;
             try
             {
-                versionNumber = Int32.Parse(GetCommandLineArg("build"));
+                versionNumber = Int32.Parse(GetCommandLineArg("build", null));
             }
             catch(Exception e)
             {
                 throw new ArgumentException("A valid build number must be provided for the 'build' argument", e);
             }
 
-            // Parse Build number argument
-            string versionName = string.Empty;
-            string versionNameArg = GetCommandLineArg("version");
-            if(versionNameArg != null)
-            {
-                versionName = versionNameArg;
-            }
-
-            // Select build set
-            string builSetName = BuildSet.DebugConfigName;
-            string buildSetArg = GetCommandLineArg("config");
-            if(buildSetArg != null)
-            {
-                builSetName = buildSetArg;
-            }
+            // Parse optional arguments
+            var versionName = GetCommandLineArg("version", string.Empty);
+            var builSetName = GetCommandLineArg("config", BuildSet.DebugConfigName);
 
             // Launch build
             Build(EditorUserBuildSettings.activeBuildTarget, builSetName, versionNumber, versionName);
