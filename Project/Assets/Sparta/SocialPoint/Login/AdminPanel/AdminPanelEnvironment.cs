@@ -34,6 +34,7 @@ namespace SocialPoint.Login
                     OnEnvironmentChange(kvp.Key);
                 } );
             }
+            itr.Dispose();
 
             _layout = layout;
         }
