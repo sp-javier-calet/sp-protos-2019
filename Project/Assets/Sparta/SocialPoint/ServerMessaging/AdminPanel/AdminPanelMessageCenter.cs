@@ -35,6 +35,8 @@ namespace SocialPoint.ServerMessaging
             layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _messageCenter.Messages.MoveNext());
             layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _messageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
+            layout.CreateButton("Read all Messages together", ReadAllMessagesTogether, _messageCenter.Messages.MoveNext());
+
             _messageCenter.UpdatedEvent += a => layout.Refresh();
         }
 
@@ -87,6 +89,19 @@ namespace SocialPoint.ServerMessaging
                 list.Add(iterator.Current);
             }
             _messageCenter.DeleteMessages(list);
+        }
+
+        void ReadAllMessagesTogether()
+        {
+            var iterator = _messageCenter.Messages;
+            iterator.Reset();
+
+            var list = new List<Message>();
+            while(iterator.MoveNext())
+            {
+                list.Add(iterator.Current);
+            }
+            _messageCenter.ReadMessages(list);
         }
     }
 }
