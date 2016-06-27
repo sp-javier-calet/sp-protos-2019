@@ -12,7 +12,6 @@ namespace SocialPoint.Login
         readonly ILogin _login;
         readonly IDictionary<string, string> _environments;
         readonly IAppEvents _appEvents;
-        AdminPanelLayout _layout;
 
         public AdminPanelLogin(ILogin login)
         {
@@ -61,7 +60,7 @@ namespace SocialPoint.Login
                 {
                     layout.CreateTextArea(envInfo.ToString());
                 }
-                layout.CreateDropdown("Change environment", envNames, OnEnvironmentChange);
+                layout.CreateOpenPanelButton("Change environment", new AdminPanelEnvironment(_login, _environments, _appEvents));
                 layout.CreateMargin();
             }
             
@@ -110,26 +109,6 @@ namespace SocialPoint.Login
             
             layout.CreateLabel("Friends");
             layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends.ToString() : "No friends");
-
-            _layout = layout;
-        }
-
-        void OnEnvironmentChange(string name)
-        {
-            string url;
-            if(!_environments.TryGetValue(name, out url))
-            {
-                throw new InvalidOperationException(string.Format("Could not find url for env '{0}'", name));
-            }
-            _login.SetBaseUrl(url);
-            if(_layout != null)
-            {
-                _layout.Refresh();
-            }
-            if(_appEvents != null)
-            {
-                _appEvents.RestartGame();
-            }
         }
     }
 }
