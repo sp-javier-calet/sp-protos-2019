@@ -338,7 +338,6 @@ namespace SocialPoint.GUIControl
         {
             if(_loaded)
             {
-                Reset();
                 HideImmediate();
                 OnDestroyed();
             }
