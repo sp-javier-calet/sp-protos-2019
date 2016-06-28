@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.ServerSync;
 
@@ -16,13 +16,16 @@ namespace SocialPoint.ServerMessaging
         ICommandQueue _commandQueue;
         CommandReceiver _commandReceiver;
         IAppEvents _appEvents;
-        Dictionary<string,Message> _messages;
-        List<string> _deletedMessages;
+        readonly Dictionary<string,Message> _messages;
+        readonly List<string> _deletedMessages;
+        readonly List<string> _receivedMessages;
 
         const string GetMessagesCommandName = "messages.get";
         const string SendMessagesCommandName = "messages.send";
+        const string ReadMessagesCommandName = "messages.read";
+        const string ReceivedMessagesCommandName = "messages.received";
         const string DeleteMessagesCommandName = "messages.delete";
-        const string DeleteIdsArg = "ids";
+        const string IdsArg = "ids";
         const string PendingMessagesCommandName = "messages.new";
         const string MessagesArg = "msgs";
 
@@ -30,9 +33,10 @@ namespace SocialPoint.ServerMessaging
         {
             _messages = new Dictionary<string,Message>();
             _deletedMessages = new List<string>();
+            _receivedMessages = new List<string>();
             _commandQueue = commandQueue;
             _commandReceiver = commandReceiver;
-            _commandReceiver.RegisterCommand(PendingMessagesCommandName, (cmd) => ParseMessages(cmd.Args));
+            _commandReceiver.RegisterCommand(PendingMessagesCommandName, cmd => ParseMessages(cmd.Args));
             _appEvents = appEvents;
             _appEvents.GameWillRestart.Add(0, Reset);
         }
@@ -49,6 +53,42 @@ namespace SocialPoint.ServerMessaging
         public void SendMessage(Message message, Action<Error> callback = null)
         {
             _commandQueue.Add(new Command(SendMessagesCommandName, message.ToAttr(), false, false), (resp, err) => {
+                if(!Error.IsNullOrEmpty(err))
+                {
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
+                }
+            });
+        }
+
+        public void ReadMessages(List<Message> messages, Action<Error> callback = null)
+        {
+            var readMessages = new List<string>();
+            for(int i = 0, messagesCount = messages.Count; i < messagesCount; i++)
+            {
+                var message = messages[i];
+                readMessages.Add(message.Id);
+            }
+
+            AddCommandListMessages(ReadMessagesCommandName, readMessages, callback);
+        }
+
+        void AddCommandListMessages(string commandName, List<string> messages, Action<Error> callback = null)
+        {
+            var ids = new AttrList();
+
+            for(int i = 0, messagesCount = messages.Count; i < messagesCount; i++)
+            {
+                var messageId = messages[i];
+                ids.Add(new AttrString(messageId));
+            }
+
+            var arg = new AttrDic();
+            arg.Set(IdsArg, ids);
+
+            _commandQueue.Add(new Command(commandName, arg, false, false), (resp, err) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -93,7 +133,7 @@ namespace SocialPoint.ServerMessaging
             }
 
             var arg = new AttrDic();
-            arg.Set(DeleteIdsArg, ids);
+            arg.Set(IdsArg, ids);
 
             _commandQueue.Add(new Command(DeleteMessagesCommandName, arg, false, false), (resp, err) => {
                 if(callback != null)
@@ -130,6 +170,8 @@ namespace SocialPoint.ServerMessaging
         /// <param name="data">Data.</param>
         public void ParseMessages(Attr data)
         {
+            _receivedMessages.Clear();
+
             var messagesList = data.AsDic.Get(MessagesArg).AsList;
             var newMessages = false;
             for(int i = 0; i < messagesList.Count; i++)
@@ -138,17 +180,24 @@ namespace SocialPoint.ServerMessaging
                 if(!_messages.ContainsKey(message.Id) && !_deletedMessages.Contains(message.Id))
                 {
                     _messages.Add(message.Id, message);
+                    _receivedMessages.Add(message.Id);
                     newMessages = true;
                 }
             }
             if(newMessages)
             {
+                ReceivedMessages();
                 var handler = UpdatedEvent;
                 if(handler != null)
                 {
                     handler(this);
                 }
             }
+        }
+
+        void ReceivedMessages(Action<Error> callback = null)
+        {
+            AddCommandListMessages(ReceivedMessagesCommandName, _receivedMessages, callback);
         }
 
         void ParseResponseGetMessagesCommand(Attr data, Error err, Action<Error> callback = null)
@@ -166,8 +215,9 @@ namespace SocialPoint.ServerMessaging
 
         void Reset()
         {
-            _messages = new Dictionary<string,Message>();
-            _deletedMessages = new List<string>();
+            _messages.Clear();
+            _deletedMessages.Clear();
+            _receivedMessages.Clear();
         }
     }
 }

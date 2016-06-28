@@ -1,7 +1,5 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-
 using SocialPoint.Base;
 
 namespace SocialPoint.ServerMessaging
@@ -28,6 +26,10 @@ namespace SocialPoint.ServerMessaging
         }
 
         public void SendMessage(Message message, Action<Error> callback = null)
+        {
+        }
+
+        public void ReadMessages(List<Message> messages, Action<Error> callback = null)
         {
         }
 

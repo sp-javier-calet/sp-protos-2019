@@ -93,7 +93,7 @@ namespace SocialPoint.Marketing
         }
 
         [Test]
-        public void Trackers_recieve_userId()
+        public void Trackers_receive_userId()
         {
             manager.AddTracker(tracker);
             appEvents.TriggerGameWasLoaded();
