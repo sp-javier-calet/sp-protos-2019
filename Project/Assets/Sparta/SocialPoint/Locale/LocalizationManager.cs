@@ -377,7 +377,6 @@ namespace SocialPoint.Locale
                 {
                     finish();
                 }
-                langEnumerator.Dispose();
                 return;
             }
             if(langEnumerator == null)

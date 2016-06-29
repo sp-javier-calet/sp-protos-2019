@@ -172,11 +172,16 @@ namespace SocialPoint.Login
             Names[provider] = name;
         }
 
-        public string GetName(string provider)
+        static string GetProvider(Dictionary<string, string> dict, string provider)
         {
             string name;
-            Names.TryGetValue(provider, out name);
+            dict.TryGetValue(provider, out name);
             return name;
+        }
+
+        public string GetName(string provider)
+        {
+            return GetProvider(Names, provider);
         }
 
         [Obsolete("Use Name property")]
@@ -212,9 +217,7 @@ namespace SocialPoint.Login
 
         public string GetPhotoPath(string provider)
         {
-            string path;
-            PhotoPaths.TryGetValue(provider, out path);
-            return path;
+            return GetProvider(PhotoPaths, provider);
         }
 
         [Obsolete("Use PhotoPath property")]
