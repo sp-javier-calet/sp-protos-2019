@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
-using UnityEngine.Assertions;
 
 namespace SocialPoint.Purchase
 {

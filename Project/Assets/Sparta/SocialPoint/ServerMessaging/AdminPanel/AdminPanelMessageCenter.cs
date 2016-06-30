@@ -32,6 +32,7 @@ namespace SocialPoint.ServerMessaging
                 hlayout.CreateTextArea(messages.Current.ToString());
                 hlayout.CreateButton("Delete", () => _messageCenter.DeleteMessage(messages.Current));
             }
+            messages.Dispose();
             layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _messageCenter.Messages.MoveNext());
             layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _messageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);

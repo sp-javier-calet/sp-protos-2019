@@ -465,7 +465,6 @@ namespace SocialPoint.GUIControl
                             break;
                         }
                     }
-
                     overlappedScenesEnumerator.Dispose();
                 }
 
