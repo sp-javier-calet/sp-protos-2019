@@ -9,9 +9,6 @@ namespace SpartaTools.Editor.View
 {
     public class BuildSetsWindow : EditorWindow
     {
-        const string DebugConfigName = "Debug";
-        const string ReleaseConfigName = "Release";
-        const string BaseSettingsName = "Base Settings";
         const string InheritedLabel = "<inherited>";
         const string CurrentModeKey = "SpartaCurrentBuildSet";
         const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
@@ -19,6 +16,7 @@ namespace SpartaTools.Editor.View
         #region Static platform and buildset management
 
         static string _currentMode;
+
         static string CurrentMode
         {
             get
@@ -37,6 +35,7 @@ namespace SpartaTools.Editor.View
         }
 
         static bool? _autoApply;
+
         static bool AutoApply
         {
             get
@@ -51,6 +50,25 @@ namespace SpartaTools.Editor.View
             {
                 _autoApply = value;
                 EditorPrefs.SetBool(AutoApplyKey, value);
+            }
+        }
+
+        bool _editEnabled;
+
+        bool EditEnabled
+        {
+            set
+            {
+                bool changed = _editEnabled != value;
+                _editEnabled = value;
+                if(changed)
+                {
+                    RefreshIcon();
+                }
+            }
+            get
+            {
+                return _editEnabled;
             }
         }
 
@@ -103,28 +121,40 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Debug", false, 1)]
         public static void SetDebugConfig()
         {
-            ApplyConfig(CurrentMode);
+            ApplyConfig(BuildSet.DebugConfigName);
         }
 
         [MenuItem("Sparta/Build/Debug", true)]
         static bool ValidateSetDebugConfig()
         {
-            return CurrentMode != DebugConfigName;
+            return CurrentMode != BuildSet.DebugConfigName;
         }
 
         [MenuItem("Sparta/Build/Release", false, 2)]
         public static void SetReleaseConfig()
         {
-            ApplyConfig(CurrentMode);
+            ApplyConfig(BuildSet.ReleaseConfigName);
         }
 
         [MenuItem("Sparta/Build/Release", true)]
         static bool ValidateSetReleaseConfig()
         {
-            return CurrentMode != ReleaseConfigName;
+            return CurrentMode != BuildSet.ReleaseConfigName;
         }
 
-        [MenuItem("Sparta/Build/Build settings...", false, 3)]
+        [MenuItem("Sparta/Build/Shipping", false, 2)]
+        public static void SetShippingConfig()
+        {
+            ApplyConfig(BuildSet.ShippingConfigName);
+        }
+
+        [MenuItem("Sparta/Build/Shipping", true)]
+        static bool ValidateSetShippingConfig()
+        {
+            return CurrentMode != BuildSet.ShippingConfigName;
+        }
+
+        [MenuItem("Sparta/Build/Build Set...", false, 3)]
         public static void ShowBuildSettings()
         {
             EditorWindow.GetWindow(typeof(BuildSetsWindow), false, "Build Set", true);
@@ -147,10 +177,17 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        static void ApplyConfig(BuildSet config)
+        static void ApplyConfig(BuildSet config, bool extended = false)
         {
             CurrentMode = config.Name;
-            config.Apply();
+            if(extended)
+            {
+                config.ApplyExtended();
+            }
+            else
+            {
+                config.Apply();
+            }
         }
 
         #endregion
@@ -159,7 +196,12 @@ namespace SpartaTools.Editor.View
 
         void OnFocus()
         {
-            Sparta.SetIcon(this, "Build Set", "Sparta Build Set configurations");
+            RefreshIcon();
+        }
+
+        void RefreshIcon()
+        {
+            Sparta.SetIcon(this, "Build Set", "Sparta Build Set configurations", EditEnabled);
         }
 
         Dictionary<string, BuildSetViewData> LoadViewConfig()
@@ -181,8 +223,7 @@ namespace SpartaTools.Editor.View
             }
 
             // Load base settings
-            _baseSettingsData = new BuildSetViewData(BaseSettingsName, BaseSettings.Load(), true);
-
+            _baseSettingsData = new BuildSetViewData(BuildSet.BaseSettingsName, BaseSettings.Load(), true);
             return configs;
         }
 
@@ -194,67 +235,86 @@ namespace SpartaTools.Editor.View
             data.Visible = EditorGUILayout.Foldout(data.Visible, data.Name);
             if(data.Visible)
             {
-                if(!config.Validate())
+                string error;
+                if(!config.IsValid(out error))
                 {
-                    GUILayout.Label("Invalid BuildSet", Styles.InvalidProjectLabel);
+                    GUILayout.Label(new GUIContent("Invalid BuildSet", error), Styles.InvalidProjectLabel);
                 }
 
                 GUILayout.BeginVertical(Styles.Group);
                 EditorGUILayout.LabelField("Common", EditorStyles.boldLabel);
-                config.CommonFlags = InheritableTextField("Flags", "Defined symbols for all platforms", config.CommonFlags, data.IsBase);
+
+                EditorGUILayout.Space();
+
+                GUILayout.BeginVertical();
+                config.App.ProductName = InheritableTextField("Product Name", "Application name", config.App.ProductName, data.IsBase);
+                config.Common.Flags = InheritableTextField("Flags", "Defined symbols for all platforms", config.Common.Flags, data.IsBase);
 
                 if(!data.IsBase)
                 {
-                    config.RebuildNativePlugins = EditorGUILayout.Toggle("Rebuild native plugins", config.RebuildNativePlugins);
-                    config.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.OverrideIcon);
+                    config.Common.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.Common.RebuildNativePlugins);
+                    config.Common.IsDevelopmentBuild = EditorGUILayout.Toggle(new GUIContent("Development build", "Build as development build"), config.Common.IsDevelopmentBuild);
+                    config.Common.IncludeDebugScenes = EditorGUILayout.Toggle(new GUIContent("Include debug scenes", "Include scene files starting with 'Debug'"), config.Common.IncludeDebugScenes);
+                    config.App.OverrideIcon = EditorGUILayout.Toggle("Override Icon", config.App.OverrideIcon);
                 }
-                if(config.OverrideIcon)
+
+                if(data.IsBase || config.App.OverrideIcon)
                 {
-                    config.Icon = (Texture2D)EditorGUILayout.ObjectField("Icon", config.Icon, typeof(Texture2D), false);
+                    config.App.IconTexture = (Texture2D)EditorGUILayout.ObjectField("Icon", config.App.IconTexture, typeof(Texture2D), false);
                 }
+                GUILayout.EndVertical();
 
                 EditorGUILayout.Space();
 
                 // IOS Condifguration
                 EditorGUILayout.LabelField("IOS", EditorStyles.boldLabel);
-                GUILayout.BeginVertical();
-                config.IosBundleIdentifier = InheritableTextField("Bundle Identifier", "iOS bundle identifier", config.IosBundleIdentifier, data.IsBase);
-                config.IosFlags = InheritableTextField("Flags", "iOS specific defined symbols", config.IosFlags, data.IsBase);
-                config.IosRemovedResources = InheritableTextField("Remove Resources", "Folders and file to remove before build. AutoBuilder only", config.IosRemovedResources, data.IsBase);
-                config.XcodeModsPrefixes = InheritableTextField("Xcodemods prefixes", "Xcodemods prefixes to execute" , config.XcodeModsPrefixes, data.IsBase);
-                GUILayout.EndVertical();
+
+                EditorGUILayout.Space();
+
+                config.Ios.BundleIdentifier = InheritableTextField("Bundle Identifier", "iOS bundle identifier", config.Ios.BundleIdentifier, data.IsBase);
+                config.Ios.Flags = InheritableTextField("Flags", "iOS specific defined symbols", config.Ios.Flags, data.IsBase);
+                config.Ios.RemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be removed before build", config.Ios.RemovedResources, data.IsBase);
+                config.Ios.XcodeModSchemes = InheritableTextField("XcodeMod Schemes", "Xcodemods schemes to apply. 'base' and 'editor' schemes are managed automatically", config.Ios.XcodeModSchemes, data.IsBase);
+
                 EditorGUILayout.Space();
 
                 // Android Condifguration
                 EditorGUILayout.LabelField("Android", EditorStyles.boldLabel);
-                GUILayout.BeginVertical();
-                config.AndroidBundleIdentifier = InheritableTextField("Bundle Identifier", "Android bundle identifier", config.AndroidBundleIdentifier, data.IsBase);
-                config.AndroidFlags = InheritableTextField("Flags", "Android specific defined symbols", config.AndroidFlags, data.IsBase);
-                config.AndroidRemovedResources = InheritableTextField("Remove Resources", "Folders and files to remove before build. AutoBuilder only", config.AndroidRemovedResources, data.IsBase);
-                if(!data.IsBase)
-                {
-                    config.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.ForceBundleVersionCode);
-                }
-                if(config.ForceBundleVersionCode)
-                {
-                    config.BundleVersionCode = EditorGUILayout.IntField("Bundle Version Code", config.BundleVersionCode);
-                }
-
-                if(!data.IsBase)
-                {
-                    config.UseKeystore = EditorGUILayout.Toggle("Use release keystore", config.UseKeystore);
-                }
-                if(config.UseKeystore)
-                {
-                    config.KeystorePath = InheritableTextField("Keystore file", "Android keystore file path. Relative to project", config.KeystorePath, data.IsBase);
-                    config.KeystoreFilePassword = InheritableTextField("Keystore password", "Keystore file password", config.KeystoreFilePassword, data.IsBase);
-                    config.KeystoreAlias = InheritableTextField("Alias", "Keystore alias", config.KeystoreAlias, data.IsBase);
-                    config.KeystorePassword = InheritableTextField("Password", "Keystore alias password", config.KeystorePassword, data.IsBase);
-                }
-                GUILayout.EndVertical();
 
                 EditorGUILayout.Space();
 
+                config.Android.BundleIdentifier = InheritableTextField("Bundle Identifier", "Android bundle identifier", config.Android.BundleIdentifier, data.IsBase);
+                config.Android.Flags = InheritableTextField("Flags", "Android specific defined symbols", config.Android.Flags, data.IsBase);
+                config.Android.RemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be to removed before build", config.Android.RemovedResources, data.IsBase);
+
+                EditorGUILayout.Space();
+
+                if(!data.IsBase)
+                {
+                    config.Android.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.Android.ForceBundleVersionCode);
+                }
+
+                if(data.IsBase || config.Android.ForceBundleVersionCode)
+                {
+                    config.Android.BundleVersionCode = EditorGUILayout.IntField("Bundle Version Code", config.Android.BundleVersionCode);
+                }
+
+                EditorGUILayout.Space();
+
+                if(!data.IsBase)
+                {
+                    config.Android.UseKeystore = EditorGUILayout.Toggle("Use release keystore", config.Android.UseKeystore);
+                }
+
+                if(data.IsBase || config.Android.UseKeystore)
+                {
+                    config.Android.Keystore.Path = InheritableTextField("Keystore file", "Android keystore file path. Relative to project", config.Android.Keystore.Path, data.IsBase);
+                    config.Android.Keystore.FilePassword = InheritableTextField("Keystore password", "Keystore file password", config.Android.Keystore.FilePassword, data.IsBase);
+                    config.Android.Keystore.Alias = InheritableTextField("Alias", "Keystore alias", config.Android.Keystore.Alias, data.IsBase);
+                    config.Android.Keystore.Password = InheritableTextField("Password", "Keystore alias password", config.Android.Keystore.Password, data.IsBase);
+                }
+
+                EditorGUILayout.Space();
 
                 GUILayout.BeginHorizontal();
                 if(GUILayout.Button("Apply", Styles.ActionButtonOptions))
@@ -271,6 +331,25 @@ namespace SpartaTools.Editor.View
                         EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
                     }
                 }
+
+                if(EditEnabled)
+                {
+                    if(GUILayout.Button(new GUIContent("Apply+", "Apply Build Set with extended features"), Styles.ActionButtonOptions))
+                    {
+                        try
+                        {
+                            ApplyConfig(config, true);
+
+                            EditorUtility.DisplayDialog("Config applied successfully with extended features", 
+                                string.Format("{0} build set was applied successfully to Player Settings.", data.Name), "Ok");
+                        }
+                        catch(Exception e)
+                        {
+                            EditorUtility.DisplayDialog("Error applying config", e.Message, "Ok");
+                        }
+                    }
+                }
+
                 if(!data.IsBase)
                 {
                     if(GUILayout.Button("Delete", Styles.ActionButtonOptions))
@@ -287,6 +366,9 @@ namespace SpartaTools.Editor.View
 
             EditorGUILayout.Space();
             GUILayout.EndVertical();
+
+            // Update Asset content
+            EditorUtility.SetDirty(data.Config);
         }
 
         string InheritableTextField(string label, string tooltip, string value, bool isBaseConfig)
@@ -343,6 +425,10 @@ namespace SpartaTools.Editor.View
             {
                 AutoApply = autoApply;
             }
+
+            EditorGUILayout.Space();
+
+            EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
 
             GUILayout.EndHorizontal();
         }

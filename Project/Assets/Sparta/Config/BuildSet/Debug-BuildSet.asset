@@ -11,11 +11,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
   m_Name: Debug-BuildSet
   m_EditorClassIdentifier: 
-  CommonFlags: ADMIN_PANEL;DEBUG
-  AndroidFlags: 
-  IosFlags: NO_GPGS
-  UseKeytore: 0
-  KeystorePath: 
-  KeystoreFilePassword: 
-  KeystoreAlias: 
-  KeystorePassword: 
+  App:
+    ProductName: SBG-Debug
+    IconTexture: {fileID: 0}
+    OverrideIcon: 0
+  Common:
+    Flags: ADMIN_PANEL;SPARTA_PROFILER_ENABLED
+    RebuildNativePlugins: 0
+    IsDevelopmentBuild: 1
+    IncludeDebugScenes: 1
+  Ios:
+    BundleIdentifier: 
+    Flags: 
+    XcodeModSchemes: debug
+    RemovedResources: 
+  Android:
+    BundleIdentifier: 
+    BundleVersionCode: 0
+    ForceBundleVersionCode: 0
+    Flags: 
+    RemovedResources: 
+    UseKeystore: 0
+    Keystore:
+      Path: 
+      FilePassword: 
+      Alias: 
+      Password: 

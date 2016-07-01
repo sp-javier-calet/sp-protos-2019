@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Globalization;
 using System.Collections.Generic;
-using SpartaTools.Editor.Sync;
 using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.SpartaProject

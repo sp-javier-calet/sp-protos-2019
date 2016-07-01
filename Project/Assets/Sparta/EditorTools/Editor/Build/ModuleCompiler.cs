@@ -324,21 +324,14 @@ namespace SpartaTools.Editor.Build
             // Launch mono compiler
             try
             {   
-                int code = NativeConsole.RunProcess(Compiler, buildCommand, Application.dataPath, (type, output) => {
-                    if(type == NativeConsole.OutputType.Error)
-                    {   
-                        _logContent.AppendLine(type.ToString()).AppendLine(output);
-                        HasErrorsLogs = true;
-                    }
-                    else
-                    {
-                        _logContent.AppendLine(output);
-                    }
-                });
-                
-                if(code != 0)
+                var result = NativeConsole.RunProcess(Compiler, buildCommand, Application.dataPath);
+
+                _logContent.AppendLine(result.Output);
+                HasErrorsLogs = result.HasError;
+
+                if(result.Code != 0)
                 {
-                    _logContent.AppendLine(string.Format("Error while compiling library. Exit code {0}", code));
+                    _logContent.AppendLine(string.Format("Error while compiling library. Exit code {0}", result.Code));
                     throw new CompilerErrorException(_logContent.ToString());
                 }
 

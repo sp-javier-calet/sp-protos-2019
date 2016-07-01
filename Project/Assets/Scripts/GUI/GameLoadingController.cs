@@ -12,8 +12,10 @@ using UnityEngine;
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     IGameLoader _gameLoader;
-    AdminPanel _adminPanel;
     ICoroutineRunner _coroutineRunner;
+
+    // Explicit assignation to avoid warnings when ADMIN_PANEL is not enabled
+    AdminPanel _adminPanel = null;
 
     [SerializeField]
     string _sceneToLoad = "Main";
@@ -35,11 +37,13 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         ErrorHandler = ServiceLocator.Instance.Resolve<IGameErrorHandler>();
         _coroutineRunner = ServiceLocator.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = ServiceLocator.Instance.Resolve<IGameLoader>();
+
         #if ADMIN_PANEL
         _adminPanel = ServiceLocator.Instance.Resolve<AdminPanel>();
         #else
         _adminPanel = null;
         #endif
+
         base.OnLoad();
     }
 
