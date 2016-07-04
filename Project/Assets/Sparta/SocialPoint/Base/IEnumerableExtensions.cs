@@ -28,7 +28,7 @@ namespace SocialPoint.Base
             var e2 = second.GetEnumerator();
             bool result = true;
             var comparer = EqualityComparer<TSource>.Default;
-            while(e1.MoveNext() && e2.MoveNext() && result)
+            while(e1.MoveNext() && result)
             {
                 if(!e2.MoveNext())
                 {
@@ -100,21 +100,7 @@ namespace SocialPoint.Base
             List<T> result = new List<T>(source.Length);
             for(int i = 0; i < source.Length; ++i)
             {
-                result[i] = source[i];
-            }
-            return result;
-        }
-
-        public static List<T> Filter<T>(this List<T> source, Func<T, bool> predicate)
-        {
-            List<T> result = new List<T>();
-            for(int i = 0; i < source.Count; ++i)
-            {
-                var item = source[i];
-                if(predicate(item))
-                {
-                    result.Add(item);
-                }
+                result.Add(source[i]);
             }
             return result;
         }
@@ -133,7 +119,7 @@ namespace SocialPoint.Base
                 index--;
             }
             enumerator.Dispose();
-            return default(TSource);
+            throw new IndexOutOfRangeException();
         }
 
         public static List<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
