@@ -66,6 +66,22 @@ namespace SocialPoint.Purchase
         const string AttrKeyStatus = "status";
         const string EventNameMonetizationTransactionStart = "monetization.transaction_start";
 
+
+        // Payment step funnnels required params
+        string _purchaseSessionUID;
+
+        const string PurchaseFunnelStart = "1000";
+        const string PurchaseFunnelBackendResponse = "1001";
+        const string PurchaseFunnelEnd = "1002";
+
+        const string PaymentStepEventName = "payment.step";
+        const string PaymentFieldName = "payment";
+
+        const string UIDFieldName = "uid";
+        const string StepFieldName = "step";
+        const string ResultFieldName = "result";
+        const string ProductFieldName = "product";
+
         enum BackendResponse
         {
             ORDER_INVALID = 480,
@@ -357,7 +373,7 @@ namespace SocialPoint.Purchase
             //A delegate must exist before doing any attempt
             DebugUtils.Assert(_purchaseCompleted != null, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
 
-            UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.ContainsKey(productId));
+            DebugUtils.Log("Purchase: " + _purchasesInProcess.ContainsKey(productId));
             if(_purchasesInProcess.ContainsKey(productId))
             {
                 _purchaseStore.PurchaseStateChanged(PurchaseState.AlreadyBeingPurchased, productId);
@@ -558,17 +574,95 @@ namespace SocialPoint.Purchase
 
         void OnPurchaseUpdated(PurchaseState state, string productId)
         {
+            TrackPurchaseUpdated(state, productId);
+
             switch(state)
             {
             case PurchaseState.PurchaseCanceled:
             case PurchaseState.PurchaseFailed:
             case PurchaseState.PurchaseConsumed:
-                UnityEngine.Debug.Log("OnPurchaseUpdated: " + state + " " + productId);
+                DebugUtils.Log("OnPurchaseUpdated: " + state + " " + productId);
                 var responseType = state == PurchaseState.PurchaseConsumed ? PurchaseResponseType.Complete : PurchaseResponseType.Error;
                 RemovePurchaseInProcess(productId, responseType);
                 UpdateProductReadyPetitions(productId);
                 break;
             }
+        }
+
+        void TrackPurchaseUpdated(PurchaseState state, string productId)
+        {
+            switch(state)
+            {
+            case PurchaseState.PurchaseStarted:
+                GeneratePurchaseSession();
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelStart, state.ToString(), productId);
+                break;
+
+            case PurchaseState.PurchaseConsumed:
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelEnd, state.ToString(), productId);
+                ClearPurchaseSession();
+                break;
+
+            case PurchaseState.PurchaseCanceled:
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelBackendResponse, state.ToString(), productId); // For Better readibility of the funnels.
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelEnd, state.ToString(), productId);
+                ClearPurchaseSession();
+                break;
+
+            case PurchaseState.ValidateFailed:
+            case PurchaseState.ValidateFailedMissingNetwork:
+            case PurchaseState.PurchaseFailed:
+            case PurchaseState.AlreadyBeingPurchased:
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelEnd, state.ToString(), productId);
+                ClearPurchaseSession();
+                break;
+            }
+        }
+
+        void TrackPurchase(string uid, string step, string result, string productId)
+        {
+            var data = new AttrDic();
+
+            var stepTrackData = CreatePaymentStepTrackData(uid, step, result, productId);
+
+            data.Set(PaymentFieldName, stepTrackData);
+
+            TrackEvent(PaymentStepEventName, data, TrackerErrorDelegate);
+        }
+
+        static AttrDic CreatePaymentStepTrackData(string uid, string step, string result, string productId)
+        {
+            var paymentStepData = new AttrDic();
+
+            paymentStepData.SetValue(UIDFieldName, uid);
+            paymentStepData.SetValue(StepFieldName, step);
+            paymentStepData.SetValue(ResultFieldName, result);
+            paymentStepData.SetValue(ProductFieldName, productId);
+
+            return paymentStepData;
+        }
+
+        static void TrackerErrorDelegate(Error err)
+        {
+            if(!Error.IsNullOrEmpty(err))
+            {
+                DebugUtils.LogError("Code : " + err.Code + " Message : " + err.Msg);
+            }
+        }
+
+        void GeneratePurchaseSession()
+        {
+            _purchaseSessionUID = RandomUtils.GetUuid("N");
+        }
+
+        void ClearPurchaseSession()
+        {
+            _purchaseSessionUID = string.Empty;
+        }
+
+        string GetPurchaseSession()
+        {
+            return _purchaseSessionUID;
         }
 
         public void SetProductMockList(IEnumerable<Product> productMockList)
