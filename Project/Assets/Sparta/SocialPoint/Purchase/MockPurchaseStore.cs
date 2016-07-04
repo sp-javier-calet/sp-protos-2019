@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 
@@ -142,7 +141,7 @@ namespace SocialPoint.Purchase
 
         internal void SetProductMockList(IEnumerable<Product> productMockList)
         {
-            _allProducts = productMockList.ToList() ?? new List<Product>();
+            _allProducts = new List<Product>(productMockList) ?? new List<Product>();
         }
 
         void ProcessPendingTransaction()

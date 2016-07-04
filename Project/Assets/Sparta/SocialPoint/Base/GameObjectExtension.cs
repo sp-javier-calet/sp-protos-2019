@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SocialPoint.Base
 {
@@ -93,7 +92,7 @@ namespace SocialPoint.Base
             MonoBehaviour[] monoBehaviours = obj.GetComponentsInChildren<MonoBehaviour>();
             List<I> list = new List<I>();
 
-            for(int k = 0; k < monoBehaviours.Count(); k++)
+            for(int k = 0; k < monoBehaviours.Length; k++)
             {
                 MonoBehaviour behaviour = monoBehaviours.ElementAt(k);
                 I component = behaviour.GetComponent(typeof(I)) as I;
@@ -111,7 +110,7 @@ namespace SocialPoint.Base
             MonoBehaviour[] monoBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
             List<I> list = new List<I>();
             
-            for(int k = 0; k < monoBehaviours.Count(); k++)
+            for(int k = 0; k < monoBehaviours.Length; k++)
             {
                 MonoBehaviour behaviour = monoBehaviours.ElementAt(k);
                 I component = behaviour.GetComponent(typeof(I)) as I;
@@ -244,7 +243,7 @@ namespace SocialPoint.Base
         {
             Component[] transforms = gameObject.transform.GetComponentsInChildren(typeof(Transform), true);
 
-            for(int k = 0; k < transforms.Count(); k++)
+            for(int k = 0; k < transforms.Length; k++)
             {
                 Transform atrans = transforms[k] as Transform;
                 if(atrans.name == name)
@@ -291,7 +290,7 @@ namespace SocialPoint.Base
 
         public static void GetChildrenRecursive(this GameObject gameObject, string name, List<GameObject> outList)
         {
-            if( gameObject.name.CompareTo(name) == 0 )
+            if(gameObject.name.CompareTo(name) == 0)
             {
                 outList.Add(gameObject);
             }
@@ -304,7 +303,7 @@ namespace SocialPoint.Base
 
         public static void GetChildrenWithTagRecursive(this GameObject gameObject, string tag, List<GameObject> outList)
         {
-            if( gameObject.CompareTag(tag) )
+            if(gameObject.CompareTag(tag))
             {
                 outList.Add(gameObject);
             }

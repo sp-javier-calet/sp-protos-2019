@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -1547,7 +1546,7 @@ namespace SocialPoint.Login
 
         void OnUpdateFriendsEnd(List<UserMapping> mappings, Error err, UsersDelegate cbk)
         {
-            var friendsSelection = Friends.Where(u => (mappings.Where(map => u.HasLink(map.Id)).Count() > 0)).ToList();
+            var friendsSelection = Friends.Where(u => (mappings.Where(map => u.HasLink(map.Id)).Count > 0));
 
             if(AutoUpdateFriendsPhotosSize > 0 && friendsSelection.Count > 0)
             {

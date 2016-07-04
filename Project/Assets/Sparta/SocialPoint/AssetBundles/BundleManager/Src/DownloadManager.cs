@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using SocialPoint.AssetSerializer.Helpers;
 using SocialPoint.AssetVersioning;
 using SocialPoint.Attributes;
@@ -334,9 +333,9 @@ public class DownloadManager : MonoBehaviour
         }
     }
 
-    public void DisposeAll()
+    void DisposeRequests(Dictionary<string, WWWRequest> requests)
     {
-        var itr = _succeedRequest.Concat(_failedRequest).GetEnumerator();
+        var itr = requests.GetEnumerator();
         while(itr.MoveNext())
         {
             var kvp = itr.Current;
@@ -354,6 +353,12 @@ public class DownloadManager : MonoBehaviour
             }
         }
         itr.Dispose();
+    }
+
+    public void DisposeAll()
+    {
+        DisposeRequests(_succeedRequest);
+        DisposeRequests(_failedRequest);
 
         if(_assetVersioningDictionary != null)
         {

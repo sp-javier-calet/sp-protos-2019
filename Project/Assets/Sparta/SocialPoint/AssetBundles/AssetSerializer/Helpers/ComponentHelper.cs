@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using SocialPoint.AssetSerializer.Exceptions;
@@ -8,6 +7,7 @@ using SocialPoint.AssetSerializer.Serializers;
 using SocialPoint.AssetSerializer.Utils;
 using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.AssetSerializer.Helpers

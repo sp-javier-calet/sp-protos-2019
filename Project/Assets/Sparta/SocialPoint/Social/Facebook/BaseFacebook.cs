@@ -2,7 +2,6 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using UnityEngine;
 using SocialPoint.Base;
 using SocialPoint.Utils;
@@ -12,7 +11,7 @@ namespace SocialPoint.Social
 {
     public abstract class BaseFacebook : IFacebook
     {
-        public event FacebookStateChangeDelegate StateChangeEvent;       
+        public event FacebookStateChangeDelegate StateChangeEvent;
 
         protected void NotifyStateChanged()
         {
@@ -73,19 +72,31 @@ namespace SocialPoint.Social
         }
 
         public abstract void SendAppRequest(FacebookAppRequest req, FacebookAppRequestDelegate cbk = null);
+
         public abstract void PostOnWallWithDialog(FacebookWallPost pub, FacebookWallPostDelegate cbk = null);
+
         public abstract void QueryGraph(FacebookGraphQuery req, FacebookGraphQueryDelegate cbk);
+
         public abstract void Login(ErrorDelegate cbk, bool withUi = true);
+
         public abstract void Logout(ErrorDelegate cbk);
+
         public abstract void LoadPhoto(string userId, FacebookPhotoDelegate cbk);
+
         public abstract void AskForPermissions(List<string> permissions, FacebookPermissionsDelegate cbk = null);
+
         public abstract void RefreshFriends(ErrorDelegate cbk = null);
-        
+
         public abstract bool IsConnected{ get; }
+
         public abstract bool IsConnecting{ get; }
+
         public abstract string AppId{ set; }
+
         public abstract FacebookUser User{ get; }
+
         public abstract List<FacebookUser> Friends{ get; }
+
         public abstract List<string> LoginPermissions{ get; }
     }
 }
