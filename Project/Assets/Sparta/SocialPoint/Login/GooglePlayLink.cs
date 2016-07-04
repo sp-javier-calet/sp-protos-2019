@@ -149,6 +149,7 @@ namespace SocialPoint.Login
             {
                 mappings.Add(new UserMapping(enumerator.Current.UserId, Name));
             }
+            enumerator.Dispose();
         }
 
         public void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)

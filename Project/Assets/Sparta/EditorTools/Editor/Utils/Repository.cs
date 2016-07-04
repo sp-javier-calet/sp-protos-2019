@@ -90,17 +90,11 @@ namespace SpartaTools.Editor.Utils
 
             public string Exec()
             {
-                _error = string.Empty;
-                string content = string.Empty;
                 string command = string.Format("{0} {1} {2} {3} {4}", _command, _arguments, _options, _formatString, _limitString);
-                NativeConsole.RunProcess(Binary, command, _path, (type, output) => {
-                    if(type == NativeConsole.OutputType.Error)
-                    {
-                        _error += output;
-                    }
-                    content += output;
-                });
-                return content;
+                var result = NativeConsole.RunProcess(Binary, command, _path);
+
+                _error = result.Error;
+                return result.Output;
             }
         }
 
@@ -117,14 +111,13 @@ namespace SpartaTools.Editor.Utils
         {
             StringBuilder log = new StringBuilder();
             log.AppendLine("Checkout");
-            NativeConsole.RunProcess(Binary, string.Format("checkout {0}", commit), _path, (type, output) => {
-                log.Append(output);
-            });
+            var checkOutResult = NativeConsole.RunProcess(Binary, string.Format("checkout {0}", commit), _path);
+            log.Append(checkOutResult.Output);
 
             log.AppendLine("Reset");
-            NativeConsole.RunProcess(Binary, "reset --hard", _path, (type, output) => {
-                log.Append(output);
-            });
+            var resetResult = NativeConsole.RunProcess(Binary, "reset --hard", _path);
+
+            log.Append(resetResult.Output);
 
             return log.ToString();
         }

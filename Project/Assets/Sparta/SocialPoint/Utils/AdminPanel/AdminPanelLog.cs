@@ -13,6 +13,7 @@ namespace SocialPoint.Utils
         Dictionary<LogType, bool> _activeTypes;
         Text _textComponent;
         bool _autoRefresh;
+        readonly int _maxEntriesToDisplay = 100;
 
         public AdminPanelLog()
         {
@@ -87,13 +88,15 @@ namespace SocialPoint.Utils
         {
             if(_textComponent != null)
             {
+                int numEntriesToDisplay = 0;
                 var logContent = StringUtils.StartBuilder();
-                for(int i = 0, _entriesCount = _entries.Count; i < _entriesCount; i++)
+                for(int i = _entries.Count - 1; i > -1 && numEntriesToDisplay < _maxEntriesToDisplay; i--)
                 {
                     LogEntry entry = _entries[i];
                     if(_activeTypes[entry.Type])
                     {
                         logContent.Append(entry.Content);
+                        numEntriesToDisplay++;
                     }
                 }
 

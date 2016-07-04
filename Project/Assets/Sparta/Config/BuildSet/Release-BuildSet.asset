@@ -11,14 +11,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
   m_Name: Release-BuildSet
   m_EditorClassIdentifier: 
-  CommonFlags: 
-  BundleIdentifier: 
-  RebuildNativePlugins: 0
-  IosFlags: NO_GPGS
-  XcodeModsPrefixes: 
-  AndroidFlags: 
-  UseKeytore: 1
-  KeystorePath: 
-  KeystoreFilePassword: 
-  KeystoreAlias: 
-  KeystorePassword: 
+  App:
+    ProductName: 
+    IconTexture: {fileID: 0}
+    OverrideIcon: 0
+  Common:
+    Flags: ADMIN_PANEL
+    RebuildNativePlugins: 1
+    IsDevelopmentBuild: 0
+    IncludeDebugScenes: 0
+  Ios:
+    BundleIdentifier: 
+    Flags: 
+    XcodeModSchemes: release
+    RemovedResources: 
+  Android:
+    BundleIdentifier: 
+    BundleVersionCode: 0
+    ForceBundleVersionCode: 0
+    Flags: 
+    RemovedResources: 
+    UseKeystore: 1
+    Keystore:
+      Path: 
+      FilePassword: 
+      Alias: 
+      Password: 

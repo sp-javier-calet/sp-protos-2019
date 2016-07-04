@@ -10,109 +10,123 @@ namespace SocialPoint.XCodeEditor
 {
     public static class XcodeModifyPostProcess
     {
-        static string GetCommandLineArg(string name, string def)
+        static string[] Schemes
         {
-            string[] arguments = Environment.GetCommandLineArgs();
-            name = "+" + name + "=";
-            foreach(string arg in arguments)
+            get
             {
-                if(arg.StartsWith(name))
+                var customPrefixes = EditorPrefs.GetString("XCodeModSchemes", string.Empty);
+                if(string.IsNullOrEmpty(customPrefixes))
                 {
-                    return arg.Substring(name.Length);
+                    return new string[0];
+                }
+                else
+                {
+                    return customPrefixes.Split(new char[]{ ';' });
                 }
             }
-            return def;
         }
-        
-        static string Build
-        {   
-            get
-            {
-                return GetCommandLineArg("build", DateTime.Now.ToString("yyMMddHHmm"));
-            }
-        }
-        
-        static string Scheme
-        {   
-            get
-            {
-                return GetCommandLineArg("scheme", "editor").ToLower();
-            }
 
-        }
-        
-        static string Version
-        {   
-            get
-            {
-                return GetCommandLineArg("version", null);
-            }
-
-        }
-        
         [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
             if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
             {
-                var spxcodemods = new List<string>();
-
-                var patterns = new List<string>();
-                var patternsScheme = new List<string>();
-                patterns.Add("base.*.spxcodemod");
-                patternsScheme.Add(".*.spxcodemod");
-
-                if(target == BuildTarget.iOS)
-                {
-                    patterns.Add("ios.base.*.spxcodemod");
-                    patternsScheme.Add("ios.*.spxcodemod");
-                }
-                if(target == BuildTarget.tvOS)
-                {
-                    patterns.Add("tvos.base.*.spxcodemod");
-                    patternsScheme.Add("tvos.*.spxcodemod");
-                }
-
-                Debug.Log("executing SocialPoint DependencyManager PostProcessor on path '" + path + "'...");
-                
-                var project = new XCProject(path);
-
-                foreach(var pattern in patterns)
-                {
-                    spxcodemods.AddRange(Directory.GetFiles(Application.dataPath, pattern, SearchOption.AllDirectories));
-                }
-
-                if(Scheme != null)
-                {
-                    foreach(var pattern in patternsScheme)
-                    {
-                        spxcodemods.AddRange(Directory.GetFiles(Application.dataPath, Scheme + pattern, SearchOption.AllDirectories));
-                    }
-                }
-                foreach(string file in spxcodemods)
-                {
-                    Debug.Log(string.Format("applying '{0}'...", file));
-                    project.ApplyMod(file);
-                }
-
-                if(Build != null)
-                {
-                    Debug.Log(string.Format("setting build '{0}'...", Build));
-                    var table = new Hashtable();
-                    table["CFBundleVersion"] = Build;
-                    project.CombineInfoPlist(table);
-                }
-
-                if(Version != null)
-                {
-                    Debug.Log(string.Format("setting version '{0}'...", Version));
-                    var table = new Hashtable();
-                    table["CFBundleShortVersionString"] = Version;
-                    project.CombineInfoPlist(table);
-                }
-                
-                project.Save();
+                XcodeMods.Apply(target, path, Schemes);
             }
+        }
+    }
+
+    public static class XcodeMods
+    {
+        public const string BaseScheme = "base";
+        public const string EditorScheme = "editor";
+
+        /// <summary>
+        /// Discovers and manage a set of Xcodemods files.
+        /// Uses the Target Platform and Schemes to match spxcodemod files within the project.
+        /// 
+        /// XcodeMod files must have the following structure: 
+        ///     [platform.]scheme.module.spxcodemod
+        /// where:
+        /// 'platform' is an optional prefix, which is infered from build settings during compilation ('ios', 'tvos'...)
+        /// 'scheme' is the mod scheme. 'base' mods are always applied, and 'editor' is automatically applied when launched from editor.
+        ///          Other schemes include 'debug', 'release', 'shipping', or any other custom scheme.
+        /// 'module' is the module name.
+        /// 
+        /// </summary>
+        class XcodeModsSet
+        {
+            const string XcodeModPattern = ".*.spxcodemod";
+
+            readonly string _platformPrefix;
+            readonly List<string> _patterns = new List<string>();
+
+            public XcodeModsSet(BuildTarget target)
+            {
+                _platformPrefix = target.ToString().ToLower() + ".";
+            }
+
+            public void Add(string scheme)
+            {
+                _patterns.Add(scheme + XcodeModPattern);
+                _patterns.Add(_platformPrefix + scheme + XcodeModPattern);
+            }
+
+            public void Add(string[] schemes)
+            {
+                foreach(var scheme in schemes)
+                {
+                    Add(scheme);
+                }
+            }
+
+            public List<string> Files
+            {
+                get
+                {
+                    var spxcodemods = new List<string>();
+                    foreach(var pattern in _patterns)
+                    {
+                        spxcodemods.AddRange(Directory.GetFiles(Application.dataPath, pattern, SearchOption.AllDirectories));
+                    }
+
+                    return spxcodemods;
+                }
+            }
+        }
+
+        static void Log(string message)
+        {
+            Debug.Log(string.Format("XcodeMods Editor: {0}", message));
+        }
+
+        public static void Apply(BuildTarget target, string path, string[] schemes)
+        {
+            Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
+
+            var project = new XCProject(path);
+            var mods = new XcodeModsSet(target);
+
+            Log("Enabling 'base' scheme for xcodemods");
+            mods.Add(BaseScheme);
+
+            Log(string.Format("Enabling config schemes for xcodemods: {0}", string.Join(", ", schemes)));
+            mods.Add(schemes);
+
+            if(UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
+               !UnityEditorInternal.InternalEditorUtility.inBatchMode)
+            {
+                mods.Add(EditorScheme);
+                Log("Enabling 'editor' scheme for xcodemods");
+            }
+
+            foreach(string file in mods.Files)
+            {
+                Log(string.Format("Applying file '{0}'", Path.GetFileName(file)));
+                project.ApplyMod(file);
+            }
+
+            project.Save();
         }
     }
 }

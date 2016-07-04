@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using SocialPoint.Base;
 
 namespace SocialPoint.ServerMessaging
@@ -14,6 +13,8 @@ namespace SocialPoint.ServerMessaging
         void UpdateMessages(Action<Error> callback = null);
 
         void SendMessage(Message message, Action<Error> callback = null);
+
+        void ReadMessages(List<Message> messages, Action<Error> callback = null);
 
         void DeleteMessages(List<Message> messages, Action<Error> callback = null);
     }

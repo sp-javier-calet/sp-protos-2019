@@ -39,7 +39,7 @@ namespace SocialPoint.AppEvents
         event Action WasCovered;
 
         /// <summary>
-        /// Occurs when recieved memory warning.
+        /// Occurs when received memory warning.
         /// </summary>
         event Action ReceivedMemoryWarning;
 

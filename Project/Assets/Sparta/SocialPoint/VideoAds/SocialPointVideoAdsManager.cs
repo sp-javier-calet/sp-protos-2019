@@ -1,8 +1,7 @@
-﻿using FyberPlugin;
+﻿using System;
+using FyberPlugin;
 using SocialPoint.Base;
-using System;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace SocialPoint.VideoAds
 {
@@ -69,10 +68,10 @@ namespace SocialPoint.VideoAds
 
         public void RequestAd(RequestVideoDelegate cbk)
         {
-            Assert.IsNotNull(cbk);
+            DebugUtils.Assert(cbk != null);
             if(AdAvailable)
             {
-                cbk(null , RequestVideoResult.Available);
+                cbk(null, RequestVideoResult.Available);
                 return;
             }
             RewardedVideoRequester.Create()
@@ -83,7 +82,7 @@ namespace SocialPoint.VideoAds
 
         public void ShowAd(ShowVideoDelegate cbk)
         {
-            Assert.IsNotNull(cbk);
+            DebugUtils.Assert(cbk != null);
             if(!AdAvailable)
             {
                 cbk(new Error("VideoAd not requested"), ShowVideoResult.Error);
@@ -95,9 +94,9 @@ namespace SocialPoint.VideoAds
 
         public void Enable()
         {
-            Assert.IsNotNull(_appId);
-            Assert.IsNotNull(GetUserID());
-            Assert.IsNotNull(_securityToken);
+            DebugUtils.Assert(_appId != null);
+            DebugUtils.Assert(GetUserID() != null);
+            DebugUtils.Assert(_securityToken != null);
             Fyber.With(_appId).WithUserId(GetUserID()).WithSecurityToken(_securityToken).Start();
             FyberCallback.NativeError += OnNativeExceptionReceivedFromSDK;
             _enabled = true;

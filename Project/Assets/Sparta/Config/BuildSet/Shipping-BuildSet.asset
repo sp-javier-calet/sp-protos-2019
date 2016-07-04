@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99968200a516045d382fdab1fe5afdd8, type: 3}
+  m_Name: Shipping-BuildSet
+  m_EditorClassIdentifier: 
+  App:
+    ProductName: 
+    IconTexture: {fileID: 0}
+    OverrideIcon: 0
+  Common:
+    Flags: 
+    RebuildNativePlugins: 1
+    IsDevelopmentBuild: 0
+    IncludeDebugScenes: 0
+  Ios:
+    BundleIdentifier: 
+    Flags: 
+    XcodeModSchemes: shipping
+    RemovedResources: 
+  Android:
+    BundleIdentifier: 
+    BundleVersionCode: 0
+    ForceBundleVersionCode: 0
+    Flags: 
+    RemovedResources: 
+    UseKeystore: 1
+    Keystore:
+      Path: 
+      FilePassword: 
+      Alias: 
+      Password: 
