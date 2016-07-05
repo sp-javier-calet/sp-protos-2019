@@ -144,7 +144,7 @@ namespace SocialPoint.Purchase
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("IosPurchaseStore {0}", msg));
+            DebugUtils.Log(string.Format("SocialPointPurchaseStore {0}", msg));
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace SocialPoint.Purchase
             {
                 return;
             }
-            var data = info.AdditionalData ?? new AttrDic();            
+            var data = info.AdditionalData ?? new AttrDic();
             var order = new AttrDic();
             data.Set("order", order);
             order.SetValue("transaction_id", receipt.OrderId);
@@ -266,7 +266,7 @@ namespace SocialPoint.Purchase
                     order.SetValue("amount_gross", product.Price);
                 }
             }
-            TrackEvent(EventNameMonetizationTransactionStart, data);
+            TrackEvent(EventNameMonetizationTransactionStart, data, TrackerErrorDelegate);
         }
 
         void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
@@ -646,7 +646,7 @@ namespace SocialPoint.Purchase
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                DebugUtils.LogError("Code : " + err.Code + " Message : " + err.Msg);
+                DebugUtils.LogError("[SocialPointPurchaseStore] TrackEvent Error - Code: " + err.Code + " - Message: " + err.Msg);
             }
         }
 
