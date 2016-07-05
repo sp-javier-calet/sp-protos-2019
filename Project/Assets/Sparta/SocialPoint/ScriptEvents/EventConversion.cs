@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 
@@ -23,12 +22,12 @@ namespace SocialPoint.ScriptEvents
     public abstract class BaseScriptEventSerializer<T> : IScriptEventSerializer
     {
         public string Name { get; private set; }
-        
+
         public BaseScriptEventSerializer(string name)
         {
             Name = name;
         }
-        
+
         public Attr Serialize(object ev)
         {
             if(ev is T)
@@ -37,24 +36,24 @@ namespace SocialPoint.ScriptEvents
             }
             return null;
         }
-        
+
         abstract protected Attr SerializeEvent(T ev);
     }
 
     public abstract class BaseScriptEventParser<T> : IScriptEventParser
     {
         public string Name { get; private set; }
-        
+
         public BaseScriptEventParser(string name)
         {
             Name = name;
         }
-        
+
         public object Parse(Attr data)
         {
             return ParseEvent(data);
         }
-        
+
         abstract protected T ParseEvent(Attr data);
     }
 
@@ -89,8 +88,8 @@ namespace SocialPoint.ScriptEvents
     public class ScriptEventSerializer<T> : BaseScriptEventSerializer<T>
     {
         ISerializer<T> _serializer;
-        
-        public ScriptEventSerializer(string name, ISerializer<T> serializer=null): base(name)
+
+        public ScriptEventSerializer(string name, ISerializer<T> serializer = null) : base(name)
         {
             _serializer = serializer;
         }
@@ -112,12 +111,12 @@ namespace SocialPoint.ScriptEvents
     public class ScriptEventParser<T> : BaseScriptEventParser<T>
     {
         IParser<T> _parser;
-        
-        public ScriptEventParser(string name, IParser<T> parser=null): base(name)
+
+        public ScriptEventParser(string name, IParser<T> parser = null) : base(name)
         {
             _parser = parser;
         }
-        
+
         override protected T ParseEvent(Attr data)
         {
             if(_parser != null)
@@ -136,7 +135,7 @@ namespace SocialPoint.ScriptEvents
         ISerializer<T> _serializer;
         IParser<T> _parser;
 
-        public ScriptEventConverter(string name, IParser<T> parser=null, ISerializer<T> serializer=null): base(name)
+        public ScriptEventConverter(string name, IParser<T> parser = null, ISerializer<T> serializer = null) : base(name)
         {
             _serializer = serializer;
             _parser = parser;

@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace SocialPoint.Base
@@ -62,7 +61,7 @@ namespace SocialPoint.Base
         {
             Component[] transforms = trans.GetComponentsInChildren(typeof(Transform), true);
 
-            for(int k = 0; k < transforms.Count(); k++)
+            for(int k = 0; k < transforms.Length; k++)
             {
                 var atrans = transforms[k] as Transform;
                 if(atrans.name == name)
