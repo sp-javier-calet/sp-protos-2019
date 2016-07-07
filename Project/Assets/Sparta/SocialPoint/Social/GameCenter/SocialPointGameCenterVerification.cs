@@ -5,7 +5,6 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
-
     public class SocialPointGameCenterVerification
     {
         bool _loaded;

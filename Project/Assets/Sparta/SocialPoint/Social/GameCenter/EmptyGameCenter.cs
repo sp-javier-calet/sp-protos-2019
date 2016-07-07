@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
     public class EmptyGameCenter : IGameCenter
-    {        
-        private bool _isConnected = false;
-        private GameCenterUser _user;
-        private List<GameCenterUser> _friends = new List<GameCenterUser>();
+    {
+        bool _isConnected;
+        GameCenterUser _user;
+        List<GameCenterUser> _friends = new List<GameCenterUser>();
+
         public event Action StateChangeEvent;
 
         List<GameCenterAchievement> _achievements = new List<GameCenterAchievement>();
+
         public IEnumerable<GameCenterAchievement> Achievements
         {
             get
@@ -26,7 +27,6 @@ namespace SocialPoint.Social
             _user = new GameCenterUser(userName);
         }
 
-
         protected void NotifyStateChanged()
         { 
             if(StateChangeEvent != null)
@@ -34,34 +34,34 @@ namespace SocialPoint.Social
                 StateChangeEvent();
             }
         }
-        
+
         #region implemented abstract members of IGameCenter
-        
-        public void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk=null)
+
+        public void UpdateScore(GameCenterScore score, GameCenterScoreDelegate cbk = null)
         {
             if(cbk != null)
             {
                 cbk(score, null);
             }
         }
-        
-        public void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk=null)
+
+        public void UpdateAchievement(GameCenterAchievement achievement, GameCenterAchievementDelegate cbk = null)
         {
             if(cbk != null)
             {
                 cbk(achievement, null);
             }
         }
-        
-        public void ResetAchievements(ErrorDelegate cbk=null)
+
+        public void ResetAchievements(ErrorDelegate cbk = null)
         {
             if(cbk != null)
             {
                 cbk(null);
             }
         }
-        
-        public void Login(ErrorDelegate cbk=null)
+
+        public void Login(ErrorDelegate cbk = null)
         {
             _isConnected = true;
             if(cbk != null)
@@ -70,7 +70,7 @@ namespace SocialPoint.Social
             }
             NotifyStateChanged();
         }
-        
+
         public void LoadPhoto(string playerId, uint size, GameCenterPhotoDelegate cbk)
         {
             if(cbk != null)
@@ -78,7 +78,7 @@ namespace SocialPoint.Social
                 cbk(null, null);
             }
         }
-        
+
         public GameCenterUser User
         {
             get
@@ -86,7 +86,7 @@ namespace SocialPoint.Social
                 return _user;
             }
         }
-        
+
         public List<GameCenterUser> Friends
         {
             get
@@ -94,7 +94,7 @@ namespace SocialPoint.Social
                 return _friends;
             }
         }
-        
+
         public bool IsConnected
         {
             get
@@ -102,7 +102,7 @@ namespace SocialPoint.Social
                 return _isConnected;
             }
         }
-        
+
         public bool IsConnecting
         {
             get
@@ -114,7 +114,7 @@ namespace SocialPoint.Social
         public void ShowAchievementsUI()
         {
         }
-            
+
         public void ShowLeaderboardUI(string id = null)
         {
         }

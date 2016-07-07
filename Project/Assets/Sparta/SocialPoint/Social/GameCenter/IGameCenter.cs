@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
-using UnityEngine;
 
 namespace SocialPoint.Social
 {
@@ -87,20 +86,12 @@ namespace SocialPoint.Social
 
         public static bool operator ==(GameCenterUser lu, GameCenterUser ru)
         {
-            if(System.Object.ReferenceEquals(lu, null))
+            if(Object.ReferenceEquals(lu, null))
             {
-                if(System.Object.ReferenceEquals(ru, null))
-                {
-                    return true;
-                }
-                return false;
+                return Object.ReferenceEquals(ru, null);
             }
-            else if(System.Object.ReferenceEquals(ru, null))
-            {
-                return false;
-            }
+            return !Object.ReferenceEquals(ru, null) && (lu.UserId == ru.UserId);
             
-            return (lu.UserId == ru.UserId);
         }
 
         public static bool operator !=(GameCenterUser lu, GameCenterUser ru)
@@ -108,15 +99,15 @@ namespace SocialPoint.Social
             return !(lu == ru);
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(Object obj)
         {
             if(obj == null)
             {
                 return false;
             }
             
-            GameCenterUser p = obj as GameCenterUser;
-            if((System.Object)p == null)
+            var p = obj as GameCenterUser;
+            if((Object)p == null)
             {
                 return false;
             }
@@ -168,9 +159,13 @@ namespace SocialPoint.Social
         public float Percent { get; set; }
 
         public int Points { get; private set; }
+
         public bool Hidden { get; private set; }
+
         public string Title { get; private set; }
+
         public string AchievedDescription { get; private set; }
+
         public string UnachievedDescription { get; private set; }
 
         public bool IsUnlocked

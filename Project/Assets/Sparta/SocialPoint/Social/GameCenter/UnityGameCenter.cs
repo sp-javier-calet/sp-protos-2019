@@ -61,7 +61,7 @@ namespace SocialPoint.Social
             NotifyStateChanged();
             if(!Error.IsNullOrEmpty(err))
             {
-                Debug.Log("Game Center login ended in error: " + err);
+                DebugUtils.Log("Game Center login ended in error: " + err);
             }
             if(cbk != null)
             {
@@ -78,7 +78,7 @@ namespace SocialPoint.Social
                 _user = new GameCenterUser();
                 if(cbk != null)
                 {
-                    cbk(new Error("Could not login."));
+                    cbk(new Error("Could not login - LoginLoadPlayerData localUser.authenticated false"));
                 }
             }
             else
@@ -119,10 +119,9 @@ namespace SocialPoint.Social
             {
                 for(int k = 0; k < localUser.friends.Length; k++)
                 {
-                    if(localUser.friends[k] != null && localUser.friends[k] is IUserProfile)
+                    var friendData = localUser.friends[k];
+                    if(friendData != null)
                     {
-                        IUserProfile friendData = localUser.friends[k];
-                            
                         Friends.Add(new GameCenterUser(friendData.id,
                             friendData.userName,
                             friendData.userName));
@@ -254,7 +253,7 @@ namespace SocialPoint.Social
                 }
                 else
                 {
-                    OnLoginEnd(new Error("Could not login"), cbk);
+                    OnLoginEnd(new Error("Could not login - GameCenterPlatform.localUser.Authenticate failed"), cbk);
                 }
             });
         }
