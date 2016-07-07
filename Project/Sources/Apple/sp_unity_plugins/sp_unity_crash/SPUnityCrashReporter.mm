@@ -210,6 +210,6 @@ extern "C" {
 
     void SPUnityCrashReporterForceCrash()
     {
-        *((unsigned int*)0) = 0xDEAD;
+        *((volatile unsigned int*)0) = 0xDEAD;
     }
 }

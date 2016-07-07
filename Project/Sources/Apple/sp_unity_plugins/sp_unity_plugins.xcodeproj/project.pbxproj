@@ -81,9 +81,6 @@
 		460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
 		460FE17C1D252CDF00BF7E97 /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		460FE17F1D252CE800BF7E97 /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		46235A9F1D2D5CA900802B0C /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46235A9E1D2D5CA900802B0C /* libnghttp2.a */; };
-		46235AA11D2D5CB900802B0C /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46235AA01D2D5CB900802B0C /* libnghttp2.a */; };
-		46235AA31D2D5CC500802B0C /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46235AA21D2D5CC500802B0C /* libnghttp2.a */; };
 		465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
 		467F0F261D23EC4B00D0CD11 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 467F0F251D23EC4B00D0CD11 /* libz.tbd */; };
@@ -301,9 +298,6 @@
 		460B36301C40249B003E0D9D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		460B36331C4024B6003E0D9D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		460B36361C402720003E0D9D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		46235A9E1D2D5CA900802B0C /* libnghttp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnghttp2.a; path = sp_unity_curl/libs/ios/nghttp2/lib/libnghttp2.a; sourceTree = SOURCE_ROOT; };
-		46235AA01D2D5CB900802B0C /* libnghttp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnghttp2.a; path = sp_unity_curl/libs/macos/nghttp2/lib/libnghttp2.a; sourceTree = SOURCE_ROOT; };
-		46235AA21D2D5CC500802B0C /* libnghttp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnghttp2.a; path = sp_unity_curl/libs/tvos/nghttp2/lib/libnghttp2.a; sourceTree = SOURCE_ROOT; };
 		467F0F231D23EC4600D0CD11 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		467F0F251D23EC4B00D0CD11 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SPUnityPlugins_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -401,7 +395,6 @@
 			files = (
 				4609F96C1D19A99700DA8662 /* libcrypto.a in Frameworks */,
 				4609F9671D19A97200DA8662 /* libcurl.a in Frameworks */,
-				46235AA11D2D5CB900802B0C /* libnghttp2.a in Frameworks */,
 				4609F96D1D19A99700DA8662 /* libssl.a in Frameworks */,
 				4609F9691D19A98300DA8662 /* libz.a in Frameworks */,
 			);
@@ -441,7 +434,6 @@
 				46D2D9E41D086FB500051221 /* CrashReporter in Frameworks */,
 				7B25282D1C99BDED003C86E6 /* libcrypto.a in Frameworks */,
 				7B25282B1C99BDEC003C86E6 /* libcurl.a in Frameworks */,
-				46235AA31D2D5CC500802B0C /* libnghttp2.a in Frameworks */,
 				7B25282E1C99BDED003C86E6 /* libssl.a in Frameworks */,
 				7B25282C1C99BDEC003C86E6 /* libz.a in Frameworks */,
 			);
@@ -454,7 +446,6 @@
 				46F749091C60AE77000DB6B1 /* CrashReporter in Frameworks */,
 				7B3855E41C98A35300D04AEF /* libcrypto.a in Frameworks */,
 				7B38558C1C98A35300D04AEF /* libcurl.a in Frameworks */,
-				46235A9F1D2D5CA900802B0C /* libnghttp2.a in Frameworks */,
 				7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */,
 				7B3855981C98A35300D04AEF /* libz.a in Frameworks */,
 			);
@@ -551,30 +542,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		46235A9B1D2D5C5600802B0C /* nghttp2 */ = {
-			isa = PBXGroup;
-			children = (
-				46235A9E1D2D5CA900802B0C /* libnghttp2.a */,
-			);
-			name = nghttp2;
-			sourceTree = "<group>";
-		};
-		46235A9C1D2D5C6800802B0C /* nghttp2 */ = {
-			isa = PBXGroup;
-			children = (
-				46235AA01D2D5CB900802B0C /* libnghttp2.a */,
-			);
-			name = nghttp2;
-			sourceTree = "<group>";
-		};
-		46235A9D1D2D5C6C00802B0C /* nghttp2 */ = {
-			isa = PBXGroup;
-			children = (
-				46235AA21D2D5CC500802B0C /* libnghttp2.a */,
-			);
-			name = nghttp2;
-			sourceTree = "<group>";
-		};
 		46F748F21C60AE77000DB6B1 /* headers */ = {
 			isa = PBXGroup;
 			children = (
@@ -609,7 +576,6 @@
 			children = (
 				7B25275C1C99BDC1003C86E6 /* curl */,
 				7B2527691C99BDC1003C86E6 /* libz */,
-				46235A9D1D2D5C6C00802B0C /* nghttp2 */,
 				7B2527781C99BDC1003C86E6 /* openssl */,
 			);
 			name = tvos;
@@ -687,7 +653,6 @@
 			children = (
 				7B3854A51C98A35200D04AEF /* curl */,
 				7B3854B21C98A35200D04AEF /* libz */,
-				46235A9B1D2D5C5600802B0C /* nghttp2 */,
 				7B3854C11C98A35200D04AEF /* openssl */,
 			);
 			name = ios;
@@ -765,7 +730,6 @@
 			children = (
 				7B3855121C98A35300D04AEF /* curl */,
 				7B38551F1C98A35300D04AEF /* libz */,
-				46235A9C1D2D5C6800802B0C /* nghttp2 */,
 				7B38552E1C98A35300D04AEF /* openssl */,
 			);
 			name = macos;
@@ -1515,7 +1479,6 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/nghttp2/lib",
 				);
 				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1567,7 +1530,6 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/nghttp2/lib",
 				);
 				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -1940,7 +1902,6 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvos/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -2008,7 +1969,6 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvos/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -2127,7 +2087,6 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/ios/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -2195,7 +2154,6 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/ios/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;

@@ -130,7 +130,7 @@ Keychain API expects as a validly constructed container class.
         NSDictionary *tempQuery = [NSDictionary dictionaryWithDictionary:genericPasswordQuery];
 
         CFTypeRef dataRef;
-        if (!SecItemCopyMatching((__bridge CFDictionaryRef)tempQuery, (CFTypeRef *)&dataRef) == noErr)
+        if ((!SecItemCopyMatching((__bridge CFDictionaryRef)tempQuery, (CFTypeRef *)&dataRef)) == noErr)
         {
             // Stick these default values into keychain item if nothing found.
             [self resetKeychainItemWithError:error];
