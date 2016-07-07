@@ -48,7 +48,6 @@
 /* Begin PBXBuildFile section */
 		066396C41C84763900875810 /* SPUnityPlugins.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
 		069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
-		069170241C75CADE00C6B0B6 /* SPUnityUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 069170221C75CADE00C6B0B6 /* SPUnityUtils.h */; };
 		0691702F1C75F81100C6B0B6 /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		069170301C75F81100C6B0B6 /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
 		069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */ = {isa = PBXBuildFile; fileRef = 069170531C760D5D00C6B0B6 /* SPUnityCurlFacadeMacos.mm */; };
@@ -57,11 +56,12 @@
 		069170631C762BED00C6B0B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 069170621C762BED00C6B0B6 /* Assets.xcassets */; };
 		069170661C762BED00C6B0B6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 069170641C762BED00C6B0B6 /* MainMenu.xib */; };
 		06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
-		06A173251C770789002178EF /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
-		06D7A6911C77189500F71393 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */; };
-		06D7A6921C77189500F71393 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */; };
 		06D7A6931C77189500F71393 /* SPUnityNativeUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06D7A6901C77189500F71393 /* SPUnityNativeUtils.mm */; };
 		06D7A6941C77189500F71393 /* SPUnityNativeUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06D7A6901C77189500F71393 /* SPUnityNativeUtils.mm */; };
+		4609F9671D19A97200DA8662 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4609F9661D19A97200DA8662 /* libcurl.a */; };
+		4609F9691D19A98300DA8662 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4609F9681D19A98300DA8662 /* libz.a */; };
+		4609F96C1D19A99700DA8662 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4609F96A1D19A99600DA8662 /* libcrypto.a */; };
+		4609F96D1D19A99700DA8662 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4609F96B1D19A99600DA8662 /* libssl.a */; };
 		460B35371C3E7AFE003E0D9D /* SPUnityPlugins.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */; };
 		460B35381C3E7B1B003E0D9D /* SPUnityPlugins_tvOS.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */; };
 		460B35D01C3EAE80003E0D9D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 460B35CF1C3EAE80003E0D9D /* main.m */; };
@@ -78,23 +78,23 @@
 		460EFA981D19303300CDDC48 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
 		460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
 		460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
+		460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
+		460FE17C1D252CDF00BF7E97 /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		460FE17F1D252CE800BF7E97 /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		46235A9F1D2D5CA900802B0C /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46235A9E1D2D5CA900802B0C /* libnghttp2.a */; };
+		46235AA11D2D5CB900802B0C /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46235AA01D2D5CB900802B0C /* libnghttp2.a */; };
+		46235AA31D2D5CC500802B0C /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46235AA21D2D5CC500802B0C /* libnghttp2.a */; };
 		465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
-		468E001A1C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
+		467F0F261D23EC4B00D0CD11 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 467F0F251D23EC4B00D0CD11 /* libz.tbd */; };
 		468E001B1C3E75E500CA07AF /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490281C1F11D900A10FEA /* SPUnityKeychainFacade.mm */; };
-		468E00211C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
 		468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
 		468E00231C3E75E500CA07AF /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
-		468E00241C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
-		468E00251C3E75E500CA07AF /* (null) in Sources */ = {isa = PBXBuildFile; };
 		468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4490261C1F11D900A10FEA /* KeychainItemWrapper.m */; };
-		468E00301C3E75E500CA07AF /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		46D2D9DF1D086F8B00051221 /* SPPurchaseStore.h in Headers */ = {isa = PBXBuildFile; fileRef = F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */; };
 		46D2D9E01D086F8B00051221 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
-		46D2D9E11D086F8B00051221 /* SPPurchaseNativeServices.h in Headers */ = {isa = PBXBuildFile; fileRef = F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */; };
 		46D2D9E21D086F8B00051221 /* SPPurchaseNativeServices.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */; };
 		46D2D9E41D086FB500051221 /* CrashReporter in Frameworks */ = {isa = PBXBuildFile; fileRef = 46F748F11C60AE77000DB6B1 /* CrashReporter */; };
 		46D2D9E51D086FD400051221 /* CrashReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F31C60AE77000DB6B1 /* CrashReporter.h */; };
@@ -119,6 +119,12 @@
 		46D2D9F81D086FD400051221 /* PLCrashReportSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */; };
 		46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */; };
 		46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */; };
+		46E208C71D25135300FB1CEE /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 46E208C61D25135300FB1CEE /* libz.tbd */; };
+		46E208C81D2513A900FB1CEE /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 467F0F231D23EC4600D0CD11 /* libc++.tbd */; };
+		46E208CA1D2513DA00FB1CEE /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 46E208C91D2513DA00FB1CEE /* libc++.tbd */; };
+		46E208CF1D25142300FB1CEE /* SPUnityPlugins.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */; };
+		46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */ = {isa = PBXBuildFile; fileRef = FE4490461C1F205800A10FEA /* SPUnityPlugins.h */; };
+		46E208D31D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 46E208D21D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h */; };
 		46F749091C60AE77000DB6B1 /* CrashReporter in Frameworks */ = {isa = PBXBuildFile; fileRef = 46F748F11C60AE77000DB6B1 /* CrashReporter */; };
 		46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F31C60AE77000DB6B1 /* CrashReporter.h */; };
 		46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F748F41C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h */; };
@@ -150,20 +156,11 @@
 		7B3855981C98A35300D04AEF /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B3854C01C98A35200D04AEF /* libz.a */; };
 		7B3855E41C98A35300D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38550F1C98A35300D04AEF /* libcrypto.a */; };
 		7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B3855101C98A35300D04AEF /* libssl.a */; };
-		7B3856511C98A53800D04AEF /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38551E1C98A35300D04AEF /* libcurl.a */; };
-		7B3856521C98A53800D04AEF /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38552D1C98A35300D04AEF /* libz.a */; };
-		7B3856531C98A53800D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557C1C98A35300D04AEF /* libcrypto.a */; };
-		7B3856541C98A53800D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38557D1C98A35300D04AEF /* libssl.a */; };
 		F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
-		F523B6531CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */; };
 		F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
-		F53B19161CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F53B19121CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp */; };
 		F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
 		F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */ = {isa = PBXBuildFile; fileRef = F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */; };
-		F53F908B1CC7D1300020C2AC /* SPPurchaseNativeServices.h in Headers */ = {isa = PBXBuildFile; fileRef = F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */; };
 		F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */; };
-		F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */ = {isa = PBXBuildFile; fileRef = F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */; };
-		F542C2221CC4EEF80045B8A9 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F542C2211CC4EEF80045B8A9 /* StoreKit.framework */; };
 		FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */; };
 		FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */; };
 		FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */; };
@@ -173,7 +170,6 @@
 		FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
-		FEE5C1C31C21B3380020C4DB /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
 		FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
 /* End PBXBuildFile section */
@@ -271,6 +267,19 @@
 		0691706E1C762C9000C6B0B6 /* Info_macOS.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info_macOS.plist; sourceTree = "<group>"; };
 		06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityNativeUtils.h; sourceTree = "<group>"; };
 		06D7A6901C77189500F71393 /* SPUnityNativeUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityNativeUtils.mm; sourceTree = "<group>"; };
+		4609F95D1D19A94400DA8662 /* curl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = curl.h; path = sp_unity_curl/libs/macos/curl/include/curl.h; sourceTree = SOURCE_ROOT; };
+		4609F95E1D19A94400DA8662 /* curlbuild.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = curlbuild.h; path = sp_unity_curl/libs/macos/curl/include/curlbuild.h; sourceTree = SOURCE_ROOT; };
+		4609F95F1D19A94400DA8662 /* curlrules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = curlrules.h; path = sp_unity_curl/libs/macos/curl/include/curlrules.h; sourceTree = SOURCE_ROOT; };
+		4609F9601D19A94400DA8662 /* curlver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = curlver.h; path = sp_unity_curl/libs/macos/curl/include/curlver.h; sourceTree = SOURCE_ROOT; };
+		4609F9611D19A94400DA8662 /* easy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = easy.h; path = sp_unity_curl/libs/macos/curl/include/easy.h; sourceTree = SOURCE_ROOT; };
+		4609F9621D19A94400DA8662 /* mprintf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mprintf.h; path = sp_unity_curl/libs/macos/curl/include/mprintf.h; sourceTree = SOURCE_ROOT; };
+		4609F9631D19A94400DA8662 /* multi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = multi.h; path = sp_unity_curl/libs/macos/curl/include/multi.h; sourceTree = SOURCE_ROOT; };
+		4609F9641D19A94400DA8662 /* stdcheaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stdcheaders.h; path = sp_unity_curl/libs/macos/curl/include/stdcheaders.h; sourceTree = SOURCE_ROOT; };
+		4609F9651D19A94400DA8662 /* typecheck-gcc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "typecheck-gcc.h"; path = "sp_unity_curl/libs/macos/curl/include/typecheck-gcc.h"; sourceTree = SOURCE_ROOT; };
+		4609F9661D19A97200DA8662 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = sp_unity_curl/libs/macos/curl/lib/libcurl.a; sourceTree = SOURCE_ROOT; };
+		4609F9681D19A98300DA8662 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = sp_unity_curl/libs/macos/libz/lib/libz.a; sourceTree = SOURCE_ROOT; };
+		4609F96A1D19A99600DA8662 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = sp_unity_curl/libs/macos/openssl/lib/libcrypto.a; sourceTree = SOURCE_ROOT; };
+		4609F96B1D19A99600DA8662 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = sp_unity_curl/libs/macos/openssl/lib/libssl.a; sourceTree = SOURCE_ROOT; };
 		460B35CC1C3EAE80003E0D9D /* LinkerValidator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinkerValidator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		460B35CF1C3EAE80003E0D9D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		460B35D11C3EAE80003E0D9D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -292,10 +301,15 @@
 		460B36301C40249B003E0D9D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		460B36331C4024B6003E0D9D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		460B36361C402720003E0D9D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		460B36391C4027B0003E0D9D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
-		460B363B1C4027B7003E0D9D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
-		460B363D1C4027BB003E0D9D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		46235A9E1D2D5CA900802B0C /* libnghttp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnghttp2.a; path = sp_unity_curl/libs/ios/nghttp2/lib/libnghttp2.a; sourceTree = SOURCE_ROOT; };
+		46235AA01D2D5CB900802B0C /* libnghttp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnghttp2.a; path = sp_unity_curl/libs/macos/nghttp2/lib/libnghttp2.a; sourceTree = SOURCE_ROOT; };
+		46235AA21D2D5CC500802B0C /* libnghttp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnghttp2.a; path = sp_unity_curl/libs/tvos/nghttp2/lib/libnghttp2.a; sourceTree = SOURCE_ROOT; };
+		467F0F231D23EC4600D0CD11 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		467F0F251D23EC4B00D0CD11 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SPUnityPlugins_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		46E208C61D25135300FB1CEE /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
+		46E208C91D2513DA00FB1CEE /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.2.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
+		46E208D21D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityPlugins_tvOS.h; sourceTree = "<group>"; };
 		46F748F11C60AE77000DB6B1 /* CrashReporter */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = CrashReporter; sourceTree = "<group>"; };
 		46F748F31C60AE77000DB6B1 /* CrashReporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CrashReporter.h; sourceTree = "<group>"; };
 		46F748F41C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLCrashAsyncSignalInfo.h; sourceTree = "<group>"; };
@@ -345,19 +359,6 @@
 		7B3854C01C98A35200D04AEF /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		7B38550F1C98A35300D04AEF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		7B3855101C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
-		7B3855141C98A35300D04AEF /* curl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curl.h; sourceTree = "<group>"; };
-		7B3855151C98A35300D04AEF /* curlbuild.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curlbuild.h; sourceTree = "<group>"; };
-		7B3855161C98A35300D04AEF /* curlrules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curlrules.h; sourceTree = "<group>"; };
-		7B3855171C98A35300D04AEF /* curlver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curlver.h; sourceTree = "<group>"; };
-		7B3855181C98A35300D04AEF /* easy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = easy.h; sourceTree = "<group>"; };
-		7B3855191C98A35300D04AEF /* mprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mprintf.h; sourceTree = "<group>"; };
-		7B38551A1C98A35300D04AEF /* multi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multi.h; sourceTree = "<group>"; };
-		7B38551B1C98A35300D04AEF /* stdcheaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdcheaders.h; sourceTree = "<group>"; };
-		7B38551C1C98A35300D04AEF /* typecheck-gcc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "typecheck-gcc.h"; sourceTree = "<group>"; };
-		7B38551E1C98A35300D04AEF /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcurl.a; sourceTree = "<group>"; };
-		7B38552D1C98A35300D04AEF /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
-		7B38557C1C98A35300D04AEF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
-		7B38557D1C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SPUnityFileUtils.cpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.cpp; sourceTree = "<group>"; };
 		F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SPUnityFileUtils.hpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.hpp; sourceTree = "<group>"; };
 		F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManager.cpp; sourceTree = "<group>"; };
@@ -398,10 +399,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B3856541C98A53800D04AEF /* libssl.a in Frameworks */,
-				7B3856521C98A53800D04AEF /* libz.a in Frameworks */,
-				7B3856511C98A53800D04AEF /* libcurl.a in Frameworks */,
-				7B3856531C98A53800D04AEF /* libcrypto.a in Frameworks */,
+				4609F96C1D19A99700DA8662 /* libcrypto.a in Frameworks */,
+				4609F9671D19A97200DA8662 /* libcurl.a in Frameworks */,
+				46235AA11D2D5CB900802B0C /* libnghttp2.a in Frameworks */,
+				4609F96D1D19A99700DA8662 /* libssl.a in Frameworks */,
+				4609F9691D19A98300DA8662 /* libz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,6 +418,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46E208C81D2513A900FB1CEE /* libc++.tbd in Frameworks */,
+				467F0F261D23EC4B00D0CD11 /* libz.tbd in Frameworks */,
 				460B35FA1C3EB113003E0D9D /* SPUnityPlugins.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -424,6 +428,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46E208CA1D2513DA00FB1CEE /* libc++.tbd in Frameworks */,
+				46E208C71D25135300FB1CEE /* libz.tbd in Frameworks */,
 				460B36241C3EB1EE003E0D9D /* SPUnityPlugins_tvOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -432,11 +438,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B25282E1C99BDED003C86E6 /* libssl.a in Frameworks */,
 				46D2D9E41D086FB500051221 /* CrashReporter in Frameworks */,
-				7B25282C1C99BDEC003C86E6 /* libz.a in Frameworks */,
-				7B25282B1C99BDEC003C86E6 /* libcurl.a in Frameworks */,
 				7B25282D1C99BDED003C86E6 /* libcrypto.a in Frameworks */,
+				7B25282B1C99BDEC003C86E6 /* libcurl.a in Frameworks */,
+				46235AA31D2D5CC500802B0C /* libnghttp2.a in Frameworks */,
+				7B25282E1C99BDED003C86E6 /* libssl.a in Frameworks */,
+				7B25282C1C99BDEC003C86E6 /* libz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,12 +451,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */,
-				7B3855981C98A35300D04AEF /* libz.a in Frameworks */,
 				46F749091C60AE77000DB6B1 /* CrashReporter in Frameworks */,
-				F542C2221CC4EEF80045B8A9 /* StoreKit.framework in Frameworks */,
 				7B3855E41C98A35300D04AEF /* libcrypto.a in Frameworks */,
 				7B38558C1C98A35300D04AEF /* libcurl.a in Frameworks */,
+				46235A9F1D2D5CA900802B0C /* libnghttp2.a in Frameworks */,
+				7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */,
+				7B3855981C98A35300D04AEF /* libz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -471,12 +478,12 @@
 		0691705B1C762BED00C6B0B6 /* LinkerValidator_macOS */ = {
 			isa = PBXGroup;
 			children = (
+				0691705F1C762BED00C6B0B6 /* Supporting Files */,
 				0691705C1C762BED00C6B0B6 /* AppDelegate.h */,
 				0691705D1C762BED00C6B0B6 /* AppDelegate.m */,
 				069170621C762BED00C6B0B6 /* Assets.xcassets */,
-				069170641C762BED00C6B0B6 /* MainMenu.xib */,
 				069170671C762BEE00C6B0B6 /* Info.plist */,
-				0691705F1C762BED00C6B0B6 /* Supporting Files */,
+				069170641C762BED00C6B0B6 /* MainMenu.xib */,
 			);
 			path = LinkerValidator_macOS;
 			sourceTree = "<group>";
@@ -501,14 +508,14 @@
 		460B35CD1C3EAE80003E0D9D /* LinkerValidator */ = {
 			isa = PBXGroup;
 			children = (
+				460B35CE1C3EAE80003E0D9D /* Supporting Files */,
 				460B35D11C3EAE80003E0D9D /* AppDelegate.h */,
 				460B35D21C3EAE80003E0D9D /* AppDelegate.m */,
+				460B35DF1C3EAE80003E0D9D /* Info.plist */,
+				460B35DC1C3EAE80003E0D9D /* LaunchScreen.storyboard */,
+				460B35D71C3EAE80003E0D9D /* Main.storyboard */,
 				460B35D41C3EAE80003E0D9D /* ViewController.h */,
 				460B35D51C3EAE80003E0D9D /* ViewController.m */,
-				460B35D71C3EAE80003E0D9D /* Main.storyboard */,
-				460B35DC1C3EAE80003E0D9D /* LaunchScreen.storyboard */,
-				460B35DF1C3EAE80003E0D9D /* Info.plist */,
-				460B35CE1C3EAE80003E0D9D /* Supporting Files */,
 			);
 			path = LinkerValidator;
 			sourceTree = "<group>";
@@ -524,13 +531,13 @@
 		460B36111C3EB1B8003E0D9D /* LinkerValidator_tvOS */ = {
 			isa = PBXGroup;
 			children = (
+				460B36121C3EB1B8003E0D9D /* Supporting Files */,
 				460B36151C3EB1B8003E0D9D /* AppDelegate.h */,
 				460B36161C3EB1B8003E0D9D /* AppDelegate.m */,
+				460B36201C3EB1B8003E0D9D /* Info.plist */,
+				460B361B1C3EB1B8003E0D9D /* Main.storyboard */,
 				460B36181C3EB1B8003E0D9D /* ViewController.h */,
 				460B36191C3EB1B8003E0D9D /* ViewController.m */,
-				460B361B1C3EB1B8003E0D9D /* Main.storyboard */,
-				460B36201C3EB1B8003E0D9D /* Info.plist */,
-				460B36121C3EB1B8003E0D9D /* Supporting Files */,
 			);
 			name = LinkerValidator_tvOS;
 			path = LinkerValidator_tvOs;
@@ -542,6 +549,30 @@
 				460B36131C3EB1B8003E0D9D /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		46235A9B1D2D5C5600802B0C /* nghttp2 */ = {
+			isa = PBXGroup;
+			children = (
+				46235A9E1D2D5CA900802B0C /* libnghttp2.a */,
+			);
+			name = nghttp2;
+			sourceTree = "<group>";
+		};
+		46235A9C1D2D5C6800802B0C /* nghttp2 */ = {
+			isa = PBXGroup;
+			children = (
+				46235AA01D2D5CB900802B0C /* libnghttp2.a */,
+			);
+			name = nghttp2;
+			sourceTree = "<group>";
+		};
+		46235A9D1D2D5C6C00802B0C /* nghttp2 */ = {
+			isa = PBXGroup;
+			children = (
+				46235AA21D2D5CC500802B0C /* libnghttp2.a */,
+			);
+			name = nghttp2;
 			sourceTree = "<group>";
 		};
 		46F748F21C60AE77000DB6B1 /* headers */ = {
@@ -573,13 +604,15 @@
 			path = headers;
 			sourceTree = "<group>";
 		};
-		7B25275B1C99BDC1003C86E6 /* tvOS */ = {
+		7B25275B1C99BDC1003C86E6 /* tvos */ = {
 			isa = PBXGroup;
 			children = (
 				7B25275C1C99BDC1003C86E6 /* curl */,
 				7B2527691C99BDC1003C86E6 /* libz */,
+				46235A9D1D2D5C6C00802B0C /* nghttp2 */,
 				7B2527781C99BDC1003C86E6 /* openssl */,
 			);
+			name = tvos;
 			path = tvOS;
 			sourceTree = "<group>";
 		};
@@ -649,13 +682,15 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
-		7B3854A41C98A35200D04AEF /* Ios */ = {
+		7B3854A41C98A35200D04AEF /* ios */ = {
 			isa = PBXGroup;
 			children = (
 				7B3854A51C98A35200D04AEF /* curl */,
 				7B3854B21C98A35200D04AEF /* libz */,
+				46235A9B1D2D5C5600802B0C /* nghttp2 */,
 				7B3854C11C98A35200D04AEF /* openssl */,
 			);
+			name = ios;
 			path = Ios;
 			sourceTree = "<group>";
 		};
@@ -725,13 +760,15 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
-		7B3855111C98A35300D04AEF /* Osx */ = {
+		7B3855111C98A35300D04AEF /* macos */ = {
 			isa = PBXGroup;
 			children = (
 				7B3855121C98A35300D04AEF /* curl */,
 				7B38551F1C98A35300D04AEF /* libz */,
+				46235A9C1D2D5C6800802B0C /* nghttp2 */,
 				7B38552E1C98A35300D04AEF /* openssl */,
 			);
+			name = macos;
 			path = Osx;
 			sourceTree = "<group>";
 		};
@@ -747,15 +784,15 @@
 		7B3855131C98A35300D04AEF /* include */ = {
 			isa = PBXGroup;
 			children = (
-				7B3855141C98A35300D04AEF /* curl.h */,
-				7B3855151C98A35300D04AEF /* curlbuild.h */,
-				7B3855161C98A35300D04AEF /* curlrules.h */,
-				7B3855171C98A35300D04AEF /* curlver.h */,
-				7B3855181C98A35300D04AEF /* easy.h */,
-				7B3855191C98A35300D04AEF /* mprintf.h */,
-				7B38551A1C98A35300D04AEF /* multi.h */,
-				7B38551B1C98A35300D04AEF /* stdcheaders.h */,
-				7B38551C1C98A35300D04AEF /* typecheck-gcc.h */,
+				4609F95D1D19A94400DA8662 /* curl.h */,
+				4609F95E1D19A94400DA8662 /* curlbuild.h */,
+				4609F95F1D19A94400DA8662 /* curlrules.h */,
+				4609F9601D19A94400DA8662 /* curlver.h */,
+				4609F9611D19A94400DA8662 /* easy.h */,
+				4609F9621D19A94400DA8662 /* mprintf.h */,
+				4609F9631D19A94400DA8662 /* multi.h */,
+				4609F9641D19A94400DA8662 /* stdcheaders.h */,
+				4609F9651D19A94400DA8662 /* typecheck-gcc.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -763,7 +800,7 @@
 		7B38551D1C98A35300D04AEF /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				7B38551E1C98A35300D04AEF /* libcurl.a */,
+				4609F9661D19A97200DA8662 /* libcurl.a */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -779,7 +816,7 @@
 		7B38552C1C98A35300D04AEF /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				7B38552D1C98A35300D04AEF /* libz.a */,
+				4609F9681D19A98300DA8662 /* libz.a */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -795,8 +832,8 @@
 		7B38557B1C98A35300D04AEF /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				7B38557C1C98A35300D04AEF /* libcrypto.a */,
-				7B38557D1C98A35300D04AEF /* libssl.a */,
+				4609F96A1D19A99600DA8662 /* libcrypto.a */,
+				4609F96B1D19A99600DA8662 /* libssl.a */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -814,10 +851,10 @@
 		F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */ = {
 			isa = PBXGroup;
 			children = (
-				F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */,
-				F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */,
 				F53F908A1CC7D1300020C2AC /* SPPurchaseNativeServices.h */,
 				F53F90881CC7D1120020C2AC /* SPPurchaseNativeServices.mm */,
+				F542C21F1CC4E6790045B8A9 /* SPPurchaseStore.h */,
+				F542C21D1CC4E6650045B8A9 /* SPPurchaseStore.mm */,
 			);
 			name = sp_unity_purchase;
 			sourceTree = "<group>";
@@ -825,21 +862,21 @@
 		FE448F0D1C1EE83100A10FEA = {
 			isa = PBXGroup;
 			children = (
-				F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */,
-				FE4490451C1F205800A10FEA /* SPUnityPlugins */,
 				FE448F311C1EEAD800A10FEA /* Common */,
-				FF5AF77D1C623DCF00B5573A /* sp_unity_gamecenter */,
+				FEE21F3E1C20128600ECC3E2 /* Frameworks */,
+				460B35CD1C3EAE80003E0D9D /* LinkerValidator */,
+				0691705B1C762BED00C6B0B6 /* LinkerValidator_macOS */,
+				460B36111C3EB1B8003E0D9D /* LinkerValidator_tvOS */,
+				FE448F231C1EEA9B00A10FEA /* Products */,
 				FE4490211C1F11D900A10FEA /* sp_unity_alertview */,
 				FE4490241C1F11D900A10FEA /* sp_unity_attributes */,
 				FE44900F1C1EF36200A10FEA /* sp_unity_crash */,
 				FE448F141C1EE88600A10FEA /* sp_unity_curl */,
+				FF5AF77D1C623DCF00B5573A /* sp_unity_gamecenter */,
 				FE4490111C1EF36200A10FEA /* sp_unity_hardware */,
+				F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */,
 				06D7A68E1C77189500F71393 /* sp_unity_utils */,
-				460B35CD1C3EAE80003E0D9D /* LinkerValidator */,
-				460B36111C3EB1B8003E0D9D /* LinkerValidator_tvOS */,
-				0691705B1C762BED00C6B0B6 /* LinkerValidator_macOS */,
-				FE448F231C1EEA9B00A10FEA /* Products */,
-				FEE21F3E1C20128600ECC3E2 /* Frameworks */,
+				FE4490451C1F205800A10FEA /* SPUnityPlugins */,
 			);
 			sourceTree = "<group>";
 		};
@@ -856,9 +893,9 @@
 		FE448F151C1EE88600A10FEA /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				7B3854A41C98A35200D04AEF /* Ios */,
-				7B3855111C98A35300D04AEF /* Osx */,
-				7B25275B1C99BDC1003C86E6 /* tvOS */,
+				7B3854A41C98A35200D04AEF /* ios */,
+				7B3855111C98A35300D04AEF /* macos */,
+				7B25275B1C99BDC1003C86E6 /* tvos */,
 			);
 			path = libs;
 			sourceTree = "<group>";
@@ -866,12 +903,12 @@
 		FE448F231C1EEA9B00A10FEA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */,
-				468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */,
 				460B35CC1C3EAE80003E0D9D /* LinkerValidator.app */,
+				0691705A1C762BED00C6B0B6 /* LinkerValidator_macOS.app */,
 				460B36101C3EB1B8003E0D9D /* LinkerValidator_tvOS.app */,
 				069170291C75F79B00C6B0B6 /* SPUnityPlugins.bundle */,
-				0691705A1C762BED00C6B0B6 /* LinkerValidator_macOS.app */,
+				FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */,
+				468E00351C3E75E500CA07AF /* SPUnityPlugins_tvOS.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -880,8 +917,8 @@
 			isa = PBXGroup;
 			children = (
 				F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */,
-				069170201C75CAC500C6B0B6 /* sp_unity_utils */,
 				FE448FE21C1EEAD800A10FEA /* sp_unity_curl */,
+				069170201C75CAC500C6B0B6 /* sp_unity_utils */,
 			);
 			name = Common;
 			path = ../../Common;
@@ -948,14 +985,15 @@
 		FE4490451C1F205800A10FEA /* SPUnityPlugins */ = {
 			isa = PBXGroup;
 			children = (
+				FE4490481C1F205800A10FEA /* Info.plist */,
 				0691706E1C762C9000C6B0B6 /* Info_macOS.plist */,
 				460B36251C3EB3E6003E0D9D /* Info_tvOS.plist */,
-				FE4490461C1F205800A10FEA /* SPUnityPlugins.h */,
-				FE4490481C1F205800A10FEA /* Info.plist */,
-				FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */,
-				FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */,
-				FF68D9811CF83A39008891E2 /* SPNativeCallsSender.h */,
 				FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */,
+				FF68D9811CF83A39008891E2 /* SPNativeCallsSender.h */,
+				FE4490461C1F205800A10FEA /* SPUnityPlugins.h */,
+				46E208D21D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h */,
+				FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */,
+				FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */,
 			);
 			path = SPUnityPlugins;
 			sourceTree = "<group>";
@@ -963,14 +1001,15 @@
 		FEE21F3E1C20128600ECC3E2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F542C2211CC4EEF80045B8A9 /* StoreKit.framework */,
-				460B363D1C4027BB003E0D9D /* Security.framework */,
-				460B363B1C4027B7003E0D9D /* SystemConfiguration.framework */,
-				460B36391C4027B0003E0D9D /* AdSupport.framework */,
-				460B36361C402720003E0D9D /* Security.framework */,
-				460B36331C4024B6003E0D9D /* SystemConfiguration.framework */,
 				460B36301C40249B003E0D9D /* AdSupport.framework */,
 				FEE21F661C20198100ECC3E2 /* Foundation.framework */,
+				46E208C91D2513DA00FB1CEE /* libc++.tbd */,
+				467F0F231D23EC4600D0CD11 /* libc++.tbd */,
+				46E208C61D25135300FB1CEE /* libz.tbd */,
+				467F0F251D23EC4B00D0CD11 /* libz.tbd */,
+				460B36361C402720003E0D9D /* Security.framework */,
+				F542C2211CC4EEF80045B8A9 /* StoreKit.framework */,
+				460B36331C4024B6003E0D9D /* SystemConfiguration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -986,36 +1025,41 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		460FE1801D252DF200BF7E97 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		468E002F1C3E75E500CA07AF /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				46D2D9F21D086FD400051221 /* PLCrashReportProcessInfo.h in Headers */,
-				46D2D9F61D086FD400051221 /* PLCrashReportStackFrameInfo.h in Headers */,
-				06D7A6921C77189500F71393 /* SPUnityNativeUtils.h in Headers */,
-				46D2D9F11D086FD400051221 /* PLCrashReportMachineInfo.h in Headers */,
-				46D2D9EF1D086FD400051221 /* PLCrashReportFormatter.h in Headers */,
-				46D2D9F51D086FD400051221 /* PLCrashReportSignalInfo.h in Headers */,
-				46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */,
-				46D2D9EB1D086FD400051221 /* PLCrashReportBinaryImageInfo.h in Headers */,
-				46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */,
+				46D2D9E51D086FD400051221 /* CrashReporter.h in Headers */,
+				46D2D9E61D086FD400051221 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46D2D9E71D086FD400051221 /* PLCrashFeatureConfig.h in Headers */,
 				46D2D9E81D086FD400051221 /* PLCrashNamespace.h in Headers */,
-				46D2D9E51D086FD400051221 /* CrashReporter.h in Headers */,
-				46D2D9F01D086FD400051221 /* PLCrashReportMachExceptionInfo.h in Headers */,
+				46D2D9E91D086FD400051221 /* PLCrashReport.h in Headers */,
+				46D2D9EA1D086FD400051221 /* PLCrashReportApplicationInfo.h in Headers */,
+				46D2D9EB1D086FD400051221 /* PLCrashReportBinaryImageInfo.h in Headers */,
+				46D2D9EC1D086FD400051221 /* PLCrashReporter.h in Headers */,
 				46D2D9ED1D086FD400051221 /* PLCrashReporterConfig.h in Headers */,
 				46D2D9EE1D086FD400051221 /* PLCrashReportExceptionInfo.h in Headers */,
-				46D2D9E91D086FD400051221 /* PLCrashReport.h in Headers */,
-				46D2D9F71D086FD400051221 /* PLCrashReportSymbolInfo.h in Headers */,
-				46D2D9EA1D086FD400051221 /* PLCrashReportApplicationInfo.h in Headers */,
+				46D2D9EF1D086FD400051221 /* PLCrashReportFormatter.h in Headers */,
+				46D2D9F01D086FD400051221 /* PLCrashReportMachExceptionInfo.h in Headers */,
+				46D2D9F11D086FD400051221 /* PLCrashReportMachineInfo.h in Headers */,
+				46D2D9F21D086FD400051221 /* PLCrashReportProcessInfo.h in Headers */,
 				46D2D9F31D086FD400051221 /* PLCrashReportProcessorInfo.h in Headers */,
-				46D2D9F81D086FD400051221 /* PLCrashReportSystemInfo.h in Headers */,
-				46D2D9E11D086F8B00051221 /* SPPurchaseNativeServices.h in Headers */,
 				46D2D9F41D086FD400051221 /* PLCrashReportRegisterInfo.h in Headers */,
-				468E00301C3E75E500CA07AF /* UnityGameObject.h in Headers */,
-				46D2D9DF1D086F8B00051221 /* SPPurchaseStore.h in Headers */,
-				46D2D9E61D086FD400051221 /* PLCrashAsyncSignalInfo.h in Headers */,
-				46D2D9EC1D086FD400051221 /* PLCrashReporter.h in Headers */,
+				46D2D9F51D086FD400051221 /* PLCrashReportSignalInfo.h in Headers */,
+				46D2D9F61D086FD400051221 /* PLCrashReportStackFrameInfo.h in Headers */,
+				46D2D9F71D086FD400051221 /* PLCrashReportSymbolInfo.h in Headers */,
+				46D2D9F81D086FD400051221 /* PLCrashReportSystemInfo.h in Headers */,
+				46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */,
+				46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */,
+				46E208D31D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h in Headers */,
+				460FE17F1D252CE800BF7E97 /* UnityGameObject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1023,35 +1067,30 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */,
-				069170241C75CADE00C6B0B6 /* SPUnityUtils.h in Headers */,
-				46F749151C60AE77000DB6B1 /* PLCrashReportMachExceptionInfo.h in Headers */,
-				FEE5C1C31C21B3380020C4DB /* UnityGameObject.h in Headers */,
-				46F749131C60AE77000DB6B1 /* PLCrashReportExceptionInfo.h in Headers */,
-				46F749101C60AE77000DB6B1 /* PLCrashReportBinaryImageInfo.h in Headers */,
-				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
-				46F7491A1C60AE77000DB6B1 /* PLCrashReportSignalInfo.h in Headers */,
-				F542C2201CC4E6790045B8A9 /* SPPurchaseStore.h in Headers */,
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
-				F523B6531CFCA7DF00DB2597 /* SPUnityFileUtils.hpp in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
-				46F749161C60AE77000DB6B1 /* PLCrashReportMachineInfo.h in Headers */,
-				46F749181C60AE77000DB6B1 /* PLCrashReportProcessorInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
-				46F749111C60AE77000DB6B1 /* PLCrashReporter.h in Headers */,
-				F53F908B1CC7D1300020C2AC /* SPPurchaseNativeServices.h in Headers */,
-				F53B19161CE4DAD20009FCFA /* SPUnityBreadcrumbManager.hpp in Headers */,
-				46F749141C60AE77000DB6B1 /* PLCrashReportFormatter.h in Headers */,
-				46F7490E1C60AE77000DB6B1 /* PLCrashReport.h in Headers */,
-				46F749121C60AE77000DB6B1 /* PLCrashReporterConfig.h in Headers */,
-				46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */,
-				46F749171C60AE77000DB6B1 /* PLCrashReportProcessInfo.h in Headers */,
 				46F7490D1C60AE77000DB6B1 /* PLCrashNamespace.h in Headers */,
+				46F7490E1C60AE77000DB6B1 /* PLCrashReport.h in Headers */,
+				46F7490F1C60AE77000DB6B1 /* PLCrashReportApplicationInfo.h in Headers */,
+				46F749101C60AE77000DB6B1 /* PLCrashReportBinaryImageInfo.h in Headers */,
+				46F749111C60AE77000DB6B1 /* PLCrashReporter.h in Headers */,
+				46F749121C60AE77000DB6B1 /* PLCrashReporterConfig.h in Headers */,
+				46F749131C60AE77000DB6B1 /* PLCrashReportExceptionInfo.h in Headers */,
+				46F749141C60AE77000DB6B1 /* PLCrashReportFormatter.h in Headers */,
+				46F749151C60AE77000DB6B1 /* PLCrashReportMachExceptionInfo.h in Headers */,
+				46F749161C60AE77000DB6B1 /* PLCrashReportMachineInfo.h in Headers */,
+				46F749171C60AE77000DB6B1 /* PLCrashReportProcessInfo.h in Headers */,
+				46F749181C60AE77000DB6B1 /* PLCrashReportProcessorInfo.h in Headers */,
 				46F749191C60AE77000DB6B1 /* PLCrashReportRegisterInfo.h in Headers */,
+				46F7491A1C60AE77000DB6B1 /* PLCrashReportSignalInfo.h in Headers */,
 				46F7491B1C60AE77000DB6B1 /* PLCrashReportStackFrameInfo.h in Headers */,
 				46F7491C1C60AE77000DB6B1 /* PLCrashReportSymbolInfo.h in Headers */,
-				46F7490F1C60AE77000DB6B1 /* PLCrashReportApplicationInfo.h in Headers */,
-				06D7A6911C77189500F71393 /* SPUnityNativeUtils.h in Headers */,
+				46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */,
+				46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */,
+				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
+				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
+				460FE17C1D252CDF00BF7E97 /* UnityGameObject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1065,6 +1104,7 @@
 				069170251C75F79B00C6B0B6 /* Sources */,
 				069170261C75F79B00C6B0B6 /* Frameworks */,
 				069170271C75F79B00C6B0B6 /* Resources */,
+				460FE1801D252DF200BF7E97 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -1234,6 +1274,7 @@
 			files = (
 				069170631C762BED00C6B0B6 /* Assets.xcassets in Resources */,
 				069170661C762BED00C6B0B6 /* MainMenu.xib in Resources */,
+				46E208CF1D25142300FB1CEE /* SPUnityPlugins.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1241,8 +1282,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				460B35E51C3EAFF1003E0D9D /* Main.storyboard in Resources */,
 				460B35E41C3EAFE2003E0D9D /* LaunchScreen.storyboard in Resources */,
+				460B35E51C3EAFF1003E0D9D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1275,10 +1316,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				069170301C75F81100C6B0B6 /* SPUnityCurlManager.cpp in Sources */,
-				069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */,
-				06A173251C770789002178EF /* SPUnityUtils.cpp in Sources */,
 				0691702F1C75F81100C6B0B6 /* SPUnityCurlFacade.cpp in Sources */,
+				069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */,
+				069170301C75F81100C6B0B6 /* SPUnityCurlManager.cpp in Sources */,
+				460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1286,8 +1327,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				069170611C762BED00C6B0B6 /* main.m in Sources */,
 				0691705E1C762BED00C6B0B6 /* AppDelegate.m in Sources */,
+				069170611C762BED00C6B0B6 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1295,9 +1336,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				460B35D61C3EAE80003E0D9D /* ViewController.m in Sources */,
 				460B35D31C3EAE80003E0D9D /* AppDelegate.m in Sources */,
 				460B35D01C3EAE80003E0D9D /* main.m in Sources */,
+				460B35D61C3EAE80003E0D9D /* ViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1305,9 +1346,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				460B361A1C3EB1B8003E0D9D /* ViewController.m in Sources */,
 				460B36171C3EB1B8003E0D9D /* AppDelegate.m in Sources */,
 				460B36141C3EB1B8003E0D9D /* main.m in Sources */,
+				460B361A1C3EB1B8003E0D9D /* ViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1315,26 +1356,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				468E001A1C3E75E500CA07AF /* (null) in Sources */,
+				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
 				460EFA981D19303300CDDC48 /* SPNativeCallsSender.cpp in Sources */,
-				465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */,
-				460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
-				06D7A6941C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
-				468E001B1C3E75E500CA07AF /* SPUnityCurlFacade.cpp in Sources */,
-				468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */,
-				460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */,
-				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
 				46D2D9E21D086F8B00051221 /* SPPurchaseNativeServices.mm in Sources */,
 				46D2D9E01D086F8B00051221 /* SPPurchaseStore.mm in Sources */,
-				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
-				468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */,
-				468E00211C3E75E500CA07AF /* (null) in Sources */,
-				468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */,
-				468E00231C3E75E500CA07AF /* SPUnityCurlManager.cpp in Sources */,
-				468E00241C3E75E500CA07AF /* (null) in Sources */,
-				468E00251C3E75E500CA07AF /* (null) in Sources */,
-				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
+				460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */,
+				460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */,
+				468E001B1C3E75E500CA07AF /* SPUnityCurlFacade.cpp in Sources */,
+				468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */,
+				468E00231C3E75E500CA07AF /* SPUnityCurlManager.cpp in Sources */,
+				465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */,
+				468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */,
+				468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */,
+				06D7A6941C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
+				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
+				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1342,24 +1379,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,
+				FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */,
 				F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */,
-				FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */,
-				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
-				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
-				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
 				F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
-				FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */,
-				06D7A6931C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
 				F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */,
 				F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
-				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
-				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
-				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
-				F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */,
-				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
+				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
+				FE4490A21C1F339100A10FEA /* SPUnityCurlFacade.cpp in Sources */,
+				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
 				FE4490A31C1F339100A10FEA /* SPUnityCurlManager.cpp in Sources */,
-				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,
+				F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */,
+				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
+				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
+				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
+				06D7A6931C77189500F71393 /* SPUnityNativeUtils.mm in Sources */,
+				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
+				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1470,14 +1507,15 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/sp_unity_curl/libs/Osx/curl/include";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/sp_unity_curl/libs/macos/curl/include";
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Osx/curl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Osx/libz/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Osx/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/curl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/libz/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/nghttp2/lib",
 				);
 				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1521,14 +1559,15 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/sp_unity_curl/libs/Osx/curl/include";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/sp_unity_curl/libs/macos/curl/include";
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Osx/curl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Osx/libz/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Osx/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/curl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/libz/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/nghttp2/lib",
 				);
 				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -1897,10 +1936,11 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/sp_unity_crash/libs",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_crash/libs",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/tvos/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -1964,10 +2004,11 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/sp_unity_crash/libs",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_crash/libs",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/tvos/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -2086,9 +2127,7 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/ios/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -2156,9 +2195,7 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/curl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/curl/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/libz/lib",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/tvOS/openssl/lib",
+					"$(PROJECT_DIR)/sp_unity_curl/libs/ios/nghttp2/lib",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;

@@ -2,29 +2,24 @@
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using UnityEngine;
-
-#if UNITY_IOS && !UNITY_EDITOR
-using System.Runtime.InteropServices;
-#endif
 
 namespace SocialPoint.Social
 {
 
     public class SocialPointGameCenterVerification
     {
-        bool _loaded = false;
-        bool _inited = false;
+        bool _loaded;
+        bool _inited;
         GameCenterValidationDelegate _delegate;
         GameCenterUserVerification _verification;
         Error _error;
         NativeCallsHandler _handler;
 
         #if UNITY_IOS && !UNITY_EDITOR
-        [DllImport ("__Internal")]
+        [System.Runtime.InteropServices.DllImport ("__Internal")]
         private static extern void SPUnityGameCenter_UserVerificationInit();
         #else
-        private static void SPUnityGameCenter_UserVerificationInit()
+        static void SPUnityGameCenter_UserVerificationInit()
         {
         }
         #endif
@@ -32,7 +27,7 @@ namespace SocialPoint.Social
         public SocialPointGameCenterVerification(NativeCallsHandler handler)
         {
             _handler = handler;
-            _handler.RegisterListener("Notify",Notify);
+            _handler.RegisterListener("Notify", Notify);
         }
 
         public void LoadData(GameCenterValidationDelegate cbk)
@@ -67,7 +62,7 @@ namespace SocialPoint.Social
             {
                 _verification = null;
                 _error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
-                DebugUtils.Log("Game Center Verification got error: "+_error);
+                DebugUtils.Log("Game Center Verification got error: " + _error);
             }
             else
             {
