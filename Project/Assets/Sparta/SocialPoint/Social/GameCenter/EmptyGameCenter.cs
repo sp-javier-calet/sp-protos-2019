@@ -111,6 +111,11 @@ namespace SocialPoint.Social
             }
         }
 
+        public bool IsAchievementUpdating(string achiId)
+        {
+            return false;
+        }
+
         public void ShowAchievementsUI()
         {
         }

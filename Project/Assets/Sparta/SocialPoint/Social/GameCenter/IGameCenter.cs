@@ -270,6 +270,11 @@ namespace SocialPoint.Social
          */
         bool IsConnecting{ get; }
 
+        /**
+         * @return if the achievement is beeing updated
+         */
+        bool IsAchievementUpdating(string achiId);
+
         /// <summary>
         /// Show native Achievements view
         /// </summary>

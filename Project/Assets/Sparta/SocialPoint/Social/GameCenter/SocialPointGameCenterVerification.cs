@@ -18,7 +18,7 @@ namespace SocialPoint.Social
         [System.Runtime.InteropServices.DllImport ("__Internal")]
         private static extern void SPUnityGameCenter_UserVerificationInit();
         #else
-        static void SPUnityGameCenter_UserVerificationInit()
+        void SPUnityGameCenter_UserVerificationInit()
         {
         }
         #endif
@@ -52,11 +52,11 @@ namespace SocialPoint.Social
         /// <summary>
         /// receives the verification from the plugin as a serialized json
         /// </summary>
-        /// <param name="verfication">Verfication.</param>
-        void Notify(string verfication)
+        /// <param name="verification">Verification.</param>
+        void Notify(string verification)
         {
             var parser = new JsonAttrParser();
-            var data = parser.ParseString(verfication).AsDic;
+            var data = parser.ParseString(verification).AsDic;
             if(data.GetValue("error").ToBool())
             {
                 _verification = null;
