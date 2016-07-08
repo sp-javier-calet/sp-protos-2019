@@ -60,6 +60,8 @@ namespace SocialPoint.ServerMessaging
             {
                 stringBuilder.AppendFormat("\n{0}", iterator.Current);
             }
+            iterator.Dispose();
+
             return stringBuilder.ToString();
         }
 
@@ -73,10 +75,20 @@ namespace SocialPoint.ServerMessaging
         {
             var iterator = _messageCenter.Messages;
             iterator.Reset();
+
+            var list = new List<Message>();
             while(iterator.MoveNext())
             {
-                _messageCenter.DeleteMessage(iterator.Current);
+                list.Add(iterator.Current);
             }
+            iterator.Dispose();
+
+            var listIterator = list.GetEnumerator();
+            while(listIterator.MoveNext())
+            {
+                _messageCenter.DeleteMessage(listIterator.Current);
+            }
+            listIterator.Dispose();
         }
 
         void DeleteAllMessagesTogether()
@@ -89,6 +101,8 @@ namespace SocialPoint.ServerMessaging
             {
                 list.Add(iterator.Current);
             }
+            iterator.Dispose();
+
             _messageCenter.DeleteMessages(list);
         }
 
@@ -102,6 +116,8 @@ namespace SocialPoint.ServerMessaging
             {
                 list.Add(iterator.Current);
             }
+            iterator.Dispose();
+
             _messageCenter.ReadMessages(list);
         }
     }
