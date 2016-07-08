@@ -346,6 +346,7 @@ namespace SocialPoint.Social
             }
 
             GameCenterAchievement achievement = GetAchievementFromId(achi.Id);
+            Error err = null;
 
             if(achievement == null)
             {
@@ -355,14 +356,16 @@ namespace SocialPoint.Social
                 }
                 return;
             }
+
             if(achievement.IsUnlocked)
             {
                 if(cbk != null)
                 {
-                    cbk(achievement, new Error());
+                    cbk(achievement, err);
                 }
                 return;
             }
+
             var achiId = achi.Id;
             var achiPercent = achi.Percent;
 
@@ -370,7 +373,7 @@ namespace SocialPoint.Social
             {
                 if(cbk != null)
                 {
-                    cbk(achievement, new Error());
+                    cbk(achievement, err);
                 }
                 return;
             }
