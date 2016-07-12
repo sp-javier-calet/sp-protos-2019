@@ -11,6 +11,7 @@ public class ConfigModel : IDisposable
     IList<ScriptModel> _scripts;
     IDictionary<string, ResourceType> _resourceTypes;
     StoreModel _store;
+    GoalsTypeModel _goals;
 
     public IEnumerable<ScriptModel> Scripts
     {
@@ -36,6 +37,14 @@ public class ConfigModel : IDisposable
         }
     }
 
+    public GoalsTypeModel Goals
+    {
+        get
+        {
+            return _goals;
+        }
+    }
+
     public ConfigModel()
     {
         _store = new StoreModel();
@@ -43,11 +52,13 @@ public class ConfigModel : IDisposable
 
     public ConfigModel Init(IDictionary<string, Attr> globals, 
                             IList<ScriptModel> scripts,
-                            IDictionary<string, ResourceType> resourceTypes)
+                            IDictionary<string, ResourceType> resourceTypes,
+                            GoalsTypeModel goals)
     {
         _globals = globals;
         _scripts = scripts;
         _resourceTypes = resourceTypes;
+        _goals = goals;
 
         return this;
     }
@@ -64,12 +75,15 @@ public class ConfigModel : IDisposable
 
     public override string ToString()
     {
-        return string.Format("[ConfigModel: Globals={0}, Scripts={1}, Resources={2}, Store={3}]",
-            _globals.Count, _scripts.Count, _resourceTypes.Count, _store.ToString());
+        return string.Format("[ConfigModel: Globals={0}, Scripts={1}, Resources={2}, Store={3}, Goals={4}]",
+            _globals.Count, _scripts.Count, _resourceTypes.Count, _store.ToString(), _goals.ToString());
     }
 
     public void Dispose()
     {
-        
+        if(_goals != null)
+        {
+            _goals.Dispose();
+        }
     }
 }
