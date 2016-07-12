@@ -39,17 +39,23 @@ namespace SocialPoint.Social
             _toggleLogin = layout.CreateToggleButton("Logged In", _google.IsConnected, status => {
                 if(status)
                 {
+                    if(_google.IsConnected)
+                    {
+                        return;
+                    }
                     _adminPanel.Console.Print("Logging in to Google Play Games");
                     _google.Login(err => {
                         _toggleLogin.isOn = (err == null);
                         _adminPanel.Console.Print("Login finished." + err);
+                        layout.Refresh();
                     });
                 }
                 else
                 {
                     _google.Logout(null);
+                    _toggleLogin.isOn = false;
+                    layout.Refresh();
                 }
-                layout.Refresh();
             });
 
             bool connected = _google.IsConnected;
@@ -192,10 +198,10 @@ namespace SocialPoint.Social
             public void OnCreateGUI(AdminPanelLayout layout)
             {
                 _mainTitle = layout.CreateLabel("Leaderboard not found");
-                if(string.IsNullOrEmpty(_leaderboard.Id))
+                if(string.IsNullOrEmpty(_idHandler.Id))
                 {
-                    layout.AdminPanel.Console.Print("Leaderboard id cannot be empty");
-                    return;  
+                    layout.AdminPanel.Console.Print("LeaderboardHandler id cannot be empty");
+                    return;
                 }
                 _google.LoadLeaderboard(new GoogleLeaderboard(_idHandler.Id, _isFriendOnly, _playerCentered, _scope), 10, (ldb, err) => {
                     _leaderboard = ldb;

@@ -73,6 +73,7 @@ namespace SocialPoint.Social
             _dispatched = new List<Action>();
             _platform.Authenticate(success => {
                 DebugLog("Login - Authenticate success: " + success);
+                DebugLog("Login - Authenticate with local user: " + _platform.localUser.userName);
                 _loginSuccess = success;
                 DispatchMainThread(UpdateAfterLogin);
             }, silent);
@@ -131,6 +132,9 @@ namespace SocialPoint.Social
             else
             {
                 DispatchMainThread(() => OnLoginEnd(new Error("Cannot connect to Google Play Games")));
+                DebugLog("OnLogin failed - Some possible causes: ");
+                DebugLog("- your apk is not signed");
+                DebugLog("- your google account is not registered as a tester account on the Developer Console");
             }
         }
 
@@ -151,6 +155,8 @@ namespace SocialPoint.Social
 
         void LoginLoadPlayerData(ErrorDelegate cbk = null)
         {
+            DebugLog("LoginLoadPlayerData");
+
             var localUser = _platform.localUser;
             if(!localUser.authenticated)
             {
@@ -171,6 +177,9 @@ namespace SocialPoint.Social
                 _platform.GetPlayerStats(RetrievePlayerStats);
 
                 _platform.GetServerAuthCode((result, token) => {
+
+                    DebugLog("GetServerAuthCode - result: " + result);
+
                     if(result != CommonStatusCodes.Success)
                     {
                         if(cbk != null)
@@ -254,6 +263,7 @@ namespace SocialPoint.Social
             Error err = null;
             if(!string.IsNullOrEmpty(accessToken))
             {
+                DebugLog("accessToken: " + accessToken);
                 string uri = string.Format("https://www.googleapis.com/games/v1management/achievements/{0}/reset", achi.Id);
                 var form = new WWWForm();
                 form.AddField("access_token", accessToken);
@@ -515,7 +525,7 @@ namespace SocialPoint.Social
 
         public void ShowLeaderboardsUI(string id = null)
         {
-            if(_platform != null)
+            if(_platform != null && !string.IsNullOrEmpty(id))
             {
                 _platform.ShowLeaderboardUI(id);
             }
