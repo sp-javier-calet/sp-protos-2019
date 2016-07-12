@@ -5,8 +5,8 @@ using System.Text;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.Quests;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
@@ -14,6 +14,12 @@ namespace SocialPoint.Social
 {
     public class UnityGoogle : MonoBehaviour, IGoogle
     {
+        [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
+        void DebugLog(string msg)
+        {
+            DebugUtils.Log(string.Format("GooglePlay - {0}", msg));
+        }
+
         public event GoogleStateChangeDelegate StateChangeEvent;
 
         public Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
@@ -47,8 +53,10 @@ namespace SocialPoint.Social
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
+            DebugLog("Login");
             if(IsConnected)
             {
+                DebugLog("Login - IsConnected");
                 if(cbk != null)
                 {
                     cbk(null);
@@ -56,11 +64,15 @@ namespace SocialPoint.Social
                 return;
             }
 
+            DebugLog("Login - not connected trying Authenticate");
+
             // Use Activate() instead to override Social.Active
             _platform = PlayGamesPlatform.Instance;
             _connecting = true;
             _loginCallback = cbk;
+            _dispatched = new List<Action>();
             _platform.Authenticate(success => {
+                DebugLog("Login - Authenticate success: " + success);
                 _loginSuccess = success;
                 DispatchMainThread(UpdateAfterLogin);
             }, silent);
@@ -68,6 +80,8 @@ namespace SocialPoint.Social
 
         void UpdateAfterLogin()
         {
+            DebugLog("UpdateAfterLogin");
+            DebugUtils.Assert(_loginCallback != null);
             if(_loginCallback != null)
             {
                 OnLogin();
@@ -76,11 +90,11 @@ namespace SocialPoint.Social
 
         void LoadDescriptionAchievements()
         {
-            DebugUtils.Log("Intentamos cargar los achivements");
+            DebugLog("Trying to load achivements");
             _platform.LoadAchievementDescriptions(descriptions => {
                 if(descriptions.Length > 0)
                 {
-                    DebugUtils.Log("Got " + descriptions.Length + " achievement descriptions");
+                    DebugLog("Got " + descriptions.Length + " achievement descriptions");
                     var achievementDescriptions = new StringBuilder();
                     achievementDescriptions.Append("Achievement Descriptions:\n");
                     for(int i = 0, descriptionsLength = descriptions.Length; i < descriptionsLength; i++)
@@ -88,45 +102,51 @@ namespace SocialPoint.Social
                         IAchievementDescription ad = descriptions[i];
                         achievementDescriptions.Append("\t").Append(ad.id).Append(" ").Append(ad.title).Append(" ").Append(ad.unachievedDescription).AppendLine();
                     }
-                    DebugUtils.Log(achievementDescriptions.ToString());
+                    DebugLog(achievementDescriptions.ToString());
                 }
                 else
                 {
-                    DebugUtils.Log("Failed to load achievement descriptions");
+                    DebugLog("Failed to load achievement descriptions");
                 }
             });
         }
 
         void OnLogin()
         {
+            DebugLog("OnLogin _loginSuccess: " + _loginSuccess);
+
             if(_loginSuccess)
             {
                 LoginLoadPlayerData(err => {
                     if(!Error.IsNullOrEmpty(err))
                     {
-                        DispatchMainThread(() => OnLoginEnd(err, _loginCallback));
+                        DispatchMainThread(() => OnLoginEnd(err));
                     }
                     else
                     {
-                        DownloadAchievements(err2 => DispatchMainThread(() => OnLoginEnd(err2, _loginCallback)));
+                        DownloadAchievements(err2 => DispatchMainThread(() => OnLoginEnd(err2)));
                     }
                 });
             }
             else
             {
-                DispatchMainThread(() => OnLoginEnd(new Error("Cannot connect to Google Play Games"), _loginCallback));
+                DispatchMainThread(() => OnLoginEnd(new Error("Cannot connect to Google Play Games")));
             }
         }
 
-        void OnLoginEnd(Error err, ErrorDelegate cbk = null)
+        void OnLoginEnd(Error err)
         {
+            DebugLog("OnLoginEnd - Error: " + err);
+
             _connecting = false;
             NotifyStateChanged();
-            if(cbk != null)
+
+            DebugUtils.Assert(_loginCallback != null);
+            if(_loginCallback != null)
             {
-                cbk(err);
+                _loginCallback(err);
+                _loginCallback = null;
             }
-            _loginCallback = null;
         }
 
         void LoginLoadPlayerData(ErrorDelegate cbk = null)
@@ -633,15 +653,15 @@ namespace SocialPoint.Social
                     stats.SetValue(AttrKeySpendProbability, -1f); // Not available in Unity Plugin.
 
                     TrackEvent(PlayerStatsEventName, data, null);
-                }                
-            }                            
+                }
+            }
         }
 
         #endregion
 
         #region Dispatch
 
-        Action _dispatched;
+        List<Action> _dispatched;
 
         void LateUpdate()
         {
@@ -653,8 +673,11 @@ namespace SocialPoint.Social
         {
             if(_dispatched != null)
             {
-                _dispatched();
-                _dispatched = null;
+                for(int i = 0; i < _dispatched.Count; i++)
+                {
+                    _dispatched[i]();
+                }
+                _dispatched.Clear();
             }
         }
 
@@ -662,7 +685,7 @@ namespace SocialPoint.Social
         {
             /* System events have to be dispatched to the current Unity Main Thread 
              * since this changes between Development and Production builds. */
-            _dispatched += action;
+            _dispatched.Add(action);
         }
 
         #endregion
