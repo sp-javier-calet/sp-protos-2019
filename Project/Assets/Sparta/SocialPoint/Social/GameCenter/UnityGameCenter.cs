@@ -399,7 +399,7 @@ namespace SocialPoint.Social
 
         GameCenterAchievement GetAchievementFromId(string achiId)
         {
-            for(int i = 0, _achievementsCount = _achievements.Count; i < _achievementsCount; i++)
+            for(int i = 0, achievementsCount = _achievements.Count; i < achievementsCount; i++)
             {
                 if(_achievements[i].Id == achiId)
                 {
