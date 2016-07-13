@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: Debug-BuildSet
   m_EditorClassIdentifier: 
   App:
-    ProductName: SBG-Debug
+    ProductName: 
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
@@ -24,6 +24,7 @@ MonoBehaviour:
     BundleIdentifier: 
     Flags: 
     XcodeModSchemes: debug
+    UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
   Android:
     BundleIdentifier: 
