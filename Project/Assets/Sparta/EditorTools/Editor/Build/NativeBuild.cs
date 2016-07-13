@@ -166,23 +166,24 @@ namespace SpartaTools.Editor.Build
             var commandOutput = new StringBuilder(string.Format("Compile SPUnityPlugins {0} for Apple Platforms", target));
             var path = Path.Combine(SourcesDirectoryPath, "Apple/sp_unity_plugins");
 
-            var msg = string.Format("Building target '{0}' for SPUnityPlugins '{1}'", target, path);
-            Debug.Log(msg);
-            commandOutput.AppendLine(msg);
-
-            EditorUtility.DisplayProgressBar("Compiling native plugin", msg, 0.1f);
-
             var paramsBuilder = new StringBuilder();
             paramsBuilder.AppendFormat(" -target {0} ", target);
 
             var provisioningUuid = GlobalProvisioningProfileUuid;
+            var provisioningMessage = string.Empty;
             if(string.IsNullOrEmpty(provisioningUuid))
             {
                 paramsBuilder.AppendFormat(" PROVISIONING_PROFILE={0} ", provisioningUuid);
+                provisioningMessage = "Using provisioning profile " + provisioningUuid;
             }
+
+            var msg = string.Format("Building target '{0}' for SPUnityPlugins '{1}'. {2}", target, path, provisioningMessage);
+            commandOutput.AppendLine(msg);
+            EditorUtility.DisplayProgressBar("Compiling native plugin", msg, 0.1f);
 
             var result = NativeConsole.RunProcess("xcodebuild", paramsBuilder.ToString(), path);
             commandOutput.AppendLine(result.Output);
+
             Debug.Log(commandOutput.ToString());
 
             EditorUtility.ClearProgressBar();
