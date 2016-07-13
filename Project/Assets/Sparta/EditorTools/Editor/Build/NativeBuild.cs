@@ -34,6 +34,14 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        static string GlobalProvisioningProfileUuid
+        {
+            get
+            {
+                return EditorPrefs.GetString("XCodeProvisioningProfileUuid");
+            }
+        }
+
         static string InstallationPath
         {
             get
@@ -164,7 +172,16 @@ namespace SpartaTools.Editor.Build
 
             EditorUtility.DisplayProgressBar("Compiling native plugin", msg, 0.1f);
 
-            var result = NativeConsole.RunProcess("xcodebuild", string.Format("-target {0}", target), path);
+            var paramsBuilder = new StringBuilder();
+            paramsBuilder.AppendFormat(" -target {0} ", target);
+
+            var provisioningUuid = GlobalProvisioningProfileUuid;
+            if(string.IsNullOrEmpty(provisioningUuid))
+            {
+                paramsBuilder.AppendFormat(" PROVISIONING_PROFILE={0} ", provisioningUuid);
+            }
+
+            var result = NativeConsole.RunProcess("xcodebuild", paramsBuilder.ToString(), path);
             commandOutput.AppendLine(result.Output);
             Debug.Log(commandOutput.ToString());
 

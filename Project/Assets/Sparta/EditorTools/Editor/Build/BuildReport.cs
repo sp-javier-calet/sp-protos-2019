@@ -79,6 +79,7 @@ namespace SpartaTools.Editor.Build
                         .Add("Bundle Identifier", bs.Ios.BundleIdentifier)
                         .Add("Flags", bs.Ios.Flags)
                         .Add("XcodeMod Schemes", bs.Ios.XcodeModSchemes)
+                        .Add("Use Global Provisioning", bs.Ios.UseEnvironmentProvisioningUuid.ToString())
                         .Add("Removed resources", bs.Ios.RemovedResources)
                     .IndentBack()
 
@@ -144,6 +145,10 @@ namespace SpartaTools.Editor.Build
                     .AddTitle("Xcodemods")
                     .Indent()
                         .Add("Stored Schemes", EditorPrefs.GetString(BuildSet.XcodeModSchemesPrefsKey))
+                    .IndentBack()
+                    .AddTitle("Global Provisioning")
+                    .Indent()
+                        .Add("Stored Provisioning", EditorPrefs.GetString(BuildSet.ProvisioningProfilePrefsKey))
                     .IndentBack()
                 .IndentBack()
             .IndentBack()

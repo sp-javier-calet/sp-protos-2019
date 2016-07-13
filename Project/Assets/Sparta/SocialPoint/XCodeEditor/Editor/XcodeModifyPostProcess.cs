@@ -2,7 +2,6 @@
 using UnityEditor;
 using UnityEditor.Callbacks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -14,6 +13,7 @@ namespace SocialPoint.XCodeEditor
         {
             get
             {
+                // XCodeModSchemes prefs are written by BuildSet.
                 var customPrefixes = EditorPrefs.GetString("XCodeModSchemes", string.Empty);
                 if(string.IsNullOrEmpty(customPrefixes))
                 {
