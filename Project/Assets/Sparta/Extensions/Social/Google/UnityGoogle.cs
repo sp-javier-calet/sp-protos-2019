@@ -91,7 +91,7 @@ namespace SocialPoint.Social
 
         void LoadDescriptionAchievements()
         {
-            DebugLog("Trying to load achivements");
+            DebugLog("Trying to load achievements");
             _platform.LoadAchievementDescriptions(descriptions => {
                 if(descriptions.Length > 0)
                 {
