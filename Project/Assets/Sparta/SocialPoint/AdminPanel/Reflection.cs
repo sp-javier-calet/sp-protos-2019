@@ -6,7 +6,7 @@ namespace SocialPoint.AdminPanel
 {
     public static class Reflection
     {
-        public static R GetPrivateField<T, R>(object instance, string fieldName) where R : class
+        public static R GetPrivateField<T, R>(object instance, string fieldName)
         {
             BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
             
@@ -15,7 +15,15 @@ namespace SocialPoint.AdminPanel
             {
                 Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` field in class {1}", fieldName, instance.GetType()));
             }
-            return field != null ? field.GetValue(instance) as R : null;
+
+            if(field != null)
+            {
+                return (R)field.GetValue(instance); 
+            }
+            else
+            {
+                return default(R);
+            }
         }
 
         static MethodInfo GetMethod<T>(string methodName)
