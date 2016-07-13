@@ -314,11 +314,12 @@ namespace SocialPoint.GUIControl
             }
             else if(state == ViewState.Destroying)
             {
-                for(int i = _stack.Count - 1; i > -1; i--)
+                int topScreenIdx = _stack.Count - 1;
+                if (topScreenIdx > -1)
                 {
-                    if(_stack[i] == ctrl)
+                    if(_stack[topScreenIdx] == ctrl)
                     {
-                        _stack.RemoveAt(i);
+                        _stack.RemoveAt(topScreenIdx);
                     }
                 }
             }
