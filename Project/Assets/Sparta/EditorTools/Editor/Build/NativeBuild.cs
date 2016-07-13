@@ -171,7 +171,7 @@ namespace SpartaTools.Editor.Build
 
             var provisioningUuid = GlobalProvisioningProfileUuid;
             var provisioningMessage = string.Empty;
-            if(string.IsNullOrEmpty(provisioningUuid))
+            if(!string.IsNullOrEmpty(provisioningUuid))
             {
                 paramsBuilder.AppendFormat(" PROVISIONING_PROFILE={0} ", provisioningUuid);
                 provisioningMessage = "Using provisioning profile " + provisioningUuid;
