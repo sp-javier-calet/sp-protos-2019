@@ -178,8 +178,6 @@ namespace SocialPoint.Social
 
                 _platform.GetServerAuthCode((result, token) => {
 
-                    DebugLog("GetServerAuthCode - result: " + result);
-
                     if(result != CommonStatusCodes.Success)
                     {
                         if(cbk != null)
