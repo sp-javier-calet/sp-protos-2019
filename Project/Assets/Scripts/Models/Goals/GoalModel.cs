@@ -15,7 +15,7 @@ public class GoalModel : IDisposable
         {
             if(_completed)
             {
-                throw new Exception("It's forbidden to modify the completion of a goal when is already completed");
+                throw new GoalCompletionException(Id);
             }
 
             _completed = value;
@@ -88,11 +88,11 @@ public class GoalModel : IDisposable
     {
         if(!Completed)
         {
-            throw new Exception(string.Format("Tried to claim an uncompleted goal: {0}", Id));
+            throw new GoalNotCompletedException(Id);
         }
         else if(Claimed)
         {
-            throw new Exception(string.Format("Tried to claim an already claimed goal: {0}", Id));
+            throw new GoalAlreadyClaimedException(Id);
         }
 
         var error = TypeModel.Reward.Obtain(playerModel);

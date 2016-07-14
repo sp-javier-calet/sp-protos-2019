@@ -214,7 +214,7 @@ public class GoalsModel : IDisposable
 
         if(goalModel == null)
         {
-            throw new Exception(string.Format("Tried to claim an unexisting goal: {0}", goalId));
+            throw new GoalNotFoundException(goalId);
         }
             
         if(goalModel.Claim(_playerModel) && GoalClaimed != null)
