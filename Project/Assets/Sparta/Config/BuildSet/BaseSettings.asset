@@ -24,6 +24,7 @@ MonoBehaviour:
     BundleIdentifier: es.socialpoint.basegame
     Flags: NO_GPGS
     XcodeModSchemes: 
+    UseEnvironmentProvisioningUuid: 0
     RemovedResources: 
   Android:
     BundleIdentifier: es.socialpoint.basegame

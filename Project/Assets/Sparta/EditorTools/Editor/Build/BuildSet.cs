@@ -14,7 +14,10 @@ namespace SpartaTools.Editor.Build
         public const string ShippingConfigName = "Shipping";
         public const string BaseSettingsName = "Base Settings";
         public const string DebugScenePrefix = "Debug";
+
+        public const string ProvisioningProfileEnvironmentKey = "SP_XCODE_PROVISIONING_PROFILE_UUID";
         public const string XcodeModSchemesPrefsKey = "XCodeModSchemes";
+        public const string ProvisioningProfilePrefsKey = "XCodeProvisioningProfileUuid";
 
         public const string ContainerPath = "Assets/Sparta/Config/BuildSet/";
         public const string FileSuffix = "-BuildSet";
@@ -60,6 +63,7 @@ namespace SpartaTools.Editor.Build
             public string BundleIdentifier;
             public string Flags;
             public string XcodeModSchemes;
+            public bool UseEnvironmentProvisioningUuid;
             public string RemovedResources;
         }
 
@@ -230,6 +234,18 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        protected void SetXcodeProvisioningProfileUuid(string uuid)
+        {
+            if(string.IsNullOrEmpty(uuid))
+            {
+                EditorPrefs.DeleteKey(ProvisioningProfilePrefsKey);
+            }
+            else
+            {
+                EditorPrefs.SetString(ProvisioningProfilePrefsKey, uuid);
+            }
+        }
+
         #endregion
 
         public void SelectScenes(bool includeDebug)
@@ -326,6 +342,10 @@ namespace SpartaTools.Editor.Build
              * Set XcodeMods custom prefixes
              */
             SetXcodeModSchemes(Ios.XcodeModSchemes);
+
+            // Try to set the Provisioning Profile defined by a environment variable.
+            var globalProvisioningUuid = Ios.UseEnvironmentProvisioningUuid ? Environment.GetEnvironmentVariable(ProvisioningProfileEnvironmentKey) : null;
+            SetXcodeProvisioningProfileUuid(globalProvisioningUuid);
 
             /*
              * Override shared configuration for the active target platform

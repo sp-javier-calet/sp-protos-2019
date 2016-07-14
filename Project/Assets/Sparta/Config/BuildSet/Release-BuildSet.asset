@@ -24,6 +24,7 @@ MonoBehaviour:
     BundleIdentifier: 
     Flags: 
     XcodeModSchemes: release
+    UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
   Android:
     BundleIdentifier: 

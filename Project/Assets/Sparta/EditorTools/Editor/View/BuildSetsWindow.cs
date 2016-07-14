@@ -276,6 +276,13 @@ namespace SpartaTools.Editor.View
                 config.Ios.RemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be removed before build", config.Ios.RemovedResources, data.IsBase);
                 config.Ios.XcodeModSchemes = InheritableTextField("XcodeMod Schemes", "Xcodemods schemes to apply. 'base' and 'editor' schemes are managed automatically", config.Ios.XcodeModSchemes, data.IsBase);
 
+                if(!data.IsBase)
+                {
+                    config.Ios.UseEnvironmentProvisioningUuid = EditorGUILayout.Toggle(new GUIContent("Use Global Provisioning", 
+                        "Uses the Provisioning profile UUID defined by the 'SP_XCODE_PROVISIONING_PROFILE_UUID' environment variable"), 
+                        config.Ios.UseEnvironmentProvisioningUuid);
+                }
+
                 EditorGUILayout.Space();
 
                 // Android Condifguration
