@@ -35,7 +35,9 @@ public class ServerSyncInstaller : SubInstaller
         Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
 
         Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
+
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandReceiver>(CreateAdminPanelCommandReceiver);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandQueue>(CreateAdminPanelCommandQueue);
     }
 
     CommandQueue CreateCommandQueue()
@@ -48,7 +50,7 @@ public class ServerSyncInstaller : SubInstaller
     void SetupCommandQueue(CommandQueue queue)
     {
         queue.IgnoreResponses = Settings.IgnoreResponses;
-        queue.SendInterval =  Settings.SendInterval;
+        queue.SendInterval = Settings.SendInterval;
         queue.MaxOutOfSyncInterval = Settings.MaxOutOfSyncInterval;
         queue.Timeout = Settings.Timeout;
         queue.BackoffMultiplier = Settings.BackoffMultiplier;
@@ -71,5 +73,10 @@ public class ServerSyncInstaller : SubInstaller
     {
         return new AdminPanelCommandReceiver(
             Container.Resolve<CommandReceiver>());
+    }
+
+    AdminPanelCommandQueue CreateAdminPanelCommandQueue()
+    {
+        return new AdminPanelCommandQueue(Container.Resolve<ICommandQueue>());
     }
 }

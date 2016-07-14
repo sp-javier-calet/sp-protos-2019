@@ -193,6 +193,10 @@ namespace SocialPoint.ServerSync
 
         public bool AutoSyncEnabled
         {
+            get
+            {
+                return _autoSyncEnabled;
+            }
             set
             {
                 _autoSyncEnabled = value;
