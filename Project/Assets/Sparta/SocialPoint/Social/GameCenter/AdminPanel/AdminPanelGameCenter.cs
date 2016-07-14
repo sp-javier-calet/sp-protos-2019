@@ -1,4 +1,5 @@
-﻿using SocialPoint.AdminPanel;
+﻿using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine.UI;
@@ -34,8 +35,10 @@ namespace SocialPoint.Social
         {
             layout.CreateLabel("Game Center");
             layout.CreateMargin();
+
+            bool connected = _gameCenter.IsConnected;
            
-            _toggleLogin = layout.CreateToggleButton("Logged In", _gameCenter.IsConnected, status => {
+            _toggleLogin = layout.CreateToggleButton("Logged In", connected, status => {
                 if(status)
                 {
                     _adminPanel.Console.Print("Logging in to Game Center");
@@ -46,8 +49,6 @@ namespace SocialPoint.Social
                 }
                 layout.Refresh();
             });
-
-            bool connected = _gameCenter.IsConnected;
 
             layout.CreateMargin(2);
             layout.CreateLabel("User");
@@ -101,7 +102,10 @@ namespace SocialPoint.Social
 
             public void Refresh()
             {
-                _layout.Refresh();
+                if(_layout != null)
+                {
+                    _layout.Refresh();
+                }
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -124,12 +128,14 @@ namespace SocialPoint.Social
         class AdminPanelAchievement : IAdminPanelGUI
         {
             readonly GameCenterAchievement _achievement;
+            readonly GameCenterAchievement _achievementCloned;
             readonly IGameCenter _gameCenter;
 
             public AdminPanelAchievement(IGameCenter gameCenter, GameCenterAchievement achievement)
             {
                 _gameCenter = gameCenter;
                 _achievement = achievement;
+                _achievementCloned = (GameCenterAchievement)achievement.Clone();
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -152,10 +158,15 @@ namespace SocialPoint.Social
                 layout.CreateButton(
                     buttonText,
                     () => {
-                        var achi = (GameCenterAchievement)_achievement.Clone();
-                        achi.Percent += AchievementPercent;
-                        _gameCenter.UpdateAchievement(_achievement, (achi2, err) => {
-                            layout.AdminPanel.Console.Print(string.Format("Updated Achievement {0}. {1}", achi2.Id, err));
+                        if(_gameCenter.IsAchievementUpdating(_achievement.Id))
+                        {
+                            return;
+                        }
+
+                        _achievementCloned.Percent = Math.Min(_achievementCloned.Percent + AchievementPercent, 100.0f);
+
+                        _gameCenter.UpdateAchievement(_achievementCloned, (achi, err) => {
+                            layout.AdminPanel.Console.Print(string.Format("- Updated {0}. - Percent: {1} - {2}", achi.Id, achi.Percent, err));
                             layout.Refresh();
                         });
                     },

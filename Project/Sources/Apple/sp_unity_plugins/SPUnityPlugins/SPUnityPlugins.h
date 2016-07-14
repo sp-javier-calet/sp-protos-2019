@@ -11,6 +11,3 @@ FOUNDATION_EXPORT double SPUnityPluginsVersionNumber;
 
 //! Project version string for SPUnityPlugins.
 FOUNDATION_EXPORT const unsigned char SPUnityPluginsVersionString[];
-
-#import <SPUnityPlugins/UnityGameObject.h>
-

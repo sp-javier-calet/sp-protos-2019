@@ -105,7 +105,6 @@ namespace SpartaTools.Editor.Build
 
         public BuildReport CollectBaseSettings()
         {
-            var bs = BaseSettings.Load();
             AddTitle("Base Settings")
             .Indent()
                 .AddBuildSetInfo(BaseSettings.Load())
