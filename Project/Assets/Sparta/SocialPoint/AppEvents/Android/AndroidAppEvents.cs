@@ -55,8 +55,9 @@ namespace SocialPoint.AppEvents
         {
             if(_dispatched != null)
             {
-                _dispatched();
+                var dispatched = new Action(_dispatched);
                 _dispatched = null;
+                dispatched();
             }
         }
 

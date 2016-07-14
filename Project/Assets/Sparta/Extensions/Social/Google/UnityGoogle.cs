@@ -70,7 +70,6 @@ namespace SocialPoint.Social
             _platform = PlayGamesPlatform.Instance;
             _connecting = true;
             _loginCallback = cbk;
-            _dispatched = new List<Action>();
             _platform.Authenticate(success => {
                 DebugLog("Login - Authenticate success: " + success);
                 DebugLog("Login - Authenticate with local user: " + _platform.localUser.userName);
@@ -669,7 +668,7 @@ namespace SocialPoint.Social
 
         #region Dispatch
 
-        List<Action> _dispatched;
+        Action _dispatched;
 
         void LateUpdate()
         {
@@ -681,11 +680,9 @@ namespace SocialPoint.Social
         {
             if(_dispatched != null)
             {
-                for(int i = 0; i < _dispatched.Count; i++)
-                {
-                    _dispatched[i]();
-                }
-                _dispatched.Clear();
+                var dispatched = new Action(_dispatched);
+                _dispatched = null;
+                dispatched();
             }
         }
 
@@ -693,7 +690,7 @@ namespace SocialPoint.Social
         {
             /* System events have to be dispatched to the current Unity Main Thread 
              * since this changes between Development and Production builds. */
-            _dispatched.Add(action);
+            _dispatched += action;
         }
 
         #endregion
