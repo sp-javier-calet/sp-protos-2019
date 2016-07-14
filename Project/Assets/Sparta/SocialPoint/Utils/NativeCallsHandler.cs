@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Runtime.InteropServices;
 
 namespace SocialPoint.Utils
 {
@@ -35,20 +34,12 @@ namespace SocialPoint.Utils
         const string PluginModuleName = "sp_unity_base";
         const string JavaFullClassName = "es.socialpoint.unity.base.SPNativeCallsSender";
         const string JavaFunctionInit = "Init";
-        AndroidJavaClass _nativeCallsSender;
-        #else
+        #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
 
-        #if !UNITY_EDITOR
-        [DllImport (PluginModuleName)]
-        private static extern void SPNativeCallsSender_Init(string gameObjectName, string methodName, string separator);
-        #else
-        void SPNativeCallsSender_Init(string gameObjectName, string methodName, string separator)
-        {
-
-        }
-        #endif
+        [System.Runtime.InteropServices.DllImport(PluginModuleName)]
+        static extern void SPNativeCallsSender_Init(string gameObjectName, string methodName, string separator);
 
         void Awake()
         {
@@ -58,11 +49,11 @@ namespace SocialPoint.Utils
             {
                 DontDestroyOnLoad(this);
             }
-            #if UNITY_IOS
+            #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
             SPNativeCallsSender_Init(gameObject.name, MethodName, Separator);
             #elif UNITY_ANDROID && !UNITY_EDITOR
-            _nativeCallsSender = new AndroidJavaClass(JavaFullClassName);
-            _nativeCallsSender.CallStatic(JavaFunctionInit, gameObject.name, MethodName, Separator);
+            AndroidJavaClass nativeCallsSender = new AndroidJavaClass(JavaFullClassName);
+            nativeCallsSender.CallStatic(JavaFunctionInit, gameObject.name, MethodName, Separator);
             #endif
         }
 
@@ -94,10 +85,7 @@ namespace SocialPoint.Utils
             {
                 return;
             }
-            else
-            {
-                _listeners[methodName].NoArgMethod -= method;
-            } 
+            _listeners[methodName].NoArgMethod -= method;
         }
 
         public void RemoveListener(string methodName, Action<string> method)
@@ -106,10 +94,7 @@ namespace SocialPoint.Utils
             {
                 return;
             }
-            else
-            {
-                _listeners[methodName].ArgMethod -= method;
-            } 
+            _listeners[methodName].ArgMethod -= method;
         }
 
         /// <summary>
