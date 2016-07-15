@@ -149,6 +149,15 @@ namespace SpartaTools.Editor.Build
         public static void CompileOSX()
         {
             CompileAppleProjectTarget("generateUnityPlugin_macOS");
+
+            // Show prompt to restart editor in order to reload native librariess
+            if(EditorUtility.DisplayDialog("Restart required", "Editor must be restarted to apply changes in native plugins", "Restart Now", "Continue without restart"))
+            {
+                if(UnityEditor.SceneManagement.EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                {
+                    EditorApplication.OpenProject(Path.Combine(Application.dataPath, ".."));
+                }
+            }
         }
 
         [MenuItem("Sparta/Build/Plugins/Build All", false, 500)]
