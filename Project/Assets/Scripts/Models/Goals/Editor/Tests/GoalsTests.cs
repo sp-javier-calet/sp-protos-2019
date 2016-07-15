@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using NUnit.Framework;
 using SocialPoint.ScriptEvents;
 using System.Collections.Generic;
@@ -29,9 +28,9 @@ public class GoalsTests
         var goalsConfig = new Dictionary<string, GoalTypeModel>();
         _goalsModel = new Dictionary<string, GoalModel>();
 
-        IncludeEventBasedGoal(ref goalsConfig, ref _goalsModel);
+        IncludeEventBasedGoal(goalsConfig, _goalsModel);
 
-        IncludeModelBasedGoal(ref goalsConfig, ref _goalsModel);
+        IncludeModelBasedGoal(goalsConfig, _goalsModel);
 
         _goalsTypeModel = new GoalsTypeModel(goalsConfig);
     }
@@ -42,7 +41,7 @@ public class GoalsTests
         _playerModel.Init(1, new ResourcePool());
     }
 
-    void IncludeEventBasedGoal(ref Dictionary<string, GoalTypeModel> goalsConfig, ref Dictionary<string, GoalModel> goalsModel)
+    void IncludeEventBasedGoal(Dictionary<string, GoalTypeModel> goalsConfig, Dictionary<string, GoalModel> goalsModel)
     {
         var conditionOne = new EventBasedGoalExampleTest("event_condition_example", 6);
         var conditionTwo = new EventBasedGoalExampleTest("event_condition_example", 2);
@@ -69,7 +68,7 @@ public class GoalsTests
         goalsModel.Add(goalModel.Id, goalModel);
     }
 
-    void IncludeModelBasedGoal(ref Dictionary<string, GoalTypeModel> goalsConfig, ref Dictionary<string, GoalModel> goalsModel)
+    void IncludeModelBasedGoal(Dictionary<string, GoalTypeModel> goalsConfig, Dictionary<string, GoalModel> goalsModel)
     {
         var requiredResources = new ResourcePool();
 
