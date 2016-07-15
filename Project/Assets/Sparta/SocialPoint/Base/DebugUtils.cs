@@ -5,58 +5,15 @@
 #if DEBUG || UNITY_EDITOR || UNITY_STANDALONE
 #define TRACE
 #endif
+
 using System;
 using System.Diagnostics;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Base
 {
-    public interface IDebugLogger
-    {
-        void Log(string message);
-
-        void LogWarning(string message);
-
-        void LogError(string message);
-
-        void LogException(Exception exception);
-    }
-
-    #if UNITY
-    public class UnityDebugLogger : IDebugLogger
-    {
-        public void Log(string message)
-        {
-            UnityEngine.Debug.Log(message);
-        }
-
-        public void LogWarning(string message)
-        {
-            UnityEngine.Debug.LogWarning(message);
-        }
-
-        public void LogError(string message)
-        {
-            UnityEngine.Debug.LogError(message);
-        }
-
-        public void LogException(Exception exception)
-        {
-            UnityEngine.Debug.LogException(exception);
-        }
-    }
-
-    #endif
-
     public static class DebugUtils
     {
-        static DebugUtils()
-        {
-            #if UNITY
-            Logger = new UnityDebugLogger();
-            #endif
-        }
-
         [Conditional("TRACE")]
         public static void StackTrace(params object[] objs)
         {
@@ -73,8 +30,9 @@ namespace SocialPoint.Base
                     sb.AppendLine(obj.ToString());
                 }
             }
+
             #if UNITY
-            UnityEngine.Debug.Log(StringUtils.FinishBuilder(sb));
+                Log.i(StringUtils.FinishBuilder(sb));
             #endif
         }
 
@@ -82,47 +40,41 @@ namespace SocialPoint.Base
         public static void Assert(bool condition, string msg = "")
         {
             #if UNITY
-            UnityEngine.Assertions.Assert.IsTrue(condition, msg);
-            #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying &= condition;
-            #endif
+                UnityEngine.Assertions.Assert.IsTrue(condition, msg);
+
+                #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying &= condition;
+                #endif
+
             #else
-            LogError(msg);
+                Log.e(msg);
             #endif
         }
 
-        public static IDebugLogger Logger;
-
-        public static void Log(string message)
+        [Conditional("DEBUG")]
+        public static void Break()
         {
-            if(Logger != null)
-            {
-                Logger.Log(message);
-            }
+            #if UNITY
+                UnityEngine.Debug.Break();
+            #endif
         }
 
-        
-        public static void LogError(string message)
+        public static void Stop()
         {
-            if(Logger != null)
-            {
-                Logger.LogError(message);
-            }
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #endif
         }
 
-        public static void LogException(Exception exception)
+        public static bool IsDebugBuild
         {
-            if(Logger != null)
+            get
             {
-                Logger.LogException(exception);
-            }
-        }
-
-        public static void LogWarning(string message)
-        {
-            if(Logger != null)
-            {
-                Logger.LogWarning(message);
+                #if UNITY
+                return UnityEngine.Debug.isDebugBuild;
+                #else
+                return false;
+                #endif
             }
         }
     }
