@@ -89,7 +89,7 @@ namespace SocialPoint.Hardware
                     }
                     catch(Exception e)
                     {
-                        Debug.LogError("Device proxy could not be retrieved. " + e.Message);
+                        Log.e("Device proxy could not be retrieved. " + e.Message);
                     }
                 }
                 return _proxy;
