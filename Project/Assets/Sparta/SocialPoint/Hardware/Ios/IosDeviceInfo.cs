@@ -1,4 +1,5 @@
 using SocialPoint.IosKeychain;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.Hardware
@@ -55,7 +56,7 @@ namespace SocialPoint.Hardware
                         }
                         catch(KeychainItemException e)
                         {
-                            Debug.LogError("Could not write IosDeviceInfo.Uid to ios keychain: " + e);
+                            Log.e("Could not write IosDeviceInfo.Uid to ios keychain: " + e);
                         }
                     }
                 }
@@ -73,7 +74,7 @@ namespace SocialPoint.Hardware
             }
         }
 
-        string _platformVersion = null;
+        string _platformVersion;
 
         public string PlatformVersion
         {

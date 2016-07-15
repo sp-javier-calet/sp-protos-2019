@@ -2,7 +2,7 @@
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Social;
-using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
@@ -154,12 +154,12 @@ namespace SocialPoint.Login
 
         public void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
         {
-            Debug.LogError("Not Implementing Update User Photo Yet");
+            Log.e("Not Implementing Update User Photo Yet");
         }
 
         public bool IsFriend(User user)
         {
-            Debug.LogError("Not Implementing Is Friend Yet");
+            Log.e("Not Implementing Is Friend Yet");
             return false;
         }
 

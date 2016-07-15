@@ -1,6 +1,6 @@
 ﻿using SocialPoint.AdminPanel;
 using SocialPoint.Base;
-using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.VideoAds
 {
@@ -44,12 +44,12 @@ namespace SocialPoint.VideoAds
                 }
             });
             layout.CreateButton("Request VideoAd", () => {
-                Debug.Log("VideoAds request video");
+                Log.i("VideoAds request video");
                 _manager.RequestAd(OnRequestVideo);
             }, !_manager.AdAvailable);
 
             layout.CreateButton("Show VideoAd", () => {
-                Debug.Log("VideoAds show video");
+                Log.i("VideoAds show video");
                 _manager.ShowAd(OnShowVideo);
             }, _manager.AdAvailable);
         }
@@ -60,13 +60,13 @@ namespace SocialPoint.VideoAds
         void OnRequestVideo(Error error, RequestVideoResult result)
         {
             _layout.Refresh();
-            Debug.Log(string.Format("VideoAds request video result = {0}",result.ToString()));
+            Log.i(string.Format("VideoAds request video result = {0}", result));
         }
 
         void OnShowVideo(Error error, ShowVideoResult result)
         {
             _layout.Refresh();
-            Debug.Log(string.Format("VideoAds show video result = {0}",result.ToString()));
+            Log.i(string.Format("VideoAds show video result = {0}", result));
         }
     }
 }

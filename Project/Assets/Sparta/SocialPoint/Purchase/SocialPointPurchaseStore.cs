@@ -144,7 +144,7 @@ namespace SocialPoint.Purchase
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("SocialPointPurchaseStore {0}", msg));
+            Log.i(string.Format("SocialPointPurchaseStore {0}", msg));
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace SocialPoint.Purchase
             if(RequestSetup != null)
             {
                 RequestSetup(req, UriPayment);
-                DebugUtils.Log(req.Url.AbsoluteUri);
+                Log.i(req.Url.AbsoluteUri);
             }
 
             #if (UNITY_IOS || UNITY_TVOS)
@@ -275,12 +275,12 @@ namespace SocialPoint.Purchase
             _commandQueue.Add(purchaseCmd, (data, err) => {
                 if(Error.IsNullOrEmpty(err))
                 {
-                    DebugUtils.Log("calling ValidatePurchaseResponseDelegate"); 
+                    Log.i("calling ValidatePurchaseResponseDelegate"); 
                     response(PurchaseResponseType.Complete);
                 }
                 else
                 {
-                    DebugUtils.Log("command sync had an error"); 
+                    Log.i("command sync had an error"); 
                     //warn about an error
                 }
             });
@@ -373,7 +373,7 @@ namespace SocialPoint.Purchase
             //A delegate must exist before doing any attempt
             DebugUtils.Assert(_purchaseCompleted != null, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
 
-            DebugUtils.Log("Purchase: " + _purchasesInProcess.ContainsKey(productId));
+            Log.i("Purchase: " + _purchasesInProcess.ContainsKey(productId));
             if(_purchasesInProcess.ContainsKey(productId))
             {
                 _purchaseStore.PurchaseStateChanged(PurchaseState.AlreadyBeingPurchased, productId);
@@ -581,7 +581,7 @@ namespace SocialPoint.Purchase
             case PurchaseState.PurchaseCanceled:
             case PurchaseState.PurchaseFailed:
             case PurchaseState.PurchaseConsumed:
-                DebugUtils.Log("OnPurchaseUpdated: " + state + " " + productId);
+                Log.i("OnPurchaseUpdated: " + state + " " + productId);
                 var responseType = state == PurchaseState.PurchaseConsumed ? PurchaseResponseType.Complete : PurchaseResponseType.Error;
                 RemovePurchaseInProcess(productId, responseType);
                 UpdateProductReadyPetitions(productId);
@@ -646,7 +646,7 @@ namespace SocialPoint.Purchase
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                DebugUtils.LogError("[SocialPointPurchaseStore] TrackEvent Error - Code: " + err.Code + " - Message: " + err.Msg);
+                Log.i("[SocialPointPurchaseStore] TrackEvent Error - Code: " + err.Code + " - Message: " + err.Msg);
             }
         }
 

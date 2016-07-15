@@ -70,7 +70,7 @@ namespace SocialPoint.Purchase
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("IosPurchaseStore {0}", msg));
+            Log.i(string.Format("IosPurchaseStore {0}", msg));
         }
 
         public void LoadProducts(string[] productIds)
@@ -102,7 +102,7 @@ namespace SocialPoint.Purchase
                 {
                     PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
                     string errorMessage = "An Application Username must be set before attempting to purchase. The game must provide a delegate through the SocialPointPurchaseStore.GetUserId setter.";
-                    Debug.LogError(errorMessage);
+                    Log.e(errorMessage);
                     throw new Exception(errorMessage);
                 }
             }

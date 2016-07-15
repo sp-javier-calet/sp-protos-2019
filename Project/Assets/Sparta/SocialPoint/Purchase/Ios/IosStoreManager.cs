@@ -101,7 +101,7 @@ namespace SocialPoint.Purchase
         //May be called from Xcode plugin if needed to debug in Unity side
         public void StoreDebugLog(string logMsg)
         {
-            Debug.Log(logMsg);
+            Log.d(logMsg);
         }
     }
 }

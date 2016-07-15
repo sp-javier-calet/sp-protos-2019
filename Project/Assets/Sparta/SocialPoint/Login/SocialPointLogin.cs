@@ -453,7 +453,7 @@ namespace SocialPoint.Login
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("SocialPointLogin {0}", msg));
+            Log.i(string.Format("SocialPointLogin {0}", msg));
         }
 
         void Init()
@@ -693,7 +693,7 @@ namespace SocialPoint.Login
                 #if DEBUG
                 if(responseBody != null && responseBody.Length > 0)
                 {
-                    DebugUtils.Log(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
+                    Log.i(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
                 }
                 #endif
 

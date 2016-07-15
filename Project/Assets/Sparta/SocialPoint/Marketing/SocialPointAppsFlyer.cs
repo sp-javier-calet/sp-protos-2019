@@ -1,8 +1,8 @@
 ﻿using SocialPoint.Base;
+using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Marketing;
 using System;
-using System.Collections;
 using UnityEngine;
 
 public class SocialPointAppFlyer : IMarketingTracker
@@ -56,7 +56,7 @@ public class SocialPointAppFlyer : IMarketingTracker
     void SetupAppsFlyerDelegate()
     {
         // The gameObject needs to be named AppsFlyerTrackerCallbacks for native callback reasons
-        GameObject gameObject = new GameObject("AppsFlyerTrackerCallbacks");
+        var gameObject = new GameObject("AppsFlyerTrackerCallbacks");
         UnityEngine.Object.DontDestroyOnLoad(gameObject);
         _trackerDelegate = gameObject.AddComponent<AppsFlyerTrackerCallbacks>();
         _trackerDelegate.OnConversionDataReceived = ParseDataReceived;
@@ -78,7 +78,7 @@ public class SocialPointAppFlyer : IMarketingTracker
             }
             catch(Exception e)
             {
-                DebugUtils.LogException(e);
+                Log.x(e);
             }
         }
     }

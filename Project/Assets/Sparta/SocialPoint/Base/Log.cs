@@ -20,7 +20,7 @@
 
 using System;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.Base
 {
     public static class Log
     {

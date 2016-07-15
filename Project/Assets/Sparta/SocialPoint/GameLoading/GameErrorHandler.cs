@@ -1,4 +1,3 @@
-
 using SocialPoint.Base;
 using SocialPoint.Alert;
 using SocialPoint.Login;
@@ -8,7 +7,6 @@ using SocialPoint.GUIControl;
 using SocialPoint.Attributes;
 using SocialPoint.ServerSync;
 using SocialPoint.ServerEvents;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 
@@ -113,9 +111,10 @@ namespace SocialPoint.GameLoading
         const string ResponseErrorMessageKey = "gameloading.response_error_message";
         const string ResponseErrorMessageDef = "There was an unknown error logging in. Please try again later.";
 
-        IAlertView _alert;
-        Localization _locale;
-        IAppEvents _appEvents;
+        readonly IAlertView _alert;
+        readonly Localization _locale;
+        readonly IAppEvents _appEvents;
+
         UIStackController _popups;
         Func<UIStackController> _findPopups;
 
@@ -129,7 +128,7 @@ namespace SocialPoint.GameLoading
             _locale = locale;
             _appEvents = appEvents;
             _findPopups = findPopups;
-            Debug = UnityEngine.Debug.isDebugBuild;
+            Debug = DebugUtils.IsDebugBuild;
 
             if(_alert == null)
             {

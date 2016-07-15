@@ -550,7 +550,7 @@ namespace SocialPoint.Crash
 
         public void ReportHandledException(Exception e)
         {
-            Debug.LogWarning("Reporting Handled Exception: " + e);
+            Log.w("Reporting Handled Exception: " + e);
             TrackException(e.ToString(), e.StackTrace, true);
         }
 
@@ -930,7 +930,7 @@ namespace SocialPoint.Crash
             }
             catch(Exception e)
             {
-                Debug.Log("Exception while creating Alert View - " + e.Message);
+                Log.e("Exception while creating Alert View - " + e.Message);
             }
 #endif
         }
@@ -1083,7 +1083,7 @@ namespace SocialPoint.Crash
 
         static void CatchException(Exception e)
         {
-            Debug.LogException(e);
+            Log.x(e);
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #endif
