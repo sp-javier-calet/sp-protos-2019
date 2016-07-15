@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(EventSystem))]
 public class PixelDragThresholdCorrector : MonoBehaviour
 {
     const int _baseTH = 6;
