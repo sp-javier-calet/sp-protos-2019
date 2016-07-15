@@ -32,7 +32,7 @@ namespace SocialPoint.Base
             }
 
             #if UNITY
-                Log.i(StringUtils.FinishBuilder(sb));
+                Base.Log.i(StringUtils.FinishBuilder(sb));
             #endif
         }
 
@@ -76,6 +76,30 @@ namespace SocialPoint.Base
                 return false;
                 #endif
             }
+        }
+
+        [Obsolete("Use Log class instead")]
+        public static void Log(string message)
+        {
+            Base.Log.i(message);
+        }
+
+        [Obsolete("Use Log.e instead")]
+        public static void LogError(string message)
+        {
+            Base.Log.e(message);
+        }
+
+        [Obsolete("Use Log.x instead")]
+        public static void LogException(Exception exception)
+        {
+            Base.Log.x(exception);
+        }
+
+        [Obsolete("Use Log.w instead")]
+        public static void LogWarning(string message)
+        {
+            Base.Log.w(message);
         }
     }
 }
