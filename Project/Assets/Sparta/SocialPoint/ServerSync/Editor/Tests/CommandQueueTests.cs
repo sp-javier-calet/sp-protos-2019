@@ -5,6 +5,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Network;
+using SocialPoint.Login;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -29,12 +30,16 @@ namespace SocialPoint.ServerSync
             var runner = GO.AddComponent<UnityUpdateRunner>();
             CommandQueue = new CommandQueue(runner, HttpClient);
 
-            //CommandQueue.RequestSetup = Substitute.For<CommandQueue.RequestSetupDelegate>();
-            CommandQueue.RequestSetup = (req, Uri) => {
-                req.Method = HttpRequest.MethodType.POST;
-                req.Url = new Uri("http://" + Uri);
-                req.AddQueryParam("session_id", new AttrString("session_id_test"));
-            };
+            CommandQueue.LoginData = Substitute.For<ILoginData>();
+            CommandQueue.LoginData.When(x => x.SetupHttpRequest(Arg.Any<HttpRequest>(), Arg.Any<string>()))
+                .Do(x => { 
+                    var req = x.Arg<HttpRequest>();
+                    var url = x.Arg<string>();
+                    req .Method = HttpRequest.MethodType.POST;
+                    req.Url = new Uri("http://" + url);
+                    req.AddQueryParam("session_id", new AttrString("session_id_test"));
+                });
+
             var appEvents = Substitute.For<IAppEvents>();
             appEvents.WillGoBackground.Returns(new PriorityAction());
             appEvents.GameWasLoaded.Returns(new PriorityAction());

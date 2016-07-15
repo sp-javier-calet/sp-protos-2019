@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 
@@ -10,8 +11,6 @@ namespace SocialPoint.ServerSync
 {
     public class CommandQueue : ICommandQueue, IUpdateable
     {
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
-
         public delegate void ResponseDelegate(HttpResponse resp);
 
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
@@ -98,6 +97,8 @@ namespace SocialPoint.ServerSync
                 }
             }
         }
+
+        public ILoginData LoginData;
 
         #region App Events
 
@@ -212,7 +213,6 @@ namespace SocialPoint.ServerSync
         public const float DefaultBackoffMultiplier = 1.1f;
         public const bool DefaultPingEnabled = true;
 
-        public RequestSetupDelegate RequestSetup;
         public bool IgnoreResponses = DefaultIgnoreResponses;
         public int SendInterval = DefaultSendInterval;
         public int MaxOutOfSyncInterval = DefaultMaxOutOfSyncInterval;
@@ -338,9 +338,9 @@ namespace SocialPoint.ServerSync
 
             SetStartValues();
 
-            if(RequestSetup == null)
+            if(LoginData == null)
             {
-                throw new InvalidOperationException("Request setup callback not assigned.");
+                throw new InvalidOperationException("LoginData not assigned.");
             }
             if(_updateScheduler != null)
             {
@@ -576,11 +576,11 @@ namespace SocialPoint.ServerSync
                 req.Timeout = _currentTimeout;
             }
 
-            if(RequestSetup != null)
+            if(LoginData != null)
             {
                 try
                 {
-                    RequestSetup(req, Uri);
+                    LoginData.SetupHttpRequest(req, Uri);
                 }
                 catch(Exception e)
                 {
