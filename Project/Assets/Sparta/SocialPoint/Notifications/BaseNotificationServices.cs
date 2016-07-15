@@ -72,15 +72,14 @@ namespace SocialPoint.Notifications
                     return;
                 }
 
-                //*** TEST
-                /*_commandQueue.Add(new PushEnabledCommand(pushTokenToSend, UserAllowsNofitication), (data, err) => {
+                _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, UserAllowsNofitication), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
                         PlayerPrefs.SetString(kPushTokenKey, _pushToken);
                         PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, UserAllowsNofitication ? 1 : 0);
                         PlayerPrefs.Save();
                     }
-                });*/
+                });
             }
         }
 
