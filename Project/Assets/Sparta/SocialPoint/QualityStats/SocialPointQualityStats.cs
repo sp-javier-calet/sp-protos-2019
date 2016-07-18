@@ -17,6 +17,7 @@ namespace SocialPoint.QualityStats
         DateTime _loadingStarted;
         double _timeToMap;
         bool _timeToMapSent;
+        float _totalDataDownloaded;
 
         static readonly float kByteConverter = 1.0f / 1024.0f;
 
@@ -116,9 +117,6 @@ namespace SocialPoint.QualityStats
 
         void OnAppWillGoBackground()
         {
-            var stats = GetStats();
-            SendClientPerformance(stats, kClientPerformanceStats);
-
             var httpRequests = GetHttpRequests();
             var itr = httpRequests.GetEnumerator();
             while(itr.MoveNext())
@@ -128,6 +126,9 @@ namespace SocialPoint.QualityStats
                 SendClientPerformance(requestDic, kClientPerformanceHttpRequest);
             }
             itr.Dispose();
+
+            var stats = GetStats();
+            SendClientPerformance(stats, kClientPerformanceStats);
         }
 
         #endregion
@@ -173,15 +174,19 @@ namespace SocialPoint.QualityStats
 
             var data = GetClientStats();
 
+            _totalDataDownloaded = 0.0f;
+
             var itr = data.GetEnumerator();
             while(itr.MoveNext())
             {
-                var statsIt = itr.Current;
-                var itr2 = statsIt.Value.Requests.GetEnumerator();
+                var statsItr = itr.Current;
+                var statsValue = statsItr.Value;
+                _totalDataDownloaded += (float)statsValue.DataDownloaded;
+                var itr2 = statsValue.Requests.GetEnumerator();
                 while(itr2.MoveNext())
                 {
                     var dataIt = itr2.Current;
-                    var request = GetPerformanceRequest(statsIt, dataIt);
+                    var request = GetPerformanceRequest(statsItr, dataIt);
                     requestList.Add(request);
                 }
                 itr2.Dispose();
@@ -220,9 +225,9 @@ namespace SocialPoint.QualityStats
                         if(!mergedStats.Requests.TryGetValue(dataIt.Key, out requestMergedData))
                         {
                             requestMergedData = new QualityStatsHttpClient.Data();
+                            mergedStats.Requests[dataIt.Key] = requestMergedData;
                         }
                         requestMergedData += dataIt.Value;
-                        mergedStats.Requests[dataIt.Key] = requestMergedData;
                     }
                     itr2.Dispose();
                 }
@@ -347,6 +352,7 @@ namespace SocialPoint.QualityStats
 
             AddSizeCacheDir(dict);
             AddTimeToMap(dict);
+            AddTotalDataDownloaded(dict);
 
             return dict;
         }
@@ -387,6 +393,11 @@ namespace SocialPoint.QualityStats
                 dict.SetValue("time_to_map", _timeToMap);
                 _timeToMapSent = true;
             }
+        }
+
+        void AddTotalDataDownloaded(AttrDic dict)
+        {
+            dict.SetValue("total_data_downloaded", _totalDataDownloaded);
         }
 
         #endregion
