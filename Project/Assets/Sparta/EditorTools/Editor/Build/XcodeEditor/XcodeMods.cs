@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SpartaTools.Editor.Build.XcodeEditor
@@ -6,9 +7,14 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     public class XcodeMod
     {
         readonly Hashtable _datastore;
+        readonly string _filePath;
+        readonly string _basePath;
 
         public XcodeMod(string path)
         {
+            _filePath = path;
+            _basePath = Path.GetDirectoryName(path);
+
             var file = new FileInfo(path);
             if(!file.Exists)
             {
@@ -26,8 +32,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         public void Apply(XCodeProjectEditor editor)
         {
             ApplyFrameworks(editor);
+            ApplyCopyFiles(editor);
         }
-            
+
         void ApplyFrameworks(XCodeProjectEditor editor)
         {
             var frameworks = (ArrayList)_datastore["frameworks"];
@@ -42,6 +49,29 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     editor.AddFramework(completePath, isWeak);
                 }
             }
+        }
+
+        void ApplyCopyFiles(XCodeProjectEditor editor)
+        {
+            var copyFiles = (Hashtable)_datastore["copyFiles"];
+
+            foreach(DictionaryEntry entry in copyFiles)
+            {
+                string fromPath = (string)entry.Key;
+
+                if(entry.Value is string)
+                {
+                    editor.CopyFile(_filePath, fromPath, (string)entry.Value);
+                }
+                else
+                {
+                    var toPaths = (IList<string>)entry.Value;
+                    foreach(var dst in toPaths)
+                    {
+                        editor.CopyFile(_basePath, fromPath, dst);
+                    }
+                }
+            }   
         }
     }
 }

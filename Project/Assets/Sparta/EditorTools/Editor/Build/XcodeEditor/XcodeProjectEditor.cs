@@ -11,6 +11,8 @@
 
         public abstract void AddFramework(string path, bool weak = false);
 
+        public abstract void CopyFile(string basePath, string src, string dst);
+
         public abstract void Commit();
     }
 }
