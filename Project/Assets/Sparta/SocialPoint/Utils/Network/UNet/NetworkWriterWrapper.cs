@@ -1,14 +1,10 @@
-﻿using System.Collections;
-using System.IO;
-using UnityEngine.Networking;
-using System;
-using SocialPoint.Lockstep.Network;
+﻿using UnityEngine.Networking;
 
 namespace SocialPoint.Utils.Network.UNet
 {
     public class NetworkWriterWrapper : IWriterWrapper
     {
-        NetworkWriter _writer;
+        readonly NetworkWriter _writer;
 
         public NetworkWriterWrapper(NetworkWriter writer)
         {

@@ -30,16 +30,18 @@ namespace SocialPoint.Utils
             }
         }
 
-        #if UNITY_ANDROID
+        #if UNITY_ANDROID && !UNITY_EDITOR
         const string PluginModuleName = "sp_unity_base";
         const string JavaFullClassName = "es.socialpoint.unity.base.SPNativeCallsSender";
         const string JavaFunctionInit = "Init";
-        #elif (UNITY_IOS || UNITY_TVOS)
+        #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
         #endif
 
+        #if ( UNITY_ANDROID || (UNITY_IOS || UNITY_TVOS) ) && !UNITY_EDITOR
         [System.Runtime.InteropServices.DllImport(PluginModuleName)]
         static extern void SPNativeCallsSender_Init(string gameObjectName, string methodName, string separator);
+        #endif
 
         void Awake()
         {

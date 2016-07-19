@@ -1,8 +1,8 @@
 name Sparta Core
 desc Sparta Core Libraries
 type core
-depends_on Assets/Sparta/External/LitJson
-depends_on Assets/Sparta/External/Ionic/Zlib
-depends_on Assets/Sparta/External/fastJSON
 depends_on Assets/Sparta/External/AppsFlyer
+depends_on Assets/Sparta/External/fastJSON
+depends_on Assets/Sparta/External/Ionic/Zlib
+depends_on Assets/Sparta/External/LitJson
 depends_on Assets/Sparta/External/MobileAppTracking
