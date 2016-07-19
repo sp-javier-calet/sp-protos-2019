@@ -489,6 +489,20 @@ namespace SocialPoint.ServerEvents
             }
 
             var req = new HttpRequest();
+
+            if(LoginData != null)
+            {
+                try
+                {
+                    var uri = auth ? TrackingAuthorizedUri : TrackingUnautorizedUri;
+                    LoginData.SetupHttpRequest(req, uri);
+                }
+                catch(Exception e)
+                {
+                    CatchException(e);
+                }
+            }
+
             req.Body = data;
             if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
