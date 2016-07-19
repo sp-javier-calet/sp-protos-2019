@@ -548,28 +548,30 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
-                    var plistPath = Path.Combine(editor.Project.ProjectPath, DefaultPListFileName);
-                    var plist = new PlistDocument();
-                    plist.ReadFromFile(plistPath);
-
-                    foreach(var mod in _mods)
+                    if(_mods.Count > 0)
                     {
-                        var v = plist.root[mod.Key];
-                        if(v == null) // FIXME WORKS?
+                        var plistPath = Path.Combine(editor.Project.ProjectPath, DefaultPListFileName);
+                        var plist = new PlistDocument();
+                        plist.ReadFromFile(plistPath);
+
+                        foreach(var mod in _mods)
                         {
-                            v = plist.root.CreateArray(mod.Key);
+                            var v = plist.root[mod.Key];
+                            if(v == null) // FIXME WORKS?
+                            {
+                                v = plist.root.CreateArray(mod.Key);
+                            }
+
                         }
-
-
+                        // TODO
+                        /*
+                         var urlTypes = plist.root["CFBundleURLTypes"].AsArray();
+                         var dict = urlTypes.AddDict();
+                         var array = dict.CreateArray("CFBundleURLSchemes");
+                         array.AddString(urlSchemeString);
+                        */
+                        plist.WriteToFile(plistPath);
                     }
-                    // TODO
-                    /*
-                     var urlTypes = plist.root["CFBundleURLTypes"].AsArray();
-                     var dict = urlTypes.AddDict();
-                     var array = dict.CreateArray("CFBundleURLSchemes");
-                     array.AddString(urlSchemeString);
-                    */
-                    plist.WriteToFile(plistPath);
                 }
             }
 

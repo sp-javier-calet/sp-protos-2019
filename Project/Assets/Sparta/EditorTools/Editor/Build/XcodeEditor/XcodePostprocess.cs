@@ -33,6 +33,22 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             Debug.Log(string.Format("XcodeMods Editor: {0}", message));
         }
 
+
+        public static string GetProjectPath(string basePath)
+        {
+            var projectPath = basePath;
+            if(!basePath.EndsWith(".xcodeproj"))
+            {
+                string[] projects = Directory.GetDirectories(basePath, "*.xcodeproj");
+                if(projects.Length > 0)
+                {
+                    projectPath = projects[0];
+                }
+            }
+
+            return Path.GetFullPath(projectPath);
+        }
+
         [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
@@ -40,7 +56,13 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
-                var project = new XcodeProject(path);
+                var projectPath = GetProjectPath(path);
+                if(!System.IO.Directory.Exists(projectPath))
+                {
+                    throw new FileNotFoundException(string.Format("Xcode project not found in path '{0}'", projectPath));
+                }
+
+                var project = new XcodeProject(projectPath);
                 var mods = new XcodeModsSet(target);
 
                 Log("Enabling 'base' scheme for xcodemods");

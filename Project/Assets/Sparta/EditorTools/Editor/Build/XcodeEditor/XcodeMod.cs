@@ -74,24 +74,26 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         void ApplyCopyFiles(XCodeProjectEditor editor)
         {
             var copyFiles = (Hashtable)_datastore["copyFiles"];
-
-            foreach(DictionaryEntry entry in copyFiles)
+            if(copyFiles != null)
             {
-                string fromPath = (string)entry.Key;
+                foreach(DictionaryEntry entry in copyFiles)
+                {
+                    string fromPath = (string)entry.Key;
 
-                if(entry.Value is string)
-                {
-                    editor.CopyFile(_filePath, fromPath, (string)entry.Value);
-                }
-                else
-                {
-                    var toPaths = (IList<string>)entry.Value;
-                    foreach(var dst in toPaths)
+                    if(entry.Value is string)
                     {
-                        editor.CopyFile(_basePath, fromPath, dst);
+                        editor.CopyFile(_filePath, fromPath, (string)entry.Value);
+                    }
+                    else
+                    {
+                        var toPaths = (ArrayList)entry.Value;
+                        foreach(string dst in toPaths)
+                        {
+                            editor.CopyFile(_basePath, fromPath, dst);
+                        }
                     }
                 }
-            }   
+            }
         }
 
         void ApplyFiles(XCodeProjectEditor editor)
@@ -178,7 +180,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(DictionaryEntry field in infoPlist)
                 {
-                    editor.SetPlistField((string)field.Key, (Dictionary<string, object>)field.Value);
+                    editor.SetPlistField((string)field.Key, new Dictionary<string, object>()); // FIXME use field.Value);
                 }
             }
         }
