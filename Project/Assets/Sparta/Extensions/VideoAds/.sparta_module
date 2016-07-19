@@ -1,4 +1,0 @@
-type extension
-desc VideoAds implementation for sparta
-name Extension/VideoAds
-depends_on Assets/Fyber
