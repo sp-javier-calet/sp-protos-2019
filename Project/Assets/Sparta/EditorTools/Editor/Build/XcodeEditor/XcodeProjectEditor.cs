@@ -1,4 +1,6 @@
-﻿namespace SpartaTools.Editor.Build.XcodeEditor
+﻿using System.Collections.Generic;
+
+namespace SpartaTools.Editor.Build.XcodeEditor
 {
     /// <summary>
     /// Public interface for the Editor class
@@ -7,11 +9,33 @@
     /// </summary>
     public abstract class XCodeProjectEditor
     {
-        public abstract void AddFile(string relativePath);
+        public abstract void AddHeaderSearchPath(string path);
 
-        public abstract void AddFramework(string path, bool weak = false);
+        public abstract void AddLibrarySearchPath(string path);
 
         public abstract void CopyFile(string basePath, string src, string dst);
+
+        public abstract void AddFile(string path);
+
+        public abstract void AddFolder(string path);
+
+        public abstract void AddLibrary(string path);
+
+        public abstract void AddFramework(string framework, bool weak);
+
+        public abstract void SetBuildSetting(string name, string value);
+
+        public abstract void AddVariantGroup(string variantGroup, string key, string value);
+
+        public abstract void SetPlistField(string name, Dictionary<string, object>  value);
+
+        public abstract void AddShellScript(string script);
+
+        public abstract void SetSystemCapability(string name, bool enabled);
+
+        public abstract void SetProvisioningProfile(string path);
+
+        public abstract void AddKeychainAccessGroup(string accessGroup);
 
         public abstract void Commit();
     }

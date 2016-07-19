@@ -43,10 +43,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 foreach(string framework in frameworks)
                 {
                     string[] filename = framework.Split(':');
-                    bool isWeak = (filename.Length > 1) ? true : false;
-                    string completePath = Path.Combine("System/Library/Frameworks", filename[0]);
-
-                    editor.AddFramework(completePath, isWeak);
+                    bool isWeak = (filename.Length > 1 && filename[1].Contains("weak"));
+                    editor.AddFramework(filename[0], isWeak);
                 }
             }
         }
