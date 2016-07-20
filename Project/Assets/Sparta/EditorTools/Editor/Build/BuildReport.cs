@@ -28,7 +28,7 @@ namespace SpartaTools.Editor.Build
 
         BuildReport Add(string label, string content)
         {
-            return Add(string.Format("{0}: {1}", label, content));
+            return Add(string.Format("{0}: {1}", label, content?? "<null>"));
         }
 
         BuildReport Add(string line)
@@ -114,6 +114,12 @@ namespace SpartaTools.Editor.Build
             return this;
         }
 
+        string GetIconName(BuildTargetGroup targetGroup)
+        {
+            var textures = PlayerSettings.GetIconsForTargetGroup(targetGroup);
+            return (textures.Length > 0 && textures[0] != null)? textures[0].name : "<null>";
+        }
+
         public BuildReport CollectPlayerSettings()
         {
             AddTitle("Player Settings")
@@ -128,7 +134,7 @@ namespace SpartaTools.Editor.Build
 
                 .AddTitle("Android")
                 .Indent()
-                    .Add("Icon", PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.Android)[0].name)
+                    .Add("Icon", GetIconName(BuildTargetGroup.Android))
                     .Add("Bundle Version Code", PlayerSettings.Android.bundleVersionCode.ToString())
                     .Add("Flags", PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android))
                     .Add("Keystore path", PlayerSettings.Android.keystoreName)
@@ -139,7 +145,7 @@ namespace SpartaTools.Editor.Build
 
                 .AddTitle("iOS")
                 .Indent()
-                    .Add("Icon", PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.iOS)[0].name)
+                    .Add("Icon", GetIconName(BuildTargetGroup.iOS))
                     .Add("Flags", PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS))
                     .AddTitle("Xcodemods")
                     .Indent()
