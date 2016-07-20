@@ -388,6 +388,7 @@ namespace SpartaTools.Editor.Build
 
             // FIXME Read default symbols from unity
             compiler.AddDefinedSymbol("UNITY_5");
+            compiler.AddDefinedSymbol("UNITY_5_3");
             compiler.AddDefinedSymbol("UNITY_5_3_OR_NEWER");
 
             /* Platform configuration */
@@ -481,6 +482,13 @@ namespace SpartaTools.Editor.Build
             public void Configure(ModuleCompiler compiler)
             {
                 var PlayerPath = Path.Combine(InstallationPath, "PlaybackEngines/iOSSupport/");
+
+                if(!Directory.Exists(PlayerPath))
+                {
+                    var error = string.Format("PlayerPath: '{0}' does not exists.", PlayerPath);
+                    throw new CompilerErrorException(error);
+                }
+
                 compiler.AddLibraryPath(PlayerPath);
 
                 compiler.AddReference("UnityEditor.iOS.Extensions.dll");
@@ -498,6 +506,13 @@ namespace SpartaTools.Editor.Build
             public void Configure(ModuleCompiler compiler)
             {
                 var PlayerPath = Path.Combine(InstallationPath, "PlaybackEngines/AppleTVSupport/");
+
+                if(!Directory.Exists(PlayerPath))
+                {
+                    var error = string.Format("PlayerPath: '{0}' does not exists.", PlayerPath);
+                    throw new CompilerErrorException(error);
+                }
+
                 compiler.AddLibraryPath(PlayerPath);
 
                 compiler.AddDefinedSymbol("UNITY_TVOS");

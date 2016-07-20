@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if (UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#define NATIVE_CALLHANDLER
+#endif
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,17 +34,36 @@ namespace SocialPoint.Utils
             }
         }
 
-        #if UNITY_ANDROID && !UNITY_EDITOR
+        #if NATIVE_CALLHANDLER
+        
+        #if UNITY_ANDROID
         const string PluginModuleName = "sp_unity_base";
         const string JavaFullClassName = "es.socialpoint.unity.base.SPNativeCallsSender";
         const string JavaFunctionInit = "Init";
-        #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
-
-        #if ( UNITY_ANDROID || (UNITY_IOS || UNITY_TVOS) ) && !UNITY_EDITOR
+        
         [System.Runtime.InteropServices.DllImport(PluginModuleName)]
         static extern void SPNativeCallsSender_Init(string gameObjectName, string methodName, string separator);
+
+        static void NativeCallsSenderInit(string gameObjectName)
+        {
+            #if UNITY_ANDROID
+            AndroidJavaClass nativeCallsSender = new AndroidJavaClass(JavaFullClassName);
+            nativeCallsSender.CallStatic(JavaFunctionInit, gameObjectName, MethodName, Separator);
+            #elif (UNITY_IOS || UNITY_TVOS)
+            SPNativeCallsSender_Init(gameObjectName, MethodName, Separator);
+            #endif
+        }
+
+        #else
+        
+        static void NativeCallsSenderInit(string gameObjectName)
+        {
+
+        }
+
         #endif
 
         void Awake()
@@ -51,12 +74,8 @@ namespace SocialPoint.Utils
             {
                 DontDestroyOnLoad(this);
             }
-            #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
-            SPNativeCallsSender_Init(gameObject.name, MethodName, Separator);
-            #elif UNITY_ANDROID && !UNITY_EDITOR
-            AndroidJavaClass nativeCallsSender = new AndroidJavaClass(JavaFullClassName);
-            nativeCallsSender.CallStatic(JavaFunctionInit, gameObject.name, MethodName, Separator);
-            #endif
+
+            NativeCallsSenderInit(gameObject.name);
         }
 
         public void RegisterListener(string methodName, Action method)
