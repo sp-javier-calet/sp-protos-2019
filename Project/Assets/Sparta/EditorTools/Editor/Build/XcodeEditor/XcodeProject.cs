@@ -70,6 +70,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             public const string ProjectPathVar = "XCODE_PROJECT_PATH";
             public const string ProjectRootVar = "XCODE_ROOT_PATH";
             public const string CurrentRootPath = "ROOT_PATH";
+            public const string ModsBasePath = "Sparta/Mods";
 
             public readonly XcodeProject Project;
             public readonly PBXProject Pbx;
@@ -379,18 +380,19 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class FilesModEditor : IModEditor
             {
+                const string FilesBasePath = XcodeEditorInternal.ModsBasePath + "/Classes";
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
                     public string FullPath;
-                    public string Path;
+                    public string Name;
                     public string[] Flags;
                 }
 
-                public void Add(string fullPath, string path, string[] flags)
+                public void Add(string fullPath, string name, string[] flags)
                 {
-                    _mods.Add(new ModData{ FullPath = fullPath, Path = path, Flags = flags });
+                    _mods.Add(new ModData{ FullPath = fullPath, Name = name, Flags = flags });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
@@ -398,7 +400,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var fullPath = editor.ReplaceProjectVariables(mod.FullPath);
-                        var guid = editor.Pbx.AddFile(fullPath, mod.Path);
+                        var projPath = Path.Combine(FilesBasePath, mod.Name);
+                        var guid = editor.Pbx.AddFile(fullPath, projPath);
 
                         if(mod.Flags.Length > 0)
                         {
@@ -417,17 +420,18 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class FolderModEditor : IModEditor
             {
+                const string FoldersBasePath = XcodeEditorInternal.ModsBasePath;
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
                     public string FullPath;
-                    public string Path;
+                    public string Name;
                 }
 
-                public void Add(string fullPath, string path)
+                public void Add(string fullPath, string name)
                 {
-                    _mods.Add(new ModData{ FullPath = fullPath, Path = path });
+                    _mods.Add(new ModData{ FullPath = fullPath, Name = name });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
@@ -435,7 +439,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var fullPath = editor.ReplaceProjectVariables(mod.FullPath);
-                        editor.Pbx.AddFolderReference(fullPath, mod.Path);
+                        var projPath = Path.Combine(FoldersBasePath, mod.Name);
+                        editor.Pbx.AddFolderReference(fullPath, projPath);
                     }
                 }
             }
@@ -445,17 +450,18 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class LibraryModEditor : IModEditor
             {
+                const string LibBasePath = XcodeEditorInternal.ModsBasePath + "/Libraries";
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
                     public string FullPath;
-                    public string Path;
+                    public string Name;
                 }
 
-                public void Add(string fullPath, string path)
+                public void Add(string fullPath, string name)
                 {
-                    _mods.Add(new ModData{ FullPath = fullPath, Path = path });
+                    _mods.Add(new ModData{ FullPath = fullPath, Name = name });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
@@ -463,7 +469,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var fullPath = editor.ReplaceProjectVariables(mod.FullPath);
-                        var guid = editor.Pbx.AddFile(fullPath, mod.Path);
+                        var projPath = Path.Combine(LibBasePath, mod.Name);
+                        var guid = editor.Pbx.AddFile(fullPath, projPath);
                         editor.Pbx.AddFileToBuild(editor.DefaultTargetGuid, guid);
                     }
                 }
