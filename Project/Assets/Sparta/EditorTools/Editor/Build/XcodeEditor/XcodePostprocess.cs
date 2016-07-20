@@ -46,7 +46,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 }
             }
 
-            return Path.GetFullPath(projectPath);
+            return projectPath;
         }
 
         [PostProcessBuild(701)]
@@ -57,25 +57,27 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
                 var projectPath = GetProjectPath(path);
-                if(!System.IO.Directory.Exists(projectPath))
+                if(!Directory.Exists(projectPath))
                 {
-                    throw new FileNotFoundException(string.Format("Xcode project not found in path '{0}'", projectPath));
+                    throw new FileNotFoundException(string.Format("Xcode project filed not found in path '{0}'", projectPath));
                 }
 
-                var project = new XcodeProject(projectPath);
+                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
+
+                var project = new XcodeProject(projectPath, baseAppPath);
                 var mods = new XcodeModsSet(target);
 
                 Log("Enabling 'base' scheme for xcodemods");
-                mods.Add(BaseScheme);
+                mods.AddScheme(BaseScheme);
 
                 var schemes = Schemes;
                 Log(string.Format("Enabling config schemes for xcodemods: {0}", string.Join(", ", schemes)));
-                mods.Add(schemes);
+                mods.AddScheme(schemes);
 
                 if(UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
                     !UnityEditorInternal.InternalEditorUtility.inBatchMode)
                 {
-                    mods.Add(EditorScheme);
+                    mods.AddScheme(EditorScheme);
                     Log("Enabling 'editor' scheme for xcodemods");
                 }
 

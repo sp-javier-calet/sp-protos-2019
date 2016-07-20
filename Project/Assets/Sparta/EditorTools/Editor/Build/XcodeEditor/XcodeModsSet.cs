@@ -31,17 +31,17 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             _platformPrefix = target.ToString().ToLower() + ".";
         }
 
-        public void Add(string scheme)
+        public void AddScheme(string scheme)
         {
             _patterns.Add(scheme + XcodeModPattern);
             _patterns.Add(_platformPrefix + scheme + XcodeModPattern);
         }
 
-        public void Add(string[] schemes)
+        public void AddScheme(string[] schemes)
         {
             foreach(var scheme in schemes)
             {
-                Add(scheme);
+                AddScheme(scheme);
             }
         }
 
@@ -52,7 +52,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 var spxcodemods = new List<string>();
                 foreach(var pattern in _patterns)
                 {
-                    spxcodemods.AddRange(Directory.GetFiles(Application.dataPath, pattern, SearchOption.AllDirectories));
+                    var files = Directory.GetFiles(Application.dataPath, pattern, SearchOption.AllDirectories);
+                    spxcodemods.AddRange(files);
                 }
 
                 return spxcodemods;

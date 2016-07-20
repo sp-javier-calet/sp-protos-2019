@@ -11,16 +11,20 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     public class XcodeProject
     {
         public readonly string ProjectPath;
+        public readonly string PbxPath;
+        public readonly string BasePath;
 
         readonly PBXProject _project;
         readonly XcodeEditorInternal _editor;
 
-        public XcodeProject(string path)
+        public XcodeProject(string xcodeProjectPath, string basePath)
         {
-            ProjectPath = path;
-            //var cPath = PBXProject.GetPBXProjectPath(); // TEST
+            ProjectPath = xcodeProjectPath;
+            PbxPath = Path.Combine(xcodeProjectPath, "project.pbxproj");
+            BasePath = basePath;
+
             _project = new PBXProject();
-            _project.ReadFromFile(ProjectPath);
+            _project.ReadFromFile(PbxPath);
 
             _editor = new XcodeEditorInternal(this, _project);
         }
@@ -63,22 +67,38 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
             #endregion
 
-            const string DefaultTargetName = "Unity-iPhone";
+            public const string ProjectPathVar = "XCODE_PROJECT_PATH";
+            public const string ProjectRootVar = "XCODE_ROOT_PATH";
+            public const string CurrentRootPath = "ROOT_PATH";
 
             public readonly XcodeProject Project;
             public readonly PBXProject Pbx;
             public readonly string DefaultTargetGuid;
 
+            readonly IDictionary<string, string> _projectVariables;
+
             public XcodeEditorInternal(XcodeProject project, PBXProject pbx)
             {
                 Project = project;
                 Pbx = pbx;
-                DefaultTargetGuid = Pbx.TargetGuidByName(DefaultTargetName);
+                DefaultTargetGuid = Pbx.TargetGuidByName(PBXProject.GetUnityTargetName());
+
+                _projectVariables = new Dictionary<string, string>() {
+                    { ProjectPathVar,  project.ProjectPath }, // Path to the .xcodeproj folder
+                    { ProjectRootVar,  project.ProjectPath }, // FIXME
+                    { CurrentRootPath, project.BasePath    }  // Path to the Unity project root
+                };
             }
 
             public string ReplaceProjectVariables(string originalPath)
             {
-                return originalPath; // TODO
+                var path = originalPath;
+                foreach(var entry in _projectVariables)
+                {
+                    var pattern = string.Format("{{{0}}}", entry.Key);
+                    path = path.Replace(pattern, entry.Value);
+                }
+                return Path.GetFullPath(path);
             }
 
             #region XCodeProjectEditor interface methods
@@ -100,17 +120,22 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
             public override void AddFile(string path)
             {
-                GetEditor<FilesModEditor>().Add(Path.GetFullPath(path), path);
+                AddFile(path, new string[0]);
+            }
+
+            public override void AddFile(string path, string[] flags)
+            {
+                GetEditor<FilesModEditor>().Add(path, Path.GetFileName(path), flags);
             }
 
             public override void AddFolder(string path)
             {
-                GetEditor<FolderModEditor>().Add(Path.GetFullPath(path), path);
+                GetEditor<FolderModEditor>().Add(path, Path.GetFileName(path));
             }
 
             public override void AddLibrary(string path)
             {
-                GetEditor<LibraryModEditor>().Add(Path.GetFullPath(path), path);
+                GetEditor<LibraryModEditor>().Add(path, Path.GetFileName(path));
             }
 
             public override void AddFramework(string framework, bool weak)
@@ -170,7 +195,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 }
 
                 // Save project file
-                File.WriteAllText(Project.ProjectPath, Pbx.WriteToString());
+                File.WriteAllText(Project.PbxPath, Pbx.WriteToString());
             }
 
             #endregion
@@ -222,7 +247,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var path = editor.ReplaceProjectVariables(mod.Path);
-                        editor.Pbx.SetBuildProperty(editor.DefaultTargetGuid, "HEADER_SEARCH_PATHS", path);
+                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, "HEADER_SEARCH_PATHS", path);
                     }
                 }
             }
@@ -249,7 +274,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var path = editor.ReplaceProjectVariables(mod.Path);
-                        editor.Pbx.SetBuildProperty(editor.DefaultTargetGuid, "LIBRARY_SEARCH_PATHS", path);
+                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, "LIBRARY_SEARCH_PATHS", path);
                     }
                 }
             }
@@ -280,11 +305,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     {
                         var fromPath = Path.Combine(mod.Base, editor.ReplaceProjectVariables(mod.Src));
                         var toPath = Path.Combine(mod.Base, editor.ReplaceProjectVariables(mod.Dst));
-                        CopyFile(editor.ReplaceProjectVariables(mod.Src), editor.ReplaceProjectVariables(mod.Dst));
+                        CopyFile(fromPath, toPath);
                     }
                 }
 
-                void CopyFile(string source, string destination)
+                static void CopyFile(string source, string destination)
                 {
                     var fromPath = Path.GetFullPath(source);
                     var toPath = Path.GetFullPath(destination);
@@ -360,32 +385,29 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     public string FullPath;
                     public string Path;
+                    public string[] Flags;
                 }
 
-                public void Add(string fullPath, string path)
+                public void Add(string fullPath, string path, string[] flags)
                 {
-                    _mods.Add(new ModData{ FullPath = fullPath, Path = path });
+                    _mods.Add(new ModData{ FullPath = fullPath, Path = path, Flags = flags });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
                     {
-                        editor.Pbx.AddFile(mod.FullPath, mod.Path);
-                        /*if(mod.Path.EndsWith(".framework"))
+                        var fullPath = editor.ReplaceProjectVariables(mod.FullPath);
+                        var guid = editor.Pbx.AddFile(fullPath, mod.Path);
+
+                        if(mod.Flags.Length > 0)
                         {
-                            editor.Pbx.AddFile(mod.Path, frameworkGroup, "GROUP", true, false);
+                            editor.Pbx.AddFileToBuildWithFlags(editor.DefaultTargetGuid, guid, string.Join(" ", mod.Flags));
                         }
                         else
                         {
-                            string[] compilerFlags = null;
-                            string[] filename = filePath.Split(':');
-                            if( filename.Length > 1 )
-                            {
-                                compilerFlags = filename[1].Split(',');
-                            }
-                            this.AddFile(filename[0], modGroup, "SOURCE_ROOT", true, false, compilerFlags);
-                        }*/
+                            editor.Pbx.AddFileToBuild(editor.DefaultTargetGuid, guid);
+                        }
                     }
                 }
             }
@@ -412,7 +434,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(var mod in _mods)
                     {
-                        editor.Pbx.AddFolderReference(mod.FullPath, mod.Path);
+                        var fullPath = editor.ReplaceProjectVariables(mod.FullPath);
+                        editor.Pbx.AddFolderReference(fullPath, mod.Path);
                     }
                 }
             }
@@ -439,7 +462,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(var mod in _mods)
                     {
-                        editor.Pbx.AddExternalLibraryDependency(editor.DefaultTargetGuid, mod.FullPath, "GUID", mod.Path, "Remoteinfo");
+                        var fullPath = editor.ReplaceProjectVariables(mod.FullPath);
+                        var guid = editor.Pbx.AddFile(fullPath, mod.Path);
+                        editor.Pbx.AddFileToBuild(editor.DefaultTargetGuid, guid);
                     }
                 }
             }
@@ -493,7 +518,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(var mod in _mods)
                     {
-                        editor.Pbx.SetBuildProperty(editor.DefaultTargetGuid, mod.Symbol, mod.Value);
+                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, mod.Symbol, mod.Value);
                     }
                 }
             }
@@ -581,6 +606,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             class ShellScriptModEditor : IModEditor
             {
                 const string DefaultShell = "/bin/sh";
+                const int DefaultOrder = -1;
 
                 readonly List<ModData> _mods = new List<ModData>();
 
@@ -588,6 +614,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     public string Script;
                     public string Shell;
+                    public string Target;
+                    public int Order;
                 }
 
                 public void Add(string path)
@@ -597,7 +625,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 public void Add(string script, string shell)
                 {
-                    _mods.Add(new ModData{ Script = script, Shell = shell });
+                    _mods.Add(new ModData {
+                        Script = script,
+                        Shell = shell,
+                        Target = string.Empty,
+                        Order = DefaultOrder
+                    });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
@@ -626,7 +659,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
-                    // TODO
+                    foreach(var mod in _mods)
+                    {
+                        // TODO
+                        // editor.Pbx.SetBuildProperty(editor.DefaultTargetGuid, mod.Name, mod.Enabled);
+                    }
                 }
             }
 

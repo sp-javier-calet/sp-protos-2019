@@ -6,6 +6,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     /// Public interface for the Editor class
     /// There is only a implentation, but we need to hide some details 
     /// and public accessors to other classes.
+    /// 
+    /// All provided paths must be absolute or relative to one of the supported variables:
+    ///   {XCODE_PROJECT_PATH}
+    ///   {XCODE_ROOT_PATH}
+    ///   {ROOT_PATH}
+    /// 
     /// </summary>
     public abstract class XCodeProjectEditor
     {
@@ -16,6 +22,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         public abstract void CopyFile(string basePath, string src, string dst);
 
         public abstract void AddFile(string path);
+
+        public abstract void AddFile(string path, string[] flags);
 
         public abstract void AddFolder(string path);
 

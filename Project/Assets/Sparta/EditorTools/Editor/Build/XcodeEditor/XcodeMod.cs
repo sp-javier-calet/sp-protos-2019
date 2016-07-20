@@ -4,6 +4,30 @@ using System.IO;
 
 namespace SpartaTools.Editor.Build.XcodeEditor
 {
+    /// <summary>
+    /// Xcode mod file class
+    /// 
+    /// Supported options:
+    ///  - headerpaths : List of search paths
+    ///  - librarysearchpaths : List of search paths
+    ///  - copyFiles : Dictionary defining required copies. Each source file can have either a single or list of destiny files.
+    ///  - files : List of file paths to add to the build.
+    ///     * flags : Could have a list of arbitrary flags, separated by comma, as arguments.
+    ///  - folders : List of folder paths to reference from the project
+    ///  - libs : List of library file paths to add to the build.
+    ///  - frameworks : List of system frameworks
+    ///     * 'weak' : Mark the framework as optional.
+    ///  - buildSettings : Dictionary of Settings name and value pairs.
+    ///  - variantGroups :
+    ///  - infoPlist : 
+    ///  - shellScripts : 
+    ///  - systemCapabilities : Dictionary of Capabilitiy names and boolean values pairs.
+    ///  - provisioningProfile :
+    ///  - keychainAccessGroups : 
+    /// 
+    /// Arguments can be defined as a part of the entry, using the following format:
+    ///  "entry_content:arg1,arg2"
+    /// </summary>
     public class XcodeMod
     {
         readonly Hashtable _datastore;
@@ -21,8 +45,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 throw new FileNotFoundException("Xcode mod file not found at " + path);
             }
 
-            var content = file.OpenText().ReadToEnd();
-            _datastore = (Hashtable)XMiniJSON.jsonDecode(content);
+            using(var filestream = file.OpenText())
+            {
+                var content = filestream.ReadToEnd();
+                _datastore = (Hashtable)XMiniJSON.jsonDecode(content);
+            }
+
             if(_datastore == null)
             {
                 throw new InvalidDataException("Could not load json");
@@ -45,6 +73,38 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             ApplySystemCapabilities(editor);
             ApplyProvisioningProfile(editor);
             ApplyKeychainAccessGroups(editor);
+        }
+
+        /// <summary>
+        /// Splits content and optionals attributes of one entry, with format:
+        /// "entry_content:arg1,arg2"
+        /// </summary>
+        string SplitAttributes(string entry, out string[] attributes)
+        {
+            string[] parts = entry.Split(':');
+            if(parts.Length > 1)
+            {
+                attributes = parts[1].Split(',');
+            }
+            else
+            {
+                attributes = new string[0];
+            }
+            return parts[0];
+        }
+
+        /// <summary>
+        /// Resolve path for the mod element
+        /// If path contains XcodeMod or Xcode variables, keep it as is. 
+        /// Otherwise, use the full path.
+        /// </summary>
+        string GetModPath(string path)
+        {
+            if(path.Contains("{") || path.Contains("$"))
+            {
+                return path;
+            }
+            return Path.GetFullPath(Path.Combine(_basePath, path));
         }
 
         void ApplyHeaderpaths(XCodeProjectEditor editor)
@@ -82,7 +142,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                     if(entry.Value is string)
                     {
-                        editor.CopyFile(_filePath, fromPath, (string)entry.Value);
+                        editor.CopyFile(_basePath, fromPath, (string)entry.Value);
                     }
                     else
                     {
@@ -103,19 +163,23 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(string file in files)
                 {
-                    editor.AddFile(file);
+                    string[] attrs;
+                    var filePath = SplitAttributes(file, out attrs);
+                    string fullPath = GetModPath(filePath);
+                    editor.AddFile(fullPath, attrs);
                 }
             }
         }
 
         void ApplyFolders(XCodeProjectEditor editor)
         {
-            var folders = (ArrayList)_datastore["folder"];
+            var folders = (ArrayList)_datastore["folders"];
             if(folders != null)
             {
                 foreach(string folder in folders)
                 {
-                    editor.AddFolder(folder);
+                    string fullPath = GetModPath(folder);
+                    editor.AddFolder(fullPath);
                 }
             }
         }
@@ -127,7 +191,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(string lib in libs)
                 {
-                    editor.AddLibrary(lib);
+                    string fullPath = GetModPath(lib);
+                    editor.AddLibrary(fullPath);
                 }
             }
         }
@@ -139,9 +204,10 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(string framework in frameworks)
                 {
-                    string[] filename = framework.Split(':');
-                    bool isWeak = (filename.Length > 1 && filename[1].Contains("weak"));
-                    editor.AddFramework(filename[0], isWeak);
+                    string[] attrs;
+                    var filename = SplitAttributes(framework, out attrs);
+                    bool isWeak = (attrs.Length > 0 && attrs[0].Equals("weak"));
+                    editor.AddFramework(filename, isWeak);
                 }
             }
         }
@@ -204,9 +270,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(DictionaryEntry capability in systemCapabilities)
                 {
-                    var valueTable = (Hashtable)capability.Value;
-                    bool enabled = (bool)valueTable["enabled"];
-                    editor.SetSystemCapability((string)capability.Key, enabled);
+                    string name = (string)capability.Key;
+                    bool enabled = (bool)capability.Value;
+                    editor.SetSystemCapability(name, enabled);
                 }
             }
         }
