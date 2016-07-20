@@ -19,7 +19,7 @@ namespace SocialPoint.Alert
             public string Signature;
             [MarshalAs(UnmanagedType.LPTStr)]
             public string Buttons;
-            [MarshalAs(UnmanagedType.SysInt)]
+            [MarshalAs(UnmanagedType.I1)]
             public bool Input;
         };
 
