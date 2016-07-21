@@ -62,7 +62,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 { typeof(LibraryModEditor),             new LibraryModEditor()             },
                 { typeof(FrameworkModEditor),           new FrameworkModEditor()           },
                 { typeof(BuildSettingsModEditor),       new BuildSettingsModEditor()       },
-                { typeof(VariantGroupModEditor),        new VariantGroupModEditor()        },
+                { typeof(LocalizationModEditor),        new LocalizationModEditor()        },
                 { typeof(PListModEditor),               new PListModEditor()               },
                 { typeof(ShellScriptModEditor),         new ShellScriptModEditor()         },
                 { typeof(SystemCapabilityModEditor),    new SystemCapabilityModEditor()    },
@@ -159,9 +159,14 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 GetEditor<BuildSettingsModEditor>().Add(name, value);
             }
 
-            public override void AddVariantGroup(string variantGroup, string key, string value)
+            public override void AddLocalization(string name, string path)
             {
-                GetEditor<VariantGroupModEditor>().Add(variantGroup, key, value);
+                GetEditor<LocalizationModEditor>().Add(name, path);
+            }
+
+            public override void AddLocalization(string name, string path, string variantGroup)
+            {
+                GetEditor<LocalizationModEditor>().Add(name, path, variantGroup);
             }
 
             public override void SetPlistField(string name, Dictionary<string, object>  value)
@@ -543,29 +548,36 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             }
 
             /// <summary>
-            /// Variant Groups Editor
+            /// Localization Editor
             /// </summary>
-            class VariantGroupModEditor : IModEditor
+            class LocalizationModEditor : IModEditor
             {
+                const string DefaultLocalizationGroupName = "Localizable.strings";
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
+                    public string Name;
+                    public string Path;
                     public string Group;
-                    public string Key;
-                    public string Value;
                 }
 
-                public void Add(string variantGroup, string key, string value)
+                public void Add(string name, string path)
                 {
-                    _mods.Add(new ModData{ Group = variantGroup, Key = key, Value = value });
+                    Add(name, path, DefaultLocalizationGroupName);
+                }
+
+                public void Add(string name, string path, string variantGroup)
+                {
+                    _mods.Add(new ModData{ Name= name, Path = path, Group = variantGroup });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
                     {
-                        // TODO
+                        var filePath = editor.ReplaceProjectVariables(mod.Path);
+                        editor.Pbx.AddLocalization(filePath, mod.Name, mod.Group);
                     }
                 }
             }

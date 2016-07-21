@@ -19,6 +19,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     ///     * 'weak' : Mark the framework as optional.
     ///  - buildSettings : Dictionary of Settings name and value pairs.
     ///  - variantGroups :
+    ///  - localizations : Dictionary of language and file pairs for localizations.
     ///  - infoPlist : 
     ///  - shellScripts : 
     ///  - systemCapabilities : Dictionary of Capabilitiy names and boolean values pairs.
@@ -68,6 +69,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             ApplyFrameworks(editor);
             ApplyBuildSettings(editor);
             ApplyVariantGroups(editor);
+            ApplyLocalizations(editor);
             ApplyInfoPlist(editor);
             ApplyShellScripts(editor);
             ApplySystemCapabilities(editor);
@@ -224,6 +226,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             }
         }
 
+        // FIXME Deprecated
+        // Use Localizations instead
         void ApplyVariantGroups(XCodeProjectEditor editor)
         {
             var variantGroups = (Hashtable)_datastore["variantGroups"];
@@ -233,8 +237,20 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(DictionaryEntry file in (Hashtable)group.Value)
                     {
-                        editor.AddVariantGroup((string)group.Key, (string)file.Key, (string)file.Value);
+                        editor.AddLocalization((string)file.Key, (string)file.Value, (string)group.Key);
                     }
+                }
+            }
+        }
+
+        void ApplyLocalizations(XCodeProjectEditor editor)
+        {
+            var localizations = (Hashtable)_datastore["localizations"];
+            if(localizations != null)
+            {
+                foreach(DictionaryEntry loc in localizations)
+                {
+                    editor.AddLocalization((string)loc.Key, (string)loc.Value);
                 }
             }
         }

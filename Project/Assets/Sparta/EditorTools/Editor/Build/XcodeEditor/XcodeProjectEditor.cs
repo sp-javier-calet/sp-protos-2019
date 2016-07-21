@@ -33,7 +33,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         public abstract void SetBuildSetting(string name, string value);
 
-        public abstract void AddVariantGroup(string variantGroup, string key, string value);
+        public abstract void AddLocalization(string name, string path);
+
+        public abstract void AddLocalization(string name, string path, string variantGroup);
 
         public abstract void SetPlistField(string name, Dictionary<string, object>  value);
 
