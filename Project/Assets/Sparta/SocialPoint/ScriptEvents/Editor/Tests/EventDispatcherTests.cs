@@ -4,49 +4,49 @@ using System;
 
 namespace SocialPoint.ScriptEvents
 {
-	[TestFixture]
-	[Category("SocialPoint.ScriptEvents")]
-	internal class EventDispatcherTests : BaseScriptEventsTests
-	{
-		[SetUp]
-		override public void SetUp()
-		{
-			base.SetUp();
-		}
+    [TestFixture]
+    [Category("SocialPoint.ScriptEvents")]
+    class EventDispatcherTests : BaseScriptEventsTests
+    {
+        [SetUp]
+        public void SetUpBase()
+        {
+            SetUp();
+        }
 
-		[Test]
-		public void Raise_Calls_Listener()
-		{
+        [Test]
+        public void Raise_Calls_Listener()
+        {
             string val = null;
-			_dispatcher.AddListener<TestEvent>((ev) => {
+            _dispatcher.AddListener<TestEvent>(ev => {
                 val = ev.Value;
-			});
-			_dispatcher.Raise(new OtherTestEvent{ Value = 2 });
-			Assert.IsNull(val);
+            });
+            _dispatcher.Raise(new OtherTestEvent{ Value = 2 });
+            Assert.IsNull(val);
             _dispatcher.Raise(_testEvent);
             Assert.AreEqual(_testEvent.Value, val);
-		}
+        }
 
-		[Test]
-		public void Connect_Works()
-		{
-			_dispatcher.Connect<OtherTestEvent, TestEvent>((ev) => {
-				return new TestEvent{ Value = ev.Value.ToString() };
-			});
-			string val = null;
-			_dispatcher.AddListener<TestEvent>((ev) => {
-				val = ev.Value;
-			});
-			_dispatcher.Raise(new OtherTestEvent{ Value = 2 });
+        [Test]
+        public void Connect_Works()
+        {
+            _dispatcher.Connect<OtherTestEvent, TestEvent>(ev => new TestEvent {
+                Value = ev.Value.ToString()
+            });
+            string val = null;
+            _dispatcher.AddListener<TestEvent>(ev => {
+                val = ev.Value;
+            });
+            _dispatcher.Raise(new OtherTestEvent{ Value = 2 });
 			
-			Assert.AreEqual("2", val);
-		}
+            Assert.AreEqual("2", val);
+        }
 
         [Test]
         public void Raise_Calls_DefaultListener()
         {
             string val = null;
-            _dispatcher.AddDefaultListener((ev) => {
+            _dispatcher.AddDefaultListener(ev => {
                 val = ((TestEvent)ev).Value;
             });
 
@@ -59,7 +59,7 @@ namespace SocialPoint.ScriptEvents
         public void RemoveListener_Prevents_Call()
         {
             string val = null;
-            Action<TestEvent> dlg = (ev) => {
+            Action<TestEvent> dlg = ev => {
                 val = ev.Value;
             };
 
@@ -75,7 +75,7 @@ namespace SocialPoint.ScriptEvents
         public void RemoveDefaultListener_Prevents_Call()
         {
             string val = null;
-            Action<object> dlg = (ev) => {
+            Action<object> dlg = ev => {
                 val = ((TestEvent)ev).Value;
             };
             
@@ -97,7 +97,7 @@ namespace SocialPoint.ScriptEvents
             
             bridge.Received(1).Load(_dispatcher);
         }
-        
+
         [Test]
         public void Bridge_Dispose_Called()
         {
@@ -109,16 +109,16 @@ namespace SocialPoint.ScriptEvents
             bridge.Received().Dispose();
         }
 
-		[Test]
-		public void Raise_Calls_ChildDispatcher()
-		{
-			var child = Substitute.For<IEventDispatcher>();
-			_dispatcher.AddDispatcher(child);
+        [Test]
+        public void Raise_Calls_ChildDispatcher()
+        {
+            var child = Substitute.For<IEventDispatcher>();
+            _dispatcher.AddDispatcher(child);
 
-			_dispatcher.Raise(_testEvent);
+            _dispatcher.Raise(_testEvent);
 
-			child.Received().Raise(_testEvent);
-		}
-	}
+            child.Received().Raise(_testEvent);
+        }
+    }
 
 }

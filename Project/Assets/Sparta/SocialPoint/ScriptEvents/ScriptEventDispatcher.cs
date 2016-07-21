@@ -88,13 +88,13 @@ namespace SocialPoint.ScriptEvents
         readonly List<IScriptEventSerializer> _serializers = new List<IScriptEventSerializer>();
         readonly List<IScriptEventsBridge> _bridges = new List<IScriptEventsBridge>();
         readonly List<ConditionListener> _conditionListeners = new List<ConditionListener>();
-        IEventDispatcher _dispatcher;
+        EventDispatcher _dispatcher;
 
         public event Action<Exception> ExceptionThrown;
 
         public ScriptEventDispatcher(IEventDispatcher dispatcher)
         {
-            _dispatcher = dispatcher;
+            _dispatcher = dispatcher as EventDispatcher;
             _dispatcher.AddDefaultListener(OnRaised);
         }
 

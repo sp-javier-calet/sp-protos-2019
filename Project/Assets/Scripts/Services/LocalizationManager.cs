@@ -1,21 +1,19 @@
+using SocialPoint.GUIControl;
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
-using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
-using SocialPoint.GUIControl;
-using SocialPoint.Dependency;
 
 public class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {
-    IEventDispatcher _dispatcher;
+    readonly EventDispatcher _dispatcher;
     LocalizeAttributeConfiguration _localizeAttributeConfig;
 
     public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale, LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher) :
         base(client, appInfo, locale)
     {
         _localizeAttributeConfig = attrConfig;
-        _dispatcher = dispatcher;
+        _dispatcher = dispatcher as EventDispatcher;
         _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
         _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }

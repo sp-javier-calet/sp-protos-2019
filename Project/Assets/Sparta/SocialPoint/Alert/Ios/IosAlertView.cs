@@ -53,6 +53,12 @@ namespace SocialPoint.Alert
             {
                 throw new NotImplementedException("IosAlertView is only supported on Ios");
             }
+
+            _data.Message = "";
+            _data.Title = "";
+            _data.Signature = "";
+            _data.Buttons = "";
+            _data.Input = false;
         }
 
         public string Message
@@ -139,11 +145,6 @@ namespace SocialPoint.Alert
                 int.TryParse(msg, out result);
                 _resultDelegate(result, null);
             }
-        }
-
-        public void OnResponse(string data)
-        {
-            _inputText = data;
         }
 
         public void Dispose()

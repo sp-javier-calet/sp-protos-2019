@@ -62,7 +62,7 @@ namespace SocialPoint.ScriptEvents
         IScriptEventsBridge
     {
         
-        IEventDispatcher _dispatcher;
+        EventDispatcher _dispatcher;
         readonly IAlertView _prototype;
 
         public AlertBridge(IAlertView prototype)
@@ -72,7 +72,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Load(IEventDispatcher dispatcher)
         {
-            _dispatcher = dispatcher;
+            _dispatcher = dispatcher as EventDispatcher;
             _dispatcher.AddListener<AlertAction>(OnAlertAction);
         }
 

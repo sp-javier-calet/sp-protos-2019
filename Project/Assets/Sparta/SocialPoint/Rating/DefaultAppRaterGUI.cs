@@ -1,4 +1,3 @@
-
 using SocialPoint.Alert;
 
 namespace SocialPoint.Rating
@@ -7,7 +6,7 @@ namespace SocialPoint.Rating
     {
         IAppRater _appRater;
         IAlertView _prototype;
-        
+
         public DefaultAppRaterGUI(IAlertView proto)
         {
             _prototype = proto;
@@ -22,16 +21,16 @@ namespace SocialPoint.Rating
             {
                 alert.Title = "Rate this app";
                 alert.Message = "Help us rating this app";
-                if(showLaterButton)
-                {
-                    alert.Buttons = new string[]{ "Ok", "Cancel", "Later" };
-                }
-                else
-                {
-                    alert.Buttons = new string[]{ "Ok", "Cancel" };
-                } 
+                alert.Buttons = showLaterButton ? new[] {
+                    "Ok",
+                    "Cancel",
+                    "Later"
+                } : new[] {
+                    "Ok",
+                    "Cancel"
+                }; 
                 alert.Input = false;
-                alert.Show((int result) => {
+                alert.Show(result => {
                     switch(result)
                     {
                     case 0:

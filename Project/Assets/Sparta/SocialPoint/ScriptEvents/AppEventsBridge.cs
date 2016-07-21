@@ -126,11 +126,59 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
+    public class AppWasOnBackgroundEventSerializer : BaseScriptEventSerializer<AppWasOnBackgroundEvent>
+    {
+        public AppWasOnBackgroundEventSerializer() : base("event.app.was_on_background")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppWasOnBackgroundEvent ev)
+        {
+            return new AttrEmpty();
+        }
+    }
+
+    public class AppWasCoveredEventSerializer : BaseScriptEventSerializer<AppWasCoveredEvent>
+    {
+        public AppWasCoveredEventSerializer() : base("event.app.was_covered")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppWasCoveredEvent ev)
+        {
+            return new AttrEmpty();
+        }
+    }
+
+    public class AppReceivedMemoryWarningEventSerializer : BaseScriptEventSerializer<AppReceivedMemoryWarningEvent>
+    {
+        public AppReceivedMemoryWarningEventSerializer() : base("event.app.memory_warning")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppReceivedMemoryWarningEvent ev)
+        {
+            return new AttrEmpty();
+        }
+    }
+
+    public class AppQuitEventSerializer : BaseScriptEventSerializer<AppQuitEvent>
+    {
+        public AppQuitEventSerializer() : base("event.app.quit")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppQuitEvent ev)
+        {
+            return new AttrEmpty();
+        }
+    }
+
     public class AppEventsBridge :
         IEventsBridge,
         IScriptEventsBridge
     {
-        IEventDispatcher _dispatcher;
+        EventDispatcher _dispatcher;
         IAppEvents _appEvents;
 
         public AppEventsBridge(IAppEvents appEvents)
@@ -147,12 +195,7 @@ namespace SocialPoint.ScriptEvents
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
-
-        const string AppWasOnBackgroundEventName = "event.app.was_on_background";
-        const string AppWasCoveredEventName = "event.app.was_covered";
-        const string AppReceivedMemoryWarningEventName = "event.app.memory_warning";
-        const string AppQuitEventName = "event.app.quit";
-
+            
         public void Load(IScriptEventDispatcher dispatcher)
         {
             dispatcher.AddSerializer(new AppWillGoBackgroundEventSerializer());
@@ -160,15 +203,15 @@ namespace SocialPoint.ScriptEvents
             dispatcher.AddSerializer(new AppGameWillRestartEventSerializer());
             dispatcher.AddSerializer(new AppLevelWasLoadedEventSerializer());
             dispatcher.AddSerializer(new AppOpenedFromSourceEventSerializer());
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppWasOnBackgroundEvent>(AppWasOnBackgroundEventName));
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppWasCoveredEvent>(AppWasCoveredEventName));
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppReceivedMemoryWarningEvent>(AppReceivedMemoryWarningEventName));
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppQuitEvent>(AppQuitEventName));
+            dispatcher.AddSerializer(new AppWasOnBackgroundEventSerializer());
+            dispatcher.AddSerializer(new AppWasCoveredEventSerializer());
+            dispatcher.AddSerializer(new AppReceivedMemoryWarningEventSerializer());
+            dispatcher.AddSerializer(new AppQuitEventSerializer());
         }
 
         public void Load(IEventDispatcher dispatcher)
         {
-            _dispatcher = dispatcher;
+            _dispatcher = dispatcher as EventDispatcher;
         }
 
         public void Dispose()
