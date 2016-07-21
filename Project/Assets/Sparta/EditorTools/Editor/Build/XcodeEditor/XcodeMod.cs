@@ -260,10 +260,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             var infoPlist = (Hashtable)_datastore["infoPlist"];
             if(infoPlist != null)
             {
-                foreach(DictionaryEntry field in infoPlist)
-                {
-                    editor.SetPlistField((string)field.Key, new Dictionary<string, object>()); // FIXME use field.Value);
-                }
+                editor.AddPlistFields(infoPlist);
             }
         }
 

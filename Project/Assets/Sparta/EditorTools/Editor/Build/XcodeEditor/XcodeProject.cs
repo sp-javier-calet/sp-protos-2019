@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 using SpartaTools.iOS.Xcode;
 
@@ -169,9 +170,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 GetEditor<LocalizationModEditor>().Add(name, path, variantGroup);
             }
 
-            public override void SetPlistField(string name, Dictionary<string, object>  value)
+            public override void AddPlistFields(IDictionary data)
             {
-                GetEditor<PListModEditor>().Add(name, value);
+                GetEditor<PListModEditor>().Add(data);
             }
 
             public override void AddShellScript(string script)
@@ -569,7 +570,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 public void Add(string name, string path, string variantGroup)
                 {
-                    _mods.Add(new ModData{ Name= name, Path = path, Group = variantGroup });
+                    _mods.Add(new ModData{ Name = name, Path = path, Group = variantGroup });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
@@ -588,45 +589,159 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             class PListModEditor : IModEditor
             {
                 const string DefaultPListFileName = "Info.plist";
-
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
-                    public string Key;
-                    public Dictionary<string, object> Dic;
+                    public IDictionary Data;
                 }
 
-                public void Add(string key, Dictionary<string, object> dic)
+                public void Add(IDictionary data)
                 {
-                    _mods.Add(new ModData{ Key = key, Dic = dic });
+                    _mods.Add(new ModData{ Data = data });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     if(_mods.Count > 0)
                     {
-                        var plistPath = Path.Combine(editor.Project.ProjectPath, DefaultPListFileName);
+                        var plistPath = Path.Combine(editor.Project.ProjectRootPath, DefaultPListFileName);
                         var plist = new PlistDocument();
                         plist.ReadFromFile(plistPath);
 
+                        var root = plist.root;
+
                         foreach(var mod in _mods)
                         {
-                            var v = plist.root[mod.Key];
-                            if(v == null) // FIXME WORKS?
+                            Combine(root, mod.Data);
+                        }
+
+                        plist.WriteToFile(plistPath);
+                    }
+                }
+
+                void Combine(PlistElementDict dic, IDictionary data)
+                {
+                    foreach(DictionaryEntry entry in data)
+                    {
+                        var key = (string)entry.Key;
+
+                        if(entry.Value is IDictionary)
+                        {
+                            PlistElement child = dic[key];
+                            if(child == null)
                             {
-                                v = plist.root.CreateArray(mod.Key);
+                                child = dic.CreateDict(key);
+                            }
+                            else if(!(child is PlistElementDict))
+                            {
+                                throw new ConflictingDataException(child);
                             }
 
+                            Combine(child as PlistElementDict, entry.Value as IDictionary);
                         }
-                        // TODO
-                        /*
-                         var urlTypes = plist.root["CFBundleURLTypes"].AsArray();
-                         var dict = urlTypes.AddDict();
-                         var array = dict.CreateArray("CFBundleURLSchemes");
-                         array.AddString(urlSchemeString);
-                        */
-                        plist.WriteToFile(plistPath);
+                        else if(entry.Value is ArrayList)
+                        {
+                            PlistElement child = dic[key];
+                            if(child == null)
+                            {
+                                child = dic.CreateArray(key);
+                            }
+                            else if(!(child is PlistElementArray))
+                            {
+                                throw new ConflictingDataException(child);
+                            }
+
+                            Combine(child as PlistElementArray, entry.Value as ArrayList);   
+                        }
+                        else if(entry.Value is string)
+                        {
+                            PlistElement child = dic[key];
+                            if(child != null)
+                            {
+                                throw new ConflictingDataException(child);
+
+                            }
+                            dic[key] = new PlistElementString((string)entry.Value);
+                        }
+                        else if(entry.Value is bool)
+                        {
+                            PlistElement child = dic[key];
+                            if(child != null)
+                            {
+                                throw new ConflictingDataException(child);
+
+                            }
+                            dic[key] = new PlistElementBoolean((bool)entry.Value);
+                        }
+                        else if(entry.Value is int)
+                        {
+                            PlistElement child = dic[key];
+                            if(child != null)
+                            {
+                                throw new ConflictingDataException(child);
+
+                            }
+                            dic[key] = new PlistElementInteger((int)entry.Value);
+                        }
+                        else
+                        {
+                            throw new InvalidDataException();
+                        }
+                    }
+                }
+
+                void Combine(PlistElementArray list, ArrayList data)
+                {
+                    foreach(var entry in data)
+                    {
+                        if(entry is IDictionary)
+                        {
+                            var dic = list.AddDict();
+                            Combine(dic, entry as IDictionary);
+                        }
+                        else if(entry is string)
+                        {
+                            list.AddString((string)entry);
+                        }
+                        else if(entry is bool)
+                        {
+                            list.AddBoolean((bool)entry);
+                        }
+                        else if(entry is int)
+                        {
+                            list.AddInteger((int)entry);
+                        }
+                        else
+                        {
+                            throw new InvalidDataException();
+                        }
+                    }
+                }
+
+                /// <summary>
+                /// Plist editor exceptions
+                /// </summary>
+                class PlistEditorException : Exception
+                {
+                    public PlistEditorException(string msg) : base(msg)
+                    {
+                    }
+                }
+
+                class ConflictingDataException : PlistEditorException
+                {
+                    public ConflictingDataException(PlistElement elem) 
+                        : base("Conflicting data in " + elem)
+                    {
+                    }
+                }
+
+                class InvalidDataException : PlistEditorException
+                {
+                    public InvalidDataException() 
+                        : base("Unrecognised data type")
+                    {
                     }
                 }
             }

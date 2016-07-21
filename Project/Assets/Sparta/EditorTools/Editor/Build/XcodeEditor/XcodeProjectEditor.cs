@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace SpartaTools.Editor.Build.XcodeEditor
 {
@@ -37,7 +38,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         public abstract void AddLocalization(string name, string path, string variantGroup);
 
-        public abstract void SetPlistField(string name, Dictionary<string, object>  value);
+        public abstract void AddPlistFields(IDictionary data);
 
         public abstract void AddShellScript(string script);
 
