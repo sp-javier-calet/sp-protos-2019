@@ -71,6 +71,7 @@ namespace SpartaTools.iOS.Xcode
         PBXGroupData GroupsGetMainGroup() { return m_Data.GroupsGetMainGroup(); }
         PBXGroupData GroupsGetByProjectPath(string sourceGroup) { return m_Data.GroupsGetByProjectPath(sourceGroup); }
         void GroupsAdd(string projectPath, PBXGroupData parent, PBXGroupData gr) { m_Data.GroupsAdd(projectPath, parent, gr); }
+        PBXGroupData GroupsGetByName(string name) { return m_Data.GroupsGetByName(name); }
         void GroupsAddDuplicate(PBXGroupData gr) { m_Data.GroupsAddDuplicate(gr); }
         void GroupsRemove(string guid) { m_Data.GroupsRemove(guid); }
         FileGUIDListBase BuildSectionAny(PBXNativeTargetData target, string path, bool isFolderRef) { return m_Data.BuildSectionAny(target, path, isFolderRef); }
@@ -862,6 +863,185 @@ namespace SpartaTools.iOS.Xcode
         {
             return m_Data.WriteToString();
         }
+
+
+        /// <summary>
+        /// Add the reference to a locale .lproj to a VariantGroup.
+        /// </summary>
+        /// <param name="fileRefName">Name of the localizable resource.</param>
+        /// <param name="variantGroupName"> Name of the variant group for the localizable resources.
+        public void AddLocalization(string path, string fileRefname, string variantGroupName)
+        {
+            Dictionary<string, PBXFileReferenceData> localizations = LocalizationFileRefsGetAll (fileRefname);
+
+            path = Utils.FixSlashesInPath(path);
+
+            PBXVariantGroupData variantGroup = VariantGroupsGetByName (variantGroupName);
+
+            if(variantGroup == null)
+            {
+                variantGroup = CreateLocalizableVariantGroup(variantGroupName);
+            }
+
+            PBXFileReferenceData fileRef;
+
+            // check if file reference exists
+            if (localizations.ContainsKey (path))
+            {
+                localizations.TryGetValue (path, out fileRef);
+            }
+            else
+            {
+                fileRef = PBXFileReferenceData.CreateFromFile(path, Utils.GetFilenameFromPath(path), PBXSourceTree.Group);
+                FileRefsAdd(path, path, variantGroup, fileRef);
+            }
+
+            if (!variantGroup.children.Contains (fileRef.guid))
+            {
+                variantGroup.children.AddGUID (fileRef.guid);
+            }
+        }
+
+        /// <summary>
+        /// Get all file references of localizations.
+        /// </summary>
+        /// <param name="name">Name of the localizable resource.</param>
+        /// <returns>The file references of all localizations.</returns>
+        private Dictionary<string, PBXFileReferenceData> LocalizationFileRefsGetAll(string name)
+        {
+            Dictionary<string, PBXFileReferenceData> localizations = new Dictionary<string, PBXFileReferenceData>();
+
+            foreach (var fileRef in m_Data.FileRefsGetAll())
+            {
+                if (fileRef.name == name) 
+                {
+                    // do not add duplicates
+                    if (!localizations.ContainsKey (fileRef.path))
+                    {
+                        localizations.Add (fileRef.path, fileRef);
+                    }
+                }
+            }
+
+            return localizations;
+        }
+
+
+        private void AddToGroup(string name, string guid)
+        {
+            var group = GroupsGetByName(name);
+            if (group != null)
+            {
+                group.children.AddGUID(guid);
+            }
+        }
+
+
+        private PBXVariantGroupData AddVariantGroup(string name, PBXSourceTree sourceTree)
+        {
+            PBXVariantGroupData variantGroup = VariantGroupsGetByName(name);
+            if (variantGroup == null)
+            {
+                variantGroup = PBXVariantGroupData.Create(name, sourceTree);
+                m_Data.variantGroups.AddEntry(variantGroup);
+            }
+            return variantGroup;
+        }
+
+        private PBXVariantGroupData VariantGroupsGetByName(string name)
+        {
+            foreach (var group in variantGroups.GetEntries())
+                if (group.Value.name == name)
+                    return group.Value;
+            return null;
+        }
+
+
+        /// <summary>
+        /// Creates a VariantGroup for localizable resources (e. g. Localizable.strings)
+        /// This VariantGroup is the container of all localizable resource files for each locale (.lproj)
+        /// </summary>
+        /// <param name="name">Variant group name.</param>
+        /// <returns>The variant group the localizable resources.</returns>
+        private PBXVariantGroupData CreateLocalizableVariantGroup(string name)
+        {
+            // Create PBXVariantGroup
+            var variantGroup = AddVariantGroup (name, PBXSourceTree.Group);
+            // add PBXVariantGroup to CustomTemplate
+            AddToGroup ("CustomTemplate", variantGroup.guid);
+            // add PBXVariantGroup to PBXBuildFile
+            string buildFileGuid = AddFileRefToBuild (TargetGuidByName(GetUnityTargetName()), variantGroup.guid);
+            // get guid of the build phase
+            string buildPhaseGuid = ResourceBuildPhaseByTargetName(GetUnityTargetName());
+            // add BuildFileRef to resouce build phase
+            AddFileToResourceBuildPhase (buildPhaseGuid, buildFileGuid);
+            return  variantGroup;
+        }
+
+        private void AddFileToResourceBuildPhase(string buildPhaseGuid, string fileGuid)
+        {
+            foreach (var entry in resources.GetEntries())
+            {
+                if (entry.Value.guid == buildPhaseGuid)
+                {
+                    entry.Value.files.AddGUID(fileGuid);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add a file reference to a specific target.
+        /// </summary>
+        /// <returns>The guid of the resource build phase.</returns>
+        /// <param name="target">Target name.</param>
+        /// <param name="guid">The file refernce</param>
+        private string AddFileRefToBuild(string target, string guid)
+        {
+            PBXBuildFileData data = PBXBuildFileData.CreateFromFile(guid, false, null);
+            m_Data.BuildFilesAdd(target, data);
+            return data.guid;
+        }
+
+
+        /// <summary>
+        /// Gets the guid of the resouce build phase of the specified target.
+        /// </summary>
+        /// <returns>The guid of the resource build phase.</returns>
+        /// <param name="name">Target name.</param>
+        private string ResourceBuildPhaseByTargetName(string name)
+        {
+            PBXNativeTargetData target = TargetByName(name);
+            if (target == null)
+                return null;
+            // phases is a GUIDList containing the build phases
+            foreach (var phase in target.phases)
+            {
+                // find the build phase in the list of resources
+                foreach (var resource in resources.GetEntries())
+                {
+                    if (resource.Value.guid == phase)
+                        return resource.Value.guid;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the native target by name.
+        /// </summary>
+        /// <returns>The target data.</returns>
+        /// <param name="name">Name.</param>
+        private PBXNativeTargetData TargetByName(string name)
+        {
+            foreach (var entry in nativeTargets.GetEntries())
+            {
+                if (entry.Value.name == name)
+                    return entry.Value;
+            }
+            return null;
+        }
+
+
     }
 
 } // namespace UnityEditor.iOS.Xcode
