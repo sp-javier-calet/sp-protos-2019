@@ -11,21 +11,31 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     public class XcodeProject
     {
         public readonly string ProjectPath;
+        public readonly string ProjectRootPath;
         public readonly string PbxPath;
-        public readonly string BasePath;
+        public readonly string BaseAppPath;
 
         readonly PBXProject _project;
         readonly XcodeEditorInternal _editor;
 
-        public XcodeProject(string xcodeProjectPath, string basePath)
+        /// <summary>
+        /// XcodeProject constructor.
+        /// </summary>
+        /// <param name="xcodeProjectPath">Path to the '.xcodeproj' file</param>
+        /// <param name="baseAppPath">Base path of the current client application (i.e. the Unity's data path)</param>
+        public XcodeProject(string xcodeProjectPath, string baseAppPath)
         {
+            // Initialize paths
             ProjectPath = xcodeProjectPath;
+            ProjectRootPath = Path.GetDirectoryName(xcodeProjectPath);
             PbxPath = Path.Combine(xcodeProjectPath, "project.pbxproj");
-            BasePath = basePath;
+            BaseAppPath = baseAppPath;
 
+            // Open Pbx file
             _project = new PBXProject();
             _project.ReadFromFile(PbxPath);
 
+            // Create a default editor for the current project
             _editor = new XcodeEditorInternal(this, _project);
         }
 
@@ -85,9 +95,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 DefaultTargetGuid = Pbx.TargetGuidByName(PBXProject.GetUnityTargetName());
 
                 _projectVariables = new Dictionary<string, string>() {
-                    { ProjectPathVar,  project.ProjectPath }, // Path to the .xcodeproj folder
-                    { ProjectRootVar,  project.ProjectPath }, // FIXME
-                    { CurrentRootPath, project.BasePath    }  // Path to the Unity project root
+                    { ProjectPathVar,  project.ProjectPath     }, // Path to the .xcodeproj file
+                    { ProjectRootVar,  project.ProjectRootPath }, // Path to the xcode project folder
+                    { CurrentRootPath, project.BaseAppPath     }  // Path to the Unity project root
                 };
             }
 
