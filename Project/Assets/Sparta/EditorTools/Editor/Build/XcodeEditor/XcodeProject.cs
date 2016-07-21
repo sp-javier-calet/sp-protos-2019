@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using UnityEditor.iOS.Xcode;
+using SpartaTools.iOS.Xcode;
 
 namespace SpartaTools.Editor.Build.XcodeEditor
 {
@@ -231,6 +231,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class HeaderPathsModEditor : IModEditor
             {
+                const string HeadersSearchPathSettingsKey = "HEADER_SEARCH_PATHS";
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
@@ -248,7 +249,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var path = editor.ReplaceProjectVariables(mod.Path);
-                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, "HEADER_SEARCH_PATHS", path);
+                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, HeadersSearchPathSettingsKey, path);
                     }
                 }
             }
@@ -258,6 +259,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class LibraryPathsModEditor : IModEditor
             {
+                const string LibrarySearchPathSettingsKey = "LIBRARY_SEARCH_PATHS";
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
@@ -275,7 +277,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var path = editor.ReplaceProjectVariables(mod.Path);
-                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, "LIBRARY_SEARCH_PATHS", path);
+                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, LibrarySearchPathSettingsKey, path);
                     }
                 }
             }
