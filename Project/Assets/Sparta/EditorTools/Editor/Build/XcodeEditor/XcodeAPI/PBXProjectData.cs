@@ -105,8 +105,14 @@ namespace SpartaTools.iOS.Xcode
             fileRefs.AddEntry(fileRef);
             m_ProjectPathToFileRefMap.Add(projectPath, fileRef);
             m_FileRefGuidToProjectPathMap.Add(fileRef.guid, projectPath);
-            m_RealPathToFileRefMap[fileRef.tree].Add(realPath, fileRef); // FIXME
+            if (m_RealPathToFileRefMap.ContainsKey(fileRef.tree))
+                m_RealPathToFileRefMap[fileRef.tree].Add(realPath, fileRef); // FIXME
             m_GuidToParentGroupMap.Add(fileRef.guid, parent);
+        }
+
+        public IEnumerable<PBXFileReferenceData> FileRefsGetAll()
+        {
+            return fileRefs.GetObjects ();
         }
 
         public PBXFileReferenceData FileRefsGet(string guid)
@@ -678,6 +684,14 @@ namespace SpartaTools.iOS.Xcode
 
             // PBXProject project not cleaned
             return changed;
+        }
+
+        public PBXGroupData GroupsGetByName(string name)
+        {
+            foreach (var group in groups.GetEntries())
+                if (group.Value.name == name)
+                    return group.Value;
+            return null;
         }
     }
 

@@ -402,6 +402,19 @@ namespace SpartaTools.iOS.Xcode.PBX
 
     internal class PBXVariantGroupData : PBXGroupData
     {
+        public static PBXVariantGroupData Create(string name, PBXSourceTree tree)
+        {
+            if (name.Contains("/"))
+                throw new Exception("Group name must not contain '/'");
+
+            PBXVariantGroupData gr = new PBXVariantGroupData();
+            gr.guid = PBXGUID.Generate();
+            gr.SetPropertyString("isa", "PBXVariantGroup");
+            gr.name = name;
+            gr.tree = PBXSourceTree.Group;
+            gr.children = new GUIDList();
+            return gr;
+        }
     }
 
     internal class PBXNativeTargetData : PBXObjectData
