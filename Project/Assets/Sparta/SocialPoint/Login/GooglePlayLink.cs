@@ -34,6 +34,7 @@ namespace SocialPoint.Login
 
         void Init()
         {
+            _state = _googlePlay.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             _googlePlay.StateChangeEvent += OnStateChanged;
         }
 

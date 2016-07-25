@@ -27,13 +27,14 @@ public class MarketingInstaller : Installer
     {
         var manager = new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
         manager.DebugMode = Settings.DebugMode;
-        var loginData = Container.Resolve<ILoginData>();
+
         var trackers = Container.ResolveList<IMarketingTracker>();
         for(int i = 0; i < trackers.Count; i++)
         {
             manager.AddTracker(trackers[i]);
         }
-        manager.GetUserID = () => loginData.UserId.ToString();
+
+        manager.LoginData = Container.Resolve<ILoginData>();
         return manager;
     }
 

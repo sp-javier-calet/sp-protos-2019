@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using SocialPoint.Login;
 using UnityEngine;
 #endif
 
@@ -26,6 +27,8 @@ namespace SocialPoint.Purchase
 
         public event PurchaseUpdatedDelegate PurchaseUpdated;
 
+        public ILoginData LoginData { get; set; }
+
         ValidatePurchaseDelegate _validatePurchase;
 
         public ValidatePurchaseDelegate ValidatePurchase
@@ -37,14 +40,6 @@ namespace SocialPoint.Purchase
                     throw new Exception("only one callback allowed!");
                 }
                 _validatePurchase = value;
-            }
-        }
-
-        public GetUserIdDelegate GetUserId
-        {
-            set
-            {
-                //set if the user id is needed for this store
             }
         }
 

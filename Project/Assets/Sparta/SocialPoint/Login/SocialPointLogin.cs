@@ -506,6 +506,8 @@ namespace SocialPoint.Login
 
         Error HandleLoginErrors(HttpResponse resp, ErrorType def)
         {
+            DebugLog("HandleLoginErrors");
+
             ErrorType typ = def;
             Error err = null;
             var data = new AttrDic();
@@ -556,6 +558,8 @@ namespace SocialPoint.Login
 
         Error HandleLinkErrors(HttpResponse resp, ErrorType def)
         {
+            DebugLog("HandleLinkErrors");
+
             ErrorType typ = def;
             Error err = null;
             var data = new AttrDic();
@@ -595,6 +599,8 @@ namespace SocialPoint.Login
 
         Error HandleResponseErrors(HttpResponse resp, ErrorType def)
         {
+            DebugLog("HandleResponseErrors");
+
             ErrorType typ = def;
             Error err = null;
             var data = new AttrDic();
@@ -677,6 +683,8 @@ namespace SocialPoint.Login
 
         void DoLogin(ErrorDelegate cbk, int lastErrCode = 0, byte[] responseBody = null)
         {
+            DebugLog("DoLogin");
+
             if(_appEvents != null)
             {
                 SetAppSource(_appEvents.Source);
@@ -684,16 +692,20 @@ namespace SocialPoint.Login
             _pendingLinkConfirms.Clear();
             if(_availableSecurityTokenErrorRetries < 0)
             {
+                DebugLog("DoLogin - _availableSecurityTokenErrorRetries < 0");
+
                 var err = new Error(lastErrCode, "Max amount of login retries reached.");
                 NotifyError(ErrorType.LoginMaxRetries, err);
                 OnLoginEnd(err, cbk);
             }
             else if(_availableConnectivityErrorRetries < 0)
             {
+                DebugLog("DoLogin - _availableConnectivityErrorRetries < 0");
+
                 #if DEBUG
                 if(responseBody != null && responseBody.Length > 0)
                 {
-                    Log.i(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
+                    DebugLog(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
                 }
                 #endif
 
@@ -714,14 +726,15 @@ namespace SocialPoint.Login
                     HttpRequestEvent(req);
                 }
 
-                DebugLog("login\n----\n" + req + "----\n");
+                DebugLog("DoLogin- login\n----\n" + req + "----\n");
                 _httpClient.Send(req, resp => OnLogin(resp, cbk));
             }
         }
 
         void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
-            DebugLog("login\n----\n" + resp + "----\n");
+            DebugLog("OnLogin - login\n----\n" + resp + "----\n");
+
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearStoredUser();
@@ -930,7 +943,7 @@ namespace SocialPoint.Login
                 req.AddParam(pair.Key, pair.Value);
             }
             itr.Dispose();
-            DebugLog("link\n----\n" + req + "----\n");
+            DebugLog("OnNewLink - link\n----\n" + req + "----\n");
             _httpClient.Send(req, resp => OnNewLinkResponse(info, state, resp));
         }
 
@@ -944,7 +957,7 @@ namespace SocialPoint.Login
             }
 
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
-            DebugLog("link\n----\n" + resp + "----\n");
+            DebugLog("OnNewLinkResponse - link\n----\n" + resp + "----\n");
             var type = LinkConfirmType.None;
             switch(resp.StatusCode)
             {
@@ -1460,7 +1473,7 @@ namespace SocialPoint.Login
 
         void OnAppRequestResponse(HttpResponse resp, AppRequest req, ErrorDelegate cbk)
         {
-            DebugLog("app req\n----\n" + resp + "---\n");
+            DebugLog("OnAppRequestResponse req\n----\n" + resp + "---\n");
             var err = HandleResponseErrors(resp, ErrorType.AppRequest);
             if(Error.IsNullOrEmpty(err))
             {
@@ -1472,7 +1485,7 @@ namespace SocialPoint.Login
 
         void OnAppRequestLinkNotified(LinkInfo info, AppRequest req, Error err, ErrorDelegate cbk)
         {
-            DebugLog("app req\n----\n" + req + "---\n");
+            DebugLog("OnAppRequestLinkNotified req\n----\n" + req + "---\n");
             if(Error.IsNullOrEmpty(err))
             {
                 info = GetNextLinkInfo(info, LinkInfo.Filter.All);
@@ -2034,7 +2047,7 @@ namespace SocialPoint.Login
             req.AddParam(HttpParamLinkConfirmToken, linkToken);
             req.AddParam(HttpParamLinkDecision, decision.ToString().ToLower());
 
-            DebugLog("link confirm\n----\n" + req + "----\n");
+            DebugLog("ConfirmLink - link confirm\n----\n" + req + "----\n");
             _httpClient.Send(req, resp => OnLinkConfirmResponse(linkToken, linkInfo, decision, resp, cbk));
         }
 
@@ -2284,7 +2297,7 @@ namespace SocialPoint.Login
 
             httpReq.Body = new JsonAttrSerializer().Serialize(appRequestParams);
 
-            DebugLog("app req\n----\n" + httpReq + "----\n");
+            DebugLog("SendAppRequest app req\n----\n" + httpReq + "----\n");
             _httpClient.Send(httpReq, resp => OnAppRequestResponse(resp, req, cbk));
         }
 

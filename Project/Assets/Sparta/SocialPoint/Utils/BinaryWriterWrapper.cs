@@ -1,14 +1,10 @@
-﻿using System.Collections;
-using System.IO;
-using UnityEngine.Networking;
-using System;
-using SocialPoint.Lockstep.Network;
+﻿using System.IO;
 
 namespace SocialPoint.Utils
 {
     public class BinaryWriterWrapper : IWriterWrapper
     {
-        BinaryWriter _writer;
+        readonly BinaryWriter _writer;
 
         public BinaryWriterWrapper(BinaryWriter writer)
         {
