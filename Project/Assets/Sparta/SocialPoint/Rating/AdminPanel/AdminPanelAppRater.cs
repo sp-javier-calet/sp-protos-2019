@@ -11,6 +11,7 @@ namespace SocialPoint.Rating
         public AdminPanelAppRater(IAppRater appRater)
         {
             _appRater = appRater;
+            _appRater.OnRequestResultAction += UpdateInfo;
         }
 
         #region IAdminPanelConfigurer implementation
@@ -39,7 +40,6 @@ namespace SocialPoint.Rating
                 _appRater.ResetStatistics();
                 UpdateInfo();
             });
-            layout.CreateButton("Refresh", UpdateInfo);
         }
 
         #endregion

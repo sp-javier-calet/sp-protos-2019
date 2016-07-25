@@ -15,7 +15,7 @@ namespace SocialPoint.Rating
         const string EventsUntilPromptKey = "eventsUntilPrompt";
         const string FirstUseDateKey = "firstUseDate";
         const string RatedCurrentVersionKey = "ratedCurrentVersion";
-        protected const string RatedAnyVersionKey = "ratedAnyVersion";
+        const string RatedAnyVersionKey = "ratedAnyVersion";
         const string DeclineToRateKey = "declineToRate";
         const string ReminderRequestDateKey = "reminderRequestDate";
         const string PromptsLastDayKey = "promptsLastDay";
@@ -117,7 +117,7 @@ namespace SocialPoint.Rating
         {
             if(!HasInfo())
             {
-                SaveFirstDefaults(TimeUtils.Timestamp, 0, 0, false, false, 0, 0, TimeUtils.Timestamp);
+                SaveFirstDefaults(TimeUtils.Timestamp, 0, 0, false, false, false, 0, 0, TimeUtils.Timestamp);
                 return;
             }
 
@@ -184,7 +184,7 @@ namespace SocialPoint.Rating
 
             if(!HasInfo())
             {
-                SaveFirstDefaults(TimeUtils.Timestamp, 0, 0, false, false, 0, 0, TimeUtils.Timestamp);
+                SaveFirstDefaults(TimeUtils.Timestamp, 0, 0, false, false, false, 0, 0, TimeUtils.Timestamp);
             }
             else
             {
@@ -214,18 +214,19 @@ namespace SocialPoint.Rating
             else
             {
                 // new version of the app
-                SaveFirstDefaults(TimeUtils.Timestamp, 1, 0, false, false, 0, 0, TimeUtils.Timestamp);
+                SaveFirstDefaults(TimeUtils.Timestamp, 1, 0, false, false, false, 0, 0, TimeUtils.Timestamp);
             }
         }
 
-        void SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
-                               bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
+        void SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion, 
+                               bool ratedAnyVersion, bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
         {
             _appRaterInfo.SetValue(CurrentVersionKey, _deviceInfo.AppInfo.Version);
             _appRaterInfo.SetValue(FirstUseDateKey, firstUseDate);
             _appRaterInfo.SetValue(UsesUntilPromptKey, usesUntilPrompt);
             _appRaterInfo.SetValue(EventsUntilPromptKey, eventsUntilPrompt);
             _appRaterInfo.SetValue(RatedCurrentVersionKey, ratedCurrentVersion);
+            _appRaterInfo.SetValue(RatedAnyVersionKey, ratedAnyVersion);
             _appRaterInfo.SetValue(DeclineToRateKey, declineToRate);
             _appRaterInfo.SetValue(ReminderRequestDateKey, reminderRequestDate);
             _appRaterInfo.SetValue(PromptsLastDayKey, promptsPerDay);
@@ -323,9 +324,11 @@ namespace SocialPoint.Rating
 
         public void ResetStatistics()
         {
-            SaveFirstDefaults(0, 0, 0, false, false, 0, 0, 0);
-            //TODO:  load info, set ratedAny to false, store it.
+            SaveFirstDefaults(0, 0, 0, false, false, false, 0, 0, 0);
+            LoadInfo();
         }
+
+        public event Action OnRequestResultAction;
 
         void OnWasOnBackground()
         {
@@ -345,6 +348,16 @@ namespace SocialPoint.Rating
             case RateRequestResult.Delay:
                 RequestDelayed();
                 break;
+            }
+
+            OnRequestResultEvent();
+        }
+
+        void OnRequestResultEvent()
+        {
+            if(OnRequestResultAction != null)
+            {
+                OnRequestResultAction();
             }
         }
 

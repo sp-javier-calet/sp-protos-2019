@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace SocialPoint.Rating
 {
     public enum RateRequestResult
@@ -23,6 +24,8 @@ namespace SocialPoint.Rating
         void ResetStatistics();
 
         void OnRequestResult(RateRequestResult result);
+
+        event Action OnRequestResultAction;
     }
 }
 
