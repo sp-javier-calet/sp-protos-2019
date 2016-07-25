@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-using SocialPoint.AppEvents;
+﻿using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
+using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Marketing
 {
@@ -13,8 +13,9 @@ namespace SocialPoint.Marketing
 
         public const string AppPreviouslyInstalledForMarketing = "sparta_app_previously_installed_for_marketing";
 
-        List<IMarketingTracker> _trackers;
-        IAppEvents _appEvents;
+        readonly List<IMarketingTracker> _trackers;
+        readonly IAppEvents _appEvents;
+
         IAttrStorage _storage;
         bool _appPreviouslyInstalled = false;
         #pragma warning disable 0414
@@ -59,16 +60,15 @@ namespace SocialPoint.Marketing
         public void TrackInstall()
         {
             bool isNewInstall = !_appPreviouslyInstalled;
-            var handler = GetUserID;
-            DebugUtils.Assert(handler != null, "SocialPointMarketingAttributionManager GetUserID is null");
-            DebugUtils.Assert(!String.IsNullOrEmpty(GetUserID()), "SocialPointMarketingAttributionManager GetUserID returns empty");
+            DebugUtils.Assert(LoginData != null, "SocialPointMarketingAttributionManager UserId is null");
+            DebugUtils.Assert(!String.IsNullOrEmpty(LoginData.UserId.ToString()), "SocialPointMarketingAttributionManager UserId returns empty");
             for(var i = 0; i < _trackers.Count; i++)
             {
                 var tracker = _trackers[i];
                 #if DEBUG
                 tracker.SetDebugMode(DebugMode);
                 #endif
-                tracker.SetUserID(handler());
+                tracker.SetUserID(LoginData.UserId.ToString());
 
                 tracker.TrackInstall(isNewInstall);
             }
@@ -93,12 +93,7 @@ namespace SocialPoint.Marketing
             }
         }
 
-        public GetUserIDDelegate GetUserID
-        {
-            get;
-            set;
-        }
-
+        public ILoginData LoginData { get; set; }
 
         public TrackEventDelegate TrackEvent
         {
@@ -123,4 +118,3 @@ namespace SocialPoint.Marketing
         
     }
 }
-

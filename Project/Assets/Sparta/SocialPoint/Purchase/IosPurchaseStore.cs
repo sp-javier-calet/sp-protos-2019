@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using SocialPoint.Utils;
 using UnityEngine;
 #endif
@@ -26,9 +27,9 @@ namespace SocialPoint.Purchase
 
         public event PurchaseUpdatedDelegate PurchaseUpdated = delegate {};
 
-        ValidatePurchaseDelegate _validatePurchase;
+        public ILoginData LoginData { get; set; }
 
-        GetUserIdDelegate _getUserId;
+        ValidatePurchaseDelegate _validatePurchase;
 
         private delegate void OnFinishedPendingPurchaseDelegate();
 
@@ -44,23 +45,11 @@ namespace SocialPoint.Purchase
             }
         }
 
-        public GetUserIdDelegate GetUserId
-        {
-            set
-            {
-                _getUserId = value;
-            }
-        }
-
         public void Setup(AttrDic settings)
         {
             PlatformPuchaseSettings.SetBoolSetting(settings, 
                 PlatformPuchaseSettings.IOSUseDetailedLogKey, 
                 IosStoreBinding.EnableHighDetailLogs);
-            
-            PlatformPuchaseSettings.SetBoolSetting(settings, 
-                PlatformPuchaseSettings.IOSUseAppReceiptKey, 
-                IosStoreBinding.SetUseAppReceipt);
             
             PlatformPuchaseSettings.SetBoolSetting(settings, 
                 PlatformPuchaseSettings.IOSSendTransactionUpdateEventsKey, 
@@ -90,9 +79,9 @@ namespace SocialPoint.Purchase
             DebugLog("buying product: " + productId);
             if(_products.Exists(p => p.Id == productId))
             {
-                if(_getUserId != null)
+                if(LoginData != null)
                 {
-                    IosStoreBinding.SetApplicationUsername(CryptographyUtils.GetHashSha256(_getUserId().ToString()));
+                    IosStoreBinding.SetApplicationUsername(CryptographyUtils.GetHashSha256(LoginData.UserId.ToString()));
                     IosStoreBinding.PurchaseProduct(productId);
                     _purchasingProduct = productId;
                     PurchaseUpdated(PurchaseState.PurchaseStarted, productId);
@@ -101,7 +90,7 @@ namespace SocialPoint.Purchase
                 else
                 {
                     PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
-                    string errorMessage = "An Application Username must be set before attempting to purchase. The game must provide a delegate through the SocialPointPurchaseStore.GetUserId setter.";
+                    string errorMessage = "An Application Username must be set before attempting to purchase. The game must provide a LoginData instance through the SocialPointPurchaseStore.LoginData setter.";
                     Debug.LogError(errorMessage);
                     throw new Exception(errorMessage);
                 }

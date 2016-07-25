@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
@@ -60,6 +61,9 @@ namespace SocialPoint.Purchase
         public bool ProductListReceived { get; private set; }
 
         const string HttpParamOrderData = "order_data_base64";
+        const string HttpParamOrderId = "order_id";
+        const string HttpParamAppleReceiptEncoding = "apple_receipt_asn1_encoding";
+        const string HttpValueDefaultAppleReceiptEncoding = "1";
         //used for android
         const string HttpParamPurchaseData = "purchaseData";
         const string HttpParamDataSignature = "dataSignature";
@@ -91,18 +95,11 @@ namespace SocialPoint.Purchase
 
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
-
         /// <summary>
         /// Should be connected to the event tracker to track purchase events
         /// TrackEvent = EventTracker.TrackSystemEvent
         /// </summary>
         public TrackEventDelegate TrackEvent;
-
-        /// <summary>
-        /// The request setup.
-        /// </summary>
-        public RequestSetupDelegate RequestSetup;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SocialPoint.Purchase.SocialPointPurchaseStore"/> class.
@@ -133,11 +130,15 @@ namespace SocialPoint.Purchase
             _purchaseStore.Setup(settings);
         }
 
-        public GetUserIdDelegate GetUserId
+        public ILoginData LoginData
         {
+            get
+            {
+                return _purchaseStore.LoginData;
+            }
             set
             {
-                _purchaseStore.GetUserId = value;
+                _purchaseStore.LoginData = value;
             }
         }
 
@@ -169,14 +170,16 @@ namespace SocialPoint.Purchase
 
             var req = new HttpRequest();
             //get it from SocialPointLogin
-            if(RequestSetup != null)
+            if(LoginData != null)
             {
-                RequestSetup(req, UriPayment);
+                LoginData.SetupHttpRequest(req, UriPayment);
                 DebugUtils.Log(req.Url.AbsoluteUri);
             }
 
             #if (UNITY_IOS || UNITY_TVOS)
             req.AddParam(HttpParamOrderData, receipt.OriginalJson);
+            req.AddParam(HttpParamOrderId, receipt.OrderId);
+            req.AddParam(HttpParamAppleReceiptEncoding, HttpValueDefaultAppleReceiptEncoding);
             #elif UNITY_ANDROID
             var paramDic = new AttrDic();
             paramDic.Set(HttpParamPurchaseData, new AttrString(receipt.OriginalJson));

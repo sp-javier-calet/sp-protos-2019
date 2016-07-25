@@ -35,9 +35,8 @@ public class VideoAdsInstaller : Installer
         #elif UNITY_ANDROID
         settings = AndroidSettings;
         #endif
-        var login = Container.Resolve<ILogin>();
 
-        videoAdsManager.GetUserID = () => login.UserId.ToString();
+        videoAdsManager.LoginData = Container.Resolve<ILoginData>();
         if(settings != null)
         {
             videoAdsManager.AppId = settings.AppID;
