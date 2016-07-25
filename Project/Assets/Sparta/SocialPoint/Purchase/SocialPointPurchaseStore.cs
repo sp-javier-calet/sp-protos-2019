@@ -60,6 +60,9 @@ namespace SocialPoint.Purchase
         public bool ProductListReceived { get; private set; }
 
         const string HttpParamOrderData = "order_data_base64";
+        const string HttpParamOrderId = "order_id";
+        const string HttpParamAppleReceiptEncoding = "apple_receipt_asn1_encoding";
+        const string HttpValueDefaultAppleReceiptEncoding = "1";
         //used for android
         const string HttpParamPurchaseData = "purchaseData";
         const string HttpParamDataSignature = "dataSignature";
@@ -177,6 +180,8 @@ namespace SocialPoint.Purchase
 
             #if (UNITY_IOS || UNITY_TVOS)
             req.AddParam(HttpParamOrderData, receipt.OriginalJson);
+            req.AddParam(HttpParamOrderId, receipt.OrderId);
+            req.AddParam(HttpParamAppleReceiptEncoding, HttpValueDefaultAppleReceiptEncoding);
             #elif UNITY_ANDROID
             var paramDic = new AttrDic();
             paramDic.Set(HttpParamPurchaseData, new AttrString(receipt.OriginalJson));

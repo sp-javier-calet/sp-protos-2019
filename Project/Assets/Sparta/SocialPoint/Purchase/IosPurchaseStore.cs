@@ -59,10 +59,6 @@ namespace SocialPoint.Purchase
                 IosStoreBinding.EnableHighDetailLogs);
             
             PlatformPuchaseSettings.SetBoolSetting(settings, 
-                PlatformPuchaseSettings.IOSUseAppReceiptKey, 
-                IosStoreBinding.SetUseAppReceipt);
-            
-            PlatformPuchaseSettings.SetBoolSetting(settings, 
                 PlatformPuchaseSettings.IOSSendTransactionUpdateEventsKey, 
                 IosStoreBinding.SetShouldSendTransactionUpdateEvents);
         }

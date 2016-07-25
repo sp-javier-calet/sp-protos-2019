@@ -6,7 +6,6 @@ namespace SocialPoint.Purchase
     public class PlatformPuchaseSettings
     {
         //IOS
-        public const string IOSUseAppReceiptKey = "IOSUseAppReceiptKey";
         public const string IOSUseDetailedLogKey = "IOSUseDetailedLogKey";
         public const string IOSSendTransactionUpdateEventsKey = "IOSSendTransactionUpdateEventsKey";
 
@@ -23,7 +22,6 @@ namespace SocialPoint.Purchase
             AttrDic settings = new AttrDic();
 
             #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
-            settings.SetValue(PlatformPuchaseSettings.IOSUseAppReceiptKey, false);
             settings.SetValue(PlatformPuchaseSettings.IOSUseDetailedLogKey, true);
             settings.SetValue(PlatformPuchaseSettings.IOSSendTransactionUpdateEventsKey, true);
             #elif UNITY_ANDROID && !UNITY_EDITOR
