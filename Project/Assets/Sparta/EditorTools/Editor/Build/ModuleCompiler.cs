@@ -85,6 +85,7 @@ namespace SpartaTools.Editor.Build
         const string ReferenceOption = "/reference:\"";
         const string CloseQuote = "\" ";
         const string Space = " ";
+        const string SingleQuote = "\'";
 
         const string EditorFilter = "Editor";
         const string TestsFilter = "Tests";
@@ -281,7 +282,10 @@ namespace SpartaTools.Editor.Build
             {
                 if(!FilterPath(file))
                 {
-                    files.Append(file).Append(Space);
+                    files.Append(SingleQuote);
+                    files.Append(file);
+                    files.Append(SingleQuote);
+                    files.Append(Space);
                 }
             }
             return files.ToString();
@@ -385,6 +389,7 @@ namespace SpartaTools.Editor.Build
             // FIXME Read default symbols from unity
             compiler.AddDefinedSymbol("UNITY_5");
             compiler.AddDefinedSymbol("UNITY_5_3");
+            compiler.AddDefinedSymbol("UNITY_5_3_OR_NEWER");
 
             /* Platform configuration */
             if(editorAssembly)
@@ -400,15 +405,20 @@ namespace SpartaTools.Editor.Build
             case BuildTarget.iOS:
                 compiler.ConfigureAs(new IosPlatformConfiguration());
                 break;
+            case BuildTarget.tvOS:
+                compiler.ConfigureAs(new TvosPlatformConfiguration());
+                break;
             case BuildTarget.StandaloneLinux:
             case BuildTarget.StandaloneLinux64:
             case BuildTarget.StandaloneLinuxUniversal:
-            case BuildTarget.StandaloneOSXIntel:
-            case BuildTarget.StandaloneOSXIntel64:
-            case BuildTarget.StandaloneOSXUniversal:
             case BuildTarget.StandaloneWindows:
             case BuildTarget.StandaloneWindows64:
                 compiler.ConfigureAs(new StandAlonePlatformConfiguration());
+                break;
+            case BuildTarget.StandaloneOSXIntel:
+            case BuildTarget.StandaloneOSXIntel64:
+            case BuildTarget.StandaloneOSXUniversal:
+                compiler.ConfigureAs(new StandAloneOSXPlatformConfiguration());
                 break;
             default:
                 throw new CompilerConfigurationException(string.Format("Unsupported platform {0}", target));
@@ -449,6 +459,15 @@ namespace SpartaTools.Editor.Build
             }
         }
 
+        class StandAloneOSXPlatformConfiguration : ICompilerConfiguration
+        {
+            public void Configure(ModuleCompiler compiler)
+            {
+                compiler.AddDefinedSymbol("UNITY_STANDALONE");
+                compiler.AddDefinedSymbol("UNITY_STANDALONE_OSX");
+            }
+        }
+
         class AndroidPlatformConfiguration : ICompilerConfiguration
         {
             public void Configure(ModuleCompiler compiler)
@@ -463,6 +482,13 @@ namespace SpartaTools.Editor.Build
             public void Configure(ModuleCompiler compiler)
             {
                 var PlayerPath = Path.Combine(InstallationPath, "PlaybackEngines/iOSSupport/");
+
+                if(!Directory.Exists(PlayerPath))
+                {
+                    var error = string.Format("PlayerPath: '{0}' does not exists.", PlayerPath);
+                    throw new CompilerErrorException(error);
+                }
+
                 compiler.AddLibraryPath(PlayerPath);
 
                 compiler.AddReference("UnityEditor.iOS.Extensions.dll");
@@ -472,6 +498,24 @@ namespace SpartaTools.Editor.Build
                 compiler.AddDefinedSymbol("UNITY_IOS");
                 compiler.AddDefinedSymbol("UNITY_IPHONE");
                 compiler.DisableFilter(PlatformIosFilter);
+            }
+        }
+
+        class TvosPlatformConfiguration : ICompilerConfiguration
+        {
+            public void Configure(ModuleCompiler compiler)
+            {
+                var PlayerPath = Path.Combine(InstallationPath, "PlaybackEngines/AppleTVSupport/");
+
+                if(!Directory.Exists(PlayerPath))
+                {
+                    var error = string.Format("PlayerPath: '{0}' does not exists.", PlayerPath);
+                    throw new CompilerErrorException(error);
+                }
+
+                compiler.AddLibraryPath(PlayerPath);
+
+                compiler.AddDefinedSymbol("UNITY_TVOS");
             }
         }
 

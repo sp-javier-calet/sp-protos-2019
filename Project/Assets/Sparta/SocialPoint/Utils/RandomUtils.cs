@@ -1,4 +1,4 @@
-#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR_WIN
+#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_ANDROID || UNITY_IOS || UNITY_TVOS)
 #define NATIVE_RANDOM
 #endif
 
@@ -11,29 +11,29 @@ namespace SocialPoint.Utils
     {
         static bool _init = false;
 
+        #if NATIVE_RANDOM
+
         #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_utils";
-        #elif (UNITY_IOS || UNITY_TVOS) 
+        #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
-
-        #if NATIVE_RANDOM
-
-        static int SPUnityUtilsGetRandomSeed()
-        {
-            return SPUnityUtilsGetRandomInt();
-        }
 
         [System.Runtime.InteropServices.DllImport(PluginModuleName)]
         static extern int SPUnityUtilsGetRandomInt();
 
+        static int GetRandomSeed()
+        {
+            return SPUnityUtilsGetRandomInt();
+        }
+
         #else
         
-        static int SPUnityUtilsGetRandomSeed()
+        static int GetRandomSeed()
         {
-            UnityEngine.Debug.LogWarning("Using substandard Random implementation, this should only happen in Editor!");
+            UnityEngine.Debug.LogWarning("Using substandard Random implementation, this should only happen in Windows!");
             return TimeUtils.Timestamp.GetHashCode() ^ Guid.NewGuid().GetHashCode();
         }
 
@@ -45,7 +45,7 @@ namespace SocialPoint.Utils
             {
                 return;
             }
-            UnityEngine.Random.seed = SPUnityUtilsGetRandomSeed();
+            UnityEngine.Random.seed = GetRandomSeed();
             _init = true;
         }
 

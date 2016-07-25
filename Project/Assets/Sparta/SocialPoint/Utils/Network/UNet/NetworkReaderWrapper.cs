@@ -1,14 +1,10 @@
-﻿using System.Collections;
-using System.IO;
-using UnityEngine.Networking;
-using System;
-using SocialPoint.Lockstep.Network;
+﻿using UnityEngine.Networking;
 
 namespace  SocialPoint.Utils.Network.UNet
 {
     public class NetworkReaderWrapper : IReaderWrapper
     {
-        NetworkReader _reader;
+        readonly NetworkReader _reader;
 
         public NetworkReaderWrapper(NetworkReader reader)
         {
