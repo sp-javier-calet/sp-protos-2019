@@ -1,24 +1,23 @@
-﻿
-using System;
-using SocialPoint.Dependency;
+﻿using System;
 using SocialPoint.AdminPanel;
-using SocialPoint.Utils;
-using SocialPoint.CrossPromotion;
 using SocialPoint.AppEvents;
+using SocialPoint.CrossPromotion;
+using SocialPoint.Dependency;
 using SocialPoint.ServerEvents;
+using SocialPoint.Utils;
 
 public class CrossPromotionInstaller : SubInstaller
 {
     public override void InstallBindings()
     {
-        Container.Bind<SocialPoint.CrossPromotion.CrossPromotionManager>().ToMethod<CrossPromotionManager>(CreateManager, SetupManager);
+        Container.Bind<CrossPromotionManager>().ToMethod<CrossPromotionManager>(CreateManager, SetupManager);
         Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrossPromotion>(CreateAdminPanel);
     }
 
     AdminPanelCrossPromotion CreateAdminPanel()
     {
-        return new AdminPanelCrossPromotion(Container.Resolve<SocialPoint.CrossPromotion.CrossPromotionManager>());
+        return new AdminPanelCrossPromotion(Container.Resolve<CrossPromotionManager>());
     }
 
     CrossPromotionManager CreateManager()
