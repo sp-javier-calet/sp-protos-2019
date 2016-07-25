@@ -271,7 +271,29 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(Hashtable scriptEntry in shellScripts)
                 {
-                    editor.AddShellScript((string)scriptEntry["script"]);
+                    var script = (string)scriptEntry["script"];
+                    var shell = (string)scriptEntry["shell"] ?? "/bin/sh";
+                    var target = (string)scriptEntry["target"];
+
+                    var order = -1;
+                    if(scriptEntry.ContainsKey("position"))
+                    {
+                        order = System.Convert.ToInt32(scriptEntry["position"]);
+                    }
+
+                    if(string.IsNullOrEmpty(script))
+                    {
+                        throw new InvalidDataException("Invalid shell script");
+                    }
+
+                    if(target != null)
+                    {
+                        editor.AddShellScript(script, shell, target, order);
+                    }
+                    else
+                    {
+                        editor.AddShellScript(script, shell, order);
+                    }
                 }
             }
         }

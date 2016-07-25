@@ -175,9 +175,19 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 GetEditor<PListModEditor>().Add(data);
             }
 
-            public override void AddShellScript(string script)
+            public override void AddShellScript(string script, string shell)
             {
-                GetEditor<ShellScriptModEditor>().Add(script);
+                GetEditor<ShellScriptModEditor>().Add(script, shell);
+            }
+
+            public override void AddShellScript(string script, string shell, int order)
+            {
+                GetEditor<ShellScriptModEditor>().Add(script, shell, order);
+            }
+
+            public override void AddShellScript(string script, string shell, string target, int order)
+            {
+                GetEditor<ShellScriptModEditor>().Add(script, shell, target, order);
             }
 
             public override void SetSystemCapability(string name, bool enabled)
@@ -758,9 +768,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class ShellScriptModEditor : IModEditor
             {
-                const string DefaultShell = "/bin/sh";
                 const int DefaultOrder = -1;
-
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
@@ -771,27 +779,22 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     public int Order;
                 }
 
-                public void Add(string script)
-                {
-                    Add(script, DefaultShell, DefaultOrder);
-                }
-
                 public void Add(string script, string shell)
                 {
-                    Add(script, shell, DefaultOrder);
-                }
-
-                public void Add(string script, int order)
-                {
-                    Add(script, DefaultShell, order);
+                    Add(script, shell, string.Empty, DefaultOrder);
                 }
 
                 public void Add(string script, string shell, int order)
                 {
+                    Add(script, shell, string.Empty, order);
+                }
+
+                public void Add(string script, string shell, string target, int order)
+                {
                     _mods.Add(new ModData {
                         Script = script,
                         Shell = shell,
-                        Target = string.Empty,
+                        Target = target,
                         Order = order
                     });
                 }
@@ -805,7 +808,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                         {
                             targetGuid = editor.Pbx.TargetGuidByName(mod.Target);
                         }
-                        editor.Pbx.AddShellScript(targetGuid, mod.Script, mod.Shell);
+                        editor.Pbx.AddShellScript(targetGuid, mod.Script, mod.Shell, mod.Order);
                     }
                 }
             }

@@ -40,7 +40,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         public abstract void AddPlistFields(IDictionary data);
 
-        public abstract void AddShellScript(string script);
+        public abstract void AddShellScript(string script, string shell);
+
+        public abstract void AddShellScript(string script, string shell, int order);
+
+        public abstract void AddShellScript(string script, string shell, string target, int order);
 
         public abstract void SetSystemCapability(string name, bool enabled);
 
