@@ -1,12 +1,11 @@
 ﻿using System;
 using FyberPlugin;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using UnityEngine;
 
 namespace SocialPoint.VideoAds
 {
-    public delegate string GetUserIDDelegate();
-
     public class SocialPointVideoAdsManager : MonoBehaviour, IVideoAdsManager
     {
         string _appId;
@@ -19,8 +18,6 @@ namespace SocialPoint.VideoAds
             }
         }
 
-        public GetUserIDDelegate GetUserID { get; set; }
-
         string _securityToken;
 
         public string SecurityToken
@@ -31,7 +28,9 @@ namespace SocialPoint.VideoAds
             }
         }
 
-        bool _enabled = false;
+        public ILoginData LoginData { get; set; }
+
+        bool _enabled;
         Ad _rewardedVideoAd;
 
         //fix for adcolony
@@ -95,9 +94,9 @@ namespace SocialPoint.VideoAds
         public void Enable()
         {
             DebugUtils.Assert(_appId != null);
-            DebugUtils.Assert(GetUserID() != null);
+            DebugUtils.Assert(LoginData != null);
             DebugUtils.Assert(_securityToken != null);
-            Fyber.With(_appId).WithUserId(GetUserID()).WithSecurityToken(_securityToken).Start();
+            Fyber.With(_appId).WithUserId(LoginData.UserId.ToString()).WithSecurityToken(_securityToken).Start();
             FyberCallback.NativeError += OnNativeExceptionReceivedFromSDK;
             _enabled = true;
         }

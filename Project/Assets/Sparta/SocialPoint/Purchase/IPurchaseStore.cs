@@ -1,6 +1,7 @@
 using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
@@ -39,8 +40,6 @@ namespace SocialPoint.Purchase
 
     public delegate void ValidatePurchaseDelegate(Receipt receipt, ValidatePurchaseResponseDelegate response);
 
-    public delegate UInt64 GetUserIdDelegate();
-
     public interface IPurchaseStore : IDisposable
     {
         Product[] ProductList{ get; }
@@ -58,7 +57,7 @@ namespace SocialPoint.Purchase
 
         ValidatePurchaseDelegate ValidatePurchase{ set; }
 
-        GetUserIdDelegate GetUserId{ set; }
+        ILoginData LoginData { get; set; }
 
         void ForceFinishPendingTransactions();
 

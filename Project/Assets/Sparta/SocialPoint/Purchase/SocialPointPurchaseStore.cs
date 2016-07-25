@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
@@ -94,18 +95,11 @@ namespace SocialPoint.Purchase
 
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
-
         /// <summary>
         /// Should be connected to the event tracker to track purchase events
         /// TrackEvent = EventTracker.TrackSystemEvent
         /// </summary>
         public TrackEventDelegate TrackEvent;
-
-        /// <summary>
-        /// The request setup.
-        /// </summary>
-        public RequestSetupDelegate RequestSetup;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SocialPoint.Purchase.SocialPointPurchaseStore"/> class.
@@ -136,11 +130,15 @@ namespace SocialPoint.Purchase
             _purchaseStore.Setup(settings);
         }
 
-        public GetUserIdDelegate GetUserId
+        public ILoginData LoginData
         {
+            get
+            {
+                return _purchaseStore.LoginData;
+            }
             set
             {
-                _purchaseStore.GetUserId = value;
+                _purchaseStore.LoginData = value;
             }
         }
 
@@ -172,9 +170,9 @@ namespace SocialPoint.Purchase
 
             var req = new HttpRequest();
             //get it from SocialPointLogin
-            if(RequestSetup != null)
+            if(LoginData != null)
             {
-                RequestSetup(req, UriPayment);
+                LoginData.SetupHttpRequest(req, UriPayment);
                 DebugUtils.Log(req.Url.AbsoluteUri);
             }
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
@@ -39,13 +40,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        public GetUserIdDelegate GetUserId
-        {
-            set
-            {
-                //set if the user id is needed for this store
-            }
-        }
+        public ILoginData LoginData { get; set; }
 
         public void Setup(AttrDic settings)
         {

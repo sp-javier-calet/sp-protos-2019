@@ -6,6 +6,7 @@ using SocialPoint.Base;
 using SocialPoint.Crash;
 using SocialPoint.Hardware;
 using SocialPoint.Network;
+using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
 
@@ -13,8 +14,6 @@ namespace SocialPoint.ServerEvents
 {
     public class SocialPointEventTracker : IEventTracker, IUpdateable
     {
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
-
         const string TrackingAuthorizedUri = "track";
         const string TrackingUnautorizedUri = "unauthorized/track";
 
@@ -48,8 +47,7 @@ namespace SocialPoint.ServerEvents
         public const float DefaultTimeout = 30.0f;
         public const float DefaultBackoffMultiplier = 1.1f;
 
-
-        public RequestSetupDelegate RequestSetup;
+        public ILoginData LoginData;
 
         public event EventDataSetupDelegate DataSetup;
         public event Action SyncChange;
@@ -480,20 +478,7 @@ namespace SocialPoint.ServerEvents
 
         void SendData(byte[] data, bool auth, List<Event> sentEvents, Action finish = null)
         {
-            var req = new HttpRequest();
-            var uri = auth ? TrackingAuthorizedUri : TrackingUnautorizedUri;
-            if(RequestSetup != null)
-            {
-                try
-                {
-                    RequestSetup(req, uri);
-                }
-                catch(Exception e)
-                {
-                    CatchException(e);
-                }
-            }
-            if(auth && !req.HasQueryParam(HttpParamSessionId))
+            if(auth && (LoginData == null || string.IsNullOrEmpty(LoginData.SessionId)))
             {
                 // no session, we wait
                 if(finish != null)
@@ -501,6 +486,21 @@ namespace SocialPoint.ServerEvents
                     finish();
                 }
                 return;
+            }
+
+            var req = new HttpRequest();
+
+            if(LoginData != null)
+            {
+                try
+                {
+                    var uri = auth ? TrackingAuthorizedUri : TrackingUnautorizedUri;
+                    LoginData.SetupHttpRequest(req, uri);
+                }
+                catch(Exception e)
+                {
+                    CatchException(e);
+                }
             }
 
             req.Body = data;
