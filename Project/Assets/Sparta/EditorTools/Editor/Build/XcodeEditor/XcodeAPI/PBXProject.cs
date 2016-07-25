@@ -1041,7 +1041,24 @@ namespace SpartaTools.iOS.Xcode
             return null;
         }
 
+        public void AddShellScript(string targetGuid, string script, string shell)
+        {
+            var dic = new PBXElementDict();
+            dic["isa"] = new PBXElementString("PBXShellScriptBuildPhase");
+            dic["shellPath"] = new PBXElementString(shell);
+            dic["shellScript"] = new PBXElementString(script);
 
+            // TODO Unsupported script features
+            dic.CreateArray("files");
+            dic.CreateArray("inputPaths");
+            dic.CreateArray("outputPaths");
+
+            // Add script and build phase
+            var target = nativeTargets[targetGuid];
+            var shellGuid = PBXGUID.Generate();
+            m_Data.shellScripts.AddObject(shellGuid, dic);
+            target.phases.AddGUID(shellGuid);
+        }
     }
 
 } // namespace UnityEditor.iOS.Xcode

@@ -589,16 +589,23 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             class PListModEditor : IModEditor
             {
                 const string DefaultPListFileName = "Info.plist";
+                const bool DefaultOverride = true;
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
                     public IDictionary Data;
+                    public bool Override;
                 }
 
                 public void Add(IDictionary data)
                 {
-                    _mods.Add(new ModData{ Data = data });
+                    Add(data, DefaultOverride);
+                }
+
+                public void Add(IDictionary data, bool overrides)
+                {
+                    _mods.Add(new ModData{ Data = data, Override = overrides });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
@@ -613,14 +620,14 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                         foreach(var mod in _mods)
                         {
-                            Combine(root, mod.Data);
+                            Combine(root, mod.Data, mod.Override);
                         }
 
                         plist.WriteToFile(plistPath);
                     }
                 }
 
-                void Combine(PlistElementDict dic, IDictionary data)
+                void Combine(PlistElementDict dic, IDictionary data, bool overrides)
                 {
                     foreach(DictionaryEntry entry in data)
                     {
@@ -633,12 +640,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                             {
                                 child = dic.CreateDict(key);
                             }
-                            else if(!(child is PlistElementDict))
+                            else if(!overrides && !(child is PlistElementDict))
                             {
                                 throw new ConflictingDataException(child);
                             }
 
-                            Combine(child as PlistElementDict, entry.Value as IDictionary);
+                            Combine(child as PlistElementDict, entry.Value as IDictionary, overrides);
                         }
                         else if(entry.Value is ArrayList)
                         {
@@ -647,17 +654,17 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                             {
                                 child = dic.CreateArray(key);
                             }
-                            else if(!(child is PlistElementArray))
+                            else if(!overrides && !(child is PlistElementArray))
                             {
                                 throw new ConflictingDataException(child);
                             }
 
-                            Combine(child as PlistElementArray, entry.Value as ArrayList);   
+                            Combine(child as PlistElementArray, entry.Value as ArrayList, overrides);   
                         }
                         else if(entry.Value is string)
                         {
                             PlistElement child = dic[key];
-                            if(child != null)
+                            if(!overrides && child != null)
                             {
                                 throw new ConflictingDataException(child);
 
@@ -667,7 +674,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                         else if(entry.Value is bool)
                         {
                             PlistElement child = dic[key];
-                            if(child != null)
+                            if(!overrides && child != null)
                             {
                                 throw new ConflictingDataException(child);
 
@@ -677,7 +684,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                         else if(entry.Value is int)
                         {
                             PlistElement child = dic[key];
-                            if(child != null)
+                            if(!overrides && child != null)
                             {
                                 throw new ConflictingDataException(child);
 
@@ -691,14 +698,14 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     }
                 }
 
-                void Combine(PlistElementArray list, ArrayList data)
+                void Combine(PlistElementArray list, ArrayList data, bool overrides)
                 {
                     foreach(var entry in data)
                     {
                         if(entry is IDictionary)
                         {
                             var dic = list.AddDict();
-                            Combine(dic, entry as IDictionary);
+                            Combine(dic, entry as IDictionary, overrides);
                         }
                         else if(entry is string)
                         {
@@ -731,7 +738,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 class ConflictingDataException : PlistEditorException
                 {
-                    public ConflictingDataException(PlistElement elem) 
+                    public ConflictingDataException(PlistElement elem)
                         : base("Conflicting data in " + elem)
                     {
                     }
@@ -739,7 +746,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 class InvalidDataException : PlistEditorException
                 {
-                    public InvalidDataException() 
+                    public InvalidDataException()
                         : base("Unrecognised data type")
                     {
                     }
@@ -764,24 +771,42 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     public int Order;
                 }
 
-                public void Add(string path)
+                public void Add(string script)
                 {
-                    Add(path, DefaultShell);
+                    Add(script, DefaultShell, DefaultOrder);
                 }
 
                 public void Add(string script, string shell)
+                {
+                    Add(script, shell, DefaultOrder);
+                }
+
+                public void Add(string script, int order)
+                {
+                    Add(script, DefaultShell, order);
+                }
+
+                public void Add(string script, string shell, int order)
                 {
                     _mods.Add(new ModData {
                         Script = script,
                         Shell = shell,
                         Target = string.Empty,
-                        Order = DefaultOrder
+                        Order = order
                     });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
-                    // TODO
+                    foreach(var mod in _mods)
+                    {
+                        var targetGuid = editor.DefaultTargetGuid;
+                        if(!string.IsNullOrEmpty(mod.Target))
+                        {
+                            targetGuid = editor.Pbx.TargetGuidByName(mod.Target);
+                        }
+                        editor.Pbx.AddShellScript(targetGuid, mod.Script, mod.Shell);
+                    }
                 }
             }
 
