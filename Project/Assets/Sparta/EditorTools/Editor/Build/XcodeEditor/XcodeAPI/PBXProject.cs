@@ -1043,6 +1043,11 @@ namespace SpartaTools.iOS.Xcode
 
         public void AddShellScript(string targetGuid, string script, string shell)
         {
+            AddShellScript(targetGuid, script, shell, -1);
+        }
+
+        public void AddShellScript(string targetGuid, string script, string shell, int order)
+        {
             var dic = new PBXElementDict();
             dic["isa"] = new PBXElementString("PBXShellScriptBuildPhase");
             dic["shellPath"] = new PBXElementString(shell);
@@ -1057,7 +1062,34 @@ namespace SpartaTools.iOS.Xcode
             var target = nativeTargets[targetGuid];
             var shellGuid = PBXGUID.Generate();
             m_Data.shellScripts.AddObject(shellGuid, dic);
-            target.phases.AddGUID(shellGuid);
+
+            if(order < 0)
+            {
+                target.phases.AddGUID(shellGuid);
+            }
+            else if(target.phases.Count > 0)
+            {
+                // Recreate phases with the desired order
+                var phasesList = new GUIDList(target.phases);
+                target.phases.Clear();
+
+                int i = 0;
+                foreach(var guid in phasesList)
+                {
+                    // Insert build phase at the desired position
+                    if(i == order)
+                    {
+                        target.phases.AddGUID(shellGuid);
+                    }
+                    i++;
+                        
+                    target.phases.AddGUID(guid);
+                }
+            }
+            else
+            {
+                target.phases.AddGUID(shellGuid);
+            }
         }
     }
 

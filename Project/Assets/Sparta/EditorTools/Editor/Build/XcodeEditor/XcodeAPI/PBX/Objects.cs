@@ -296,6 +296,11 @@ namespace SpartaTools.iOS.Xcode.PBX
         {
             m_List = data;
         }
+
+        public GUIDList(GUIDList other) 
+        {
+            m_List = new List<string>(other.m_List);
+        }
         
         public static implicit operator List<string>(GUIDList list) { return list.m_List; }
         public static implicit operator GUIDList(List<string> data) { return new GUIDList(data); }
