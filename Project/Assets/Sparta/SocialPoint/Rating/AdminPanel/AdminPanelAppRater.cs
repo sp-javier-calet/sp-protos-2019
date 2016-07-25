@@ -39,6 +39,7 @@ namespace SocialPoint.Rating
                 _appRater.ResetStatistics();
                 UpdateInfo();
             });
+            layout.CreateButton("Refresh", UpdateInfo);
         }
 
         #endregion
