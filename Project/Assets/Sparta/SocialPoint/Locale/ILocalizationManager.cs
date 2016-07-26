@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Locale
 {
@@ -10,7 +11,7 @@ namespace SocialPoint.Locale
 
         Localization Localization{ get; set; }
 
-        event Action Loaded;
+        event Action<Dictionary<string, Localization>> Loaded;
 
         void Load();
     }

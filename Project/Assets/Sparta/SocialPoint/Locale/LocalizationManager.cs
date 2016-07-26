@@ -101,7 +101,7 @@ namespace SocialPoint.Locale
         public const float DefaultTimeout = 20.0f;
         public float Timeout = DefaultTimeout;
 
-        public event Action Loaded = delegate{};
+        public event Action<Dictionary<string, Localization>> Loaded = delegate{};
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
@@ -363,7 +363,7 @@ namespace SocialPoint.Locale
             }
         }
 
-        void DownloadSupportedLanguages(Action finish, IDictionary<string,Localization> locales = null, IEnumerator<string> langEnumerator = null)
+        void DownloadSupportedLanguages(Action finish, Dictionary<string,Localization> locales = null, IEnumerator<string> langEnumerator = null)
         {
             if(locales == null)
             {
@@ -389,7 +389,7 @@ namespace SocialPoint.Locale
             DownloadLocalization(lang, () => OnDownloadLocalization(lang, finish, locales, langEnumerator));
         }
 
-        void OnDownloadLocalization(string lang, Action finish, IDictionary<string, Localization> locales, IEnumerator<string> langEnumerator)
+        void OnDownloadLocalization(string lang, Action finish, Dictionary<string, Localization> locales, IEnumerator<string> langEnumerator)
         {
             var locale = new Localization();
             LoadLocalizationData(locale, lang);
@@ -397,7 +397,7 @@ namespace SocialPoint.Locale
             DownloadSupportedLanguages(finish, locales, langEnumerator);
         }
 
-        void OnLanguagesLoaded(IDictionary<string, Localization> locales)
+        void OnLanguagesLoaded(Dictionary<string, Localization> locales)
         {
             if(_writeCsv)
             {
@@ -435,7 +435,7 @@ namespace SocialPoint.Locale
                 #endif
             }
 
-            Loaded();
+            Loaded(locales);
         }
 
         void DownloadCurrentLanguage()
@@ -481,7 +481,7 @@ namespace SocialPoint.Locale
             return false;
         }
 
-        static string LocalizationsToCsv(IDictionary<string,Localization> locales)
+        static string LocalizationsToCsv(Dictionary<string,Localization> locales)
         {
             HashSet<string> keys = null;
             var builder = new StringBuilder();
