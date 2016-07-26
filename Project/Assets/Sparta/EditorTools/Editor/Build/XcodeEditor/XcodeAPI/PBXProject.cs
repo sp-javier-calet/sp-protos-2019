@@ -1091,6 +1091,25 @@ namespace SpartaTools.iOS.Xcode
                 target.phases.AddGUID(shellGuid);
             }
         }
+
+        public void SetSystemCapability(string targetGuid, string capability, bool enabled)
+        {
+            var target = project.project.targetAttributes[targetGuid].AsDict();
+            var el = target["SystemCapabilities"];
+            PBXElementDict sysDic = el != null ? el.AsDict() : null;
+
+            if(sysDic == null)
+            {
+                sysDic = target.CreateDict("SystemCapabilities");
+            }
+                
+            var capDic = sysDic[capability];
+            if(capDic == null)
+            {
+                capDic = sysDic.CreateDict(capability);
+            }
+            capDic["enabled"] = new PBXElementInt(enabled ? 1 : 0);
+        }
     }
 
 } // namespace UnityEditor.iOS.Xcode

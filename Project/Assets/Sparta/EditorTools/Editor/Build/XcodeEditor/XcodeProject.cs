@@ -318,7 +318,6 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 struct ModData
                 {
                     public string Base;
-                    // TODO Same than project?
                     public string Src;
                     public string Dst;
                 }
@@ -835,8 +834,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(var mod in _mods)
                     {
-                        // TODO
-                        // editor.Pbx.SetBuildProperty(editor.DefaultTargetGuid, mod.Name, mod.Enabled);
+                        editor.Pbx.SetSystemCapability(editor.DefaultTargetGuid, mod.Name, mod.Enabled);
                     }
                 }
             }
