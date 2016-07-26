@@ -943,8 +943,8 @@ namespace SpartaTools.iOS.Xcode.PBX
                             var sc = targetDic["SystemCapabilities"].AsDict();
                             foreach(var entry in sc.values)
                             {
-                                var capEnabled = entry.Value["enabled"] as PBXElementString;
-                                var enabled = int.Parse(capEnabled.value) != 0 ? true : false;
+                                var capEnabled = entry.Value["enabled"].AsString();
+                                var enabled = int.Parse(capEnabled) != 0 ? true : false;
                                 systemCapabilities.Add(SystemCapability.Create(target.Key, entry.Key, enabled));
                             }
                         }
