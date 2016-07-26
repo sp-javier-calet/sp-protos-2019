@@ -148,12 +148,12 @@ namespace SocialPoint.Base
         {
             if(datGameObject == null)
             {
-                UnityEngine.Debug.LogError(
+                Log.e(
                     string.Format("[ERROR] [{0}] object [{1}] is null{2}", 
                         Time.frameCount, 
                         typeof(T),
                         optionalMessage == null ? string.Empty : " --> " + string.Format(optionalMessage, formatArgs)));
-                UnityEngine.Debug.Break();    
+                DebugUtils.Break();
             }
             return datGameObject;
         }
@@ -162,7 +162,7 @@ namespace SocialPoint.Base
         {
             if(datGameObject == null)
             {
-                UnityEngine.Debug.LogWarning(string.Format(
+                Log.w(string.Format(
                     "[ERROR] [{0}] object [{1}] is null{2}",
                     Time.frameCount, 
                     typeof(T),

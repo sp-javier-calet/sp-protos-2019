@@ -1,7 +1,8 @@
 #if UNITY_ANDROID
 using System;
-using SocialPoint.Base;
+using SocialPoint.Utils;
 using SocialPoint.IO;
+using SocialPoint.Base;
 using UnityEngine;
 #endif
 
@@ -140,7 +141,7 @@ namespace SocialPoint.Hardware
                         catch
                         {
                             _architecture = string.Empty;
-                            Debug.LogError("Error retrieving DeviceInfo Architecture");
+                            Log.e("Error retrieving DeviceInfo Architecture");
                         }
                     }
                     else
@@ -156,7 +157,7 @@ namespace SocialPoint.Hardware
                         catch
                         {
                             _architecture = string.Empty;
-                            Debug.LogError("Error retrieving DeviceInfo Architecture");
+                            Log.e("Error retrieving DeviceInfo Architecture");
                         }
                     }
                 }
@@ -195,7 +196,7 @@ namespace SocialPoint.Hardware
                     catch
                     {
                         _isGooglePlayServicesAvailable = false;
-                        Debug.LogError("Error retrieving Google Play Services data");
+                        Log.e("Error retrieving Google Play Services data");
                     }
                 }
                 return _isGooglePlayServicesAvailable.HasValue && (bool)_isGooglePlayServicesAvailable;

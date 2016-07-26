@@ -28,7 +28,7 @@ namespace SocialPoint.Network
                 }
                 catch(Exception e)
                 {
-                    DebugUtils.LogException(e);
+                    Log.x(e);
                 }
             }
         }

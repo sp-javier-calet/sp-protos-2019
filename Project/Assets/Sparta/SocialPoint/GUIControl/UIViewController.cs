@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.GUIControl
@@ -311,7 +312,7 @@ namespace SocialPoint.GUIControl
         [System.Diagnostics.Conditional("DEBUG_SPGUI")]
         void DebugLog(string msg)
         {
-            Debug.Log(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
+            Log.i(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
         }
 
         public void SetParent(Transform parent)

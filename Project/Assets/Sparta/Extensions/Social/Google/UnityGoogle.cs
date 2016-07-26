@@ -17,7 +17,7 @@ namespace SocialPoint.Social
         [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("GooglePlay - {0}", msg));
+            Log.i(string.Format("GooglePlay - {0}", msg));
         }
 
         public event GoogleStateChangeDelegate StateChangeEvent;

@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -10,14 +10,14 @@ namespace SocialPoint.GUIAnimation
         {
             public bool WasEnabled;
 
-            public override void Backup ()
+            public override void Backup()
             {
                 WasEnabled = Target.gameObject.activeSelf;
             }
 
-            public override bool HasChanged ()
+            public override bool HasChanged()
             {
-                if (Target == null)
+                if(Target == null)
                 {
                     return false;
                 }
@@ -47,84 +47,84 @@ namespace SocialPoint.GUIAnimation
 
         bool _hasBeenPlayed = false;
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
-            CopyActionValues ((GameObjectEnablerEffect)other);
+            base.Copy(other);
+            CopyActionValues((GameObjectEnablerEffect)other);
         }
 
-        public override void CopyActionValues (Effect other)
+        public override void CopyActionValues(Effect other)
         {
             _startValue = ((GameObjectEnablerEffect)other).StartValue;
             _endValue = ((GameObjectEnablerEffect)other).EndValue;
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
         }
 
-        public override void SetOrCreateDefaultValues ()
+        public override void SetOrCreateDefaultValues()
         {
             _startValue = _endValue = true;
         }
 
-        public override void Invert (bool invertTime)
+        public override void Invert(bool invertTime)
         {
-            base.Invert (invertTime);
+            base.Invert(invertTime);
 
             bool tempEndValue = _endValue;
             _endValue = _startValue;
             _startValue = tempEndValue;
         }
 
-        public override void DoAction ()
+        public override void DoAction()
         {
-            if (Target == null)
+            if(Target == null)
             {
-                Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 
-            if (_disableAfterPlay && _hasBeenPlayed)
+            if(_disableAfterPlay && _hasBeenPlayed)
             {
                 return;
             }
 
-            Target.gameObject.SetActive (EndValue);
+            Target.gameObject.SetActive(EndValue);
             _hasBeenPlayed = true;
         }
 
-        public override void OnReset ()
+        public override void OnReset()
         {
-            base.OnReset ();
+            base.OnReset();
 
-            if (!IsEnabledInHierarchy ())
+            if(!IsEnabledInHierarchy())
             {
                 return;
             }
 
-            if (Target == null)
+            if(Target == null)
             {
-                Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 
-            if (_disableAfterPlay && _hasBeenPlayed)
+            if(_disableAfterPlay && _hasBeenPlayed)
             {
                 return;
             }
 
-            Target.gameObject.SetActive (StartValue);
+            Target.gameObject.SetActive(StartValue);
         }
 
-        public override StepMonitor CreateTargetMonitor ()
+        public override StepMonitor CreateTargetMonitor()
         {
-            return new TargetValueMonitor ();
+            return new TargetValueMonitor();
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            Debug.LogWarning (GetType () + " -> SaveValues. Nothing to save :(");
+            Log.w(GetType() + " -> SaveValues. Nothing to save :(");
         }
     }
 }

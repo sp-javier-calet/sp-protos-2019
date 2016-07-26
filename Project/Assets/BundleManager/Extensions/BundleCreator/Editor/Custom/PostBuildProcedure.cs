@@ -3,6 +3,7 @@ using BM.Extensions;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.AssetVersioning;
+using SocialPoint.Base;
 using System.IO;
 using System;
 
@@ -10,15 +11,16 @@ namespace BM.Extensions
 {
     public class PostBuildProcedure : BBPPostBuild
     {
+        const string GameJson = "/Resources/game.json";
+
         static Dictionary<string, AssetVersioningData> _assetVersioningDict = new Dictionary<string, AssetVersioningData>();
-        static string _assetVersionJson = Path.Combine(Application.streamingAssetsPath, "json/localAssetVersioningJson.json");
-        static string GameJson = "/Resources/game.json";
+        readonly static string _assetVersionJson = Path.Combine(Application.streamingAssetsPath, "json/localAssetVersioningJson.json");
 
         public void run()
         {
             ExportToJson();
 
-            BundlesSynchro synchronizer = new BundlesSynchro();
+            var synchronizer = new BundlesSynchro();
             synchronizer.Synchro();
         }
 
@@ -69,13 +71,13 @@ namespace BM.Extensions
         {
             LoadAssetVersioningJson(_assetVersioningDict, _assetVersionJson);
 
-            AttrDic localAssetVersioningAttr = new AttrDic();
-            AttrList attrNodesList = new AttrList();
+            var localAssetVersioningAttr = new AttrDic();
+            var attrNodesList = new AttrList();
 
             //BUNDLES
             foreach(BundleBuildState bundle in BundleManager.buildStates)
             {
-                AttrDic newBundle = new AttrDic();
+                var newBundle = new AttrDic();
 
                 newBundle[BundleCreatorHelper.AttrAssetNameKey] = new AttrString(bundle.bundleName);
                 if(_assetVersioningDict != null && _assetVersioningDict.ContainsKey(bundle.bundleName))
@@ -103,13 +105,13 @@ namespace BM.Extensions
 
             localAssetVersioningAttr[BundleCreatorHelper.AttrAssetVersioningKey] = attrNodesList;
 
-            JsonAttrSerializer serializer = new JsonAttrSerializer();
+            var serializer = new JsonAttrSerializer();
             var jsonContent = System.Text.Encoding.ASCII.GetString(serializer.Serialize(localAssetVersioningAttr));
 
             string jsonFilePath = Path.Combine(UnityEngine.Application.persistentDataPath, _assetVersionJson);
             File.Delete(jsonFilePath);
             File.WriteAllText(jsonFilePath, jsonContent);
-            SocialPoint.Base.DebugUtils.Log("Saved json file: " + jsonFilePath);
+            Log.d("Saved json file: " + jsonFilePath);
 
             //Save game.json
             var json = File.ReadAllText(Application.dataPath + GameJson);

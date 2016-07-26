@@ -94,7 +94,7 @@ namespace SocialPoint.Login
             #if (UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL)
             _facebook.Login(err => OnLogin(err, cbk), _loginWithUi);
             #else
-            DebugUtils.Log("Facebook API does not yet support this platform");
+            Log.i("Facebook API does not yet support this platform");
             #endif
         }
 

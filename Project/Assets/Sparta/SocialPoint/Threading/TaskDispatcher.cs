@@ -1,6 +1,5 @@
-﻿using UnityEngine;
+﻿using SocialPoint.Base;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -79,15 +78,15 @@ namespace SocialPoint.Threading
 
         void RunTask(object obj)
         {
-            Task task = (Task)obj;
+            var task = (Task)obj;
 
             try
             {
                 task.Run();
             }
-            catch(Exception ex)
+            catch(Exception e)
             {           
-                Debug.LogError(ex);
+                Log.x(e);
             }
             finally
             {

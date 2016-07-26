@@ -3,6 +3,7 @@ using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
 using SocialPoint.Crash;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
@@ -27,7 +28,7 @@ public class CrashInstaller : SubInstaller
 
     public override void InstallBindings()
     {
-        Container.Rebind<IBreadcrumbManager>().ToSingle<BreadcrumbManager>();
+        Container.Rebind<IBreadcrumbManager>().ToMethod<IBreadcrumbManager>(CreateBreadcrumbManager);
         Container.Rebind<ICrashReporter>().ToMethod<SocialPointCrashReporter>(
             CreateCrashReporter, SetupCrashReporter);
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
@@ -50,6 +51,13 @@ public class CrashInstaller : SubInstaller
             Container.Resolve<IDeviceInfo>(),
             Container.Resolve<IBreadcrumbManager>(),
             Container.Resolve<IAlertView>());
+    }
+
+    IBreadcrumbManager CreateBreadcrumbManager()
+    {
+        var breadcrumbManager = new BreadcrumbManager();
+        Log.BreadcrumbLogger = breadcrumbManager;
+        return breadcrumbManager;
     }
 
     void SetupCrashReporter(SocialPointCrashReporter reporter)

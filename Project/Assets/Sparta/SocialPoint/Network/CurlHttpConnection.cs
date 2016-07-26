@@ -338,7 +338,7 @@ namespace SocialPoint.Network
             }
             catch(Exception e)
             {
-                UnityEngine.Debug.LogError(e.ToString());
+                Log.x(e);
                 return;
             }
             

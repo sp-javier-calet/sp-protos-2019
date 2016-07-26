@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using UnityEngine;
+using SocialPoint.Base;
 
 namespace SocialPoint.AdminPanel
 {
@@ -13,7 +13,7 @@ namespace SocialPoint.AdminPanel
             FieldInfo field = typeof(T).GetField(fieldName, bindFlags);
             if(field == null)
             {
-                Debug.LogWarning(string.Format("AdminPanel Error. No '{0}` field in class {1}", fieldName, instance.GetType()));
+                Log.w(string.Format("AdminPanel Error. No '{0}` field in class {1}", fieldName, instance.GetType()));
             }
 
             if(field != null)
@@ -48,7 +48,7 @@ namespace SocialPoint.AdminPanel
             }
             catch(Exception e)
             {
-                Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
+                Log.w(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
             }
         }
 
@@ -60,7 +60,7 @@ namespace SocialPoint.AdminPanel
             }
             catch(Exception e)
             {
-                Debug.LogWarning(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
+                Log.w(string.Format("AdminPanel Error. Error invoking '{0}` method in class {1}. Cause: {2}", methodName, instance.GetType(), e));
                 return defaultReturn;
             }
         }

@@ -7,6 +7,7 @@ using SocialPoint.Crash;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.GameLoading
@@ -298,7 +299,7 @@ namespace SocialPoint.GameLoading
         [System.Diagnostics.Conditional("DEBUG_SPGAMELOADING")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("GameLoadingController: {0}", msg));
+            Log.i(string.Format("GameLoadingController: {0}", msg));
         }
 
         void DoLogin()

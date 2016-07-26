@@ -2,17 +2,18 @@
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine;
+using SocialPoint.Base;
 
 namespace SocialPoint.EventSystems
 {
     public class ActionStandaloneInputModule : ActionPointerInputModule
     {
-        private float m_PrevActionTime;
-        private Vector2 m_LastMoveVector;
-        private int m_ConsecutiveMoveCount = 0;
+        float m_PrevActionTime;
+        Vector2 m_LastMoveVector;
+        int m_ConsecutiveMoveCount = 0;
 
-        private Vector2 m_LastMousePosition;
-        private Vector2 m_MousePosition;
+        Vector2 m_LastMousePosition;
+        Vector2 m_MousePosition;
 
         protected ActionStandaloneInputModule()
         {
@@ -32,35 +33,35 @@ namespace SocialPoint.EventSystems
         }
 
         [SerializeField]
-        private string m_HorizontalAxis = "Horizontal";
+        string m_HorizontalAxis = "Horizontal";
 
         /// <summary>
         /// Name of the vertical axis for movement (if axis events are used).
         /// </summary>
         [SerializeField]
-        private string m_VerticalAxis = "Vertical";
+        string m_VerticalAxis = "Vertical";
 
         /// <summary>
         /// Name of the submit button.
         /// </summary>
         [SerializeField]
-        private string m_SubmitButton = "Submit";
+        string m_SubmitButton = "Submit";
 
         /// <summary>
         /// Name of the submit button.
         /// </summary>
         [SerializeField]
-        private string m_CancelButton = "Cancel";
+        string m_CancelButton = "Cancel";
 
         [SerializeField]
-        private float m_InputActionsPerSecond = 10;
+        float m_InputActionsPerSecond = 10;
 
         [SerializeField]
-        private float m_RepeatDelay = 0.5f;
+        float m_RepeatDelay = 0.5f;
 
         [SerializeField]
         [FormerlySerializedAs("m_AllowActivationOnMobileDevice")]
-        private bool m_ForceModuleActive;
+        bool m_ForceModuleActive;
 
         [Obsolete("allowActivationOnMobileDevice has been deprecated. Use forceModuleActive instead (UnityUpgradable) -> forceModuleActive")]
         public bool allowActivationOnMobileDevice
@@ -190,7 +191,7 @@ namespace SocialPoint.EventSystems
                 ProcessMouseEvent();
         }
 
-        private bool ProcessTouchEvents()
+        bool ProcessTouchEvents()
         {
             for(int i = 0; i < Input.touchCount; ++i)
             {
@@ -216,7 +217,7 @@ namespace SocialPoint.EventSystems
             return Input.touchCount > 0;
         }
 
-        private void ProcessTouchPress(PointerEventData pointerEvent, bool pressed, bool released)
+        void ProcessTouchPress(PointerEventData pointerEvent, bool pressed, bool released)
         {
             var currentOverGo = pointerEvent.pointerCurrentRaycast.gameObject;
 
@@ -248,7 +249,7 @@ namespace SocialPoint.EventSystems
                 if(newPressed == null)
                     newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
-                // Debug.Log("Pressed: " + newPressed);
+                Log.v("Pressed: " + newPressed);
 
                 float time = Time.unscaledTime;
 
@@ -282,10 +283,7 @@ namespace SocialPoint.EventSystems
             // PointerUp notification
             if(released)
             {
-                // Debug.Log("Executing pressup on: " + pointer.pointerPress);
                 ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
-
-                // Debug.Log("KeyCode: " + pointer.eventData.keyCode);
 
                 // see if we mouse up on the same element that we clicked on...
                 var pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
@@ -338,7 +336,7 @@ namespace SocialPoint.EventSystems
             return data.used;
         }
 
-        private Vector2 GetRawMoveVector()
+        Vector2 GetRawMoveVector()
         {
             Vector2 move = Vector2.zero;
             move.x = Input.GetAxisRaw(m_HorizontalAxis);
@@ -391,7 +389,6 @@ namespace SocialPoint.EventSystems
             if(!allow)
                 return false;
 
-            // Debug.Log(m_ProcessingEvent.rawType + " axis:" + m_AllowAxisEvents + " value:" + "(" + x + "," + y + ")");
             var axisEventData = GetAxisEventData(movement.x, movement.y, 0.6f);
 
             if(axisEventData.moveDir != MoveDirection.None)
@@ -481,7 +478,7 @@ namespace SocialPoint.EventSystems
                 if(newPressed == null)
                     newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
-                // Debug.Log("Pressed: " + newPressed);
+                Log.v("Pressed: " + newPressed);
 
                 float time = Time.unscaledTime;
 
@@ -515,10 +512,7 @@ namespace SocialPoint.EventSystems
             // PointerUp notification
             if(data.ReleasedThisFrame())
             {
-                // Debug.Log("Executing pressup on: " + pointer.pointerPress);
                 ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
-
-                // Debug.Log("KeyCode: " + pointer.eventData.keyCode);
 
                 // see if we mouse up on the same element that we clicked on...
                 var pointerUpHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);

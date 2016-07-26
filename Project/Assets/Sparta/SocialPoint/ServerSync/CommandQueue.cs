@@ -897,9 +897,10 @@ namespace SocialPoint.ServerSync
 
         void CatchException(Exception e)
         {
-            DebugUtils.LogException(e);
+            Log.x(e);
+
             #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+            DebugUtils.Stop();
             #else
             NotifyError(CommandQueueErrorType.Exception, new Error(e.ToString()));
             #endif
