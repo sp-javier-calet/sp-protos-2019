@@ -847,6 +847,17 @@ namespace SpartaTools.iOS.Xcode.PBX
         {
             projectReferences.Add(ProjectReference.Create(productGroup, projectRef));
         }
+
+        PBXElementDict GetChildDict(PBXElementDict dic, string key)
+        {
+            PBXElementDict child;
+            if (dic.Contains(key))
+                child = dic[key].AsDict();
+            else
+                child = dic.CreateDict(key);
+
+            return child;
+        }
         
         public override void UpdateProps()
         {
@@ -864,11 +875,7 @@ namespace SpartaTools.iOS.Xcode.PBX
             SetPropertyList("targets", targets);
             SetPropertyString("buildConfigurationList", buildConfigList);
 
-            PBXElementDict attrs;
-            if (m_Properties.Contains("attributes"))
-                attrs = m_Properties["attributes"].AsDict();
-            else
-                attrs = m_Properties.CreateDict("attributes");
+            var attrs = GetChildDict(m_Properties, "attributes");
             
             if (knownAssetTags.Count > 0)
             {
@@ -879,26 +886,13 @@ namespace SpartaTools.iOS.Xcode.PBX
 
             if(systemCapabilities.Count > 0)
             {
-                PBXElementDict targetAttrs;
-                if(attrs.Contains("TargetAttributes"))
-                {
-                    targetAttrs = attrs["TargetAttributes"].AsDict();
-                }
-                else
-                {
-                    targetAttrs = attrs.CreateDict("TargetAttributes");
-                }
-                        
+                var targetAttrs = GetChildDict(attrs, "TargetAttributes");
+
                 foreach (var cap in systemCapabilities)
-                {
-                    var targetDic = targetAttrs[cap.target] != null ? targetAttrs[cap.target].AsDict() : null;
-                    if(targetDic == null)
-                    {
-                        targetDic = targetAttrs.CreateDict(cap.target);
-                    }
-                            
-                    var capabilities = targetDic.CreateDict("SystemCapabilities");
-                    var capDic = capabilities.CreateDict(cap.capability);
+                {   
+                    var targetDic = GetChildDict(targetAttrs, cap.target);
+                    var capabilities = GetChildDict(targetDic, "SystemCapabilities");
+                    var capDic = GetChildDict(capabilities, cap.capability);
                     var enabledValue = (cap.enabled ? 1 : 0);
                     capDic["enabled"] = new PBXElementString(enabledValue.ToString());
                 }
