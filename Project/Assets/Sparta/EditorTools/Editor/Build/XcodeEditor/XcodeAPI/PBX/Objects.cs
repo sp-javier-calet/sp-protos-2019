@@ -710,6 +710,13 @@ namespace SpartaTools.iOS.Xcode.PBX
                         else
                             entries.Add(key, BuildConfigEntryData.FromNameValue(key, value.AsString()));
                     }
+                    else if(value is PBXElementInt)
+                    {
+                        if(entries.ContainsKey(key))
+                            entries[key].val.Add(value.AsInt().ToString());
+                        else
+                            entries.Add(key, BuildConfigEntryData.FromNameValue(key, value.AsInt().ToString()));
+                    }
                     else if (value is PBXElementArray)
                     {
                         foreach (var pvalue in value.AsArray().values)
@@ -823,6 +830,7 @@ namespace SpartaTools.iOS.Xcode.PBX
         public List<ProjectReference> projectReferences = new List<ProjectReference>();
         public string mainGroup { get { return GetPropertyString("mainGroup"); } }
         public List<string> targets = new List<string>();
+        public PBXElementDict targetAttributes;
         public List<string> knownAssetTags = new List<string>();
         public string buildConfigList;
 
@@ -889,6 +897,11 @@ namespace SpartaTools.iOS.Xcode.PBX
                     var tags = el["knownAssetTags"].AsArray();
                     foreach (var tag in tags.values)
                         knownAssetTags.Add(tag.AsString());
+                }
+
+                if(el.Contains("TargetAttributes"))
+                {
+                    targetAttributes = el["TargetAttributes"].AsDict();                    
                 }
             }
         }
