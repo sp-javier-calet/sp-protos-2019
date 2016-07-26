@@ -815,6 +815,22 @@ namespace SpartaTools.iOS.Xcode.PBX
         }
     }
 
+    internal class SystemCapability
+    {
+        public string target;     // guid
+        public string capability;
+        public bool enabled;
+
+        public static SystemCapability Create(string target, string capability, bool enabled)
+        {
+            var cap = new SystemCapability();
+            cap.target = target;
+            cap.capability = capability;
+            cap.enabled = enabled;
+            return cap;
+        }
+    }
+
     internal class PBXProjectObjectData : PBXObjectData
     {
         private static PropertyCommentChecker checkerData = new PropertyCommentChecker(new string[]{
@@ -830,7 +846,7 @@ namespace SpartaTools.iOS.Xcode.PBX
         public List<ProjectReference> projectReferences = new List<ProjectReference>();
         public string mainGroup { get { return GetPropertyString("mainGroup"); } }
         public List<string> targets = new List<string>();
-        public PBXElementDict targetAttributes;
+        public List<SystemCapability> systemCapabilities;
         public List<string> knownAssetTags = new List<string>();
         public string buildConfigList;
 
@@ -854,16 +870,45 @@ namespace SpartaTools.iOS.Xcode.PBX
             };
             SetPropertyList("targets", targets);
             SetPropertyString("buildConfigurationList", buildConfigList);
+
+            PBXElementDict attrs;
+            if (m_Properties.Contains("attributes"))
+                attrs = m_Properties["attributes"].AsDict();
+            else
+                attrs = m_Properties.CreateDict("attributes");
+            
             if (knownAssetTags.Count > 0)
             {
-                PBXElementDict attrs;
-                if (m_Properties.Contains("attributes"))
-                    attrs = m_Properties["attributes"].AsDict();
-                else
-                    attrs = m_Properties.CreateDict("attributes");
                 var tags = attrs.CreateArray("knownAssetTags");
                 foreach (var tag in knownAssetTags)
                     tags.AddString(tag);
+            }
+
+            if(systemCapabilities.Count > 0)
+            {
+                PBXElementDict targetAttrs;
+                if(attrs.Contains("TargetAttributes"))
+                {
+                    targetAttrs = attrs["TargetAttributes"].AsDict();
+                }
+                else
+                {
+                    targetAttrs = attrs.CreateDict("TargetAttributes");
+                }
+                        
+                foreach (var cap in systemCapabilities)
+                {
+                    var targetDic = targetAttrs[cap.target] != null ? targetAttrs[cap.target].AsDict() : null;
+                    if(targetDic == null)
+                    {
+                        targetDic = targetAttrs.CreateDict(cap.target);
+                    }
+                            
+                    var capabilities = targetDic.CreateDict("SystemCapabilities");
+                    var capDic = capabilities.CreateDict(cap.capability);
+                    var enabledValue = (cap.enabled ? 1 : 0);
+                    capDic["enabled"] = new PBXElementString(enabledValue.ToString());
+                }
             }
         }
 
@@ -889,6 +934,7 @@ namespace SpartaTools.iOS.Xcode.PBX
 
             // update knownAssetTags
             knownAssetTags = new List<string>();
+            systemCapabilities = new List<SystemCapability>();
             if (m_Properties.Contains("attributes"))
             {
                 var el = m_Properties["attributes"].AsDict();
@@ -901,7 +947,21 @@ namespace SpartaTools.iOS.Xcode.PBX
 
                 if(el.Contains("TargetAttributes"))
                 {
-                    targetAttributes = el["TargetAttributes"].AsDict();                    
+                    var targetAttributes = el["TargetAttributes"].AsDict();
+                    foreach(var target in targetAttributes.values)
+                    {
+                        var targetDic = target.Value.AsDict();
+                        if(targetDic.Contains("SystemCapabilities"))
+                        {
+                            var sc = targetDic["SystemCapabilities"].AsDict();
+                            foreach(var entry in sc.values)
+                            {
+                                var capEnabled = entry.Value["enabled"] as PBXElementString;
+                                var enabled = int.Parse(capEnabled.value) != 0 ? true : false;
+                                systemCapabilities.Add(SystemCapability.Create(target.Key, entry.Key, enabled));
+                            }
+                        }
+                    }
                 }
             }
         }
