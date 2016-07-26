@@ -858,7 +858,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
-                    // TODO
+                    foreach(var mod in _mods)
+                    {
+                        var path = editor.ReplaceProjectVariables(mod.Path);
+                        editor.Pbx.SetProvisioningProfile(editor.DefaultTargetGuid, path);
+                    }
                 }
             }
 

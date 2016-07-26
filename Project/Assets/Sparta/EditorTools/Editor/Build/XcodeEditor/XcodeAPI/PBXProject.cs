@@ -1097,6 +1097,54 @@ namespace SpartaTools.iOS.Xcode
             var cap = SystemCapability.Create(targetGuid, capability, enabled);
             project.project.systemCapabilities.Add(cap);
         }
+
+        public void SetProvisioningProfile(string targetGuid, string path)
+        {
+            FileInfo projectFileInfo = new FileInfo(path);
+            var file = projectFileInfo.OpenText();
+            string contents = file.ReadToEnd();
+            file.Close();
+
+            int start = contents.IndexOf("<?xml");
+            int end = contents.IndexOf("</plist>") + "</plist>".Length;
+            contents = contents.Substring(start, end - start);
+
+            var doc = new PlistDocument();
+            doc.ReadFromString(contents);
+
+            bool dirty = false;
+            var provUUID = "";
+            if(doc.root.values.ContainsKey("UUID"))
+            {
+                provUUID = ((PlistElementString)doc.root.values["UUID"]).value;
+                dirty = true;
+            }
+
+            var teamname = "";
+            if(doc.root.values.ContainsKey("TeamName"))
+            {
+                teamname = ((PlistElementString)doc.root.values["TeamName"]).value;
+                dirty = true;
+            }
+
+            if(dirty)
+            {
+                foreach(var configGuid in configs[GetConfigListForTarget(targetGuid)].buildConfigs)
+                {
+                    var cfg = buildConfigs[configGuid];
+
+                    if(!string.IsNullOrEmpty(provUUID))
+                        cfg.SetProperty("PROVISIONING_PROFILE", provUUID);
+                    
+                    if(!string.IsNullOrEmpty(teamname))
+                        cfg.SetProperty("CODE_SIGN_IDENTITY", teamname);
+                }
+
+                var homePath = Environment.GetEnvironmentVariable("HOME");
+                var libPath = Path.Combine(homePath, "Library/MobileDevice/Provisioning Profiles/" + provUUID + ".mobileprovision");
+                File.Copy(path, libPath, true);
+            }
+        }
     }
 
 } // namespace UnityEditor.iOS.Xcode
