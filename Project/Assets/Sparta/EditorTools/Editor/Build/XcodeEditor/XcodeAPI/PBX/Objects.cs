@@ -710,13 +710,6 @@ namespace SpartaTools.iOS.Xcode.PBX
                         else
                             entries.Add(key, BuildConfigEntryData.FromNameValue(key, value.AsString()));
                     }
-                    else if(value is PBXElementInt)
-                    {
-                        if(entries.ContainsKey(key))
-                            entries[key].val.Add(value.AsInt().ToString());
-                        else
-                            entries.Add(key, BuildConfigEntryData.FromNameValue(key, value.AsInt().ToString()));
-                    }
                     else if (value is PBXElementArray)
                     {
                         foreach (var pvalue in value.AsArray().values)

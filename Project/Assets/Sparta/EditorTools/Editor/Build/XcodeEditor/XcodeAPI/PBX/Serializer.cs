@@ -178,14 +178,6 @@ namespace SpartaTools.iOS.Xcode.PBX
             else
                 sb.Append(PBXStream.QuoteStringIfNeeded(s));
         }
-
-        static void WriteIntImpl(StringBuilder sb, int i, bool comment, GUIDToCommentMap comments)
-        {
-            if (comment)
-                comments.WriteStringBuilder(sb, i.ToString());
-            else
-                sb.Append(i);
-        }
                                          
         public static void WriteDictKeyValue(StringBuilder sb, string key, PBXElement value, int indent, bool compact, 
                                              PropertyCommentChecker checker, GUIDToCommentMap comments)
@@ -200,8 +192,6 @@ namespace SpartaTools.iOS.Xcode.PBX
 
             if (value is PBXElementString)
                 WriteStringImpl(sb, value.AsString(), checker.CheckStringValueInDict(key, value.AsString()), comments);
-            else if (value is PBXElementInt)
-                WriteIntImpl(sb, value.AsInt(), false, comments); // TODO Comment?
             else if (value is PBXElementDict)
                 WriteDict(sb, value.AsDict(), indent, compact, checker.NextLevel(key), comments);
             else if (value is PBXElementArray)

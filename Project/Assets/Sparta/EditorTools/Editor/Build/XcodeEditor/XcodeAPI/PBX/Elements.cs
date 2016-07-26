@@ -12,7 +12,6 @@ namespace SpartaTools.iOS.Xcode.PBX
         
         // convenience methods
         public string AsString() { return ((PBXElementString)this).value; }
-        public int AsInt() { return ((PBXElementInt)this).value; }
         public PBXElementArray AsArray() { return (PBXElementArray)this; }
         public PBXElementDict AsDict()   { return (PBXElementDict)this; }
         
@@ -28,13 +27,6 @@ namespace SpartaTools.iOS.Xcode.PBX
         public PBXElementString(string v) { value = v; }
         
         public string value;
-    }
-
-    class PBXElementInt : PBXElement
-    {
-        public PBXElementInt(int v) { value = v; }
-
-        public int value;
     }
 
     class PBXElementDict : PBXElement
