@@ -65,8 +65,15 @@ typedef void (^SPAlertViewBlock)(NSInteger buttonIndex, NSString* inputText);
 
             if(input)
             {
+                // we need a weak self here for in-block access
+                __weak typeof(self) weakSelf = self;
+
                 [self.alertCtrl addTextFieldWithConfigurationHandler:^(UITextField* textField) {
-                  self.textField = textField;
+                  __strong typeof(self) strongSelf = weakSelf;
+                  if(strongSelf)
+                  {
+                      strongSelf.textField = textField;
+                  }
                 }];
             }
         }
