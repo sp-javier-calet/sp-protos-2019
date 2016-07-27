@@ -861,7 +861,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var path = editor.ReplaceProjectVariables(mod.Path);
-                        editor.Pbx.SetProvisioningProfile(editor.DefaultTargetGuid, path);
+                        var plistPath = Path.Combine(editor.Project.ProjectRootPath, "Info.plist");
+                        editor.Pbx.SetProvisioningProfile(editor.DefaultTargetGuid, path, plistPath);
                     }
                 }
             }

@@ -1098,9 +1098,10 @@ namespace SpartaTools.iOS.Xcode
             project.project.systemCapabilities.Add(cap);
         }
 
-        public void SetProvisioningProfile(string targetGuid, string path)
+        public void SetProvisioningProfile(string targetGuid, string path, string infoPlistpath)
         {
-            FileInfo projectFileInfo = new FileInfo(path);
+            // TODO Move manipulation code to Plist and Objects.
+            var projectFileInfo = new FileInfo(path);
             var file = projectFileInfo.OpenText();
             string contents = file.ReadToEnd();
             file.Close();
@@ -1127,6 +1128,22 @@ namespace SpartaTools.iOS.Xcode
                 dirty = true;
             }
 
+            var appIdPrefix = "";
+            if(doc.root.values.ContainsKey("ApplicationIdentifierPrefix"))
+            {
+                var appIdPrefixes = doc.root.values["ApplicationIdentifierPrefix"].AsArray();
+                foreach(var prefix in appIdPrefixes.values)
+                {
+                    if(prefix is PlistElementString)
+                    {
+                        appIdPrefix = prefix.AsString();
+                        break;
+                    }
+                }
+
+                dirty = true;
+            }
+
             if(dirty)
             {
                 foreach(var configGuid in configs[GetConfigListForTarget(targetGuid)].buildConfigs)
@@ -1138,6 +1155,14 @@ namespace SpartaTools.iOS.Xcode
                     
                     if(!string.IsNullOrEmpty(teamname))
                         cfg.SetProperty("CODE_SIGN_IDENTITY", teamname);
+
+                    if(!string.IsNullOrEmpty(appIdPrefix) && !string.IsNullOrEmpty(infoPlistpath))
+                    {
+                        var infoPlist = new PlistDocument();
+                        infoPlist.ReadFromFile(infoPlistpath);
+                        infoPlist.root.SetString("BundleSeedId", appIdPrefix);
+                        infoPlist.WriteToFile(infoPlistpath);
+                    }
                 }
 
                 var homePath = Environment.GetEnvironmentVariable("HOME");
