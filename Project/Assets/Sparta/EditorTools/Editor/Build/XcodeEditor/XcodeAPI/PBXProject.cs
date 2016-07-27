@@ -1173,7 +1173,30 @@ namespace SpartaTools.iOS.Xcode
 
         public void AddKeychainAccessGroups(List<string> groups)
         {
-            // TODO
+            var targetGuid = ""; // TODO
+            foreach(var configGuid in configs[GetConfigListForTarget(targetGuid)].buildConfigs)
+            {
+                var cfg = buildConfigs[configGuid];
+                string name = cfg.GetProperty("PRODUCT_NAME") ?? targetGuid;
+                string path = name + ".entitlements";
+                var currentEntitlements = cfg.GetProperty("CODE_SIGN_ENTITLEMENTS");
+                if(currentEntitlements == null)
+                {
+                    cfg.SetProperty("CODE_SIGN_ENTITLEMENTS", path);
+                }
+
+                var  plist = new PlistDocument();
+                plist.ReadFromFile(path);
+                var el = plist.root["keychain-access-groups"] ?? plist.root.CreateArray("keychain-access-groups");
+                var list = el.AsArray();
+                foreach(var gr in groups)
+                {
+                    list.AddString(gr);
+                }
+                plist.WriteToFile(path);
+
+                AddFile(path, path);
+            }
         }
     }
 
