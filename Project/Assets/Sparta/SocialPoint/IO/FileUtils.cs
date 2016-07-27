@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.IO
@@ -18,6 +19,7 @@ namespace SocialPoint.IO
     public class FileUtils
     {
         #if UNITY
+
         static WWW Download(string path)
         {
             var www = new WWW(path);
@@ -26,7 +28,50 @@ namespace SocialPoint.IO
             }
             return www;
         }
+
+        static bool OpenPath(string path)
+        {
+            var www = Download(path);
+            bool exists = string.IsNullOrEmpty(www.error);
+            www.Dispose();
+            return exists;
+        }
+
+        static byte[] ReadBytes(string path)
+        {
+            var www = Download(path);
+            var bytes = www.bytes;
+            www.Dispose();
+            return bytes;
+        }
+
+        static string ReadText(string path)
+        {
+            var www = Download(path);
+            var text = www.text;
+            www.Dispose();
+            return text;
+        }
+
+        #else
+        
+        static bool OpenPath(string path)
+        {
+            throw new IOException("Url paths are not supported.");
+        }
+
+        static byte[] ReadBytes(string path)
+        {
+            throw new IOException("Url paths are not supported.");
+        }
+
+        static string ReadText(string path)
+        {
+            throw new IOException("Url paths are not supported.");
+        }
+
         #endif
+
 
         public delegate bool OperationFilter(string src, string dst);
 
@@ -82,14 +127,7 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-#if UNITY
-                var www = Download(path);
-                bool exists = string.IsNullOrEmpty(www.error);
-                www.Dispose();
-                return exists;
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return OpenPath(path);
             }
             return File.Exists(path);
         }
@@ -98,15 +136,7 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-#if UNITY
-                //TODO: Is there a way to differentiate it from a URL file?
-                var www = Download(path);
-                bool exists = string.IsNullOrEmpty(www.error);
-                www.Dispose();
-                return exists;
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return OpenPath(path);
             }
             return Directory.Exists(path);
         }
@@ -120,14 +150,7 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-#if UNITY
-                var www = Download(path);
-                string text = www.text;
-                www.Dispose();
-                return text;
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return ReadText(path);
             }
             return File.ReadAllText(path);
         }
@@ -136,14 +159,7 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-#if UNITY
-                var www = Download(path);
-                var bytes = www.bytes;
-                www.Dispose();
-                return bytes;
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return ReadBytes(path);
             }
             return File.ReadAllBytes(path);
         }
@@ -656,11 +672,8 @@ namespace SocialPoint.IO
 
         static void CatchException(Exception e)
         {
-            Debug.LogException(e);
-            
-            #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-            #endif
+            Log.x(e);
+            DebugUtils.Stop();
         }
     }
 }

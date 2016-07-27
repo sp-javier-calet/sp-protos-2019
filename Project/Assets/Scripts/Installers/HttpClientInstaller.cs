@@ -50,7 +50,7 @@ public class HttpClientInstaller : Installer
         if(FileUtils.ExistsFile(proxyPath))
         {
             proxy = FileUtils.ReadAllText(proxyPath).Trim();
-            DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
+            Log.i(string.Format("Using editor proxy '{0}'", proxy));
         }
         #endif
 

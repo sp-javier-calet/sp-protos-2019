@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -154,15 +155,15 @@ namespace SocialPoint.ScriptEvents
         {
             if(action.Type == LogType.Error)
             {
-                Debug.LogError(action.Message, action.Object);
+                Log.e(string.Format("{0} - {1}", action.Message, action.Object));
             }
             else if(action.Type == LogType.Warning)
             {
-                Debug.LogWarning(action.Message, action.Object);
+                Log.w(string.Format("{0} - {1}", action.Message, action.Object));
             }
             else
             {
-                Debug.Log(action.Message, action.Object);
+                Log.i(string.Format("{0} - {1}", action.Message, action.Object));
             }
         }
 

@@ -63,7 +63,7 @@ namespace SocialPoint.Social
             NotifyStateChanged();
             if(!Error.IsNullOrEmpty(err))
             {
-                DebugUtils.Log("Game Center login ended in error: " + err);
+                Log.e("Game Center login ended in error: " + err);
             }
             if(cbk != null)
             {

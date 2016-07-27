@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -19,57 +19,57 @@ namespace SocialPoint.GUIAnimation
         public string Parameters { get { return _parameters; } set { _parameters = value; } }
 
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
-            CopyActionValues ((GameObjectEnablerEffect)other);
+            base.Copy(other);
+            CopyActionValues((GameObjectEnablerEffect)other);
         }
 
-        public override void CopyActionValues (Effect other)
+        public override void CopyActionValues(Effect other)
         {
             _method = ((CallbackEffect)other).Method;
             _parameters = ((CallbackEffect)other).Parameters;
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
         }
 
-        public override void SetOrCreateDefaultValues ()
+        public override void SetOrCreateDefaultValues()
         {
         }
 
-        public override void Invert (bool invertTime)
+        public override void Invert(bool invertTime)
         {
-            base.Invert (invertTime);
+            base.Invert(invertTime);
         }
 
-        public override void DoAction ()
+        public override void DoAction()
         {
-            if (Target == null)
+            if(Target == null)
             {
-                Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 
-            if (string.IsNullOrEmpty (_parameters))
+            if(string.IsNullOrEmpty(_parameters))
             {
-                Target.SendMessage (_method, SendMessageOptions.DontRequireReceiver);
+                Target.SendMessage(_method, SendMessageOptions.DontRequireReceiver);
             }
             else
             {
-                Target.SendMessage (_method, _parameters, SendMessageOptions.DontRequireReceiver);
+                Target.SendMessage(_method, _parameters, SendMessageOptions.DontRequireReceiver);
             }
         }
 
-        public override void OnReset ()
+        public override void OnReset()
         {
-            base.OnReset ();
+            base.OnReset();
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            Debug.LogWarning (GetType () + " -> SaveValues. Nothing to save :(");
+            Log.w(GetType() + " -> SaveValues. Nothing to save :(");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.ObjectPool
@@ -245,7 +246,7 @@ namespace SocialPoint.ObjectPool
             if(!Instance._nonPulledPrefabs.Contains(nonPooledPrefab))
             {
                 Instance._nonPulledPrefabs.Add(nonPooledPrefab);
-                Debug.LogWarning("ObjectPool: " + nonPooledPrefab.name);
+                Log.w("ObjectPool: " + nonPooledPrefab.name);
             }
         }
 

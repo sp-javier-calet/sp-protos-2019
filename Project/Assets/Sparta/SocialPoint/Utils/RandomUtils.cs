@@ -33,7 +33,7 @@ namespace SocialPoint.Utils
         
         static int GetRandomSeed()
         {
-            UnityEngine.Debug.LogWarning("Using substandard Random implementation, this should only happen in Windows!");
+            Log.w("Using substandard Random implementation, this should only happen in Windows!");
             return TimeUtils.Timestamp.GetHashCode() ^ Guid.NewGuid().GetHashCode();
         }
 

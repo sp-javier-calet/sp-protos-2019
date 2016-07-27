@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -116,9 +117,7 @@ namespace SocialPoint.GUIAnimation
 
         public bool RemoveTarget (Transform iTarget)
         {
-            List<Step> animItemsWithTarget = _animItems.FindAll ((Step iAction) => {
-                return (iAction is Effect && ((Effect)iAction).Target == iTarget);
-            });
+            List<Step> animItemsWithTarget = _animItems.FindAll ((Step iAction) => (iAction is Effect && ((Effect)iAction).Target == iTarget));
 
             // Remove all actions that contains the target
             for (int i = 0; i < animItemsWithTarget.Count; ++i)
@@ -180,9 +179,7 @@ namespace SocialPoint.GUIAnimation
 
         void RemoveAllActionOfType (System.Type actionType)
         {
-            List<Step> animItemsOfType = _animItems.FindAll ((Step iAction) => {
-                return (iAction.GetType () == actionType);
-            });
+            List<Step> animItemsOfType = _animItems.FindAll ((Step iAction) => (iAction.GetType() == actionType));
 			
             // Remove all actions of that type
             for (int i = 0; i < animItemsOfType.Count; ++i)
@@ -251,9 +248,7 @@ namespace SocialPoint.GUIAnimation
         public T GetActionTemplate<T> (System.Type actionType) where T:Effect
         {
             List<Component> actions = GetActionTemplates ();
-            return (T)actions.Find ((Component i) => {
-                return i.GetType () == actionType;
-            });
+            return (T)actions.Find ((Component i) => i.GetType() == actionType);
         }
 
         public List<Component> GetActionTemplates ()
@@ -279,13 +274,11 @@ namespace SocialPoint.GUIAnimation
             Effect atemplate = GetActionTemplate<Effect> (type);
             if (atemplate == null)
             {
-                Debug.LogWarning ("Template: " + type.ToString () + " is not found");
+                Log.w("Template: " + type.ToString () + " is not found");
                 return false;
             }
 
-            List<Step> animItemsOfType = AnimItems.FindAll ((Step iAction) => {
-                return (iAction.GetType () == atemplate.GetType ());
-            });
+            List<Step> animItemsOfType = AnimItems.FindAll ((Step iAction) => (iAction.GetType() == atemplate.GetType()));
             for (int animItemIdx = 0; animItemIdx < animItemsOfType.Count; ++animItemIdx)
             {
                 ((Effect)animItemsOfType [animItemIdx]).CopyActionValues ((Effect)atemplate);
@@ -296,9 +289,7 @@ namespace SocialPoint.GUIAnimation
 
         void CopySharedValuesToTarget (Transform target)
         {
-            List<Step> animItemsOfTarget = AnimItems.FindAll ((Step iAction) => {
-                return (iAction is Effect) && (((Effect)iAction).Target == target);
-            });
+            List<Step> animItemsOfTarget = AnimItems.FindAll ((Step iAction) => (iAction is Effect) && (((Effect)iAction).Target == target));
             for (int animItemIdx = 0; animItemIdx < animItemsOfTarget.Count; ++animItemIdx)
             {
                 Effect template = GetActionTemplate<Effect> (animItemsOfTarget [animItemIdx].GetType ());

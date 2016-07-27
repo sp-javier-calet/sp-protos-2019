@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -13,13 +15,13 @@ namespace SocialPoint.GUIAnimation
 
     public static class AnchorUtility
     {
-        public static void UpdateAndRemoveAnchors (Transform trans, bool isRecursive)
+        public static void UpdateAndRemoveAnchors(Transform trans, bool isRecursive)
         {
-            Update (trans, isRecursive);
-            RemoveAnchors (trans, isRecursive);
+            Update(trans, isRecursive);
+            RemoveAnchors(trans, isRecursive);
         }
 
-        public static void Update (Transform trans, bool isRecursive)
+        public static void Update(Transform trans, bool isRecursive)
         {
             #if NGUI
             UpdateNGUI (trans, isRecursive);
@@ -27,7 +29,7 @@ namespace SocialPoint.GUIAnimation
             #endif
         }
 
-        public static Vector2 ToPixels (Vector2 clipSpace)
+        public static Vector2 ToPixels(Vector2 clipSpace)
         {
             #if NGUI
             return ToPixelsNGUI (clipSpace);
@@ -36,7 +38,7 @@ namespace SocialPoint.GUIAnimation
             #endif
         }
 
-        public static Vector2 ToClipSpace (Vector2 pixels)
+        public static Vector2 ToClipSpace(Vector2 pixels)
         {
             #if NGUI
             return ToClipSpaceNGUI (pixels);
@@ -45,44 +47,44 @@ namespace SocialPoint.GUIAnimation
             #endif
         }
 
-        public static bool CanBeAnchorParent (GameObject go)
+        public static bool CanBeAnchorParent(GameObject go)
         {
             #if NGUI
             return CanBeAnchorParentNGUI (go);
             #else
-            return CanBeAnchorParentNative (go);
+            return CanBeAnchorParentNative(go);
             #endif
         }
 
-        static bool CanBeAnchorParentNative (GameObject go)
+        static bool CanBeAnchorParentNative(GameObject go)
         {
-            return go.GetComponent<RectTransform> () != null;
+            return go.GetComponent<RectTransform>() != null;
         }
 
-        public static Vector2 GetCanvasScale ()
+        public static Vector2 GetCanvasScale()
         {
             #if NGUI
             return GetCanvasScaleNGUI ();
             #else
-            return GetCanvasScaleNative ();
+            return GetCanvasScaleNative();
             #endif
         }
 
-        public static bool CanBeAnchored (GameObject go)
+        public static bool CanBeAnchored(GameObject go)
         {
             #if NGUI
             return CanBeAnchoredNGUI (go);
             #else
-            return CanBeAnchoredNative (go);
+            return CanBeAnchoredNative(go);
             #endif
         }
 
-        static bool CanBeAnchoredNative (GameObject go)
+        static bool CanBeAnchoredNative(GameObject go)
         {
-            return go.GetComponent<RectTransform> () != null;
+            return go.GetComponent<RectTransform>() != null;
         }
 
-        public static Transform ConvertTransformToRectTransform (Transform trans)
+        public static Transform ConvertTransformToRectTransform(Transform trans)
         {
             #if NGUI
             if (trans.GetComponent<UIWidget> () == null)
@@ -90,9 +92,9 @@ namespace SocialPoint.GUIAnimation
                 trans.gameObject.AddComponent<UIWidget> ();
             }
             #else
-            if (trans.GetComponent<RectTransform> () == null)
+            if(trans.GetComponent<RectTransform>() == null)
             {
-                trans = trans.gameObject.AddComponent<RectTransform> ();
+                trans = trans.gameObject.AddComponent<RectTransform>();
             }
             #endif
 
@@ -100,18 +102,18 @@ namespace SocialPoint.GUIAnimation
         }
 
         // Create a Transform that will be the parent for other child actions
-        public static Transform CreateParentTransform (string name = "")
+        public static Transform CreateParentTransform(string name = "")
         {
-            Transform trans = CreatePivotTransform (name);
-            SetStretchedAnchors (trans);
+            Transform trans = CreatePivotTransform(name);
+            SetStretchedAnchors(trans);
             return trans;
         }
 
         // Create a Transform that will be used as a pivot in the animation tool
-        public static Transform CreatePivotTransform (string name = "")
+        public static Transform CreatePivotTransform(string name = "")
         {
             #if NGUI
-            Debug.Log ("Setting Dimmensions...");
+            Log.d("Setting Dimmensions...");
 
             GameObject go = new GameObject (name);
             UIWidget widget = go.AddComponent<UIWidget> ();
@@ -121,20 +123,20 @@ namespace SocialPoint.GUIAnimation
             }
             return go.transform;
             #else
-            GameObject go = new GameObject (name);
-            return go.AddComponent<RectTransform> ();
+            GameObject go = new GameObject(name);
+            return go.AddComponent<RectTransform>();
             #endif
         }
 
-        public static void SetStretchedAnchors (Transform trans)
+        public static void SetStretchedAnchors(Transform trans)
         {
             #if NGUI
             #else
-            SetStretchedAnchorsNative (trans);
+            SetStretchedAnchorsNative(trans);
             #endif
         }
 
-        public static Transform GetAnchorParent (Transform trans)
+        public static Transform GetAnchorParent(Transform trans)
         {
             #if NGUI
             return GetAnchorParentNGUI (trans);
@@ -143,34 +145,34 @@ namespace SocialPoint.GUIAnimation
             #endif
         }
 
-        public static Vector2[] SetAnchors (Transform trans, Transform transParent, AnchorMode anchorsMode, bool isRecursive)
+        public static Vector2[] SetAnchors(Transform trans, Transform transParent, AnchorMode anchorsMode, bool isRecursive)
         {
             #if NGUI
             return SetAnchorsNGUI (trans, transParent, anchorsMode, isRecursive);
             #else
-            return SetAnchorsNative (trans, anchorsMode);
+            return SetAnchorsNative(trans, anchorsMode);
             #endif
         }
 
-        public static void SetAnchors (Transform trans, Transform transParent, Vector2 anchorMin, Vector2 anchorMax, bool isRecursive)
+        public static void SetAnchors(Transform trans, Transform transParent, Vector2 anchorMin, Vector2 anchorMax, bool isRecursive)
         {
             #if NGUI
             SetAnchorsNGUI (trans, transParent, anchorMin, anchorMax, isRecursive);
             #else
-            SetAnchorsNative (trans, anchorMin, anchorMax);
+            SetAnchorsNative(trans, anchorMin, anchorMax);
             #endif
         }
 
-        public static Vector2[] SetAnchors (Transform trans, Vector2 anchorsMin, Vector2 anchorsMax, Vector2 offsetsMin, Vector2 offsetsMax)
+        public static Vector2[] SetAnchors(Transform trans, Vector2 anchorsMin, Vector2 anchorsMax, Vector2 offsetsMin, Vector2 offsetsMax)
         {
             #if NGUI
             return SetAnchorsNGUI (trans, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
             #else
-            return SetAnchorsNative (trans, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
+            return SetAnchorsNative(trans, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
             #endif
         }
 
-        public static bool IsFullyAnchored (Transform trans)
+        public static bool IsFullyAnchored(Transform trans)
         {
             #if NGUI
             return IsFullyAnchoredNGUI (trans);
@@ -179,7 +181,7 @@ namespace SocialPoint.GUIAnimation
             #endif
         }
 
-        public static void RemoveAnchors (Transform trans, bool isRecursive)
+        public static void RemoveAnchors(Transform trans, bool isRecursive)
         {
             #if NGUI
             RemoveAnchorsNGUI (trans, isRecursive);
@@ -187,146 +189,143 @@ namespace SocialPoint.GUIAnimation
             #endif
         }
 
-        public static bool GetAnchors (Transform trans, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
+        public static bool GetAnchors(Transform trans, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
         {
             #if NGUI
             return GetAnchorsNGUI (trans, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
             #else
-            return GetAnchorsNative (trans, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
+            return GetAnchorsNative(trans, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
             #endif
         }
         //----
         //-- Native UI
         //----
 
-        static Vector2 GetCanvasScaleNative ()
+        static Vector2 GetCanvasScaleNative()
         {
-            Canvas canvas = GameObject.FindObjectOfType<Canvas> ();
-            return new Vector2 (canvas.scaleFactor, canvas.scaleFactor);
+            Canvas canvas = GameObject.FindObjectOfType<Canvas>();
+            return new Vector2(canvas.scaleFactor, canvas.scaleFactor);
         }
 
-        static void SetStretchedAnchorsNative (Transform trans)
+        static void SetStretchedAnchorsNative(Transform trans)
         {
-            RectTransform rectTrans = trans.GetComponent<RectTransform> ();
+            RectTransform rectTrans = trans.GetComponent<RectTransform>();
             rectTrans.anchorMin = Vector2.zero;
             rectTrans.anchorMax = Vector2.one;
         }
 
-        static Vector2[] SetAnchorsNative (Transform trans, AnchorMode anchorMode)
+        static Vector2[] SetAnchorsNative(Transform trans, AnchorMode anchorMode)
         {
-            Debug.Assert (anchorMode != AnchorMode.Disabled);
+            DebugUtils.Assert(anchorMode != AnchorMode.Disabled);
 
-            Vector2 anchorMin = new Vector2 (0.5f, 0.5f);
-            Vector2 anchorMax = new Vector2 (0.5f, 0.5f);
+            var anchorMin = new Vector2(0.5f, 0.5f);
+            var anchorMax = new Vector2(0.5f, 0.5f);
 
             // Parent Rect Info
-            Canvas canvas = GameObject.FindObjectOfType<Canvas> ();
-            RectTransform canvasTrans = canvas.GetComponent<RectTransform> ();
+            Canvas canvas = GameObject.FindObjectOfType<Canvas>();
+            RectTransform canvasTrans = canvas.GetComponent<RectTransform>();
 
             Rect parentRect = canvasTrans.rect;
             Transform parentTrans = trans.parent;
             RectTransform parentRectTrans = null;
-            if (parentTrans != null)
+            if(parentTrans != null)
             {
-                parentRectTrans = parentTrans.GetComponentInParent<RectTransform> ();
+                parentRectTrans = parentTrans.GetComponentInParent<RectTransform>();
             }
-            if (parentRectTrans != null)
+            if(parentRectTrans != null)
             {
                 parentRect = parentRectTrans.rect;
             }
 
             Vector3[] parentWorldCorners = new Vector3[4];
-            parentRectTrans.GetWorldCorners (parentWorldCorners);
-            Vector2 parentPosMin = new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y) * canvasTrans.localScale.x;
+            parentRectTrans.GetWorldCorners(parentWorldCorners);
+            Vector2 parentPosMin = new Vector2(parentWorldCorners[0].x, parentWorldCorners[0].y) * canvasTrans.localScale.x;
 
             Vector2 parentPos = parentRect.position;
-            Vector2 parentSize = (new Vector2 (parentWorldCorners [2].x, parentWorldCorners [2].y) - new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y)) * 0.5f * canvasTrans.localScale.x;
+            Vector2 parentSize = (new Vector2(parentWorldCorners[2].x, parentWorldCorners[2].y) - new Vector2(parentWorldCorners[0].x, parentWorldCorners[0].y)) * 0.5f * canvasTrans.localScale.x;
 
             // My Rect Info
-            RectTransform rect = trans.GetComponent<RectTransform> ();
+            RectTransform rect = trans.GetComponent<RectTransform>();
             Vector2 pos = rect.position;
             Vector3[] rectCorners = new Vector3[4];
-            rect.GetWorldCorners (rectCorners);
-            Vector2 posMin = new Vector2 (rectCorners [0].x, rectCorners [0].y)  * canvasTrans.localScale.x;
-            Vector2 posMax = new Vector2 (rectCorners [2].x, rectCorners [2].y)  * canvasTrans.localScale.x;
+            rect.GetWorldCorners(rectCorners);
+            Vector2 posMin = new Vector2(rectCorners[0].x, rectCorners[0].y) * canvasTrans.localScale.x;
+            Vector2 posMax = new Vector2(rectCorners[2].x, rectCorners[2].y) * canvasTrans.localScale.x;
 
             Vector2 localPos = pos - parentPos;
-            if (anchorMode == AnchorMode.ClosestSide)
+            if(anchorMode == AnchorMode.ClosestSide)
             {
                 // Horizontal
-                if (localPos.x > parentSize.x * 0.33f)
+                if(localPos.x > parentSize.x * 0.33f)
                 {
                     anchorMin.x = 1f;
                     anchorMax.x = 1f;
                 }
-                else
-                if (localPos.x < -parentSize.x * 0.33f)
+                else if(localPos.x < -parentSize.x * 0.33f)
                 {
                     anchorMin.x = 0f;
                     anchorMax.x = 0f;
                 }
 				
                 // Vertical
-                if (localPos.y > parentSize.y * 0.33f)
+                if(localPos.y > parentSize.y * 0.33f)
                 {
                     anchorMin.y = 1f;
                     anchorMax.y = 1f;
                 }
-                else
-                if (localPos.y < -parentSize.y * 0.33f)
+                else if(localPos.y < -parentSize.y * 0.33f)
                 {
                     anchorMin.y = 0f;
                     anchorMax.y = 0f;
                 }
             }
-            else
-            if (anchorMode == AnchorMode.CurrentPosition)
+            else if(anchorMode == AnchorMode.CurrentPosition)
             {
-                anchorMin = new Vector2 ((posMin.x - parentPosMin.x) / (2f * parentSize.x), (posMin.y - parentPosMin.y) / (2f * parentSize.y));
-                anchorMax = new Vector2 ((posMax.x - parentPosMin.x) / (2f * parentSize.x), (posMax.y - parentPosMin.y) / (2f * parentSize.y));
+                anchorMin = new Vector2((posMin.x - parentPosMin.x) / (2f * parentSize.x), (posMin.y - parentPosMin.y) / (2f * parentSize.y));
+                anchorMax = new Vector2((posMax.x - parentPosMin.x) / (2f * parentSize.x), (posMax.y - parentPosMin.y) / (2f * parentSize.y));
             }
 
-            Vector2 offsetMin = new Vector2 (posMin.x - (parentPosMin.x + anchorMin.x * (2f * parentSize.x)), posMin.y - (parentPosMin.y + anchorMin.y * (2f * parentSize.y)));
-            Vector2 offsetMax = new Vector2 (posMax.x - (parentPosMin.x + anchorMax.x * (2f * parentSize.x)), posMax.y - (parentPosMin.y + anchorMax.y * (2f * parentSize.y)));
+            Vector2 offsetMin = new Vector2(posMin.x - (parentPosMin.x + anchorMin.x * (2f * parentSize.x)), posMin.y - (parentPosMin.y + anchorMin.y * (2f * parentSize.y)));
+            Vector2 offsetMax = new Vector2(posMax.x - (parentPosMin.x + anchorMax.x * (2f * parentSize.x)), posMax.y - (parentPosMin.y + anchorMax.y * (2f * parentSize.y)));
 
-            return SetAnchorsNative (trans, anchorMin, anchorMax, offsetMin, offsetMax);
+            return SetAnchorsNative(trans, anchorMin, anchorMax, offsetMin, offsetMax);
         }
 
-        static Vector2[] SetAnchorsNative (Transform trans, Vector2 anchorMin, Vector2 anchorMax)
+        static Vector2[] SetAnchorsNative(Transform trans, Vector2 anchorMin, Vector2 anchorMax)
         {
             // Parent Rect Info
-            Canvas canvas = GameObject.FindObjectOfType<Canvas> ();
-            RectTransform canvasTrans = canvas.GetComponent<RectTransform> ();
+            Canvas canvas = GameObject.FindObjectOfType<Canvas>();
+            RectTransform canvasTrans = canvas.GetComponent<RectTransform>();
 
             Transform parentTrans = trans.parent;
             RectTransform parentRectTrans = null;
-            if (parentTrans != null)
+            if(parentTrans != null)
             {
-                parentRectTrans = parentTrans.GetComponentInParent<RectTransform> ();
+                parentRectTrans = parentTrans.GetComponentInParent<RectTransform>();
             }
 
             Vector3[] parentWorldCorners = new Vector3[4];
-            parentRectTrans.GetWorldCorners (parentWorldCorners);
-            Vector2 parentPosMin = new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y)  * canvasTrans.localScale.x;
+            parentRectTrans.GetWorldCorners(parentWorldCorners);
+            Vector2 parentPosMin = new Vector2(parentWorldCorners[0].x, parentWorldCorners[0].y) * canvasTrans.localScale.x;
 
-            Vector2 parentSize = (new Vector2 (parentWorldCorners [2].x, parentWorldCorners [2].y) - new Vector2 (parentWorldCorners [0].x, parentWorldCorners [0].y)) * 0.5f * canvasTrans.localScale.x;
+            Vector2 parentSize = (new Vector2(parentWorldCorners[2].x, parentWorldCorners[2].y) - new Vector2(parentWorldCorners[0].x, parentWorldCorners[0].y)) * 0.5f * canvasTrans.localScale.x;
 
             // My Rect Info
-            RectTransform rect = trans.GetComponent<RectTransform> ();
+            RectTransform rect = trans.GetComponent<RectTransform>();
             Vector3[] rectCorners = new Vector3[4];
-            rect.GetWorldCorners (rectCorners);
-            Vector2 posMin = new Vector2 (rectCorners [0].x, rectCorners [0].y)  * canvasTrans.localScale.x;
-            Vector2 posMax = new Vector2 (rectCorners [2].x, rectCorners [2].y)  * canvasTrans.localScale.x;
+            rect.GetWorldCorners(rectCorners);
+            Vector2 posMin = new Vector2(rectCorners[0].x, rectCorners[0].y) * canvasTrans.localScale.x;
+            Vector2 posMax = new Vector2(rectCorners[2].x, rectCorners[2].y) * canvasTrans.localScale.x;
 
-            Vector2 offsetMin = new Vector2 (posMin.x - (parentPosMin.x + anchorMin.x * (2f * parentSize.x)), posMin.y - (parentPosMin.y + anchorMin.y * (2f * parentSize.y)));
-            Vector2 offsetMax = new Vector2 (posMax.x - (parentPosMin.x + anchorMax.x * (2f * parentSize.x)), posMax.y - (parentPosMin.y + anchorMax.y * (2f * parentSize.y)));
+            Vector2 offsetMin = new Vector2(posMin.x - (parentPosMin.x + anchorMin.x * (2f * parentSize.x)), posMin.y - (parentPosMin.y + anchorMin.y * (2f * parentSize.y)));
+            Vector2 offsetMax = new Vector2(posMax.x - (parentPosMin.x + anchorMax.x * (2f * parentSize.x)), posMax.y - (parentPosMin.y + anchorMax.y * (2f * parentSize.y)));
 
-            return SetAnchorsNative (trans, anchorMin, anchorMax, offsetMin, offsetMax);
+            return SetAnchorsNative(trans, anchorMin, anchorMax, offsetMin, offsetMax);
         }
 
-        public static Vector2[] SetAnchorsNative (Transform trans, Vector2 relativeMin, Vector2 relativeMax, Vector2 absoluteMin, Vector2 absoluteMax)
+        public static Vector2[] SetAnchorsNative(Transform trans, Vector2 relativeMin, Vector2 relativeMax, Vector2 absoluteMin, Vector2 absoluteMax)
         {
-            RectTransform rectTrans = trans.GetComponent<RectTransform> ();
+            RectTransform rectTrans = trans.GetComponent<RectTransform>();
 			
             // Change anchors
             rectTrans.anchorMin = relativeMin;
@@ -344,9 +343,9 @@ namespace SocialPoint.GUIAnimation
             };
         }
 
-        static bool GetAnchorsNative (Transform trans, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
+        static bool GetAnchorsNative(Transform trans, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
         {
-            RectTransform rectTrans = trans.GetComponent<RectTransform> ();
+            RectTransform rectTrans = trans.GetComponent<RectTransform>();
 
             // Anchors
             anchorsMin = rectTrans.anchorMin;
@@ -663,7 +662,7 @@ namespace SocialPoint.GUIAnimation
 
         static Vector2[] SetAnchorsNGUI (Transform trans, Transform transParent, AnchorMode anchorMode, bool isResursive)
         {
-            Debug.Assert (anchorMode != AnchorMode.Disabled);
+            DebugUtils.Assert (anchorMode != AnchorMode.Disabled);
 
             Vector2 anchorMin = new Vector2 (0.5f, 0.5f);
             Vector2 anchorMax = new Vector2 (0.5f, 0.5f);
