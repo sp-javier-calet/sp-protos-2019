@@ -891,7 +891,26 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     {
                         groups.Add(mod.AccessGroup);
                     }
-                    editor.Pbx.AddKeychainAccessGroups(groups);
+
+                    var fileName = ".entitlements"; // TODO
+                    var path = fileName;
+
+                    AddAccessGroupsToEntitlements(path, groups);
+                    editor.Pbx.AddFile(path, fileName);
+                    editor.Pbx.SetEntitlementsFile(editor.DefaultTargetGuid, fileName);
+                }
+
+                void AddAccessGroupsToEntitlements(string path, List<string> groups)
+                {
+                    var  plist = new PlistDocument();
+                    plist.ReadFromFile(path);
+                    var el = plist.root["keychain-access-groups"] ?? plist.root.CreateArray("keychain-access-groups");
+                    var list = el.AsArray();
+                    foreach(var gr in groups)
+                    {
+                        list.AddString(gr);
+                    }
+                    plist.WriteToFile(path);
                 }
             }
 
