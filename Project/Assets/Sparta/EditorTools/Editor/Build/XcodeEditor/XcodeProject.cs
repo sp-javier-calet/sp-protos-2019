@@ -82,6 +82,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             public const string ProjectRootVar = "XCODE_ROOT_PATH";
             public const string CurrentRootPath = "ROOT_PATH";
             public const string ModsBasePath = "Sparta/Mods";
+            public const string DefaultPListFileName = "Info.plist";
 
             public readonly XcodeProject Project;
             public readonly PBXProject Pbx;
@@ -597,7 +598,6 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class PListModEditor : IModEditor
             {
-                const string DefaultPListFileName = "Info.plist";
                 const bool DefaultOverride = true;
                 readonly List<ModData> _mods = new List<ModData>();
 
@@ -621,7 +621,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     if(_mods.Count > 0)
                     {
-                        var plistPath = Path.Combine(editor.Project.ProjectRootPath, DefaultPListFileName);
+                        var plistPath = Path.Combine(editor.Project.ProjectRootPath, XcodeEditorInternal.DefaultPListFileName);
                         var plist = new PlistDocument();
                         plist.ReadFromFile(plistPath);
 
@@ -861,7 +861,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var path = editor.ReplaceProjectVariables(mod.Path);
-                        var plistPath = Path.Combine(editor.Project.ProjectRootPath, "Info.plist");
+                        var plistPath = Path.Combine(editor.Project.ProjectRootPath, XcodeEditorInternal.DefaultPListFileName);
                         editor.Pbx.SetProvisioningProfile(editor.DefaultTargetGuid, path, plistPath);
                     }
                 }
@@ -886,7 +886,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
-                    // TODO
+                    var groups = new List<string>();
+                    foreach(var mod in _mods)
+                    {
+                        groups.Add(mod.AccessGroup);
+                    }
+                    editor.Pbx.AddKeychainAccessGroups(groups);
                 }
             }
 

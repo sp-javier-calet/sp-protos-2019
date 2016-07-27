@@ -1170,6 +1170,11 @@ namespace SpartaTools.iOS.Xcode
                 File.Copy(path, libPath, true);
             }
         }
+
+        public void AddKeychainAccessGroups(List<string> groups)
+        {
+            // TODO
+        }
     }
 
 } // namespace UnityEditor.iOS.Xcode
