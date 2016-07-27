@@ -23,7 +23,7 @@ public class AlertInstaller : Installer
 
     PopupsController _popups;
 
-    static bool HasNativeAlert
+    static bool IsNativeViewAvailable
     {
         get
         {
@@ -40,7 +40,7 @@ public class AlertInstaller : Installer
         UnityAlertView.ShowDelegate = ShowUnityAlert;
         UnityAlertView.HideDelegate = HideUnityAlert;
 
-        if(Settings.UseNativeAlert && HasNativeAlert)
+        if(Settings.UseNativeAlert && IsNativeViewAvailable)
         {
             Container.Rebind<IAlertView>().ToMethod<AlertView>(CreateAlertView);
         }

@@ -94,12 +94,18 @@ namespace SocialPoint.IosKeychain
             }
         }
 
+        static string _seedId;
+
         static public string SeedId
         {
             get
             {
-                var parts = DefaultAccessGroup.Split(new []{ kSeparator }, StringSplitOptions.None);
-                return parts.Length > 0 ? parts[0] : null;
+                if(_seedId == null)
+                {
+                    var parts = DefaultAccessGroup.Split(new []{ kSeparator }, StringSplitOptions.None);
+                    _seedId = parts.Length > 0 ? parts[0] : null;
+                }
+                return _seedId;
             }
         }
 
