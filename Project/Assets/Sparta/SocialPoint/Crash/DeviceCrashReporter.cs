@@ -9,7 +9,6 @@ using SocialPoint.Network;
 using SocialPoint.Alert;
 using SocialPoint.Utils;
 using SocialPoint.Base;
-using UnityEngine;
 
 namespace SocialPoint.Crash
 {
@@ -223,7 +222,7 @@ namespace SocialPoint.Crash
 
         public void OnCrashDumped(string path)
         {
-            DebugUtils.LogWarning("OnCrashDumped '" + path + "'");
+            Log.w("OnCrashDumped '" + path + "'");
             //A non-killing crash may not "crash" the app, but the native crash detection may stop working after it, and future crashes may not be tracked.
             //We leave a breadcrumb to know that one of them was detected.
             _breadcrumbManager.Log("Non-Killing Crash Detected");
@@ -234,7 +233,7 @@ namespace SocialPoint.Crash
                 _breadcrumbManager.Log(DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
                 _breadcrumbManager.Log("Non-Killing Crash StackTrace - End");
 
-                DebugUtils.LogWarning("Removing non-killing crash file '" + path + "'...");
+                Log.w("Removing non-killing crash file '" + path + "'...");
                 FileUtils.DeleteFile(path);
             }
 
@@ -267,11 +266,11 @@ namespace SocialPoint.Crash
             }
             catch(DirectoryNotFoundException)
             {
-                Debug.LogError(string.Format("Crash folder '{0}' not found.", _crashesBasePath));
+                Log.e(string.Format("Crash folder '{0}' not found.", _crashesBasePath));
             }
             catch(Exception e)
             {
-                Debug.LogError(string.Format("Exception getting pending crashes: {0}", e));
+                Log.e(string.Format("Exception getting pending crashes: {0}", e));
             }
 
             return reports;

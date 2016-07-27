@@ -1,5 +1,6 @@
 ﻿using SocialPoint.Attributes;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.CrossPromotion
 {
@@ -68,7 +69,7 @@ namespace SocialPoint.CrossPromotion
                 }
                 else
                 {
-                    UnityEngine.Debug.LogWarning("CrossPromo UID is not unique: " + crossPromoData.Uid);
+                    Log.w("CrossPromo UID is not unique: " + crossPromoData.Uid);
                 }
             }
             itr.Dispose();

@@ -1,11 +1,12 @@
 ﻿using System.IO;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using UnityEngine;
 
 public class BundlesSynchro
 {
-    private string localAssetVersioningJson = Application.dataPath.Replace("/Assets", "") + "/Assets/StreamingAssets/json/localAssetVersioningJson.json";
-    private string localBundlesJsonSPAM = Application.dataPath.Replace("/Assets", "") + "/Assets/StreamingAssets/json/localBundlesJsonSpam.json";
+    string localAssetVersioningJson = Application.dataPath.Replace("/Assets", "") + "/Assets/StreamingAssets/json/localAssetVersioningJson.json";
+    string localBundlesJsonSPAM = Application.dataPath.Replace("/Assets", "") + "/Assets/StreamingAssets/json/localBundlesJsonSpam.json";
 
     public void Synchro()
     {
@@ -14,11 +15,11 @@ public class BundlesSynchro
         {
             string JSONassetVersioning = File.ReadAllText(localAssetVersioningJson);
 
-            JsonAttrParser parser = new JsonAttrParser();
+            var parser = new JsonAttrParser();
             var attrs = parser.ParseString(JSONassetVersioning);
 
-            AttrDic localBundlesAttr = new AttrDic();
-            AttrList attrNodesList = new AttrList();
+            var localBundlesAttr = new AttrDic();
+            var attrNodesList = new AttrList();
 
             for(int i = 0; i < attrs.AsDic[BundleCreatorHelper.AttrAssetVersioningKey].AsList.Count; i++)
             {
@@ -26,7 +27,7 @@ public class BundlesSynchro
                 string bundleName = assetVersioningItem[BundleCreatorHelper.AttrAssetNameKey].ToString();
                 int version = assetVersioningItem[BundleCreatorHelper.AttrAssetVersionKey].AsValue.ToInt();
 
-                AttrDic newBundle = new AttrDic();
+                var newBundle = new AttrDic();
                 newBundle[BundleCreatorHelper.AttrAssetBundleNameKey] = new AttrString(bundleName);
                 newBundle[BundleCreatorHelper.AttrAssetBundleVersionKey] = new AttrInt(version);
 
@@ -38,17 +39,17 @@ public class BundlesSynchro
 
             SaveJsonFile(localBundlesJsonSPAM, jsonContent);
 
-            Debug.Log("Bundles Successfully Copied!");
+            Log.d("Bundles Successfully Copied!");
         }
         else
         {
-            Debug.LogError("Bundles Synchro aborted: the localAssetVersioningJson cannot be found at the specified path --> " + localAssetVersioningJson);
+            Log.e("Bundles Synchro aborted: the localAssetVersioningJson cannot be found at the specified path --> " + localAssetVersioningJson);
         }
     }
 
     public string LocalBundlesToJson(AttrDic localBundlesAttr)
     {
-        JsonAttrSerializer serializer = new JsonAttrSerializer();
+        var serializer = new JsonAttrSerializer();
         return System.Text.Encoding.ASCII.GetString(serializer.Serialize(localBundlesAttr));
     }
 
@@ -57,6 +58,6 @@ public class BundlesSynchro
         string jsonFilePath = Path.Combine(UnityEngine.Application.persistentDataPath, jsonFileName);
         File.Delete(jsonFilePath);
         File.WriteAllText(jsonFilePath, contents);
-        SocialPoint.Base.DebugUtils.Log("Saved json file: " + jsonFilePath);
+        Log.d("Saved json file: " + jsonFilePath);
     }
 }

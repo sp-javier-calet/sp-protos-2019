@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -10,27 +10,27 @@ namespace SocialPoint.GUIAnimation
         {
             public Color Color;
 
-            public override void Backup ()
+            public override void Backup()
             {
-                IGraphicObject graphic = GetGraphicObject ();
-                if (graphic != null)
+                IGraphicObject graphic = GetGraphicObject();
+                if(graphic != null)
                 {
                     Color = graphic.Color;
                 }
             }
 
-            IGraphicObject GetGraphicObject ()
+            IGraphicObject GetGraphicObject()
             {
-                return GraphicObjectLoader.Load (Target, true);
+                return GraphicObjectLoader.Load(Target, true);
             }
 
-            public override bool HasChanged ()
+            public override bool HasChanged()
             {
                 Color original = Color;
 
                 Color newColor = original;
-                IGraphicObject widget = GetGraphicObject ();
-                if (widget != null)
+                IGraphicObject widget = GetGraphicObject();
+                if(widget != null)
                 {
                     newColor = widget.Color;
                 }
@@ -57,81 +57,81 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (Target == null)
+                if(Target == null)
                 {
                     return null;
                 }
 
-                if (Application.isPlaying && _graphicObject != null)
+                if(Application.isPlaying && _graphicObject != null)
                 {
                     return _graphicObject;
                 }
 
-                _graphicObject = GraphicObjectLoader.Load (Target, true);
+                _graphicObject = GraphicObjectLoader.Load(Target, true);
                 return _graphicObject;
             }
         }
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
+            base.Copy(other);
 
-            CopyActionValues ((Effect)other);
+            CopyActionValues((Effect)other);
         }
 
-        public override void CopyActionValues (Effect other)
+        public override void CopyActionValues(Effect other)
         {
             _startValue = ((ColorEffect)other).StartValue;
             _endValue = ((ColorEffect)other).EndValue;
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
         }
 
-        public override void SetOrCreateDefaultValues ()
+        public override void SetOrCreateDefaultValues()
         {
-            SaveValuesAt (0f);
-            SaveValuesAt (1f);
+            SaveValuesAt(0f);
+            SaveValuesAt(1f);
         }
 
-        public override void Invert (bool invertTime)
+        public override void Invert(bool invertTime)
         {
-            base.Invert (invertTime);
+            base.Invert(invertTime);
 
             Color tempEndValue = _endValue;
             _endValue = _startValue;
             _startValue = tempEndValue;
         }
 
-        public override void OnBlend (float blend)
+        public override void OnBlend(float blend)
         {
-            if (TargetWidget == null)
+            if(TargetWidget == null)
             {
-                if (Animation != null && Animation.EnableWarnings)
+                if(Animation != null && Animation.EnableWarnings)
                 {
-                    Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                    Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 }
                 return;
             }
 
-            TargetWidget.Color = Color.Lerp (StartValue, EndValue, blend);
+            TargetWidget.Color = Color.Lerp(StartValue, EndValue, blend);
 
-            if (!Application.isPlaying)
+            if(!Application.isPlaying)
             {
-                gameObject.SetActive (false);
-                gameObject.SetActive (true);
+                gameObject.SetActive(false);
+                gameObject.SetActive(true);
             }
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            if (TargetWidget == null)
+            if(TargetWidget == null)
             {
                 return;
             }
 			
-            if (localTimeNormalized < 0.5f)
+            if(localTimeNormalized < 0.5f)
             {
                 StartValue = TargetWidget.Color;
             }
@@ -141,9 +141,9 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public override StepMonitor CreateTargetMonitor ()
+        public override StepMonitor CreateTargetMonitor()
         {
-            return new TargetValueMonitor ();
+            return new TargetValueMonitor();
         }
     }
 }

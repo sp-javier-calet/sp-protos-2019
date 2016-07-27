@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -13,9 +14,9 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (_itemsRoot == null)
+                if(_itemsRoot == null)
                 {
-                    SetOrCreateItemsRoot ();
+                    SetOrCreateItemsRoot();
                 }
 
                 return _itemsRoot;
@@ -23,249 +24,243 @@ namespace SocialPoint.GUIAnimation
         }
 
         [SerializeField]
-        protected List<Step> _animItems = new List<Step> ();
+        protected List<Step> _animItems = new List<Step>();
 
         public List<Step> AnimItems
         {
             get
             {
-                if (_animItems.Count == 0)
+                if(_animItems.Count == 0)
                 {
-                    _animItems = new List<Step> (ItemsRoot.GetComponents<Step> ());
+                    _animItems = new List<Step>(ItemsRoot.GetComponents<Step>());
                 }
 
                 return _animItems;
             } 
         }
 
-        void SetOrCreateItemsRoot ()
+        void SetOrCreateItemsRoot()
         {
-            if (_itemsRoot == null)
+            if(_itemsRoot == null)
             {
-                _itemsRoot = AnchorUtility.CreateParentTransform (StepName + "_Group");
+                _itemsRoot = AnchorUtility.CreateParentTransform(StepName + "_Group");
             }
 
-            _itemsRoot.SetParent (transform, false);
+            _itemsRoot.SetParent(transform, false);
             ItemsRoot.gameObject.name = StepName + "Effects";
         }
 
-        public void OnAnimationStartPlaying ()
+        public void OnAnimationStartPlaying()
         {
-            if (_parent == null)
+            if(_parent == null)
             {
-                float totalEndingTime = Animation.GetEndingTime ();
+                float totalEndingTime = Animation.GetEndingTime();
                 float scale = EndTime / totalEndingTime;
-                SetEndTime (totalEndingTime, AnimTimeMode.Global);
+                SetEndTime(totalEndingTime, AnimTimeMode.Global);
 
-                for (int i = 0; i < AnimItems.Count; ++i)
+                for(int i = 0; i < AnimItems.Count; ++i)
                 {
-                    AnimItems [i].ScaleTime (scale);
+                    AnimItems[i].ScaleTime(scale);
                 }
             }
         }
 
-        public override void Invert (bool invertTime)
+        public override void Invert(bool invertTime)
         {
-            base.Invert (invertTime);
+            base.Invert(invertTime);
 			
-            for (int i = 0; i < AnimItems.Count; ++i)
+            for(int i = 0; i < AnimItems.Count; ++i)
             {
-                AnimItems [i].Invert (true);
+                AnimItems[i].Invert(true);
             }
         }
 
-        public override void Refresh ()
+        public override void Refresh()
         {
-            SetOrCreateItemsRoot ();
+            SetOrCreateItemsRoot();
 
-            _animItems.Clear ();
+            _animItems.Clear();
 
-            for (int i = 0; i < AnimItems.Count; ++i)
+            for(int i = 0; i < AnimItems.Count; ++i)
             {
-                AnimItems [i].Refresh ();
+                AnimItems[i].Refresh();
             }
         }
 
-        public override void Init (Animation animation, Step parent)
+        public override void Init(Animation animation, Step parent)
         {
-            base.Init (animation, parent);
+            base.Init(animation, parent);
 
-            SetOrCreateItemsRoot ();
+            SetOrCreateItemsRoot();
 
-            for (int i = 0; i < AnimItems.Count; ++i)
+            for(int i = 0; i < AnimItems.Count; ++i)
             {
-                AnimItems [i].Init (animation, this);
+                AnimItems[i].Init(animation, this);
             }
         }
 
-        public void AddAndCopyAnimationItems (List<Step> animItems, bool calculateContainerTime)
+        public void AddAndCopyAnimationItems(List<Step> animItems, bool calculateContainerTime)
         {
             float collectionStarTime = 999999f;
             float collectionEndTime = 0f;
 
-            for (int i = 0; i < animItems.Count; ++i)
+            for(int i = 0; i < animItems.Count; ++i)
             {
-                Step animItem = animItems [i];
-                collectionStarTime = Mathf.Min (collectionStarTime, animItem.GetStartTime (AnimTimeMode.Global));
-                collectionEndTime = Mathf.Max (collectionEndTime, animItem.GetEndTime (AnimTimeMode.Global));
+                Step animItem = animItems[i];
+                collectionStarTime = Mathf.Min(collectionStarTime, animItem.GetStartTime(AnimTimeMode.Global));
+                collectionEndTime = Mathf.Max(collectionEndTime, animItem.GetEndTime(AnimTimeMode.Global));
             }
 
             // Calculte our Time
-            if (calculateContainerTime)
+            if(calculateContainerTime)
             {
-                SetStartTime (collectionStarTime, AnimTimeMode.Global);
-                SetEndTime (collectionEndTime, AnimTimeMode.Global);
+                SetStartTime(collectionStarTime, AnimTimeMode.Global);
+                SetEndTime(collectionEndTime, AnimTimeMode.Global);
             }
 
-            animItems.Sort (Animation.SortByStartTime);
+            animItems.Sort(Animation.SortByStartTime);
 
             // Add Animation Items
-            for (int i = 0; i < animItems.Count; ++i)
+            for(int i = 0; i < animItems.Count; ++i)
             {
-                int slot = GetFirstFreeSlot (0, 999);
+                int slot = GetFirstFreeSlot(0, 999);
 
-                Step copy = AddAndCopyAnimationItem (animItems [i], this);
-                copy.SetStartTime (animItems [i].GetStartTime (AnimTimeMode.Global), AnimTimeMode.Global);
-                copy.SetEndTime (animItems [i].GetEndTime (AnimTimeMode.Global), AnimTimeMode.Global);
-                copy.SetSlot (slot);
+                Step copy = AddAndCopyAnimationItem(animItems[i], this);
+                copy.SetStartTime(animItems[i].GetStartTime(AnimTimeMode.Global), AnimTimeMode.Global);
+                copy.SetEndTime(animItems[i].GetEndTime(AnimTimeMode.Global), AnimTimeMode.Global);
+                copy.SetSlot(slot);
             }
 
-            Animation.RefreshAndInit ();
+            Animation.RefreshAndInit();
         }
 
-        public Step AddAndCopyAnimationItem (Step animItem, Step newParent = null)
+        public Step AddAndCopyAnimationItem(Step animItem, Step newParent = null)
         {
-            Step copy = (Step)ItemsRoot.gameObject.AddComponent (animItem.GetType ());
+            Step copy = (Step)ItemsRoot.gameObject.AddComponent(animItem.GetType());
             copy.Animation = Animation;
 
-            copy.Copy (animItem);
-            if (newParent != null)
+            copy.Copy(animItem);
+            if(newParent != null)
             {
-                copy.Init (Animation, newParent);
+                copy.Init(Animation, newParent);
             }
 
-            Animation.RefreshAndInit ();
+            Animation.RefreshAndInit();
 
             return copy;
         }
 
-        public Step AddAnimationItem (System.Type type, string name)
+        public Step AddAnimationItem(System.Type type, string name)
         {
-            name = name != "" ? name : type.ToString ();
-            Component newAnimItem = (Component)ItemsRoot.gameObject.AddComponent (type);
+            name = name != "" ? name : type.ToString();
+            Component newAnimItem = (Component)ItemsRoot.gameObject.AddComponent(type);
             ((Step)newAnimItem).StepName = name;
-            ((Step)newAnimItem).OnCreated ();
-            _animation.RefreshAndInit ();
+            ((Step)newAnimItem).OnCreated();
+            _animation.RefreshAndInit();
 			
             return (Step)newAnimItem;
         }
 
-        public void RemoveAnimItem<T> (T item) where T:Step
+        public void RemoveAnimItem<T>(T item) where T:Step
         {
-            _animation.Refresh ();
+            _animation.Refresh();
 
-            bool exist = AnimItems.Find ((Step i) => {
-                return i == item;
-            });
-            if (exist)
+            bool exist = AnimItems.Find((Step i) => i == item);
+            if(exist)
             {
-                item.OnRemoved ();
-                GameObject.DestroyImmediate (item);
+                item.OnRemoved();
+                GameObject.DestroyImmediate(item);
             }
             else
             {
-                Debug.LogWarning ("[SPCollection] Trying to remove item " + item.name + " that is not in this collection");
+                Log.w("[SPCollection] Trying to remove item " + item.name + " that is not in this collection");
             }
 
-            _animation.RefreshAndInit ();
+            _animation.RefreshAndInit();
         }
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
+            base.Copy(other);
 
             _itemsRoot = null;
-            SetOrCreateItemsRoot ();
+            SetOrCreateItemsRoot();
 
-            CopyCollection ((Group)other);
+            CopyCollection((Group)other);
         }
 
-        public void CopyCollection (Group other)
+        public void CopyCollection(Group other)
         {
-            for (int i = 0; i < other.AnimItems.Count; ++i)
+            for(int i = 0; i < other.AnimItems.Count; ++i)
             {
-                Component copy = (Component)ItemsRoot.gameObject.AddComponent (other.AnimItems [i].GetType ());
-                ((Step)copy).Copy ((Step)other.AnimItems [i]);
+                Component copy = (Component)ItemsRoot.gameObject.AddComponent(other.AnimItems[i].GetType());
+                ((Step)copy).Copy((Step)other.AnimItems[i]);
             }
         }
 
-        public static T MoveItem<T> (Group target, Group source, T sourceItem) where T:Step
+        public static T MoveItem<T>(Group target, Group source, T sourceItem) where T:Step
         {
-            T copiedItemInTarget = CopyItem (target, source, sourceItem, false);
-            if (copiedItemInTarget != default(T))
+            T copiedItemInTarget = CopyItem(target, source, sourceItem, false);
+            if(copiedItemInTarget != default(T))
             {
-                source.RemoveAnimItem (sourceItem);
+                source.RemoveAnimItem(sourceItem);
             }
 
             return copiedItemInTarget;
         }
 
-        public static T CopyItem<T> (Group target, Group source, T sourceItem, bool isRecursive) where T:Step
+        public static T CopyItem<T>(Group target, Group source, T sourceItem, bool isRecursive) where T:Step
         {
-            bool existInSource = source.AnimItems.Find ((Step i) => {
-                return i == sourceItem;
-            });
-            if (!existInSource)
+            bool existInSource = source.AnimItems.Find((Step i) => i == sourceItem);
+            if(!existInSource)
             {
-                Debug.LogWarning ("[SPCollection] Trying to move item " + sourceItem.name + " that is not in this collection");
+                Log.w("[SPCollection] Trying to move item " + sourceItem.name + " that is not in this collection");
                 return default(T);
             }
 			
-            T copiedItemInTarget = (T)target.AddAnimationItem (typeof(T), "");
-            copiedItemInTarget.Copy (sourceItem);
+            T copiedItemInTarget = (T)target.AddAnimationItem(typeof(T), "");
+            copiedItemInTarget.Copy(sourceItem);
 
             return copiedItemInTarget;
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            for (int i = 0; i < AnimItems.Count; ++i)
+            for(int i = 0; i < AnimItems.Count; ++i)
             {
-                AnimItems [i].SaveValuesAt (localTimeNormalized);
+                AnimItems[i].SaveValuesAt(localTimeNormalized);
             }
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
-            for (int i = 0; i < AnimItems.Count; ++i)
+            for(int i = 0; i < AnimItems.Count; ++i)
             {
-                AnimItems [i].OnRemoved ();
+                AnimItems[i].OnRemoved();
             }
 
-            for (int i = 0; i < AnimItems.Count; ++i)
+            for(int i = 0; i < AnimItems.Count; ++i)
             {
-                RemoveAnimItem<Step> (AnimItems [i]);
+                RemoveAnimItem<Step>(AnimItems[i]);
             }
 
-            AnimItems.Clear ();
+            AnimItems.Clear();
 
-            if (_itemsRoot != null)
+            if(_itemsRoot != null)
             {
-                GameObject.DestroyImmediate (_itemsRoot.gameObject);
+                GameObject.DestroyImmediate(_itemsRoot.gameObject);
                 _itemsRoot = null;
             }
         }
 
-        public int GetFirstFreeSlot (int min, int max)
+        public int GetFirstFreeSlot(int min, int max)
         {
             bool isFree = true;
             int slot = min;
-            for (; slot < max; ++slot)
+            for(; slot < max; ++slot)
             {
-                isFree = !AnimItems.Exists ((Step animItem) => {
-                    return animItem.Slot == slot;
-                });
-                if (isFree)
+                isFree = !AnimItems.Exists((Step animItem) => animItem.Slot == slot);
+                if(isFree)
                 {
                     return slot;
                 }

@@ -44,7 +44,7 @@ namespace SocialPoint.Attributes
         [System.Diagnostics.Conditional("DEBUG_SPPERSISTENT")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("AndroidPersistentAttrStorage {0}", msg));
+            Log.i(string.Format("AndroidPersistentAttrStorage {0}", msg));
         }
 
         #region IAttrStorage implementation

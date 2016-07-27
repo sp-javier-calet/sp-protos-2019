@@ -16,7 +16,7 @@ MonoBehaviour:
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
-    Flags: ADMIN_PANEL;SPARTA_PROFILER_ENABLED
+    Flags: ADMIN_PANEL;SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG
     RebuildNativePlugins: 0
     IsDevelopmentBuild: 1
     IncludeDebugScenes: 1

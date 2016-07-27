@@ -1,5 +1,5 @@
-using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 using System;
 using System.Collections;
@@ -27,7 +27,7 @@ namespace SocialPoint.ScriptEvents
 
     public class RunScriptActionParser : BaseScriptEventParser<RunScriptAction>
     {
-        IParser<ScriptModel> _parser;
+        readonly IParser<ScriptModel> _parser;
 
         public RunScriptActionParser(IParser<ScriptModel> parser): base("action.base.run_script")
         {
@@ -155,15 +155,15 @@ namespace SocialPoint.ScriptEvents
         {
             if(action.Type == LogType.Error)
             {
-                UnityEngine.Debug.LogError(action.Message, action.Object);
+                Log.e(string.Format("{0} - {1}", action.Message, action.Object));
             }
             else if(action.Type == LogType.Warning)
             {
-                UnityEngine.Debug.LogWarning(action.Message, action.Object);
+                Log.w(string.Format("{0} - {1}",action.Message, action.Object));
             }
             else
             {
-                UnityEngine.Debug.Log(action.Message, action.Object);
+                Log.i(string.Format("{0} - {1}",action.Message, action.Object));
             }
         }
 

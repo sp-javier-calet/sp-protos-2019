@@ -717,9 +717,9 @@ namespace SocialPoint.ServerEvents
 
         void CatchException(Exception e)
         {
-            DebugUtils.LogException(e);
+            Log.x(e);
             #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+            DebugUtils.Stop();
             #else
             if(GeneralError != null)
             {

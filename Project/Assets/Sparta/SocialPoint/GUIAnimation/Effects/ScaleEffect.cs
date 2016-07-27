@@ -1,5 +1,5 @@
 using UnityEngine;
-using SocialPoint.GUIControl;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -11,12 +11,12 @@ namespace SocialPoint.GUIAnimation
         {
             public Vector3 Scale;
 
-            public override void Backup ()
+            public override void Backup()
             {
                 Scale = Target.localScale;
             }
 
-            public override bool HasChanged ()
+            public override bool HasChanged()
             {
                 return Scale != Target.localScale;
             }
@@ -32,46 +32,46 @@ namespace SocialPoint.GUIAnimation
 
         public Vector3 EndValue { get { return _endValue; } set { _endValue = value; } }
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
+            base.Copy(other);
 
-            SetOrCreateDefaultValues ();
+            SetOrCreateDefaultValues();
 
-            CopyActionValues ((ScaleEffect)other);
+            CopyActionValues((ScaleEffect)other);
         }
 
-        public override void CopyActionValues (Effect other)
+        public override void CopyActionValues(Effect other)
         {
-            CopyValues (ref _startValue, ((ScaleEffect)other).StartValue);
-            CopyValues (ref _endValue, ((ScaleEffect)other).EndValue);
+            CopyValues(ref _startValue, ((ScaleEffect)other).StartValue);
+            CopyValues(ref _endValue, ((ScaleEffect)other).EndValue);
         }
 
-        public void RemoveAnchors ()
-        {
-        }
-
-        public void SetAnchors ()
+        public void RemoveAnchors()
         {
         }
 
-        public override void SetOrCreateDefaultValues ()
+        public void SetAnchors()
         {
-            if (Target != null)
+        }
+
+        public override void SetOrCreateDefaultValues()
+        {
+            if(Target != null)
             {
-                SaveValuesAt (0f);
-                SaveValuesAt (1f);
+                SaveValuesAt(0f);
+                SaveValuesAt(1f);
             }
         }
 
-        void CopyValues (ref Vector3 dest, Vector3 src)
+        void CopyValues(ref Vector3 dest, Vector3 src)
         {
             dest = src;
         }
 
-        public override void Invert (bool invertTime)
+        public override void Invert(bool invertTime)
         {
-            base.Invert (invertTime);
+            base.Invert(invertTime);
 
             Vector3 endScale = _endValue;
             Vector3 startScale = _startValue;
@@ -80,42 +80,42 @@ namespace SocialPoint.GUIAnimation
             _endValue = startScale;
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
         }
 
-        public override void OnBlend (float blend)
+        public override void OnBlend(float blend)
         {
-            if (Target == null)
+            if(Target == null)
             {
-                if (Animation != null && Animation.EnableWarnings)
+                if(Animation != null && Animation.EnableWarnings)
                 {
-                    Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                    Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 }
                 return;
             }
 
-            Target.localScale = Vector3.LerpUnclamped (_startValue, _endValue, blend);
+            Target.localScale = Vector3.LerpUnclamped(_startValue, _endValue, blend);
         }
 
-        public override void SaveValues ()
+        public override void SaveValues()
         {
             StartValue = Target.localScale;
             EndValue = Target.localScale;
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            if (Target == null)
+            if(Target == null)
             {
-                if (Animation != null && Animation.EnableWarnings)
+                if(Animation != null && Animation.EnableWarnings)
                 {
-                    Debug.LogWarning (GetType () + " Target is null");
+                    Log.w(GetType() + " Target is null");
                 }
                 return;
             }
 
-            if (localTimeNormalized < 0.5f)
+            if(localTimeNormalized < 0.5f)
             {
                 StartValue = Target.localScale;
             }
@@ -125,9 +125,9 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public override StepMonitor CreateTargetMonitor ()
+        public override StepMonitor CreateTargetMonitor()
         {
-            return new TargetValueMonitor ();
+            return new TargetValueMonitor();
         }
     }
 }

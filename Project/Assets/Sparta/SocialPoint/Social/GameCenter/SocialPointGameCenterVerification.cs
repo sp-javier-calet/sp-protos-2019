@@ -61,7 +61,7 @@ namespace SocialPoint.Social
             {
                 _verification = null;
                 _error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
-                DebugUtils.Log("Game Center Verification got error: " + _error);
+                Log.i("Game Center Verification got error: " + _error);
             }
             else
             {

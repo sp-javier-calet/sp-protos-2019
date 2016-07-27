@@ -453,7 +453,7 @@ namespace SocialPoint.Login
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("SocialPointLogin {0}", msg));
+            Log.i(string.Format("SocialPointLogin {0}", msg));
         }
 
         void Init()

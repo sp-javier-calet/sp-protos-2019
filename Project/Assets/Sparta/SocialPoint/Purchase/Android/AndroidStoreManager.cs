@@ -130,7 +130,7 @@ namespace SocialPoint.Purchase
         //May be called from Android plugin if needed to debug in Unity side
         public void StoreDebugLog(string logMsg)
         {
-            Debug.Log(logMsg);
+            Log.i(logMsg);
         }
     }
 }

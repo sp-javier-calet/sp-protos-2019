@@ -137,7 +137,7 @@ namespace SocialPoint.Purchase
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("AndroidPurchaseStore {0}", msg));
+            Log.i(string.Format("AndroidPurchaseStore {0}", msg));
         }
 
         void QueryInventoryFailed(Error error)

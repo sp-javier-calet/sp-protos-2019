@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.Base
 {
@@ -129,8 +130,7 @@ namespace SocialPoint.Base
             
             if(component == null)
             {
-                Debug.LogError("Expected to find component of type "
-                + typeof(T) + " but found none", obj);
+                Log.e("Expected to find component of type " + typeof(T) + " but found none." + obj);
             }
             
             return component;

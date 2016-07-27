@@ -94,13 +94,12 @@ namespace SocialPoint.Network
 
         static void LogUnsupportedHeader(string name)
         {
-            DebugUtils.Log(string.Format("HttpWebRequest does not support the '{0}' header", name));
+            Log.i(string.Format("HttpWebRequest does not support the '{0}' header", name));
         }
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)
         {
             return new WebRequestHttpConnection(ConvertRequest(req), del, req.Body);
         }
-
     }
 }

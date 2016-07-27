@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.GUIControl
@@ -271,7 +272,7 @@ namespace SocialPoint.GUIControl
         [System.Diagnostics.Conditional("DEBUG_SPGUI")]
         void DebugLog(string msg)
         {
-            Debug.Log(string.Format("UIStackController | {0}", msg));
+            Log.i(string.Format("UIStackController | {0}", msg));
         }
 
         public void SetCheckPoint(string name)

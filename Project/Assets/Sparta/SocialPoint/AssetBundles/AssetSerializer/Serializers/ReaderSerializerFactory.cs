@@ -62,7 +62,7 @@ namespace SocialPoint.AssetSerializer.Serializers
 			{
 				return _propertyReaderTypes[key];
 			}
-			DebugUtils.Log("ReaderSerializerFactory : not registered reader for " + key);
+            UnityEngine.Debug.Log("ReaderSerializerFactory : not registered reader for " + key);
 			return null;
 		}
 

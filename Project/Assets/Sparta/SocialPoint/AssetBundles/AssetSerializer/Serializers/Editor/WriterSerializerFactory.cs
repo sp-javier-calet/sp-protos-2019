@@ -63,7 +63,7 @@ namespace SocialPoint.AssetSerializer.Serializers
             {
                 return _propertyWriterTypes[key];
             }
-            DebugUtils.Log("WriterSerializerFactory : not registered writer for " + key);
+            UnityEngine.Debug.Log("WriterSerializerFactory : not registered writer for " + key);
             return null;
         }
 
