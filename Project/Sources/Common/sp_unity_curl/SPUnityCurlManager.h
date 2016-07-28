@@ -43,12 +43,10 @@ class SPUnityCurlManager
 
     MClients _clients;
 
-private:
-
+  private:
     SPUnityCurlManager();
 
-public:
-
+  public:
     static SPUnityCurlManager& getInstance();
     void addConn(int id);
     ConnInfo* getConnById(int id);

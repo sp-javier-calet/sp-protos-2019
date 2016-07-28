@@ -29,24 +29,25 @@ EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
     UIApplication* app = [UIApplication sharedApplication];
     if(paused)
     {
-        bgTask = [app beginBackgroundTaskWithName:@"SPUnityCurl" expirationHandler:^{
-            SPUnityCurlEndBackgroundTask();
-        }];
+        bgTask = [app beginBackgroundTaskWithName:@"SPUnityCurl"
+                                expirationHandler:^{
+                                  SPUnityCurlEndBackgroundTask();
+                                }];
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            while(SPUnityCurlRunning() > 0)
-            {
-                std::lock_guard<std::mutex> lk(AppPaused_mutex);
-                if(AppPaused)
-                {
-                    SPUnityCurlUpdate(0);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            SPUnityCurlEndBackgroundTask();
+          while(SPUnityCurlRunning() > 0)
+          {
+              std::lock_guard<std::mutex> lk(AppPaused_mutex);
+              if(AppPaused)
+              {
+                  SPUnityCurlUpdate(0);
+              }
+              else
+              {
+                  break;
+              }
+          }
+          SPUnityCurlEndBackgroundTask();
         });
     }
     else
@@ -54,4 +55,3 @@ EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
         SPUnityCurlEndBackgroundTask();
     }
 }
-

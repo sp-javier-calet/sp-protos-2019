@@ -6,7 +6,7 @@ const unsigned SPUnityBreadcrumbManager::kDefaultSizeLogs = 50;
 
 SPUnityBreadcrumbManager& SPUnityBreadcrumbManager::getInstance()
 {
-    //Singleton instance
+    // Singleton instance
     static SPUnityBreadcrumbManager instance;
     return instance;
 }
@@ -17,7 +17,6 @@ SPUnityBreadcrumbManager::SPUnityBreadcrumbManager()
 , _breadcrumbDirectory()
 , _breadcrumbFile()
 {
-
 }
 
 void SPUnityBreadcrumbManager::leaveBreadcrumb(const std::string& info)

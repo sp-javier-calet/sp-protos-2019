@@ -21,14 +21,6 @@ namespace SocialPoint.Login
 
         LinkState _state;
 
-        public FacebookLink(ICoroutineRunner runner, bool loginWithUi = true)
-        {
-            _loginWithUi = loginWithUi;
-            _facebook = new UnityFacebook(runner);
-            _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
-            Init();
-        }
-
         public FacebookLink(IFacebook facebook, bool loginWithUi = true)
         {
             _loginWithUi = loginWithUi;
@@ -38,6 +30,7 @@ namespace SocialPoint.Login
 
         void Init()
         {
+            _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             _facebook.StateChangeEvent += OnStateChanged;
         }
 

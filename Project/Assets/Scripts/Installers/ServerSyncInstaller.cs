@@ -57,7 +57,7 @@ public class ServerSyncInstaller : SubInstaller
         queue.PingEnabled = Settings.PingEnabled;
         queue.AppEvents = Container.Resolve<IAppEvents>();
         queue.TrackEvent = Container.Resolve<IEventTracker>().TrackEvent;
-        queue.RequestSetup = Container.Resolve<ILoginData>().SetupHttpRequest;
+        queue.LoginData = Container.Resolve<ILoginData>();
         queue.CommandReceiver = Container.Resolve<CommandReceiver>();
         queue.AutoSync = Container.Resolve<IGameLoader>().OnAutoSync;
         Container.Resolve<IGameErrorHandler>().Setup(queue);

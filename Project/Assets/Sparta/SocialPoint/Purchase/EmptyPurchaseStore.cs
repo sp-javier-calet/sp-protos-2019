@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
@@ -14,7 +14,10 @@ namespace SocialPoint.Purchase
         #region IPurchaseStore implementation
 
         public event ProductsUpdatedDelegate ProductsUpdated;
+
         public event PurchaseUpdatedDelegate PurchaseUpdated;
+
+        public ILoginData LoginData { get; set; }
 
         protected virtual void OnProductsUpdated(LoadProductsState state, Error error)
         {
@@ -31,14 +34,6 @@ namespace SocialPoint.Purchase
             if(handler != null)
             {
                 handler(state, productId);
-            }
-        }
-
-        public GetUserIdDelegate GetUserId
-        {
-            set
-            {
-                throw new NotImplementedException();
             }
         }
 

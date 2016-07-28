@@ -1,11 +1,12 @@
 using System.IO;
+using SocialPoint.Base;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using System;
 
 namespace SocialPoint.Crash
 {
-    public class BreadcrumbManager : IBreadcrumbManager
+    public class BreadcrumbManager : IBreadcrumbManager, Log.IBreadcrumbLogger
     {
         struct Breadcrumb
         {
@@ -118,6 +119,15 @@ namespace SocialPoint.Crash
             }
         }
 
+        #endregion
+
+
+        #region Log.IBreadcrumbLogger implementation
+
+        public void Leave(string message)
+        {
+            Log(message);
+        }
         #endregion
     }
 }

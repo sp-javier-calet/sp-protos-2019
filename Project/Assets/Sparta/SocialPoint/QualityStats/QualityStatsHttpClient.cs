@@ -45,7 +45,7 @@ namespace SocialPoint.QualityStats
 
         #endregion
 
-        public struct Data
+        public class Data
         {
             public int Amount;
             public double SumSize;
@@ -96,7 +96,7 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        public struct Stats
+        public class Stats
         {
             public double DataDownloaded;
             // in Kbytes
@@ -170,25 +170,27 @@ namespace SocialPoint.QualityStats
                 _data[url.ToString()] = stats;
             }
 
-            stats.DataDownloaded += (response.DownloadSize / 1024.0);
-            stats.SumDownloadSpeed += (response.DownloadSpeed / 1024.0);
+            var dataDownloaded = response.DownloadSize / 1024.0;
+            var downloadSpeed = response.DownloadSpeed / 1024.0;
+
+            stats.DataDownloaded += dataDownloaded;
+            stats.SumDownloadSpeed += downloadSpeed;
 
             Data data;
             if(!stats.Requests.TryGetValue(response.StatusCode, out data))
             {
                 data = new Data();
+                stats.Requests[response.StatusCode] = data;
             }
 
             data.Amount++;
-            data.SumSize += response.DownloadSize / 1024.0;
-            data.SumSpeed += response.DownloadSpeed / 1024.0;
+            data.SumSize += dataDownloaded;
+            data.SumSpeed += downloadSpeed;
             data.SumTimes += response.Duration;
             var end = TimeUtils.Now;
             data.SumWaitTimes += (end - start).TotalSeconds - response.Duration;
             data.SumConnectionTimes += response.ConnectionDuration;
             data.SumTransferTimes += response.TransferDuration;
-
-            stats.Requests[response.StatusCode] = data;
         }
     }
 }

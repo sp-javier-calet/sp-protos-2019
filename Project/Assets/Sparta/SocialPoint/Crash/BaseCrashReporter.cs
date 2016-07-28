@@ -9,6 +9,7 @@ using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Utils;
+using SocialPoint.Login;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -209,12 +210,8 @@ namespace SocialPoint.Crash
             BeforeLogin,
             AfterLogin
         }
-
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
-
+            
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
-
-        public delegate UInt64 GetUserIdDelegate();
 
         const string UriCrash = "crash";
         const string UriException = "exceptions";
@@ -250,9 +247,8 @@ namespace SocialPoint.Crash
 
         protected IBreadcrumbManager _breadcrumbManager;
 
-        public RequestSetupDelegate RequestSetup;
         public TrackEventDelegate TrackEvent;
-        public GetUserIdDelegate GetUserId;
+        public ILoginData LoginData;
 
         public const float DefaultSendInterval = 20.0f;
         public const bool DefaultExceptionLogActive = true;
@@ -438,9 +434,9 @@ namespace SocialPoint.Crash
                 /* Always try to refresh the user id using the provided delegate
                  * If not possible, use the last user id retrieved in the current
                  * game session.*/
-                if(GetUserId != null)
+                if(LoginData != null)
                 {
-                    UInt64 userId = GetUserId();
+                    var userId = LoginData.UserId;
                     if(userId != 0)
                     {
                         _storedUserId = userId;
@@ -811,14 +807,14 @@ namespace SocialPoint.Crash
 
         void DoSendExceptions(string[] storedKeys)
         {
-            if(RequestSetup == null)
+            if(LoginData == null)
             {
                 return;
             }
             var req = new HttpRequest();
             try
             {
-                RequestSetup(req, UriException);
+                LoginData.SetupHttpRequest(req, UriException);
             }
             catch(Exception e)
             {
@@ -844,7 +840,7 @@ namespace SocialPoint.Crash
 
         void SendCrashLog(string log, Action callback)
         {
-            if(RequestSetup == null)
+            if(LoginData == null)
             {
                 if(callback != null)
                 {
@@ -855,7 +851,7 @@ namespace SocialPoint.Crash
             var req = new HttpRequest();
             try
             {
-                RequestSetup(req, UriCrash);
+                LoginData.SetupHttpRequest(req, UriCrash);
             }
             catch(Exception e)
             {

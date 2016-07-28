@@ -1,10 +1,9 @@
 ﻿using System;
+using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
+using SocialPoint.Hardware;
 using SocialPoint.Network;
 using SocialPoint.QualityStats;
-using SocialPoint.Utils;
-using SocialPoint.Hardware;
-using SocialPoint.AppEvents;
 using SocialPoint.ServerEvents;
 
 public class QualityStatsInstaller : SubInstaller
@@ -16,6 +15,8 @@ public class QualityStatsInstaller : SubInstaller
         Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
         Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
         Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
+
+        Container.Resolve<SocialPointQualityStats>();
     }
 
     SocialPointQualityStats CreateQualityStats()
