@@ -901,11 +901,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     var groups = new Dictionary<string, List<string>>();
                     foreach(var mod in _mods)
                     {
-                        var list = groups[mod.EntitlementsFile];
-                        if(list == null)
+                        List<string> list;
+                        if(!groups.TryGetValue(mod.EntitlementsFile, out list))
                         {
                             list = new List<string>();
-                            groups[mod.EntitlementsFile] = list;
+                            groups.Add(mod.EntitlementsFile, list);
                         }
 
                         list.Add(mod.AccessGroup);
@@ -913,26 +913,29 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                     foreach(var entitlementFile in groups.Keys)
                     {
-                        var fileName = Path.Combine(editor.Project.ProjectRootPath, entitlementFile);
-                        var path = fileName;
-                        AddAccessGroupsToEntitlements(path, groups[entitlementFile]);
+                        var path = Path.Combine(editor.Project.ProjectRootPath, entitlementFile);
 
-                    }
-                    //editor.Pbx.AddFile(path, fileName);
-                    //editor.Pbx.SetEntitlementsFile(editor.DefaultTargetGuid, fileName);
-                }
+                        var  plist = new PlistDocument();
 
-                void AddAccessGroupsToEntitlements(string path, List<string> groups)
-                {
-                    var  plist = new PlistDocument();
-                    plist.ReadFromFile(path);
-                    var el = plist.root["keychain-access-groups"] ?? plist.root.CreateArray("keychain-access-groups");
-                    var list = el.AsArray();
-                    foreach(var gr in groups)
-                    {
-                        list.AddString(gr);
+                        if(!File.Exists(path))
+                        {
+                            File.Create(path).Dispose();
+                            editor.Pbx.AddFile(path, entitlementFile);
+                        }
+                        else
+                        {
+                            plist.ReadFromFile(path);
+                        }
+
+                        var el = plist.root["keychain-access-groups"] ?? plist.root.CreateArray("keychain-access-groups");
+                        var list = el.AsArray();
+                        foreach(var gr in groups[entitlementFile])
+                        {
+                            list.AddString(gr);
+                        }
+
+                        plist.WriteToFile(path);
                     }
-                    plist.WriteToFile(path);
                 }
             }
 
