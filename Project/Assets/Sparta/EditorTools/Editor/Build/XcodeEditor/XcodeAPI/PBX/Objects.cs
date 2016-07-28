@@ -642,14 +642,6 @@ namespace SpartaTools.iOS.Xcode.PBX
             return "\"" + value + "\"";
         }
 
-        public string GetProperty(string name)
-        {
-            string value = null;
-            if (entries.ContainsKey(name))
-                value = entries[name].val[0]; // TODO List
-            return value;
-        }
-
         public void SetProperty(string name, string value)
         {
             entries[name] = BuildConfigEntryData.FromNameValue(name, EscapeWithQuotesIfNeeded(name, value));

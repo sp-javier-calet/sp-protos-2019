@@ -50,6 +50,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         public abstract void SetProvisioningProfile(string path);
 
+        public abstract void AddKeychainAccessGroup(string entitlementsFile, string accessGroup);
+
         public abstract void AddKeychainAccessGroup(string accessGroup);
 
         public abstract void Commit();

@@ -1170,20 +1170,6 @@ namespace SpartaTools.iOS.Xcode
                 File.Copy(path, libPath, true);
             }
         }
-
-        public void SetEntitlementsFile(string targetGuid, string path)
-        {
-            foreach(var configGuid in configs[GetConfigListForTarget(targetGuid)].buildConfigs)
-            {
-                var cfg = buildConfigs[configGuid];
-                string name = cfg.GetProperty("PRODUCT_NAME") ?? targetGuid;
-                var currentEntitlements = cfg.GetProperty("CODE_SIGN_ENTITLEMENTS");
-                if(currentEntitlements == null)
-                {
-                    cfg.SetProperty("CODE_SIGN_ENTITLEMENTS", path);
-                }
-            }
-        }
     }
 
 } // namespace UnityEditor.iOS.Xcode

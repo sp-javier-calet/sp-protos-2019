@@ -201,6 +201,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 GetEditor<ProvisioningModEditor>().Add(path);
             }
 
+            public override void AddKeychainAccessGroup(string entitlementsFile, string accessGroup)
+            {
+                GetEditor<KeychainAccessGroupModEditor>().Add(entitlementsFile, accessGroup);
+            }
+
             public override void AddKeychainAccessGroup(string accessGroup)
             {
                 GetEditor<KeychainAccessGroupModEditor>().Add(accessGroup);
@@ -872,32 +877,49 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class KeychainAccessGroupModEditor : IModEditor
             {
+                const string DefaultEntitlementsFile = "Unity-iPhone.entitlements";
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
+                    public string EntitlementsFile;
                     public string AccessGroup;
                 }
 
                 public void Add(string accessGroup)
                 {
-                    _mods.Add(new ModData{ AccessGroup = accessGroup });
+                    Add(DefaultEntitlementsFile, accessGroup);
+                }
+
+                public void Add(string entitlementsFile, string accessGroup)
+                {
+                    _mods.Add(new ModData{ EntitlementsFile = entitlementsFile, AccessGroup = accessGroup });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
-                    var groups = new List<string>();
+                    var groups = new Dictionary<string, List<string>>();
                     foreach(var mod in _mods)
                     {
-                        groups.Add(mod.AccessGroup);
+                        var list = groups[mod.EntitlementsFile];
+                        if(list == null)
+                        {
+                            list = new List<string>();
+                            groups[mod.EntitlementsFile] = list;
+                        }
+
+                        list.Add(mod.AccessGroup);
                     }
 
-                    var fileName = ".entitlements"; // TODO
-                    var path = fileName;
+                    foreach(var entitlementFile in groups.Keys)
+                    {
+                        var fileName = Path.Combine(editor.Project.ProjectRootPath, entitlementFile);
+                        var path = fileName;
+                        AddAccessGroupsToEntitlements(path, groups[entitlementFile]);
 
-                    AddAccessGroupsToEntitlements(path, groups);
-                    editor.Pbx.AddFile(path, fileName);
-                    editor.Pbx.SetEntitlementsFile(editor.DefaultTargetGuid, fileName);
+                    }
+                    //editor.Pbx.AddFile(path, fileName);
+                    //editor.Pbx.SetEntitlementsFile(editor.DefaultTargetGuid, fileName);
                 }
 
                 void AddAccessGroupsToEntitlements(string path, List<string> groups)
