@@ -32,13 +32,13 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     public class XcodeMod
     {
         readonly Hashtable _datastore;
-        readonly string _filePath;
-        readonly string _basePath;
+        public string FilePath {get; private set; }
+        public string BasePath {get; private set; }
 
         public XcodeMod(string path)
         {
-            _filePath = path;
-            _basePath = Path.GetDirectoryName(path);
+            FilePath = path;
+            BasePath = Path.GetDirectoryName(path);
 
             var file = new FileInfo(path);
             if(!file.Exists)
@@ -106,7 +106,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 return path;
             }
-            return Path.GetFullPath(Path.Combine(_basePath, path));
+            return Path.GetFullPath(Path.Combine(BasePath, path));
         }
 
         void ApplyHeaderpaths(XCodeProjectEditor editor)
@@ -144,14 +144,14 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                     if(entry.Value is string)
                     {
-                        editor.CopyFile(_basePath, fromPath, (string)entry.Value);
+                        editor.CopyFile(BasePath, fromPath, (string)entry.Value);
                     }
                     else
                     {
                         var toPaths = (ArrayList)entry.Value;
                         foreach(string dst in toPaths)
                         {
-                            editor.CopyFile(_basePath, fromPath, dst);
+                            editor.CopyFile(BasePath, fromPath, dst);
                         }
                     }
                 }
