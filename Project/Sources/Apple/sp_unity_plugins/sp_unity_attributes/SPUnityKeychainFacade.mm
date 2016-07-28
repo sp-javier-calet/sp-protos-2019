@@ -7,11 +7,7 @@ KeychainItemWrapper* SPUnityKeychainCreateWrapper(SPUnityKeychainItemStruct item
     NSString* accessGroup = [NSString stringWithUTF8String:item.accessGroup];
     NSString* identifier = [NSString stringWithUTF8String:item.id];
     NSString* service = [NSString stringWithUTF8String:item.service];
-    return [[KeychainItemWrapper alloc]
-    initWithIdentifier:identifier
-               service:service
-           accessGroup:accessGroup
-                 error:status];
+    return [[KeychainItemWrapper alloc] initWithIdentifier:identifier service:service accessGroup:accessGroup error:status];
 }
 
 char* SPUnityKeychainCreateString(const char* str)
@@ -20,7 +16,7 @@ char* SPUnityKeychainCreateString(const char* str)
     {
         return nullptr;
     }
-    char* nstr = (char*)malloc(sizeof(char)*(strlen(str)+1));
+    char* nstr = (char*)malloc(sizeof(char) * (strlen(str) + 1));
     strcpy(nstr, str);
     return nstr;
 }
@@ -33,9 +29,7 @@ EXPORT_API int SPUnityKeychainSet(SPUnityKeychainItemStruct item, const char* va
     {
         return status;
     }
-    [wrapper setObject:[NSString stringWithUTF8String:value]
-            forKey:(__bridge id)kSecValueData
-             error:&status];
+    [wrapper setObject:[NSString stringWithUTF8String:value] forKey:(__bridge id)kSecValueData error:&status];
     return status;
 }
 
@@ -79,24 +73,19 @@ const char* kSPUnityKeychainSeedIdKey = "BundleSeedId";
 EXPORT_API char* SPUnityKeychainGetDefaultAccessGroup()
 {
     NSString* seedIdKey = [NSString stringWithUTF8String:kSPUnityKeychainSeedIdKey];
-    NSDictionary *query = [NSDictionary dictionaryWithObjectsAndKeys:
-                           (__bridge id)kSecClassGenericPassword, kSecClass,
-                           seedIdKey, kSecAttrAccount,
-                           @"", kSecAttrService,
-                           (id)kCFBooleanTrue, kSecReturnAttributes,
-                           nil];
+    NSDictionary* query = [NSDictionary dictionaryWithObjectsAndKeys:(__bridge id)kSecClassGenericPassword, kSecClass, seedIdKey, kSecAttrAccount,
+                                                                     @"", kSecAttrService, (id)kCFBooleanTrue, kSecReturnAttributes, nil];
     CFDictionaryRef result = nil;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef*)&result);
-    if (status == errSecItemNotFound)
+    if(status == errSecItemNotFound)
     {
         status = SecItemAdd((__bridge CFDictionaryRef)query, (CFTypeRef*)&result);
     }
-    if (status != errSecSuccess)
+    if(status != errSecSuccess)
     {
         return SPUnityKeychainCreateString(nullptr);
     }
-    NSString* accessGroup = [NSString stringWithString:[(__bridge NSDictionary*)result
-                                                        objectForKey:(__bridge id)kSecAttrAccessGroup]];
+    NSString* accessGroup = [NSString stringWithString:[(__bridge NSDictionary*)result objectForKey:(__bridge id)kSecAttrAccessGroup]];
     CFRelease(result);
     if(accessGroup == nil)
     {

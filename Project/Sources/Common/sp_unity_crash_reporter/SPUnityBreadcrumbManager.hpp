@@ -11,10 +11,10 @@ class SPUnityBreadcrumbManager
 
     static SPUnityBreadcrumbManager& getInstance();
 
-    //Non-copyable
+    // Non-copyable
     SPUnityBreadcrumbManager(SPUnityBreadcrumbManager const&) = delete;
     SPUnityBreadcrumbManager& operator=(SPUnityBreadcrumbManager const&) = delete;
-    
+
     ~SPUnityBreadcrumbManager() = default;
 
     void leaveBreadcrumb(const std::string& info);
@@ -27,9 +27,9 @@ class SPUnityBreadcrumbManager
     std::string dumpToFile(const std::string& directory, const std::string& file) const;
 
   private:
-  	static const unsigned kDefaultSizeLogs;
+    static const unsigned kDefaultSizeLogs;
 
-  	size_t _maxLogs;
+    size_t _maxLogs;
     LogList _logList;
     std::string _breadcrumbDirectory;
     std::string _breadcrumbFile;

@@ -18,54 +18,52 @@
 #include <stdlib.h>
 #include <cstdint>
 
-extern "C"
+extern "C" {
+struct SPUnityCurlRequestStruct
 {
-    struct SPUnityCurlRequestStruct
-    {
-        int id;
-        const char* url;
-        const char* query;
-        const char* method;
-        int timeout;
-        int activityTimeout;
-        const char* proxy;
-        const char* headers;
-        const uint8_t* body;
-        int bodyLength;
+    int id;
+    const char* url;
+    const char* query;
+    const char* method;
+    int timeout;
+    int activityTimeout;
+    const char* proxy;
+    const char* headers;
+    const uint8_t* body;
+    int bodyLength;
+};
 
-    };
+EXPORT_API int SPUnityCurlRunning();
 
-    EXPORT_API int SPUnityCurlRunning();
+EXPORT_API int SPUnityCurlCreateConn();
+EXPORT_API void SPUnityCurlDestroyConn(int id);
 
-    EXPORT_API int SPUnityCurlCreateConn();
-    EXPORT_API void SPUnityCurlDestroyConn(int id);
+EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct data);
+EXPORT_API int SPUnityCurlUpdate(int id);
 
-    EXPORT_API int SPUnityCurlSend(SPUnityCurlRequestStruct data);
-    EXPORT_API int SPUnityCurlUpdate(int id);
+EXPORT_API double SPUnityCurlGetConnectTime(int id);
+EXPORT_API double SPUnityCurlGetTotalTime(int id);
 
-    EXPORT_API double SPUnityCurlGetConnectTime(int id);
-    EXPORT_API double SPUnityCurlGetTotalTime(int id);
+EXPORT_API int SPUnityCurlGetResponseCode(int id);
+EXPORT_API int SPUnityCurlGetErrorCode(int id);
 
-    EXPORT_API int SPUnityCurlGetResponseCode(int id);
-    EXPORT_API int SPUnityCurlGetErrorCode(int id);
+EXPORT_API void SPUnityCurlGetError(int id, char* data);
+EXPORT_API void SPUnityCurlGetBody(int id, char* data);
+EXPORT_API void SPUnityCurlGetHeaders(int id, char* data);
 
-    EXPORT_API void SPUnityCurlGetError(int id, char* data);
-    EXPORT_API void SPUnityCurlGetBody(int id, char* data);
-    EXPORT_API void SPUnityCurlGetHeaders(int id, char* data);
+EXPORT_API int SPUnityCurlGetErrorLength(int id);
+EXPORT_API int SPUnityCurlGetBodyLength(int id);
+EXPORT_API int SPUnityCurlGetHeadersLength(int id);
+EXPORT_API int SPUnityCurlGetDownloadSize(int id);
+EXPORT_API int SPUnityCurlGetDownloadSpeed(int id);
 
-    EXPORT_API int SPUnityCurlGetErrorLength(int id);
-    EXPORT_API int SPUnityCurlGetBodyLength(int id);
-    EXPORT_API int SPUnityCurlGetHeadersLength(int id);
-    EXPORT_API int SPUnityCurlGetDownloadSize(int id);
-    EXPORT_API int SPUnityCurlGetDownloadSpeed(int id);
+EXPORT_API void SPUnityCurlInit();
+EXPORT_API void SPUnityCurlDestroy();
 
-    EXPORT_API void SPUnityCurlInit();
-    EXPORT_API void SPUnityCurlDestroy();
+EXPORT_API void SPUnityCurlSetConfig(const char* name);
 
-    EXPORT_API void SPUnityCurlSetConfig(const char* name);
-
-    // needs to be implemented for each platform
-    EXPORT_API void SPUnityCurlOnApplicationPause(bool paused);
+// needs to be implemented for each platform
+EXPORT_API void SPUnityCurlOnApplicationPause(bool paused);
 }
 
 

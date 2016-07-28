@@ -17,33 +17,32 @@
 #define EXPORT_API
 #endif
 
-extern "C"
-{
-    EXPORT_API char* SPUnityHardwareGetDeviceString();
-    EXPORT_API char* SPUnityHardwareGetDevicePlatformVersion();
-    EXPORT_API char* SPUnityHardwareGetDeviceArchitecture();
-    EXPORT_API char* SPUnityHardwareGetDeviceAdvertisingId();
-    EXPORT_API bool SPUnityHardwareGetDeviceAdvertisingIdEnabled();
-    EXPORT_API bool SPUnityHardwareGetDeviceRooted();
+extern "C" {
+EXPORT_API char* SPUnityHardwareGetDeviceString();
+EXPORT_API char* SPUnityHardwareGetDevicePlatformVersion();
+EXPORT_API char* SPUnityHardwareGetDeviceArchitecture();
+EXPORT_API char* SPUnityHardwareGetDeviceAdvertisingId();
+EXPORT_API bool SPUnityHardwareGetDeviceAdvertisingIdEnabled();
+EXPORT_API bool SPUnityHardwareGetDeviceRooted();
 
-    EXPORT_API uint64_t SPUnityHardwareGetTotalMemory();
-    EXPORT_API uint64_t SPUnityHardwareGetFreeMemory();
-    EXPORT_API uint64_t SPUnityHardwareGetUsedMemory();
-    EXPORT_API uint64_t SPUnityHardwareGetActiveMemory();
+EXPORT_API uint64_t SPUnityHardwareGetTotalMemory();
+EXPORT_API uint64_t SPUnityHardwareGetFreeMemory();
+EXPORT_API uint64_t SPUnityHardwareGetUsedMemory();
+EXPORT_API uint64_t SPUnityHardwareGetActiveMemory();
 
-    EXPORT_API char* SPUnityHardwareGetAppId();
-    EXPORT_API char* SPUnityHardwareGetAppVersion();
-    EXPORT_API char* SPUnityHardwareGetAppShortVersion();
-    EXPORT_API char* SPUnityHardwareGetAppLanguage();
-    EXPORT_API char* SPUnityHardwareGetAppCountry();
+EXPORT_API char* SPUnityHardwareGetAppId();
+EXPORT_API char* SPUnityHardwareGetAppVersion();
+EXPORT_API char* SPUnityHardwareGetAppShortVersion();
+EXPORT_API char* SPUnityHardwareGetAppLanguage();
+EXPORT_API char* SPUnityHardwareGetAppCountry();
 
-    EXPORT_API char* SPUnityHardwareGetNetworkConnectivity();
-    EXPORT_API char* SPUnityHardwareGetNetworkProxy();
-    EXPORT_API char* SPUnityHardwareGetNetworkIpAddress();
+EXPORT_API char* SPUnityHardwareGetNetworkConnectivity();
+EXPORT_API char* SPUnityHardwareGetNetworkProxy();
+EXPORT_API char* SPUnityHardwareGetNetworkIpAddress();
 
-    EXPORT_API uint64_t SPUnityHardwareGetTotalStorage();
-    EXPORT_API uint64_t SPUnityHardwareGetFreeStorage();
-    EXPORT_API uint64_t SPUnityHardwareGetUsedStorage();
+EXPORT_API uint64_t SPUnityHardwareGetTotalStorage();
+EXPORT_API uint64_t SPUnityHardwareGetFreeStorage();
+EXPORT_API uint64_t SPUnityHardwareGetUsedStorage();
 }
 
 #endif

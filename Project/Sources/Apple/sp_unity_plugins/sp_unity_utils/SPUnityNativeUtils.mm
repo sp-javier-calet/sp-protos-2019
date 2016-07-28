@@ -38,29 +38,29 @@ const std::string SPUnityNativeUtils::kV9 = "9.0";
 bool SPUnityNativeUtils::isSystemVersionEqualTo(const std::string& version)
 {
     return [[[UIDevice currentDevice] systemVersion] compare:[NSString stringWithUTF8String:version.c_str()] options:NSNumericSearch]
-    == NSOrderedSame;
+           == NSOrderedSame;
 }
 
 bool SPUnityNativeUtils::isSystemVersionGreaterThan(const std::string& version)
 {
     return [[[UIDevice currentDevice] systemVersion] compare:[NSString stringWithUTF8String:version.c_str()] options:NSNumericSearch]
-    == NSOrderedDescending;
+           == NSOrderedDescending;
 }
 
 bool SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(const std::string& version)
 {
     return [[[UIDevice currentDevice] systemVersion] compare:[NSString stringWithUTF8String:version.c_str()] options:NSNumericSearch]
-    != NSOrderedAscending;
+           != NSOrderedAscending;
 }
 
 bool SPUnityNativeUtils::isSystemVersionLessThan(const std::string& version)
 {
     return [[[UIDevice currentDevice] systemVersion] compare:[NSString stringWithUTF8String:version.c_str()] options:NSNumericSearch]
-    == NSOrderedAscending;
+           == NSOrderedAscending;
 }
 
 bool SPUnityNativeUtils::isSystemVersionLessThanOrEqualTo(const std::string& version)
 {
     return [[[UIDevice currentDevice] systemVersion] compare:[NSString stringWithUTF8String:version.c_str()] options:NSNumericSearch]
-    != NSOrderedDescending;
+           != NSOrderedDescending;
 }

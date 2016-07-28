@@ -10,6 +10,6 @@ struct ForceTouchShortcutItem
     const char* IconPath;
 };
 
-+(void)load;
++ (void)load;
 
 @end
