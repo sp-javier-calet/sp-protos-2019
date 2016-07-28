@@ -28,12 +28,11 @@ void SPNativeCallsSender::SendMessage(const std::string& method, const std::stri
     UnityGameObject(_gameObjectName).SendMessage(_listenerMethodName, combineMethodMessage(method, msg));
 }
 
-extern "C"
+extern "C" {
+void SPNativeCallsSender_Init(const char* listenerObjectName, const char* listenerMethodName, const char* separator)
 {
-    void SPNativeCallsSender_Init(const char* listenerObjectName,  const char* listenerMethodName, const char* separator)
-    {
-        _gameObjectName = listenerObjectName;
-        _listenerMethodName = listenerMethodName;
-        _separator = separator;
-    }
+    _gameObjectName = listenerObjectName;
+    _listenerMethodName = listenerMethodName;
+    _separator = separator;
+}
 }

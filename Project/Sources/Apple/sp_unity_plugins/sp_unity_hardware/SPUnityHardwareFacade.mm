@@ -14,7 +14,7 @@
 
 char* SPUnityHardwareCreateString(const char* str)
 {
-    char* nstr = (char*)malloc(sizeof(char)*(strlen(str)+1));
+    char* nstr = (char*)malloc(sizeof(char) * (strlen(str) + 1));
     strcpy(nstr, str);
     return nstr;
 }
@@ -23,7 +23,7 @@ EXPORT_API char* SPUnityHardwareGetDeviceString()
 {
     size_t size;
     sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    char *machine = (char*)malloc(size);
+    char* machine = (char*)malloc(size);
     sysctlbyname("hw.machine", machine, &size, NULL, 0);
     return machine;
 }
@@ -43,13 +43,13 @@ EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
     size_t size;
     cpu_type_t type;
     cpu_subtype_t subtype;
-    
+
     size = sizeof(type);
     sysctlbyname("hw.cputype", &type, &size, NULL, 0);
-    
+
     size = sizeof(subtype);
     sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0);
-    
+
     // values for cputype and cpusubtype defined in mach/machine.h
     if(type == CPU_TYPE_ARM64)
     {
@@ -135,7 +135,7 @@ EXPORT_API bool SPUnityHardwareGetDeviceRooted()
 #if TARGET_IPHONE_SIMULATOR
     return false;
 #else
-    FILE *f = fopen("/bin/bash", "r");
+    FILE* f = fopen("/bin/bash", "r");
     bool rooted = errno != ENOENT;
     fclose(f);
     return rooted;
@@ -146,12 +146,12 @@ void SPUnityHardwareGetMemoryStatistics(vm_statistics_data_t& vm_stat, vm_size_t
 {
     mach_port_t host_port;
     mach_msg_type_number_t host_size;
-    
+
     host_port = mach_host_self();
     host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
     host_page_size(host_port, &pagesize);
-    
-    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS)
+
+    if(host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS)
     {
         pagesize = 0;
     }
@@ -191,7 +191,7 @@ EXPORT_API uint64_t SPUnityHardwareGetActiveMemory()
 
 EXPORT_API char* SPUnityHardwareGetAppId()
 {
-    NSString *id = [[NSBundle mainBundle] bundleIdentifier];
+    NSString* id = [[NSBundle mainBundle] bundleIdentifier];
     if(id == nil)
     {
         return SPUnityHardwareCreateString("");
@@ -227,10 +227,11 @@ EXPORT_API char* SPUnityHardwareGetAppLanguage()
     {
         NSLocale* locale = [NSLocale localeWithLocaleIdentifier:language];
         NSString* lang = [locale objectForKey:NSLocaleLanguageCode];
-        NSString* script = [locale objectForKey:NSLocaleScriptCode]; // this will return Hans or Hant for chinese language
-        if ([script length] != 0)
+        NSString* script = [locale objectForKey:NSLocaleScriptCode];// this will return Hans or Hant for chinese language
+        if([script length] != 0)
         {
-            lang = [NSString stringWithFormat:@"%@-%@", lang, script]; //this will effectively return zh-Hans and zh-Hant for simplified or traditional chinese
+            lang = [NSString
+              stringWithFormat:@"%@-%@", lang, script];// this will effectively return zh-Hans and zh-Hant for simplified or traditional chinese
         }
         if(lang != nil)
         {
@@ -243,7 +244,7 @@ EXPORT_API char* SPUnityHardwareGetAppLanguage()
 EXPORT_API char* SPUnityHardwareGetAppCountry()
 {
     NSLocale* locale = [NSLocale currentLocale];
-    NSString* country = [locale objectForKey: NSLocaleCountryCode];
+    NSString* country = [locale objectForKey:NSLocaleCountryCode];
     if(country == nil)
     {
         return SPUnityHardwareCreateString("");
@@ -255,8 +256,8 @@ EXPORT_API char* SPUnityHardwareGetNetworkConnectivity()
 {
     SCNetworkReachabilityRef ref = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [@"www.google.com" UTF8String]);
     SCNetworkReachabilityFlags flags = 0;
-    
-    if(SCNetworkReachabilityGetFlags(ref, &flags)) 
+
+    if(SCNetworkReachabilityGetFlags(ref, &flags))
     {
         CFRelease(ref);
         if((flags & kSCNetworkReachabilityFlagsReachable))
@@ -288,20 +289,20 @@ EXPORT_API char* SPUnityHardwareGetNetworkProxy()
 
     char host[kProxyBufferLength];
     memset(host, 0, kProxyBufferLength);
-    
-    if (cfstr)
+
+    if(cfstr)
     {
-        if (CFStringGetCString(cfstr, host, kProxyBufferLength, kCFStringEncodingUTF8))
+        if(CFStringGetCString(cfstr, host, kProxyBufferLength, kCFStringEncodingUTF8))
         {
         }
     }
 
     const CFNumberRef cfnum = (const CFNumberRef)CFDictionaryGetValue(dicRef, (const void*)kCFNetworkProxiesHTTPPort);
-        
-    if (cfnum)
+
+    if(cfnum)
     {
         SInt32 port;
-        if (CFNumberGetValue(cfnum, kCFNumberSInt32Type, &port))
+        if(CFNumberGetValue(cfnum, kCFNumberSInt32Type, &port))
         {
             char proxy[kProxyBufferLength];
             sprintf(proxy, "%s:%d", host, (int)port);
@@ -320,7 +321,7 @@ EXPORT_API char* SPUnityHardwareGetNetworkIpAddress()
     int success = 0;
 
     success = getifaddrs(&interfaces);
-    if (success == 0)
+    if(success == 0)
     {
         temp_addr = interfaces;
         while(temp_addr != nullptr)
@@ -362,11 +363,11 @@ uint64_t SPUnityHardwareGetStorageInfo(NSString* key)
     uint64_t value = 0;
     NSError* error = nil;
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSDictionary* dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject] error: &error];
-    
-    if (dictionary)
+    NSDictionary* dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject] error:&error];
+
+    if(dictionary)
     {
-        NSNumber* fileSystemSizeInBytes = [dictionary objectForKey: key];
+        NSNumber* fileSystemSizeInBytes = [dictionary objectForKey:key];
         value = [fileSystemSizeInBytes unsignedLongLongValue];
     }
     return value;

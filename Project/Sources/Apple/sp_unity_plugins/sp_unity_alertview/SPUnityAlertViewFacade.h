@@ -15,19 +15,18 @@
 #define EXPORT_API
 #endif
 
-extern "C"
+extern "C" {
+struct SPUnityAlertViewDataStruct
 {
-    struct SPUnityAlertViewDataStruct
-    {
-        const char* message;
-        const char* title;
-        const char* signature;
-        const char* buttons;
-        bool input;
-    };
+    const char* message;
+    const char* title;
+    const char* signature;
+    const char* buttons;
+    bool input;
+};
 
-    EXPORT_API void SPUnityAlertViewShow(SPUnityAlertViewDataStruct data);
-    EXPORT_API void SPUnityAlertViewHide();
+EXPORT_API void SPUnityAlertViewShow(SPUnityAlertViewDataStruct data);
+EXPORT_API void SPUnityAlertViewHide();
 }
 
 
