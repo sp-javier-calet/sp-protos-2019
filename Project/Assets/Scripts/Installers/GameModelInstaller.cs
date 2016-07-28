@@ -25,6 +25,10 @@ public class GameModelInstaller : SubInstaller
         Container.Rebind<StoreModel>().ToGetter<ConfigModel>((Config) => Config.Store);
         Container.Rebind<ResourcePool>().ToGetter<PlayerModel>((player) => player.Resources);
        
+        Container.Bind<IChildParser<IModelCondition>>().ToSingle<AndConditionTypeModelParser>();
+        Container.Bind<IChildParser<IModelCondition>>().ToSingle<OrConditionTypeModelParser>();
+        Container.Rebind<IParser<IModelCondition>>().ToMethod<FamilyParser<IModelCondition>>(CreateModelConditionParser);
+        Container.Rebind<IParser<GoalsTypeModel>>().ToMethod<GoalsTypeModelParser>(CreateGoalsParser);
     }
 
     GameParser CreateGameParser()
@@ -41,6 +45,7 @@ public class GameModelInstaller : SubInstaller
         return new ConfigParser(
             Container.Resolve<ConfigModel>(),
             Container.Resolve<IParser<StoreModel>>(),
+            Container.Resolve<IParser<GoalsTypeModel>>(),
             Container.Resolve<IParser<ScriptModel>>());
     }
 
@@ -48,7 +53,8 @@ public class GameModelInstaller : SubInstaller
     {
         return new PlayerParser(
             Container.Resolve<PlayerModel>(),
-            Container.Resolve<ConfigModel>());
+            Container.Resolve<ConfigModel>(),
+            Container.Resolve<IScriptEventDispatcher>());
     }
 
     GameModel CreateGameModel()
@@ -56,6 +62,17 @@ public class GameModelInstaller : SubInstaller
         var gameModel = new GameModel();
         gameModel.Initialized += OnGameModelInitialized;
         return gameModel;
+    }
+
+    GoalsTypeModelParser CreateGoalsParser()
+    {
+        return new GoalsTypeModelParser(Container.Resolve<IParser<IModelCondition>>(), Container.Resolve<IParser<IReward>>());
+    }
+
+    FamilyParser<IModelCondition> CreateModelConditionParser()
+    {
+        var children = Container.ResolveList<IChildParser<IModelCondition>>();
+        return new FamilyParser<IModelCondition>(children);
     }
 
     void OnGameModelInitialized(GameModel game)
