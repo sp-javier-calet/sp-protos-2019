@@ -37,8 +37,8 @@ void SPUnityCurlManager::addConn(int id)
 
 SPUnityCurlManager::ConnInfo* SPUnityCurlManager::getConnById(int id)
 {
-    MClients::iterator it =  _clients.find(id);
-    if ( it != _clients.end())
+    MClients::iterator it = _clients.find(id);
+    if(it != _clients.end())
     {
         return it->second;
     }
@@ -47,8 +47,8 @@ SPUnityCurlManager::ConnInfo* SPUnityCurlManager::getConnById(int id)
 
 bool SPUnityCurlManager::removeConn(int id)
 {
-    MClients::iterator it =  _clients.find(id);
-    if ( it == _clients.end())
+    MClients::iterator it = _clients.find(id);
+    if(it == _clients.end())
     {
         return false;
     }

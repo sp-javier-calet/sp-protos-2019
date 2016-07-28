@@ -14,10 +14,10 @@
 
 class SPNativeCallsSender
 {
-private:
+  private:
     static std::string combineMethodMessage(const std::string& method, const std::string& msg);
 
-public:
+  public:
     static void SendMessage(const std::string& method);
     static void SendMessage(const std::string& method, const std::string& msg);
 };

@@ -56,19 +56,19 @@
 */
 @interface KeychainItemWrapper : NSObject
 {
-    NSMutableDictionary *keychainItemData;		// The actual keychain item data backing store.
-    NSMutableDictionary *genericPasswordQuery;	// A placeholder for the generic keychain item query used to locate the item.
+    NSMutableDictionary* keychainItemData;    // The actual keychain item data backing store.
+    NSMutableDictionary* genericPasswordQuery;// A placeholder for the generic keychain item query used to locate the item.
 }
 
-@property (nonatomic, retain) NSMutableDictionary *keychainItemData;
-@property (nonatomic, retain) NSMutableDictionary *genericPasswordQuery;
+@property(nonatomic, retain) NSMutableDictionary* keychainItemData;
+@property(nonatomic, retain) NSMutableDictionary* genericPasswordQuery;
 
 // Designated initializer.
-- (id)initWithIdentifier: (NSString *)identifier service:(NSString *)service accessGroup:(NSString *)accessGroup error:(OSStatus *)error;
-- (void)setObject:(id)inObject forKey:(id)key error:(OSStatus *)error;
+- (id)initWithIdentifier:(NSString*)identifier service:(NSString*)service accessGroup:(NSString*)accessGroup error:(OSStatus*)error;
+- (void)setObject:(id)inObject forKey:(id)key error:(OSStatus*)error;
 - (id)objectForKey:(id)key;
 
 // Initializes and resets the default generic keychain item data.
-- (void)resetKeychainItemWithError:(OSStatus *)error;
+- (void)resetKeychainItemWithError:(OSStatus*)error;
 
 @end

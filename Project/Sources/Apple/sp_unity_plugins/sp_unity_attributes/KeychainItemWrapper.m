@@ -79,8 +79,8 @@ The decision behind the following two methods (secItemFormatToDictionary and dic
 to encapsulate the transition between what the detail view controller was expecting (NSString *) and what the
 Keychain API expects as a validly constructed container class.
 */
-- (NSMutableDictionary *)secItemFormatToDictionary:(NSDictionary *)dictionaryToConvert;
-- (NSMutableDictionary *)dictionaryToSecItemFormat:(NSDictionary *)dictionaryToConvert;
+- (NSMutableDictionary*)secItemFormatToDictionary:(NSDictionary*)dictionaryToConvert;
+- (NSMutableDictionary*)dictionaryToSecItemFormat:(NSDictionary*)dictionaryToConvert;
 
 // Updates the item in the keychain, or adds it if it doesn't exist.
 - (OSStatus)writeToKeychain;
@@ -91,86 +91,87 @@ Keychain API expects as a validly constructed container class.
 
 @synthesize keychainItemData, genericPasswordQuery;
 
-- (id)initWithIdentifier: (NSString *)identifier service:(NSString *)service accessGroup:(NSString *)accessGroup error:(OSStatus *)error
+- (id)initWithIdentifier:(NSString*)identifier service:(NSString*)service accessGroup:(NSString*)accessGroup error:(OSStatus*)error
 {
     *error = noErr;
-    if (self = [super init])
+    if(self = [super init])
     {
         // Begin Keychain search setup. The genericPasswordQuery leverages the special user
         // defined attribute kSecAttrGeneric to distinguish itself between other generic Keychain
         // items which may be included by the same application.
         genericPasswordQuery = [[NSMutableDictionary alloc] init];
 
-		[genericPasswordQuery setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+        [genericPasswordQuery setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
         [genericPasswordQuery setObject:identifier forKey:(__bridge id)kSecAttrAccount];
         [genericPasswordQuery setObject:service forKey:(__bridge id)kSecAttrService];
 
-		// The keychain access group attribute determines if this item can be shared
-		// amongst multiple apps whose code signing entitlements contain the same keychain access group.
-		if (accessGroup != nil)
-		{
+        // The keychain access group attribute determines if this item can be shared
+        // amongst multiple apps whose code signing entitlements contain the same keychain access group.
+        if(accessGroup != nil)
+        {
 #if TARGET_IPHONE_SIMULATOR
-			// Ignore the access group if running on the iPhone simulator.
-			//
-			// Apps that are built for the simulator aren't signed, so there's no keychain access group
-			// for the simulator to check. This means that all apps can see all keychain items when run
-			// on the simulator.
-			//
-			// If a SecItem contains an access group attribute, SecItemAdd and SecItemUpdate on the
-			// simulator will return -25243 (errSecNoAccessForItem).
+// Ignore the access group if running on the iPhone simulator.
+//
+// Apps that are built for the simulator aren't signed, so there's no keychain access group
+// for the simulator to check. This means that all apps can see all keychain items when run
+// on the simulator.
+//
+// If a SecItem contains an access group attribute, SecItemAdd and SecItemUpdate on the
+// simulator will return -25243 (errSecNoAccessForItem).
 #else
-			[genericPasswordQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+            [genericPasswordQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
-		}
+        }
 
-		// Use the proper search constants, return only the attributes of the first match.
+        // Use the proper search constants, return only the attributes of the first match.
         [genericPasswordQuery setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
         [genericPasswordQuery setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
 
-        NSDictionary *tempQuery = [NSDictionary dictionaryWithDictionary:genericPasswordQuery];
+        NSDictionary* tempQuery = [NSDictionary dictionaryWithDictionary:genericPasswordQuery];
 
         CFTypeRef dataRef;
-        if ((!SecItemCopyMatching((__bridge CFDictionaryRef)tempQuery, (CFTypeRef *)&dataRef)) == noErr)
+        if((!SecItemCopyMatching((__bridge CFDictionaryRef)tempQuery, (CFTypeRef*)&dataRef)) == noErr)
         {
             // Stick these default values into keychain item if nothing found.
             [self resetKeychainItemWithError:error];
 
-			// Add the generic attribute and the keychain access group.
+            // Add the generic attribute and the keychain access group.
             [keychainItemData setObject:identifier forKey:(__bridge id)kSecAttrAccount];
             [keychainItemData setObject:service forKey:(__bridge id)kSecAttrService];
-			if (accessGroup != nil)
-			{
+            if(accessGroup != nil)
+            {
 #if TARGET_IPHONE_SIMULATOR
-				// Ignore the access group if running on the iPhone simulator.
-				//
-				// Apps that are built for the simulator aren't signed, so there's no keychain access group
-				// for the simulator to check. This means that all apps can see all keychain items when run
-				// on the simulator.
-				//
-				// If a SecItem contains an access group attribute, SecItemAdd and SecItemUpdate on the
-				// simulator will return -25243 (errSecNoAccessForItem).
+// Ignore the access group if running on the iPhone simulator.
+//
+// Apps that are built for the simulator aren't signed, so there's no keychain access group
+// for the simulator to check. This means that all apps can see all keychain items when run
+// on the simulator.
+//
+// If a SecItem contains an access group attribute, SecItemAdd and SecItemUpdate on the
+// simulator will return -25243 (errSecNoAccessForItem).
 #else
-				[keychainItemData setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+                [keychainItemData setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
-			}
-		}
+            }
+        }
         else
         {
-            NSDictionary *outDictionary = (__bridge_transfer NSDictionary*)dataRef;
+            NSDictionary* outDictionary = (__bridge_transfer NSDictionary*)dataRef;
             // load the saved data from Keychain.
             self.keychainItemData = [self secItemFormatToDictionary:outDictionary error:error];
         }
     }
 
-	return self;
+    return self;
 }
 
-- (void)setObject:(id)inObject forKey:(id)key error:(OSStatus *)error
+- (void)setObject:(id)inObject forKey:(id)key error:(OSStatus*)error
 {
     *error = noErr;
-    if (inObject == nil) return;
+    if(inObject == nil)
+        return;
     id currentObject = [keychainItemData objectForKey:key];
-    if (![currentObject isEqual:inObject])
+    if(![currentObject isEqual:inObject])
     {
         [keychainItemData setObject:inObject forKey:key];
         *error = [self writeToKeychain];
@@ -184,16 +185,16 @@ Keychain API expects as a validly constructed container class.
 
 - (void)resetKeychainItemWithError:(OSStatus*)error
 {
-	*error = noErr;
-    if (!keychainItemData)
+    *error = noErr;
+    if(!keychainItemData)
     {
         self.keychainItemData = [[NSMutableDictionary alloc] init];
     }
-    else if (keychainItemData)
+    else if(keychainItemData)
     {
-        NSMutableDictionary *tempDictionary = [self dictionaryToSecItemFormat:keychainItemData];
-		*error = SecItemDelete((__bridge CFDictionaryRef)tempDictionary);
-        NSAssert( *error == noErr || *error == errSecItemNotFound, @"Problem deleting current dictionary." );
+        NSMutableDictionary* tempDictionary = [self dictionaryToSecItemFormat:keychainItemData];
+        *error = SecItemDelete((__bridge CFDictionaryRef)tempDictionary);
+        NSAssert(*error == noErr || *error == errSecItemNotFound, @"Problem deleting current dictionary.");
     }
 
     // Default attributes for keychain item.
@@ -201,36 +202,36 @@ Keychain API expects as a validly constructed container class.
     [keychainItemData setObject:@"" forKey:(__bridge id)kSecAttrLabel];
     [keychainItemData setObject:@"" forKey:(__bridge id)kSecAttrDescription];
 
-	// Default data for keychain item.
+    // Default data for keychain item.
     [keychainItemData setObject:@"" forKey:(__bridge id)kSecValueData];
 }
 
-- (NSMutableDictionary *)dictionaryToSecItemFormat:(NSDictionary *)dictionaryToConvert
+- (NSMutableDictionary*)dictionaryToSecItemFormat:(NSDictionary*)dictionaryToConvert
 {
     // The assumption is that this method will be called with a properly populated dictionary
     // containing all the right key/value pairs for a SecItem.
 
     // Create a dictionary to return populated with the attributes and data.
-    NSMutableDictionary *returnDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionaryToConvert];
+    NSMutableDictionary* returnDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionaryToConvert];
 
     // Add the Generic Password keychain item class attribute.
     [returnDictionary setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
 
     // Convert the NSString to NSData to meet the requirements for the value type kSecValueData.
-	// This is where to store sensitive data that should be encrypted.
-    NSString *passwordString = [dictionaryToConvert objectForKey:(__bridge id)kSecValueData];
+    // This is where to store sensitive data that should be encrypted.
+    NSString* passwordString = [dictionaryToConvert objectForKey:(__bridge id)kSecValueData];
     [returnDictionary setObject:[passwordString dataUsingEncoding:NSUTF8StringEncoding] forKey:(__bridge id)kSecValueData];
 
     return returnDictionary;
 }
 
-- (NSMutableDictionary *)secItemFormatToDictionary:(NSDictionary *)dictionaryToConvert error:(OSStatus *)error
+- (NSMutableDictionary*)secItemFormatToDictionary:(NSDictionary*)dictionaryToConvert error:(OSStatus*)error
 {
     // The assumption is that this method will be called with a properly populated dictionary
     // containing all the right key/value pairs for the UI element.
 
     // Create a dictionary to return populated with the attributes and data.
-    NSMutableDictionary *returnDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionaryToConvert];
+    NSMutableDictionary* returnDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionaryToConvert];
 
     // Add the proper search key and class attribute.
     [returnDictionary setObject:(id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
@@ -238,15 +239,14 @@ Keychain API expects as a validly constructed container class.
 
     // Acquire the password data from the attributes.
     CFTypeRef resultRef;
-    if ((*error = SecItemCopyMatching((__bridge CFDictionaryRef)returnDictionary, (CFTypeRef *)&resultRef)) == noErr)
+    if((*error = SecItemCopyMatching((__bridge CFDictionaryRef)returnDictionary, (CFTypeRef*)&resultRef)) == noErr)
     {
-        NSData* passwordData = (__bridge_transfer NSData*) resultRef;
+        NSData* passwordData = (__bridge_transfer NSData*)resultRef;
         // Remove the search, class, and identifier key/value, we don't need them anymore.
         [returnDictionary removeObjectForKey:(__bridge id)kSecReturnData];
 
         // Add the password to the dictionary, converting from NSData to NSString.
-        NSString *password = [[NSString alloc] initWithBytes:[passwordData bytes] length:[passwordData length]
-                                                     encoding:NSUTF8StringEncoding];
+        NSString* password = [[NSString alloc] initWithBytes:[passwordData bytes] length:[passwordData length] encoding:NSUTF8StringEncoding];
         [returnDictionary setObject:password forKey:(__bridge id)kSecValueData];
     }
     else
@@ -255,40 +255,40 @@ Keychain API expects as a validly constructed container class.
         NSAssert(NO, @"Serious error, no matching item found in the keychain.\n");
     }
 
-	return returnDictionary;
+    return returnDictionary;
 }
 
 - (OSStatus)writeToKeychain
 {
-    NSMutableDictionary *updateItem = NULL;
+    NSMutableDictionary* updateItem = NULL;
     OSStatus result;
 
     CFTypeRef dataRef;
-    if (SecItemCopyMatching((__bridge CFDictionaryRef)genericPasswordQuery, (CFTypeRef *)&dataRef) == noErr)
+    if(SecItemCopyMatching((__bridge CFDictionaryRef)genericPasswordQuery, (CFTypeRef*)&dataRef) == noErr)
     {
-        NSDictionary *attributes = (__bridge_transfer NSDictionary*)dataRef;
+        NSDictionary* attributes = (__bridge_transfer NSDictionary*)dataRef;
         // First we need the attributes from the Keychain.
         updateItem = [NSMutableDictionary dictionaryWithDictionary:attributes];
         // Second we need to add the appropriate search key/values.
         [updateItem setObject:[genericPasswordQuery objectForKey:(__bridge id)kSecClass] forKey:(__bridge id)kSecClass];
 
         // Lastly, we need to set up the updated attribute list being careful to remove the class.
-        NSMutableDictionary *tempCheck = [self dictionaryToSecItemFormat:keychainItemData];
+        NSMutableDictionary* tempCheck = [self dictionaryToSecItemFormat:keychainItemData];
         [tempCheck removeObjectForKey:(__bridge id)kSecClass];
 
 #if TARGET_IPHONE_SIMULATOR
-		// Remove the access group if running on the iPhone simulator.
-		//
-		// Apps that are built for the simulator aren't signed, so there's no keychain access group
-		// for the simulator to check. This means that all apps can see all keychain items when run
-		// on the simulator.
-		//
-		// If a SecItem contains an access group attribute, SecItemAdd and SecItemUpdate on the
-		// simulator will return -25243 (errSecNoAccessForItem).
-		//
-		// The access group attribute will be included in items returned by SecItemCopyMatching,
-		// which is why we need to remove it before updating the item.
-		[tempCheck removeObjectForKey:(__bridge id)kSecAttrAccessGroup];
+        // Remove the access group if running on the iPhone simulator.
+        //
+        // Apps that are built for the simulator aren't signed, so there's no keychain access group
+        // for the simulator to check. This means that all apps can see all keychain items when run
+        // on the simulator.
+        //
+        // If a SecItem contains an access group attribute, SecItemAdd and SecItemUpdate on the
+        // simulator will return -25243 (errSecNoAccessForItem).
+        //
+        // The access group attribute will be included in items returned by SecItemCopyMatching,
+        // which is why we need to remove it before updating the item.
+        [tempCheck removeObjectForKey:(__bridge id)kSecAttrAccessGroup];
 #endif
 
         // An implicit assumption is that you can only update a single item at a time.

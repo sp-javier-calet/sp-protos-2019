@@ -17,25 +17,24 @@
 
 #include <stdlib.h>
 
-extern "C"
+extern "C" {
+
+//-----------------------------------------------------------------------------------------------------------------------------
+// HttpClient
+//-----------------------------------------------------------------------------------------------------------------------------
+
+#pragma pack(1)
+struct SPUnityKeychainItemStruct
 {
+    const char* id;
+    const char* service;
+    const char* accessGroup;
+};
 
-    //-----------------------------------------------------------------------------------------------------------------------------
-    //HttpClient
-    //-----------------------------------------------------------------------------------------------------------------------------
-
-    #pragma pack(1)
-    struct SPUnityKeychainItemStruct
-    {
-        const char* id;
-        const char* service;
-        const char* accessGroup;
-    };
-
-    EXPORT_API int SPUnityKeychainSet(SPUnityKeychainItemStruct item, const char* value);
-    EXPORT_API char* SPUnityKeychainGet(SPUnityKeychainItemStruct item);
-    EXPORT_API int SPUnityKeychainClear(SPUnityKeychainItemStruct item);
-    EXPORT_API char* SPUnityKeychainGetDefaultAccessGroup();
+EXPORT_API int SPUnityKeychainSet(SPUnityKeychainItemStruct item, const char* value);
+EXPORT_API char* SPUnityKeychainGet(SPUnityKeychainItemStruct item);
+EXPORT_API int SPUnityKeychainClear(SPUnityKeychainItemStruct item);
+EXPORT_API char* SPUnityKeychainGetDefaultAccessGroup();
 }
 
 #endif
