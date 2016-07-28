@@ -554,6 +554,28 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     _mods.Add(new ModData{ Symbol = symbol, Value = value });
                 }
 
+                public override string Validate()
+                {
+                    var dic = new Dictionary<string, string>();
+                    foreach(var mod in _mods)
+                    {
+                        string val;
+                        if(dic.TryGetValue(mod.Symbol, out val))
+                        {
+                            if(val != mod.Value)
+                            {
+                                return "Conflicting Build Settings";
+                            }
+                        }
+                        else
+                        {
+                            dic.Add(mod.Symbol, mod.Value);
+                        }
+                    }
+
+                    return null;
+                }
+
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
@@ -859,6 +881,24 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 public void Add(string path)
                 {
                     _mods.Add(new ModData{ Path = path });
+                }
+
+                public override string Validate()
+                {
+                    string provisioning = null;
+                    foreach(var mod in _mods)
+                    {
+                        
+                        if(string.IsNullOrEmpty(provisioning))
+                        {
+                            provisioning = mod.Path;
+                        }
+                        else if(provisioning != mod.Path)
+                        {
+                            return "Conflicting Provisioning Profile";
+                        }
+                    }
+                    return null;
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
