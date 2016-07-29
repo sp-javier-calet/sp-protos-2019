@@ -65,12 +65,12 @@ namespace SocialPoint.QualityStats
             public void Add(Data a)
             {
                 Amount += a.Amount;
-                SumSize = a.SumSize;
-                SumSpeed = a.SumSpeed;
-                SumTimes = a.SumTimes;
-                SumWaitTimes = a.SumWaitTimes;
-                SumConnectionTimes = a.SumConnectionTimes;
-                SumTransferTimes = a.SumTransferTimes;
+                SumSize += a.SumSize;
+                SumSpeed += a.SumSpeed;
+                SumTimes += a.SumTimes;
+                SumWaitTimes += a.SumWaitTimes;
+                SumConnectionTimes += a.SumConnectionTimes;
+                SumTransferTimes += a.SumTransferTimes;
             }
         }
 
