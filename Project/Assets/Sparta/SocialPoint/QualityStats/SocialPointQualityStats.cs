@@ -202,7 +202,7 @@ namespace SocialPoint.QualityStats
             for(int i = 0, _qualityStatsHttpClientsCount = _qualityStatsHttpClients.Count; i < _qualityStatsHttpClientsCount; i++)
             {
                 var client = _qualityStatsHttpClients[i];
-                QualityStatsHttpClient.MStats clientData = client.getStats();
+                var clientData = client.getStats();
                 var itr = clientData.GetEnumerator();
                 while(itr.MoveNext())
                 {
@@ -227,7 +227,7 @@ namespace SocialPoint.QualityStats
                             requestMergedData = new QualityStatsHttpClient.Data();
                             mergedStats.Requests[dataIt.Key] = requestMergedData;
                         }
-                        requestMergedData += dataIt.Value;
+                        requestMergedData.Add(dataIt.Value);
                     }
                     itr2.Dispose();
                 }
