@@ -580,7 +580,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(var mod in _mods)
                     {
-                        editor.Pbx.AddBuildProperty(editor.DefaultTargetGuid, mod.Symbol, mod.Value);
+                        editor.Pbx.SetBuildProperty(editor.DefaultTargetGuid, mod.Symbol, mod.Value);
                     }
                 }
             }
@@ -615,7 +615,10 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var filePath = editor.ReplaceProjectVariables(mod.Path);
-                        editor.Pbx.AddLocalization(filePath, mod.Name, mod.Group);
+                        if(File.Exists(filePath))
+                        {
+                            editor.Pbx.AddLocalization(filePath, mod.Name, mod.Group);
+                        }
                     }
                 }
             }
@@ -955,7 +958,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     {
                         var path = Path.Combine(editor.Project.ProjectRootPath, entitlementFile);
 
-                        var  plist = new PlistDocument();
+                        var plist = new PlistDocument();
 
                         if(!File.Exists(path))
                         {
