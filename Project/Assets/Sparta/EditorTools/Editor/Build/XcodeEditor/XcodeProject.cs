@@ -635,19 +635,6 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     _mods.Add(new ModData{ Name = name, Path = path, Group = variantGroup });
                 }
 
-                public override string Validate(XcodeEditorInternal editor)
-                {
-                    foreach(var mod in _mods)
-                    {
-                        var filePath = editor.ReplaceProjectVariables(mod.Path);
-                        if(!File.Exists(filePath))
-                        {
-                            return string.Format("Localization file '{0}' does not exists", filePath); 
-                        }
-                    }
-                    return null;
-                }
-
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
