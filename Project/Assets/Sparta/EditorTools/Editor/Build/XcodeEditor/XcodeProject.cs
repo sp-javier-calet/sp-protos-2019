@@ -105,12 +105,24 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
             public string ReplaceProjectVariables(string originalPath)
             {
+                return ReplaceProjectVariables(string.Empty, originalPath);
+            }
+
+            public string ReplaceProjectVariables(string basePath, string originalPath)
+            {
                 var path = originalPath;
                 foreach(var entry in _projectVariables)
                 {
                     var pattern = string.Format("{{{0}}}", entry.Key);
                     path = path.Replace(pattern, entry.Value);
                 }
+
+                // If is not already a full path, use the base path if possible
+                if(!Path.IsPathRooted(path) && !string.IsNullOrEmpty(basePath))
+                {
+                    path = Path.Combine(basePath, path);
+                }
+
                 return Path.GetFullPath(path);
             }
 
@@ -216,7 +228,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 var modEditors = ModEditors.Values;
                 foreach(var editor in modEditors)
                 {
-                    var err = editor.Validate();
+                    var err = editor.Validate(this);
                     if(!string.IsNullOrEmpty(err))
                     {
                         throw new InvalidOperationException(err);
@@ -245,7 +257,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 /// Throws an exception if there are inconsistent modifications
                 /// returns null if success, or a string with the error.
                 /// </summary>
-                public virtual string Validate()
+                public virtual string Validate(XcodeEditorInternal editor)
                 {
                     return null;
                 }
@@ -333,12 +345,25 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     _mods.Add(new ModData{ Base = basePath, Src = src, Dst = dst });
                 }
 
+                public override string Validate(XcodeEditorInternal editor)
+                {
+                    foreach(var mod in _mods)
+                    {
+                        var filePath = editor.ReplaceProjectVariables(mod.Base, mod.Src);
+                        if(!File.Exists(filePath))
+                        {
+                            return string.Format("File '{0}' does not exists", filePath); 
+                        }
+                    }
+                    return null;
+                }
+
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
                     {
-                        var fromPath = Path.Combine(mod.Base, editor.ReplaceProjectVariables(mod.Src));
-                        var toPath = Path.Combine(mod.Base, editor.ReplaceProjectVariables(mod.Dst));
+                        var fromPath = editor.ReplaceProjectVariables(mod.Base, mod.Src);
+                        var toPath = editor.ReplaceProjectVariables(mod.Base, mod.Dst);
                         CopyFile(fromPath, toPath);
                     }
                 }
@@ -554,7 +579,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     _mods.Add(new ModData{ Symbol = symbol, Value = value });
                 }
 
-                public override string Validate()
+                public override string Validate(XcodeEditorInternal editor)
                 {
                     var dic = new Dictionary<string, string>();
                     foreach(var mod in _mods)
@@ -610,15 +635,25 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     _mods.Add(new ModData{ Name = name, Path = path, Group = variantGroup });
                 }
 
+                public override string Validate(XcodeEditorInternal editor)
+                {
+                    foreach(var mod in _mods)
+                    {
+                        var filePath = editor.ReplaceProjectVariables(mod.Path);
+                        if(!File.Exists(filePath))
+                        {
+                            return string.Format("Localization file '{0}' does not exists", filePath); 
+                        }
+                    }
+                    return null;
+                }
+
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
                     {
                         var filePath = editor.ReplaceProjectVariables(mod.Path);
-                        if(File.Exists(filePath))
-                        {
-                            editor.Pbx.AddLocalization(filePath, mod.Name, mod.Group);
-                        }
+                        editor.Pbx.AddLocalization(filePath, mod.Name, mod.Group);
                     }
                 }
             }
@@ -886,7 +921,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     _mods.Add(new ModData{ Path = path });
                 }
 
-                public override string Validate()
+                public override string Validate(XcodeEditorInternal editor)
                 {
                     string provisioning = null;
                     foreach(var mod in _mods)
