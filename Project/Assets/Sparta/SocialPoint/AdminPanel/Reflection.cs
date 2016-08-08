@@ -16,20 +16,13 @@ namespace SocialPoint.AdminPanel
                 Log.w(string.Format("AdminPanel Error. No '{0}` field in class {1}", fieldName, instance.GetType()));
             }
 
-            if(field != null)
-            {
-                return (R)field.GetValue(instance); 
-            }
-            else
-            {
-                return default(R);
-            }
+            return field != null ? (R)field.GetValue(instance) : default(R);
         }
 
         static MethodInfo GetMethod<T>(string methodName)
         {
             // FIXME Does not work for overloaded methods
-            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
             MethodInfo method = typeof(T).GetMethod(methodName, bindFlags);
 
             if(method == null)
