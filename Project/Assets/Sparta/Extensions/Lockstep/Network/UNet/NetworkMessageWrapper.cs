@@ -2,7 +2,7 @@
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using System.IO;
-using SocialPoint.Utils.Network.UNet;
+using SocialPoint.Multiplayer;
 
 namespace SocialPoint.Lockstep.Network.UNet
 {
@@ -19,7 +19,7 @@ namespace SocialPoint.Lockstep.Network.UNet
 
         public override void Deserialize(NetworkReader reader)
         {
-            NetworkReaderWrapper readerWrapper = new NetworkReaderWrapper(reader);
+            UnetNetworkReader readerWrapper = new UnetNetworkReader(reader);
             if(NetworkMessage.RequiresSync)
             {
                 NetworkTimestamp = readerWrapper.ReadInt32();
@@ -29,7 +29,7 @@ namespace SocialPoint.Lockstep.Network.UNet
 
         public override void Serialize(NetworkWriter writer)
         {
-            NetworkWriterWrapper writerWrapper = new NetworkWriterWrapper(writer);
+            UnetNetworkWriter writerWrapper = new UnetNetworkWriter(writer);
             if(NetworkMessage.RequiresSync)
             {
                 NetworkTimestamp = NetworkTransport.GetNetworkTimestamp();

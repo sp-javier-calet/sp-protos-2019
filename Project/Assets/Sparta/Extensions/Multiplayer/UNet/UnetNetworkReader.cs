@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using UnityEngine.Networking;
+using SocialPoint.IO;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.Multiplayer
 {
-    public class BinaryReaderWrapper : IReaderWrapper
+    public class UnetNetworkReader : IReader
     {
-        readonly BinaryReader _reader;
+        readonly NetworkReader _reader;
 
-        public BinaryReaderWrapper(BinaryReader reader)
+        public UnetNetworkReader(NetworkReader reader)
         {
             _reader = reader;
         }

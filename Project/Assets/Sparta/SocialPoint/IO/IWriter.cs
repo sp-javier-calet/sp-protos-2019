@@ -3,9 +3,9 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 using System.IO;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.IO
 {
-    public interface IWriterWrapper
+    public interface IWriter
     {
         void Write(bool value);
 

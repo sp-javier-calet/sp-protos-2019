@@ -1,12 +1,13 @@
 ﻿using UnityEngine.Networking;
+using SocialPoint.IO;
 
-namespace SocialPoint.Utils.Network.UNet
+namespace SocialPoint.Multiplayer
 {
-    public class NetworkWriterWrapper : IWriterWrapper
+    public class UnetNetworkWriter : IWriter
     {
         readonly NetworkWriter _writer;
 
-        public NetworkWriterWrapper(NetworkWriter writer)
+        public UnetNetworkWriter(NetworkWriter writer)
         {
             _writer = writer;
         }
