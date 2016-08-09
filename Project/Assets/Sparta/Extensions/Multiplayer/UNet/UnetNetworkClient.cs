@@ -14,8 +14,14 @@ namespace SocialPoint.Multiplayer
         string _serverAddr;
         int _serverPort;
 
-        public UnetNetworkClient(string serverAddr, int serverPort, HostTopology topology=null)
+        public const string DefaultServerAddr = "localhost";
+
+        public UnetNetworkClient(string serverAddr=null, int serverPort=UnetNetworkServer.DefaultPort, HostTopology topology=null)
         {
+            if(string.IsNullOrEmpty(serverAddr))
+            {
+                serverAddr = DefaultServerAddr;
+            }
             _serverAddr = serverAddr;
             _serverPort = serverPort;
             NetworkTransport.Init();
@@ -63,7 +69,7 @@ namespace SocialPoint.Multiplayer
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnConnectedToServer();
+                _delegates[i].OnConnected();
             }
         }
 
@@ -71,7 +77,7 @@ namespace SocialPoint.Multiplayer
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnDisconnectedFromServer();
+                _delegates[i].OnDisconnected();
             }
         }
 
@@ -94,10 +100,6 @@ namespace SocialPoint.Multiplayer
                 _delegates[i].OnMessageReceived(msg);
             }
         }
-
-        const char ServerIdSeparator = ':';
-
-        const int DefaultPort = 8888;
 
         public void Connect()
         {

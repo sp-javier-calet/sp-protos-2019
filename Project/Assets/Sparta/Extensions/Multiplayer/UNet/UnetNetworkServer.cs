@@ -13,7 +13,7 @@ namespace SocialPoint.Multiplayer
         NetworkServerSimple _server;
         int _port;
 
-        const int DefaultPort = 8888;
+        public const int DefaultPort = 8888;
 
         public UnetNetworkServer(int port=DefaultPort, HostTopology topology=null)
         {

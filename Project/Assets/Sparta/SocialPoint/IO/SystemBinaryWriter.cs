@@ -11,6 +11,11 @@ namespace SocialPoint.IO
             _writer = writer;
         }
 
+        public SystemBinaryWriter(Stream stream):
+        this(new BinaryWriter(stream))
+        {
+        }
+
         public void Write(bool value)
         {
             _writer.Write(value);

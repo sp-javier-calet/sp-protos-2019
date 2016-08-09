@@ -11,6 +11,11 @@ namespace SocialPoint.IO
             _reader = reader;
         }
 
+        public SystemBinaryReader(Stream stream):
+        this(new BinaryReader(stream))
+        {
+        }
+
         public bool ReadBoolean()
         {
             return _reader.ReadBoolean();
