@@ -16,8 +16,7 @@ namespace SocialPoint.Multiplayer
         INetworkServer _server;
         bool _serverRunning;
 
-        Text _textArea;
-        StringBuilder _log = new StringBuilder();
+        AdminPanelConsole _console;
 
         Dropdown _msgOrigin;
         InputField _msgType;
@@ -34,6 +33,7 @@ namespace SocialPoint.Multiplayer
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Multiplayer", this));
         }
 
@@ -42,8 +42,6 @@ namespace SocialPoint.Multiplayer
             // Inflate layout
             layout.CreateLabel("Multiplayer");
             layout.CreateMargin();
-
-            _textArea = layout.CreateVerticalScrollLayout().CreateTextArea(_log.ToString());
 
             layout.CreateLabel("Send Message");
             layout.CreateMargin();
@@ -90,17 +88,14 @@ namespace SocialPoint.Multiplayer
 
         void Log(string msg)
         {
-            _log.AppendLine(msg);
-            if(_textArea != null)
-            {
-                _textArea.text = _log.ToString();
-            }
+            _console.Print(msg);
         }
 
         public void StartServer(INetworkServer server)
         {
             Log("starting server... " + server.ToString());
             _server = server;
+            _server.RemoveDelegate(this);
             _server.AddDelegate(this);
             _server.Start();
         }
@@ -109,6 +104,7 @@ namespace SocialPoint.Multiplayer
         {
             Log("starting client... " + client.ToString());
             _client = client;
+            _client.RemoveDelegate(this);
             _client.AddDelegate(this);
             _client.Connect();
         }
@@ -142,11 +138,12 @@ namespace SocialPoint.Multiplayer
             }
             if(_serverRunning)
             {
+                Log("stopping server");
                 _server.Stop();
             }
             else
             {
-                _server.Start();
+                StartServer(_server);
             }
         }
 
@@ -178,11 +175,12 @@ namespace SocialPoint.Multiplayer
             }
             if(_clientRunning)
             {
-                _client.Connect();
+                Log("stopping client");
+                _client.Disconnect();
             }
             else
             {
-                _client.Connect();
+                StartClient(_client);
             }
         }
 
