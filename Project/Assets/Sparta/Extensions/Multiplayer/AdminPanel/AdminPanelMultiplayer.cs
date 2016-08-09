@@ -12,7 +12,9 @@ namespace SocialPoint.Multiplayer
         DependencyContainer _container;
 
         INetworkClient _client;
+        bool _clientRunning;
         INetworkServer _server;
+        bool _serverRunning;
 
         Text _textArea;
         StringBuilder _log = new StringBuilder();
@@ -21,6 +23,9 @@ namespace SocialPoint.Multiplayer
         InputField _msgType;
         InputField _msgChannel;
         InputField _msgBody;
+
+        Text _opServer;
+        Text _opClient;
 
         public AdminPanelMultiplayer(DependencyContainer container=null)
         {
@@ -71,16 +76,17 @@ namespace SocialPoint.Multiplayer
             layout.CreateOpenPanelButton("Unity Networking", new AdminPanelUnetMultiplayer(this, _container));
             layout.CreateMargin();
 
-            if(_container != null)
-            {
-                layout.CreateButton("Start Current Server", OnCurrentServerStartClicked);
-                layout.CreateButton("Start Current Client", OnCurrentClientStartClicked);
-                layout.CreateMargin();
-            }
+            var opServer = layout.CreateButton("", OnOpServerClicked);
+            _opServer = opServer.GetComponentInChildren<Text>();
+            UpdateOpServer();
+            var opClient = layout.CreateButton("", OnOpClientClicked);
+            _opClient = opClient.GetComponentInChildren<Text>();
+            UpdateOpClient();
+            layout.CreateMargin();
 
             layout.CreateButton("Start Local Networking", OnLocalStartClicked);
             layout.CreateMargin();
-        }
+        }            
 
         void Log(string msg)
         {
@@ -105,6 +111,79 @@ namespace SocialPoint.Multiplayer
             _client = client;
             _client.AddDelegate(this);
             _client.Connect();
+        }
+
+        void UpdateOpServer()
+        {
+            if(_opServer == null)
+            {
+                return;
+            }
+            if(_serverRunning)
+            {
+                _opServer.text = "Stop Server";
+            }
+            else
+            {
+                _opServer.text = "Start Server";
+            }
+        }
+
+        void OnOpServerClicked()
+        {
+            if(_server == null && _container != null)
+            {
+                _server = _container.Resolve<INetworkServer>();
+            }
+            if(_server == null)
+            {
+                Log("no server loaded");
+                return;
+            }
+            if(_serverRunning)
+            {
+                _server.Stop();
+            }
+            else
+            {
+                _server.Start();
+            }
+        }
+
+        void UpdateOpClient()
+        {
+            if(_opClient == null)
+            {
+                return;
+            }
+            if(_clientRunning)
+            {
+                _opClient.text = "Disconnect Client";
+            }
+            else
+            {
+                _opClient.text = "Connect Client";
+            }
+        }
+        void OnOpClientClicked()
+        {
+            if(_client == null && _container != null)
+            {
+                _client = _container.Resolve<INetworkClient>();
+            }
+            if(_client == null)
+            {
+                Log("no client loaded");
+                return;
+            }
+            if(_clientRunning)
+            {
+                _client.Connect();
+            }
+            else
+            {
+                _client.Connect();
+            }
         }
 
         void OnSendMessageClicked()
@@ -150,18 +229,6 @@ namespace SocialPoint.Multiplayer
                 msg.Send();
             }
         }
-
-        void OnCurrentServerStartClicked()
-        {
-            var server = _container.Resolve<INetworkServer>();
-            StartServer(server);
-        }
-
-        void OnCurrentClientStartClicked()
-        {
-            var client = _container.Resolve<INetworkClient>();
-            StartClient(client);
-        }
             
         void OnLocalStartClicked()
         {
@@ -181,11 +248,15 @@ namespace SocialPoint.Multiplayer
         void INetworkClientDelegate.OnConnected()
         {
             Log("client connected");
+            _clientRunning = true;
+            UpdateOpClient();
         }
 
         void INetworkClientDelegate.OnDisconnected()
         {
             Log("client disconnected");
+            _clientRunning = false;
+            UpdateOpClient();
         }
 
         void INetworkClientDelegate.OnMessageReceived(ReceivedNetworkMessage msg)
@@ -205,6 +276,15 @@ namespace SocialPoint.Multiplayer
         void INetworkServerDelegate.OnStarted()
         {
             Log("server started");
+            _serverRunning = true;
+            UpdateOpServer();
+        }
+
+        void INetworkServerDelegate.OnStopped()
+        {
+            Log("server stopped");
+            _serverRunning = false;
+            UpdateOpServer();
         }
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)

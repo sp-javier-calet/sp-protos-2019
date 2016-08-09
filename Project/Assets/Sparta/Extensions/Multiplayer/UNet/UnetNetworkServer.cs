@@ -23,6 +23,7 @@ namespace SocialPoint.Multiplayer
             {
                 _server.Configure(topology);
             }
+            RegisterHandlers();
         }
 
         public void Dispose()
@@ -37,15 +38,24 @@ namespace SocialPoint.Multiplayer
         public void Start()
         {
             _server.Listen(_port);
+            for(var i = 0; i < _delegates.Count; i++)
+            {                
+                _delegates[i].OnStarted();
+            }
         }
 
         public void Stop()
         {
             _server.Stop();
+            for(var i = 0; i < _delegates.Count; i++)
+            {                
+                _delegates[i].OnStopped();
+            }
         }
 
         void RegisterHandlers()
         {
+            UnregisterHandlers();
             _server.RegisterHandler(MsgType.Connect, OnConnectReceived);
             _server.RegisterHandler(MsgType.Disconnect, OnDisconnectReceived);
             _server.RegisterHandler(MsgType.Error, OnErrorReceived);
@@ -66,7 +76,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void OnConnectReceived(UnityEngine.Networking.NetworkMessage umsg)
+        void OnConnectReceived(NetworkMessage umsg)
         {
             var clientId = (byte)umsg.conn.connectionId;
             for(var i = 0; i < _delegates.Count; i++)
@@ -75,7 +85,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void OnDisconnectReceived(UnityEngine.Networking.NetworkMessage umsg)
+        void OnDisconnectReceived(NetworkMessage umsg)
         {
             var clientId = (byte)umsg.conn.connectionId;
             for(var i = 0; i < _delegates.Count; i++)
@@ -84,7 +94,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void OnErrorReceived(UnityEngine.Networking.NetworkMessage umsg)
+        void OnErrorReceived(NetworkMessage umsg)
         {
             var errMsg = umsg.ReadMessage<ErrorMessage>();
             var err = new Error(errMsg.errorCode, errMsg.ToString());
@@ -94,7 +104,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void OnMessageReceived(UnityEngine.Networking.NetworkMessage umsg)
+        void OnMessageReceived(NetworkMessage umsg)
         {
             var clientId = (byte)umsg.conn.connectionId;
             byte type = UnetNetworkMessage.ConvertType(umsg.msgType);

@@ -5,6 +5,7 @@ namespace SocialPoint.Multiplayer
     public interface INetworkServerDelegate
     {
         void OnStarted();
+        void OnStopped();
         void OnClientConnected(byte clientId);
         void OnClientDisconnected(byte clientId);
         void OnMessageReceived(byte clientId, ReceivedNetworkMessage msg);
