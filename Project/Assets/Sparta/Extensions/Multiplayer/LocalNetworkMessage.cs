@@ -4,23 +4,32 @@ using System.IO;
 
 namespace SocialPoint.Multiplayer
 {
-    public interface ILocalNetworkMessageReceiver
-    {
-        void OnLocalMessageReceived(LocalNetworkMessage msg);
-    }
-
     public class LocalNetworkMessage : INetworkMessage
     {
         public IWriter Writer{ get; private set; }
         byte _type;
         int _channelId;
 
-        ILocalNetworkMessageReceiver _receiver;
+        LocalNetworkServer _server;
+        LocalNetworkClient[] _clients;
+        LocalNetworkClient _origin;
         MemoryStream _stream;
 
-        public LocalNetworkMessage(byte type, int chanId, ILocalNetworkMessageReceiver receiver)
+        public LocalNetworkMessage(byte type, int chanId, LocalNetworkClient[] clients)
         {
-            _receiver = receiver;
+            _clients = clients;
+            Init(type, chanId);
+        }
+
+        public LocalNetworkMessage(byte type, int chanId, LocalNetworkClient origin, LocalNetworkServer server)
+        {
+            _origin = origin;
+            _server = server;
+            Init(type, chanId);
+        }
+
+        void Init(byte type, int chanId)
+        {
             _type = type;
             _channelId = chanId;
             _stream = new MemoryStream();
@@ -29,7 +38,17 @@ namespace SocialPoint.Multiplayer
 
         public void Send()
         {
-            _receiver.OnLocalMessageReceived(this);
+            if(_server != null)
+            {
+                _server.OnLocalMessageReceived(_origin, this);
+            }
+            if(_clients != null)
+            {
+                for(var i = 0; i < _clients.Length; i++)
+                {
+                    _clients[i].OnLocalMessageReceived(this);
+                }
+            }
         }
 
         public ReceivedNetworkMessage Receive()

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace SocialPoint.Multiplayer
 {
 
-    public class LocalNetworkClient : INetworkClient, ILocalNetworkMessageReceiver
+    public class LocalNetworkClient : INetworkClient
     {
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         LocalNetworkServer _server;
@@ -43,7 +43,7 @@ namespace SocialPoint.Multiplayer
 
         public INetworkMessage CreateMessage(byte type, int channelId)
         {
-            return new LocalNetworkMessage(type, channelId, _server);
+            return new LocalNetworkMessage(type, channelId, this, _server);
         }
 
         public void AddDelegate(INetworkClientDelegate dlg)

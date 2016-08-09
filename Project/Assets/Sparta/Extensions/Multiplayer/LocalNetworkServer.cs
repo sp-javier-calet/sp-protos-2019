@@ -1,12 +1,13 @@
 ﻿using SocialPoint.Base;
 using System.Collections.Generic;
+using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class LocalNetworkServer : INetworkServer, ILocalNetworkMessageReceiver
+    public class LocalNetworkServer : INetworkServer
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
-        LocalNetworkClient _client;
+        Dictionary<LocalNetworkClient,byte> _clients = new Dictionary<LocalNetworkClient,byte>();
 
         public void Start()
         {
@@ -16,43 +17,81 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        const byte DefaultClientId = 0;
-
         public void OnClientConnected(LocalNetworkClient client)
         {
-            _client = client;
+            byte clientId = 0;
+            bool found = false;
+            for(; clientId < byte.MaxValue; clientId++)
+            {
+                if(!_clients.ContainsValue(clientId))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+            {
+                throw new InvalidOperationException("Too many clients.");
+            }
+            _clients[client] = clientId;
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnClientConnected(DefaultClientId);
+                _delegates[i].OnClientConnected(clientId);
             }
         }
 
         public void OnClientDisconnected(LocalNetworkClient client)
         {
-            _client = null;
+            byte clientId;
+            if(!_clients.TryGetValue(client, out clientId))
+            {
+                return;
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnClientDisconnected(DefaultClientId);
+                _delegates[i].OnClientDisconnected(clientId);
             }
         }
 
-        public void OnLocalMessageReceived(LocalNetworkMessage msg)
+        public void OnLocalMessageReceived(LocalNetworkClient origin, LocalNetworkMessage msg)
         {
+            byte clientId;
+            if(!_clients.TryGetValue(origin, out clientId))
+            {
+                return;
+            }
             var received = msg.Receive();
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(DefaultClientId, received);
+                _delegates[i].OnMessageReceived(clientId, received);
             }
         }
 
         public INetworkMessage CreateMessage(byte type, int channelId)
         {
-            return new LocalNetworkMessage(type, channelId, _client);
+            var clients = new LocalNetworkClient[_clients.Count];
+            _clients.Keys.CopyTo(clients, 0);
+            return new LocalNetworkMessage(type, channelId, clients);
         }
 
         public INetworkMessage CreateMessage(byte clientId, byte type, int channelId)
         {
-            return CreateMessage(type, channelId);
+            var itr = _clients.GetEnumerator();
+            LocalNetworkClient receiver = null;
+            while(itr.MoveNext())
+            {
+                if(itr.Current.Value == clientId)
+                {
+                    receiver = itr.Current.Key;
+                    break;
+                }
+            }
+            itr.Dispose();
+            if(receiver == null)
+            {
+                throw new InvalidOperationException("Could not find client id.");
+            }
+            return new LocalNetworkMessage(type, channelId, new LocalNetworkClient[]{ receiver });
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
