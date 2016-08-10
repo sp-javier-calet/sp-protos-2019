@@ -4,8 +4,19 @@ namespace SocialPoint.Multiplayer
 {
     public interface ISerializer<T>
     {
+        /**
+         * should set dirty bits with the changes between newObj and oldObj
+         */
         void Compare(T newObj, T oldObj, DirtyBits dirty);
+
+        /**
+         * should serialize newObject but only the elements that are changed
+         */
         void Serialize(T newObj, IWriter writer, DirtyBits dirty);
+
+        /**
+         * should serialize the complete newObject
+         */
         void Serialize(T newObj, IWriter writer);
     }
 
