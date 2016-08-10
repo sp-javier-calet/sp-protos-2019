@@ -5,11 +5,12 @@ namespace SocialPoint.Multiplayer
 {    
     public class DirtyBits
     {
-        const int MaxSize = 256;
+        const int MaxSize = 64;
 
-        bool[] _data = new bool[MaxSize];
-        int _size;
+        UInt64 _data;
         int _position;
+
+        int _size;
 
         public int Count
         {
@@ -33,7 +34,7 @@ namespace SocialPoint.Multiplayer
             {
                 throw new InvalidOperationException("Cannot read over the size.");
             }
-            var v = _data[_position];
+            var v = (_data & (1UL << _position)) != 0UL;
             _position++;
             return v;
         }
@@ -44,7 +45,14 @@ namespace SocialPoint.Multiplayer
             {
                 throw new InvalidOperationException("Max size reached.");
             }
-            _data[_position] = v;
+            if(v)
+            {
+                _data |= (1UL << _position);
+            }
+            else
+            {
+                _data &= ~(1UL << _position);
+            }
             _position++;
             if(_position > _size)
             {
@@ -67,24 +75,52 @@ namespace SocialPoint.Multiplayer
         {
             if(size > MaxSize)
             {
-                throw new InvalidOperationException("Cannot read more than max size.");
+                throw new InvalidOperationException("Cannot read more than the max size.");
             }
-            for(var i = 0; i < size; i++)
+            if(size <= 8)
             {
-                _data[i] = reader.ReadBoolean();
+                _data = (UInt64)reader.ReadByte();
+            }
+            else if(size <= 16)
+            {
+                _data = (UInt64)reader.ReadUInt16();
+            }
+            else if(size <= 32)
+            {
+                _data = (UInt64)reader.ReadInt32();
+            }
+            else
+            {
+                _data = reader.ReadUInt64();
             }
             _size = size;
         }
 
         public void Write(IWriter writer, int size=-1)
         {
-            if(size < 0 || size > _size)
+            if(size > _size)
+            {
+                throw new InvalidOperationException("Cannot read more than the size.");
+            }
+            if(size < 0)
             {
                 size = _size;
             }
-            for(var i = 0; i < size; i++)
+            if(size <= 8)
             {
-                writer.Write(_data[i]);
+                writer.Write((byte)_data);
+            }
+            else if(size <= 16)
+            {
+                writer.Write((UInt16)_data);
+            }
+            else if(size <= 32)
+            {
+                writer.Write((UInt32)_data);
+            }
+            else
+            {
+                writer.Write(_data);
             }
         }
 
