@@ -87,5 +87,10 @@ namespace SocialPoint.Multiplayer
                 writer.Write(_data[i]);
             }
         }
+
+        public static bool NullOrGet(DirtyBits dirty)
+        {
+            return dirty == null || dirty.Get(); 
+        }
     }
 }
