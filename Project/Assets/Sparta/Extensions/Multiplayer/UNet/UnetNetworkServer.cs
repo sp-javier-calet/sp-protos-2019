@@ -76,7 +76,7 @@ namespace SocialPoint.Multiplayer
         }
 
         public void Update()
-        {
+        {            
             _server.Update();
         }
 

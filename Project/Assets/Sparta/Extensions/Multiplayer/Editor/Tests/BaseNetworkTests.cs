@@ -52,7 +52,7 @@ namespace SocialPoint.Multiplayer
             _client.AddDelegate(cdlg);
 
             _server.Start();
-            _server.Start();
+            _server.Start();           
 
             _client.Connect();
             _client.Connect();
