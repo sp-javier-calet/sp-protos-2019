@@ -19,6 +19,10 @@ namespace SocialPoint.Multiplayer
 
         public void Connect()
         {
+            if(Connected)
+            {
+                return;
+            }
             _server.OnClientConnecting(this);
             if(_server.Running)
             {
@@ -32,6 +36,11 @@ namespace SocialPoint.Multiplayer
 
         public void Disconnect()
         {
+            if(!Connected)
+            {
+                return;
+            }
+            Connected = false;
             _server.OnClientDisconnected(this);
             for(var i = 0; i < _delegates.Count; i++)
             {

@@ -109,6 +109,10 @@ namespace SocialPoint.Multiplayer
 
         public void Disconnect()
         {
+            if(_client.connection != null && _client.connection.hostId >= 0)
+            {
+                NetworkTransport.RemoveHost(_client.connection.hostId);
+            }
             _client.Disconnect();
         }
 

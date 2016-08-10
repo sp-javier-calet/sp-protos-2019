@@ -13,6 +13,10 @@ namespace SocialPoint.Multiplayer
 
         public void Start()
         {
+            if(Running)
+            {
+                return;
+            }
             Running = true;
             for(var i = 0; i < _delegates.Count; i++)
             {
@@ -29,6 +33,10 @@ namespace SocialPoint.Multiplayer
 
         public void Stop()
         {
+            if(!Running)
+            {
+                return;
+            }
             Running = false;
             for(var i = 0; i < _delegates.Count; i++)
             {
