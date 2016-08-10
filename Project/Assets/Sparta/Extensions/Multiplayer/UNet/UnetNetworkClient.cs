@@ -104,11 +104,23 @@ namespace SocialPoint.Multiplayer
 
         public void Connect()
         {
+            if(_client.isConnected)
+            {
+                return;
+            }
             _client.Connect(_serverAddr, _serverPort);
         }
 
         public void Disconnect()
         {
+            if(!_client.isConnected)
+            {
+                return;
+            }
+            if(_client.connection != null && _client.connection.hostId >= 0)
+            {
+                NetworkTransport.RemoveHost(_client.connection.hostId);
+            }
             _client.Disconnect();
         }
 

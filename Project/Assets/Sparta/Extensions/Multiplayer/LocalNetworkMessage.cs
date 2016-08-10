@@ -38,6 +38,7 @@ namespace SocialPoint.Multiplayer
 
         public void Send()
         {
+            Writer = null;
             if(_server != null)
             {
                 _server.OnLocalMessageReceived(_origin, this);
@@ -57,7 +58,8 @@ namespace SocialPoint.Multiplayer
 
         public ReceivedNetworkMessage Receive()
         {
-            return new ReceivedNetworkMessage(_type, _channelId, new SystemBinaryReader(_stream));
+            var stream = new MemoryStream(_stream.GetBuffer());
+            return new ReceivedNetworkMessage(_type, _channelId, new SystemBinaryReader(stream));
         }
     }
 }

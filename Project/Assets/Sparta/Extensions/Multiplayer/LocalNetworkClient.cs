@@ -1,5 +1,6 @@
 ﻿using SocialPoint.Base;
 using System.Collections.Generic;
+using System;
 
 namespace SocialPoint.Multiplayer
 {
@@ -9,6 +10,8 @@ namespace SocialPoint.Multiplayer
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         LocalNetworkServer _server;
 
+        public bool Connected;
+
         public LocalNetworkClient(LocalNetworkServer server)
         {
             _server = server;
@@ -16,15 +19,28 @@ namespace SocialPoint.Multiplayer
 
         public void Connect()
         {
-            _server.OnClientConnected(this);
-            for(var i = 0; i < _delegates.Count; i++)
+            if(Connected)
             {
-                _delegates[i].OnConnected();
+                return;
+            }
+            _server.OnClientConnecting(this);
+            if(_server.Running)
+            {
+                Connected = true;
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnConnected();
+                }
             }
         }
 
         public void Disconnect()
         {
+            if(!Connected)
+            {
+                return;
+            }
+            Connected = false;
             _server.OnClientDisconnected(this);
             for(var i = 0; i < _delegates.Count; i++)
             {
@@ -41,8 +57,28 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        public void OnServerStarted()
+        {
+            if(!Connected)
+            {
+                Connect();
+            }
+        }
+
+        public void OnServerStopped()
+        {
+            if(Connected)
+            {
+                Disconnect();
+            }
+        }
+
         public INetworkMessage CreateMessage(NetworkMessageInfo info)
         {
+            if(!Connected)
+            {
+                throw new InvalidOperationException("Client not connected.");
+            }
             return new LocalNetworkMessage(info, this, _server);
         }
 

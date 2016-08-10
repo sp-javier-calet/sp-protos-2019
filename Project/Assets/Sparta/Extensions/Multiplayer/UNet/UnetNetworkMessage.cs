@@ -26,6 +26,7 @@ namespace SocialPoint.Multiplayer
 
         public void Send()
         {
+            Writer = null;
             _writer.FinishMessage();
             for(var i = 0; i < _conns.Length; i++)
             {

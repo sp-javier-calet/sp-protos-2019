@@ -13,6 +13,7 @@ namespace SocialPoint.Multiplayer
         IUpdateScheduler _updateScheduler;
         NetworkServerSimple _server;
         int _port;
+        bool _running;
 
         public const int DefaultPort = 8888;
 
@@ -41,7 +42,15 @@ namespace SocialPoint.Multiplayer
 
         public void Start()
         {
-            _server.Listen(_port);
+            if(_running)
+            {
+                return;
+            }
+            if(!_server.Listen(_port) || _server.serverHostId == -1)
+            {
+                throw new ResourceException("Failed to start.");
+            }
+            _running = true;
             for(var i = 0; i < _delegates.Count; i++)
             {                
                 _delegates[i].OnStarted();
@@ -50,7 +59,16 @@ namespace SocialPoint.Multiplayer
 
         public void Stop()
         {
+            if(!_running)
+            {
+                return;
+            }
+            if(_server.serverHostId >= 0)
+            {
+                NetworkTransport.RemoveHost(_server.serverHostId);
+            }
             _server.Stop();
+            _running = false;
             for(var i = 0; i < _delegates.Count; i++)
             {                
                 _delegates[i].OnStopped();
@@ -58,7 +76,7 @@ namespace SocialPoint.Multiplayer
         }
 
         public void Update()
-        {
+        {            
             _server.Update();
         }
 
