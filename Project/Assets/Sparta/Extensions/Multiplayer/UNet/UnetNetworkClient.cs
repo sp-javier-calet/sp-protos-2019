@@ -112,9 +112,9 @@ namespace SocialPoint.Multiplayer
             _client.Disconnect();
         }
 
-        public INetworkMessage CreateMessage(byte type, int channelId)
+        public INetworkMessage CreateMessage(NetworkMessageInfo info)
         {
-            return new UnetNetworkMessage(new NetworkConnection[]{_client.connection}, type, channelId);
+            return new UnetNetworkMessage(info, new NetworkConnection[]{_client.connection});
         }
 
         public void AddDelegate(INetworkClientDelegate dlg)

@@ -41,9 +41,9 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public INetworkMessage CreateMessage(byte type, int channelId)
+        public INetworkMessage CreateMessage(NetworkMessageInfo info)
         {
-            return new LocalNetworkMessage(type, channelId, this, _server);
+            return new LocalNetworkMessage(info, this, _server);
         }
 
         public void AddDelegate(INetworkClientDelegate dlg)

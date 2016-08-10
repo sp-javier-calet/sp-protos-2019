@@ -9,4 +9,11 @@ namespace SocialPoint.Multiplayer
         IWriter Writer{ get; }
         void Send();
     }
+
+    public struct NetworkMessageInfo
+    {
+        public byte MessageType;
+        public int ChannelId;
+        public int ClientId;
+    }
 }

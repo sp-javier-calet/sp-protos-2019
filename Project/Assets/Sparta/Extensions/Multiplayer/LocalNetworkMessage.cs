@@ -15,23 +15,23 @@ namespace SocialPoint.Multiplayer
         LocalNetworkClient _origin;
         MemoryStream _stream;
 
-        public LocalNetworkMessage(byte type, int chanId, LocalNetworkClient[] clients)
+        public LocalNetworkMessage(NetworkMessageInfo info, LocalNetworkClient[] clients)
         {
             _clients = clients;
-            Init(type, chanId);
+            Init(info);
         }
 
-        public LocalNetworkMessage(byte type, int chanId, LocalNetworkClient origin, LocalNetworkServer server)
+        public LocalNetworkMessage(NetworkMessageInfo info, LocalNetworkClient origin, LocalNetworkServer server)
         {
             _origin = origin;
             _server = server;
-            Init(type, chanId);
+            Init(info);
         }
 
-        void Init(byte type, int chanId)
+        void Init(NetworkMessageInfo info)
         {
-            _type = type;
-            _channelId = chanId;
+            _type = info.MessageType;
+            _channelId = info.ChannelId;
             _stream = new MemoryStream();
             Writer = new SystemBinaryWriter(_stream);
         }

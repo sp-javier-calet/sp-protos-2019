@@ -209,7 +209,10 @@ namespace SocialPoint.Multiplayer
                 else
                 {
                     Log("sending message from server to client of type " + type + " through channel " + chan);
-                    msg = _server.CreateMessage(type, chan);
+                    msg = _server.CreateMessage(new NetworkMessageInfo{
+                        MessageType = type,
+                        ChannelId = chan
+                    });
                 }
             }
             else
@@ -221,7 +224,10 @@ namespace SocialPoint.Multiplayer
                 else
                 {
                     Log("sending message from client to server of type " + type + " through channel " + chan);
-                    msg = _client.CreateMessage(type, chan);
+                    msg = _client.CreateMessage(new NetworkMessageInfo{
+                        MessageType = type,
+                        ChannelId = chan
+                    });
                 }
             }
             if(msg != null)

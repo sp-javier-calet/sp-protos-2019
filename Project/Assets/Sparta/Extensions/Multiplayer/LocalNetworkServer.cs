@@ -19,7 +19,7 @@ namespace SocialPoint.Multiplayer
 
         public void OnClientConnected(LocalNetworkClient client)
         {
-            byte clientId = 0;
+            byte clientId = 1;
             bool found = false;
             for(; clientId < byte.MaxValue; clientId++)
             {
@@ -67,31 +67,35 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public INetworkMessage CreateMessage(byte type, int channelId)
+        public INetworkMessage CreateMessage(NetworkMessageInfo info)
         {
-            var clients = new LocalNetworkClient[_clients.Count];
-            _clients.Keys.CopyTo(clients, 0);
-            return new LocalNetworkMessage(type, channelId, clients);
-        }
-
-        public INetworkMessage CreateMessage(byte clientId, byte type, int channelId)
-        {
-            var itr = _clients.GetEnumerator();
-            LocalNetworkClient receiver = null;
-            while(itr.MoveNext())
+            LocalNetworkClient[] clients;
+            if(info.ClientId > 0)
             {
-                if(itr.Current.Value == clientId)
+                var itr = _clients.GetEnumerator();
+                LocalNetworkClient client = null;
+                while(itr.MoveNext())
                 {
-                    receiver = itr.Current.Key;
-                    break;
+                    if(itr.Current.Value == info.ClientId)
+                    {
+                        client = itr.Current.Key;
+                        break;
+                    }
                 }
+                itr.Dispose();
+                if(client == null)
+                {
+                    throw new InvalidOperationException("Could not find client id.");
+                }
+                clients = new LocalNetworkClient[]{ client };
             }
-            itr.Dispose();
-            if(receiver == null)
+            else
             {
-                throw new InvalidOperationException("Could not find client id.");
+                clients = new LocalNetworkClient[_clients.Count];
+                _clients.Keys.CopyTo(clients, 0);
+
             }
-            return new LocalNetworkMessage(type, channelId, new LocalNetworkClient[]{ receiver });
+            return new LocalNetworkMessage(info, clients);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)

@@ -124,21 +124,24 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public INetworkMessage CreateMessage(byte type, int channelId)
+        public INetworkMessage CreateMessage(NetworkMessageInfo info)
         {
-            var conns = new NetworkConnection[_server.connections.Count];
-            _server.connections.CopyTo(conns, 0);
-            return new UnetNetworkMessage(conns, type, channelId);
-        }
-
-        public INetworkMessage CreateMessage(byte clientId, byte type, int channelId)
-        {
-            var conn = _server.FindConnection(clientId);
-            if(conn == null)
+            NetworkConnection[] conns;
+            if(info.ClientId > 0)
             {
-                throw new InvalidOperationException("Could not find client id.");
+                var conn = _server.FindConnection(info.ClientId);
+                if(conn == null)
+                {
+                    throw new InvalidOperationException("Could not find client id.");
+                }
+                conns = new NetworkConnection[]{ conn };
             }
-            return new UnetNetworkMessage(new NetworkConnection[]{conn}, type, channelId);
+            else
+            {
+                conns = new NetworkConnection[_server.connections.Count];
+                _server.connections.CopyTo(conns, 0);
+            }
+            return new UnetNetworkMessage(info, conns);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)

@@ -16,8 +16,7 @@ namespace SocialPoint.Multiplayer
     {
         void Start();
         void Stop();
-        INetworkMessage CreateMessage(byte type, int channelId);
-        INetworkMessage CreateMessage(byte clientId, byte type, int channelId);
+        INetworkMessage CreateMessage(NetworkMessageInfo info);
         void AddDelegate(INetworkServerDelegate dlg);
         void RemoveDelegate(INetworkServerDelegate dlg);
     }
