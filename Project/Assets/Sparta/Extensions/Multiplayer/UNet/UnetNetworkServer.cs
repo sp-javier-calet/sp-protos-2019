@@ -3,26 +3,29 @@ using UnityEngine.Networking.NetworkSystem;
 using System.Collections.Generic;
 using System;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
-    public class UnetNetworkServer : INetworkServer, IDisposable
+    public class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
-
+        IUpdateScheduler _updateScheduler;
         NetworkServerSimple _server;
         int _port;
 
         public const int DefaultPort = 8888;
 
-        public UnetNetworkServer(int port=DefaultPort, HostTopology topology=null)
+        public UnetNetworkServer(IUpdateScheduler updateScheduler, int port=DefaultPort, HostTopology topology=null)
         {
+            _updateScheduler = updateScheduler;
             _port = port;
             _server = new NetworkServerSimple();
             if(topology != null)
             {
                 _server.Configure(topology);
             }
+            _updateScheduler.Add(this);
             RegisterHandlers();
         }
 
@@ -33,6 +36,7 @@ namespace SocialPoint.Multiplayer
             _server = null;
             _delegates.Clear();
             _delegates = null;
+            _updateScheduler.Remove(this);
         }
 
         public void Start()
@@ -51,6 +55,11 @@ namespace SocialPoint.Multiplayer
             {                
                 _delegates[i].OnStopped();
             }
+        }
+
+        public void Update()
+        {
+            _server.Update();
         }
 
         void RegisterHandlers()

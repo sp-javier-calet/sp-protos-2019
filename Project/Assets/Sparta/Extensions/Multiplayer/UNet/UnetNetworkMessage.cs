@@ -29,7 +29,11 @@ namespace SocialPoint.Multiplayer
             _writer.FinishMessage();
             for(var i = 0; i < _conns.Length; i++)
             {
-                _conns[i].SendWriter(_writer, _channelId);
+                var conn = _conns[i];
+                if(conn != null)
+                {
+                    conn.SendWriter(_writer, _channelId);
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿
 using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
+using SocialPoint.Utils;
 using UnityEngine.UI;
 using System;
 using System.Text;
@@ -10,6 +11,7 @@ namespace SocialPoint.Multiplayer
     public class AdminPanelMultiplayer : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
     {
         DependencyContainer _container;
+        IUpdateScheduler _updateScheduler;
 
         INetworkClient _client;
         bool _clientRunning;
@@ -26,8 +28,9 @@ namespace SocialPoint.Multiplayer
         Text _opServer;
         Text _opClient;
 
-        public AdminPanelMultiplayer(DependencyContainer container=null)
+        public AdminPanelMultiplayer(IUpdateScheduler updateScheduler, DependencyContainer container=null)
         {
+            _updateScheduler = updateScheduler;
             _container = container;
         }
 
@@ -71,7 +74,7 @@ namespace SocialPoint.Multiplayer
             layout.CreateLabel("Setup");
             layout.CreateMargin();
 
-            layout.CreateOpenPanelButton("Unity Networking", new AdminPanelUnetMultiplayer(this, _container));
+            layout.CreateOpenPanelButton("Unity Networking", new AdminPanelUnetMultiplayer(this, _updateScheduler, _container));
             layout.CreateMargin();
 
             var opServer = layout.CreateButton("", OnOpServerClicked);
@@ -311,14 +314,16 @@ namespace SocialPoint.Multiplayer
     public class AdminPanelUnetMultiplayer : IAdminPanelGUI
     {
         DependencyContainer _container;
+        IUpdateScheduler _updateScheduler;
 
         InputField _serverPort;
         InputField _clientAddress;
         InputField _clientPort;
         AdminPanelMultiplayer _parent;
 
-        public AdminPanelUnetMultiplayer(AdminPanelMultiplayer parent, DependencyContainer container=null)
+        public AdminPanelUnetMultiplayer(AdminPanelMultiplayer parent, IUpdateScheduler updateScheduler, DependencyContainer container=null)
         {
+            _updateScheduler = updateScheduler;
             _parent = parent;
             _container = container;
         }
@@ -361,7 +366,7 @@ namespace SocialPoint.Multiplayer
             {
                 port = UnetNetworkServer.DefaultPort;
             }
-            var server = new UnetNetworkServer(port);
+            var server = new UnetNetworkServer(_updateScheduler, port);
             if(_container != null)
             {
                 _container.Rebind<UnetNetworkServer>().ToInstance(server);

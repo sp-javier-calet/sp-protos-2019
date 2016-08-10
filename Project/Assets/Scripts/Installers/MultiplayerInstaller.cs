@@ -1,4 +1,5 @@
 ﻿using System;
+using SocialPoint.Utils;
 using SocialPoint.Dependency;
 using SocialPoint.Multiplayer;
 using SocialPoint.AdminPanel;
@@ -49,12 +50,14 @@ public class MultiplayerInstaller : Installer
 
     AdminPanelMultiplayer CreateAdminPanel()
     {
-        return new AdminPanelMultiplayer(Container);
+        return new AdminPanelMultiplayer(
+            Container.Resolve<IUpdateScheduler>(), Container);
     }
 
     LocalNetworkClient CreateLocalClient()
     {
-        return new LocalNetworkClient(Container.Resolve<LocalNetworkServer>());
+        return new LocalNetworkClient(
+            Container.Resolve<LocalNetworkServer>());
     }
 
     LocalNetworkServer CreateLocalServer()
@@ -64,11 +67,14 @@ public class MultiplayerInstaller : Installer
 
     UnetNetworkClient CreateUnetClient()
     {
-        return new UnetNetworkClient(Settings.ServerAddress, Settings.ServerPort);
+        return new UnetNetworkClient(
+            Settings.ServerAddress, Settings.ServerPort);
     }
 
     UnetNetworkServer CreateUnetServer()
     {
-        return new UnetNetworkServer(Settings.ServerPort);
+        return new UnetNetworkServer(
+            Container.Resolve<IUpdateScheduler>(),
+            Settings.ServerPort);
     }
 }

@@ -46,7 +46,11 @@ namespace SocialPoint.Multiplayer
             {
                 for(var i = 0; i < _clients.Length; i++)
                 {
-                    _clients[i].OnLocalMessageReceived(this);
+                    var client = _clients[i];
+                    if(client != null)
+                    {
+                        client.OnLocalMessageReceived(this);
+                    }
                 }
             }
         }
