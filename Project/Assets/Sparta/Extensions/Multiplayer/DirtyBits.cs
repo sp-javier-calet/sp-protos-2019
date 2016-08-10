@@ -46,9 +46,9 @@ namespace SocialPoint.Multiplayer
             }
             _data[_position] = v;
             _position++;
-            if(_position >= _size)
+            if(_position > _size)
             {
-                _size = _position + 1;
+                _size = _position;
             }
         }
 
