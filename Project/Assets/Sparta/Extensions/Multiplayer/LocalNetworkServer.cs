@@ -9,15 +9,41 @@ namespace SocialPoint.Multiplayer
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         Dictionary<LocalNetworkClient,byte> _clients = new Dictionary<LocalNetworkClient,byte>();
 
+        public bool Running;
+
         public void Start()
         {
+            Running = true;
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStarted();
+            }
+            var clients = new List<LocalNetworkClient>(_clients.Keys);
+            var itr = clients.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                itr.Current.OnServerStarted();
+            }
+            itr.Dispose();
         }
 
         public void Stop()
         {
+            Running = false;
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStopped();
+            }
+            var clients = new List<LocalNetworkClient>(_clients.Keys);
+            var itr = clients.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                itr.Current.OnServerStopped();
+            }
+            itr.Dispose();
         }
 
-        public void OnClientConnected(LocalNetworkClient client)
+        public void OnClientConnecting(LocalNetworkClient client)
         {
             byte clientId = 1;
             bool found = false;
@@ -34,9 +60,13 @@ namespace SocialPoint.Multiplayer
                 throw new InvalidOperationException("Too many clients.");
             }
             _clients[client] = clientId;
-            for(var i = 0; i < _delegates.Count; i++)
+
+            if(Running)
             {
-                _delegates[i].OnClientConnected(clientId);
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnClientConnected(clientId);
+                }
             }
         }
 
@@ -47,6 +77,7 @@ namespace SocialPoint.Multiplayer
             {
                 return;
             }
+            _clients.Remove(client);
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected(clientId);
@@ -69,6 +100,10 @@ namespace SocialPoint.Multiplayer
 
         public INetworkMessage CreateMessage(NetworkMessageInfo info)
         {
+            if(!Running)
+            {
+                throw new InvalidOperationException("Server not running.");
+            }
             LocalNetworkClient[] clients;
             if(info.ClientId > 0)
             {
