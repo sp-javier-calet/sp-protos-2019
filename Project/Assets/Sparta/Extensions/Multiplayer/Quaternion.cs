@@ -3,86 +3,83 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public struct Vector3 : IEquatable<Vector3>
+    public struct Quaternion : IEquatable<Quaternion>
     {
         public float x;
         public float y;
         public float z;
+        public float w;
 
-        public Vector3(float v=0.0f)
+        public Quaternion(float v=0.0f)
         {
             x = v;
             y = v;
             z = v;
+            w = v;
         }
 
-        public Vector3(float px, float py, float pz)
+        public Quaternion(float px, float py, float pz, float pw)
         {
             x = px;
             y = py;
             z = pz;
+            w = pw;
         }
 
         public override bool Equals(System.Object obj)
         {
-            var v = (Vector3)obj;
-            return x == v.x && y == v.y && z == v.z;
+            var v = (Quaternion)obj;
+            return x == v.x && y == v.y && z == v.z && w == v.w;
         }
 
-        public bool Equals(Vector3 v)
+        public bool Equals(Quaternion v)
         {             
-            return x == v.x && y == v.y && z == v.z;
+            return x == v.x && y == v.y && z == v.z && w == v.w;
         }
 
         public override int GetHashCode()
         {
-            return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode();
+            return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode() ^ w.GetHashCode();
         }
 
-        public static bool operator ==(Vector3 a, Vector3 b)
+        public static bool operator ==(Quaternion a, Quaternion b)
         {
-            return a.x == b.x && a.y == b.y && a.z == b.z;
+            return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
         }
 
-        public static bool operator !=(Vector3 a, Vector3 b)
+        public static bool operator !=(Quaternion a, Quaternion b)
         {
             return !(a == b);
-        }
+        }            
 
-        public static Vector3 Zero
+        public static Quaternion Identity
         {
             get
             {
-                return new Vector3(0.0f);
-            }
-        }
-
-        public static Vector3 One
-        {
-            get
-            {
-                return new Vector3(1.0f);
+                return new Quaternion(1.0f);
             }
         }
     }
 
-    public class Vector3Serializer : ISerializer<Vector3>
+    public class QuaternionSerializer : ISerializer<Quaternion>
     {
-        public void Compare(Vector3 newObj, Vector3 oldObj, DirtyBits dirty)
+        public void Compare(Quaternion newObj, Quaternion oldObj, DirtyBits dirty)
         {
             dirty.Set(newObj.x != oldObj.x);
             dirty.Set(newObj.y != oldObj.y);
             dirty.Set(newObj.z != oldObj.z);
+            dirty.Set(newObj.w != oldObj.w);
         }
 
-        public void Serialize(Vector3 newObj, IWriter writer)
+        public void Serialize(Quaternion newObj, IWriter writer)
         {
             writer.Write(newObj.x);
             writer.Write(newObj.y);
             writer.Write(newObj.z);
+            writer.Write(newObj.w);
         }
 
-        public void Serialize(Vector3 newObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Quaternion newObj, IWriter writer, DirtyBits dirty)
         {
             if(DirtyBits.NullOrGet(dirty))
             {
@@ -96,24 +93,29 @@ namespace SocialPoint.Multiplayer
             {
                 writer.Write(newObj.z);
             }
+            if(DirtyBits.NullOrGet(dirty))
+            {
+                writer.Write(newObj.w);
+            }
         }
     }
 
-    public class Vector3Parser : IParser<Vector3>
+    public class QuaternionParser : IParser<Quaternion>
     {
-        public Vector3 Parse(IReader reader)
+        public Quaternion Parse(IReader reader)
         {
-            Vector3 obj;
+            Quaternion obj;
             obj.x = reader.ReadSingle();
             obj.y = reader.ReadSingle();
             obj.z = reader.ReadSingle();
+            obj.w = reader.ReadSingle();
             return obj;
         }
 
-        public Vector3 Parse(Vector3 obj, IReader reader)
+        public Quaternion Parse(Quaternion obj, IReader reader)
         {
             var dirty = new DirtyBits();
-            dirty.Read(reader, 3);
+            dirty.Read(reader, 4);
             if(DirtyBits.NullOrGet(dirty))
             {
                 obj.x = reader.ReadSingle();
@@ -125,6 +127,10 @@ namespace SocialPoint.Multiplayer
             if(DirtyBits.NullOrGet(dirty))
             {
                 obj.z = reader.ReadSingle();
+            }
+            if(DirtyBits.NullOrGet(dirty))
+            {
+                obj.w = reader.ReadSingle();
             }
             return obj;
         }

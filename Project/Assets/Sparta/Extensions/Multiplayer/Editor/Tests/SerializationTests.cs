@@ -10,7 +10,7 @@ namespace SocialPoint.Multiplayer
     [Category("SocialPoint.Multiplayer")]
     class SerializationTests
     {
-        void InitialObject<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
+        void GenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
@@ -21,7 +21,7 @@ namespace SocialPoint.Multiplayer
             Assert.That(obj.Equals(obj2));
         }
 
-        void DiffObject<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
+        void GenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
@@ -33,22 +33,72 @@ namespace SocialPoint.Multiplayer
         }
             
         [Test]
-        public void InitialVector3()
+        public void Vector3Initial()
         {
-            InitialObject(
+            GenericInitial(
                 new Vector3(1.0f, 2.3f, 4.2f),
                 new Vector3Serializer(),
                 new Vector3Parser());
         }
 
         [Test]
-        public void DiffVector3()
+        public void Vector3Diff()
         {
-            DiffObject(
+            GenericDiff(
                 new Vector3(1.0f, 2.3f, 4.2f),
                 new Vector3(1.0f, 3.3f, 4.2f),
                 new Vector3Serializer(),
                 new Vector3Parser());
+        }
+
+        [Test]
+        public void QuaternionInitial()
+        {
+            GenericInitial(
+                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new QuaternionSerializer(),
+                new QuaternionParser());
+        }
+
+        [Test]
+        public void QuaternionDiff()
+        {
+            GenericDiff(
+                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                new QuaternionSerializer(),
+                new QuaternionParser());
+        }
+
+        [Test]
+        public void TransformInitial()
+        {
+            GenericInitial(
+                new Transform(
+                    new Vector3(1.0f, 2.3f, 4.2f),
+                    new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new Vector3(2.0f, 1.0f, 2.0f)
+                ),
+                new TransformSerializer(),
+                new TransformParser());
+        }
+
+        [Test]
+        public void TransformDiff()
+        {
+            GenericDiff(
+                new Transform(
+                    new Vector3(1.0f, 2.3f, 4.2f),
+                    new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new Vector3(2.0f, 1.0f, 2.0f)
+                ),
+                new Transform(
+                    new Vector3(1.0f, 3.3f, 4.2f),
+                    new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                    new Vector3(1.0f, 0.0f, 2.0f)
+                ),
+                new TransformSerializer(),
+                new TransformParser());
         }
     }
 }
