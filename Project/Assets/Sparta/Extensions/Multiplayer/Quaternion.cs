@@ -59,6 +59,11 @@ namespace SocialPoint.Multiplayer
                 return new Quaternion(1.0f);
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("[{0},{1},{2},{3}]", x, y, z ,w);
+        }
     }
 
     public class QuaternionSerializer : ISerializer<Quaternion>
@@ -79,7 +84,7 @@ namespace SocialPoint.Multiplayer
             writer.Write(newObj.w);
         }
 
-        public void Serialize(Quaternion newObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Quaternion newObj, Quaternion oldObj, IWriter writer, DirtyBits dirty)
         {
             if(DirtyBits.NullOrGet(dirty))
             {
