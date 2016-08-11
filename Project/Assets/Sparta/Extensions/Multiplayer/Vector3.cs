@@ -115,10 +115,13 @@ namespace SocialPoint.Multiplayer
             return obj;
         }
 
-        public Vector3 Parse(Vector3 obj, IReader reader)
+        public int GetDirtyBitsSize(Vector3 obj)
         {
-            var dirty = new DirtyBits();
-            dirty.Read(reader, 3);
+            return 3;
+        }
+
+        public Vector3 Parse(Vector3 obj, IReader reader, DirtyBits dirty)
+        {
             if(DirtyBits.NullOrGet(dirty))
             {
                 obj.x = reader.ReadSingle();

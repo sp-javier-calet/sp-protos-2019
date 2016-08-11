@@ -107,10 +107,13 @@ namespace SocialPoint.Multiplayer
             return obj;
         }
 
-        public Transform Parse(Transform obj, IReader reader)
+        public int GetDirtyBitsSize(Transform obj)
         {
-            var dirty = new DirtyBits();
-            dirty.Read(reader, 3);
+            return 3;
+        }
+
+        public Transform Parse(Transform obj, IReader reader, DirtyBits dirty)
+        {
             if(DirtyBits.NullOrGet(dirty))
             {
                 obj.Position = _vector3.Parse(obj.Position, reader);

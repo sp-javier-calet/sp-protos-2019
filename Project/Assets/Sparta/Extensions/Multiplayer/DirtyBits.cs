@@ -77,7 +77,11 @@ namespace SocialPoint.Multiplayer
             {
                 throw new InvalidOperationException("Cannot read more than the max size.");
             }
-            if(size <= 8)
+            if(size <= 0)
+            {
+                _data = 0UL;
+            }
+            else if(size <= 8)
             {
                 _data = (UInt64)reader.ReadByte();
             }
@@ -106,7 +110,11 @@ namespace SocialPoint.Multiplayer
             {
                 size = _size;
             }
-            if(size <= 8)
+            if(size == 0)
+            {
+                // nothing to write
+            }
+            else if(size <= 8)
             {
                 writer.Write((byte)_data);
             }

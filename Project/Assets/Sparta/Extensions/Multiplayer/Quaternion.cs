@@ -117,10 +117,13 @@ namespace SocialPoint.Multiplayer
             return obj;
         }
 
-        public Quaternion Parse(Quaternion obj, IReader reader)
+        public int GetDirtyBitsSize(Quaternion obj)
         {
-            var dirty = new DirtyBits();
-            dirty.Read(reader, 4);
+            return 4;
+        }
+
+        public Quaternion Parse(Quaternion obj, IReader reader, DirtyBits dirty)
+        {
             if(DirtyBits.NullOrGet(dirty))
             {
                 obj.x = reader.ReadSingle();
