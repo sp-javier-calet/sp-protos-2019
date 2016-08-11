@@ -45,7 +45,13 @@ namespace SocialPoint.Multiplayer
 
         public static bool operator ==(NetworkGameObject a, NetworkGameObject b)
         {
-            if((object)a == null || (object)b == null)
+            var na = (object)a == null;
+            var nb = (object)b == null;
+            if(na && nb)
+            {
+                return true;
+            }
+            else if(na || nb)
             {
                 return false;
             }
@@ -99,10 +105,13 @@ namespace SocialPoint.Multiplayer
             return obj;
         }
 
-        public NetworkGameObject Parse(NetworkGameObject obj, IReader reader)
+        public int GetDirtyBitsSize(NetworkGameObject obj)
         {
-            var dirty = new DirtyBits();
-            dirty.Read(reader, 1);
+            return 1;
+        }
+
+        public NetworkGameObject Parse(NetworkGameObject obj, IReader reader, DirtyBits dirty)
+        {
             if(DirtyBits.NullOrGet(dirty))
             {
                 obj.Transform = _trans.Parse(obj.Transform, reader);
