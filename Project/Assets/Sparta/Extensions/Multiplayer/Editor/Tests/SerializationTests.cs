@@ -10,28 +10,38 @@ namespace SocialPoint.Multiplayer
     [Category("SocialPoint.Multiplayer")]
     class SerializationTests
     {
-        void GenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
+        T GetGenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
             serializer.Serialize(obj, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            var obj2 = parser.Parse(reader);
+            return parser.Parse(reader);
+        }
+
+        void GenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
+        {
+            var obj2 = GetGenericInitial(obj, serializer, parser);
             Assert.That(obj.Equals(obj2));
         }
 
-        void GenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
+        T GetGenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
             serializer.Serialize(newObj, oldObj, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            var newObj2 = parser.Parse(oldObj, reader);
+            return parser.Parse(oldObj, reader);
+        }
+
+        void GenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
+        {
+            var newObj2 = GetGenericDiff(newObj, oldObj, serializer, parser);
             Assert.That(newObj.Equals(newObj2));
         }
-            
+
         [Test]
         public void Vector3Initial()
         {
@@ -99,6 +109,62 @@ namespace SocialPoint.Multiplayer
                 ),
                 new TransformSerializer(),
                 new TransformParser());
+        }
+
+        [Test]
+        public void NetworkGameObjectInitial()
+        {
+            GenericInitial(
+                new NetworkGameObject(1, new Transform(
+                        new Vector3(1.0f, 2.3f, 4.2f),
+                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                        new Vector3(2.0f, 1.0f, 2.0f)
+                    )
+                ),
+                new NetworkGameObjectSerializer(),
+                new NetworkGameObjectParser());
+        }
+
+        [Test]
+        public void NetworkGameObjectDiff()
+        {
+            GenericDiff(
+                new NetworkGameObject(1, new Transform(
+                        new Vector3(1.0f, 2.3f, 4.2f),
+                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                        new Vector3(2.0f, 1.0f, 2.0f)
+                    )
+                ),
+                new NetworkGameObject(1, new Transform(
+                        new Vector3(1.0f, 3.3f, 4.2f),
+                        new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                        new Vector3(1.0f, 0.0f, 2.0f)
+                    )
+                ),               
+                new NetworkGameObjectSerializer(),
+                new NetworkGameObjectParser());
+        }
+
+        [Test]
+        public void NetworkGameSceneInitial()
+        {
+            var scene = new NetworkGameScene();
+
+            scene.Add(new NetworkGameObject(1, new Transform(
+                new Vector3(1.0f, 2.3f, 4.2f),
+                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(2.0f, 1.0f, 2.0f)
+            )));
+
+            scene.Add(new NetworkGameObject(2, new Transform(
+                new Vector3(2.0f, 2.3f, 4.2f),
+                new Quaternion(5.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(3.0f, 1.0f, 2.0f)
+            )));
+
+            GenericInitial(scene,
+                new NetworkGameSceneSerializer(),
+                new NetworkGameSceneParser());
         }
     }
 }
