@@ -30,4 +30,23 @@ namespace SocialPoint.Multiplayer
             return parser.Parse(oldObj, reader, dirty);
         }
     }
+
+    /**
+     * this parser is for objects that are not persistent
+     * for example actions or events
+     */
+    public abstract class SimpleParser<T> : IParser<T>
+    {
+        public abstract T Parse(IReader reader);
+
+        public T Parse(T oldObj, IReader reader, DirtyBits dirty)
+        {
+            return Parse(reader);
+        }
+
+        public int GetDirtyBitsSize(T obj)
+        {
+            return 0;
+        }
+    }
 }

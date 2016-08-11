@@ -50,6 +50,13 @@ namespace SocialPoint.Multiplayer
             return !(a == b);
         }
 
+        public static Transform Identity
+        {
+            get
+            {
+                return new Transform(Vector3.Zero);
+            }
+        }
 
         public override string ToString()
         {

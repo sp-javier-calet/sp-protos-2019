@@ -31,4 +31,22 @@ namespace SocialPoint.Multiplayer
             serializer.Serialize(newObj, oldObj, writer, dirty);
         }
     }
+
+    /**
+     * this serializer is for objects that are not persistent
+     * for example actions or events
+     */
+    public abstract class SimpleSerializer<T> : ISerializer<T>
+    {
+        public abstract void Serialize(T newObj, IWriter writer);
+
+        public void Compare(T newObj, T oldObj, DirtyBits dirty)
+        {
+        }
+
+        public void Serialize(T newObj, T oldObj, IWriter writer, DirtyBits dirty)
+        {
+            Serialize(newObj, writer);
+        }
+    }
 }
