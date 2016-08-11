@@ -3,7 +3,7 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkGameObject : IEquatable<NetworkGameObject>
+    public class NetworkGameObject : IEquatable<NetworkGameObject>, ICloneable
     {
         public int Id{ get; private set; }
         public Transform Transform;
@@ -17,6 +17,16 @@ namespace SocialPoint.Multiplayer
         {
             Id = id;
             Transform = t;
+        }
+
+        public NetworkGameObject(NetworkGameObject go):
+        this(go.Id, go.Transform)
+        {            
+        }
+
+        public object Clone()
+        {
+            return new NetworkGameObject(this);
         }
 
         public override bool Equals(System.Object obj)

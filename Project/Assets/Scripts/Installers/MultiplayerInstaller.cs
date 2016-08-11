@@ -31,6 +31,7 @@ public class MultiplayerInstaller : Installer
             Container.Rebind<INetworkServer>().ToLookup<LocalNetworkServer>();
             Container.Rebind<LocalNetworkClient>().ToMethod<LocalNetworkClient>(CreateLocalClient);
             Container.Rebind<INetworkClient>().ToLookup<LocalNetworkClient>();
+            Container.Rebind<NetworkServerSceneController>().ToMethod<NetworkServerSceneController>(CreateServerSceneController);
         }
         else if(Settings.Mode == MultiplayerMode.Server)
         {
@@ -46,6 +47,12 @@ public class MultiplayerInstaller : Installer
         }
 
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMultiplayer>(CreateAdminPanel);
+    }
+
+    NetworkServerSceneController CreateServerSceneController()
+    {
+        return new NetworkServerSceneController(
+            Container.Resolve<INetworkServer>());
     }
 
     AdminPanelMultiplayer CreateAdminPanel()

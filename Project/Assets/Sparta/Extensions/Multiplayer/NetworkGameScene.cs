@@ -5,9 +5,20 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkGameScene
+    public interface INetworkGameBehaviour
     {
-        Dictionary<int,NetworkGameObject> _objects = new Dictionary<int,NetworkGameObject>();
+        void OnStart(NetworkGameObject go);
+        void Update(float dt);
+        void OnDestroy();
+    }
+
+    public class NetworkGameScene : IEquatable<NetworkGameScene>, ICloneable
+    {
+        Dictionary<int,NetworkGameObject> _objects;
+
+        public static byte MessageType = 1;
+
+        public int FreeObjectId{ get; private set; }
 
         public int ObjectsCount
         {
@@ -17,6 +28,26 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        public NetworkGameScene()
+        {
+            _objects = new Dictionary<int,NetworkGameObject>();
+        }
+
+        public NetworkGameScene(NetworkGameScene scene):this()
+        {
+            var itr = scene._objects.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+            }
+            itr.Dispose();
+        }
+
+        public Object Clone()
+        {
+            return new NetworkGameScene(this);
+        }           
+
         public void AddObject(NetworkGameObject obj)
         {
             if(FindObject(obj.Id) != null)
@@ -24,11 +55,20 @@ namespace SocialPoint.Multiplayer
                 throw new InvalidOperationException("Object with same id already exists");
             }
             _objects[obj.Id] = obj;
+            if(FreeObjectId == obj.Id)
+            {
+                FreeObjectId++;
+            }
         }
 
-        public void RemoveObject(int id)
+        public bool RemoveObject(int id)
         {
-            _objects.Remove(id);
+            var r = _objects.Remove(id);
+            if(FreeObjectId > id)
+            {
+                FreeObjectId = id;
+            }
+            return r;
         }
 
         public NetworkGameObject FindObject(int id)

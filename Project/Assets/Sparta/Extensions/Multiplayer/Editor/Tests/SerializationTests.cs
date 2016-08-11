@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System.IO;
 using System;
 using SocialPoint.IO;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Multiplayer
 {
@@ -10,35 +11,25 @@ namespace SocialPoint.Multiplayer
     [Category("SocialPoint.Multiplayer")]
     class SerializationTests
     {
-        T GetGenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
+        void GenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
             serializer.Serialize(obj, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            return parser.Parse(reader);
-        }
-
-        void GenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
-        {
-            var obj2 = GetGenericInitial(obj, serializer, parser);
+            var obj2 =  parser.Parse(reader);
             Assert.That(obj.Equals(obj2));
         }
-
-        T GetGenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
+            
+        void GenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
             serializer.Serialize(newObj, oldObj, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            return parser.Parse(oldObj, reader);
-        }
-
-        void GenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
-        {
-            var newObj2 = GetGenericDiff(newObj, oldObj, serializer, parser);
+            var newObj2 = parser.Parse(oldObj, reader);
             Assert.That(newObj.Equals(newObj2));
         }
 
