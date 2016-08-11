@@ -12,7 +12,7 @@ namespace SocialPoint.Multiplayer
         /**
          * should serialize newObject but only the elements that are changed
          */
-        void Serialize(T newObj, IWriter writer, DirtyBits dirty);
+        void Serialize(T newObj, T oldObj, IWriter writer, DirtyBits dirty);
 
         /**
          * should serialize the complete newObject
@@ -28,7 +28,7 @@ namespace SocialPoint.Multiplayer
             serializer.Compare(newObj, oldObj, dirty);
             dirty.Reset();
             dirty.Write(writer);
-            serializer.Serialize(newObj, writer, dirty);
+            serializer.Serialize(newObj, oldObj, writer, dirty);
         }
     }
 }

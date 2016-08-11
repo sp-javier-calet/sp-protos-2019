@@ -64,6 +64,11 @@ namespace SocialPoint.Multiplayer
                 return new Vector3(1.0f);
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("[{0},{1},{2}]", x, y, z);
+        }
     }
 
     public class Vector3Serializer : ISerializer<Vector3>
@@ -82,7 +87,7 @@ namespace SocialPoint.Multiplayer
             writer.Write(newObj.z);
         }
 
-        public void Serialize(Vector3 newObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Vector3 newObj, Vector3 oldObj, IWriter writer, DirtyBits dirty)
         {
             if(DirtyBits.NullOrGet(dirty))
             {

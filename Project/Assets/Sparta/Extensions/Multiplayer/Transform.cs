@@ -49,6 +49,12 @@ namespace SocialPoint.Multiplayer
         {
             return !(a == b);
         }
+
+
+        public override string ToString()
+        {
+            return string.Format("[Transform: Position={0}, Rotation={1}, Size={2}]", Position, Rotation, Size);
+        }
     }
 
     public class TransformSerializer : ISerializer<Transform>
@@ -70,19 +76,19 @@ namespace SocialPoint.Multiplayer
             _vector3.Serialize(newObj.Size, writer);
         }
 
-        public void Serialize(Transform newObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Transform newObj, Transform oldObj, IWriter writer, DirtyBits dirty)
         {
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vector3.Serialize(newObj.Position, writer);
+                _vector3.Serialize(newObj.Position, oldObj.Position, writer);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                _quat.Serialize(newObj.Rotation, writer);
+                _quat.Serialize(newObj.Rotation, oldObj.Rotation, writer);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vector3.Serialize(newObj.Size, writer);
+                _vector3.Serialize(newObj.Size, oldObj.Size, writer);
             }
         }
     }
@@ -107,15 +113,15 @@ namespace SocialPoint.Multiplayer
             dirty.Read(reader, 3);
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj.Position = _vector3.Parse(reader);
+                obj.Position = _vector3.Parse(obj.Position, reader);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj.Rotation = _quat.Parse(reader);
+                obj.Rotation = _quat.Parse(obj.Rotation, reader);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj.Size = _vector3.Parse(reader);
+                obj.Size = _vector3.Parse(obj.Size, reader);
             }
             return obj;
         }
