@@ -2,13 +2,16 @@
 
 namespace SocialPoint.Multiplayer
 {
+    /**
+     * a real clientId should never be 0
+     */
     public interface INetworkServerDelegate
     {
         void OnStarted();
         void OnStopped();
         void OnClientConnected(byte clientId);
         void OnClientDisconnected(byte clientId);
-        void OnMessageReceived(byte clientId, ReceivedNetworkMessage msg);
+        void OnMessageReceived(NetworkMessageData data);
         void OnError(Error err);
     }
 
@@ -17,8 +20,9 @@ namespace SocialPoint.Multiplayer
         bool Running{ get; }
         void Start();
         void Stop();
-        INetworkMessage CreateMessage(NetworkMessageDest info);
+        INetworkMessage CreateMessage(NetworkMessageData info);
         void AddDelegate(INetworkServerDelegate dlg);
         void RemoveDelegate(INetworkServerDelegate dlg);
+        void RegisterReceiver(INetworkMessageReceiver receiver);
     }
 }

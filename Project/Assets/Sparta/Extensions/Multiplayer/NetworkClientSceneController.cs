@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.IO;
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkClientSceneController : INetworkClientDelegate, IDisposable
+    public class NetworkClientSceneController : INetworkClientDelegate, INetworkMessageReceiver, IDisposable
     {
         INetworkClient _client;
-        NetworkGameScene _scene;
-        IParser<NetworkGameScene> _sceneParser;
+        NetworkScene _scene;
+        IParser<NetworkScene> _sceneParser;
         IParser<InstantiateNetworkGameObjectEvent> _instParser;
         IParser<DestroyNetworkGameObjectEvent> _destParser;
+        INetworkMessageReceiver _receiver;
 
         public NetworkClientSceneController(INetworkClient client)
         {
             _client = client;
             _client.AddDelegate(this);
+            _client.RegisterReceiver(this);
             _sceneParser = new NetworkGameSceneParser();
             _instParser = new InstantiateNetworkGameObjectEventParser();
             _destParser = new DestroyNetworkGameObjectEventParser();
@@ -23,16 +26,17 @@ namespace SocialPoint.Multiplayer
         public void Dispose()
         {
             _client.RemoveDelegate(this);
+            _client.RegisterReceiver(null);
         }
 
-        public bool Equals(NetworkGameScene scene)
+        public bool Equals(NetworkScene scene)
         {
             return _scene == scene;
         }
 
         void INetworkClientDelegate.OnConnected()
         {
-            _scene = new NetworkGameScene();
+            _scene = new NetworkScene();
         }
 
         void INetworkClientDelegate.OnDisconnected()
@@ -40,44 +44,57 @@ namespace SocialPoint.Multiplayer
             _scene = null;
         }
 
-        void INetworkClientDelegate.OnMessageReceived(ReceivedNetworkMessage msg)
+        void INetworkClientDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            if(msg.MessageType == MsgType.UpdateSceneEvent)
+        }
+
+        void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
+        {
+            if(data.MessageType == MsgType.UpdateSceneEvent)
             {
                 if(_scene == null)
                 {
-                    _scene = _sceneParser.Parse(msg.Reader);
+                    _scene = _sceneParser.Parse(reader);
                 }
                 else
                 {
-                    _scene = _sceneParser.Parse(_scene, msg.Reader);
+                    _scene = _sceneParser.Parse(_scene, reader);
                 }
             }
-            else if(msg.MessageType == MsgType.InstantiateObjectEvent)
+            else if(data.MessageType == MsgType.InstantiateObjectEvent)
             {
-                var ev = _instParser.Parse(msg.Reader);
-                var go = new NetworkGameObject(ev.ObjectId, ev.Transform);
-                _scene.AddObject(go);
-                InstantiateObjectView(ev.PrefabName, go);
+                var ev = _instParser.Parse(reader);
+                InstantiateObjectView(ev);
             }
-            else if(msg.MessageType == MsgType.DestroyObjectEvent)
+            else if(data.MessageType == MsgType.DestroyObjectEvent)
             {
-                var ev = _destParser.Parse(msg.Reader);
-                _scene.RemoveObject(ev.ObjectId);
-                DestroyObjectView(ev.ObjectId);
+                var ev = _destParser.Parse(reader);
+                DestroyObjectView(ev);
+            }
+            else
+            {
+                if(_receiver != null)
+                {
+                    _receiver.OnMessageReceived(data, reader);
+                }
             }
         }
 
-        virtual protected void InstantiateObjectView(string prefabName, NetworkGameObject go)
+        virtual protected void InstantiateObjectView(InstantiateNetworkGameObjectEvent ev)
         {
         }
 
-        virtual protected void DestroyObjectView(int objectId)
+        virtual protected void DestroyObjectView(DestroyNetworkGameObjectEvent ev)
         {
         }
 
         void INetworkClientDelegate.OnError(SocialPoint.Base.Error err)
         {
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
         }
 
     }

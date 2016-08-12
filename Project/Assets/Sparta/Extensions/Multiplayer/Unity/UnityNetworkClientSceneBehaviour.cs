@@ -22,26 +22,26 @@ namespace SocialPoint.Multiplayer
             _parent = parent;
         }
 
-        protected override void InstantiateObjectView(string prefabName, NetworkGameObject ngo)
+        protected override void InstantiateObjectView(InstantiateNetworkGameObjectEvent ev)
         {
             GameObject prefab;
-            if(!_prefabs.TryGetValue(prefabName, out prefab))
+            if(!_prefabs.TryGetValue(ev.PrefabName, out prefab))
             {
-                prefab = Resources.Load(prefabName) as GameObject;
-                _prefabs[prefabName] = prefab;
+                prefab = Resources.Load(ev.PrefabName) as GameObject;
+                _prefabs[ev.PrefabName] = prefab;
             }           
             var go =  SocialPoint.ObjectPool.ObjectPool.Spawn(prefab, _parent,
-                ngo.Transform.Position.ToUnity(), ngo.Transform.Rotation.ToUnity());
-            _objects[ngo.Id] = go;
+                ev.Transform.Position.ToUnity(), ev.Transform.Rotation.ToUnity());
+            _objects[ev.ObjectId] = go;
         }
 
-        protected override void DestroyObjectView(int objectId)
+        protected override void DestroyObjectView(DestroyNetworkGameObjectEvent ev)
         {
             GameObject go;
-            if(_objects.TryGetValue(objectId, out go))
+            if(_objects.TryGetValue(ev.ObjectId, out go))
             {
                 SocialPoint.ObjectPool.ObjectPool.Recycle(go);
-                _objects.Remove(objectId);
+                _objects.Remove(ev.ObjectId);
             }
         }
     }

@@ -26,9 +26,8 @@ public class TestMultiplayerBehaviour : MonoBehaviour, IPointerClickHandler
         _server = localServer;
 
         _serverCtrl = new NetworkServerSceneController(_server);
+        _serverCtrl.UpdateInterval = 2.0f;
         _serverCtrl.AddBehaviour(new TestMultiplayerServerBehaviour(_serverCtrl));
-
-
 
         _clientCtrl = new UnityNetworkClientSceneController(_client, transform);
 
@@ -51,7 +50,7 @@ public class TestMultiplayerBehaviour : MonoBehaviour, IPointerClickHandler
     {
         if(_client.Connected)
         {
-            var msg = _client.CreateMessage(new NetworkMessageDest {
+            var msg = _client.CreateMessage(new NetworkMessageData {
                 MessageType = GameMsgType.ClickAction
             });
             _clickSerializer.Serialize(new ClickAction {

@@ -12,7 +12,7 @@ namespace SocialPoint.Multiplayer
         void OnDestroy();
     }
 
-    public class NetworkGameScene : IEquatable<NetworkGameScene>, ICloneable
+    public class NetworkScene : IEquatable<NetworkScene>, ICloneable
     {
         Dictionary<int,NetworkGameObject> _objects;
 
@@ -26,12 +26,13 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public NetworkGameScene()
+        public NetworkScene()
         {
             _objects = new Dictionary<int,NetworkGameObject>();
+            FreeObjectId = 1;
         }
 
-        public NetworkGameScene(NetworkGameScene scene):this()
+        public NetworkScene(NetworkScene scene):this()
         {
             if(scene != null && scene._objects != null)
             {
@@ -46,7 +47,7 @@ namespace SocialPoint.Multiplayer
 
         public Object Clone()
         {
-            return new NetworkGameScene(this);
+            return new NetworkScene(this);
         }           
 
         public void AddObject(NetworkGameObject obj)
@@ -127,10 +128,10 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
-            return Equals((NetworkGameScene)obj);
+            return Equals((NetworkScene)obj);
         }
 
-        public bool Equals(NetworkGameScene scene)
+        public bool Equals(NetworkScene scene)
         {
             if((object)scene == null)
             {
@@ -151,7 +152,7 @@ namespace SocialPoint.Multiplayer
             return code;
         }
 
-        public static bool operator ==(NetworkGameScene a, NetworkGameScene b)
+        public static bool operator ==(NetworkScene a, NetworkScene b)
         {
             var na = (object)a == null;
             var nb = (object)b == null;
@@ -166,21 +167,21 @@ namespace SocialPoint.Multiplayer
             return EqualObjects(a._objects, b._objects);
         }
 
-        public static bool operator !=(NetworkGameScene a, NetworkGameScene b)
+        public static bool operator !=(NetworkScene a, NetworkScene b)
         {
             return !(a == b);
         }
     }
 
-    public class NetworkGameSceneSerializer : ISerializer<NetworkGameScene>
+    public class NetworkGameSceneSerializer : ISerializer<NetworkScene>
     {
         NetworkGameObjectSerializer _go = new NetworkGameObjectSerializer();
 
-        public void Compare(NetworkGameScene newScene, NetworkGameScene oldScene, DirtyBits dirty)
+        public void Compare(NetworkScene newScene, NetworkScene oldScene, DirtyBits dirty)
         {
         }
 
-        public void Serialize(NetworkGameScene newScene, IWriter writer)
+        public void Serialize(NetworkScene newScene, IWriter writer)
         {
             writer.Write(newScene.ObjectsCount);
             var itr = newScene.GetObjectEnumerator();
@@ -191,7 +192,7 @@ namespace SocialPoint.Multiplayer
             itr.Dispose();
         }
 
-        public void Serialize(NetworkGameScene newScene, NetworkGameScene oldScene, IWriter writer, DirtyBits dirty)
+        public void Serialize(NetworkScene newScene, NetworkScene oldScene, IWriter writer, DirtyBits dirty)
         {
             writer.Write(newScene.ObjectsCount);
             var itr = newScene.GetObjectEnumerator();
@@ -229,13 +230,13 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkGameSceneParser : IParser<NetworkGameScene>
+    public class NetworkGameSceneParser : IParser<NetworkScene>
     {
         NetworkGameObjectParser _go = new NetworkGameObjectParser();
 
-        public NetworkGameScene Parse(IReader reader)
+        public NetworkScene Parse(IReader reader)
         {
-            var obj = new NetworkGameScene();
+            var obj = new NetworkScene();
             var c = reader.ReadInt32();
             for(var i = 0; i < c; i++)
             {
@@ -245,12 +246,12 @@ namespace SocialPoint.Multiplayer
             return obj;
         }
 
-        public int GetDirtyBitsSize(NetworkGameScene obj)
+        public int GetDirtyBitsSize(NetworkScene obj)
         {
             return 0;
         }
 
-        public NetworkGameScene Parse(NetworkGameScene scene, IReader reader, DirtyBits dirty)
+        public NetworkScene Parse(NetworkScene scene, IReader reader, DirtyBits dirty)
         {
             var c = reader.ReadInt32();
             for(var i = 0; i < c; i++)

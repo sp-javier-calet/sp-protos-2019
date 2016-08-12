@@ -9,6 +9,7 @@ namespace SocialPoint.Multiplayer
 {
     public class UnetNetworkClient : INetworkClient, IDisposable
     {
+        INetworkMessageReceiver _receiver;
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         NetworkClient _client;
         string _serverAddr;
@@ -49,6 +50,7 @@ namespace SocialPoint.Multiplayer
             _client = null;
             _delegates.Clear();
             _delegates = null;
+            _receiver = null;
         }
             
         void RegisterHandlers()
@@ -102,11 +104,17 @@ namespace SocialPoint.Multiplayer
 
         void OnMessageReceived(NetworkMessage umsg)
         {
-            byte type = UnetNetworkMessage.ConvertType(umsg.msgType);
-            var msg = new ReceivedNetworkMessage(type, umsg.channelId, new UnetNetworkReader(umsg.reader));
+            var data = new NetworkMessageData {
+                MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
+                ChannelId = umsg.channelId,
+            };                
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(data, new UnetNetworkReader(umsg.reader));
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(msg);
+                _delegates[i].OnMessageReceived(data);
             }
         }
 
@@ -132,7 +140,7 @@ namespace SocialPoint.Multiplayer
             _client.Disconnect();
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageDest info)
+        public INetworkMessage CreateMessage(NetworkMessageData info)
         {
             return new UnetNetworkMessage(info, new NetworkConnection[]{_client.connection});
         }
@@ -151,5 +159,9 @@ namespace SocialPoint.Multiplayer
             _delegates.Remove(dlg);
         }
 
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
+        }
     }
 }

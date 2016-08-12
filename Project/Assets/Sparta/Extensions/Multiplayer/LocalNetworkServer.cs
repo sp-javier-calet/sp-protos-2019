@@ -8,6 +8,7 @@ namespace SocialPoint.Multiplayer
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         Dictionary<LocalNetworkClient,byte> _clients = new Dictionary<LocalNetworkClient,byte>();
+        INetworkMessageReceiver _receiver;
 
         public bool Running{ get; private set; }
 
@@ -99,14 +100,17 @@ namespace SocialPoint.Multiplayer
             {
                 return;
             }
-            var received = msg.Receive();
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(msg.Data, msg.Receive());
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(clientId, received);
+                _delegates[i].OnMessageReceived(msg.Data);
             }
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageDest info)
+        public INetworkMessage CreateMessage(NetworkMessageData info)
         {
             if(!Running)
             {
@@ -153,6 +157,11 @@ namespace SocialPoint.Multiplayer
         public void RemoveDelegate(INetworkServerDelegate dlg)
         {
             _delegates.Remove(dlg);
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
         }
     }
 }

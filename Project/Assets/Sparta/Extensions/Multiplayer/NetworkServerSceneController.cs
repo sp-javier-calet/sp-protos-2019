@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.IO;
 
 namespace SocialPoint.Multiplayer
 {
@@ -13,25 +14,25 @@ namespace SocialPoint.Multiplayer
 
     public interface INetworkServerSceneBehaviour
     {
-        void Update(float dt, NetworkGameScene scene, NetworkGameScene oldScene);
+        void Update(float dt, NetworkScene scene, NetworkScene oldScene);
         void OnClientConnected(byte clientId);
         void OnClientDisconnected(byte clientId);
-        void OnMessageReceived(byte clientId, ReceivedNetworkMessage msg);
     }
 
-    public class NetworkServerSceneController : INetworkServerDelegate, IDisposable
+    public class NetworkServerSceneController : INetworkServerDelegate, INetworkMessageReceiver, IDisposable
     {
-        NetworkGameScene _scene;
-        NetworkGameScene _oldScene;
+        NetworkScene _scene;
+        NetworkScene _oldScene;
         INetworkServer _server;
-        ISerializer<NetworkGameScene> _sceneSerializer;
+        ISerializer<NetworkScene> _sceneSerializer;
         ISerializer<InstantiateNetworkGameObjectEvent> _instSerializer;
         ISerializer<DestroyNetworkGameObjectEvent> _destSerializer;
         List<INetworkServerSceneBehaviour> _sceneBehaviours;
         Dictionary<int,List<INetworkBehaviour>> _behaviours;
         Dictionary<string,List<INetworkBehaviour>> _behaviourPrototypes;
+        INetworkMessageReceiver _receiver;
 
-        public NetworkGameScene Scene
+        public NetworkScene Scene
         {
             get
             {
@@ -61,11 +62,13 @@ namespace SocialPoint.Multiplayer
             _behaviourPrototypes = new Dictionary<string,List<INetworkBehaviour>>();
             _server = server;
             _server.AddDelegate(this);
+            _server.RegisterReceiver(this);
         }
 
         public void Dispose()
         {
             _server.RemoveDelegate(this);
+            _server.RegisterReceiver(null);
         }
 
         public void AddBehaviour(INetworkServerSceneBehaviour behaviour)
@@ -111,10 +114,15 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
+        }
+
         void INetworkServerDelegate.OnStarted()
         {
-            _scene = new NetworkGameScene();
-            _oldScene = null;
+            _scene = new NetworkScene();
+            _oldScene = new NetworkScene();
         }
 
         void INetworkServerDelegate.OnStopped()
@@ -158,33 +166,26 @@ namespace SocialPoint.Multiplayer
             itr.Dispose();
 
             // copy old scene so that the behaviours cannot change it
-            var oldScene = new NetworkGameScene(_oldScene);
+            var oldScene = new NetworkScene(_oldScene);
             for(var i = 0; i < _sceneBehaviours.Count; i++)
             {
                 _sceneBehaviours[i].Update(dt, _scene, oldScene);
             }
 
-            var msg = _server.CreateMessage(new NetworkMessageDest {
+            var msg = _server.CreateMessage(new NetworkMessageData {
                 MessageType = MsgType.UpdateSceneEvent
             });
-            if(_oldScene == null)
-            {
-                _sceneSerializer.Serialize(_scene, msg.Writer);
-            }
-            else
-            {
-                _sceneSerializer.Serialize(_scene, _oldScene, msg.Writer);
-            }
+            _sceneSerializer.Serialize(_scene, _oldScene, msg.Writer);
             msg.Send();
-            _oldScene = new NetworkGameScene(_scene);
-        }
+            _oldScene = new NetworkScene(_scene);
+        }            
             
         public NetworkGameObject Instantiate(string prefabName, Transform trans, INetworkBehaviour[] newBehaviours=null)
         {
             var go = new NetworkGameObject(_scene.FreeObjectId, trans);
             _scene.AddObject(go);
 
-            var msg = _server.CreateMessage(new NetworkMessageDest {
+            var msg = _server.CreateMessage(new NetworkMessageData {
                 MessageType = MsgType.InstantiateObjectEvent
             });
             _instSerializer.Serialize(new InstantiateNetworkGameObjectEvent {
@@ -226,7 +227,7 @@ namespace SocialPoint.Multiplayer
             {
                 return;
             }
-            var msg = _server.CreateMessage(new NetworkMessageDest {
+            var msg = _server.CreateMessage(new NetworkMessageData {
                 MessageType = MsgType.DestroyObjectEvent
             });
             _destSerializer.Serialize(new DestroyNetworkGameObjectEvent {
@@ -251,7 +252,7 @@ namespace SocialPoint.Multiplayer
             {
                 _sceneBehaviours[i].OnClientConnected(clientId);
             }
-            var msg = _server.CreateMessage(new NetworkMessageDest {
+            var msg = _server.CreateMessage(new NetworkMessageData {
                 ClientId = clientId,
                 MessageType = MsgType.UpdateSceneEvent
             });
@@ -267,18 +268,20 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void INetworkServerDelegate.OnMessageReceived(byte clientId, ReceivedNetworkMessage msg)
+        void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            for(var i = 0; i < _sceneBehaviours.Count; i++)
-            {
-                _sceneBehaviours[i].OnMessageReceived(clientId, msg);
-            }
         }
 
         void INetworkServerDelegate.OnError(SocialPoint.Base.Error err)
         {
-            
         }
 
+        void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
+        {
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(data, reader);
+            }
+        }
     }
 }

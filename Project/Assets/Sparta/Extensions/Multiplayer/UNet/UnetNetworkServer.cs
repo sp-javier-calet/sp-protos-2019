@@ -9,6 +9,7 @@ namespace SocialPoint.Multiplayer
 {
     public class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
+        INetworkMessageReceiver _receiver;
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         IUpdateScheduler _updateScheduler;
         NetworkServerSimple _server;
@@ -38,6 +39,7 @@ namespace SocialPoint.Multiplayer
             _server = null;
             _delegates.Clear();
             _delegates = null;
+            _receiver = null;
             _updateScheduler.Remove(this);
         }
 
@@ -134,21 +136,27 @@ namespace SocialPoint.Multiplayer
 
         void OnMessageReceived(NetworkMessage umsg)
         {
-            var clientId = (byte)umsg.conn.connectionId;
-            byte type = UnetNetworkMessage.ConvertType(umsg.msgType);
-            var msg = new ReceivedNetworkMessage(type, umsg.channelId, new UnetNetworkReader(umsg.reader));
+            var data = new NetworkMessageData{
+                MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
+                ChannelId = umsg.channelId,
+                ClientId = (byte)umsg.conn.connectionId
+            };
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(data, new UnetNetworkReader(umsg.reader));
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(clientId, msg);
+                _delegates[i].OnMessageReceived(data);
             }
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageDest info)
+        public INetworkMessage CreateMessage(NetworkMessageData data)
         {
             NetworkConnection[] conns;
-            if(info.ClientId > 0)
+            if(data.ClientId > 0)
             {
-                var conn = _server.FindConnection(info.ClientId);
+                var conn = _server.FindConnection(data.ClientId);
                 if(conn == null)
                 {
                     throw new InvalidOperationException("Could not find client id.");
@@ -160,7 +168,7 @@ namespace SocialPoint.Multiplayer
                 conns = new NetworkConnection[_server.connections.Count];
                 _server.connections.CopyTo(conns, 0);
             }
-            return new UnetNetworkMessage(info, conns);
+            return new UnetNetworkMessage(data, conns);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
@@ -175,6 +183,11 @@ namespace SocialPoint.Multiplayer
         public void RemoveDelegate(INetworkServerDelegate dlg)
         {
             _delegates.Remove(dlg);
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
         }
     }
 }

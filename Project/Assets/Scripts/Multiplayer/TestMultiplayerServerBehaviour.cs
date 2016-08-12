@@ -1,8 +1,9 @@
 ﻿using SocialPoint.Utils;
+using SocialPoint.IO;
 using SocialPoint.Multiplayer;
 using System;
 
-public class TestMultiplayerServerBehaviour : INetworkServerSceneBehaviour, IDisposable
+public class TestMultiplayerServerBehaviour : INetworkServerSceneBehaviour, INetworkMessageReceiver, IDisposable
 {
     NetworkServerSceneController _scene;
     IParser<ClickAction> _clickParser;
@@ -12,22 +13,24 @@ public class TestMultiplayerServerBehaviour : INetworkServerSceneBehaviour, IDis
         _clickParser = new ClickActionParser();
         _scene = scene;
         _scene.AddBehaviour(this);
+        _scene.RegisterReceiver(this);
     }
 
     public void Dispose()
     {
         _scene.RemoveBehaviour(this);
+        _scene.RegisterReceiver(null);
     }
 
-    public void Update(float dt, NetworkGameScene scene, NetworkGameScene oldScene)
+    public void Update(float dt, NetworkScene scene, NetworkScene oldScene)
     {
     }
 
-    public void OnMessageReceived(byte clientId, ReceivedNetworkMessage msg)
+    public void OnMessageReceived(NetworkMessageData data, IReader reader)
     {
-        if(msg.MessageType == GameMsgType.ClickAction)
+        if(data.MessageType == GameMsgType.ClickAction)
         {
-            var ac = _clickParser.Parse(msg.Reader);
+            var ac = _clickParser.Parse(reader);
             _scene.Instantiate("Cube", new Transform(ac.Position));
         }
     }

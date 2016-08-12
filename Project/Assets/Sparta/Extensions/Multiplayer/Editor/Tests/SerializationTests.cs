@@ -139,7 +139,7 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void NetworkGameSceneInitial()
         {
-            var scene = new NetworkGameScene();
+            var scene = new NetworkScene();
 
             scene.AddObject(new NetworkGameObject(1, new Transform(
                 new Vector3(1.0f, 2.3f, 4.2f),
@@ -161,7 +161,7 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void NetworkGameSceneAddDiff()
         {
-            var scene = new NetworkGameScene();
+            var scene = new NetworkScene();
 
             scene.AddObject(new NetworkGameObject(1, new Transform(
                 new Vector3(1.0f, 2.3f, 4.2f),
@@ -169,7 +169,7 @@ namespace SocialPoint.Multiplayer
                 new Vector3(2.0f, 1.0f, 2.0f)
             )));
 
-            var scene2 = new NetworkGameScene();
+            var scene2 = new NetworkScene();
 
             scene2.AddObject(new NetworkGameObject(1, new Transform(
                 new Vector3(1.0f, 2.3f, 4.6f),
@@ -191,7 +191,7 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void NetworkGameSceneRemoveDiff()
         {
-            var scene = new NetworkGameScene();
+            var scene = new NetworkScene();
 
             scene.AddObject(new NetworkGameObject(1, new Transform(
                 new Vector3(1.0f, 2.3f, 4.2f),
@@ -205,7 +205,7 @@ namespace SocialPoint.Multiplayer
                 new Vector3(3.0f, 1.0f, 2.1f)
             )));
 
-            var scene2 = new NetworkGameScene();
+            var scene2 = new NetworkScene();
 
             scene2.AddObject(new NetworkGameObject(1, new Transform(
                 new Vector3(1.0f, 2.3f, 4.6f),
