@@ -5,7 +5,7 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public interface INetworkGameBehaviour
+    public interface INetworkBehaviour : ICloneable
     {
         void OnStart(NetworkGameObject go);
         void Update(float dt);
@@ -15,8 +15,6 @@ namespace SocialPoint.Multiplayer
     public class NetworkGameScene : IEquatable<NetworkGameScene>, ICloneable
     {
         Dictionary<int,NetworkGameObject> _objects;
-
-        public static byte MessageType = 1;
 
         public int FreeObjectId{ get; private set; }
 
@@ -35,12 +33,15 @@ namespace SocialPoint.Multiplayer
 
         public NetworkGameScene(NetworkGameScene scene):this()
         {
-            var itr = scene._objects.GetEnumerator();
-            while(itr.MoveNext())
+            if(scene != null && scene._objects != null)
             {
-                _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+                var itr = scene._objects.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+                }
+                itr.Dispose();
             }
-            itr.Dispose();
         }
 
         public Object Clone()

@@ -37,18 +37,18 @@ namespace SocialPoint.Multiplayer
         {
             var go = _serverCtrl.Instantiate("test");
             _serverCtrl.Update(0.001f);
-            Assert.That(_clientCtrl.Scene == _serverCtrl.Scene);
-            Assert.That(_client2Ctrl.Scene == _serverCtrl.Scene);
+            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+            Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
             go.Transform.Position.x = 2.0f;
-            Assert.That(_clientCtrl.Scene != _serverCtrl.Scene);
-            Assert.That(_client2Ctrl.Scene != _serverCtrl.Scene);
+            Assert.That(!_clientCtrl.Equals( _serverCtrl.Scene));
+            Assert.That(!_client2Ctrl.Equals(_serverCtrl.Scene));
             _serverCtrl.Update(0.001f);
-            Assert.That(_clientCtrl.Scene == _serverCtrl.Scene);
-            Assert.That(_client2Ctrl.Scene == _serverCtrl.Scene);
+            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+            Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
             _serverCtrl.Destroy(go.Id);
             _serverCtrl.Update(0.001f);
-            Assert.That(_clientCtrl.Scene == _serverCtrl.Scene);
-            Assert.That(_client2Ctrl.Scene == _serverCtrl.Scene);
+            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+            Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
         }
     }
 }

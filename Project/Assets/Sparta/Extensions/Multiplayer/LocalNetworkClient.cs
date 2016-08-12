@@ -10,7 +10,7 @@ namespace SocialPoint.Multiplayer
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         LocalNetworkServer _server;
 
-        public bool Connected;
+        public bool Connected{ get; private set; }
 
         public LocalNetworkClient(LocalNetworkServer server)
         {
@@ -73,7 +73,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageInfo info)
+        public INetworkMessage CreateMessage(NetworkMessageDest info)
         {
             if(!Connected)
             {
@@ -85,6 +85,10 @@ namespace SocialPoint.Multiplayer
         public void AddDelegate(INetworkClientDelegate dlg)
         {
             _delegates.Add(dlg);
+            if(Connected && dlg != null)
+            {
+                dlg.OnConnected();
+            }
         }
 
         public void RemoveDelegate(INetworkClientDelegate dlg)

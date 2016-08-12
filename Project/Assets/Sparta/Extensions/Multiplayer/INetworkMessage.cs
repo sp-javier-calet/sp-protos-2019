@@ -10,7 +10,7 @@ namespace SocialPoint.Multiplayer
         void Send();
     }
 
-    public struct NetworkMessageInfo
+    public struct NetworkMessageDest
     {
         public byte MessageType;
         public int ChannelId;

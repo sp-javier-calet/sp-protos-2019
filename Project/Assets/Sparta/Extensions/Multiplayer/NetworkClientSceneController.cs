@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
 {
@@ -7,29 +8,26 @@ namespace SocialPoint.Multiplayer
         INetworkClient _client;
         NetworkGameScene _scene;
         IParser<NetworkGameScene> _sceneParser;
-        IParser<InstantiateEvent> _instParser;
-        IParser<DestroyEvent> _destParser;
+        IParser<InstantiateNetworkGameObjectEvent> _instParser;
+        IParser<DestroyNetworkGameObjectEvent> _destParser;
 
         public NetworkClientSceneController(INetworkClient client)
         {
             _client = client;
             _client.AddDelegate(this);
             _sceneParser = new NetworkGameSceneParser();
-            _instParser = new InstantiateEventParser();
-            _destParser = new DestroyEventParser();
-        }
-
-        public NetworkGameScene Scene
-        {
-            get
-            {
-                return _scene;
-            }
+            _instParser = new InstantiateNetworkGameObjectEventParser();
+            _destParser = new DestroyNetworkGameObjectEventParser();
         }
 
         public void Dispose()
         {
             _client.RemoveDelegate(this);
+        }
+
+        public bool Equals(NetworkGameScene scene)
+        {
+            return _scene == scene;
         }
 
         void INetworkClientDelegate.OnConnected()
@@ -44,7 +42,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkClientDelegate.OnMessageReceived(ReceivedNetworkMessage msg)
         {
-            if(msg.MessageType == NetworkGameScene.MessageType)
+            if(msg.MessageType == MsgType.UpdateSceneEvent)
             {
                 if(_scene == null)
                 {
@@ -55,17 +53,27 @@ namespace SocialPoint.Multiplayer
                     _scene = _sceneParser.Parse(_scene, msg.Reader);
                 }
             }
-            else if(msg.MessageType == InstantiateEvent.MessageType)
+            else if(msg.MessageType == MsgType.InstantiateObjectEvent)
             {
                 var ev = _instParser.Parse(msg.Reader);
-                // TODO: instantiate prefab
-                _scene.AddObject(new NetworkGameObject(ev.ObjectId, ev.Transform));
+                var go = new NetworkGameObject(ev.ObjectId, ev.Transform);
+                _scene.AddObject(go);
+                InstantiateObjectView(ev.PrefabName, go);
             }
-            else if(msg.MessageType == DestroyEvent.MessageType)
+            else if(msg.MessageType == MsgType.DestroyObjectEvent)
             {
                 var ev = _destParser.Parse(msg.Reader);
-                _scene.RemoveObject(ev.ObjectId); 
+                _scene.RemoveObject(ev.ObjectId);
+                DestroyObjectView(ev.ObjectId);
             }
+        }
+
+        virtual protected void InstantiateObjectView(string prefabName, NetworkGameObject go)
+        {
+        }
+
+        virtual protected void DestroyObjectView(int objectId)
+        {
         }
 
         void INetworkClientDelegate.OnError(SocialPoint.Base.Error err)

@@ -3,7 +3,7 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class InstantiateEvent
+    public class InstantiateNetworkGameObjectEvent
     {
         public const byte MessageType = 2;
 
@@ -12,11 +12,11 @@ namespace SocialPoint.Multiplayer
         public Transform Transform;
     }
 
-    public class InstantiateEventSerializer : SimpleSerializer<InstantiateEvent>
+    public class InstantiateNetworkGameObjectEventSerializer : SimpleSerializer<InstantiateNetworkGameObjectEvent>
     {
         TransformSerializer _trans = new TransformSerializer();
 
-        public override void Serialize(InstantiateEvent newObj, IWriter writer)
+        public override void Serialize(InstantiateNetworkGameObjectEvent newObj, IWriter writer)
         {
             writer.Write(newObj.ObjectId);
             writer.Write(newObj.PrefabName);
@@ -24,13 +24,13 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class InstantiateEventParser : SimpleParser<InstantiateEvent>
+    public class InstantiateNetworkGameObjectEventParser : SimpleParser<InstantiateNetworkGameObjectEvent>
     {
         TransformParser _trans = new TransformParser();
 
-        public override InstantiateEvent Parse(IReader reader)
+        public override InstantiateNetworkGameObjectEvent Parse(IReader reader)
         {
-            return new InstantiateEvent {
+            return new InstantiateNetworkGameObjectEvent {
                 ObjectId = reader.ReadInt32(),
                 PrefabName = reader.ReadString(),
                 Transform = _trans.Parse(reader)

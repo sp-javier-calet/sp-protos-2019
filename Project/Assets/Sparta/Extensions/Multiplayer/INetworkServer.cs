@@ -14,9 +14,10 @@ namespace SocialPoint.Multiplayer
 
     public interface INetworkServer
     {
+        bool Running{ get; }
         void Start();
         void Stop();
-        INetworkMessage CreateMessage(NetworkMessageInfo info);
+        INetworkMessage CreateMessage(NetworkMessageDest info);
         void AddDelegate(INetworkServerDelegate dlg);
         void RemoveDelegate(INetworkServerDelegate dlg);
     }

@@ -9,7 +9,7 @@ namespace SocialPoint.Multiplayer
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         Dictionary<LocalNetworkClient,byte> _clients = new Dictionary<LocalNetworkClient,byte>();
 
-        public bool Running;
+        public bool Running{ get; private set; }
 
         public void Start()
         {
@@ -106,7 +106,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageInfo info)
+        public INetworkMessage CreateMessage(NetworkMessageDest info)
         {
             if(!Running)
             {
@@ -144,6 +144,10 @@ namespace SocialPoint.Multiplayer
         public void AddDelegate(INetworkServerDelegate dlg)
         {
             _delegates.Add(dlg);
+            if(Running && dlg != null)
+            {
+                dlg.OnStarted();
+            }
         }
 
         public void RemoveDelegate(INetworkServerDelegate dlg)

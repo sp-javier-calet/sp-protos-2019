@@ -19,9 +19,13 @@ namespace SocialPoint.Multiplayer
             Transform = t;
         }
 
-        public NetworkGameObject(NetworkGameObject go):
-        this(go.Id, go.Transform)
-        {            
+        public NetworkGameObject(NetworkGameObject go)
+        {
+            if(go != null)
+            {
+                Id = go.Id;
+                Transform = go.Transform;
+            }
         }
 
         public object Clone()

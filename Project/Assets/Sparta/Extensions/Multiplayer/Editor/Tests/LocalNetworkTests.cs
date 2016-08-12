@@ -21,7 +21,7 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void ReceivedNetworkMessageData()
         {
-            var msg = new LocalNetworkMessage(new NetworkMessageInfo{}, new LocalNetworkClient[0]);
+            var msg = new LocalNetworkMessage(new NetworkMessageDest{}, new LocalNetworkClient[0]);
             msg.Writer.Write("test");
             msg.Send();
             var rmsg = msg.Receive();

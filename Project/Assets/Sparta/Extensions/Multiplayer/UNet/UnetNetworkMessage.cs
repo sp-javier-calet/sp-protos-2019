@@ -10,7 +10,7 @@ namespace SocialPoint.Multiplayer
         NetworkConnection[] _conns;
         int _channelId;
 
-        public UnetNetworkMessage(NetworkMessageInfo info, NetworkConnection[] conns)
+        public UnetNetworkMessage(NetworkMessageDest info, NetworkConnection[] conns)
         {
             _channelId = info.ChannelId;
             _conns = conns;

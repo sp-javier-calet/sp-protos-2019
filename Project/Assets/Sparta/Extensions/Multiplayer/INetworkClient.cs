@@ -12,9 +12,10 @@ namespace SocialPoint.Multiplayer
 
     public interface INetworkClient
     {
+        bool Connected{ get; }
         void Connect();
         void Disconnect();
-        INetworkMessage CreateMessage(NetworkMessageInfo data);
+        INetworkMessage CreateMessage(NetworkMessageDest data);
         void AddDelegate(INetworkClientDelegate dlg);
         void RemoveDelegate(INetworkClientDelegate dlg);
     }

@@ -75,7 +75,7 @@ namespace SocialPoint.Multiplayer
             _server.Start();
             _client.Connect();
 
-            var msg = _client.CreateMessage(new NetworkMessageInfo {
+            var msg = _client.CreateMessage(new NetworkMessageDest {
                 MessageType = 5,
                 ChannelId = 1
             });
@@ -105,7 +105,7 @@ namespace SocialPoint.Multiplayer
             _client.Connect();
             _client2.Connect();
 
-            var msg = _server.CreateMessage(new NetworkMessageInfo {
+            var msg = _server.CreateMessage(new NetworkMessageDest {
                 MessageType = 5,
                 ChannelId = 1
             });
@@ -135,7 +135,7 @@ namespace SocialPoint.Multiplayer
             _client.Connect();
             _client2.Connect();
 
-            var msg = _server.CreateMessage(new NetworkMessageInfo {
+            var msg = _server.CreateMessage(new NetworkMessageDest {
                 MessageType = 5,
                 ChannelId = 1,
                 ClientId = 1
@@ -191,6 +191,29 @@ namespace SocialPoint.Multiplayer
             WaitForEvents();
             cdlg.Received(1).OnDisconnected();
             sdlg.Received(1).OnClientDisconnected(Arg.Any<byte>());
+        }
+
+        [Test]
+        public void OnServerStartedCalledIfDelegateAddedAfterStart()
+        {
+            _server.Start();
+            var sdlg = Substitute.For<INetworkServerDelegate>();
+            _server.AddDelegate(sdlg);
+
+            WaitForEvents();
+            sdlg.Received(1).OnStarted();
+        }
+
+        [Test]
+        public void OnClientConnectedCalledIfDelegateAddedAfterConnect()
+        {
+            _server.Start();
+            _client.Connect();
+            var cdlg = Substitute.For<INetworkClientDelegate>();
+            _client.AddDelegate(cdlg);
+
+            WaitForEvents();
+            cdlg.Received(1).OnConnected();
         }
 
     }
