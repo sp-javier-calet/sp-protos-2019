@@ -3,7 +3,7 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public struct Transform : IEquatable<Transform>
+    public class Transform : IEquatable<Transform>, ICloneable
     {
         public Vector3 Position;
         public Quaternion Rotation;
@@ -24,30 +24,72 @@ namespace SocialPoint.Multiplayer
         {
         }
 
+        public Transform():this(Vector3.Zero)
+        {
+        }
+
+        public Transform(Transform t)
+        {
+            if(t != null)
+            {
+                Position = t.Position;
+                Rotation = t.Rotation;
+                Size = t.Size;
+            }
+        }
+
+        public object Clone()
+        {
+            return new Transform(this);
+        }
+
         public override bool Equals(System.Object obj)
         {
-            var t = (Transform)obj;
-            return (Position == t.Position) && (Rotation == t.Rotation) && (Size == t.Size);
+            var go = (Transform)obj;
+            if((object)go == null)
+            {
+                return false;
+            }
+            return Compare(this, go);
         }
 
-        public bool Equals(Transform t)
-        {             
-            return (Position == t.Position) && (Rotation == t.Rotation) && (Size == t.Size);
-        }
-
-        public override int GetHashCode()
+        public bool Equals(Transform go)
         {
-            return Position.GetHashCode() ^ Rotation.GetHashCode() ^ Size.GetHashCode();
+            if((object)go == null)
+            {
+                return false;
+            }
+            return Compare(this, go);
         }
 
         public static bool operator ==(Transform a, Transform b)
         {
-            return a.Position == b.Position && a.Rotation == b.Rotation && a.Size == b.Size;
+            var na = (object)a == null;
+            var nb = (object)b == null;
+            if(na && nb)
+            {
+                return true;
+            }
+            else if(na || nb)
+            {
+                return false;
+            }
+            return Compare(a, b);
         }
 
         public static bool operator !=(Transform a, Transform b)
         {
             return !(a == b);
+        }
+
+        static bool Compare(Transform a, Transform b)
+        {
+            return a.Position == b.Position && a.Rotation == b.Rotation && a.Size == b.Size;
+        }
+
+        public override int GetHashCode()
+        {
+            return Position.GetHashCode() ^ Rotation.GetHashCode() ^ Size.GetHashCode();
         }
 
         public static Transform Identity
@@ -107,7 +149,7 @@ namespace SocialPoint.Multiplayer
 
         public Transform Parse(IReader reader)
         {
-            Transform obj;
+            var obj = new Transform();
             obj.Position = _vector3.Parse(reader);
             obj.Rotation = _quat.Parse(reader);
             obj.Size = _vector3.Parse(reader);
