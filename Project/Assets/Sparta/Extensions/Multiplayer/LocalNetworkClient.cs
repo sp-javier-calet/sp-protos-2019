@@ -24,7 +24,6 @@ namespace SocialPoint.Multiplayer
             {
                 return;
             }
-            _server.OnClientConnecting(this);
             if(_server.Running)
             {
                 Connected = true;
@@ -33,6 +32,7 @@ namespace SocialPoint.Multiplayer
                     _delegates[i].OnConnected();
                 }
             }
+            _server.OnClientConnecting(this);
         }
 
         public void Disconnect()
@@ -51,6 +51,10 @@ namespace SocialPoint.Multiplayer
 
         public void OnLocalMessageReceived(LocalNetworkMessage msg)
         {
+            if(!Connected)
+            {
+                return;
+            }
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(msg.Data, msg.Receive());
