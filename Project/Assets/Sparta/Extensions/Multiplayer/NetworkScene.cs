@@ -192,7 +192,6 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(NetworkScene newScene, IWriter writer)
         {
-            UnityEngine.Debug.Log("initial serialize " + newScene.ObjectsCount);
             writer.Write(newScene.ObjectsCount);
             var itr = newScene.GetObjectEnumerator();
             while(itr.MoveNext())
@@ -204,7 +203,6 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(NetworkScene newScene, NetworkScene oldScene, IWriter writer, DirtyBits dirty)
         {
-            UnityEngine.Debug.Log("diff serialize " + newScene.ObjectsCount);
             writer.Write(newScene.ObjectsCount);
             var itr = newScene.GetObjectEnumerator();
             while(itr.MoveNext())
@@ -249,7 +247,6 @@ namespace SocialPoint.Multiplayer
         {
             var obj = new NetworkScene();
             var c = reader.ReadInt32();
-            UnityEngine.Debug.Log("initial parse " + c);
             for(var i = 0; i < c; i++)
             {
                 var go = _go.Parse(reader);
@@ -266,7 +263,6 @@ namespace SocialPoint.Multiplayer
         public NetworkScene Parse(NetworkScene scene, IReader reader, DirtyBits dirty)
         {
             var c = reader.ReadInt32();
-            UnityEngine.Debug.Log("diff parse " + c);
             for(var i = 0; i < c; i++)
             {
                 var id = reader.ReadInt32();

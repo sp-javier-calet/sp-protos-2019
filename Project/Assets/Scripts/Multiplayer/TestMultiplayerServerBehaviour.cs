@@ -48,7 +48,8 @@ public class TestMultiplayerServerBehaviour : INetworkServerSceneBehaviour, INet
         if(data.MessageType == GameMsgType.ClickAction)
         {
             var ac = _clickParser.Parse(reader);
-            _controller.Instantiate("Cube", new Transform(ac.Position));
+            _controller.Instantiate("Cube", new Transform(
+                ac.Position, Quaternion.Identity, Vector3.One));
         }
     }
 
