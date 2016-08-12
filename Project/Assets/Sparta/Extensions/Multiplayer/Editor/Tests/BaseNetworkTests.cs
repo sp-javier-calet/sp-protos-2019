@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using NUnit.Framework;
 using NSubstitute;
+using SocialPoint.IO;
 
 namespace SocialPoint.Multiplayer
 {
@@ -70,15 +71,16 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void SendMessageFromClientToServer()
         {
-            var sdlg = Substitute.For<INetworkServerDelegate>();
-            _server.AddDelegate(sdlg);
+            var receiver = Substitute.For<INetworkMessageReceiver>();
+            _server.RegisterReceiver(receiver);
             _server.Start();
             _client.Connect();
 
-            var msg = _client.CreateMessage(new NetworkMessageInfo {
+            var data = new NetworkMessageData {
                 MessageType = 5,
                 ChannelId = 1
-            });
+            };
+            var msg = _client.CreateMessage(data);
 
             msg.Writer.Write(42);
             msg.Writer.Write("test");
@@ -86,29 +88,28 @@ namespace SocialPoint.Multiplayer
             msg.Send();
 
             WaitForEvents();
-            sdlg.Received(1).OnMessageReceived(Arg.Any<byte>(),
-                Arg.Is<ReceivedNetworkMessage>( rmsg => 
-                    rmsg.MessageType == 5 &&
-                    rmsg.ChannelId == 1 &&
-                    rmsg.Reader.ReadInt32() == 42 &&
-                    rmsg.Reader.ReadString() == "test"
+            receiver.Received(1).OnMessageReceived(data,
+                Arg.Is<IReader>( reader => 
+                    reader.ReadInt32() == 42 &&
+                    reader.ReadString() == "test"
             ));
         }
 
         [Test]
         public void SendMessageFromServerToClients()
         {
-            var cdlg = Substitute.For<INetworkClientDelegate>();
-            _client.AddDelegate(cdlg);
-            _client2.AddDelegate(cdlg);
+            var receiver = Substitute.For<INetworkMessageReceiver>();
+            _client.RegisterReceiver(receiver);
+            _client2.RegisterReceiver(receiver);
             _server.Start();
             _client.Connect();
             _client2.Connect();
 
-            var msg = _server.CreateMessage(new NetworkMessageInfo {
+            var data = new NetworkMessageData {
                 MessageType = 5,
                 ChannelId = 1
-            });
+            };
+            var msg = _server.CreateMessage(data);
 
             msg.Writer.Write(42);
             msg.Writer.Write("test");
@@ -116,30 +117,30 @@ namespace SocialPoint.Multiplayer
             msg.Send();
 
             WaitForEvents();
-            cdlg.Received(2).OnMessageReceived(Arg.Is<ReceivedNetworkMessage>( rmsg => 
-                rmsg.MessageType == 5 &&
-                rmsg.ChannelId == 1 &&
-                rmsg.Reader.ReadInt32() == 42 &&
-                rmsg.Reader.ReadString() == "test"
+            receiver.Received(2).OnMessageReceived(data,
+                Arg.Is<IReader>( reader => 
+                    reader.ReadInt32() == 42 &&
+                    reader.ReadString() == "test"
             ));
         }
 
         [Test]
         public void SendMessageFromServerToOneClient()
         {
-            var cdlg1 = Substitute.For<INetworkClientDelegate>();
-            var cdlg2 = Substitute.For<INetworkClientDelegate>();
-            _client.AddDelegate(cdlg1);
-            _client2.AddDelegate(cdlg2);
+            var receiver1 = Substitute.For<INetworkMessageReceiver>();
+            var receiver2 = Substitute.For<INetworkMessageReceiver>();
+            _client.RegisterReceiver(receiver1);
+            _client2.RegisterReceiver(receiver2);
             _server.Start();
             _client.Connect();
             _client2.Connect();
 
-            var msg = _server.CreateMessage(new NetworkMessageInfo {
+            var data = new NetworkMessageData {
                 MessageType = 5,
                 ChannelId = 1,
                 ClientId = 1
-            });
+            };
+            var msg = _server.CreateMessage(data);
 
             msg.Writer.Write(42);
             msg.Writer.Write("test");
@@ -147,13 +148,12 @@ namespace SocialPoint.Multiplayer
             msg.Send();
 
             WaitForEvents();
-            cdlg1.Received(1).OnMessageReceived(Arg.Is<ReceivedNetworkMessage>( rmsg => 
-                rmsg.MessageType == 5 &&
-                rmsg.ChannelId == 1 &&
-                rmsg.Reader.ReadInt32() == 42 &&
-                rmsg.Reader.ReadString() == "test"
+            receiver1.Received(1).OnMessageReceived(data,
+                Arg.Is<IReader>( reader => 
+                    reader.ReadInt32() == 42 &&
+                    reader.ReadString() == "test"
             ));
-            cdlg2.Received(0).OnMessageReceived(Arg.Any<ReceivedNetworkMessage>());
+            receiver2.Received(0).OnMessageReceived(Arg.Any<NetworkMessageData>(), Arg.Any<IReader>());
         }
 
         [Test]
@@ -191,6 +191,29 @@ namespace SocialPoint.Multiplayer
             WaitForEvents();
             cdlg.Received(1).OnDisconnected();
             sdlg.Received(1).OnClientDisconnected(Arg.Any<byte>());
+        }
+
+        [Test]
+        public void OnServerStartedCalledIfDelegateAddedAfterStart()
+        {
+            _server.Start();
+            var sdlg = Substitute.For<INetworkServerDelegate>();
+            _server.AddDelegate(sdlg);
+
+            WaitForEvents();
+            sdlg.Received(1).OnStarted();
+        }
+
+        [Test]
+        public void OnClientConnectedCalledIfDelegateAddedAfterConnect()
+        {
+            _server.Start();
+            _client.Connect();
+            var cdlg = Substitute.For<INetworkClientDelegate>();
+            _client.AddDelegate(cdlg);
+
+            WaitForEvents();
+            cdlg.Received(1).OnConnected();
         }
 
     }

@@ -7,10 +7,11 @@ namespace SocialPoint.Multiplayer
 
     public class LocalNetworkClient : INetworkClient
     {
+        INetworkMessageReceiver _receiver;
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         LocalNetworkServer _server;
 
-        public bool Connected;
+        public bool Connected{ get; private set; }
 
         public LocalNetworkClient(LocalNetworkServer server)
         {
@@ -50,10 +51,13 @@ namespace SocialPoint.Multiplayer
 
         public void OnLocalMessageReceived(LocalNetworkMessage msg)
         {
-            var received = msg.Receive();
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(msg.Data, msg.Receive());
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(received);
+                _delegates[i].OnMessageReceived(msg.Data);
             }
         }
 
@@ -73,7 +77,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageInfo info)
+        public INetworkMessage CreateMessage(NetworkMessageData info)
         {
             if(!Connected)
             {
@@ -85,11 +89,20 @@ namespace SocialPoint.Multiplayer
         public void AddDelegate(INetworkClientDelegate dlg)
         {
             _delegates.Add(dlg);
+            if(Connected && dlg != null)
+            {
+                dlg.OnConnected();
+            }
         }
 
         public void RemoveDelegate(INetworkClientDelegate dlg)
         {
             _delegates.Remove(dlg);
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
         }
     }
 }
