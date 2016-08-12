@@ -22,16 +22,25 @@ public class TestMultiplayerServerBehaviour : INetworkServerSceneBehaviour, INet
         _controller.RegisterReceiver(null);
     }
 
+    float _moveInterval = 1.0f;
+    float _timeSinceLastMove = 0.0f;
+
     public void Update(float dt, NetworkScene scene, NetworkScene oldScene)
     {
-        var itr = _controller.Scene.GetObjectEnumerator();
-        while(itr.MoveNext())
+        _timeSinceLastMove += dt;
+
+        if(_timeSinceLastMove > _moveInterval)
         {
-            var t = itr.Current.Transform;
-            t.Position.x += RandomUtils.Range(-0.5f, +0.5f);
-            t.Position.z += RandomUtils.Range(-0.5f, +0.5f);
+            _timeSinceLastMove = 0.0f;
+            var itr = _controller.Scene.GetObjectEnumerator();
+            while(itr.MoveNext())
+            {
+                var t = itr.Current.Transform;
+                t.Position.x += RandomUtils.Range(-0.5f, +0.5f);
+                t.Position.z += RandomUtils.Range(-0.5f, +0.5f);
+            }
+            itr.Dispose();
         }
-        itr.Dispose();
     }
 
     public void OnMessageReceived(NetworkMessageData data, IReader reader)

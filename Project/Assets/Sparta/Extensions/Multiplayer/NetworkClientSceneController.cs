@@ -36,7 +36,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkClientDelegate.OnConnected()
         {
-            _scene = new NetworkScene();
+            _scene = null;
         }
 
         void INetworkClientDelegate.OnDisconnected()
@@ -50,7 +50,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
         {
-            if(data.MessageType == MsgType.UpdateSceneEvent)
+            if(data.MessageType == SceneMsgType.UpdateSceneEvent)
             {
                 if(_scene == null)
                 {
@@ -68,12 +68,12 @@ namespace SocialPoint.Multiplayer
                 }
                 itr.Dispose();
             }
-            else if(data.MessageType == MsgType.InstantiateObjectEvent)
+            else if(data.MessageType == SceneMsgType.InstantiateObjectEvent)
             {
                 var ev = _instParser.Parse(reader);
                 InstantiateObjectView(ev);
             }
-            else if(data.MessageType == MsgType.DestroyObjectEvent)
+            else if(data.MessageType == SceneMsgType.DestroyObjectEvent)
             {
                 var ev = _destParser.Parse(reader);
                 DestroyObjectView(ev);

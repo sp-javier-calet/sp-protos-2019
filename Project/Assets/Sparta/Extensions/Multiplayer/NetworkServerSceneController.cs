@@ -4,14 +4,6 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Multiplayer
 {
-    public static class MsgType
-    {
-        public const byte UpdateSceneEvent = 1;
-        public const byte InstantiateObjectEvent = 2;
-        public const byte DestroyObjectEvent = 3;
-        public const byte Highest = 2;
-    }
-
     public interface INetworkServerSceneBehaviour
     {
         void Update(float dt, NetworkScene scene, NetworkScene oldScene);
@@ -133,7 +125,7 @@ namespace SocialPoint.Multiplayer
 
         public void Update(float dt)
         {
-            if(_scene == null)
+            if(!_server.Running)
             {
                 return;
             }
@@ -173,7 +165,7 @@ namespace SocialPoint.Multiplayer
             }
 
             var msg = _server.CreateMessage(new NetworkMessageData {
-                MessageType = MsgType.UpdateSceneEvent
+                MessageType = SceneMsgType.UpdateSceneEvent
             });
             _sceneSerializer.Serialize(_scene, _oldScene, msg.Writer);
             msg.Send();
@@ -186,7 +178,7 @@ namespace SocialPoint.Multiplayer
             _scene.AddObject(go);
 
             var msg = _server.CreateMessage(new NetworkMessageData {
-                MessageType = MsgType.InstantiateObjectEvent
+                MessageType = SceneMsgType.InstantiateObjectEvent
             });
             _instSerializer.Serialize(new InstantiateNetworkGameObjectEvent {
                 ObjectId = go.Id,
@@ -228,7 +220,7 @@ namespace SocialPoint.Multiplayer
                 return;
             }
             var msg = _server.CreateMessage(new NetworkMessageData {
-                MessageType = MsgType.DestroyObjectEvent
+                MessageType = SceneMsgType.DestroyObjectEvent
             });
             _destSerializer.Serialize(new DestroyNetworkGameObjectEvent {
                 ObjectId = id
@@ -254,7 +246,7 @@ namespace SocialPoint.Multiplayer
             }
             var msg = _server.CreateMessage(new NetworkMessageData {
                 ClientId = clientId,
-                MessageType = MsgType.UpdateSceneEvent
+                MessageType = SceneMsgType.UpdateSceneEvent
             });
             _sceneSerializer.Serialize(_scene, msg.Writer);
             msg.Send();

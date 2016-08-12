@@ -1,12 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 using SocialPoint.Multiplayer;
+using SocialPoint.Utils;
 using UnityEngine.EventSystems;
 
 
 public static class GameMsgType
 {
-    public const byte ClickAction = MsgType.Highest + 1;
+    public const byte ClickAction = SceneMsgType.Highest + 1;
+}
+
+public enum TestMultiplayerMode
+{
+    Local,
+    Unet
 }
 
 public class TestMultiplayerBehaviour : MonoBehaviour, IPointerClickHandler
@@ -19,15 +26,27 @@ public class TestMultiplayerBehaviour : MonoBehaviour, IPointerClickHandler
 
     ClickActionSerializer _clickSerializer = new ClickActionSerializer();
 
+    [SerializeField]
+    TestMultiplayerMode _mode = TestMultiplayerMode.Local;
+
 	void Start()
     {
-        var localServer = new LocalNetworkServer();
-        _client = new LocalNetworkClient(localServer);
-        _server = localServer;
+        if(_mode == TestMultiplayerMode.Unet)
+        {
+            var scheduler = gameObject.AddComponent<UnityUpdateRunner>();
+            _server = new UnetNetworkServer(scheduler);
+            _client = new UnetNetworkClient();
+        }
+        else
+        {
+            var localServer = new LocalNetworkServer();
+            _client = new LocalNetworkClient(localServer);
+            _server = localServer;
+        }
 
         _serverCtrl = new NetworkServerSceneController(_server);
-        _serverCtrl.UpdateInterval = 2.0f;
         _serverCtrl.AddBehaviour(new TestMultiplayerServerBehaviour(_serverCtrl));
+        _serverCtrl.UpdateInterval = 2.0f;
 
         _clientCtrl = new UnityNetworkClientSceneController(_client, transform);
 
