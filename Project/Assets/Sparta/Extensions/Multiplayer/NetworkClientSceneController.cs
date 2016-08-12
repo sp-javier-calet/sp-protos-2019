@@ -60,6 +60,13 @@ namespace SocialPoint.Multiplayer
                 {
                     _scene = _sceneParser.Parse(_scene, reader);
                 }
+                var itr = _scene.GetObjectEnumerator();
+                while(itr.MoveNext())
+                {
+                    var go = itr.Current;
+                    UpdateObjectView(go.Id, go.Transform);
+                }
+                itr.Dispose();
             }
             else if(data.MessageType == MsgType.InstantiateObjectEvent)
             {
@@ -78,6 +85,10 @@ namespace SocialPoint.Multiplayer
                     _receiver.OnMessageReceived(data, reader);
                 }
             }
+        }
+
+        virtual protected void UpdateObjectView(int objectId, Transform t)
+        {
         }
 
         virtual protected void InstantiateObjectView(InstantiateNetworkGameObjectEvent ev)

@@ -22,6 +22,17 @@ namespace SocialPoint.Multiplayer
             _parent = parent;
         }
 
+        protected override void UpdateObjectView(int objectId, Transform t)
+        {
+            GameObject go;
+            if(_objects.TryGetValue(objectId, out go))
+            {
+                var ut = go.transform;
+                ut.position = t.Position.ToUnity();
+                ut.rotation = t.Rotation.ToUnity();
+            }
+        }
+
         protected override void InstantiateObjectView(InstantiateNetworkGameObjectEvent ev)
         {
             GameObject prefab;

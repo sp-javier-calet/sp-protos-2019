@@ -5,25 +5,33 @@ using System;
 
 public class TestMultiplayerServerBehaviour : INetworkServerSceneBehaviour, INetworkMessageReceiver, IDisposable
 {
-    NetworkServerSceneController _scene;
+    NetworkServerSceneController _controller;
     IParser<ClickAction> _clickParser;
 
-    public TestMultiplayerServerBehaviour(NetworkServerSceneController scene)
+    public TestMultiplayerServerBehaviour(NetworkServerSceneController ctrl)
     {
         _clickParser = new ClickActionParser();
-        _scene = scene;
-        _scene.AddBehaviour(this);
-        _scene.RegisterReceiver(this);
+        _controller = ctrl;
+        _controller.AddBehaviour(this);
+        _controller.RegisterReceiver(this);
     }
 
     public void Dispose()
     {
-        _scene.RemoveBehaviour(this);
-        _scene.RegisterReceiver(null);
+        _controller.RemoveBehaviour(this);
+        _controller.RegisterReceiver(null);
     }
 
     public void Update(float dt, NetworkScene scene, NetworkScene oldScene)
     {
+        var itr = _controller.Scene.GetObjectEnumerator();
+        while(itr.MoveNext())
+        {
+            var t = itr.Current.Transform;
+            t.Position.x += RandomUtils.Range(-0.5f, +0.5f);
+            t.Position.z += RandomUtils.Range(-0.5f, +0.5f);
+        }
+        itr.Dispose();
     }
 
     public void OnMessageReceived(NetworkMessageData data, IReader reader)
@@ -31,7 +39,7 @@ public class TestMultiplayerServerBehaviour : INetworkServerSceneBehaviour, INet
         if(data.MessageType == GameMsgType.ClickAction)
         {
             var ac = _clickParser.Parse(reader);
-            _scene.Instantiate("Cube", new Transform(ac.Position));
+            _controller.Instantiate("Cube", new Transform(ac.Position));
         }
     }
 

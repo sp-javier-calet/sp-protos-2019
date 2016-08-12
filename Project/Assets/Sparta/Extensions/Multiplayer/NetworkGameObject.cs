@@ -24,7 +24,7 @@ namespace SocialPoint.Multiplayer
             if(go != null)
             {
                 Id = go.Id;
-                Transform = go.Transform;
+                Transform = new Transform(go.Transform);
             }
         }
 
@@ -40,7 +40,7 @@ namespace SocialPoint.Multiplayer
             {
                 return false;
             }
-            return (Id == go.Id) && (Transform == go.Transform);
+            return Compare(this, go);
         }
 
         public bool Equals(NetworkGameObject go)
@@ -49,7 +49,7 @@ namespace SocialPoint.Multiplayer
             {
                 return false;
             }
-            return (Id == go.Id) && (Transform == go.Transform);
+            return Compare(this, go);
         }
 
         public override int GetHashCode()
@@ -69,12 +69,17 @@ namespace SocialPoint.Multiplayer
             {
                 return false;
             }
-            return a.Id == b.Id && a.Transform == b.Transform;
+            return Compare(a, b);
         }
 
         public static bool operator !=(NetworkGameObject a, NetworkGameObject b)
         {
             return !(a == b);
+        }
+
+        static bool Compare(NetworkGameObject a, NetworkGameObject b)
+        {
+            return a.Id == b.Id && a.Transform == b.Transform;
         }
 
         public override string ToString()
