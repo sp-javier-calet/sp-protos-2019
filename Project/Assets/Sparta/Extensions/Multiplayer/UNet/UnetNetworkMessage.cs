@@ -15,13 +15,13 @@ namespace SocialPoint.Multiplayer
             _channelId = data.ChannelId;
             _conns = conns;
             _writer = new NetworkWriter();
-            _writer.StartMessage((short)(MsgType.Highest + 1 + data.MessageType));
+            _writer.StartMessage((short)(UnityEngine.Networking.MsgType.Highest + 1 + data.MessageType));
             Writer = new UnetNetworkWriter(_writer);
         }
 
         public static byte ConvertType(short type)
         {
-            return (byte)(type - 1 - MsgType.Highest);
+            return (byte)(type - 1 - UnityEngine.Networking.MsgType.Highest);
         }
 
         public void Send()

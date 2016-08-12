@@ -89,7 +89,7 @@ namespace SocialPoint.Multiplayer
             _server.RegisterHandler(UnityEngine.Networking.MsgType.Connect, OnConnectReceived);
             _server.RegisterHandler(UnityEngine.Networking.MsgType.Disconnect, OnDisconnectReceived);
             _server.RegisterHandler(UnityEngine.Networking.MsgType.Error, OnErrorReceived);
-            for(byte i = MsgType.Highest + 1; i < byte.MaxValue; i++)
+            for(byte i = UnityEngine.Networking.MsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _server.RegisterHandler(i, OnMessageReceived);
             }
@@ -100,9 +100,9 @@ namespace SocialPoint.Multiplayer
             _server.UnregisterHandler(UnityEngine.Networking.MsgType.Connect);
             _server.UnregisterHandler(UnityEngine.Networking.MsgType.Disconnect);
             _server.UnregisterHandler(UnityEngine.Networking.MsgType.Error);
-            for(byte i = MsgType.Highest + 1; i < byte.MaxValue; i++)
+            for(byte i = UnityEngine.Networking.MsgType.Highest + 1; i < byte.MaxValue; i++)
             {
-                _server.RegisterHandler(i, OnMessageReceived);
+                _server.UnregisterHandler(i);
             }
         }
 
