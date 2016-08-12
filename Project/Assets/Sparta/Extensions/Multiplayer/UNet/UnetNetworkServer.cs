@@ -9,11 +9,13 @@ namespace SocialPoint.Multiplayer
 {
     public class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
+        INetworkMessageReceiver _receiver;
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         IUpdateScheduler _updateScheduler;
         NetworkServerSimple _server;
         int _port;
-        bool _running;
+
+        public bool Running{ get; private set; }
 
         public const int DefaultPort = 8888;
 
@@ -37,12 +39,13 @@ namespace SocialPoint.Multiplayer
             _server = null;
             _delegates.Clear();
             _delegates = null;
+            _receiver = null;
             _updateScheduler.Remove(this);
         }
 
         public void Start()
         {
-            if(_running)
+            if(Running)
             {
                 return;
             }
@@ -50,7 +53,7 @@ namespace SocialPoint.Multiplayer
             {
                 throw new ResourceException("Failed to start.");
             }
-            _running = true;
+            Running = true;
             for(var i = 0; i < _delegates.Count; i++)
             {                
                 _delegates[i].OnStarted();
@@ -59,7 +62,7 @@ namespace SocialPoint.Multiplayer
 
         public void Stop()
         {
-            if(!_running)
+            if(!Running)
             {
                 return;
             }
@@ -68,7 +71,7 @@ namespace SocialPoint.Multiplayer
                 NetworkTransport.RemoveHost(_server.serverHostId);
             }
             _server.Stop();
-            _running = false;
+            Running = false;
             for(var i = 0; i < _delegates.Count; i++)
             {                
                 _delegates[i].OnStopped();
@@ -83,9 +86,9 @@ namespace SocialPoint.Multiplayer
         void RegisterHandlers()
         {
             UnregisterHandlers();
-            _server.RegisterHandler(MsgType.Connect, OnConnectReceived);
-            _server.RegisterHandler(MsgType.Disconnect, OnDisconnectReceived);
-            _server.RegisterHandler(MsgType.Error, OnErrorReceived);
+            _server.RegisterHandler(UnityEngine.Networking.MsgType.Connect, OnConnectReceived);
+            _server.RegisterHandler(UnityEngine.Networking.MsgType.Disconnect, OnDisconnectReceived);
+            _server.RegisterHandler(UnityEngine.Networking.MsgType.Error, OnErrorReceived);
             for(byte i = MsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _server.RegisterHandler(i, OnMessageReceived);
@@ -94,9 +97,9 @@ namespace SocialPoint.Multiplayer
 
         void UnregisterHandlers()
         {
-            _server.UnregisterHandler(MsgType.Connect);
-            _server.UnregisterHandler(MsgType.Disconnect);
-            _server.UnregisterHandler(MsgType.Error);
+            _server.UnregisterHandler(UnityEngine.Networking.MsgType.Connect);
+            _server.UnregisterHandler(UnityEngine.Networking.MsgType.Disconnect);
+            _server.UnregisterHandler(UnityEngine.Networking.MsgType.Error);
             for(byte i = MsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _server.RegisterHandler(i, OnMessageReceived);
@@ -133,21 +136,27 @@ namespace SocialPoint.Multiplayer
 
         void OnMessageReceived(NetworkMessage umsg)
         {
-            var clientId = (byte)umsg.conn.connectionId;
-            byte type = UnetNetworkMessage.ConvertType(umsg.msgType);
-            var msg = new ReceivedNetworkMessage(type, umsg.channelId, new UnetNetworkReader(umsg.reader));
+            var data = new NetworkMessageData{
+                MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
+                ChannelId = umsg.channelId,
+                ClientId = (byte)umsg.conn.connectionId
+            };
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(data, new UnetNetworkReader(umsg.reader));
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(clientId, msg);
+                _delegates[i].OnMessageReceived(data);
             }
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageInfo info)
+        public INetworkMessage CreateMessage(NetworkMessageData data)
         {
             NetworkConnection[] conns;
-            if(info.ClientId > 0)
+            if(data.ClientId > 0)
             {
-                var conn = _server.FindConnection(info.ClientId);
+                var conn = _server.FindConnection(data.ClientId);
                 if(conn == null)
                 {
                     throw new InvalidOperationException("Could not find client id.");
@@ -159,17 +168,26 @@ namespace SocialPoint.Multiplayer
                 conns = new NetworkConnection[_server.connections.Count];
                 _server.connections.CopyTo(conns, 0);
             }
-            return new UnetNetworkMessage(info, conns);
+            return new UnetNetworkMessage(data, conns);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
         {
             _delegates.Add(dlg);
+            if(Running && dlg != null)
+            {
+                dlg.OnStarted();
+            }
         }
 
         public void RemoveDelegate(INetworkServerDelegate dlg)
         {
             _delegates.Remove(dlg);
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
         }
     }
 }

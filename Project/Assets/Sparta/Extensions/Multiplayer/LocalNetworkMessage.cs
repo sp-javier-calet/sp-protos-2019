@@ -7,31 +7,29 @@ namespace SocialPoint.Multiplayer
     public class LocalNetworkMessage : INetworkMessage
     {
         public IWriter Writer{ get; private set; }
-        byte _type;
-        int _channelId;
+        public NetworkMessageData Data{ get; private set; }
 
         LocalNetworkServer _server;
         LocalNetworkClient[] _clients;
         LocalNetworkClient _origin;
         MemoryStream _stream;
 
-        public LocalNetworkMessage(NetworkMessageInfo info, LocalNetworkClient[] clients)
+        public LocalNetworkMessage(NetworkMessageData data, LocalNetworkClient[] clients)
         {
             _clients = clients;
-            Init(info);
+            Init(data);
         }
 
-        public LocalNetworkMessage(NetworkMessageInfo info, LocalNetworkClient origin, LocalNetworkServer server)
+        public LocalNetworkMessage(NetworkMessageData data, LocalNetworkClient origin, LocalNetworkServer server)
         {
             _origin = origin;
             _server = server;
-            Init(info);
+            Init(data);
         }
 
-        void Init(NetworkMessageInfo info)
+        void Init(NetworkMessageData data)
         {
-            _type = info.MessageType;
-            _channelId = info.ChannelId;
+            Data = data;
             _stream = new MemoryStream();
             Writer = new SystemBinaryWriter(_stream);
         }
@@ -56,10 +54,9 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public ReceivedNetworkMessage Receive()
+        public IReader Receive()
         {
-            var stream = new MemoryStream(_stream.GetBuffer());
-            return new ReceivedNetworkMessage(_type, _channelId, new SystemBinaryReader(stream));
+            return new SystemBinaryReader(new MemoryStream(_stream.GetBuffer()));
         }
     }
 }

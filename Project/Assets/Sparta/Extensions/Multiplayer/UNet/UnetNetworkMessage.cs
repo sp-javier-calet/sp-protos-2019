@@ -10,12 +10,12 @@ namespace SocialPoint.Multiplayer
         NetworkConnection[] _conns;
         int _channelId;
 
-        public UnetNetworkMessage(NetworkMessageInfo info, NetworkConnection[] conns)
+        public UnetNetworkMessage(NetworkMessageData data, NetworkConnection[] conns)
         {
-            _channelId = info.ChannelId;
+            _channelId = data.ChannelId;
             _conns = conns;
             _writer = new NetworkWriter();
-            _writer.StartMessage((short)(MsgType.Highest + 1 + info.MessageType));
+            _writer.StartMessage((short)(MsgType.Highest + 1 + data.MessageType));
             Writer = new UnetNetworkWriter(_writer);
         }
 

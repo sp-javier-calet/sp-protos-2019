@@ -21,11 +21,11 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void ReceivedNetworkMessageData()
         {
-            var msg = new LocalNetworkMessage(new NetworkMessageInfo{}, new LocalNetworkClient[0]);
+            var msg = new LocalNetworkMessage(new NetworkMessageData{}, new LocalNetworkClient[0]);
             msg.Writer.Write("test");
             msg.Send();
-            var rmsg = msg.Receive();
-            Assert.That(rmsg.Reader.ReadString() == "test");
+            var reader = msg.Receive();
+            Assert.That(reader.ReadString() == "test");
         }
 
     }

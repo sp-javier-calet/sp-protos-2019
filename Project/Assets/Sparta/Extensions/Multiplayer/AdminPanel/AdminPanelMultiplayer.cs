@@ -209,7 +209,7 @@ namespace SocialPoint.Multiplayer
                 else
                 {
                     Log("sending message from server to client of type " + type + " through channel " + chan);
-                    msg = _server.CreateMessage(new NetworkMessageInfo{
+                    msg = _server.CreateMessage(new NetworkMessageData{
                         MessageType = type,
                         ChannelId = chan
                     });
@@ -224,7 +224,7 @@ namespace SocialPoint.Multiplayer
                 else
                 {
                     Log("sending message from client to server of type " + type + " through channel " + chan);
-                    msg = _client.CreateMessage(new NetworkMessageInfo{
+                    msg = _client.CreateMessage(new NetworkMessageData{
                         MessageType = type,
                         ChannelId = chan
                     });
@@ -266,9 +266,9 @@ namespace SocialPoint.Multiplayer
             UpdateOpClient();
         }
 
-        void INetworkClientDelegate.OnMessageReceived(ReceivedNetworkMessage msg)
+        void INetworkClientDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            Log("client received message of type " + msg.MessageType + " through channel " + msg.ChannelId);
+            Log("client received message of type " + data.MessageType + " through channel " + data.ChannelId);
         }
 
         void INetworkClientDelegate.OnError(SocialPoint.Base.Error err)
@@ -304,9 +304,9 @@ namespace SocialPoint.Multiplayer
             Log("server disconnected from client "+clientId);
         }
 
-        void INetworkServerDelegate.OnMessageReceived(byte clientId, ReceivedNetworkMessage msg)
+        void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            Log("server received message from client "+clientId+" of type " + msg.MessageType + " through channel " + msg.ChannelId);
+            Log("server received message from client "+data.ClientId+" of type " + data.MessageType + " through channel " + data.ChannelId);
         }
 
         void INetworkServerDelegate.OnError(SocialPoint.Base.Error err)

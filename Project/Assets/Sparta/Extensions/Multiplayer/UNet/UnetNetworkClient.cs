@@ -9,12 +9,21 @@ namespace SocialPoint.Multiplayer
 {
     public class UnetNetworkClient : INetworkClient, IDisposable
     {
+        INetworkMessageReceiver _receiver;
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         NetworkClient _client;
         string _serverAddr;
         int _serverPort;
 
         public const string DefaultServerAddr = "localhost";
+
+        public bool Connected
+        {
+            get
+            {
+                return _client != null && _client.isConnected;
+            }
+        }
 
         public UnetNetworkClient(string serverAddr=null, int serverPort=UnetNetworkServer.DefaultPort, HostTopology topology=null)
         {
@@ -41,14 +50,15 @@ namespace SocialPoint.Multiplayer
             _client = null;
             _delegates.Clear();
             _delegates = null;
+            _receiver = null;
         }
             
         void RegisterHandlers()
         {
             UnregisterHandlers();
-            _client.RegisterHandler(MsgType.Connect, OnConnectReceived);
-            _client.RegisterHandler(MsgType.Disconnect, OnDisconnectReceived);
-            _client.RegisterHandler(MsgType.Error, OnErrorReceived);
+            _client.RegisterHandler(UnityEngine.Networking.MsgType.Connect, OnConnectReceived);
+            _client.RegisterHandler(UnityEngine.Networking.MsgType.Disconnect, OnDisconnectReceived);
+            _client.RegisterHandler(UnityEngine.Networking.MsgType.Error, OnErrorReceived);
             for(byte i = MsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _client.RegisterHandler(i, OnMessageReceived);
@@ -57,9 +67,9 @@ namespace SocialPoint.Multiplayer
 
         void UnregisterHandlers()
         {
-            _client.UnregisterHandler(MsgType.Connect);
-            _client.UnregisterHandler(MsgType.Disconnect);
-            _client.UnregisterHandler(MsgType.Error);
+            _client.UnregisterHandler(UnityEngine.Networking.MsgType.Connect);
+            _client.UnregisterHandler(UnityEngine.Networking.MsgType.Disconnect);
+            _client.UnregisterHandler(UnityEngine.Networking.MsgType.Error);
             for(byte i = MsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _client.RegisterHandler(i, OnMessageReceived);
@@ -94,17 +104,23 @@ namespace SocialPoint.Multiplayer
 
         void OnMessageReceived(NetworkMessage umsg)
         {
-            byte type = UnetNetworkMessage.ConvertType(umsg.msgType);
-            var msg = new ReceivedNetworkMessage(type, umsg.channelId, new UnetNetworkReader(umsg.reader));
+            var data = new NetworkMessageData {
+                MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
+                ChannelId = umsg.channelId,
+            };                
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(data, new UnetNetworkReader(umsg.reader));
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(msg);
+                _delegates[i].OnMessageReceived(data);
             }
         }
 
         public void Connect()
         {
-            if(_client.isConnected)
+            if(Connected)
             {
                 return;
             }
@@ -124,7 +140,7 @@ namespace SocialPoint.Multiplayer
             _client.Disconnect();
         }
 
-        public INetworkMessage CreateMessage(NetworkMessageInfo info)
+        public INetworkMessage CreateMessage(NetworkMessageData info)
         {
             return new UnetNetworkMessage(info, new NetworkConnection[]{_client.connection});
         }
@@ -132,6 +148,10 @@ namespace SocialPoint.Multiplayer
         public void AddDelegate(INetworkClientDelegate dlg)
         {
             _delegates.Add(dlg);
+            if(Connected && dlg != null)
+            {
+                dlg.OnConnected();
+            }
         }
 
         public void RemoveDelegate(INetworkClientDelegate dlg)
@@ -139,5 +159,9 @@ namespace SocialPoint.Multiplayer
             _delegates.Remove(dlg);
         }
 
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
+        }
     }
 }
