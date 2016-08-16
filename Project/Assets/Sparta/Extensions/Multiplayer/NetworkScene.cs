@@ -94,12 +94,11 @@ namespace SocialPoint.Multiplayer
 
         public IEnumerator<NetworkGameObject> GetObjectEnumerator()
         {
-            var itr = _objects.GetEnumerator();
-            while(itr.MoveNext())
+            var objects = new List<NetworkGameObject>(_objects.Values);
+            for(var i=0; i<objects.Count; i++)
             {
-                yield return itr.Current.Value;
+                yield return objects[i];
             }
-            itr.Dispose();
         }
 
         static bool EqualObjects(Dictionary<int,NetworkGameObject> a, Dictionary<int,NetworkGameObject> b)

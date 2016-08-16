@@ -11,6 +11,10 @@ namespace SocialPoint.Multiplayer
         void OnClientDisconnected(byte clientId);
     }
 
+    public interface INetworkServerSceneReceiver : INetworkServerSceneBehaviour, INetworkMessageReceiver
+    {
+    }
+
     public class NetworkServerSceneController : INetworkServerDelegate, INetworkMessageReceiver, IDisposable
     {
         NetworkScene _scene;
@@ -22,7 +26,7 @@ namespace SocialPoint.Multiplayer
         List<INetworkServerSceneBehaviour> _sceneBehaviours;
         Dictionary<int,List<INetworkBehaviour>> _behaviours;
         Dictionary<string,List<INetworkBehaviour>> _behaviourPrototypes;
-        INetworkMessageReceiver _receiver;
+        INetworkServerSceneReceiver _receiver;
 
         public NetworkScene Scene
         {
@@ -57,7 +61,7 @@ namespace SocialPoint.Multiplayer
             _server.RegisterReceiver(this);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _server.RemoveDelegate(this);
             _server.RegisterReceiver(null);
@@ -106,8 +110,19 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        public void RegisterReceiver(INetworkServerSceneReceiver receiver)
         {
+            if(receiver == null)
+            {
+                _sceneBehaviours.Remove(_receiver);
+            }
+            else
+            {
+                if(!_sceneBehaviours.Contains(receiver))
+                {
+                    _sceneBehaviours.Add(receiver);
+                }
+            }
             _receiver = receiver;
         }
 
@@ -115,12 +130,22 @@ namespace SocialPoint.Multiplayer
         {
             _scene = new NetworkScene();
             _oldScene = new NetworkScene();
+            OnServerStarted();
         }
 
+        virtual protected void OnServerStarted()
+        {
+        }
+            
         void INetworkServerDelegate.OnStopped()
         {
             _scene = null;
             _oldScene = null;
+            OnServerStopped();
+        }
+
+        virtual protected void OnServerStopped()
+        {
         }
 
         public void Update(float dt)

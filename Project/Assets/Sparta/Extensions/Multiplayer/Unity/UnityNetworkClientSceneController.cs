@@ -10,16 +10,16 @@ namespace SocialPoint.Multiplayer
         void Update(float dt);
         void OnDestroy();
     }
-
+        
     public class UnityNetworkClientSceneController : NetworkClientSceneController
     {
         Dictionary<string,GameObject> _prefabs = new Dictionary<string,GameObject>();
         Dictionary<int,GameObject> _objects = new Dictionary<int,GameObject>();
-        UnityEngine.Transform _parent;
+        string _parentTag;
 
-        public UnityNetworkClientSceneController(INetworkClient client, UnityEngine.Transform parent):base(client)
+        public UnityNetworkClientSceneController(INetworkClient client, string parentTag=null):base(client)
         {
-            _parent = parent;
+            _parentTag = parentTag;
         }
 
         protected override void UpdateObjectView(int objectId, Transform t)
@@ -40,8 +40,20 @@ namespace SocialPoint.Multiplayer
             {
                 prefab = Resources.Load(ev.PrefabName) as GameObject;
                 _prefabs[ev.PrefabName] = prefab;
-            }           
-            var go =  SocialPoint.ObjectPool.ObjectPool.Spawn(prefab, _parent,
+            }
+
+            UnityEngine.Transform parent = null;
+            if(!string.IsNullOrEmpty(_parentTag))
+            {
+                // should be cached
+                var parentGo = GameObject.FindGameObjectWithTag(_parentTag);
+                if(parentGo != null)
+                {
+                    parent = parentGo.transform;
+                }
+            }
+
+            var go =  SocialPoint.ObjectPool.ObjectPool.Spawn(prefab, parent,
                 ev.Transform.Position.ToUnity(), ev.Transform.Rotation.ToUnity());
             _objects[ev.ObjectId] = go;
         }

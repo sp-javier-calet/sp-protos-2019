@@ -4,6 +4,16 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Multiplayer
 {
+    public interface INetworkClientSceneBehaviour
+    {
+        void OnInstantiateObject(int id, Transform t);
+        void OnDestroyObject(int id);
+    }
+
+    public interface INetworkClientSceneReceiver : INetworkClientSceneBehaviour, INetworkMessageReceiver
+    {
+    }
+
     public class NetworkClientSceneController : INetworkClientDelegate, INetworkMessageReceiver, IDisposable
     {
         INetworkClient _client;
@@ -11,7 +21,8 @@ namespace SocialPoint.Multiplayer
         IParser<NetworkScene> _sceneParser;
         IParser<InstantiateNetworkGameObjectEvent> _instParser;
         IParser<DestroyNetworkGameObjectEvent> _destParser;
-        INetworkMessageReceiver _receiver;
+        INetworkClientSceneReceiver _receiver;
+        List<INetworkClientSceneBehaviour> _sceneBehaviours;
 
         public NetworkClientSceneController(INetworkClient client)
         {
@@ -21,9 +32,10 @@ namespace SocialPoint.Multiplayer
             _sceneParser = new NetworkGameSceneParser();
             _instParser = new InstantiateNetworkGameObjectEventParser();
             _destParser = new DestroyNetworkGameObjectEventParser();
+            _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _client.RemoveDelegate(this);
             _client.RegisterReceiver(null);
@@ -71,11 +83,19 @@ namespace SocialPoint.Multiplayer
             else if(data.MessageType == SceneMsgType.InstantiateObjectEvent)
             {
                 var ev = _instParser.Parse(reader);
+                for(var i = 0; i < _sceneBehaviours.Count; i++)
+                {
+                    _sceneBehaviours[i].OnInstantiateObject(ev.ObjectId, ev.Transform);
+                }
                 InstantiateObjectView(ev);
             }
             else if(data.MessageType == SceneMsgType.DestroyObjectEvent)
             {
                 var ev = _destParser.Parse(reader);
+                for(var i = 0; i < _sceneBehaviours.Count; i++)
+                {
+                    _sceneBehaviours[i].OnDestroyObject(ev.ObjectId);
+                }
                 DestroyObjectView(ev);
             }
             else
@@ -103,9 +123,30 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        public void RegisterReceiver(INetworkClientSceneReceiver receiver)
         {
+            if(receiver == null)
+            {
+                _sceneBehaviours.Remove(_receiver);
+            }
+            else
+            {
+                if(!_sceneBehaviours.Contains(receiver))
+                {
+                    _sceneBehaviours.Add(receiver);
+                }
+            }
             _receiver = receiver;
+        }
+
+        public void AddBehaviour(INetworkClientSceneBehaviour behaviour)
+        {
+            _sceneBehaviours.Add(behaviour);
+        }
+
+        public void RemoveBehaviour(INetworkClientSceneBehaviour behaviour)
+        {
+            _sceneBehaviours.Remove(behaviour);
         }
 
     }
