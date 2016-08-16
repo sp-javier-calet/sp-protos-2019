@@ -1,4 +1,5 @@
 ﻿using SocialPoint.IO;
+using SocialPoint.Utils;
 using System;
 
 namespace SocialPoint.Multiplayer
@@ -28,18 +29,21 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
-            var v = (Quaternion)obj;
-            return x == v.x && y == v.y && z == v.z && w == v.w;
+            return this == (Quaternion)obj;
         }
 
         public bool Equals(Quaternion v)
         {             
-            return x == v.x && y == v.y && z == v.z && w == v.w;
+            return this == v;
         }
 
         public override int GetHashCode()
         {
-            return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode() ^ w.GetHashCode();
+            var hash = x.GetHashCode();
+            hash = CryptographyUtils.HashCombine(hash, y.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, z.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, w.GetHashCode());
+            return hash;
         }
 
         public static bool operator ==(Quaternion a, Quaternion b)

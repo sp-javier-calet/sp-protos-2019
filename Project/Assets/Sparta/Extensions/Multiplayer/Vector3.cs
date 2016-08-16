@@ -1,4 +1,5 @@
 ﻿using SocialPoint.IO;
+using SocialPoint.Utils;
 using System;
 
 namespace SocialPoint.Multiplayer
@@ -25,18 +26,20 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
-            var v = (Vector3)obj;
-            return x == v.x && y == v.y && z == v.z;
+            return this == (Vector3)obj;
         }
 
         public bool Equals(Vector3 v)
         {             
-            return x == v.x && y == v.y && z == v.z;
+            return this == v;
         }
 
         public override int GetHashCode()
         {
-            return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode();
+            var hash = x.GetHashCode();
+            hash = CryptographyUtils.HashCombine(hash, y.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, z.GetHashCode());
+            return hash;
         }
 
         public static bool operator ==(Vector3 a, Vector3 b)
