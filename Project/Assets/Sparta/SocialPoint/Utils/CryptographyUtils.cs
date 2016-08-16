@@ -26,5 +26,11 @@ namespace SocialPoint.Utils
             }
             return hashString.ToString();
         }
+
+        public static int HashCombine(int combined, int hash)
+        {
+            // This is based on boost::hash_combine
+            return combined ^ (hash + 486187739 + (combined << 6) + (combined >> 2));
+        }
     }
 }
