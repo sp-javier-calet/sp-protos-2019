@@ -25,7 +25,7 @@ namespace SocialPoint.Multiplayer
             _server.Start();
 
             WaitForEvents();
-            sdlg.Received(1).OnStarted();
+            sdlg.Received(1).OnServerStarted();
 
             _client.Connect();
             _client.Connect();
@@ -43,7 +43,7 @@ namespace SocialPoint.Multiplayer
             _server.Stop();
 
             WaitForEvents();
-            sdlg.Received(1).OnStopped();
+            sdlg.Received(1).OnServerStopped();
         }
 
         [Test]
@@ -59,13 +59,13 @@ namespace SocialPoint.Multiplayer
             _client.Connect();
 
             WaitForEvents();
-            cdlg.Received(1).OnConnected();
+            cdlg.Received(1).OnClientConnected();
 
             _client.Disconnect();
             _client.Disconnect();
 
             WaitForEvents();
-            cdlg.Received(1).OnDisconnected();
+            cdlg.Received(1).OnClientDisconnected();
         }
 
         [Test]
@@ -166,13 +166,13 @@ namespace SocialPoint.Multiplayer
             _client.Connect();
 
             WaitForEvents();
-            cdlg.Received(0).OnConnected();
+            cdlg.Received(0).OnClientConnected();
             sdlg.Received(0).OnClientConnected(Arg.Any<byte>());
 
             _server.Start();
 
             WaitForEvents();
-            cdlg.Received(1).OnConnected();
+            cdlg.Received(1).OnClientConnected();
             sdlg.Received(1).OnClientConnected(Arg.Any<byte>());
         }
 
@@ -189,7 +189,7 @@ namespace SocialPoint.Multiplayer
             _server.Stop();
 
             WaitForEvents();
-            cdlg.Received(1).OnDisconnected();
+            cdlg.Received(1).OnClientDisconnected();
             sdlg.Received(1).OnClientDisconnected(Arg.Any<byte>());
         }
 
@@ -201,7 +201,7 @@ namespace SocialPoint.Multiplayer
             _server.AddDelegate(sdlg);
 
             WaitForEvents();
-            sdlg.Received(1).OnStarted();
+            sdlg.Received(1).OnServerStarted();
         }
 
         [Test]
@@ -213,7 +213,7 @@ namespace SocialPoint.Multiplayer
             _client.AddDelegate(cdlg);
 
             WaitForEvents();
-            cdlg.Received(1).OnConnected();
+            cdlg.Received(1).OnClientConnected();
         }
 
     }

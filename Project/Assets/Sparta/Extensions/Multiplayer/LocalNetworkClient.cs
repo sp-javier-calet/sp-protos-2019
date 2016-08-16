@@ -29,7 +29,7 @@ namespace SocialPoint.Multiplayer
                 Connected = true;
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _delegates[i].OnConnected();
+                    _delegates[i].OnClientConnected();
                 }
             }
             _server.OnClientConnecting(this);
@@ -45,7 +45,7 @@ namespace SocialPoint.Multiplayer
             _server.OnClientDisconnected(this);
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnDisconnected();
+                _delegates[i].OnClientDisconnected();
             }
         }
 
@@ -95,7 +95,7 @@ namespace SocialPoint.Multiplayer
             _delegates.Add(dlg);
             if(Connected && dlg != null)
             {
-                dlg.OnConnected();
+                dlg.OnClientConnected();
             }
         }
 

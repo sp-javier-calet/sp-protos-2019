@@ -7,12 +7,12 @@ namespace SocialPoint.Multiplayer
      */
     public interface INetworkServerDelegate
     {
-        void OnStarted();
-        void OnStopped();
+        void OnServerStarted();
+        void OnServerStopped();
         void OnClientConnected(byte clientId);
         void OnClientDisconnected(byte clientId);
         void OnMessageReceived(NetworkMessageData data);
-        void OnError(Error err);
+        void OnNetworkError(Error err);
     }
 
     public interface INetworkServer

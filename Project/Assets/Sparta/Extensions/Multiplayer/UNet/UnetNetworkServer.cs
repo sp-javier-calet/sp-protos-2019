@@ -56,7 +56,7 @@ namespace SocialPoint.Multiplayer
             Running = true;
             for(var i = 0; i < _delegates.Count; i++)
             {                
-                _delegates[i].OnStarted();
+                _delegates[i].OnServerStarted();
             }
         }
 
@@ -74,7 +74,7 @@ namespace SocialPoint.Multiplayer
             Running = false;
             for(var i = 0; i < _delegates.Count; i++)
             {                
-                _delegates[i].OnStopped();
+                _delegates[i].OnServerStopped();
             }
         }
 
@@ -130,7 +130,7 @@ namespace SocialPoint.Multiplayer
             var err = new Error(errMsg.errorCode, errMsg.ToString());
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnError(err);
+                _delegates[i].OnNetworkError(err);
             }
         }
 
@@ -176,7 +176,7 @@ namespace SocialPoint.Multiplayer
             _delegates.Add(dlg);
             if(Running && dlg != null)
             {
-                dlg.OnStarted();
+                dlg.OnServerStarted();
             }
         }
 
