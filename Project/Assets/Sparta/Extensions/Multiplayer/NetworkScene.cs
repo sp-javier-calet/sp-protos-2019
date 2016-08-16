@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 using System.Collections;
 using System;
 
@@ -101,7 +102,12 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        static bool EqualObjects(Dictionary<int,NetworkGameObject> a, Dictionary<int,NetworkGameObject> b)
+        static bool Compare(NetworkScene a, NetworkScene b)
+        {
+            return CompareObjects(a._objects, b._objects);
+        }
+
+        static bool CompareObjects(Dictionary<int,NetworkGameObject> a, Dictionary<int,NetworkGameObject> b)
         {
             var na = (object)a == null;
             var nb = (object)b == null;
@@ -145,19 +151,19 @@ namespace SocialPoint.Multiplayer
             {
                 return false;
             }
-            return EqualObjects(_objects, scene._objects);
+            return Compare(this, scene);
         }
 
         public override int GetHashCode()
         {
-            int code = 0;
+            int hash = 0;
             var itr = _objects.GetEnumerator();
             while(itr.MoveNext())
             {
-                code ^= itr.Current.Value.GetHashCode();
+                hash = CryptographyUtils.HashCombine(hash, itr.Current.Value.GetHashCode());
             }
             itr.Dispose();
-            return code;
+            return hash;
         }
 
         public static bool operator ==(NetworkScene a, NetworkScene b)
@@ -172,7 +178,7 @@ namespace SocialPoint.Multiplayer
             {
                 return false;
             }
-            return EqualObjects(a._objects, b._objects);
+            return Compare(a, b);
         }
 
         public static bool operator !=(NetworkScene a, NetworkScene b)

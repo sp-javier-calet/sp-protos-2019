@@ -46,12 +46,12 @@ namespace SocialPoint.Multiplayer
             return _scene == scene;
         }
 
-        void INetworkClientDelegate.OnConnected()
+        void INetworkClientDelegate.OnClientConnected()
         {
             _scene = null;
         }
 
-        void INetworkClientDelegate.OnDisconnected()
+        void INetworkClientDelegate.OnClientDisconnected()
         {
             _scene = null;
         }
@@ -119,7 +119,7 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void INetworkClientDelegate.OnError(SocialPoint.Base.Error err)
+        void INetworkClientDelegate.OnNetworkError(SocialPoint.Base.Error err)
         {
         }
 

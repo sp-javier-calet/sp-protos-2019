@@ -126,26 +126,26 @@ namespace SocialPoint.Multiplayer
             _receiver = receiver;
         }
 
-        void INetworkServerDelegate.OnStarted()
+        void INetworkServerDelegate.OnServerStarted()
         {
-            _scene = new NetworkScene();
-            _oldScene = new NetworkScene();
             OnServerStarted();
         }
 
         virtual protected void OnServerStarted()
         {
+            _scene = new NetworkScene();
+            _oldScene = new NetworkScene();
         }
             
-        void INetworkServerDelegate.OnStopped()
+        void INetworkServerDelegate.OnServerStopped()
         {
-            _scene = null;
-            _oldScene = null;
             OnServerStopped();
         }
 
         virtual protected void OnServerStopped()
         {
+            _scene = null;
+            _oldScene = null;
         }
 
         public void Update(float dt)
@@ -289,7 +289,7 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void INetworkServerDelegate.OnError(SocialPoint.Base.Error err)
+        void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)
         {
         }
 

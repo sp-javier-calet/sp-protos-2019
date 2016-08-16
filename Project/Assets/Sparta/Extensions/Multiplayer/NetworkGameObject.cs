@@ -1,4 +1,5 @@
 ﻿using SocialPoint.IO;
+using SocialPoint.Utils;
 using System;
 
 namespace SocialPoint.Multiplayer
@@ -54,7 +55,9 @@ namespace SocialPoint.Multiplayer
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode() ^ Transform.GetHashCode();
+            var hash = Id.GetHashCode();
+            hash = CryptographyUtils.HashCombine(hash, Transform.GetHashCode());
+            return hash;
         }
 
         public static bool operator ==(NetworkGameObject a, NetworkGameObject b)
