@@ -21,7 +21,7 @@ namespace SocialPoint.Multiplayer
             Running = true;
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnStarted();
+                _delegates[i].OnServerStarted();
             }
             var clients = new List<LocalNetworkClient>(_clients.Keys);
             var itr = clients.GetEnumerator();
@@ -41,7 +41,7 @@ namespace SocialPoint.Multiplayer
             Running = false;
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnStopped();
+                _delegates[i].OnServerStopped();
             }
             var clients = new List<LocalNetworkClient>(_clients.Keys);
             var itr = clients.GetEnumerator();
@@ -150,7 +150,7 @@ namespace SocialPoint.Multiplayer
             _delegates.Add(dlg);
             if(Running && dlg != null)
             {
-                dlg.OnStarted();
+                dlg.OnServerStarted();
             }
         }
 
