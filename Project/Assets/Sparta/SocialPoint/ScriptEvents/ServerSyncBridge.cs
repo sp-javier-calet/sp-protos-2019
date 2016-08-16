@@ -66,7 +66,7 @@ namespace SocialPoint.ScriptEvents
         IScriptEventsBridge
     {
         
-        EventDispatcher _dispatcher;
+        IEventDispatcher _dispatcher;
         ICommandQueue _queue;
 
         public ServerSyncBridge(ICommandQueue queue)
@@ -77,7 +77,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Load(IEventDispatcher dispatcher)
         {
-            _dispatcher = dispatcher as EventDispatcher;
+            _dispatcher = dispatcher;
             _dispatcher.AddListener<ServerCommandAction>(OnCommandAction);
         }
 

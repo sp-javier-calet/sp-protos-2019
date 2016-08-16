@@ -110,7 +110,7 @@ namespace SocialPoint.ScriptEvents
         IEventsBridge,
         IScriptEventsBridge
     {
-        EventDispatcher _dispatcher;
+        IEventDispatcher _dispatcher;
         IScriptEventDispatcher _scriptDispatcher;
         IParser<ScriptModel> _scriptParser;
         ICoroutineRunner _runner;
@@ -131,7 +131,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Load(IEventDispatcher dispatcher)
         {
-            _dispatcher = dispatcher as EventDispatcher;
+            _dispatcher = dispatcher;
             _dispatcher.AddListener<RunScriptAction>(OnRunScriptAction);
             _dispatcher.AddListener<LogAction>(OnLogAction);
             _dispatcher.AddListener<WaitAction>(OnWaitAction);

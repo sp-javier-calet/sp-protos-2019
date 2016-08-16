@@ -32,7 +32,7 @@ namespace SocialPoint.ScriptEvents
         IScriptEventsBridge
     {
 
-        EventDispatcher _dispatcher;
+        IEventDispatcher _dispatcher;
         IEventTracker _tracker;
 
         public ServerEventsBridge(IEventTracker tracker)
@@ -42,7 +42,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Load(IEventDispatcher dispatcher)
         {
-            _dispatcher = dispatcher as EventDispatcher;
+            _dispatcher = dispatcher;
             _dispatcher.AddListener<ServerTrackAction>(OnTrackAction);
         }
 

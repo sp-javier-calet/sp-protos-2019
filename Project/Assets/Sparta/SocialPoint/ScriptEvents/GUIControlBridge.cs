@@ -81,7 +81,7 @@ namespace SocialPoint.ScriptEvents
         IEventsBridge,
         IScriptEventsBridge
     {
-        EventDispatcher _dispatcher;
+        IEventDispatcher _dispatcher;
 
         public GUIControlBridge()
         {
@@ -99,7 +99,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Load(IEventDispatcher dispatcher)
         {
-            _dispatcher = dispatcher as EventDispatcher;
+            _dispatcher = dispatcher;
         }
 
         public void Dispose()

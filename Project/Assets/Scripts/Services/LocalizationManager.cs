@@ -6,14 +6,14 @@ using SocialPoint.ScriptEvents;
 
 public class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {
-    readonly EventDispatcher _dispatcher;
+    readonly IEventDispatcher _dispatcher;
     LocalizeAttributeConfiguration _localizeAttributeConfig;
 
     public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale, LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher) :
         base(client, appInfo, locale)
     {
         _localizeAttributeConfig = attrConfig;
-        _dispatcher = dispatcher as EventDispatcher;
+        _dispatcher = dispatcher;
         _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
         _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
     }

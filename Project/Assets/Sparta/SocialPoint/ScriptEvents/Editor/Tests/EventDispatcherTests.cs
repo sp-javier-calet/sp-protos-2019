@@ -64,7 +64,7 @@ namespace SocialPoint.ScriptEvents
             };
 
             _dispatcher.AddListener<TestEvent>(dlg);
-            _dispatcher.RemoveListener(dlg);
+            Assert.IsTrue(_dispatcher.RemoveListener(dlg));
             
             _dispatcher.Raise(_testEvent);
             
@@ -80,7 +80,7 @@ namespace SocialPoint.ScriptEvents
             };
             
             _dispatcher.AddDefaultListener(dlg);
-            _dispatcher.RemoveDefaultListener(dlg);
+            Assert.IsTrue(_dispatcher.RemoveDefaultListener(dlg));
             
             _dispatcher.Raise(_testEvent);
             
