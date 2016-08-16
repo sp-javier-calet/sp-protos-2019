@@ -1,5 +1,6 @@
 ﻿
 using SocialPoint.IO;
+using SocialPoint.Utils;
 using System.IO;
 
 namespace SocialPoint.Multiplayer
@@ -28,7 +29,10 @@ namespace SocialPoint.Multiplayer
 
         public override int GetHashCode()
         {
-            return MessageType.GetHashCode() ^ ChannelId.GetHashCode() ^ ClientId.GetHashCode();
+            int hash = MessageType.GetHashCode();
+            hash = CryptographyUtils.HashCombine(hash, ChannelId.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, ClientId.GetHashCode());
+            return hash;
         }
 
         public static bool operator ==(NetworkMessageData a, NetworkMessageData b)

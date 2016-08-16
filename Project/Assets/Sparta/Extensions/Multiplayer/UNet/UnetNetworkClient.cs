@@ -80,7 +80,7 @@ namespace SocialPoint.Multiplayer
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnConnected();
+                _delegates[i].OnClientConnected();
             }
         }
 
@@ -88,7 +88,7 @@ namespace SocialPoint.Multiplayer
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnDisconnected();
+                _delegates[i].OnClientDisconnected();
             }
         }
 
@@ -98,7 +98,7 @@ namespace SocialPoint.Multiplayer
             var err = new Error(errMsg.errorCode, errMsg.ToString());
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnError(err);
+                _delegates[i].OnNetworkError(err);
             }
         }
 
@@ -150,7 +150,7 @@ namespace SocialPoint.Multiplayer
             _delegates.Add(dlg);
             if(Connected && dlg != null)
             {
-                dlg.OnConnected();
+                dlg.OnClientConnected();
             }
         }
 

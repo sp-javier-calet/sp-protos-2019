@@ -5,10 +5,10 @@ namespace SocialPoint.Multiplayer
 {
     public interface INetworkClientDelegate
     {
-        void OnConnected();
-        void OnDisconnected();
+        void OnClientConnected();
+        void OnClientDisconnected();
         void OnMessageReceived(NetworkMessageData data);
-        void OnError(Error err);
+        void OnNetworkError(Error err);
     }
 
     public interface INetworkClient

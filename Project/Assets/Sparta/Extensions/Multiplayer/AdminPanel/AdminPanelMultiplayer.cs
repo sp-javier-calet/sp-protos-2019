@@ -252,14 +252,14 @@ namespace SocialPoint.Multiplayer
 
         #region INetworkClientDelegate implementation
 
-        void INetworkClientDelegate.OnConnected()
+        void INetworkClientDelegate.OnClientConnected()
         {
             Log("client connected");
             _clientRunning = true;
             UpdateOpClient();
         }
 
-        void INetworkClientDelegate.OnDisconnected()
+        void INetworkClientDelegate.OnClientDisconnected()
         {
             Log("client disconnected");
             _clientRunning = false;
@@ -271,7 +271,7 @@ namespace SocialPoint.Multiplayer
             Log("client received message of type " + data.MessageType + " through channel " + data.ChannelId);
         }
 
-        void INetworkClientDelegate.OnError(SocialPoint.Base.Error err)
+        void INetworkClientDelegate.OnNetworkError(SocialPoint.Base.Error err)
         {
             Log("client got error " + err.ToString());
         }
@@ -280,14 +280,14 @@ namespace SocialPoint.Multiplayer
 
         #region INetworkServerDelegate implementation
 
-        void INetworkServerDelegate.OnStarted()
+        void INetworkServerDelegate.OnServerStarted()
         {
             Log("server started");
             _serverRunning = true;
             UpdateOpServer();
         }
 
-        void INetworkServerDelegate.OnStopped()
+        void INetworkServerDelegate.OnServerStopped()
         {
             Log("server stopped");
             _serverRunning = false;
@@ -309,7 +309,7 @@ namespace SocialPoint.Multiplayer
             Log("server received message from client "+data.ClientId+" of type " + data.MessageType + " through channel " + data.ChannelId);
         }
 
-        void INetworkServerDelegate.OnError(SocialPoint.Base.Error err)
+        void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)
         {
             Log("server got error " + err.ToString());
         }

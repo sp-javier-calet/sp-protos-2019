@@ -1,4 +1,5 @@
 ﻿using SocialPoint.IO;
+using SocialPoint.Utils;
 using System;
 
 namespace SocialPoint.Multiplayer
@@ -89,7 +90,10 @@ namespace SocialPoint.Multiplayer
 
         public override int GetHashCode()
         {
-            return Position.GetHashCode() ^ Rotation.GetHashCode() ^ Size.GetHashCode();
+            var hash = Position.GetHashCode();
+            hash = CryptographyUtils.HashCombine(hash, Rotation.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, Size.GetHashCode());
+            return hash;
         }
 
         public static Transform Identity
