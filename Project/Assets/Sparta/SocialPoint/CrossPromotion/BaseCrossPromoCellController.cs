@@ -5,7 +5,8 @@ namespace SocialPoint.CrossPromotion
 {
     public class BaseCrossPromoCellController : MonoBehaviour
     {
-        public GameObject NewGame;
+        [SerializeField]
+        protected GameObject _newGameFlag;
 
         protected int _bannerId;
         protected int _position;
@@ -14,10 +15,10 @@ namespace SocialPoint.CrossPromotion
 
 
         protected CrossPromotionManager _cpm;
-        protected BasePopupCrossPromoController _pc;
+        protected BaseCrossPromoPopupController _pc;
         protected bool _sentTrack = false;
 
-        public virtual void InitCell(CrossPromotionManager crossPromoManager, BasePopupCrossPromoController popupController, int bannerId, int position)
+        public virtual void InitCell(CrossPromotionManager crossPromoManager, BaseCrossPromoPopupController popupController, int bannerId, int position)
         {
             _cpm = crossPromoManager;
             _pc = popupController;
@@ -28,7 +29,7 @@ namespace SocialPoint.CrossPromotion
             _selfGame = bannerData.CurrentGame;
             _isNew = bannerData.ShowRibbon;
 
-            NewGame.SetActive(_isNew);
+            _newGameFlag.SetActive(_isNew);
         }
 
         public void OnClickBanner()
@@ -47,10 +48,10 @@ namespace SocialPoint.CrossPromotion
 
         private void Update()
         {
-            CheckVisibilty();
+            CheckVisibility();
         }
 
-        protected virtual void CheckVisibilty()
+        protected virtual void CheckVisibility()
         {
         }
 

@@ -22,15 +22,15 @@ namespace SocialPoint.CrossPromotion
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("CrossPromotion");
-            layout.CreateConfirmButton("Start", () => {
+            layout.CreateButton("Start", () => {
                 Start();
                 layout.Refresh();
             }, !_initialized);
-            layout.CreateConfirmButton("Reset", () => {
+            layout.CreateButton("Reset", () => {
                 Reset();
                 layout.Refresh();
             }, _initialized);
-            layout.CreateConfirmButton("OpenPopup", () => {
+            layout.CreateButton("Open Popup", () => {
                 OpenPopup();
                 layout.Refresh();
             }, _initialized);
@@ -40,7 +40,11 @@ namespace SocialPoint.CrossPromotion
         {
             Reset();
             _initialized = true;
-            TextAsset data = Resources.Load("xpromo") as TextAsset;
+            #if UNITY_ANDROID
+            TextAsset data = Resources.Load("xpromo_android") as TextAsset;
+            #else
+            TextAsset data = Resources.Load("xpromo_ios") as TextAsset;
+            #endif
             AttrDic attr = new JsonAttrParser().Parse(data.bytes).AssertDic;
             _xpromo.Init(attr.Get("xpromo").AsDic);
             _xpromo.Start();
