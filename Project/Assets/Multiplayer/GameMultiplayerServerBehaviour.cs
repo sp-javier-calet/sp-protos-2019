@@ -12,6 +12,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     ISerializer<ExplosionEvent> _explSerializer;
     Dictionary<int,int> _updateTimes;
 
+    float _moveInterval = 1.0f;
+    float _timeSinceLastMove = 0.0f;
+    int _maxUpdateTimes = 3;
+    Vector3 _movement;
+
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
     {
         _server = server;
@@ -20,16 +25,13 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _controller = ctrl;
         _controller.RegisterReceiver(this);
         _updateTimes = new Dictionary<int,int>();
+        _movement = new Vector3(2.0f, 0.0f, 2.0f);
     }
 
     public void Dispose()
     {
         _controller.RegisterReceiver(null);
     }
-
-    float _moveInterval = 1.0f;
-    float _timeSinceLastMove = 0.0f;
-    int _maxUpdateTimes = 3;
 
     void INetworkServerSceneBehaviour.Update(float dt, NetworkScene scene, NetworkScene oldScene)
     {
@@ -41,11 +43,17 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var itr = _controller.Scene.GetObjectEnumerator();
             while(itr.MoveNext())
             {
-                var t = itr.Current.Transform;
+                var p = itr.Current.Transform.Position;
                 var id = itr.Current.Id;
-                t.Position.x += RandomUtils.Range(-0.5f, +0.5f);
-                t.Position.z += RandomUtils.Range(-0.5f, +0.5f);
+
+                p += new Vector3(
+                    RandomUtils.Range(-_movement.x, _movement.x),
+                    RandomUtils.Range(-_movement.y, _movement.y),
+                    RandomUtils.Range(-_movement.z, _movement.z));
+
+                _controller.Tween(id, p, _moveInterval);
                 int times;
+
                 if(!_updateTimes.TryGetValue(id, out times))
                 {
                     times = 0;

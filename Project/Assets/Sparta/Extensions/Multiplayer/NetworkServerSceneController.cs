@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
@@ -88,6 +89,23 @@ namespace SocialPoint.Multiplayer
             behaviours.Add(behaviour);
         }
 
+        public void AddBehaviour(int id, INetworkBehaviour behaviour)
+        {
+            var go = Scene.FindObject(id);
+            if(go == null)
+            {
+                throw new InvalidOperationException("Could not find game object.");
+            }
+            List<INetworkBehaviour> behaviours;
+            if(!_behaviours.TryGetValue(id, out behaviours))
+            {
+                behaviours = new List<INetworkBehaviour>();
+                _behaviours[id] = behaviours;
+            }
+            behaviours.Add(behaviour);
+            behaviour.OnStart(go);
+        }
+
         public void RemoveBehaviour(INetworkBehaviour behaviour)
         {
             {
@@ -171,6 +189,7 @@ namespace SocialPoint.Multiplayer
 
         void UpdateScene(float dt)
         {
+            // apply behaviours
             var itr = _behaviours.GetEnumerator();
             while(itr.MoveNext())
             {
