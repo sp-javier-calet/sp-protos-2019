@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -221,12 +222,12 @@ namespace SocialPoint.GUIAnimation
 	    // Grid relative to area
 		Rect _gridWindow = new Rect(new Vector2(68f, 0f), new Vector2(400f, 400f));
 
-	    List<Vector2> _timeValues = new List<Vector2>()
+        List<EasePoint> _timeValues = new List<EasePoint>()
 	    {
-	        new Vector2(0.1f, 0.1f)
-	        , new Vector2(0.2f, 0.1f)
-	        , new Vector2(0.3f, 0.4f)
-	        , new Vector2(0.6f, 0.7f)
+            new EasePoint(0.1f, 0.1f)
+            , new EasePoint(0.2f, 0.1f)
+            , new EasePoint(0.3f, 0.4f)
+            , new EasePoint(0.6f, 0.7f)
 	    };
 
 	    List<TimeValueBox> _timeValuesWinData = new List<TimeValueBox>();
@@ -238,7 +239,7 @@ namespace SocialPoint.GUIAnimation
 	    bool _isInit = false;
 		System.Action _onGridTouched = null;
 
-		public List<Vector2> RenderGUI(Rect window, Rect gridWindow, List<Vector2> timeValues, System.Action onGridChanged = null)
+		public List<EasePoint> RenderGUI(Rect window, Rect gridWindow, List<EasePoint> timeValues, System.Action onGridChanged = null)
 		{
 			_window = window;
 			_gridWindow = gridWindow;
@@ -260,7 +261,7 @@ namespace SocialPoint.GUIAnimation
 	        return GetTimeValuesFromWinData();
 		}
 
-		bool AreListEquals(List<Vector2> other)
+		bool AreListEquals(List<EasePoint> other)
 		{
 			if(other.Count != _timeValues.Count)
 			{
@@ -503,8 +504,8 @@ namespace SocialPoint.GUIAnimation
 		void ResetValues()
 		{
 			_timeValues.Clear();
-			_timeValues.Add(new Vector2(0f, 0f));
-			_timeValues.Add(new Vector2(1f, 1f));
+			_timeValues.Add(new EasePoint(0f, 0f));
+            _timeValues.Add(new EasePoint(1f, 1f));
 
 			Init();
 		}
@@ -577,14 +578,14 @@ namespace SocialPoint.GUIAnimation
 	        return _gridProperties.XAxisMin + (_gridProperties.XAxisMax - _gridProperties.XAxisMin) * normalizedVal;
 	    }
 
-	    List<Vector2> GetTimeValuesFromWinData()
+	    List<EasePoint> GetTimeValuesFromWinData()
 	    {
-	        List<Vector2> newTimeValues = new List<Vector2>();
+            var newTimeValues = new List<EasePoint>();
 
 	        for (int i = 0; i < _timeValuesWinData.Count; ++i)
 	        {
 	            newTimeValues.Add(
-	                new Vector2(
+                    new EasePoint(
 	                    XPositionToValue(_timeValuesWinData[i].Window.center.x),
 	                    YPositionToValue(_timeValuesWinData[i].Window.center.y)
 	                    ));
