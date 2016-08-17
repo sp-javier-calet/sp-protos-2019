@@ -14,8 +14,8 @@ namespace SocialPoint.Multiplayer
     public struct NetworkMessageData
     {
         public byte MessageType;
-        public int ChannelId;
-        public int ClientId;
+        public byte ChannelId;
+        public byte ClientId;
 
         public override bool Equals(System.Object obj)
         {
