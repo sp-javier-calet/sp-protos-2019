@@ -138,7 +138,7 @@ namespace SocialPoint.Multiplayer
         {
             var data = new NetworkMessageData{
                 MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
-                ChannelId = umsg.channelId,
+                ChannelId = (byte)umsg.channelId,
                 ClientId = (byte)umsg.conn.connectionId
             };
             if(_receiver != null)

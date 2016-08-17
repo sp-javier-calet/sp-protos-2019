@@ -194,8 +194,8 @@ namespace SocialPoint.Multiplayer
             {
                 type = 0;
             }
-            int chan;
-            if(!int.TryParse(_msgChannel.text, out chan))
+            byte chan;
+            if(!byte.TryParse(_msgChannel.text, out chan))
             {
                 chan = 0;
             }
