@@ -56,6 +56,9 @@
 		069170631C762BED00C6B0B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 069170621C762BED00C6B0B6 /* Assets.xcassets */; };
 		069170661C762BED00C6B0B6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 069170641C762BED00C6B0B6 /* MainMenu.xib */; };
 		06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 069170211C75CADE00C6B0B6 /* SPUnityUtils.cpp */; };
+		06A2492D1D5C84B500499252 /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
+		06A2492E1D5C84D800499252 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
+		06A2492F1D5C853F00499252 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
 		06D7A6931C77189500F71393 /* SPUnityNativeUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06D7A6901C77189500F71393 /* SPUnityNativeUtils.mm */; };
 		06D7A6941C77189500F71393 /* SPUnityNativeUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06D7A6901C77189500F71393 /* SPUnityNativeUtils.mm */; };
 		4609F9671D19A97200DA8662 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4609F9661D19A97200DA8662 /* libcurl.a */; };
@@ -1280,9 +1283,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				06A2492D1D5C84B500499252 /* SPUnityBreadcrumbManager.cpp in Sources */,
+				06A2492F1D5C853F00499252 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				0691702F1C75F81100C6B0B6 /* SPUnityCurlFacade.cpp in Sources */,
 				069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */,
 				069170301C75F81100C6B0B6 /* SPUnityCurlManager.cpp in Sources */,
+				06A2492E1D5C84D800499252 /* SPUnityFileUtils.cpp in Sources */,
 				460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1439,6 +1445,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -1495,6 +1502,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
