@@ -343,28 +343,6 @@ namespace BuildReportTool
             settings.AndroidForceSDCardPermission = PlayerSettings.Android.forceSDCardPermission;
             
             settings.AndroidShowProgressBarInLoadingScreen = PlayerSettings.Android.showActivityIndicatorOnLoading.ToString();
-            
-            
-            
-            // BlackBerry only build settings
-            // ---------------------------------------------------------------
-            
-            settings.BlackBerryBuildSubtarget = EditorUserBuildSettings.blackberryBuildSubtarget.ToString();
-            settings.BlackBerryBuildType = EditorUserBuildSettings.blackberryBuildType.ToString();
-
-            settings.BlackBerryDeviceAddress = PlayerSettings.BlackBerry.deviceAddress;
-            
-            settings.BlackBerrySaveLogPath = PlayerSettings.BlackBerry.saveLogPath;
-            settings.BlackBerryTokenPath = PlayerSettings.BlackBerry.tokenPath;
-            
-            settings.BlackBerryTokenAuthor = PlayerSettings.BlackBerry.tokenAuthor;
-            settings.BlackBerryTokenExpiration = PlayerSettings.BlackBerry.tokenExpires;
-            
-            settings.BlackBerryHasCamPermissions = PlayerSettings.BlackBerry.HasCameraPermissions();
-            settings.BlackBerryHasMicPermissions = PlayerSettings.BlackBerry.HasMicrophonePermissions();
-            settings.BlackBerryHasGpsPermissions = PlayerSettings.BlackBerry.HasGPSPermissions();
-            settings.BlackBerryHasIdPermissions = PlayerSettings.BlackBerry.HasIdentificationPermissions();
-            settings.BlackBerryHasSharedPermissions = PlayerSettings.BlackBerry.HasSharedPermissions();
         }
         
         
