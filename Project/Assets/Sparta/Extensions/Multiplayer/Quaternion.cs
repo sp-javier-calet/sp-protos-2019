@@ -60,7 +60,7 @@ namespace SocialPoint.Multiplayer
         {
             get
             {
-                return new Quaternion(1.0f);
+                return new Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
             }
         }
 
