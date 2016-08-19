@@ -25,5 +25,29 @@ namespace SocialPoint.Multiplayer
             newObj.Serialize(writer);
         }
     }
+
+    public static class NetworkShareableExtensions
+    {
+        public static void SendMessage(this INetworkServer server, NetworkMessageData data, INetworkShareable obj)
+        {
+            var msg = server.CreateMessage(data);
+            obj.Serialize(msg.Writer);
+            msg.Send();
+        }
+
+        public static void SendMessage(this INetworkClient client, NetworkMessageData data, INetworkShareable obj)
+        {
+            var msg = client.CreateMessage(data);
+            obj.Serialize(msg.Writer);
+            msg.Send();
+        }
+
+        public static T Read<T>(this ReceivedNetworkMessage msg) where T : INetworkShareable, new()
+        {
+            var obj = new T();
+            obj.Deserialize(msg.Reader);
+            return obj;
+        }
+    }
     
 }
