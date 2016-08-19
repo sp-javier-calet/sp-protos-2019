@@ -1,6 +1,5 @@
 using SocialPoint.Attributes;
 using SocialPoint.ServerEvents;
-using System;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -14,14 +13,14 @@ namespace SocialPoint.ScriptEvents
     {
         const string AttrKeyName = "name";
         const string AttrKeyArguments = "args";
-        
-        public ServerTrackActionParser(): base("action.server.track")
+
+        public ServerTrackActionParser() : base("action.server.track")
         {
         }
-        
+
         override protected ServerTrackAction ParseEvent(Attr data)
         {
-            return new ServerTrackAction{
+            return new ServerTrackAction {
                 Name = data.AsDic[AttrKeyName].AsValue.ToString(),
                 Arguments = (AttrDic)data.AsDic[AttrKeyArguments].AsDic.Clone()
             };

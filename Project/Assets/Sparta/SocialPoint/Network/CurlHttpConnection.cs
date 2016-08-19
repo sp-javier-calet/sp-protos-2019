@@ -1,10 +1,8 @@
-using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using SocialPoint.Network;
 using SocialPoint.Base;
+using SocialPoint.Network;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Network
@@ -91,7 +89,7 @@ namespace SocialPoint.Network
         CURLE_SSL_CACERT_BADFILE,
         CURLE_REMOTE_FILE_NOT_FOUND,
         CURLE_SSH,
-        CURLE_SSL_SHUTDOWN_FAILED,       
+        CURLE_SSL_SHUTDOWN_FAILED,
         CURLE_AGAIN,
         CURLE_SSL_CRL_BADFILE,
         CURLE_SSL_ISSUER_ERROR,
@@ -111,7 +109,7 @@ namespace SocialPoint.Network
         byte[] _body;
         public string _headers;
         int _respCode;
-        int _connectionId;
+        readonly int _connectionId;
         bool _dataReceived;
         double _downloadSize;
         double _downloadSpeed;
@@ -149,7 +147,7 @@ namespace SocialPoint.Network
         }
 
 
-        int GetResponseErrorCode(int code)
+        static int GetResponseErrorCode(int code)
         {
             switch((CurlError)code)
             {
@@ -191,7 +189,7 @@ namespace SocialPoint.Network
 
         public HttpResponse getResponse()
         {   
-            Dictionary<string, string> headersData = new Dictionary<string, string>();
+            var headersData = new Dictionary<string, string>();
 
             if(_headers != null)
             {
@@ -210,7 +208,7 @@ namespace SocialPoint.Network
                 }
             }
 
-            HttpResponse r = new HttpResponse(_respCode, headersData);
+            var r = new HttpResponse(_respCode, headersData);
             if(_cancelled)
             {
                 r.Error = new Error((int)HttpResponse.StatusCodeType.CancelledError, "Connection was cancelled");
@@ -254,7 +252,7 @@ namespace SocialPoint.Network
                 // Uri.GetLeftPart(UriPartial.Path) returns a path with a trailing
                 // slash that  we need to remove
                 if(!string.IsNullOrEmpty(urlPath)
-                    && StringUtils.EndsWith(urlPath, kSlash))
+                   && StringUtils.EndsWith(urlPath, kSlash))
                 {
                     urlPath = urlPath.Substring(0, urlPath.Length - 1);
                 }
@@ -263,26 +261,26 @@ namespace SocialPoint.Network
                 // query string so we need to remove it to avoid ending with
                 // a  '??'' in the query string
                 if(!string.IsNullOrEmpty(queryParamsStr)
-                    && StringUtils.StartsWith(queryParamsStr, kQuestionMark))
+                   && StringUtils.StartsWith(queryParamsStr, kQuestionMark))
                 {
                     queryParamsStr = queryParamsStr.Substring(1);
                 }
             }
 
             data.Id = id;
-            data.Url = urlPath;
-            data.Query = queryParamsStr;
-            data.Method = request.Method.ToString();
+            data.Url = urlPath ?? string.Empty;
+            data.Query = queryParamsStr ?? string.Empty;
+            data.Method = request.Method.ToString() ?? string.Empty;
             data.Timeout = (int)request.Timeout;
             data.ActivityTimeout = (int)request.ActivityTimeout;
-            data.Proxy = request.Proxy;
-            data.Headers = request.ToStringHeaders();
+            data.Proxy = request.Proxy ?? string.Empty;
+            data.Headers = request.ToStringHeaders() ?? string.Empty;
             data.Body = request.Body;
             data.BodyLength = request.Body != null ? request.Body.Length : 0;
             return data;
         }
 
-        private void Send(int id, HttpRequest req)
+        void Send(int id, HttpRequest req)
         {
             var data = CreateRequestStruct(req, id);
             int ok = CurlBridge.SPUnityCurlSend(data);
@@ -292,7 +290,7 @@ namespace SocialPoint.Network
             }
         }
 
-        private void ReceiveData()
+        void ReceiveData()
         {
             _dataReceived = true;
             int bodyLength = CurlBridge.SPUnityCurlGetBodyLength(_connectionId);
@@ -302,13 +300,13 @@ namespace SocialPoint.Network
             _totalTime = CurlBridge.SPUnityCurlGetTotalTime(_connectionId);
             _downloadSize = CurlBridge.SPUnityCurlGetDownloadSize(_connectionId);
             _downloadSpeed = CurlBridge.SPUnityCurlGetDownloadSpeed(_connectionId);
-            _respCode = CurlBridge.SPUnityCurlGetResponseCode(_connectionId);            
+            _respCode = CurlBridge.SPUnityCurlGetResponseCode(_connectionId);
             _error = null;
             int errorCode = CurlBridge.SPUnityCurlGetErrorCode(_connectionId);
             if(errorCode != 0)
             {
                 int errorLength = CurlBridge.SPUnityCurlGetErrorLength(_connectionId);
-                byte[] bytes = new byte[errorLength];
+                var bytes = new byte[errorLength];
                 CurlBridge.SPUnityCurlGetError(_connectionId, bytes);
                 _error = new Error(
                     GetResponseErrorCode(errorCode),
@@ -324,14 +322,14 @@ namespace SocialPoint.Network
             _headers = String.Empty;
             if(HeadersLength > 0)
             {
-                byte[] bytes = new byte[HeadersLength];
+                var bytes = new byte[HeadersLength];
                 CurlBridge.SPUnityCurlGetHeaders(_connectionId, bytes);
                 _headers = System.Text.Encoding.ASCII.GetString(bytes);
             }
 
             CurlBridge.SPUnityCurlDestroyConn(_connectionId);
             
-            HttpResponse resp = null;
+            HttpResponse resp;
             try
             {
                 resp = getResponse();

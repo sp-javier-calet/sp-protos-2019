@@ -26,11 +26,11 @@ namespace SocialPoint.Utils
             /// <param name="title">The localized Title</param>
             /// <param name="subtitle">The localized Subtitle</param>
             /// <param name="iconPath">The icon must be 70x70 and should be placed within a StreamingAssets folder</param>
-            public ForceTouchShortcutItem(string type, string title, string subtitle = "", string iconPath = "")
+            public ForceTouchShortcutItem(string type, string title, string subtitle = null, string iconPath = null)
             {
-                Type = type;
-                Title = title;
-                Subtitle = subtitle;
+                Type = type ?? string.Empty;
+                Title = title ?? string.Empty;
+                Subtitle = subtitle ?? string.Empty;
                 IconPath = string.IsNullOrEmpty(iconPath) ? "" : string.Concat("Data/Raw/", iconPath);
             }
         };
@@ -49,7 +49,7 @@ namespace SocialPoint.Utils
         {
             return SPUnityNativeUtilsIsInstalled(appId);
         }
-        
+
         public void OpenApp(string appId)
         {
             if(IsInstalled(appId))
@@ -57,12 +57,12 @@ namespace SocialPoint.Utils
                 OpenUrl(appId);
             }
         }
-        
+
         public void OpenStore(string appId)
         {
             OpenUrl(string.Format("itms-apps://itunes.apple.com/app/id{0}", appId));
         }
-        
+
         public void OpenUrl(string url)
         {
             Application.OpenURL(url);
@@ -86,7 +86,7 @@ namespace SocialPoint.Utils
             }
         }
 
-#if UNITY_IOS && !UNITY_EDITOR
+        #if UNITY_IOS && !UNITY_EDITOR
         [DllImport("__Internal")]
         public static extern void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount);
 #endif
