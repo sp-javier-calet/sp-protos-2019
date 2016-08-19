@@ -95,7 +95,7 @@ namespace SocialPoint.Multiplayer
 
     public class Matrix4x4Serializer : ISerializer<Matrix4x4>
     {
-        Vector4Serializer _vec4 = new Vector4Serializer();
+        public static readonly Matrix4x4Serializer Instance = new Matrix4x4Serializer();
 
         public void Compare(Matrix4x4 newObj, Matrix4x4 oldObj, DirtyBits dirty)
         {
@@ -107,44 +107,47 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(Matrix4x4 newObj, IWriter writer)
         {
-            _vec4.Serialize(newObj[0], writer);
-            _vec4.Serialize(newObj[1], writer);
-            _vec4.Serialize(newObj[2], writer);
-            _vec4.Serialize(newObj[3], writer);
+            var vs = Vector4Serializer.Instance;
+            vs.Serialize(newObj[0], writer);
+            vs.Serialize(newObj[1], writer);
+            vs.Serialize(newObj[2], writer);
+            vs.Serialize(newObj[3], writer);
         }
 
         public void Serialize(Matrix4x4 newObj, Matrix4x4 oldObj, IWriter writer, DirtyBits dirty)
         {
+            var vs = Vector4Serializer.Instance;
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vec4.Serialize(newObj[0], oldObj[0], writer);
+                vs.Serialize(newObj[0], oldObj[0], writer);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vec4.Serialize(newObj[1], oldObj[1], writer);
+                vs.Serialize(newObj[1], oldObj[1], writer);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vec4.Serialize(newObj[2], oldObj[2], writer);
+                vs.Serialize(newObj[2], oldObj[2], writer);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vec4.Serialize(newObj[3], oldObj[3], writer);
+                vs.Serialize(newObj[3], oldObj[3], writer);
             }
         }
     }
 
     public class Matrix4x4Parser : IParser<Matrix4x4>
     {
-        Vector4Parser _vec4 = new Vector4Parser();
+        public static readonly Matrix4x4Parser Instance = new Matrix4x4Parser();
 
         public Matrix4x4 Parse(IReader reader)
         {
+            var vp = Vector4Parser.Instance;
             var obj = new Matrix4x4();
-            obj[0] = _vec4.Parse(reader);
-            obj[1] = _vec4.Parse(reader);
-            obj[2] = _vec4.Parse(reader);
-            obj[3] = _vec4.Parse(reader);
+            obj[0] = vp.Parse(reader);
+            obj[1] = vp.Parse(reader);
+            obj[2] = vp.Parse(reader);
+            obj[3] = vp.Parse(reader);
             return obj;
         }
 
@@ -155,21 +158,22 @@ namespace SocialPoint.Multiplayer
 
         public Matrix4x4 Parse(Matrix4x4 obj, IReader reader, DirtyBits dirty)
         {
+            var vp = Vector4Parser.Instance;
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj[0] = _vec4.Parse(obj[0], reader);
+                obj[0] = vp.Parse(obj[0], reader);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj[1] = _vec4.Parse(obj[1], reader);
+                obj[1] = vp.Parse(obj[1], reader);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj[2] = _vec4.Parse(obj[2], reader);
+                obj[2] = vp.Parse(obj[2], reader);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj[3] = _vec4.Parse(obj[3], reader);
+                obj[3] = vp.Parse(obj[3], reader);
             }
             return obj;
         }

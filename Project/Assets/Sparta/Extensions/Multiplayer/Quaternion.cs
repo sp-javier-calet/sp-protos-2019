@@ -72,6 +72,8 @@ namespace SocialPoint.Multiplayer
 
     public class QuaternionSerializer : ISerializer<Quaternion>
     {
+        public static readonly QuaternionSerializer Instance = new QuaternionSerializer();
+
         public void Compare(Quaternion newObj, Quaternion oldObj, DirtyBits dirty)
         {
             dirty.Set(newObj.x != oldObj.x);
@@ -111,6 +113,8 @@ namespace SocialPoint.Multiplayer
 
     public class QuaternionParser : IParser<Quaternion>
     {
+        public static readonly QuaternionParser Instance = new QuaternionParser();
+
         public Quaternion Parse(IReader reader)
         {
             Quaternion obj;

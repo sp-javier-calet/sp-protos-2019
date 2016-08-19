@@ -112,8 +112,7 @@ namespace SocialPoint.Multiplayer
 
     public class TransformSerializer : ISerializer<Transform>
     {
-        Vector3Serializer _vector3 = new Vector3Serializer();
-        QuaternionSerializer _quat = new QuaternionSerializer();
+        public static readonly TransformSerializer Instance = new TransformSerializer();
 
         public void Compare(Transform newObj, Transform oldObj, DirtyBits dirty)
         {
@@ -124,39 +123,38 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(Transform newObj, IWriter writer)
         {
-            _vector3.Serialize(newObj.Position, writer);
-            _quat.Serialize(newObj.Rotation, writer);
-            _vector3.Serialize(newObj.Size, writer);
+            Vector3Serializer.Instance.Serialize(newObj.Position, writer);
+            QuaternionSerializer.Instance.Serialize(newObj.Rotation, writer);
+            Vector3Serializer.Instance.Serialize(newObj.Size, writer);
         }
 
         public void Serialize(Transform newObj, Transform oldObj, IWriter writer, DirtyBits dirty)
         {
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vector3.Serialize(newObj.Position, oldObj.Position, writer);
+                Vector3Serializer.Instance.Serialize(newObj.Position, oldObj.Position, writer);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                _quat.Serialize(newObj.Rotation, oldObj.Rotation, writer);
+                QuaternionSerializer.Instance.Serialize(newObj.Rotation, oldObj.Rotation, writer);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                _vector3.Serialize(newObj.Size, oldObj.Size, writer);
+                Vector3Serializer.Instance.Serialize(newObj.Size, oldObj.Size, writer);
             }
         }
     }
 
     public class TransformParser : IParser<Transform>
     {
-        Vector3Parser _vector3 = new Vector3Parser();
-        QuaternionParser _quat = new QuaternionParser();
+        public static readonly TransformParser Instance = new TransformParser();
 
         public Transform Parse(IReader reader)
         {
             var obj = new Transform();
-            obj.Position = _vector3.Parse(reader);
-            obj.Rotation = _quat.Parse(reader);
-            obj.Size = _vector3.Parse(reader);
+            obj.Position = Vector3Parser.Instance.Parse(reader);
+            obj.Rotation = QuaternionParser.Instance.Parse(reader);
+            obj.Size = Vector3Parser.Instance.Parse(reader);
             return obj;
         }
 
@@ -169,15 +167,15 @@ namespace SocialPoint.Multiplayer
         {
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj.Position = _vector3.Parse(obj.Position, reader);
+                obj.Position = Vector3Parser.Instance.Parse(obj.Position, reader);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj.Rotation = _quat.Parse(obj.Rotation, reader);
+                obj.Rotation = QuaternionParser.Instance.Parse(obj.Rotation, reader);
             }
             if(DirtyBits.NullOrGet(dirty))
             {
-                obj.Size = _vector3.Parse(obj.Size, reader);
+                obj.Size = Vector3Parser.Instance.Parse(obj.Size, reader);
             }
             return obj;
         }
