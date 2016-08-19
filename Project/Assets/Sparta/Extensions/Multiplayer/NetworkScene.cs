@@ -13,15 +13,6 @@ namespace SocialPoint.Multiplayer
         void OnDestroy();
     }
 
-    public static class SceneMsgType
-    {
-        public const byte UpdateSceneEvent = 1;
-        public const byte InstantiateObjectEvent = 2;
-        public const byte DestroyObjectEvent = 3;
-        public const byte Highest = 3;
-    }
-
-
     public class NetworkScene : IEquatable<NetworkScene>, ICloneable
     {
         Dictionary<int,NetworkGameObject> _objects;
