@@ -184,6 +184,8 @@ namespace SocialPoint.Multiplayer
 
     public class Vector3Serializer : ISerializer<Vector3>
     {
+        public static readonly Vector3Serializer Instance = new Vector3Serializer();
+
         public void Compare(Vector3 newObj, Vector3 oldObj, DirtyBits dirty)
         {
             dirty.Set(newObj.x != oldObj.x);
@@ -217,6 +219,8 @@ namespace SocialPoint.Multiplayer
 
     public class Vector3Parser : IParser<Vector3>
     {
+        public static readonly Vector3Parser Instance = new Vector3Parser();
+
         public Vector3 Parse(IReader reader)
         {
             Vector3 obj;
