@@ -3,30 +3,18 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class DestroyNetworkGameObjectEvent
+    public class DestroyNetworkGameObjectEvent : INetworkShareable
     {
-        public const byte MessageType = 3;
-
         public int ObjectId;
-    }
 
-    public class DestroyNetworkGameObjectEventSerializer : SimpleSerializer<DestroyNetworkGameObjectEvent>
-    {
-        public override void Serialize(DestroyNetworkGameObjectEvent newObj, IWriter writer)
+        public void Deserialize(IReader reader)
         {
-            writer.Write(newObj.ObjectId);
-  
+            ObjectId = reader.ReadInt32();
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(ObjectId);
         }
     }
-
-    public class DestroyNetworkGameObjectEventParser : SimpleParser<DestroyNetworkGameObjectEvent>
-    {
-        public override DestroyNetworkGameObjectEvent Parse(IReader reader)
-        {
-            return new DestroyNetworkGameObjectEvent {
-                ObjectId = reader.ReadInt32()
-            };
-        }
-    }
-
 }

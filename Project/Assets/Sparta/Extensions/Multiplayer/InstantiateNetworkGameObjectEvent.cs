@@ -3,39 +3,24 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class InstantiateNetworkGameObjectEvent
+    public class InstantiateNetworkGameObjectEvent : INetworkShareable
     {
-        public const byte MessageType = 2;
-
         public int ObjectId;
         public string PrefabName;
         public Transform Transform;
-    }
 
-    public class InstantiateNetworkGameObjectEventSerializer : SimpleSerializer<InstantiateNetworkGameObjectEvent>
-    {
-        TransformSerializer _trans = new TransformSerializer();
-
-        public override void Serialize(InstantiateNetworkGameObjectEvent newObj, IWriter writer)
+        public void Deserialize(IReader reader)
         {
-            writer.Write(newObj.ObjectId);
-            writer.Write(newObj.PrefabName);
-            _trans.Serialize(newObj.Transform, writer);
+            ObjectId = reader.ReadInt32();
+            PrefabName = reader.ReadString();
+            Transform = TransformParser.Instance.Parse(reader);
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(ObjectId);
+            writer.Write(PrefabName);
+            TransformSerializer.Instance.Serialize(Transform, writer);
         }
     }
-
-    public class InstantiateNetworkGameObjectEventParser : SimpleParser<InstantiateNetworkGameObjectEvent>
-    {
-        TransformParser _trans = new TransformParser();
-
-        public override InstantiateNetworkGameObjectEvent Parse(IReader reader)
-        {
-            return new InstantiateNetworkGameObjectEvent {
-                ObjectId = reader.ReadInt32(),
-                PrefabName = reader.ReadString(),
-                Transform = _trans.Parse(reader)
-            };
-        }
-    }
-
 }

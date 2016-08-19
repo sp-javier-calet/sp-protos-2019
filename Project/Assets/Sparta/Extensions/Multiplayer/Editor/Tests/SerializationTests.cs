@@ -204,8 +204,8 @@ namespace SocialPoint.Multiplayer
             )));
 
             GenericInitial(scene,
-                new NetworkGameSceneSerializer(),
-                new NetworkGameSceneParser());
+                new NetworkSceneSerializer(),
+                new NetworkSceneParser());
         }
 
         [Test]
@@ -234,8 +234,8 @@ namespace SocialPoint.Multiplayer
             )));
 
             GenericDiff(scene2, scene,
-                new NetworkGameSceneSerializer(),
-                new NetworkGameSceneParser());
+                new NetworkSceneSerializer(),
+                new NetworkSceneParser());
         }
 
         [Test]
@@ -264,8 +264,8 @@ namespace SocialPoint.Multiplayer
             )));
 
             GenericDiff(scene2, scene,
-                new NetworkGameSceneSerializer(),
-                new NetworkGameSceneParser());
+                new NetworkSceneSerializer(),
+                new NetworkSceneParser());
         }
     }
 }

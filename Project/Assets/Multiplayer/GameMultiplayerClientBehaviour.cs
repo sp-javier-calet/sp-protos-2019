@@ -15,9 +15,6 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     INetworkClient _client;
     NetworkClientSceneController _controller;
 
-    ClickActionSerializer _clickSerializer = new ClickActionSerializer();
-    ExplosionEventParser _explParser = new ExplosionEventParser();
-
     [SerializeField]
     GameObject _explosionPrefab;
 
@@ -40,13 +37,11 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     {
         if(_client.Connected)
         {
-            var msg = _client.CreateMessage(new NetworkMessageData {
+            _client.SendMessage(new NetworkMessageData {
                 MessageType = GameMsgType.ClickAction
-            });
-            _clickSerializer.Serialize(new ClickAction {
+            }, new ClickAction {
                 Position = eventData.pointerPressRaycast.worldPosition.ToMultiplayer()
-            }, msg.Writer);
-            msg.Send();
+            });
         }
     }
         
@@ -62,7 +57,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     {
         if(data.MessageType == GameMsgType.ExplosionEvent)
         {
-            var ev = _explParser.Parse(reader);
+            var ev = reader.Read<ExplosionEvent>();
             SocialPoint.ObjectPool.ObjectPool.Spawn(_explosionPrefab, transform, ev.Position.ToUnity());
         }
     }

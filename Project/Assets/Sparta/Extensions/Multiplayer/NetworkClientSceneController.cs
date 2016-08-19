@@ -18,9 +18,6 @@ namespace SocialPoint.Multiplayer
     {
         INetworkClient _client;
         NetworkScene _scene;
-        IParser<NetworkScene> _sceneParser;
-        IParser<InstantiateNetworkGameObjectEvent> _instParser;
-        IParser<DestroyNetworkGameObjectEvent> _destParser;
         INetworkClientSceneReceiver _receiver;
         List<INetworkClientSceneBehaviour> _sceneBehaviours;
 
@@ -29,9 +26,6 @@ namespace SocialPoint.Multiplayer
             _client = client;
             _client.AddDelegate(this);
             _client.RegisterReceiver(this);
-            _sceneParser = new NetworkGameSceneParser();
-            _instParser = new InstantiateNetworkGameObjectEventParser();
-            _destParser = new DestroyNetworkGameObjectEventParser();
             _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
         }
 
@@ -66,11 +60,11 @@ namespace SocialPoint.Multiplayer
             {
                 if(_scene == null)
                 {
-                    _scene = _sceneParser.Parse(reader);
+                    _scene = NetworkSceneParser.Instance.Parse(reader);
                 }
                 else
                 {
-                    _scene = _sceneParser.Parse(_scene, reader);
+                    _scene = NetworkSceneParser.Instance.Parse(_scene, reader);
                 }
                 var itr = _scene.GetObjectEnumerator();
                 while(itr.MoveNext())
@@ -82,7 +76,7 @@ namespace SocialPoint.Multiplayer
             }
             else if(data.MessageType == SceneMsgType.InstantiateObjectEvent)
             {
-                var ev = _instParser.Parse(reader);
+                var ev = reader.Read<InstantiateNetworkGameObjectEvent>();
                 for(var i = 0; i < _sceneBehaviours.Count; i++)
                 {
                     _sceneBehaviours[i].OnInstantiateObject(ev.ObjectId, ev.Transform);
@@ -91,7 +85,7 @@ namespace SocialPoint.Multiplayer
             }
             else if(data.MessageType == SceneMsgType.DestroyObjectEvent)
             {
-                var ev = _destParser.Parse(reader);
+                var ev = reader.Read<DestroyNetworkGameObjectEvent>();
                 for(var i = 0; i < _sceneBehaviours.Count; i++)
                 {
                     _sceneBehaviours[i].OnDestroyObject(ev.ObjectId);

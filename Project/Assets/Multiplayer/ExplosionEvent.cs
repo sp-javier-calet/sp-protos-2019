@@ -1,29 +1,17 @@
 ﻿using SocialPoint.Multiplayer;
 using SocialPoint.IO;
 
-public class ExplosionEvent
+public class ExplosionEvent : INetworkShareable
 {
     public Vector3 Position;
-}
 
-public class ExplosionEventSerializer : SimpleSerializer<ExplosionEvent>
-{
-    Vector3Serializer _vec3 = new Vector3Serializer();
-
-    public override void Serialize(ExplosionEvent newObj, IWriter writer)
+    public void Deserialize(IReader reader)
     {
-        _vec3.Serialize(newObj.Position, writer);
+        Position = Vector3Parser.Instance.Parse(reader);
     }
-}
 
-public class ExplosionEventParser : SimpleParser<ExplosionEvent>
-{
-    Vector3Parser _vec3 = new Vector3Parser();
-
-    public override ExplosionEvent Parse(IReader reader)
+    public void Serialize(IWriter writer)
     {
-        return new ExplosionEvent {
-            Position = _vec3.Parse(reader)
-        };
+        Vector3Serializer.Instance.Serialize(Position, writer);
     }
 }

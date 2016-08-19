@@ -8,8 +8,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 {
     INetworkServer _server;
     NetworkServerSceneController _controller;
-    IParser<ClickAction> _clickParser;
-    ISerializer<ExplosionEvent> _explSerializer;
     Dictionary<int,int> _updateTimes;
 
     float _moveInterval = 1.0f;
@@ -20,8 +18,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
     {
         _server = server;
-        _clickParser = new ClickActionParser();
-        _explSerializer = new ExplosionEventSerializer();
         _controller = ctrl;
         _controller.RegisterReceiver(this);
         _updateTimes = new Dictionary<int,int>();
@@ -79,20 +75,18 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void SendExplosionEvent(Transform t)
     {
-        var msg = _server.CreateMessage(new NetworkMessageData {
+        _server.SendMessage(new NetworkMessageData {
             MessageType = GameMsgType.ExplosionEvent
-        });
-        _explSerializer.Serialize(new ExplosionEvent {
+        }, new ExplosionEvent {
             Position = t.Position
-        }, msg.Writer);
-        msg.Send();
+        });
     }
 
     void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
     {
         if(data.MessageType == GameMsgType.ClickAction)
         {
-            var ac = _clickParser.Parse(reader);
+            var ac = reader.Read<ClickAction>();
             _controller.Instantiate("Cube", new Transform(
                 ac.Position, Quaternion.Identity, Vector3.One));
         }

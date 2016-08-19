@@ -187,9 +187,9 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkGameSceneSerializer : ISerializer<NetworkScene>
+    public class NetworkSceneSerializer : ISerializer<NetworkScene>
     {
-        NetworkGameObjectSerializer _go = new NetworkGameObjectSerializer();
+        public static readonly NetworkSceneSerializer Instance = new NetworkSceneSerializer();
 
         public void Compare(NetworkScene newScene, NetworkScene oldScene, DirtyBits dirty)
         {
@@ -199,9 +199,10 @@ namespace SocialPoint.Multiplayer
         {
             writer.Write(newScene.ObjectsCount);
             var itr = newScene.GetObjectEnumerator();
+            var gos = NetworkGameObjectSerializer.Instance;
             while(itr.MoveNext())
             {
-                _go.Serialize(itr.Current, writer);
+                gos.Serialize(itr.Current, writer);
             }
             itr.Dispose();
         }
@@ -210,6 +211,7 @@ namespace SocialPoint.Multiplayer
         {
             writer.Write(newScene.ObjectsCount);
             var itr = newScene.GetObjectEnumerator();
+            var gos = NetworkGameObjectSerializer.Instance;
             while(itr.MoveNext())
             {
                 var go = itr.Current;
@@ -217,11 +219,11 @@ namespace SocialPoint.Multiplayer
                 var oldGo = oldScene.FindObject(go.Id);
                 if(oldGo == null)
                 {
-                    _go.Serialize(go, writer);
+                    gos.Serialize(go, writer);
                 }
                 else
                 {
-                    _go.Serialize(go, oldGo, writer);
+                    gos.Serialize(go, oldGo, writer);
                 }
             }
             itr.Dispose();
@@ -244,17 +246,18 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkGameSceneParser : IParser<NetworkScene>
+    public class NetworkSceneParser : IParser<NetworkScene>
     {
-        NetworkGameObjectParser _go = new NetworkGameObjectParser();
+        public static readonly NetworkSceneParser Instance = new NetworkSceneParser();
 
         public NetworkScene Parse(IReader reader)
         {
             var obj = new NetworkScene();
             var c = reader.ReadInt32();
+            var gop = NetworkGameObjectParser.Instance;
             for(var i = 0; i < c; i++)
             {
-                var go = _go.Parse(reader);
+                var go = gop.Parse(reader);
                 obj.AddObject(go);
             }
             return obj;
@@ -268,18 +271,19 @@ namespace SocialPoint.Multiplayer
         public NetworkScene Parse(NetworkScene scene, IReader reader, DirtyBits dirty)
         {
             var c = reader.ReadInt32();
+            var gop = NetworkGameObjectParser.Instance;
             for(var i = 0; i < c; i++)
             {
                 var id = reader.ReadInt32();
                 var go = scene.FindObject(id);
                 if(go == null)
                 {
-                    go = _go.Parse(reader);
+                    go = gop.Parse(reader);
                     scene.AddObject(go);
                 }
                 else
                 {
-                    _go.Parse(go, reader);
+                    gop.Parse(go, reader);
                 }
             }
             c = reader.ReadInt32();
