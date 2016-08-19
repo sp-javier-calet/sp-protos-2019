@@ -4,10 +4,10 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class RotationEffect : BlendEffect
+    public sealed class RotationEffect : BlendEffect
     {
         [System.Serializable]
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public Quaternion Rotation;
 

@@ -4,7 +4,7 @@ using SocialPoint.Console;
 
 namespace SocialPoint.Notifications
 {
-    public class AdminPanelNotifications : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelNotifications : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly INotificationServices _services;
         AdminPanel.AdminPanel _adminPanel;

@@ -2,7 +2,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Hardware
 {
-    public class AdminPanelHardware : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelHardware : IAdminPanelConfigurer, IAdminPanelGUI
     {   
         IDeviceInfo _deviceInfo;
 

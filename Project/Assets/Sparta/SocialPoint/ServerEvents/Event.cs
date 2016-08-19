@@ -4,7 +4,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.ServerEvents
 {
-    public class Event
+    public sealed class Event
     {
         const string AttrKeyType = "type";
         const string AttrKeyTimestamp = "ts";

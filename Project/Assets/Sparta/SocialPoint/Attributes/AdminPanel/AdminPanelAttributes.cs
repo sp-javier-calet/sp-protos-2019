@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
-    public class AdminPanelAttributes : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
+    public sealed class AdminPanelAttributes : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
     {
         Text _textComponent;
 

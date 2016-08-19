@@ -8,7 +8,7 @@ using System;
 
 namespace SocialPoint.Social
 {
-    public class AdminPanelFacebook : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelFacebook : IAdminPanelConfigurer, IAdminPanelGUI
     {
         AdminPanel.AdminPanel _adminPanel;
         readonly IFacebook _facebook;

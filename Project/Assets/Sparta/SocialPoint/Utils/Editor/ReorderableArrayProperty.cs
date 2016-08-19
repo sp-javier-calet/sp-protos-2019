@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace SocialPoint.Utils
 {
-    public class ReorderableArrayProperty
+    public sealed class ReorderableArrayProperty
     {
         readonly ReorderableList _list;
         SerializedProperty _prop;

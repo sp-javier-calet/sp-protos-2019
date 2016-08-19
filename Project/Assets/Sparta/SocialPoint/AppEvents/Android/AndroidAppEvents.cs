@@ -6,7 +6,7 @@ namespace SocialPoint.AppEvents
 {
     #if UNITY_ANDROID && !UNITY_EDITOR
     
-    public class AndroidAppEvents : BaseAppEvents
+    public sealed class AndroidAppEvents : BaseAppEvents
     {
         void Awake()
         {
@@ -197,7 +197,7 @@ namespace SocialPoint.AppEvents
 
     
     #else
-    public class AndroidAppEvents : BaseAppEvents
+    public sealed class AndroidAppEvents : BaseAppEvents
     {
     }
     #endif

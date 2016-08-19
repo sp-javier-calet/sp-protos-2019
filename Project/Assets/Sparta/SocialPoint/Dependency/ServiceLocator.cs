@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
-    public class UnityComponentBinding<F> : IBinding where F : Component
+    public sealed class UnityComponentBinding<F> : IBinding where F : Component
     {
         DependencyContainer _container;
         Action<F> _setup;

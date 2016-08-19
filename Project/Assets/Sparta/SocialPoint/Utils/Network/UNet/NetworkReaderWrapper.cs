@@ -2,7 +2,7 @@
 
 namespace  SocialPoint.Utils.Network.UNet
 {
-    public class NetworkReaderWrapper : IReaderWrapper
+    public sealed class NetworkReaderWrapper : IReaderWrapper
     {
         readonly NetworkReader _reader;
 

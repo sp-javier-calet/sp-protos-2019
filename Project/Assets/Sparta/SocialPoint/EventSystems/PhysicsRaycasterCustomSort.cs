@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 namespace SocialPoint.EventSystems
 {
     [RequireComponent(typeof(Camera))]
-    public class PhysicsRaycasterCustomSort : PhysicsRaycaster
+    public sealed class PhysicsRaycasterCustomSort : PhysicsRaycaster
     {
         enum SortType
         {

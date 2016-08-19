@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class TimeValueGridPanel
+	public sealed class TimeValueGridPanel
 	{
 	    public interface IGridChainProcesser
 	    {
@@ -12,7 +12,7 @@ namespace SocialPoint.GUIAnimation
 	        void Update();
 	    }
 
-	    public class ProcessRemovePoint: IGridChainProcesser
+	    public sealed class ProcessRemovePoint: IGridChainProcesser
 	    {
 	        TimeValueGridPanel _host;
 	        IGridChainProcesser _next;
@@ -59,7 +59,7 @@ namespace SocialPoint.GUIAnimation
 	        }
 	    }
 
-	    public class ProcessMovePoint : IGridChainProcesser
+	    public sealed class ProcessMovePoint : IGridChainProcesser
 	    {
 	        TimeValueGridPanel _host;
 	        IGridChainProcesser _next;
@@ -109,7 +109,7 @@ namespace SocialPoint.GUIAnimation
 	        }
 	    }
 
-	    public class ProcessCreatePoint : IGridChainProcesser
+	    public sealed class ProcessCreatePoint : IGridChainProcesser
 	    {
 	        TimeValueGridPanel _host;
 	        IGridChainProcesser _next;
@@ -153,7 +153,7 @@ namespace SocialPoint.GUIAnimation
 	        }
 	    }
 
-	    public class ColorProperties
+	    public sealed class ColorProperties
 	    {
 	        public Color PrevFrameColor;
 	        public Color FrameColor = Color.black;
@@ -188,7 +188,7 @@ namespace SocialPoint.GUIAnimation
 	        }
 	    }
 
-	    public class GridProperties
+	    public sealed class GridProperties
 	    {
 	        public float XAxisParts = 4f;
 	        public float YAxisParts = 4f;

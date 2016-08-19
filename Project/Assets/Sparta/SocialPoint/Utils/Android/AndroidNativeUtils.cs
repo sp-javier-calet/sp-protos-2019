@@ -5,7 +5,7 @@ using SocialPoint.Base;
 namespace SocialPoint.Utils
 {
     #if UNITY_ANDROID
-    public class AndroidNativeUtils : INativeUtils
+    public sealed class AndroidNativeUtils : INativeUtils
     {
         static AndroidJavaObject GetLaunchIntentForPackage(string packageName)
         {
@@ -67,7 +67,7 @@ namespace SocialPoint.Utils
         }
     }
     #else
-    public class AndroidNativeUtils : EmptyNativeUtils
+    public sealed class AndroidNativeUtils : EmptyNativeUtils
     {
     }
 #endif

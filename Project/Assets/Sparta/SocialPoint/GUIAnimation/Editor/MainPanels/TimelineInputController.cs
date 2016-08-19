@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class TimelineInputController
+	public sealed class TimelineInputController
 	{
 		AnimationTimelinePanel _boxEditorContainer;
 		protected AnimationTimelinePanel BoxEditorContainer { get { return _boxEditorContainer; } }

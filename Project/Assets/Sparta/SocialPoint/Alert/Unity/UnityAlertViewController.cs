@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Alert
 {
-    public class UnityAlertViewController : BaseUnityAlertViewController
+    public sealed class UnityAlertViewController : BaseUnityAlertViewController
     {
         public Text TitleLabel;
         public Text MessageLabel;

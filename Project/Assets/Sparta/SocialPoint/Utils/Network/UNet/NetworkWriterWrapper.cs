@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Utils.Network.UNet
 {
-    public class NetworkWriterWrapper : IWriterWrapper
+    public sealed class NetworkWriterWrapper : IWriterWrapper
     {
         readonly NetworkWriter _writer;
 

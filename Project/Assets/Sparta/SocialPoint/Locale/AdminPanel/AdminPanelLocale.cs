@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Locale
 {
-    public class AdminPanelLocale : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelLocale : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly ILocalizationManager _manager;
         AdminPanel.AdminPanel _adminPanel;

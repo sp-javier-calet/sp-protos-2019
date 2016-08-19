@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Utils
 {
-    public class BinaryWriterWrapper : IWriterWrapper
+    public sealed class BinaryWriterWrapper : IWriterWrapper
     {
         readonly BinaryWriter _writer;
 

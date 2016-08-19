@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.AdminPanel
 {
-    public class ButtonColor
+    public sealed class ButtonColor
     {
         public Color Color { get; private set; }
 
@@ -99,7 +99,7 @@ namespace SocialPoint.AdminPanel
             return confirm;
         }
 
-        public class ConfirmActionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+        public sealed class ConfirmActionButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             const float TimeToCompletion = 1.0f;
             const float TimeToDisabled = 0.2f;

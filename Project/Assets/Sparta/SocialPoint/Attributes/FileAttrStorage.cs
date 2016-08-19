@@ -5,7 +5,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Attributes
 {
-    public class FileAttrStorage : IAttrStorage
+    public sealed class FileAttrStorage : IAttrStorage
     {
         // Sync status between FileAttrStorage instances
         static Dictionary<string, uint> SyncStatus = new Dictionary<string, uint>();

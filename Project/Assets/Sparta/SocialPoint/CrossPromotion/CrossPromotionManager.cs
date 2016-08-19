@@ -12,7 +12,7 @@ using SocialPoint.AppEvents;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class CrossPromotionManager : IDisposable
+    public sealed class CrossPromotionManager : IDisposable
     {
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
@@ -82,7 +82,7 @@ namespace SocialPoint.CrossPromotion
             }
         }
 
-        protected bool IsAutoOpened
+        bool IsAutoOpened
         {
             get
             {
@@ -153,7 +153,7 @@ namespace SocialPoint.CrossPromotion
             Reset();
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             Reset();
             if(_appEvents != null)

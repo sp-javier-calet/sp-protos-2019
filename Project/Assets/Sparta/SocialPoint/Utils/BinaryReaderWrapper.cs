@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Utils
 {
-    public class BinaryReaderWrapper : IReaderWrapper
+    public sealed class BinaryReaderWrapper : IReaderWrapper
     {
         readonly BinaryReader _reader;
 

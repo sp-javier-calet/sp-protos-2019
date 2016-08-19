@@ -5,7 +5,7 @@ using SocialPoint.Locale;
 
 namespace SocialPoint.GameLoading
 {
-    public class GameLoadingBarController : MonoBehaviour
+    public sealed class GameLoadingBarController : MonoBehaviour
     {
         [SerializeField]
         Slider _slider;

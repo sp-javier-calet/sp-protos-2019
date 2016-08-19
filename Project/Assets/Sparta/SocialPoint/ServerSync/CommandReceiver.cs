@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
-    public class CommandReceiver 
+    public sealed class CommandReceiver 
     {
         public delegate void CommandCallback(STCCommand cmd);
 
@@ -94,7 +94,7 @@ namespace SocialPoint.ServerSync
                 _callback(this);
             }
 
-            public class Factory : ISTCCommandFactory
+            public sealed class Factory : ISTCCommandFactory
             {
                 readonly string _name;
                 readonly CommandCallback _callback;

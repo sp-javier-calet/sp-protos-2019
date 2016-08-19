@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.QualityStats
 {
-    public class QualityStatsHttpClient : IHttpClient
+    public sealed class QualityStatsHttpClient : IHttpClient
     {
         #region IHttpClient implementation
 
@@ -29,7 +29,7 @@ namespace SocialPoint.QualityStats
             });
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             _client.Dispose();
         }
@@ -45,7 +45,7 @@ namespace SocialPoint.QualityStats
 
         #endregion
 
-        public class Data
+        public sealed class Data
         {
             public int Amount;
             public double SumSize;
@@ -74,7 +74,7 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        public class MRequests : Dictionary<int, Data>
+        public sealed class MRequests : Dictionary<int, Data>
         {
             public override string ToString()
             {
@@ -94,7 +94,7 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        public class Stats
+        public sealed class Stats
         {
             public double DataDownloaded;
             // in Kbytes
@@ -110,7 +110,7 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        public class MStats : Dictionary<string, Stats>
+        public sealed class MStats : Dictionary<string, Stats>
         {
             public override string ToString()
             {

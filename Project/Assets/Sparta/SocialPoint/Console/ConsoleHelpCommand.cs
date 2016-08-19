@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Console
 {
-    public class ConsoleHelpCommand : ConsoleCommand
+    public sealed class ConsoleHelpCommand : ConsoleCommand
     {
         readonly ConsoleApplication _app;
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SocialPoint.Attributes
 {
-    public class PlayerPrefsAttrStorage : IAttrStorage
+    public sealed class PlayerPrefsAttrStorage : IAttrStorage
     {
         public IAttrSerializer Serializer = new JsonAttrSerializer();
         public IAttrParser Parser = new JsonAttrParser();

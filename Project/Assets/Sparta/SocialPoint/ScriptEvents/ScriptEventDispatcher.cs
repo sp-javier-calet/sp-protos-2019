@@ -74,7 +74,7 @@ namespace SocialPoint.ScriptEvents
         public Attr Arguments;
     }
 
-    public class ScriptEventDispatcher : IScriptEventDispatcher
+    public sealed class ScriptEventDispatcher : IScriptEventDispatcher
     {
         public struct ConditionListener
         {

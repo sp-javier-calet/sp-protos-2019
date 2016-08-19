@@ -5,7 +5,7 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class UniformEffect : BlendEffect
+    public sealed class UniformEffect : BlendEffect
     {
         public enum UniformValueType
         {
@@ -15,7 +15,7 @@ namespace SocialPoint.GUIAnimation
         }
 
         [System.Serializable]
-        public class UniformValues
+        public sealed class UniformValues
         {
             [SerializeField]
             public UniformValueType ValueType = UniformValueType.Float;

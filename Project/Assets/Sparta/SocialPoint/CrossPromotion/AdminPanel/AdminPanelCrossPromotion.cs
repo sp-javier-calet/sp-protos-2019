@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class AdminPanelCrossPromotion : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelCrossPromotion : IAdminPanelConfigurer, IAdminPanelGUI
     {
         CrossPromotionManager _xpromo;
         bool _initialized = false;

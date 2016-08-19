@@ -5,7 +5,7 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class EffectsGroup : Group, IBlendeableEffect
+    public sealed class EffectsGroup : Group, IBlendeableEffect
     {
         [SerializeField]
         GameObject _template;

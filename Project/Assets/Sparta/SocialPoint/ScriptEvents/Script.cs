@@ -29,7 +29,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptStepModelParser : IParser<ScriptStepModel>
+    public sealed class ScriptStepModelParser : IParser<ScriptStepModel>
     {
         const string AttrKeyName = "name";
         const string AttrKeyArguments = "args";
@@ -59,7 +59,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptModelParser : IParser<ScriptModel>
+    public sealed class ScriptModelParser : IParser<ScriptModel>
     {
         readonly IParser<ScriptStepModel> _stepParser;
 
@@ -93,7 +93,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptStep
+    public sealed class ScriptStep
     {
         ScriptStepModel _model;
         Action<Decision, string, Attr> _callback;
@@ -178,7 +178,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class Script
+    public sealed class Script
     {
         readonly List<ScriptStep> _steps = new List<ScriptStep>();
         IScriptEventDispatcher _dispatcher;

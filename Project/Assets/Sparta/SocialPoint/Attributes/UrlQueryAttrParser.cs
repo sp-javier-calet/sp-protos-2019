@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Attributes
 {
-    public class UrlQueryAttrParser : IAttrParser
+    public sealed class UrlQueryAttrParser : IAttrParser
     {
         private const char TokenStart = '?';
         private const char TokenSeparator = '&';

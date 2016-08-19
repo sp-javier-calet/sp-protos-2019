@@ -63,7 +63,7 @@ namespace SocialPoint.GUIAnimation
         float ease(float t, float d, List<Vector2> timeValues);
     }
 
-    public class EaseManager
+    public sealed class EaseManager
     {
         static EaseManager _instance;
 
@@ -153,7 +153,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     // t: time, b: startValue, c: changeInValue, d: duration
-    public class easelinear : IEase
+    public sealed class easelinear : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -162,7 +162,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInSine : IEase
+    public sealed class easeInSine : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -170,7 +170,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutSine : IEase
+    public sealed class easeOutSine : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -178,7 +178,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutSine : IEase
+    public sealed class easeInOutSine : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -187,7 +187,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInQuad : IEase
+    public sealed class easeInQuad : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -195,7 +195,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutQuad : IEase
+    public sealed class easeOutQuad : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -203,7 +203,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutQuad : IEase
+    public sealed class easeInOutQuad : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -214,7 +214,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInCubic : IEase
+    public sealed class easeInCubic : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -222,7 +222,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutCubic : IEase
+    public sealed class easeOutCubic : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -230,7 +230,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutCubic : IEase
+    public sealed class easeInOutCubic : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -241,7 +241,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInQuart : IEase
+    public sealed class easeInQuart : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -249,7 +249,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutQuart : IEase
+    public sealed class easeOutQuart : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -257,7 +257,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutQuart : IEase
+    public sealed class easeInOutQuart : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -268,7 +268,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInQuint : IEase
+    public sealed class easeInQuint : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -276,7 +276,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutQuint : IEase
+    public sealed class easeOutQuint : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -284,7 +284,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutQuint : IEase
+    public sealed class easeInOutQuint : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -295,7 +295,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInExpo : IEase
+    public sealed class easeInExpo : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -303,7 +303,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutExpo : IEase
+    public sealed class easeOutExpo : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -311,7 +311,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutExpo : IEase
+    public sealed class easeInOutExpo : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -326,7 +326,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInCirc : IEase
+    public sealed class easeInCirc : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -334,7 +334,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutCirc : IEase
+    public sealed class easeOutCirc : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -342,7 +342,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutCirc : IEase
+    public sealed class easeInOutCirc : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -353,7 +353,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInElastic : IEase
+    public sealed class easeInElastic : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -377,7 +377,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutElastic : IEase
+    public sealed class easeOutElastic : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -392,7 +392,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutElastic : IEase
+    public sealed class easeInOutElastic : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -415,7 +415,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInBack : IEase
+    public sealed class easeInBack : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -424,7 +424,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutBack : IEase
+    public sealed class easeOutBack : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -433,7 +433,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutBack : IEase
+    public sealed class easeInOutBack : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -445,7 +445,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeInBounce : IEase
+    public sealed class easeInBounce : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -454,7 +454,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeOutBounce : IEase
+    public sealed class easeOutBounce : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -477,7 +477,7 @@ namespace SocialPoint.GUIAnimation
         }
     }
 
-    public class easeInOutBounce : IEase
+    public sealed class easeInOutBounce : IEase
     {
         public float ease(float t, float b, float c, float d)
         {
@@ -491,7 +491,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeCustom : IEaseCustom
+    public sealed class easeCustom : IEaseCustom
     {
         public float ease(float t, float d, List<Vector2> timeValues)
         {
@@ -538,7 +538,7 @@ namespace SocialPoint.GUIAnimation
     }
 
     //----
-    public class easeOutDanielBounce : IEase
+    public sealed class easeOutDanielBounce : IEase
     {
         public float ease(float t, float b, float c, float d)
         {

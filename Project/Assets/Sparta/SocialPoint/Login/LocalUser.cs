@@ -6,7 +6,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Login
 {    
-    public class LocalUser : User
+    public sealed class LocalUser : User
     {
         public string SessionId { get; set; }
 

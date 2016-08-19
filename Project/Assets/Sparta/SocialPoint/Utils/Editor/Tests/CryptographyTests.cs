@@ -5,7 +5,7 @@ namespace SocialPoint.Utils
 {
     [TestFixture]
     [Category("SocialPoint.Utils")]
-    public class CryptographyTests
+    public sealed class CryptographyTests
     {
         [Test]
         public void HashSha256EqualTest()
