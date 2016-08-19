@@ -16,7 +16,7 @@ namespace SocialPoint.CrossPromotion
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
-            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("CrossPromotion", this));
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Cross Promotion", this));
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -34,20 +34,21 @@ namespace SocialPoint.CrossPromotion
                 OpenPopup();
                 layout.Refresh();
             }, _initialized);
+            layout.CreateMargin();
+            layout.CreateConfirmButton("Start with Invalid Asset", () => {
+                StartWithInvalidAssets();
+                layout.Refresh();
+            }, !_initialized);
         }
 
         void Start()
         {
-            Reset();
-            _initialized = true;
             #if UNITY_ANDROID
             TextAsset data = Resources.Load("xpromo_android") as TextAsset;
             #else
             TextAsset data = Resources.Load("xpromo_ios") as TextAsset;
             #endif
-            AttrDic attr = new JsonAttrParser().Parse(data.bytes).AssertDic;
-            _xpromo.Init(attr.Get("xpromo").AsDic);
-            _xpromo.Start();
+            InitWithData(data);
         }
 
         void Reset()
@@ -59,6 +60,21 @@ namespace SocialPoint.CrossPromotion
         void OpenPopup()
         {
             _xpromo.TryOpenPopup();
+        }
+
+        void StartWithInvalidAssets()
+        {
+            TextAsset data = Resources.Load("xpromo_test_fail") as TextAsset;
+            InitWithData(data);
+        }
+
+        void InitWithData(TextAsset data)
+        {
+            Reset();
+            _initialized = true;
+            AttrDic attr = new JsonAttrParser().Parse(data.bytes).AssertDic;
+            _xpromo.Init(attr.Get("xpromo").AsDic);
+            _xpromo.Start();
         }
     }
 }
