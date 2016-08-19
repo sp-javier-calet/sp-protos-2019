@@ -4,24 +4,27 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public struct Vector3 : IEquatable<Vector3>
+    public struct Vector4 : IEquatable<Vector4>
     {
         public float x;
         public float y;
         public float z;
+        public float w;
 
-        public Vector3(float v=0.0f)
+        public Vector4(float v=0.0f)
         {
             x = v;
             y = v;
             z = v;
+            w = v;
         }
 
-        public Vector3(float px, float py, float pz)
+        public Vector4(float px, float py, float pz, float pw)
         {
             x = px;
             y = py;
             z = pz;
+            w = pw;
         }
 
         public float this[int key]
@@ -36,7 +39,8 @@ namespace SocialPoint.Multiplayer
                     return y;
                 case 2:
                     return z;
-
+                case 3:
+                    return w;
                 }
                 throw new InvalidOperationException("Index out of range.");
             }
@@ -53,6 +57,9 @@ namespace SocialPoint.Multiplayer
                 case 2:
                     z = value;
                     break;
+                case 3:
+                    w = value;
+                    break;
                 default:
                     throw new InvalidOperationException("Index out of range.");
                 }
@@ -61,10 +68,10 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
-            return this == (Vector3)obj;
+            return this == (Vector4)obj;
         }
 
-        public bool Equals(Vector3 v)
+        public bool Equals(Vector4 v)
         {             
             return this == v;
         }
@@ -74,52 +81,53 @@ namespace SocialPoint.Multiplayer
             var hash = x.GetHashCode();
             hash = CryptographyUtils.HashCombine(hash, y.GetHashCode());
             hash = CryptographyUtils.HashCombine(hash, z.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, w.GetHashCode());
             return hash;
         }
 
-        public static bool operator ==(Vector3 a, Vector3 b)
+        public static bool operator ==(Vector4 a, Vector4 b)
         {
-            return a.x == b.x && a.y == b.y && a.z == b.z;
+            return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
         }
 
-        public static bool operator !=(Vector3 a, Vector3 b)
+        public static bool operator !=(Vector4 a, Vector4 b)
         {
             return !(a == b);
-        }
+        }            
 
-        public static Vector3 operator -(Vector3 a, Vector3 b)
+        public static Vector4 operator -(Vector4 a, Vector4 b)
         {
-            return new Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
+            return new Vector4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
         }
 
-        public static Vector3 operator +(Vector3 a, Vector3 b)
+        public static Vector4 operator +(Vector4 a, Vector4 b)
         {
-            return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
+            return new Vector4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
         }
 
-        public static Vector3 operator *(Vector3 a, float b)
+        public static Vector4 operator *(Vector4 a, float b)
         {
-            return new Vector3(a.x * b, a.y * b, a.z * b);
+            return new Vector4(a.x * b, a.y * b, a.z * b, a.w * b);
         }
 
-        public static Vector3 operator /(Vector3 a, float b)
+        public static Vector4 operator /(Vector4 a, float b)
         {
-            return new Vector3(a.x / b, a.y / b, a.z / b);
+            return new Vector4(a.x / b, a.y / b, a.z / b, a.w / b);
         }
 
-        public static Vector3 Zero
+        public static Vector4 Zero
         {
             get
             {
-                return new Vector3(0.0f);
+                return new Vector4(0.0f);
             }
         }
 
-        public static Vector3 One
+        public static Vector4 One
         {
             get
             {
-                return new Vector3(1.0f);
+                return new Vector4(1.0f);
             }
         }
 
@@ -140,11 +148,11 @@ namespace SocialPoint.Multiplayer
         {
             get
             {
-                return x * x + y * y + z * z;
+                return x * x + y * y + z * z + w * w;
             }
         }
 
-        public Vector3 Normalized
+        public Vector4 Normalized
         {
             get
             {
@@ -152,18 +160,18 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public static float Distance(Vector3 a, Vector3 b)
+        public static float Distance(Vector4 a, Vector4 b)
         {
             return (a - b).Magnitude;
         }
 
-        public static float Angle(Vector3 a, Vector3 b)
+        public static float Angle(Vector4 a, Vector4 b)
         {
-            var v = (a.x * b.x + a.y * b.y + a.z * b.z) / (a.Magnitude * b.Magnitude);
+            var v = (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w) / (a.Magnitude * b.Magnitude);
             return (float)Math.Acos(v);
         }
 
-        public static Vector3 Cross(Vector3 a, Vector3 b)
+        public static Vector3 Cross(Vector4 a, Vector4 b)
         {
             return new Vector3(
                 a.y * b.z - b.y * a.z,
@@ -171,34 +179,36 @@ namespace SocialPoint.Multiplayer
                 a.x * b.y - b.x * a.y);
         }
 
-        public static float Dot(Vector3 a, Vector3 b)
+        public static float Dot(Vector4 a, Vector4 b)
         {
-            return a.x * b.x + a.y * b.y + a.z * b.z;
+            return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
         }
 
         public override string ToString()
         {
-            return string.Format("[{0},{1},{2}]", x, y, z);
+            return string.Format("[{0},{1},{2},{3}]", x, y, z ,w);
         }
     }
 
-    public class Vector3Serializer : ISerializer<Vector3>
+    public class Vector4Serializer : ISerializer<Vector4>
     {
-        public void Compare(Vector3 newObj, Vector3 oldObj, DirtyBits dirty)
+        public void Compare(Vector4 newObj, Vector4 oldObj, DirtyBits dirty)
         {
             dirty.Set(newObj.x != oldObj.x);
             dirty.Set(newObj.y != oldObj.y);
             dirty.Set(newObj.z != oldObj.z);
+            dirty.Set(newObj.w != oldObj.w);
         }
 
-        public void Serialize(Vector3 newObj, IWriter writer)
+        public void Serialize(Vector4 newObj, IWriter writer)
         {
             writer.Write(newObj.x);
             writer.Write(newObj.y);
             writer.Write(newObj.z);
+            writer.Write(newObj.w);
         }
 
-        public void Serialize(Vector3 newObj, Vector3 oldObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Vector4 newObj, Vector4 oldObj, IWriter writer, DirtyBits dirty)
         {
             if(DirtyBits.NullOrGet(dirty))
             {
@@ -212,26 +222,31 @@ namespace SocialPoint.Multiplayer
             {
                 writer.Write(newObj.z);
             }
+            if(DirtyBits.NullOrGet(dirty))
+            {
+                writer.Write(newObj.w);
+            }
         }
     }
 
-    public class Vector3Parser : IParser<Vector3>
+    public class Vector4Parser : IParser<Vector4>
     {
-        public Vector3 Parse(IReader reader)
+        public Vector4 Parse(IReader reader)
         {
-            Vector3 obj;
+            Vector4 obj;
             obj.x = reader.ReadSingle();
             obj.y = reader.ReadSingle();
             obj.z = reader.ReadSingle();
+            obj.w = reader.ReadSingle();
             return obj;
         }
 
-        public int GetDirtyBitsSize(Vector3 obj)
+        public int GetDirtyBitsSize(Vector4 obj)
         {
-            return 3;
+            return 4;
         }
 
-        public Vector3 Parse(Vector3 obj, IReader reader, DirtyBits dirty)
+        public Vector4 Parse(Vector4 obj, IReader reader, DirtyBits dirty)
         {
             if(DirtyBits.NullOrGet(dirty))
             {
@@ -244,6 +259,10 @@ namespace SocialPoint.Multiplayer
             if(DirtyBits.NullOrGet(dirty))
             {
                 obj.z = reader.ReadSingle();
+            }
+            if(DirtyBits.NullOrGet(dirty))
+            {
+                obj.w = reader.ReadSingle();
             }
             return obj;
         }

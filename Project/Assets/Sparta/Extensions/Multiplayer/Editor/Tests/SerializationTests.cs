@@ -50,6 +50,25 @@ namespace SocialPoint.Multiplayer
                 new Vector3Serializer(),
                 new Vector3Parser());
         }
+            
+        [Test]
+        public void Vector4Initial()
+        {
+            GenericInitial(
+                new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
+                new Vector4Serializer(),
+                new Vector4Parser());
+        }
+
+        [Test]
+        public void Vector4Diff()
+        {
+            GenericDiff(
+                new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
+                new Vector4(1.0f, 3.3f, 4.2f, 6.2f),
+                new Vector4Serializer(),
+                new Vector4Parser());
+        }
 
         [Test]
         public void QuaternionInitial()
@@ -68,6 +87,37 @@ namespace SocialPoint.Multiplayer
                 new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
                 new QuaternionSerializer(),
                 new QuaternionParser());
+        }
+
+        [Test]
+        public void Matrix4x4Initial()
+        {
+            GenericInitial(
+                new Matrix4x4(
+                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
+                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
+                    new Vector4(4.0f, 4.5f, 4.5f, 15f),
+                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
+                new Matrix4x4Serializer(),
+                new Matrix4x4Parser());
+        }
+
+        [Test]
+        public void Matrix4x4Diff()
+        {
+            GenericDiff(
+                new Matrix4x4(
+                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
+                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
+                    new Vector4(4.0f, 4.5f, 4.5f, 15f),
+                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
+                new Matrix4x4(
+                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
+                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
+                    new Vector4(4.0f, 5.5f, 4.5f, 15f),
+                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
+                new Matrix4x4Serializer(),
+                new Matrix4x4Parser());
         }
 
         [Test]
