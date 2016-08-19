@@ -18,8 +18,10 @@ namespace SocialPoint.BundleManagerTest
         [SetUp]
         public void SetUp()
         {
-            BundleManager.RefreshAll();
 
+            BundleManager.RefreshAll();
+            previousUseEditorTarget = BuildConfiger.UseEditorTarget;
+            BuildConfiger.UseEditorTarget = true;
             //Creates the bundle
             BundleManager.CreateNewBundle("NUnitTest", "", false);
             parent = BundleManager.GetBundleData("NUnitTest");
@@ -32,12 +34,10 @@ namespace SocialPoint.BundleManagerTest
             var guidChild = AssetDatabase.FindAssets("TestPrefab 1 t:Prefab")[0];
             var pathChild = AssetDatabase.GUIDToAssetPath(guidChild);
             BundleManager.AddPathToBundle(pathChild, child.name);
+                       
 
             filepath = Path.Combine(BuildConfiger.InterpretedOutputPath, "NUnitTest." + BuildConfiger.BundleSuffix);
             filepathChild = Path.Combine(BuildConfiger.InterpretedOutputPath, "NUnitTestChild." + BuildConfiger.BundleSuffix);
-
-            previousUseEditorTarget = BuildConfiger.UseEditorTarget;
-            BuildConfiger.UseEditorTarget = true;
         }
 
         [Test]
