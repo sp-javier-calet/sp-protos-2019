@@ -42,10 +42,15 @@ namespace SocialPoint.Multiplayer
             msg.Send();
         }
 
-        public static T Read<T>(this ReceivedNetworkMessage msg) where T : INetworkShareable, new()
+        public static void Write<T>(this IWriter writer, T obj) where T : INetworkShareable
+        {
+            obj.Serialize(writer);
+        }
+
+        public static T Read<T>(this IReader reader) where T : INetworkShareable, new()
         {
             var obj = new T();
-            obj.Deserialize(msg.Reader);
+            obj.Deserialize(reader);
             return obj;
         }
     }
