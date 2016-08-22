@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using System.Collections;
 using SocialPoint.CrossPromotion;
-using SocialPoint.Utils;
 
 public class CrossPromoCellController : BaseCrossPromoCellController
 {
@@ -43,9 +42,9 @@ public class CrossPromoCellController : BaseCrossPromoCellController
         _visibilityPointInScroll = scrollMaxPos - (cellHeightPercent * 0.49f);//Use 49% as mark for visibility to avoid missing events due to floating point precision for mid point calculation
 
         CrossPromotionBannerData bannerData = _cpm.Data.BannerInfo[bannerId];
-        UIUtils.SetImage(_bannerImage, _cpm.GetTexture2DForPopupImage(bannerData.BgImage));
-        UIUtils.SetImage(_iconImage, _cpm.GetTexture2DForPopupImage(bannerData.IconImage));
-        UIUtils.SetImage(_buttonImage, _cpm.GetTexture2DForPopupImage(bannerData.ButtonTextImage));
+        CrossPromoUIUtils.SetImage(_bannerImage, _cpm.GetTexture2DForPopupImage(bannerData.BgImage));
+        CrossPromoUIUtils.SetImage(_iconImage, _cpm.GetTexture2DForPopupImage(bannerData.IconImage));
+        CrossPromoUIUtils.SetImage(_buttonImage, _cpm.GetTexture2DForPopupImage(bannerData.ButtonTextImage));
 
         for(int i = 0; i < _buttons.Length; i++)
         {

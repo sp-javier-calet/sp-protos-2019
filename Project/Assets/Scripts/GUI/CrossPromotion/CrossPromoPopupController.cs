@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 using SocialPoint.CrossPromotion;
-using SocialPoint.Utils;
 
 public class CrossPromoPopupController : BaseCrossPromoPopupController
 {
@@ -34,7 +33,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     {
         base.Init(crossPromoManager, closeCallback);
 
-        UIUtils.SetImage(_titleImage, _cpm.GetTexture2DForPopupImage(_cpm.Data.PopupTitleImage));
+        CrossPromoUIUtils.SetImage(_titleImage, _cpm.GetTexture2DForPopupImage(_cpm.Data.PopupTitleImage));
 
         _closeButton.onClick.RemoveAllListeners();
         _closeButton.onClick.AddListener(OnClose);
