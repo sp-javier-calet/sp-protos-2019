@@ -357,7 +357,7 @@ namespace SpartaTools.Editor.View
 
             public void AddShellScript(string script, string shell, string target, int order)
             {
-                Add(new ModData("Shell Script", string.Format("{0} ({1}) at position {2}. Target {3}", script, shell, order, order), _currentXcodeMod));
+                Add(new ModData("Shell Script", string.Format("{0} ({1}) at position {2}. Target '{3}'.", script, shell, order, target), _currentXcodeMod));
             }
 
             public void SetSystemCapability(string name, bool enabled)
