@@ -35,7 +35,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public string Config
+        public override string Config
         {
             set
             {
