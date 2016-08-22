@@ -225,6 +225,8 @@ namespace SpartaTools.iOS.Xcode
                 }
                 case "string":
                     return new PlistElementString(GetText(xml));
+                case "date":
+                    return new PlistElementString(GetText(xml));
                 case "integer":
                 {
                     int r;

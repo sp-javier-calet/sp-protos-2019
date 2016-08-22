@@ -1041,7 +1041,135 @@ namespace SpartaTools.iOS.Xcode
             return null;
         }
 
+        public void AddShellScript(string targetGuid, string script, string shell)
+        {
+            AddShellScript(targetGuid, script, shell, -1);
+        }
 
+        public void AddShellScript(string targetGuid, string script, string shell, int order)
+        {
+            var dic = new PBXElementDict();
+            dic["isa"] = new PBXElementString("PBXShellScriptBuildPhase");
+            dic["shellPath"] = new PBXElementString(shell);
+            dic["shellScript"] = new PBXElementString(script);
+
+            // TODO Unsupported script features
+            dic.CreateArray("files");
+            dic.CreateArray("inputPaths");
+            dic.CreateArray("outputPaths");
+
+            // Add script and build phase
+            var target = nativeTargets[targetGuid];
+            var shellGuid = PBXGUID.Generate();
+            m_Data.shellScripts.AddObject(shellGuid, dic);
+
+            if(order < 0)
+            {
+                target.phases.AddGUID(shellGuid);
+            }
+            else if(target.phases.Count > 0)
+            {
+                // Recreate phases with the desired order
+                var phasesList = new GUIDList(target.phases);
+                target.phases.Clear();
+
+                int i = 0;
+                foreach(var guid in phasesList)
+                {
+                    // Insert build phase at the desired position
+                    if(i == order)
+                    {
+                        target.phases.AddGUID(shellGuid);
+                    }
+                    i++;
+                        
+                    target.phases.AddGUID(guid);
+                }
+            }
+            else
+            {
+                target.phases.AddGUID(shellGuid);
+            }
+        }
+
+        public void SetSystemCapability(string targetGuid, string capability, bool enabled)
+        {
+            var cap = SystemCapability.Create(targetGuid, capability, enabled);
+            project.project.systemCapabilities.Add(cap);
+        }
+
+        public void SetProvisioningProfile(string targetGuid, string path, string infoPlistpath)
+        {
+            // TODO Move manipulation code to Plist and Objects.
+            var projectFileInfo = new FileInfo(path);
+            var file = projectFileInfo.OpenText();
+            string contents = file.ReadToEnd();
+            file.Close();
+
+            int start = contents.IndexOf("<?xml");
+            int end = contents.IndexOf("</plist>") + "</plist>".Length;
+            contents = contents.Substring(start, end - start);
+
+            var doc = new PlistDocument();
+            doc.ReadFromString(contents);
+
+            bool dirty = false;
+            var provUUID = "";
+            if(doc.root.values.ContainsKey("UUID"))
+            {
+                provUUID = ((PlistElementString)doc.root.values["UUID"]).value;
+                dirty = true;
+            }
+
+            var teamname = "";
+            if(doc.root.values.ContainsKey("TeamName"))
+            {
+                teamname = ((PlistElementString)doc.root.values["TeamName"]).value;
+                dirty = true;
+            }
+
+            var appIdPrefix = "";
+            if(doc.root.values.ContainsKey("ApplicationIdentifierPrefix"))
+            {
+                var appIdPrefixes = doc.root.values["ApplicationIdentifierPrefix"].AsArray();
+                foreach(var prefix in appIdPrefixes.values)
+                {
+                    if(prefix is PlistElementString)
+                    {
+                        appIdPrefix = prefix.AsString();
+                        break;
+                    }
+                }
+
+                dirty = true;
+            }
+
+            if(dirty)
+            {
+                foreach(var configGuid in configs[GetConfigListForTarget(targetGuid)].buildConfigs)
+                {
+                    var cfg = buildConfigs[configGuid];
+
+                    if(!string.IsNullOrEmpty(provUUID))
+                        cfg.SetProperty("PROVISIONING_PROFILE", provUUID);
+                    
+                    if(!string.IsNullOrEmpty(teamname))
+                        cfg.SetProperty("CODE_SIGN_IDENTITY", teamname);
+
+                    if(!string.IsNullOrEmpty(appIdPrefix) && !string.IsNullOrEmpty(infoPlistpath))
+                    {
+                        var infoPlist = new PlistDocument();
+                        infoPlist.ReadFromFile(infoPlistpath);
+                        infoPlist.root.SetString("BundleSeedId", appIdPrefix);
+                        infoPlist.WriteToFile(infoPlistpath);
+                    }
+                }
+
+                var homePath = Environment.GetEnvironmentVariable("HOME");
+                var libPath = Path.Combine(homePath, "Library/MobileDevice/Provisioning Profiles/" + provUUID + ".mobileprovision");
+                File.Copy(path, libPath, true);
+            }
+        }
     }
 
 } // namespace UnityEditor.iOS.Xcode
