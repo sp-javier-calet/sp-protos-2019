@@ -285,102 +285,102 @@ namespace SpartaTools.Editor.View
                 list.Add(data);
             }
 
-            public override void AddHeaderSearchPath(string path)
+            public void AddHeaderSearchPath(string path)
             {
                 Add(new ModData("Header Path", path, _currentXcodeMod));
             }
 
-            public override void AddLibrarySearchPath(string path)
+            public void AddLibrarySearchPath(string path)
             {
                 Add(new ModData("Library Path", path, _currentXcodeMod));
             }
 
-            public override void CopyFile(string basePath, string src, string dst)
+            public void CopyFile(string basePath, string src, string dst)
             {
                 Add(new ModData("Copy File", string.Format("{0} > {1}", src, dst), _currentXcodeMod));
             }
 
-            public override void AddFile(string path)
+            public void AddFile(string path)
             {
                 Add(new ModData("File", path, _currentXcodeMod));
             }
 
-            public override void AddFile(string path, string[] flags)
+            public void AddFile(string path, string[] flags)
             {
                 Add(new ModData("File", string.Format("{0} [{1}]", path, string.Join(",", flags)), _currentXcodeMod));
             }
 
-            public override void AddFolder(string path)
+            public void AddFolder(string path)
             {
                 Add(new ModData("Folder", path, _currentXcodeMod));
             }
 
-            public override void AddLibrary(string path)
+            public void AddLibrary(string path)
             {
                 Add(new ModData("Library", path, _currentXcodeMod));
             }
 
-            public override void AddFramework(string framework, bool weak)
+            public void AddFramework(string framework, bool weak)
             {
                 Add(new ModData("Framework", string.Format("{0} : {1}", framework, weak ? "weak" : "required"), _currentXcodeMod));
             }
 
-            public override void SetBuildSetting(string name, string value)
+            public void SetBuildSetting(string name, string value)
             {
                 Add(new ModData("Build Setting", string.Format("{0} = {1}", name, value), _currentXcodeMod));
             }
 
-            public override void AddLocalization(string name, string path)
+            public void AddLocalization(string name, string path)
             {
                 Add(new ModData("Localization", string.Format("{0} > {1}", name, path), _currentXcodeMod));
             }
 
-            public override void AddLocalization(string name, string path, string variantGroup)
+            public void AddLocalization(string name, string path, string variantGroup)
             {
                 Add(new ModData("Localization", string.Format("{0}/{1} > {2}", variantGroup, name, path), _currentXcodeMod));
             }
 
-            public override void AddPlistFields(IDictionary data)
+            public void AddPlistFields(IDictionary data)
             {
                 Add(new ModData("Info Plist", XMiniJSON.jsonEncode(data), _currentXcodeMod));
             }
 
-            public override void AddShellScript(string script, string shell)
+            public void AddShellScript(string script, string shell)
             {
                 Add(new ModData("Shell Script", string.Format("{0} ({1})", script, shell), _currentXcodeMod));
             }
 
-            public override void AddShellScript(string script, string shell, int order)
+            public void AddShellScript(string script, string shell, int order)
             {
                 Add(new ModData("Shell Script", string.Format("{0} ({1}) at position {2}. ", script, shell, order), _currentXcodeMod));
             }
 
-            public override void AddShellScript(string script, string shell, string target, int order)
+            public void AddShellScript(string script, string shell, string target, int order)
             {
                 Add(new ModData("Shell Script", string.Format("{0} ({1}) at position {2}. Target {3}", script, shell, order, order), _currentXcodeMod));
             }
 
-            public override void SetSystemCapability(string name, bool enabled)
+            public void SetSystemCapability(string name, bool enabled)
             {
                 Add(new ModData("System Capability", string.Format("{0} = {1}", name, enabled), _currentXcodeMod));
             }
 
-            public override void SetProvisioningProfile(string path)
+            public void SetProvisioningProfile(string path)
             {
                 Add(new ModData("Provisioning Profile", path, _currentXcodeMod));
             }
 
-            public override void AddKeychainAccessGroup(string entitlementsFile, string accessGroup)
+            public void AddKeychainAccessGroup(string entitlementsFile, string accessGroup)
             {
                 Add(new ModData("Keychain Access Group", string.Format("{0} in {1}", accessGroup, entitlementsFile), _currentXcodeMod));
             }
 
-            public override void AddKeychainAccessGroup(string accessGroup)
+            public void AddKeychainAccessGroup(string accessGroup)
             {
                 Add(new ModData("Keychain Access Group", string.Format("{0} in default entitlements file", accessGroup), _currentXcodeMod));
             }
 
-            public override void Commit()
+            public void Commit()
             {
             }
         }

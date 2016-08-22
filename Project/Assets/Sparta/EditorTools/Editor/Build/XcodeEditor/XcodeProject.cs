@@ -128,102 +128,102 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
             #region XCodeProjectEditor interface methods
 
-            public override void AddHeaderSearchPath(string path)
+            public void AddHeaderSearchPath(string path)
             {
                 GetEditor<HeaderPathsModEditor>().Add(path);
             }
 
-            public override void AddLibrarySearchPath(string path)
+            public void AddLibrarySearchPath(string path)
             {
                 GetEditor<LibraryPathsModEditor>().Add(path);
             }
 
-            public override void CopyFile(string basePath, string src, string dst)
+            public void CopyFile(string basePath, string src, string dst)
             {
                 GetEditor<CopyFileModEditor>().Add(basePath, src, dst);
             }
 
-            public override void AddFile(string path)
+            public void AddFile(string path)
             {
                 AddFile(path, new string[0]);
             }
 
-            public override void AddFile(string path, string[] flags)
+            public void AddFile(string path, string[] flags)
             {
                 GetEditor<FilesModEditor>().Add(path, Path.GetFileName(path), flags);
             }
 
-            public override void AddFolder(string path)
+            public void AddFolder(string path)
             {
                 GetEditor<FolderModEditor>().Add(path, Path.GetFileName(path));
             }
 
-            public override void AddLibrary(string path)
+            public void AddLibrary(string path)
             {
                 GetEditor<LibraryModEditor>().Add(path, Path.GetFileName(path));
             }
 
-            public override void AddFramework(string framework, bool weak)
+            public void AddFramework(string framework, bool weak)
             {
                 GetEditor<FrameworkModEditor>().Add(framework, weak);
             }
 
-            public override void SetBuildSetting(string name, string value)
+            public void SetBuildSetting(string name, string value)
             {
                 GetEditor<BuildSettingsModEditor>().Add(name, value);
             }
 
-            public override void AddLocalization(string name, string path)
+            public void AddLocalization(string name, string path)
             {
                 GetEditor<LocalizationModEditor>().Add(name, path);
             }
 
-            public override void AddLocalization(string name, string path, string variantGroup)
+            public void AddLocalization(string name, string path, string variantGroup)
             {
                 GetEditor<LocalizationModEditor>().Add(name, path, variantGroup);
             }
 
-            public override void AddPlistFields(IDictionary data)
+            public void AddPlistFields(IDictionary data)
             {
                 GetEditor<PListModEditor>().Add(data);
             }
 
-            public override void AddShellScript(string script, string shell)
+            public void AddShellScript(string script, string shell)
             {
                 GetEditor<ShellScriptModEditor>().Add(script, shell);
             }
 
-            public override void AddShellScript(string script, string shell, int order)
+            public void AddShellScript(string script, string shell, int order)
             {
                 GetEditor<ShellScriptModEditor>().Add(script, shell, order);
             }
 
-            public override void AddShellScript(string script, string shell, string target, int order)
+            public void AddShellScript(string script, string shell, string target, int order)
             {
                 GetEditor<ShellScriptModEditor>().Add(script, shell, target, order);
             }
 
-            public override void SetSystemCapability(string name, bool enabled)
+            public void SetSystemCapability(string name, bool enabled)
             {
                 GetEditor<SystemCapabilityModEditor>().Add(name, enabled);
             }
 
-            public override void SetProvisioningProfile(string path)
+            public void SetProvisioningProfile(string path)
             {
                 GetEditor<ProvisioningModEditor>().Add(path);
             }
 
-            public override void AddKeychainAccessGroup(string entitlementsFile, string accessGroup)
+            public void AddKeychainAccessGroup(string entitlementsFile, string accessGroup)
             {
                 GetEditor<KeychainAccessGroupModEditor>().Add(entitlementsFile, accessGroup);
             }
 
-            public override void AddKeychainAccessGroup(string accessGroup)
+            public void AddKeychainAccessGroup(string accessGroup)
             {
                 GetEditor<KeychainAccessGroupModEditor>().Add(accessGroup);
             }
 
-            public override void Commit()
+            public void Commit()
             {
                 var modEditors = ModEditors.Values;
                 foreach(var editor in modEditors)

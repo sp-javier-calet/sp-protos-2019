@@ -14,46 +14,46 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     ///   {ROOT_PATH}
     /// 
     /// </summary>
-    public abstract class XCodeProjectEditor
+    public interface XCodeProjectEditor
     {
-        public abstract void AddHeaderSearchPath(string path);
+        void AddHeaderSearchPath(string path);
 
-        public abstract void AddLibrarySearchPath(string path);
+        void AddLibrarySearchPath(string path);
 
-        public abstract void CopyFile(string basePath, string src, string dst);
+        void CopyFile(string basePath, string src, string dst);
 
-        public abstract void AddFile(string path);
+        void AddFile(string path);
 
-        public abstract void AddFile(string path, string[] flags);
+        void AddFile(string path, string[] flags);
 
-        public abstract void AddFolder(string path);
+        void AddFolder(string path);
 
-        public abstract void AddLibrary(string path);
+        void AddLibrary(string path);
 
-        public abstract void AddFramework(string framework, bool weak);
+        void AddFramework(string framework, bool weak);
 
-        public abstract void SetBuildSetting(string name, string value);
+        void SetBuildSetting(string name, string value);
 
-        public abstract void AddLocalization(string name, string path);
+        void AddLocalization(string name, string path);
 
-        public abstract void AddLocalization(string name, string path, string variantGroup);
+        void AddLocalization(string name, string path, string variantGroup);
 
-        public abstract void AddPlistFields(IDictionary data);
+        void AddPlistFields(IDictionary data);
 
-        public abstract void AddShellScript(string script, string shell);
+        void AddShellScript(string script, string shell);
 
-        public abstract void AddShellScript(string script, string shell, int order);
+        void AddShellScript(string script, string shell, int order);
 
-        public abstract void AddShellScript(string script, string shell, string target, int order);
+        void AddShellScript(string script, string shell, string target, int order);
 
-        public abstract void SetSystemCapability(string name, bool enabled);
+        void SetSystemCapability(string name, bool enabled);
 
-        public abstract void SetProvisioningProfile(string path);
+        void SetProvisioningProfile(string path);
 
-        public abstract void AddKeychainAccessGroup(string entitlementsFile, string accessGroup);
+        void AddKeychainAccessGroup(string entitlementsFile, string accessGroup);
 
-        public abstract void AddKeychainAccessGroup(string accessGroup);
+        void AddKeychainAccessGroup(string accessGroup);
 
-        public abstract void Commit();
+        void Commit();
     }
 }
