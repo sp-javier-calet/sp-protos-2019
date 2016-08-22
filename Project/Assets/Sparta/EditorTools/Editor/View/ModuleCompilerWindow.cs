@@ -92,6 +92,8 @@ namespace SpartaTools.Editor.View
                 Variants.Add(new Variant("tvOS-Editor", module, BuildTarget.tvOS, true));
                 Variants.Add(new Variant("macOS", module, BuildTarget.StandaloneOSXUniversal, false));
                 Variants.Add(new Variant("macOS-Editor", module, BuildTarget.StandaloneOSXUniversal, true));
+                Variants.Add(new Variant("linux", module, BuildTarget.StandaloneLinuxUniversal, false));
+                Variants.Add(new Variant("linux-Editor", module, BuildTarget.StandaloneLinuxUniversal, true));
                 Variants.Add(new Variant("Win Standalone", module, BuildTarget.StandaloneWindows, false));
                 Variants.Add(new Variant("Win-Editor", module, BuildTarget.StandaloneWindows, true));
             }

@@ -1,3 +1,7 @@
+#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#define IOS_TVOS_DEVICE
+#endif
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,7 +34,7 @@ namespace SocialPoint.AppEvents
         List<Status> EventStatus = new List<Status> { Status.MEMORYWARNING, Status.UPDATEDSOURCE };
         Status _previousStatus = Status.FIRSTBOOT;
 
-#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#if IOS_TVOS_DEVICE
         [DllImport ("__Internal")]
         private static extern void SPUnityAppEvents_Init(string name);
 

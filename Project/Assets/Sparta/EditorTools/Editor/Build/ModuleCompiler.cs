@@ -411,9 +411,11 @@ namespace SpartaTools.Editor.Build
             case BuildTarget.StandaloneLinux:
             case BuildTarget.StandaloneLinux64:
             case BuildTarget.StandaloneLinuxUniversal:
+                compiler.ConfigureAs(new StandAloneLinuxPlatformConfiguration());
+                break;
             case BuildTarget.StandaloneWindows:
             case BuildTarget.StandaloneWindows64:
-                compiler.ConfigureAs(new StandAlonePlatformConfiguration());
+                compiler.ConfigureAs(new StandAloneWindowsPlatformConfiguration());
                 break;
             case BuildTarget.StandaloneOSXIntel:
             case BuildTarget.StandaloneOSXIntel64:
@@ -451,11 +453,21 @@ namespace SpartaTools.Editor.Build
             void Configure(ModuleCompiler compiler);
         }
 
-        class StandAlonePlatformConfiguration : ICompilerConfiguration
+        class StandAloneLinuxPlatformConfiguration : ICompilerConfiguration
         {
             public void Configure(ModuleCompiler compiler)
             {
                 compiler.AddDefinedSymbol("UNITY_STANDALONE");
+                compiler.AddDefinedSymbol("UNITY_STANDALONE_LINUX");
+            }
+        }
+
+        class StandAloneWindowsPlatformConfiguration : ICompilerConfiguration
+        {
+            public void Configure(ModuleCompiler compiler)
+            {
+                compiler.AddDefinedSymbol("UNITY_STANDALONE");
+                compiler.AddDefinedSymbol("UNITY_STANDALONE_WIN");
             }
         }
 

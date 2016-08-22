@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if UNITY_IOS && !UNITY_EDITOR
+#define IOS_DEVICE
+#endif
+
+using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
@@ -14,7 +18,7 @@ namespace SocialPoint.Social
         Error _error;
         NativeCallsHandler _handler;
 
-        #if UNITY_IOS && !UNITY_EDITOR
+        #if IOS_DEVICE
         [System.Runtime.InteropServices.DllImport ("__Internal")]
         private static extern void SPUnityGameCenter_UserVerificationInit();
         #else
