@@ -13,7 +13,7 @@ namespace SocialPoint.AdminPanel
 
         public event Action OnContentChanged;
 
-        public bool FixedFocus { get; set; }
+        public bool FixedFocus { get; private set; }
 
         public ConsoleApplication Application { get; private set; }
 
