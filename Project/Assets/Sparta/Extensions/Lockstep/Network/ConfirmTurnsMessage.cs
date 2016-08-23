@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class ConfirmTurnsMessage : INetworkMessage
+    public sealed class ConfirmTurnsMessage : INetworkMessage
     {
         LockstepCommandDataFactory _commandDataFactory;
 

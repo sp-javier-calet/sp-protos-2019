@@ -4,7 +4,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class ConfirmTurnsReceptionMessage : INetworkMessage
+    public sealed class ConfirmTurnsReceptionMessage : INetworkMessage
     {
         public int[] ConfirmedTurns { get; private set; }
 

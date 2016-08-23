@@ -1,6 +1,6 @@
 ﻿namespace SocialPoint.Lockstep
 {
-    public class LockstepConfig
+    public sealed class LockstepConfig
     {
         // The commands will be only processed every CommandStepFactor simulation steps reached
         public int CommandStepFactor = 10;

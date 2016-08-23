@@ -6,7 +6,7 @@ using SocialPoint.Utils.Network.UNet;
 
 namespace SocialPoint.Lockstep.Network.UNet
 {
-    public class NetworkMessageWrapper : MessageBase
+    public sealed class NetworkMessageWrapper : MessageBase
     {
         public INetworkMessage NetworkMessage { get; private set; }
 

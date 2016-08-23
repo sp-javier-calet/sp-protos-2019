@@ -9,7 +9,7 @@ using SocialPoint.Lockstep.Network;
 
 namespace SocialPoint.Lockstep
 {
-    public class LockstepRecorder : IDisposable
+    public sealed class LockstepRecorder : IDisposable
     {
         ClientLockstepController _clientLockstep;
         LockstepCommandDataFactory _commandDataFactory;

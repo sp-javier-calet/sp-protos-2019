@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
-    public class ClientLockstepController : IUpdateable, IDisposable
+    public sealed class ClientLockstepController : IUpdateable, IDisposable
     {
         ISimulateable _model;
         IUpdateScheduler _updateScheduler;
@@ -84,7 +84,7 @@ namespace SocialPoint.Lockstep
         public event Action SimulationStarted;
         public event Action<ILockstepCommand> CommandApplied;
 
-        public LockstepConfig LockstepConfig { get; protected set; }
+        public LockstepConfig LockstepConfig { get; private set; }
 
         Dictionary<int, List<ILockstepCommand>> _pendingCommands = new Dictionary<int, List<ILockstepCommand>>();
 

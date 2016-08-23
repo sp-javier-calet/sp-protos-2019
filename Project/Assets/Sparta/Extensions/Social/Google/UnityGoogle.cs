@@ -12,7 +12,7 @@ using UnityEngine.SocialPlatforms;
 
 namespace SocialPoint.Social
 {
-    public class UnityGoogle : MonoBehaviour, IGoogle
+    public sealed class UnityGoogle : MonoBehaviour, IGoogle
     {
         [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
         void DebugLog(string msg)
@@ -24,7 +24,7 @@ namespace SocialPoint.Social
 
         public Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
 
-        protected void NotifyStateChanged()
+        void NotifyStateChanged()
         {
             if(StateChangeEvent != null)
             {

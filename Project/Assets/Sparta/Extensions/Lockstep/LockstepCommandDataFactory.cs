@@ -11,7 +11,7 @@ namespace SocialPoint.Lockstep
         public byte Type;
     }
 
-    public class LockstepCommandDataFactory : FamilyGenericFactory<TurnTypeTuple, LockstepCommandData>
+    public sealed class LockstepCommandDataFactory : FamilyGenericFactory<TurnTypeTuple, LockstepCommandData>
     {
         public LockstepCommandDataFactory(List<IGenericFactory<TurnTypeTuple, LockstepCommandData>> factories = null)
             : base(factories)

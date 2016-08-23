@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class LockstepCommandMessage : INetworkMessage
+    public sealed class LockstepCommandMessage : INetworkMessage
     {
         public ILockstepCommand LockstepCommand { get; private set; }
 

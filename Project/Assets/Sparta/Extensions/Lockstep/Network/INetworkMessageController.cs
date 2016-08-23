@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using SocialPoint.Lockstep.Network;
 using SocialPoint.Utils;
 
@@ -11,7 +10,7 @@ namespace SocialPoint.Lockstep.Network
         public int ConnectionId;
     }
 
-    public class SyncNetworkMessageData : NetworkMessageData
+    public sealed class SyncNetworkMessageData : NetworkMessageData
     {
         public int ServerDelay;
     }

@@ -39,7 +39,7 @@ namespace SocialPoint.Lockstep.Network.UNet
         }
     }
 
-    public class NetworkMessageHandler : BaseNetworkMessageHandler
+    public sealed class NetworkMessageHandler : BaseNetworkMessageHandler
     {
         Action<NetworkMessageData> _handler;
 
@@ -58,7 +58,7 @@ namespace SocialPoint.Lockstep.Network.UNet
         }
     }
 
-    public class SyncNetworkMessageHandler : BaseNetworkMessageHandler
+    public sealed class SyncNetworkMessageHandler : BaseNetworkMessageHandler
     {
         Action<SyncNetworkMessageData> _handler;
 

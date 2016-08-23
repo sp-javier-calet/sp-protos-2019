@@ -9,11 +9,11 @@ namespace SocialPoint.Social
 {
     public delegate void PlatformBridgeSessionDelegate(string session, string status, string error);
 
-    public class UnityFacebook : BaseFacebook
+    public sealed class UnityFacebook : BaseFacebook
     {
         const uint kMaxLoginRetries = 3;
 
-        public bool InitializedFriends { get; protected set; }
+        public bool InitializedFriends { get; private set; }
 
         bool _connecting;
         FacebookUser _user;
