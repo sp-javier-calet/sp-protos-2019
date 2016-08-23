@@ -1,103 +1,93 @@
 using UnityEngine;
-using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class TimelineInputController
-	{
-		AnimationTimelinePanel _boxEditorContainer;
-		protected AnimationTimelinePanel BoxEditorContainer { get { return _boxEditorContainer; } }
+    public sealed class TimelineInputController
+    {
+        AnimationTimelinePanel _boxEditorContainer;
 
-		public void Init(AnimationTimelinePanel boxEditorContainer)
-		{
-			_boxEditorContainer = boxEditorContainer;
-		}
+        AnimationTimelinePanel BoxEditorContainer { get { return _boxEditorContainer; } }
 
-		public void Update()
-		{
-			// Check Exit
-			if(BoxEditorContainer.SelectedStep == null)
-			{
-				return;
-			}
-			
-			if(TryDeleteSelectedAnimationItems())
-			{
-				return;
-			}
-			
-			if(TryDuplicateSelectedAnimationItems())
-			{
-				return;
-			}
-			
-			if(TryGroupAnimationItems())
-			{
-				return;
-			}
-			
-			if(TryUngroupAnimationItems())
-			{
-				return;
-			}
-		}
+        public void Init(AnimationTimelinePanel boxEditorContainer)
+        {
+            _boxEditorContainer = boxEditorContainer;
+        }
 
-		bool TryDeleteSelectedAnimationItems()
-		{
-			if(	  Event.current.type == EventType.KeyUp && Event.current.keyCode == KeyCode.Delete
-			   && !GUIAnimationTool.Blackboard.CompareValue(AnimationBlackboardKey.FocusPanelKey, AnimationBlackboardValue.EasingGridPanel)
-			   && BoxEditorContainer.SelectedStep != null
-			   )
-			{
-				BoxEditorContainer.RemoveSelectedAnimationItems();
-				return true;
-			}
+        public void Update()
+        {
+            // Check Exit
+            if(BoxEditorContainer.SelectedStep == null)
+            {
+                return;
+            }
+            if(TryDeleteSelectedAnimationItems())
+            {
+                return;
+            }
+            if(TryDuplicateSelectedAnimationItems())
+            {
+                return;
+            }
+            if(TryGroupAnimationItems())
+            {
+                return;
+            }
+            if(TryUngroupAnimationItems())
+            {
+                return;
+            }
+        }
 
-			return false;
-		}
+        bool TryDeleteSelectedAnimationItems()
+        {
+            if(Event.current.type == EventType.KeyUp && Event.current.keyCode == KeyCode.Delete
+               && !GUIAnimationTool.Blackboard.CompareValue(AnimationBlackboardKey.FocusPanelKey, AnimationBlackboardValue.EasingGridPanel)
+               && BoxEditorContainer.SelectedStep != null)
+            {
+                BoxEditorContainer.RemoveSelectedAnimationItems();
+                return true;
+            }
 
-		bool TryDuplicateSelectedAnimationItems()
-		{
-			if(	  Event.current.type == EventType.keyDown 
-			   && ( GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand) )
-			   && GUIAnimationTool.KeyController.IsPressed(KeyCode.D)
-			   && BoxEditorContainer.SelectedStep != null
-			   )
-			{
-				BoxEditorContainer.DuplicateSelectedAnimationItems();
-				return true;
-			}
-			
-			return false;
-		}
+            return false;
+        }
 
-		bool TryGroupAnimationItems()
-		{
-			if(	  Event.current.type == EventType.keyDown 
-			   && ( GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand) )
-			   && GUIAnimationTool.KeyController.IsPressed(KeyCode.G)
-			   && BoxEditorContainer.SelectedStep != null
-			   )
-			{
-				BoxEditorContainer.GroupSelection();
-				return true;
-			}
-			
-			return false;
-		}
-		bool TryUngroupAnimationItems()
-		{
-			if(	  Event.current.type == EventType.keyDown 
-			   && ( GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand) )
-			   && GUIAnimationTool.KeyController.IsPressed(KeyCode.U)
-			   && BoxEditorContainer.SelectedStep != null
-			   )
-			{
-				BoxEditorContainer.UngroupSelection();
-				return true;
-			}
-			
-			return false;
-		}
-	}
+        bool TryDuplicateSelectedAnimationItems()
+        {
+            if(Event.current.type == EventType.keyDown
+               && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
+               && GUIAnimationTool.KeyController.IsPressed(KeyCode.D)
+               && BoxEditorContainer.SelectedStep != null)
+            {
+                BoxEditorContainer.DuplicateSelectedAnimationItems();
+                return true;
+            }
+            return false;
+        }
+
+        bool TryGroupAnimationItems()
+        {
+            if(Event.current.type == EventType.keyDown
+               && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
+               && GUIAnimationTool.KeyController.IsPressed(KeyCode.G)
+               && BoxEditorContainer.SelectedStep != null)
+            {
+                BoxEditorContainer.GroupSelection();
+                return true;
+            }
+            return false;
+        }
+
+        bool TryUngroupAnimationItems()
+        {
+            if(Event.current.type == EventType.keyDown
+               && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
+               && GUIAnimationTool.KeyController.IsPressed(KeyCode.U)
+               && BoxEditorContainer.SelectedStep != null)
+            {
+                BoxEditorContainer.UngroupSelection();
+                return true;
+            }
+            return false;
+        }
+    }
 }
