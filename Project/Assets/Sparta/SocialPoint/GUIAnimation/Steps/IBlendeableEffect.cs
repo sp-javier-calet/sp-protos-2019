@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -7,7 +8,7 @@ namespace SocialPoint.GUIAnimation
     {
         bool UseEaseCustom { get; set; }
 
-        List<Vector2> EaseCustom { get; set; }
+        List<EasePoint> EaseCustom { get; set; }
 
         EaseType EaseType { get; set; }
     }
