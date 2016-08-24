@@ -1,17 +1,17 @@
 ﻿public enum BackendEnvironment
 {
     None,
-    Develpoment,
+    Development,
     Production,
     Test,
-    Docker
-};
+    Docker}
+;
 
 public static class BackendEnvironmentExtensions
 {
-    const string DevelopmentUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
-    const string TestUrl = "http://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
-    const string ProductionUrl = "https://pro-tech-bootstrap-000a.pro.tech.laicosp.net/api/v3";
+    const string DevelopmentUrl = "http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
+    const string TestUrl = "http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
+    const string ProductionUrl = "https://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
     const string DockerUrl = "http://localhost:4630/api/v3";
 
     public static string GetUrl(this BackendEnvironment env)
@@ -20,7 +20,7 @@ public static class BackendEnvironmentExtensions
         {
         case BackendEnvironment.None:
             return null;
-        case BackendEnvironment.Develpoment:
+        case BackendEnvironment.Development:
             return DevelopmentUrl;
         case BackendEnvironment.Production:
             return ProductionUrl;

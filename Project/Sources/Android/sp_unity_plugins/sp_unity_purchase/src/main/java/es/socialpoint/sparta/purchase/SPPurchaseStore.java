@@ -10,9 +10,14 @@ public class SPPurchaseStore {
     //Native service manager
     private static SPPurchaseNativeServices _purchaseServices;
 
-    public static void Init(String listenerObjectName)
+    public static void Init()
     {
-        _purchaseServices = new SPPurchaseNativeServices(listenerObjectName);
+        _purchaseServices = new SPPurchaseNativeServices(false);
+    }
+
+    public static void InitWithLogs()
+    {
+        _purchaseServices = new SPPurchaseNativeServices(true);
     }
 
     public static void RequestProductData(String productIds)

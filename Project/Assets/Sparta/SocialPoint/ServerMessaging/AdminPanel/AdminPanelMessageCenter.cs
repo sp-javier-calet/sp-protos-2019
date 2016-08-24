@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
-
-using SocialPoint.Login;
-using SocialPoint.Hardware;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
-using UnityEngine.UI;
+using SocialPoint.Login;
 
 namespace SocialPoint.ServerMessaging
 {
     public class AdminPanelMessageCenter : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        IMessageCenter _mesageCenter;
-        ILogin _login;
+        readonly IMessageCenter _messageCenter;
+        ILoginData _loginData;
 
-        public AdminPanelMessageCenter(IMessageCenter messageCenter, ILogin login)
+        public AdminPanelMessageCenter(IMessageCenter messageCenter, ILoginData loginData)
         {
-            _mesageCenter = messageCenter;
-            _login = login;
+            _messageCenter = messageCenter;
+            _loginData = loginData;
         }
 
         #region IAdminPanelGUI implementation
@@ -26,20 +22,23 @@ namespace SocialPoint.ServerMessaging
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Message Center");
-            layout.CreateButton("Update messages", () => _mesageCenter.UpdateMessages());
+            layout.CreateButton("Update messages", () => _messageCenter.UpdateMessages());
             layout.CreateLabel("Messages");
-            var messages = _mesageCenter.Messages;
+            var messages = _messageCenter.Messages;
             messages.Reset();
             while(messages.MoveNext())
             {
                 var hlayout = layout.CreateHorizontalLayout();
                 hlayout.CreateTextArea(messages.Current.ToString());
-                hlayout.CreateButton("Delete", () => _mesageCenter.DeleteMessage(messages.Current));
+                hlayout.CreateButton("Delete", () => _messageCenter.DeleteMessage(messages.Current));
             }
-            layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _mesageCenter.Messages.MoveNext());
-            layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _mesageCenter.Messages.MoveNext());
+            messages.Dispose();
+            layout.CreateButton("Delete all Messages together", DeleteAllMessagesTogether, _messageCenter.Messages.MoveNext());
+            layout.CreateButton("Delete all Messages one by one", DeleteAllMessagesOneByOne, _messageCenter.Messages.MoveNext());
             layout.CreateButton("Send Test Message Itself", SendTestMessageItself);
-            _mesageCenter.UpdatedEvent += (a) => layout.Refresh();
+            layout.CreateButton("Read all Messages together", ReadAllMessagesTogether, _messageCenter.Messages.MoveNext());
+
+            _messageCenter.UpdatedEvent += a => layout.Refresh();
         }
 
         #endregion
@@ -55,34 +54,26 @@ namespace SocialPoint.ServerMessaging
 
         string MessagesAsText()
         {
-            var iterator = _mesageCenter.Messages;
+            var iterator = _messageCenter.Messages;
             var stringBuilder = new StringBuilder();
             while(iterator.MoveNext())
             {
                 stringBuilder.AppendFormat("\n{0}", iterator.Current);
             }
+            iterator.Dispose();
+
             return stringBuilder.ToString();
         }
 
         void SendTestMessageItself()
         {
-            var message = new Message("test", new AttrDic(), new Origin("test name", "test icon"), _login.UserId.ToString()); 
-            _mesageCenter.SendMessage(message);
+            var message = new Message("test", new AttrDic(), new Origin("test name", "test icon"), _loginData.UserId.ToString()); 
+            _messageCenter.SendMessage(message);
         }
 
         void DeleteAllMessagesOneByOne()
         {
-            var iterator = _mesageCenter.Messages;
-            iterator.Reset();
-            while(iterator.MoveNext())
-            {
-                _mesageCenter.DeleteMessage(iterator.Current);
-            }
-        }
-
-        void DeleteAllMessagesTogether()
-        {
-            var iterator = _mesageCenter.Messages;
+            var iterator = _messageCenter.Messages;
             iterator.Reset();
 
             var list = new List<Message>();
@@ -90,7 +81,44 @@ namespace SocialPoint.ServerMessaging
             {
                 list.Add(iterator.Current);
             }
-            _mesageCenter.DeleteMessages(list);
+            iterator.Dispose();
+
+            var listIterator = list.GetEnumerator();
+            while(listIterator.MoveNext())
+            {
+                _messageCenter.DeleteMessage(listIterator.Current);
+            }
+            listIterator.Dispose();
+        }
+
+        void DeleteAllMessagesTogether()
+        {
+            var iterator = _messageCenter.Messages;
+            iterator.Reset();
+
+            var list = new List<Message>();
+            while(iterator.MoveNext())
+            {
+                list.Add(iterator.Current);
+            }
+            iterator.Dispose();
+
+            _messageCenter.DeleteMessages(list);
+        }
+
+        void ReadAllMessagesTogether()
+        {
+            var iterator = _messageCenter.Messages;
+            iterator.Reset();
+
+            var list = new List<Message>();
+            while(iterator.MoveNext())
+            {
+                list.Add(iterator.Current);
+            }
+            iterator.Dispose();
+
+            _messageCenter.ReadMessages(list);
         }
     }
 }

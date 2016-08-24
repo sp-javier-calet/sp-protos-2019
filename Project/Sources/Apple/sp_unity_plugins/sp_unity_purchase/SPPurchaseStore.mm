@@ -8,109 +8,106 @@
 
 class PlatformPurchaseCenterBridge
 {
-    //Native object instance
+    // Native object instance
     SPPurchaseNativeServices* _purchaseServices;
-    
-public:
-    PlatformPurchaseCenterBridge(const char* listenerObjectName)
+
+  public:
+    PlatformPurchaseCenterBridge()
     : _purchaseServices(nullptr)
     {
-        _purchaseServices = [[SPPurchaseNativeServices alloc] initWithUnityListener:listenerObjectName];
+        _purchaseServices = [[SPPurchaseNativeServices alloc] init];
     }
-    
+
     /* Setters */
-    
+
     void setApplicationUsername(const char* userIdentifier)
     {
         [_purchaseServices setAppUsername:userIdentifier];
     }
-    
-    void setUseAppReceipt(bool shouldUseAppReceipt)
-    {
-        [_purchaseServices setUseAppReceipt:shouldUseAppReceipt];
-    }
-    
+
     void sendTransactionUpdateEvents(bool shouldSend)
     {
         [_purchaseServices sendTransactionUpdateEvents:shouldSend];
     }
-    
+
     void enableHighDetailLogs(bool shouldEnable)
     {
         [_purchaseServices enableHighDetailLogs:shouldEnable];
     }
-    
+
     /* Product Functions */
-    
+
     void downloadProducts(const std::string& productList)
     {
         if([_purchaseServices isInitializingStoreProductsIds])
         {
-            return;//Already initializing products
+            return;// Already initializing products
         }
-        
+
         NSMutableSet* productIdentifiers = [[NSMutableSet alloc] init];
-        
+
         std::vector<std::string> products = PlatformPurchaseCenterBridge::split(productList, ',');
         for(std::string& productIdentifier : products)
         {
             NSString* productId = [NSString stringWithCString:productIdentifier.c_str() encoding:NSUTF8StringEncoding];
             [productIdentifiers addObject:productId];
         }
-        
+
         [_purchaseServices startProductsRequest:productIdentifiers];
     }
-    
+
     void purchaseProduct(const char* productIdentifier)
     {
         [_purchaseServices purchaseProduct:productIdentifier];
     }
-    
+
     /* Transaction Functions */
-    
+
     void forceUpdatePendingTransactions()
     {
         return [_purchaseServices forceUpdatePendingTransactions];
     }
-    
+
     void finishPendingTransaction(const char* productIdentifier)
     {
         return [_purchaseServices finishPendingTransaction:productIdentifier];
     }
-    
+
     void forceFinishPendingTransactions()
     {
         return [_purchaseServices forceFinishPendingTransactions];
     }
-    
-private:
-    
+
+  private:
     /* Utility Functions */
-    
-    static std::vector<std::string> split(const std::string &s, char delim) {
+
+    static std::vector<std::string> split(const std::string& s, char delim)
+    {
         std::vector<std::string> elems;
         split(s, delim, elems);
         return elems;
     }
-    
-    static std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+
+    static std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems)
+    {
         std::stringstream ss(s);
         std::string item;
-        while (std::getline(ss, item, delim)) {
+        while(std::getline(ss, item, delim))
+        {
             elems.push_back(item);
         }
         return elems;
     }
 };
 
-//Bridge Instance
+// Bridge Instance
 PlatformPurchaseCenterBridge* purchaseBridge = nullptr;
 
 /* EXPORT FUNCTIONS */
 
-EXPORT_API void SPUnityStore_Init(const char* listenerObjectName)
+EXPORT_API void SPUnityStore_Init()
 {
-    purchaseBridge = new PlatformPurchaseCenterBridge(listenerObjectName);
+    purchaseBridge = new PlatformPurchaseCenterBridge();
 }
 
 EXPORT_API void SPUnityStore_SetApplicationUsername(const char* applicationUserName)
@@ -118,14 +115,6 @@ EXPORT_API void SPUnityStore_SetApplicationUsername(const char* applicationUserN
     if(purchaseBridge)
     {
         purchaseBridge->setApplicationUsername(applicationUserName);
-    }
-}
-
-EXPORT_API void SPUnityStore_SetUseAppReceipt(bool shouldUseAppReceipt)
-{
-    if(purchaseBridge)
-    {
-        purchaseBridge->setUseAppReceipt(shouldUseAppReceipt);
     }
 }
 
@@ -184,4 +173,3 @@ EXPORT_API void SPUnityStore_FinishPendingTransaction(const char* transactionIde
         purchaseBridge->finishPendingTransaction(transactionIdentifier);
     }
 }
-

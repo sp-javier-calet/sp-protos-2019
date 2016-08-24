@@ -1,14 +1,12 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace SocialPoint.Utils
 {    
     class ReverseComparer<TPriority> : IComparer<TPriority> 
     {
-        IComparer<TPriority> _comparer;
+        readonly IComparer<TPriority> _comparer;
 
         public ReverseComparer(IComparer<TPriority> comparer=null)
         {
@@ -42,10 +40,14 @@ namespace SocialPoint.Utils
         protected SortedList<TPriority, Queue<TValue>> CopyQueues()
         {
             var queues = new SortedList<TPriority, Queue<TValue>>(_queues.Comparer);
-            foreach(var pair in _queues)
+            var itr = _queues.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 queues[pair.Key] = new Queue<TValue>(pair.Value);
             }
+            itr.Dispose();
+
             return queues;
         }
 
@@ -78,13 +80,18 @@ namespace SocialPoint.Utils
         
         public TValue Remove()
         {
-            foreach(var currQueue in _queues)
+            var itr = _queues.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var currQueue = itr.Current;
                 if(currQueue.Value.Count > 0)
                 {
+                    itr.Dispose();
                     return currQueue.Value.Dequeue();
                 }
             }
+            itr.Dispose();
+
             return default(TValue);
         }
 
@@ -105,13 +112,16 @@ namespace SocialPoint.Utils
                     // If queue contains the value, regenerate the entire queue without it
                     found = true;
                     var newQueue = new Queue<TValue>();
-                    foreach(var elm in _queues[key])
+                    var itr = _queues[key].GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var elm = itr.Current;
                         if(!EqualityComparer<TValue>.Default.Equals(elm, value))
                         {
                             newQueue.Enqueue(elm);
                         }
                     }
+                    itr.Dispose();
                     _queues[key] = newQueue;
                 }
             }
@@ -120,13 +130,19 @@ namespace SocialPoint.Utils
 
         public IEnumerator<TValue> GetEnumerator()
         {
-            foreach(var currQueue in _queues)
+            var itr = _queues.GetEnumerator();
+            while(itr.MoveNext())
             {
-                foreach(var obj in currQueue.Value)
+                var currQueue = itr.Current;
+                var itr2 = currQueue.Value.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var obj = itr2.Current;
                     yield return obj;
                 }
+                itr2.Dispose();
             }
+            itr.Dispose();
         }
         
         IEnumerator IEnumerable.GetEnumerator()
@@ -153,10 +169,13 @@ namespace SocialPoint.Utils
             get
             {
                 int count = 0;
-                foreach(var currQueue in _queues)
+                var itr = _queues.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var currQueue = itr.Current;
                     count += currQueue.Value.Count;
                 }
+                itr.Dispose();
 
                 return count;
             }

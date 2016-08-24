@@ -1,0 +1,6 @@
+
+{
+    "frameworks" : [
+        "CoreTelephony.framework:weak"
+    ],
+}

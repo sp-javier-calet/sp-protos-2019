@@ -89,10 +89,8 @@ namespace SocialPoint.Social
 #pragma warning disable 0618
             var filters = req.Filters;
 #pragma warning restore 0618
-            if(filters == null)
-            {
-                filters = new List<object>();
-            }
+            filters = filters ?? new List<object>();
+
             if(req.Filter == FacebookAppRequest.FilterType.AppUsers)
             {
                 filters.Add(AppUsersValue);
@@ -103,8 +101,9 @@ namespace SocialPoint.Social
             }
             if(req.FilterGroups != null)
             {
-                foreach(var group in req.FilterGroups)
+                for(int i = 0, reqFilterGroupsCount = req.FilterGroups.Count; i < reqFilterGroupsCount; i++)
                 {
+                    var group = req.FilterGroups[i];
                     filters.Add(group);
                 }
             }
@@ -118,7 +117,7 @@ namespace SocialPoint.Social
                 null,
                 req.AdditionalDataJson(),
                 req.Title ?? string.Empty,
-                (IAppRequestResult response) => {
+                response => {
                     Error err = null;
                     if(!string.IsNullOrEmpty(response.Error))
                     {
@@ -142,17 +141,17 @@ namespace SocialPoint.Social
             );
         }
 
-        public override void PostOnWallWithDialog(FacebookWallPost post, FacebookWallPostDelegate cbk = null)
+        public override void PostOnWallWithDialog(FacebookWallPost pub, FacebookWallPostDelegate cbk = null)
         {
             if(!IsConnected)
             {
                 if(cbk != null)
                 {
-                    cbk(post, new Error("Facebook is not logged in"));
+                    cbk(pub, new Error("Facebook is not logged in"));
                 }
                 return;
             }
-            string userId = post.To;
+            string userId = pub.To;
             if(userId == "me" || userId == null)
             {
                 userId = string.Empty;
@@ -161,13 +160,13 @@ namespace SocialPoint.Social
             FB.FeedShare
             (
                 userId,
-                post.Link,
-                post.Name ?? string.Empty,
-                post.Caption ?? string.Empty,
-                post.Description ?? string.Empty,
-                post.Picture,
+                pub.Link,
+                pub.Name ?? string.Empty,
+                pub.Caption ?? string.Empty,
+                pub.Description ?? string.Empty,
+                pub.Picture,
                 string.Empty,
-                (IShareResult response) => {
+                response => {
                     Error err = null;
                     if(!string.IsNullOrEmpty(response.Error))
                     {
@@ -175,21 +174,22 @@ namespace SocialPoint.Social
                     }
                     if(!string.IsNullOrEmpty(response.PostId))
                     {
-                        post.PostId = response.PostId;
+                        pub.PostId = response.PostId;
                     }
 
                     if(cbk != null)
                     {
-                        cbk(post, err);
+                        cbk(pub, err);
                     }
                 }
             );
         }
 
-        bool HasPermissions(List<string> permissions)
+        bool HasPermissions(IList<string> permissions)
         {
-            foreach(var perm in permissions)
+            for(int i = 0, permissionsCount = permissions.Count; i < permissionsCount; i++)
             {
+                var perm = permissions[i];
                 if(_userPermissions == null || !_userPermissions.Contains(perm))
                 {
                     return false;
@@ -265,7 +265,7 @@ namespace SocialPoint.Social
             }
         }
 
-        FacebookUser ParseUser(AttrDic dicUser)
+        static FacebookUser ParseUser(AttrDic dicUser)
         {
             string userId = dicUser.GetValue("id").ToString();
             string name = dicUser.GetValue("name").ToString();
@@ -287,30 +287,28 @@ namespace SocialPoint.Social
         {
             var s = UserPhotoSize;
             var uri = "me?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
-            FB.API(uri, HttpMethod.GET, (IGraphResult result) => {
+            FB.API(uri, HttpMethod.GET, result => {
                 if(!string.IsNullOrEmpty(result.Error))
                 {
                     OnLoginEnd(new Error(result.Error), cbk);
                 }
                 else
                 {
-                    JsonAttrParser parser = new JsonAttrParser();
+                    var parser = new JsonAttrParser();
                     Attr attr = parser.ParseString(result.RawResult);
                     _user = ParseUser(attr.AsDic);
                     if(_user != null)
                     {
                         _user.AccessToken = AccessToken.CurrentAccessToken.TokenString;
                         _userPermissions = new List<string>(AccessToken.CurrentAccessToken.Permissions);
-                        GetLoginFriendsInfo("/me/friends", (err) => {
+                        GetLoginFriendsInfo("/me/friends", err => {
                             if(!Error.IsNullOrEmpty(err))
                             {
                                 OnLoginEnd(err, cbk);
                             }
                             else
                             {
-                                GetLoginFriendsInfo("/me/invitable_friends", (err2) => {
-                                    OnLoginEnd(err2, cbk);
-                                });
+                                GetLoginFriendsInfo("/me/invitable_friends", err2 => OnLoginEnd(err2, cbk));
                             }
                         });
                     }
@@ -336,7 +334,7 @@ namespace SocialPoint.Social
                 var err = new Error(result.Error);
                 if(Error.IsNullOrEmpty(err))
                 {
-                    JsonAttrParser parser = new JsonAttrParser();
+                    var parser = new JsonAttrParser();
                     Attr attr = parser.ParseString(result.RawResult);
 
                     AttrList users = attr.AsDic.Get("data").AsList;
@@ -358,7 +356,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void Login(ErrorDelegate cbk = null, bool withUi = true)
+        public override void Login(ErrorDelegate cbk, bool withUi = true)
         {
             if(FB.IsInitialized)
             {
@@ -403,7 +401,7 @@ namespace SocialPoint.Social
             }
             _connecting = true;
 
-            FB.LogInWithReadPermissions(_loginPermissions, (ILoginResult response) => {
+            FB.LogInWithReadPermissions(_loginPermissions, response => {
                 var err = new Error(response.Error);
                 if(Error.IsNullOrEmpty(err) && !FB.IsLoggedIn)
                 {
@@ -413,12 +411,12 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void QueryGraph(FacebookGraphQuery query, FacebookGraphQueryDelegate cbk = null)
+        public override void QueryGraph(FacebookGraphQuery req, FacebookGraphQueryDelegate cbk)
         {
-            Dictionary<string, string> dic = query.FlatParams;
+            Dictionary<string, string> dic = req.FlatParams;
 
             HttpMethod fbMethod;
-            switch(query.Method)
+            switch(req.Method)
             {
             case FacebookGraphQuery.MethodType.POST:
                 fbMethod = HttpMethod.POST;
@@ -431,24 +429,24 @@ namespace SocialPoint.Social
                 break;
             }
 
-            FB.API(query.Path, fbMethod, (IGraphResult response) => {
+            FB.API(req.Path, fbMethod, response => {
                 var err = new Error(response.Error);
                 if(Error.IsNullOrEmpty(err))
                 {//TODO: evaluate if necessary parser or use response dict
-                    JsonAttrParser parser = new JsonAttrParser();
+                    var parser = new JsonAttrParser();
                     Attr attr = parser.ParseString(response.RawResult);
-                    query.Response = attr.AsDic;
+                    req.Response = attr.AsDic;
                 }
 
                 if(cbk != null)
                 {
-                    cbk(query, err);
+                    cbk(req, err);
                 }
             },
                 dic);
         }
 
-        public override void Logout(ErrorDelegate cbk = null)
+        public override void Logout(ErrorDelegate cbk)
         {
             if(FB.IsLoggedIn)
             {
@@ -467,7 +465,7 @@ namespace SocialPoint.Social
             }
         }
 
-        private void LoadPhotoFromUrl(string url, FacebookPhotoDelegate cbk = null)
+        void LoadPhotoFromUrl(string url, FacebookPhotoDelegate cbk = null)
         {
             _runner.DownloadTexture(url, (tex, err) => {
                 if(cbk != null)
@@ -477,7 +475,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public override void LoadPhoto(string userId, FacebookPhotoDelegate cbk = null)
+        public override void LoadPhoto(string userId, FacebookPhotoDelegate cbk)
         {
             if(_user != null && userId == _user.UserId && !string.IsNullOrEmpty(_user.PhotoUrl))
             {
@@ -496,7 +494,7 @@ namespace SocialPoint.Social
                 }
             }
 
-            Dictionary<string, string> dic = new Dictionary<string, string>();
+            var dic = new Dictionary<string, string>();
             dic.Add("redirect", "1");
             dic.Add("type", "square");
             dic.Add("width", UserPhotoSize.ToString());

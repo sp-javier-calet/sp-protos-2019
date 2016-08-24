@@ -45,7 +45,7 @@ namespace SocialPoint.QualityStats
 
         #endregion
 
-        public struct Data
+        public class Data
         {
             public int Amount;
             public double SumSize;
@@ -62,17 +62,15 @@ namespace SocialPoint.QualityStats
                     Amount, SumSize, SumSpeed, SumTimes, SumWaitTimes, SumConnectionTimes, SumTransferTimes);
             }
 
-            public static Data operator+(Data a, Data b)
+            public void Add(Data a)
             {
-                return new Data {
-                    Amount = a.Amount + b.Amount,
-                    SumSize = a.SumSize + b.SumSize,
-                    SumSpeed = a.SumSpeed + b.SumSpeed,
-                    SumTimes = a.SumTimes + b.SumTimes,
-                    SumWaitTimes = a.SumWaitTimes + b.SumWaitTimes,
-                    SumConnectionTimes = a.SumConnectionTimes + b.SumConnectionTimes,
-                    SumTransferTimes = a.SumTransferTimes + b.SumTransferTimes,
-                };
+                Amount += a.Amount;
+                SumSize += a.SumSize;
+                SumSpeed += a.SumSpeed;
+                SumTimes += a.SumTimes;
+                SumWaitTimes += a.SumWaitTimes;
+                SumConnectionTimes += a.SumConnectionTimes;
+                SumTransferTimes += a.SumTransferTimes;
             }
         }
 
@@ -81,18 +79,22 @@ namespace SocialPoint.QualityStats
             public override string ToString()
             {
                 var sb = new StringBuilder();
-                foreach(var item in this)
+                var itr = this.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var item = itr.Current;
                     string s = string.Format(
                                    "[Request: key={0}, Value={1}]",
                                    item.Key, item.Value);
                     sb.Append(s);
                 }
+                itr.Dispose();
+
                 return sb.ToString();
             }
         }
 
-        public struct Stats
+        public class Stats
         {
             public double DataDownloaded;
             // in Kbytes
@@ -113,19 +115,23 @@ namespace SocialPoint.QualityStats
             public override string ToString()
             {
                 var sb = new StringBuilder();
-                foreach(var item in this)
+                var itr = this.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var item = itr.Current;
                     string s = string.Format(
                                    "[Request: key={0}, Value={1}]",
                                    item.Key, item.Value);
                     sb.Append(s);
                 }
+                itr.Dispose();
+
                 return sb.ToString();
             }
         }
 
         IHttpClient _client;
-        MStats _data;
+        readonly MStats _data;
 
         public QualityStatsHttpClient(IHttpClient client)
         {
@@ -162,25 +168,27 @@ namespace SocialPoint.QualityStats
                 _data[url.ToString()] = stats;
             }
 
-            stats.DataDownloaded += (response.DownloadSize / 1024.0);
-            stats.SumDownloadSpeed += (response.DownloadSpeed / 1024.0);
+            var dataDownloaded = response.DownloadSize / 1024.0;
+            var downloadSpeed = response.DownloadSpeed / 1024.0;
+
+            stats.DataDownloaded += dataDownloaded;
+            stats.SumDownloadSpeed += downloadSpeed;
 
             Data data;
             if(!stats.Requests.TryGetValue(response.StatusCode, out data))
             {
                 data = new Data();
+                stats.Requests[response.StatusCode] = data;
             }
 
             data.Amount++;
-            data.SumSize += response.DownloadSize / 1024.0;
-            data.SumSpeed += response.DownloadSpeed / 1024.0;
+            data.SumSize += dataDownloaded;
+            data.SumSpeed += downloadSpeed;
             data.SumTimes += response.Duration;
             var end = TimeUtils.Now;
             data.SumWaitTimes += (end - start).TotalSeconds - response.Duration;
             data.SumConnectionTimes += response.ConnectionDuration;
             data.SumTransferTimes += response.TransferDuration;
-
-            stats.Requests[response.StatusCode] = data;
         }
     }
 }

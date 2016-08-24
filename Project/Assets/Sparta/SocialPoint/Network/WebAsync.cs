@@ -1,9 +1,9 @@
-using UnityEngine;
 using System;
 using System.Collections;
 using System.Net;
 using System.IO;
 using System.Threading;
+using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
@@ -12,9 +12,9 @@ namespace SocialPoint.Network
     /// </summary>
     public class WebAsync
     {
-        private float _timeout;
+        float _timeout;
         // seconds
-        private bool _readingResponse = false;
+        bool _readingResponse = false;
 
         public bool IsResponseTimeOut = false;
         public bool IsResponseCompleted = false;
@@ -41,7 +41,7 @@ namespace SocialPoint.Network
             }
             catch(WebException webException)
             {
-                Debug.Log("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
+                Log.e("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
                 ErrorMessage = webException.Message;
                 yield break;
             }
@@ -72,7 +72,7 @@ namespace SocialPoint.Network
             }
             catch(WebException webException)
             {
-                Debug.Log("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
+                Log.e("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
                 ErrorMessage = webException.Message;
             }
         }
@@ -97,14 +97,14 @@ namespace SocialPoint.Network
             }
         }
 
-        private static void GetRequestStreamCallback(IAsyncResult asyncResult)
+        static void GetRequestStreamCallback(IAsyncResult asyncResult)
         {
         }
 
-        private void ReadCallBack(IAsyncResult asyncResult)
+        void ReadCallBack(IAsyncResult asyncResult)
         {
-            HttpWebResponse webRequest = (HttpWebResponse)asyncResult.AsyncState;
-            Stream responseStream = webRequest.GetResponseStream();
+            var webRequest = (HttpWebResponse)asyncResult.AsyncState;
+            var responseStream = webRequest.GetResponseStream();
 
             int read = responseStream.EndRead(asyncResult);
 
@@ -123,7 +123,7 @@ namespace SocialPoint.Network
             }
             catch(Exception ex)
             {
-                Debug.Log("[WebAsync] Error message while readingResponse '" + webRequest.ResponseUri.ToString() + "': " + ex.Message);
+                Log.e("[WebAsync] Error message while readingResponse '" + webRequest.ResponseUri.ToString() + "': " + ex.Message);
                 _readingResponse = false;
             }
         }
@@ -179,14 +179,14 @@ namespace SocialPoint.Network
                     {
                         uri = webRequest.RequestUri.ToString();
                     }
-                    DebugUtils.Log("[WebAsync] Error message while getting response from request '" + uri + "': " + requestState.errorMessage);
+                    Log.d("[WebAsync] Error message while getting response from request '" + uri + "': " + requestState.errorMessage);
                 }
             }
 #endif
             IsResponseCompleted = true;
         }
 
-        private void GetResponseCallback(IAsyncResult asyncResult)
+        void GetResponseCallback(IAsyncResult asyncResult)
         {
             try
             {
@@ -199,7 +199,7 @@ namespace SocialPoint.Network
             }
         }
 
-        private void ScanTimeoutCallback(object obj, bool timedOut)
+        void ScanTimeoutCallback(object obj, bool timedOut)
         {
             if(timedOut)
             {

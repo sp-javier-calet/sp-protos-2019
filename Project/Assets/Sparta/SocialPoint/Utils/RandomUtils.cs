@@ -1,9 +1,9 @@
-#if (UNITY_EDITOR_OSX || UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR_WIN
+#if (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_ANDROID || UNITY_IOS || UNITY_TVOS)
 #define NATIVE_RANDOM
 #endif
 
 using System;
-using UnityEngine.Assertions;
+using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
@@ -11,30 +11,29 @@ namespace SocialPoint.Utils
     {
         static bool _init = false;
 
-        #if UNITY_EDITOR_OSX
+        #if NATIVE_RANDOM
+
+        #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_utils";
-        
-#elif UNITY_IOS
+        #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
-
-        #if NATIVE_RANDOM
-
-        static int SPUnityUtilsGetRandomSeed()
-        {
-            return SPUnityUtilsGetRandomInt();
-        }
 
         [System.Runtime.InteropServices.DllImport(PluginModuleName)]
         static extern int SPUnityUtilsGetRandomInt();
 
+        static int GetRandomSeed()
+        {
+            return SPUnityUtilsGetRandomInt();
+        }
+
         #else
         
-        static int SPUnityUtilsGetRandomSeed()
+        static int GetRandomSeed()
         {
-            UnityEngine.Debug.LogWarning("Using substandard Random implementation, this should only happen in Editor!");
+            Log.w("Using substandard Random implementation, this should only happen in Windows!");
             return TimeUtils.Timestamp.GetHashCode() ^ Guid.NewGuid().GetHashCode();
         }
 
@@ -46,7 +45,7 @@ namespace SocialPoint.Utils
             {
                 return;
             }
-            UnityEngine.Random.seed = SPUnityUtilsGetRandomSeed();
+            UnityEngine.Random.seed = GetRandomSeed();
             _init = true;
         }
 
@@ -119,7 +118,7 @@ namespace SocialPoint.Utils
         public static int Range(int minInclusive, int maxExclusive)
         {
             Init();
-            Assert.IsTrue(minInclusive < maxExclusive, "Max needs to be more that min.");
+            DebugUtils.Assert(minInclusive < maxExclusive, "Max needs to be more that min.");
             return UnityEngine.Random.Range(minInclusive, maxExclusive);
         }
 
@@ -131,7 +130,7 @@ namespace SocialPoint.Utils
         public static float Range(float minInclusive, float maxInclusive)
         {
             Init();
-            Assert.IsTrue(minInclusive < maxInclusive, "Max needs to be more that min.");
+            DebugUtils.Assert(minInclusive < maxInclusive, "Max needs to be more that min.");
             return UnityEngine.Random.Range(minInclusive, maxInclusive);
         }
     }

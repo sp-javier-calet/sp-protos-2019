@@ -1,17 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-
-using SocialPoint.Attributes;
-using SocialPoint.Network;
-using SocialPoint.Hardware;
-using SocialPoint.Utils;
-using SocialPoint.Base;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Hardware;
+using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
-    public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
     public class SocialPointLogin : ILogin
     {
@@ -99,7 +97,8 @@ namespace SocialPoint.Login
 
         const string EventNameLoading = "game.loading";
         const string EventNameLogin = "game.login";
-        const string EventNameError = "errors.login_error";
+        const string EventNameLoginError = "errors.login_error";
+        const string EventNameLinkError = "errors.link_error";
 
         const string SignatureSeparator = ":";
         const string SignatureCodeSeparator = "-";
@@ -138,7 +137,6 @@ namespace SocialPoint.Login
             public bool EnableOnLinkConfirm;
         }
 
-        LocalUser _user;
         LoginConfig _loginConfig;
         string _baseUrl;
         int _availableSecurityTokenErrorRetries;
@@ -165,18 +163,13 @@ namespace SocialPoint.Login
         public event NewLinkDelegate NewLinkAfterFriendsEvent = null;
         public event ConfirmLinkDelegate ConfirmLinkEvent = null;
         public event LoginErrorDelegate ErrorEvent = null;
+        public event LoginErrorDelegate LinkErrorEvent = null;
         public event RestartDelegate RestartEvent = null;
 
         public LocalUser User
         {
-            get
-            {
-                return _user;
-            }
-            private set
-            {
-                _user = value;
-            }
+            get;
+            private set;
         }
 
         public IAppEvents AppEvents
@@ -224,7 +217,7 @@ namespace SocialPoint.Login
                 if(BaseUrl != val)
                 {
                     changed = true;
-                    BaseUrl = val;
+                    SetBaseUrl(val);
                 }
             }
             if(parms.TryGetValue(SourceParamPrivilegeToken, out val))
@@ -399,11 +392,7 @@ namespace SocialPoint.Login
         {
             get
             {
-                if(User != null)
-                {
-                    return User.SessionId;
-                }
-                return null;
+                return User != null ? User.SessionId : null;
             }
         }
 
@@ -413,20 +402,21 @@ namespace SocialPoint.Login
             {
                 return _baseUrl;
             }
+        }
 
-            set
+        public void SetBaseUrl(string url)
+        {
+            var baseurl = StringUtils.FixBaseUri(url);
+            if(baseurl != null)
             {
-                var url = StringUtils.FixBaseUri(value);
-                if(url != null)
+                Uri uri;
+                if(!Uri.TryCreate(baseurl, UriKind.Absolute, out uri))
                 {
-                    Uri uri;
-                    if(!Uri.TryCreate(url, UriKind.Absolute, out uri))
-                    {
-                        throw new InvalidOperationException("Invalid base Url.");
-                    }
+                    throw new InvalidOperationException("Invalid base Url.");
                 }
-                _baseUrl = url;
             }
+            _baseUrl = baseurl;
+
         }
 
         bool FakeEnvironment
@@ -440,7 +430,7 @@ namespace SocialPoint.Login
         public SocialPointLogin(IHttpClient client, LoginConfig config)
         {
             Init();
-            BaseUrl = config.BaseUrl;
+            SetBaseUrl(config.BaseUrl);
             _httpClient = client;
             _loginConfig = config;
             _availableSecurityTokenErrorRetries = config.SecurityTokenErrors;
@@ -463,7 +453,7 @@ namespace SocialPoint.Login
         [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("SocialPointLogin {0}", msg));
+            Log.i(string.Format("SocialPointLogin {0}", msg));
         }
 
         void Init()
@@ -481,7 +471,7 @@ namespace SocialPoint.Login
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
             Language = null;
-            _user = new LocalUser();
+            User = new LocalUser();
             _users = new List<User>();
             _links = new List<LinkInfo>();
             _pendingLinkConfirms = new List<LinkInfo>();
@@ -508,7 +498,7 @@ namespace SocialPoint.Login
         {
             if(!_links.Contains(info))
             {
-                info.Link.AddStateChangeDelegate((LinkState state) => OnLinkStateChanged(info, state));
+                info.Link.AddStateChangeDelegate(state => OnLinkStateChanged(info, state));
                 DebugUtils.Assert(_links.FirstOrDefault(item => item == info) == null);
                 _links.Add(info);
             }
@@ -516,9 +506,11 @@ namespace SocialPoint.Login
 
         Error HandleLoginErrors(HttpResponse resp, ErrorType def)
         {
+            DebugLog("HandleLoginErrors");
+
             ErrorType typ = def;
             Error err = null;
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
             AttrDic json = null;
             if(resp.HasError)
             {
@@ -566,9 +558,11 @@ namespace SocialPoint.Login
 
         Error HandleLinkErrors(HttpResponse resp, ErrorType def)
         {
+            DebugLog("HandleLinkErrors");
+
             ErrorType typ = def;
             Error err = null;
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
 
             if(resp.StatusCode == InvalidLinkDataError)
             {
@@ -605,9 +599,11 @@ namespace SocialPoint.Login
 
         Error HandleResponseErrors(HttpResponse resp, ErrorType def)
         {
+            DebugLog("HandleResponseErrors");
+
             ErrorType typ = def;
             Error err = null;
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
             AttrDic json = null;
 
             if(resp.HasError)
@@ -633,14 +629,7 @@ namespace SocialPoint.Login
             }
             else if(resp.HasConnectionError)
             {
-                if(resp.StatusCode == (int)HttpResponse.StatusCodeType.TimeOutError)
-                {
-                    err = new Error("The connection timed out.");
-                }
-                else
-                {
-                    err = new Error("The connection could not be established.");
-                }
+                err = resp.StatusCode == (int)HttpResponse.StatusCodeType.TimeOutError ? new Error("The connection timed out.") : new Error("The connection could not be established.");
                 typ = ErrorType.Connection;
                 err.Code = resp.ErrorCode;
             }
@@ -673,8 +662,8 @@ namespace SocialPoint.Login
             {
                 deviceId = DeviceInfo.Uid;
             }
-            uriStr = string.Format(uriStr, UserId.ToString(), deviceId);
-            Uri uri = null;
+            uriStr = string.Format(uriStr, UserId, deviceId);
+            Uri uri;
             Uri.TryCreate(uriStr, UriKind.Absolute, out uri);
             return uri;
         }
@@ -694,6 +683,8 @@ namespace SocialPoint.Login
 
         void DoLogin(ErrorDelegate cbk, int lastErrCode = 0, byte[] responseBody = null)
         {
+            DebugLog("DoLogin");
+
             if(_appEvents != null)
             {
                 SetAppSource(_appEvents.Source);
@@ -701,15 +692,20 @@ namespace SocialPoint.Login
             _pendingLinkConfirms.Clear();
             if(_availableSecurityTokenErrorRetries < 0)
             {
+                DebugLog("DoLogin - _availableSecurityTokenErrorRetries < 0");
+
                 var err = new Error(lastErrCode, "Max amount of login retries reached.");
                 NotifyError(ErrorType.LoginMaxRetries, err);
                 OnLoginEnd(err, cbk);
             }
             else if(_availableConnectivityErrorRetries < 0)
             {
+                DebugLog("DoLogin - _availableConnectivityErrorRetries < 0");
+
                 #if DEBUG
-                if (responseBody != null && responseBody.Length > 0) {
-                    DebugUtils.Log(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
+                if(responseBody != null && responseBody.Length > 0)
+                {
+                    DebugLog(string.Format("SocialPointLogin Error Response:\n{0}", System.Text.Encoding.Default.GetString(responseBody)));
                 }
                 #endif
 
@@ -730,14 +726,15 @@ namespace SocialPoint.Login
                     HttpRequestEvent(req);
                 }
 
-                DebugLog("login\n----\n" + req.ToString() + "----\n");
-                _httpClient.Send(req, (resp) => OnLogin(resp, cbk));
+                DebugLog("DoLogin- login\n----\n" + req + "----\n");
+                _httpClient.Send(req, resp => OnLogin(resp, cbk));
             }
         }
 
         void OnLogin(HttpResponse resp, ErrorDelegate cbk)
         {
-            DebugLog("login\n----\n" + resp.ToString() + "----\n");
+            DebugLog("OnLogin - login\n----\n" + resp + "----\n");
+
             if(resp.StatusCode == InvalidSecurityTokenError && !UserHasRegistered)
             {
                 ClearStoredUser();
@@ -745,7 +742,7 @@ namespace SocialPoint.Login
                 DoLogin(cbk, resp.ErrorCode);
                 return;
             }
-            else if(resp.HasRecoverableError && resp.StatusCode != MaintenanceMode)
+            if(resp.HasRecoverableError && resp.StatusCode != MaintenanceMode)
             {
                 _availableConnectivityErrorRetries--;
                 DoLogin(cbk, resp.ErrorCode, resp.Body);
@@ -859,25 +856,11 @@ namespace SocialPoint.Login
                 if(linkPos != -1)
                 {
                     linkPos++;
-                    if(_links.Count > linkPos)
-                    {
-                        return _links.GetRange(linkPos, _links.Count - linkPos).FirstOrDefault(item => item.MatchesFilter(filter));
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return _links.Count > linkPos ? _links.GetRange(linkPos, _links.Count - linkPos).FirstOrDefault(item => item.MatchesFilter(filter)) : null;
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
-            else if(_links.Count > 0)
-            {
-                return _links[0];
-            }
-            return null;
+            return _links.Count > 0 ? _links[0] : null;
         }
 
         void NextLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkInfo.Filter filter)
@@ -887,7 +870,7 @@ namespace SocialPoint.Login
             {
                 if(AutoUpdateFriends && AutoUpdateFriendsPhotosSize > 0)
                 {
-                    GetUsersPhotos(new List<User>(){ User }, AutoUpdateFriendsPhotosSize, (users, err) => {
+                    GetUsersPhotos(new List<User> { User }, AutoUpdateFriendsPhotosSize, (users, err) => {
                         if(cbk != null)
                         {
                             cbk(err);
@@ -908,7 +891,7 @@ namespace SocialPoint.Login
         void DoLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkInfo.Filter filter)
         {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
-            info.Link.Login((err) => OnLinkLogin(info, err, cbk, filter));
+            info.Link.Login(err => OnLinkLogin(info, err, cbk, filter));
         }
 
         void OnLinkStateChanged(LinkInfo info, LinkState state)
@@ -925,10 +908,10 @@ namespace SocialPoint.Login
             }
             else if(state == LinkState.Connected)
             {
-                LocalUser tmpUser = (_user != null) ? new LocalUser(_user) : new LocalUser();
+                LocalUser tmpUser = (User != null) ? new LocalUser(User) : new LocalUser();
                 info.Link.UpdateLocalUser(tmpUser);
 
-                if(tmpUser != null && _user != null && tmpUser.Links.SequenceEqual(_user.Links))
+                if(tmpUser != null && User != null && tmpUser.Links.SequenceEqual(User.Links))
                 {
                     UpdateLinkData(info, false);
                 }
@@ -953,12 +936,15 @@ namespace SocialPoint.Login
             SetupHttpRequest(req, LinkUri);
             req.AddParam(HttpParamSecurityToken, SecurityToken);
             req.AddParam(HttpParamLinkType, info.Link.Name);
-            foreach(var pair in info.LinkData)
+            var itr = info.LinkData.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 req.AddParam(pair.Key, pair.Value);
             }
-            DebugLog("link\n----\n" + req.ToString() + "----\n");
-            _httpClient.Send(req, (resp) => OnNewLinkResponse(info, state, resp));
+            itr.Dispose();
+            DebugLog("OnNewLink - link\n----\n" + req + "----\n");
+            _httpClient.Send(req, resp => OnNewLinkResponse(info, state, resp));
         }
 
         void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
@@ -971,7 +957,7 @@ namespace SocialPoint.Login
             }
 
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
-            DebugLog("link\n----\n" + resp.ToString() + "----\n");
+            DebugLog("OnNewLinkResponse - link\n----\n" + resp + "----\n");
             var type = LinkConfirmType.None;
             switch(resp.StatusCode)
             {
@@ -1036,7 +1022,7 @@ namespace SocialPoint.Login
                 DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
                 if(ConfirmLinkEvent != null)
                 {
-                    ConfirmLinkEvent(info.Link, type, data, (LinkConfirmDecision decision) => OnConfirmLinkNotifyBack(info, type, linkToken, decision));
+                    ConfirmLinkEvent(info.Link, type, data, decision => OnConfirmLinkNotifyBack(info, type, linkToken, decision));
                 }
                 else
                 {
@@ -1050,7 +1036,7 @@ namespace SocialPoint.Login
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(info.Token == linkToken)
             {
-                ConfirmLink(linkToken, decision, (err) => OnConfirmLinkNotifyBackEnd(info));
+                ConfirmLink(linkToken, decision, err => OnConfirmLinkNotifyBackEnd(info));
             }
         }
 
@@ -1065,39 +1051,45 @@ namespace SocialPoint.Login
             }
         }
 
-        void CancelLink(LinkInfo info)
+        static void CancelLink(LinkInfo info)
         {
             info.Link.Logout();
         }
 
-        List<UserMapping> LoadUserLinks(Attr data)
+        static List<UserMapping> LoadUserLinks(Attr data)
         {
             var links = new List<UserMapping>();
             if(data.AttrType == AttrType.LIST)
             {
                 var linksAttr = data.AsList;
-                foreach(var elm in linksAttr)
+                var itr = linksAttr.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var elm = itr.Current;
                     var link = elm.AsDic;
                     var provider = link.GetValue(AttrKeyLinkProvider).AsValue.ToString();
                     var externalId = link.GetValue(AttrKeyLinkExternalId).AsValue.ToString();
                     links.Add(new UserMapping(externalId, provider));
                 }
+                itr.Dispose();
             }
             else if(data.AttrType == AttrType.DICTIONARY)
             {
                 var linksAttr = data.AsDic;
-                foreach(var elm in linksAttr)
+                var itr = linksAttr.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var elm = itr.Current;
                     var provider = elm.Key;
                     var externalId = elm.Value.AsValue.ToString();
                     links.Add(new UserMapping(externalId, provider));
                 }
+                itr.Dispose();
             }
             return links;
         }
 
-        User LoadUser(Attr data)
+        static User LoadUser(Attr data)
         {
             if(data.AttrType != AttrType.DICTIONARY)
             {
@@ -1106,7 +1098,7 @@ namespace SocialPoint.Login
             var dataDict = data.AsDic;
             if(dataDict.ContainsKey(AttrKeyUserId))
             {
-                UInt64 userId = 0;
+                UInt64 userId;
                 UInt64.TryParse(dataDict.GetValue(AttrKeyUserId).ToString(), out userId);
                 if(userId == 0)
                 {
@@ -1118,7 +1110,7 @@ namespace SocialPoint.Login
             return null;
         }
 
-        LocalUser LoadLocalUser(Attr data)
+        static LocalUser LoadLocalUser(Attr data)
         {
             var user = LoadUser(data);
             if(user == null)
@@ -1153,15 +1145,15 @@ namespace SocialPoint.Login
                 {
                 case AttrKeyLoginData:
                     {
-                        _user = LoadLocalUser(reader.ParseElement());
-                        if(_user == null)
+                        User = LoadLocalUser(reader.ParseElement());
+                        if(User == null)
                         {
                             err = new Error("Could not load the user.");
                         }
                         else
                         {
-                            userIdChanged = UserId != _user.Id;
-                            UserId = _user.Id;
+                            userIdChanged = UserId != User.Id;
+                            UserId = User.Id;
                         }
                         break;
                     }
@@ -1202,7 +1194,7 @@ namespace SocialPoint.Login
                 }
             }
 
-            if(_user != null)
+            if(User != null)
             {
                 if(NewUserEvent != null)
                 {
@@ -1219,9 +1211,9 @@ namespace SocialPoint.Login
 
         Error OnNewLocalUser(HttpResponse resp)
         {
-            Error err = null;
+            Error err;
             ErrorType errType = ErrorType.UserParse;
-            _user = null;
+            User = null;
             try
             {
                 err = ReadNewLocalUser(resp.Body, out errType);
@@ -1233,9 +1225,10 @@ namespace SocialPoint.Login
             if(Error.IsNullOrEmpty(err))
             {
                 UserHasRegistered = true;
-                foreach(var linkInfo in _links)
+                for(int i = 0, _linksCount = _links.Count; i < _linksCount; i++)
                 {
-                    linkInfo.Link.OnNewLocalUser(_user);
+                    var linkInfo = _links[i];
+                    linkInfo.Link.OnNewLocalUser(User);
                 }
             }
             else
@@ -1252,7 +1245,7 @@ namespace SocialPoint.Login
             return err;
         }
 
-        int GetLinkConfirmTypeCode(LinkConfirmType type)
+        static int GetLinkConfirmTypeCode(LinkConfirmType type)
         {
             switch(type)
             {
@@ -1305,7 +1298,7 @@ namespace SocialPoint.Login
                         data = parser.Parse(resp.Body);
                         if(data != null)
                         {
-                            UInt64 newUserId = 0;
+                            UInt64 newUserId;
                             UInt64.TryParse(data.ToString(), out newUserId);
                             if(newUserId != 0)
                             {
@@ -1452,17 +1445,35 @@ namespace SocialPoint.Login
                 }
                 loginData.SetValue(AttrKeyEventErrorHttpCode, code);
                 loginData.Set(AttrKeyEventErrorData, data);
-                TrackEvent(EventNameError, evData);
+                if(type.IsLinkError())
+                {
+                    TrackEvent(EventNameLinkError, evData);
+                }
+                else
+                {
+                    TrackEvent(EventNameLoginError, evData);
+                }
             }
-            if(ErrorEvent != null)
+            if(!type.IsLinkError())
             {
-                ErrorEvent(type, err, data);
+                if(ErrorEvent != null)
+                {
+                    ErrorEvent(type, err, data);
+                }
             }
+            else
+            {
+                if(LinkErrorEvent != null)
+                {
+                    LinkErrorEvent(type, err, data);
+                }
+            }
+
         }
 
         void OnAppRequestResponse(HttpResponse resp, AppRequest req, ErrorDelegate cbk)
         {
-            DebugLog("app req\n----\n" + resp.ToString() + "---\n");
+            DebugLog("OnAppRequestResponse req\n----\n" + resp + "---\n");
             var err = HandleResponseErrors(resp, ErrorType.AppRequest);
             if(Error.IsNullOrEmpty(err))
             {
@@ -1474,20 +1485,20 @@ namespace SocialPoint.Login
 
         void OnAppRequestLinkNotified(LinkInfo info, AppRequest req, Error err, ErrorDelegate cbk)
         {
-            DebugLog("app req\n----\n" + req.ToString() + "---\n");
+            DebugLog("OnAppRequestLinkNotified req\n----\n" + req + "---\n");
             if(Error.IsNullOrEmpty(err))
             {
                 info = GetNextLinkInfo(info, LinkInfo.Filter.All);
                 if(info != null)
                 {
-                    info.Link.NotifyAppRequestRecipients(req, (err2) => OnAppRequestLinkNotified(info, req, err2, cbk));
+                    info.Link.NotifyAppRequestRecipients(req, err2 => OnAppRequestLinkNotified(info, req, err2, cbk));
                     return;
                 }
             }
             OnAppRequestEnd(req, err, cbk);
         }
 
-        void OnAppRequestEnd(AppRequest req, Error err, ErrorDelegate cbk)
+        static void OnAppRequestEnd(AppRequest req, Error err, ErrorDelegate cbk)
         {
             if(cbk != null)
             {
@@ -1498,7 +1509,7 @@ namespace SocialPoint.Login
         void UpdateLinkData(LinkInfo info, bool disableUpdatingFriends)
         {
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
-            info.Link.UpdateLocalUser(_user);
+            info.Link.UpdateLocalUser(User);
 
             NotifyNewLink(info, true);
 
@@ -1538,7 +1549,7 @@ namespace SocialPoint.Login
             SetupHttpRequest(req, UserMappingUri);
             if(SetupUserMappingsHttpRequest(req, mappings, block))
             {
-                _httpClient.Send(req, (resp2) => OnUpdateFriendsResponse(resp2, mappings, block + 1, cbk));
+                _httpClient.Send(req, resp2 => OnUpdateFriendsResponse(resp2, mappings, block + 1, cbk));
             }
             else
             {
@@ -1548,7 +1559,7 @@ namespace SocialPoint.Login
 
         void OnUpdateFriendsEnd(List<UserMapping> mappings, Error err, UsersDelegate cbk)
         {
-            var friendsSelection = Friends.Where(u => (mappings.Where(map => u.HasLink(map.Id)).Count() > 0)).ToList();
+            var friendsSelection = Friends.Where(u => (mappings.Where(map => u.HasLink(map.Id)).Count > 0));
 
             if(AutoUpdateFriendsPhotosSize > 0 && friendsSelection.Count > 0)
             {
@@ -1584,7 +1595,7 @@ namespace SocialPoint.Login
                 info = GetNextLinkInfo(info, LinkInfo.Filter.All);
                 if(info != null)
                 {
-                    info.Link.UpdateUserPhoto(user, photoSize, (err2) => OnUserPhotoLink(info, user, users, photoSize, err2, cbk));
+                    info.Link.UpdateUserPhoto(user, photoSize, err2 => OnUserPhotoLink(info, user, users, photoSize, err2, cbk));
                 }
                 else
                 {
@@ -1592,14 +1603,7 @@ namespace SocialPoint.Login
                     if(userPos != -1)
                     {
                         userPos++;
-                        if(users.Count > userPos)
-                        {
-                            user = users[userPos];
-                        }
-                        else
-                        {
-                            user = null;
-                        }
+                        user = users.Count > userPos ? users[userPos] : null;
                     }
                     else
                     {
@@ -1624,7 +1628,7 @@ namespace SocialPoint.Login
             OnUsersEnd(users, err, cbk);
         }
 
-        void OnUsersEnd(List<User> users, Error err, UsersDelegate cbk)
+        static void OnUsersEnd(List<User> users, Error err, UsersDelegate cbk)
         {
             if(cbk != null)
             {
@@ -1650,7 +1654,7 @@ namespace SocialPoint.Login
                 if(SetupUserMappingsHttpRequest(req, mappings, block))
                 {
                     req.AddQueryParam(HttpParamSessionId, User.SessionId);
-                    _httpClient.Send(req, (resp2) => OnGetUsersByIdResponse(resp2, mappings, block + 1, photoSize, users, cbk));
+                    _httpClient.Send(req, resp2 => OnGetUsersByIdResponse(resp2, mappings, block + 1, photoSize, users, cbk));
                     return;
                 }
             }
@@ -1674,7 +1678,7 @@ namespace SocialPoint.Login
         {
             if(resp.Body != null && resp.Body.Length > 0)
             {
-                var data = new AttrList();
+                AttrList data;
                 try
                 {
                     var parser = new JsonAttrParser();
@@ -1686,19 +1690,23 @@ namespace SocialPoint.Login
                     return new Error(e.ToString());
                 }
 
-                foreach(var elm in data)
+                var itr = data.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var elm = itr.Current;
                     var friendDict = elm.AsDic;
                     var tmpUser = LoadUser(friendDict);
 
-                    foreach(var linkInfo in _links)
+                    for(int i = 0, _linksCount = _links.Count; i < _linksCount; i++)
                     {
+                        var linkInfo = _links[i];
                         linkInfo.Link.UpdateUser(tmpUser);
                     }
 
                     users.RemoveAll(u => u == tmpUser);
                     users.Add(tmpUser);
                 }
+                itr.Dispose();
             }
             return null;
         }
@@ -1741,19 +1749,18 @@ namespace SocialPoint.Login
 
         void UpdateUsersCache(List<User> tmpUsers)
         {
-            foreach(var user in tmpUsers)
+            for(int i = 0, tmpUsersCount = tmpUsers.Count; i < tmpUsersCount; i++)
             {
+                var user = tmpUsers[i];
                 if(User == user)
                 {
                     User.Combine(user);
                 }
-
                 User resultFriend = Friends.FirstOrDefault(item => item == user);
                 if(resultFriend != null)
                 {
                     resultFriend.Combine(user);
                 }
-
                 User resultUser = _users.FirstOrDefault(item => item == user);
                 if(resultUser != null)
                 {
@@ -1801,8 +1808,9 @@ namespace SocialPoint.Login
                 max = mappings.Count;
             }
 
-            foreach(var um in mappings)
+            for(int i = 0, mappingsCount = mappings.Count; i < mappingsCount; i++)
             {
+                var um = mappings[i];
                 if(!param.ContainsKey(um.Provider))
                 {
                     param.Set(um.Provider, new AttrList());
@@ -1819,11 +1827,11 @@ namespace SocialPoint.Login
         {
             req.AddHeader(HttpRequest.AcceptHeader, HttpRequest.ContentTypeJson);
             req.AcceptCompressed = true;
-            if(req.Timeout == 0)
+            if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
                 req.Timeout = Timeout;
             }
-            if(req.ActivityTimeout == 0)
+            if(Math.Abs(req.ActivityTimeout) < Single.Epsilon)
             {
                 req.ActivityTimeout = ActivityTimeout;
             }
@@ -2017,11 +2025,7 @@ namespace SocialPoint.Login
         public bool RemoveLink(ILink link)
         {
             LinkInfo linkInfo = _links.FirstOrDefault(item => item.Link == link);
-            if(linkInfo != null)
-            {
-                return _links.Remove(linkInfo);
-            }
-            return false;
+            return linkInfo != null && _links.Remove(linkInfo);
         }
 
         /**
@@ -2043,8 +2047,8 @@ namespace SocialPoint.Login
             req.AddParam(HttpParamLinkConfirmToken, linkToken);
             req.AddParam(HttpParamLinkDecision, decision.ToString().ToLower());
 
-            DebugLog("link confirm\n----\n" + req.ToString() + "----\n");
-            _httpClient.Send(req, (HttpResponse resp) => OnLinkConfirmResponse(linkToken, linkInfo, decision, resp, cbk));
+            DebugLog("ConfirmLink - link confirm\n----\n" + req + "----\n");
+            _httpClient.Send(req, resp => OnLinkConfirmResponse(linkToken, linkInfo, decision, resp, cbk));
         }
 
         /**
@@ -2086,8 +2090,9 @@ namespace SocialPoint.Login
          */
         public void GetFriendsByTempId(List<string> userIds, List<User> users)
         {
-            foreach(var friend in Friends)
+            for(int i = 0, FriendsCount = Friends.Count; i < FriendsCount; i++)
             {
+                var friend = Friends[i];
                 string tmp = userIds.FirstOrDefault(tmpId => tmpId == friend.TempId);
                 if(!string.IsNullOrEmpty(tmp))
                 {
@@ -2101,11 +2106,11 @@ namespace SocialPoint.Login
          */
         public void SetupHttpRequest(HttpRequest req, string Uri)
         {
-            if(req.Timeout == 0)
+            if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
                 req.Timeout = Timeout;
             }
-            if(req.ActivityTimeout == 0)
+            if(Math.Abs(req.ActivityTimeout) < Single.Epsilon)
             {
                 req.ActivityTimeout = ActivityTimeout;
             }
@@ -2123,8 +2128,9 @@ namespace SocialPoint.Login
         public void UpdateFriends(UsersDelegate cbk = null)
         {
             var mappings = new List<UserMapping>();
-            foreach(var linkInfo in _links)
+            for(int i = 0, _linksCount = _links.Count; i < _linksCount; i++)
             {
+                var linkInfo = _links[i];
                 linkInfo.Link.GetFriendsData(mappings);
             }
             UpdateFriends(mappings, cbk);
@@ -2142,7 +2148,7 @@ namespace SocialPoint.Login
             }
             if(mappings.Count > 0)
             {
-                HttpResponse resp = new HttpResponse();
+                var resp = new HttpResponse();
                 OnUpdateFriendsResponse(resp, mappings, 0, cbk);
             }
             else if(cbk != null)
@@ -2175,9 +2181,10 @@ namespace SocialPoint.Login
         {
             var users = new List<User>();
 
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
-                User u = new User();
+                var userId = userIds[i];
+                var u = new User();
                 if(GetCachedUserByTempId(userId, u))
                 {
                     users.Add(u);
@@ -2201,8 +2208,9 @@ namespace SocialPoint.Login
             var users = new List<User>();
             var mappings = new List<UserMapping>();
 
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
+                var userId = userIds[i];
                 var cacheUser = new User();
                 if(GetCachedUserById(userId, cacheUser))
                 {
@@ -2225,8 +2233,9 @@ namespace SocialPoint.Login
          */
         public void GetCachedUsersById(List<UInt64> userIds, List<User> users)
         {
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
+                var userId = userIds[i];
                 var u = new User();
                 if(GetCachedUserById(userId, u))
                 {
@@ -2237,8 +2246,9 @@ namespace SocialPoint.Login
 
         public void GetCachedUsersByTempId(List<string> userIds, List<User> users)
         {
-            foreach(var userId in userIds)
+            for(int i = 0, userIdsCount = userIds.Count; i < userIdsCount; i++)
             {
+                var userId = userIds[i];
                 var u = new User();
                 if(GetCachedUserByTempId(userId, u))
                 {
@@ -2266,8 +2276,9 @@ namespace SocialPoint.Login
 
             var toParam = new AttrDic();
 
-            foreach(var user in req.Recipients)
+            for(int i = 0, reqRecipientsCount = req.Recipients.Count; i < reqRecipientsCount; i++)
             {
+                var user = req.Recipients[i];
                 var mapping = user.AppRequestRecipient;
                 if(mapping.Id != null)
                 {
@@ -2286,8 +2297,8 @@ namespace SocialPoint.Login
 
             httpReq.Body = new JsonAttrSerializer().Serialize(appRequestParams);
 
-            DebugLog("app req\n----\n" + httpReq.ToString() + "----\n");
-            _httpClient.Send(httpReq, (resp) => OnAppRequestResponse(resp, req, cbk));
+            DebugLog("SendAppRequest app req\n----\n" + httpReq + "----\n");
+            _httpClient.Send(httpReq, resp => OnAppRequestResponse(resp, req, cbk));
         }
 
         public void GetReceivedAppRequests(AppRequestDelegate cbk = null)
@@ -2303,7 +2314,7 @@ namespace SocialPoint.Login
             var httpReq = new HttpRequest();
             SetupHttpRequest(httpReq, AppRequestsUri);
             httpReq.Method = HttpRequest.MethodType.GET;
-            _httpClient.Send(httpReq, (resp) => OnReceivedAppRequestResponse(resp, cbk));
+            _httpClient.Send(httpReq, resp => OnReceivedAppRequestResponse(resp, cbk));
         }
 
         void OnReceivedAppRequestResponse(HttpResponse resp, AppRequestDelegate cbk)
@@ -2322,23 +2333,29 @@ namespace SocialPoint.Login
                         if(data.AttrType == AttrType.DICTIONARY)
                         {
                             var receivedAppRequest = data.AsDic;
-                            foreach(var elm in receivedAppRequest)
+                            var itr = receivedAppRequest.GetEnumerator();
+                            while(itr.MoveNext())
                             {
+                                var elm = itr.Current;
                                 AttrDic requestData = elm.Value.AsDic;
                                 requestData["id"] = new AttrString(elm.Key);
-                                AppRequest req = new AppRequest(requestData["type"].AsValue.ToString(), requestData);
+                                var req = new AppRequest(requestData["type"].AsValue.ToString(), requestData);
                                 reqs.Add(req);
                             }
+                            itr.Dispose();
                         }
                         else if(data.AttrType == AttrType.LIST)
                         {
                             var receivedAppRequest = data.AsList;
-                            foreach(var elm in receivedAppRequest)
+                            var itr = receivedAppRequest.GetEnumerator();
+                            while(itr.MoveNext())
                             {
+                                var elm = itr.Current;
                                 var requestData = elm.AsDic;
                                 var type = requestData.GetValue("type").AsValue.ToString();
                                 reqs.Add(new AppRequest(type, requestData));
                             }
+                            itr.Dispose();
                         }
 
                     }
@@ -2371,7 +2388,7 @@ namespace SocialPoint.Login
             SetupHttpRequest(req, AppRequestsUri);
             req.Method = HttpRequest.MethodType.DELETE;
             req.AddQueryParam(HttpParamRequestIds, String.Join(",", ids.ToArray()));
-            _httpClient.Send(req, (resp) => OnDeleteAppRequestResponse(resp, cbk));
+            _httpClient.Send(req, resp => OnDeleteAppRequestResponse(resp, cbk));
         }
 
         void OnDeleteAppRequestResponse(HttpResponse resp, ErrorDelegate cbk)
@@ -2406,7 +2423,7 @@ namespace SocialPoint.Login
 
         public bool Pending { get; set; }
 
-        private LinkInfo(LinkInfo other)
+        LinkInfo(LinkInfo other)
         {
             Link = other.Link;
             Mode = other.Mode;

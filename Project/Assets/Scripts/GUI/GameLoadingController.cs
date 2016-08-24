@@ -2,21 +2,20 @@ using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
+using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
-using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
-using SocialPoint.Base;
-using SocialPoint.Dependency;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     IGameLoader _gameLoader;
-    AdminPanel _adminPanel = null;
     ICoroutineRunner _coroutineRunner;
+
+    // Explicit assignation to avoid warnings when ADMIN_PANEL is not enabled
+    AdminPanel _adminPanel = null;
 
     [SerializeField]
     string _sceneToLoad = "Main";
@@ -38,9 +37,13 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         ErrorHandler = ServiceLocator.Instance.Resolve<IGameErrorHandler>();
         _coroutineRunner = ServiceLocator.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = ServiceLocator.Instance.Resolve<IGameLoader>();
+
         #if ADMIN_PANEL
         _adminPanel = ServiceLocator.Instance.Resolve<AdminPanel>();
+        #else
+        _adminPanel = null;
         #endif
+
         base.OnLoad();
     }
 
@@ -76,7 +79,10 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnAdminPanelChange()
     {
-        Paused = _adminPanel.Visible;
+        if(_adminPanel != null)
+        {
+            Paused = _adminPanel.Visible;
+        }
     }
 
     bool OnLoginNewUser(IStreamReader reader)

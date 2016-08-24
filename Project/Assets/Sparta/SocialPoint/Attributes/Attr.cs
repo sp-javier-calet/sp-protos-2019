@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using SocialPoint.Base;
 using SocialPoint.Utils;
@@ -1457,11 +1456,14 @@ namespace SocialPoint.Attributes
         public override int GetHashCode()
         {
             int seed = 0;
-            foreach(var item in _value)
+            var itr = _value.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var item = itr.Current;
                 HashCombine(ref seed, item.Key.GetHashCode());
                 HashCombine(ref seed, item.Value.GetHashCode());
             }
+            itr.Dispose();
             return base.GetHashCode() ^ seed;
         }
 
@@ -1646,6 +1648,20 @@ namespace SocialPoint.Attributes
             return false;
         }
 
+        public bool Insert(int idx, Attr attr)
+        {
+            if(idx < 0 || idx > _value.Count)
+            {
+                return false;
+            }
+            if(AllowDuplicates || (!AllowDuplicates && !Contains(attr)))
+            {
+                _value.Insert(idx, attr);
+                return true;
+            }
+            return false;
+        }
+
         public bool Add(Attr attr)
         {
             if(AllowDuplicates || (!AllowDuplicates && !Contains(attr)))
@@ -1724,6 +1740,41 @@ namespace SocialPoint.Attributes
         public bool SetValue(int idx, string val)
         {
             return Set(idx, new AttrString(val));
+        }
+
+        public bool InsertValue(int idx, bool val)
+        {
+            return Insert(idx, new AttrBool(val));
+        }
+
+        public bool InsertValue(int idx, int val)
+        {
+            return Insert(idx, new AttrInt(val));
+        }
+
+        public bool InsertValue(int idx, short val)
+        {
+            return Insert(idx, new AttrInt(val));
+        }
+
+        public bool InsertValue(int idx, float val)
+        {
+            return Insert(idx, new AttrFloat(val));
+        }
+
+        public bool InsertValue(int idx, double val)
+        {
+            return Insert(idx, new AttrDouble(val));
+        }
+
+        public bool InsertValue(int idx, long val)
+        {
+            return Insert(idx, new AttrLong(val));
+        }
+
+        public bool InsertValue(int idx, string val)
+        {
+            return Insert(idx, new AttrString(val));
         }
 
         public void Clear()
@@ -1840,10 +1891,13 @@ namespace SocialPoint.Attributes
         public override int GetHashCode()
         {
             int seed = 0;
-            foreach(var item in _value)
+            var itr = _value.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var item = itr.Current;
                 HashCombine(ref seed, item.GetHashCode());
             }
+            itr.Dispose();
             return base.GetHashCode() ^ seed;
         }
 

@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Text;
 using SocialPoint.Base;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Utils
@@ -18,20 +18,21 @@ namespace SocialPoint.Utils
 
     public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
-        HashSet<IUpdateable> _elements = new HashSet<IUpdateable>();
+        UpdateScheduler _scheduler = new UpdateScheduler();
 
         public void Add(IUpdateable elm)
         {
-            if(elm == null)
-            {
-                throw new ArgumentException("elm cannot be null");
-            }
-            _elements.Add(elm);
+            _scheduler.Add(elm);
+        }
+
+        public void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        {
+            _scheduler.AddFixed(elm, interval, usesTimeScale);
         }
 
         public void Remove(IUpdateable elm)
         {
-            _elements.Remove(elm);
+            _scheduler.Remove(elm);
         }
 
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
@@ -53,13 +54,7 @@ namespace SocialPoint.Utils
 
         void Update()
         {
-            var enumerator = _elements.GetEnumerator();
-            while(enumerator.MoveNext())
-            {
-                var elm = enumerator.Current;
-                elm.Update();
-            }
-            enumerator.Dispose();
+            _scheduler.Update(Time.deltaTime);
         }
     }
 
@@ -125,7 +120,7 @@ namespace SocialPoint.Utils
                 }
                 var bundle = www.assetBundle;
                 www.Dispose();
-                AssetBundleRequest req = null;
+                AssetBundleRequest req;
                 if(string.IsNullOrEmpty(def.Name))
                 {
                     req = bundle.LoadAllAssetsAsync();
@@ -144,15 +139,16 @@ namespace SocialPoint.Utils
                 {
                     var elms = new T[req.allAssets.Length];
                     int i = 0;
-                    foreach(var asset in req.allAssets)
+                    for(int j = 0, reqallAssetsLength = req.allAssets.Length; j < reqallAssetsLength; j++)
                     {
+                        var asset = req.allAssets[j];
                         elms[i++] = asset as T;
                     }
                     cbk(elms, null);
                 }
                 else
                 {
-                    cbk(new T[]{ req.asset as T }, null);
+                    cbk(new []{ req.asset as T }, null);
                 }
             }
         }

@@ -2,30 +2,24 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.Utils;
-using SocialPoint.Social;
 using SocialPoint.IO;
+using SocialPoint.Social;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
     public class FacebookLink : ILink
     {
-        private IFacebook _facebook;
-        private bool _loginWithUi;
+        readonly IFacebook _facebook;
+        #pragma warning disable 414
+        bool _loginWithUi;
+        #pragma warning restore 414
 
-        private event StateChangeDelegate _eventStateChange;
+        event StateChangeDelegate _eventStateChange;
 
         public readonly static string LinkName = "fb";
 
         LinkState _state;
-
-        public FacebookLink(ICoroutineRunner runner, bool loginWithUi = true)
-        {
-            _loginWithUi = loginWithUi;
-            _facebook = new UnityFacebook(runner);
-            _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
-            Init();
-        }
 
         public FacebookLink(IFacebook facebook, bool loginWithUi = true)
         {
@@ -36,6 +30,7 @@ namespace SocialPoint.Login
 
         void Init()
         {
+            _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             _facebook.StateChangeEvent += OnStateChanged;
         }
 
@@ -52,8 +47,9 @@ namespace SocialPoint.Login
                 return _facebook.User;
             }
 
-            foreach(var friend in _facebook.Friends)
+            for(int i = 0, _facebookFriendsCount = _facebook.Friends.Count; i < _facebookFriendsCount; i++)
             {
+                var friend = _facebook.Friends[i];
                 if(userIds.Contains(friend.UserId))
                 {
                     return friend;
@@ -88,24 +84,21 @@ namespace SocialPoint.Login
         {
             if(_eventStateChange != null && _facebook != null && !_facebook.IsConnecting)
             {
-                if(_facebook.IsConnected)
-                {
-                    _state = LinkState.Connected;
-                }
-                else
-                {
-                    _state = LinkState.Disconnected;
-                }
+                _state = _facebook.IsConnected ? LinkState.Connected : LinkState.Disconnected;
                 _eventStateChange(_state);
             }
         }
 
         public void Login(ErrorDelegate cbk)
         {
-            _facebook.Login((err) => OnLogin(err, cbk), _loginWithUi);
+            #if (UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL)
+            _facebook.Login(err => OnLogin(err, cbk), _loginWithUi);
+            #else
+            Log.i("Facebook API does not yet support this platform");
+            #endif
         }
 
-        void OnLogin(Error err, ErrorDelegate cbk)
+        static void OnLogin(Error err, ErrorDelegate cbk)
         {
             if(!Error.IsNullOrEmpty(err) && err.Code == FacebookErrors.LoginNeedsUI)
             {
@@ -120,7 +113,7 @@ namespace SocialPoint.Login
 
         public void Logout(ErrorDelegate cbk)
         {
-            _facebook.Logout((err) => {
+            _facebook.Logout(err => {
                 if(cbk != null)
                 {
                     cbk(err);
@@ -130,12 +123,13 @@ namespace SocialPoint.Login
 
         public void NotifyAppRequestRecipients(AppRequest req, ErrorDelegate cbk)
         {
-            FacebookAppRequest fbReq = new FacebookAppRequest(req.Description);
+            var fbReq = new FacebookAppRequest(req.Description);
             fbReq.FrictionLess = true;
             fbReq.Title = req.Title;
 
-            foreach(var recipient in req.Recipients)
+            for(int i = 0, reqRecipientsCount = req.Recipients.Count; i < reqRecipientsCount; i++)
             {
+                var recipient = req.Recipients[i];
                 fbReq.To.AddRange(recipient.GetExternalIds(LinkName));
             }
 
@@ -173,7 +167,7 @@ namespace SocialPoint.Login
         public AttrDic GetLinkData()
         {
             FacebookUser user = _facebook.User;
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
             data.SetValue("external_id", user.UserId);
             data.SetValue("fb_access_token", user.AccessToken);
             return data;
@@ -181,8 +175,9 @@ namespace SocialPoint.Login
 
         public void GetFriendsData(List<UserMapping> mappings)
         {
-            foreach(var friend in _facebook.Friends)
+            for(int i = 0, _facebookFriendsCount = _facebook.Friends.Count; i < _facebookFriendsCount; i++)
             {
+                var friend = _facebook.Friends[i];
                 mappings.Add(new UserMapping(friend.UserId, Name));
             }
         }
@@ -196,7 +191,7 @@ namespace SocialPoint.Login
                 _facebook.LoadPhoto(userIds[0], (texture, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
-                        var tmpFilePath = FileUtils.Combine(PathsManager.TemporaryDataPath, "SPLoginFacebook/" + user.Id + "_" + photoSize.ToString() + ".png");
+                        var tmpFilePath = FileUtils.Combine(PathsManager.TemporaryDataPath, "SPLoginFacebook/" + user.Id + "_" + photoSize + ".png");
                         err = ImageUtils.SaveTextureToFile(texture, tmpFilePath);
                         if(Error.IsNullOrEmpty(err))
                         {

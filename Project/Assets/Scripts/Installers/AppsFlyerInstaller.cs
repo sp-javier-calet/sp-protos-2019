@@ -26,7 +26,7 @@ public class AppsFlyerInstaller : Installer
         if(!Settings.ActiveOnIOS) return;
         #endif
 
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || UNITY_TVOS
         Container.Bind<IMarketingTracker>().ToSingle<EmptyAppsFlyer>();
         Container.Bind<IDisposable>().ToSingle<EmptyAppsFlyer>();
         #else

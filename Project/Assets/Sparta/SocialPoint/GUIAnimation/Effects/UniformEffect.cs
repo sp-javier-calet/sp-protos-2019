@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -37,28 +38,28 @@ namespace SocialPoint.GUIAnimation
             [SerializeField]
             public Vector4 VectorEndValue;
 
-            public void Blend (float blend, Material mat)
+            public void Blend(float blend, Material mat)
             {
-                switch (ValueType)
+                switch(ValueType)
                 {
                 case UniformValueType.Float:
-                    float floatValue = Mathf.Lerp (FloatStartValue, FloatEndValue, blend);
-                    mat.SetFloat (UniformName, floatValue);
+                    float floatValue = Mathf.Lerp(FloatStartValue, FloatEndValue, blend);
+                    mat.SetFloat(UniformName, floatValue);
                     break;
 
                 case UniformValueType.Integer:
-                    int intValue = Mathf.RoundToInt (Mathf.Lerp (IntStartValue, IntEndValue, blend));
-                    mat.SetInt (UniformName, intValue);
+                    int intValue = Mathf.RoundToInt(Mathf.Lerp(IntStartValue, IntEndValue, blend));
+                    mat.SetInt(UniformName, intValue);
                     break;
 
                 case UniformValueType.Vector:
-                    Vector4 vectorValue = Vector4.Lerp (VectorStartValue, VectorEndValue, blend);
-                    mat.SetVector (UniformName, vectorValue);
+                    Vector4 vectorValue = Vector4.Lerp(VectorStartValue, VectorEndValue, blend);
+                    mat.SetVector(UniformName, vectorValue);
                     break;
                 }
             }
 
-            public void Copy (UniformValues other)
+            public void Copy(UniformValues other)
             {
                 UniformName = other.UniformName;
                 ValueType = other.ValueType;
@@ -73,7 +74,7 @@ namespace SocialPoint.GUIAnimation
                 VectorEndValue = other.VectorEndValue;
             }
 
-            public void Invert ()
+            public void Invert()
             {
                 float tempEndValue = FloatEndValue;
                 FloatEndValue = FloatStartValue;
@@ -88,18 +89,18 @@ namespace SocialPoint.GUIAnimation
                 VectorStartValue = tempEndValueVector;
             }
 
-            public void SaveFromMaterial (Material mat, float normTime)
+            public void SaveFromMaterial(Material mat, float normTime)
             {
-                if (!mat.HasProperty (UniformName))
+                if(!mat.HasProperty(UniformName))
                 {
                     return;
                 }
 
-                switch (ValueType)
+                switch(ValueType)
                 {
                 case UniformValueType.Float:
-                    float valFloat = FloatStartValue = mat.GetFloat (UniformName);
-                    if (normTime < 0.5f)
+                    float valFloat = FloatStartValue = mat.GetFloat(UniformName);
+                    if(normTime < 0.5f)
                     {
                         FloatStartValue = valFloat;
                     }
@@ -110,8 +111,8 @@ namespace SocialPoint.GUIAnimation
                     break;
 						
                 case UniformValueType.Integer:
-                    int valInt = mat.GetInt (UniformName);
-                    if (normTime < 0.5f)
+                    int valInt = mat.GetInt(UniformName);
+                    if(normTime < 0.5f)
                     {
                         IntStartValue = valInt;
                     }
@@ -122,8 +123,8 @@ namespace SocialPoint.GUIAnimation
                     break;
 						
                 case UniformValueType.Vector:
-                    Vector4 valVect = mat.GetVector (UniformName);
-                    if (normTime < 0.5f)
+                    Vector4 valVect = mat.GetVector(UniformName);
+                    if(normTime < 0.5f)
                     {
                         VectorStartValue = valVect;
                     }
@@ -138,7 +139,7 @@ namespace SocialPoint.GUIAnimation
 
         [ShowInEditor]
         [SerializeField]
-        List<UniformValues> _values = new List<UniformValues> ();
+        List<UniformValues> _values = new List<UniformValues>();
 
         public List<UniformValues> Values { get { return _values; } set { _values = value; } }
 
@@ -148,18 +149,18 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (Target == null)
+                if(Target == null)
                 {
-                    Debug.Log ("There is no target");
+                    Log.d("There is no target");
                     return null;
                 }
 
-                if (Application.isPlaying && _graphicObject != null)
+                if(Application.isPlaying && _graphicObject != null)
                 {
                     return _graphicObject;
                 }
 				
-                _graphicObject = GraphicObjectLoader.Load (Target, true);
+                _graphicObject = GraphicObjectLoader.Load(Target, true);
                 return _graphicObject;
             }
         }
@@ -168,9 +169,9 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (GraphicObject == null)
+                if(GraphicObject == null)
                 {
-                    Debug.Log ("There is no graphic object");
+                    Log.d("There is no graphic object");
                     return null;
                 }
 
@@ -178,105 +179,105 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
+            base.Copy(other);
 
-            CopyActionValues ((UniformEffect)other);
+            CopyActionValues((UniformEffect)other);
         }
 
-        public override void CopyActionValues (Effect other)
+        public override void CopyActionValues(Effect other)
         {
             UniformEffect otherUnimEffect = (UniformEffect)other;
 
-            _values.Clear ();
-            for (int i = 0; i < otherUnimEffect.Values.Count; ++i)
+            _values.Clear();
+            for(int i = 0; i < otherUnimEffect.Values.Count; ++i)
             {
-                UniformValues effect = new UniformValues ();
-                effect.Copy (otherUnimEffect.Values [i]);
-                _values.Add (effect);
+                UniformValues effect = new UniformValues();
+                effect.Copy(otherUnimEffect.Values[i]);
+                _values.Add(effect);
             }
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
         }
 
-        public override void SetOrCreateDefaultValues ()
+        public override void SetOrCreateDefaultValues()
         {
-            SaveValuesAt (0f);
-            SaveValuesAt (1f);
+            SaveValuesAt(0f);
+            SaveValuesAt(1f);
         }
 
-        public override void Invert (bool invertTime)
+        public override void Invert(bool invertTime)
         {
-            base.Invert (invertTime);
-            for (int i = 0; i < Values.Count; ++i)
+            base.Invert(invertTime);
+            for(int i = 0; i < Values.Count; ++i)
             {
-                Values [i].Invert ();
+                Values[i].Invert();
             }
         }
 
-        public override void OnBlend (float blend)
+        public override void OnBlend(float blend)
         {
-            if (Material == null)
+            if(Material == null)
             {
-                Debug.LogWarning (GetType () + " OnBlend " + StepName + " Target is null");
+                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 
-            for (int i = 0; i < Values.Count; ++i)
+            for(int i = 0; i < Values.Count; ++i)
             {
-                DoBlendUniform (Values [i], blend);
+                DoBlendUniform(Values[i], blend);
             }
 
-            if (!Application.isPlaying)
+            if(!Application.isPlaying)
             {
-                gameObject.SetActive (false);
-                gameObject.SetActive (true);
+                gameObject.SetActive(false);
+                gameObject.SetActive(true);
             }
         }
 
-        void DoBlendUniform (UniformValues uniform, float blend)
+        void DoBlendUniform(UniformValues uniform, float blend)
         {
-            if (Material.HasProperty (uniform.UniformName))
+            if(Material.HasProperty(uniform.UniformName))
             {
-                uniform.Blend (blend, Material);
+                uniform.Blend(blend, Material);
 				
-                GraphicObject.Refresh ();
+                GraphicObject.Refresh();
             }
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            if (Material == null)
+            if(Material == null)
             {
                 return;
             }
 
-            for (int i = 0; i < Values.Count; ++i)
+            for(int i = 0; i < Values.Count; ++i)
             {
-                Values [i].SaveFromMaterial (Material, localTimeNormalized);
+                Values[i].SaveFromMaterial(Material, localTimeNormalized);
             }
         }
 
-        public int CreateUniforms (int numUniforms)
+        public int CreateUniforms(int numUniforms)
         {
-            for (int i = 0; i < numUniforms; ++i)
+            for(int i = 0; i < numUniforms; ++i)
             {
-                _values.Add (new UniformValues ());
+                _values.Add(new UniformValues());
             }
 
             return _values.Count;
         }
 
-        public int RemoveUniforms (int numUniforms)
+        public int RemoveUniforms(int numUniforms)
         {
-            for (int i = 0; i < numUniforms; ++i)
+            for(int i = 0; i < numUniforms; ++i)
             {
-                if (_values.Count > 0)
+                if(_values.Count > 0)
                 {
-                    _values.RemoveAt (_values.Count - 1);
+                    _values.RemoveAt(_values.Count - 1);
                 }
             }
             return _values.Count;

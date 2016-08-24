@@ -2,15 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using SocialPoint.AssetSerializer.Helpers;
 using SocialPoint.AssetVersioning;
 using SocialPoint.Attributes;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 using UnityEngine;
 using Uri = System.Uri;
-using SocialPoint.Utils;
 
 /**
  * DownloadManager is a runtime class for asset steaming and WWW management.
@@ -31,8 +30,8 @@ public class DownloadManager : MonoBehaviour
     BuildPlatform _currentBuildPlatform;
     string _spamPort;
 
-    AssetVersioningDictionary _buildStatesLocalDict;
-    AssetVersioningDictionary _assetVersioningDictionary;
+    IAssetVersioningDictionary _buildStatesLocalDict;
+    IAssetVersioningDictionary _assetVersioningDictionary;
     IDeviceInfo _deviceInfo;
 
     // Request members
@@ -92,7 +91,7 @@ public class DownloadManager : MonoBehaviour
      * Get instance of DownloadManager.
      * This prop will create a GameObject named Downlaod Manager in scene when first time called.
      */
-    static DownloadManager _instance = null;
+    static DownloadManager _instance;
 
     public static DownloadManager Instance
     {
@@ -160,7 +159,7 @@ public class DownloadManager : MonoBehaviour
         }
         assetPath = assetPath + "_JSON_Data";
 
-        TextAsset textAsset = bundle.LoadAsset(assetPath, typeof(TextAsset)) as TextAsset;
+        var textAsset = bundle.LoadAsset(assetPath, typeof(TextAsset)) as TextAsset;
 
         if(textAsset != null)
         {
@@ -194,7 +193,7 @@ public class DownloadManager : MonoBehaviour
             #if UNITY_ANDROID
             icase_port = PlatformToSpamPort(BuildPlatform.Android);
             #endif
-            Debug.LogWarning(String.Format("Unsupported targetted platform for asset bundles '{0}'. Defaulting to '{1}'.", platform.ToString(), icase_port));
+            Debug.LogWarning(String.Format("Unsupported targetted platform for asset bundles '{0}'. Defaulting to '{1}'.", platform, icase_port));
             break;
         }
         return icase_port.ToLowerInvariant();
@@ -209,10 +208,7 @@ public class DownloadManager : MonoBehaviour
         if(_succeedRequest.ContainsKey(assetBundleName))
         {
             var request = _succeedRequest[assetBundleName];
-            
-            if(request.assetVersioningData != null)
-                prepareDependBundles(assetBundleName);
-            
+
             if(callback != null)
                 request.callback = callback;
             
@@ -222,7 +218,7 @@ public class DownloadManager : MonoBehaviour
         return null;
     }
 
-    public void Initialize(string baseUrl, AssetVersioningDictionary assetVersioningDictionary, IDeviceInfo deviceInfo, ulong minStorageRequiredToDownload = 0, Action LowStorageConditionMetAction = null)
+    public void Initialize(string baseUrl, IAssetVersioningDictionary assetVersioningDictionary, IDeviceInfo deviceInfo, ulong minStorageRequiredToDownload = 0, Action LowStorageConditionMetAction = null)
     {
         SetCurrentPlatform();
 
@@ -249,7 +245,7 @@ public class DownloadManager : MonoBehaviour
      */ 
     public IEnumerator WaitDownload(string assetBundleName, int priority, Action<string> callback = null)
     {
-        WWWRequest request = new WWWRequest();
+        var request = new WWWRequest();
         request.bundleName = assetBundleName;
         request.url = formatUrl(assetBundleName + "." + _bundleSuffix);
         request.urlNoPath = assetBundleName;
@@ -271,7 +267,7 @@ public class DownloadManager : MonoBehaviour
      */ 
     public IEnumerator WaitDownloadWithoutVersioning(string assetBundleName, int priority, Action<string> callback = null)
     {
-        WWWRequest request = new WWWRequest();
+        var request = new WWWRequest();
         request.bundleName = assetBundleName;
         request.url = formatUrl(assetBundleName + "." + _bundleSuffix);
         request.urlNoPath = assetBundleName;
@@ -292,23 +288,16 @@ public class DownloadManager : MonoBehaviour
         {
             return BuildPlatform.Standalones;
         }
-        else if(Application.platform == RuntimePlatform.OSXWebPlayer ||
-                Application.platform == RuntimePlatform.WindowsWebPlayer)
+        if(Application.platform == RuntimePlatform.OSXWebPlayer ||
+           Application.platform == RuntimePlatform.WindowsWebPlayer)
         {
             return BuildPlatform.WebPlayer;
         }
-        else if(Application.platform == RuntimePlatform.IPhonePlayer)
+        if(Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.tvOS)
         {
             return BuildPlatform.IOS;
         }
-        else if(Application.platform == RuntimePlatform.Android)
-        {
-            return BuildPlatform.Android;
-        }
-        else
-        {
-            return BuildPlatform.Standalones;
-        }
+        return Application.platform == RuntimePlatform.Android ? BuildPlatform.Android : BuildPlatform.Standalones;
     }
 
     public void StartDownload(string bundleName, Action<string> callback = null)
@@ -323,7 +312,7 @@ public class DownloadManager : MonoBehaviour
      */ 
     public void StartDownload(string bundleName, int priority, Action<string> callback = null)
     {
-        WWWRequest request = new WWWRequest();
+        var request = new WWWRequest();
         request.url = formatUrl(bundleName + "." + _bundleSuffix);
         request.bundleName = bundleName;
         request.urlNoPath = bundleName;
@@ -347,10 +336,12 @@ public class DownloadManager : MonoBehaviour
         }
     }
 
-    public void DisposeAll()
+    void DisposeRequests(Dictionary<string, WWWRequest> requests)
     {
-        foreach(var kvp in _succeedRequest.Concat(_failedRequest))
+        var itr = requests.GetEnumerator();
+        while(itr.MoveNext())
         {
+            var kvp = itr.Current;
             try
             {
                 var bundle = kvp.Value.www.assetBundle;
@@ -361,36 +352,49 @@ public class DownloadManager : MonoBehaviour
             }
             catch
             {
-                UnityEngine.Debug.LogError("Failed to unload bundle: " + kvp.Key);
+                Debug.LogError("Failed to unload bundle: " + kvp.Key);
             }
         }
+        itr.Dispose();
+    }
+
+    public void DisposeAll()
+    {
+        DisposeRequests(_succeedRequest);
+        DisposeRequests(_failedRequest);
 
         if(_assetVersioningDictionary != null)
         {
-            foreach(KeyValuePair<string, AssetVersioningData> pair in _assetVersioningDictionary)
+            var itr2 = _assetVersioningDictionary.GetEnumerator();
+            while(itr2.MoveNext())
             {
+                var pair = itr2.Current;
                 DisposeWWW(pair.Key + "." + _bundleSuffix);
             }
+            itr2.Dispose();
         }
     }
 
     HashSet<string> GetDependenciesWaitingAndProcessingRequest()
     {
-        HashSet<string> dependencies = new HashSet<string>();
-        foreach(WWWRequest request in _waitingRequests)
+        var dependencies = new HashSet<string>();
+        for(int i = 0, _waitingRequestsCount = _waitingRequests.Count; i < _waitingRequestsCount; i++)
         {
+            WWWRequest request = _waitingRequests[i];
             List<string> reqDependencies = getDependList(request.bundleName);
-            for(int i = 0; i < reqDependencies.Count; ++i)
+            for(int j = 0; j < reqDependencies.Count; ++j)
             {
-                if(!dependencies.Contains(reqDependencies[i]))
+                if(!dependencies.Contains(reqDependencies[j]))
                 {
-                    dependencies.Add(reqDependencies[i]);
+                    dependencies.Add(reqDependencies[j]);
                 }
             }
         }
 
-        foreach(var kvp in _processingRequest)
+        var itr = _processingRequest.GetEnumerator();
+        while(itr.MoveNext())
         {
+            var kvp = itr.Current;
             List<string> reqDependencies = getDependList(kvp.Key);
             for(int i = 0; i < reqDependencies.Count; ++i)
             {
@@ -400,25 +404,9 @@ public class DownloadManager : MonoBehaviour
                 }
             }
         }
-        return dependencies;
-    }
+        itr.Dispose();
 
-    public void DisposeSucceedRequests()
-    {
-//        HashSet<string> waitingAndProcessingDependencies = GetDependenciesWaitingAndProcessingRequest();
-//        var succeeds = new List<WWWRequest>(_succeedRequest.Select(kvp => kvp.Value));
-//        foreach(var req in succeeds)
-//        {
-//            if(req.www != null && !waitingAndProcessingDependencies.Contains(req.bundleName))
-//            {
-//                if(req.www.assetBundle != null)
-//                {
-//                    req.www.assetBundle.Unload(false);
-//                }
-//                req.www.Dispose();
-//                _succeedRequest.Remove(req.bundleName);
-//            }
-//        }
+        return dependencies;
     }
 
     /**
@@ -443,47 +431,19 @@ public class DownloadManager : MonoBehaviour
 
     bool BundleIsParent(string bundleName)
     {
-        foreach(var kvp in _assetVersioningDictionary)
+        var itr = _assetVersioningDictionary.GetEnumerator();
+        while(itr.MoveNext())
         {
+            var kvp = itr.Current;
             if(kvp.Value.Parent == bundleName)
             {
+                itr.Dispose();
                 return true;
             }
         }
-        return false;
-    }
+        itr.Dispose();
 
-    public void DisposeWWWIfAllRequestsFinished(string assetBundleName)
-    {
-//        if(_waitingRequests.Find(req => req.bundleName == assetBundleName) == null && !_processingRequest.ContainsKey(assetBundleName))
-//        {
-//            if(_succeedRequest.ContainsKey(assetBundleName) && !BundleIsParent(assetBundleName))
-//            {
-//                //Disposed after one frame in order to allow other WaitDownload corroutines to finish properly
-//                StartCoroutine(DisposeWWWRequestAfterOneFrame(assetBundleName));
-//            }
-//            else if(_failedRequest.ContainsKey(assetBundleName))
-//            {
-//                WWWRequest req = _failedRequest[assetBundleName];
-//                if(req != null)
-//                {
-//                    req.www.Dispose();
-//                }
-//                _failedRequest.Remove(assetBundleName);
-//            }
-//        }
-//    }
-//
-//    IEnumerator DisposeWWWRequestAfterOneFrame(string assetBundleName)
-//    {
-//        yield return null;
-//        if(_succeedRequest.ContainsKey(assetBundleName))
-//        {
-//            WWWRequest req = _succeedRequest[assetBundleName];
-//            _succeedRequest.Remove(assetBundleName);
-//            req.www.assetBundle.Unload(false);
-//            req.www.Dispose();
-//        }
+        return false;
     }
 
     /**
@@ -493,9 +453,14 @@ public class DownloadManager : MonoBehaviour
     {
         _requestedBeforeInit.Clear();
         _waitingRequests.Clear();
-        
-        foreach(WWWRequest request in _processingRequest.Values)
+
+        var itr = _processingRequest.Values.GetEnumerator();
+        while(itr.MoveNext())
+        {
+            var request = itr.Current;
             request.www.Dispose();
+        }
+        itr.Dispose();
         
         _processingRequest.Clear();
     }
@@ -513,8 +478,8 @@ public class DownloadManager : MonoBehaviour
         string bundleLocalJson = FileUtils.ReadAllText(_localBundlesJson);
         try
         {
-            JsonAttrParser parserJson = new JsonAttrParser();
-            AttrDic json = parserJson.Parse(System.Text.ASCIIEncoding.ASCII.GetBytes(bundleLocalJson)).AsDic;
+            var parserJson = new JsonAttrParser();
+            AttrDic json = parserJson.Parse(System.Text.Encoding.ASCII.GetBytes(bundleLocalJson)).AsDic;
 
             AttrList attrBundles = json.AsDic.Get("bundles").AsList;
             for(int i = 0; i < attrBundles.Count; i++)
@@ -523,9 +488,9 @@ public class DownloadManager : MonoBehaviour
 
                 string bundleName = obj.AsDic.Get("bundleName").ToString();
 
-                AssetVersioningData data = new AssetVersioningData();
+                var data = new AssetVersioningData();
                 data.Version = obj.AsDic.GetValue("bundleVersion").ToInt();
-                data.CRC = System.Convert.ToUInt32(obj.AsDic.Get("bundleCRC").ToString());
+                data.CRC = Convert.ToUInt32(obj.AsDic.Get("bundleCRC").ToString());
                 data.Client = obj.AsDic.Get("bundleClient").ToString();
 
                 _buildStatesLocalDict.Add(bundleName, data);
@@ -534,7 +499,7 @@ public class DownloadManager : MonoBehaviour
         }
         catch(Exception e)
         {
-            UnityEngine.Debug.Log(e.ToString());
+            Debug.Log(e.ToString());
         }
     }
 
@@ -544,10 +509,10 @@ public class DownloadManager : MonoBehaviour
            Application.platform == RuntimePlatform.OSXEditor)
         {
             // This allows targeting platform bundles from the Editor
-            #if UNITY_IOS
+            #if (UNITY_IOS || UNITY_TVOS)
             _currentBuildPlatform = BuildPlatform.IOS;
             #elif UNITY_ANDROID
-			_currentBuildPlatform = BuildPlatform.Android;
+            _currentBuildPlatform = BuildPlatform.Android;
             #endif
         }
         else
@@ -567,10 +532,10 @@ public class DownloadManager : MonoBehaviour
         _newFinisheds.Clear();
         _newFaileds.Clear();
 
-        var itr = _processingRequest.GetEnumerator();
+        var itr = _processingRequest.Values.GetEnumerator();
         while(itr.MoveNext())
         {
-            var request = itr.Current.Value;
+            var request = itr.Current;
 
             if(request.www.error != null)
             {
@@ -608,7 +573,7 @@ public class DownloadManager : MonoBehaviour
 
         string finishedBundles = string.Empty;
         // Move complete bundles out of downloading list
-        for(int i = 0; i < _newFinisheds.Count; i++)
+        for(int i = 0, newFinishedsCount = newFinisheds.Count; i < newFinishedsCount; i++)
         {
             finishedBundles = _newFinisheds[i];
             _succeedRequest.Add(finishedBundles, _processingRequest[finishedBundles]);
@@ -616,7 +581,7 @@ public class DownloadManager : MonoBehaviour
         }
         
         // Move failed bundles out of downloading list
-        for(int i = 0; i < _newFaileds.Count; i++)
+        for(int i = 0, newFailedsCount = newFaileds.Count; i < newFailedsCount; i++)
         {
             finishedBundles = _newFaileds[i];
             if(!_failedRequest.ContainsKey(finishedBundles))
@@ -646,8 +611,9 @@ public class DownloadManager : MonoBehaviour
     bool isBundleDependenciesReady(string bundleName)
     {
         List<string> dependencies = getDependList(bundleName);
-        foreach(string dependBundle in dependencies)
+        for(int i = 0, dependenciesCount = dependencies.Count; i < dependenciesCount; i++)
         {
+            string dependBundle = dependencies[i];
             if(!_succeedRequest.ContainsKey(dependBundle))
             {
                 return false;
@@ -655,20 +621,6 @@ public class DownloadManager : MonoBehaviour
         }
         
         return true;
-    }
-
-    void prepareDependBundles(string bundleName)
-    {
-        List<string> dependencies = getDependList(bundleName);
-        foreach(string dependBundle in dependencies)
-        {
-            if(_succeedRequest.ContainsKey(dependBundle))
-            {
-                #pragma warning disable 0168
-                var assetBundle = _succeedRequest[dependBundle].www.assetBundle;
-                #pragma warning restore 0168
-            }
-        }
     }
     
     // This private method should be called after init
@@ -678,7 +630,7 @@ public class DownloadManager : MonoBehaviour
         if(existingRequest != null)
         {
             var oldCallback = existingRequest.callback;
-            existingRequest.callback = (string msg) => { 
+            existingRequest.callback = msg => { 
                 if(request.callback != null)
                     request.callback(msg);
                 if(oldCallback != null)
@@ -716,11 +668,12 @@ public class DownloadManager : MonoBehaviour
         if(useAssetVersioning)
         {
             List<string> dependlist = getDependList(bundleName);
-            foreach(string dependantBundleName in dependlist)
+            for(int i = 0, dependlistCount = dependlist.Count; i < dependlistCount; i++)
             {
+                string dependantBundleName = dependlist[i];
                 if(!_processingRequest.ContainsKey(dependantBundleName) && !_succeedRequest.ContainsKey(dependantBundleName) && !isInWaitingList(dependantBundleName))
                 {
-                    WWWRequest dependRequest = new WWWRequest();
+                    var dependRequest = new WWWRequest();
                     dependRequest.bundleName = dependantBundleName;
                     if(useAssetVersioning)
                         dependRequest.assetVersioningData = _assetVersioningDictionary[dependantBundleName];
@@ -740,8 +693,9 @@ public class DownloadManager : MonoBehaviour
 
     bool isInWaitingList(string bundleName)
     {
-        foreach(WWWRequest request in _waitingRequests)
+        for(int i = 0, _waitingRequestsCount = _waitingRequests.Count; i < _waitingRequestsCount; i++)
         {
+            WWWRequest request = _waitingRequests[i];
             if(request.bundleName == bundleName)
             {
                 return true;
@@ -771,23 +725,22 @@ public class DownloadManager : MonoBehaviour
 
     WWWRequest getDownloadingWWW(string assetBundleName)
     {
-        foreach(WWWRequest request in _waitingRequests)
+        for(int i = 0, _waitingRequestsCount = _waitingRequests.Count; i < _waitingRequestsCount; i++)
         {
+            WWWRequest request = _waitingRequests[i];
             if(request.bundleName == assetBundleName)
             {
                 return request;
             }
         }
 
-        if(_processingRequest.ContainsKey(assetBundleName))
-            return _processingRequest[assetBundleName];
+        return _processingRequest.ContainsKey(assetBundleName) ? _processingRequest[assetBundleName] : null;
 
-        return null;
     }
 
     List<string> getDependList(string bundle)
     {
-        List<string> res = new List<string>();
+        var res = new List<string>();
         
         if(!_assetVersioningDictionary.ContainsKey(bundle))
         {
@@ -864,15 +817,15 @@ public class DownloadManager : MonoBehaviour
 
     }
 
-    bool isAbsoluteUrl(string url)
+    static bool isAbsoluteUrl(string url)
     {
         Uri result;
-        return Uri.TryCreate(url, System.UriKind.Absolute, out result);
+        return Uri.TryCreate(url, UriKind.Absolute, out result);
     }
 
-    bool isBundleUrl(string url)
+    static bool isBundleUrl(string url)
     {
-        return string.Compare(Path.GetExtension(url), "." + _bundleSuffix, System.StringComparison.OrdinalIgnoreCase) == 0;
+        return string.Compare(Path.GetExtension(url), "." + _bundleSuffix, StringComparison.OrdinalIgnoreCase) == 0;
     }
 
     public bool IsCachedOrLocal(string bundleName)
@@ -881,8 +834,9 @@ public class DownloadManager : MonoBehaviour
 
         List<string> res = getDependList(bundleName);
         res.Add(bundleName);
-        foreach(string dependency in res)
+        for(int i = 0, resCount = res.Count; i < resCount; i++)
         {
+            string dependency = res[i];
             version = _assetVersioningDictionary[dependency].Version;
             if(!IsLocalBundleVersion(bundleName, version, _assetVersioningDictionary[bundleName].Client) && !Caching.IsVersionCached(bundleName + "." + _bundleSuffix, version))
             {
@@ -897,13 +851,13 @@ public class DownloadManager : MonoBehaviour
         public string url = "";
         public string bundleName = "";
         public string urlNoPath = "";
-        public int triedTimes = 0;
-        public int priority = 0;
+        public int triedTimes;
+        public int priority;
         //public BundleData bundleData = null;
         //public BundleBuildState bundleBuildState = null;
-        public AssetVersioningData assetVersioningData = null;
-        public WWW www = null;
-        public Action<string> callback = null;
+        public AssetVersioningData assetVersioningData;
+        public WWW www;
+        public Action<string> callback;
 
         public void CreatWWW()
         {   
@@ -911,16 +865,7 @@ public class DownloadManager : MonoBehaviour
             
             if(_useCache && assetVersioningData != null)
             {
-#if !(UNITY_4_2 || UNITY_4_1 || UNITY_4_0)
-                if(_useCrc)
-                {
-                    www = WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version, assetVersioningData.CRC);
-                }
-                else 
-#endif
-                {
-                    www = WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version);
-                }
+                www = _useCrc ? WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version, assetVersioningData.CRC) : WWW.LoadFromCacheOrDownload(url, assetVersioningData.Version);
             }
             else
             {

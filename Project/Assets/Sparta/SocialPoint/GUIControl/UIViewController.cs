@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.GUIControl
@@ -22,11 +23,11 @@ namespace SocialPoint.GUIControl
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
-        private bool _loaded = false;
-        private ViewState _viewState = ViewState.Initial;
-        private Coroutine _showCoroutine;
-        private Coroutine _hideCoroutine;
-        private UIViewAnimation _animation;
+        bool _loaded;
+        ViewState _viewState = ViewState.Initial;
+        Coroutine _showCoroutine;
+        Coroutine _hideCoroutine;
+        UIViewAnimation _animation;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -35,7 +36,7 @@ namespace SocialPoint.GUIControl
         public static UIViewControllerFactory Factory = new UIViewControllerFactory();
 
         [HideInInspector]
-        public bool DestroyOnHide = false;
+        public bool DestroyOnHide;
 
         [HideInInspector]
         public static UILayersController DefaultLayersController;
@@ -73,15 +74,16 @@ namespace SocialPoint.GUIControl
         }
 
         [SerializeField]
-        private List<GameObject> _containers3d = new List<GameObject>();
+        List<GameObject> _containers3d = new List<GameObject>();
 
         IList<Material> Materials3d
         {
             get
             {
                 var materials = new List<Material>();
-                foreach(var element in _containers3d)
+                for(int i = 0, _containers3dCount = _containers3d.Count; i < _containers3dCount; i++)
                 {
+                    var element = _containers3d[i];
                     var renderer = element.GetComponent<Renderer>();
                     if(renderer != null && renderer.material != null)
                     {
@@ -101,8 +103,9 @@ namespace SocialPoint.GUIControl
                 {
                     group.alpha = value;
                 }
-                foreach(var mat in Materials3d)
+                for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
+                    var mat = Materials3d[i];
                     mat.color = new Color(mat.color.r, mat.color.g, mat.color.b, value);
                 }
             }
@@ -115,8 +118,9 @@ namespace SocialPoint.GUIControl
                 {
                     alpha = group.alpha;
                 }
-                foreach(var mat in Materials3d)
+                for(int i = 0, Materials3dCount = Materials3d.Count; i < Materials3dCount; i++)
                 {
+                    var mat = Materials3d[i];
                     alpha = Mathf.Max(alpha, mat.color.a);
                 }
                 return alpha;
@@ -128,10 +132,13 @@ namespace SocialPoint.GUIControl
             set
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                foreach(var canvas in canvases)
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
                 {
-                    foreach(RectTransform child in canvas.transform)
+                    var canvas = canvases[i];
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (Transform)itr.Current;
                         child.localPosition = value;
                     }
                 }
@@ -142,8 +149,10 @@ namespace SocialPoint.GUIControl
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
                 if(canvases.Count > 0)
                 {
-                    foreach(RectTransform child in canvases[0].transform)
+                    var itr = canvases[0].transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (Transform)itr.Current;
                         return child.localPosition;
                     }
                 }
@@ -157,10 +166,13 @@ namespace SocialPoint.GUIControl
             {
                 var size = FixSize(value);
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                foreach(var canvas in canvases)
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
                 {
-                    foreach(RectTransform child in canvas.transform)
+                    var canvas = canvases[i];
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (RectTransform)itr.Current;
                         child.sizeDelta = size;
                     }
                 }
@@ -172,8 +184,10 @@ namespace SocialPoint.GUIControl
                 var size = Vector2.zero;
                 if(canvases.Count > 0)
                 {
-                    foreach(RectTransform child in canvases[0].transform)
+                    var itr = canvases[0].transform.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var child = (RectTransform)itr.Current;
                         size.x = Mathf.Max(size.x, child.sizeDelta.x);
                         size.y = Mathf.Max(size.y, child.sizeDelta.y);
                     }
@@ -182,13 +196,13 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        Vector2 FixSize(Vector2 size)
+        static Vector2 FixSize(Vector2 size)
         {
-            if(size.x == 0)
+            if(Math.Abs(size.x) < Single.Epsilon)
             {
                 size.x = Screen.width;
             }
-            if(size.y == 0)
+            if(Math.Abs(size.y) < Single.Epsilon)
             {
                 size.y = Screen.height;
             }
@@ -232,14 +246,29 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        bool _worldSpaceFullScreen = true;
+
+        public bool WorldSpaceFullScreen
+        {
+            get
+            {
+                return _worldSpaceFullScreen;
+            }
+            set
+            {
+                _worldSpaceFullScreen = value;
+            }
+        }
+
         void AddLayers()
         {
             if(LayersController != null)
             {
                 LayersController.Add(this);
 
-                foreach(GameObject ui3DContainer in _containers3d)
+                for(int i = 0, _containers3dCount = _containers3d.Count; i < _containers3dCount; i++)
                 {
+                    GameObject ui3DContainer = _containers3d[i];
                     LayersController.Add3DContainer(this, ui3DContainer);
                 }
             }
@@ -255,12 +284,7 @@ namespace SocialPoint.GUIControl
             {
                 _containers3d.Add(gameObject);
 
-                var container = gameObject.GetComponent<UI3DContainer>();
-
-                if(container == null)
-                {
-                    container = gameObject.AddComponent<UI3DContainer>();
-                }
+                var container = gameObject.GetComponent<UI3DContainer>() ?? gameObject.AddComponent<UI3DContainer>();
 
                 container.OnDestroyed += On3dContainerDestroyed;
 
@@ -288,7 +312,7 @@ namespace SocialPoint.GUIControl
         [System.Diagnostics.Conditional("DEBUG_SPGUI")]
         void DebugLog(string msg)
         {
-            Debug.Log(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
+            Log.i(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
         }
 
         public void SetParent(Transform parent)
@@ -315,7 +339,6 @@ namespace SocialPoint.GUIControl
         {
             if(_loaded)
             {
-                Reset();
                 HideImmediate();
                 OnDestroyed();
             }
@@ -432,10 +455,7 @@ namespace SocialPoint.GUIControl
                 StartShowCoroutine(enm);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public IEnumerator ShowCoroutine()
@@ -490,10 +510,7 @@ namespace SocialPoint.GUIControl
                 StartHideCoroutine(enm);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public IEnumerator HideCoroutine(bool destroy = false)
@@ -511,10 +528,7 @@ namespace SocialPoint.GUIControl
             }
             else if(_viewState == ViewState.Disappearing && _hideCoroutine != null)
             {
-                if(destroy)
-                {
-                    DestroyOnHide = true;
-                }
+                DestroyOnHide |= destroy;
                 yield return _hideCoroutine;
             }
             else if(_viewState != ViewState.Hidden)
@@ -574,6 +588,7 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppeared");
             _viewState = ViewState.Shown;
+            DestroyOnHide = false;
             NotifyViewEvent();
         }
 

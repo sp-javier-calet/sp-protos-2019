@@ -6,5 +6,5 @@
 /// </summary>
 public interface IReward
 {
-    Error Obtain();
+    ModelError Obtain(PlayerModel playerModel);
 }

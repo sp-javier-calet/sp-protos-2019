@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
 
-#if UNITY_IPHONE
+#if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
     public class IosStoreAttrUtils
@@ -12,9 +10,9 @@ namespace SocialPoint.Purchase
 
         public static List<T> IosStoreListFromJson<T>(string json, IosStoreObjectFromAttrDic<T> ObjectBuilder)
         {
-            List<T> productList = new List<T>();
+            var productList = new List<T>();
 
-            JsonAttrParser litJsonParser = new JsonAttrParser();
+            var litJsonParser = new JsonAttrParser();
             Attr parsedData = litJsonParser.ParseString(json);
             if(parsedData.AttrType == AttrType.LIST)
             {
@@ -34,7 +32,7 @@ namespace SocialPoint.Purchase
 
         public static T IosStoreObjectFromJson<T>(string json, IosStoreObjectFromAttrDic<T> ObjectBuilder)
         {
-            JsonAttrParser litJsonParser = new JsonAttrParser();
+            var litJsonParser = new JsonAttrParser();
             Attr parsedData = litJsonParser.ParseString(json);
             AttrDic dict = null;
             if(parsedData.AttrType == AttrType.DICTIONARY)
@@ -42,10 +40,8 @@ namespace SocialPoint.Purchase
                 dict = parsedData.AsDic;
             }
 
-            if(dict == null)
-                return default(T);
+            return dict == null ? default(T) : ObjectBuilder(dict);
 
-            return ObjectBuilder(dict);
         }
     }
 }

@@ -35,27 +35,29 @@ public class ServerSyncInstaller : SubInstaller
         Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
 
         Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
+
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandReceiver>(CreateAdminPanelCommandReceiver);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandQueue>(CreateAdminPanelCommandQueue);
     }
 
     CommandQueue CreateCommandQueue()
     {
         return new CommandQueue(
-            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<IUpdateScheduler>(),
             Container.Resolve<IHttpClient>());
     }
 
     void SetupCommandQueue(CommandQueue queue)
     {
         queue.IgnoreResponses = Settings.IgnoreResponses;
-        queue.SendInterval =  Settings.SendInterval;
+        queue.SendInterval = Settings.SendInterval;
         queue.MaxOutOfSyncInterval = Settings.MaxOutOfSyncInterval;
         queue.Timeout = Settings.Timeout;
         queue.BackoffMultiplier = Settings.BackoffMultiplier;
         queue.PingEnabled = Settings.PingEnabled;
         queue.AppEvents = Container.Resolve<IAppEvents>();
         queue.TrackEvent = Container.Resolve<IEventTracker>().TrackEvent;
-        queue.RequestSetup = Container.Resolve<ILogin>().SetupHttpRequest;
+        queue.LoginData = Container.Resolve<ILoginData>();
         queue.CommandReceiver = Container.Resolve<CommandReceiver>();
         queue.AutoSync = Container.Resolve<IGameLoader>().OnAutoSync;
         Container.Resolve<IGameErrorHandler>().Setup(queue);
@@ -71,5 +73,10 @@ public class ServerSyncInstaller : SubInstaller
     {
         return new AdminPanelCommandReceiver(
             Container.Resolve<CommandReceiver>());
+    }
+
+    AdminPanelCommandQueue CreateAdminPanelCommandQueue()
+    {
+        return new AdminPanelCommandQueue(Container.Resolve<ICommandQueue>());
     }
 }

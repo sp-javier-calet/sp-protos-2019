@@ -1,18 +1,16 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 
 namespace SocialPoint.ServerSync
 {
-    public class CommandQueue : ICommandQueue
+    public class CommandQueue : ICommandQueue, IUpdateable
     {
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
-
         public delegate void ResponseDelegate(HttpResponse resp);
 
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
@@ -100,6 +98,8 @@ namespace SocialPoint.ServerSync
             }
         }
 
+        public ILoginData LoginData;
+
         #region App Events
 
         void ConnectAppEvents(IAppEvents appEvents)
@@ -120,7 +120,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWasLoaded()
         {
-            if(!Running)
+            if(!_running)
             {
                 Start();
             }
@@ -128,7 +128,7 @@ namespace SocialPoint.ServerSync
 
         void OnGameWillRestart()
         {
-            if(Running)
+            if(_running)
             {
                 Stop();
                 Send();
@@ -139,7 +139,7 @@ namespace SocialPoint.ServerSync
         void OnAppWillGoBackground()
         {
             _goToBackgroundTS = TimeUtils.Timestamp;
-            if(Running)
+            if(_running)
             {
                 SendUpdate();
             }
@@ -194,6 +194,10 @@ namespace SocialPoint.ServerSync
 
         public bool AutoSyncEnabled
         {
+            get
+            {
+                return _autoSyncEnabled;
+            }
             set
             {
                 _autoSyncEnabled = value;
@@ -209,7 +213,6 @@ namespace SocialPoint.ServerSync
         public const float DefaultBackoffMultiplier = 1.1f;
         public const bool DefaultPingEnabled = true;
 
-        public RequestSetupDelegate RequestSetup;
         public bool IgnoreResponses = DefaultIgnoreResponses;
         public int SendInterval = DefaultSendInterval;
         public int MaxOutOfSyncInterval = DefaultMaxOutOfSyncInterval;
@@ -219,7 +222,7 @@ namespace SocialPoint.ServerSync
 
 
         IHttpClient _httpClient;
-        ICoroutineRunner _runner;
+        IUpdateScheduler _updateScheduler;
         Packet _sendingPacket;
         Packet _currentPacket;
         List<Packet> _sentPackets;
@@ -230,24 +233,23 @@ namespace SocialPoint.ServerSync
         bool _synced;
         bool _currentPacketFlushed;
         long _syncTimestamp;
-        IEnumerator _updateCoroutine;
         int _lastPacketId;
         long _lastSendTimestamp;
         float _currentTimeout;
-        float _currentSendInterval;
         IHttpConnection _httpConn;
         Action _sendFinish;
         long _goToBackgroundTS;
+        bool _running;
 
-
-        public CommandQueue(ICoroutineRunner runner, IHttpClient client)
+        public CommandQueue(IUpdateScheduler updateScheduler, IHttpClient client)
         {
-            DebugUtils.Assert(runner != null);
+            DebugUtils.Assert(updateScheduler != null);
             DebugUtils.Assert(client != null);
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
-            _runner = runner;
+            _updateScheduler = updateScheduler;
             _httpClient = client;
             _synced = true;
+            _running = false;
             Reset();
         }
 
@@ -271,7 +273,6 @@ namespace SocialPoint.ServerSync
         {
             _lastSendTimestamp = CurrentTimestamp - SendInterval;
             _currentTimeout = Timeout;
-            _currentSendInterval = SendInterval;
             _syncTimestamp = CurrentTimestamp;
             _synced = true;
         }
@@ -330,33 +331,30 @@ namespace SocialPoint.ServerSync
 
         public void Start()
         {
+            if(_running)
+            {
+                return;
+            }
+
             SetStartValues();
 
-            if(RequestSetup == null)
+            if(LoginData == null)
             {
-                throw new InvalidOperationException("Request setup callback not assigned.");
+                throw new InvalidOperationException("LoginData not assigned.");
             }
-            if(_updateCoroutine == null)
+            if(_updateScheduler != null)
             {
-                _updateCoroutine = UpdateCoroutine();
-                _runner.StartCoroutine(_updateCoroutine);
+                _updateScheduler.AddFixed(this, SendInterval);
+                _running = true;
             }
         }
 
         public void Stop()
         {
-            if(_updateCoroutine != null)
+            if(_updateScheduler != null)
             {
-                _runner.StopCoroutine(_updateCoroutine);
-                _updateCoroutine = null;
-            }
-        }
-
-        public bool Running
-        {
-            get
-            {
-                return _updateCoroutine != null;
+                _updateScheduler.Remove(this);
+                _running = false;
             }
         }
 
@@ -373,22 +371,14 @@ namespace SocialPoint.ServerSync
             TimeUtils.OffsetChanged -= OnTimeOffsetChanged;
         }
 
-        IEnumerator UpdateCoroutine()
+        #region IUpdateable implementation
+
+        public void Update()
         {
-            while(true)
-            {
-                Update();
-                yield return true;
-            }
+            SendUpdate();
         }
 
-        void Update()
-        {
-            if(_lastSendTimestamp + (long)_currentSendInterval < CurrentTimestamp)
-            {
-                SendUpdate();
-            }
-        }
+        #endregion
 
         public void Send(Action finish = null)
         {
@@ -536,8 +526,9 @@ namespace SocialPoint.ServerSync
                 {
                     var attracks = new AttrList();
                     _sendingAcks = new List<string>(_pendingAcks);
-                    foreach(var ack in _sendingAcks)
+                    for(int i = 0, _sendingAcksCount = _sendingAcks.Count; i < _sendingAcksCount; i++)
                     {
+                        var ack = _sendingAcks[i];
                         attracks.AddValue(ack);
                     }
                     attrdic.Set(AttrKeyAcks, attracks);
@@ -547,8 +538,9 @@ namespace SocialPoint.ServerSync
 
         void RemoveNotifiedAcks()
         {
-            foreach(var ack in _sendingAcks)
+            for(int i = 0, _sendingAcksCount = _sendingAcks.Count; i < _sendingAcksCount; i++)
             {
+                var ack = _sendingAcks[i];
                 _pendingAcks.Remove(ack);
             }
             _sendingAcks.Clear();
@@ -584,11 +576,11 @@ namespace SocialPoint.ServerSync
                 req.Timeout = _currentTimeout;
             }
 
-            if(RequestSetup != null)
+            if(LoginData != null)
             {
                 try
                 {
-                    RequestSetup(req, Uri);
+                    LoginData.SetupHttpRequest(req, Uri);
                 }
                 catch(Exception e)
                 {
@@ -626,13 +618,16 @@ namespace SocialPoint.ServerSync
             if(IgnoreResponses)
             {
                 AfterPacketSent(packet, true);
-                foreach(var pcmd in packet)
+                var itr = packet.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pcmd = itr.Current;
                     if(pcmd.Finished != null)
                     {
                         pcmd.Finished(null, null);
                     }
                 }
+                itr.Dispose();
                 if(packet.Finished != null)
                 {
                     packet.Finished(null);
@@ -766,8 +761,9 @@ namespace SocialPoint.ServerSync
             int id;
             if(int.TryParse(sid, out id))
             {
-                foreach(var p in _sentPackets)
+                for(int i = 0, _sentPacketsCount = _sentPackets.Count; i < _sentPacketsCount; i++)
                 {
+                    var p = _sentPackets[i];
                     if(id == p.Id)
                     {
                         return p;
@@ -817,13 +813,16 @@ namespace SocialPoint.ServerSync
                     packet.Finished(err);
                 }
                 NotifyError(CommandQueueErrorType.ResponseJson, err);
-                foreach(var pcmd in packet)
+                var itr = packet.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var pcmd = itr.Current;
                     if(pcmd.Finished != null)
                     {
                         pcmd.Finished(data, err);
                     }
                 }
+                itr.Dispose();
                 _sentPackets.Remove(packet);
                 return;
             }
@@ -831,8 +830,10 @@ namespace SocialPoint.ServerSync
             if(datadic.ContainsKey(AttrKeyCommands))
             {
                 var cmdsAttr = datadic.Get(AttrKeyCommands).AsDic;
-                foreach(var cmdAttrPair in cmdsAttr)
+                var itr = cmdsAttr.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var cmdAttrPair = itr.Current;
                     var pcmd = packet.GetCommand(cmdAttrPair.Key);
                     ValidateResponse(cmdAttrPair.Value, pcmd);
                     packet.Remove(pcmd);
@@ -841,6 +842,7 @@ namespace SocialPoint.ServerSync
                         _pendingAcks.Add(pcmd.Command.Id);
                     }
                 }
+                itr.Dispose();
             }
             if(packet.Count == 0)
             {
@@ -863,18 +865,23 @@ namespace SocialPoint.ServerSync
 
             var packsAttr = data.Get(AttrKeyPackets).AsDic;
 
-            foreach(var packAttrPair in packsAttr)
+            var itr = packsAttr.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var packAttrPair = itr.Current;
                 var packet = GetSentPacket(packAttrPair.Key);
                 ValidateResponse(packAttrPair.Value, packet);
             }
+            itr.Dispose();
 
             // Handle Server to Client Commands
             var pushAttr = data.Get(AttrKeyPush).AsDic;
             var pushCommands = pushAttr.Get(AttrKeyCommands).AsDic;
 
-            foreach(var pushCommand in pushCommands)
+            var itr2 = pushCommands.GetEnumerator();
+            while(itr2.MoveNext())
             {
+                var pushCommand = itr2.Current;
                 string commandId = STCCommand.getId(pushCommand.Value.AsDic);
                 if(CommandReceiver != null)
                 {
@@ -883,15 +890,17 @@ namespace SocialPoint.ServerSync
                 // Add a pending ack for the command response
                 _pendingAcks.Add(commandId);
             }
+            itr2.Dispose();
 
             RemoveNotifiedAcks();
         }
 
         void CatchException(Exception e)
         {
-            DebugUtils.LogException(e);
+            Log.x(e);
+
             #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+            DebugUtils.Stop();
             #else
             NotifyError(CommandQueueErrorType.Exception, new Error(e.ToString()));
             #endif

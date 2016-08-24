@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
-using SocialPoint.AdminPanel;
 using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.AppEvents;
@@ -14,7 +13,7 @@ public class LoginInstaller : SubInstaller
     [Serializable]
     public class SettingsData
     {
-        public BackendEnvironment Environment = BackendEnvironment.Develpoment;
+        public BackendEnvironment Environment = BackendEnvironment.Development;
         public float Timeout = SocialPointLogin.DefaultTimeout;
         public float ActivityTimeout = SocialPointLogin.DefaultActivityTimeout;
         public bool AutoupdateFriends = SocialPointLogin.DefaultAutoUpdateFriends;
@@ -39,7 +38,9 @@ public class LoginInstaller : SubInstaller
             ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
             EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
         });
+
         Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
+        Container.Rebind<ILoginData>().ToLookup<ILogin>();
         Container.Bind<IDisposable>().ToLookup<ILogin>();
     }
 

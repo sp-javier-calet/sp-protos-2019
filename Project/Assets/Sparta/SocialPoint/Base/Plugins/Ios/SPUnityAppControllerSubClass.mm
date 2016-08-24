@@ -3,7 +3,12 @@
 #import <UIKit/UIKit.h>
 #import <AdSupport/AdSupport.h>
 #include <queue>
+
+#if !UNITY_TVOS
 #import <SPUnityPlugins/UnityGameObject.h>
+#else
+#import <SPUnityPlugins_tvOS/UnityGameObject.h>
+#endif
 
 @implementation SPUnityAppControllerSubClass
 {
@@ -29,23 +34,21 @@ static const std::string kNotifyMethod = "NotifyStatus";
 // Queue of events waiting to be notified
 std::queue<std::string> _pendingEvents;
 
-+(void)load
++ (void)load
 {
     extern const char* AppControllerClassName;
     AppControllerClassName = "SPUnityAppControllerSubClass";
-    
+
     /**
      * Initialize library components
      */
-    UnityGameObject::setSendMessageDelegate(
-                                            [](const std::string& name,
-                                               const std::string& method,
-                                               const std::string& message ){
+    UnityGameObject::setSendMessageDelegate([](const std::string& name, const std::string& method, const std::string& message)
+                                            {
                                                 UnitySendMessage(name.c_str(), method.c_str(), message.c_str());
                                             });
 }
 
-- (void) notifyStatus:( std::string ) status
+- (void)notifyStatus:(std::string)status
 {
     // Add new status and flush all
     _pendingEvents.push(status);
@@ -64,47 +67,48 @@ std::queue<std::string> _pendingEvents;
     }
 }
 
--(NSString*) urlEncode:(id) object
+- (NSString*)urlEncode:(id)object
 {
-    NSString *string = [NSString stringWithFormat: @"%@", object];
-    return [string stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+    NSString* string = [NSString stringWithFormat:@"%@", object];
+    return [string stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 }
 
--(void) clearSource
+- (void)clearSource
 {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     [defaults removeObjectForKey:kAppSourceKey];
     [defaults synchronize];
 }
 
--(void) storeSource:(NSString*) url
+- (void)storeSource:(NSString*)url
 {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:url forKey:kAppSourceKey];
     [defaults synchronize];
 }
 
--(void) storeSourceOptions:( NSDictionary* ) options withScheme:(NSString*)scheme
+- (void)storeSourceOptions:(NSDictionary*)options withScheme:(NSString*)scheme
 {
     if(options || scheme)
     {
-        NSMutableArray *parts = [NSMutableArray array];
-        for (id key in options) {
-            id value = [options objectForKey: key];
-            NSString *part = [NSString stringWithFormat: @"%@=%@",
-                              [self urlEncode:key],
-                              [self urlEncode:value]];
-            [parts addObject: part];
+        NSMutableArray* parts = [NSMutableArray array];
+        for(id key in options)
+        {
+            id value = [options objectForKey:key];
+            NSString* part = [NSString stringWithFormat:@"%@=%@", [self urlEncode:key], [self urlEncode:value]];
+            [parts addObject:part];
         }
-        
+
         NSString* url;
         if(scheme != nil)
         {
-            url = [NSString stringWithFormat:@"%@%@%@", scheme, @"://?", [parts componentsJoinedByString: @"&"]];
-        } else {
-            url = [parts componentsJoinedByString: @"&"];
+            url = [NSString stringWithFormat:@"%@%@%@", scheme, @"://?", [parts componentsJoinedByString:@"&"]];
         }
-        
+        else
+        {
+            url = [parts componentsJoinedByString:@"&"];
+        }
+
         [self storeSource:url];
     }
     else
@@ -118,35 +122,37 @@ std::queue<std::string> _pendingEvents;
     return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedDescending;
 }
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-    
+
     [self clearSource];
-    
+
 #if !UNITY_TVOS
-    UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-    if (notification)
+    UILocalNotification* notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    if(notification)
     {
         /* Notice that all event processing must be synchronous,
          * since the Source could change if there are any other  notification event */
         [self storeSourceOptions:notification.userInfo withScheme:@"local"];
     }
 #endif
-    
-    if([self isOsVersionGreaterOrEqualThan: kIosVersion9Tag] && launchOptions != nil)
+
+#if !UNITY_TVOS
+    if([self isOsVersionGreaterOrEqualThan:kIosVersion9Tag] && launchOptions != nil)
     {
         UIApplicationShortcutItem* shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-        
+
         if(shortcutItem != nil)
             [self storeForceTouchShortcut:shortcutItem];
     }
+#endif
     [self notifyStatus:kStatusUpdateSource];
-    
+
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+- (BOOL)application:(UIApplication*)application openURL:(NSURL*)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation
 {
 #if !UNITY_TVOS
     [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
@@ -157,7 +163,7 @@ std::queue<std::string> _pendingEvents;
 }
 
 #if !UNITY_TVOS
--  (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
+- (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification
 {
     [super application:application didReceiveLocalNotification:notification];
     [self storeSourceOptions:notification.userInfo withScheme:@"local"];
@@ -172,28 +178,34 @@ std::queue<std::string> _pendingEvents;
     [self notifyStatus:kStatusUpdateSource];
 }
 
+#if !UNITY_TVOS
 - (void)storeForceTouchShortcut:(UIApplicationShortcutItem*)shortcut
 {
-    NSDictionary* dictionary = @{ kEventTypeKey:[shortcut type] };
+    NSDictionary* dictionary = @{kEventTypeKey : [shortcut type]};
     [self storeSourceOptions:dictionary withScheme:@"appshortcut"];
 }
 
-- (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*) shortcutItem completionHandler:(void (^)(BOOL))completionHandler
+- (void)application:(UIApplication*)application
+  performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
+             completionHandler:(void (^)(BOOL))completionHandler
 {
     [self storeForceTouchShortcut:shortcutItem];
     [self notifyStatus:kStatusUpdateSource];
     completionHandler(YES);
 }
+#endif
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
+- (void)applicationDidEnterBackground:(UIApplication*)application
 {
     [super applicationDidEnterBackground:application];
     [self notifyStatus:kStatusBackground];
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
+- (void)applicationWillEnterForeground:(UIApplication*)application
 {
+#if !UNITY_TVOS
     application.applicationIconBadgeNumber = 0;
+#endif
     [super applicationWillEnterForeground:application];
     // applicationWillEnterForeground: might sometimes arrive *before* actually initing unity (e.g. locking on startup)
     [self notifyStatus:kStatusWillGoForeground];
@@ -208,14 +220,14 @@ std::queue<std::string> _pendingEvents;
 - (void)applicationWillResignActive:(UIApplication*)application
 {
     [self notifyStatus:kStatusWillGoBackground];
-    
-    //aditional game loop to allow scripts response before being paused
+
+// aditional game loop to allow scripts response before being paused
 #if UNITY_VERSION > 500
     UnityBatchPlayerLoop();
 #else
     UnityPlayerLoop();
 #endif
-    
+
     [super applicationWillResignActive:application];
 }
 
@@ -225,7 +237,7 @@ std::queue<std::string> _pendingEvents;
     [self notifyStatus:kStatusMemoryWarning];
 }
 
-- (void)setGameObjectName:(const char *)name
+- (void)setGameObjectName:(const char*)name
 {
     _gameObjectName = name;
 }
@@ -233,45 +245,49 @@ std::queue<std::string> _pendingEvents;
 @end
 
 extern "C" {
-    void SPUnityAppEvents_Init(const char* gameObjectName)
+void SPUnityAppEvents_Init(const char* gameObjectName)
+{
+    SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
+    [delegate setGameObjectName:gameObjectName];
+}
+
+void SPUnityAppEvents_Flush()
+{
+    SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
+    [delegate flush];
+}
+
+bool IsNullOrEmpty(const char* str)
+{
+    return (str == NULL || strlen(str) < 1);
+}
+
+#if !UNITY_TVOS
+void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
+{
+    SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
+    if([delegate isOsVersionGreaterOrEqualThan:kIosVersion9Tag])
+        return;
+
+    NSMutableArray<UIApplicationShortcutItem*>* items = [NSMutableArray arrayWithCapacity:itemsCount];
+
+    for(int i = 0; i < itemsCount; ++i)
     {
-        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
-        [delegate setGameObjectName:gameObjectName];
+        ForceTouchShortcutItem& shortcut = shortcuts[i];
+
+        NSString* type = [NSString stringWithUTF8String:shortcut.Type];
+        NSString* title = [NSString stringWithUTF8String:shortcut.Title];
+        NSString* subtitle = IsNullOrEmpty(shortcut.Subtitle) ? nil : [NSString stringWithUTF8String:shortcut.Subtitle];
+        UIApplicationShortcutIcon* icon = IsNullOrEmpty(shortcut.IconPath)
+                                            ? nil
+                                            : [UIApplicationShortcutIcon iconWithTemplateImageName:[NSString stringWithUTF8String:shortcut.IconPath]];
+        UIApplicationShortcutItem* item =
+          [[UIApplicationShortcutItem alloc] initWithType:type localizedTitle:title localizedSubtitle:subtitle icon:icon userInfo:nil];
+
+        [items addObject:item];
     }
-    
-    void SPUnityAppEvents_Flush()
-    {
-        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
-        [delegate flush];
-    }
-    
-    bool IsNullOrEmpty(const char* str)
-    {
-        return (str == NULL || strlen(str) < 1);
-    }
-    
-    void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
-    {
-        SPUnityAppControllerSubClass* delegate = [[UIApplication sharedApplication] delegate];
-        if([delegate isOsVersionGreaterOrEqualThan: kIosVersion9Tag])
-            return;
-        
-        NSMutableArray<UIApplicationShortcutItem*>* items = [NSMutableArray arrayWithCapacity:itemsCount];
-        
-        for(int i = 0; i < itemsCount; ++i)
-        {
-            ForceTouchShortcutItem& shortcut = shortcuts[i];
-            
-            NSString* type = [NSString stringWithUTF8String:shortcut.Type];
-            NSString* title = [NSString stringWithUTF8String:shortcut.Title];
-            NSString* subtitle = IsNullOrEmpty(shortcut.Subtitle) ? nil : [NSString stringWithUTF8String:shortcut.Subtitle];
-            UIApplicationShortcutIcon* icon = IsNullOrEmpty(shortcut.IconPath) ? nil : [UIApplicationShortcutIcon iconWithTemplateImageName:[NSString stringWithUTF8String:shortcut.IconPath]];
-            UIApplicationShortcutItem* item =
-            [[UIApplicationShortcutItem alloc] initWithType:type localizedTitle:title localizedSubtitle:subtitle icon:icon userInfo:nil];
-            
-            [items addObject:item];
-        }
-        
-        [[UIApplication sharedApplication] setShortcutItems:items];
-    }
+
+    [[UIApplication sharedApplication] setShortcutItems:items];
+}
+#endif
 }

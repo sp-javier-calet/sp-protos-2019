@@ -5,34 +5,6 @@
 #define LOG_TAG "UnityGameObject"
 #define  LogError(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-JniEnv::JniEnv(JavaVM* java):
-_java(java), _env(nullptr), _attached(false)
-{
-    if(_java->GetEnv((void**)&_env, JNI_VERSION_1_4) == JNI_EDETACHED)
-    {
-        _java->AttachCurrentThread(&_env, 0);
-        _attached = true;
-    }
-}
-
-JniEnv::~JniEnv()
-{
-    if(_attached)
-    {
-        _java->DetachCurrentThread();
-    }
-}
-
-JNIEnv* JniEnv::operator->()
-{
-    return _env;
-}
-
-JniEnv::operator bool()
-{
-    return _env;
-}
-
 JavaVM* UnityGameObject::_java = nullptr;
 jclass UnityGameObject::_jcls = nullptr;
 

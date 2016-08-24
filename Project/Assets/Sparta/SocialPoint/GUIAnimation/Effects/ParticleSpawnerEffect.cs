@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -12,14 +13,14 @@ namespace SocialPoint.GUIAnimation
     {
         public interface ISpawner
         {
-            GameObject Spawn (GameObject prefab);
+            GameObject Spawn(GameObject prefab);
         }
 
         public class DefaultSpawner : ISpawner
         {
-            public GameObject Spawn (GameObject prefab)
+            public GameObject Spawn(GameObject prefab)
             {
-                return GameObject.Instantiate (prefab);
+                return GameObject.Instantiate(prefab);
             }
         }
 
@@ -32,9 +33,9 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (_spawner == null)
+                if(_spawner == null)
                 {
-                    _spawner = new DefaultSpawner ();
+                    _spawner = new DefaultSpawner();
                 }
                 return _spawner;
             }
@@ -48,7 +49,7 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (string.IsNullOrEmpty (_layer))
+                if(string.IsNullOrEmpty(_layer))
                 {
                     _layer = kDefaultLayer;
                 }
@@ -63,7 +64,7 @@ namespace SocialPoint.GUIAnimation
 
         [ShowInEditor]
         [SerializeField]
-        List<GameObject> _particlesPrefabs = new List<GameObject> ();
+        List<GameObject> _particlesPrefabs = new List<GameObject>();
 
         public List<GameObject> ParticlesPrefabs
         {
@@ -73,75 +74,75 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
-            CopyActionValues ((ParticleSpawnerEffect)other);
+            base.Copy(other);
+            CopyActionValues((ParticleSpawnerEffect)other);
         }
 
-        public override void CopyActionValues (Effect other)
+        public override void CopyActionValues(Effect other)
         {
             _particlesPrefabs = ((ParticleSpawnerEffect)other).ParticlesPrefabs;
             _layer = ((ParticleSpawnerEffect)other).Layer;
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
         }
 
-        public override void SetOrCreateDefaultValues ()
+        public override void SetOrCreateDefaultValues()
         {
         }
 
-        public override void DoAction ()
+        public override void DoAction()
         {
-            if (!Application.isPlaying)
+            if(!Application.isPlaying)
             {
                 return;
             }
 
-            for (int i = 0; i < _particlesPrefabs.Count; ++i)
+            for(int i = 0; i < _particlesPrefabs.Count; ++i)
             {
-                GameObject go = DoSpawnParticle (_particlesPrefabs [i]);
-                SetLayer (go);
-                FixScale (go);
+                GameObject go = DoSpawnParticle(_particlesPrefabs[i]);
+                SetLayer(go);
+                FixScale(go);
             }
         }
 
-        public static void SetSpawner (ISpawner spawner)
+        public static void SetSpawner(ISpawner spawner)
         {
             _spawner = spawner;
         }
 
-        void FixScale (GameObject go)
+        void FixScale(GameObject go)
         {
-            if (_keepScale && Parent != null)
+            if(_keepScale && Parent != null)
             {
-                go.transform.localScale = new Vector3 (go.transform.localScale.x / Parent.transform.lossyScale.x, go.transform.localScale.y / Parent.transform.lossyScale.y, go.transform.localScale.z / Parent.transform.lossyScale.z);
+                go.transform.localScale = new Vector3(go.transform.localScale.x / Parent.transform.lossyScale.x, go.transform.localScale.y / Parent.transform.lossyScale.y, go.transform.localScale.z / Parent.transform.lossyScale.z);
             }
         }
 
-        GameObject DoSpawnParticle (GameObject prefab)
+        GameObject DoSpawnParticle(GameObject prefab)
         {
-            GameObject instance = Spawner.Spawn (prefab);
-            instance.transform.SetParent (Target, false);
+            GameObject instance = Spawner.Spawn(prefab);
+            instance.transform.SetParent(Target, false);
 			
-            ParticleSystem pSystem = instance.GetComponentInChildren<ParticleSystem> ();
-            pSystem.Play ();
+            ParticleSystem pSystem = instance.GetComponentInChildren<ParticleSystem>();
+            pSystem.Play();
 
-            instance.SendMessage (kOnAnimationTriggeredMessage, SendMessageOptions.DontRequireReceiver);
+            instance.SendMessage(kOnAnimationTriggeredMessage, SendMessageOptions.DontRequireReceiver);
 			
             return instance;
         }
 
-        void SetLayer (GameObject go)
+        void SetLayer(GameObject go)
         {
-            GameObjectUtility.SetLayerRecursively (go, LayerMask.NameToLayer (Layer));
+            GameObjectUtility.SetLayerRecursively(go, LayerMask.NameToLayer(Layer));
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            Debug.LogWarning (GetType () + " -> SaveValues. Nothing to save :(");
+            Log.w(GetType() + " -> SaveValues. Nothing to save :(");
         }
     }
 }

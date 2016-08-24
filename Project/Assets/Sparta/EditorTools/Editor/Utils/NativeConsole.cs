@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Diagnostics;
 
 namespace SpartaTools.Editor.Utils
@@ -11,8 +12,64 @@ namespace SpartaTools.Editor.Utils
             Error
         }
 
-        public static int RunProcess(string exe, string args, string path, Action<OutputType, string> output)
+        public class Result
         {
+            readonly StringBuilder _outputBuilder = new StringBuilder();
+            readonly StringBuilder _infoBuilder = new StringBuilder();
+            readonly StringBuilder _errorBuilder = new StringBuilder();
+
+            public string Output
+            {
+                get
+                {
+                    return _outputBuilder.ToString();
+                }
+            }
+
+            public string Standard
+            {
+                get
+                {
+                    return _infoBuilder.ToString();
+                }
+            }
+            public string Error
+            {
+                get
+                {
+                    return _errorBuilder.ToString();
+                }
+            }
+
+            public bool HasError
+            { 
+                get
+                { 
+                    return _errorBuilder.Length > 0;
+                }
+            }
+
+            public void Log(NativeConsole.OutputType type, string message)
+            {
+                _outputBuilder.Append(message);
+                switch(type)
+                {
+                case NativeConsole.OutputType.Standard:
+                    _infoBuilder.Append(message);
+                    break;
+                case NativeConsole.OutputType.Error:
+                    _errorBuilder.Append(message);
+                    break;
+                }
+            }
+
+            public int Code { get; set; }
+        }
+
+        public static Result RunProcess(string exe, string args, string path)
+        {
+            var result = new Result();
+
             var proc = new Process {
                 StartInfo = new ProcessStartInfo {
                     FileName = exe,
@@ -34,7 +91,7 @@ namespace SpartaTools.Editor.Utils
                     string content = proc.StandardOutput.ReadToEnd();
                     if(content != null)
                     {
-                        output(OutputType.Standard, content);
+                        result.Log(OutputType.Standard, content);
                     }
                 }
                 if(!proc.StandardError.EndOfStream)
@@ -42,15 +99,15 @@ namespace SpartaTools.Editor.Utils
                     string content = proc.StandardError.ReadToEnd();
                     if(content != null)
                     {
-                        output(OutputType.Error, content);
+                        result.Log(OutputType.Error, content);
                     }
                 }
             }
 
             proc.WaitForExit();
-            int code = proc.ExitCode;
+            result.Code = proc.ExitCode;
             proc.Close();
-            return code;
+            return result;
         }
     }
 }

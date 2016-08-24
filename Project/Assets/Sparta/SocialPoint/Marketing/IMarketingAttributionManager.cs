@@ -1,12 +1,11 @@
-﻿using System;
-using SocialPoint.Attributes;
+﻿using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
+using System;
 
 namespace SocialPoint.Marketing
 {
-    public delegate string GetUserIDDelegate();
-
-    public delegate void TrackEventDelegate(string eventName,AttrDic data = null,ErrorDelegate del = null);
+    public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
     public interface IMarketingAttributionManager : IDisposable
     {
@@ -20,7 +19,7 @@ namespace SocialPoint.Marketing
 
         void OnTrackerReceivedData(TrackerAttributionData data);
 
-        GetUserIDDelegate GetUserID { get; set; }
+        ILoginData LoginData { get; set; }
 
         TrackEventDelegate TrackEvent { get; set; }
     }

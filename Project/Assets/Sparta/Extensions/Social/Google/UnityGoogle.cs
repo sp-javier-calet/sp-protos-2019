@@ -1,18 +1,28 @@
-﻿using UnityEngine;
-using UnityEngine.SocialPlatforms;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.Quests;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
+using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 namespace SocialPoint.Social
 {
     public class UnityGoogle : MonoBehaviour, IGoogle
     {
+        [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
+        void DebugLog(string msg)
+        {
+            Log.i(string.Format("GooglePlay - {0}", msg));
+        }
+
         public event GoogleStateChangeDelegate StateChangeEvent;
+
+        public Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
 
         protected void NotifyStateChanged()
         {
@@ -22,15 +32,14 @@ namespace SocialPoint.Social
             }
         }
 
-        bool _loadDescriptionAchievements = false;
         GoogleUser _user;
         PlayGamesPlatform _platform;
-        Dictionary<string, GoogleAchievement> _achievements = null;
+        Dictionary<string, GoogleAchievement> _achievements;
         bool _loginSuccess;
         ErrorDelegate _loginCallback;
         List<GoogleUser> _friends;
-        bool _connecting = false;
-        string _accessToken = null;
+        bool _connecting;
+        string _accessToken;
 
         public List<GoogleUser> Friends
         {
@@ -44,8 +53,10 @@ namespace SocialPoint.Social
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
+            DebugLog("Login");
             if(IsConnected)
             {
+                DebugLog("Login - IsConnected");
                 if(cbk != null)
                 {
                     cbk(null);
@@ -53,11 +64,15 @@ namespace SocialPoint.Social
                 return;
             }
 
+            DebugLog("Login - not connected trying Authenticate");
+
             // Use Activate() instead to override Social.Active
             _platform = PlayGamesPlatform.Instance;
             _connecting = true;
             _loginCallback = cbk;
-            _platform.Authenticate((bool success) => {
+            _platform.Authenticate(success => {
+                DebugLog("Login - Authenticate success: " + success);
+                DebugLog("Login - Authenticate with local user: " + _platform.localUser.userName);
                 _loginSuccess = success;
                 DispatchMainThread(UpdateAfterLogin);
             }, silent);
@@ -65,6 +80,8 @@ namespace SocialPoint.Social
 
         void UpdateAfterLogin()
         {
+            DebugLog("UpdateAfterLogin");
+            DebugUtils.Assert(_loginCallback != null);
             if(_loginCallback != null)
             {
                 OnLogin();
@@ -73,69 +90,72 @@ namespace SocialPoint.Social
 
         void LoadDescriptionAchievements()
         {
-            DebugUtils.Log("Intentamos cargar los achivements");
+            DebugLog("Trying to load achievements");
             _platform.LoadAchievementDescriptions(descriptions => {
                 if(descriptions.Length > 0)
                 {
-                    DebugUtils.Log("Got " + descriptions.Length + " achievement descriptions");
-                    string achievementDescriptions = "Achievement Descriptions:\n";
-                    foreach(IAchievementDescription ad in descriptions)
+                    DebugLog("Got " + descriptions.Length + " achievement descriptions");
+                    var achievementDescriptions = new StringBuilder();
+                    achievementDescriptions.Append("Achievement Descriptions:\n");
+                    for(int i = 0, descriptionsLength = descriptions.Length; i < descriptionsLength; i++)
                     {
-                        achievementDescriptions += "\t" +
-                            
-                        ad.id + " " +
-                        ad.title + " " +
-                        ad.unachievedDescription + "\n";
+                        IAchievementDescription ad = descriptions[i];
+                        achievementDescriptions.Append("\t").Append(ad.id).Append(" ").Append(ad.title).Append(" ").Append(ad.unachievedDescription).AppendLine();
                     }
-                    DebugUtils.Log(achievementDescriptions);
+                    DebugLog(achievementDescriptions.ToString());
                 }
                 else
                 {
-                    DebugUtils.Log("Failed to load achievement descriptions");
+                    DebugLog("Failed to load achievement descriptions");
                 }
             });
         }
 
         void OnLogin()
         {
+            DebugLog("OnLogin _loginSuccess: " + _loginSuccess);
+
             if(_loginSuccess)
             {
-
-                if(_loadDescriptionAchievements)
-                {
-                    LoadDescriptionAchievements();
-                }
-                
-                LoginLoadPlayerData((Error err) => {
+                LoginLoadPlayerData(err => {
                     if(!Error.IsNullOrEmpty(err))
                     {
-                        DispatchMainThread(() => OnLoginEnd(err, _loginCallback));
+                        DispatchMainThread(() => OnLoginEnd(err));
                     }
                     else
                     {
-                        DownloadAchievements((err2) => DispatchMainThread(() => OnLoginEnd(err2, _loginCallback)));
+                        DownloadAchievements(err2 => DispatchMainThread(() => OnLoginEnd(err2)));
                     }
                 });
             }
             else
             {
-                DispatchMainThread(() => OnLoginEnd(new Error("Cannot connect to Google Play Games"), _loginCallback));
+                DispatchMainThread(() => OnLoginEnd(new Error("Cannot connect to Google Play Games")));
+                DebugLog("OnLogin failed - Some possible causes: ");
+                DebugLog("- your apk is not signed");
+                DebugLog("- your google account is not registered as a tester account on the Developer Console");
             }
         }
 
-        void OnLoginEnd(Error err, ErrorDelegate cbk = null)
+        void OnLoginEnd(Error err)
         {
+            DebugLog("OnLoginEnd - Error: " + err);
+
             _connecting = false;
             NotifyStateChanged();
-            if(cbk != null)
+
+            DebugUtils.Assert(_loginCallback != null);
+            if(_loginCallback != null)
             {
-                cbk(err);
+                _loginCallback(err);
+                _loginCallback = null;
             }
-            _loginCallback = null;
         }
 
         void LoginLoadPlayerData(ErrorDelegate cbk = null)
         {
+            DebugLog("LoginLoadPlayerData");
+
             var localUser = _platform.localUser;
             if(!localUser.authenticated)
             {
@@ -153,7 +173,10 @@ namespace SocialPoint.Social
                     localUser.underage ? GoogleUser.AgeGroup.Underage : GoogleUser.AgeGroup.Adult
                 );
 
+                _platform.GetPlayerStats(RetrievePlayerStats);
+
                 _platform.GetServerAuthCode((result, token) => {
+
                     if(result != CommonStatusCodes.Success)
                     {
                         if(cbk != null)
@@ -166,9 +189,10 @@ namespace SocialPoint.Social
                     _platform.LoadFriends(_platform.localUser, bolean => {
                         _friends = new List<GoogleUser>();
                         IUserProfile[] friends = _platform.GetFriends();
-                        foreach(IUserProfile friend in friends)
+                        for(int i = 0, friendsLength = friends.Length; i < friendsLength; i++)
                         {
-                            _friends.Add(new GoogleUser(friend.id, friend.userName, string.Empty, GoogleUser.AgeGroup.Unknown));
+                            IUserProfile friend = friends[i];
+                            _friends.Add(new GoogleUser(friend.id, friend.userName, string.Empty));
                         }
 
                         if(cbk != null)
@@ -236,18 +260,19 @@ namespace SocialPoint.Social
             Error err = null;
             if(!string.IsNullOrEmpty(accessToken))
             {
+                DebugLog("accessToken: " + accessToken);
                 string uri = string.Format("https://www.googleapis.com/games/v1management/achievements/{0}/reset", achi.Id);
-                var form = new UnityEngine.WWWForm();
+                var form = new WWWForm();
                 form.AddField("access_token", accessToken);
-                var www = new UnityEngine.WWW(uri, form);
+                var www = new WWW(uri, form);
                 while(!www.isDone)
                 {
-                    ;
                 }
                 if(!string.IsNullOrEmpty(www.error))
                 {
                     err = new Error(www.error);
                 }
+                www.Dispose();
             }
             else
             {
@@ -263,8 +288,9 @@ namespace SocialPoint.Social
         public Texture2D GetUserPhoto(string userID)
         {
             IUserProfile[] users = _platform.GetFriends();
-            foreach(IUserProfile user in users)
+            for(int i = 0, usersLength = users.Length; i < usersLength; i++)
             {
+                IUserProfile user = users[i];
                 if(user.id == userID)
                 {
                     return user.image;
@@ -284,7 +310,7 @@ namespace SocialPoint.Social
                 return;
             }
 
-            DownloadAchievements((err) => {
+            DownloadAchievements(err => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(cbk != null)
@@ -320,7 +346,7 @@ namespace SocialPoint.Social
                     if(currStatus.IsIncremental)
                     {
                         // TODO SetStepAtLeast
-                        _platform.IncrementAchievement(id, steps, (success) => {
+                        _platform.IncrementAchievement(id, steps, success => {
                             _achievements[id] = GetAchievement(id);
                             if(cbk != null)
                             {
@@ -330,7 +356,7 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        _platform.ReportProgress(id, 100, (success) => {
+                        _platform.ReportProgress(id, 100, success => {
                             _achievements[id] = GetAchievement(id);
                             if(cbk != null)
                             {
@@ -434,7 +460,7 @@ namespace SocialPoint.Social
                 (int)rowCount, 
                 ldb.FriendsOnly ? LeaderboardCollection.Social : LeaderboardCollection.Public,
                 (LeaderboardTimeSpan)ldb.Scope,
-                (scoredata) => {
+                scoredata => {
                     if(cbk != null)
                     {
                         if(scoredata.Valid)
@@ -443,8 +469,9 @@ namespace SocialPoint.Social
                                                   scoredata.PlayerScore.value, ldb.FriendsOnly, ldb.PlayerCentered, ldb.Scope);
                             // Update scores for users
                             var scores = new Dictionary<string, GoogleLeaderboardScoreEntry>();
-                            foreach(var score in scoredata.Scores)
+                            for(int i = 0, scoredataScoresLength = scoredata.Scores.Length; i < scoredataScoresLength; i++)
                             {
+                                var score = scoredata.Scores[i];
                                 var entry = new GoogleLeaderboardScoreEntry();
                                 entry.Score = score.value;
                                 entry.Rank = score.rank;
@@ -453,9 +480,10 @@ namespace SocialPoint.Social
                             }
 
                             // Load user names
-                            _platform.LoadUsers(scores.Keys.ToArray(), (users) => {
-                                foreach(var user in users)
+                            _platform.LoadUsers(scores.Keys.ToArray(), users => {
+                                for(int i = 0, usersLength = users.Length; i < usersLength; i++)
                                 {
+                                    var user = users[i];
                                     scores[user.id].Name = user.userName;
                                 }
 
@@ -484,7 +512,7 @@ namespace SocialPoint.Social
                 return;
             }
 
-            _platform.ReportScore(ldb.UserScore, ldb.Id, (success) => {
+            _platform.ReportScore(ldb.UserScore, ldb.Id, success => {
                 if(cbk != null)
                 {
                     cbk(ldb, success ? null : new Error("Couldn't update leaderboard"));
@@ -494,7 +522,7 @@ namespace SocialPoint.Social
 
         public void ShowLeaderboardsUI(string id = null)
         {
-            if(_platform != null)
+            if(_platform != null && !string.IsNullOrEmpty(id))
             {
                 _platform.ShowLeaderboardUI(id);
             }
@@ -525,7 +553,7 @@ namespace SocialPoint.Social
             }
 
             _platform.Quests.ShowAllQuestsUI(
-                (QuestUiResult result, IQuest quest, IQuestMilestone milestone) => {
+                (result, quest, milestone) => {
                     switch(result)
                     {
                     case QuestUiResult.UserRequestsQuestAcceptance:
@@ -539,7 +567,7 @@ namespace SocialPoint.Social
                     default:
                         if(cbk != null)
                         {
-                            cbk(GoogleQuestEvent.Empty, new Error((int)result, "Quest view error: " + result.ToString()));
+                            cbk(GoogleQuestEvent.Empty, new Error((int)result, "Quest view error: " + result));
                         }
                         break;
                     }
@@ -549,7 +577,7 @@ namespace SocialPoint.Social
         void AcceptQuest(IQuest toAccept, GoogleQuestEventDelegate cbk = null)
         {
             _platform.Quests.Accept(toAccept,
-                (QuestAcceptStatus status, IQuest quest) => {
+                (status, quest) => {
                     switch(status)
                     {
                     case QuestAcceptStatus.Success:
@@ -573,7 +601,7 @@ namespace SocialPoint.Social
         void ClaimMilestone(IQuestMilestone toClaim, GoogleQuestEventDelegate cbk = null)
         {
             _platform.Quests.ClaimMilestone(toClaim,
-                (QuestClaimMilestoneStatus status, IQuest quest, IQuestMilestone milestone) => {
+                (status, quest, milestone) => {
                     switch(status)
                     {
                     case  QuestClaimMilestoneStatus.Success:
@@ -597,6 +625,47 @@ namespace SocialPoint.Social
 
         #endregion
 
+        #region PlayerStats
+
+        const string AttrKeyAvgSessionLength = "avg_session_length";
+        const string AttrKeyChurnProbability = "churn_probability";
+        const string AttrKeyDaysSinceLastPlayed = "days_since_last_played";
+        const string AttrKeyNumberPurchases = "number_purchases";
+        const string AttrKeyNumberSessions = "number_sessions";
+        const string AttrKeySessionPercentile = "session_percentile";
+        const string AttrKeySpendPercentile = "spend_percentile";
+        const string AttrKeySpendProbability = "spend_probability";
+        const string AttrKeyUser = "user";
+
+        const string PlayerStatsEventName = "user.google_player_stats";
+
+        void RetrievePlayerStats(CommonStatusCodes statusCode, PlayerStats playerStats)
+        {            
+            if(CommonStatusCodes.Success == statusCode || CommonStatusCodes.SuccessCached == statusCode)
+            {
+                if(TrackEvent != null)
+                {   
+                    var data = new AttrDic();
+
+                    var stats = new AttrDic();
+                    data.Set(AttrKeyUser, stats);
+
+                    stats.SetValue(AttrKeyAvgSessionLength, playerStats.AvgSessonLength);
+                    stats.SetValue(AttrKeyChurnProbability, playerStats.ChurnProbability);
+                    stats.SetValue(AttrKeyDaysSinceLastPlayed, playerStats.DaysSinceLastPlayed);
+                    stats.SetValue(AttrKeyNumberPurchases, playerStats.NumberOfPurchases);
+                    stats.SetValue(AttrKeyNumberSessions, playerStats.NumberOfSessions);
+                    stats.SetValue(AttrKeySessionPercentile, playerStats.SessPercentile);
+                    stats.SetValue(AttrKeySpendPercentile, playerStats.SpendPercentile);
+                    stats.SetValue(AttrKeySpendProbability, -1f); // Not available in Unity Plugin.
+
+                    TrackEvent(PlayerStatsEventName, data, null);
+                }
+            }
+        }
+
+        #endregion
+
         #region Dispatch
 
         Action _dispatched;
@@ -611,8 +680,9 @@ namespace SocialPoint.Social
         {
             if(_dispatched != null)
             {
-                _dispatched();
+                var dispatched = _dispatched;
                 _dispatched = null;
+                dispatched();
             }
         }
 

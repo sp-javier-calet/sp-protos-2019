@@ -4,6 +4,13 @@ using SocialPoint.Attributes;
 
 public class ResourcesRewardParser : IChildParser<IReward>
 {
+    ResourcePoolParser _resourcePoolParser;
+
+    public ResourcesRewardParser()
+    {
+        _resourcePoolParser = new ResourcePoolParser();
+    }
+
     #region IChildParser implementation
 
     const string NameValue = "resources";
@@ -20,8 +27,7 @@ public class ResourcesRewardParser : IChildParser<IReward>
 
     public IReward Parse(Attr data)
     {
-        var poolParser = new ResourcePoolParser();
-        return new ResourcesReward(poolParser.Parse(data));
+        return new ResourcesReward(_resourcePoolParser.Parse(data));
     }
 
     #endregion

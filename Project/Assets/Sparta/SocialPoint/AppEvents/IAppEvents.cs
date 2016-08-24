@@ -1,6 +1,6 @@
 using System;
+using SocialPoint.Base;
 using SocialPoint.Utils;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SocialPoint.AppEvents
@@ -39,7 +39,7 @@ namespace SocialPoint.AppEvents
         event Action WasCovered;
 
         /// <summary>
-        /// Occurs when recieved memory warning.
+        /// Occurs when received memory warning.
         /// </summary>
         event Action ReceivedMemoryWarning;
 
@@ -119,12 +119,12 @@ namespace SocialPoint.AppEvents
             }
             catch(Exception)
             {
-                Debug.LogWarning("finishAndRemoveTask not available");
+                Log.w("finishAndRemoveTask not available");
             }
 
             System.Diagnostics.Process.GetCurrentProcess().Kill();
 #else
-            Application.Quit();
+            UnityEngine.Application.Quit();
 #endif
         }
 

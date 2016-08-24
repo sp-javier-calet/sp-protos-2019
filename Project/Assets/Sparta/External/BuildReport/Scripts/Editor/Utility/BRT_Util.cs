@@ -1,19 +1,3 @@
-#if (UNITY_4 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6)
-	#define UNITY_4_AND_GREATER
-#endif
-
-#if (UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6)
-	#define UNITY_4_1_AND_GREATER
-#endif
-
-#if (UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6)
-	#define UNITY_4_2_AND_GREATER
-#endif
-
-#if (UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6)
-	#define UNITY_4_3_AND_GREATER
-#endif
-
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -42,17 +26,7 @@ public static class Util
 				return BuildPlatform.Web;
 			case BuildTarget.WebPlayerStreamed:
 				return BuildPlatform.Web;
-#if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
-			case BuildTarget.NaCl:
-				return BuildPlatform.Web;
-
-			case BuildTarget.FlashPlayer:
-				return BuildPlatform.Flash;
-
-			case BuildTarget.iPhone:
-#else
 			case BuildTarget.iOS:
-#endif
 				return BuildPlatform.iOS;
 
 			case BuildTarget.Android:
@@ -73,29 +47,8 @@ public static class Util
 			case BuildTarget.StandaloneWindows64:
 				return BuildPlatform.Windows64;
 
-
-#if UNITY_4_AND_GREATER
-			case BuildTarget.StandaloneLinux:
-				return BuildPlatform.Linux32;
-
-			case BuildTarget.StandaloneLinux64:
-				return BuildPlatform.Linux64;
-
-			case BuildTarget.StandaloneLinuxUniversal:
-				return BuildPlatform.LinuxUniversal;
-#endif
-
-
 			case BuildTarget.StandaloneOSXIntel:
 				return BuildPlatform.MacOSX32;
-
-#if UNITY_4_2_AND_GREATER
-			case BuildTarget.StandaloneOSXIntel64:
-				return BuildPlatform.MacOSX64;
-
-			case BuildTarget.StandaloneOSXUniversal:
-				return BuildPlatform.MacOSXUniversal;
-#endif
 		}
 
 		return BuildPlatform.None;
@@ -1088,26 +1041,6 @@ public static class Util
 			"/Applications/Unity/Unity.app/Contents/Frameworks/Mono/lib/mono",
 			"C:/Program Files (x86)/Unity/Data/Mono/lib/mono",
 			"C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono",
-#if UNITY_3_5
-			"/Applications/Unity3/Unity.app/Contents/Frameworks/Mono/lib/mono",
-			"/Applications/Unity 3/Unity.app/Contents/Frameworks/Mono/lib/mono",
-			"/Applications/Unity3.5/Unity.app/Contents/Frameworks/Mono/lib/mono",
-			"/Applications/Unity 3.5/Unity.app/Contents/Frameworks/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity3/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity 3/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity3.5/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity 3.5/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity3/Editor/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity 3/Editor/Data/Mono/lib/mono",
-#endif
-#if UNITY_4_AND_GREATER
-			"/Applications/Unity4/Unity.app/Contents/Frameworks/Mono/lib/mono",
-			"/Applications/Unity 4/Unity.app/Contents/Frameworks/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity4/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity 4/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity4/Editor/Data/Mono/lib/mono",
-			"C:/Program Files (x86)/Unity 4/Editor/Data/Mono/lib/mono",
-#endif
 		};
 
 		string tryPath = "";

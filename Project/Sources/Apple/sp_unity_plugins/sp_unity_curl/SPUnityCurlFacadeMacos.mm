@@ -4,4 +4,3 @@
 EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
 {
 }
-

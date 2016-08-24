@@ -58,8 +58,9 @@ namespace SocialPoint.AdminPanel
             {
                 dropdown.options = new List<Dropdown.OptionData>();
                 dropdown.options.Add(new Dropdown.OptionData(currentKey));
-                foreach(var option in options)
+                for(int i = 0, optionsLength = options.Length; i < optionsLength; i++)
                 {
+                    var option = options[i];
                     dropdown.options.Add(new Dropdown.OptionData(option));
                 }
             }

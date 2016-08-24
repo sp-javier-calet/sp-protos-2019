@@ -1,10 +1,5 @@
 using System.Runtime.InteropServices;
-using System;
-using System.Collections.Generic;
-
-using SocialPoint;
 using SocialPoint.Network;
-using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
@@ -32,11 +27,11 @@ namespace SocialPoint.Network
         };
 
 
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || UNITY_STANDALONE
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_curl";
-        #else
+        #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
 
@@ -66,7 +61,7 @@ namespace SocialPoint.Network
 
         [DllImport(PluginModuleName)]
         public static extern double SPUnityCurlGetConnectTime(int id);
-        
+
         [DllImport(PluginModuleName)]
         public static extern double SPUnityCurlGetTotalTime(int id);
 

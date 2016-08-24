@@ -1,6 +1,5 @@
-using SocialPoint.GUIControl;
 using SocialPoint.Attributes;
-using System;
+using SocialPoint.GUIControl;
 using UnityEngine;
 
 namespace SocialPoint.ScriptEvents
@@ -9,13 +8,13 @@ namespace SocialPoint.ScriptEvents
     {
         public UIViewController Controller;
     }
-    
+
     public struct UIViewControllerStateChangeEvent
     {
         public UIViewController Controller;
         public UIViewController.ViewState State;
     }
-    
+
     public struct UIViewControllerInstantiateEvent
     {
         public UIViewController Controller;
@@ -32,10 +31,10 @@ namespace SocialPoint.ScriptEvents
 
     public class UIViewControllerAwakeEventSerializer : BaseScriptEventSerializer<UIViewControllerAwakeEvent>
     {
-        public UIViewControllerAwakeEventSerializer(): base("event.gui.controller_awake")
+        public UIViewControllerAwakeEventSerializer() : base("event.gui.controller_awake")
         {
         }
-        
+
         override protected Attr SerializeEvent(UIViewControllerAwakeEvent ev)
         {
             return new AttrString(ev.Controller.GetScriptEventId());
@@ -44,13 +43,13 @@ namespace SocialPoint.ScriptEvents
 
     public class UIViewControllerStateChangeEventSerializer : BaseScriptEventSerializer<UIViewControllerStateChangeEvent>
     {
-        public UIViewControllerStateChangeEventSerializer(): base("event.gui.controller_state_change")
+        public UIViewControllerStateChangeEventSerializer() : base("event.gui.controller_state_change")
         {
         }
 
         const string ControllerIdAttrKey = "controller";
         const string StateAttrKey = "state";
-        
+
         override protected Attr SerializeEvent(UIViewControllerStateChangeEvent ev)
         {
             var data = new AttrDic();
@@ -62,13 +61,13 @@ namespace SocialPoint.ScriptEvents
 
     public class UIViewControllerInstantiateEventSerializer : BaseScriptEventSerializer<UIViewControllerInstantiateEvent>
     {
-        public UIViewControllerInstantiateEventSerializer(): base("event.gui.controller_instantiate")
+        public UIViewControllerInstantiateEventSerializer() : base("event.gui.controller_instantiate")
         {
         }
-        
+
         const string ControllerIdAttrKey = "controller";
         const string ObjectAttrKey = "object";
-        
+
         override protected Attr SerializeEvent(UIViewControllerInstantiateEvent ev)
         {
             var data = new AttrDic();
@@ -83,7 +82,6 @@ namespace SocialPoint.ScriptEvents
         IScriptEventsBridge
     {
         IEventDispatcher _dispatcher;
-
 
         public GUIControlBridge()
         {
@@ -117,30 +115,30 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new UIViewControllerAwakeEvent{
+            _dispatcher.Raise(new UIViewControllerAwakeEvent {
                 Controller = ctrl
             });
         }
-                
+
         void OnViewControllerStateChange(UIViewController ctrl, UIViewController.ViewState state)
         {
             if(_dispatcher == null)
             {
                 return;
             }
-            _dispatcher.Raise(new UIViewControllerStateChangeEvent{ 
+            _dispatcher.Raise(new UIViewControllerStateChangeEvent { 
                 Controller = ctrl,
                 State = state
             });
         }
-        
+
         void OnViewControllerInstantiate(UIViewController ctrl, GameObject go)
         {
             if(_dispatcher == null)
             {
                 return;
             }
-            _dispatcher.Raise(new UIViewControllerInstantiateEvent{ 
+            _dispatcher.Raise(new UIViewControllerInstantiateEvent { 
                 Controller = ctrl,
                 Object = go
             });

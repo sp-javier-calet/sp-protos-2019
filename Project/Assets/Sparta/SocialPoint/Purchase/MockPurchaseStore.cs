@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
@@ -40,13 +40,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        public GetUserIdDelegate GetUserId
-        {
-            set
-            {
-                //set if the user id is needed for this store
-            }
-        }
+        public ILoginData LoginData { get; set; }
 
         public void Setup(AttrDic settings)
         {
@@ -65,17 +59,17 @@ namespace SocialPoint.Purchase
         {
             if(_productList == null)
             {
-                DebugUtils.Log("[MOCK] There are no products, call LoadProducts() first");
+                Log.i("[MOCK] There are no products, call LoadProducts() first");
                 PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
                 return false;
             }
 
             if(_pendingPurchaseProduct.HasValue)
             {
-                DebugUtils.Log("[MOCK] A transaction for product {0} is running and only one transaction is allowed ");
+                Log.i("[MOCK] A transaction for product {0} is running and only one transaction is allowed ");
                 return false;
             }
-            DebugUtils.Log("[MOCK] Buying product: " + productId);
+            Log.i("[MOCK] Buying product: " + productId);
 
             if(_productList.Exists(p => p.Id == productId))
             {
@@ -85,7 +79,7 @@ namespace SocialPoint.Purchase
                 return true;
             }
 
-            DebugUtils.Log("[MOCK] product doesn't exist: " + productId);
+            Log.i("[MOCK] product doesn't exist: " + productId);
             PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
             return false;
         }
@@ -97,11 +91,11 @@ namespace SocialPoint.Purchase
 
         public void ProductPurchaseConfirmed(string transactionIdentifier)
         {
-            DebugUtils.Log("[MOCK] ProductPurchaseConfirmed: " + transactionIdentifier);
+            Log.i("[MOCK] ProductPurchaseConfirmed: " + transactionIdentifier);
 
             if(!_pendingPurchaseProduct.HasValue)
             {
-                DebugUtils.Log("[MOCK] No pending product with id: " + transactionIdentifier);
+                Log.i("[MOCK] No pending product with id: " + transactionIdentifier);
                 return;
             }
 
@@ -142,7 +136,7 @@ namespace SocialPoint.Purchase
 
         internal void SetProductMockList(IEnumerable<Product> productMockList)
         {
-            _allProducts = productMockList.ToList() ?? new List<Product>();
+            _allProducts = new List<Product>(productMockList) ?? new List<Product>();
         }
 
         void ProcessPendingTransaction()
@@ -175,7 +169,7 @@ namespace SocialPoint.Purchase
                 // is sent when the InAppPurchaseManager handles this event.
                 data.SetValue(Receipt.OriginalJsonKey, null);
                 ValidatePurchased(new Receipt(data), (response) => {
-                    DebugUtils.Log("[MOCK] Purchase finished: " + response);
+                    Log.i("[MOCK] Purchase finished: " + response);
                 });
 
             }

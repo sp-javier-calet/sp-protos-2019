@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
 
 #if UNITY_ANDROID
@@ -59,16 +56,16 @@ namespace SocialPoint.Purchase
         /// </summary>
         public string Signature { get; private set; }
 
-        private const string ItemTypeKey = "itemType";
-        private const string OrderIdKey = "orderId";
-        private const string PackageNameKey = "packageName";
-        private const string SkuKey = "sku";
-        private const string PurchaseTimeKey = "purchaseTime";
-        private const string PurchaseStateKey = "purchaseState";
-        private const string DeveloperPayloadKey = "developerPayload";
-        private const string TokenKey = "token";
-        private const string OriginalJsonKey = "originalJson";
-        private const string SignatureKey = "signature";
+        const string ItemTypeKey = "itemType";
+        const string OrderIdKey = "orderId";
+        const string PackageNameKey = "packageName";
+        const string SkuKey = "sku";
+        const string PurchaseTimeKey = "purchaseTime";
+        const string PurchaseStateKey = "purchaseState";
+        const string DeveloperPayloadKey = "developerPayload";
+        const string TokenKey = "token";
+        const string OriginalJsonKey = "originalJson";
+        const string SignatureKey = "signature";
 
 
         public static List<AndroidStoreTransaction> TransactionsFromJson(string json)
@@ -85,7 +82,7 @@ namespace SocialPoint.Purchase
 
         public static AndroidStoreTransaction TransactionFromDictionary(AttrDic dict)
         {
-            AndroidStoreTransaction transaction = new AndroidStoreTransaction();
+            var transaction = new AndroidStoreTransaction();
 
             if(dict.ContainsKey(ItemTypeKey))
             {
@@ -148,7 +145,7 @@ namespace SocialPoint.Purchase
 
         public static AndroidStoreTransaction CreateFromSku(string sku, string developerPayload)
         {
-            AndroidStoreTransaction p = new AndroidStoreTransaction();
+            var p = new AndroidStoreTransaction();
             p.Sku = sku;
             p.DeveloperPayload = developerPayload;
 

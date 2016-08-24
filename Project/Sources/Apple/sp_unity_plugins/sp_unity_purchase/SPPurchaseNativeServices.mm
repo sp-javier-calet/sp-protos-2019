@@ -9,23 +9,22 @@
 #include "SPPurchaseNativeServices.h"
 #include "UnityGameObject.h"
 #include "SPUnityNativeUtils.h"
+#include "SPNativeCallsSender.h"
 
 @implementation SPPurchaseNativeServices
 
-- (id)initWithUnityListener:(const char*)listenerName
+- (id)init
 {
     if((self = [super init]))
     {
         self.products = nil;
         self.request = nil;
-        self.unityListenerName = [NSString stringWithUTF8String:listenerName];
         self.applicationUsername = nil;
-        
-        self.useApplicationReceipt = false;
+
         self.canSendTransactionUpdateEvents = false;
         self.highDetailLogsEnabled = false;
     }
-    
+
     return self;
 }
 
@@ -36,23 +35,17 @@
 
 #pragma mark - setters
 
-- (void)setAppUsername:(const char*) userIdentifier
+- (void)setAppUsername:(const char*)userIdentifier
 {
     self.applicationUsername = [NSString stringWithUTF8String:userIdentifier];
 }
 
-- (void)setUseAppReceipt:(BOOL) shouldUseAppReceipt
-{
-    self.useApplicationReceipt = shouldUseAppReceipt;
-    [self detailedLog:[NSString stringWithFormat:@"Using Application Receipt Setting: %@", self.useApplicationReceipt ? @"true" : @"false"]];
-}
-
-- (void)sendTransactionUpdateEvents:(BOOL) shouldSend
+- (void)sendTransactionUpdateEvents:(BOOL)shouldSend
 {
     self.canSendTransactionUpdateEvents = shouldSend;
 }
 
-- (void)enableHighDetailLogs:(BOOL) shouldEnable
+- (void)enableHighDetailLogs:(BOOL)shouldEnable
 {
     self.highDetailLogsEnabled = shouldEnable;
 }
@@ -87,7 +80,7 @@
 {
     NSString* productIdentifier = [NSString stringWithCString:productId encoding:NSUTF8StringEncoding];
     [self detailedLog:[NSString stringWithFormat:@"Purchasing Product %@", productIdentifier]];
-    
+
     for(SKProduct* prod in self.products)
     {
         if([prod.productIdentifier isEqualToString:productIdentifier])
@@ -102,14 +95,14 @@
             return;
         }
     }
-    
-    //Error if no product with matching id was found
+
+    // Error if no product with matching id was found
     NSString* errorDescription = [NSString stringWithFormat:@"Invalid product ID or product not loaded: %@", productIdentifier];
     [self detailedLog:[NSString stringWithFormat:@"Error Purchasing Product %@: %@", productIdentifier, errorDescription]];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
+    SPNativeCallsSender::SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
 }
 
--(NSDictionary*)getProductJson:(SKProduct*)product
+- (NSDictionary*)getProductJson:(SKProduct*)product
 {
     NSNumberFormatter* nf = [[NSNumberFormatter alloc] init];
     nf.locale = product.priceLocale;
@@ -117,28 +110,28 @@
     NSString* localizedPrice = [nf stringFromNumber:product.price];
     NSString* currencySymbol = nf.currencySymbol;
     NSString* price = [NSString stringWithFormat:@"%@", product.price];
-    
+
     NSDictionary* productData = @{
-                                  @"productIdentifier":[SPPurchaseNativeServices safeNSString:product.productIdentifier],
-                                  @"localizedTitle":[SPPurchaseNativeServices safeNSString:product.localizedTitle],
-                                  @"localizedDescription":[SPPurchaseNativeServices safeNSString:product.localizedDescription],
-                                  @"price":[SPPurchaseNativeServices safeNSString:price],
-                                  @"currencySymbol":[SPPurchaseNativeServices safeNSString:currencySymbol],
-                                  @"formattedPrice":[SPPurchaseNativeServices safeNSString:localizedPrice],
-                                  };
+        @"productIdentifier" : [SPPurchaseNativeServices safeNSString:product.productIdentifier],
+        @"localizedTitle" : [SPPurchaseNativeServices safeNSString:product.localizedTitle],
+        @"localizedDescription" : [SPPurchaseNativeServices safeNSString:product.localizedDescription],
+        @"price" : [SPPurchaseNativeServices safeNSString:price],
+        @"currencySymbol" : [SPPurchaseNativeServices safeNSString:currencySymbol],
+        @"formattedPrice" : [SPPurchaseNativeServices safeNSString:localizedPrice],
+    };
     return productData;
 }
 
--(NSString*)getProductJsonString:(SKProduct*)product
+- (NSString*)getProductJsonString:(SKProduct*)product
 {
     return [SPPurchaseNativeServices jsonDicitonaryToString:[self getProductJson:product]];
 }
 
--(NSString*)getProductsListJsonString:(NSArray*)products
+- (NSString*)getProductsListJsonString:(NSArray*)products
 {
-    
-    NSMutableArray *array = [[NSMutableArray alloc]init];
-    
+
+    NSMutableArray* array = [[NSMutableArray alloc] init];
+
     for(SKProduct* product in products)
     {
         NSDictionary* productJson = [self getProductJson:product];
@@ -147,11 +140,11 @@
             [array addObject:productJson];
         }
     }
-    
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:array options:0 error:&error];
-    
-    if (jsonData)
+
+    NSError* error;
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:array options:0 error:&error];
+
+    if(jsonData)
     {
         return [SPPurchaseNativeServices jsonDataToString:jsonData];
     }
@@ -181,7 +174,7 @@
             return transaction;
         }
     }
-    
+
     return nil;
 }
 
@@ -204,50 +197,43 @@
     }
 }
 
--(NSDictionary*)getTransactionJson:(SKPaymentTransaction*)transaction
+- (NSDictionary*)getTransactionJson:(SKPaymentTransaction*)transaction
 {
-    NSString* transactionState = [NSString stringWithFormat:@"%lu", (unsigned long)[self getTransactionStateEquivalence:transaction.transactionState]];
-    NSData* receiptData = nil;
-    if(self.useApplicationReceipt)
-    {
-        NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
-        receiptData = [NSData dataWithContentsOfURL:receiptUrl];
-    }
-    else
-    {
-        receiptData = transaction.transactionReceipt;
-    }
+    NSString* transactionState =
+      [NSString stringWithFormat:@"%lu", (unsigned long)[self getTransactionStateEquivalence:transaction.transactionState]];
+    NSURL* receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];
+    NSData* receiptData = [NSData dataWithContentsOfURL:receiptUrl];
     NSString* receiptBase64 = [receiptData base64EncodedStringWithOptions:0];
-    
+
     NSDictionary* transactionData = @{
-                                      @"productIdentifier":[SPPurchaseNativeServices safeNSString:transaction.payment.productIdentifier],
-                                      @"transactionIdentifier":[SPPurchaseNativeServices safeNSString:transaction.transactionIdentifier],
-                                      @"base64EncodedReceipt":[SPPurchaseNativeServices safeNSString:receiptBase64],
-                                      @"transactionState":[SPPurchaseNativeServices safeNSString:transactionState]
-                                      };
+        @"productIdentifier" : [SPPurchaseNativeServices safeNSString:transaction.payment.productIdentifier],
+        @"transactionIdentifier" : [SPPurchaseNativeServices safeNSString:transaction.transactionIdentifier],
+        @"base64EncodedReceipt" : [SPPurchaseNativeServices safeNSString:receiptBase64],
+        @"transactionState" : [SPPurchaseNativeServices safeNSString:transactionState]
+    };
     return transactionData;
 }
 
--(NSString*)getTransactionJsonString:(SKPaymentTransaction*)transaction
+- (NSString*)getTransactionJsonString:(SKPaymentTransaction*)transaction
 {
     return [SPPurchaseNativeServices jsonDicitonaryToString:[self getTransactionJson:transaction]];
 }
 
--(NSString*)getTransactionsListJsonString:(NSArray*)transactions
+- (NSString*)getTransactionsListJsonString:(NSArray*)transactions
 {
     return [self getTransactionsListJsonString:transactions useFilter:false withFilter:SKPaymentTransactionStatePurchasing];
 }
 
--(NSString*)getTransactionsListJsonString:(NSArray*)transactions withFilter:(SKPaymentTransactionState)filterState
+- (NSString*)getTransactionsListJsonString:(NSArray*)transactions withFilter:(SKPaymentTransactionState)filterState
 {
     return [self getTransactionsListJsonString:transactions useFilter:true withFilter:filterState];
 }
 
--(NSString*)getTransactionsListJsonString:(NSArray*)transactions useFilter:(BOOL)doFilter withFilter:(SKPaymentTransactionState)filterState
+- (NSString*)getTransactionsListJsonString:(NSArray*)transactions useFilter:(BOOL)doFilter withFilter:(SKPaymentTransactionState)filterState
 {
-    NSMutableArray *array = [[NSMutableArray alloc]init];
-    
-    for(SKPaymentTransaction * transaction in transactions)
+    NSMutableArray* array = [[NSMutableArray alloc] init];
+
+    for(SKPaymentTransaction* transaction in transactions)
     {
         NSDictionary* transactionJson = [self getTransactionJson:transaction];
         if(transactionJson)
@@ -255,11 +241,11 @@
             [array addObject:transactionJson];
         }
     }
-    
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:array options:0 error:&error];
-    
-    if (jsonData)
+
+    NSError* error;
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:array options:0 error:&error];
+
+    if(jsonData)
     {
         return [SPPurchaseNativeServices jsonDataToString:jsonData];
     }
@@ -271,10 +257,10 @@
     }
 }
 
--(TransactionState)getTransactionStateEquivalence:(SKPaymentTransactionState)transactionState
+- (TransactionState)getTransactionStateEquivalence:(SKPaymentTransactionState)transactionState
 {
     TransactionState ts = TSPurchasing;
-    switch (transactionState)
+    switch(transactionState)
     {
         case SKPaymentTransactionStatePurchasing:
             ts = TSPurchasing;
@@ -299,12 +285,12 @@
 
 #pragma mark - Debug
 
-- (void)sendUnityDebugLog:(NSString*) logMsg
+- (void)sendUnityDebugLog:(NSString*)logMsg
 {
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("StoreDebugLog", [SPPurchaseNativeServices safeUTF8String:logMsg]);
+    SPNativeCallsSender::SendMessage("StoreDebugLog", [SPPurchaseNativeServices safeUTF8String:logMsg]);
 }
 
-- (void)detailedLog:(NSString*) logMsg
+- (void)detailedLog:(NSString*)logMsg
 {
     if(self.highDetailLogsEnabled)
     {
@@ -312,9 +298,9 @@
     }
 }
 
-+(NSString*)transactionStateToNSString:(SKPaymentTransactionState)transactionState
++ (NSString*)transactionStateToNSString:(SKPaymentTransactionState)transactionState
 {
-    switch (transactionState )
+    switch(transactionState)
     {
         case SKPaymentTransactionStatePurchasing:
             return [NSString stringWithFormat:@"Purchasing"];
@@ -344,12 +330,13 @@
     self.products = response.products;
     self.request = nil;
     [self detailedLog:[NSString stringWithFormat:@"Total Products Loaded %lu", (unsigned long)self.products.count]];
-    
+
     NSString* productsJson = [self getProductsListJsonString:self.products];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:productsJson]);
+    SPNativeCallsSender::SendMessage("ProductsReceived", [SPPurchaseNativeServices safeUTF8String:productsJson]);
     [self detailedLog:[NSString stringWithFormat:@"Products Loaded: %@", productsJson]];
-    
-    //Force an update here for all transactions in queue. Because some of them may have been updated too early (before all listeners in Unity were set)
+
+    // Force an update here for all transactions in queue. Because some of them may have been updated too early (before all listeners in Unity were
+    // set)
     [self forceUpdatePendingTransactions];
 }
 
@@ -357,51 +344,51 @@
 {
     _request = nil;
     [self detailedLog:[NSString stringWithFormat:@"Products Request Failed: %@", error.localizedDescription]];
-    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductsRequestDidFail", [SPPurchaseNativeServices safeUTF8String:error.localizedDescription]);
+    SPNativeCallsSender::SendMessage("ProductsRequestDidFail", [SPPurchaseNativeServices safeUTF8String:error.localizedDescription]);
 }
 
 #pragma mark - SKPaymentTransactionObserver
 
 // Called when there are transactions in the payment queue
-- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
+- (void)paymentQueue:(SKPaymentQueue*)queue updatedTransactions:(NSArray*)transactions
 {
     [self detailedLog:[NSString stringWithFormat:@"Updated Transactions: %lu", (unsigned long)transactions.count]];
-    for(SKPaymentTransaction * transaction in transactions)
+    for(SKPaymentTransaction* transaction in transactions)
     {
-        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ Updated (Product ID: %@). State: %@",
-                           transaction.transactionIdentifier, transaction.payment.productIdentifier,
-                           [SPPurchaseNativeServices transactionStateToNSString:transaction.transactionState]]];
-        
+        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ Updated (Product ID: %@). State: %@", transaction.transactionIdentifier,
+                                                     transaction.payment.productIdentifier,
+                                                     [SPPurchaseNativeServices transactionStateToNSString:transaction.transactionState]]];
+
         TransactionState ts = [self getTransactionStateEquivalence:transaction.transactionState];
-        
-        switch (ts)
+
+        switch(ts)
         {
             case TSPurchased:
             {
                 NSString* transactionJson = [self getTransactionJsonString:transaction];
-                if (transactionJson)
+                if(transactionJson)
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
+                    SPNativeCallsSender::SendMessage("ProductPurchased", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
                 }
             }
-                break;
-                
+            break;
+
             case TSFailed:
             {
                 NSString* errorDescription = transaction.error ? transaction.error.localizedDescription : [NSString stringWithFormat:@""];
-                if (transaction.error.code == SKErrorPaymentCancelled)
+                if(transaction.error.code == SKErrorPaymentCancelled)
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
+                    SPNativeCallsSender::SendMessage("ProductPurchaseCancelled", "Payment Cancelled");
                 }
                 else
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
+                    SPNativeCallsSender::SendMessage("ProductPurchaseFailed", [SPPurchaseNativeServices safeUTF8String:errorDescription]);
                 }
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 continue;
             }
-                break;
-                
+            break;
+
             default:
             {
                 if(!self.canSendTransactionUpdateEvents)
@@ -409,33 +396,34 @@
                     continue;
                 }
                 NSString* transactionJson = [self getTransactionJsonString:transaction];
-                if (transactionJson)
+                if(transactionJson)
                 {
-                    UnityGameObject(self.unityListenerName.UTF8String).SendMessage("TransactionUpdated", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
+                    SPNativeCallsSender::SendMessage("TransactionUpdated", [SPPurchaseNativeServices safeUTF8String:transactionJson]);
                 }
             }
-                break;
+            break;
         }
     }
 }
 
 // Logs all transactions that have been removed from the payment queue
-- (void)paymentQueue:(SKPaymentQueue *)queue removedTransactions:(NSArray *)transactions
+- (void)paymentQueue:(SKPaymentQueue*)queue removedTransactions:(NSArray*)transactions
 {
-    for(SKPaymentTransaction * transaction in transactions)
+    for(SKPaymentTransaction* transaction in transactions)
     {
-        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ (Product %@) was removed from the payment queue.", transaction.transactionIdentifier, transaction.payment.productIdentifier]];
+        [self detailedLog:[NSString stringWithFormat:@"Transaction %@ (Product %@) was removed from the payment queue.",
+                                                     transaction.transactionIdentifier, transaction.payment.productIdentifier]];
     }
 }
 
 #pragma mark - Utils
 
-+(NSString*)jsonDicitonaryToString:(NSDictionary*)jsonObject
++ (NSString*)jsonDicitonaryToString:(NSDictionary*)jsonObject
 {
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
-    
-    if (jsonData)
+    NSError* error;
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
+
+    if(jsonData)
     {
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
@@ -447,9 +435,9 @@
     }
 }
 
-+(NSString*)jsonDataToString:(NSData*)jsonData
++ (NSString*)jsonDataToString:(NSData*)jsonData
 {
-    if (jsonData)
+    if(jsonData)
     {
         return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
@@ -459,9 +447,9 @@
     }
 }
 
-+(NSString*)safeNSString:(NSString*)string
++ (NSString*)safeNSString:(NSString*)string
 {
-    if( string == nil )
+    if(string == nil)
     {
         return @"";
     }
@@ -471,9 +459,9 @@
     }
 }
 
-+(const char *)safeUTF8String:(NSString*)string
++ (const char*)safeUTF8String:(NSString*)string
 {
-    if( string == nil )
+    if(string == nil)
     {
         return "";
     }
@@ -483,9 +471,9 @@
     }
 }
 
-+(const char *)safeCString:(NSString*)string usingEncoding:(NSStringEncoding)enc
++ (const char*)safeCString:(NSString*)string usingEncoding:(NSStringEncoding)enc
 {
-    if( string == nil )
+    if(string == nil)
     {
         return "";
     }

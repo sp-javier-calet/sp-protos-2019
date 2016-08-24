@@ -1,36 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using SocialPoint.AdminPanel;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Utils
 {
     public class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        private List<LogEntry> _entries;
-        private Dictionary<LogType, bool> _activeTypes;
-        private Text _textComponent;
-        private bool _autoRefresh;
-        
-        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
+        readonly List<LogEntry> _entries;
+        Dictionary<LogType, bool> _activeTypes;
+        Text _textComponent;
+        bool _autoRefresh;
+        readonly int _maxEntriesToDisplay = 100;
+
+        public AdminPanelLog()
         {
             _autoRefresh = true;
             _entries = new List<LogEntry>();
             _activeTypes = new Dictionary<LogType, bool>();
 
-            foreach(LogType type in Enum.GetValues(typeof(LogType)))
-            {
-                _activeTypes[type] = true;
-            }
-
             LogCallbackHandler.RegisterLogCallback(HandleLog);
 
+            var array = Enum.GetValues(typeof(LogType));
+            for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
+            {
+                var type = (LogType)array.GetValue(i);
+                _activeTypes[type] = true;
+            }
+        }
+
+        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
+        {
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Log", this));
         }
-        
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("System Log");
@@ -43,13 +48,11 @@ namespace SocialPoint.Utils
 
             using(var hLayout = layout.CreateHorizontalLayout())
             {
-                hLayout.CreateToggleButton("Auto", _autoRefresh, (value) => {
+                hLayout.CreateToggleButton("Auto", _autoRefresh, value => {
                     _autoRefresh = value;
                 });
 
-                hLayout.CreateButton("Refresh", () => {
-                    RefreshContent();
-                });
+                hLayout.CreateButton("Refresh", RefreshContent);
 
                 hLayout.CreateButton("Clear", () => {
                     _entries.Clear();
@@ -60,19 +63,19 @@ namespace SocialPoint.Utils
             layout.CreateMargin();
             layout.CreateLabel("Log level");
 
-            foreach(LogType type in Enum.GetValues(typeof(LogType)))
+            var array = Enum.GetValues(typeof(LogType));
+            for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
             {
                 // Each lambda must capture a diferent reference, so it has to be a local variable
-                LogType aType = type; 
-                layout.CreateToggleButton(aType.ToString(), _activeTypes[aType], (value) => {
-                    ActivateLogType(aType, value); 
-                });
+                var type = (LogType)array.GetValue(i);
+                LogType aType = type;
+                layout.CreateToggleButton(aType.ToString(), _activeTypes[aType], value => ActivateLogType(aType, value));
             }
 
             RefreshContent();
         }
 
-        private void ActivateLogType(LogType type, bool active)
+        void ActivateLogType(LogType type, bool active)
         {
             _activeTypes[type] = active;
             if(_autoRefresh)
@@ -81,16 +84,19 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void RefreshContent()
+        void RefreshContent()
         {
             if(_textComponent != null)
             {
+                int numEntriesToDisplay = 0;
                 var logContent = StringUtils.StartBuilder();
-                foreach(LogEntry entry in _entries)
+                for(int i = _entries.Count - 1; i > -1 && numEntriesToDisplay < _maxEntriesToDisplay; i--)
                 {
-                    if(_activeTypes[entry.Type] == true)
+                    LogEntry entry = _entries[i];
+                    if(_activeTypes[entry.Type])
                     {
                         logContent.Append(entry.Content);
+                        numEntriesToDisplay++;
                     }
                 }
 
@@ -98,7 +104,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private void HandleLog(string message, string stackTrace, LogType type)
+        void HandleLog(string message, string stackTrace, LogType type)
         {
             _entries.Add(new LogEntry(type, message, stackTrace));
             RefreshContent();
@@ -106,7 +112,7 @@ namespace SocialPoint.Utils
 
         protected class LogEntry
         {
-            private static readonly Dictionary<LogType, string> LogColors = new Dictionary<LogType, string> {
+            static readonly Dictionary<LogType, string> LogColors = new Dictionary<LogType, string> {
                 { LogType.Log, "#EEE" },
                 { LogType.Warning, "#FFA" },
                 { LogType.Error, "#F88" },
@@ -115,18 +121,19 @@ namespace SocialPoint.Utils
             };
 
             public LogType Type { get; private set; }
+
             public string Content { get; private set; }
 
-            public LogEntry (LogType type, string message, string stackTrace)
+            public LogEntry(LogType type, string message, string stackTrace)
             {
                 Type = type;
-                string color = null;
+                string color;
                 LogColors.TryGetValue(type, out color);
 
                 var contentBuilder = StringUtils.StartBuilder();
                 contentBuilder.Append("<color=").Append(color).Append("><b> ").Append(type.ToString()).Append("</b>: ")
                               .AppendLine(message)
-                              .Append(((type == LogType.Exception)? "<b>Stack:</b>"+stackTrace : ""))
+                              .Append(((type == LogType.Exception) ? "<b>Stack:</b>" + stackTrace : ""))
                               .AppendLine("</color>");
                 Content = StringUtils.FinishBuilder(contentBuilder);
             }

@@ -1,13 +1,16 @@
-﻿using SocialPoint.Base;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.Social
 {
     public class EmptyGoogle : IGoogle
     {
-        private bool _isConnected = false;
-        private GoogleUser _user;
-        private List<GoogleUser> _friends = new List<GoogleUser>();
+        bool _isConnected;
+        GoogleUser _user;
+        readonly List<GoogleUser> _friends = new List<GoogleUser>();
 
         #region IGoogle implementation
 
@@ -17,6 +20,8 @@ namespace SocialPoint.Social
         }
 
         public event GoogleStateChangeDelegate StateChangeEvent;
+
+        public Action<string, AttrDic, ErrorDelegate> TrackEvent { get; set; }
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
@@ -136,9 +141,9 @@ namespace SocialPoint.Social
             }
         }
 
-        public UnityEngine.Texture2D GetUserPhoto(string userID)
+        public Texture2D GetUserPhoto(string userID)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public List<GoogleUser> Friends
@@ -148,6 +153,7 @@ namespace SocialPoint.Social
                 return _friends;
             }
         }
+
         #endregion
     }
 }

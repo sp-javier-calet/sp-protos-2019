@@ -42,7 +42,6 @@ namespace SocialPoint.GUIControl
                 {
                     visibleTableCells.Add((T)visibleCells.Current.Value);
                 }
-
                 visibleCells.Dispose();
 
                 return visibleTableCells.GetEnumerator();

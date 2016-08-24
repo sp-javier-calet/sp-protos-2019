@@ -1,21 +1,22 @@
 
 using System;
-using SocialPoint.Dependency;
-using SocialPoint.Crash;
-using SocialPoint.Utils;
-using SocialPoint.Network;
-using SocialPoint.Hardware;
-using SocialPoint.Alert;
 using SocialPoint.AdminPanel;
-using SocialPoint.Login;
-using SocialPoint.ServerEvents;
+using SocialPoint.Alert;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
+using SocialPoint.Crash;
+using SocialPoint.Dependency;
+using SocialPoint.Hardware;
+using SocialPoint.Login;
+using SocialPoint.Network;
+using SocialPoint.ServerEvents;
+using SocialPoint.Utils;
 
 public class CrashInstaller : SubInstaller
 {
-	[Serializable]
-	public class SettingsData
-	{
+    [Serializable]
+    public class SettingsData
+    {
         public float SendInterval = SocialPointCrashReporter.DefaultSendInterval;
         public bool ErrorLogActive = SocialPointCrashReporter.DefaultErrorLogActive;
         public bool ExceptionLogActive = SocialPointCrashReporter.DefaultExceptionLogActive;
@@ -27,7 +28,7 @@ public class CrashInstaller : SubInstaller
 
     public override void InstallBindings()
     {
-        Container.Rebind<BreadcrumbManager>().ToSingle<BreadcrumbManager>();
+        Container.Rebind<IBreadcrumbManager>().ToMethod<IBreadcrumbManager>(CreateBreadcrumbManager);
         Container.Rebind<ICrashReporter>().ToMethod<SocialPointCrashReporter>(
             CreateCrashReporter, SetupCrashReporter);
         Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
@@ -39,24 +40,29 @@ public class CrashInstaller : SubInstaller
     {
         return new AdminPanelCrashReporter(
             Container.Resolve<ICrashReporter>(),
-            Container.Resolve<BreadcrumbManager>());
+            Container.Resolve<IBreadcrumbManager>());
     }
 
     SocialPointCrashReporter CreateCrashReporter()
     {
         return new SocialPointCrashReporter(
-            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<IUpdateScheduler>(),
             Container.Resolve<IHttpClient>(),
             Container.Resolve<IDeviceInfo>(),
-            Container.Resolve<BreadcrumbManager>(),
+            Container.Resolve<IBreadcrumbManager>(),
             Container.Resolve<IAlertView>());
+    }
+
+    IBreadcrumbManager CreateBreadcrumbManager()
+    {
+        var breadcrumbManager = new BreadcrumbManager();
+        Log.BreadcrumbLogger = breadcrumbManager;
+        return breadcrumbManager;
     }
 
     void SetupCrashReporter(SocialPointCrashReporter reporter)
     {
-        var login = Container.Resolve<ILogin>();
-        reporter.RequestSetup = login.SetupHttpRequest;
-        reporter.GetUserId = () => login.UserId;
+        reporter.LoginData = Container.Resolve<ILoginData>();
         reporter.TrackEvent = Container.Resolve<IEventTracker>().TrackUrgentSystemEvent;
         reporter.AppEvents = Container.Resolve<IAppEvents>();
         reporter.SendInterval = Settings.SendInterval;
@@ -64,6 +70,9 @@ public class CrashInstaller : SubInstaller
         reporter.ExceptionLogActive = Settings.ExceptionLogActive;
         reporter.EnableSendingCrashesBeforeLogin = Settings.EnableSendingCrashesBeforeLogin;
         reporter.NumRetriesBeforeSendingCrashBeforeLogin = Settings.NumRetriesBeforeSendingCrashBeforeLogin;
+        #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+        reporter.NativeHandler = Container.Resolve<NativeCallsHandler>();
+        #endif
     }
 
 }

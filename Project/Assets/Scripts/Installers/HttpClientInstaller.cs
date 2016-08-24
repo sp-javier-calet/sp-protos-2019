@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
@@ -52,7 +50,7 @@ public class HttpClientInstaller : Installer
         if(FileUtils.ExistsFile(proxyPath))
         {
             proxy = FileUtils.ReadAllText(proxyPath).Trim();
-            DebugUtils.Log(string.Format("Using editor proxy '{0}'", proxy));
+            Log.i(string.Format("Using editor proxy '{0}'", proxy));
         }
         #endif
 

@@ -9,7 +9,7 @@
 #include "UnityGameObject.h"
 #include <cassert>
 
-UnityGameObject::SendMessageDelegate *UnityGameObject::_sendMessageDelegate;
+UnityGameObject::SendMessageDelegate* UnityGameObject::_sendMessageDelegate;
 
 void UnityGameObject::setSendMessageDelegate(const SendMessageDelegate& delegate)
 {

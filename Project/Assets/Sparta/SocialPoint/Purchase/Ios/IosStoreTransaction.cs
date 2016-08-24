@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
 
-#if UNITY_IPHONE
+#if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
     public enum IosStoreTransactionState
@@ -34,10 +32,10 @@ namespace SocialPoint.Purchase
 
         public IosStoreTransactionState TransactionState { get; private set; }
 
-        private const string ProductIdentifierKey = "productIdentifier";
-        private const string TransactionIdentifierKey = "transactionIdentifier";
-        private const string Base64EncodedReceiptKey = "base64EncodedReceipt";
-        private const string TransactionStateKey = "transactionState";
+        const string ProductIdentifierKey = "productIdentifier";
+        const string TransactionIdentifierKey = "transactionIdentifier";
+        const string Base64EncodedReceiptKey = "base64EncodedReceipt";
+        const string TransactionStateKey = "transactionState";
 
 
         public static List<IosStoreTransaction> TransactionsFromJson(string json)
@@ -85,7 +83,6 @@ namespace SocialPoint.Purchase
             return string.Format("<IosStoreTransaction> ID: {0}, transactionIdentifier: {1}, transactionState: {2}",
                 ProductIdentifier, TransactionIdentifier, TransactionState);
         }
-
     }
 }
 #endif

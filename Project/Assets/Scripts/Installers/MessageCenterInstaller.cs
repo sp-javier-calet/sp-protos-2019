@@ -1,10 +1,10 @@
-﻿using SocialPoint.AdminPanel;
-using SocialPoint.ServerMessaging;
-using SocialPoint.Dependency;
-using SocialPoint.ServerSync;
+﻿using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
+using SocialPoint.Dependency;
 using SocialPoint.Login;
-using System;
+using SocialPoint.ServerMessaging;
+using SocialPoint.ServerSync;
 
 public class MessageCenterInstaller : SubInstaller
 {
@@ -19,7 +19,7 @@ public class MessageCenterInstaller : SubInstaller
     {
         return new AdminPanelMessageCenter(
             Container.Resolve<IMessageCenter>(),
-            Container.Resolve<ILogin>());
+            Container.Resolve<ILoginData>());
     }
 
     MessageCenter CreateMessageCenter()

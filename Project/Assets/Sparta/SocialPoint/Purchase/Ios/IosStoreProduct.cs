@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 
-#if UNITY_IPHONE
+#if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
     public class IosStoreProduct
@@ -20,12 +19,12 @@ namespace SocialPoint.Purchase
 
         public string FormattedPrice { get; private set; }
 
-        private const string ProductIdentifierKey = "productIdentifier";
-        private const string LocalizedTitleKey = "localizedTitle";
-        private const string LocalizedDescriptionKey = "localizedDescription";
-        private const string PriceKey = "price";
-        private const string CurrencySymbolKey = "currencySymbol";
-        private const string FormattedPriceKey = "formattedPrice";
+        const string ProductIdentifierKey = "productIdentifier";
+        const string LocalizedTitleKey = "localizedTitle";
+        const string LocalizedDescriptionKey = "localizedDescription";
+        const string PriceKey = "price";
+        const string CurrencySymbolKey = "currencySymbol";
+        const string FormattedPriceKey = "formattedPrice";
 
 
         public static List<IosStoreProduct> ProductsFromJson(string json)
@@ -36,7 +35,7 @@ namespace SocialPoint.Purchase
 
         public static IosStoreProduct ProductFromDictionary(AttrDic data)
         {
-            IosStoreProduct product = new IosStoreProduct();
+            var product = new IosStoreProduct();
 
             if(data.ContainsKey(ProductIdentifierKey))
             {

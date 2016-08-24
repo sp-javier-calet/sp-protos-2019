@@ -1,21 +1,17 @@
-﻿using NUnit.Framework;
-using NSubstitute;
-
-using UnityEngine;
-
+﻿using NSubstitute;
+using NUnit.Framework;
+using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
-using SocialPoint.Attributes;
-using SocialPoint.AppEvents;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Rating
 {
 
     [TestFixture]
     [Category("SocialPoint.AppRater")]
-    internal class AppRaterTests {
-
+    class AppRaterTests
+    {
         AppRater AppRater;
         FileAttrStorage storage;
         IAppRaterGUI AppRaterGUI;
@@ -69,13 +65,13 @@ namespace SocialPoint.Rating
         {
             AppRaterGUI.Received(i).Show(Arg.Any<bool>());
         }
-        
+
         public void IncrementUses_Expected_Show(int i)
         {
             AppRater.IncrementUsesCounts(true);
             ExpectedShow(i);
         }
-        
+
         [Test]
         public void MeetCondition_Uses_Calls_ShowRateView()
         {
@@ -173,7 +169,7 @@ namespace SocialPoint.Rating
         public void On_RequestDeclined_DoesntCall_ShowRateView()
         {
             IncrementUses_Expected_Show(1);
-			AppRater.OnRequestResult(RateRequestResult.Decline);
+            AppRater.OnRequestResult(RateRequestResult.Decline);
             IncrementUses_Expected_Show(1);
         }
 
@@ -182,7 +178,7 @@ namespace SocialPoint.Rating
         {
             AppRater.DaysBeforeReminding = 1;
             IncrementUses_Expected_Show(1);
-			AppRater.OnRequestResult(RateRequestResult.Delay);
+            AppRater.OnRequestResult(RateRequestResult.Delay);
             IncrementUses_Expected_Show(1);
         }
 
@@ -192,21 +188,21 @@ namespace SocialPoint.Rating
             storage.Remove(AppRaterInfoKey);
         }
 
-        private const string AppRaterInfoKey = "AppRaterInfo";
-        private const string CurrentVersionKey = "CurrentVersion";
-        private const string UsesUntilPromptKey = "usesUntilPrompt";
-        private const string EventsUntilPromptKey = "eventsUntilPrompt";
-        private const string FirstUseDateKey = "firstUseDate";
-        private const string RatedCurrentVersionKey = "ratedCurrentVersion";
-        private const string RatedAnyVersionKey = "ratedAnyVersion";
-        private const string DeclineToRateKey = "declineToRate";
-        private const string ReminderRequestDateKey = "reminderRequestDate";
-        private const string PromptsLastDayKey = "promptsLastDay";
-        private const string DateStartLastDayKey = "dateStartLastDay";
+        const string AppRaterInfoKey = "AppRaterInfo";
+        const string CurrentVersionKey = "CurrentVersion";
+        const string UsesUntilPromptKey = "usesUntilPrompt";
+        const string EventsUntilPromptKey = "eventsUntilPrompt";
+        const string FirstUseDateKey = "firstUseDate";
+        const string RatedCurrentVersionKey = "ratedCurrentVersion";
+        const string RatedAnyVersionKey = "ratedAnyVersion";
+        const string DeclineToRateKey = "declineToRate";
+        const string ReminderRequestDateKey = "reminderRequestDate";
+        const string PromptsLastDayKey = "promptsLastDay";
+        const string DateStartLastDayKey = "dateStartLastDay";
 
 
-        private void SaveFirstDefaults(string version, double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
-            bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
+        void SaveFirstDefaults(string version, double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
+                               bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
         {
             var defaults = new AttrDic();
             defaults.SetValue(CurrentVersionKey, version);

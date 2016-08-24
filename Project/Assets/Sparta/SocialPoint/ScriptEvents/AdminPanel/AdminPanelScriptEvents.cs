@@ -1,8 +1,7 @@
-﻿using SocialPoint.AdminPanel;
+﻿using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
-using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -25,7 +24,7 @@ namespace SocialPoint.ScriptEvents
             _attrParser = new JsonAttrParser();
             _scriptParser = scriptParser;
         }
-        
+
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Script Events", this));
@@ -36,7 +35,7 @@ namespace SocialPoint.ScriptEvents
             string argstr = null;
             if(!Attr.IsNullOrEmpty(args))
             {
-                argstr =  _attrSerializer.SerializeString(args);
+                argstr = _attrSerializer.SerializeString(args);
             }
             _eventsLog += string.Format("{0}\n{1}\n----\n", name, argstr);
         }
@@ -70,15 +69,9 @@ namespace SocialPoint.ScriptEvents
                 var scriptModel = _scriptParser.Parse(attr);
                 Log(string.Format("loaded script '{0}'\n{1}", value, scriptModel));
                 var script = new Script(_dispatcher, scriptModel);
-                script.StepStarted += () => {
-                    Log(string.Format("script '{0}' step {1} started", value, script.CurrentStepNum));
-                };
-                script.StepFinished += (decision, evName, evArgs) => {
-                    Log(string.Format("script '{0}' step {1} finished with decision {2}", value, script.CurrentStepNum, decision));
-                };
-                script.Run(() => {
-                    Log(string.Format("script '{0}' finished running", value));
-                });
+                script.StepStarted += () => Log(string.Format("script '{0}' step {1} started", value, script.CurrentStepNum));
+                script.StepFinished += (decision, evName, evArgs) => Log(string.Format("script '{0}' step {1} finished with decision {2}", value, script.CurrentStepNum, decision));
+                script.Run(() => Log(string.Format("script '{0}' finished running", value)));
                 UpdateEventsContent();
             }
             catch(Exception e)

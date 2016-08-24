@@ -1,31 +1,22 @@
-
-using System.IO;
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
     public class UrlQueryAttrSerializer
     {
-        private const string TokenSeparator = "&";
-        private const string TokenAssign = "=";
-        private const string TokenGroupStart = "[";
-        private const string TokenGroupEnd = "]";
+        const string TokenSeparator = "&";
+        const string TokenAssign = "=";
+        const string TokenGroupStart = "[";
+        const string TokenGroupEnd = "]";
 
-        public UrlQueryAttrSerializer()
-        {
-        }
-        
-        private string Convert(Attr data, string prefix)
+        string Convert(Attr data, string prefix)
         {
             var str = StringUtils.StartBuilder();
-            bool first = true;
-            if(data == null)
-            {
-                data = new AttrEmpty();
-            }
+            bool first;
+            data = data ?? new AttrEmpty();
             switch(data.AttrType)
             {
             case AttrType.VALUE:
@@ -61,6 +52,7 @@ namespace SocialPoint.Attributes
                     }
                     str.Append(Convert(item.Value, newprefix));
                 }
+                itrDic.Dispose();
                 break;
             case AttrType.LIST:
                 first = true;
@@ -78,8 +70,7 @@ namespace SocialPoint.Attributes
                     }
                     str.Append(Convert(item, string.IsNullOrEmpty(prefix) ? prefix : prefix + TokenGroupStart + TokenGroupEnd));
                 }
-                break;
-            default:
+                itrList.Dispose();
                 break;
             }
             return StringUtils.FinishBuilder(str);

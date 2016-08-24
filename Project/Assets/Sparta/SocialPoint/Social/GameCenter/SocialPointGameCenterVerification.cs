@@ -1,34 +1,32 @@
 ﻿using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using UnityEngine;
-
-#if UNITY_IOS && !UNITY_EDITOR
-using System.Runtime.InteropServices;
-#endif
+using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
-
-    public class SocialPointGameCenterVerification : MonoBehaviour
+    public class SocialPointGameCenterVerification
     {
-        bool _loaded = false;
-        bool _inited = false;
+        bool _loaded;
+        bool _inited;
         GameCenterValidationDelegate _delegate;
         GameCenterUserVerification _verification;
         Error _error;
+        NativeCallsHandler _handler;
 
         #if UNITY_IOS && !UNITY_EDITOR
-        [DllImport ("__Internal")]
-        private static extern void SPUnityGameCenter_UserVerificationInit(string name);
+        [System.Runtime.InteropServices.DllImport ("__Internal")]
+        private static extern void SPUnityGameCenter_UserVerificationInit();
         #else
-        private static void SPUnityGameCenter_UserVerificationInit(string name)
+        void SPUnityGameCenter_UserVerificationInit()
         {
         }
         #endif
 
-        void Awake()
+        public SocialPointGameCenterVerification(NativeCallsHandler handler)
         {
+            _handler = handler;
+            _handler.RegisterListener("Notify", Notify);
         }
 
         public void LoadData(GameCenterValidationDelegate cbk)
@@ -36,7 +34,7 @@ namespace SocialPoint.Social
             if(!_inited)
             {
                 _inited = true;
-                SPUnityGameCenter_UserVerificationInit(gameObject.name);
+                SPUnityGameCenter_UserVerificationInit();
             }
             if(cbk != null)
             {
@@ -52,18 +50,18 @@ namespace SocialPoint.Social
         }
 
         /// <summary>
-        /// recieves the verification from the plugin as a serialized json
+        /// receives the verification from the plugin as a serialized json
         /// </summary>
-        /// <param name="verfication">Verfication.</param>
-        void Notify(string verfication)
+        /// <param name="verification">Verification.</param>
+        void Notify(string verification)
         {
             var parser = new JsonAttrParser();
-            var data = parser.ParseString(verfication).AsDic;
+            var data = parser.ParseString(verification).AsDic;
             if(data.GetValue("error").ToBool())
             {
                 _verification = null;
                 _error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
-                DebugUtils.Log("Game Center Verification got error: "+_error);
+                Log.i("Game Center Verification got error: " + _error);
             }
             else
             {

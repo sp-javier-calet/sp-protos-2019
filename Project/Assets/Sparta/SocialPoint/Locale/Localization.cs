@@ -58,7 +58,7 @@ namespace SocialPoint.Locale
 
         public Localization()
         {
-            Debug = UnityEngine.Debug.isDebugBuild;
+            Debug = DebugUtils.IsDebugBuild;
         }
 
         string _language = "";
@@ -114,7 +114,7 @@ namespace SocialPoint.Locale
 
                 return SocialPoint.Utils.StringUtils.FinishBuilder(stringBuilder);
             }
-            return defaultString;
+            return defaultString != null ? defaultString : key;
         }
 
         public void Clear()
@@ -134,10 +134,13 @@ namespace SocialPoint.Locale
 
         public void Add(Localization other)
         {
-            foreach(var pair in other._strings)
+            var itr = other._strings.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var pair = itr.Current;
                 Set(pair.Key, pair.Value);
             }
+            itr.Dispose();
         }
 
         public override string ToString()

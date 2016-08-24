@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using SocialPoint.Base;
 
 namespace SocialPoint.Attributes
 {
@@ -10,7 +10,7 @@ namespace SocialPoint.Attributes
 
         FamilyParser<T> Parent { set; }
     }
-    
+
     public class FamilyParser<T> : IParser<T>
     {
         const string AttrKeyType = "type";
@@ -18,16 +18,17 @@ namespace SocialPoint.Attributes
         
         List<IChildParser<T>> _children;
 
-        public FamilyParser(IChildParser<T>[] children):
+        public FamilyParser(IChildParser<T>[] children) :
             this(new List<IChildParser<T>>(children))
         {
         }
-        
+
         public FamilyParser(List<IChildParser<T>> children)
         {
             _children = children;
-            foreach(var child in _children)
+            for(int i = 0, _childrenCount = _children.Count; i < _childrenCount; i++)
             {
+                var child = _children[i];
                 child.Parent = this;
             }
         }
@@ -36,9 +37,9 @@ namespace SocialPoint.Attributes
         {
             return _children.FirstOrDefault((p) => p.Name == type);
         }
-        
+
         #region IParser implementation
-        
+
         public T Parse(Attr data)
         {
             if(Attr.IsNullOrEmpty(data))
@@ -50,11 +51,11 @@ namespace SocialPoint.Attributes
             var child = GetChild(type);
             if(child == null)
             {
-                throw new InvalidOperationException("No parser for type '"+type+"' found.");
+                throw new InvalidOperationException("No parser for type '" + type + "' found.");
             }
             return child.Parse(datadic[AttrKeyValue]);
         }
-        
+
         #endregion
         
     }

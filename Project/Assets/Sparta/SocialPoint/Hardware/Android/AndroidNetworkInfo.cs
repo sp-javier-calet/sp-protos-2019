@@ -28,16 +28,21 @@ namespace SocialPoint.Hardware
                 {
                     try
                     {
-                        var objResolver = AndroidContext.ContentResolver;
-                        var clsSettings = new AndroidJavaClass("android.provider.Settings$Secure"); // API level 3
                         const string key = "http_proxy";
-                        var proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key);  // API level 3, deprecated in API level 17
+                        string proxyStr;
+                        var objResolver = AndroidContext.ContentResolver;
+                        using(var clsSettingsSecure = new AndroidJavaClass("android.provider.Settings$Secure")) // API level 3
+                        {
+                            proxyStr = clsSettingsSecure.CallStatic<string>("getString", objResolver, key); // API level 3, deprecated in API level 17
+                        }
                         if(string.IsNullOrEmpty(proxyStr))
                         {
                             try
                             {
-                                clsSettings = new AndroidJavaClass("android.provider.Settings$Global");
-                                proxyStr = clsSettings.CallStatic<string>("getString", objResolver, key); // API level 17
+                                using(var clsSettingsGlobal = new AndroidJavaClass("android.provider.Settings$Global"))
+                                {
+                                    proxyStr = clsSettingsGlobal.CallStatic<string>("getString", objResolver, key); // API level 17
+                                }
                             }
                             catch(AndroidJavaException)
                             {
@@ -46,29 +51,33 @@ namespace SocialPoint.Hardware
                         }
                         if(string.IsNullOrEmpty(proxyStr))
                         {
-                            var sys = new AndroidJavaClass("java.lang.System"); // API level 1
-                            var host = sys.CallStatic<string>("getProperty", "http.proxyHost");
-                            if(!string.IsNullOrEmpty(host))
+                            using(var sys = new AndroidJavaClass("java.lang.System")) // API level 1
                             {
-                                proxyStr = host;
-                                var port = sys.CallStatic<string>("getProperty", "http.proxyPort");
-                                if(!string.IsNullOrEmpty(port))
+                                var host = sys.CallStatic<string>("getProperty", "http.proxyHost");
+                                if(!string.IsNullOrEmpty(host))
                                 {
-                                    proxyStr += ":" + port;
+                                    proxyStr = host;
+                                    var port = sys.CallStatic<string>("getProperty", "http.proxyPort");
+                                    if(!string.IsNullOrEmpty(port))
+                                    {
+                                        proxyStr += ":" + port;
+                                    }
                                 }
                             }
                         }
                         if(string.IsNullOrEmpty(proxyStr))
                         {
-                            var proxy = new AndroidJavaClass("android.net.Proxy"); // API level 1
-                            var host = proxy.CallStatic<string>("getHost", AndroidContext.CurrentActivity); // API level 1
-                            if(!string.IsNullOrEmpty(host))
+                            using(var proxy = new AndroidJavaClass("android.net.Proxy")) // API level 1
                             {
-                                proxyStr = host;
-                                var port = proxy.CallStatic<string>("getPort", AndroidContext.CurrentActivity); // API level 1, deprecated in API level 11
-                                if(!string.IsNullOrEmpty(port))
+                                var host = proxy.CallStatic<string>("getHost", AndroidContext.CurrentActivity); // API level 1
+                                if(!string.IsNullOrEmpty(host))
                                 {
-                                    proxyStr += ":" + port;
+                                    proxyStr = host;
+                                    var port = proxy.CallStatic<string>("getPort", AndroidContext.CurrentActivity); // API level 1, deprecated in API level 11
+                                    if(!string.IsNullOrEmpty(port))
+                                    {
+                                        proxyStr += ":" + port;
+                                    }
                                 }
                             }
                         }
@@ -80,7 +89,7 @@ namespace SocialPoint.Hardware
                     }
                     catch(Exception e)
                     {
-                        Debug.LogError("Device proxy could not be retrieved. " + e.Message);
+                        Log.e("Device proxy could not be retrieved. " + e.Message);
                     }
                 }
                 return _proxy;

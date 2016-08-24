@@ -6,19 +6,41 @@
 	<dict>
 		<key>Headers/UnityGameObject.h</key>
 		<data>
-		oVdNU/32kgquQhgiICxYxXCk1zE=
+		m78W3PPIMN+NbOdc2Jt36l7Agi4=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		IjLzc7viJvUl1hzZ/3qzFbt2U9U=
+		v3/MgUno/5Z4oLiThrvJwG+HPV0=
+		</data>
+		<key>Modules/module.modulemap</key>
+		<data>
+		9a/PH/Uk75OH4MTJ8AbPLQ+pw50=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
 		<key>Headers/UnityGameObject.h</key>
-		<data>
-		oVdNU/32kgquQhgiICxYxXCk1zE=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			m78W3PPIMN+NbOdc2Jt36l7Agi4=
+			</data>
+			<key>hash2</key>
+			<data>
+			FcGJyLs5jfA5V46J1TC5fvasudTaFyBTZOLy/U8kFc4=
+			</data>
+		</dict>
+		<key>Modules/module.modulemap</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			9a/PH/Uk75OH4MTJ8AbPLQ+pw50=
+			</data>
+			<key>hash2</key>
+			<data>
+			uYJM7nbWl9eBPpQIx3r79X08d22D0OZD+ksttmpEGNU=
+			</data>
+		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>

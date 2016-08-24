@@ -1,7 +1,6 @@
+using System.Collections;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
-using System;
-using System.Collections;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -53,7 +52,7 @@ namespace SocialPoint.ScriptEvents
 
     public class AppWillGoBackgroundEventSerializer : BaseScriptEventSerializer<AppWillGoBackgroundEvent>
     {
-        public AppWillGoBackgroundEventSerializer(): base("event.app.will_go_background")
+        public AppWillGoBackgroundEventSerializer() : base("event.app.will_go_background")
         {
         }
 
@@ -65,7 +64,7 @@ namespace SocialPoint.ScriptEvents
 
     public class AppGameWasLoadedEventSerializer : BaseScriptEventSerializer<AppGameWasLoadedEvent>
     {
-        public AppGameWasLoadedEventSerializer(): base("event.app.game_was_loaded")
+        public AppGameWasLoadedEventSerializer() : base("event.app.game_was_loaded")
         {
         }
 
@@ -74,10 +73,10 @@ namespace SocialPoint.ScriptEvents
             return new AttrInt(ev.Priority);
         }
     }
-    
+
     public class AppGameWillRestartEventSerializer : BaseScriptEventSerializer<AppGameWillRestartEvent>
     {
-        public AppGameWillRestartEventSerializer(): base("event.app.game_will_restart")
+        public AppGameWillRestartEventSerializer() : base("event.app.game_will_restart")
         {
         }
 
@@ -89,7 +88,7 @@ namespace SocialPoint.ScriptEvents
 
     public class AppLevelWasLoadedEventSerializer : BaseScriptEventSerializer<AppLevelWasLoadedEvent>
     {
-        public AppLevelWasLoadedEventSerializer(): base("event.app.level_was_loaded")
+        public AppLevelWasLoadedEventSerializer() : base("event.app.level_was_loaded")
         {
         }
 
@@ -98,17 +97,17 @@ namespace SocialPoint.ScriptEvents
             return new AttrInt(ev.Level);
         }
     }
-    
+
     public class AppOpenedFromSourceEventSerializer : BaseScriptEventSerializer<AppOpenedFromSourceEvent>
     {
         const string AttrKeyUri = "uri";
         const string AttrKeyScheme = "scheme";
         const string AttrKeyParameters = "params";
 
-        public AppOpenedFromSourceEventSerializer(): base("event.app.opened_from_source")
+        public AppOpenedFromSourceEventSerializer() : base("event.app.opened_from_source")
         {
         }
-        
+
         override protected Attr SerializeEvent(AppOpenedFromSourceEvent ev)
         {
             var data = new AttrDic();
@@ -116,11 +115,62 @@ namespace SocialPoint.ScriptEvents
             data.SetValue(AttrKeyScheme, ev.Source.Scheme);
             var parms = new AttrDic();
             data.Set(AttrKeyParameters, parms);
-            foreach(var kvp in ev.Source.Parameters)
+            var itr = ev.Source.Parameters.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var kvp = itr.Current;
                 parms.SetValue(kvp.Key, kvp.Value);
             }
+            itr.Dispose();
             return data;
+        }
+    }
+
+    public class AppWasOnBackgroundEventSerializer : BaseScriptEventSerializer<AppWasOnBackgroundEvent>
+    {
+        public AppWasOnBackgroundEventSerializer() : base("event.app.was_on_background")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppWasOnBackgroundEvent ev)
+        {
+            return new AttrEmpty();
+        }
+    }
+
+    public class AppWasCoveredEventSerializer : BaseScriptEventSerializer<AppWasCoveredEvent>
+    {
+        public AppWasCoveredEventSerializer() : base("event.app.was_covered")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppWasCoveredEvent ev)
+        {
+            return new AttrEmpty();
+        }
+    }
+
+    public class AppReceivedMemoryWarningEventSerializer : BaseScriptEventSerializer<AppReceivedMemoryWarningEvent>
+    {
+        public AppReceivedMemoryWarningEventSerializer() : base("event.app.memory_warning")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppReceivedMemoryWarningEvent ev)
+        {
+            return new AttrEmpty();
+        }
+    }
+
+    public class AppQuitEventSerializer : BaseScriptEventSerializer<AppQuitEvent>
+    {
+        public AppQuitEventSerializer() : base("event.app.quit")
+        {
+        }
+
+        override protected Attr SerializeEvent(AppQuitEvent ev)
+        {
+            return new AttrEmpty();
         }
     }
 
@@ -145,12 +195,7 @@ namespace SocialPoint.ScriptEvents
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
-
-        const string AppWasOnBackgroundEventName = "event.app.was_on_background";
-        const string AppWasCoveredEventName = "event.app.was_covered";
-        const string AppReceivedMemoryWarningEventName = "event.app.memory_warning";
-        const string AppQuitEventName = "event.app.quit";
-
+            
         public void Load(IScriptEventDispatcher dispatcher)
         {
             dispatcher.AddSerializer(new AppWillGoBackgroundEventSerializer());
@@ -158,10 +203,10 @@ namespace SocialPoint.ScriptEvents
             dispatcher.AddSerializer(new AppGameWillRestartEventSerializer());
             dispatcher.AddSerializer(new AppLevelWasLoadedEventSerializer());
             dispatcher.AddSerializer(new AppOpenedFromSourceEventSerializer());
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppWasOnBackgroundEvent>(AppWasOnBackgroundEventName));
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppWasCoveredEvent>(AppWasCoveredEventName));
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppReceivedMemoryWarningEvent>(AppReceivedMemoryWarningEventName));
-            dispatcher.AddSerializer(new ScriptEventSerializer<AppQuitEvent>(AppQuitEventName));
+            dispatcher.AddSerializer(new AppWasOnBackgroundEventSerializer());
+            dispatcher.AddSerializer(new AppWasCoveredEventSerializer());
+            dispatcher.AddSerializer(new AppReceivedMemoryWarningEventSerializer());
+            dispatcher.AddSerializer(new AppQuitEventSerializer());
         }
 
         public void Load(IEventDispatcher dispatcher)
@@ -189,7 +234,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppWillGoBackgroundEvent{
+            _dispatcher.Raise(new AppWillGoBackgroundEvent {
                 Priority = priority
             });
         }
@@ -200,7 +245,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppGameWasLoadedEvent{
+            _dispatcher.Raise(new AppGameWasLoadedEvent {
                 Priority = priority
             });
         }
@@ -211,7 +256,7 @@ namespace SocialPoint.ScriptEvents
             {
                 yield break;
             }
-            _dispatcher.Raise(new AppAfterGameWasLoadedEvent{
+            _dispatcher.Raise(new AppAfterGameWasLoadedEvent {
                 Priority = priority
             });
             yield break;
@@ -223,18 +268,18 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppGameWillRestartEvent{
+            _dispatcher.Raise(new AppGameWillRestartEvent {
                 Priority = priority
             });
         }
-        
+
         void OnWasOnBackground()
         {
             if(_dispatcher == null)
             {
                 return;
             }
-            _dispatcher.Raise(new AppWasOnBackgroundEvent{});
+            _dispatcher.Raise(new AppWasOnBackgroundEvent());
         }
 
         void OnWasCovered()
@@ -243,7 +288,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppWasCoveredEvent{});
+            _dispatcher.Raise(new AppWasCoveredEvent());
         }
 
         void OnReceivedMemoryWarning()
@@ -252,7 +297,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppReceivedMemoryWarningEvent{});
+            _dispatcher.Raise(new AppReceivedMemoryWarningEvent());
         }
 
         void OnOpenedFromSource(AppSource source)
@@ -261,7 +306,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppOpenedFromSourceEvent{
+            _dispatcher.Raise(new AppOpenedFromSourceEvent {
                 Source = source
             });
         }
@@ -272,7 +317,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppQuitEvent{});
+            _dispatcher.Raise(new AppQuitEvent());
         }
 
         void OnLevelWasLoaded(int level)
@@ -281,7 +326,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new AppLevelWasLoadedEvent{
+            _dispatcher.Raise(new AppLevelWasLoadedEvent {
                 Level = level
             });
         }

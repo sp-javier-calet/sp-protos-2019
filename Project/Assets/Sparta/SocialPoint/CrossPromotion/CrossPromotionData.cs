@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using SocialPoint.Attributes;
 using System.Collections.Generic;
-using SocialPoint.Attributes;
+using SocialPoint.Base;
 
 namespace SocialPoint.CrossPromotion
 {
@@ -48,25 +48,31 @@ namespace SocialPoint.CrossPromotion
 
             AppsToCheck = new List<string>();
             AttrDic appsToCheckDict = config.Get("check_apps").AsDic;
-            foreach(var data in appsToCheckDict)
+            var itr = appsToCheckDict.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var data = itr.Current;
                 AppsToCheck.Add(data.Value.AsValue.ToString());
             }
+            itr.Dispose();
 
             BannerInfo = new Dictionary<int, CrossPromotionBannerData>();
             AttrDic bannerInfoDict = config.Get("banners").AsDic;
-            foreach(var data in bannerInfoDict)
+            itr = bannerInfoDict.GetEnumerator();
+            while(itr.MoveNext())
             {
-                CrossPromotionBannerData crossPromoData = new CrossPromotionBannerData(data.Value.AsDic);
+                var data = itr.Current;
+                var crossPromoData = new CrossPromotionBannerData(data.Value.AsDic);
                 if(!BannerInfo.ContainsKey(crossPromoData.Uid))
                 { 
                     BannerInfo.Add(crossPromoData.Uid, crossPromoData);
                 }
                 else
                 {
-                    UnityEngine.Debug.LogWarning("CrossPromo UID is not unique: " + crossPromoData.Uid);
+                    Log.w("CrossPromo UID is not unique: " + crossPromoData.Uid);
                 }
             }
+            itr.Dispose();
         }
     }
 }

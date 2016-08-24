@@ -1,53 +1,61 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.Utils;
+using UnityEngine;
 
 #if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
-    public class AndroidStoreManager : MonoBehaviour
+    public class AndroidStoreManager
     {
         //Successfull Init callback. Billing is supported on current platform
-        public static event Action BillingSupportedEvent;
+        public event Action BillingSupportedEvent;
 
         //Failed Init callback. Billing is not supported on current platform
-        public static event Action<Error> BillingNotSupportedEvent;
+        public event Action<Error> BillingNotSupportedEvent;
 
         //Successful QueryInventory callback. Purchase history and store listings are returned/
-        public static event Action<List<AndroidStoreProduct>> QueryInventorySucceededEvent;
+        public event Action<List<AndroidStoreProduct>> QueryInventorySucceededEvent;
 
         //Failed QueryInventory callback.
-        public static event Action<Error> QueryInventoryFailedEvent;
+        public event Action<Error> QueryInventoryFailedEvent;
 
         //Successful purchase callback. Fired after purchase of a product or a subscription
-        public static event Action<AndroidStoreTransaction> PurchaseSucceededEvent;
+        public event Action<AndroidStoreTransaction> PurchaseSucceededEvent;
 
         //Failed purchase callback
-        public static event Action<Error> PurchaseFailedEvent;
+        public event Action<Error> PurchaseFailedEvent;
 
         //Canceled purchase callback
-        public static event Action<Error> PurchaseCancelledEvent;
+        public event Action<Error> PurchaseCancelledEvent;
 
         //Successful consume attempt callback
-        public static event Action<AndroidStoreTransaction> ConsumePurchaseSucceededEvent;
+        public event Action<AndroidStoreTransaction> ConsumePurchaseSucceededEvent;
 
         //Failed consume attempt callback
-        public static event Action<Error> ConsumePurchaseFailedEvent;
+        public event Action<Error> ConsumePurchaseFailedEvent;
 
+        NativeCallsHandler _handler;
 
-        static AndroidStoreManager()
+        public AndroidStoreManager(NativeCallsHandler handler)
         {
-            string instanceName = "AndroidStoreManager";
-            GameObject instance = new GameObject(instanceName);
-            instance.AddComponent<AndroidStoreManager>();
-            DontDestroyOnLoad(instance);
+            _handler = handler;
 
-            AndroidStoreBinding.Init(instanceName);
+            _handler.RegisterListener("OnBillingNotSupported", OnBillingNotSupported);
+            _handler.RegisterListener("OnBillingSupported", OnBillingSupported);
+            _handler.RegisterListener("OnQueryInventoryFailed", OnQueryInventoryFailed);
+            _handler.RegisterListener("OnQueryInventorySucceeded", OnQueryInventorySucceeded);
+            _handler.RegisterListener("OnPurchaseFailed", OnPurchaseFailed);
+            _handler.RegisterListener("OnPurchaseSucceeded", OnPurchaseSucceeded);
+            _handler.RegisterListener("OnPurchaseCancelled", OnPurchaseCancelled);
+            _handler.RegisterListener("OnConsumePurchaseFailed", OnConsumePurchaseFailed);
+            _handler.RegisterListener("OnConsumePurchaseSucceeded", OnConsumePurchaseSucceeded);
+
+            AndroidStoreBinding.Init();
         }
 
-        private void OnBillingSupported(string empty)
+        void OnBillingSupported()
         {
             if(BillingSupportedEvent != null)
             {
@@ -55,7 +63,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnBillingNotSupported(string error)
+        void OnBillingNotSupported(string error)
         {
             if(BillingNotSupportedEvent != null)
             {
@@ -63,7 +71,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnQueryInventorySucceeded(string json)
+        void OnQueryInventorySucceeded(string json)
         {
             if(QueryInventorySucceededEvent != null)
             {
@@ -71,7 +79,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnQueryInventoryFailed(string error)
+        void OnQueryInventoryFailed(string error)
         {
             if(QueryInventoryFailedEvent != null)
             {
@@ -79,7 +87,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnPurchaseSucceeded(string json)
+        void OnPurchaseSucceeded(string json)
         {
             if(PurchaseSucceededEvent != null)
             {
@@ -87,7 +95,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnPurchaseFailed(string message)
+        void OnPurchaseFailed(string message)
         {
             if(PurchaseFailedEvent != null)
             {
@@ -95,7 +103,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnPurchaseCancelled(string message)
+        void OnPurchaseCancelled(string message)
         {
             if(PurchaseFailedEvent != null)
             {
@@ -103,7 +111,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnConsumePurchaseSucceeded(string json)
+        void OnConsumePurchaseSucceeded(string json)
         {
             if(ConsumePurchaseSucceededEvent != null)
             {
@@ -111,7 +119,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        private void OnConsumePurchaseFailed(string error)
+        void OnConsumePurchaseFailed(string error)
         {
             if(ConsumePurchaseFailedEvent != null)
             {
@@ -122,7 +130,7 @@ namespace SocialPoint.Purchase
         //May be called from Android plugin if needed to debug in Unity side
         public void StoreDebugLog(string logMsg)
         {
-            Debug.Log(logMsg);
+            Log.i(logMsg);
         }
     }
 }

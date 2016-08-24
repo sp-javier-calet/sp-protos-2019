@@ -2,7 +2,7 @@
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Social;
-using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
@@ -34,6 +34,7 @@ namespace SocialPoint.Login
 
         void Init()
         {
+            _state = _googlePlay.IsConnected ? LinkState.Connected : LinkState.Disconnected;
             _googlePlay.StateChangeEvent += OnStateChanged;
         }
 
@@ -149,16 +150,17 @@ namespace SocialPoint.Login
             {
                 mappings.Add(new UserMapping(enumerator.Current.UserId, Name));
             }
+            enumerator.Dispose();
         }
 
         public void UpdateUserPhoto(User user, uint photoSize, ErrorDelegate cbk)
         {
-            Debug.LogError("Not Implementing Update User Photo Yet");
+            Log.e("Not Implementing Update User Photo Yet");
         }
 
         public bool IsFriend(User user)
         {
-            Debug.LogError("Not Implementing Is Friend Yet");
+            Log.e("Not Implementing Is Friend Yet");
             return false;
         }
 
@@ -181,9 +183,11 @@ namespace SocialPoint.Login
                 GoogleUser friend = itr.Current;
                 if(userIds.Contains(friend.UserId))
                 {
+                    itr.Dispose();
                     return friend;
                 }
             }
+            itr.Dispose();
             
             return null;
         }

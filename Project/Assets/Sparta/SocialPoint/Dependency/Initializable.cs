@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
@@ -9,18 +10,21 @@ namespace SocialPoint.Dependency
 
     public class InitializableManager
     {
-        Dictionary<IInitializable,int> _initialized = new Dictionary<IInitializable,int>();
+        Dictionary<IInitializable,int> _initialized;
         DependencyContainer _container;
+        ReferenceComparer<IInitializable> _comparer;
 
         public InitializableManager(DependencyContainer container)
         {
             _container = container;
+            _comparer = new ReferenceComparer<IInitializable>();
+            _initialized = new Dictionary<IInitializable, int>(_comparer);
         }
 
         public void Initialize()
         {
             var inits = _container.ResolveList<IInitializable>();
-            var elements = new Dictionary<IInitializable,int>();
+            var elements = new Dictionary<IInitializable,int>(_comparer);
             for(var i = 0; i < inits.Count; i++)
             {
                 var init = inits[i];

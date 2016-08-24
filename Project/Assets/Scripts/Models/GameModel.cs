@@ -2,49 +2,27 @@
 
 public class GameModel : IDisposable
 {
+
     public ConfigModel Config{ get; private set; }
 
     public PlayerModel Player{ get; private set; }
 
-    public event Action<GameModel> Moved;
+    public event Action<GameModel> Initialized;
 
-    public bool IsMoved{ get; private set; }
-
-    public GameModel(ConfigModel config = null, PlayerModel player = null)
+    public GameModel()
     {
-        if(config == null)
-        {
-            config = new ConfigModel();
-        }
-        Config = config;
-        if(player == null)
-        {
-            player = new PlayerModel();
-        }
-        Player = player;
+        Config = new ConfigModel();
+        Player = new PlayerModel();
     }
 
-    public void Move(GameModel other)
+    public GameModel Init()
     {
-        IsMoved = true;
-        if(Player != other.Player)
+        if(Initialized != null)
         {
-            Player.Move(other.Player);
+            Initialized(this);
         }
 
-        if(Config != other.Config)
-        {
-            Config.Move(other.Config);
-        }
-
-        other.Player = null;
-        other.Config = null;
-        other.Dispose();
-
-        if(Moved != null)
-        {
-            Moved(this);
-        }
+        return this;
     }
 
     public void LoadPlayer(PlayerModel player)

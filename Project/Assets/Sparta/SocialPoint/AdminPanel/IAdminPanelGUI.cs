@@ -50,8 +50,9 @@ namespace SocialPoint.AdminPanel
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
-            foreach(IAdminPanelGUI gui in guiGroup)
+            for(int i = 0, guiGroupCount = guiGroup.Count; i < guiGroupCount; i++)
             {
+                IAdminPanelGUI gui = guiGroup[i];
                 gui.OnCreateGUI(layout);
             }
         }

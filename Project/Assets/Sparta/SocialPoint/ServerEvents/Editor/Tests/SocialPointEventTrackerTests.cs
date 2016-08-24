@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using SocialPoint.Attributes;
 using SocialPoint.Network;
+using SocialPoint.Login;
 using SocialPoint.Hardware;
 using SocialPoint.ServerSync;
 using SocialPoint.AppEvents;
@@ -15,7 +16,7 @@ namespace SocialPoint.ServerEvents
 
     [TestFixture]
     [Category("SocialPoint.Events")]
-    internal class SocialPointEventTrackerTests
+    class SocialPointEventTrackerTests
     {
         SocialPointEventTracker SocialPointEventTracker;
         GameObject GO;
@@ -28,7 +29,7 @@ namespace SocialPoint.ServerEvents
             SocialPointEventTracker = new SocialPointEventTracker(runner);
             SocialPointEventTracker.HttpClient = Substitute.For<IHttpClient>();
             SocialPointEventTracker.DeviceInfo = Substitute.For<IDeviceInfo>();
-            SocialPointEventTracker.RequestSetup = Substitute.For<SocialPointEventTracker.RequestSetupDelegate>();
+            SocialPointEventTracker.LoginData = Substitute.For<ILoginData>();
             SocialPointEventTracker.CommandQueue = Substitute.For<ICommandQueue>();
 
             var appEvents = Substitute.For<IAppEvents>();

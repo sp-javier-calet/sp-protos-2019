@@ -1,132 +1,52 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerSync;
-using SocialPoint.Base;
-using UnityEngine.Assertions;
-using SocialPoint.Login;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Purchase
 {
-    public class PurchaseGameInfo
-    {
-        public string OfferName;
-        public string ResourceName;
-        public int ResourceAmount;
-        public AttrDic AdditionalData;
-    }
-
-    public delegate PurchaseGameInfo PurchaseCompletedDelegate(Receipt receipt, PurchaseResponseType response);
-
-    public interface IGamePurchaseStore
-    {
-        event ProductsUpdatedDelegate ProductsUpdated;
-        event PurchaseUpdatedDelegate PurchaseUpdated;
-
-        //Change desired settings. Use with PlatformPurchaseSettings
-        void Setup(AttrDic settings);
-
-        Product[] ProductList { get; }
-
-        bool HasProductsLoaded { get; }
-
-        void LoadProducts(string[] productIds);
-
-        void SetProductMockList(IEnumerable<Product> productMockList);
-
-        bool Purchase(string productId);
-
-        void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate);
-
-        void UnregisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate);
-
-        void ForceFinishPendingTransactions();
-    }
-
-    //TODO: Verify behaviour for desired empty store
-    public class EmptyGamePurchaseStore : IGamePurchaseStore
-    {
-        Product[] _productList = new Product[0];
-        bool _productsLoaded = false;
-        PurchaseCompletedDelegate _purchaseCompleted;
-
-        public event ProductsUpdatedDelegate ProductsUpdated;
-        public event PurchaseUpdatedDelegate PurchaseUpdated;
-
-        public void Setup(AttrDic settings)
-        {
-            //Empty
-        }
-
-        public Product[] ProductList { get { return _productList; } }
-
-        public bool HasProductsLoaded { get { return _productsLoaded; } }
-
-        public void LoadProducts(string[] productIds)
-        {
-            if(ProductsUpdated != null)
-            {
-                ProductsUpdated(LoadProductsState.Success);
-            }
-            _productsLoaded = true;
-        }
-
-        public void SetProductMockList(IEnumerable<Product> productMockList)
-        {
-            //TODO: Allow mock products for this class?
-        }
-
-        public bool Purchase(string productId)
-        {
-            if(PurchaseUpdated != null)
-            {
-                PurchaseUpdated(PurchaseState.PurchaseFailed, productId);
-            }
-            if(_purchaseCompleted != null)
-            {
-                _purchaseCompleted(new Receipt(), PurchaseResponseType.Complete);
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Registers the purchase completed delegate.
-        /// May throw an exception if another delegate is already registered.
-        /// </summary>
-        /// <param name="pDelegate">Delegate to register.</param>
-        public void RegisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
-        {
-            if(_purchaseCompleted != null && _purchaseCompleted != pDelegate)
-            {
-                throw new Exception("Only one delegate allowed!");
-            }
-            _purchaseCompleted = pDelegate;
-        }
-
-        /// <summary>
-        /// Check if the current registered delegate matches with the param and unregister it if true
-        /// </summary>
-        /// <param name="pDelegate">Delegate to unregister.</param>
-        public void UnregisterPurchaseCompletedDelegate(PurchaseCompletedDelegate pDelegate)
-        {
-            if(_purchaseCompleted == pDelegate)
-            {
-                _purchaseCompleted = null;
-            }
-        }
-
-        public void ForceFinishPendingTransactions()
-        {
-        }
-    }
-
     public class SocialPointPurchaseStore : IGamePurchaseStore
     {
-        IPurchaseStore _purchaseStore = null;
+        class ProductReadyPetition
+        {
+            public ProductReadyDelegate Callback { get; private set; }
+
+            float _timeout;
+            double _creationDateTimestamp;
+
+            public ProductReadyPetition(ProductReadyDelegate pDelegate, float timeout)
+            {
+                Callback = pDelegate;
+                _timeout = timeout;
+                _creationDateTimestamp = GetTimestampDouble();
+            }
+
+            public bool IsExpired()
+            {
+                if(_timeout <= 0.0f)
+                {
+                    return false;//Expire only if a positive timeout was set
+                }
+
+                double deltaTime = GetTimestampDouble() - _creationDateTimestamp;
+                return (deltaTime > _timeout);
+            }
+
+            static double GetTimestampDouble()
+            {
+                return TimeUtils.GetTimestampDouble(DateTime.Now);
+            }
+        }
+
+        IPurchaseStore _purchaseStore;
         IHttpClient _httpClient;
         ICommandQueue _commandQueue;
-        List<string> _purchasesInProcess;
+        Dictionary<string, Action<PurchaseResponseType>> _purchasesInProcess;
+        Dictionary<string, List<ProductReadyPetition>> _productReadyPetitions;
 
         /// <summary>
         /// The purchase completed function that each game defines.
@@ -150,6 +70,22 @@ namespace SocialPoint.Purchase
         const string AttrKeyStatus = "status";
         const string EventNameMonetizationTransactionStart = "monetization.transaction_start";
 
+
+        // Payment step funnnels required params
+        string _purchaseSessionUID;
+
+        const string PurchaseFunnelStart = "1000";
+        const string PurchaseFunnelBackendResponse = "1001";
+        const string PurchaseFunnelEnd = "1002";
+
+        const string PaymentStepEventName = "payment.step";
+        const string PaymentFieldName = "payment";
+
+        const string UIDFieldName = "uid";
+        const string StepFieldName = "step";
+        const string ResultFieldName = "result";
+        const string ProductFieldName = "product";
+
         enum BackendResponse
         {
             ORDER_INVALID = 480,
@@ -159,8 +95,6 @@ namespace SocialPoint.Purchase
 
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
-        public delegate void RequestSetupDelegate(HttpRequest req, string Uri);
-
         /// <summary>
         /// Should be connected to the event tracker to track purchase events
         /// TrackEvent = EventTracker.TrackSystemEvent
@@ -168,29 +102,25 @@ namespace SocialPoint.Purchase
         public TrackEventDelegate TrackEvent;
 
         /// <summary>
-        /// The request setup.
-        /// </summary>
-        public RequestSetupDelegate RequestSetup;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SocialPoint.Purchase.SocialPointPurchaseStore"/> class.
         /// </summary>
         /// <param name="httpClient">Http client.</param>
         /// <param name = "commandQueue"></param>
-        public SocialPointPurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue)
+        public SocialPointPurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue, NativeCallsHandler handler)
         {
-            #if UNITY_IOS && !UNITY_EDITOR
-            _purchaseStore = new IosPurchaseStore();
+            #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+            _purchaseStore = new IosPurchaseStore(handler);
             #elif UNITY_ANDROID && !UNITY_EDITOR
-            _purchaseStore = new AndroidPurchaseStore();
-            #elif UNITY_EDITOR
+            _purchaseStore = new AndroidPurchaseStore(handler);
+            #else
             _purchaseStore = new MockPurchaseStore();
             #endif
 
             _httpClient = httpClient;
             _commandQueue = commandQueue;
             _purchaseStore.ValidatePurchase = SocialPointValidatePurchase;
-            _purchasesInProcess = new List<string>();
+            _purchasesInProcess = new Dictionary<string, Action<PurchaseResponseType>>();
+            _productReadyPetitions = new Dictionary<string, List<ProductReadyPetition>>();
             ProductListReceived = false;
             RegisterEvents();
         }
@@ -200,18 +130,22 @@ namespace SocialPoint.Purchase
             _purchaseStore.Setup(settings);
         }
 
-        public GetUserIdDelegate GetUserId
+        public ILoginData LoginData
         {
+            get
+            {
+                return _purchaseStore.LoginData;
+            }
             set
             {
-                _purchaseStore.GetUserId = value;
+                _purchaseStore.LoginData = value;
             }
         }
 
         [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("IosPurchaseStore {0}", msg));
+            Log.i(string.Format("SocialPointPurchaseStore {0}", msg));
         }
 
         /// <summary>
@@ -234,15 +168,15 @@ namespace SocialPoint.Purchase
 
             DebugLog("validating purchase with backend");
 
-            HttpRequest req = new HttpRequest();
+            var req = new HttpRequest();
             //get it from SocialPointLogin
-            if(RequestSetup != null)
+            if(LoginData != null)
             {
-                RequestSetup(req, UriPayment);
-                DebugUtils.Log(req.Url.AbsoluteUri);
+                LoginData.SetupHttpRequest(req, UriPayment);
+                Log.i(req.Url.AbsoluteUri);
             }
 
-            #if UNITY_IOS
+            #if (UNITY_IOS || UNITY_TVOS)
             req.AddParam(HttpParamOrderData, receipt.OriginalJson);
             req.AddParam(HttpParamOrderId, receipt.OrderId);
             req.AddParam(HttpParamAppleReceiptEncoding, HttpValueDefaultAppleReceiptEncoding);
@@ -252,7 +186,7 @@ namespace SocialPoint.Purchase
             paramDic.Set(HttpParamDataSignature, new AttrString(receipt.DataSignature));
             req.AddParam(HttpParamOrderData, new JsonAttrSerializer().SerializeString(paramDic));
             #endif
-            _httpClient.Send(req, (_1) => OnBackendResponse(_1, response, receipt));
+            _httpClient.Send(req, _1 => OnBackendResponse(_1, response, receipt));
         }
 
         /// <summary>
@@ -262,7 +196,9 @@ namespace SocialPoint.Purchase
         ///     264 purchase pending to sync
         ///     265 purchase already synced
         /// </summary>
+        /// <param name = "resp"></param>
         /// <param name="response">callback defined by each store implementation (usually consumes product, finishes transaction)</param>
+        /// <param name = "receipt"></param>
         void OnBackendResponse(HttpResponse resp, ValidatePurchaseResponseDelegate response, Receipt receipt)
         {
             //parse response from backend and call response with the final decission
@@ -314,7 +250,7 @@ namespace SocialPoint.Purchase
             {
                 return;
             }
-            var data = info.AdditionalData ?? new AttrDic();            
+            var data = info.AdditionalData ?? new AttrDic();
             var order = new AttrDic();
             data.Set("order", order);
             order.SetValue("transaction_id", receipt.OrderId);
@@ -333,21 +269,21 @@ namespace SocialPoint.Purchase
                     order.SetValue("amount_gross", product.Price);
                 }
             }
-            TrackEvent(EventNameMonetizationTransactionStart, data);
+            TrackEvent(EventNameMonetizationTransactionStart, data, TrackerErrorDelegate);
         }
 
-        private void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
+        void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
             var purchaseCmd = new PurchaseCommand(receipt.OrderId, receipt.Store);
             _commandQueue.Add(purchaseCmd, (data, err) => {
                 if(Error.IsNullOrEmpty(err))
                 {
-                    DebugUtils.Log("calling ValidatePurchaseResponseDelegate"); 
+                    Log.i("calling ValidatePurchaseResponseDelegate"); 
                     response(PurchaseResponseType.Complete);
                 }
                 else
                 {
-                    DebugUtils.Log("command sync had an error"); 
+                    Log.i("command sync had an error"); 
                     //warn about an error
                 }
             });
@@ -361,7 +297,7 @@ namespace SocialPoint.Purchase
         {
             get
             {
-                #if UNITY_IOS && !UNITY_EDITOR
+                #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
                 return "purchase/itunes";
                 #elif UNITY_ANDROID && !UNITY_EDITOR
                 return "purchase/google_play";
@@ -434,19 +370,23 @@ namespace SocialPoint.Purchase
         /// Purchase the specified productId.
         /// </summary>
         /// <param name="productId">Product identifier.</param>
-        public bool Purchase(string productId)
+        /// <param name = "finished"></param>
+        public bool Purchase(string productId, Action<PurchaseResponseType> finished = null)
         {
             //A delegate must exist before doing any attempt
-            Assert.IsNotNull(_purchaseCompleted, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
+            DebugUtils.Assert(_purchaseCompleted != null, "A PurchaseCompletedDelegate must be registered to handle purchase responses");
 
-            UnityEngine.Debug.Log("Purchase: " + _purchasesInProcess.Contains(productId));
-            if(_purchasesInProcess.Contains(productId))
+            Log.i("Purchase: " + _purchasesInProcess.ContainsKey(productId));
+            if(_purchasesInProcess.ContainsKey(productId))
             {
-                //FIXME tech add purchasestate purchasealreadyinprocess
                 _purchaseStore.PurchaseStateChanged(PurchaseState.AlreadyBeingPurchased, productId);
+                if(finished != null)
+                {
+                    finished(PurchaseResponseType.Duplicated);
+                }
                 return false;
             }
-            _purchasesInProcess.Add(productId);
+            _purchasesInProcess.Add(productId, finished);
             return _purchaseStore.Purchase(productId);
         }
 
@@ -484,6 +424,103 @@ namespace SocialPoint.Purchase
             _purchaseStore.ForceFinishPendingTransactions();
         }
 
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+            RegisterProductReadyDelegate(productId, pDelegate, 0.0f);
+        }
+
+        public void RegisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate, float timeout)
+        {
+            if(pDelegate == null)
+            {
+                return;
+            }
+
+            if(IsProductReady(productId))
+            {
+                pDelegate(productId);
+                return;
+            }
+
+            var petition = new ProductReadyPetition(pDelegate, timeout);
+
+            List<ProductReadyPetition> onProductReadyPetitions;
+            if(!_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
+            {
+                onProductReadyPetitions = new List<ProductReadyPetition>();
+                _productReadyPetitions.Add(productId, onProductReadyPetitions);
+            }
+            onProductReadyPetitions.Add(petition);
+            return;
+        }
+
+        public void UnregisterProductReadyDelegate(string productId, ProductReadyDelegate pDelegate)
+        {
+            List<ProductReadyPetition> onProductReadyPetitions;
+            if(_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
+            {
+                onProductReadyPetitions.RemoveAll(petition => petition.Callback == pDelegate);
+            }
+        }
+
+        public void UnregisterProductReadyDelegate(ProductReadyDelegate pDelegate)
+        {
+            var itr = _productReadyPetitions.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var entry = itr.Current;
+                UnregisterProductReadyDelegate(entry.Key, pDelegate);
+            }
+            itr.Dispose();
+        }
+
+        void UpdateProductReadyPetitions(string productId)
+        {
+            List<ProductReadyPetition> onProductReadyPetitions;
+            if(_productReadyPetitions.TryGetValue(productId, out onProductReadyPetitions))
+            {
+                for(int i = 0; i < onProductReadyPetitions.Count; ++i)
+                {
+                    ProductReadyPetition petition = onProductReadyPetitions[i];
+                    if(petition.Callback != null && !petition.IsExpired())
+                    {
+                        petition.Callback(productId);
+                    }
+                }
+
+                onProductReadyPetitions.Clear();
+            }
+        }
+
+        bool IsProductReady(string productId)
+        {
+            return IsUpdatedFromStore(productId) && !IsPendingTransaction(productId);
+        }
+
+        bool IsUpdatedFromStore(string productId)
+        {
+            if(_purchaseStore.HasProductsLoaded)
+            {
+                Product[] currentProducts = ProductList;
+                if(currentProducts != null)
+                {
+                    for(int i = 0; i < currentProducts.Length; ++i)
+                    {
+                        if(currentProducts[i].Id == productId)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        bool IsPendingTransaction(string productId)
+        {
+            return _purchasesInProcess.ContainsKey(productId);
+        }
+
         public virtual void Dispose()
         {
             UnregisterEvents();
@@ -507,33 +544,136 @@ namespace SocialPoint.Purchase
         {
             if(state == LoadProductsState.Success)
             {
-                if(ProductList.Length > 0)
+                Product[] loadedProducts = ProductList;
+                if(loadedProducts != null)
                 {
-                    Currency = ProductList[0].Currency;
-                }
+                    if(loadedProducts.Length > 0)
+                    {
+                        Currency = loadedProducts[0].Currency;
+                    }
 
-                ProductListReceived = true;
+                    ProductListReceived = true;
+
+                    for(int i = 0; i < loadedProducts.Length; ++i)
+                    {
+                        UpdateProductReadyPetitions(loadedProducts[i].Id);
+                    }
+                }
+            }
+        }
+
+        void RemovePurchaseInProcess(string productId, PurchaseResponseType purchaseResponse)
+        {
+            Action<PurchaseResponseType> finished;
+            if(_purchasesInProcess.TryGetValue(productId, out finished))
+            {
+                _purchasesInProcess.Remove(productId);
+                if(finished != null)
+                {
+                    finished(purchaseResponse);
+                }
             }
         }
 
         void OnPurchaseUpdated(PurchaseState state, string productId)
         {
+            TrackPurchaseUpdated(state, productId);
+
             switch(state)
             {
             case PurchaseState.PurchaseCanceled:
             case PurchaseState.PurchaseFailed:
             case PurchaseState.PurchaseConsumed:
-                UnityEngine.Debug.Log("OnPurchaseUpdated: " + state + " " + productId);
-                _purchasesInProcess.Remove(productId);
+                Log.i("OnPurchaseUpdated: " + state + " " + productId);
+                var responseType = state == PurchaseState.PurchaseConsumed ? PurchaseResponseType.Complete : PurchaseResponseType.Error;
+                RemovePurchaseInProcess(productId, responseType);
+                UpdateProductReadyPetitions(productId);
                 break;
             }
         }
 
+        void TrackPurchaseUpdated(PurchaseState state, string productId)
+        {
+            switch(state)
+            {
+            case PurchaseState.PurchaseStarted:
+                GeneratePurchaseSession();
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelStart, state.ToString(), productId);
+                break;
+
+            case PurchaseState.PurchaseConsumed:
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelEnd, state.ToString(), productId);
+                ClearPurchaseSession();
+                break;
+
+            case PurchaseState.PurchaseCanceled:
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelBackendResponse, state.ToString(), productId); // For Better readibility of the funnels.
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelEnd, state.ToString(), productId);
+                ClearPurchaseSession();
+                break;
+
+            case PurchaseState.ValidateFailed:
+            case PurchaseState.ValidateFailedMissingNetwork:
+            case PurchaseState.PurchaseFailed:
+            case PurchaseState.AlreadyBeingPurchased:
+                TrackPurchase(GetPurchaseSession(), PurchaseFunnelEnd, state.ToString(), productId);
+                ClearPurchaseSession();
+                break;
+            }
+        }
+
+        void TrackPurchase(string uid, string step, string result, string productId)
+        {
+            var data = new AttrDic();
+
+            var stepTrackData = CreatePaymentStepTrackData(uid, step, result, productId);
+
+            data.Set(PaymentFieldName, stepTrackData);
+
+            TrackEvent(PaymentStepEventName, data, TrackerErrorDelegate);
+        }
+
+        static AttrDic CreatePaymentStepTrackData(string uid, string step, string result, string productId)
+        {
+            var paymentStepData = new AttrDic();
+
+            paymentStepData.SetValue(UIDFieldName, uid);
+            paymentStepData.SetValue(StepFieldName, step);
+            paymentStepData.SetValue(ResultFieldName, result);
+            paymentStepData.SetValue(ProductFieldName, productId);
+
+            return paymentStepData;
+        }
+
+        static void TrackerErrorDelegate(Error err)
+        {
+            if(!Error.IsNullOrEmpty(err))
+            {
+                Log.i("[SocialPointPurchaseStore] TrackEvent Error - Code: " + err.Code + " - Message: " + err.Msg);
+            }
+        }
+
+        void GeneratePurchaseSession()
+        {
+            _purchaseSessionUID = RandomUtils.GetUuid("N");
+        }
+
+        void ClearPurchaseSession()
+        {
+            _purchaseSessionUID = string.Empty;
+        }
+
+        string GetPurchaseSession()
+        {
+            return _purchaseSessionUID;
+        }
+
         public void SetProductMockList(IEnumerable<Product> productMockList)
         {
-            if(_purchaseStore is MockPurchaseStore)
+            var mockPurchaseStore = _purchaseStore as MockPurchaseStore;
+            if(mockPurchaseStore != null)
             {
-                (_purchaseStore as MockPurchaseStore).SetProductMockList(productMockList);
+                mockPurchaseStore.SetProductMockList(productMockList);
             }
         }
     }

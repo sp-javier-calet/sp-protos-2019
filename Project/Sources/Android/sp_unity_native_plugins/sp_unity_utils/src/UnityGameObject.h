@@ -10,20 +10,7 @@
 #define __UnityGameObject__
 
 #include <string>
-#include <jni.h>
-
-class JniEnv
-{
-private:
-    JavaVM* _java;
-    JNIEnv* _env;
-    bool _attached;
-public:
-    JniEnv(JavaVM* java);
-    ~JniEnv();
-    JNIEnv* operator->();
-    operator bool();
-};
+#include "JniEnv.h"
 
 class UnityGameObject
 {

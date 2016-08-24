@@ -7,6 +7,7 @@ using SocialPoint.Crash;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.GameLoading
@@ -32,7 +33,7 @@ namespace SocialPoint.GameLoading
         public IAppEvents AppEvents;
         public ICrashReporter CrashReporter;
         public IGameErrorHandler ErrorHandler;
-        public bool Paused = false;
+        public bool Paused;
 
         [SerializeField]
         GameObject _progressContainer;
@@ -96,16 +97,10 @@ namespace SocialPoint.GameLoading
                     if(HasFinished(opProgress))
                     {
                         return Mathf.Lerp(opProgress, 1.0f, 1.0f - (expected - duration) / _speedUpTime);
-                    }
-                    else
-                    {   
-                        return duration / expected;
-                    }
+                    }   
+                    return duration / expected;
                 }
-                else
-                {
-                    return op.Progress;
-                }
+                return op.Progress;
             }
         }
 
@@ -117,8 +112,9 @@ namespace SocialPoint.GameLoading
                 float totalExpected = 0.0f;
                 float finishedExpected = 0.0f;
                 int i = 0;
-                foreach(var op in _operations)
+                for(int j = 0, _operationsCount = _operations.Count; j < _operationsCount; j++)
                 {
+                    var op = _operations[j];
                     if(!op.HasExpectedDuration)
                     {
                         allOpsExpected = false;
@@ -131,10 +127,11 @@ namespace SocialPoint.GameLoading
                         {
                             finishedExpected += CurrentOperationProgress * opExpected;
                         }
-                        else if(i < _currentOperationIndex)
-                        {
-                            finishedExpected += opExpected;
-                        }
+                        else
+                            if(i < _currentOperationIndex)
+                            {
+                                finishedExpected += opExpected;
+                            }
                         totalExpected += opExpected;
                     }
                     i++;
@@ -144,10 +141,7 @@ namespace SocialPoint.GameLoading
                 {
                     return finishedExpected / totalExpected;
                 }
-                else
-                {
-                    return (_currentOperationIndex + CurrentOperationProgress) / _operations.Count;
-                }
+                return (_currentOperationIndex + CurrentOperationProgress) / _operations.Count;
             }
         }
 
@@ -305,7 +299,7 @@ namespace SocialPoint.GameLoading
         [System.Diagnostics.Conditional("DEBUG_SPGAMELOADING")]
         void DebugLog(string msg)
         {
-            DebugUtils.Log(string.Format("GameLoadingController: {0}", msg));
+            Log.i(string.Format("GameLoadingController: {0}", msg));
         }
 
         void DoLogin()

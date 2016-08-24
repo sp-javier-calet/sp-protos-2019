@@ -11,8 +11,7 @@ public class ConfigModel : IDisposable
     IList<ScriptModel> _scripts;
     IDictionary<string, ResourceType> _resourceTypes;
     StoreModel _store;
-
-    public event Action<ConfigModel> Moved;
+    GoalsTypeModel _goals;
 
     public IEnumerable<ScriptModel> Scripts
     {
@@ -38,53 +37,30 @@ public class ConfigModel : IDisposable
         }
     }
 
-    public ConfigModel(IDictionary<string, Attr> globals = null, 
-                       IList<ScriptModel> scripts = null,
-                       IDictionary<string, ResourceType> resourceTypes = null,
-                       StoreModel store = null)
+    public GoalsTypeModel Goals
     {
-        if(globals == null)
+        get
         {
-            globals = new Dictionary<string, Attr>();
+            return _goals;
         }
-        _globals = globals;
-
-        if(scripts == null)
-        {
-            scripts = new List<ScriptModel>();
-        }
-        _scripts = scripts;
-
-        if(resourceTypes == null)
-        {
-            resourceTypes = new Dictionary<string, ResourceType>();
-        }
-        _resourceTypes = resourceTypes;
-
-        if(store == null)
-        {
-            store = new StoreModel();
-        }
-        _store = store;
     }
 
-    public void Move(ConfigModel other)
+    public ConfigModel()
     {
-        _globals = other._globals;
-        _scripts = other._scripts;
-        _resourceTypes = other._resourceTypes;
-        _store.Move(other._store);
+        _store = new StoreModel();
+    }
 
-        other._globals = null;
-        other._scripts = null;
-        other._resourceTypes = null;
-        other._store = null;
-        other.Dispose();
+    public ConfigModel Init(IDictionary<string, Attr> globals, 
+                            IList<ScriptModel> scripts,
+                            IDictionary<string, ResourceType> resourceTypes,
+                            GoalsTypeModel goals)
+    {
+        _globals = globals;
+        _scripts = scripts;
+        _resourceTypes = resourceTypes;
+        _goals = goals;
 
-        if(Moved != null)
-        {
-            Moved(this);
-        }
+        return this;
     }
 
     public Attr GetGlobal(string name)
@@ -99,12 +75,15 @@ public class ConfigModel : IDisposable
 
     public override string ToString()
     {
-        return string.Format("[ConfigModel: Globals={0}, Scripts={1}, Resources={2}, Store={3}]",
-            _globals.Count, _scripts.Count, _resourceTypes.Count, _store.ToString());
+        return string.Format("[ConfigModel: Globals={0}, Scripts={1}, Resources={2}, Store={3}, Goals={4}]",
+            _globals.Count, _scripts.Count, _resourceTypes.Count, _store.ToString(), _goals.ToString());
     }
 
     public void Dispose()
     {
-        
+        if(_goals != null)
+        {
+            _goals.Dispose();
+        }
     }
 }

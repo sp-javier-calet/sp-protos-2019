@@ -1,14 +1,18 @@
-using System;
+#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#define IOS_HARDWARE_BRIDGE
+#endif
+
+#if IOS_HARDWARE_BRIDGE
 using System.Runtime.InteropServices;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
+#else
+using System;
+#endif
 
 namespace SocialPoint.Hardware
 {
     public static class IosHardwareBridge
     {
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetDeviceString();
         #else
@@ -18,7 +22,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetDevicePlatformVersion();
         #else
@@ -28,7 +32,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetDeviceArchitecture();
         #else
@@ -39,7 +43,7 @@ namespace SocialPoint.Hardware
         #endif
 
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetDeviceAdvertisingId();
         #else
@@ -49,7 +53,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern bool SPUnityHardwareGetDeviceAdvertisingIdEnabled();
         #else
@@ -59,7 +63,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern bool SPUnityHardwareGetDeviceRooted();
         #else
@@ -69,7 +73,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern ulong SPUnityHardwareGetTotalMemory();
         #else
@@ -79,7 +83,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern ulong SPUnityHardwareGetFreeMemory();
         #else
@@ -89,7 +93,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern ulong SPUnityHardwareGetUsedMemory();
         #else
@@ -99,7 +103,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern ulong SPUnityHardwareGetActiveMemory();
         #else
@@ -109,7 +113,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetAppId();
         #else
@@ -119,7 +123,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetAppVersion();
         #else
@@ -129,7 +133,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetAppShortVersion();
         #else
@@ -139,7 +143,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetAppLanguage();
         #else
@@ -149,7 +153,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetAppCountry();
         #else
@@ -159,7 +163,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetNetworkConnectivity();
         #else
@@ -169,7 +173,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetNetworkProxy();
         #else
@@ -179,7 +183,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern string SPUnityHardwareGetNetworkIpAddress();
         #else
@@ -189,7 +193,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern ulong SPUnityHardwareGetTotalStorage();
         #else
@@ -199,7 +203,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern ulong SPUnityHardwareGetFreeStorage();
         #else
@@ -209,7 +213,7 @@ namespace SocialPoint.Hardware
         }
         #endif
 
-        #if (UNITY_IPHONE || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_HARDWARE_BRIDGE
         [DllImport ("__Internal")]
         public static extern ulong SPUnityHardwareGetUsedStorage();
         #else

@@ -2,32 +2,76 @@
 #define UNITY
 #endif
 
-
 #if UNITY
 using UnityEngine;
 #endif
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.IO;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.IO
 {
     public class FileUtils
     {
-
         #if UNITY
-        private static WWW Download(string path)
+
+        static WWW Download(string path)
         {
             var www = new WWW(path);
             while(!www.isDone)
-                ;
+            {
+            }
             return www;
         }
+
+        static bool OpenPath(string path)
+        {
+            var www = Download(path);
+            bool exists = string.IsNullOrEmpty(www.error);
+            www.Dispose();
+            return exists;
+        }
+
+        static byte[] ReadBytes(string path)
+        {
+            var www = Download(path);
+            var bytes = www.bytes;
+            www.Dispose();
+            return bytes;
+        }
+
+        static string ReadText(string path)
+        {
+            var www = Download(path);
+            var text = www.text;
+            www.Dispose();
+            return text;
+        }
+
+        #else
+        
+        static bool OpenPath(string path)
+        {
+            throw new IOException("Url paths are not supported.");
+        }
+
+        static byte[] ReadBytes(string path)
+        {
+            throw new IOException("Url paths are not supported.");
+        }
+
+        static string ReadText(string path)
+        {
+            throw new IOException("Url paths are not supported.");
+        }
+
         #endif
+
 
         public delegate bool OperationFilter(string src, string dst);
 
@@ -52,21 +96,14 @@ namespace SocialPoint.IO
             }
             else
             {
-                var info = new System.IO.FileInfo(path);
+                var info = new FileInfo(path);
                 return !info.Exists || !info.IsReadOnly; // FIXME IF file doesnt exist, check folder permissions
             }
         }
 
         public static string Combine(string basePath, string relPath)
         {
-            if(IsUrl(basePath))
-            {
-                return new Uri(new Uri(basePath), relPath).AbsoluteUri;
-            }
-            else
-            {
-                return Path.Combine(basePath, relPath);
-            }
+            return IsUrl(basePath) ? new Uri(new Uri(basePath), relPath).AbsoluteUri : Path.Combine(basePath, relPath);
         }
 
         public static bool CopyFile(string from, string to, bool overwrite = false)
@@ -90,35 +127,18 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-#if UNITY
-                var www = Download(path);
-                return string.IsNullOrEmpty(www.error);
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return OpenPath(path);
             }
-            else
-            {
-                return System.IO.File.Exists(path);
-            }
+            return File.Exists(path);
         }
 
         public static bool ExistsDirectory(string path)
         {
             if(IsUrl(path))
             {
-#if UNITY
-                //TODO: Is there a way to differentiate it from a URL file?
-                var www = Download(path);
-                return string.IsNullOrEmpty(www.error);
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return OpenPath(path);
             }
-            else
-            {
-                return System.IO.Directory.Exists(path);
-            }
+            return Directory.Exists(path);
         }
 
         public static bool IsUrl(string path)
@@ -130,34 +150,18 @@ namespace SocialPoint.IO
         {
             if(IsUrl(path))
             {
-#if UNITY
-                var www = Download(path);
-                return www.text;
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return ReadText(path);
             }
-            else
-            {
-                return System.IO.File.ReadAllText(path);
-            }
+            return File.ReadAllText(path);
         }
 
         public static byte[] ReadAllBytes(string path)
         {
             if(IsUrl(path))
             {
-#if UNITY
-                var www = Download(path);
-                return www.bytes;
-#else
-                throw new IOException("Url paths are not supported.");
-#endif
+                return ReadBytes(path);
             }
-            else
-            {
-                return System.IO.File.ReadAllBytes(path);
-            }
+            return File.ReadAllBytes(path);
         }
 
         public static void WriteAllBytes(string path, byte[] bytes)
@@ -248,7 +252,7 @@ namespace SocialPoint.IO
             return true;
         }
 
-        private static void CheckWritablePath(string path)
+        static void CheckWritablePath(string path)
         {
             if(!IsWritable(path))
             {
@@ -256,7 +260,7 @@ namespace SocialPoint.IO
             }
         }
 
-        private static void CheckLocalPath(string path)
+        static void CheckLocalPath(string path)
         {
             if(IsUrl(path))
             {
@@ -266,7 +270,7 @@ namespace SocialPoint.IO
 
         public static string MakeRelativePath(string startFile, string targetFile)
         {
-            StringBuilder newpath = new StringBuilder();
+            var newpath = new StringBuilder();
             
             if(startFile == null || targetFile == null)
             {
@@ -300,7 +304,7 @@ namespace SocialPoint.IO
             int ixdiff = 0;
             for(; ixdiff < cmpdepth; ixdiff++)
             {
-                if(false == StringComparer.OrdinalIgnoreCase.Equals(sfpath[ixdiff], tfpath[ixdiff]))
+                if(!StringComparer.OrdinalIgnoreCase.Equals(sfpath[ixdiff], tfpath[ixdiff]))
                 {
                     break;
                 }
@@ -345,23 +349,32 @@ namespace SocialPoint.IO
         {
             CheckLocalPath(path);
             var regexes = new Dictionary<Regex,string>();
-            foreach(var repl in repls)
+            var itr = repls.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var repl = itr.Current;
                 regexes.Add(new Regex(repl.Key), repl.Value);
             }
+            itr.Dispose();
+
             var files = Directory.GetFiles(path);
-            foreach(var src in files)
+            for(int i = 0, filesLength = files.Length; i < filesLength; i++)
             {
+                var src = files[i];
                 var filename = Path.GetFileName(src);
                 if(!GlobMatch(pattern, filename))
                 {
                     continue;
                 }
                 var dst = filename;
-                foreach(var regex in regexes)
+                var itr2 = regexes.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var regex = itr2.Current;
                     dst = regex.Key.Replace(dst, regex.Value);
                 }
+                itr2.Dispose();
+
                 dst = Path.Combine(path, dst);
                 if(src != dst)
                 {
@@ -373,17 +386,22 @@ namespace SocialPoint.IO
                 }
             }
             var dirs = Directory.GetDirectories(path);
-            foreach(var src in dirs)
+            for(int i = 0, dirsLength = dirs.Length; i < dirsLength; i++)
             {
+                var src = dirs[i];
                 var dir = src;
                 var dirname = Path.GetFileName(src);
                 if(GlobMatch(pattern, dirname))
                 {
                     var dst = dirname;
-                    foreach(var regex in regexes)
+                    var itr2 = regexes.GetEnumerator();
+                    while(itr2.MoveNext())
                     {
+                        var regex = itr2.Current;
                         dst = regex.Key.Replace(dst, regex.Value);
                     }
+                    itr2.Dispose();
+
                     dst = Path.Combine(path, dst);
                     if(src != dst)
                     {
@@ -402,16 +420,21 @@ namespace SocialPoint.IO
         static public void ReplaceTextInFile(string path, IDictionary<string,string> repls)
         {
             string text = ReadAllText(path);
-            foreach(var repl in repls)
+
+            var itr = repls.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var repl = itr.Current;
                 text = new Regex(repl.Key).Replace(text, repl.Value);
             }
+            itr.Dispose();
+
             WriteAllText(path, text);
         }
 
         static public string CleanPath(string path)
         {
-            return path.TrimEnd(new char[]{ Path.DirectorySeparatorChar });
+            return path.TrimEnd(new []{ Path.DirectorySeparatorChar });
         }
 
         static public string[] Find(string src)
@@ -450,14 +473,7 @@ namespace SocialPoint.IO
                     search = SearchOption.TopDirectoryOnly;
                 }
                 dir = GetWildcardBasePath(src);
-                if(src.Length > dir.Length)
-                {
-                    pattern = src.Substring(dir.Length + 1);
-                }
-                else
-                {
-                    pattern = StringUtils.WildcardMultiChar.ToString();
-                }
+                pattern = src.Length > dir.Length ? src.Substring(dir.Length + 1) : StringUtils.WildcardMultiChar.ToString();
             }
 
             string[] files;
@@ -468,14 +484,9 @@ namespace SocialPoint.IO
             }
             else
             {
-                if(ExistsFile(src))
-                {
-                    files = new string[]{ src };
-                }
-                else
-                {
-                    files = new string[0];
-                }
+                files = ExistsFile(src) ? new[] {
+                    src
+                } : new string[0];
             }
 
             dirOut = dir;
@@ -487,15 +498,15 @@ namespace SocialPoint.IO
             CheckLocalPath(dst);
             string dir;
             var files = Find(src, out dir);
-            foreach(var srcPath in files)
+            for(int i = 0, filesLength = files.Length; i < filesLength; i++)
             {
+                var srcPath = files[i];
                 string dstPath = dst;
                 if(dir != null && StringUtils.StartsWith(srcPath, dir))
                 {
                     var srcRelPath = srcPath.Substring(dir.Length);
                     dstPath = Path.Combine(dstPath, srcRelPath);
                 }
-
                 if(each == null || each(srcPath, dstPath))
                 {
                     CopyFile(srcPath, dstPath, true);
@@ -505,9 +516,7 @@ namespace SocialPoint.IO
 
         static public Dictionary<string,string> Compare(string src, string dst)
         {
-            return Compare(src, dst, (srcPath, dstPath) => {
-                return !CompareFiles(srcPath, dstPath);
-            });
+            return Compare(src, dst, (srcPath, dstPath) => !CompareFiles(srcPath, dstPath));
         }
 
         static public Dictionary<string,string> Compare(string src, string dst, OperationFilter op)
@@ -522,9 +531,7 @@ namespace SocialPoint.IO
 
         static public Dictionary<string,string> CompareSource(string src, string dst)
         {            
-            return Compare(src, dst, false, (srcPath, dstPath) => {
-                return !CompareFiles(srcPath, dstPath);
-            });
+            return Compare(src, dst, false, (srcPath, dstPath) => !CompareFiles(srcPath, dstPath));
         }
 
         static public Dictionary<string,string> Compare(string src, string dst, bool checkDst, OperationFilter op)
@@ -533,8 +540,9 @@ namespace SocialPoint.IO
 
             string srcDir;
             var srcFiles = Find(src, out srcDir);
-            foreach(var srcPath in srcFiles)
+            for(int i = 0, srcFilesLength = srcFiles.Length; i < srcFilesLength; i++)
             {
+                var srcPath = srcFiles[i];
                 string dstPath = dst;
                 if(srcDir != null && StringUtils.StartsWith(srcPath, srcDir))
                 {
@@ -564,8 +572,9 @@ namespace SocialPoint.IO
                 }
                 string dstDir;
                 var dstFiles = Find(dst, out dstDir); 
-                foreach(var dstPath in dstFiles)
+                for(int i = 0, dstFilesLength = dstFiles.Length; i < dstFilesLength; i++)
                 {
+                    var dstPath = dstFiles[i];
                     string srcPath = srcDir;
                     if(dstDir != null && StringUtils.StartsWith(dstPath, dstDir))
                     {
@@ -590,24 +599,20 @@ namespace SocialPoint.IO
         static public string GetWildcardBasePath(string path)
         {
             path = CleanPath(path);
-            var i = path.IndexOfAny(new char[]{ StringUtils.WildcardOneChar, StringUtils.WildcardMultiChar });
+            var i = path.IndexOfAny(new []{ StringUtils.WildcardOneChar, StringUtils.WildcardMultiChar });
             if(i == -1)
             {
                 return path;
             }
             i = path.LastIndexOf(Path.DirectorySeparatorChar, i, i + 1);
-            if(i == -1)
-            {
-                return string.Empty;
-            }
-            return path.Substring(0, i);
+            return i == -1 ? string.Empty : path.Substring(0, i);
         }
 
         static public string SetDefaultFileName(string path, string filename)
         {
-            if(ExistsDirectory(path) || StringUtils.EndsWith(path, System.IO.Path.DirectorySeparatorChar.ToString()))
+            if(ExistsDirectory(path) || StringUtils.EndsWith(path, Path.DirectorySeparatorChar.ToString()))
             {
-                return System.IO.Path.Combine(path, filename);
+                return Path.Combine(path, filename);
             }
             return path;
         }
@@ -642,6 +647,10 @@ namespace SocialPoint.IO
             {
                 fs1.Close();
                 fs2.Close();
+
+                fs1.Dispose();
+                fs2.Dispose();
+
                 return false;
             }
             
@@ -654,17 +663,17 @@ namespace SocialPoint.IO
             
             fs1.Close();
             fs2.Close();
+
+            fs1.Dispose();
+            fs2.Dispose();
             
             return ((file1byte - file2byte) == 0);
         }
 
         static void CatchException(Exception e)
         {
-            Debug.LogException(e);
-            
-            #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-            #endif
+            Log.x(e);
+            DebugUtils.Stop();
         }
     }
 }

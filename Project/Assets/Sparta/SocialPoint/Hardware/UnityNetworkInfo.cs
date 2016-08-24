@@ -35,7 +35,7 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                var proxy = WebRequest.DefaultWebProxy.GetProxy(_testUri);
+                var proxy = WebRequest.DefaultWebProxy != null ? WebRequest.DefaultWebProxy.GetProxy(_testUri) : null;
                 return proxy == _testUri ? null : proxy;
             }
         }

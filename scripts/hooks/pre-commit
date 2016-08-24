@@ -9,12 +9,22 @@
 
 ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
 PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
+PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
 
 # Remove empty directories
-PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
-ASSETS_DIR=$(cd "$PROJECT_DIR/Assets" && pwd)
 find $PROJECT_DIR -name '*.DS_Store' -type f -delete
 find $PROJECT_DIR -depth -type d -empty -delete
+
+# Reorder XCode project
+export PATH=/usr/local/bin:$PATH
+XCODE_PROJECT_DIR=$(cd "$PROJECT_DIR/Sources/Apple/sp_unity_plugins" && pwd)
+python -B "$XCODE_PROJECT_DIR/tools/reorder_xcode_project_pre_commit.py"
+
+if [ $? -ne 0 ]
+then
+  echo "Could not reorder Xcode project!"
+  exit 1
+fi
 
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then

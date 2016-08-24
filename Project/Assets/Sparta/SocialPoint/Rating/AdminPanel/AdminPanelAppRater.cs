@@ -5,12 +5,13 @@ namespace SocialPoint.Rating
 {
     public class AdminPanelAppRater : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        private IAppRater _appRater;
-        private Text _infoTextComponent;
+        readonly IAppRater _appRater;
+        Text _infoTextComponent;
 
         public AdminPanelAppRater(IAppRater appRater)
         {
             _appRater = appRater;
+            _appRater.OnRequestResultAction += UpdateInfo;
         }
 
         #region IAdminPanelConfigurer implementation
@@ -43,7 +44,7 @@ namespace SocialPoint.Rating
 
         #endregion
 
-        private void UpdateInfo()
+        void UpdateInfo()
         {
             _infoTextComponent.text = _appRater.ToString();
         }
