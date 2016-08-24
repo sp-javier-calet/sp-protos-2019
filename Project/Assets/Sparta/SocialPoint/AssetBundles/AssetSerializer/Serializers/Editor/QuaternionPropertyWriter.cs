@@ -4,7 +4,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class QuaternionPropertyWriter : AbstractPropertyWriter
+    public sealed class QuaternionPropertyWriter : AbstractPropertyWriter
     {
         public QuaternionPropertyWriter(string propName, object value, Type propType) : base(propName, "Quaternion", value, propType)
         {

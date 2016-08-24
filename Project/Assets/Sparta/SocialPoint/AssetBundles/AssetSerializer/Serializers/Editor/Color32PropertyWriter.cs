@@ -4,7 +4,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class Color32PropertyWriter : AbstractPropertyWriter
+    public sealed class Color32PropertyWriter : AbstractPropertyWriter
     {
         public Color32PropertyWriter(string propName, object value, Type propType) : base(propName, "Color32", value, propType)
         {

@@ -4,7 +4,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class DecimalPropertyReader : AbstractPropertyReader
+    public sealed class DecimalPropertyReader : AbstractPropertyReader
     {
         public DecimalPropertyReader(JsonData propDef) : base(propDef)
         {

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -11,22 +12,22 @@ namespace SocialPoint.GUIAnimation
         public bool UseEaseCustom { get { return _useEaseCustom; } set { _useEaseCustom = value; } }
 
         [SerializeField]
-        List<Vector2> _easeCustom = new List<Vector2> () {
-            new Vector2 (0f, 0f),
-            new Vector2 (1f, 1f)
+        List<EasePoint> _easeCustom = new List<EasePoint> () {
+            new EasePoint (0f, 0f),
+            new EasePoint (1f, 1f)
         };
 
-        public List<Vector2> EaseCustom { get { return _easeCustom; } set { _easeCustom = value; } }
+        public List<EasePoint> EaseCustom { get { return _easeCustom; } set { _easeCustom = value; } }
 
         [SerializeField]
         EaseType _easeType;
 
         public EaseType EaseType { get { return _easeType; } set { _easeType = value; } }
 
-        public void CopyEasing (bool useEaseCustom, List<Vector2> easeCustom, EaseType easeType)
+        public void CopyEasing (bool useEaseCustom, List<EasePoint> easeCustom, EaseType easeType)
         {
             _useEaseCustom = useEaseCustom;
-            _easeCustom = new List<Vector2> (easeCustom);
+            _easeCustom = new List<EasePoint> (easeCustom);
             _easeType = easeType;
         }
 
@@ -39,7 +40,7 @@ namespace SocialPoint.GUIAnimation
         public override void Invert (bool invertTime)
         {
             base.Invert (invertTime);
-            CustomEasingUtility.Invert (_easeCustom);
+            Easing.InvertCustom (_easeCustom);
         }
 
         public override void OnUpdate ()
@@ -78,13 +79,11 @@ namespace SocialPoint.GUIAnimation
         {
             if (_useEaseCustom)
             {
-                IEaseCustom ease = EaseManager.GetInstance ().GetCustom ();
-                return ease.ease (time, duration, _easeCustom);
+                return Easing.Custom(time, duration, _easeCustom);
             }
             else
             {
-                IEase ease = EaseManager.GetInstance ().Get (EaseType);
-                return ease.ease (time, start, deltaVal, duration);
+                return _easeType.ToFunction()(time, start, deltaVal, duration);
             }
         }
 

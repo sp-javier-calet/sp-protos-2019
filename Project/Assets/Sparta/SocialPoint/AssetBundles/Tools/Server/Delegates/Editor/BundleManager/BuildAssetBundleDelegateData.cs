@@ -7,7 +7,7 @@ using BundleManagerJSON;
 
 namespace SocialPoint.Tool.Server
 {
-    public class BundleManagerDataFile
+    public sealed class BundleManagerDataFile
     {
         public TextAsset asset { get; set; }
         public string assetPath { get; set; }
@@ -93,7 +93,7 @@ namespace SocialPoint.Tool.Server
         }
     }
 	
-    public class BundleManagerData
+    public sealed class BundleManagerData
     {
         public BundleManagerDataFile BMConfiger { get; set; }
         public BundleManagerDataFile BundleData { get; set; }

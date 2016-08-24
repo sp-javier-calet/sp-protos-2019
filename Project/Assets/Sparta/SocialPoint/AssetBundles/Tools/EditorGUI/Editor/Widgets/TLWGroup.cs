@@ -12,7 +12,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A TLWGroup can manage all the Widgets common properties from a single instance.
     /// Widgets added to a TLWGroup should not be individually added to TLWLayout nor TLView, the TLWGroup must be added instead.
     /// Recursive nested TLWGroups or TLWLayouts will incurr in an infinite recursivity.
-    public class TLWGroup : TLWidget 
+    public sealed class TLWGroup : TLWidget 
     {
         private List<TLWidget> _widgets;
 

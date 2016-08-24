@@ -4,7 +4,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.LevelCaptureTool
 {
-    public class GuiLevelCaptureToolModel : TLModel
+    public sealed class GuiLevelCaptureToolModel : TLModel
     {
         public bool isCapturing;
         public int numCaptures;

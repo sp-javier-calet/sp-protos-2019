@@ -10,7 +10,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: socialpoint
-  productName: basegame
+  productName: Sparta BaseGame
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_ShowUnitySplashScreen: 0
@@ -92,14 +92,14 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: es.socialpoint.basegame
-  bundleVersion: 1.0
+  bundleVersion: 1
   preloadedAssets: []
   metroEnableIndependentInputSource: 0
   metroEnableLowLatencyPresentationAPI: 0
   xboxOneDisableKinectGpuReservation: 0
   virtualRealitySupported: 0
   productGUID: ebb005ff38e9b473cbf04a55f0b772a0
-  AndroidBundleVersionCode: 1
+  AndroidBundleVersionCode: 20160818
   AndroidMinSdkVersion: 15
   AndroidPreferredInstallLocation: 1
   aotOptions: nimt-trampolines=512
@@ -107,7 +107,7 @@ PlayerSettings:
   stripEngineCode: 1
   iPhoneStrippingLevel: 2
   iPhoneScriptCallOptimization: 0
-  iPhoneBuildNumber: 0
+  iPhoneBuildNumber: 20160818
   ForceInternetPermission: 0
   ForceSDCardPermission: 0
   CreateWallpaper: 0
@@ -168,7 +168,7 @@ PlayerSettings:
   iOSLaunchScreeniPadSize: 100
   iOSLaunchScreeniPadCustomXibPath: 
   iOSDeviceRequirements: []
-  AndroidTargetDevice: 0
+  AndroidTargetDevice: 3
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: Assets/Plugins/Android/socialpoint.keystore
@@ -223,6 +223,32 @@ PlayerSettings:
       m_Icon: {fileID: 0}
       m_Width: 57
       m_Height: 57
+  - m_BuildTarget: Android
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+      m_Width: 192
+      m_Height: 192
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+      m_Width: 144
+      m_Height: 144
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+      m_Width: 96
+      m_Height: 96
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+      m_Width: 72
+      m_Height: 72
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+      m_Width: 48
+      m_Height: 48
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+      m_Width: 36
+      m_Height: 36
   m_BuildTargetBatching: []
   m_BuildTargetGraphicsAPIs: []
   webPlayerTemplate: APPLICATION:Default
@@ -385,8 +411,8 @@ PlayerSettings:
   spritePackerPolicy: 
   scriptingDefineSymbols:
     1: NO_GPGS;ADMIN_PANEL
-    4: NO_GPGS;ADMIN_PANEL
-    7: ADMIN_PANEL
+    4: ADMIN_PANEL;SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG;NO_GPGS
+    7: ADMIN_PANEL;SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG
     13: NO_GPGS;ADMIN_PANEL
     25: NO_GPGS;ADMIN_PANEL
   metroPackageName: Project

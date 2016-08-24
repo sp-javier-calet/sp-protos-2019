@@ -2,7 +2,7 @@
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class DoublePropertyReader : AbstractPropertyReader
+    public sealed class DoublePropertyReader : AbstractPropertyReader
     {
         public DoublePropertyReader(JsonData propDef) : base(propDef)
         {

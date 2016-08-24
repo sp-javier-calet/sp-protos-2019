@@ -9,7 +9,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A list of TLWCheck Widgets.
     /// </summary>
     /// This Widget is undocumented and it's behaviour has not been tested properly.
-	public class TLWCheckBox: TLWidget
+	public sealed class TLWCheckBox: TLWidget
 	{
 		private List<TLWCheck> _checkList;
 

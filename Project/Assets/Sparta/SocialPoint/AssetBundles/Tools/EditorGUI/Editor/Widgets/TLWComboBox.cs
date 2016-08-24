@@ -10,7 +10,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// This is a special TLFloater Widget, meaning that (part of)its display is performed OVER other widgets and requires special handling.
     /// Can send selection change events.
     /// Can send list expanded true or false events(when expanded or contracted).
-    public class TLWComboBox : TLFloater
+    public sealed class TLWComboBox : TLFloater
     {
         TLWVeticalLayout _vLayout;
         TLWListSelector<TLListSelectorItem> _expandList;

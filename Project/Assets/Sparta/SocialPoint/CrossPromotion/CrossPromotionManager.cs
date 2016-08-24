@@ -12,7 +12,7 @@ using SocialPoint.AppEvents;
 
 namespace SocialPoint.CrossPromotion
 {
-    public sealed class CrossPromotionManager : IDisposable
+    public class CrossPromotionManager : IDisposable
     {
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
@@ -35,7 +35,10 @@ namespace SocialPoint.CrossPromotion
         const string kDefaultAppsToCheck = "dragoncity://,monsterlegends://,dragonland://,restaurantcity://,dragonstadium://";
         #elif UNITY_ANDROID
         const string kDefaultAppsToCheck = "es.socialpoint.DragonCity,es.socialpoint.MonsterLegends,es.parrotgames.restaurantcity,es.socialpoint.dragonland";
-        #else
+        
+
+
+#else
         const string kDefaultAppsToCheck = "";
         #endif
         string _assetsPath;
