@@ -1,6 +1,6 @@
 using SocialPoint.Attributes;
 
-class ResourcePoolParser : IParser<ResourcePool>, ISerializer<ResourcePool>
+class ResourcePoolParser : IAttrObjParser<ResourcePool>, IAttrObjSerializer<ResourcePool>
 {
     public ResourcePool Parse(Attr data)
     {

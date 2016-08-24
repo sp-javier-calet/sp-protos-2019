@@ -2,7 +2,7 @@
 using SocialPoint.Attributes;
 using System.Collections.Generic;
 
-public class GoalModelParser : IParser<GoalModel>, ISerializer<GoalModel>
+public class GoalModelParser : IAttrObjParser<GoalModel>, IAttrObjSerializer<GoalModel>
 {
     const string AttrKeyGoalId = "id";
     const string AttrKeyGoalCompleted = "completed";

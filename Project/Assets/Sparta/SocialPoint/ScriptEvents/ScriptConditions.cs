@@ -23,7 +23,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public static IParser<IScriptCondition> BaseParser
+        public static IAttrObjParser<IScriptCondition> BaseParser
         {
             get
             {

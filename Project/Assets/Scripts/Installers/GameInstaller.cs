@@ -54,11 +54,11 @@ public class GameInstaller : Installer
         return new GameLoader(
             Settings.InitialJsonGameResource,
             Settings.InitialJsonPlayerResource,
-            Container.Resolve<IParser<GameModel>>(),
-            Container.Resolve<IParser<ConfigModel>>(),
-            Container.Resolve<IParser<PlayerModel>>(),
-            Container.Resolve<IParser<ConfigPatch>>(),
-            Container.Resolve<ISerializer<PlayerModel>>(),
+            Container.Resolve<IAttrObjParser<GameModel>>(),
+            Container.Resolve<IAttrObjParser<ConfigModel>>(),
+            Container.Resolve<IAttrObjParser<PlayerModel>>(),
+            Container.Resolve<IAttrObjParser<ConfigPatch>>(),
+            Container.Resolve<IAttrObjSerializer<PlayerModel>>(),
             Container.Resolve<GameModel>(),
             Container.Resolve<ILogin>());
     }

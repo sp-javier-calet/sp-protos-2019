@@ -20,11 +20,11 @@ public class GameLoader : IGameLoader
     readonly string _jsonGameResource;
     readonly string _jsonPlayerResource;
 
-    readonly IParser<GameModel> _gameParser;
-    readonly IParser<PlayerModel> _playerParser;
-    readonly IParser<ConfigModel> _configParser;
-    readonly IParser<ConfigPatch> _configPatchParser;
-    readonly ISerializer<PlayerModel> _playerSerializer;
+    readonly IAttrObjParser<GameModel> _gameParser;
+    readonly IAttrObjParser<PlayerModel> _playerParser;
+    readonly IAttrObjParser<ConfigModel> _configParser;
+    readonly IAttrObjParser<ConfigPatch> _configPatchParser;
+    readonly IAttrObjSerializer<PlayerModel> _playerSerializer;
     readonly GameModel _gameModel;
     readonly ILoginData _loginData;
 
@@ -44,8 +44,8 @@ public class GameLoader : IGameLoader
         }
     }
 
-    public GameLoader(string jsonGameResource, string jsonPlayerResource, IParser<GameModel> gameParser, IParser<ConfigModel> configParser,
-        IParser<PlayerModel> playerParser, IParser<ConfigPatch> configPatchParser, ISerializer<PlayerModel> playerSerializer, GameModel game, ILoginData loginData)
+    public GameLoader(string jsonGameResource, string jsonPlayerResource, IAttrObjParser<GameModel> gameParser, IAttrObjParser<ConfigModel> configParser,
+        IAttrObjParser<PlayerModel> playerParser, IAttrObjParser<ConfigPatch> configPatchParser, IAttrObjSerializer<PlayerModel> playerSerializer, GameModel game, ILoginData loginData)
     {
         _jsonGameResource = jsonGameResource;
         _jsonPlayerResource = jsonPlayerResource;

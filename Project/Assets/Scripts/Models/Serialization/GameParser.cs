@@ -1,17 +1,17 @@
 ﻿using SocialPoint.Attributes;
 
-public class GameParser : IParser<GameModel>
+public class GameParser : IAttrObjParser<GameModel>
 {
     public const string AttrKeyConfig = "config";
     public const string AttrKeyUser = "user";
     public const string AttrKeyConfigPatch = "config_patches";
 
-    IParser<ConfigModel> _configParser;
-    IParser<PlayerModel> _playerParser;
-    IParser<ConfigPatch> _configPatchParser;
+    IAttrObjParser<ConfigModel> _configParser;
+    IAttrObjParser<PlayerModel> _playerParser;
+    IAttrObjParser<ConfigPatch> _configPatchParser;
     GameModel _gameModel;
 
-    public GameParser(GameModel gameModel, IParser<ConfigModel> configParser, IParser<PlayerModel> playerParser, IParser<ConfigPatch> configPatchParser)
+    public GameParser(GameModel gameModel, IAttrObjParser<ConfigModel> configParser, IAttrObjParser<PlayerModel> playerParser, IAttrObjParser<ConfigPatch> configPatchParser)
     {
         _configParser = configParser;
         _playerParser = playerParser;

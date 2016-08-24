@@ -1,7 +1,7 @@
 
 namespace SocialPoint.Attributes
 {
-    public interface IParser<T>
+    public interface IAttrObjParser<T>
     {
         T Parse(Attr data);
     }

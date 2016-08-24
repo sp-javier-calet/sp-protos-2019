@@ -4,14 +4,14 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Attributes
 {
-    public interface IChildParser<T> : IParser<T>
+    public interface IChildParser<T> : IAttrObjParser<T>
     {
         string Name { get; }
 
         FamilyParser<T> Parent { set; }
     }
 
-    public class FamilyParser<T> : IParser<T>
+    public class FamilyParser<T> : IAttrObjParser<T>
     {
         const string AttrKeyType = "type";
         const string AttrKeyValue = "value";

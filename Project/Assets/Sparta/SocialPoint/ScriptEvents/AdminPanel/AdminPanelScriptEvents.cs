@@ -13,9 +13,9 @@ namespace SocialPoint.ScriptEvents
         string _eventsLog;
         IAttrSerializer _attrSerializer;
         IAttrParser _attrParser;
-        IParser<ScriptModel> _scriptParser;
+        IAttrObjParser<ScriptModel> _scriptParser;
 
-        public AdminPanelScriptEvents(IScriptEventDispatcher dispatcher, IParser<ScriptModel> scriptParser)
+        public AdminPanelScriptEvents(IScriptEventDispatcher dispatcher, IAttrObjParser<ScriptModel> scriptParser)
         {
             _dispatcher = dispatcher;
             _dispatcher.AddListener(OnScriptEvent);
