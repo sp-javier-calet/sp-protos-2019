@@ -2,7 +2,7 @@
 using SocialPoint.IO;
 using System.IO;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     public class LocalNetworkMessage : INetworkMessage
     {

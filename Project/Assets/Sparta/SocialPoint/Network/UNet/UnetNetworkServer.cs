@@ -5,7 +5,7 @@ using System;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     public class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
     {

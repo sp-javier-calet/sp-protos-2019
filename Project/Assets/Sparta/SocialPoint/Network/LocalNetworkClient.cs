@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
 
     public class LocalNetworkClient : INetworkClient

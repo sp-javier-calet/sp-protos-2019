@@ -5,7 +5,7 @@ using SocialPoint.Base;
 using SocialPoint.Utils;
 using System;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     public class UnetNetworkClient : INetworkClient, IDisposable
     {

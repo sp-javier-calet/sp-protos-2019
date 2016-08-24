@@ -1,6 +1,6 @@
 ﻿using SocialPoint.Base;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     /**
      * a real clientId should never be 0

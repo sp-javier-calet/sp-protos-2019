@@ -1,7 +1,7 @@
 ﻿using System;
 using SocialPoint.Utils;
 using SocialPoint.Dependency;
-using SocialPoint.Multiplayer;
+using SocialPoint.Network;
 using SocialPoint.AdminPanel;
 
 public class MultiplayerInstaller : Installer

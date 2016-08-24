@@ -3,7 +3,7 @@ using SocialPoint.IO;
 using SocialPoint.Utils;
 using System.IO;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     public interface INetworkMessage
     {

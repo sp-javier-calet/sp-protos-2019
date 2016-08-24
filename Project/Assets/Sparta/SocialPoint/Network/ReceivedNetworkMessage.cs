@@ -1,7 +1,7 @@
 ﻿
 using SocialPoint.IO;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     public class ReceivedNetworkMessage
     {

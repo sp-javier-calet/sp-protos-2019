@@ -1,7 +1,7 @@
 ﻿using UnityEngine.Networking;
 using SocialPoint.IO;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     class UnetNetworkMessage : INetworkMessage
     {

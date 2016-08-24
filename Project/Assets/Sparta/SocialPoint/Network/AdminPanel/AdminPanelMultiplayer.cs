@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using System;
 using System.Text;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     public class AdminPanelMultiplayer : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
     {

@@ -4,7 +4,7 @@ using NUnit.Framework;
 using NSubstitute;
 using SocialPoint.IO;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     public abstract class BaseNetworkTests
     {

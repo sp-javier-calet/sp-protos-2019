@@ -3,10 +3,10 @@ using System.Collections;
 using NUnit.Framework;
 using NSubstitute;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Network
 {
     [TestFixture]
-    [Category("SocialPoint.Multiplayer")]
+    [Category("SocialPoint.Network")]
     class LocalNetworkTests : BaseNetworkTests
     {
         [SetUp]
