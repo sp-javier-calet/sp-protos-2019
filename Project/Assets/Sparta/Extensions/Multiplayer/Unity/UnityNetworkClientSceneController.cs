@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.ObjectPool;
+using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
 {

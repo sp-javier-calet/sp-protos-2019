@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System.IO;
 using System;
 using SocialPoint.IO;
-using SocialPoint.Attributes;
+using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
 {

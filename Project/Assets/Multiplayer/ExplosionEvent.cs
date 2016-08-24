@@ -1,4 +1,5 @@
 ﻿using SocialPoint.Multiplayer;
+using SocialPoint.Network;
 using SocialPoint.IO;
 
 public class ExplosionEvent : INetworkShareable

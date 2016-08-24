@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using SocialPoint.Dependency;
 using SocialPoint.Multiplayer;
+using SocialPoint.Network;
 using SocialPoint.IO;
 
 public static class GameMsgType

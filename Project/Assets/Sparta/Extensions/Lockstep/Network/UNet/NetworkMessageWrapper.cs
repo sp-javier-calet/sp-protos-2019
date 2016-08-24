@@ -2,7 +2,7 @@
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using System.IO;
-using SocialPoint.Multiplayer;
+using SocialPoint.Network;
 
 namespace SocialPoint.Lockstep.Network.UNet
 {

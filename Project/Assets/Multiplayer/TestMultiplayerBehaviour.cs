@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using SocialPoint.Multiplayer;
+using SocialPoint.Network;
 using SocialPoint.Dependency;
 
 public class TestMultiplayerBehaviour : MonoBehaviour

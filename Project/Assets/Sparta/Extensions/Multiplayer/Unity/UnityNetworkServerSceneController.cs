@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using SocialPoint.Utils;
+using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
 {
-
     public class UnityNetworkServerSceneController : NetworkServerSceneController, IUpdateable
     {
         IUpdateScheduler _scheduler;
