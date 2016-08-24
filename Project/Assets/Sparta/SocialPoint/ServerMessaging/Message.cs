@@ -84,8 +84,8 @@ namespace SocialPoint.ServerMessaging
         {
             Id = data.GetValue(MessageIdKey).ToString();
             Type = data.GetValue(MessageTypeKey).ToString();
-            Origin = new Origin(data.GetValue(MessageOriginKey).AsDic);
-            Params = data.GetValue(MessageParamsKey).AsDic;
+            Origin = new Origin(data.Get(MessageOriginKey).AsDic);
+            Params = data.Get(MessageParamsKey).AsDic;
         }
 
         public Attr ToAttr()

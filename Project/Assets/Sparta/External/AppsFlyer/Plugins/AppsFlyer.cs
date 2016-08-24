@@ -7,8 +7,23 @@ using System.Collections.Generic;
 
 public class AppsFlyer : MonoBehaviour {
 	
+    #if UNITY_EDITOR
+    public static void trackEvent(string eventName,string eventValue){}
+    public static void setCurrencyCode(string currencyCode){}
+    public static void setCustomerUserID(string customerUserID){}
+    public static void loadConversionData(string callbackObject,string callbackMethod, string callbackFailedMethod){}
+    public static void setAppsFlyerKey(string key){}
+    public static void trackAppLaunch(){}
+    public static void setAppID(string appleAppId){}
+    public static void trackRichEvent(string eventName, Dictionary<string, string> eventValues){}
+    public static void validateReceipt(string productIdentifier, string price, string currency){}
+    public static void setIsDebug(bool isDebug){}
+    public static void setIsSandbox(bool isSandbox){}
+    public static void getConversionData (){}
+    public static string getAppsFlyerId () {return null;}
+    public static void handleOpenUrl(string url, string sourceApplication, string annotation) {}
 	
-	#if UNITY_IOS
+    #elif UNITY_IOS
 	[DllImport("__Internal")]
 	private static extern void mTrackEvent(string eventName,string eventValue);
 	
@@ -289,22 +304,5 @@ public class AppsFlyer : MonoBehaviour {
 		}
 		return appsFlyerId;
 	}
-
-	#else
-	
-	public static void trackEvent(string eventName,string eventValue){}
-	public static void setCurrencyCode(string currencyCode){}
-	public static void setCustomerUserID(string customerUserID){}
-	public static void loadConversionData(string callbackObject,string callbackMethod){}
-	public static void setAppsFlyerKey(string key){}
-	public static void trackAppLaunch(){}
-	public static void setAppID(string appleAppId){}
-	public static void trackRichEvent(string eventName, Dictionary<string, string> eventValues){}
-	public static void validateReceipt(string productIdentifier, string price, string currency){}
-	public static void setIsDebug(bool isDebug){}
-	public static void setIsSandbox(bool isSandbox){}
-	public static void getConversionData (){}
-	public static string getAppsFlyerId () {return null;}
-	public static void handleOpenUrl(string url, string sourceApplication, string annotation) {}
 	#endif
 }

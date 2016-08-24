@@ -174,7 +174,11 @@ namespace SocialPoint.Utils
 
         public static string FormatTime(this TimeSpan ts, string formatString)
         {
-            return string.Format(formatString, ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
+            System.Text.StringBuilder stringBuilder = StringUtils.StartBuilder();
+
+            stringBuilder.AppendFormat(formatString, ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
+
+            return StringUtils.FinishBuilder(stringBuilder);
         }
         
         //Example:

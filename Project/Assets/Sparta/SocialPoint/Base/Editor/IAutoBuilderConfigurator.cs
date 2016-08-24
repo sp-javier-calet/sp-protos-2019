@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using System;
+using UnityEngine;
 
 namespace SocialPoint.Base
 {
@@ -46,6 +47,13 @@ namespace SocialPoint.Base
         public static void Build(this IAutoBuilderConfigurator configurator, AutoBuilderConfiguration baseConfiguration)
         {
             string result = BuildPipeline.BuildPlayer(baseConfiguration.Levels, baseConfiguration.LocationPathName, baseConfiguration.Target, baseConfiguration.Options);
+
+            Debug.Log(string.Format("AutoBuilder - Player Build finished with result: '{0}'", result));
+            if(!string.IsNullOrEmpty(result))
+            {
+                throw new Exception(result);
+            }
+
             configurator.OnBuildCompleted(baseConfiguration, result);
         }
     }

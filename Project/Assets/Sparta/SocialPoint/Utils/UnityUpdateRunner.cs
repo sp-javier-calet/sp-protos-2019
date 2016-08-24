@@ -53,10 +53,13 @@ namespace SocialPoint.Utils
 
         void Update()
         {
-            foreach(var elm in _elements)
+            var enumerator = _elements.GetEnumerator();
+            while(enumerator.MoveNext())
             {
+                var elm = enumerator.Current;
                 elm.Update();
             }
+            enumerator.Dispose();
         }
     }
 

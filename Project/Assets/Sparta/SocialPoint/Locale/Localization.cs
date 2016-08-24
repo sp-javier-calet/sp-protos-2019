@@ -108,7 +108,11 @@ namespace SocialPoint.Locale
         {
             if(Debug && !string.IsNullOrEmpty(key))
             {
-                return string.Format(DefaultFormat, Language, key);
+                System.Text.StringBuilder stringBuilder = SocialPoint.Utils.StringUtils.StartBuilder();
+
+                stringBuilder.AppendFormat(DefaultFormat, Language, key);
+
+                return SocialPoint.Utils.StringUtils.FinishBuilder(stringBuilder);
             }
             return defaultString;
         }
@@ -138,7 +142,11 @@ namespace SocialPoint.Locale
 
         public override string ToString()
         {
-            return base.ToString() + string.Format(" ({0} elements)", _strings.Count);
+            System.Text.StringBuilder stringBuilder = SocialPoint.Utils.StringUtils.StartBuilder();
+
+            stringBuilder.Append(base.ToString()).AppendFormat(" ({0} elements)", _strings.Count);
+
+            return SocialPoint.Utils.StringUtils.FinishBuilder(stringBuilder);
         }
     }
 }
