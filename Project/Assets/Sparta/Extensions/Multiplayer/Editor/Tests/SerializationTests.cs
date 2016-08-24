@@ -11,7 +11,7 @@ namespace SocialPoint.Multiplayer
     [Category("SocialPoint.Multiplayer")]
     class SerializationTests
     {
-        void GenericInitial<T>(T obj, ISerializer<T> serializer, IParser<T> parser)
+        void GenericInitial<T>(T obj, IWriteSerializer<T> serializer, IReadParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
@@ -22,7 +22,7 @@ namespace SocialPoint.Multiplayer
             Assert.That(obj.Equals(obj2));
         }
 
-        void GenericDiff<T>(T newObj, T oldObj, ISerializer<T> serializer, IParser<T> parser)
+        void GenericDiff<T>(T newObj, T oldObj, IWriteSerializer<T> serializer, IReadParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);

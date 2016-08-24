@@ -183,11 +183,11 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class Vector3Serializer : ISerializer<Vector3>
+    public class Vector3Serializer : IWriteSerializer<Vector3>
     {
         public static readonly Vector3Serializer Instance = new Vector3Serializer();
 
-        public void Compare(Vector3 newObj, Vector3 oldObj, DirtyBits dirty)
+        public void Compare(Vector3 newObj, Vector3 oldObj, Bitset dirty)
         {
             dirty.Set(newObj.x != oldObj.x);
             dirty.Set(newObj.y != oldObj.y);
@@ -201,24 +201,24 @@ namespace SocialPoint.Multiplayer
             writer.Write(newObj.z);
         }
 
-        public void Serialize(Vector3 newObj, Vector3 oldObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Vector3 newObj, Vector3 oldObj, IWriter writer, Bitset dirty)
         {
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 writer.Write(newObj.x);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 writer.Write(newObj.y);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 writer.Write(newObj.z);
             }
         }
     }
 
-    public class Vector3Parser : IParser<Vector3>
+    public class Vector3Parser : IReadParser<Vector3>
     {
         public static readonly Vector3Parser Instance = new Vector3Parser();
 
@@ -236,17 +236,17 @@ namespace SocialPoint.Multiplayer
             return 3;
         }
 
-        public Vector3 Parse(Vector3 obj, IReader reader, DirtyBits dirty)
+        public Vector3 Parse(Vector3 obj, IReader reader, Bitset dirty)
         {
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj.x = reader.ReadSingle();
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj.y = reader.ReadSingle();
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj.z = reader.ReadSingle();
             }

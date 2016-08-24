@@ -111,11 +111,11 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class TransformSerializer : ISerializer<Transform>
+    public class TransformSerializer : IWriteSerializer<Transform>
     {
         public static readonly TransformSerializer Instance = new TransformSerializer();
 
-        public void Compare(Transform newObj, Transform oldObj, DirtyBits dirty)
+        public void Compare(Transform newObj, Transform oldObj, Bitset dirty)
         {
             dirty.Set(newObj.Position != oldObj.Position);
             dirty.Set(newObj.Rotation != oldObj.Rotation);
@@ -129,24 +129,24 @@ namespace SocialPoint.Multiplayer
             Vector3Serializer.Instance.Serialize(newObj.Size, writer);
         }
 
-        public void Serialize(Transform newObj, Transform oldObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Transform newObj, Transform oldObj, IWriter writer, Bitset dirty)
         {
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 Vector3Serializer.Instance.Serialize(newObj.Position, oldObj.Position, writer);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 QuaternionSerializer.Instance.Serialize(newObj.Rotation, oldObj.Rotation, writer);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 Vector3Serializer.Instance.Serialize(newObj.Size, oldObj.Size, writer);
             }
         }
     }
 
-    public class TransformParser : IParser<Transform>
+    public class TransformParser : IReadParser<Transform>
     {
         public static readonly TransformParser Instance = new TransformParser();
 
@@ -164,17 +164,17 @@ namespace SocialPoint.Multiplayer
             return 3;
         }
 
-        public Transform Parse(Transform obj, IReader reader, DirtyBits dirty)
+        public Transform Parse(Transform obj, IReader reader, Bitset dirty)
         {
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj.Position = Vector3Parser.Instance.Parse(obj.Position, reader);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj.Rotation = QuaternionParser.Instance.Parse(obj.Rotation, reader);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj.Size = Vector3Parser.Instance.Parse(obj.Size, reader);
             }

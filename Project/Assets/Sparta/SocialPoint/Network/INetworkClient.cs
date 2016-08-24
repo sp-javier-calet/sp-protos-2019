@@ -22,4 +22,14 @@ namespace SocialPoint.Network
         void RemoveDelegate(INetworkClientDelegate dlg);
         void RegisterReceiver(INetworkMessageReceiver receiver);
     }
+
+    public static class NetworkClientExtensions
+    {
+        public static void SendMessage(this INetworkClient client, NetworkMessageData data, INetworkShareable obj)
+        {
+            var msg = client.CreateMessage(data);
+            obj.Serialize(msg.Writer);
+            msg.Send();
+        }
+    }
 }
