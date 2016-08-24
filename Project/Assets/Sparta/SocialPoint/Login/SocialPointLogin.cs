@@ -496,6 +496,8 @@ namespace SocialPoint.Login
 
         void AddLinkInfo(LinkInfo info)
         {
+            DebugLog("AddLinkInfo");
+
             if(!_links.Contains(info))
             {
                 info.Link.AddStateChangeDelegate(state => OnLinkStateChanged(info, state));
@@ -764,6 +766,8 @@ namespace SocialPoint.Login
                 err = OnNewLocalUser(resp);
             }
 
+            DebugLog("OnLogin - error\n----\n" + err + "----\n");
+
             //If no errors, track successful login
             if(Error.IsNullOrEmpty(err) && TrackEvent != null)
             {
@@ -896,6 +900,10 @@ namespace SocialPoint.Login
 
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
+            DebugLog("OnLinkStateChanged");
+            DebugLog("OnLinkStateChanged info: "+ info);
+            DebugLog("OnLinkStateChanged state: "+ state);
+
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(ImpersonatedUserId != 0)
             {
@@ -924,6 +932,9 @@ namespace SocialPoint.Login
 
         void OnNewLink(LinkInfo info, LinkState state)
         {
+            DebugLog("OnNewLink - link info\n----\n" + info + "----\n");
+            DebugLog("OnNewLink - link state\n----\n" + state + "----\n");
+
             // the user links have changed, we need to tell the server
             info.LinkData = info.Link.GetLinkData();
             if(FakeEnvironment)
@@ -949,6 +960,8 @@ namespace SocialPoint.Login
 
         void OnNewLinkResponse(LinkInfo info, LinkState state, HttpResponse resp)
         {
+            DebugLog("OnNewLinkResponse");
+
             if((resp.HasRecoverableError) && _availableConnectivityErrorRetries > 0)
             {
                 _availableConnectivityErrorRetries--;
@@ -957,7 +970,7 @@ namespace SocialPoint.Login
             }
 
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
-            DebugLog("OnNewLinkResponse - link\n----\n" + resp + "----\n");
+            DebugLog("OnNewLinkResponse - link resp.StatusCode\n----\n" + resp.StatusCode + "----\n");
             var type = LinkConfirmType.None;
             switch(resp.StatusCode)
             {
@@ -1014,6 +1027,7 @@ namespace SocialPoint.Login
 
         void NotifyConfirmLink(LinkInfo info, LinkConfirmType type, string linkToken, Attr data)
         {
+            DebugLog("NotifyConfirmLink");
 
             bool wait = _pendingLinkConfirms.Count != 0;
             _pendingLinkConfirms.Add(info);
@@ -1373,6 +1387,8 @@ namespace SocialPoint.Login
 
         void NotifyNewLink(LinkInfo info, bool beforeFriends)
         {
+            DebugLog("NotifyNewLink");
+
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(beforeFriends)
             {
@@ -1508,6 +1524,8 @@ namespace SocialPoint.Login
 
         void UpdateLinkData(LinkInfo info, bool disableUpdatingFriends)
         {
+            DebugLog("UpdateLinkData");
+
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             info.Link.UpdateLocalUser(User);
 
@@ -2036,6 +2054,8 @@ namespace SocialPoint.Login
          */
         public void ConfirmLink(string linkToken, LinkConfirmDecision decision, ErrorDelegate cbk = null)
         {
+            DebugLog("ConfirmLink");
+
             if(CheckFakeEnvironment(cbk))
             {
                 return;

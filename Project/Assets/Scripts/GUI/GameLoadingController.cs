@@ -58,6 +58,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         RegisterOperation(_loadSceneOperation);
 
         Login.NewUserStreamEvent += OnLoginNewUser;
+        Login.ConfirmLinkEvent += OnConfirmLinkEvent;
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility += OnAdminPanelChange;
@@ -91,6 +92,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _gameLoader.Load(data);
         _loadModelOperation.Finish("game model loaded");
         return true;
+    }
+
+    void OnConfirmLinkEvent(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk)
+    {
+        ErrorHandler.ShowLink(link, type, data, cbk); 
     }
 
     override protected void OnDisappearing()

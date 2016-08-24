@@ -1,27 +1,36 @@
-using SocialPoint.Base;
-using SocialPoint.Alert;
-using SocialPoint.Login;
-using SocialPoint.Locale;
-using SocialPoint.AppEvents;
-using SocialPoint.GUIControl;
-using SocialPoint.Attributes;
-using SocialPoint.ServerSync;
-using SocialPoint.ServerEvents;
-using UnityEngine.SceneManagement;
 using System;
+using SocialPoint.Alert;
+using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.GUIControl;
+using SocialPoint.Locale;
+using SocialPoint.Login;
+using SocialPoint.ServerEvents;
+using SocialPoint.ServerSync;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.GameLoading
 {
     public interface IGameErrorHandler : IDisposable
     {
         string Signature { set; }
+
         bool Debug { get; set; }
+
         void ShowUpgrade(UpgradeData data, Action<bool> finished);
+
         void ShowSync(Error err);
+
         void ShowMaintenance(MaintenanceData data, Action finished);
+
         void ShowConnection(Error err, Action finished);
+
         void ShowInvalidSecurityToken(Action restart);
-        void ShowLogin( Error err, Action finished);
+
+        void ShowLogin(Error err, Action finished);
+
+        void ShowLink(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk);
     }
 
     public static class GameErrorHandlerExtensions
@@ -38,7 +47,7 @@ namespace SocialPoint.GameLoading
 
         public static void Setup(this IGameErrorHandler handler, ICommandQueue queue)
         {
-            queue.GeneralError += (CommandQueueErrorType type, Error err) => {
+            queue.GeneralError += (type, err) => {
                 queue.Stop();
                 if(handler != null)
                 {
@@ -47,7 +56,7 @@ namespace SocialPoint.GameLoading
                 }
             };
 
-            queue.CommandError += (Command cmd, Error err, Attr resp) => {
+            queue.CommandError += (cmd, err, resp) => {
                 queue.Stop();
                 if(handler != null)
                 {
@@ -59,7 +68,7 @@ namespace SocialPoint.GameLoading
 
         public static void Setup(this IGameErrorHandler handler, IEventTracker tracker)
         {
-            tracker.GeneralError += (EventTrackerErrorType type, Error err) => {
+            tracker.GeneralError += (type, err) => {
                 if(type == EventTrackerErrorType.SessionLost)
                 {
                     tracker.Stop();
@@ -111,6 +120,17 @@ namespace SocialPoint.GameLoading
         const string ResponseErrorMessageKey = "gameloading.response_error_message";
         const string ResponseErrorMessageDef = "There was an unknown error logging in. Please try again later.";
 
+        const string ConfirmLinkTitleKey = "game_errors.confirm_link_title";
+        const string ConfirmLinkTitleDef = "Confirm Link accounts";
+        const string ConfirmLinkMessageKey = "game_errors.confirm_link_message";
+        const string ConfirmLinkMessageDef = "Choose which account should be linked";
+        const string ConfirmLinkButtonCancelKey = "game_errors.confirm_link_button_cancel";
+        const string ConfirmLinkButtonCancelDef = "Cancel";
+        const string ConfirmLinkButtonKeepKey = "game_errors.confirm_link_button_keep";
+        const string ConfirmLinkButtonKeepDef = "Keep";
+        const string ConfirmLinkButtonChangeKey = "game_errors.confirm_link_button_change";
+        const string ConfirmLinkButtonChangeDef = "Change";
+
         readonly IAlertView _alert;
         readonly Localization _locale;
         readonly IAppEvents _appEvents;
@@ -122,7 +142,7 @@ namespace SocialPoint.GameLoading
 
         public string Signature { set; private get; }
 
-        public GameErrorHandler(IAlertView alert=null, Localization locale=null, IAppEvents appEvents=null, Func<UIStackController> findPopups=null)
+        public GameErrorHandler(IAlertView alert = null, Localization locale = null, IAppEvents appEvents = null, Func<UIStackController> findPopups = null)
         {
             _alert = alert;
             _locale = locale;
@@ -160,7 +180,7 @@ namespace SocialPoint.GameLoading
                 _popups = _findPopups();
             }
         }
-                
+
         string GetErrorMessage(Error err, string key, string def)
         {
             if(Debug)
@@ -175,7 +195,7 @@ namespace SocialPoint.GameLoading
             return msg;
         }
 
-        public virtual void ShowUpgrade(UpgradeData data, Action<bool> finished)
+        public void ShowUpgrade(UpgradeData data, Action<bool> finished)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Message = data.Message;
@@ -183,8 +203,8 @@ namespace SocialPoint.GameLoading
             if(data.Type == UpgradeType.Forced)
             {
                 alert.Title = _locale.Get(ForceUpgradeTitleKey, ForceUpgradeTitleDef);
-                alert.Buttons = new string[]{ _locale.Get(UpgradeButtonKey, UpgradeButtonDef) };
-                alert.Show((int result) => {
+                alert.Buttons = new []{ _locale.Get(UpgradeButtonKey, UpgradeButtonDef) };
+                alert.Show(result => {
                     if(finished != null)
                     {
                         finished(true);
@@ -194,11 +214,11 @@ namespace SocialPoint.GameLoading
             else //suggested
             {
                 alert.Title = _locale.Get(SuggestedUpgradeTitleKey, SuggestedUpgradeTitleDef);
-                alert.Buttons = new string[] {
+                alert.Buttons = new [] {
                     _locale.Get(UpgradeButtonKey, UpgradeButtonDef),
                     _locale.Get(UpgradeLaterButtonKey, UpgradeLaterButtonDef)
                 };
-                alert.Show((int result) => {
+                alert.Show(result => {
                     bool success = result == 0;
                     if(finished != null)
                     {
@@ -208,7 +228,7 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        public virtual void ShowMaintenance(MaintenanceData data, Action finished)
+        public void ShowMaintenance(MaintenanceData data, Action finished)
         {
             string title = null;
             string message = null;
@@ -247,8 +267,8 @@ namespace SocialPoint.GameLoading
                 alert.Title = title;
                 alert.Message = message;
                 alert.Signature = Signature;
-                alert.Buttons = new string[]{ button };
-                alert.Show((i) => {
+                alert.Buttons = new []{ button };
+                alert.Show(i => {
                     if(finished != null)
                     {
                         finished();
@@ -257,14 +277,14 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        public virtual void ShowConnection(Error err, Action finished)
+        public void ShowConnection(Error err, Action finished)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ConnectionErrorTitleKey, ConnectionErrorTitleDef);
-            alert.Buttons = new string[]{ _locale.Get(RetryButtonKey, RetryButtonDef) };
+            alert.Buttons = new []{ _locale.Get(RetryButtonKey, RetryButtonDef) };
             alert.Message = GetErrorMessage(err, ConnectionErrorMessageKey, ConnectionErrorMessageDef);
             alert.Signature = Signature + "-" + err.Code;
-            alert.Show((i) => {
+            alert.Show(i => {
                 if(finished != null)
                 {
                     finished();
@@ -272,7 +292,7 @@ namespace SocialPoint.GameLoading
             });
         }
 
-        public virtual void ShowInvalidSecurityToken(Action restart)
+        public void ShowInvalidSecurityToken(Action restart)
         {
             if(_popups != null)
             {
@@ -282,19 +302,16 @@ namespace SocialPoint.GameLoading
                 popup.Signature = Signature;
                 _popups.Push(popup);
             }
-            else
-            {
-            }
         }
 
-        public virtual void ShowLogin(Error err, Action finished)
+        public void ShowLogin(Error err, Action finished)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ResponseErrorTitleKey, ResponseErrorTitleDef);
-            alert.Buttons = new string[]{ _locale.Get(RetryButtonKey, RetryButtonDef) };
+            alert.Buttons = new []{ _locale.Get(RetryButtonKey, RetryButtonDef) };
             alert.Message = GetErrorMessage(err, ResponseErrorMessageKey, ResponseErrorMessageDef);
             alert.Signature = Signature + "-" + err.Code;
-            alert.Show((i) => {
+            alert.Show(i => {
                 if(finished != null)
                 {
                     finished();
@@ -302,17 +319,34 @@ namespace SocialPoint.GameLoading
             });
         }
 
-        public virtual void ShowSync(Error err)
+        public void ShowSync(Error err)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(SyncTitleKey, SyncTitleDef);
             alert.Message = _locale.Get(SyncMessageKey, SyncMessageDef);
             alert.Signature = Signature + "-" + err.Code;
-            alert.Buttons = new string[]{
+            alert.Buttons = new [] {
                 _locale.Get(SyncButtonKey, SyncButtonDef)
             };
-            alert.Show((i) => {
-                _appEvents.RestartGame();
+            alert.Show(i => _appEvents.RestartGame());
+        }
+
+        public void ShowLink(ILink link, LinkConfirmType linkConfirmType, Attr data, ConfirmBackLinkDelegate cbk)
+        {
+            var alert = (IAlertView)_alert.Clone();
+            alert.Title = _locale.Get(ConfirmLinkTitleKey, ConfirmLinkTitleDef);
+            alert.Message = _locale.Get(ConfirmLinkMessageKey, ConfirmLinkMessageDef);
+            alert.Signature = Signature;
+            alert.Buttons = new [] {
+                _locale.Get(ConfirmLinkButtonKeepKey, ConfirmLinkButtonKeepDef),
+                _locale.Get(ConfirmLinkButtonChangeKey, ConfirmLinkButtonChangeDef),
+                _locale.Get(ConfirmLinkButtonCancelKey, ConfirmLinkButtonCancelDef)
+            };
+            alert.Show(result => {
+                if(cbk != null)
+                {
+                    cbk(result == 0 ? LinkConfirmDecision.Cancel : result == 1 ? LinkConfirmDecision.Keep : LinkConfirmDecision.Change);
+                }
             });
         }
     }
