@@ -92,11 +92,11 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkGameObjectSerializer : ISerializer<NetworkGameObject>
+    public class NetworkGameObjectSerializer : IWriteSerializer<NetworkGameObject>
     {
         public static readonly NetworkGameObjectSerializer Instance = new NetworkGameObjectSerializer();
 
-        public void Compare(NetworkGameObject newObj, NetworkGameObject oldObj, DirtyBits dirty)
+        public void Compare(NetworkGameObject newObj, NetworkGameObject oldObj, Bitset dirty)
         {
             dirty.Set(newObj.Transform != oldObj.Transform);
         }
@@ -108,16 +108,16 @@ namespace SocialPoint.Multiplayer
 
         }
 
-        public void Serialize(NetworkGameObject newObj, NetworkGameObject oldObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(NetworkGameObject newObj, NetworkGameObject oldObj, IWriter writer, Bitset dirty)
         {
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 TransformSerializer.Instance.Serialize(newObj.Transform, oldObj.Transform, writer);
             }
         }
     }
 
-    public class NetworkGameObjectParser : IParser<NetworkGameObject>
+    public class NetworkGameObjectParser : IReadParser<NetworkGameObject>
     {
         public static readonly NetworkGameObjectParser Instance = new NetworkGameObjectParser();
 
@@ -133,9 +133,9 @@ namespace SocialPoint.Multiplayer
             return 1;
         }
 
-        public NetworkGameObject Parse(NetworkGameObject obj, IReader reader, DirtyBits dirty)
+        public NetworkGameObject Parse(NetworkGameObject obj, IReader reader, Bitset dirty)
         {
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj.Transform = TransformParser.Instance.Parse(obj.Transform, reader);
             }

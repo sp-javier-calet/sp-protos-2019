@@ -179,11 +179,11 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkSceneSerializer : ISerializer<NetworkScene>
+    public class NetworkSceneSerializer : IWriteSerializer<NetworkScene>
     {
         public static readonly NetworkSceneSerializer Instance = new NetworkSceneSerializer();
 
-        public void Compare(NetworkScene newScene, NetworkScene oldScene, DirtyBits dirty)
+        public void Compare(NetworkScene newScene, NetworkScene oldScene, Bitset dirty)
         {
         }
 
@@ -199,7 +199,7 @@ namespace SocialPoint.Multiplayer
             itr.Dispose();
         }
 
-        public void Serialize(NetworkScene newScene, NetworkScene oldScene, IWriter writer, DirtyBits dirty)
+        public void Serialize(NetworkScene newScene, NetworkScene oldScene, IWriter writer, Bitset dirty)
         {
             writer.Write(newScene.ObjectsCount);
             var itr = newScene.GetObjectEnumerator();
@@ -238,7 +238,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkSceneParser : IParser<NetworkScene>
+    public class NetworkSceneParser : IReadParser<NetworkScene>
     {
         public static readonly NetworkSceneParser Instance = new NetworkSceneParser();
 
@@ -260,7 +260,7 @@ namespace SocialPoint.Multiplayer
             return 0;
         }
 
-        public NetworkScene Parse(NetworkScene scene, IReader reader, DirtyBits dirty)
+        public NetworkScene Parse(NetworkScene scene, IReader reader, Bitset dirty)
         {
             var c = reader.ReadInt32();
             var gop = NetworkGameObjectParser.Instance;

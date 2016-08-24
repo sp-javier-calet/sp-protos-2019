@@ -1,9 +1,8 @@
-﻿using SocialPoint.IO;
-using System;
+﻿using System;
 
-namespace SocialPoint.Network
+namespace SocialPoint.IO
 {    
-    public class DirtyBits
+    public class Bitset
     {
         const int MaxSize = 64;
 
@@ -132,7 +131,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public static bool NullOrGet(DirtyBits dirty)
+        public static bool NullOrGet(Bitset dirty)
         {
             return dirty == null || dirty.Get(); 
         }

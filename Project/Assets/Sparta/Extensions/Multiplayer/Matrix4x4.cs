@@ -94,11 +94,11 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class Matrix4x4Serializer : ISerializer<Matrix4x4>
+    public class Matrix4x4Serializer : IWriteSerializer<Matrix4x4>
     {
         public static readonly Matrix4x4Serializer Instance = new Matrix4x4Serializer();
 
-        public void Compare(Matrix4x4 newObj, Matrix4x4 oldObj, DirtyBits dirty)
+        public void Compare(Matrix4x4 newObj, Matrix4x4 oldObj, Bitset dirty)
         {
             dirty.Set(newObj[0] != oldObj[0]);
             dirty.Set(newObj[1] != oldObj[1]);
@@ -115,29 +115,29 @@ namespace SocialPoint.Multiplayer
             vs.Serialize(newObj[3], writer);
         }
 
-        public void Serialize(Matrix4x4 newObj, Matrix4x4 oldObj, IWriter writer, DirtyBits dirty)
+        public void Serialize(Matrix4x4 newObj, Matrix4x4 oldObj, IWriter writer, Bitset dirty)
         {
             var vs = Vector4Serializer.Instance;
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj[0], oldObj[0], writer);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj[1], oldObj[1], writer);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj[2], oldObj[2], writer);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj[3], oldObj[3], writer);
             }
         }
     }
 
-    public class Matrix4x4Parser : IParser<Matrix4x4>
+    public class Matrix4x4Parser : IReadParser<Matrix4x4>
     {
         public static readonly Matrix4x4Parser Instance = new Matrix4x4Parser();
 
@@ -157,22 +157,22 @@ namespace SocialPoint.Multiplayer
             return 4;
         }
 
-        public Matrix4x4 Parse(Matrix4x4 obj, IReader reader, DirtyBits dirty)
+        public Matrix4x4 Parse(Matrix4x4 obj, IReader reader, Bitset dirty)
         {
             var vp = Vector4Parser.Instance;
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj[0] = vp.Parse(obj[0], reader);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj[1] = vp.Parse(obj[1], reader);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj[2] = vp.Parse(obj[2], reader);
             }
-            if(DirtyBits.NullOrGet(dirty))
+            if(Bitset.NullOrGet(dirty))
             {
                 obj[3] = vp.Parse(obj[3], reader);
             }

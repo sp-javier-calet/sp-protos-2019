@@ -1,8 +1,7 @@
-﻿using SocialPoint.IO;
-
-namespace SocialPoint.Network
+﻿
+namespace SocialPoint.IO
 {
-    public interface IParser<T>
+    public interface IReadParser<T>
     {
         /**
          * called when the whole object has to be read
@@ -13,7 +12,7 @@ namespace SocialPoint.Network
          * called when only the changes of the object have to be read
          * should read dirty bits first
          */
-        T Parse(T oldObj, IReader reader, DirtyBits dirty);
+        T Parse(T oldObj, IReader reader, Bitset dirty);
 
         /**
          * return the amount of dirty bits the element will check
@@ -23,9 +22,9 @@ namespace SocialPoint.Network
 
     public static class ParserExtensions
     {
-        public static T Parse<T>(this IParser<T> parser, T oldObj, IReader reader)
+        public static T Parse<T>(this IReadParser<T> parser, T oldObj, IReader reader)
         {
-            var dirty = new DirtyBits();
+            var dirty = new Bitset();
             dirty.Read(reader, parser.GetDirtyBitsSize(oldObj));
             return parser.Parse(oldObj, reader, dirty);
         }
@@ -35,11 +34,11 @@ namespace SocialPoint.Network
      * this parser is for objects that are not persistent
      * for example actions or events
      */
-    public abstract class SimpleParser<T> : IParser<T>
+    public abstract class SimpleReadParser<T> : IReadParser<T>
     {
         public abstract T Parse(IReader reader);
 
-        public T Parse(T oldObj, IReader reader, DirtyBits dirty)
+        public T Parse(T oldObj, IReader reader, Bitset dirty)
         {
             return Parse(reader);
         }

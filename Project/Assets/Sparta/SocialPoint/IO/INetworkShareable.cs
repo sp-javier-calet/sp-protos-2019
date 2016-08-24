@@ -1,6 +1,5 @@
-﻿using SocialPoint.IO;
-
-namespace SocialPoint.Network
+﻿
+namespace SocialPoint.IO
 {
     public interface INetworkShareable
     {
@@ -8,7 +7,7 @@ namespace SocialPoint.Network
         void Serialize(IWriter writer);
     }
 
-    public class NetworkShareableParser<T> : SimpleParser<T> where T: INetworkShareable, new()
+    public class NetworkShareableParser<T> : SimpleReadParser<T> where T: INetworkShareable, new()
     {
         public override T Parse(IReader reader)
         {
@@ -18,7 +17,7 @@ namespace SocialPoint.Network
         }
     }
 
-    public class NetworkShareableSerializer<T> : SimpleSerializer<T> where T: INetworkShareable
+    public class NetworkShareableSerializer<T> : SimpleWriteSerializer<T> where T: INetworkShareable
     {
         public override void Serialize(T newObj, IWriter writer)
         {
@@ -26,22 +25,8 @@ namespace SocialPoint.Network
         }
     }
 
-    public static class NetworkShareableExtensions
+    public static class ShareableExtensions
     {
-        public static void SendMessage(this INetworkServer server, NetworkMessageData data, INetworkShareable obj)
-        {
-            var msg = server.CreateMessage(data);
-            obj.Serialize(msg.Writer);
-            msg.Send();
-        }
-
-        public static void SendMessage(this INetworkClient client, NetworkMessageData data, INetworkShareable obj)
-        {
-            var msg = client.CreateMessage(data);
-            obj.Serialize(msg.Writer);
-            msg.Send();
-        }
-
         public static void Write<T>(this IWriter writer, T obj) where T : INetworkShareable
         {
             obj.Serialize(writer);

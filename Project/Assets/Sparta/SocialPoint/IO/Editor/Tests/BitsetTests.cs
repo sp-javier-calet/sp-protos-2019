@@ -6,13 +6,13 @@ using SocialPoint.IO;
 namespace SocialPoint.Network
 {
     [TestFixture]
-    [Category("SocialPoint.Network")]
-    class DirtyBitsTests
+    [Category("SocialPoint.IO")]
+    class BitsetTests
     {
         [Test]
         public void Basic()
         {
-            var bits = new DirtyBits();
+            var bits = new Bitset();
             Assert.That(bits.Count == 0);
             Assert.That(bits.Finished);
         }
@@ -20,7 +20,7 @@ namespace SocialPoint.Network
         [Test]
         public void Setting()
         {
-            var bits = new DirtyBits();
+            var bits = new Bitset();
             bits.Set(true);
             bits.Set(false);
             Assert.That(bits.Count == 2);
@@ -38,7 +38,7 @@ namespace SocialPoint.Network
             Assert.That(bits.Count == 0);
         }
 
-        void GenericWriteAndRead(DirtyBits bits)
+        void GenericWriteAndRead(Bitset bits)
         {
             var size = bits.Count;
             var stream = new MemoryStream();
@@ -53,7 +53,7 @@ namespace SocialPoint.Network
         [Test]
         public void WriteAndRead()
         {
-            var bits = new DirtyBits();
+            var bits = new Bitset();
             bits.Set(true);
             bits.Set(false);
 
@@ -67,7 +67,7 @@ namespace SocialPoint.Network
         [Test]
         public void WriteAndRead8()
         {
-            var bits = new DirtyBits();
+            var bits = new Bitset();
             bits.Set(true);
             bits.Set(false);
             bits.Set(true);
@@ -93,7 +93,7 @@ namespace SocialPoint.Network
         [Test]
         public void WriteAndReadBig()
         {
-            var bits = new DirtyBits();
+            var bits = new Bitset();
             bool v = true;
             for(var i = 0; i < 60; i++)
             {
