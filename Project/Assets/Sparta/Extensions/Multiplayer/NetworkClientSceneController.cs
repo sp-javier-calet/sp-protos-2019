@@ -8,6 +8,7 @@ namespace SocialPoint.Multiplayer
     public interface INetworkClientSceneBehaviour
     {
         void OnInstantiateObject(int id, Transform t);
+
         void OnDestroyObject(int id);
     }
 
@@ -22,12 +23,18 @@ namespace SocialPoint.Multiplayer
         INetworkClientSceneReceiver _receiver;
         List<INetworkClientSceneBehaviour> _sceneBehaviours;
 
+        /*NetworkScene _clientScene;
+        Dictionary<int, object> _pendingActions;
+        int _lastAppliedAction;*/
+
         public NetworkClientSceneController(INetworkClient client)
         {
             _client = client;
             _client.AddDelegate(this);
             _client.RegisterReceiver(this);
             _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
+
+            //_pendingActions = new Dictionary<int, object>();
         }
 
         public virtual void Dispose()
