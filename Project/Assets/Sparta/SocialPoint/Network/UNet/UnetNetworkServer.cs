@@ -51,7 +51,7 @@ namespace SocialPoint.Network
             }
             if(!_server.Listen(_port) || _server.serverHostId == -1)
             {
-                throw new ResourceException("Failed to start.");
+                throw new Exception("Failed to start.");
             }
             Running = true;
             for(var i = 0; i < _delegates.Count; i++)
