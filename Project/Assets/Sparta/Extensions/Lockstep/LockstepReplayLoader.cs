@@ -1,13 +1,13 @@
 ﻿using SocialPoint.Lockstep.Network;
 using UnityEngine.Networking;
 using System.IO;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
     public static class LockstepReplayLoader
     {
-        public static void LoadReplay(IReaderWrapper reader, 
+        public static void LoadReplay(IReader reader, 
                                       ClientLockstepController clientLockstep,
                                       LockstepCommandDataFactory commandDataFactory)
         {

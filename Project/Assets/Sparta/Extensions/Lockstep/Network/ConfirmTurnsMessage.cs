@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
@@ -16,7 +16,7 @@ namespace SocialPoint.Lockstep.Network
             _commandDataFactory = commandDataFactory;
         }
 
-        public void Deserialize(IReaderWrapper reader)
+        public void Deserialize(IReader reader)
         {
             int turnCount = (int)reader.ReadByte();
             ConfirmedTurns = new LockstepTurnData[turnCount];
@@ -34,7 +34,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public void Serialize(IWriterWrapper writer)
+        public void Serialize(IWriter writer)
         {
             writer.Write((byte)ConfirmedTurns.Length);
             for(int i = 0; i < ConfirmedTurns.Length; ++i)

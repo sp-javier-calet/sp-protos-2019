@@ -1,14 +1,19 @@
 ﻿using System.IO;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.IO
 {
-    public class BinaryWriterWrapper : IWriterWrapper
+    public class SystemBinaryWriter : IWriter
     {
         readonly BinaryWriter _writer;
 
-        public BinaryWriterWrapper(BinaryWriter writer)
+        public SystemBinaryWriter(BinaryWriter writer)
         {
             _writer = writer;
+        }
+
+        public SystemBinaryWriter(Stream stream):
+        this(new BinaryWriter(stream))
+        {
         }
 
         public void Write(bool value)

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
@@ -15,7 +15,7 @@ namespace SocialPoint.Lockstep.Network
             ConfirmedTurns = confirmedTurns;
         }
 
-        public void Deserialize(IReaderWrapper reader)
+        public void Deserialize(IReader reader)
         {
             int length = (int)reader.ReadByte();
             ConfirmedTurns = new int[length];
@@ -25,7 +25,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public void Serialize(IWriterWrapper writer)
+        public void Serialize(IWriter writer)
         {
             writer.Write((byte)ConfirmedTurns.Length);
             for(int i = 0; i < ConfirmedTurns.Length; ++i)

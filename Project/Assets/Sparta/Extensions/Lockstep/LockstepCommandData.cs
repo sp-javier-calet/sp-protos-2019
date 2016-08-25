@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
@@ -22,17 +22,17 @@ namespace SocialPoint.Lockstep
             Type = type;
         }
 
-        public virtual void DeserializeCustomData(IReaderWrapper reader)
+        public virtual void DeserializeCustomData(IReader reader)
         {
         }
 
-        public virtual void SerializeCustomData(IWriterWrapper writer)
+        public virtual void SerializeCustomData(IWriter writer)
         {
         }
 
         public abstract ILockstepCommand LockstepCommand { get; set; }
 
-        public void Serialize(IWriterWrapper writer)
+        public void Serialize(IWriter writer)
         {
             writer.Write(Type);
             SerializeCustomData(writer);
