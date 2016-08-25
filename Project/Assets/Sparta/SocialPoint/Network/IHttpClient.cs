@@ -26,6 +26,7 @@ namespace SocialPoint.Network
         [Obsolete("Please use the RequestSetup event to set default request values")]
         string DefaultProxy { set; }
 
+        //Use to set game related data if the implementation needs it
         string Config { set; }
 
         event HttpRequestDelegate RequestSetup;
