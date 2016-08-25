@@ -1,8 +1,8 @@
+using System;
+using System.Collections;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using System;
-using System.Collections;
 using UnityEngine;
 
 namespace SocialPoint.ScriptEvents
@@ -27,16 +27,16 @@ namespace SocialPoint.ScriptEvents
 
     public class RunScriptActionParser : BaseScriptEventParser<RunScriptAction>
     {
-        readonly IParser<ScriptModel> _parser;
+        readonly IAttrObjParser<ScriptModel> _parser;
 
-        public RunScriptActionParser(IParser<ScriptModel> parser): base("action.base.run_script")
+        public RunScriptActionParser(IAttrObjParser<ScriptModel> parser) : base("action.base.run_script")
         {
             _parser = parser;
         }
-        
+
         override protected RunScriptAction ParseEvent(Attr data)
         {
-            return new RunScriptAction{
+            return new RunScriptAction {
                 Script = _parser.Parse(data)
             };
         }
@@ -49,11 +49,11 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyLogTypeInfo = "info";
         const string AttrKeyLogTypeWarn = "warn";
         const string AttrKeyLogTypeError = "error";
-        
-        public LogActionParser(): base("action.log")
+
+        public LogActionParser() : base("action.log")
         {
         }
-        
+
         override protected LogAction ParseEvent(Attr data)
         {
             if(data.AttrType == AttrType.VALUE)
@@ -88,13 +88,13 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeySeconds = "secs";
         const string AttrKeyAction = "action";
 
-        IScriptEventDispatcher _dispatcher;
+        readonly IScriptEventDispatcher _dispatcher;
 
-        public WaitActionParser(IScriptEventDispatcher dispatcher): base("action.wait")
+        public WaitActionParser(IScriptEventDispatcher dispatcher) : base("action.wait")
         {
             _dispatcher = dispatcher;
         }
-        
+
         override protected WaitAction ParseEvent(Attr data)
         {
             var action = data.AsDic[AttrKeyAction].AsDic;
@@ -112,10 +112,10 @@ namespace SocialPoint.ScriptEvents
     {
         IEventDispatcher _dispatcher;
         IScriptEventDispatcher _scriptDispatcher;
-        IParser<ScriptModel> _scriptParser;
+        IAttrObjParser<ScriptModel> _scriptParser;
         ICoroutineRunner _runner;
 
-        public ScriptBridge(IParser<ScriptModel> scriptParser, ICoroutineRunner runner)
+        public ScriptBridge(IAttrObjParser<ScriptModel> scriptParser, ICoroutineRunner runner)
         {
             _scriptParser = scriptParser;
             _runner = runner;
@@ -151,7 +151,7 @@ namespace SocialPoint.ScriptEvents
             script.Run();
         }
 
-        void OnLogAction(LogAction action)
+        static void OnLogAction(LogAction action)
         {
             if(action.Type == LogType.Error)
             {
@@ -159,11 +159,11 @@ namespace SocialPoint.ScriptEvents
             }
             else if(action.Type == LogType.Warning)
             {
-                Log.w(string.Format("{0} - {1}",action.Message, action.Object));
+                Log.w(string.Format("{0} - {1}", action.Message, action.Object));
             }
             else
             {
-                Log.i(string.Format("{0} - {1}",action.Message, action.Object));
+                Log.i(string.Format("{0} - {1}", action.Message, action.Object));
             }
         }
 

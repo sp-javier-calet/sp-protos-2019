@@ -11,11 +11,18 @@ PluginImporter:
     Any:
       enabled: 0
       settings: {}
+    Editor:
+      enabled: 0
+      settings:
+        DefaultValueInitialized: true
     iOS:
       enabled: 1
       settings:
         CompileFlags: -fno-objc-arc
         FrameworkDependencies: 
+    tvOS:
+      enabled: 1
+      settings: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 

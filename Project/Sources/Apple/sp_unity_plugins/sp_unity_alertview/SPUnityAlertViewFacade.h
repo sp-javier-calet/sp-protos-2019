@@ -22,7 +22,6 @@ struct SPUnityAlertViewDataStruct
     const char* title;
     const char* signature;
     const char* buttons;
-    const char* objectname;
     bool input;
 };
 

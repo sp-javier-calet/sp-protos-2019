@@ -23,7 +23,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public static IParser<IScriptCondition> BaseParser
+        public static IAttrObjParser<IScriptCondition> BaseParser
         {
             get
             {
@@ -59,7 +59,7 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(data.AsValue.ToBool());
         }
 
-        public FamilyParser<IScriptCondition> Parent { set { } }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "fixed";
 
@@ -73,7 +73,7 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(true);
         }
 
-        public FamilyParser<IScriptCondition> Parent { set { } }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "all";
 
@@ -87,7 +87,7 @@ namespace SocialPoint.ScriptEvents
             return new FixedCondition(false);
         }
 
-        public FamilyParser<IScriptCondition> Parent { set { } }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "none";
 
@@ -121,7 +121,7 @@ namespace SocialPoint.ScriptEvents
             return new NameCondition(data.ToString());
         }
 
-        public FamilyParser<IScriptCondition> Parent { set { } }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "name";
 
@@ -155,7 +155,7 @@ namespace SocialPoint.ScriptEvents
             return new ArgumentsCondition((Attr)data.Clone());
         }
 
-        public FamilyParser<IScriptCondition> Parent { set { } }
+        public FamilyParser<IScriptCondition> Parent { set; private get; }
 
         const string ConditionName = "args";
 

@@ -10,11 +10,15 @@ namespace SpartaTools.Editor.View
 {
     public class ModuleCompilerWindow : EditorWindow
     {
-        [MenuItem("Sparta/Build/Sparta compiler...", false, 100)]
+        #region Editor options
+
+        [MenuItem("Sparta/Validate/Sparta compiler...", false, 500)]
         public static void CompileModule()
         {
             EditorWindow.GetWindow(typeof(ModuleCompilerWindow), false, "Compiler", true);
         }
+
+        #endregion
 
         Variant _selectedVariant;
         float _lastSelectionTime;

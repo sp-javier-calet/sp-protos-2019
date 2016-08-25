@@ -1,7 +1,7 @@
 ﻿using SocialPoint.Attributes;
 using System.Collections.Generic;
 
-public class ResourceTypeParser : IParser<ResourceType>, ISerializer<ResourceType>
+public class ResourceTypeParser : IAttrObjParser<ResourceType>, IAttrObjSerializer<ResourceType>
 {
     const string AttrKeyId = "id";
     const string AttrKeyName = "name";
@@ -29,7 +29,7 @@ public class ResourceTypeParser : IParser<ResourceType>, ISerializer<ResourceTyp
     #endregion
 }
 
-public class ResourceTypesParser : IParser<IDictionary<string, ResourceType>>, ISerializer<IDictionary<string, ResourceType>>
+public class ResourceTypesParser : IAttrObjParser<IDictionary<string, ResourceType>>, IAttrObjSerializer<IDictionary<string, ResourceType>>
 {
     #region IParser implementation
 

@@ -35,7 +35,10 @@ namespace SocialPoint.CrossPromotion
         const string kDefaultAppsToCheck = "dragoncity://,monsterlegends://,dragonland://,restaurantcity://,dragonstadium://";
         #elif UNITY_ANDROID
         const string kDefaultAppsToCheck = "es.socialpoint.DragonCity,es.socialpoint.MonsterLegends,es.parrotgames.restaurantcity,es.socialpoint.dragonland";
-        #else
+        
+
+
+#else
         const string kDefaultAppsToCheck = "";
         #endif
         string _assetsPath;

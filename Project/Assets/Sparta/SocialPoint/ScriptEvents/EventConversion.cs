@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using SocialPoint.Attributes;
+﻿using SocialPoint.Attributes;
 
 namespace SocialPoint.ScriptEvents
 {
-
-    public interface IScriptEventSerializer : ISerializer<object>
+    public interface IScriptEventSerializer : IAttrObjSerializer<object>
     {
         string Name { get; }
     }
 
-    public interface IScriptEventParser : IParser<object>
+    public interface IScriptEventParser : IAttrObjParser<object>
     {
         string Name { get; }
     }
@@ -23,7 +20,7 @@ namespace SocialPoint.ScriptEvents
     {
         public string Name { get; private set; }
 
-        public BaseScriptEventSerializer(string name)
+        protected BaseScriptEventSerializer(string name)
         {
             Name = name;
         }
@@ -44,7 +41,7 @@ namespace SocialPoint.ScriptEvents
     {
         public string Name { get; private set; }
 
-        public BaseScriptEventParser(string name)
+        protected BaseScriptEventParser(string name)
         {
             Name = name;
         }
@@ -61,7 +58,7 @@ namespace SocialPoint.ScriptEvents
     {
         public string Name { get; private set; }
 
-        public BaseScriptEventConverter(string name)
+        protected BaseScriptEventConverter(string name)
         {
             Name = name;
         }
@@ -87,55 +84,40 @@ namespace SocialPoint.ScriptEvents
 
     public class ScriptEventSerializer<T> : BaseScriptEventSerializer<T>
     {
-        ISerializer<T> _serializer;
+        readonly IAttrObjSerializer<T> _serializer;
 
-        public ScriptEventSerializer(string name, ISerializer<T> serializer = null) : base(name)
+        public ScriptEventSerializer(string name, IAttrObjSerializer<T> serializer = null) : base(name)
         {
             _serializer = serializer;
         }
 
         override protected Attr SerializeEvent(T ev)
         {
-            
-            if(_serializer != null)
-            {
-                return _serializer.Serialize((T)ev);
-            }
-            else
-            {
-                return new AttrEmpty();
-            }
+            return _serializer != null ? _serializer.Serialize(ev) : new AttrEmpty();
         }
     }
 
     public class ScriptEventParser<T> : BaseScriptEventParser<T>
     {
-        IParser<T> _parser;
+        readonly IAttrObjParser<T> _parser;
 
-        public ScriptEventParser(string name, IParser<T> parser = null) : base(name)
+        public ScriptEventParser(string name, IAttrObjParser<T> parser = null) : base(name)
         {
             _parser = parser;
         }
 
         override protected T ParseEvent(Attr data)
         {
-            if(_parser != null)
-            {
-                return _parser.Parse(data);
-            }
-            else
-            {
-                return default(T);
-            }
+            return _parser != null ? _parser.Parse(data) : default(T);
         }
     }
 
     public class ScriptEventConverter<T> : BaseScriptEventConverter<T>
     {
-        ISerializer<T> _serializer;
-        IParser<T> _parser;
+        readonly IAttrObjSerializer<T> _serializer;
+        readonly IAttrObjParser<T> _parser;
 
-        public ScriptEventConverter(string name, IParser<T> parser = null, ISerializer<T> serializer = null) : base(name)
+        public ScriptEventConverter(string name, IAttrObjParser<T> parser = null, IAttrObjSerializer<T> serializer = null) : base(name)
         {
             _serializer = serializer;
             _parser = parser;
@@ -143,27 +125,12 @@ namespace SocialPoint.ScriptEvents
 
         override protected T ParseEvent(Attr data)
         {
-            if(_parser != null)
-            {
-                return _parser.Parse(data);
-            }
-            else
-            {
-                return default(T);
-            }
+            return _parser != null ? _parser.Parse(data) : default(T);
         }
 
         override protected Attr SerializeEvent(T ev)
         {
-
-            if(_serializer != null)
-            {
-                return _serializer.Serialize((T)ev);
-            }
-            else
-            {
-                return new AttrEmpty();
-            }
+            return _serializer != null ? _serializer.Serialize(ev) : new AttrEmpty();
         }
     }
 }
