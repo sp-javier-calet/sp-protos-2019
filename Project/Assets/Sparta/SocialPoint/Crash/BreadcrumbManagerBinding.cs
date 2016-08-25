@@ -1,72 +1,80 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿#if (UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#define UNITY_DEVICE
+#endif
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_DEVICE
+#define NATIVE_BREADCRUMBS
+#endif
+
+#if NATIVE_BREADCRUMBS
 using System.Runtime.InteropServices;
+#endif
 
 namespace SocialPoint.Crash
 {
     public class BreadcrumbManagerBinding
     {
-        #if UNITY_ANDROID
+        #if NATIVE_BREADCRUMBS
+
+        #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+        const string PluginModuleName = "SPUnityPlugins";
+        #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_crash_reporter";
-        #else
+        #elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
 
         /* Native plugin interface */
 
-        #if !UNITY_EDITOR
         [DllImport(PluginModuleName)]
-        private static extern void SPUnityBreadcrumbManager_SetMaxLogs(int maxLogs);
+        static extern void SPUnityBreadcrumbManager_SetMaxLogs(int maxLogs);
 
         [DllImport(PluginModuleName)]
-        private static extern void SPUnityBreadcrumbManager_SetDumpFilePath(string directory, string file);
+        static extern void SPUnityBreadcrumbManager_SetDumpFilePath(string directory, string file);
 
         [DllImport(PluginModuleName)]
-        private static extern void SPUnityBreadcrumbManager_Log(string info);
+        static extern void SPUnityBreadcrumbManager_Log(string info);
 
         [DllImport(PluginModuleName)]
-        private static extern void SPUnityBreadcrumbManager_DumpToFile();
+        static extern void SPUnityBreadcrumbManager_DumpToFile();
 
         [DllImport(PluginModuleName)]
-        private static extern void SPUnityBreadcrumbManager_Clear();
+        static extern void SPUnityBreadcrumbManager_Clear();
+
         #endif
-
 
         /* Game interface */
 
         public static void SetMaxLogs(int maxLogs)
         {
-            #if !UNITY_EDITOR
+            #if NATIVE_BREADCRUMBS
             SPUnityBreadcrumbManager_SetMaxLogs(maxLogs);
             #endif
         }
 
         public static void SetDumpFilePath(string directory, string file)
         {
-            #if !UNITY_EDITOR
+            #if NATIVE_BREADCRUMBS
             SPUnityBreadcrumbManager_SetDumpFilePath(directory, file);
             #endif
         }
 
         public static void Log(string info)
         {
-            #if !UNITY_EDITOR
+            #if NATIVE_BREADCRUMBS
             SPUnityBreadcrumbManager_Log(info);
             #endif
         }
 
         public static void DumpToFile()
         {
-            #if !UNITY_EDITOR
+            #if NATIVE_BREADCRUMBS
             SPUnityBreadcrumbManager_DumpToFile();
             #endif
         }
 
         public static void Clear(int maxLogs)
         {
-            #if !UNITY_EDITOR
+            #if NATIVE_BREADCRUMBS
             SPUnityBreadcrumbManager_Clear();
             #endif
         }

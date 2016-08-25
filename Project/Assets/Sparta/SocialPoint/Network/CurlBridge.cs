@@ -29,13 +29,11 @@ namespace SocialPoint.Network
 
         #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         const string PluginModuleName = "SPUnityPlugins";
-        #elif UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-        const string PluginModuleName = "sp_unity_curl";
         #elif UNITY_ANDROID && !UNITY_EDITOR
         const string PluginModuleName = "sp_unity_curl";
         #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
-        #else // linux editor and standalone
+        #else // linux editor and linux standalone
         const string PluginModuleName = "sp_unity_curl";
         #endif
 
