@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SocialPoint.Utils
 {
     [CustomPropertyDrawer(typeof(UnityLayer))]
-    public class UnityLayerPropertyDrawer : PropertyDrawer
+    public sealed class UnityLayerPropertyDrawer : PropertyDrawer
     {
         public override void OnGUI(UnityEngine.Rect _position, SerializedProperty _property, GUIContent _label)
         {

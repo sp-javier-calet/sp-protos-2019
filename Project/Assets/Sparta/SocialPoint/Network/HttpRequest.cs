@@ -12,7 +12,7 @@ namespace SocialPoint.Network
         High = 2
     }
 
-    public class HttpRequest
+    public sealed class HttpRequest
     {
         const char AcceptEncodingSeparator = ',';
         public const string AcceptHeader = "Accept";

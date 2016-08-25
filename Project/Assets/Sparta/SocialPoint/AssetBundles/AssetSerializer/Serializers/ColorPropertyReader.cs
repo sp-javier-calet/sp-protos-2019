@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class ColorPropertyReader : AbstractPropertyReader
+    public sealed class ColorPropertyReader : AbstractPropertyReader
     {
         public ColorPropertyReader(JsonData propDef) : base(propDef)
         {

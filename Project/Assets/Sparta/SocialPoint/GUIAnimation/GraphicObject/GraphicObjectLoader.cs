@@ -3,7 +3,7 @@ using UnityEngine;
 namespace SocialPoint.GUIAnimation
 {
     // Load the Graphic Object, compatible with ngui and native ui
-    public class GraphicObjectLoader
+    public sealed class GraphicObjectLoader
     {
         public static IGraphicObject Load (Transform trans, bool recursive)
         {

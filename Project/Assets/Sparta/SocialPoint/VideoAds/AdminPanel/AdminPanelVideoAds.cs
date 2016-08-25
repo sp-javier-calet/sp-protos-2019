@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 namespace SocialPoint.VideoAds
 {
     
-    public class AdminPanelVideoAds :  IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelVideoAds :  IAdminPanelGUI, IAdminPanelConfigurer
     {
         IVideoAdsManager _manager;
         AdminPanelLayout _layout;

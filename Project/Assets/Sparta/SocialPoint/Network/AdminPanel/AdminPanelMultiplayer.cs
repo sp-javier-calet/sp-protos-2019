@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SocialPoint.Network
 {
-    public class AdminPanelMultiplayer : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
+    public sealed class AdminPanelMultiplayer : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
     {
         DependencyContainer _container;
         IUpdateScheduler _updateScheduler;
@@ -317,7 +317,7 @@ namespace SocialPoint.Network
         #endregion
     }
 
-    public class AdminPanelUnetMultiplayer : IAdminPanelGUI
+    public sealed class AdminPanelUnetMultiplayer : IAdminPanelGUI
     {
         DependencyContainer _container;
         IUpdateScheduler _updateScheduler;

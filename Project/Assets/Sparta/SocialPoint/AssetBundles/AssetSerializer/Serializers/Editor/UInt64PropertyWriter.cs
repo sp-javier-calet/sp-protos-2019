@@ -4,7 +4,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class UInt64PropertyWriter : AbstractPropertyWriter
+    public sealed class UInt64PropertyWriter : AbstractPropertyWriter
     {
         public UInt64PropertyWriter(string propName, object value, Type propType) : base(propName, "UInt64", value, propType)
         {

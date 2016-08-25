@@ -16,7 +16,7 @@ namespace SocialPoint.ServerEvents
 
     public delegate void EventTrackerErrorDelegate(EventTrackerErrorType type, Error err);
 
-    public class ResourceOperation
+    public sealed class ResourceOperation
     {
         public string Resource;
         public int Amount;
@@ -53,7 +53,7 @@ namespace SocialPoint.ServerEvents
         }
     }
 
-    public class FunnelOperation
+    public sealed class FunnelOperation
     {
         public string Step;
         public string Type;

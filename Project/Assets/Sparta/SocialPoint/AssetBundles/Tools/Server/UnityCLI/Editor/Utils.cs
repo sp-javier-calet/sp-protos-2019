@@ -9,7 +9,7 @@ using LitJson;
 
 namespace SocialPoint.Tool.Server
 {
-    public class Utils
+    public sealed class Utils
     {
         /**
          * Get the closed generic method 'T ToObj<T> (string content)' for the 

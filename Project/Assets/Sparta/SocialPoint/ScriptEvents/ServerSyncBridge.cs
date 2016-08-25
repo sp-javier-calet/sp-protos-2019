@@ -17,7 +17,7 @@ namespace SocialPoint.ScriptEvents
         public Attr Response;
     }
 
-    public class ServerCommandActionParser : BaseScriptEventParser<ServerCommandAction>
+    public sealed class ServerCommandActionParser : BaseScriptEventParser<ServerCommandAction>
     {
         const string AttrKeyName = "name";
         const string AttrKeyArguments = "args";
@@ -35,7 +35,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ServerCommandResponseEventSerializer : BaseScriptEventSerializer<ServerCommandResponseEvent>
+    public sealed class ServerCommandResponseEventSerializer : BaseScriptEventSerializer<ServerCommandResponseEvent>
     {
         const string AttrKeyCommandName = "name";
         const string AttrKeyCommandArguments = "args";
@@ -61,7 +61,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ServerSyncBridge :
+    public sealed class ServerSyncBridge :
         IEventsBridge, 
         IScriptEventsBridge
     {

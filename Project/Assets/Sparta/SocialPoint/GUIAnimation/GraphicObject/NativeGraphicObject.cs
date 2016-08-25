@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.GUIAnimation
 {
-    public class NativeGraphicObject : IGraphicObject
+    public sealed class NativeGraphicObject : IGraphicObject
     {
         Graphic _graphic;
 

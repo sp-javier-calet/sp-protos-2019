@@ -1,7 +1,7 @@
 using System.Text;
 using System.Collections.Generic;
 
-public class JsonFormatter
+public sealed class JsonFormatter
 {
     #region class members
     const string Space = " ";

@@ -9,7 +9,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A Tree Widget.
     /// </summary>
     /// This Widget is undocumented and it's behaviour has not been tested properly.
-	public class TLWTree : TLWidget
+	public sealed class TLWTree : TLWidget
 	{
 		private TLWTreeNode[] _items;
 		private int _indentation;

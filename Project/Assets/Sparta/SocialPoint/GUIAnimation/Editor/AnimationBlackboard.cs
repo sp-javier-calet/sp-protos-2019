@@ -6,7 +6,7 @@ namespace SocialPoint.GUIAnimation
 	// Class to store string values shared between animation panels
 	// Example: A panel can set the key: "FocusedPanel", then Panels can take that into account to react to 
 	// mouse click or any event only if they are the FocusedPanel
-	public class AnimationBlackboard
+	public sealed class AnimationBlackboard
 	{
 		Dictionary<string, string> _blackBoard = new Dictionary<string, string>();
 

@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelApplication : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelApplication : IAdminPanelGUI, IAdminPanelConfigurer
     {
         public void OnConfigure(AdminPanel adminPanel)
         {

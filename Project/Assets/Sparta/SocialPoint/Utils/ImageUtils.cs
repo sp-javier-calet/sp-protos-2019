@@ -6,7 +6,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Utils
 {
-    public class ImageUtils
+    public sealed class ImageUtils
     {
         public static Error SaveTextureToFile(Texture2D texture, string fileName)
         {

@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class WebLoginBrowser : TLWWebBrowser
+    public sealed class WebLoginBrowser : TLWWebBrowser
     {
         Thread logger_thread;
         SPAMAuthenticator spamAuthenticator;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class SPAMBundleSelector : TLWTreeSelector<SPAMBundleSelectorItem> {
+    public sealed class SPAMBundleSelector : TLWTreeSelector<SPAMBundleSelectorItem> {
 
         TLEvent<SPAMBundleSelectorItem> _itemStateChanged;
         public TLEvent<SPAMBundleSelectorItem> itemStateChanged { get { return _itemStateChanged; } }

@@ -22,7 +22,7 @@ namespace SocialPoint.Purchase
         Deferred
     }
 
-    public class IosStoreTransaction
+    public sealed class IosStoreTransaction
     {
         public string ProductIdentifier { get; private set; }
 

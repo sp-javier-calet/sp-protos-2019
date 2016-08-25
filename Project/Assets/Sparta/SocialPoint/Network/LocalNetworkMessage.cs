@@ -4,7 +4,7 @@ using System.IO;
 
 namespace SocialPoint.Network
 {
-    public class LocalNetworkMessage : INetworkMessage
+    public sealed class LocalNetworkMessage : INetworkMessage
     {
         public IWriter Writer{ get; private set; }
         public NetworkMessageData Data{ get; private set; }

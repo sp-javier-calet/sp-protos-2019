@@ -2,7 +2,7 @@
 using System.Collections;
 using SocialPoint.Marketing;
 
-public class EmptyAppsFlyer : IMarketingTracker
+public sealed class EmptyAppsFlyer : IMarketingTracker
 {
     #region IMarketingTracker implementation
 

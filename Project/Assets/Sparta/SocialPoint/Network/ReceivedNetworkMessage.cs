@@ -3,7 +3,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
-    public class ReceivedNetworkMessage
+    public sealed class ReceivedNetworkMessage
     {
         public byte MessageType{ get; private set; }
         public byte ChannelId{ get; private set; }

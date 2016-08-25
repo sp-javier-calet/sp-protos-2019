@@ -7,7 +7,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A line that visually splits spaces.
     /// </summary>
     /// When used in a TLWHorizontalLayout or TLWVerticalLayout will draw a horizontal or vertical line, visually dividing zones in the view.
-	public class TLWSplitter : TLWidget 
+	public sealed class TLWSplitter : TLWidget 
 	{
 		private Color? baseColor;
 

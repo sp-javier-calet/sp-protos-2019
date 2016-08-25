@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SocialPoint.Utils
 {
-    public class CryptographyUtils
+    public sealed class CryptographyUtils
     {
         public static string GetHashSha256(string original)
         {

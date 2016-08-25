@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
-    public class NGUIPanelGraphicObject : IGraphicObject
+    public sealed class NGUIPanelGraphicObject : IGraphicObject
     {
         UIPanel _graphic;
 

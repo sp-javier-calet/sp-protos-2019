@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
-    public class UIViewControllerFactory
+    public sealed class UIViewControllerFactory
     {
         public delegate UIViewController Delegate();
 

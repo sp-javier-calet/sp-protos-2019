@@ -2,7 +2,7 @@
 
 namespace SocialPoint.CrossPromotion
 {
-    public class CrossPromotionBannerData
+    public sealed class CrossPromotionBannerData
     {
         public int Uid { get; private set; }
 

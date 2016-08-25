@@ -6,7 +6,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.EventSystems
 {
-    public class ActionStandaloneInputModule : ActionPointerInputModule
+    public sealed class ActionStandaloneInputModule : ActionPointerInputModule
     {
         float m_PrevActionTime;
         Vector2 m_LastMoveVector;
@@ -15,7 +15,7 @@ namespace SocialPoint.EventSystems
         Vector2 m_LastMousePosition;
         Vector2 m_MousePosition;
 
-        protected ActionStandaloneInputModule()
+        ActionStandaloneInputModule()
         {
         }
 
@@ -322,7 +322,7 @@ namespace SocialPoint.EventSystems
         /// <summary>
         /// Process submit keys.
         /// </summary>
-        protected bool SendSubmitEventToSelectedObject()
+        bool SendSubmitEventToSelectedObject()
         {
             if(eventSystem.currentSelectedGameObject == null)
                 return false;
@@ -362,7 +362,7 @@ namespace SocialPoint.EventSystems
         /// <summary>
         /// Process keyboard events.
         /// </summary>
-        protected bool SendMoveEventToSelectedObject()
+        bool SendMoveEventToSelectedObject()
         {
             float time = Time.unscaledTime;
 
@@ -408,7 +408,7 @@ namespace SocialPoint.EventSystems
             return axisEventData.used;
         }
 
-        protected void ProcessMouseEvent()
+        void ProcessMouseEvent()
         {
             ProcessMouseEvent(0);
         }
@@ -416,7 +416,7 @@ namespace SocialPoint.EventSystems
         /// <summary>
         /// Process all mouse events.
         /// </summary>
-        protected void ProcessMouseEvent(int id)
+        void ProcessMouseEvent(int id)
         {
             var mouseData = GetMousePointerEventData(id);
             var leftButtonData = mouseData.GetButtonState(PointerEventData.InputButton.Left).eventData;
@@ -439,7 +439,7 @@ namespace SocialPoint.EventSystems
             }
         }
 
-        protected bool SendUpdateEventToSelectedObject()
+        bool SendUpdateEventToSelectedObject()
         {
             if(eventSystem.currentSelectedGameObject == null)
                 return false;
@@ -452,7 +452,7 @@ namespace SocialPoint.EventSystems
         /// <summary>
         /// Process the current mouse press.
         /// </summary>
-        protected void ProcessMousePress(MouseButtonEventData data)
+        void ProcessMousePress(MouseButtonEventData data)
         {
             var pointerEvent = data.buttonData;
             var currentOverGo = pointerEvent.pointerCurrentRaycast.gameObject;

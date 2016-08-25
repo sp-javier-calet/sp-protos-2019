@@ -5,7 +5,7 @@ using System.IO;
 
 namespace SocialPoint.Lockstep
 {
-    public class SetTurnAnticipationLockstepCommandData : LockstepCommandData
+    public sealed class SetTurnAnticipationLockstepCommandData : LockstepCommandData
     {
         ClientLockstepController _lockstepController;
 

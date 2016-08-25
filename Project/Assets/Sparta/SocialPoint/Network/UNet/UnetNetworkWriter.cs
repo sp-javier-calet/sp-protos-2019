@@ -3,7 +3,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkWriter : IWriter
+    public sealed class UnetNetworkWriter : IWriter
     {
         readonly NetworkWriter _writer;
 

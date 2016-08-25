@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SocialPoint.Hardware
 {
     #if UNITY_ANDROID
-    public class AndroidNetworkInfo : INetworkInfo
+    public sealed class AndroidNetworkInfo : INetworkInfo
     {
         public AndroidJavaObject SocketAddress
         {
@@ -118,7 +118,7 @@ namespace SocialPoint.Hardware
         }
     }
     #else
-    public class AndroidNetworkInfo : EmptyNetworkInfo
+    public sealed class AndroidNetworkInfo : EmptyNetworkInfo
     {
     }
 #endif

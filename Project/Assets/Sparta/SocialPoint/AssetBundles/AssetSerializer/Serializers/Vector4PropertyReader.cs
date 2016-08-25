@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class Vector4PropertyReader : AbstractPropertyReader
+    public sealed class Vector4PropertyReader : AbstractPropertyReader
     {
         public Vector4PropertyReader(JsonData propDef) : base(propDef)
         {

@@ -2,7 +2,7 @@ using System;
 
 namespace SocialPoint.AssetSerializer.Exceptions
 {
-    public class LoadBundleException: Exception
+    public sealed class LoadBundleException: Exception
     {
         private string message = "";
 

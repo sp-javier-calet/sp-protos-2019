@@ -7,7 +7,7 @@ namespace SocialPoint.Locale
 {
     [TestFixture]
     [Category("SocialPoint.Locale")]
-    public class LocalizationTests
+    public sealed class LocalizationTests
     {
         IHttpClient HttpClient;
         LocalizationManager LocalizationManager;

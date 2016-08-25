@@ -2,7 +2,7 @@
 
 namespace SocialPoint.IO
 {
-    public class SystemBinaryWriter : IWriter
+    public sealed class SystemBinaryWriter : IWriter
     {
         readonly BinaryWriter _writer;
 

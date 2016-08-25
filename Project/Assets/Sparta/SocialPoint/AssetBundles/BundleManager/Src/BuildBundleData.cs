@@ -6,7 +6,7 @@ using LitJson;
  * All informations of a bundle
  * Use the BundleManager APIs to change the bundle content, don't change the members of this class directly.
  */ 
-public class BundleData
+public sealed class BundleData
 {
     /**
      * Name of the bundle. The name should be uniqle in all bundles
@@ -47,7 +47,7 @@ public class BundleData
     public List<string> children = new List<string>();
 }
 
-public class BundleBuildState
+public sealed class BundleBuildState
 {
     public string       bundleName = "";
     public int          version = -1;
@@ -63,7 +63,7 @@ public class BundleBuildState
     //
 }
 
-public class BMConfiger
+public sealed class BMConfiger
 {
     public bool             compress = true;
     public bool             deterministicBundle = true;
@@ -80,7 +80,7 @@ public class BMConfiger
     //
 }
 
-public class BMUrls
+public sealed class BMUrls
 {
     static readonly string DEFAULT_OUTPUT = "$(DataPath)/../AssetBundle/$(Platform)";
 

@@ -2,7 +2,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
-    public class PurchaseCommand : Command
+    public sealed class PurchaseCommand : Command
     {
         static readonly string TypeName = "purchase";
         static readonly string ReceiptKey = "receipt";

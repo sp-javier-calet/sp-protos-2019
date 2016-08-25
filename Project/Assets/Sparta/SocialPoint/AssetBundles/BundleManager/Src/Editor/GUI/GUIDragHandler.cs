@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 internal class GUIDragHandler
 {
-    public class DragDatas
+    public sealed class DragDatas
     {
         public string[] dragPaths = null;
         public UnityEngine.Object[] dragObjects = null;

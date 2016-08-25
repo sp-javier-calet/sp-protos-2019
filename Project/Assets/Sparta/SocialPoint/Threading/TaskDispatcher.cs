@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace SocialPoint.Threading
 {
-    public class Task
+    public sealed class Task
     {
         Action _workAction;
         Action _completionAction;
@@ -45,7 +45,7 @@ namespace SocialPoint.Threading
         }
     }
 
-    public class TaskDispatcher
+    public sealed class TaskDispatcher
     {
         int _numRunningTasks;
         int _maxSimultaneousTasks;

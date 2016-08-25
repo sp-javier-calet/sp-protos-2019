@@ -5,7 +5,7 @@ using SocialPoint.AssetSerializer.Helpers;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-	public class ListPropertyReader : AbstractPropertyReader
+	public sealed class ListPropertyReader : AbstractPropertyReader
 	{
         public ListPropertyReader(JsonData propDef) : base(propDef)
 		{

@@ -2,7 +2,7 @@
 
 namespace SocialPoint.IO
 {
-    public class SystemBinaryReader : IReader
+    public sealed class SystemBinaryReader : IReader
     {
         readonly BinaryReader _reader;
 

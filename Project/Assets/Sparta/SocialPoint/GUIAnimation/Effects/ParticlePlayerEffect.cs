@@ -7,14 +7,14 @@ namespace SocialPoint.GUIAnimation
     // Class that spawns a particle effect
     // Notes: By default this class will instanciate the prefab by using GameObject.Instantiate
     [System.Serializable]
-    public class ParticlePlayerEffect : TriggerEffect
+    public sealed class ParticlePlayerEffect : TriggerEffect
     {
         public interface ISpawner
         {
             GameObject Spawn(GameObject prefab);
         }
 
-        public class DefaultSpawner : ISpawner
+        public sealed class DefaultSpawner : ISpawner
         {
             public GameObject Spawn(GameObject prefab)
             {

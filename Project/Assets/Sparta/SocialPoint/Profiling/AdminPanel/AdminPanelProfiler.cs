@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Profiling
 {
-    public class AdminPanelProfiler : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelProfiler : IAdminPanelGUI, IAdminPanelConfigurer
     {
         PerfInfoGUI _perfInfoGUI;
         Text _frameText;

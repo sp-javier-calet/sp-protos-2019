@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 #if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
-    public class IosStoreAttrUtils
+    public sealed class IosStoreAttrUtils
     {
         public delegate T IosStoreObjectFromAttrDic<T>(AttrDic dict);
 

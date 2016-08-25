@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace SocialPoint.GUIAnimation
 {
 	// Class that acts as a proxy to store a selection of steps, this is used to apply one action to all the selected steps
-	public class StepsSelection : IStep
+	public sealed class StepsSelection : IStep
 	{
 		List<Step> _steps = new List<Step>();
 		public List<Step> Steps

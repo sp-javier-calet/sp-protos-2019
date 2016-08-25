@@ -10,7 +10,7 @@ namespace SocialPoint.ServerSync
     /// <summary>
     /// A container for a list of pending commands
     /// </summary>
-    public class Packet : IEnumerable<PackedCommand>
+    public sealed class Packet : IEnumerable<PackedCommand>
     {
         public delegate bool FilterDelegate(PackedCommand item);
 

@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
-    public class UrlQueryAttrSerializer
+    public sealed class UrlQueryAttrSerializer
     {
         const string TokenSeparator = "&";
         const string TokenAssign = "=";

@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace SocialPoint.Editor.LevelCaptureTool
 {
-    public class GUILevelCaptureToolController : TLController
+    public sealed class GUILevelCaptureToolController : TLController
     {
         GuiLevelCaptureToolView View { get { return (GuiLevelCaptureToolView)_view; } }
         GuiLevelCaptureToolModel Model { get { return (GuiLevelCaptureToolModel)_model; } }

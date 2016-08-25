@@ -12,7 +12,7 @@ using BM.Extensions;
 
 #pragma warning disable 0618
 
-public class BuiltBundle
+public sealed class BuiltBundle
 {
     public string           bundleName;
     public List<string>     includs;
@@ -148,7 +148,7 @@ public class BuiltBundle
     }
 }
 
-public class BuildProcessException : Exception
+public sealed class BuildProcessException : Exception
 {
     public BuildProcessException(string message) : base(message)
     {
@@ -159,7 +159,7 @@ public class BuildProcessException : Exception
  * Build helper contains APIs for bundle building.
  * You can use this to custom your own build progress.
  */ 
-public class BuildHelper
+public sealed class BuildHelper
 {
     public delegate void BundleBuiltDelegate(BuiltBundle bundle);
     public delegate void BundleErrorDelegate(BuiltBundle bundle);

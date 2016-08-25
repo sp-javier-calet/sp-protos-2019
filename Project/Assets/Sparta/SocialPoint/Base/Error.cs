@@ -1,6 +1,6 @@
 namespace SocialPoint.Base
 {
-    public class Error
+    public sealed class Error
     {
         public string Msg { get; set; }
 

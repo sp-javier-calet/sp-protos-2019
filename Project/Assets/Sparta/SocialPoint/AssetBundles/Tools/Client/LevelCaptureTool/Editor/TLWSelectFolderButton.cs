@@ -8,7 +8,7 @@ namespace SocialPoint.Editor.LevelCaptureTool
 	/// <summary>
 	/// A TLWButton that opens a folder selection dialogue.
 	/// </summary>
-	public class TLWSelectFolderButton : TLWButton
+	public sealed class TLWSelectFolderButton : TLWButton
 	{
 
 		private TLEvent _onPathSelectedEvent;

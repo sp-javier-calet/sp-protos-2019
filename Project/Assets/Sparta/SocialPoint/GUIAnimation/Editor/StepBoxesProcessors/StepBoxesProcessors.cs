@@ -6,7 +6,7 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
 	// This class will control the boxes position, scale and snapping taking into account the user interaction with the boxes windows
-	public class StepBoxesProcessors
+	public sealed class StepBoxesProcessors
 	{
 		abstract class BaseBoxProcessor
 		{
