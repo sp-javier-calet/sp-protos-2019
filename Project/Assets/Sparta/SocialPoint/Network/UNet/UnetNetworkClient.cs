@@ -7,7 +7,7 @@ using System;
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkClient : INetworkClient, IDisposable
+    public sealed class UnetNetworkClient : INetworkClient, IDisposable
     {
         INetworkMessageReceiver _receiver;
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
