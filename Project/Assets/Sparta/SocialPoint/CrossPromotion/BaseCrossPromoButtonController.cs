@@ -7,10 +7,10 @@ namespace SocialPoint.CrossPromotion
     {
         protected CrossPromotionManager _cpm;
 
-        public static BaseCrossPromoButtonController Create(CrossPromotionManager crossManager, Transform parent, bool rescale = false)
+        public static BaseCrossPromoButtonController Create(CrossPromotionManager crossManager, string prefab, Transform parent, bool rescale = false)
         {
-            GameObject cpObj = GameObject.Instantiate(Resources.Load("CrossPromoButton") as GameObject);
-            cpObj.transform.parent = parent;
+            GameObject cpObj = GameObject.Instantiate(Resources.Load(prefab) as GameObject);
+            cpObj.transform.SetParent(parent, false);
             cpObj.transform.localPosition = Vector3.zero;
             cpObj.transform.localScale = Vector3.one;
             cpObj.GetComponent<BaseCrossPromoButtonController>().Init(crossManager, rescale);

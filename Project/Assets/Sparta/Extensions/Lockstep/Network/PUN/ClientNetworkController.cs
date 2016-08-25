@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network.PUN
 {
@@ -210,16 +210,16 @@ namespace SocialPoint.Lockstep.Network.PUN
         {
             MemoryStream memoryStream = new MemoryStream();
             BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
-            IWriterWrapper writerWrapper = new BinaryWriterWrapper(binaryWriter);
+            IWriter writerWrapper = new SystemBinaryWriter(binaryWriter);
             msg.Serialize(writerWrapper);
             return memoryStream.ToArray();
         }
 
-        IReaderWrapper GetReader(object data)
+        IReader GetReader(object data)
         {
             MemoryStream stream = new MemoryStream((byte[])data);
             BinaryReader binaryReader = new BinaryReader(stream);
-            return new BinaryReaderWrapper(binaryReader);
+            return new SystemBinaryReader(binaryReader);
         }
 
         public void Send(byte msgType, INetworkMessage msg, NetworkReliability channel = NetworkReliability.Reliable, int connectionId = 0)

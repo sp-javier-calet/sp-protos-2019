@@ -2,7 +2,7 @@
 using System.Text;
 using SocialPoint.Attributes;
 using System.IO;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
@@ -18,7 +18,7 @@ namespace SocialPoint.Lockstep.Network
             Config = config;
         }
 
-        public void Deserialize(IReaderWrapper reader)
+        public void Deserialize(IReader reader)
         {
             if(Config == null)
             {
@@ -34,7 +34,7 @@ namespace SocialPoint.Lockstep.Network
             Config.MaxRetries = reader.ReadInt32();
         }
 
-        public void Serialize(IWriterWrapper writer)
+        public void Serialize(IWriter writer)
         {
             writer.Write(PlayerId);
             writer.Write(Config.CommandStepFactor);
