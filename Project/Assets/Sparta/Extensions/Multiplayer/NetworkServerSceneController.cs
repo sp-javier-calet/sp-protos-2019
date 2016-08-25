@@ -29,7 +29,7 @@ namespace SocialPoint.Multiplayer
         Dictionary<string,List<INetworkBehaviour>> _behaviourPrototypes;
         INetworkServerSceneReceiver _receiver;
 
-        int _lastReceivedAction;
+        int _lastReceivedAction = 15;
         Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
 
         public NetworkScene Scene
@@ -213,7 +213,7 @@ namespace SocialPoint.Multiplayer
             var msg = _server.CreateMessage(new NetworkMessageData {
                 MessageType = SceneMsgType.UpdateSceneEvent
             });
-            //TODO: Write action to avoid sending it through actionackevent (delete that class) msg.Writer.Write(_lastReceivedAction);
+            msg.Writer.Write((Int32)_lastReceivedAction);//Send last received action to client
             NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, msg.Writer);
             msg.Send();
             _oldScene = new NetworkScene(_scene);
@@ -327,24 +327,14 @@ namespace SocialPoint.Multiplayer
             //TODO: Send message to client with last received action
         }
 
-        void ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
+        bool ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
         {
-            NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
+            return NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
         }
 
         public void RegisterAction(Type actionType, INetworkActionDelegate callback)
         {
-            List<INetworkActionDelegate> callbacksList;
-            if(_actionDelegates.TryGetValue(actionType, out callbacksList))
-            {
-                callbacksList.Add(callback);
-            }
-            else
-            {
-                callbacksList = new List<INetworkActionDelegate>();
-                callbacksList.Add(callback);
-                _actionDelegates.Add(actionType, callbacksList);
-            }
+            NetworkActionUtils.RegisterAction(actionType, callback, _actionDelegates);
         }
     }
 }

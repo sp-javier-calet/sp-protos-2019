@@ -71,20 +71,16 @@ namespace SocialPoint.Multiplayer
                 if(_scene == null)
                 {
                     _scene = NetworkSceneParser.Instance.Parse(reader);
-                    _clientScene = NetworkSceneParser.Instance.Parse(reader);
+                    _clientScene = new NetworkScene(_scene);
                 }
                 else
                 {
-                    //TODO: Read and apply actions
+                    int lastServerAction = reader.ReadInt32();//Read last action before reading scene
                     _scene = NetworkSceneParser.Instance.Parse(_scene, reader);
+                    OnActionFromServer(lastServerAction);
                 }
-                var itr = _scene.GetObjectEnumerator();
-                while(itr.MoveNext())
-                {
-                    var go = itr.Current;
-                    UpdateObjectView(go.Id, go.Transform);
-                }
-                itr.Dispose();
+
+                UpdateSceneView();
             }
             else if(data.MessageType == SceneMsgType.InstantiateObjectEvent)
             {
@@ -111,6 +107,18 @@ namespace SocialPoint.Multiplayer
                     _receiver.OnMessageReceived(data, reader);
                 }
             }
+        }
+
+        //TODO: Pass function to Utils?? Server uses it?
+        void UpdateSceneView()
+        {
+            var itr = _clientScene.GetObjectEnumerator();//TODO: Previously was with _scene, now with _clientScene
+            while(itr.MoveNext())
+            {
+                var go = itr.Current;
+                UpdateObjectView(go.Id, go.Transform);
+            }
+            itr.Dispose();
         }
 
         virtual protected void UpdateObjectView(int objectId, Transform t)
@@ -164,14 +172,23 @@ namespace SocialPoint.Multiplayer
         {
             _lastAppliedAction++;
             _pendingActions.Add(_lastAppliedAction, new NetworkActionTuple(actionType, action));
-            ApplyActionToScene(new NetworkActionTuple(actionType, action), _clientScene);
-            //TODO: Apply game object changes with _clientScene (only if modified)
+            if(ApplyActionToScene(new NetworkActionTuple(actionType, action), _clientScene))
+            {
+                //TODO: Apply game object changes with _clientScene (only if modified). NEEDED? or use UpdateSceneView in Update
+                UpdateSceneView();
+            }
+
             //TODO: Send activation to server
         }
 
-        void ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
+        bool ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
         {
-            NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
+            return NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
+        }
+
+        public void RegisterAction(Type actionType, INetworkActionDelegate callback)
+        {
+            NetworkActionUtils.RegisterAction(actionType, callback, _actionDelegates);
         }
 
         public void OnActionFromServer(int lastServerAction)
@@ -179,6 +196,7 @@ namespace SocialPoint.Multiplayer
             NetworkActionTuple actionTuple;
             if(_pendingActions.TryGetValue(lastServerAction, out actionTuple))
             {
+                //TODO: NEEDED? In Update we are parsing the whole scene. We should do it before calling this function
                 ApplyActionToScene(actionTuple, _scene);
                 //Copy _scene into _clientScene
                 _clientScene = new NetworkScene(_scene);
@@ -207,22 +225,7 @@ namespace SocialPoint.Multiplayer
             }
             itr.Dispose();
 
-            //TODO: Apply game object changes with _clientScene
-        }
-
-        public void RegisterAction(Type actionType, INetworkActionDelegate callback)
-        {
-            List<INetworkActionDelegate> actionCallbackList;
-            if(_actionDelegates.TryGetValue(actionType, out actionCallbackList))
-            {
-                actionCallbackList.Add(callback);
-            }
-            else
-            {
-                actionCallbackList = new List<INetworkActionDelegate>();
-                actionCallbackList.Add(callback);
-                _actionDelegates.Add(actionType, actionCallbackList);
-            }
+            //TODO: Apply game object changes with _clientScene. NEEDED? Check UpdateSceneEvent, calling UpdateSceneView()
         }
     }
 }

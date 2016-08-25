@@ -45,7 +45,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
                 p += new Vector3(
                     RandomUtils.Range(-_movement.x, _movement.x),
-                    RandomUtils.Range(-_movement.y, _movement.y),
+                    0.0f,//RandomUtils.Range(-_movement.y, _movement.y),
                     RandomUtils.Range(-_movement.z, _movement.z));
 
                 _controller.Tween(id, p, _moveInterval);
