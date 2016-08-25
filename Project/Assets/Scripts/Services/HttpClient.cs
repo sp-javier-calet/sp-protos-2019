@@ -18,8 +18,8 @@ public class HttpClient :
     string _httpProxy;
     IDeviceInfo _deviceInfo;
 
-    public HttpClient(ICoroutineRunner runner, string proxy, IDeviceInfo deviceInfo, IAppEvents appEvents):
-    base(runner)
+    public HttpClient(ICoroutineRunner runner, string proxy, IDeviceInfo deviceInfo, IAppEvents appEvents) :
+        base(runner)
     {
         RequestSetup += OnRequestSetup;
         _httpProxy = proxy;

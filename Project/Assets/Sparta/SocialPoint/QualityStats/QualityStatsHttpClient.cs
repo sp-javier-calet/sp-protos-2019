@@ -43,6 +43,13 @@ namespace SocialPoint.QualityStats
             }
         }
 
+        public string Config
+        {
+            set
+            {
+            }
+        }
+
         #endregion
 
         public class Data
