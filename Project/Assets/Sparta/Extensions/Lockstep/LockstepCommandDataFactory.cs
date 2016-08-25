@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.IO;
 using SocialPoint.Utils;
 using System.IO;
 
@@ -28,7 +29,7 @@ namespace SocialPoint.Lockstep
             return commandData;
         }
 
-        public LockstepCommandData CreateNetworkLockstepCommandData(int turn, IReaderWrapper reader)
+        public LockstepCommandData CreateNetworkLockstepCommandData(int turn, IReader reader)
         {
             byte type = reader.ReadByte();
             var commandData = Create(new TurnTypeTuple {

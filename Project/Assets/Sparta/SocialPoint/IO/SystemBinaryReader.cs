@@ -1,14 +1,19 @@
 ﻿using System.IO;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.IO
 {
-    public sealed class BinaryReaderWrapper : IReaderWrapper
+    public class SystemBinaryReader : IReader
     {
         readonly BinaryReader _reader;
 
-        public BinaryReaderWrapper(BinaryReader reader)
+        public SystemBinaryReader(BinaryReader reader)
         {
             _reader = reader;
+        }
+
+        public SystemBinaryReader(Stream stream):
+        this(new BinaryReader(stream))
+        {
         }
 
         public bool ReadBoolean()

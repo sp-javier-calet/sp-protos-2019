@@ -1,12 +1,13 @@
 ﻿using UnityEngine.Networking;
+using SocialPoint.IO;
 
-namespace  SocialPoint.Utils.Network.UNet
+namespace SocialPoint.Network
 {
-    public sealed class NetworkReaderWrapper : IReaderWrapper
+    public class UnetNetworkReader : IReader
     {
         readonly NetworkReader _reader;
 
-        public NetworkReaderWrapper(NetworkReader reader)
+        public UnetNetworkReader(NetworkReader reader)
         {
             _reader = reader;
         }

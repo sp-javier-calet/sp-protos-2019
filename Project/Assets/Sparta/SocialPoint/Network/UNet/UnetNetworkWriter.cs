@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using UnityEngine.Networking;
+using SocialPoint.IO;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.Network
 {
-    public sealed class BinaryWriterWrapper : IWriterWrapper
+    public class UnetNetworkWriter : IWriter
     {
-        readonly BinaryWriter _writer;
+        readonly NetworkWriter _writer;
 
-        public BinaryWriterWrapper(BinaryWriter writer)
+        public UnetNetworkWriter(NetworkWriter writer)
         {
             _writer = writer;
         }
@@ -53,7 +54,7 @@ namespace SocialPoint.Utils
 
         public void Write(byte[] buffer, int count)
         {
-            _writer.Write(buffer, 0, count);
+            _writer.Write(buffer, count);
         }
 
         public void Write(string value)
