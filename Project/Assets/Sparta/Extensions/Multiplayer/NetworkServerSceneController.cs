@@ -9,7 +9,9 @@ namespace SocialPoint.Multiplayer
     public interface INetworkServerSceneBehaviour
     {
         void Update(float dt, NetworkScene scene, NetworkScene oldScene);
+
         void OnClientConnected(byte clientId);
+
         void OnClientDisconnected(byte clientId);
     }
 
@@ -26,6 +28,9 @@ namespace SocialPoint.Multiplayer
         Dictionary<int,List<INetworkBehaviour>> _behaviours;
         Dictionary<string,List<INetworkBehaviour>> _behaviourPrototypes;
         INetworkServerSceneReceiver _receiver;
+
+        int _lastReceivedAction;
+        Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
 
         public NetworkScene Scene
         {
@@ -55,6 +60,8 @@ namespace SocialPoint.Multiplayer
             _server = server;
             _server.AddDelegate(this);
             _server.RegisterReceiver(this);
+
+            _actionDelegates = new Dictionary<Type, List<INetworkActionDelegate>>();
         }
 
         public virtual void Dispose()
@@ -149,7 +156,7 @@ namespace SocialPoint.Multiplayer
             _scene = new NetworkScene();
             _oldScene = new NetworkScene();
         }
-            
+
         void INetworkServerDelegate.OnServerStopped()
         {
             OnServerStopped();
@@ -206,12 +213,13 @@ namespace SocialPoint.Multiplayer
             var msg = _server.CreateMessage(new NetworkMessageData {
                 MessageType = SceneMsgType.UpdateSceneEvent
             });
+            //TODO: Write action to avoid sending it through actionackevent (delete that class) msg.Writer.Write(_lastReceivedAction);
             NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, msg.Writer);
             msg.Send();
             _oldScene = new NetworkScene(_scene);
-        }            
-            
-        public NetworkGameObject Instantiate(string prefabName, Transform trans, INetworkBehaviour[] newBehaviours=null)
+        }
+
+        public NetworkGameObject Instantiate(string prefabName, Transform trans, INetworkBehaviour[] newBehaviours = null)
         {
             var go = new NetworkGameObject(_scene.FreeObjectId, trans);
             _scene.AddObject(go);
@@ -245,7 +253,7 @@ namespace SocialPoint.Multiplayer
             return go;
         }
 
-        public NetworkGameObject Instantiate(string prefabName, INetworkBehaviour[] behaviours=null)
+        public NetworkGameObject Instantiate(string prefabName, INetworkBehaviour[] behaviours = null)
         {
             return Instantiate(prefabName, Transform.Identity, behaviours);
         }
@@ -308,6 +316,34 @@ namespace SocialPoint.Multiplayer
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, reader);
+            }
+        }
+
+        public void OnAction(Type actionType, object action)
+        {
+            _lastReceivedAction++;
+            ApplyActionToScene(new NetworkActionTuple(actionType, action), _scene);
+            //TODO: Apply game object changes with _scene (if modified?)
+            //TODO: Send message to client with last received action
+        }
+
+        void ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
+        {
+            NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
+        }
+
+        public void RegisterAction(Type actionType, INetworkActionDelegate callback)
+        {
+            List<INetworkActionDelegate> callbacksList;
+            if(_actionDelegates.TryGetValue(actionType, out callbacksList))
+            {
+                callbacksList.Add(callback);
+            }
+            else
+            {
+                callbacksList = new List<INetworkActionDelegate>();
+                callbacksList.Add(callback);
+                _actionDelegates.Add(actionType, callbacksList);
             }
         }
     }
