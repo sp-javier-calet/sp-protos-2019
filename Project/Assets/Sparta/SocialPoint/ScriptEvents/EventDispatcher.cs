@@ -1,26 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace SocialPoint.ScriptEvents
 {
     public interface IEventDispatcher : IDisposable
     {
-        void AddListener<T>(Action<T> listener);
-
         void AddDefaultListener(Action<object> listener);
 
-        bool RemoveListener<T>(Action<T> listener);
-
-        void RemoveDefaultListener(Action<object> listener);
+        bool RemoveDefaultListener(Action<object> listener);
 
         void AddBridge(IEventsBridge bridge);
 
         void Raise(object e);
+
+        Dictionary<Type, List<Delegate>> Listeners { get; }
     }
 
     public static class EventDispatcherExtensions
     {
+        public static void AddListener<T>(this IEventDispatcher dispatcher, Action<T> action)
+        {
+            var ttype = typeof(T);
+            List<Delegate> d;
+            if(!dispatcher.Listeners.TryGetValue(ttype, out d))
+            {
+                d = new List<Delegate>();
+                dispatcher.Listeners[ttype] = d;
+            }
+            if(!d.Contains(action))
+            {
+                d.Add(action);
+            }
+        }
+
+        public static bool RemoveListener<T>(this IEventDispatcher dispatcher, Action<T> action)
+        {
+            List<Delegate> d;
+            return dispatcher.Listeners.TryGetValue(typeof(T), out d) && d.Remove(action);
+        }
+
         public static Action<F> Connect<F,T>(this IEventDispatcher dispatcher, Func<F, T> conversion = null)
         {
             Action<F> action = from => {
@@ -51,6 +69,14 @@ namespace SocialPoint.ScriptEvents
         readonly List<Action<object>> _defaultListeners = new List<Action<object>>();
 
         public event Action<Exception> ExceptionThrown;
+
+        public Dictionary<Type, List<Delegate>> Listeners
+        {
+            get
+            {
+                return _listeners;
+            }
+        }
 
         public void Dispose()
         {
@@ -103,32 +129,6 @@ namespace SocialPoint.ScriptEvents
             return _dispatchers.Remove(dispatcher);
         }
 
-        public void AddListener<T>(Action<T> listener)
-        {
-            List<Delegate> d;
-            var ttype = typeof(T);
-            if(!_listeners.TryGetValue(ttype, out d))
-            {
-                d = new List<Delegate>();
-                _listeners[ttype] = d;
-            }
-            if(!d.Contains(listener))
-            {
-                d.Add(listener);
-            }
-        }
-
-        public bool RemoveListener<T>(Action<T> listener)
-        {
-            List<Delegate> d;
-            if(_listeners.TryGetValue(typeof(T), out d))
-            {
-                d.Remove(listener);
-                return true;
-            }
-            return false;
-        }
-
         public void AddDefaultListener(Action<object> listener)
         {
             if(!_defaultListeners.Contains(listener))
@@ -137,9 +137,9 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public void RemoveDefaultListener(Action<object> listener)
+        public bool RemoveDefaultListener(Action<object> listener)
         {
-            _defaultListeners.Remove(listener);
+            return _defaultListeners.Remove(listener);
         }
 
         public void Raise(object ev)

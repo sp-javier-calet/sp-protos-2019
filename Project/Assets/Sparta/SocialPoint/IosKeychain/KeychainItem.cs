@@ -1,18 +1,17 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿using System;
 
 namespace SocialPoint.IosKeychain
 {
     public class KeychainItemException : Exception
     {
-        public KeychainItemException(int status):
-        base("Keychain returned error "+status)
+        public KeychainItemException(int status) :
+            base("Keychain returned error " + status)
         {
         }
     }
 
-    public class KeychainItem {
+    public class KeychainItem
+    {
 
         public string Id;
         public string AccessGroup;
@@ -20,7 +19,7 @@ namespace SocialPoint.IosKeychain
 
         public static readonly string kSeparator = ".";
 
-        public KeychainItem(string id, string accessGroup=null, string service=null)
+        public KeychainItem(string id, string accessGroup = null, string service = null)
         {
             var seedId = SeedId;
             if(accessGroup == null)
@@ -29,7 +28,7 @@ namespace SocialPoint.IosKeychain
             }
             else if(seedId != null)
             {
-                accessGroup = seedId+kSeparator+accessGroup;
+                accessGroup = seedId + kSeparator + accessGroup;
             }
             if(service == null)
             {
@@ -37,20 +36,21 @@ namespace SocialPoint.IosKeychain
             }
             else if(seedId != null)
             {
-                service = seedId+kSeparator+service;
+                service = seedId + kSeparator + service;
             }
             Id = id;
             AccessGroup = accessGroup;
             Service = service;
         }
 
-        private KeychainBridge.ItemStruct BridgeItem
+        KeychainBridge.ItemStruct BridgeItem
         {
             get
             {
-                return new KeychainBridge.ItemStruct{
-                    Id = Id, Service = Service,
-                    AccessGroup = AccessGroup };
+                return new KeychainBridge.ItemStruct {
+                    Id = Id ?? string.Empty, Service = Service ?? string.Empty,
+                    AccessGroup = AccessGroup ?? string.Empty
+                };
             }
         }
 
@@ -81,6 +81,7 @@ namespace SocialPoint.IosKeychain
         }
 
         static string _defaultAccessGroup;
+
         static public string DefaultAccessGroup
         {
             get
@@ -93,19 +94,18 @@ namespace SocialPoint.IosKeychain
             }
         }
 
+        static string _seedId;
+
         static public string SeedId
         {
             get
             {
-                var parts = DefaultAccessGroup.Split(new string[]{kSeparator}, StringSplitOptions.None);
-                if(parts.Length > 0)
+                if(_seedId == null)
                 {
-                    return parts[0];
+                    var parts = DefaultAccessGroup.Split(new []{ kSeparator }, StringSplitOptions.None);
+                    _seedId = parts.Length > 0 ? parts[0] : null;
                 }
-                else
-                {
-                    return null;
-                }
+                return _seedId;
             }
         }
 

@@ -1,4 +1,3 @@
 {
-  "provisioningProfile": "{ROOT_PATH}/../proj.ios/inhouse.mobileprovision",
   "buildSettings": {"GCC_OPTIMIZATION_LEVEL": "s"}
 }

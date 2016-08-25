@@ -7,3 +7,4 @@ depends_on Assets/Sparta/External/fastJSON
 depends_on Assets/Sparta/External/Ionic/Zlib
 depends_on Assets/Sparta/External/LitJson
 depends_on Assets/Sparta/External/MobileAppTracking
+depends_on Assets/Sparta/External/Spine

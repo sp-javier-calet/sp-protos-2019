@@ -1,80 +1,76 @@
 using NUnit.Framework;
-using NSubstitute;
-using System;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.ScriptEvents
 {
-	[TestFixture]
-	[Category("SocialPoint.ScriptEvents")]
-	internal class ScriptTests : BaseScriptEventsTests
-	{
-		Script _eventScript;
+    [TestFixture]
+    [Category("SocialPoint.ScriptEvents")]
+    class ScriptTests : BaseScriptEventsTests
+    {
+        [SetUp]
+        public void SetUpBase()
+        {
+            SetUp();
+        }
 
-		[SetUp]
-		override public void SetUp()
-		{
-			base.SetUp();
-		}
+        [Test]
+        public void Empty_Finishes()
+        {
+            var script = new Script(_scriptDispatcher, new ScriptStepModel[]{ });
+            bool finished = false;
+            script.Run(() => {
+                finished = true;
+            });
+            Assert.IsTrue(finished);
+        }
 
-		[Test]
-		public void Empty_Finishes()
-		{
-			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{});
-			bool finished = false;
-			script.Run(() => {
-				finished = true;
-			});
-			Assert.IsTrue(finished);
-		}
+        [Test]
+        public void Simple_Finishes()
+        {
+            var script = new Script(_scriptDispatcher, new [] {
+                new ScriptStepModel {
+                    Name = "test",
+                    Arguments = new AttrString("lala")
+                }
+            });
 
-		[Test]
-		public void Simple_Finishes()
-		{
-			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{
-				new ScriptStepModel{
-					Name = "test",
-					Arguments = new AttrString("lala")
-				}
-			});
+            string arg = null;
+            _dispatcher.AddListener<TestEvent>(ev => {
+                arg = ev.Value;
+            });
 
-			string arg = null;
-			_dispatcher.AddListener<TestEvent>((ev) => {
-				arg = ev.Value;
-			});
+            bool finished = false;
+            script.Run(() => {
+                finished = true;
+            });
+            Assert.IsTrue(finished);
+            Assert.AreEqual("lala", arg);
+        }
 
-			bool finished = false;
-			script.Run(() => {
-				finished = true;
-			});
-			Assert.IsTrue(finished);
-			Assert.AreEqual("lala", arg);
-		}
-
-		[Test]
-		public void Multi_Finishes()
-		{
-			var script = new Script(_scriptDispatcher, new ScriptStepModel[]{
-				new ScriptStepModel{
-					Name = "test",
-					Arguments = new AttrString("lala"),
-					Forward = new NameCondition("other")
-				},
-				new ScriptStepModel{
-					Name = "other",
-					Arguments = new AttrString("1"),
-					Forward = new ArgumentsCondition(_testArgs),
-					Backward = new FixedCondition(true)
-				},
-			});
+        [Test]
+        public void Multi_Finishes()
+        {
+            var script = new Script(_scriptDispatcher, new [] {
+                new ScriptStepModel {
+                    Name = "test",
+                    Arguments = new AttrString("lala"),
+                    Forward = new NameCondition("other")
+                },
+                new ScriptStepModel {
+                    Name = "other",
+                    Arguments = new AttrString("1"),
+                    Forward = new ArgumentsCondition(_testArgs),
+                    Backward = new FixedCondition(true)
+                },
+            });
 							
-			TestScript(script);
-		}
+            TestScript(script);
+        }
 
-		[Test]
-		public void Load_From_Attr()
-		{
-			var json = @"
+        [Test]
+        public void Load_From_Attr()
+        {
+            const string json = @"
 [{
 	""name"": ""test"",
 	""args"": ""lala"",
@@ -94,45 +90,45 @@ namespace SocialPoint.ScriptEvents
     }
 }]
 ";
-			var data = new JsonAttrParser().ParseString(json);
-			var scriptModel = new ScriptModelParser().Parse(data);
-			var script = new Script (_scriptDispatcher, scriptModel);
-			TestScript(script);
-		}
+            var data = new JsonAttrParser().ParseString(json);
+            var scriptModel = new ScriptModelParser().Parse(data);
+            var script = new Script(_scriptDispatcher, scriptModel);
+            TestScript(script);
+        }
 
-		void TestScript(Script script)
-		{
-			bool finished = false;
-			script.Run(() => {
-				finished = true;
-			});
-			Assert.AreEqual(0, script.CurrentStepNum);
-			Assert.IsTrue(script.IsRunning);
+        void TestScript(Script script)
+        {
+            bool finished = false;
+            script.Run(() => {
+                finished = true;
+            });
+            Assert.AreEqual(0, script.CurrentStepNum);
+            Assert.IsTrue(script.IsRunning);
 			
-			_dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
 			
-			Assert.AreEqual(1, script.CurrentStepNum);
-			Assert.IsTrue(script.IsRunning);
+            Assert.AreEqual(1, script.CurrentStepNum);
+            Assert.IsTrue(script.IsRunning);
 			
-			_dispatcher.Raise(new TestEvent{ Value = "lala" });
+            _dispatcher.Raise(new TestEvent{ Value = "lala" });
 			
-			Assert.AreEqual(0, script.CurrentStepNum);
-			Assert.IsTrue(script.IsRunning);
+            Assert.AreEqual(0, script.CurrentStepNum);
+            Assert.IsTrue(script.IsRunning);
 			
-			_dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
 			
-			Assert.AreEqual(1, script.CurrentStepNum);
-			Assert.IsTrue(script.IsRunning);
+            Assert.AreEqual(1, script.CurrentStepNum);
+            Assert.IsTrue(script.IsRunning);
 			
-			_dispatcher.Raise(_testEvent);
+            _dispatcher.Raise(_testEvent);
 			
-			Assert.AreEqual(2, script.CurrentStepNum);
-			Assert.IsFalse(script.IsRunning);
-			Assert.IsTrue(script.IsFinished);
-			Assert.IsTrue(finished);
-		}
+            Assert.AreEqual(2, script.CurrentStepNum);
+            Assert.IsFalse(script.IsRunning);
+            Assert.IsTrue(script.IsFinished);
+            Assert.IsTrue(finished);
+        }
 
 
-	}
+    }
 
 }

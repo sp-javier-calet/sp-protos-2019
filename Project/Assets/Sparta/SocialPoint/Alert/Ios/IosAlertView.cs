@@ -8,7 +8,7 @@ namespace SocialPoint.Alert
 {
     public class IosAlertView : IAlertView
     {
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        [StructLayout(LayoutKind.Sequential)]
         public struct Data
         {
             [MarshalAs(UnmanagedType.LPTStr)]
@@ -53,6 +53,10 @@ namespace SocialPoint.Alert
             {
                 throw new NotImplementedException("IosAlertView is only supported on Ios");
             }
+
+            _data = new Data {
+                Message = string.Empty, Title = string.Empty, Signature = string.Empty, Buttons = string.Empty, Input = false
+            };
         }
 
         public string Message
@@ -139,11 +143,6 @@ namespace SocialPoint.Alert
                 int.TryParse(msg, out result);
                 _resultDelegate(result, null);
             }
-        }
-
-        public void OnResponse(string data)
-        {
-            _inputText = data;
         }
 
         public void Dispose()

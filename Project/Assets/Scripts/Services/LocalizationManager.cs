@@ -1,14 +1,12 @@
+using SocialPoint.GUIControl;
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
-using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
-using SocialPoint.GUIControl;
-using SocialPoint.Dependency;
 
 public class LocalizationManager : SocialPoint.Locale.LocalizationManager
 {
-    IEventDispatcher _dispatcher;
+    readonly IEventDispatcher _dispatcher;
     LocalizeAttributeConfiguration _localizeAttributeConfig;
 
     public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale, LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher) :

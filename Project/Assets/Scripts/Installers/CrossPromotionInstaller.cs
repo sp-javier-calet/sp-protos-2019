@@ -22,7 +22,7 @@ public class CrossPromotionInstaller : SubInstaller
 
     CrossPromotionManager CreateManager()
     {
-        return new CrossPromotionManager(Container.Resolve<ICoroutineRunner>());
+        return new CrossPromotionManager(Container.Resolve<ICoroutineRunner>(), Container.Resolve<PopupsController>());
     }
 
     void SetupManager(CrossPromotionManager mng)

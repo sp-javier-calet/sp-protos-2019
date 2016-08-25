@@ -21,14 +21,14 @@ namespace SocialPoint.ScriptEvents
     {
         const string AttrKeyName = "name";
         const string AttrKeyArguments = "args";
-        
-        public ServerCommandActionParser(): base("action.server.command")
+
+        public ServerCommandActionParser() : base("action.server.command")
         {
         }
-        
+
         override protected ServerCommandAction ParseEvent(Attr data)
         {
-            return new ServerCommandAction{
+            return new ServerCommandAction {
                 Name = data.AsDic[AttrKeyName].AsValue.ToString(),
                 Arguments = (AttrDic)data.AsDic[AttrKeyArguments].Clone()
             };
@@ -40,8 +40,8 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyCommandName = "name";
         const string AttrKeyCommandArguments = "args";
         const string AttrKeyResponse = "response";
-        
-        public ServerCommandResponseEventSerializer(): base("event.server.command_response")
+
+        public ServerCommandResponseEventSerializer() : base("event.server.command_response")
         {
         }
 
@@ -60,7 +60,7 @@ namespace SocialPoint.ScriptEvents
             return data;
         }
     }
-    
+
     public class ServerSyncBridge :
         IEventsBridge, 
         IScriptEventsBridge
@@ -68,25 +68,25 @@ namespace SocialPoint.ScriptEvents
         
         IEventDispatcher _dispatcher;
         ICommandQueue _queue;
-        
+
         public ServerSyncBridge(ICommandQueue queue)
         {
             _queue = queue;
             _queue.CommandResponse += OnCommandResponse;
         }
-        
+
         public void Load(IEventDispatcher dispatcher)
         {
             _dispatcher = dispatcher;
             _dispatcher.AddListener<ServerCommandAction>(OnCommandAction);
         }
-        
+
         public void Load(IScriptEventDispatcher dispatcher)
         {
             dispatcher.AddParser(new ServerCommandActionParser());
             dispatcher.AddSerializer(new ServerCommandResponseEventSerializer());
         }
-        
+
         public void Dispose()
         {
             if(_dispatcher != null)
@@ -102,12 +102,12 @@ namespace SocialPoint.ScriptEvents
             {
                 return;
             }
-            _dispatcher.Raise(new ServerCommandResponseEvent{
+            _dispatcher.Raise(new ServerCommandResponseEvent {
                 Command = cmd,
                 Response = resp
             });
         }
-        
+
         void OnCommandAction(ServerCommandAction action)
         {
             _queue.Add(new Command(action.Name, action.Arguments));
