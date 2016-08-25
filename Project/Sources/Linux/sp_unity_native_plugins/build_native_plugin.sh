@@ -19,17 +19,17 @@ clean() {
 
 abort()
 {
-    echo "\n *** ERROR BUILDING ANDROID NDK PLUGIN *** \n\n\n"
+    echo "\n *** ERROR BUILDING LINUX NDK PLUGIN *** \n\n\n"
     exit 1
 }
 
 
-echo "\n\n *** BUILD ANDROID NDK PLUGIN ***  \n"
+echo "\n\n *** BUILD LINUX NDK PLUGIN ***  \n"
 
 clean $MODULE_PATH
 
 cd $MODULE_NAME/jni 2>&1
-echo "Compiling '$MODULE_NAME' Android Native plugin"
+echo "Compiling '$MODULE_NAME' Linux Native plugin"
 $NDK_PATH/ndk-build NDK_APPLICATION_MK=Application.mk 2>&1
 BUILD_SUCCESS=$?
 cd ..
@@ -46,7 +46,7 @@ echo "Installing Unity Plugin..."
 mkdir -p $MODULE_PATH/libs
 
 PROJECT_ROOT=$MODULE_PATH/../../../..
-INSTALL_PATH=/Assets/Sparta/Binaries/Plugins/Android/
+INSTALL_PATH=/Assets/Sparta/Binaries/Plugins/Linux/
 
 mkdir -p $PROJECT_ROOT$INSTALL_PATH
 
@@ -65,4 +65,3 @@ fi
 clean $MODULE_PATH
 
 echo "*** '$MODULE_NAME' Successfully compiled and installed *** "
-
