@@ -573,7 +573,7 @@ public sealed class DownloadManager : MonoBehaviour
 
         string finishedBundles = string.Empty;
         // Move complete bundles out of downloading list
-        for(int i = 0, newFinishedsCount = newFinisheds.Count; i < newFinishedsCount; i++)
+        for(int i = 0, newFinishedsCount = _newFinisheds.Count; i < newFinishedsCount; i++)
         {
             finishedBundles = _newFinisheds[i];
             _succeedRequest.Add(finishedBundles, _processingRequest[finishedBundles]);
@@ -581,7 +581,7 @@ public sealed class DownloadManager : MonoBehaviour
         }
         
         // Move failed bundles out of downloading list
-        for(int i = 0, newFailedsCount = newFaileds.Count; i < newFailedsCount; i++)
+        for(int i = 0, newFailedsCount = _newFaileds.Count; i < newFailedsCount; i++)
         {
             finishedBundles = _newFaileds[i];
             if(!_failedRequest.ContainsKey(finishedBundles))
