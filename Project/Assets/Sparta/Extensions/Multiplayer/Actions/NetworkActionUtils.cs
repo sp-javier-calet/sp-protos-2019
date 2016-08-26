@@ -38,7 +38,7 @@ namespace SocialPoint.Multiplayer
         /// <param name="actionType">Action type.</param>
         /// <param name="callback">Callback.</param>
         /// <param name="actionDelegates">Action delegates.</param>
-        public static void RegisterAction(Type actionType, INetworkActionDelegate callback, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates)
+        public static void RegisterActionDelegate(Type actionType, INetworkActionDelegate callback, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates)
         {
             List<INetworkActionDelegate> actionCallbackList;
             if(actionDelegates.TryGetValue(actionType, out actionCallbackList))

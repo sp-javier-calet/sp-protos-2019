@@ -9,6 +9,7 @@ public static class GameMsgType
 {
     public const byte ClickAction = SceneMsgType.Highest + 1;
     public const byte ExplosionEvent = SceneMsgType.Highest + 2;
+    public const byte MovementAction = SceneMsgType.Highest + 3;
 }
 
 public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientSceneReceiver, IPointerClickHandler
@@ -24,6 +25,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         _client = ServiceLocator.Instance.Resolve<INetworkClient>();
         _controller = ServiceLocator.Instance.Resolve<NetworkClientSceneController>();
         _controller.RegisterReceiver(this);
+        _controller.RegisterActionDelegate<MovementAction>(new MovementActionDelegate());
     }
 
     public void OnDestroy()
@@ -31,6 +33,50 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         if(_controller != null)
         {
             _controller.RegisterReceiver(null);
+        }
+    }
+
+    public void Update()
+    {
+        KeyInputHandler();
+    }
+
+    void KeyInputHandler()
+    {
+        float delta = 0.1f;
+        SocialPoint.Multiplayer.Vector3 movement = SocialPoint.Multiplayer.Vector3.Zero;
+        if(Input.GetKey(KeyCode.UpArrow))
+        {
+            movement += new SocialPoint.Multiplayer.Vector3(0, 0, delta);
+        }
+        if(Input.GetKey(KeyCode.DownArrow))
+        {
+            movement += new SocialPoint.Multiplayer.Vector3(0, 0, -delta);
+        }
+        if(Input.GetKey(KeyCode.RightArrow))
+        {
+            movement += new SocialPoint.Multiplayer.Vector3(delta, 0, 0);
+        }
+        if(Input.GetKey(KeyCode.LeftArrow))
+        {
+            movement += new SocialPoint.Multiplayer.Vector3(-delta, 0, 0);
+        }
+
+        bool input = (movement != SocialPoint.Multiplayer.Vector3.Zero);
+
+        if(input && _client.Connected)
+        {
+            var ac = new MovementAction {
+                Movement = movement
+            };
+
+            _controller.ApplyAction<MovementAction>(ac);
+            //*** TEST - Use this instead of previous line to avoid prediction:
+            /*
+            _client.SendMessage(new NetworkMessageData {
+                MessageType = GameMsgType.MovementAction
+            }, ac);
+            //*/
         }
     }
 
@@ -45,7 +91,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
             });
         }
     }
-        
+
     void INetworkClientSceneBehaviour.OnInstantiateObject(int id, SocialPoint.Multiplayer.Transform t)
     {
     }

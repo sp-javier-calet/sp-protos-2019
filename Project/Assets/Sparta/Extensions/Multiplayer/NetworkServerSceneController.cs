@@ -29,7 +29,7 @@ namespace SocialPoint.Multiplayer
         Dictionary<string,List<INetworkBehaviour>> _behaviourPrototypes;
         INetworkServerSceneReceiver _receiver;
 
-        int _lastReceivedAction = 15;
+        int _lastReceivedAction = 0;
         Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
 
         public NetworkScene Scene
@@ -319,12 +319,15 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public void OnAction(Type actionType, object action)
+        public void OnAction<T>(INetworkShareable action)
+        {
+            OnAction(typeof(T), action);
+        }
+
+        void OnAction(Type actionType, object action)
         {
             _lastReceivedAction++;
             ApplyActionToScene(new NetworkActionTuple(actionType, action), _scene);
-            //TODO: Apply game object changes with _scene (if modified?)
-            //TODO: Send message to client with last received action
         }
 
         bool ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
@@ -332,9 +335,14 @@ namespace SocialPoint.Multiplayer
             return NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
         }
 
-        public void RegisterAction(Type actionType, INetworkActionDelegate callback)
+        public void RegisterActionDelegate<T>(INetworkActionDelegate callback)
         {
-            NetworkActionUtils.RegisterAction(actionType, callback, _actionDelegates);
+            RegisterActionDelegate(typeof(T), callback);
+        }
+
+        void RegisterActionDelegate(Type actionType, INetworkActionDelegate callback)
+        {
+            NetworkActionUtils.RegisterActionDelegate(actionType, callback, _actionDelegates);
         }
     }
 }

@@ -112,7 +112,7 @@ namespace SocialPoint.Multiplayer
 
         void UpdateSceneView()
         {
-            var itr = _clientScene.GetObjectEnumerator();//TODO: Previously was with _scene, now with _clientScene
+            var itr = _clientScene.GetObjectEnumerator();
             while(itr.MoveNext())
             {
                 var go = itr.Current;
@@ -163,22 +163,24 @@ namespace SocialPoint.Multiplayer
             _sceneBehaviours.Remove(behaviour);
         }
 
-        public void ApplyActionToScene<T>(T action)
+        public void ApplyAction<T>(INetworkShareable action)
         {
-            ApplyActionToScene(typeof(T), action);
+            ApplyAction(typeof(T), action);
         }
 
-        void ApplyActionToScene(Type actionType, object action)
+        void ApplyAction(Type actionType, INetworkShareable action)
         {
             _lastAppliedAction++;
             _pendingActions.Add(_lastAppliedAction, new NetworkActionTuple(actionType, action));
             if(ApplyActionToScene(new NetworkActionTuple(actionType, action), _clientScene))
             {
-                //TODO: Apply game object changes with _clientScene (only if modified). NEEDED? or use UpdateSceneView in Update
                 UpdateSceneView();
-            }
 
-            //TODO: Send activation to server
+                //Send to server
+                _client.SendMessage(new NetworkMessageData {
+                    MessageType = GameMsgType.MovementAction
+                }, action);
+            }
         }
 
         bool ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
@@ -186,22 +188,18 @@ namespace SocialPoint.Multiplayer
             return NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
         }
 
-        public void RegisterAction(Type actionType, INetworkActionDelegate callback)
+        public void RegisterActionDelegate<T>(INetworkActionDelegate callback)
         {
-            NetworkActionUtils.RegisterAction(actionType, callback, _actionDelegates);
+            RegisterActionDelegate(typeof(T), callback);
+        }
+
+        void RegisterActionDelegate(Type actionType, INetworkActionDelegate callback)
+        {
+            NetworkActionUtils.RegisterActionDelegate(actionType, callback, _actionDelegates);
         }
 
         public void OnActionFromServer(int lastServerAction)
         {
-            /*NetworkActionTuple actionTuple;
-            if(_pendingActions.TryGetValue(lastServerAction, out actionTuple))
-            {
-                //TODO: NEEDED? In Update we are parsing the whole scene. We should do it before calling this function
-                //ApplyActionToScene(actionTuple, _scene);
-                //Copy _scene into _clientScene
-                //_clientScene = new NetworkScene(_scene);
-            }*/
-
             //Remove pending actions with id or lower
             RemoveOldPendingActions(lastServerAction);
 
@@ -212,7 +210,7 @@ namespace SocialPoint.Multiplayer
         void RemoveOldPendingActions(int fromAction)
         {
             bool olderActionsRemoved = false;
-            while(olderActionsRemoved)
+            while(!olderActionsRemoved)
             {
                 if(_pendingActions.Remove(fromAction))
                 {

@@ -9,20 +9,21 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 {
     INetworkServer _server;
     NetworkServerSceneController _controller;
-    Dictionary<int,int> _updateTimes;
 
-    float _moveInterval = 1.0f;
-    float _timeSinceLastMove = 0.0f;
-    int _maxUpdateTimes = 3;
-    Vector3 _movement;
+    //Dictionary<int,int> _updateTimes;
+    //float _moveInterval = 1.0f;
+    //float _timeSinceLastMove = 0.0f;
+    //int _maxUpdateTimes = 3;
+    //Vector3 _movement;
 
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
     {
         _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
-        _updateTimes = new Dictionary<int,int>();
-        _movement = new Vector3(2.0f, 0.0f, 2.0f);
+        _controller.RegisterActionDelegate<MovementAction>(new MovementActionDelegate());
+        //_updateTimes = new Dictionary<int,int>();
+        //_movement = new Vector3(2.0f, 0.0f, 2.0f);
     }
 
     public void Dispose()
@@ -32,6 +33,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void INetworkServerSceneBehaviour.Update(float dt, NetworkScene scene, NetworkScene oldScene)
     {
+        //*** TEST: Commented to avoid conflicts with prediction tests
+        /*
         _timeSinceLastMove += dt;
 
         if(_timeSinceLastMove > _moveInterval)
@@ -72,6 +75,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             }
             itr.Dispose();
         }
+        //*/
     }
 
     void SendExplosionEvent(Transform t)
@@ -90,6 +94,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var ac = reader.Read<ClickAction>();
             _controller.Instantiate("Cube", new Transform(
                 ac.Position, Quaternion.Identity, Vector3.One));
+        }
+        else if(data.MessageType == GameMsgType.MovementAction)
+        {
+            var ac = reader.Read<MovementAction>();
+            _controller.OnAction<MovementAction>(ac);
         }
     }
 
