@@ -77,6 +77,7 @@ namespace SocialPoint.Multiplayer
                 {
                     int lastServerAction = reader.ReadInt32();//Read last action before reading scene
                     _scene = NetworkSceneParser.Instance.Parse(_scene, reader);
+                    _clientScene = new NetworkScene(_scene);
                     OnActionFromServer(lastServerAction);
                 }
 
@@ -109,7 +110,6 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        //TODO: Pass function to Utils?? Server uses it?
         void UpdateSceneView()
         {
             var itr = _clientScene.GetObjectEnumerator();//TODO: Previously was with _scene, now with _clientScene
@@ -193,39 +193,47 @@ namespace SocialPoint.Multiplayer
 
         public void OnActionFromServer(int lastServerAction)
         {
-            NetworkActionTuple actionTuple;
+            /*NetworkActionTuple actionTuple;
             if(_pendingActions.TryGetValue(lastServerAction, out actionTuple))
             {
                 //TODO: NEEDED? In Update we are parsing the whole scene. We should do it before calling this function
-                ApplyActionToScene(actionTuple, _scene);
+                //ApplyActionToScene(actionTuple, _scene);
                 //Copy _scene into _clientScene
-                _clientScene = new NetworkScene(_scene);
-            }
+                //_clientScene = new NetworkScene(_scene);
+            }*/
 
             //Remove pending actions with id or lower
+            RemoveOldPendingActions(lastServerAction);
+
+            //Reapply client prediction
+            ApplyAllPendingActions();
+        }
+
+        void RemoveOldPendingActions(int fromAction)
+        {
             bool olderActionsRemoved = false;
             while(olderActionsRemoved)
             {
-                if(_pendingActions.Remove(lastServerAction))
+                if(_pendingActions.Remove(fromAction))
                 {
-                    lastServerAction--;
+                    fromAction--;
                 }
                 else
                 {
                     olderActionsRemoved = true;
                 }
             }
+        }
 
-            //Apply pending actions (id over the last from server)
+        void ApplyAllPendingActions()
+        {
             var itr = _pendingActions.GetEnumerator();
             while(itr.MoveNext())
             {
-                actionTuple = itr.Current.Value;
+                NetworkActionTuple actionTuple = itr.Current.Value;
                 ApplyActionToScene(actionTuple, _clientScene);
             }
             itr.Dispose();
-
-            //TODO: Apply game object changes with _clientScene. NEEDED? Check UpdateSceneEvent, calling UpdateSceneView()
         }
     }
 }
