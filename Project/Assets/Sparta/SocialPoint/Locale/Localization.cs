@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
+using System.Text;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Locale
 {
@@ -108,11 +110,11 @@ namespace SocialPoint.Locale
         {
             if(Debug && !string.IsNullOrEmpty(key))
             {
-                System.Text.StringBuilder stringBuilder = SocialPoint.Utils.StringUtils.StartBuilder();
+                StringBuilder stringBuilder = StringUtils.StartBuilder();
 
                 stringBuilder.AppendFormat(DefaultFormat, Language, key);
 
-                return SocialPoint.Utils.StringUtils.FinishBuilder(stringBuilder);
+                return StringUtils.FinishBuilder(stringBuilder);
             }
             return defaultString != null ? defaultString : key;
         }
@@ -145,11 +147,11 @@ namespace SocialPoint.Locale
 
         public override string ToString()
         {
-            System.Text.StringBuilder stringBuilder = SocialPoint.Utils.StringUtils.StartBuilder();
+            StringBuilder stringBuilder = StringUtils.StartBuilder();
 
             stringBuilder.Append(base.ToString()).AppendFormat(" ({0} elements)", _strings.Count);
 
-            return SocialPoint.Utils.StringUtils.FinishBuilder(stringBuilder);
+            return StringUtils.FinishBuilder(stringBuilder);
         }
     }
 }
