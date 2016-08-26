@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
-    public class AdminPanelLogin : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelLogin : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly ILogin _login;
         readonly IDictionary<string, string> _environments;

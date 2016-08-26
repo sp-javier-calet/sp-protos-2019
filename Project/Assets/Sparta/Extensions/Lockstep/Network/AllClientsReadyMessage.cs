@@ -2,11 +2,11 @@
 using System.Text;
 using SocialPoint.Attributes;
 using System.IO;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class AllClientsReadyMessage : INetworkMessage
+    public sealed class AllClientsReadyMessage : INetworkMessage
     {
         public int RemainingMillisecondsToStart { get; private set; }
 
@@ -15,12 +15,12 @@ namespace SocialPoint.Lockstep.Network
             RemainingMillisecondsToStart = remainingMillisecondsToStart;
         }
 
-        public void Deserialize(IReaderWrapper reader)
+        public void Deserialize(IReader reader)
         {
             RemainingMillisecondsToStart = reader.ReadInt32();
         }
 
-        public void Serialize(IWriterWrapper writer)
+        public void Serialize(IWriter writer)
         {
             writer.Write(RemainingMillisecondsToStart);
         }

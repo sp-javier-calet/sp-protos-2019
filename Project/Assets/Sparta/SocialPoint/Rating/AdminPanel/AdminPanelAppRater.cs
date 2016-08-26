@@ -3,7 +3,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Rating
 {
-    public class AdminPanelAppRater : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelAppRater : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly IAppRater _appRater;
         Text _infoTextComponent;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UI3DCamera : MonoBehaviour
+public sealed class UI3DCamera : MonoBehaviour
 {
     private bool _revertFogState = false;
 

@@ -6,7 +6,7 @@ using SocialPoint.Social;
 
 namespace SocialPoint.Login
 {
-    public class GameCenterLink : ILink
+    public sealed class GameCenterLink : ILink
     {
         IGameCenter _gameCenter;
 

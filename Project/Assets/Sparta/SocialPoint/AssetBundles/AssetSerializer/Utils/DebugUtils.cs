@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SocialPoint.AssetSerializer.Utils
 {
-    public class DebugUtils
+    public sealed class DebugUtils
     {
         public static bool Verbose = false;
 

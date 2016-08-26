@@ -17,7 +17,7 @@ namespace SocialPoint.AppEvents
     /// </summary>
     [TestFixture]
     [Category("SocialPoint.AppEvents")]
-    public class UnityAppEventsTests
+    public sealed class UnityAppEventsTests
     {
         GameObject GO;
         UnityAppEvents UnityAppEvent;

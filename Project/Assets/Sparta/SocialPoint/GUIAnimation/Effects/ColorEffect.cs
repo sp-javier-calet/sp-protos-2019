@@ -4,9 +4,9 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class ColorEffect : BlendEffect
+    public sealed class ColorEffect : BlendEffect
     {
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public Color Color;
 

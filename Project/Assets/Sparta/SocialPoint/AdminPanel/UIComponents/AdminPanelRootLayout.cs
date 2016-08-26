@@ -2,7 +2,7 @@
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelRootLayout : AdminPanelLayout
+    public sealed class AdminPanelRootLayout : AdminPanelLayout
     {
         public AdminPanelRootLayout(AdminPanelController controller) : base(controller)
         {

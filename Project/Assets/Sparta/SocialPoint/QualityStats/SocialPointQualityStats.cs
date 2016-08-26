@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace SocialPoint.QualityStats
 {
-    public class SocialPointQualityStats : IDisposable
+    public sealed class SocialPointQualityStats : IDisposable
     {
         IDeviceInfo _deviceInfo;
         List<QualityStatsHttpClient> _qualityStatsHttpClients;

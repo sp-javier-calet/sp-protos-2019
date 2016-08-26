@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SocialPoint.Utils
 {
-    public class CryptographyUtils
+    public sealed class CryptographyUtils
     {
         public static string GetHashSha256(string original)
         {
@@ -25,6 +25,12 @@ namespace SocialPoint.Utils
                 hashString.AppendFormat("{0:x2}", hash[i]);
             }
             return hashString.ToString();
+        }
+
+        public static int HashCombine(int combined, int hash)
+        {
+            // This is based on boost::hash_combine
+            return combined ^ (hash + 486187739 + (combined << 6) + (combined >> 2));
         }
     }
 }

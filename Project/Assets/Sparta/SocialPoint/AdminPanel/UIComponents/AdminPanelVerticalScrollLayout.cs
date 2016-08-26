@@ -22,7 +22,7 @@ namespace SocialPoint.AdminPanel
             return CreateVerticalScrollLayout(1);
         }
 
-        public class VerticalScrollLayout : AdminPanelLayout
+        public sealed class VerticalScrollLayout : AdminPanelLayout
         {
             public  ScrollRect ScrollRect { get; private set; }
 

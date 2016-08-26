@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class SPAMTaskResult : IEquatable<SPAMTaskResult>
+    public sealed class SPAMTaskResult : IEquatable<SPAMTaskResult>
     {
         public enum TaskState {
             PENDING,

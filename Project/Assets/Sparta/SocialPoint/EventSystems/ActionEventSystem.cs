@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace SocialPoint.EventSystems
 {
-    public class ActionEventSystem : EventSystem, IActionEventSystem, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
+    public sealed class ActionEventSystem : EventSystem, IActionEventSystem, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
         [SerializeField]
         EventSystem _preempt;

@@ -11,7 +11,7 @@ namespace SocialPoint.Dependency
         void OnResolutionFinished();
     }
 
-    public class Binding<F> : IBinding
+    public sealed class Binding<F> : IBinding
     {
         enum ToType
         {
@@ -138,7 +138,7 @@ namespace SocialPoint.Dependency
         }
     }
 
-    public class DependencyContainer : IDisposable
+    public sealed class DependencyContainer : IDisposable
     {
         List<IInstaller> _installed;
         Dictionary<BindingKey, List<IBinding>> _bindings;

@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SocialPoint.Utils
 {
-    public class Timer
+    public sealed class Timer
     {
         float _startTime = 0f;
         float _endTime = 0f;

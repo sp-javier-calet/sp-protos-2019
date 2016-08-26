@@ -286,7 +286,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// <summary>
     /// Event with no parameters.
     /// </summary>
-    public class TLEvent : TLAbstractEvent
+    public sealed class TLEvent : TLAbstractEvent
     {
         List<TLAction> _actions;
 
@@ -326,7 +326,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// <summary>
     /// Event with a single parameter. Can fire parameterless methods
     /// </summary>
-    public class TLEvent<T> : TLAbstractEvent
+    public sealed class TLEvent<T> : TLAbstractEvent
     {
         List<TLActionAbstract> _actions;
         /// <summary>
@@ -416,7 +416,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// <summary>
     /// Event with two(2) parameters. Can fire parameterless methods
     /// </summary>
-    public class TLEvent<T, U> : TLAbstractEvent
+    public sealed class TLEvent<T, U> : TLAbstractEvent
     {
         List<TLActionAbstract> _actions;
         /// <summary>

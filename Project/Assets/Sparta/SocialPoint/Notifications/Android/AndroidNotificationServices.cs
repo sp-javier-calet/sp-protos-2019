@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SocialPoint.Notifications
 {
     #if UNITY_ANDROID
-    public class AndroidNotificationServices : BaseNotificationServices
+    public sealed class AndroidNotificationServices : BaseNotificationServices
     {
         const string PlayerPrefsIdsKey = "AndroidNotificationScheduledList";
         const string FullClassName = "es.socialpoint.unity.notification.NotificationBridge";
@@ -100,7 +100,7 @@ namespace SocialPoint.Notifications
     }
         
 #else
-    public class AndroidNotificationServices : EmptyNotificationServices
+    public sealed class AndroidNotificationServices : EmptyNotificationServices
     {
     }
 

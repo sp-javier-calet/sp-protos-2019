@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
-    public class AnimationPropertiesPanel
+    public sealed class AnimationPropertiesPanel
     {
-        public class MonitorChangedEventData
+        public sealed class MonitorChangedEventData
         {
             public System.Type EffectType;
             public float ChangedTime;
@@ -321,7 +322,7 @@ namespace SocialPoint.GUIAnimation
             Handles.color = prevColor;
         }
 
-        public class GUIMonitor
+        public sealed class GUIMonitor
         {
             bool _isEnabled = false;
 

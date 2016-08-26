@@ -4,7 +4,7 @@ using System;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class WindowMover
+	public sealed class WindowMover
 	{
 		public delegate void DeltaMomement(Vector2 delta);
 

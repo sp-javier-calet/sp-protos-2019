@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Lockstep
 {
-    public class SetTurnAnticipationLockstepCommandDataFactory : IGenericFactory<TurnTypeTuple, LockstepCommandData>
+    public sealed class SetTurnAnticipationLockstepCommandDataFactory : IGenericFactory<TurnTypeTuple, LockstepCommandData>
     {
         ClientLockstepController _clientLockstep;
 

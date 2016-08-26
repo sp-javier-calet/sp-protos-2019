@@ -50,7 +50,7 @@ namespace SocialPoint.ScriptEvents
         public int Level;
     }
 
-    public class AppWillGoBackgroundEventSerializer : BaseScriptEventSerializer<AppWillGoBackgroundEvent>
+    public sealed class AppWillGoBackgroundEventSerializer : BaseScriptEventSerializer<AppWillGoBackgroundEvent>
     {
         public AppWillGoBackgroundEventSerializer() : base("event.app.will_go_background")
         {
@@ -62,7 +62,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppGameWasLoadedEventSerializer : BaseScriptEventSerializer<AppGameWasLoadedEvent>
+    public sealed class AppGameWasLoadedEventSerializer : BaseScriptEventSerializer<AppGameWasLoadedEvent>
     {
         public AppGameWasLoadedEventSerializer() : base("event.app.game_was_loaded")
         {
@@ -74,7 +74,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppGameWillRestartEventSerializer : BaseScriptEventSerializer<AppGameWillRestartEvent>
+    public sealed class AppGameWillRestartEventSerializer : BaseScriptEventSerializer<AppGameWillRestartEvent>
     {
         public AppGameWillRestartEventSerializer() : base("event.app.game_will_restart")
         {
@@ -86,7 +86,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppLevelWasLoadedEventSerializer : BaseScriptEventSerializer<AppLevelWasLoadedEvent>
+    public sealed class AppLevelWasLoadedEventSerializer : BaseScriptEventSerializer<AppLevelWasLoadedEvent>
     {
         public AppLevelWasLoadedEventSerializer() : base("event.app.level_was_loaded")
         {
@@ -98,7 +98,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppOpenedFromSourceEventSerializer : BaseScriptEventSerializer<AppOpenedFromSourceEvent>
+    public sealed class AppOpenedFromSourceEventSerializer : BaseScriptEventSerializer<AppOpenedFromSourceEvent>
     {
         const string AttrKeyUri = "uri";
         const string AttrKeyScheme = "scheme";
@@ -126,7 +126,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppWasOnBackgroundEventSerializer : BaseScriptEventSerializer<AppWasOnBackgroundEvent>
+    public sealed class AppWasOnBackgroundEventSerializer : BaseScriptEventSerializer<AppWasOnBackgroundEvent>
     {
         public AppWasOnBackgroundEventSerializer() : base("event.app.was_on_background")
         {
@@ -138,7 +138,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppWasCoveredEventSerializer : BaseScriptEventSerializer<AppWasCoveredEvent>
+    public sealed class AppWasCoveredEventSerializer : BaseScriptEventSerializer<AppWasCoveredEvent>
     {
         public AppWasCoveredEventSerializer() : base("event.app.was_covered")
         {
@@ -150,7 +150,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppReceivedMemoryWarningEventSerializer : BaseScriptEventSerializer<AppReceivedMemoryWarningEvent>
+    public sealed class AppReceivedMemoryWarningEventSerializer : BaseScriptEventSerializer<AppReceivedMemoryWarningEvent>
     {
         public AppReceivedMemoryWarningEventSerializer() : base("event.app.memory_warning")
         {
@@ -162,7 +162,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppQuitEventSerializer : BaseScriptEventSerializer<AppQuitEvent>
+    public sealed class AppQuitEventSerializer : BaseScriptEventSerializer<AppQuitEvent>
     {
         public AppQuitEventSerializer() : base("event.app.quit")
         {
@@ -174,7 +174,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AppEventsBridge :
+    public sealed class AppEventsBridge :
         IEventsBridge,
         IScriptEventsBridge
     {

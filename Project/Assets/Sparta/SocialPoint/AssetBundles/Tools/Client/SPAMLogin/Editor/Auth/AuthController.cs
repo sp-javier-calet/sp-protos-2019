@@ -9,7 +9,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class AuthController : TLController
+    public sealed class AuthController : TLController
     {
         public AuthView View { get { return (AuthView)_view; } }
         public AuthModel Model { get { return (AuthModel)_model; } }

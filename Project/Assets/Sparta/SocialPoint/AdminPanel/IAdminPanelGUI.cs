@@ -12,7 +12,7 @@ namespace SocialPoint.AdminPanel
         void OnCreateGUI(AdminPanelLayout layout);
     }
 
-    public class AdminPanelNestedGUI : IAdminPanelGUI
+    public sealed class AdminPanelNestedGUI : IAdminPanelGUI
     {
         string _name;
         IAdminPanelGUI _gui;
@@ -29,7 +29,7 @@ namespace SocialPoint.AdminPanel
         }
     }
 
-    public class AdminPanelGUIGroup : IAdminPanelGUI
+    public sealed class AdminPanelGUIGroup : IAdminPanelGUI
     {
         List<IAdminPanelGUI> guiGroup;
 

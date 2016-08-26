@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
-    public class LitJsonAttrParser : IAttrParser
+    public sealed class LitJsonAttrParser : IAttrParser
     {
         public LitJsonAttrParser()
         {

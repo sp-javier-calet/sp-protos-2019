@@ -8,7 +8,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
-    public class FacebookLink : ILink
+    public sealed class FacebookLink : ILink
     {
         readonly IFacebook _facebook;
         #pragma warning disable 414

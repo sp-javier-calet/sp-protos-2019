@@ -1,0 +1,112 @@
+﻿using SocialPoint.Base;
+using System.Collections.Generic;
+using System;
+
+namespace SocialPoint.Network
+{
+
+    public sealed class LocalNetworkClient : INetworkClient
+    {
+        INetworkMessageReceiver _receiver;
+        List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
+        LocalNetworkServer _server;
+
+        public bool Connected{ get; private set; }
+
+        public LocalNetworkClient(LocalNetworkServer server)
+        {
+            _server = server;
+        }
+
+        public void Connect()
+        {
+            if(Connected)
+            {
+                return;
+            }
+            if(_server.Running)
+            {
+                Connected = true;
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnClientConnected();
+                }
+            }
+            _server.OnClientConnecting(this);
+        }
+
+        public void Disconnect()
+        {
+            if(!Connected)
+            {
+                return;
+            }
+            Connected = false;
+            _server.OnClientDisconnected(this);
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnClientDisconnected();
+            }
+        }
+
+        public void OnLocalMessageReceived(LocalNetworkMessage msg)
+        {
+            if(!Connected)
+            {
+                return;
+            }
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(msg.Data, msg.Receive());
+            }
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnMessageReceived(msg.Data);
+            }
+        }
+
+        public void OnServerStarted()
+        {
+            if(!Connected)
+            {
+                Connect();
+            }
+        }
+
+        public void OnServerStopped()
+        {
+            if(Connected)
+            {
+                Disconnect();
+            }
+        }
+
+        public INetworkMessage CreateMessage(NetworkMessageData info)
+        {
+            if(!Connected)
+            {
+                throw new InvalidOperationException("Client not connected.");
+            }
+            return new LocalNetworkMessage(info, this, _server);
+        }
+
+        public void AddDelegate(INetworkClientDelegate dlg)
+        {
+            _delegates.Add(dlg);
+            if(Connected && dlg != null)
+            {
+                dlg.OnClientConnected();
+            }
+        }
+
+        public void RemoveDelegate(INetworkClientDelegate dlg)
+        {
+            _delegates.Remove(dlg);
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
+        }
+    }
+}

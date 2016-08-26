@@ -1,7 +1,7 @@
 
 namespace SocialPoint.Attributes
 {
-    public class JsonAttrParser : FastJsonAttrParser
+    public sealed class JsonAttrParser : FastJsonAttrParser
     {
 
     }

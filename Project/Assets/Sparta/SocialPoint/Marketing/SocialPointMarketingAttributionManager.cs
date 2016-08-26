@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Marketing
 {
-    public class SocialPointMarketingAttributionManager : IMarketingAttributionManager
+    public sealed class SocialPointMarketingAttributionManager : IMarketingAttributionManager
     {
         const string MarketingLogEventName = "log.marketing";
 

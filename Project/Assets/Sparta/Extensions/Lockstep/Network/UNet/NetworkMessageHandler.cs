@@ -3,7 +3,7 @@ using System.IO;
 using UnityEngine.Networking;
 using System;
 using SocialPoint.Lockstep.Network;
-using SocialPoint.Utils.Network.UNet;
+using SocialPoint.Network;
 
 namespace SocialPoint.Lockstep.Network.UNet
 {
@@ -16,7 +16,7 @@ namespace SocialPoint.Lockstep.Network.UNet
             MsgType = msgType;
         }
 
-        protected abstract void MessageHandler(NetworkMessage msg);
+        protected abstract void MessageHandler(UnityEngine.Networking.NetworkMessage msg);
 
         public void Register(NetworkClient client)
         {
@@ -39,7 +39,7 @@ namespace SocialPoint.Lockstep.Network.UNet
         }
     }
 
-    public class NetworkMessageHandler : BaseNetworkMessageHandler
+    public sealed class NetworkMessageHandler : BaseNetworkMessageHandler
     {
         Action<NetworkMessageData> _handler;
 
@@ -49,16 +49,16 @@ namespace SocialPoint.Lockstep.Network.UNet
             _handler = handler;
         }
 
-        protected override void MessageHandler(NetworkMessage msg)
+        protected override void MessageHandler(UnityEngine.Networking.NetworkMessage msg)
         {
             _handler(new NetworkMessageData {
                 ConnectionId = msg.conn.connectionId,
-                Reader = new NetworkReaderWrapper(msg.reader)
+                Reader = new UnetNetworkReader(msg.reader)
             });
         }
     }
 
-    public class SyncNetworkMessageHandler : BaseNetworkMessageHandler
+    public sealed class SyncNetworkMessageHandler : BaseNetworkMessageHandler
     {
         Action<SyncNetworkMessageData> _handler;
 
@@ -68,9 +68,9 @@ namespace SocialPoint.Lockstep.Network.UNet
             _handler = handler;
         }
 
-        protected override void MessageHandler(NetworkMessage msg)
+        protected override void MessageHandler(UnityEngine.Networking.NetworkMessage msg)
         {
-            var reader = new NetworkReaderWrapper(msg.reader);
+            var reader = new UnetNetworkReader(msg.reader);
             int networkTimestamp = reader.ReadInt32();
             byte error;
             int serverDelay = msg.conn.hostId != -1 ? NetworkTransport.GetRemoteDelayTimeMS(msg.conn.hostId, msg.conn.connectionId, networkTimestamp, out error) : 0;

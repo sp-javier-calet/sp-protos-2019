@@ -6,7 +6,7 @@ using System;
 
 namespace SocialPoint.Crash
 {
-    public class BreadcrumbManager : IBreadcrumbManager, Log.IBreadcrumbLogger
+    public sealed class BreadcrumbManager : IBreadcrumbManager, Log.IBreadcrumbLogger
     {
         struct Breadcrumb
         {

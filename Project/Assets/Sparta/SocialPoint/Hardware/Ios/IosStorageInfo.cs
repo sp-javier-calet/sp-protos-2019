@@ -1,7 +1,7 @@
 
 namespace SocialPoint.Hardware
 {
-    public class IosStorageInfo : IStorageInfo
+    public sealed class IosStorageInfo : IStorageInfo
     {
         public IosStorageInfo ()
         {

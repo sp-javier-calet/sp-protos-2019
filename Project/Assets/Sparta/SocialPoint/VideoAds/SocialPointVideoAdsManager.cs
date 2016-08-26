@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SocialPoint.VideoAds
 {
-    public class SocialPointVideoAdsManager : MonoBehaviour, IVideoAdsManager
+    public sealed class SocialPointVideoAdsManager : MonoBehaviour, IVideoAdsManager
     {
         string _appId;
 

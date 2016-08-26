@@ -11,7 +11,7 @@ namespace SocialPoint.Login
 {
     public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
-    public class SocialPointLogin : ILogin
+    public sealed class SocialPointLogin : ILogin
     {
         const string DefaultBaseUrl = "http://localhost/";
         const string BaseUri = "{0}/{1}";
@@ -486,7 +486,7 @@ namespace SocialPoint.Login
             }
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             ClearUsersCache();
             _links.Clear();
@@ -2401,7 +2401,7 @@ namespace SocialPoint.Login
         }
     }
 
-    public class LinkInfo
+    public sealed class LinkInfo
     {
         public enum Filter
         {

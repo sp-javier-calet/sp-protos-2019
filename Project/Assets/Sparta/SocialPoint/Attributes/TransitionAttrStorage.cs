@@ -2,7 +2,7 @@ using System;
 
 namespace SocialPoint.Attributes
 {
-    public class TransitionAttrStorage : IAttrStorage
+    public sealed class TransitionAttrStorage : IAttrStorage
     {
         public IAttrStorage From;
         public IAttrStorage To;

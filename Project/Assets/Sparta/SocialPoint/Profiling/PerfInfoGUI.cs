@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SocialPoint.Profiling
 {
-    public class PerfInfoGUI : MonoBehaviour
+    public sealed class PerfInfoGUI : MonoBehaviour
     {
         public PerfInfo Info;
 

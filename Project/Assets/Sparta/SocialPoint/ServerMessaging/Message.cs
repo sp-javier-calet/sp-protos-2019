@@ -42,7 +42,7 @@ namespace SocialPoint.ServerMessaging
         }
     }
 
-    public class Message
+    public sealed class Message
     {
         const string MessageIdKey = "id";
         const string MessageTypeKey = "type";

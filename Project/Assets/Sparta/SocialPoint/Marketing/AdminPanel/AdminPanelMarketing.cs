@@ -4,7 +4,7 @@ using System;
 
 namespace SocialPoint.Marketing
 {
-    public class AdminPanelMarketing : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelMarketing : IAdminPanelGUI, IAdminPanelConfigurer
     {
         IMarketingAttributionManager _manager;
         IAttrStorage _storage;

@@ -3,7 +3,7 @@
 namespace SocialPoint.Utils
 {
     [System.Serializable]
-    public class UnityLayer
+    public sealed class UnityLayer
     {
         [SerializeField]
         public int LayerIndex = 0;

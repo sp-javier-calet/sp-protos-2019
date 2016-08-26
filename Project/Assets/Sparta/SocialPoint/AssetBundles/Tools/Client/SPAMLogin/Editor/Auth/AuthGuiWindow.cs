@@ -3,7 +3,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class AuthGuiWindow : TLWindow
+    public sealed class AuthGuiWindow : TLWindow
     {
         static AuthGuiWindow            _instance;
         public static AuthGuiWindow     instance { get { return _instance; } private set { _instance = value; } }

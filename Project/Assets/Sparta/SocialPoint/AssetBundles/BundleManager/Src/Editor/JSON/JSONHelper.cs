@@ -10,7 +10,7 @@ using BM.Extensions;
 
 namespace BundleManagerJSON
 {
-    public class JSONHelper
+    public sealed class JSONHelper
     {
         // When serializing prefabs and removing components, use this instances instead of directly modifying prefabs
         // This way we do not touch the root prefabs

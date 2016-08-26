@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class LockstepCommandMessage : INetworkMessage
+    public sealed class LockstepCommandMessage : INetworkMessage
     {
         public ILockstepCommand LockstepCommand { get; private set; }
 
@@ -19,14 +19,14 @@ namespace SocialPoint.Lockstep.Network
             LockstepCommand = command;
         }
 
-        public void Deserialize(IReaderWrapper reader)
+        public void Deserialize(IReader reader)
         {
             int turn = reader.ReadInt32();
             var commandData = _commandDataFactory.CreateNetworkLockstepCommandData(turn, reader);
             LockstepCommand = commandData.LockstepCommand;
         }
 
-        public void Serialize(IWriterWrapper writer)
+        public void Serialize(IWriter writer)
         {
             if(LockstepCommand != null)
             {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Console
 {
-    public class ConsoleCommandOption
+    public sealed class ConsoleCommandOption
     {
         public string Config;
         public string Description;

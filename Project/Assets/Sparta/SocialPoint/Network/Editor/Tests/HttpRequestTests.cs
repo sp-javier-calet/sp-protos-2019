@@ -8,7 +8,7 @@ namespace SocialPoint.Network
 {
     [TestFixture]
     [Category("SocialPoint.Network")]
-    public class HttpRequestTests
+    public sealed class HttpRequestTests
     {
         [Test]
         public void HttpRequest_parses_params()

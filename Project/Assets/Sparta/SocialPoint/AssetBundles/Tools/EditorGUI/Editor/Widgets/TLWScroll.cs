@@ -6,7 +6,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// <summary>
     /// A widget for laying other widgets in a scrollable view.
     /// </summary>
-	public class TLWScroll : TLWidget 
+	public sealed class TLWScroll : TLWidget 
 	{
 		private List<TLWidget> _widgets;
 		private Vector2 _scrollPosition;

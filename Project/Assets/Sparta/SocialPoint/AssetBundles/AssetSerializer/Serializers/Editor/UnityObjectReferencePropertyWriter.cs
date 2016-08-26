@@ -9,7 +9,7 @@ using SocialPoint.AssetSerializer.Exceptions;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class UnityObjectReferencePropertyWriter : AbstractPropertyWriter
+    public sealed class UnityObjectReferencePropertyWriter : AbstractPropertyWriter
     {
         public UnityObjectReferencePropertyWriter(string propName, object value, Type propType) : base(propName, "UnityObjectReference", value, propType)
         {

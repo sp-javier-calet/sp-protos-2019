@@ -10,7 +10,7 @@ namespace SocialPoint.AdminPanel
             return new HorizontalLayout(this, Vector2.one);
         }
 
-        public class HorizontalLayout : AdminPanelLayout
+        public sealed class HorizontalLayout : AdminPanelLayout
         {
             public HorizontalLayout(AdminPanelLayout parentLayout, Vector2 relativeSize) : base(parentLayout)
             {

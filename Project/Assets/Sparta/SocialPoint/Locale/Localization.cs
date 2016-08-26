@@ -3,7 +3,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Locale
 {
-    public class Localization
+    public sealed class Localization
     {
         public const string EnglishIdentifier = "en";
         public const string SpanishIdentifier = "es";

@@ -2,7 +2,7 @@ using System;
 
 namespace SocialPoint.Crash
 {
-    public class EmptyCrashReporter : ICrashReporter
+    public sealed class EmptyCrashReporter : ICrashReporter
     {
         public void ForceCrash()
         {

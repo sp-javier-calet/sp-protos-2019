@@ -10,7 +10,7 @@ using SocialPoint.AssetSerializer.Utils;
 
 namespace SocialPoint.AssetSerializer.Helpers
 {
-    public class SerializerHelper
+    public sealed class SerializerHelper
     {
         // Serialize a Scenes objects
         public static string SerializeScene( UnityEngine.Object[] objectArr, bool excludeComponents = true, bool serializeNonCustomGameObjects = false )

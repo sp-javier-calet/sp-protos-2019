@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class TargetMonitorController
+	public sealed class TargetMonitorController
 	{
 		public interface IMonitorController
 		{
@@ -12,7 +12,7 @@ namespace SocialPoint.GUIAnimation
 		}
 
 		//-------
-		public class EffectTargetMonitorController : IMonitorController
+		public sealed class EffectTargetMonitorController : IMonitorController
         {
 			Effect _step;
 			MultiTargetValueMonitor _monitor = new MultiTargetValueMonitor();
@@ -43,7 +43,7 @@ namespace SocialPoint.GUIAnimation
 		//------
 
 		//-------
-		public class EffectsGroupTargetMonitorController : IMonitorController
+		public sealed class EffectsGroupTargetMonitorController : IMonitorController
 		{
 			EffectsGroup _step;
 			List<MultiTargetValueMonitor> _monitors = new List<MultiTargetValueMonitor>();

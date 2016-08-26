@@ -10,7 +10,7 @@ namespace SocialPoint.Notifications
             - IOS gets the Unity app icon automatically and ANDROID needs to get the icon from Assets/Plugins/Android/res/drawable/app_icon.png file
             - For compatibility with IOS, ANDROID progress and big style notifications aren't implemented (http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
     */
-    public class Notification
+    public sealed class Notification
     {
         /**
          * What kind of operation should be applied to the base schedule time and an additional offset time.
