@@ -8,6 +8,7 @@ namespace SocialPoint.Network
     public interface INetworkMessage
     {
         IWriter Writer{ get; }
+
         void Send();
     }
 
@@ -43,7 +44,7 @@ namespace SocialPoint.Network
         public static bool operator !=(NetworkMessageData a, NetworkMessageData b)
         {
             return !(a == b);
-        }            
+        }
 
         public override string ToString()
         {

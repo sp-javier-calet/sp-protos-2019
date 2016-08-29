@@ -8,17 +8,19 @@ namespace SocialPoint.Multiplayer
     public interface IUnityNetworkBehaviour
     {
         void OnStart(NetworkGameObject ngo, UnityEngine.GameObject go);
+
         void Update(float dt);
+
         void OnDestroy();
     }
-        
+
     public class UnityNetworkClientSceneController : NetworkClientSceneController
     {
         Dictionary<string,GameObject> _prefabs = new Dictionary<string,GameObject>();
         Dictionary<int,GameObject> _objects = new Dictionary<int,GameObject>();
         string _parentTag;
 
-        public UnityNetworkClientSceneController(INetworkClient client, string parentTag=null):base(client)
+        public UnityNetworkClientSceneController(INetworkClient client, string parentTag = null) : base(client)
         {
             _parentTag = parentTag;
         }
@@ -54,8 +56,8 @@ namespace SocialPoint.Multiplayer
                 }
             }
 
-            var go =  SocialPoint.ObjectPool.ObjectPool.Spawn(prefab, parent,
-                ev.Transform.Position.ToUnity(), ev.Transform.Rotation.ToUnity());
+            var go = SocialPoint.ObjectPool.ObjectPool.Spawn(prefab, parent,
+                         ev.Transform.Position.ToUnity(), ev.Transform.Rotation.ToUnity());
             _objects[ev.ObjectId] = go;
         }
 

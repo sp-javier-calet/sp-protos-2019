@@ -8,7 +8,7 @@ namespace SocialPoint.Multiplayer
     {
         IUpdateScheduler _scheduler;
 
-        public UnityNetworkServerSceneController(INetworkServer server, IUpdateScheduler scheduler):base(server)
+        public UnityNetworkServerSceneController(INetworkServer server, IUpdateScheduler scheduler) : base(server)
         {
             _scheduler = scheduler;
         }
@@ -24,7 +24,7 @@ namespace SocialPoint.Multiplayer
             base.OnServerStopped();
             _scheduler.Remove(this);
         }
-        
+
         public void Update()
         {
             base.Update(Time.deltaTime);

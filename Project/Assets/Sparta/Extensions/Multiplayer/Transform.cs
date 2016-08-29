@@ -18,15 +18,15 @@ namespace SocialPoint.Multiplayer
             Scale = s;
         }
 
-        public Transform(Vector3 p, Quaternion r):this(p, r, Vector3.One)
+        public Transform(Vector3 p, Quaternion r) : this(p, r, Vector3.One)
         {
         }
 
-        public Transform(Vector3 p):this(p, Quaternion.Identity)
+        public Transform(Vector3 p) : this(p, Quaternion.Identity)
         {
         }
 
-        public Transform():this(Vector3.Zero)
+        public Transform() : this(Vector3.Zero)
         {
         }
 

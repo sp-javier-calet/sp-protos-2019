@@ -8,6 +8,7 @@ namespace SocialPoint.Multiplayer
     public interface INetworkClientSceneBehaviour
     {
         void OnInstantiateObject(int id, Transform t);
+
         void OnDestroyObject(int id);
     }
 

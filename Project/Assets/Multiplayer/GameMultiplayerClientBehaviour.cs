@@ -45,7 +45,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
             });
         }
     }
-        
+
     void INetworkClientSceneBehaviour.OnInstantiateObject(int id, SocialPoint.Multiplayer.Transform t)
     {
     }

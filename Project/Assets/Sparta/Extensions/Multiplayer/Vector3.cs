@@ -11,7 +11,7 @@ namespace SocialPoint.Multiplayer
         public float y;
         public float z;
 
-        public Vector3(float v=0.0f)
+        public Vector3(float v = 0.0f)
         {
             x = v;
             y = v;

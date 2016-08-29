@@ -9,7 +9,9 @@ namespace SocialPoint.Multiplayer
     public interface INetworkServerSceneBehaviour
     {
         void Update(float dt, NetworkScene scene, NetworkScene oldScene);
+
         void OnClientConnected(byte clientId);
+
         void OnClientDisconnected(byte clientId);
     }
 
@@ -149,7 +151,7 @@ namespace SocialPoint.Multiplayer
             _scene = new NetworkScene();
             _oldScene = new NetworkScene();
         }
-            
+
         void INetworkServerDelegate.OnServerStopped()
         {
             OnServerStopped();
@@ -209,9 +211,9 @@ namespace SocialPoint.Multiplayer
             NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, msg.Writer);
             msg.Send();
             _oldScene = new NetworkScene(_scene);
-        }            
-            
-        public NetworkGameObject Instantiate(string prefabName, Transform trans, INetworkBehaviour[] newBehaviours=null)
+        }
+
+        public NetworkGameObject Instantiate(string prefabName, Transform trans, INetworkBehaviour[] newBehaviours = null)
         {
             var go = new NetworkGameObject(_scene.FreeObjectId, trans);
             _scene.AddObject(go);
@@ -245,7 +247,7 @@ namespace SocialPoint.Multiplayer
             return go;
         }
 
-        public NetworkGameObject Instantiate(string prefabName, INetworkBehaviour[] behaviours=null)
+        public NetworkGameObject Instantiate(string prefabName, INetworkBehaviour[] behaviours = null)
         {
             return Instantiate(prefabName, Transform.Identity, behaviours);
         }

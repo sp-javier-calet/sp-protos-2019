@@ -12,7 +12,7 @@ namespace SocialPoint.Multiplayer
         public float z;
         public float w;
 
-        public Quaternion(float v=0.0f)
+        public Quaternion(float v = 0.0f)
         {
             x = v;
             y = v;
@@ -59,7 +59,7 @@ namespace SocialPoint.Multiplayer
         public static bool operator !=(Quaternion a, Quaternion b)
         {
             return !(a == b);
-        }            
+        }
 
         public static Quaternion Identity
         {
@@ -71,7 +71,7 @@ namespace SocialPoint.Multiplayer
 
         public override string ToString()
         {
-            return string.Format("[{0},{1},{2},{3}]", x, y, z ,w);
+            return string.Format("[{0},{1},{2},{3}]", x, y, z, w);
         }
     }
 
