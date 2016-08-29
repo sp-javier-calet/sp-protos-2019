@@ -38,14 +38,18 @@ namespace SocialPoint.Multiplayer
 
         public NetworkScene(NetworkScene scene) : this()
         {
-            if(scene != null && scene._objects != null)
+            if(scene != null)
             {
-                var itr = scene._objects.GetEnumerator();
-                while(itr.MoveNext())
+                FreeObjectId = scene.FreeObjectId;
+                if(scene._objects != null)
                 {
-                    _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+                    var itr = scene._objects.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+                    }
+                    itr.Dispose();
                 }
-                itr.Dispose();
             }
         }
 
