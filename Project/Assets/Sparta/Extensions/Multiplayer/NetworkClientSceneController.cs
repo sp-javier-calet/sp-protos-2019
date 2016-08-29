@@ -50,6 +50,11 @@ namespace SocialPoint.Multiplayer
             return _scene == scene;
         }
 
+        public bool PredictionEquals(NetworkScene scene)
+        {
+            return _clientScene == scene;
+        }
+
         void INetworkClientDelegate.OnClientConnected()
         {
             _scene = null;

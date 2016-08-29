@@ -11,7 +11,6 @@ public class MovementActionDelegate : INetworkActionDelegate
         {
             var go = itr.Current;
             go.Transform.Position += movementAction.Movement;
-            go.Transform.Size *= 1;
         }
         itr.Dispose();
     }
