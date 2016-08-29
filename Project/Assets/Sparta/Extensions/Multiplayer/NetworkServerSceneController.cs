@@ -327,22 +327,17 @@ namespace SocialPoint.Multiplayer
         void OnAction(Type actionType, object action)
         {
             _lastReceivedAction++;
-            ApplyActionToScene(new NetworkActionTuple(actionType, action), _scene);
+            ApplyActionToScene(actionType, action);
         }
 
-        bool ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
+        bool ApplyActionToScene(Type actionType, object action)
         {
-            return NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
+            return NetworkActionUtils.ApplyAction(actionType, action, _actionDelegates, _scene);
         }
 
         public void RegisterActionDelegate<T>(INetworkActionDelegate callback)
         {
-            RegisterActionDelegate(typeof(T), callback);
-        }
-
-        void RegisterActionDelegate(Type actionType, INetworkActionDelegate callback)
-        {
-            NetworkActionUtils.RegisterActionDelegate(actionType, callback, _actionDelegates);
+            NetworkActionUtils.RegisterActionDelegate(typeof(T), callback, _actionDelegates);
         }
     }
 }

@@ -10,6 +10,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     INetworkServer _server;
     NetworkServerSceneController _controller;
 
+    //*** TEST: Commented to avoid conflicts with prediction tests
     //Dictionary<int,int> _updateTimes;
     //float _moveInterval = 1.0f;
     //float _timeSinceLastMove = 0.0f;
@@ -22,6 +23,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _controller = ctrl;
         _controller.RegisterReceiver(this);
         _controller.RegisterActionDelegate<MovementAction>(new MovementActionDelegate());
+        //*** TEST: Commented to avoid conflicts with prediction tests
         //_updateTimes = new Dictionary<int,int>();
         //_movement = new Vector3(2.0f, 0.0f, 2.0f);
     }

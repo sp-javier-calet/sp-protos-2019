@@ -163,39 +163,32 @@ namespace SocialPoint.Multiplayer
             _sceneBehaviours.Remove(behaviour);
         }
 
-        public void ApplyAction<T>(INetworkShareable action)
+        public void ApplyAction<T>(INetworkShareable action, NetworkMessageData msgData)
         {
-            ApplyAction(typeof(T), action);
+            ApplyAction(typeof(T), action, msgData);
         }
 
-        void ApplyAction(Type actionType, INetworkShareable action)
+        void ApplyAction(Type actionType, INetworkShareable action, NetworkMessageData msgData)
         {
             _lastAppliedAction++;
             _pendingActions.Add(_lastAppliedAction, new NetworkActionTuple(actionType, action));
-            if(ApplyActionToScene(new NetworkActionTuple(actionType, action), _clientScene))
+            if(ApplyActionToScene(actionType, action))
             {
                 UpdateSceneView();
-
-                //Send to server
-                _client.SendMessage(new NetworkMessageData {
-                    MessageType = GameMsgType.MovementAction
-                }, action);
             }
+
+            //Send to server
+            _client.SendMessage(msgData, action);
         }
 
-        bool ApplyActionToScene(NetworkActionTuple actionTuple, NetworkScene scene)
+        bool ApplyActionToScene(Type actionType, object action)
         {
-            return NetworkActionUtils.ApplyAction(actionTuple, _actionDelegates, scene);
+            return NetworkActionUtils.ApplyAction(actionType, action, _actionDelegates, _clientScene);
         }
 
         public void RegisterActionDelegate<T>(INetworkActionDelegate callback)
         {
-            RegisterActionDelegate(typeof(T), callback);
-        }
-
-        void RegisterActionDelegate(Type actionType, INetworkActionDelegate callback)
-        {
-            NetworkActionUtils.RegisterActionDelegate(actionType, callback, _actionDelegates);
+            NetworkActionUtils.RegisterActionDelegate(typeof(T), callback, _actionDelegates);
         }
 
         public void OnActionFromServer(int lastServerAction)
@@ -229,7 +222,7 @@ namespace SocialPoint.Multiplayer
             while(itr.MoveNext())
             {
                 NetworkActionTuple actionTuple = itr.Current.Value;
-                ApplyActionToScene(actionTuple, _clientScene);
+                ApplyActionToScene(actionTuple.ActionType, actionTuple.Action);
             }
             itr.Dispose();
         }

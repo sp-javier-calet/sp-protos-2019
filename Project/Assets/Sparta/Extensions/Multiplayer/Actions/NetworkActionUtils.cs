@@ -10,20 +10,21 @@ namespace SocialPoint.Multiplayer
         /// Helper function to search for available delegates asociated to an action and apply them to an scene.
         /// </summary>
         /// <returns><c>true</c>, if action was applyed, <c>false</c> otherwise.</returns>
-        /// <param name="actionTuple">Action tuple.</param>
+        /// <param name="actionType">Action type.</param>
+        /// <param name="action">Action.</param>
         /// <param name="actionDelegates">Action delegates.</param>
         /// <param name="scene">Scene.</param>
-        public static bool ApplyAction(NetworkActionTuple actionTuple, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates, NetworkScene scene)
+        public static bool ApplyAction(Type actionType, object action, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates, NetworkScene scene)
         {
             bool applyed = false;
             List<INetworkActionDelegate> actionCallbackList;
-            if(actionDelegates.TryGetValue(actionTuple.ActionType, out actionCallbackList))
+            if(actionDelegates.TryGetValue(actionType, out actionCallbackList))
             {
                 var itr = actionCallbackList.GetEnumerator();
                 while(itr.MoveNext())
                 {
                     INetworkActionDelegate actionCallback = itr.Current;
-                    actionCallback.ApplyAction(actionTuple.Action, scene);
+                    actionCallback.ApplyAction(action, scene);
                     applyed = true;
                 }
                 itr.Dispose();

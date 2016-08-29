@@ -66,17 +66,14 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
 
         if(input && _client.Connected)
         {
-            var ac = new MovementAction {
+            var movementAction = new MovementAction {
                 Movement = movement
             };
-
-            _controller.ApplyAction<MovementAction>(ac);
-            //*** TEST - Use this instead of previous line to avoid prediction:
-            /*
-            _client.SendMessage(new NetworkMessageData {
+            NetworkMessageData msgData = new NetworkMessageData {
                 MessageType = GameMsgType.MovementAction
-            }, ac);
-            //*/
+            };
+
+            _controller.ApplyAction<MovementAction>(movementAction, msgData);
         }
     }
 
