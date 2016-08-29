@@ -30,7 +30,7 @@ clean $MODULE_PATH
 
 cd $MODULE_NAME/jni 2>&1
 echo "Compiling '$MODULE_NAME' Linux Native plugin"
-$NDK_PATH/ndk-build NDK_APPLICATION_MK=Application.mk 2>&1
+$NDK_PATH/ndk-build V=1 NDK_APPLICATION_MK=Application.mk 2>&1
 BUILD_SUCCESS=$?
 cd ..
 
