@@ -100,8 +100,8 @@ namespace SocialPoint.Utils
         }
 
         Dictionary<StateTransition, StateType> _stateTransitions = new Dictionary<StateTransition, StateType>();
-        Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>();
-        Dictionary<StateType, State> _states = new Dictionary<StateType, State>();
+        Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>(new StateMachineStateTypeEqualityComparer());
+        Dictionary<StateType, State> _states = new Dictionary<StateType, State>(new StateMachineTransitionEqualityComparer());
 
         StateType _currentStateType;
         public StateType CurrentStateType
