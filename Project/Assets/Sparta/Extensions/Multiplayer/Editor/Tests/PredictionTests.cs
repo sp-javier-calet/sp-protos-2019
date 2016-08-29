@@ -40,8 +40,10 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void ActionPrediction()
         {
-            NetworkMessageData msgData;
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+
+            NetworkMessageData msgData;
 
             //Instantiate
             var instantiateAction = new TestInstatiateAction {
@@ -69,6 +71,53 @@ namespace SocialPoint.Multiplayer
 
             Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            _serverCtrl.Update(0.001f);
+            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+        }
+
+        [Test]
+        public void MultipleActionPrediction()
+        {
+            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+
+            //Instantiate
+            var instantiateAction = new TestInstatiateAction {
+                Position = Vector3.Zero
+            };
+            NetworkMessageData instatiateMsgData = new NetworkMessageData {
+                MessageType = InstatiateActionType
+            };
+            _clientCtrl.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, instatiateMsgData);
+            _serverCtrl.Update(0.001f);
+            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+
+            int totalActions = 3;
+            NetworkMessageData[] msgData = new NetworkMessageData[totalActions];
+            TestMovementAction[] actions = new TestMovementAction[totalActions];
+
+            for(int i = 0; i < totalActions; i++)
+            {
+                actions[i] = new TestMovementAction {
+                    Movement = Vector3.One * (i + 1)
+                };
+                msgData[i] = new NetworkMessageData {
+                    MessageType = MovementActionType
+                };
+                _clientCtrl.ApplyAction<TestMovementAction>(actions[i]);
+            }
+
+            int finalAction = totalActions - 1;
+            for(int i = 0; i < finalAction; i++)
+            {
+                _client.SendMessage(msgData[i], actions[i]);
+                _serverCtrl.Update(0.001f);
+                Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
+                Assert.That(!_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            }
+            _client.SendMessage(msgData[finalAction], actions[finalAction]);
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
