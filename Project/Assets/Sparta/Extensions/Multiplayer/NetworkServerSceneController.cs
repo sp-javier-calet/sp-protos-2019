@@ -319,7 +319,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public void OnAction<T>(object action)
+        public void OnAction<T>(T action)
         {
             OnAction(typeof(T), action);
         }

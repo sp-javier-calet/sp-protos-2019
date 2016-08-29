@@ -168,7 +168,7 @@ namespace SocialPoint.Multiplayer
             _sceneBehaviours.Remove(behaviour);
         }
 
-        public void ApplyActionAndSend<T>(INetworkShareable action, NetworkMessageData msgData)
+        public void ApplyActionAndSend<T>(T action, NetworkMessageData msgData) where T : INetworkShareable
         {
             ApplyAction<T>(action);
 
@@ -176,7 +176,7 @@ namespace SocialPoint.Multiplayer
             _client.SendMessage(msgData, action);
         }
 
-        public void ApplyAction<T>(object action)
+        public void ApplyAction<T>(T action)
         {
             ApplyAction(typeof(T), action);
         }
