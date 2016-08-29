@@ -7,11 +7,8 @@ public class MovementActionDelegate : INetworkActionDelegate
     {
         MovementAction movementAction = (MovementAction)action;
         var itr = scene.GetObjectEnumerator();
-        while(itr.MoveNext())
-        {
-            var go = itr.Current;
-            go.Transform.Position += movementAction.Movement;
-        }
+        var go = scene.FindObject(1);
+        go.Transform.Position += movementAction.Movement;
         itr.Dispose();
     }
 }

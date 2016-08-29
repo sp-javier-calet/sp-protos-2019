@@ -10,12 +10,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     INetworkServer _server;
     NetworkServerSceneController _controller;
 
-    //*** TEST: Commented to avoid conflicts with prediction tests
-    //Dictionary<int,int> _updateTimes;
-    //float _moveInterval = 1.0f;
-    //float _timeSinceLastMove = 0.0f;
-    //int _maxUpdateTimes = 3;
-    //Vector3 _movement;
+    Dictionary<int,int> _updateTimes;
+    float _moveInterval = 1.0f;
+    float _timeSinceLastMove = 0.0f;
+    int _maxUpdateTimes = 3;
+    Vector3 _movement;
 
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
     {
@@ -23,9 +22,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _controller = ctrl;
         _controller.RegisterReceiver(this);
         _controller.RegisterActionDelegate<MovementAction>(new MovementActionDelegate());
-        //*** TEST: Commented to avoid conflicts with prediction tests
-        //_updateTimes = new Dictionary<int,int>();
-        //_movement = new Vector3(2.0f, 0.0f, 2.0f);
+        _updateTimes = new Dictionary<int,int>();
+        _movement = new Vector3(2.0f, 0.0f, 2.0f);
     }
 
     public void Dispose()
@@ -35,8 +33,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void INetworkServerSceneBehaviour.Update(float dt, NetworkScene scene, NetworkScene oldScene)
     {
-        //*** TEST: Commented to avoid conflicts with prediction tests
-        /*
         _timeSinceLastMove += dt;
 
         if(_timeSinceLastMove > _moveInterval)
@@ -45,8 +41,14 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var itr = _controller.Scene.GetObjectEnumerator();
             while(itr.MoveNext())
             {
-                var p = itr.Current.Transform.Position;
                 var id = itr.Current.Id;
+                if(id == 1)
+                {
+                    //Using first cube as MovementAction target
+                    continue;
+                }
+
+                var p = itr.Current.Transform.Position;
 
                 p += new Vector3(
                     RandomUtils.Range(-_movement.x, _movement.x),
@@ -77,7 +79,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             }
             itr.Dispose();
         }
-        //*/
     }
 
     void SendExplosionEvent(Transform t)
