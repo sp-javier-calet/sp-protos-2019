@@ -4,7 +4,7 @@ using System.Collections;
 namespace SocialPoint.AssetSerializer.Serializers
 {
     [System.Serializable]
-    public class SerializableDecimal : ISerializationCallbackReceiver
+    public sealed class SerializableDecimal : ISerializationCallbackReceiver
     {
         public decimal value;
         [SerializeField]

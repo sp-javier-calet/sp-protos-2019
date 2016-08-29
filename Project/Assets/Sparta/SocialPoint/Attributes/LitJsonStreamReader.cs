@@ -1,7 +1,7 @@
 ﻿
 namespace SocialPoint.Attributes
 {
-    public class LitJsonStreamReader : IStreamReader
+    public sealed class LitJsonStreamReader : IStreamReader
     {
         LitJson.JsonReader _reader;
         

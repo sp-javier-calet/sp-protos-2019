@@ -85,7 +85,7 @@ namespace SocialPoint.CrossPromotion
             }
         }
 
-        protected bool IsAutoOpened
+        bool IsAutoOpened
         {
             get
             {
@@ -156,7 +156,7 @@ namespace SocialPoint.CrossPromotion
             Reset();
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             Reset();
             if(_appEvents != null)

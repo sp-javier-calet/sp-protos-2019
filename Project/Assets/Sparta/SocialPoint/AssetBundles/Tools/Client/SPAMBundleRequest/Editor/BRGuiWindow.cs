@@ -5,7 +5,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class BRGuiWindow : TLWindow
+    public sealed class BRGuiWindow : TLWindow
     {
         static BRGuiWindow          _instance;
         public static BRGuiWindow   instance { get { return _instance; } private set { _instance = value; } }

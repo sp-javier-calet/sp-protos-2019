@@ -4,7 +4,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class Vector3PropertyWriter : AbstractPropertyWriter
+    public sealed class Vector3PropertyWriter : AbstractPropertyWriter
     {
         public Vector3PropertyWriter(string propName, object value, Type propType) : base(propName, "Vector3", value, propType)
         {

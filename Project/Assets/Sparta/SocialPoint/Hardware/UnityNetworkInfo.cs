@@ -4,7 +4,7 @@ using System.Net;
 
 namespace SocialPoint.Hardware
 {
-    public class UnityNetworkInfo : INetworkInfo
+    public sealed class UnityNetworkInfo : INetworkInfo
     {
         Uri _testUri;
 

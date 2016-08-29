@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class QuaternionPropertyReader : AbstractPropertyReader
+    public sealed class QuaternionPropertyReader : AbstractPropertyReader
     {
         public QuaternionPropertyReader(JsonData propDef) : base(propDef)
         {

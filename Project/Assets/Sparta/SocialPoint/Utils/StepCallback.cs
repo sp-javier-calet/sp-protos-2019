@@ -3,7 +3,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
-    public class StepCallback
+    public sealed class StepCallback
     {
         readonly Action _callback;
         public int Count { get; set; }
@@ -29,7 +29,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class StepCallbackBuilder
+    public sealed class StepCallbackBuilder
     {
         readonly StepCallback _stepCallback;
         bool _ready;

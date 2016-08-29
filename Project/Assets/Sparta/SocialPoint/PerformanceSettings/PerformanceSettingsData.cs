@@ -2,7 +2,7 @@
 
 namespace SocialPoint.PerformanceSettings
 {
-    public class PerformanceSettingsData
+    public sealed class PerformanceSettingsData
     {
         const string kFramerate = "frame_rate";
         const string kFixedtimestep = "fixed_timestep";

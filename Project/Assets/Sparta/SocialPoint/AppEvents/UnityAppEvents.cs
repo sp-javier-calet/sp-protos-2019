@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.AppEvents
 {
-    public class UnityAppEvents : BaseAppEvents
+    public sealed class UnityAppEvents : BaseAppEvents
     {
         bool _openedFromSource;
 

@@ -7,7 +7,7 @@ using SocialPoint.ServerSync;
 
 namespace SocialPoint.Purchase
 {
-    public class AdminPanelPurchase : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelPurchase : IAdminPanelConfigurer, IAdminPanelGUI
     {
         IStoreProductSource _productSource;
         IGamePurchaseStore _purchaseStore;

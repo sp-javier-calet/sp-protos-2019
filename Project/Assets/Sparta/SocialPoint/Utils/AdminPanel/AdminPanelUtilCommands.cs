@@ -6,7 +6,7 @@ using SocialPoint.Console;
 
 namespace SocialPoint.Utils
 {
-    public class AdminPanelUtilCommands : IAdminPanelConfigurer
+    public sealed class AdminPanelUtilCommands : IAdminPanelConfigurer
     {
         AdminPanel.AdminPanel _adminPanel;
 

@@ -3,7 +3,7 @@ using System;
 namespace SocialPoint.Tool.Shared.TLGUI.Utils
 {
 	[AttributeUsage(AttributeTargets.Field)]
-	public class NamedMemberAttribute : Attribute 
+	public sealed class NamedMemberAttribute : Attribute 
 	{
 		public readonly string Name;
 		

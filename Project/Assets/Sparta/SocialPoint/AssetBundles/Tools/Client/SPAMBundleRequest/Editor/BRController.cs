@@ -9,7 +9,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class BRController : TLController
+    public sealed class BRController : TLController
     {
         public static readonly long MIN_TASK_STATUS_POLL_TIME = 5000;
 

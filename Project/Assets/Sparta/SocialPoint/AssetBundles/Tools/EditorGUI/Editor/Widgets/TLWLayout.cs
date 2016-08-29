@@ -9,7 +9,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A widget for laying widgets in a confined, predefined rectangle.
     /// </summary>
     /// As opposed to TLWHorizontalLayout and TLWVerticalLayout, there cannot be nested TLWLayouts.
-	public class TLWLayout : TLWidget 
+	public sealed class TLWLayout : TLWidget 
 	{	
 		private List<TLWidget> _widgets;
 		private Rect _rect;

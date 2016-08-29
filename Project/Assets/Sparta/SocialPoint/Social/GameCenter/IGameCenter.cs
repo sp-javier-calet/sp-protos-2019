@@ -16,7 +16,7 @@ namespace SocialPoint.Social
         public const int LoginCancelled = 2;
     }
 
-    public class GameCenterUserVerification : ICloneable
+    public sealed class GameCenterUserVerification : ICloneable
     {
         public string Url { get; private set; }
 
@@ -49,7 +49,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class GameCenterUser : ICloneable
+    public sealed class GameCenterUser : ICloneable
     {
         public enum AgeGroup
         {
@@ -126,7 +126,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class GameCenterScore : ICloneable
+    public sealed class GameCenterScore : ICloneable
     {
         public string Category { get; private set; }
 
@@ -149,7 +149,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class GameCenterAchievement : ICloneable
+    public sealed class GameCenterAchievement : ICloneable
     {
         public string Id { get; private set; }
 

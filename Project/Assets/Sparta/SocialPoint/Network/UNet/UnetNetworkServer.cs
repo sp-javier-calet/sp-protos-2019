@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
+    public sealed class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
         INetworkMessageReceiver _receiver;
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
@@ -51,7 +51,7 @@ namespace SocialPoint.Network
             }
             if(!_server.Listen(_port) || _server.serverHostId == -1)
             {
-                throw new ResourceException("Failed to start.");
+                throw new Exception("Failed to start.");
             }
             Running = true;
             for(var i = 0; i < _delegates.Count; i++)

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace SocialPoint.Attributes
 {
     #if UNITY_ANDROID && !UNITY_EDITOR
-    public class PersistentAttrStorage : IAttrStorage, IDisposable
+    public sealed class PersistentAttrStorage : IAttrStorage, IDisposable
     {
         public event Action<Exception> ExceptionThrown;
 

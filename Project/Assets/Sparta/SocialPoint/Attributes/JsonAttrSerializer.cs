@@ -1,7 +1,7 @@
 
 namespace SocialPoint.Attributes
 {
-    public class JsonAttrSerializer : LitJsonAttrSerializer
+    public sealed class JsonAttrSerializer : LitJsonAttrSerializer
     {
 
     }

@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
-    public class EmptyCommandQueue : ICommandQueue
+    public sealed class EmptyCommandQueue : ICommandQueue
     {
         public SyncDelegate AutoSync{ set; private get; }
 
@@ -49,7 +49,7 @@ namespace SocialPoint.ServerSync
         {
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
         }
 

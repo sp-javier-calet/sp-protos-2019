@@ -3,7 +3,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-	public class SPAMProgressBar
+	public sealed class SPAMProgressBar
 	{
 		TLImage _frameImg;
 		TLImage _fillImg;

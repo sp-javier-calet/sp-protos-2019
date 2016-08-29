@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Base;
+using System;
 
 namespace SocialPoint.Attributes
 {
@@ -10,8 +10,9 @@ namespace SocialPoint.Attributes
 
         FamilyParser<T> Parent { set; }
     }
+        
+    public sealed class FamilyParser<T> : IAttrObjParser<T>
 
-    public class FamilyParser<T> : IAttrObjParser<T>
     {
         const string AttrKeyType = "type";
         const string AttrKeyValue = "value";

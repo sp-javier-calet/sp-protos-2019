@@ -6,7 +6,7 @@ using SocialPoint.Login;
 
 namespace SocialPoint.ServerMessaging
 {
-    public class AdminPanelMessageCenter : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelMessageCenter : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly IMessageCenter _messageCenter;
         ILoginData _loginData;

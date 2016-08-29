@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(EventSystem))]
-public class PixelDragThresholdCorrector : MonoBehaviour
+public sealed class PixelDragThresholdCorrector : MonoBehaviour
 {
     const int _baseTH = 6;
     const int _basePPI = 210;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class BRCompilationResult : IEquatable<BRCompilationResult>
+    public sealed class BRCompilationResult : IEquatable<BRCompilationResult>
     {
         public enum CompilationState {
             PENDING,

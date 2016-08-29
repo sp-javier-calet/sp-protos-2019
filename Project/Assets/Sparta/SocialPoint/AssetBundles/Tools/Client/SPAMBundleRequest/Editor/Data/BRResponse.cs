@@ -21,7 +21,7 @@ namespace SocialPoint.Editor.SPAMGui
     ///             - last bundle version done
     ///             - prod bundle version deployed
     /// </summary>
-    public class BRResponse
+    public sealed class BRResponse
     {
         static readonly string CACHED_FILE = (Application.dataPath + "/.spam_cache" + "/.tmp_spam_versioning").ToSysPath();
 
@@ -94,7 +94,7 @@ namespace SocialPoint.Editor.SPAMGui
        
         #endregion
 
-        public class Data
+        public sealed class Data
         {
             public string 									project_name;
             public Dictionary<string, TaggedProjectVersion> tagged_project_versions;
@@ -108,7 +108,7 @@ namespace SocialPoint.Editor.SPAMGui
                 }
             }
 
-            public class TaggedProjectVersion
+            public sealed class TaggedProjectVersion
             {
                 public string 								name;
                 public string 								project_path;
@@ -129,7 +129,7 @@ namespace SocialPoint.Editor.SPAMGui
                     }
                 }
 
-                public class VersioningBundle
+                public sealed class VersioningBundle
                 {
                     public string 	name;
                     public bool     is_included;

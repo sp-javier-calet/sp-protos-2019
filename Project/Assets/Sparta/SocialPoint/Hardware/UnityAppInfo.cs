@@ -3,7 +3,7 @@ using System;
 
 namespace SocialPoint.Hardware
 {
-    public class UnityAppInfo : IAppInfo
+    public sealed class UnityAppInfo : IAppInfo
     {
         string _seedId;
 

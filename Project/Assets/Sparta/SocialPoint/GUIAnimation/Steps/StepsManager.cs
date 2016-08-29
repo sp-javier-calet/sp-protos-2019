@@ -4,14 +4,14 @@ using System.Collections.Generic;
 // This class stores all the Step information and is extendable to allow adding more effects
 namespace SocialPoint.GUIAnimation
 {
-    public class StepData
+    public sealed class StepData
     {
         public System.Type StepType;
         public bool ConfigurableInEditor = false;
         public bool AutoAddOnChange = false;
     }
 
-    public class StepMonitorData
+    public sealed class StepMonitorData
     {
         public System.Type StepType;
         public System.Type StepMonitorType;

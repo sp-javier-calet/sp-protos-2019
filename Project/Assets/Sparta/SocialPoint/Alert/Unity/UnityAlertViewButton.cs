@@ -3,9 +3,8 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Alert
 {
-    public class UnityAlertViewButton : MonoBehaviour
+    public sealed class UnityAlertViewButton : MonoBehaviour
     {
-
         public Text Label;
         public int Position;
 

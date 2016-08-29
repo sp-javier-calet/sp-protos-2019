@@ -11,7 +11,7 @@ using SocialPointEditor.Assets.PlatformEx;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class BRModel : TLModel
+    public sealed class BRModel : TLModel
     {
         //To prevent calling when threaded
         static readonly string CurrentDataPath = Application.dataPath;

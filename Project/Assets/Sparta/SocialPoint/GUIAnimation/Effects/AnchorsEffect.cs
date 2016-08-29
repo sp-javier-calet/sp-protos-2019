@@ -5,7 +5,7 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class AnchorEffectProps
+    public sealed class AnchorEffectProps
     {
         [SerializeField]
         public Vector2 AnchorMin = new Vector2(0.0f, 0.5f);
@@ -34,10 +34,10 @@ namespace SocialPoint.GUIAnimation
     }
 
     [System.Serializable]
-    public class AnchorsEffect : BlendEffect
+    public sealed class AnchorsEffect : BlendEffect
     {
         [System.Serializable]
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public Vector2 AnchorsMin;
             public Vector2 AnchorsMax;

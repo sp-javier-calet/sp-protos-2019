@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace SocialPoint.Crash
 {
-    public class BreadcrumbManagerBinding
+    public sealed class BreadcrumbManagerBinding
     {
         #if UNITY_ANDROID
         const string PluginModuleName = "sp_unity_crash_reporter";

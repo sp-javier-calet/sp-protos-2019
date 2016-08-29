@@ -2,7 +2,7 @@ using SocialPoint.GUIControl;
 using UnityEngine.UI;
 using System;
 
-public class MaintenanceModePopupController : UIViewController
+public sealed class MaintenanceModePopupController : UIViewController
 {
     public Text TitleLabel;
     public Text MessageLabel;

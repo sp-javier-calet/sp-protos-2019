@@ -4,7 +4,7 @@ using UnityEditor;
 namespace SocialPoint.GUIAnimation
 {
 	// Class to detect doble clicks
-	public class MouseDoubleClickMonitor 
+	public sealed class MouseDoubleClickMonitor 
 	{
 		const float kMaxTimeToDoubleClick = 0.50f;
 

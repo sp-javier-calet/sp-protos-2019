@@ -2,7 +2,7 @@ using System;
 
 namespace SocialPoint.Hardware
 {
-    public class IosNetworkInfo : INetworkInfo
+    public sealed class IosNetworkInfo : INetworkInfo
     {
         public IosNetworkInfo ()
         {

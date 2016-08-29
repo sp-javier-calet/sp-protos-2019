@@ -12,7 +12,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.ServerEvents
 {
-    public class SocialPointEventTracker : IEventTracker, IUpdateable
+    public sealed class SocialPointEventTracker : IEventTracker, IUpdateable
     {
         const string TrackingAuthorizedUri = "track";
         const string TrackingUnautorizedUri = "unauthorized/track";
@@ -352,7 +352,7 @@ namespace SocialPoint.ServerEvents
             }
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             Stop();
             Reset();

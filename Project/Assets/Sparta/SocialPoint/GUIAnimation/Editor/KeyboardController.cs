@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace SocialPoint.GUIAnimation
 {
 	// Class that encapsulates the Keyboard state
-	public class KeyboardController
+	public sealed class KeyboardController
 	{
 		Dictionary<KeyCode, bool> _keys = new Dictionary<KeyCode, bool>();
 

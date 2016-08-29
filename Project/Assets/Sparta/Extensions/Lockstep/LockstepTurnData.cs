@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Lockstep
 {
-    public class LockstepTurnData
+    public sealed class LockstepTurnData
     {
         public int Turn { get; private set; }
 

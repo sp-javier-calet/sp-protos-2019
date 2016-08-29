@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public class EmptyFacebook : BaseFacebook
+    public sealed class EmptyFacebook : BaseFacebook
     {
         private List<FacebookUser> _friends = new List<FacebookUser>();
 

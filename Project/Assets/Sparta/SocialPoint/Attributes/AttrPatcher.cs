@@ -13,7 +13,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Attributes
 {
-    public class AttrPatcher
+    public sealed class AttrPatcher
     {
         const char PointerSeparator = '/';
         const char EscapedPointerSeparator = '~';

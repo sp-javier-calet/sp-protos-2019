@@ -10,7 +10,7 @@ namespace SocialPoint.Hardware
     using BaseDeviceInfo = UnityDeviceInfo;
 #endif
 
-    public class SocialPointDeviceInfo : BaseDeviceInfo
+    public sealed class SocialPointDeviceInfo : BaseDeviceInfo
     {
     }
 }

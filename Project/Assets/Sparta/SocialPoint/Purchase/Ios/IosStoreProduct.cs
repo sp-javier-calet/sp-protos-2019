@@ -5,7 +5,7 @@ using SocialPoint.Attributes;
 #if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
-    public class IosStoreProduct
+    public sealed class IosStoreProduct
     {
         public string ProductIdentifier { get; private set; }
 

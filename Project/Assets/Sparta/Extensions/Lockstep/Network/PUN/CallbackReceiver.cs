@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SocialPoint.Lockstep.Network.PUN
 {
-    public class CallbackReceiver : MonoBehaviourSingleton<CallbackReceiver>, IPunCallbacks
+    public sealed class CallbackReceiver : MonoBehaviourSingleton<CallbackReceiver>, IPunCallbacks
     {
         public event Action ConnectedToPhoton;
         public event Action LeftRoom;

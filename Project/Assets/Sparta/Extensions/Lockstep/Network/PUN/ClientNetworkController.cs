@@ -7,7 +7,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network.PUN
 {
-    public class ClientNetworkController : IClientNetworkController
+    public sealed class ClientNetworkController : IClientNetworkController
     {
         public event Action<string> Log;
         public event Action Connected;

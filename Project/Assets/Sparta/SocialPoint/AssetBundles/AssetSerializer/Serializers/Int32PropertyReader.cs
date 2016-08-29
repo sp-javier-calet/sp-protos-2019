@@ -2,7 +2,7 @@
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class Int32PropertyReader : AbstractPropertyReader
+    public sealed class Int32PropertyReader : AbstractPropertyReader
     {
         public Int32PropertyReader(JsonData propDef) : base(propDef)
         {

@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class ReqBundleData
+    public sealed class ReqBundleData
     {
         public string name;
         public int version;
@@ -31,7 +31,7 @@ namespace SocialPoint.Editor.SPAMGui
         }
     }
 
-    public class SplittedBundleRequest
+    public sealed class SplittedBundleRequest
     {
         public List<BundleSelectorItem> bundles;
         public string projectName;
@@ -51,7 +51,7 @@ namespace SocialPoint.Editor.SPAMGui
     /// <summary>
     /// Encapsulates the SPAM calls for the Bundle Request client aplication
     /// </summary>
-    public class SPAMApiBundleRequest : SPAMApiInterface
+    public sealed class SPAMApiBundleRequest : SPAMApiInterface
     {
         static readonly Action<Attr> LogCallback = delegate(Attr response) {
             Debug.Log("-- LogCallback --");
