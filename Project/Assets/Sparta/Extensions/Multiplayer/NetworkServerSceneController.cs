@@ -25,11 +25,11 @@ namespace SocialPoint.Multiplayer
         NetworkScene _oldScene;
         INetworkServer _server;
         List<INetworkServerSceneBehaviour> _sceneBehaviours;
-        Dictionary<int,List<INetworkBehaviour>> _behaviours;
-        Dictionary<string,List<INetworkBehaviour>> _behaviourPrototypes;
+        Dictionary<int, List<INetworkBehaviour>> _behaviours;
+        Dictionary<string, List<INetworkBehaviour>> _behaviourPrototypes;
         INetworkServerSceneReceiver _receiver;
 
-        int _lastReceivedAction = 0;
+        Dictionary<byte, int> _lastReceivedAction;
         Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
 
         public NetworkScene Scene
@@ -61,6 +61,7 @@ namespace SocialPoint.Multiplayer
             _server.AddDelegate(this);
             _server.RegisterReceiver(this);
 
+            _lastReceivedAction = new Dictionary<byte, int>();
             _actionDelegates = new Dictionary<Type, List<INetworkActionDelegate>>();
         }
 
@@ -210,12 +211,21 @@ namespace SocialPoint.Multiplayer
                 _sceneBehaviours[i].Update(dt, _scene, oldScene);
             }
 
-            var msg = _server.CreateMessage(new NetworkMessageData {
-                MessageType = SceneMsgType.UpdateSceneEvent
-            });
-            msg.Writer.Write((Int32)_lastReceivedAction);//Send last received action to client
-            NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, msg.Writer);
-            msg.Send();
+            var clientItr = _lastReceivedAction.GetEnumerator();
+            while(clientItr.MoveNext())
+            {
+                byte clientId = clientItr.Current.Key;
+                Int32 lastAction = (Int32)clientItr.Current.Value;
+                var msg = _server.CreateMessage(new NetworkMessageData {
+                    ClientId = clientId,
+                    MessageType = SceneMsgType.UpdateSceneEvent
+                });
+                msg.Writer.Write(lastAction);//Send last received action to client
+                NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, msg.Writer);
+                msg.Send();
+            }
+            clientItr.Dispose();
+
             _oldScene = new NetworkScene(_scene);
         }
 
@@ -283,6 +293,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)
         {
+            _lastReceivedAction.Add(clientId, 0);
             for(var i = 0; i < _sceneBehaviours.Count; i++)
             {
                 _sceneBehaviours[i].OnClientConnected(clientId);
@@ -297,6 +308,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkServerDelegate.OnClientDisconnected(byte clientId)
         {
+            _lastReceivedAction.Remove(clientId);
             for(var i = 0; i < _sceneBehaviours.Count; i++)
             {
                 _sceneBehaviours[i].OnClientDisconnected(clientId);
@@ -319,14 +331,17 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public void OnAction<T>(T action)
+        public void OnAction<T>(T action, byte clientId)
         {
-            OnAction(typeof(T), action);
+            OnAction(typeof(T), action, clientId);
         }
 
-        void OnAction(Type actionType, object action)
+        void OnAction(Type actionType, object action, byte clientId)
         {
-            _lastReceivedAction++;
+            if(_lastReceivedAction.ContainsKey(clientId))
+            {
+                _lastReceivedAction[clientId]++;
+            }
             ApplyActionToScene(actionType, action);
         }
 

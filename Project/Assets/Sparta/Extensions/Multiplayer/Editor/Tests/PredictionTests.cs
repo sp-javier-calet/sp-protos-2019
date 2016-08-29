@@ -203,12 +203,12 @@ namespace SocialPoint.Multiplayer
                 if(data.MessageType == InstatiateActionType)
                 {
                     var ac = reader.Read<TestInstatiateAction>();
-                    _controller.OnAction<TestInstatiateAction>(ac);
+                    _controller.OnAction<TestInstatiateAction>(ac, data.ClientId);
                 }
                 else if(data.MessageType == MovementActionType)
                 {
                     var ac = reader.Read<TestMovementAction>();
-                    _controller.OnAction<TestMovementAction>(ac);
+                    _controller.OnAction<TestMovementAction>(ac, data.ClientId);
                 }
             }
 

@@ -100,13 +100,15 @@ namespace SocialPoint.Network
             {
                 return;
             }
+            NetworkMessageData data = msg.Data;
+            data.ClientId = clientId;
             if(_receiver != null)
             {
-                _receiver.OnMessageReceived(msg.Data, msg.Receive());
+                _receiver.OnMessageReceived(data, msg.Receive());
             }
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMessageReceived(msg.Data);
+                _delegates[i].OnMessageReceived(data);
             }
         }
 
