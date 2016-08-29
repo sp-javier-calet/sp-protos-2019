@@ -50,7 +50,7 @@ namespace SocialPoint.Multiplayer
             msgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
             };
-            _clientCtrl.ApplyAction<TestInstatiateAction>(instantiateAction, msgData);
+            _clientCtrl.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, msgData);
 
             Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
@@ -65,7 +65,7 @@ namespace SocialPoint.Multiplayer
             msgData = new NetworkMessageData {
                 MessageType = MovementActionType
             };
-            _clientCtrl.ApplyAction<TestMovementAction>(movementAction, msgData);
+            _clientCtrl.ApplyActionAndSend<TestMovementAction>(movementAction, msgData);
 
             Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
@@ -138,12 +138,10 @@ namespace SocialPoint.Multiplayer
 
         class TestMultiplayerServerBehaviour : INetworkServerSceneReceiver
         {
-            INetworkServer _server;
             NetworkServerSceneController _controller;
 
             public TestMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
             {
-                _server = server;
                 _controller = ctrl;
             }
 

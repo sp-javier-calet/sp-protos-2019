@@ -168,12 +168,20 @@ namespace SocialPoint.Multiplayer
             _sceneBehaviours.Remove(behaviour);
         }
 
-        public void ApplyAction<T>(INetworkShareable action, NetworkMessageData msgData)
+        public void ApplyActionAndSend<T>(INetworkShareable action, NetworkMessageData msgData)
         {
-            ApplyAction(typeof(T), action, msgData);
+            ApplyAction<T>(action);
+
+            //Send to server
+            _client.SendMessage(msgData, action);
         }
 
-        void ApplyAction(Type actionType, INetworkShareable action, NetworkMessageData msgData)
+        public void ApplyAction<T>(object action)
+        {
+            ApplyAction(typeof(T), action);
+        }
+
+        void ApplyAction(Type actionType, object action)
         {
             _lastAppliedAction++;
             _pendingActions.Add(_lastAppliedAction, new NetworkActionTuple(actionType, action));
@@ -181,9 +189,6 @@ namespace SocialPoint.Multiplayer
             {
                 UpdateSceneView();
             }
-
-            //Send to server
-            _client.SendMessage(msgData, action);
         }
 
         bool ApplyActionToScene(Type actionType, object action)
