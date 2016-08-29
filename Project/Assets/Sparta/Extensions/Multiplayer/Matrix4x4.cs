@@ -22,6 +22,10 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
+            if(!(obj is Matrix4x4))
+            {
+                return false;
+            }
             return this == (Matrix4x4)obj;
         }
 

@@ -69,6 +69,10 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
+            if(!(obj is Vector4))
+            {
+                return false;
+            }
             return this == (Vector4)obj;
         }
 
