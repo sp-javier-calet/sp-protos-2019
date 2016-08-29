@@ -5,10 +5,11 @@ public class MovementActionDelegate : INetworkActionDelegate
 {
     public void ApplyAction(object action, NetworkScene scene)
     {
-        MovementAction movementAction = (MovementAction)action;
-        var itr = scene.GetObjectEnumerator();
         var go = scene.FindObject(1);
-        go.Transform.Position += movementAction.Movement;
-        itr.Dispose();
+        if(go != null)
+        {
+            MovementAction movementAction = (MovementAction)action;
+            go.Transform.Position += movementAction.Movement;
+        }
     }
 }
