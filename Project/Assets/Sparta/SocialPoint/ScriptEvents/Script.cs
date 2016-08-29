@@ -28,8 +28,8 @@ namespace SocialPoint.ScriptEvents
             return string.Format("[ScriptModel:{0}]", StringUtils.Join(Steps));
         }
     }
-
-    public class ScriptStepModelParser : IAttrObjParser<ScriptStepModel>
+        
+    public sealed class ScriptStepModelParser : IAttrObjParser<ScriptStepModel>
     {
         const string AttrKeyName = "name";
         const string AttrKeyArguments = "args";
@@ -58,8 +58,8 @@ namespace SocialPoint.ScriptEvents
             };
         }
     }
-
-    public class ScriptModelParser : IAttrObjParser<ScriptModel>
+        
+    public sealed class ScriptModelParser : IAttrObjParser<ScriptModel>
     {
         readonly IAttrObjParser<ScriptStepModel> _stepParser;
 
@@ -93,7 +93,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptStep
+    public sealed class ScriptStep
     {
         ScriptStepModel _model;
         Action<Decision, string, Attr> _callback;
@@ -178,7 +178,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class Script
+    public sealed class Script
     {
         readonly List<ScriptStep> _steps = new List<ScriptStep>();
         IScriptEventDispatcher _dispatcher;

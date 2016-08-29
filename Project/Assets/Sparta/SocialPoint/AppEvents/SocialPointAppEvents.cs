@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SocialPoint.AppEvents
 {
-    public class SocialPointAppEvents : IAppEvents
+    public sealed class SocialPointAppEvents : IAppEvents
     {
         BaseAppEvents _appEvents;
 

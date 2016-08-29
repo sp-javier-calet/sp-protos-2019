@@ -22,7 +22,7 @@ namespace SocialPoint.Social
 
     public delegate void FacebookStateChangeDelegate();
 
-    public class FacebookUser
+    public sealed class FacebookUser
     {
         public string UserId { get; private set; }
 
@@ -99,13 +99,13 @@ namespace SocialPoint.Social
         }
     }
 
-    public class FacebookAppRequestFilterGroup
+    public sealed class FacebookAppRequestFilterGroup
     {
         public string Name;
         public List<string> UserIds;
     }
 
-    public class FacebookAppRequest : FacebookRequest
+    public sealed class FacebookAppRequest : FacebookRequest
     {
         public enum FilterType
         {
@@ -330,7 +330,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class FacebookWallPost : FacebookRequest
+    public sealed class FacebookWallPost : FacebookRequest
     {
         public string To { get; set; }
 
@@ -397,7 +397,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class FacebookGraphQuery : FacebookRequest
+    public sealed class FacebookGraphQuery : FacebookRequest
     {
 
         public enum MethodType

@@ -7,7 +7,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// </summary>
     /// The TLAnimatedImage uses TLImageFrame and a custom framerate to play the animation at a given
     /// speed. Can be loopable or used a single shot.
-	public class TLAnimatedImage : TLImage
+	public sealed class TLAnimatedImage : TLImage
 	{
         private TLImageFrame[] 	_frames;
         /// <summary>

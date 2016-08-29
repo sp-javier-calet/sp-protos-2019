@@ -101,7 +101,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class PriorityCoroutineAction : PriorityCoroutineAction<int>
+    public sealed class PriorityCoroutineAction : PriorityCoroutineAction<int>
     {
         public PriorityCoroutineAction(ICoroutineRunner runner) : base(runner)
         {

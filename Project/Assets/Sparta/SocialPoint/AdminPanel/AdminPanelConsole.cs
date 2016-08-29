@@ -5,7 +5,7 @@ using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelConsole : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelConsole : IAdminPanelConfigurer, IAdminPanelGUI
     {
         public StringBuilder _contentBuilder;
 
@@ -13,7 +13,7 @@ namespace SocialPoint.AdminPanel
 
         public event Action OnContentChanged;
 
-        public bool FixedFocus { get; protected set; }
+        public bool FixedFocus { get; private set; }
 
         public ConsoleApplication Application { get; private set; }
 

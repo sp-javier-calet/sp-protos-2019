@@ -82,7 +82,7 @@ namespace SocialPoint.ScriptEvents
         abstract protected Attr SerializeEvent(T ev);
     }
 
-    public class ScriptEventSerializer<T> : BaseScriptEventSerializer<T>
+    public sealed class ScriptEventSerializer<T> : BaseScriptEventSerializer<T>
     {
         readonly IAttrObjSerializer<T> _serializer;
 
@@ -97,7 +97,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptEventParser<T> : BaseScriptEventParser<T>
+    public sealed class ScriptEventParser<T> : BaseScriptEventParser<T>
     {
         readonly IAttrObjParser<T> _parser;
 
@@ -112,7 +112,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptEventConverter<T> : BaseScriptEventConverter<T>
+    public sealed class ScriptEventConverter<T> : BaseScriptEventConverter<T>
     {
         readonly IAttrObjSerializer<T> _serializer;
         readonly IAttrObjParser<T> _parser;

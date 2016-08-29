@@ -7,7 +7,7 @@ using SocialPoint.ServerSync;
 
 namespace SocialPoint.ServerMessaging
 {
-    public class MessageCenter : IMessageCenter
+    public sealed class MessageCenter : IMessageCenter
     {
         public delegate void GetMessagesDelegate(Error Error, List<Message> messages);
 

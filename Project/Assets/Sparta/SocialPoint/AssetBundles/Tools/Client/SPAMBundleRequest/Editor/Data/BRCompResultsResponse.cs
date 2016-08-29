@@ -5,8 +5,8 @@ using SocialPoint.Attributes;
 using LitJson;
 using System;
 
-public class BRCompResultsResponse {
-    public class CompilationResultData
+public sealed class BRCompResultsResponse {
+    public sealed class CompilationResultData
     {
         public string author;
         public List<List<object>> bundles;

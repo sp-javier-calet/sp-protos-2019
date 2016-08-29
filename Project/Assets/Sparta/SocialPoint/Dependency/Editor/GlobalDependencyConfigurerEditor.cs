@@ -4,7 +4,7 @@ using SocialPoint.Utils;
 namespace SocialPoint.Dependency
 {
 	[CustomEditor(typeof(GlobalDependencyConfigurer))]
-	public class GlobalDependencyConfigurerEditor : UnityEditor.Editor
+	public sealed class GlobalDependencyConfigurerEditor : UnityEditor.Editor
 	{
         ReorderableArrayProperty _installers;
 

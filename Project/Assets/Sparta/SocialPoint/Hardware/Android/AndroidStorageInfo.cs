@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SocialPoint.Hardware
 {
     #if UNITY_ANDROID
-    public class AndroidStorageInfo : IStorageInfo
+    public sealed class AndroidStorageInfo : IStorageInfo
     {
         static string _rootPath;
 
@@ -129,7 +129,7 @@ namespace SocialPoint.Hardware
         }
     }
     #else
-    public class AndroidStorageInfo : EmptyStorageInfo
+    public sealed class AndroidStorageInfo : EmptyStorageInfo
     {
     }
     #endif

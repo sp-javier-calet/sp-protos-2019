@@ -3,7 +3,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkReader : IReader
+    public sealed class UnetNetworkReader : IReader
     {
         readonly NetworkReader _reader;
 

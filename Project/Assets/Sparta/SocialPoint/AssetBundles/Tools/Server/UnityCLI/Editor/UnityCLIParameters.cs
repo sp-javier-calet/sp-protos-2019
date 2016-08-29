@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-public class UnityCLIParameters
+public sealed class UnityCLIParameters
 {
     public string configFile;
     public string executionLogFile;

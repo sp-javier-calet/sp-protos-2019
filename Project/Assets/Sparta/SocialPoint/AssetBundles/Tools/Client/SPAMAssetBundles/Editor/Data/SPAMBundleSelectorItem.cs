@@ -5,7 +5,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class SPAMBundleSelectorItem : TLTreeSelectorItem<SPAMBundleSelectorItem> {
+    public sealed class SPAMBundleSelectorItem : TLTreeSelectorItem<SPAMBundleSelectorItem> {
         
         static readonly GUILayoutOption[]   rowInnerLayoutOptions;
         static readonly TLStyle             version_stl;

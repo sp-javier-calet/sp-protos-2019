@@ -9,7 +9,7 @@ namespace SocialPoint.Editor.SPAMGui
     /*
      * Class for encapsulating the calls to SPAM services related to asset bundle creation
      */
-    public class SPAMApiAssetBundles : SPAMApiInterface
+    public sealed class SPAMApiAssetBundles : SPAMApiInterface
     {
         // Threaded
         public void RequestBundleCreation( BundleMetaData bundleToExport, string projectName, Action<Attr> callback=null )

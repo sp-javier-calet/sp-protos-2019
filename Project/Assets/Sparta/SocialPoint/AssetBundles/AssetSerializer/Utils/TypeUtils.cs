@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.AssetSerializer.Utils
 {
-	public class TypeUtils
+	public sealed class TypeUtils
 	{
         const string kEditorSuffix = "-Editor";
         const string kGenericList = "System.Collections.Generic.List";

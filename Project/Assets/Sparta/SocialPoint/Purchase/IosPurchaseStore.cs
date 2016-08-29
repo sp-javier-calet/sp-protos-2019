@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SocialPoint.Purchase
 {
-    public class IosPurchaseStore
+    public sealed class IosPurchaseStore
     #if (UNITY_IOS || UNITY_TVOS)
         : IPurchaseStore
     #endif
@@ -135,7 +135,7 @@ namespace SocialPoint.Purchase
         #region IDisposable implementation
 
         
-        virtual public void Dispose()
+        public void Dispose()
         {
             UnregisterEvents();
         }

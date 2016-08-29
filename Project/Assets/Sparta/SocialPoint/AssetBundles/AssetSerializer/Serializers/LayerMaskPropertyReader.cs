@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class LayerMaskPropertyReader : AbstractPropertyReader
+    public sealed class LayerMaskPropertyReader : AbstractPropertyReader
     {
         public LayerMaskPropertyReader(JsonData propDef) : base(propDef)
         {

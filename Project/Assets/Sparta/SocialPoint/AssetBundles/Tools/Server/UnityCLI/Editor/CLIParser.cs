@@ -1,6 +1,6 @@
 using System.Collections;
 
-public class CLIParser
+public sealed class CLIParser
 {
 	public static Hashtable parse (string[] args)
 	{

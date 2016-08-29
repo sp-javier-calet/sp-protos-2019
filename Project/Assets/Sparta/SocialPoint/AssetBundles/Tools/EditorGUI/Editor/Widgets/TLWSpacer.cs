@@ -7,7 +7,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// </summary>
     /// This (invisible)widget will take horizontal or vertical space when used in a TLWHorizontalLayout or TLVerticalLayout respectively.
     /// Its expandible property tells if the widget takes as many space as possible or a fixed amount.
-	public class TLWSpacer : TLWidget 
+	public sealed class TLWSpacer : TLWidget 
 	{
 		int _space;
 		bool _expandible;

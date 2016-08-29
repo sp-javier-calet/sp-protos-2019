@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class Int32PropertyWriter : AbstractPropertyWriter
+    public sealed class Int32PropertyWriter : AbstractPropertyWriter
     {
         public Int32PropertyWriter(string propName, object value, Type propType) : base(propName, "Int32", value, propType)
         {

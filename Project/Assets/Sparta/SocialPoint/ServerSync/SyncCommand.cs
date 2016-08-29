@@ -3,7 +3,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
-    public class SyncCommand : Command
+    public sealed class SyncCommand : Command
     {
         static readonly string DefaultKey = "data";
         static readonly string TypeName = "sync";

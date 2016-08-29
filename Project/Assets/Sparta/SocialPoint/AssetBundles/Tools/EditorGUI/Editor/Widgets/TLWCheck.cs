@@ -10,7 +10,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// </summary>
     /// Can send check events.
     /// Can send uncheck events.
-	public class TLWCheck: TLWidget
+	public sealed class TLWCheck: TLWidget
 	{
 		private bool _isChecked;
 		private string _text;

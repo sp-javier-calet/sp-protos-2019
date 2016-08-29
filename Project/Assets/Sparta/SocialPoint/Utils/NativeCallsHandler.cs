@@ -8,14 +8,14 @@ using UnityEngine;
 
 namespace SocialPoint.Utils
 {
-    public class NativeCallsHandler : MonoBehaviour
+    public sealed class NativeCallsHandler : MonoBehaviour
     {
         const string MethodName = "ReceiveNativeMessage";
         const string Separator = ";";
 
         IDictionary<string, EventMethodHolder> _listeners;
 
-        public class EventMethodHolder
+        public sealed class EventMethodHolder
         {
             public event Action<string> ArgMethod;
             public event Action NoArgMethod;

@@ -70,6 +70,11 @@ namespace SocialPoint.Network
             }
         }
 
+        public abstract string Config
+        {
+            set;
+        }
+
         /// <summary>
         ///     Will be called on all requests before sending them
         /// </summary>

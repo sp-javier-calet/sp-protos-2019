@@ -6,7 +6,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class AllClientsReadyMessage : INetworkMessage
+    public sealed class AllClientsReadyMessage : INetworkMessage
     {
         public int RemainingMillisecondsToStart { get; private set; }
 

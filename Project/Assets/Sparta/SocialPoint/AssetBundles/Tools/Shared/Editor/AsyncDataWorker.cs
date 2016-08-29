@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Tool.Shared
 {
-	public class AsyncDataWorker
+	public sealed class AsyncDataWorker
 	{
 		public enum States { idle, done, faulted };
 
@@ -105,7 +105,7 @@ namespace SocialPoint.Tool.Shared
 	    }
 	}
 
-	public class AsyncDataWorkerSet
+	public sealed class AsyncDataWorkerSet
 	{
 	    private Dictionary<string, AsyncDataWorker> _backgroundWorkersData {get;set;}
 

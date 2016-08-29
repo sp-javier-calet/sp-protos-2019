@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SocialPoint.Rating
 {
-    public class AppRater : IAppRater, IDisposable
+    public sealed class AppRater : IAppRater, IDisposable
     {
         const string AppRaterInfoKey = "AppRaterInfo";
         const string CurrentVersionKey = "CurrentVersion";
@@ -85,7 +85,7 @@ namespace SocialPoint.Rating
             _appRaterInfo = new AttrDic();
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             if(_appEvents != null)
             {
@@ -98,17 +98,17 @@ namespace SocialPoint.Rating
             CheckDayReset();
         }
 
-        protected bool HasInfo()
+        bool HasInfo()
         {
             return _storage.Has(AppRaterInfoKey);
         }
 
-        protected void LoadInfo()
+        void LoadInfo()
         {
             _appRaterInfo = _storage.Load(AppRaterInfoKey).AsDic;
         }
 
-        protected void SaveInfo()
+        void SaveInfo()
         {
             _storage.Save(AppRaterInfoKey, _appRaterInfo);
         }
@@ -251,7 +251,7 @@ namespace SocialPoint.Rating
             return PreRatingCustomConditionsHaveBeenMet();
         }
 
-        protected virtual bool PreRatingCustomConditionsHaveBeenMet()
+        bool PreRatingCustomConditionsHaveBeenMet()
         {
 
             // Check if the days passed from first use has passed
@@ -397,7 +397,7 @@ namespace SocialPoint.Rating
          *
          */
 
-        public virtual void RemoveKeys()
+        public void RemoveKeys()
         {
             _storage.Remove(AppRaterInfoKey);
             _storage.Remove(CurrentVersionKey);
@@ -411,7 +411,7 @@ namespace SocialPoint.Rating
             _storage.Remove(DateStartLastDayKey);
         }
 
-        protected void RemoveKey(string key)
+        void RemoveKey(string key)
         {
             _storage.Remove(key);
         }

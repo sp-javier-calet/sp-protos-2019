@@ -57,7 +57,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class PriorityAction : PriorityAction<int>
+    public sealed class PriorityAction : PriorityAction<int>
     {
         public PriorityAction()
         {

@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class BundleManager
+public sealed class BundleManager
 {
     /**
      * Get the BundleData by bundle's name. Method will return null  if there's no such bundle.

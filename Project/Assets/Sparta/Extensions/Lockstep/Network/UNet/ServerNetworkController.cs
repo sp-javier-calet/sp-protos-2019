@@ -11,7 +11,7 @@ using SocialPoint.Lockstep.Network.UNet;
 
 namespace SocialPoint.Lockstep.Network.UNet
 {
-    public class ServerNetworkController : IDisposable, INetworkMessageController, IUpdateable
+    public sealed class ServerNetworkController : IDisposable, INetworkMessageController, IUpdateable
     {
         const int _packetSize = 1440;
 
@@ -21,9 +21,9 @@ namespace SocialPoint.Lockstep.Network.UNet
         NetworkServerSimple _server;
         IUpdateScheduler _updateScheduler;
 
-        public short PlayerConnectedMsgType  { get; protected set; }
+        public short PlayerConnectedMsgType  { get; private set; }
 
-        public short PlayerDisconnectedMsgType  { get; protected set; }
+        public short PlayerDisconnectedMsgType  { get; private set; }
 
         public event Action<string> Log;
 

@@ -1,10 +1,8 @@
 ﻿using System;
-using SocialPoint.Utils;
-using System.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class ClientLockstepNetworkController : IDisposable
+    public sealed class ClientLockstepNetworkController : IDisposable
     {
         INetworkMessageController _client;
         LockstepCommandDataFactory _networkCommandDataFactory;
@@ -13,17 +11,17 @@ namespace SocialPoint.Lockstep.Network
 
         public int PlayerId { get; private set; }
 
-        public byte LockstepCommandMsgType { get; protected set; }
+        public byte LockstepCommandMsgType { get; private set; }
 
-        public byte ConfirmTurnsMsgType { get; protected set; }
+        public byte ConfirmTurnsMsgType { get; private set; }
 
-        public byte ConfirmTurnsReceptionMsgType { get; protected set; }
+        public byte ConfirmTurnsReceptionMsgType { get; private set; }
 
-        public byte SetLockstepConfigMsgType { get; protected set; }
+        public byte SetLockstepConfigMsgType { get; private set; }
 
-        public byte AllClientsReadyMsgType { get; protected set; }
+        public byte AllClientsReadyMsgType { get; private set; }
 
-        public byte ClientReadyMsgType { get; protected set; }
+        public byte ClientReadyMsgType { get; private set; }
 
         public event Action<int, LockstepConfig> LockstepConfigReceived;
 
@@ -75,7 +73,7 @@ namespace SocialPoint.Lockstep.Network
 
         void OnConfirmTurnsReceived(NetworkMessageData data)
         {
-            ConfirmTurnsMessage turnsAction = new ConfirmTurnsMessage(_networkCommandDataFactory);
+            var turnsAction = new ConfirmTurnsMessage(_networkCommandDataFactory);
             turnsAction.Deserialize(data.Reader);
             _clientLockstep.ConfirmTurns(turnsAction.ConfirmedTurns);
         }
@@ -98,12 +96,12 @@ namespace SocialPoint.Lockstep.Network
 
         public void SendClientReady()
         {
-            _client.Send(ClientReadyMsgType, new EmptyMessage(), NetworkReliability.Reliable);
+            _client.Send(ClientReadyMsgType, new EmptyMessage());
         }
 
         void OnAllClientsReadyMsgTypeReceived(SyncNetworkMessageData data)
         {
-            AllClientsReadyMessage msg = new AllClientsReadyMessage();
+            var msg = new AllClientsReadyMessage();
             msg.Deserialize(data.Reader);
             int remaining = msg.RemainingMillisecondsToStart - data.ServerDelay;
             _clientLockstep.Start(SocialPoint.Utils.TimeUtils.TimestampMilliseconds + (long)remaining);
@@ -117,7 +115,7 @@ namespace SocialPoint.Lockstep.Network
 
         void OnPendingCommandAdded(ILockstepCommand command)
         {
-            LockstepCommandMessage action = new LockstepCommandMessage(_networkCommandDataFactory, command);
+            var action = new LockstepCommandMessage(_networkCommandDataFactory, command);
             _client.Send(LockstepCommandMsgType, action, NetworkReliability.Unreliable);
         }
 

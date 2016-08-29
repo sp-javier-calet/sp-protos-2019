@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class EnumPropertyWriter : AbstractPropertyWriter
+    public sealed class EnumPropertyWriter : AbstractPropertyWriter
     {
         public EnumPropertyWriter(string propName, object value, Type propType) : base(propName, "Enum", value, propType)
         {

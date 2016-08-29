@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class SerializableDecimalPropertyWriter : AbstractPropertyWriter
+    public sealed class SerializableDecimalPropertyWriter : AbstractPropertyWriter
     {
         public SerializableDecimalPropertyWriter(string propName, object value, Type propType) : base(propName, "SerializableDecimal", value, propType)
         {

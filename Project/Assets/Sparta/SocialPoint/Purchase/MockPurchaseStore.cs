@@ -5,7 +5,7 @@ using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
-    public class MockPurchaseStore : IPurchaseStore
+    public sealed class MockPurchaseStore : IPurchaseStore
     {
         static int nextOrderId = 1;
         List<Product> _allProducts;
@@ -24,7 +24,7 @@ namespace SocialPoint.Purchase
 
         #region IPurchaseStore implementation
 
-        virtual public void Dispose()
+        public void Dispose()
         {
         }
 

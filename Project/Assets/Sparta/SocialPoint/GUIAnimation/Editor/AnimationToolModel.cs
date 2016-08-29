@@ -6,7 +6,7 @@ namespace SocialPoint.GUIAnimation
 {
 	// This class stores the current screen and current animation selected in the tool
 	// All the panels can look into the model to interact with the current animation
-	public class AnimationToolModel
+	public sealed class AnimationToolModel
 	{
 		public const string AnimationsRootName = "Animations";
 

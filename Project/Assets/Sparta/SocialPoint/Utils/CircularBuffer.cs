@@ -153,7 +153,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class FloatCircularBuffer : CircularBuffer<float>
+    public sealed class FloatCircularBuffer : CircularBuffer<float>
     {
         public FloatCircularBuffer(int size) : base(size)
         {
@@ -180,7 +180,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class IntCircularBuffer : CircularBuffer<int>
+    public sealed class IntCircularBuffer : CircularBuffer<int>
     {
         public IntCircularBuffer(int size) : base(size)
         {
@@ -207,7 +207,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class Vector2CircularBuffer : CircularBuffer<Vector2>
+    public sealed class Vector2CircularBuffer : CircularBuffer<Vector2>
     {
         public Vector2CircularBuffer(int size) : base(size)
         {
@@ -234,7 +234,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class Vector3CircularBuffer : CircularBuffer<Vector3>
+    public sealed class Vector3CircularBuffer : CircularBuffer<Vector3>
     {
         public Vector3CircularBuffer(int size) : base(size)
         {

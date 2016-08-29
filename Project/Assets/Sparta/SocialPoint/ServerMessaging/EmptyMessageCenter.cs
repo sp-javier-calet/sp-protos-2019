@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.ServerMessaging
 {
-    public class EmptyMessageCenter : IMessageCenter
+    public sealed class EmptyMessageCenter : IMessageCenter
     {
         List<Message> _messages;
 

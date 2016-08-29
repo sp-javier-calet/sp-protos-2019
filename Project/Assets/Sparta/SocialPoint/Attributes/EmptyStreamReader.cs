@@ -1,7 +1,7 @@
 ﻿
 namespace SocialPoint.Attributes
 {
-    public class EmptyStreamReader : IStreamReader
+    public sealed class EmptyStreamReader : IStreamReader
     {
         public bool Read()
         {

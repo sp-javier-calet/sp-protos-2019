@@ -586,7 +586,7 @@ namespace SimpleJSON_old
         }
     } // End of JSONNode
     
-    public class JSONArray : JSONNode, IEnumerable
+    public sealed class JSONArray : JSONNode, IEnumerable
     {
         private List<JSONNode> m_List = new List<JSONNode>();
         public override JSONNode this[int aIndex]
@@ -686,7 +686,7 @@ namespace SimpleJSON_old
         }
     } // End of JSONArray
     
-    public class JSONClass : JSONNode, IEnumerable
+    public sealed class JSONClass : JSONNode, IEnumerable
     {
         private Dictionary<string,JSONNode> m_Dict = new Dictionary<string,JSONNode>();
         public override JSONNode this[string aKey]
@@ -844,7 +844,7 @@ namespace SimpleJSON_old
         }
     } // End of JSONClass
     
-    public class JSONData : JSONNode
+    public sealed class JSONData : JSONNode
     {
         private string m_Data;
         public override string Value

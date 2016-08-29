@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 
 [CustomEditor(typeof(SceneBundleInpectorObj))]
-public class SceneBundleEditor : Editor
+public sealed class SceneBundleEditor : Editor
 {
     public override bool UseDefaultMargins()
     {

@@ -7,7 +7,7 @@ using System.IO;
 /**
  * Build settings
  */ 
-public class BuildConfiger
+public sealed class BuildConfiger
 {
     /**
      * Compress bundles

@@ -8,7 +8,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
-    public class EmptyLogin : ILogin
+    public sealed class EmptyLogin : ILogin
     {
         public event HttpRequestDelegate HttpRequestEvent
         {
@@ -89,7 +89,7 @@ namespace SocialPoint.Login
             _baseUrl = StringUtils.FixBaseUri(url);
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
         }
 

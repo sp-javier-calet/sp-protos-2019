@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.AppEvents
 {
-    public class AdminPanelAppEvents : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
+    public sealed class AdminPanelAppEvents : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
     {
         IAppEvents _appEvents;
         Text _textComponent;

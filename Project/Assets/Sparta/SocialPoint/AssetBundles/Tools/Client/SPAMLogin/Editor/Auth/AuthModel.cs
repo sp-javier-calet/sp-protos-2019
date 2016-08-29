@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-	public class AuthModel : TLModel
+	public sealed class AuthModel : TLModel
 	{
 		public int			numLoadingDots { get; set; }
 		public DateTime		lastSecondTime { get; set; }

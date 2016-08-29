@@ -8,7 +8,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// Class that processes TLEvents in every Update cycle.
     /// </summary>
     /// TLEventManager is responsible for registering and dispatching the events of a TLWindow in every Update cycle.
-	public class TLEventManager
+	public sealed class TLEventManager
 	{
         private List<TLAbstractEvent> _events;
 

@@ -5,7 +5,7 @@ using SocialPoint.Login;
 
 namespace SocialPoint.PerformanceSettings
 {
-    public class PerformanceSettingsManager : IDisposable
+    public sealed class PerformanceSettingsManager : IDisposable
     {
         ILogin _login;
 
@@ -59,7 +59,7 @@ namespace SocialPoint.PerformanceSettings
             }
         }
 
-        public virtual void InitLoginServices()
+        public void InitLoginServices()
         {
             _login.NewGenericDataEvent -= ParsePerformanceSettings;
 
@@ -76,7 +76,7 @@ namespace SocialPoint.PerformanceSettings
             }
         }
 
-        public virtual void Init(AttrDic config)
+        public void Init(AttrDic config)
         {
             _data = new PerformanceSettingsData(config);
 
@@ -147,7 +147,7 @@ namespace SocialPoint.PerformanceSettings
             QualitySettings.vSyncCount = _data.Vsync ? 1 : 0;
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
             Reset();
         }

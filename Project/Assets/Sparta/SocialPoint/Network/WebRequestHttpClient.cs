@@ -13,6 +13,13 @@ namespace SocialPoint.Network
         {
         }
 
+        public override string Config
+        {
+            set
+            {
+            }
+        }
+
         static HttpWebRequest ConvertRequest(HttpRequest req)
         {
             var wreq = (HttpWebRequest)WebRequest.Create(req.Url);

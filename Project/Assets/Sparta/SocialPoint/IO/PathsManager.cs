@@ -5,7 +5,7 @@ using System.IO;
 namespace SocialPoint.IO
 {
     
-    public class PathsManager
+    public sealed class PathsManager
     {
         private static string _dataPath;
         private static string _appPersistentDataPath;

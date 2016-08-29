@@ -4,7 +4,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.LevelCaptureTool
 {
-    public class LevelCaptureToolGuiWindow : TLWindow
+    public sealed class LevelCaptureToolGuiWindow : TLWindow
     {
         public GuiLevelCaptureToolView cpView;
 

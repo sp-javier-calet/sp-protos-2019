@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class UnityObjectReferencePropertyReader : AbstractPropertyReader
+    public sealed class UnityObjectReferencePropertyReader : AbstractPropertyReader
     {
         public UnityObjectReferencePropertyReader(JsonData propDef) : base(propDef)
         {

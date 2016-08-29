@@ -4,7 +4,7 @@ using SocialPoint.Console;
 
 namespace SocialPoint.Console
 {
-    public class ConsoleApplication : IEnumerable<KeyValuePair<string, ConsoleCommand>>
+    public sealed class ConsoleApplication : IEnumerable<KeyValuePair<string, ConsoleCommand>>
     {
         public string Name;
         public string Description;

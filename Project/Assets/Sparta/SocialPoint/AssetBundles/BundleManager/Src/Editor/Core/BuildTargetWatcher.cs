@@ -3,7 +3,7 @@ using UnityEditor;
 
 
 [InitializeOnLoad]
-public class BuildTargetWatcher
+public sealed class BuildTargetWatcher
 {
 	static BuildTargetWatcher()
 	{

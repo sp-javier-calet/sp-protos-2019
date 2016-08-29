@@ -5,7 +5,7 @@ using SocialPoint.GUIControl;
 namespace SocialPoint.GUIAnimation
 {
 	// Class with some helper methods used by animation tool gui components
-	public class AnimationToolUtility
+	public sealed class AnimationToolUtility
 	{
 		public enum TextStyle
 		{

@@ -7,7 +7,7 @@ namespace SocialPoint.AssetSerializer.Serializers
     // Todo: Adpat serializable class inspector drawer to allow for it's editable use in nested classes instances
     // and containers.
     [CustomPropertyDrawer(typeof(SerializableDecimal))]
-    public class SerializableDecimalDrawer : PropertyDrawer
+    public sealed class SerializableDecimalDrawer : PropertyDrawer
     {
         public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
         {

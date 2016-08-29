@@ -16,7 +16,7 @@ namespace SocialPoint.ScriptEvents
         public bool Input;
     }
 
-    public class AlertActionParser : BaseScriptEventParser<AlertAction>
+    public sealed class AlertActionParser : BaseScriptEventParser<AlertAction>
     {
         const string AttrKeyId = "id";
         const string AttrKeyTitle = "title";
@@ -57,7 +57,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AlertBridge :
+    public sealed class AlertBridge :
         IEventsBridge, 
         IScriptEventsBridge
     {

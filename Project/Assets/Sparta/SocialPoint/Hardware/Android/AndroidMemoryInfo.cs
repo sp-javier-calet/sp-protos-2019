@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SocialPoint.Hardware
 {
     #if UNITY_ANDROID
-    public class AndroidMemoryInfo : IMemoryInfo
+    public sealed class AndroidMemoryInfo : IMemoryInfo
     {
         public static AndroidJavaObject MemoryInfo
         {
@@ -91,7 +91,7 @@ namespace SocialPoint.Hardware
         }
     }
     #else
-    public class AndroidMemoryInfo : EmptyMemoryInfo
+    public sealed class AndroidMemoryInfo : EmptyMemoryInfo
     {
     }
 #endif

@@ -15,7 +15,7 @@ namespace SocialPoint.AdminPanel
             return CreateVerticalLayout(1);
         }
 
-        public class VerticalLayout : AdminPanelLayout
+        public sealed class VerticalLayout : AdminPanelLayout
         {
             public VerticalLayout(AdminPanelLayout parentLayout, int weight) : base(parentLayout)
             {

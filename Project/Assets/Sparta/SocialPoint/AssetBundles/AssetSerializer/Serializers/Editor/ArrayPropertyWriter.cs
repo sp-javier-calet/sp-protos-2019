@@ -5,7 +5,7 @@ using SocialPoint.AssetSerializer.Utils;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-	public class ArrayPropertyWriter : AbstractPropertyWriter
+	public sealed class ArrayPropertyWriter : AbstractPropertyWriter
 	{
 		public ArrayPropertyWriter( string propName, object value, Type propType ) : base( propName, "Array", value, propType )
 		{

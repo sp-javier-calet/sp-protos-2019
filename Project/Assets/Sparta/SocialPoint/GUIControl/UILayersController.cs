@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
-    public class UILayersController : MonoBehaviour
+    public sealed class UILayersController : MonoBehaviour
     {
         [Serializable]
-        public class UICameraData
+        public sealed class UICameraData
         {
             [Serializable]
             public enum CameraType

@@ -29,9 +29,9 @@ namespace SocialPoint.Tool.Shared.TLGUI.Utils
         /// Class to scale textures in memory
         /// </summary>
         /// Only works on ARGB32, RGB24 and Alpha8 textures that are marked readable.
-        public class TextureScale
+        public sealed class TextureScale
         {
-            public class ThreadData
+            public sealed class ThreadData
             {
                 public int start;
                 public int end;

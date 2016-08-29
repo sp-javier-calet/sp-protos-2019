@@ -200,7 +200,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
         }
     }
 #else
-	public class TLWWebBrowser : TLWidget 
+	public sealed class TLWWebBrowser : TLWidget 
 	{
 		static BindingFlags fullBinding = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 		static StringComparison ignoreCase = StringComparison.CurrentCultureIgnoreCase;

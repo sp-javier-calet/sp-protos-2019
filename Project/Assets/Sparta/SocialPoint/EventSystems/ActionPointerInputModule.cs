@@ -156,7 +156,7 @@ namespace SocialPoint.EventSystems
             }
         }
 
-        public class MouseButtonEventData
+        public sealed class MouseButtonEventData
         {
             public PointerEventData.FramePressState buttonState;
             public PointerEventData buttonData;
