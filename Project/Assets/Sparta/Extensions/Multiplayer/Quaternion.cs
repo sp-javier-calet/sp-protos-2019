@@ -30,6 +30,10 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
+            if(!(obj is Quaternion))
+            {
+                return false;
+            }
             return this == (Quaternion)obj;
         }
 
