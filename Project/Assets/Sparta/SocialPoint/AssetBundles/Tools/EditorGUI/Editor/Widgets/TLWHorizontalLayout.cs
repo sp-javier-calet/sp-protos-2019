@@ -6,7 +6,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// <summary>
     /// A widget for laying other widgets in a row, horizontally.
     /// </summary>
-	public class TLWHorizontalLayout : TLWidget 
+	public sealed class TLWHorizontalLayout : TLWidget 
 	{	
 		private List<TLWidget> _widgets;
 

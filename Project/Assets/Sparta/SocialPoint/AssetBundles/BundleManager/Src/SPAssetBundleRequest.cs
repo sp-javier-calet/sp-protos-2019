@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class SPAssetBundleRequest {
+public sealed class SPAssetBundleRequest {
 
     public UnityEngine.Object asset;
     public AssetBundle bundle;

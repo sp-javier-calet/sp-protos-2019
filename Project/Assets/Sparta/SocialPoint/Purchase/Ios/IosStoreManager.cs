@@ -7,7 +7,7 @@ using UnityEngine;
 #if (UNITY_IOS || UNITY_TVOS)
 namespace SocialPoint.Purchase
 {
-    public class IosStoreManager
+    public sealed class IosStoreManager
     {
         // Fired when the product list your required returns. Automatically serializes the productString into IosStoreProduct's.
         public event Action<List<IosStoreProduct>> ProductListReceivedEvent;

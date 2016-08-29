@@ -23,7 +23,7 @@ namespace SocialPoint.Editor.SPAMGui
         }
     }
 
-    public class BundleSelectorWidget : TLWTreeFilteredSelector<BundleSelectorItem>
+    public sealed class BundleSelectorWidget : TLWTreeFilteredSelector<BundleSelectorItem>
     {
         //subcontrols
         TLWButton                   _btnSelectFiltered;
@@ -31,11 +31,11 @@ namespace SocialPoint.Editor.SPAMGui
 
         string                      _filterControlName;
 
-        protected TLEvent<bool>     _onSelectedForRequest;
-        protected TLEvent<bool>     _onSelectedForUnrequest;
+        TLEvent<bool>     _onSelectedForRequest;
+        TLEvent<bool>     _onSelectedForUnrequest;
         //protected TLEvent<string>   _onFilterTextChanged;
 
-        public string FilterText    { get; protected set; }
+        public string FilterText    { get; private set; }
 
         public List<BundleSelectorItem> Requested
         {

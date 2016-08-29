@@ -9,7 +9,7 @@ using UnityEngine.SocialPlatforms.GameCenter;
 namespace SocialPoint.Social
 {
     public delegate void GameCenterValidationDelegate(Error error, GameCenterUserVerification ver);
-    public class UnityGameCenter : IGameCenter
+    public sealed class UnityGameCenter : IGameCenter
     {
         static readonly string PhotosCacheFolder = "GameCenter";
         GameCenterUser _user;
@@ -49,7 +49,7 @@ namespace SocialPoint.Social
 
         public event Action StateChangeEvent;
 
-        protected void NotifyStateChanged()
+        void NotifyStateChanged()
         { 
             if(StateChangeEvent != null)
             {

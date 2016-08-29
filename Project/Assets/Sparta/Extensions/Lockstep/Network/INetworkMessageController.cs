@@ -1,17 +1,16 @@
 ﻿using System;
-using System.IO;
 using SocialPoint.Lockstep.Network;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
     public class NetworkMessageData
     {
-        public IReaderWrapper Reader;
+        public IReader Reader;
         public int ConnectionId;
     }
 
-    public class SyncNetworkMessageData : NetworkMessageData
+    public sealed class SyncNetworkMessageData : NetworkMessageData
     {
         public int ServerDelay;
     }

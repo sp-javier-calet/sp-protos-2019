@@ -2,14 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 using System.IO;
 using UnityEngine.Networking;
 using SocialPoint.Lockstep.Network;
 
 namespace SocialPoint.Lockstep
 {
-    public class LockstepRecorder : IDisposable
+    public sealed class LockstepRecorder : IDisposable
     {
         ClientLockstepController _clientLockstep;
         LockstepCommandDataFactory _commandDataFactory;
@@ -28,7 +28,7 @@ namespace SocialPoint.Lockstep
             _recordedCommands.Add(command);
         }
 
-        public void Serialize(IWriterWrapper writer)
+        public void Serialize(IWriter writer)
         {
             SetLockstepConfigMessage configMessage = new SetLockstepConfigMessage(0, _clientLockstep.LockstepConfig);
             configMessage.Serialize(writer);

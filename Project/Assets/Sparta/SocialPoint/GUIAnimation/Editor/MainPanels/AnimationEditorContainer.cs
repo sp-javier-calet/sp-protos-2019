@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class AnimationEditorContainer
+	public sealed class AnimationEditorContainer
 	{
 		GUIAnimationTool _animationTool;
 

@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Lockstep
 {
-    public class SetTurnAnticipationLockstepCommand: ILockstepCommand
+    public sealed class SetTurnAnticipationLockstepCommand: ILockstepCommand
     {
         ClientLockstepController _lockstepController;
 

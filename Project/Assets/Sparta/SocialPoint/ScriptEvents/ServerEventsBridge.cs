@@ -9,7 +9,7 @@ namespace SocialPoint.ScriptEvents
         public AttrDic Arguments;
     }
 
-    public class ServerTrackActionParser : BaseScriptEventParser<ServerTrackAction>
+    public sealed class ServerTrackActionParser : BaseScriptEventParser<ServerTrackAction>
     {
         const string AttrKeyName = "name";
         const string AttrKeyArguments = "args";
@@ -27,7 +27,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ServerEventsBridge :
+    public sealed class ServerEventsBridge :
         IEventsBridge, 
         IScriptEventsBridge
     {

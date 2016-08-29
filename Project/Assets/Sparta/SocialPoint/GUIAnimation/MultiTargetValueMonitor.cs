@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-    public class MultiTargetValueMonitor : StepMonitor
+    public sealed class MultiTargetValueMonitor : StepMonitor
     {
         List<StepMonitor> _targetMonitors = new List<StepMonitor> ();
 

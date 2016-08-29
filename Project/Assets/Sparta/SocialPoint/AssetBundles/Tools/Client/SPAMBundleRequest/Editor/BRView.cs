@@ -6,7 +6,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class BRView : TLView 
+    public sealed class BRView : TLView 
     {
         public BRModel      Model           { get { return (BRModel)_model; } }
         public BRController Controller      { get { return (BRController)_controller; } }

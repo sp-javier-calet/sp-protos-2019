@@ -20,7 +20,7 @@ namespace SocialPoint.Utils
     
     public class StateMachine<Transition, StateType, State> : IDisposable where State : IState
     {
-        private class StateTransition
+        class StateTransition
         {
             public Transition Transition;
             public StateType StateType;
@@ -59,15 +59,15 @@ namespace SocialPoint.Utils
             }
         }
 
-        private float _nextStateDeltaTime = 0.0f;
-        private StateType _nextStateType;
-        private State _nextState;
+        float _nextStateDeltaTime = 0.0f;
+        StateType _nextStateType;
+        State _nextState;
 
-        private Dictionary<StateTransition, StateType> _stateTransitions = new Dictionary<StateTransition, StateType>();
-        private Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>();
-        private Dictionary<StateType, State> _states = new Dictionary<StateType, State>();
+        Dictionary<StateTransition, StateType> _stateTransitions = new Dictionary<StateTransition, StateType>();
+        Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>();
+        Dictionary<StateType, State> _states = new Dictionary<StateType, State>();
 
-        private StateType _currentStateType;
+        StateType _currentStateType;
         public StateType CurrentStateType
         {
             get
@@ -76,7 +76,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private State _currentState;
+        State _currentState;
         public State CurrentState
         {
             get
@@ -223,7 +223,7 @@ namespace SocialPoint.Utils
         }
     }
         
-    public class StateMachine<Transition> : StateMachine<Transition, IState>
+    public sealed class StateMachine<Transition> : StateMachine<Transition, IState>
     {
     }
 }

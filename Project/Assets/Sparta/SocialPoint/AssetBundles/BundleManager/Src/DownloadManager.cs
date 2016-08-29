@@ -14,7 +14,7 @@ using Uri = System.Uri;
 /**
  * DownloadManager is a runtime class for asset steaming and WWW management.
  */
-public class DownloadManager : MonoBehaviour
+public sealed class DownloadManager : MonoBehaviour
 {
     const string kAssetFolder = "Assets/";
     const string _bundleSuffix = "assetBundle";
@@ -46,7 +46,7 @@ public class DownloadManager : MonoBehaviour
     static ulong _minStorageRequiredToDownload;
     // bytes
 
-    protected virtual void OnLowStorageConditionMet()
+    static void OnLowStorageConditionMet()
     {
         var handler = LowStorageConditionMet;
         if(handler != null)
@@ -868,7 +868,7 @@ public class DownloadManager : MonoBehaviour
         }
     }
 
-    public class SpamData
+    public sealed class SpamData
     {
         [NonSerialized]
         static SpamData

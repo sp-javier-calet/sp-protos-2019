@@ -3,7 +3,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Login
 {
-    public class AppRequest
+    public sealed class AppRequest
     {
         public List<User> Recipients { get; set; }
 

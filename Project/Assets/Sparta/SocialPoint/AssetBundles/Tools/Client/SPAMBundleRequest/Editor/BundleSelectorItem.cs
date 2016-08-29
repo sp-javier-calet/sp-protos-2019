@@ -6,7 +6,7 @@ using VersioningBundle = SocialPoint.Editor.SPAMGui.BRResponse.Data.TaggedProjec
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class BundleSelectorItem : TLTreeSelectorItem<BundleSelectorItem>
+    public sealed class BundleSelectorItem : TLTreeSelectorItem<BundleSelectorItem>
     {
         //static readonly GUILayoutOption[]   rowInnerLayoutOptions;
         static readonly GUILayoutOption[]   IncCheckboxOptions;

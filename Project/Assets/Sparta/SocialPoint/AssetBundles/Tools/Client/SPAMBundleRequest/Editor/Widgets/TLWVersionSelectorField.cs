@@ -6,7 +6,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A number selector with spinner functionality but targetted for selecting 'versions'.
     /// An integer number can be selected from a range and a special +1 value can also be selected if spinning on top of the maxValue.
     /// </summary>
-    public class TLWVersionSelectorField : TLWNumberSpinnerField
+    public sealed class TLWVersionSelectorField : TLWNumberSpinnerField
     {
         static readonly string NEW_VERSION = "+ 1";
 

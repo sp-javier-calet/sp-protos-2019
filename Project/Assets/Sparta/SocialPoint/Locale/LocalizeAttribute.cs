@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Locale
 {
-    public class LocalizeAttribute : Attribute
+    public sealed class LocalizeAttribute : Attribute
     {
         public string Key;
         public string Default;
@@ -37,7 +37,7 @@ namespace SocialPoint.Locale
         }
     }
 
-    public class StringLocalizeAttributeObserver : BaseLocalizeAttributeObserver<string>
+    public sealed class StringLocalizeAttributeObserver : BaseLocalizeAttributeObserver<string>
     {
         override public object Clone()
         {
@@ -54,7 +54,7 @@ namespace SocialPoint.Locale
         }
     }
 
-    public class UITextLocalizeAttributeObserver : BaseLocalizeAttributeObserver<Text>
+    public sealed class UITextLocalizeAttributeObserver : BaseLocalizeAttributeObserver<Text>
     {
         override public object Clone()
         {
@@ -72,7 +72,7 @@ namespace SocialPoint.Locale
         }
     }
 
-    public class LocalizeAttributeConfiguration : MemberAttributeConfiguration<LocalizeAttribute>
+    public sealed class LocalizeAttributeConfiguration : MemberAttributeConfiguration<LocalizeAttribute>
     {
         public LocalizeAttributeConfiguration(Localization locale, List<IMemberAttributeObserver<LocalizeAttribute>> prototypes=null):
         base(prototypes)

@@ -1,11 +1,11 @@
 ﻿using System;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 using System.Collections.Generic;
 using System.IO;
 
 namespace SocialPoint.Lockstep
 {
-    public class SetTurnAnticipationLockstepCommandData : LockstepCommandData
+    public sealed class SetTurnAnticipationLockstepCommandData : LockstepCommandData
     {
         ClientLockstepController _lockstepController;
 
@@ -29,7 +29,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public override void DeserializeCustomData(IReaderWrapper reader)
+        public override void DeserializeCustomData(IReader reader)
         {
         
             byte anticipation = reader.ReadByte();
@@ -40,7 +40,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public override void SerializeCustomData(IWriterWrapper writer)
+        public override void SerializeCustomData(IWriter writer)
         {
             writer.Write((byte)_lockstepCommand.Anticipation);
         }

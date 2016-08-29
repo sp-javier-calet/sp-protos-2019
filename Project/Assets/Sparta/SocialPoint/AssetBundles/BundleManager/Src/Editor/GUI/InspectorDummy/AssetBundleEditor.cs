@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 
 [CustomEditor(typeof(AssetBundleInspectorObj))]
-public class AssetBundleEditor : Editor
+public sealed class AssetBundleEditor : Editor
 {
     public override bool UseDefaultMargins()
     {

@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Purchase
 {
-    public class PurchaseGameInfo
+    public sealed class PurchaseGameInfo
     {
         public string OfferName;
         public string ResourceName;

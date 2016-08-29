@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.AssetVersioning
 {
-    public class AssetVersioningData
+    public sealed class AssetVersioningData
     {
         public string Client;
         public int Version;

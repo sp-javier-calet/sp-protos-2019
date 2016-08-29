@@ -61,7 +61,7 @@ namespace SocialPoint.ScriptEvents
         void Load(IEventDispatcher dispatcher);
     }
 
-    public class EventDispatcher : IEventDispatcher
+    public sealed class EventDispatcher : IEventDispatcher
     {
         readonly Dictionary<Type, List<Delegate>> _listeners = new Dictionary<Type, List<Delegate>>();
         readonly List<IEventDispatcher> _dispatchers = new List<IEventDispatcher>();

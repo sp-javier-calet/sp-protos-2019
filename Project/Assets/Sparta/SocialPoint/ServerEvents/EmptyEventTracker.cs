@@ -3,7 +3,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.ServerEvents
 {
-    public class EmptyEventTracker : IEventTracker
+    public sealed class EmptyEventTracker : IEventTracker
     {
         public event EventTrackerErrorDelegate GeneralError
         {

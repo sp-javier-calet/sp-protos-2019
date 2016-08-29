@@ -1,6 +1,6 @@
 ﻿namespace SocialPoint.Utils
 {
-    public class NativeUtils
+    public sealed class NativeUtils
     {
         static INativeUtils _nativeUtils = null;
 

@@ -8,7 +8,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class HttpResponse
+    public sealed class HttpResponse
     {
         const string ContentLengthHeader = "Content-Length";
         const string ContentEncodingHeader = "Content-Encoding";

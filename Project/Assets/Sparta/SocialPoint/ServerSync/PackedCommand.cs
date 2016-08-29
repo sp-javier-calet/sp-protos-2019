@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.ServerSync
 {
-    public class PackedCommand
+    public sealed class PackedCommand
     {
         public Command Command;
         public Action<Attr, Error> Finished;

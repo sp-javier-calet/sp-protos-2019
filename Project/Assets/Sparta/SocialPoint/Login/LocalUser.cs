@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Login
 {
-    public class LocalUser : User
+    public sealed class LocalUser : User
     {
         public string SessionId { get; set; }
 
@@ -25,6 +25,5 @@ namespace SocialPoint.Login
         {
             return string.Format("{0} // [LocalUser: SessionId={1}]", base.ToString(), SessionId);
         }
-
     }
 }

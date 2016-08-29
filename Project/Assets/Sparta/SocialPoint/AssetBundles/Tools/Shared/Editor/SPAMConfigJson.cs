@@ -4,7 +4,7 @@ using System.IO;
 using SocialPoint.IO;
 using LitJson;
 
-public class SPAMConfigJson {
+public sealed class SPAMConfigJson {
     [System.NonSerialized]
     static SPAMConfigJson
                _instance;

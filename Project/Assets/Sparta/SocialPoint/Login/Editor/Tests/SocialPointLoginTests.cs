@@ -11,7 +11,7 @@ namespace SocialPoint.Login
 {
 	[TestFixture]
 	[Category("SocialPoint.Login")]
-	public class SocialPointLoginTests
+	public sealed class SocialPointLoginTests
 	{
 
 	    SocialPointLogin SocialPointLogin;

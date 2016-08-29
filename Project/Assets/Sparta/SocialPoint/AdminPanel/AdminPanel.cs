@@ -4,7 +4,7 @@ using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanel
+    public sealed class AdminPanel
     {
         public Dictionary<string, IAdminPanelGUI> Categories { get; private set; }
 

@@ -4,9 +4,8 @@ namespace SocialPoint.Base
 {
     [TestFixture]
     [Category("SocialPoint.Base")]
-    public class AppVersionTests
+    public sealed class AppVersionTests
     {
-
         [Test]
         public void check_comparision_with_null()
         {

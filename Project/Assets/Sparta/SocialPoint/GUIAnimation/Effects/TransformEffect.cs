@@ -6,10 +6,10 @@ namespace SocialPoint.GUIAnimation
 {
     // Deprecated
     [System.Serializable]
-    public class TransformEffect : BlendEffect, IPositionable
+    public sealed class TransformEffect : BlendEffect, IPositionable
     {
         [System.Serializable]
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public Vector3 Position;
             public Vector3 Scale;

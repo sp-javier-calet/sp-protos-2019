@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public class EmptyGameCenter : IGameCenter
+    public sealed class EmptyGameCenter : IGameCenter
     {
         bool _isConnected;
         GameCenterUser _user;
@@ -27,7 +27,7 @@ namespace SocialPoint.Social
             _user = new GameCenterUser(userName);
         }
 
-        protected void NotifyStateChanged()
+        void NotifyStateChanged()
         { 
             if(StateChangeEvent != null)
             {

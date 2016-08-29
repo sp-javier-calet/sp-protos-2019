@@ -4,7 +4,7 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class AnimatorEffect : TriggerEffect
+    public sealed class AnimatorEffect : TriggerEffect
     {
         const string kOnAnimationTriggeredMessage = "OnAnimationTriggered";
 

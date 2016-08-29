@@ -9,7 +9,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A Tree Node Expand.
     /// </summary>
     /// This Widget is undocumented and it's behaviour has not been tested properly.
-	public class TLWTreeNodeExpand : TLWTreeNode
+	public sealed class TLWTreeNodeExpand : TLWTreeNode
 	{
 		private bool _isEnabled;
 		private TLWButton _buttonEnable;

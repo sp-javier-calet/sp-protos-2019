@@ -11,7 +11,7 @@ namespace SocialPoint.Attributes
         FamilyParser<T> Parent { set; }
     }
 
-    public class FamilyParser<T> : IParser<T>
+    public sealed class FamilyParser<T> : IParser<T>
     {
         const string AttrKeyType = "type";
         const string AttrKeyValue = "value";

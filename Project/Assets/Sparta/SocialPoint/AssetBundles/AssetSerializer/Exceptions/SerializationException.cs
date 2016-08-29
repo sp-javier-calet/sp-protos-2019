@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.AssetSerializer.Exceptions
 {
-    public class SerializationMissingReferenceException: Exception
+    public sealed class SerializationMissingReferenceException: Exception
     {
         public string message = "";
 		
@@ -19,7 +19,7 @@ namespace SocialPoint.AssetSerializer.Exceptions
         }
     }
 
-    public class SerializationTypeNotSupportedException: Exception
+    public sealed class SerializationTypeNotSupportedException: Exception
     {
         private Type sType;
         public string message;
@@ -43,7 +43,7 @@ namespace SocialPoint.AssetSerializer.Exceptions
         }
     }
 
-    public class SerializationPurePrefabNotSupportedException: Exception
+    public sealed class SerializationPurePrefabNotSupportedException: Exception
     {
         public string field;
         public string name;
@@ -69,7 +69,7 @@ namespace SocialPoint.AssetSerializer.Exceptions
         }
     }
 
-    public class SerializationProcessException: UnityException
+    public sealed class SerializationProcessException: UnityException
     {
         const string errMessage = "Serialization process finished with errors";
 

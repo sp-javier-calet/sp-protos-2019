@@ -14,7 +14,7 @@ namespace SocialPoint.ObjectPool
         }
 
         [System.Serializable]
-        public class StartupPool
+        public sealed class StartupPool
         {
             public int size;
             public GameObject prefab;

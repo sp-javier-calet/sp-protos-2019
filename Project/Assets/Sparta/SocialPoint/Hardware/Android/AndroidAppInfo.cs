@@ -7,7 +7,7 @@ using UnityEngine;
 namespace SocialPoint.Hardware
 {
     #if UNITY_ANDROID
-    public class AndroidAppInfo : IAppInfo
+    public sealed class AndroidAppInfo : IAppInfo
     {
         public AndroidAppInfo()
         {
@@ -143,7 +143,7 @@ namespace SocialPoint.Hardware
         }
     }
     #else
-    public class AndroidAppInfo : EmptyAppInfo
+    public sealed class AndroidAppInfo : EmptyAppInfo
     {
     }
 #endif

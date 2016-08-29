@@ -5,12 +5,8 @@ using SocialPoint.Login;
 
 namespace SocialPoint.Purchase
 {
-    public class EmptyPurchaseStore : IPurchaseStore
+    public sealed class EmptyPurchaseStore : IPurchaseStore
     {
-        public EmptyPurchaseStore()
-        {
-        }
-
         #region IPurchaseStore implementation
 
         public event ProductsUpdatedDelegate ProductsUpdated;
@@ -19,7 +15,7 @@ namespace SocialPoint.Purchase
 
         public ILoginData LoginData { get; set; }
 
-        protected virtual void OnProductsUpdated(LoadProductsState state, Error error)
+        void OnProductsUpdated(LoadProductsState state, Error error)
         {
             var handler = ProductsUpdated;
             if(handler != null)
@@ -28,7 +24,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        protected virtual void OnPurchaseUpdated(PurchaseState state, string productId)
+        void OnPurchaseUpdated(PurchaseState state, string productId)
         {
             var handler = PurchaseUpdated;
             if(handler != null)
@@ -90,7 +86,7 @@ namespace SocialPoint.Purchase
 
         #region IDisposable implementation
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             return;
         }

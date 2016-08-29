@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 #if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
-    public class AndroidStoreAttrUtils
+    public sealed class AndroidStoreAttrUtils
     {
         public delegate T AndroidStoreObjectFromAttrDic<T>(AttrDic dict);
 

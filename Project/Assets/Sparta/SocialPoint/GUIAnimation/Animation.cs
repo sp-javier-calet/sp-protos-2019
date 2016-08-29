@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class Animation : MonoBehaviour
+    public sealed class Animation : MonoBehaviour
     {
         public enum State
         {

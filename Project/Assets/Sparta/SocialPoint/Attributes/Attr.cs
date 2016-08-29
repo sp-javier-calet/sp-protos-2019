@@ -228,12 +228,6 @@ namespace SocialPoint.Attributes
         {
             GC.SuppressFinalize(this);
         }
-
-        protected static void HashCombine(ref int seed, int hashToCombine)
-        {
-            // This is based on boost::hash_combine
-            seed ^= hashToCombine + 486187739 + (seed << 6) + (seed >> 2);
-        }
     }
 
     public abstract class AttrValue : Attr
@@ -474,7 +468,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrEmpty : AttrValue
+    public sealed class AttrEmpty : AttrValue
     {
         public AttrEmpty() : base(AttrValueType.EMPTY)
         {
@@ -522,7 +516,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrBool : AttrValue
+    public sealed class AttrBool : AttrValue
     {
         bool _value;
 
@@ -648,7 +642,7 @@ namespace SocialPoint.Attributes
 
     }
 
-    public class AttrInt : AttrValue
+    public sealed class AttrInt : AttrValue
     {
         int _value;
 
@@ -723,7 +717,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrLong : AttrValue
+    public sealed class AttrLong : AttrValue
     {
         long _value;
 
@@ -828,7 +822,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrString : AttrValue
+    public sealed class AttrString : AttrValue
     {
         string _value;
 
@@ -972,7 +966,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrFloat : AttrValue
+    public sealed class AttrFloat : AttrValue
     {
         float _value;
 
@@ -1057,7 +1051,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrDouble : AttrValue
+    public sealed class AttrDouble : AttrValue
     {
         double _value;
 
@@ -1460,8 +1454,8 @@ namespace SocialPoint.Attributes
             while(itr.MoveNext())
             {
                 var item = itr.Current;
-                HashCombine(ref seed, item.Key.GetHashCode());
-                HashCombine(ref seed, item.Value.GetHashCode());
+                seed = CryptographyUtils.HashCombine(seed, item.Key.GetHashCode());
+                seed = CryptographyUtils.HashCombine(seed, item.Value.GetHashCode());
             }
             itr.Dispose();
             return base.GetHashCode() ^ seed;
@@ -1500,7 +1494,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrList : Attr, IEnumerable<Attr>
+    public sealed class AttrList : Attr, IEnumerable<Attr>
     {
         public bool AllowDuplicates { get; set; }
 
@@ -1895,7 +1889,7 @@ namespace SocialPoint.Attributes
             while(itr.MoveNext())
             {
                 var item = itr.Current;
-                HashCombine(ref seed, item.GetHashCode());
+                seed = CryptographyUtils.HashCombine(seed, item.GetHashCode());
             }
             itr.Dispose();
             return base.GetHashCode() ^ seed;

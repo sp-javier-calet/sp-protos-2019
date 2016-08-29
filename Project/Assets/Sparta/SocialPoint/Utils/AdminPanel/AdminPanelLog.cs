@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Utils
 {
-    public class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly List<LogEntry> _entries;
         Dictionary<LogType, bool> _activeTypes;
@@ -110,7 +110,7 @@ namespace SocialPoint.Utils
             RefreshContent();
         }
 
-        protected class LogEntry
+        class LogEntry
         {
             static readonly Dictionary<LogType, string> LogColors = new Dictionary<LogType, string> {
                 { LogType.Log, "#EEE" },

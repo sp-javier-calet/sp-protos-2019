@@ -6,7 +6,7 @@ namespace SocialPoint.Base
 {
     [TestFixture]
     [Category("SocialPoint.Base")]
-    public class IEnumerableExtensionsTests
+    public sealed class IEnumerableExtensionsTests
     {
         [Test]
         public void FirstOrDefault()

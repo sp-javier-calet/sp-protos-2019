@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Crash
 {
-    public class AdminPanelCrashReporterException : Exception
+    public sealed class AdminPanelCrashReporterException : Exception
     {
         public AdminPanelCrashReporterException() :
             base("This is a forced exception.")
@@ -14,7 +14,7 @@ namespace SocialPoint.Crash
         }
     }
 
-    public class AdminPanelCrashReporter : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelCrashReporter : IAdminPanelGUI, IAdminPanelConfigurer
     {
         ICrashReporter _reporter;
         readonly IBreadcrumbManager _breadcrumbs;
@@ -115,7 +115,7 @@ namespace SocialPoint.Crash
         }
 
 
-        public class AdminPanelCrashReporterBaseGUI : IAdminPanelGUI
+        public sealed class AdminPanelCrashReporterBaseGUI : IAdminPanelGUI
         {
             BaseCrashReporter _crashReporter;
 

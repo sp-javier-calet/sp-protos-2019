@@ -11,13 +11,13 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// TLStyle is a class associated to every widget that describes how that widget should be painted. Mimics the behaviour of GUIStyle.
     /// TLStlye has the benefits of being able to be defined outside the OnGUI loop and that caches it's properties and contents(only rebuilds
     /// when one of it's properties changes) so it's more efficient to call in every paint loop.
-	public class TLStyle
+	public sealed class TLStyle
 	{
         /// <summary>
         /// Custom TL class for managing GUIStyleState of GUIStyle.
         /// </summary>
         /// Mimics the behaviour of GUIStyleState.
-        public class TLStyleState
+        public sealed class TLStyleState
         {
             [NamedMemberAttribute("background")]
             private TLImage   _background;

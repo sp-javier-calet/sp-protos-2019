@@ -3,7 +3,7 @@ using System;
 
 namespace SocialPoint.GUIControl
 {
-    public class UI3DContainer : MonoBehaviour
+    public sealed class UI3DContainer : MonoBehaviour
     {
         public event Action<GameObject> OnDestroyed;
 

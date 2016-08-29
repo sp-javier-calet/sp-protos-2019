@@ -195,7 +195,7 @@ namespace SocialPoint.GameLoading
             return msg;
         }
 
-        public void ShowUpgrade(UpgradeData data, Action<bool> finished)
+        public virtual void ShowUpgrade(UpgradeData data, Action<bool> finished)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Message = data.Message;
@@ -228,7 +228,7 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        public void ShowMaintenance(MaintenanceData data, Action finished)
+        public virtual void ShowMaintenance(MaintenanceData data, Action finished)
         {
             string title = null;
             string message = null;
@@ -277,7 +277,7 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        public void ShowConnection(Error err, Action finished)
+        public virtual void ShowConnection(Error err, Action finished)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ConnectionErrorTitleKey, ConnectionErrorTitleDef);
@@ -292,7 +292,7 @@ namespace SocialPoint.GameLoading
             });
         }
 
-        public void ShowInvalidSecurityToken(Action restart)
+        public virtual void ShowInvalidSecurityToken(Action restart)
         {
             if(_popups != null)
             {
@@ -304,7 +304,7 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        public void ShowLogin(Error err, Action finished)
+        public virtual void ShowLogin(Error err, Action finished)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ResponseErrorTitleKey, ResponseErrorTitleDef);
@@ -319,7 +319,7 @@ namespace SocialPoint.GameLoading
             });
         }
 
-        public void ShowSync(Error err)
+        public virtual void ShowSync(Error err)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(SyncTitleKey, SyncTitleDef);
@@ -331,7 +331,7 @@ namespace SocialPoint.GameLoading
             alert.Show(i => _appEvents.RestartGame());
         }
 
-        public void ShowLink(ILink link, LinkConfirmType linkConfirmType, Attr data, ConfirmBackLinkDelegate cbk)
+        public virtual void ShowLink(ILink link, LinkConfirmType linkConfirmType, Attr data, ConfirmBackLinkDelegate cbk)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ConfirmLinkTitleKey, ConfirmLinkTitleDef);

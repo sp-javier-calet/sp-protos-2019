@@ -7,7 +7,7 @@ namespace SocialPoint.IO
 {
     [TestFixture]
     [Category("SocialPoint.IO")]
-    public class FileUtilsTests
+    public sealed class FileUtilsTests
     {
         private const string TestDirectory = "io_test_directory";
         private const string TestFile = "io_test_file";

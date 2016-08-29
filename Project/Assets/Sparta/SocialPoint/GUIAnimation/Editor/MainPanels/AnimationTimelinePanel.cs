@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class AnimationStepBox
+	public sealed class AnimationStepBox
 	{
 		public Step AnimationItem;
 		public WindowResizer WinResizer = new WindowResizer(10, Vector2.one * 16f);
@@ -14,9 +14,9 @@ namespace SocialPoint.GUIAnimation
 	}
 
 	// This class show the grid with the options that can be done in the current Collection
-	public class AnimationTimelinePanel 
+	public sealed class AnimationTimelinePanel 
 	{
-		public class GridProperties
+		public sealed class GridProperties
 		{
 			public float PixelsPerSecond = 316f;
 			public float PixelsPerSlot = 36f;

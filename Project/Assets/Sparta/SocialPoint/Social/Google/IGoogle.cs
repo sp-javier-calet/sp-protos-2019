@@ -12,7 +12,7 @@ namespace SocialPoint.Social
     public delegate void GoogleQuestEventDelegate(GoogleQuestEvent evt, Error err);
     public delegate void GoogleStateChangeDelegate();
 
-    public class GoogleUser
+    public sealed class GoogleUser
     {
         public enum AgeGroup
         {
@@ -40,7 +40,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class GoogleAchievement
+    public sealed class GoogleAchievement
     {
         public string Id { get; private set; }
 
@@ -75,7 +75,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class GoogleLeaderboard
+    public sealed class GoogleLeaderboard
     {
         public string Id { get; private set; }
 
@@ -119,7 +119,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class GoogleLeaderboardScoreEntry
+    public sealed class GoogleLeaderboardScoreEntry
     {
         public string Name { get; set; }
 
@@ -128,7 +128,7 @@ namespace SocialPoint.Social
         public long Score { get; set; }
     }
 
-    public class GoogleQuest
+    public sealed class GoogleQuest
     {
         public string Id { get; private set; }
 
@@ -138,7 +138,7 @@ namespace SocialPoint.Social
         }
     }
 
-    public class GoogleQuestEvent
+    public sealed class GoogleQuestEvent
     {
         public string QuestId  { get; private set; }
 

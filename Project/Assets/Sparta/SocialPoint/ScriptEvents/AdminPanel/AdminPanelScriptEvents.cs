@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.ScriptEvents
 {
-    public class AdminPanelScriptEvents : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelScriptEvents : IAdminPanelGUI, IAdminPanelConfigurer
     {
         IScriptEventDispatcher _dispatcher;
         Text _eventsArea;

@@ -5,7 +5,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class BRCompilationResultSelectorItem : TLTreeSelectorItem<BRCompilationResultSelectorItem>
+    public sealed class BRCompilationResultSelectorItem : TLTreeSelectorItem<BRCompilationResultSelectorItem>
     {
         static readonly TLStyle             rowInnerLayoutStyle;
         static readonly TLStyle             rowButtonsInnerLayoutStyle;

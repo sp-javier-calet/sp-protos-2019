@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.CrossPromotion
 {
-    public class CrossPromotionData
+    public sealed class CrossPromotionData
     {
         public string Id { get; private set; }
 

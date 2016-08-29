@@ -2,7 +2,7 @@ using SocialPoint.Alert;
 
 namespace SocialPoint.Rating
 {
-    public class DefaultAppRaterGUI : IAppRaterGUI
+    public sealed class DefaultAppRaterGUI : IAppRaterGUI
     {
         IAppRater _appRater;
         IAlertView _prototype;

@@ -4,7 +4,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
-    public class UpgradeData
+    public sealed class UpgradeData
     {
         public UpgradeType Type;
         public string Message;
@@ -59,7 +59,7 @@ namespace SocialPoint.Login
         }
     }
     
-    public class MaintenanceData
+    public sealed class MaintenanceData
     {
         public string Title;
         public string Message;
@@ -114,7 +114,7 @@ namespace SocialPoint.Login
         }
     }
 
-    public class GenericData
+    public sealed class GenericData
     {
         public TimeSpan DeltaTime;
         public string StoreUrl;

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DownloadsQueue : MonoBehaviour
+public sealed class DownloadsQueue : MonoBehaviour
 {
     static DownloadsQueue instance = null;
 	public Action<string> CallbackByAsset = null;

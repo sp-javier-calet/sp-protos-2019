@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 #if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
-    public class AndroidStoreProduct
+    public sealed class AndroidStoreProduct
     {
         public string ItemType { get; private set; }
 

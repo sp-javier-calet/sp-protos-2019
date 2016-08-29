@@ -5,7 +5,7 @@ using SocialPoint.Social;
 
 namespace SocialPoint.Login
 {
-    public class GooglePlayLink : ILink
+    public sealed class GooglePlayLink : ILink
     {
         public LinkState State
         {

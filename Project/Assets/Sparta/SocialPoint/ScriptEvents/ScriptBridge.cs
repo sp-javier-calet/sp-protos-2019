@@ -25,7 +25,7 @@ namespace SocialPoint.ScriptEvents
         public object Action;
     }
 
-    public class RunScriptActionParser : BaseScriptEventParser<RunScriptAction>
+    public sealed class RunScriptActionParser : BaseScriptEventParser<RunScriptAction>
     {
         readonly IParser<ScriptModel> _parser;
 
@@ -42,7 +42,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class LogActionParser : BaseScriptEventParser<LogAction>
+    public sealed class LogActionParser : BaseScriptEventParser<LogAction>
     {
         const string AttrKeyMessage = "msg";
         const string AttrKeyLogType = "type";
@@ -83,7 +83,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class WaitActionParser : BaseScriptEventParser<WaitAction>
+    public sealed class WaitActionParser : BaseScriptEventParser<WaitAction>
     {
         const string AttrKeySeconds = "secs";
         const string AttrKeyAction = "action";
@@ -106,7 +106,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptBridge :
+    public sealed class ScriptBridge :
         IEventsBridge,
         IScriptEventsBridge
     {
