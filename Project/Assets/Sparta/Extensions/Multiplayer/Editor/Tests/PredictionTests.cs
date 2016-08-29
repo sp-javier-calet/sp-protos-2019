@@ -10,10 +10,12 @@ namespace SocialPoint.Multiplayer
     class PredictionTests
     {
         LocalNetworkServer _server;
-        LocalNetworkClient _client;
+        LocalNetworkClient _client1;
+        LocalNetworkClient _client2;
 
         NetworkServerSceneController _serverCtrl;
-        NetworkClientSceneController _clientCtrl;
+        NetworkClientSceneController _clientCtrl1;
+        NetworkClientSceneController _clientCtrl2;
 
         TestMultiplayerServerBehaviour _serverReceiver;
 
@@ -22,26 +24,31 @@ namespace SocialPoint.Multiplayer
         {
             var localServer = new LocalNetworkServer();
             _server = localServer;
-            _client = new LocalNetworkClient(localServer);
+            _client1 = new LocalNetworkClient(localServer);
+            _client2 = new LocalNetworkClient(localServer);
             _serverCtrl = new NetworkServerSceneController(_server);
-            _clientCtrl = new NetworkClientSceneController(_client);
+            _clientCtrl1 = new NetworkClientSceneController(_client1);
+            _clientCtrl2 = new NetworkClientSceneController(_client2);
             _serverReceiver = new TestMultiplayerServerBehaviour(_server, _serverCtrl);
             _serverCtrl.RegisterReceiver(_serverReceiver);
 
             _serverCtrl.RegisterActionDelegate<TestInstatiateAction>(new TestInstantiateActionDelegate());
             _serverCtrl.RegisterActionDelegate<TestMovementAction>(new TestMovementActionDelegate());
-            _clientCtrl.RegisterActionDelegate<TestInstatiateAction>(new TestInstantiateActionDelegate());
-            _clientCtrl.RegisterActionDelegate<TestMovementAction>(new TestMovementActionDelegate());
+            _clientCtrl1.RegisterActionDelegate<TestInstatiateAction>(new TestInstantiateActionDelegate());
+            _clientCtrl1.RegisterActionDelegate<TestMovementAction>(new TestMovementActionDelegate());
+            _clientCtrl2.RegisterActionDelegate<TestInstatiateAction>(new TestInstantiateActionDelegate());
+            _clientCtrl2.RegisterActionDelegate<TestMovementAction>(new TestMovementActionDelegate());
 
             _server.Start();
-            _client.Connect();
+            _client1.Connect();
+            _client2.Connect();
         }
 
         [Test]
         public void ActionPrediction()
         {
-            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
 
             NetworkMessageData msgData;
 
@@ -52,13 +59,13 @@ namespace SocialPoint.Multiplayer
             msgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
             };
-            _clientCtrl.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, msgData);
+            _clientCtrl1.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, msgData);
 
-            Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(!_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             _serverCtrl.Update(0.001f);
-            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
 
             //Move
             var movementAction = new TestMovementAction {
@@ -67,20 +74,20 @@ namespace SocialPoint.Multiplayer
             msgData = new NetworkMessageData {
                 MessageType = MovementActionType
             };
-            _clientCtrl.ApplyActionAndSend<TestMovementAction>(movementAction, msgData);
+            _clientCtrl1.ApplyActionAndSend<TestMovementAction>(movementAction, msgData);
 
-            Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(!_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             _serverCtrl.Update(0.001f);
-            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
         }
 
         [Test]
         public void MultipleActionPrediction()
         {
-            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
 
             //Instantiate
             var instantiateAction = new TestInstatiateAction {
@@ -89,15 +96,16 @@ namespace SocialPoint.Multiplayer
             NetworkMessageData instatiateMsgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
             };
-            _clientCtrl.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, instatiateMsgData);
+            _clientCtrl1.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, instatiateMsgData);
             _serverCtrl.Update(0.001f);
-            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
 
             int totalActions = 3;
             NetworkMessageData[] msgData = new NetworkMessageData[totalActions];
             TestMovementAction[] actions = new TestMovementAction[totalActions];
 
+            //Move in client only
             for(int i = 0; i < totalActions; i++)
             {
                 actions[i] = new TestMovementAction {
@@ -106,21 +114,75 @@ namespace SocialPoint.Multiplayer
                 msgData[i] = new NetworkMessageData {
                     MessageType = MovementActionType
                 };
-                _clientCtrl.ApplyAction<TestMovementAction>(actions[i]);
+                _clientCtrl1.ApplyAction<TestMovementAction>(actions[i]);
             }
 
+            //Start moving in server
             int finalAction = totalActions - 1;
             for(int i = 0; i < finalAction; i++)
             {
-                _client.SendMessage(msgData[i], actions[i]);
+                _client1.SendMessage(msgData[i], actions[i]);
                 _serverCtrl.Update(0.001f);
-                Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
-                Assert.That(!_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+                Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+                Assert.That(!_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             }
-            _client.SendMessage(msgData[finalAction], actions[finalAction]);
+            _client1.SendMessage(msgData[finalAction], actions[finalAction]);
             _serverCtrl.Update(0.001f);
-            Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
-            Assert.That(_clientCtrl.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
+        }
+
+        [Test]
+        public void MultipleClientActionPrediction()
+        {
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
+
+            //Instantiate in one client and update for all
+            var instantiateAction = new TestInstatiateAction {
+                Position = Vector3.Zero
+            };
+            NetworkMessageData instatiateMsgData = new NetworkMessageData {
+                MessageType = InstatiateActionType
+            };
+            _clientCtrl1.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, instatiateMsgData);
+            _serverCtrl.Update(0.001f);
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
+
+            var movementAction = new TestMovementAction {
+                Movement = Vector3.One
+            };
+            NetworkMessageData msgData = new NetworkMessageData {
+                MessageType = MovementActionType
+            };
+            //Move in one client locally
+            _clientCtrl1.ApplyAction<TestMovementAction>(movementAction);
+            //Move in one the other client locally
+            _clientCtrl2.ApplyAction<TestMovementAction>(movementAction);
+
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(!_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
+            Assert.That(!_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
+
+            //Start updating
+            _client1.SendMessage(msgData, movementAction);
+            _serverCtrl.Update(0.001f);
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
+            Assert.That(!_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
+            _client2.SendMessage(msgData, movementAction);
+            _serverCtrl.Update(0.001f);
+            Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
+            Assert.That(_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
         }
 
         /* Helper Classes */
