@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.ScriptEvents;
 using System;
 
-public class GoalsModelParser : IParser<GoalsModel>, ISerializer<GoalsModel>
+public class GoalsModelParser : IAttrObjParser<GoalsModel>, IAttrObjSerializer<GoalsModel>
 {
     GoalsModel _goals;
     ConfigModel _config;

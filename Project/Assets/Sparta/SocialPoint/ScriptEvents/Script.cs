@@ -28,17 +28,17 @@ namespace SocialPoint.ScriptEvents
             return string.Format("[ScriptModel:{0}]", StringUtils.Join(Steps));
         }
     }
-
-    public sealed class ScriptStepModelParser : IParser<ScriptStepModel>
+        
+    public sealed class ScriptStepModelParser : IAttrObjParser<ScriptStepModel>
     {
         const string AttrKeyName = "name";
         const string AttrKeyArguments = "args";
         const string AttrKeyForward = "forward";
         const string AttrKeyBackward = "backward";
 
-        readonly IParser<IScriptCondition> _conditionParser;
+        readonly IAttrObjParser<IScriptCondition> _conditionParser;
 
-        public ScriptStepModelParser(IParser<IScriptCondition> conditionParser)
+        public ScriptStepModelParser(IAttrObjParser<IScriptCondition> conditionParser)
         {
             _conditionParser = conditionParser;
         }
@@ -58,22 +58,22 @@ namespace SocialPoint.ScriptEvents
             };
         }
     }
-
-    public sealed class ScriptModelParser : IParser<ScriptModel>
+        
+    public sealed class ScriptModelParser : IAttrObjParser<ScriptModel>
     {
-        readonly IParser<ScriptStepModel> _stepParser;
+        readonly IAttrObjParser<ScriptStepModel> _stepParser;
 
         public ScriptModelParser() :
             this(ScriptConditions.BaseParser)
         {
         }
 
-        public ScriptModelParser(IParser<IScriptCondition> conditionParser) :
+        public ScriptModelParser(IAttrObjParser<IScriptCondition> conditionParser) :
             this(new ScriptStepModelParser(conditionParser))
         {
         }
 
-        public ScriptModelParser(IParser<ScriptStepModel> stepParser)
+        public ScriptModelParser(IAttrObjParser<ScriptStepModel> stepParser)
         {
             _stepParser = stepParser;
         }
