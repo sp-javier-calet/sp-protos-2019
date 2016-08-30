@@ -5,7 +5,7 @@ using SocialPoint.Attributes;
 namespace SocialPoint.Purchase
 {
     //TODO: Verify behaviour for desired empty store
-    public class EmptyGamePurchaseStore : IGamePurchaseStore
+    public sealed class EmptyGamePurchaseStore : IGamePurchaseStore
     {
         Product[] _productList = new Product[0];
         bool _productsLoaded = false;

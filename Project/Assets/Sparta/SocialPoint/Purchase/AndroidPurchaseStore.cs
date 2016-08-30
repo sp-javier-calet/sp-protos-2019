@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SocialPoint.Purchase
 {
-    public class AndroidPurchaseStore
+    public sealed class AndroidPurchaseStore
     #if UNITY_ANDROID
         : IPurchaseStore
     #endif
@@ -108,7 +108,7 @@ namespace SocialPoint.Purchase
 
         #region IDisposable implementation
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             UnregisterEvents();
         }

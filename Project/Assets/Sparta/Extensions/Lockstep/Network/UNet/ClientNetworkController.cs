@@ -1,19 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using SocialPoint.Lockstep;
+using SocialPoint.Lockstep.Network;
+using SocialPoint.Lockstep.Network.UNet;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Reflection;
-using UnityEngine.Assertions;
-using SocialPoint.Utils;
-using SocialPoint.Lockstep.Network;
-using SocialPoint.Lockstep;
-using System.IO;
-using SocialPoint.Lockstep.Network.UNet;
 
 namespace SocialPoint.Lockstep.Network.UNet
 {
-    public class ClientNetworkController : IClientNetworkController
+    public sealed class ClientNetworkController : IClientNetworkController
     {
         public event Action<string> Log;
         public event Action Connected;
@@ -51,9 +46,9 @@ namespace SocialPoint.Lockstep.Network.UNet
         LockstepCommandDataFactory _networkLockstepCommandDataFactory;
         bool _started;
 
-        public short PlayerConnectedMsgType { get; protected set; }
+        public short PlayerConnectedMsgType { get; private set; }
 
-        public short PlayerDisconnectedMsgType { get; protected set; }
+        public short PlayerDisconnectedMsgType { get; private set; }
 
         public ClientNetworkController(string serverAddress,
                                        int port,
@@ -153,7 +148,7 @@ namespace SocialPoint.Lockstep.Network.UNet
                 Error(error.errorCode, error.ToString());
             }
 
-            WriteLog(string.Format("Network error {0}: {1}", error.errorCode, error.ToString()));
+            WriteLog(string.Format("Network error {0}: {1}", error.errorCode, error));
         }
 
         void OnPlayerConnectedReceived(NetworkMessage netMsg)
@@ -181,7 +176,7 @@ namespace SocialPoint.Lockstep.Network.UNet
                 Error(error.errorCode, error.ToString());
             }
 
-            WriteLog(string.Format("Server error {0}: {1}", error.errorCode, error.ToString()));
+            WriteLog(string.Format("Server error {0}: {1}", error.errorCode, error));
         }
 
         void WriteLog(string logText)
@@ -230,14 +225,14 @@ namespace SocialPoint.Lockstep.Network.UNet
             }
         }
 
-        int GetChannelIdByNetworkChannel(NetworkReliability reliability)
+        static int GetChannelIdByNetworkChannel(NetworkReliability reliability)
         {
             return reliability == NetworkReliability.Reliable ? 0 : 1;
         }
 
         public void Send(byte msgType, INetworkMessage msg, NetworkReliability reliability = NetworkReliability.Reliable, int connectionId = 0)
         {
-            NetworkMessageWrapper message = new NetworkMessageWrapper(msg);
+            var message = new NetworkMessageWrapper(msg);
             var channelId = GetChannelIdByNetworkChannel(reliability);
             _client.SendByChannel(msgType, message, channelId);
         }

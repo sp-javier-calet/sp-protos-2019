@@ -2,7 +2,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerSync
 {
-    public class EventCommand : Command
+    public sealed class EventCommand : Command
     {
         static readonly string TypeName = "event";
         static readonly string NameKey = "type";

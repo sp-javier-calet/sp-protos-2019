@@ -14,7 +14,7 @@ internal class BMDataAccessor
     static readonly string PREFERRED_DATA_PATH = "Assets/BundleManager";
     static readonly string[] MOST_LIKELY_SRC_PATHS = new string[] {"Assets/Sparta/AssetBundles/BundleManager", "Assets/Sparta", "Assets/Libraries/External/BundleManager", "Assets/Libraries"};
 
-    public class DataFilePaths
+    public sealed class DataFilePaths
     {
         static readonly string DEFAULT_LOG = "<BM Config> Using default file location for {0}";
         static readonly string CUSTOM_LOG = "<BM Config> Using custom file location for {0}: {1}";

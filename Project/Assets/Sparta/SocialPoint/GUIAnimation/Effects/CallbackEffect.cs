@@ -4,7 +4,7 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class CallbackEffect : TriggerEffect
+    public sealed class CallbackEffect : TriggerEffect
     {
         [SerializeField]
         [ShowInEditor]

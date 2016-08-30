@@ -5,16 +5,16 @@ using UnityEngine.UI;
 
 namespace SocialPoint.ScriptEvents
 {
-    public class AdminPanelScriptEvents : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelScriptEvents : IAdminPanelGUI, IAdminPanelConfigurer
     {
         IScriptEventDispatcher _dispatcher;
         Text _eventsArea;
         string _eventsLog;
         IAttrSerializer _attrSerializer;
         IAttrParser _attrParser;
-        IParser<ScriptModel> _scriptParser;
+        IAttrObjParser<ScriptModel> _scriptParser;
 
-        public AdminPanelScriptEvents(IScriptEventDispatcher dispatcher, IParser<ScriptModel> scriptParser)
+        public AdminPanelScriptEvents(IScriptEventDispatcher dispatcher, IAttrObjParser<ScriptModel> scriptParser)
         {
             _dispatcher = dispatcher;
             _dispatcher.AddListener(OnScriptEvent);

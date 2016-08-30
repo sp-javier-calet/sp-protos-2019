@@ -9,7 +9,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Purchase
 {
-    public class SocialPointPurchaseStore : IGamePurchaseStore
+    public sealed class SocialPointPurchaseStore : IGamePurchaseStore
     {
         class ProductReadyPetition
         {
@@ -521,7 +521,7 @@ namespace SocialPoint.Purchase
             return _purchasesInProcess.ContainsKey(productId);
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
             UnregisterEvents();
             _commandQueue = null;

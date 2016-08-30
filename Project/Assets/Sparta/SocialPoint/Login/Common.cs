@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
-using SocialPoint.Network;
 using SocialPoint.Base;
-using LitJson;
+using SocialPoint.Network;
 
 namespace SocialPoint.Login
 {

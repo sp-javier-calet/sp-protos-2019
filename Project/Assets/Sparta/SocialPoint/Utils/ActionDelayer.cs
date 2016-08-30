@@ -5,7 +5,7 @@ using System.Collections;
 namespace SocialPoint.Utils
 {
     //TODO: Avoid using a singleton? Group this behaviour with others that require a GameObject in scene and instantiate only one with all scripts?
-    public class ActionDelayer : MonoBehaviourSingleton<ActionDelayer>
+    public sealed class ActionDelayer : MonoBehaviourSingleton<ActionDelayer>
     {
         /// <summary>
         /// Fires an action after an amount of time.

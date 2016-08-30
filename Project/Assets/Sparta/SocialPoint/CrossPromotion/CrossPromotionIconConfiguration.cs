@@ -2,7 +2,7 @@
 
 namespace SocialPoint.CrossPromotion
 {
-    public class CrossPromotionIconConfiguration : MonoBehaviour
+    public sealed class CrossPromotionIconConfiguration : MonoBehaviour
     {
         [SerializeField]
         Texture[] _textures;

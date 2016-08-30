@@ -3,7 +3,7 @@ using UnityEditor;
 using System.Collections;
 using System.IO;
 
-public class BMDataWatcher : AssetPostprocessor
+public sealed class BMDataWatcher : AssetPostprocessor
 {
     public static bool Active = true;
 

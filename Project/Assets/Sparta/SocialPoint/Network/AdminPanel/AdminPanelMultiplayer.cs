@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SocialPoint.Network
 {
-    public class AdminPanelMultiplayer : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
+    public sealed class AdminPanelMultiplayer : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
     {
         DependencyContainer _container;
         IUpdateScheduler _updateScheduler;
@@ -28,7 +28,7 @@ namespace SocialPoint.Network
         Text _opServer;
         Text _opClient;
 
-        public AdminPanelMultiplayer(IUpdateScheduler updateScheduler, DependencyContainer container=null)
+        public AdminPanelMultiplayer(IUpdateScheduler updateScheduler, DependencyContainer container = null)
         {
             _updateScheduler = updateScheduler;
             _container = container;
@@ -87,7 +87,7 @@ namespace SocialPoint.Network
 
             layout.CreateButton("Start Local Networking", OnLocalStartClicked);
             layout.CreateMargin();
-        }            
+        }
 
         void Log(string msg)
         {
@@ -165,6 +165,7 @@ namespace SocialPoint.Network
                 _opClient.text = "Connect Client";
             }
         }
+
         void OnOpClientClicked()
         {
             if(_client == null && _container != null)
@@ -209,7 +210,7 @@ namespace SocialPoint.Network
                 else
                 {
                     Log("sending message from server to client of type " + type + " through channel " + chan);
-                    msg = _server.CreateMessage(new NetworkMessageData{
+                    msg = _server.CreateMessage(new NetworkMessageData {
                         MessageType = type,
                         ChannelId = chan
                     });
@@ -224,7 +225,7 @@ namespace SocialPoint.Network
                 else
                 {
                     Log("sending message from client to server of type " + type + " through channel " + chan);
-                    msg = _client.CreateMessage(new NetworkMessageData{
+                    msg = _client.CreateMessage(new NetworkMessageData {
                         MessageType = type,
                         ChannelId = chan
                     });
@@ -236,7 +237,7 @@ namespace SocialPoint.Network
                 msg.Send();
             }
         }
-            
+
         void OnLocalStartClicked()
         {
             var server = new LocalNetworkServer();
@@ -296,17 +297,17 @@ namespace SocialPoint.Network
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)
         {
-            Log("server connected to client "+clientId);
+            Log("server connected to client " + clientId);
         }
 
         void INetworkServerDelegate.OnClientDisconnected(byte clientId)
         {
-            Log("server disconnected from client "+clientId);
+            Log("server disconnected from client " + clientId);
         }
 
         void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            Log("server received message from client "+data.ClientId+" of type " + data.MessageType + " through channel " + data.ChannelId);
+            Log("server received message from client " + data.ClientId + " of type " + data.MessageType + " through channel " + data.ChannelId);
         }
 
         void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)
@@ -317,7 +318,7 @@ namespace SocialPoint.Network
         #endregion
     }
 
-    public class AdminPanelUnetMultiplayer : IAdminPanelGUI
+    public sealed class AdminPanelUnetMultiplayer : IAdminPanelGUI
     {
         DependencyContainer _container;
         IUpdateScheduler _updateScheduler;
@@ -327,7 +328,7 @@ namespace SocialPoint.Network
         InputField _clientPort;
         AdminPanelMultiplayer _parent;
 
-        public AdminPanelUnetMultiplayer(AdminPanelMultiplayer parent, IUpdateScheduler updateScheduler, DependencyContainer container=null)
+        public AdminPanelUnetMultiplayer(AdminPanelMultiplayer parent, IUpdateScheduler updateScheduler, DependencyContainer container = null)
         {
             _updateScheduler = updateScheduler;
             _parent = parent;

@@ -2,12 +2,12 @@
 
 namespace SocialPoint.ScriptEvents
 {
-    public interface IScriptEventSerializer : ISerializer<object>
+    public interface IScriptEventSerializer : IAttrObjSerializer<object>
     {
         string Name { get; }
     }
 
-    public interface IScriptEventParser : IParser<object>
+    public interface IScriptEventParser : IAttrObjParser<object>
     {
         string Name { get; }
     }
@@ -82,11 +82,11 @@ namespace SocialPoint.ScriptEvents
         abstract protected Attr SerializeEvent(T ev);
     }
 
-    public class ScriptEventSerializer<T> : BaseScriptEventSerializer<T>
+    public sealed class ScriptEventSerializer<T> : BaseScriptEventSerializer<T>
     {
-        readonly ISerializer<T> _serializer;
+        readonly IAttrObjSerializer<T> _serializer;
 
-        public ScriptEventSerializer(string name, ISerializer<T> serializer = null) : base(name)
+        public ScriptEventSerializer(string name, IAttrObjSerializer<T> serializer = null) : base(name)
         {
             _serializer = serializer;
         }
@@ -97,11 +97,11 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptEventParser<T> : BaseScriptEventParser<T>
+    public sealed class ScriptEventParser<T> : BaseScriptEventParser<T>
     {
-        readonly IParser<T> _parser;
+        readonly IAttrObjParser<T> _parser;
 
-        public ScriptEventParser(string name, IParser<T> parser = null) : base(name)
+        public ScriptEventParser(string name, IAttrObjParser<T> parser = null) : base(name)
         {
             _parser = parser;
         }
@@ -112,12 +112,12 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptEventConverter<T> : BaseScriptEventConverter<T>
+    public sealed class ScriptEventConverter<T> : BaseScriptEventConverter<T>
     {
-        readonly ISerializer<T> _serializer;
-        IParser<T> _parser;
+        readonly IAttrObjSerializer<T> _serializer;
+        readonly IAttrObjParser<T> _parser;
 
-        public ScriptEventConverter(string name, IParser<T> parser = null, ISerializer<T> serializer = null) : base(name)
+        public ScriptEventConverter(string name, IAttrObjParser<T> parser = null, IAttrObjSerializer<T> serializer = null) : base(name)
         {
             _serializer = serializer;
             _parser = parser;

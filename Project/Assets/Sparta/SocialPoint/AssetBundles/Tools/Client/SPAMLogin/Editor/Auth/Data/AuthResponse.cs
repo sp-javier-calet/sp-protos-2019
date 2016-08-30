@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-    public class AuthResponse
+    public sealed class AuthResponse
     {
         public string   success;
         public bool     Success { get { return Boolean.Parse(success); } }

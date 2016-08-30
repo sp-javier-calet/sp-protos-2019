@@ -4,7 +4,7 @@ using SocialPoint.Locale;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameLoadingErrorPopupController : UIViewController
+public sealed class GameLoadingErrorPopupController : UIViewController
 {
     [HideInInspector]
     public string Text;

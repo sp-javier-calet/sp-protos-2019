@@ -6,7 +6,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class SetLockstepConfigMessage : INetworkMessage
+    public sealed class SetLockstepConfigMessage : INetworkMessage
     {
         public byte PlayerId { get; private set; }
 

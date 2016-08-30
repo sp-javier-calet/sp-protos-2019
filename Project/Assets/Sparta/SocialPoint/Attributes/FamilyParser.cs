@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Base;
+using System;
 
 namespace SocialPoint.Attributes
 {
-    public interface IChildParser<T> : IParser<T>
+    public interface IChildParser<T> : IAttrObjParser<T>
     {
         string Name { get; }
 
         FamilyParser<T> Parent { set; }
     }
+        
+    public sealed class FamilyParser<T> : IAttrObjParser<T>
 
-    public class FamilyParser<T> : IParser<T>
     {
         const string AttrKeyType = "type";
         const string AttrKeyValue = "value";

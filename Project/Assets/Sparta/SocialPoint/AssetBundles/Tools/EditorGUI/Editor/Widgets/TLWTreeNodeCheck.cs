@@ -9,7 +9,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A Tree Node Check.
     /// </summary>
     /// This Widget is undocumented and it's behaviour has not been tested properly.
-	public class TLWTreeNodeCheck : TLWTreeNode
+	public sealed class TLWTreeNodeCheck : TLWTreeNode
 	{
 		private TLWCheck _check;
 		public TLWCheck check { get { return _check; } }

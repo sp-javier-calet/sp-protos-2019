@@ -8,7 +8,7 @@ namespace SocialPoint.Dependency
         void Initialize();
     }
 
-    public class InitializableManager
+    public sealed class InitializableManager
     {
         Dictionary<IInitializable,int> _initialized;
         DependencyContainer _container;

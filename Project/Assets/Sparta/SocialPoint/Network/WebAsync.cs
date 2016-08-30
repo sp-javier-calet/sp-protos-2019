@@ -10,7 +10,7 @@ namespace SocialPoint.Network
     /// <summary>
     /// Simplify getting web requests asynchronously
     /// </summary>
-    public class WebAsync
+    public sealed class WebAsync
     {
         float _timeout;
         // seconds

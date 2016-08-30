@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 #if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
-    public class AndroidStoreTransaction
+    public sealed class AndroidStoreTransaction
     {
         /// <summary>
         /// ITEM_TYPE_INAPP or ITEM_TYPE_SUBS

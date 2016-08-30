@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SocialPoint.ServerSync
 {
-    public class AdminPanelCommandQueue : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelCommandQueue : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly ICommandQueue _commandQueue;
 

@@ -16,9 +16,9 @@ using System.Runtime.Serialization;
 
 namespace SocialPoint.Tool.Shared
 {
-    public class SPAMAuthenticator
+    public sealed class SPAMAuthenticator
     {
-        public class NotAuthenticatedException : Exception
+        public sealed class NotAuthenticatedException : Exception
         {
             public NotAuthenticatedException() : base("User is not authenticated properly")
             {

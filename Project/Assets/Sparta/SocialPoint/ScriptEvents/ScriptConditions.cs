@@ -23,7 +23,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public static IParser<IScriptCondition> BaseParser
+        public static IAttrObjParser<IScriptCondition> BaseParser
         {
             get
             {
@@ -32,7 +32,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class FixedCondition : IScriptCondition
+    public sealed class FixedCondition : IScriptCondition
     {
         readonly bool _result;
 
@@ -52,7 +52,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class FixedConditionParser : IChildParser<IScriptCondition>
+    public sealed class FixedConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -66,7 +66,7 @@ namespace SocialPoint.ScriptEvents
         public string Name { get { return ConditionName; } }
     }
 
-    public class AllConditionParser : IChildParser<IScriptCondition>
+    public sealed class AllConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -80,7 +80,7 @@ namespace SocialPoint.ScriptEvents
         public string Name { get { return ConditionName; } }
     }
 
-    public class NoneConditionParser : IChildParser<IScriptCondition>
+    public sealed class NoneConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -94,7 +94,7 @@ namespace SocialPoint.ScriptEvents
         public string Name { get { return ConditionName; } }
     }
 
-    public class NameCondition : IScriptCondition
+    public sealed class NameCondition : IScriptCondition
     {
         readonly string _pattern;
 
@@ -114,7 +114,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class NameConditionParser : IChildParser<IScriptCondition>
+    public sealed class NameConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -128,7 +128,7 @@ namespace SocialPoint.ScriptEvents
         public string Name { get { return ConditionName; } }
     }
 
-    public class ArgumentsCondition : IScriptCondition
+    public sealed class ArgumentsCondition : IScriptCondition
     {
         readonly Attr _arguments;
 
@@ -148,7 +148,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ArgumentsConditionParser : IChildParser<IScriptCondition>
+    public sealed class ArgumentsConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -162,7 +162,7 @@ namespace SocialPoint.ScriptEvents
         public string Name { get { return ConditionName; } }
     }
 
-    public class AndCondition : IScriptCondition
+    public sealed class AndCondition : IScriptCondition
     {
         readonly List<IScriptCondition> _conditions;
 
@@ -195,7 +195,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class AndConditionParser : IChildParser<IScriptCondition>
+    public sealed class AndConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -217,7 +217,7 @@ namespace SocialPoint.ScriptEvents
         public string Name { get { return ConditionName; } }
     }
 
-    public class OrCondition : IScriptCondition
+    public sealed class OrCondition : IScriptCondition
     {
         readonly List<IScriptCondition> _conditions;
 
@@ -250,7 +250,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class OrConditionParser : IChildParser<IScriptCondition>
+    public sealed class OrConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {
@@ -272,7 +272,7 @@ namespace SocialPoint.ScriptEvents
         public string Name { get { return ConditionName; } }
     }
 
-    public class NotCondition : IScriptCondition
+    public sealed class NotCondition : IScriptCondition
     {
         readonly IScriptCondition _condition;
 
@@ -292,7 +292,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class NotConditionParser : IChildParser<IScriptCondition>
+    public sealed class NotConditionParser : IChildParser<IScriptCondition>
     {
         public IScriptCondition Parse(Attr data)
         {

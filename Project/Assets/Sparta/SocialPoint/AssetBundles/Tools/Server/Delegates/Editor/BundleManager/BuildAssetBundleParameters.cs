@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SocialPoint.Tool.Server
 {
-    public class BuildAssetBundleParameters : ToolServiceParameters
+    public sealed class BuildAssetBundleParameters : ToolServiceParameters
     {
         public string[] bundlesToBuild;
         public string buildTarget;

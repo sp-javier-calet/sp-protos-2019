@@ -16,7 +16,7 @@ namespace SocialPoint.Utils
         public bool All;
     }
 
-    public class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
+    public sealed class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
         UpdateScheduler _scheduler = new UpdateScheduler();
 
@@ -119,6 +119,7 @@ namespace SocialPoint.Utils
                     yield break;
                 }
                 var bundle = www.assetBundle;
+                www.Dispose();
                 AssetBundleRequest req;
                 if(string.IsNullOrEmpty(def.Name))
                 {

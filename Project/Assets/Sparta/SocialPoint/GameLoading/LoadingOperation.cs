@@ -16,7 +16,7 @@ namespace SocialPoint.GameLoading
         void Start();
     }
 
-    public class LoadingOperation : ILoadingOperation
+    public sealed class LoadingOperation : ILoadingOperation
     {
         public float Progress { set; get; }
 

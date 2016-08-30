@@ -5,7 +5,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-	public class AuthView : TLView
+	public sealed class AuthView : TLView
 	{
 		public AuthModel 		Model { get { return (AuthModel)_model; } }
 		public AuthController 	Controller 	{ get { return (AuthController)_controller; } }

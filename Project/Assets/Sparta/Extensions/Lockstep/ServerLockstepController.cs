@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
-    public class ServerLockstepController : IUpdateable, IDisposable
+    public sealed class ServerLockstepController : IUpdateable, IDisposable
     {
         public long CommandStep;
         long _simulationTime;

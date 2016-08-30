@@ -7,7 +7,7 @@ namespace SocialPoint.Tool.Shared
     /*
      * Class for encapsulating the calls to SPAM services common to all unity projects
      */
-    public class SPAMApiClient : SPAMApiInterface
+    public sealed class SPAMApiClient : SPAMApiInterface
 	{
         /*
          * The following calls are deprecated services but could be useful to have as a template 

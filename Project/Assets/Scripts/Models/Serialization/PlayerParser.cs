@@ -1,7 +1,7 @@
 ﻿using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
 
-public class PlayerParser : IParser<PlayerModel>, ISerializer<PlayerModel>
+public class PlayerParser : IAttrObjParser<PlayerModel>, IAttrObjSerializer<PlayerModel>
 {
     const string AttrKeyLevel = "level";
     const string AttrKeyResourcePool = "resources";

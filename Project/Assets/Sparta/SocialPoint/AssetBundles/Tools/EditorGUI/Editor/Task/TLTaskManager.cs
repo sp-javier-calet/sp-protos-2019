@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Tool.Shared.TLGUI
 {
-	public class TLTaskManager
+	public sealed class TLTaskManager
 	{
 		private List<TLTask> _tasks;
 		private int _currentTaskIdx;

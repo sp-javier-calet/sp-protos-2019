@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.AssetSerializer.Exceptions
 {
-    public class DeserializationException: Exception
+    public sealed class DeserializationException: Exception
     {
         public List<string> MissingComponents;
         public List<string> MissingFields;
@@ -29,7 +29,7 @@ namespace SocialPoint.AssetSerializer.Exceptions
         }
     }
 
-    public class MissingTypeException: Exception
+    public sealed class MissingTypeException: Exception
     {
         public string MissingType;
 
@@ -44,7 +44,7 @@ namespace SocialPoint.AssetSerializer.Exceptions
         }
     }
 
-    public class DuplicatedChildNameException: Exception
+    public sealed class DuplicatedChildNameException: Exception
     {
         public string name;
         public string prefix = "";

@@ -25,11 +25,11 @@ namespace SocialPoint.ScriptEvents
         public object Action;
     }
 
-    public class RunScriptActionParser : BaseScriptEventParser<RunScriptAction>
+    public sealed class RunScriptActionParser : BaseScriptEventParser<RunScriptAction>
     {
-        readonly IParser<ScriptModel> _parser;
+        readonly IAttrObjParser<ScriptModel> _parser;
 
-        public RunScriptActionParser(IParser<ScriptModel> parser) : base("action.base.run_script")
+        public RunScriptActionParser(IAttrObjParser<ScriptModel> parser) : base("action.base.run_script")
         {
             _parser = parser;
         }
@@ -42,7 +42,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class LogActionParser : BaseScriptEventParser<LogAction>
+    public sealed class LogActionParser : BaseScriptEventParser<LogAction>
     {
         const string AttrKeyMessage = "msg";
         const string AttrKeyLogType = "type";
@@ -83,7 +83,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class WaitActionParser : BaseScriptEventParser<WaitAction>
+    public sealed class WaitActionParser : BaseScriptEventParser<WaitAction>
     {
         const string AttrKeySeconds = "secs";
         const string AttrKeyAction = "action";
@@ -106,16 +106,16 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class ScriptBridge :
+    public sealed class ScriptBridge :
         IEventsBridge,
         IScriptEventsBridge
     {
         IEventDispatcher _dispatcher;
         IScriptEventDispatcher _scriptDispatcher;
-        IParser<ScriptModel> _scriptParser;
+        IAttrObjParser<ScriptModel> _scriptParser;
         ICoroutineRunner _runner;
 
-        public ScriptBridge(IParser<ScriptModel> scriptParser, ICoroutineRunner runner)
+        public ScriptBridge(IAttrObjParser<ScriptModel> scriptParser, ICoroutineRunner runner)
         {
             _scriptParser = scriptParser;
             _runner = runner;

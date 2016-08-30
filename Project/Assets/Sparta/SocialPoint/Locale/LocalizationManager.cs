@@ -14,7 +14,7 @@ namespace SocialPoint.Locale
 {
     public class LocalizationManager : ILocalizationManager
     {
-        public class LocationData
+        public sealed class LocationData
         {
             public const string DevEnvironmentId = "dev";
             public const string ProdEnvironmentId = "prod";

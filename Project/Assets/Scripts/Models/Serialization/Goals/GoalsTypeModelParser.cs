@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using SocialPoint.ScriptEvents;
 
-public class GoalsTypeModelParser : IParser<GoalsTypeModel>
+public class GoalsTypeModelParser : IAttrObjParser<GoalsTypeModel>
 {
-    IParser<IModelCondition> _conditionsParser;
-    IParser<IReward> _rewardParser;
+    IAttrObjParser<IModelCondition> _conditionsParser;
+    IAttrObjParser<IReward> _rewardParser;
 
-    public GoalsTypeModelParser(IParser<IModelCondition> conditionsParser, IParser<IReward> rewardParser)
+    public GoalsTypeModelParser(IAttrObjParser<IModelCondition> conditionsParser, IAttrObjParser<IReward> rewardParser)
     {
         _conditionsParser = conditionsParser;
         _rewardParser = rewardParser;

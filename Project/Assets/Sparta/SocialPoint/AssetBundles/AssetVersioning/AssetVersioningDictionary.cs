@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Text;
 using SocialPoint.Utils;
 
 namespace SocialPoint.AssetVersioning
 {
-    public class AssetVersioningDictionary : IAssetVersioningDictionary
+    public sealed class AssetVersioningDictionary : IAssetVersioningDictionary
     {
         const string kPortraitSuffix = "_portrait";
         const string kThumbSuffix = "_thumb";
@@ -24,7 +25,7 @@ namespace SocialPoint.AssetVersioning
             return _data;
         }
 
-        internal virtual void SetInternalData(Dictionary<string, AssetVersioningData> orig)
+        internal void SetInternalData(Dictionary<string, AssetVersioningData> orig)
         {
             _data = orig;
         }
@@ -205,7 +206,7 @@ namespace SocialPoint.AssetVersioning
 
         public override string ToString()
         {
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             sb.AppendFormat("EntityDictionary: {0}", GetType().Name).AppendLine();
 
             var itr = Values.GetEnumerator();

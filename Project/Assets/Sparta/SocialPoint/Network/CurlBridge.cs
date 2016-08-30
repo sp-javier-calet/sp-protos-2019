@@ -3,7 +3,7 @@ using SocialPoint.Network;
 
 namespace SocialPoint.Network
 {
-    public class CurlBridge
+    public sealed class CurlBridge
     {
         [StructLayout(LayoutKind.Sequential)]
         public struct RequestStruct

@@ -14,7 +14,7 @@ namespace SocialPoint.Lockstep.Network
         bool RequiresSync { get; }
     }
 
-    public class EmptyMessage : INetworkMessage
+    public sealed class EmptyMessage : INetworkMessage
     {
         public void Deserialize(IReader reader)
         {

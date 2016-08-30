@@ -16,7 +16,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.IO
 {
-    public class FileUtils
+    public sealed class FileUtils
     {
         #if UNITY
 

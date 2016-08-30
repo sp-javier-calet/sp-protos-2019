@@ -5,7 +5,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// <summary>
     /// An Edit box for text.
     /// </summary>
-	public class TLWTextField : TLWidget 
+	public sealed class TLWTextField : TLWidget 
 	{
 		Rect _lastRect;
         int _maxLength = 0;

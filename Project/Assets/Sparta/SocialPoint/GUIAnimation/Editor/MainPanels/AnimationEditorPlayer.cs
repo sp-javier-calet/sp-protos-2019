@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class AnimationEditorPlayer
+	public sealed class AnimationEditorPlayer
 	{
 		enum State
 		{

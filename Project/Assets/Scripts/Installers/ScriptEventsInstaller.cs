@@ -23,8 +23,8 @@ public class ScriptEventsInstaller : Installer, IInitializable
         Container.Bind<IEventsBridge>().ToLookup<ScriptBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<ScriptBridge>();
         
-        Container.Rebind<IParser<IScriptCondition>>().ToMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
-        Container.Rebind<IParser<ScriptModel>>().ToMethod<ScriptModelParser>(CreateScriptModelParser);
+        Container.Rebind<IAttrObjParser<IScriptCondition>>().ToMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
+        Container.Rebind<IAttrObjParser<ScriptModel>>().ToMethod<ScriptModelParser>(CreateScriptModelParser);
 
         Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
         Container.Rebind<IScriptEventDispatcher>().ToMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
@@ -36,7 +36,7 @@ public class ScriptEventsInstaller : Installer, IInitializable
     {
         return new AdminPanelScriptEvents(
             Container.Resolve<IScriptEventDispatcher>(),
-            Container.Resolve<IParser<ScriptModel>>());
+            Container.Resolve<IAttrObjParser<ScriptModel>>());
     }
 
     ScriptEventDispatcher CreateScriptEventDispatcher()
@@ -48,7 +48,7 @@ public class ScriptEventsInstaller : Installer, IInitializable
     ScriptBridge CreateScriptBridge()
     {
         return new ScriptBridge(
-            Container.Resolve<IParser<ScriptModel>>(),
+            Container.Resolve<IAttrObjParser<ScriptModel>>(),
             Container.Resolve<ICoroutineRunner>());
     }
 
@@ -60,7 +60,7 @@ public class ScriptEventsInstaller : Installer, IInitializable
 
     ScriptModelParser CreateScriptModelParser()
     {
-        var condParser = Container.Resolve<IParser<IScriptCondition>>();
+        var condParser = Container.Resolve<IAttrObjParser<IScriptCondition>>();
         return new ScriptModelParser(condParser);
     }
 

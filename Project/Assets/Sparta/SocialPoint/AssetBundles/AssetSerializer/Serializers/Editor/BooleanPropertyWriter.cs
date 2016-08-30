@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class BooleanPropertyWriter : AbstractPropertyWriter
+    public sealed class BooleanPropertyWriter : AbstractPropertyWriter
     {
         public BooleanPropertyWriter(string propName, object value, Type propType) : base(propName, "Boolean", value, propType)
         {

@@ -9,7 +9,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Tool.Server
 {
-    public class BuildAssetBundleDelegate : ToolServiceDelegate
+    public sealed class BuildAssetBundleDelegate : ToolServiceDelegate
     {
         //public BundleManagerData BMData { get; private set; }
         BMDataAccessor.DataFilePaths BkpBMPaths { get; set; }

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Social
 {
-    public class AdminPanelGoogle : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelGoogle : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly IGoogle _google;
         AdminPanel.AdminPanel _adminPanel;

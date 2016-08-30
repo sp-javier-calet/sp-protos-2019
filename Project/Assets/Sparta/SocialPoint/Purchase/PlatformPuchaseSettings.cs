@@ -3,7 +3,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Purchase
 {
-    public class PlatformPuchaseSettings
+    public sealed class PlatformPuchaseSettings
     {
         //IOS
         public const string IOSUseDetailedLogKey = "IOSUseDetailedLogKey";

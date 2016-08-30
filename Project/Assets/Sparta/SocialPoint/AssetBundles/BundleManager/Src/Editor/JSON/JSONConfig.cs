@@ -2,7 +2,7 @@ using System;
 
 namespace BundleManagerJSON
 {
-    public class JSONDataConfig
+    public sealed class JSONDataConfig
     {
         public bool             exportWithBundle = false;
         public string[]         excludedComponents = null;
@@ -10,7 +10,7 @@ namespace BundleManagerJSON
         public bool             usePrefabCopies = true;
     }
 
-    public class JSONConfig
+    public sealed class JSONConfig
     {
         /**
         * Export json with bundle

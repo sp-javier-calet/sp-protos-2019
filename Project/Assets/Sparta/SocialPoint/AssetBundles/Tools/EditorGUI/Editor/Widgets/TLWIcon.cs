@@ -9,7 +9,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// An Image widget with optional text.
     /// </summary>
     /// The TLWIcon widget can be used to place Images as widgets, benefiting from the TLWidget styling and layouting capabilities.
-	public class TLWIcon: TLWidget
+	public sealed class TLWIcon: TLWidget
 	{
 		private GUIContent _guiTex;
 		private string _text;

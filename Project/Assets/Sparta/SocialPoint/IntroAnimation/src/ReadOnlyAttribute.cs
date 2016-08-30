@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SocialPoint.IntroAnimation
 {
-    public class ReadOnlyAttribute : PropertyAttribute
+    public sealed class ReadOnlyAttribute : PropertyAttribute
     {
 
     }

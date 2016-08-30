@@ -2,7 +2,7 @@
 
 namespace SocialPoint.ServerSync
 {
-    public class PushEnabledCommand : Command
+    public sealed class PushEnabledCommand : Command
     {
         static readonly string TypeName = "push_enabled";
         static readonly string TokenKey = "token";

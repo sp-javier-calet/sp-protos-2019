@@ -4,17 +4,17 @@ using SocialPoint.ScriptEvents;
 using System.Collections.Generic;
 using System;
 
-public class GoalTypeModelParser : IParser<GoalTypeModel>
+public class GoalTypeModelParser : IAttrObjParser<GoalTypeModel>
 {
     const string AttrKeyGoalId = "id";
     const string AttrKeyConditions = "conditions";
     const string AttrKeyTutorial = "tutorial";
     const string AttrKeyReward = "reward";
 
-    IParser<IModelCondition> _conditionsParser;
-    IParser<IReward> _rewardParser;
+    IAttrObjParser<IModelCondition> _conditionsParser;
+    IAttrObjParser<IReward> _rewardParser;
 
-    public GoalTypeModelParser(IParser<IModelCondition> conditionsParser, IParser<IReward> rewardParser)
+    public GoalTypeModelParser(IAttrObjParser<IModelCondition> conditionsParser, IAttrObjParser<IReward> rewardParser)
     {
         _conditionsParser = conditionsParser;
         _rewardParser = rewardParser;

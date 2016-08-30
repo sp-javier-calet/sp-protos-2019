@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using SocialPoint.Tool.Shared.TLGUI;
 
-public class CalcWindow : TLWindow {
+public sealed class CalcWindow : TLWindow {
 
 	static CalcWindow	instance;
 	public static CalcWindow Instance
@@ -60,7 +60,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Tool.Shared.TLGUI;
 
-public class CalcView : TLView {
+public sealed class CalcView : TLView {
 
 	static Dictionary<string, TLStyle>	stylesDict;
 	public static Dictionary<string, TLStyle>	StylesDict
@@ -175,7 +175,7 @@ CalcController.cs
 \code{.csharp}
 using SocialPoint.Tool.Shared.TLGUI;
 
-public class CalcController : TLController {
+public sealed class CalcController : TLController {
 
 	public CalcView View 
 	{ 
@@ -269,7 +269,7 @@ AboutView.cs
 \code{.csharp}
 using SocialPoint.Tool.Shared.TLGUI;
 
-public class AboutView : TLView {
+public sealed class AboutView : TLView {
 
 	public AboutView( TLWindow window ) : base(window, null)
 	{

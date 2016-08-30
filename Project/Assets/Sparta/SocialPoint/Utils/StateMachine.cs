@@ -20,7 +20,7 @@ namespace SocialPoint.Utils
     
     public class StateMachine<Transition, StateType, State> : IDisposable where State : IState
     {
-        private class StateTransition
+        class StateTransition
         {
             public Transition Transition;
             public StateType StateType;
@@ -59,15 +59,51 @@ namespace SocialPoint.Utils
             }
         }
 
-        private float _nextStateDeltaTime = 0.0f;
-        private StateType _nextStateType;
-        private State _nextState;
+        // Avoids boxing in the dictionary.
+        class StateMachineStateTypeEqualityComparer : IEqualityComparer<StateType>
+        {
+            public bool Equals(StateType x, StateType y)
+            {
+                return x.Equals(y);
+            }
 
-        private Dictionary<StateTransition, StateType> _stateTransitions = new Dictionary<StateTransition, StateType>();
-        private Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>();
-        private Dictionary<StateType, State> _states = new Dictionary<StateType, State>();
+            public int GetHashCode(StateType obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
 
-        private StateType _currentStateType;
+        // Avoids boxing in the dictionary.
+        class StateMachineTransitionEqualityComparer : IEqualityComparer<Transition>
+        {
+            public bool Equals(Transition x, Transition y)
+            {
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(Transition obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
+        float _nextStateDeltaTime = 0.0f;
+        StateType _nextStateType;
+        State _nextState;
+        StateType _lastStateType;
+        public StateType LastStateType
+        {
+            get
+            {
+                return _lastStateType;
+            }
+        }
+
+        Dictionary<StateTransition, StateType> _stateTransitions = new Dictionary<StateTransition, StateType>();
+        Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>(new StateMachineTransitionEqualityComparer());
+        Dictionary<StateType, State> _states = new Dictionary<StateType, State>(new StateMachineStateTypeEqualityComparer());
+
+        StateType _currentStateType;
         public StateType CurrentStateType
         {
             get
@@ -76,7 +112,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        private State _currentState;
+        State _currentState;
         public State CurrentState
         {
             get
@@ -104,11 +140,13 @@ namespace SocialPoint.Utils
             if(_nextState != null && _nextStateDeltaTime <= 0.0f)
             {
                 var oldState = _currentState;
+                var oldStateType = _currentStateType;
                 _currentState = _nextState;
                 _currentStateType = _nextStateType;
                 _nextState = default(State);
                 if(oldState != null)
                 {
+                    _lastStateType = oldStateType;
                     oldState.OnStateExit();
                 }
                 _currentState.OnStateEnter();
@@ -223,7 +261,7 @@ namespace SocialPoint.Utils
         }
     }
         
-    public class StateMachine<Transition> : StateMachine<Transition, IState>
+    public sealed class StateMachine<Transition> : StateMachine<Transition, IState>
     {
     }
 }

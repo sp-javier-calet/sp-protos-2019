@@ -8,7 +8,7 @@ namespace SocialPoint.BundleManagerTest
 {
     [TestFixture]
     [Category("SocialPoint.BundleManagerSlow")]
-    public class BuildAssetBundleTests
+    public sealed class BuildAssetBundleTests
     {
 
         bool previousUseEditorTarget;

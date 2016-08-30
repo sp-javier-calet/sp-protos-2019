@@ -39,7 +39,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// </summary>
     /// List selector allows to draw generic TLListSelectorItem in a column and select one of them.
     /// Can send selected item chanege events.
-	public class TLWListSelector<T> : TLWidget where T : TLListSelectorItem, new()
+	public sealed class TLWListSelector<T> : TLWidget where T : TLListSelectorItem, new()
 	{	
         private TLEvent<T> _onSelectedChange;
         private TLEvent	_onItemsChanged;
@@ -62,7 +62,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
 			get {
 				return _selected;
 			}
-			protected set {
+			private set {
 				if(_selected != value){
 					_selected = value;
                     onSelectedChange.Send(View.window, _selected);

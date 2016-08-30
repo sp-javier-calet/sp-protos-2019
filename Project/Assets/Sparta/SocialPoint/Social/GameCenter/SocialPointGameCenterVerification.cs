@@ -9,7 +9,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
-    public class SocialPointGameCenterVerification
+    public sealed class SocialPointGameCenterVerification
     {
         bool _loaded;
         bool _inited;

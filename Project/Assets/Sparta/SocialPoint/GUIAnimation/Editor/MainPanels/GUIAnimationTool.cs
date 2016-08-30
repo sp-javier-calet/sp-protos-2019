@@ -6,7 +6,7 @@ using SocialPoint.GUIControl;
 namespace SocialPoint.GUIAnimation
 {
     // Entry EditorWindows for the animation tool
-    public class GUIAnimationTool : EditorWindow
+    public sealed class GUIAnimationTool : EditorWindow
     {
         AnimationToolModel _animationModel = new AnimationToolModel();
 
@@ -157,7 +157,10 @@ namespace SocialPoint.GUIAnimation
 
         void RenderNoScreenMessage()
         {
-            GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
+            if(Event.current.type == EventType.Layout)
+            {
+                GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
+            }
         }
 
         void RenderScreensSelector(List<UIViewController> screens)

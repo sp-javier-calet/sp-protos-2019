@@ -2,7 +2,7 @@
 
 namespace SocialPoint.IosKeychain
 {
-    public class KeychainItemException : Exception
+    public sealed class KeychainItemException : Exception
     {
         public KeychainItemException(int status) :
             base("Keychain returned error " + status)
@@ -10,7 +10,7 @@ namespace SocialPoint.IosKeychain
         }
     }
 
-    public class KeychainItem
+    public sealed class KeychainItem
     {
 
         public string Id;

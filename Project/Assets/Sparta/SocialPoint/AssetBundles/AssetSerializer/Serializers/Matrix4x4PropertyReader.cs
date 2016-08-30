@@ -3,7 +3,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class Matrix4x4PropertyReader : AbstractPropertyReader
+    public sealed class Matrix4x4PropertyReader : AbstractPropertyReader
     {
         public Matrix4x4PropertyReader(JsonData propDef) : base(propDef)
         {

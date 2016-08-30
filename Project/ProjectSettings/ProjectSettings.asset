@@ -102,7 +102,7 @@ PlayerSettings:
   AndroidBundleVersionCode: 20160818
   AndroidMinSdkVersion: 15
   AndroidPreferredInstallLocation: 1
-  aotOptions: nimt-trampolines=512
+  aotOptions: ntrampolines=2048,nimt-trampolines=256
   apiCompatibilityLevel: 2
   stripEngineCode: 1
   iPhoneStrippingLevel: 2
@@ -315,7 +315,8 @@ PlayerSettings:
   ps4AppType: 0
   ps4ParamSfxPath: 
   ps4VideoOutPixelFormat: 0
-  ps4VideoOutResolution: 4
+  ps4VideoOutInitialWidth: 1920
+  ps4VideoOutReprojectionRate: 120
   ps4PronunciationXMLPath: 
   ps4PronunciationSIGPath: 
   ps4BackgroundImagePath: 

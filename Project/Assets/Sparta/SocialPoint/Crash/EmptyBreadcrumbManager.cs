@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Crash
 {
-    public class EmptyBreadcrumbManager : IBreadcrumbManager
+    public sealed class EmptyBreadcrumbManager : IBreadcrumbManager
     {
         public void Log(string info)
         {

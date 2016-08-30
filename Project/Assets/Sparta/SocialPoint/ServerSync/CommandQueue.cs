@@ -9,7 +9,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.ServerSync
 {
-    public class CommandQueue : ICommandQueue, IUpdateable
+    public sealed class CommandQueue : ICommandQueue, IUpdateable
     {
         public delegate void ResponseDelegate(HttpResponse resp);
 
@@ -358,7 +358,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        virtual public void Dispose()
+        public void Dispose()
         {
             Stop();
             Reset();
