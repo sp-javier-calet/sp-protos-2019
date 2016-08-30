@@ -211,17 +211,24 @@ namespace SocialPoint.Multiplayer
                 _sceneBehaviours[i].Update(dt, _scene, oldScene);
             }
 
+            System.IO.MemoryStream memStream = new System.IO.MemoryStream();
+            SystemBinaryWriter binWriter = new SystemBinaryWriter(memStream);
+            NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, binWriter);
+            byte[] sceneBuffer = memStream.ToArray();
+
             var clientItr = _lastReceivedAction.GetEnumerator();
             while(clientItr.MoveNext())
             {
                 byte clientId = clientItr.Current.Key;
                 Int32 lastAction = (Int32)clientItr.Current.Value;
+
                 var msg = _server.CreateMessage(new NetworkMessageData {
                     ClientId = clientId,
                     MessageType = SceneMsgType.UpdateSceneEvent
                 });
-                msg.Writer.Write(lastAction);//Send last received action to client
-                NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, msg.Writer);
+
+                msg.Writer.Write(sceneBuffer, sceneBuffer.Length);
+                msg.Writer.Write(lastAction);
                 msg.Send();
             }
             clientItr.Dispose();

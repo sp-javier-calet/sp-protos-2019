@@ -80,9 +80,9 @@ namespace SocialPoint.Multiplayer
                 }
                 else
                 {
-                    int lastServerAction = reader.ReadInt32();//Read last action before reading scene
                     _scene = NetworkSceneParser.Instance.Parse(_scene, reader);
                     _clientScene = new NetworkScene(_scene);
+                    int lastServerAction = reader.ReadInt32();
                     OnActionFromServer(lastServerAction);
                 }
 
