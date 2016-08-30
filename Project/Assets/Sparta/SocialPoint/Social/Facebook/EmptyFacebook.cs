@@ -56,6 +56,21 @@ namespace SocialPoint.Social
 
         public override string AppId
         {   
+            get
+            {
+                return string.Empty;
+            }
+            set
+            {
+            }
+        }
+
+        public override string ApiVersion 
+        { 
+            get
+            {
+                return string.Empty;
+            }
             set
             {
             }
@@ -75,6 +90,11 @@ namespace SocialPoint.Social
             {
                 callback(post, null);
             }
+        }
+
+        public override bool HasPermissions(IList<string> permissions)
+        {
+            return false;
         }
 
         public override void AskForPermissions(List<string> permissions, FacebookPermissionsDelegate callback = null)
