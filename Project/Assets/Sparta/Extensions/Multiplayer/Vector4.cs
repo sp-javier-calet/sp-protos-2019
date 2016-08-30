@@ -12,7 +12,7 @@ namespace SocialPoint.Multiplayer
         public float z;
         public float w;
 
-        public Vector4(float v=0.0f)
+        public Vector4(float v = 0.0f)
         {
             x = v;
             y = v;
@@ -98,7 +98,7 @@ namespace SocialPoint.Multiplayer
         public static bool operator !=(Vector4 a, Vector4 b)
         {
             return !(a == b);
-        }            
+        }
 
         public static Vector4 operator -(Vector4 a, Vector4 b)
         {
@@ -191,7 +191,7 @@ namespace SocialPoint.Multiplayer
 
         public override string ToString()
         {
-            return string.Format("[{0},{1},{2},{3}]", x, y, z ,w);
+            return string.Format("[{0},{1},{2},{3}]", x, y, z, w);
         }
     }
 

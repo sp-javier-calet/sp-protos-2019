@@ -157,7 +157,10 @@ namespace SocialPoint.GUIAnimation
 
         void RenderNoScreenMessage()
         {
-            GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
+            if(Event.current.type == EventType.Layout)
+            {
+                GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
+            }
         }
 
         void RenderScreensSelector(List<UIViewController> screens)

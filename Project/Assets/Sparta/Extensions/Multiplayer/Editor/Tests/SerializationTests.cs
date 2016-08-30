@@ -18,7 +18,7 @@ namespace SocialPoint.Multiplayer
             serializer.Serialize(obj, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            var obj2 = parser.Parse(reader);
+            var obj2 =  parser.Parse(reader);
             Assert.That(obj.Equals(obj2));
         }
 
@@ -32,7 +32,7 @@ namespace SocialPoint.Multiplayer
             var newObj2 = parser.Parse(oldObj, reader);
             Assert.That(newObj.Equals(newObj2));
         }
-            
+
         [Test]
         public void Vector3Initial()
         {
@@ -150,6 +150,122 @@ namespace SocialPoint.Multiplayer
                 ),
                 new TransformSerializer(),
                 new TransformParser());
+        }
+
+        [Test]
+        public void NetworkGameObjectInitial()
+        {
+            GenericInitial(
+                new NetworkGameObject(1, new Transform(
+                        new Vector3(1.0f, 2.3f, 4.2f),
+                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                        new Vector3(2.0f, 1.0f, 2.0f)
+                    )
+                ),
+                new NetworkGameObjectSerializer(),
+                new NetworkGameObjectParser());
+        }
+
+        [Test]
+        public void NetworkGameObjectDiff()
+        {
+            GenericDiff(
+                new NetworkGameObject(1, new Transform(
+                        new Vector3(1.0f, 2.3f, 4.2f),
+                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                        new Vector3(2.0f, 1.0f, 2.0f)
+                    )
+                ),
+                new NetworkGameObject(1, new Transform(
+                        new Vector3(1.0f, 3.3f, 4.2f),
+                        new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                        new Vector3(1.0f, 0.0f, 2.0f)
+                    )
+                ),
+                new NetworkGameObjectSerializer(),
+                new NetworkGameObjectParser());
+        }
+
+        [Test]
+        public void NetworkGameSceneInitial()
+        {
+            var scene = new NetworkScene();
+
+            scene.AddObject(new NetworkGameObject(1, new Transform(
+                new Vector3(1.0f, 2.3f, 4.2f),
+                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(2.0f, 1.0f, 2.0f)
+            )));
+
+            scene.AddObject(new NetworkGameObject(2, new Transform(
+                new Vector3(2.0f, 2.3f, 4.2f),
+                new Quaternion(5.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(3.0f, 1.0f, 2.0f)
+            )));
+
+            GenericInitial(scene,
+                new NetworkSceneSerializer(),
+                new NetworkSceneParser());
+        }
+
+        [Test]
+        public void NetworkGameSceneAddDiff()
+        {
+            var scene = new NetworkScene();
+
+            scene.AddObject(new NetworkGameObject(1, new Transform(
+                new Vector3(1.0f, 2.3f, 4.2f),
+                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(2.0f, 1.0f, 2.0f)
+            )));
+
+            var scene2 = new NetworkScene();
+
+            scene2.AddObject(new NetworkGameObject(1, new Transform(
+                new Vector3(1.0f, 2.3f, 4.6f),
+                new Quaternion(3.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(2.0f, 1.0f, 4.0f)
+            )));
+
+            scene2.AddObject(new NetworkGameObject(2, new Transform(
+                new Vector3(2.0f, 2.3f, 4.2f),
+                new Quaternion(5.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(3.0f, 1.0f, 2.1f)
+            )));
+
+            GenericDiff(scene2, scene,
+                new NetworkSceneSerializer(),
+                new NetworkSceneParser());
+        }
+
+        [Test]
+        public void NetworkGameSceneRemoveDiff()
+        {
+            var scene = new NetworkScene();
+
+            scene.AddObject(new NetworkGameObject(1, new Transform(
+                new Vector3(1.0f, 2.3f, 4.2f),
+                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(2.0f, 1.0f, 2.0f)
+            )));
+
+            scene.AddObject(new NetworkGameObject(2, new Transform(
+                new Vector3(2.0f, 2.3f, 4.2f),
+                new Quaternion(5.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(3.0f, 1.0f, 2.1f)
+            )));
+
+            var scene2 = new NetworkScene();
+
+            scene2.AddObject(new NetworkGameObject(1, new Transform(
+                new Vector3(1.0f, 2.3f, 4.6f),
+                new Quaternion(3.0f, 2.3f, 4.2f, 5.0f),
+                new Vector3(2.0f, 1.0f, 4.0f)
+            )));
+
+            GenericDiff(scene2, scene,
+                new NetworkSceneSerializer(),
+                new NetworkSceneParser());
         }
     }
 }
