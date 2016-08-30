@@ -59,13 +59,49 @@ namespace SocialPoint.Utils
             }
         }
 
+        // Avoids boxing in the dictionary.
+        class StateMachineStateTypeEqualityComparer : IEqualityComparer<StateType>
+        {
+            public bool Equals(StateType x, StateType y)
+            {
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(StateType obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
+        // Avoids boxing in the dictionary.
+        class StateMachineTransitionEqualityComparer : IEqualityComparer<Transition>
+        {
+            public bool Equals(Transition x, Transition y)
+            {
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(Transition obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
         float _nextStateDeltaTime = 0.0f;
         StateType _nextStateType;
         State _nextState;
+        StateType _lastStateType;
+        public StateType LastStateType
+        {
+            get
+            {
+                return _lastStateType;
+            }
+        }
 
         Dictionary<StateTransition, StateType> _stateTransitions = new Dictionary<StateTransition, StateType>();
-        Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>();
-        Dictionary<StateType, State> _states = new Dictionary<StateType, State>();
+        Dictionary<Transition, StateType> _transitions = new Dictionary<Transition, StateType>(new StateMachineTransitionEqualityComparer());
+        Dictionary<StateType, State> _states = new Dictionary<StateType, State>(new StateMachineStateTypeEqualityComparer());
 
         StateType _currentStateType;
         public StateType CurrentStateType
@@ -104,11 +140,13 @@ namespace SocialPoint.Utils
             if(_nextState != null && _nextStateDeltaTime <= 0.0f)
             {
                 var oldState = _currentState;
+                var oldStateType = _currentStateType;
                 _currentState = _nextState;
                 _currentStateType = _nextStateType;
                 _nextState = default(State);
                 if(oldState != null)
                 {
+                    _lastStateType = oldStateType;
                     oldState.OnStateExit();
                 }
                 _currentState.OnStateEnter();

@@ -41,6 +41,9 @@ public sealed class DownloadManager : MonoBehaviour
     List<WWWRequest> _waitingRequests = new List<WWWRequest>();
     List<WWWRequest> _requestedBeforeInit = new List<WWWRequest>();
 
+    List<string> _newFinisheds = new List<string>();
+    List<string> _newFaileds = new List<string>();
+
     static event Action LowStorageConditionMet;
 
     static ulong _minStorageRequiredToDownload;
@@ -526,12 +529,14 @@ public sealed class DownloadManager : MonoBehaviour
         }
 
         // Check if any WWW is finished or errored
-        var newFinisheds = new List<string>();
-        var newFaileds = new List<string>();
+        _newFinisheds.Clear();
+        _newFaileds.Clear();
+
         var itr = _processingRequest.Values.GetEnumerator();
         while(itr.MoveNext())
         {
             var request = itr.Current;
+
             if(request.www.error != null)
             {
                 if(request.triedTimes - 1 < _downloadRetryTime)
@@ -541,7 +546,7 @@ public sealed class DownloadManager : MonoBehaviour
                 }
                 else
                 {
-                    newFaileds.Add(request.bundleName);
+                    _newFaileds.Add(request.bundleName);
                     string error = "Download " + request.url + " failed for " + request.triedTimes + " times.\nError: " + request.www.error;
                     if(request.callback != null)
                     {
@@ -557,7 +562,7 @@ public sealed class DownloadManager : MonoBehaviour
             }
             else if(request.www.isDone)
             {
-                newFinisheds.Add(request.bundleName);
+                _newFinisheds.Add(request.bundleName);
                 if(request.callback != null)
                 {
                     request.callback.Invoke(request.urlNoPath);
@@ -565,19 +570,20 @@ public sealed class DownloadManager : MonoBehaviour
             }
         }
         itr.Dispose();
-        
+
+        string finishedBundles = string.Empty;
         // Move complete bundles out of downloading list
-        for(int i = 0, newFinishedsCount = newFinisheds.Count; i < newFinishedsCount; i++)
+        for(int i = 0, newFinishedsCount = _newFinisheds.Count; i < newFinishedsCount; i++)
         {
-            string finishedBundles = newFinisheds[i];
+            finishedBundles = _newFinisheds[i];
             _succeedRequest.Add(finishedBundles, _processingRequest[finishedBundles]);
             _processingRequest.Remove(finishedBundles);
         }
         
         // Move failed bundles out of downloading list
-        for(int i = 0, newFailedsCount = newFaileds.Count; i < newFailedsCount; i++)
+        for(int i = 0, newFailedsCount = _newFaileds.Count; i < newFailedsCount; i++)
         {
-            string finishedBundles = newFaileds[i];
+            finishedBundles = _newFaileds[i];
             if(!_failedRequest.ContainsKey(finishedBundles))
             {
                 _failedRequest.Add(finishedBundles, _processingRequest[finishedBundles]);
