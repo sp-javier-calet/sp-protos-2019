@@ -2,7 +2,6 @@
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Social;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
@@ -18,7 +17,7 @@ namespace SocialPoint.Login
 
         LinkState _state;
 
-        IGoogle _googlePlay;
+        readonly IGoogle _googlePlay;
 
         event StateChangeDelegate _eventStateChange;
 
@@ -85,10 +84,10 @@ namespace SocialPoint.Login
 
         public void Login(ErrorDelegate cbk)
         {
-            _googlePlay.Login((err) => OnLogin(err, cbk), _loginSilent);
+            _googlePlay.Login(err => OnLogin(err, cbk), _loginSilent);
         }
 
-        void OnLogin(Error err, ErrorDelegate cbk)
+        static void OnLogin(Error err, ErrorDelegate cbk)
         {
             if(cbk != null)
             {
@@ -128,7 +127,7 @@ namespace SocialPoint.Login
         public AttrDic GetLinkData()
         {
             GoogleUser user = _googlePlay.User;
-            AttrDic data = new AttrDic();
+            var data = new AttrDic();
 
             string accessToken = _googlePlay.AccessToken;
             
