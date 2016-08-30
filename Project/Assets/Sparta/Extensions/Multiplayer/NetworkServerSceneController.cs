@@ -211,8 +211,8 @@ namespace SocialPoint.Multiplayer
                 _sceneBehaviours[i].Update(dt, _scene, oldScene);
             }
 
-            System.IO.MemoryStream memStream = new System.IO.MemoryStream();
-            SystemBinaryWriter binWriter = new SystemBinaryWriter(memStream);
+            var memStream = new System.IO.MemoryStream();
+            var binWriter = new SystemBinaryWriter(memStream);
             NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, binWriter);
             byte[] sceneBuffer = memStream.ToArray();
 

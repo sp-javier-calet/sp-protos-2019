@@ -2,12 +2,12 @@
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkActionTuple
+    public class NetworkActionData
     {
         public Type ActionType;
         public object Action;
 
-        public NetworkActionTuple(Type actionType, object action)
+        public NetworkActionData(Type actionType, object action)
         {
             ActionType = actionType;
             Action = action;

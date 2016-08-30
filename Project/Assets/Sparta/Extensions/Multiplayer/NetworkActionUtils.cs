@@ -16,7 +16,7 @@ namespace SocialPoint.Multiplayer
         /// <param name="scene">Scene.</param>
         public static bool ApplyAction(Type actionType, object action, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates, NetworkScene scene)
         {
-            bool applyed = false;
+            bool applied = false;
             List<INetworkActionDelegate> actionCallbackList;
             if(actionDelegates.TryGetValue(actionType, out actionCallbackList))
             {
@@ -25,12 +25,12 @@ namespace SocialPoint.Multiplayer
                 {
                     INetworkActionDelegate actionCallback = itr.Current;
                     actionCallback.ApplyAction(action, scene);
-                    applyed = true;
+                    applied = true;
                 }
                 itr.Dispose();
             }
 
-            return applyed;
+            return applied;
         }
 
         /// <summary>

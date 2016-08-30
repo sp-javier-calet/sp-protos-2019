@@ -44,24 +44,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     void KeyInputHandler()
     {
         float delta = 0.1f;
-        SocialPoint.Multiplayer.Vector3 movement = SocialPoint.Multiplayer.Vector3.Zero;
-        if(Input.GetKey(KeyCode.UpArrow))
-        {
-            movement += new SocialPoint.Multiplayer.Vector3(0, 0, delta);
-        }
-        if(Input.GetKey(KeyCode.DownArrow))
-        {
-            movement += new SocialPoint.Multiplayer.Vector3(0, 0, -delta);
-        }
-        if(Input.GetKey(KeyCode.RightArrow))
-        {
-            movement += new SocialPoint.Multiplayer.Vector3(delta, 0, 0);
-        }
-        if(Input.GetKey(KeyCode.LeftArrow))
-        {
-            movement += new SocialPoint.Multiplayer.Vector3(-delta, 0, 0);
-        }
-
+        var movement = new SocialPoint.Multiplayer.Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * delta;
         bool input = (movement != SocialPoint.Multiplayer.Vector3.Zero);
 
         if(input && _client.Connected)
