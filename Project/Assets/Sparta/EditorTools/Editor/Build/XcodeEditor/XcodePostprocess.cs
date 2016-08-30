@@ -88,7 +88,18 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     mod.Apply(project.Editor);
                 }
 
-                project.Editor.Commit();
+                try
+                {
+                    project.Editor.Commit();
+                }
+                catch(Exception e)
+                {
+                    #if UNITY_EDITOR
+                    EditorUtility.DisplayDialog("Xcode Postprocess Error", "There was an error while applying XcodeMods. XcodeProject probably has an invalid state. Error: " + e.Message, "I will close Xcode"); 
+                    #endif
+
+                    throw e;
+                }
             }
         }
     }
