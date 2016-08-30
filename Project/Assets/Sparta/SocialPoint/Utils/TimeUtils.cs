@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Text;
 
 namespace SocialPoint.Utils
 {
@@ -153,7 +154,7 @@ namespace SocialPoint.Utils
 
         public static string FormatTime(this TimeSpan ts, string formatString)
         {
-            System.Text.StringBuilder stringBuilder = StringUtils.StartBuilder();
+            StringBuilder stringBuilder = StringUtils.StartBuilder();
 
             stringBuilder.AppendFormat(formatString, ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
 
