@@ -202,6 +202,7 @@ namespace SpartaTools.Editor.Build
         {
             CompileAndroid();
             CompileAndroidNative();
+            CompileLinuxNative();
             CompileIOS();
             CompileTVOS();
             CompileOSX();
