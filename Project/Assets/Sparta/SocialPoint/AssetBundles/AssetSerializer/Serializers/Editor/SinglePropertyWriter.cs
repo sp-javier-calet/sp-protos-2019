@@ -3,7 +3,7 @@ using System;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class SinglePropertyWriter : AbstractPropertyWriter
+    public sealed class SinglePropertyWriter : AbstractPropertyWriter
     {
         public SinglePropertyWriter(string propName, object value, Type propType) : base(propName, "Single", value, propType)
         {

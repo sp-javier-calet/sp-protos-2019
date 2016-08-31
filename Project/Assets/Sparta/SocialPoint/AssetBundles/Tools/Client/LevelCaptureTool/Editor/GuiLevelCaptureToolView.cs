@@ -4,7 +4,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.LevelCaptureTool
 {
-    public class GuiLevelCaptureToolView : TLView
+    public sealed class GuiLevelCaptureToolView : TLView
     {
         static Dictionary<string, TLStyle>          _stylesDict;
         public static Dictionary<string, TLStyle>   stylesDict

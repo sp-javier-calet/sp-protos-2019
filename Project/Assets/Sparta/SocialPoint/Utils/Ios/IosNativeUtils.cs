@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace SocialPoint.Utils
 {
-    public class IosNativeUtils : INativeUtils
+    public sealed class IosNativeUtils : INativeUtils
     {
         [StructLayout(LayoutKind.Sequential)]
         public struct ForceTouchShortcutItem

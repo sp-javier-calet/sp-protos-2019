@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanelController : UIViewController
+    public sealed class AdminPanelController : UIViewController
     {
         Stack<IAdminPanelGUI> _activePanels;
 

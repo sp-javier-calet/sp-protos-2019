@@ -9,14 +9,14 @@ namespace SocialPoint.GUIAnimation
     // If the client wants to use another way to spawn the particle a custom ISpawner must be setted
     // by using SetSpawner method
     [System.Serializable]
-    public class ParticleSpawnerEffect : TriggerEffect
+    public sealed class ParticleSpawnerEffect : TriggerEffect
     {
         public interface ISpawner
         {
             GameObject Spawn(GameObject prefab);
         }
 
-        public class DefaultSpawner : ISpawner
+        public sealed class DefaultSpawner : ISpawner
         {
             public GameObject Spawn(GameObject prefab)
             {

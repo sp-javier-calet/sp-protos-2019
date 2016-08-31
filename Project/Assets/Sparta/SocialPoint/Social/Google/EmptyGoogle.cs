@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SocialPoint.Social
 {
-    public class EmptyGoogle : IGoogle
+    public sealed class EmptyGoogle : IGoogle
     {
         bool _isConnected;
         GoogleUser _user;

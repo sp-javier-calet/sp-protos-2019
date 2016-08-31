@@ -12,7 +12,7 @@ namespace SocialPoint.AppEvents
     /// In order to receive events in Unity from Ios we use UnitySendMessage("IosAppEvents","NotifyStatus","ACTIVE")
     /// we need to create a persistant gameObject Containig this script
     /// </summary>
-    public class IosAppEvents : BaseAppEvents
+    public sealed class IosAppEvents : BaseAppEvents
     {
         enum Status
         {

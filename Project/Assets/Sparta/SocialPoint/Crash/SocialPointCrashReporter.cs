@@ -12,7 +12,7 @@ namespace SocialPoint.Crash
     using BasePlatformCrashReporter = BaseCrashReporter;
     #endif
 
-    public class SocialPointCrashReporter : BasePlatformCrashReporter
+    public sealed class SocialPointCrashReporter : BasePlatformCrashReporter
     {
         public SocialPointCrashReporter(IUpdateScheduler updateScheduler, IHttpClient client, IDeviceInfo deviceInfo, IBreadcrumbManager breadcrumbs = null, IAlertView alertView = null)
             : base(updateScheduler, client, deviceInfo, breadcrumbs, alertView)

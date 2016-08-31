@@ -4,9 +4,8 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.AppEvents
 {
-    public class AppSource
+    public sealed class AppSource
     {
-
         public const string LocalNotificationScheme = "local";
         public const string PushNotificationScheme = "push";
         public const string WidgetScheme = "widget";
@@ -24,11 +23,11 @@ namespace SocialPoint.AppEvents
 
         // Custom schemes to identify custom URLs
         static readonly List<string> CustomSchemes = new List<string> {
-            LocalNotificationScheme, 
-            PushNotificationScheme, 
-            WidgetScheme, 
-            FacebookScheme, 
-            OthersScheme 
+            LocalNotificationScheme,
+            PushNotificationScheme,
+            WidgetScheme,
+            FacebookScheme,
+            OthersScheme
         };
 
         // sp_origin->scheme mapping
@@ -119,7 +118,7 @@ namespace SocialPoint.AppEvents
 
         public AppSource(string sourceString)
         {
-            /* If sourceString is already a valid URL, 
+            /* If sourceString is already a valid URL,
              * use it as source. If not, try to parse parameters (in url format)
              * and infer the corresponding scheme */
             if(!Uri.TryCreate(sourceString, UriKind.Absolute, out _uri))
@@ -142,7 +141,7 @@ namespace SocialPoint.AppEvents
         {
             string scheme = OthersScheme;
 
-            // Check parameters for scheme mapping 
+            // Check parameters for scheme mapping
             string spOrigin;
             if(parms.TryGetValue(SourceKeyOrigin, out spOrigin))
             {

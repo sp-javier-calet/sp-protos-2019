@@ -11,7 +11,7 @@ namespace SocialPoint.Multiplayer
         public float y;
         public float z;
 
-        public Vector3(float v=0.0f)
+        public Vector3(float v = 0.0f)
         {
             x = v;
             y = v;
@@ -62,6 +62,10 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
+            if(!(obj is Vector3))
+            {
+                return false;
+            }
             return this == (Vector3)obj;
         }
 

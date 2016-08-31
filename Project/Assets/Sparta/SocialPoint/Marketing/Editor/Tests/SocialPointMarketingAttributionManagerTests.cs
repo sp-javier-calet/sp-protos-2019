@@ -10,7 +10,7 @@ namespace SocialPoint.Marketing
 {
     [TestFixture]
     [Category("SocialPoint.Marketing")]
-    public class SocialPointMarketingAttributionManagerTests
+    public sealed class SocialPointMarketingAttributionManagerTests
     {
 
         SocialPointMarketingAttributionManager manager;

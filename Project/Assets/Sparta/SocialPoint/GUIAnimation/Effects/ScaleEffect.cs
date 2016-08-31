@@ -4,10 +4,10 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class ScaleEffect : BlendEffect
+    public sealed class ScaleEffect : BlendEffect
     {
         [System.Serializable]
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public Vector3 Scale;
 

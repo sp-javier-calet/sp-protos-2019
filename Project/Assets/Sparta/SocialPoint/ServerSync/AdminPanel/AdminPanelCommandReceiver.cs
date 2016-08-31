@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.ServerSync
 {
-    public class AdminPanelCommandReceiver : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelCommandReceiver : IAdminPanelGUI, IAdminPanelConfigurer
     {
         struct CommandLog
         {

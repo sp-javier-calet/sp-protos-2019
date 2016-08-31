@@ -98,7 +98,7 @@ namespace SocialPoint.AdminPanel
             return CreateTextInput(string.Empty, onSubmit, null, enabled);
         }
 
-        public class InputStatus
+        public sealed class InputStatus
         {
             public string Suggestion { get; set; }
 

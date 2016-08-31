@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using MATSDK;
 
-public class SocialPointMobileAppTracking : IMarketingTracker
+public sealed class SocialPointMobileAppTracking : IMarketingTracker
 {
     const string TrackerName = "tune";
     MATDelegate _trackerDelegate;

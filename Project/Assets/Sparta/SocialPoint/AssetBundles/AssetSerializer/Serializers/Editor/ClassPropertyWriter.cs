@@ -4,7 +4,7 @@ using System;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-	public class ClassPropertyWriter : AbstractPropertyWriter
+	public sealed class ClassPropertyWriter : AbstractPropertyWriter
 	{
 		public ClassPropertyWriter( string propName, object value, Type propType ) : base( propName, "Class", value, propType )
 		{

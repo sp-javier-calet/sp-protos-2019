@@ -8,7 +8,7 @@ namespace SocialPoint.Attributes
 {
     [TestFixture]
     [Category("SocialPoint.Attributes")]
-    public class AttrPatcherTests
+    public sealed class AttrPatcherTests
     {
         AttrPatcher _patcher;
 

@@ -6,7 +6,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// A Label Widget.
     /// </summary>
     /// A Label for displaying text.
-	public class TLWLabel : TLWidget 
+	public sealed class TLWLabel : TLWidget 
 	{
 		private string _text;
 

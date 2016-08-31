@@ -29,7 +29,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class UIViewControllerAwakeEventSerializer : BaseScriptEventSerializer<UIViewControllerAwakeEvent>
+    public sealed class UIViewControllerAwakeEventSerializer : BaseScriptEventSerializer<UIViewControllerAwakeEvent>
     {
         public UIViewControllerAwakeEventSerializer() : base("event.gui.controller_awake")
         {
@@ -41,7 +41,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class UIViewControllerStateChangeEventSerializer : BaseScriptEventSerializer<UIViewControllerStateChangeEvent>
+    public sealed class UIViewControllerStateChangeEventSerializer : BaseScriptEventSerializer<UIViewControllerStateChangeEvent>
     {
         public UIViewControllerStateChangeEventSerializer() : base("event.gui.controller_state_change")
         {
@@ -59,7 +59,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class UIViewControllerInstantiateEventSerializer : BaseScriptEventSerializer<UIViewControllerInstantiateEvent>
+    public sealed class UIViewControllerInstantiateEventSerializer : BaseScriptEventSerializer<UIViewControllerInstantiateEvent>
     {
         public UIViewControllerInstantiateEventSerializer() : base("event.gui.controller_instantiate")
         {
@@ -77,7 +77,7 @@ namespace SocialPoint.ScriptEvents
         }
     }
 
-    public class GUIControlBridge :
+    public sealed class GUIControlBridge :
         IEventsBridge,
         IScriptEventsBridge
     {

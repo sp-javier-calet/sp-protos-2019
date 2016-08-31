@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace SocialPoint.QualityStats
 {
-    public class SocialPointQualityStats : IDisposable
+    public sealed class SocialPointQualityStats : IDisposable
     {
         IDeviceInfo _deviceInfo;
         List<QualityStatsHttpClient> _qualityStatsHttpClients;
@@ -263,7 +263,7 @@ namespace SocialPoint.QualityStats
         {
             var dAmount = (double)requestData.Amount;
 
-            performance.SetValue("number_of_calls", requestData.Amount);
+            performance.SetValue("number_calls", requestData.Amount);
             performance.SetValue("avg_size", requestData.SumSize / dAmount);
             performance.SetValue("avg_download_speed", requestData.SumSpeed / dAmount);
             performance.SetValue("avg_time", requestData.SumTimes / dAmount);

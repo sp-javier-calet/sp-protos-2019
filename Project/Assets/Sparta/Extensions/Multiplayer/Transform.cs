@@ -9,24 +9,24 @@ namespace SocialPoint.Multiplayer
     {
         public Vector3 Position;
         public Quaternion Rotation;
-        public Vector3 Size;
+        public Vector3 Scale;
 
         public Transform(Vector3 p, Quaternion r, Vector3 s)
         {
             Position = p;
             Rotation = r;
-            Size = s;
+            Scale = s;
         }
 
-        public Transform(Vector3 p, Quaternion r):this(p, r, Vector3.Zero)
+        public Transform(Vector3 p, Quaternion r) : this(p, r, Vector3.One)
         {
         }
 
-        public Transform(Vector3 p):this(p, Quaternion.Identity)
+        public Transform(Vector3 p) : this(p, Quaternion.Identity)
         {
         }
 
-        public Transform():this(Vector3.Zero)
+        public Transform() : this(Vector3.Zero)
         {
         }
 
@@ -36,7 +36,7 @@ namespace SocialPoint.Multiplayer
             {
                 Position = t.Position;
                 Rotation = t.Rotation;
-                Size = t.Size;
+                Scale = t.Scale;
             }
         }
 
@@ -86,14 +86,14 @@ namespace SocialPoint.Multiplayer
 
         static bool Compare(Transform a, Transform b)
         {
-            return a.Position == b.Position && a.Rotation == b.Rotation && a.Size == b.Size;
+            return a.Position == b.Position && a.Rotation == b.Rotation && a.Scale == b.Scale;
         }
 
         public override int GetHashCode()
         {
             var hash = Position.GetHashCode();
             hash = CryptographyUtils.HashCombine(hash, Rotation.GetHashCode());
-            hash = CryptographyUtils.HashCombine(hash, Size.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, Scale.GetHashCode());
             return hash;
         }
 
@@ -107,7 +107,7 @@ namespace SocialPoint.Multiplayer
 
         public override string ToString()
         {
-            return string.Format("[Transform: Position={0}, Rotation={1}, Size={2}]", Position, Rotation, Size);
+            return string.Format("[Transform: Position={0}, Rotation={1}, Scale={2}]", Position, Rotation, Scale);
         }
     }
 
@@ -119,14 +119,14 @@ namespace SocialPoint.Multiplayer
         {
             dirty.Set(newObj.Position != oldObj.Position);
             dirty.Set(newObj.Rotation != oldObj.Rotation);
-            dirty.Set(newObj.Size != oldObj.Size);
+            dirty.Set(newObj.Scale != oldObj.Scale);
         }
 
         public void Serialize(Transform newObj, IWriter writer)
         {
             Vector3Serializer.Instance.Serialize(newObj.Position, writer);
             QuaternionSerializer.Instance.Serialize(newObj.Rotation, writer);
-            Vector3Serializer.Instance.Serialize(newObj.Size, writer);
+            Vector3Serializer.Instance.Serialize(newObj.Scale, writer);
         }
 
         public void Serialize(Transform newObj, Transform oldObj, IWriter writer, Bitset dirty)
@@ -141,7 +141,7 @@ namespace SocialPoint.Multiplayer
             }
             if(Bitset.NullOrGet(dirty))
             {
-                Vector3Serializer.Instance.Serialize(newObj.Size, oldObj.Size, writer);
+                Vector3Serializer.Instance.Serialize(newObj.Scale, oldObj.Scale, writer);
             }
         }
     }
@@ -155,7 +155,7 @@ namespace SocialPoint.Multiplayer
             var obj = new Transform();
             obj.Position = Vector3Parser.Instance.Parse(reader);
             obj.Rotation = QuaternionParser.Instance.Parse(reader);
-            obj.Size = Vector3Parser.Instance.Parse(reader);
+            obj.Scale = Vector3Parser.Instance.Parse(reader);
             return obj;
         }
 
@@ -176,7 +176,7 @@ namespace SocialPoint.Multiplayer
             }
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Size = Vector3Parser.Instance.Parse(obj.Size, reader);
+                obj.Scale = Vector3Parser.Instance.Parse(obj.Scale, reader);
             }
             return obj;
         }

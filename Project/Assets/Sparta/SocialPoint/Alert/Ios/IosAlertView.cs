@@ -63,7 +63,7 @@ namespace SocialPoint.Alert
         {
             set
             {
-                _data.Message = value;
+                _data.Message = value ?? string.Empty;
             }
         }
 
@@ -71,7 +71,7 @@ namespace SocialPoint.Alert
         {
             set
             {
-                _data.Title = value;
+                _data.Title = value ?? string.Empty;
             }
         }
 
@@ -79,7 +79,7 @@ namespace SocialPoint.Alert
         {
             set
             {
-                _data.Signature = value;
+                _data.Signature = value ?? string.Empty;
             }
         }
 

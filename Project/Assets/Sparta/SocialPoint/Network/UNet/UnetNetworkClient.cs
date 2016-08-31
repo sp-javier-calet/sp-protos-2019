@@ -7,7 +7,7 @@ using System;
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkClient : INetworkClient, IDisposable
+    public sealed class UnetNetworkClient : INetworkClient, IDisposable
     {
         INetworkMessageReceiver _receiver;
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
@@ -25,7 +25,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public UnetNetworkClient(string serverAddr=null, int serverPort=UnetNetworkServer.DefaultPort, HostTopology topology=null)
+        public UnetNetworkClient(string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort, HostTopology topology = null)
         {
             if(string.IsNullOrEmpty(serverAddr))
             {
@@ -52,7 +52,7 @@ namespace SocialPoint.Network
             _delegates = null;
             _receiver = null;
         }
-            
+
         void RegisterHandlers()
         {
             UnregisterHandlers();
@@ -142,7 +142,7 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData info)
         {
-            return new UnetNetworkMessage(info, new NetworkConnection[]{_client.connection});
+            return new UnetNetworkMessage(info, new NetworkConnection[]{ _client.connection });
         }
 
         public void AddDelegate(INetworkClientDelegate dlg)

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SocialPoint.Utils
 {
-    public class PriorityCoroutineActionTests : MonoBehaviour
+    public sealed class PriorityCoroutineActionTests : MonoBehaviour
     {
         PriorityCoroutineAction _queue;
         int prioMinusCount = 0;

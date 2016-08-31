@@ -6,7 +6,7 @@ using SocialPoint.AssetSerializer.Utils;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-	public class ListPropertyWriter : AbstractPropertyWriter
+	public sealed class ListPropertyWriter : AbstractPropertyWriter
 	{
 		/**
 		 * Example of item type:

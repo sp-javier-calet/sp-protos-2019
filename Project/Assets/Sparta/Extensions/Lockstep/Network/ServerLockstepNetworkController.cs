@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public class ServerLockstepNetworkController : IDisposable
+    public sealed class ServerLockstepNetworkController : IDisposable
     {
         class LockstepClientData
         {
@@ -19,17 +19,17 @@ namespace SocialPoint.Lockstep.Network
         LockstepConfig _lockstepConfig;
         INetworkMessageController _messageController;
 
-        public byte LockstepCommandMsgType { get; protected set; }
+        public byte LockstepCommandMsgType { get; private set; }
 
-        public byte ConfirmTurnsMsgType { get; protected set; }
+        public byte ConfirmTurnsMsgType { get; private set; }
 
-        public byte ConfirmTurnsReceptionMsgType { get; protected set; }
+        public byte ConfirmTurnsReceptionMsgType { get; private set; }
 
-        public byte SetLockstepConfigMsgType { get; protected set; }
+        public byte SetLockstepConfigMsgType { get; private set; }
 
-        public byte AllClientsReadyMsgType { get; protected set; }
+        public byte AllClientsReadyMsgType { get; private set; }
 
-        public byte ClientReadyMsgType { get; protected set; }
+        public byte ClientReadyMsgType { get; private set; }
 
         Dictionary<int, LockstepClientData> _clientDataByConnectionId;
         Dictionary<int, LockstepClientData> _clientDataByClientId;

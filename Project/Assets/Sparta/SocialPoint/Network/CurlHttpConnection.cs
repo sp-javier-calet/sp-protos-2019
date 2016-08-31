@@ -104,7 +104,7 @@ namespace SocialPoint.Network
         CURL_LAST
     }
 
-    public class CurlHttpConnection : BaseYieldHttpConnection
+    public sealed class CurlHttpConnection : BaseYieldHttpConnection
     {
         byte[] _body;
         public string _headers;

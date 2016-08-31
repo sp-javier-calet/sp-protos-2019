@@ -249,7 +249,7 @@ namespace SocialPoint.Utils
         double y;
     }
 
-    public class QuadTree<T> where T : class, IQuadObject
+    public sealed class QuadTree<T> where T : class, IQuadObject
     {
         readonly bool sort;
         readonly QuadTreeSize minLeafSize;
@@ -717,7 +717,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        public class QuadTreeNode
+        public sealed class QuadTreeNode
         {
             static int _id;
             public readonly int ID = _id++;

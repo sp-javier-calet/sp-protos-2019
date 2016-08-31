@@ -7,7 +7,7 @@ using UnityEngine;
 #if UNITY_ANDROID
 namespace SocialPoint.Purchase
 {
-    public class AndroidStoreManager
+    public sealed class AndroidStoreManager
     {
         //Successfull Init callback. Billing is supported on current platform
         public event Action BillingSupportedEvent;

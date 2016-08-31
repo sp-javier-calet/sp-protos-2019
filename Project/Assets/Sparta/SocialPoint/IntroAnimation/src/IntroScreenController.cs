@@ -10,7 +10,7 @@ using UnityEditor;
 
 namespace SocialPoint.IntroAnimation
 {
-    public class IntroScreenController : MonoBehaviour
+    public sealed class IntroScreenController : MonoBehaviour
     {
         // This is used just for convenience, just drag&drop the scene object to this field and the name will
         // be serialized. No more typos!

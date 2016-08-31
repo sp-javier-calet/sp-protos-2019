@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
 {
-    public class JsonData
+    public sealed class JsonData
     {
         private Attr attr;
 
@@ -223,7 +223,7 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
         #endregion
     }
 
-    public class JsonWriter {
+    public sealed class JsonWriter {
 
         string          currentProperty;
         Stack<Attr>     contextStack;

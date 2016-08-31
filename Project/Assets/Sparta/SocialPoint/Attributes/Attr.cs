@@ -468,7 +468,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrEmpty : AttrValue
+    public sealed class AttrEmpty : AttrValue
     {
         public AttrEmpty() : base(AttrValueType.EMPTY)
         {
@@ -516,7 +516,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrBool : AttrValue
+    public sealed class AttrBool : AttrValue
     {
         bool _value;
 
@@ -642,7 +642,7 @@ namespace SocialPoint.Attributes
 
     }
 
-    public class AttrInt : AttrValue
+    public sealed class AttrInt : AttrValue
     {
         int _value;
 
@@ -717,7 +717,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrLong : AttrValue
+    public sealed class AttrLong : AttrValue
     {
         long _value;
 
@@ -822,7 +822,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrString : AttrValue
+    public sealed class AttrString : AttrValue
     {
         string _value;
 
@@ -966,7 +966,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrFloat : AttrValue
+    public sealed class AttrFloat : AttrValue
     {
         float _value;
 
@@ -1051,7 +1051,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrDouble : AttrValue
+    public sealed class AttrDouble : AttrValue
     {
         double _value;
 
@@ -1494,7 +1494,7 @@ namespace SocialPoint.Attributes
         }
     }
 
-    public class AttrList : Attr, IEnumerable<Attr>
+    public sealed class AttrList : Attr, IEnumerable<Attr>
     {
         public bool AllowDuplicates { get; set; }
 

@@ -44,7 +44,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class TimeScaleDependantInterval
+    public sealed class TimeScaleDependantInterval
     {
         public readonly double Interval;
         public double AccumTime;
@@ -56,7 +56,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class TimeScaleNonDependantInterval
+    public sealed class TimeScaleNonDependantInterval
     {
         public readonly double Interval;
         public double CurrentTimeStamp;
@@ -68,7 +68,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class ReferenceComparer<T> : IEqualityComparer<T>
+    public sealed class ReferenceComparer<T> : IEqualityComparer<T>
     {
         public bool Equals(T x, T y)
         {
@@ -81,7 +81,7 @@ namespace SocialPoint.Utils
         }
     }
 
-    public class UpdateScheduler : IUpdateScheduler
+    public sealed class UpdateScheduler : IUpdateScheduler
     {
         readonly HashSet<IUpdateable> _elements;
         readonly Dictionary<IUpdateable, TimeScaleDependantInterval> _intervalTimeScaleDependantElements;

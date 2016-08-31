@@ -6,7 +6,7 @@ using SocialPoint.GUIControl;
 namespace SocialPoint.GUIAnimation
 {
     // Entry EditorWindows for the animation tool
-    public class GUIAnimationTool : EditorWindow
+    public sealed class GUIAnimationTool : EditorWindow
     {
         AnimationToolModel _animationModel = new AnimationToolModel();
 

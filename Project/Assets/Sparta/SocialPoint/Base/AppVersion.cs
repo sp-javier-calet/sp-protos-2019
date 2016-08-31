@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace SocialPoint.Base
 {
@@ -17,7 +18,7 @@ namespace SocialPoint.Base
     public sealed class AppVersion
     {
         // Used in the ToString method to avoid string allocations
-        static System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+        static StringBuilder _stringBuilder = new StringBuilder();
 
         // Temp used when comparing with strings to avoid creating a new AppVersion object
         static internal AppVersion _tempAppVersion = new AppVersion(0, 0);
@@ -56,7 +57,7 @@ namespace SocialPoint.Base
         /// </summary>
         public AppVersion(int major, int minor, int revision = 0, int build = 0)
         {
-            if (AppVersion.Zero != InitVersionWithNumbers(major, minor, revision, build))
+            if(AppVersion.Zero != InitVersionWithNumbers(major, minor, revision, build))
             {
                 _versionStr = CreateVersionString(major, minor, revision, build);
             }
@@ -216,10 +217,10 @@ namespace SocialPoint.Base
             if(obj == null)
                 return false;
 
-            if( (Major != obj.Major)
-             || (Minor != obj.Minor)
-             || (Revision != obj.Revision)
-             || (Build != obj.Build))
+            if((Major != obj.Major)
+               || (Minor != obj.Minor)
+               || (Revision != obj.Revision)
+               || (Build != obj.Build))
             {
                 return false;
             }
@@ -294,7 +295,7 @@ namespace SocialPoint.Base
                 InitZeroVersion();
             }
 
-            if (ParseVersionString(versionStr, out major, out minor, out revision, out build))
+            if(ParseVersionString(versionStr, out major, out minor, out revision, out build))
             {
                 _versionStr = versionStr;
                 return InitVersionWithNumbers(major, minor, revision, build);
@@ -335,24 +336,24 @@ namespace SocialPoint.Base
             int currentComponentIdx = 0;
             int currentValue = 0;
 
-            for(var idx=0; idx < versionStr.Length && !hasError; ++idx)
+            for(var idx = 0; idx < versionStr.Length && !hasError; ++idx)
             {
 
                 char c = versionStr[idx];
 
 
-                if (c == '.')
+                if(c == '.')
                 {
                     _parseComponentsTmp[currentComponentIdx] = currentValue;
                     currentComponentIdx += 1;
                     currentValue = 0;
                     // A version string can't have more than 4 components
-                    if (currentComponentIdx > 3)
+                    if(currentComponentIdx > 3)
                     {
                         hasError = true;
                     }
                 }
-                else if (c >= '0' && c <= '9')
+                else if(c >= '0' && c <= '9')
                 {
                     currentValue = (c - '0') + (currentValue * 10);
                 }
@@ -368,7 +369,7 @@ namespace SocialPoint.Base
                 hasError = true;
             }
 
-            if (hasError)
+            if(hasError)
             {
                 major = minor = revision = build = 0;
                 return false;
@@ -377,10 +378,10 @@ namespace SocialPoint.Base
             // Save the last component
             _parseComponentsTmp[currentComponentIdx] = currentValue;
 
-            major       = _parseComponentsTmp[0];
-            minor       = _parseComponentsTmp[1];
-            revision    = _parseComponentsTmp[2];
-            build       = _parseComponentsTmp[3];
+            major = _parseComponentsTmp[0];
+            minor = _parseComponentsTmp[1];
+            revision = _parseComponentsTmp[2];
+            build = _parseComponentsTmp[3];
 
             return true;
         }

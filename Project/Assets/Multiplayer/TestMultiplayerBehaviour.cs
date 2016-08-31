@@ -8,7 +8,7 @@ public class TestMultiplayerBehaviour : MonoBehaviour
     INetworkServer _server;
     INetworkClient _client;
 
-	void Start()
+    void Start()
     {
         _server = ServiceLocator.Instance.Resolve<INetworkServer>();
         _client = ServiceLocator.Instance.Resolve<INetworkClient>();
@@ -21,5 +21,5 @@ public class TestMultiplayerBehaviour : MonoBehaviour
         {            
             _client.Connect();
         }
-	}
+    }
 }

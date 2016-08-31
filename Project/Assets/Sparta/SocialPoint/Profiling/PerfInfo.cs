@@ -195,7 +195,7 @@ namespace SocialPoint.Profiling
         }
     }
 
-    public class PerfInfo : IDisposable
+    public sealed class PerfInfo : IDisposable
     {
         public FrameInfo Frame;
         public GarbageInfo Garbage;

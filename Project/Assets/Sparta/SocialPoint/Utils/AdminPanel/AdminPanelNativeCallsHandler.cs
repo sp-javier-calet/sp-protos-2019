@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Utils
 {
-    public class AdminPanelNativeCallsHandler : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelNativeCallsHandler : IAdminPanelGUI, IAdminPanelConfigurer
     {
         NativeCallsHandler _nativeCallsHandler;
         AdminPanel.AdminPanel _adminPanel;

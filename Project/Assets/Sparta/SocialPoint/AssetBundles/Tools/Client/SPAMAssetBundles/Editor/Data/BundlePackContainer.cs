@@ -8,7 +8,7 @@ using LitJson;
 
 namespace SocialPoint.Editor.SPAMGui
 {
-	public class BundlePackContainer
+	public sealed class BundlePackContainer
 	{
 		private const string JSON_DATA_FILE = "Assets/ToolsConfig/bundle_pack_descritption.json";
 
@@ -148,7 +148,7 @@ namespace SocialPoint.Editor.SPAMGui
 		*/
 	}
 
-	public class BundlePackMetaData
+	public sealed class BundlePackMetaData
 	{
 		// Data
 		public string name { get; set; }
@@ -194,7 +194,7 @@ namespace SocialPoint.Editor.SPAMGui
         }
 	}
 
-	public class BundleMetaData
+	public sealed class BundleMetaData
 	{
 		// Data
 		public string name { get; set; }

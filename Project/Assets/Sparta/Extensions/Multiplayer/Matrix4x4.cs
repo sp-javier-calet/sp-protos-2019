@@ -22,6 +22,10 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
+            if(!(obj is Matrix4x4))
+            {
+                return false;
+            }
             return this == (Matrix4x4)obj;
         }
 
@@ -86,7 +90,7 @@ namespace SocialPoint.Multiplayer
         public static bool operator !=(Matrix4x4 a, Matrix4x4 b)
         {
             return !(a == b);
-        } 
+        }
 
         public override string ToString()
         {

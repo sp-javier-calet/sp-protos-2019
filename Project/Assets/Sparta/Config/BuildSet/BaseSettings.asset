@@ -28,7 +28,7 @@ MonoBehaviour:
     RemovedResources: 
   Android:
     BundleIdentifier: es.socialpoint.basegame
-    BundleVersionCode: 0
+    BundleVersionCode: 1
     ForceBundleVersionCode: 0
     Flags: 
     RemovedResources: 

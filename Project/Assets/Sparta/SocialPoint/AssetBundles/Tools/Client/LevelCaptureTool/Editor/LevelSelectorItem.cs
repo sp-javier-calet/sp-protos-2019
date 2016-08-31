@@ -5,7 +5,7 @@ using SocialPoint.Tool.Shared.TLGUI;
 
 namespace SocialPoint.Editor.LevelCaptureTool
 {
-	public class LevelSelectorItem : TLTreeSelectorItem<LevelSelectorItem>
+	public sealed class LevelSelectorItem : TLTreeSelectorItem<LevelSelectorItem>
 	{
 		
 		static readonly GUILayoutOption[]   rowInnerLayoutOptions;

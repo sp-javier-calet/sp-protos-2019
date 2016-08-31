@@ -6,7 +6,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// An Edit box for numbers only.
     /// </summary>
     /// Numbers can be integer or decimal.
-    public class TLWNumberField : TLWidget 
+    public sealed class TLWNumberField : TLWidget 
     {
         private string _number;
         private int _maxLength;

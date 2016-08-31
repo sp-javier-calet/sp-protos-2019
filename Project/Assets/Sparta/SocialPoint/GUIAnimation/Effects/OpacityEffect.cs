@@ -4,9 +4,9 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class OpacityEffect : BlendEffect
+    public sealed class OpacityEffect : BlendEffect
     {
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public float Alpha;
 

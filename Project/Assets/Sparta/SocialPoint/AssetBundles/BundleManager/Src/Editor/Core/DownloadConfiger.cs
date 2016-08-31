@@ -8,7 +8,7 @@ using LitJson;
 /**
  * Settings for download.
  */
-public class DownloadConfiger
+public sealed class DownloadConfiger
 {
     /**
 	 * Use unity cache system.

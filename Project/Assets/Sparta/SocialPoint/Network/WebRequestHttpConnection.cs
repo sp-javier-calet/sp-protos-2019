@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace SocialPoint.Network
 {
-    public class WebRequestHttpConnection : BaseYieldHttpConnection
+    public sealed class WebRequestHttpConnection : BaseYieldHttpConnection
     {
         private byte[] _requestBody;
         private HttpWebRequest _request;

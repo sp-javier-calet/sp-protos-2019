@@ -4,7 +4,7 @@ using System;
 
 namespace SocialPoint.Network
 {
-    public class LocalNetworkServer : INetworkServer
+    public sealed class LocalNetworkServer : INetworkServer
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         Dictionary<LocalNetworkClient,byte> _clients = new Dictionary<LocalNetworkClient,byte>();

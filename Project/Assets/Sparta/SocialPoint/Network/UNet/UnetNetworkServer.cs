@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
+    public sealed class UnetNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
         INetworkMessageReceiver _receiver;
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
@@ -19,7 +19,7 @@ namespace SocialPoint.Network
 
         public const int DefaultPort = 8888;
 
-        public UnetNetworkServer(IUpdateScheduler updateScheduler, int port=DefaultPort, HostTopology topology=null)
+        public UnetNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort, HostTopology topology = null)
         {
             _updateScheduler = updateScheduler;
             _port = port;
@@ -51,7 +51,7 @@ namespace SocialPoint.Network
             }
             if(!_server.Listen(_port) || _server.serverHostId == -1)
             {
-                throw new ResourceException("Failed to start.");
+                throw new Exception("Failed to start.");
             }
             Running = true;
             for(var i = 0; i < _delegates.Count; i++)
@@ -136,7 +136,7 @@ namespace SocialPoint.Network
 
         void OnMessageReceived(NetworkMessage umsg)
         {
-            var data = new NetworkMessageData{
+            var data = new NetworkMessageData {
                 MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
                 ChannelId = (byte)umsg.channelId,
                 ClientId = (byte)umsg.conn.connectionId

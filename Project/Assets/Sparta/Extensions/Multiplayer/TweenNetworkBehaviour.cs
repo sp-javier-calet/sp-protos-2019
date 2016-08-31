@@ -1,7 +1,7 @@
 ﻿using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
-{    
+{
     public class TweenNetworkBehaviour : INetworkBehaviour
     {
         Vector3 _origin;

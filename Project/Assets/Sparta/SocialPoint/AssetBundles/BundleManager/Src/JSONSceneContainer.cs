@@ -7,7 +7,7 @@ using UnityEngine;
  *   This class can not be edited. It is just used as a container for serialized information.
  *   Any modification can produce loading crashes.
  */
-public class JSONSceneContainer : MonoBehaviour
+public sealed class JSONSceneContainer : MonoBehaviour
 {
 	public TextAsset serializationJSONData;
 	public GameObject[] rootGameObjects;

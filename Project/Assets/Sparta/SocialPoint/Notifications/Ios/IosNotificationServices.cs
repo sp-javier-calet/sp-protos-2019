@@ -13,7 +13,7 @@ using NotificationType = UnityEngine.iOS.NotificationType;
 namespace SocialPoint.Notifications
 {
     #if UNITY_IOS
-    public class IosNotificationServices : BaseNotificationServices
+    public sealed class IosNotificationServices : BaseNotificationServices
     {
         const string TokenSeparator = "-";
         const NotificationType NotificationTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
@@ -99,7 +99,7 @@ namespace SocialPoint.Notifications
     }
 
     #else
-    public class IosNotificationServices : EmptyNotificationServices
+    public sealed class IosNotificationServices : EmptyNotificationServices
     {
     }
     #endif

@@ -8,6 +8,7 @@ namespace SocialPoint.Multiplayer
     public class NetworkGameObject : IEquatable<NetworkGameObject>, ICloneable
     {
         public int Id{ get; private set; }
+
         public Transform Transform;
 
         public NetworkGameObject(int id)
@@ -37,12 +38,7 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
-            var go = (NetworkGameObject)obj;
-            if((object)go == null)
-            {
-                return false;
-            }
-            return Compare(this, go);
+            return Equals(obj as NetworkGameObject);
         }
 
         public bool Equals(NetworkGameObject go)

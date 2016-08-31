@@ -2,7 +2,7 @@ using SocialPoint.IosKeychain;
 
 namespace SocialPoint.Hardware
 {
-    public class IosAppInfo : IAppInfo
+    public sealed class IosAppInfo : IAppInfo
     {
         public IosAppInfo()
         {

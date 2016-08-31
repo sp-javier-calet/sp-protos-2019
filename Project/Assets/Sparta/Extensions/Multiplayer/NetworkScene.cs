@@ -10,7 +10,9 @@ namespace SocialPoint.Multiplayer
     public interface INetworkBehaviour : ICloneable
     {
         void OnStart(NetworkGameObject go);
+
         void Update(float dt);
+
         void OnDestroy();
     }
 
@@ -34,23 +36,27 @@ namespace SocialPoint.Multiplayer
             FreeObjectId = 1;
         }
 
-        public NetworkScene(NetworkScene scene):this()
+        public NetworkScene(NetworkScene scene) : this()
         {
-            if(scene != null && scene._objects != null)
+            if(scene != null)
             {
-                var itr = scene._objects.GetEnumerator();
-                while(itr.MoveNext())
+                FreeObjectId = scene.FreeObjectId;
+                if(scene._objects != null)
                 {
-                    _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+                    var itr = scene._objects.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+                    }
+                    itr.Dispose();
                 }
-                itr.Dispose();
             }
         }
 
         public Object Clone()
         {
             return new NetworkScene(this);
-        }           
+        }
 
         public void AddObject(NetworkGameObject obj)
         {
@@ -88,7 +94,7 @@ namespace SocialPoint.Multiplayer
         public IEnumerator<NetworkGameObject> GetObjectEnumerator()
         {
             var objects = new List<NetworkGameObject>(_objects.Values);
-            for(var i=0; i<objects.Count; i++)
+            for(var i = 0; i < objects.Count; i++)
             {
                 yield return objects[i];
             }
@@ -134,7 +140,7 @@ namespace SocialPoint.Multiplayer
 
         public override bool Equals(System.Object obj)
         {
-            return Equals((NetworkScene)obj);
+            return Equals(obj as NetworkScene);
         }
 
         public bool Equals(NetworkScene scene)

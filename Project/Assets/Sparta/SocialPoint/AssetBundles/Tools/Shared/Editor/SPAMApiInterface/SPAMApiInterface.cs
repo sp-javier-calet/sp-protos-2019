@@ -9,7 +9,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Tool.Shared
 {
-	public class RequestParams
+	public sealed class RequestParams
 	{
 		public NameValueCollection postData;
 		public string contentType;
@@ -21,7 +21,7 @@ namespace SocialPoint.Tool.Shared
 		public Action<float> uplProgress;
 	}
 	
-	public class RequestResults
+	public sealed class RequestResults
 	{
 		public string responseContent;
 		public string tmpDownloadPath;
@@ -29,7 +29,7 @@ namespace SocialPoint.Tool.Shared
 		public Action<Attr> completed;
 	}
 
-	public class RequestProgressParams
+	public sealed class RequestProgressParams
 	{
 		public Action<float> progress;
 	}

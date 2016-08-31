@@ -27,7 +27,7 @@ namespace SocialPoint.AdminPanel
         }
     }
 
-    public class PanelLayout : AdminPanelLayout
+    public sealed class PanelLayout : AdminPanelLayout
     {
         public PanelLayout(AdminPanelLayout parentLayout, string title, Action onClose, int weight) : base(parentLayout)
         {

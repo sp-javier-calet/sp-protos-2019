@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace SocialPoint.Editor.LevelCaptureTool
 {
-    public class LevelSelectorWidget : TLWTreeSelector<LevelSelectorItem>
+    public sealed class LevelSelectorWidget : TLWTreeSelector<LevelSelectorItem>
     {
 		
         public LevelSelectorWidget(TLView view, string name, GUILayoutOption[] options) : base ( view, name, options )

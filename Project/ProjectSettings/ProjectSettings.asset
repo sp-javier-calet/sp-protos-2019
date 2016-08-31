@@ -102,7 +102,7 @@ PlayerSettings:
   AndroidBundleVersionCode: 20160818
   AndroidMinSdkVersion: 15
   AndroidPreferredInstallLocation: 1
-  aotOptions: nimt-trampolines=512
+  aotOptions: ntrampolines=2048,nimt-trampolines=256
   apiCompatibilityLevel: 2
   stripEngineCode: 1
   iPhoneStrippingLevel: 2

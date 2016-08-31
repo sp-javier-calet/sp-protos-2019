@@ -3,7 +3,7 @@
 
 namespace SocialPoint.Tool.Server
 {
-    public class BuildAssetBundleResults : ToolServiceResults
+    public sealed class BuildAssetBundleResults : ToolServiceResults
     {
         /**
          * Base properties
@@ -11,7 +11,7 @@ namespace SocialPoint.Tool.Server
         public Dictionary<string, BuiltBundleResult> builtBundles;
     }
 
-    public class BuiltBundleResult
+    public sealed class BuiltBundleResult
     {
         public string   name;
         public string[] includedAssets;

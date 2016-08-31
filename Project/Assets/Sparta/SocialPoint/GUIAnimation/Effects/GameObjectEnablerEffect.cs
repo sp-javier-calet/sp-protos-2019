@@ -4,9 +4,9 @@ using SocialPoint.Base;
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
-    public class GameObjectEnablerEffect : TriggerEffect
+    public sealed class GameObjectEnablerEffect : TriggerEffect
     {
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public bool WasEnabled;
 

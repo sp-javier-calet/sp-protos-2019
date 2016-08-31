@@ -6,6 +6,7 @@ namespace SocialPoint.Network
     class UnetNetworkMessage : INetworkMessage
     {
         public IWriter Writer{ get; private set; }
+
         NetworkWriter _writer;
         NetworkConnection[] _conns;
         int _channelId;

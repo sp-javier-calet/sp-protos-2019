@@ -5,7 +5,7 @@ using SocialPoint.Locale;
 using SocialPoint.Utils;
 using UnityEngine.UI;
 
-public class InvalidSecurityTokenPopupController : UIViewController
+public sealed class InvalidSecurityTokenPopupController : UIViewController
 {
     const string RestartGameTitleKey = "gameloading.restart_game_title";
     const string RestartGameTitleDef = "Restart Game";

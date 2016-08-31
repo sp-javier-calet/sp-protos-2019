@@ -7,7 +7,7 @@ using SocialPoint.AssetSerializer.Utils;
 namespace SocialPoint.AssetSerializer.Helpers
 {
     // Adhoc class to pass generic parameters to events
-    public class LinkActionArguments
+    public sealed class LinkActionArguments
     {
         public enum LinkActionType
         {

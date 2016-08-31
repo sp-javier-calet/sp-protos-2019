@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
+using System.Text;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Locale
 {
-    public class Localization
+    public sealed class Localization
     {
         public const string EnglishIdentifier = "en";
         public const string SpanishIdentifier = "es";
@@ -108,7 +110,11 @@ namespace SocialPoint.Locale
         {
             if(Debug && !string.IsNullOrEmpty(key))
             {
-                return string.Format(DefaultFormat, Language, key);
+                StringBuilder stringBuilder = StringUtils.StartBuilder();
+
+                stringBuilder.AppendFormat(DefaultFormat, Language, key);
+
+                return StringUtils.FinishBuilder(stringBuilder);
             }
             return defaultString != null ? defaultString : key;
         }
@@ -141,7 +147,11 @@ namespace SocialPoint.Locale
 
         public override string ToString()
         {
-            return base.ToString() + string.Format(" ({0} elements)", _strings.Count);
+            StringBuilder stringBuilder = StringUtils.StartBuilder();
+
+            stringBuilder.Append(base.ToString()).AppendFormat(" ({0} elements)", _strings.Count);
+
+            return StringUtils.FinishBuilder(stringBuilder);
         }
     }
 }

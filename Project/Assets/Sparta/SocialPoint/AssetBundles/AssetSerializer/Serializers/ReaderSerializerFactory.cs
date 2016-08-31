@@ -6,7 +6,7 @@ using SocialPoint.AssetSerializer.Utils.JsonSerialization;
 
 namespace SocialPoint.AssetSerializer.Serializers
 {
-    public class ReaderSerializerFactory
+    public sealed class ReaderSerializerFactory
     {
 		private static ReaderSerializerFactory _instance; 
 		public static ReaderSerializerFactory Instance

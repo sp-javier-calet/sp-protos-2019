@@ -18,12 +18,12 @@ public class ExplosionBehaviour : MonoBehaviour, IRecyclable
         _timeSinceSpawn = 0.0f;
     }
 
-	void Update()
+    void Update()
     {
         _timeSinceSpawn += Time.deltaTime;
         if(_timeSinceSpawn >= _lifetime)
         {
             SocialPoint.ObjectPool.ObjectPool.Recycle(gameObject);
         }
-	}
+    }
 }

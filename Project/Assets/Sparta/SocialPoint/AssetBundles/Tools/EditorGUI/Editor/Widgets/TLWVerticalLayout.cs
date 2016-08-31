@@ -6,7 +6,7 @@ namespace SocialPoint.Tool.Shared.TLGUI
     /// <summary>
     /// A widget for laying other widgets in a column, vertically.
     /// </summary>
-	public class TLWVeticalLayout : TLWidget 
+	public sealed class TLWVeticalLayout : TLWidget 
 	{	
 		private List<TLWidget> _widgets;
 

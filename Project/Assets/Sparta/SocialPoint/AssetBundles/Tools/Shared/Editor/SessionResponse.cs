@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Tool.Shared
 {
-    public class SessionResponse
+    public sealed class SessionResponse
     {
         public string       success;
         public bool         Success { get { return Boolean.Parse(success); } }
@@ -24,7 +24,7 @@ namespace SocialPoint.Tool.Shared
             return sessionResponse;
         }
 
-        public class Response
+        public sealed class Response
         {
             public string   session_id;
             public string   email;
