@@ -4,7 +4,7 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkActionUtils
+    class NetworkActionUtils
     {
         /// <summary>
         /// Helper function to search for available delegates asociated to an action and apply them to an scene.
@@ -52,6 +52,11 @@ namespace SocialPoint.Multiplayer
                 actionCallbackList.Add(callback);
                 actionDelegates.Add(actionType, actionCallbackList);
             }
+        }
+
+        public static void RegisterActionDelegate<T>(Action<T, NetworkScene> callback, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates)
+        {
+            RegisterActionDelegate(typeof(T), new NetworkActionDelegate<T>(callback), actionDelegates);
         }
     }
 }

@@ -32,12 +32,12 @@ namespace SocialPoint.Multiplayer
             _serverReceiver = new TestMultiplayerServerBehaviour(_server, _serverCtrl);
             _serverCtrl.RegisterReceiver(_serverReceiver);
 
-            _serverCtrl.RegisterActionDelegate<TestInstatiateAction>(new TestInstantiateActionDelegate());
-            _serverCtrl.RegisterActionDelegate<TestMovementAction>(new TestMovementActionDelegate());
-            _clientCtrl1.RegisterActionDelegate<TestInstatiateAction>(new TestInstantiateActionDelegate());
-            _clientCtrl1.RegisterActionDelegate<TestMovementAction>(new TestMovementActionDelegate());
-            _clientCtrl2.RegisterActionDelegate<TestInstatiateAction>(new TestInstantiateActionDelegate());
-            _clientCtrl2.RegisterActionDelegate<TestMovementAction>(new TestMovementActionDelegate());
+            _serverCtrl.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            _serverCtrl.RegisterActionDelegate<TestMovementAction>(TestMovementAction.Apply);
+            _clientCtrl1.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            _clientCtrl1.RegisterActionDelegate<TestMovementAction>(TestMovementAction.Apply);
+            _clientCtrl2.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            _clientCtrl2.RegisterActionDelegate<TestMovementAction>(TestMovementAction.Apply);
 
             _server.Start();
             _client1.Connect();
@@ -203,6 +203,14 @@ namespace SocialPoint.Multiplayer
             {
                 Vector3Serializer.Instance.Serialize(Position, writer);
             }
+
+            public static void Apply(TestInstatiateAction action, NetworkScene scene)
+            {
+                Transform newObjTransform = Transform.Identity;
+                newObjTransform.Position = action.Position;
+                var go = new NetworkGameObject(scene.FreeObjectId, newObjTransform);
+                scene.AddObject(go);
+            }
         }
 
         class TestMovementAction : INetworkShareable
@@ -218,30 +226,14 @@ namespace SocialPoint.Multiplayer
             {
                 Vector3Serializer.Instance.Serialize(Movement, writer);
             }
-        }
 
-        class TestInstantiateActionDelegate : INetworkActionDelegate
-        {
-            public void ApplyAction(object action, NetworkScene scene)
+            public static void Apply(TestMovementAction action, NetworkScene scene)
             {
-                TestInstatiateAction instantiateAction = (TestInstatiateAction)action;
-                Transform newObjTransform = Transform.Identity;
-                newObjTransform.Position = instantiateAction.Position;
-                var go = new NetworkGameObject(scene.FreeObjectId, newObjTransform);
-                scene.AddObject(go);
-            }
-        }
-
-        class TestMovementActionDelegate : INetworkActionDelegate
-        {
-            public void ApplyAction(object action, NetworkScene scene)
-            {
-                TestMovementAction movementAction = (TestMovementAction)action;
                 var itr = scene.GetObjectEnumerator();
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;
-                    go.Transform.Position += movementAction.Movement;
+                    go.Transform.Position += action.Movement;
                 }
                 itr.Dispose();
             }

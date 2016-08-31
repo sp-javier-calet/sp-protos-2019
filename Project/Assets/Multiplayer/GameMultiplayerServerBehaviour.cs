@@ -21,7 +21,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
-        _controller.RegisterActionDelegate<MovementAction>(new MovementActionDelegate());
+        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
         _movement = new Vector3(2.0f, 0.0f, 2.0f);
     }

@@ -196,9 +196,9 @@ namespace SocialPoint.Multiplayer
             return NetworkActionUtils.ApplyAction(actionType, action, _actionDelegates, _clientScene);
         }
 
-        public void RegisterActionDelegate<T>(INetworkActionDelegate callback)
+        public void RegisterActionDelegate<T>(Action<T, NetworkScene> callback)
         {
-            NetworkActionUtils.RegisterActionDelegate(typeof(T), callback, _actionDelegates);
+            NetworkActionUtils.RegisterActionDelegate<T>(callback, _actionDelegates);
         }
 
         public void OnActionFromServer(int lastServerAction)

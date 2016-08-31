@@ -15,4 +15,13 @@ public class MovementAction : INetworkShareable
     {
         Vector3Serializer.Instance.Serialize(Movement, writer);
     }
+
+    public static void Apply(MovementAction action, NetworkScene scene)
+    {
+        var go = scene.FindObject(1);
+        if(go != null)
+        {
+            go.Transform.Position += action.Movement;
+        }
+    }
 }

@@ -25,7 +25,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         _client = ServiceLocator.Instance.Resolve<INetworkClient>();
         _controller = ServiceLocator.Instance.Resolve<NetworkClientSceneController>();
         _controller.RegisterReceiver(this);
-        _controller.RegisterActionDelegate<MovementAction>(new MovementActionDelegate());
+        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
     }
 
     public void OnDestroy()
