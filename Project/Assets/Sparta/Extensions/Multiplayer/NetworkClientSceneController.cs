@@ -201,6 +201,11 @@ namespace SocialPoint.Multiplayer
             NetworkActionUtils.RegisterActionDelegate<T>(callback, _actionDelegates);
         }
 
+        public bool UnregisterActionDelegate<T>(Action<T, NetworkScene> callback)
+        {
+            return NetworkActionUtils.UnregisterActionDelegate<T>(callback, _actionDelegates);
+        }
+
         public void OnActionFromServer(int lastServerAction)
         {
             //Remove pending actions with id or lower

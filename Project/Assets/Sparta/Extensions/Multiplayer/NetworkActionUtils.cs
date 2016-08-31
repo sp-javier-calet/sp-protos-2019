@@ -17,6 +17,13 @@ namespace SocialPoint.Multiplayer
         public static bool ApplyAction(Type actionType, object action, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates, NetworkScene scene)
         {
             bool applied = false;
+
+            if(action is IAppliableSceneAction)
+            {
+                ((IAppliableSceneAction)action).Apply(scene);
+                applied = true;
+            }
+
             List<INetworkActionDelegate> actionCallbackList;
             if(actionDelegates.TryGetValue(actionType, out actionCallbackList))
             {
@@ -57,6 +64,21 @@ namespace SocialPoint.Multiplayer
         public static void RegisterActionDelegate<T>(Action<T, NetworkScene> callback, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates)
         {
             RegisterActionDelegate(typeof(T), new NetworkActionDelegate<T>(callback), actionDelegates);
+        }
+
+        public static bool UnregisterActionDelegate(Type actionType, INetworkActionDelegate callback, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates)
+        {
+            List<INetworkActionDelegate> actionCallbackList;
+            if(actionDelegates.TryGetValue(actionType, out actionCallbackList))
+            {
+                return actionCallbackList.RemoveAll(dlg => dlg.Equals(callback)) > 0;
+            }
+            return false;
+        }
+
+        public static bool UnregisterActionDelegate<T>(Action<T, NetworkScene> callback, Dictionary<Type, List<INetworkActionDelegate>> actionDelegates)
+        {
+            return UnregisterActionDelegate(typeof(T), new NetworkActionDelegate<T>(callback), actionDelegates);
         }
     }
 }

@@ -33,15 +33,28 @@ namespace SocialPoint.Multiplayer
             _serverCtrl.RegisterReceiver(_serverReceiver);
 
             _serverCtrl.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            _serverCtrl.RegisterActionDelegate<TestMovementAction>(TestMovementAction.Apply);
             _clientCtrl1.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            _clientCtrl1.RegisterActionDelegate<TestMovementAction>(TestMovementAction.Apply);
             _clientCtrl2.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            _clientCtrl2.RegisterActionDelegate<TestMovementAction>(TestMovementAction.Apply);
 
             _server.Start();
             _client1.Connect();
             _client2.Connect();
+        }
+
+        [Test]
+        public void UnregisterActionDelegate()
+        {
+            _serverCtrl.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            bool success = _serverCtrl.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            Assert.That(success);
+            success = _serverCtrl.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            Assert.That(!success);
+
+            _clientCtrl1.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            success = _clientCtrl1.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            Assert.That(success);
+            success = _clientCtrl1.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            Assert.That(!success);
         }
 
         [Test]
@@ -213,7 +226,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        class TestMovementAction : INetworkShareable
+        class TestMovementAction : INetworkShareable, IAppliableSceneAction
         {
             public Vector3 Movement;
 
@@ -227,13 +240,13 @@ namespace SocialPoint.Multiplayer
                 Vector3Serializer.Instance.Serialize(Movement, writer);
             }
 
-            public static void Apply(TestMovementAction action, NetworkScene scene)
+            public void Apply(NetworkScene scene)
             {
                 var itr = scene.GetObjectEnumerator();
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;
-                    go.Transform.Position += action.Movement;
+                    go.Transform.Position += Movement;
                 }
                 itr.Dispose();
             }
