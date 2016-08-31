@@ -83,20 +83,24 @@ namespace SocialPoint.Social
 
         public abstract void LoadPhoto(string userId, FacebookPhotoDelegate cbk);
 
+        public abstract bool HasPermissions(IList<string> permissions);
+
         public abstract void AskForPermissions(List<string> permissions, FacebookPermissionsDelegate cbk = null);
 
         public abstract void RefreshFriends(ErrorDelegate cbk = null);
 
-        public abstract bool IsConnected{ get; }
+        public abstract bool IsConnected { get; }
 
-        public abstract bool IsConnecting{ get; }
+        public abstract bool IsConnecting { get; }
 
-        public abstract string AppId{ set; }
+        public abstract string AppId { get; set; }
 
-        public abstract FacebookUser User{ get; }
+        public abstract string ApiVersion { get; set; }
 
-        public abstract List<FacebookUser> Friends{ get; }
+        public abstract FacebookUser User { get; }
 
-        public abstract List<string> LoginPermissions{ get; }
+        public abstract List<FacebookUser> Friends { get; }
+
+        public abstract List<string> LoginPermissions { get; }
     }
 }

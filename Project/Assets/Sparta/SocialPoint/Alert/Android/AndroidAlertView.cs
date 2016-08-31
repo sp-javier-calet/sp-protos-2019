@@ -109,7 +109,7 @@ namespace SocialPoint.Alert
                     dlg(pos);
                 }
             }));
-            AndroidJNI.CallVoidMethod(builder.GetRawObject(), methodId, parms);
+            AndroidJNI.CallObjectMethod(builder.GetRawObject(), methodId, parms);
         }
 
         void DoShow(ResultDelegate dlg)
@@ -125,7 +125,7 @@ namespace SocialPoint.Alert
                     var setTitleParams = new jvalue[1];
                     setTitleParams[0] = new jvalue();
                     setTitleParams[0].l = AndroidJNI.NewStringUTF(_title);
-                    AndroidJNI.CallVoidMethod(builder.GetRawObject(), setTitle, setTitleParams);
+                    AndroidJNI.CallObjectMethod(builder.GetRawObject(), setTitle, setTitleParams);
                 }
                 if(_message != null)
                 {
@@ -138,7 +138,7 @@ namespace SocialPoint.Alert
                         msg += " (" + _signature + ")";
                     }
                     setMsgParams[0].l = AndroidJNI.NewStringUTF(msg);
-                    AndroidJNI.CallVoidMethod(builder.GetRawObject(), setMsg, setMsgParams);
+                    AndroidJNI.CallObjectMethod(builder.GetRawObject(), setMsg, setMsgParams);
                 }
             
                 if(_input)
@@ -190,7 +190,7 @@ namespace SocialPoint.Alert
                         setItemsParams[0].l = btnArr;
                         setItemsParams[1] = new jvalue();
                         setItemsParams[1].l = AndroidJNIHelper.CreateJavaProxy(listener);
-                        AndroidJNI.CallVoidMethod(builder.GetRawObject(), setItems, setItemsParams);
+                        AndroidJNI.CallObjectMethod(builder.GetRawObject(), setItems, setItemsParams);
                     }
                 }
             
