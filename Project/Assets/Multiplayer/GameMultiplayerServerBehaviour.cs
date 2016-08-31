@@ -9,8 +9,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 {
     INetworkServer _server;
     NetworkServerSceneController _controller;
-    Dictionary<int,int> _updateTimes;
 
+    Dictionary<int,int> _updateTimes;
     float _moveInterval = 1.0f;
     float _timeSinceLastMove = 0.0f;
     int _maxUpdateTimes = 3;
@@ -21,6 +21,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
+        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
         _movement = new Vector3(2.0f, 0.0f, 2.0f);
     }
@@ -40,12 +41,18 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var itr = _controller.Scene.GetObjectEnumerator();
             while(itr.MoveNext())
             {
-                var p = itr.Current.Transform.Position;
                 var id = itr.Current.Id;
+                if(id == 1)
+                {
+                    //Using first cube as MovementAction target
+                    continue;
+                }
+
+                var p = itr.Current.Transform.Position;
 
                 p += new Vector3(
                     RandomUtils.Range(-_movement.x, _movement.x),
-                    RandomUtils.Range(-_movement.y, _movement.y),
+                    0.0f,//RandomUtils.Range(-_movement.y, _movement.y),
                     RandomUtils.Range(-_movement.z, _movement.z));
 
                 _controller.Tween(id, p, _moveInterval);
@@ -90,6 +97,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var ac = reader.Read<ClickAction>();
             _controller.Instantiate("Cube", new Transform(
                 ac.Position, Quaternion.Identity, Vector3.One));
+        }
+        else if(data.MessageType == GameMsgType.MovementAction)
+        {
+            var ac = reader.Read<MovementAction>();
+            _controller.OnAction<MovementAction>(ac, data.ClientId);
         }
     }
 

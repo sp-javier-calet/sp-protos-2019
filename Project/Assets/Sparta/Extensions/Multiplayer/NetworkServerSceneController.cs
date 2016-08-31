@@ -25,9 +25,12 @@ namespace SocialPoint.Multiplayer
         NetworkScene _oldScene;
         INetworkServer _server;
         List<INetworkServerSceneBehaviour> _sceneBehaviours;
-        Dictionary<int,List<INetworkBehaviour>> _behaviours;
-        Dictionary<string,List<INetworkBehaviour>> _behaviourPrototypes;
+        Dictionary<int, List<INetworkBehaviour>> _behaviours;
+        Dictionary<string, List<INetworkBehaviour>> _behaviourPrototypes;
         INetworkServerSceneReceiver _receiver;
+
+        Dictionary<byte, int> _lastReceivedAction;
+        Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
 
         public NetworkScene Scene
         {
@@ -57,6 +60,9 @@ namespace SocialPoint.Multiplayer
             _server = server;
             _server.AddDelegate(this);
             _server.RegisterReceiver(this);
+
+            _lastReceivedAction = new Dictionary<byte, int>();
+            _actionDelegates = new Dictionary<Type, List<INetworkActionDelegate>>();
         }
 
         public virtual void Dispose()
@@ -205,11 +211,28 @@ namespace SocialPoint.Multiplayer
                 _sceneBehaviours[i].Update(dt, _scene, oldScene);
             }
 
-            var msg = _server.CreateMessage(new NetworkMessageData {
-                MessageType = SceneMsgType.UpdateSceneEvent
-            });
-            NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, msg.Writer);
-            msg.Send();
+            var memStream = new System.IO.MemoryStream();
+            var binWriter = new SystemBinaryWriter(memStream);
+            NetworkSceneSerializer.Instance.Serialize(_scene, _oldScene, binWriter);
+            byte[] sceneBuffer = memStream.ToArray();
+
+            var clientItr = _lastReceivedAction.GetEnumerator();
+            while(clientItr.MoveNext())
+            {
+                byte clientId = clientItr.Current.Key;
+                Int32 lastAction = (Int32)clientItr.Current.Value;
+
+                var msg = _server.CreateMessage(new NetworkMessageData {
+                    ClientId = clientId,
+                    MessageType = SceneMsgType.UpdateSceneEvent
+                });
+
+                msg.Writer.Write(sceneBuffer, sceneBuffer.Length);
+                msg.Writer.Write(lastAction);
+                msg.Send();
+            }
+            clientItr.Dispose();
+
             _oldScene = new NetworkScene(_scene);
         }
 
@@ -277,6 +300,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)
         {
+            _lastReceivedAction.Add(clientId, 0);
             for(var i = 0; i < _sceneBehaviours.Count; i++)
             {
                 _sceneBehaviours[i].OnClientConnected(clientId);
@@ -291,6 +315,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkServerDelegate.OnClientDisconnected(byte clientId)
         {
+            _lastReceivedAction.Remove(clientId);
             for(var i = 0; i < _sceneBehaviours.Count; i++)
             {
                 _sceneBehaviours[i].OnClientDisconnected(clientId);
@@ -311,6 +336,35 @@ namespace SocialPoint.Multiplayer
             {
                 _receiver.OnMessageReceived(data, reader);
             }
+        }
+
+        public void OnAction<T>(T action, byte clientId)
+        {
+            OnAction(typeof(T), action, clientId);
+        }
+
+        void OnAction(Type actionType, object action, byte clientId)
+        {
+            if(_lastReceivedAction.ContainsKey(clientId))
+            {
+                _lastReceivedAction[clientId]++;
+            }
+            ApplyActionToScene(actionType, action);
+        }
+
+        bool ApplyActionToScene(Type actionType, object action)
+        {
+            return NetworkActionUtils.ApplyAction(actionType, action, _actionDelegates, _scene);
+        }
+
+        public void RegisterActionDelegate<T>(Action<T, NetworkScene> callback)
+        {
+            NetworkActionUtils.RegisterActionDelegate<T>(callback, _actionDelegates);
+        }
+
+        public bool UnregisterActionDelegate<T>(Action<T, NetworkScene> callback)
+        {
+            return NetworkActionUtils.UnregisterActionDelegate<T>(callback, _actionDelegates);
         }
     }
 }
