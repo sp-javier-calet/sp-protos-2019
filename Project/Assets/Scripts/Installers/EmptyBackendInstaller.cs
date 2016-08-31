@@ -50,12 +50,14 @@ public class EmptyBackendInstaller : Installer, IInitializable
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanelMessageCenter);
         }
-        if(!Container.HasBinding<SocialPoint.Notifications.NotificationManager>())
+        if(!Container.HasBinding<NotificationManager>())
         {
+            UnityEngine.Debug.Log("*** TEST EmptyBackendInstaller");
             Container.Install<NotificationInstaller>();
         }
-        if(!Container.HasBinding<SocialPoint.CrossPromotion.CrossPromotionManager>())
+        if(!Container.HasBinding<CrossPromotionManager>())
         {
+            UnityEngine.Debug.Log("*** TEST EmptyBackendInstaller CrossPromotionManager");
             Container.Install<CrossPromotionInstaller>();
         }
     }

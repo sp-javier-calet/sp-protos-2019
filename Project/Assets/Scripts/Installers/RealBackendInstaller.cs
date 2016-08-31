@@ -38,6 +38,7 @@ public class RealBackendInstaller : Installer
             Container.Install(installer);
         }
         {
+            UnityEngine.Debug.Log("*** TEST RealBackendInstaller");
             var installer = new NotificationInstaller();
             installer.Settings = Settings.Notifications;
             Container.Install(installer);
@@ -56,6 +57,7 @@ public class RealBackendInstaller : Installer
             Container.Install(installer);
         }
         {
+            UnityEngine.Debug.Log("*** TEST RealBackendInstaller CrossPromotionInstaller");
             var installer = new CrossPromotionInstaller();
             Container.Install(installer);
         }

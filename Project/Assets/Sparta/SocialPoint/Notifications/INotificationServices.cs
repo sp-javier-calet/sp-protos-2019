@@ -32,6 +32,11 @@ namespace SocialPoint.Notifications
         void RegisterForRemoteToken(Action<bool, string> callback);
 
         /// <summary>
+        /// Send token
+        /// </summary>
+        void SendPushToken();
+
+        /// <summary>
         /// Gets a value indicating whether this <see cref="SocialPoint.Notifications.INotificationServices"/> user
         /// allows nofitication.
         /// </summary>
