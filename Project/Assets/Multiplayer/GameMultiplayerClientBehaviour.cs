@@ -9,6 +9,7 @@ public static class GameMsgType
 {
     public const byte ClickAction = SceneMsgType.Highest + 1;
     public const byte ExplosionEvent = SceneMsgType.Highest + 2;
+    public const byte MovementAction = SceneMsgType.Highest + 3;
 }
 
 public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientSceneReceiver, IPointerClickHandler
@@ -24,6 +25,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         _client = ServiceLocator.Instance.Resolve<INetworkClient>();
         _controller = ServiceLocator.Instance.Resolve<NetworkClientSceneController>();
         _controller.RegisterReceiver(this);
+        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
     }
 
     public void OnDestroy()
@@ -31,6 +33,30 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         if(_controller != null)
         {
             _controller.RegisterReceiver(null);
+        }
+    }
+
+    public void Update()
+    {
+        KeyInputHandler();
+    }
+
+    void KeyInputHandler()
+    {
+        float delta = 0.1f;
+        var movement = new SocialPoint.Multiplayer.Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * delta;
+        bool input = (movement != SocialPoint.Multiplayer.Vector3.Zero);
+
+        if(input && _client.Connected)
+        {
+            var movementAction = new MovementAction {
+                Movement = movement
+            };
+            NetworkMessageData msgData = new NetworkMessageData {
+                MessageType = GameMsgType.MovementAction
+            };
+
+            _controller.ApplyActionAndSend<MovementAction>(movementAction, msgData);
         }
     }
 
