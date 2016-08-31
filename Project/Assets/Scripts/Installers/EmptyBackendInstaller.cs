@@ -52,12 +52,10 @@ public class EmptyBackendInstaller : Installer, IInitializable
         }
         if(!Container.HasBinding<NotificationManager>())
         {
-            UnityEngine.Debug.Log("*** TEST EmptyBackendInstaller");
             Container.Install<NotificationInstaller>();
         }
         if(!Container.HasBinding<CrossPromotionManager>())
         {
-            UnityEngine.Debug.Log("*** TEST EmptyBackendInstaller CrossPromotionManager");
             Container.Install<CrossPromotionInstaller>();
         }
     }

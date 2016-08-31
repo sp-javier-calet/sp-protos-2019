@@ -19,7 +19,6 @@ public class NotificationInstaller : SubInstaller, IInitializable
 
     public override void InstallBindings()
     {
-        UnityEngine.Debug.Log("*** TEST NotificationInstaller InstallBindings");
         Container.Bind<IInitializable>().ToInstance(this);
 
 #if UNITY_EDITOR
@@ -38,15 +37,11 @@ public class NotificationInstaller : SubInstaller, IInitializable
     }
 
     #if !UNITY_EDITOR
-    
-
-#if UNITY_IOS
+    #if UNITY_IOS
     IosNotificationServices CreateIosNotificationServices()
     {
         return new IosNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
     }
-
-
 
 #elif UNITY_ANDROID
     AndroidNotificationServices CreateAndroidNotificationServices()
@@ -64,7 +59,6 @@ public class NotificationInstaller : SubInstaller, IInitializable
 
     NotificationManager CreateNotificationManager()
     {
-        UnityEngine.Debug.Log("*** TEST NotificationInstaller CreateNotificationManager");
         return new NotificationManager(
             Container.Resolve<INotificationServices>(),
             Container.Resolve<IAppEvents>()
@@ -73,7 +67,6 @@ public class NotificationInstaller : SubInstaller, IInitializable
 
     public void Initialize()
     {
-        UnityEngine.Debug.Log("*** TEST NotificationInstaller Initialize");
         Container.Resolve<NotificationManager>();
         var services = Container.Resolve<INotificationServices>();
         if(Settings.AutoRegisterForRemote)

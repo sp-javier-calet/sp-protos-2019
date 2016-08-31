@@ -41,7 +41,6 @@ namespace SocialPoint.Notifications
 
         protected NotificationManager(INotificationServices services, IAppEvents appEvents)
         {
-            UnityEngine.Debug.Log("*** TEST NotificationManager Constructor");
             _appEvents = appEvents;
             Services = services;
             Init();
@@ -49,7 +48,6 @@ namespace SocialPoint.Notifications
 
         protected void Init()
         {
-            UnityEngine.Debug.Log("*** TEST NotificationManager Init");
             if(Services == null)
             {
                 throw new ArgumentNullException("services", "services cannot be null or empty!");
@@ -58,7 +56,6 @@ namespace SocialPoint.Notifications
             {
                 throw new ArgumentNullException("appEvents", "appEvents cannot be null or empty!");
             }
-            UnityEngine.Debug.Log("*** TEST NotificationManager Init OK");
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
             _appEvents.WillGoBackground.Add(-50, ScheduleNotifications);
             _appEvents.ApplicationQuit += ScheduleNotifications;
@@ -116,14 +113,12 @@ namespace SocialPoint.Notifications
 
         void OnGameWasLoaded()
         {
-            UnityEngine.Debug.Log("*** TEST NotificationManager OnGameWasLoaded");
             _gameLoaded = true;
             VerifyPushReady();
         }
 
         void OnPushTokenReceived(bool valid, string token)
         {
-            UnityEngine.Debug.Log("*** TEST NotificationManager OnPushTokenReceived");
             _pushTokenReceived = true;
             VerifyPushReady();
         }

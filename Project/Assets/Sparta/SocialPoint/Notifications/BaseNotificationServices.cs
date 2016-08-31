@@ -39,17 +39,13 @@ namespace SocialPoint.Notifications
 
         protected void OnRequestPermissionsSuccess()
         {
-            Debug.Log("*** TEST OnRequestPermissionsFail");
             _validPushToken = true;
-            //SendPushToken();
             NotifyPushTokenReceived();
         }
 
         protected void OnRequestPermissionsFail()
         {
-            Debug.Log("*** TEST OnRequestPermissionsFail");
             _validPushToken = false;
-            //SendPushToken();
             NotifyPushTokenReceived();
         }
 
@@ -66,7 +62,6 @@ namespace SocialPoint.Notifications
             bool pushTokenChanged = _pushToken != currentPushToken;
             bool allowNotificationsChanged = userAllowedNotifications != UserAllowsNofitication;
 
-            Debug.Log("*** TEST pushTokenChanged: " + pushTokenChanged + " || allowNotificationsChanged: " + allowNotificationsChanged);
             if(pushTokenChanged || allowNotificationsChanged)
             {
                 string pushTokenToSend = UserAllowsNofitication ? _pushToken : currentPushToken;
@@ -75,7 +70,6 @@ namespace SocialPoint.Notifications
                     return;
                 }
 
-                Debug.Log("*** TEST Push Enabled");
                 _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, UserAllowsNofitication), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
