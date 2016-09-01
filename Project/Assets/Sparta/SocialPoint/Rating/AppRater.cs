@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SocialPoint.Rating
 {
-    public sealed class AppRater : IAppRater, IDisposable
+    public class AppRater : IAppRater, IDisposable
     {
         const string AppRaterInfoKey = "AppRaterInfo";
         const string CurrentVersionKey = "CurrentVersion";
@@ -243,7 +243,7 @@ namespace SocialPoint.Rating
             }
 
             // Has the user rated any version of the game?
-            if(AnyVersionRateIsValid && _appRaterInfo.GetValue(RatedAnyVersionKey).ToBool())
+            if(HasRatedAnyVersion())
             {
                 return false;
             }
@@ -251,7 +251,17 @@ namespace SocialPoint.Rating
             return PreRatingCustomConditionsHaveBeenMet();
         }
 
-        bool PreRatingCustomConditionsHaveBeenMet()
+        public bool HasRatedAnyVersion()
+        {
+            if(AnyVersionRateIsValid && _appRaterInfo.GetValue(RatedAnyVersionKey).ToBool())
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        protected virtual bool PreRatingCustomConditionsHaveBeenMet()
         {
 
             // Check if the days passed from first use has passed
@@ -397,7 +407,7 @@ namespace SocialPoint.Rating
          *
          */
 
-        public void RemoveKeys()
+        public virtual void RemoveKeys()
         {
             _storage.Remove(AppRaterInfoKey);
             _storage.Remove(CurrentVersionKey);
@@ -411,7 +421,7 @@ namespace SocialPoint.Rating
             _storage.Remove(DateStartLastDayKey);
         }
 
-        void RemoveKey(string key)
+        protected void RemoveKey(string key)
         {
             _storage.Remove(key);
         }

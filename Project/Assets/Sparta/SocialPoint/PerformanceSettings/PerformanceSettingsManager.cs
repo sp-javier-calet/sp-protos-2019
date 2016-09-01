@@ -5,7 +5,7 @@ using SocialPoint.Login;
 
 namespace SocialPoint.PerformanceSettings
 {
-    public sealed class PerformanceSettingsManager : IDisposable
+    public class PerformanceSettingsManager : IDisposable
     {
         ILogin _login;
 
@@ -76,7 +76,7 @@ namespace SocialPoint.PerformanceSettings
             }
         }
 
-        public void Init(AttrDic config)
+        public virtual void Init(AttrDic config)
         {
             _data = new PerformanceSettingsData(config);
 
