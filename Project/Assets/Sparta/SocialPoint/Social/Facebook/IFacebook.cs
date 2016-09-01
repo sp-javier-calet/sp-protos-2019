@@ -479,23 +479,27 @@ namespace SocialPoint.Social
 
         void LoadPhoto(string userId, FacebookPhotoDelegate cbk);
 
+        bool HasPermissions(IList<string> permissions);
+
         void AskForPermission(string permission, FacebookPermissionsDelegate cbk = null);
 
         void AskForPermissions(List<string> permissions, FacebookPermissionsDelegate cbk = null);
 
         void RefreshFriends(ErrorDelegate cbk = null);
 
-        bool IsConnected{ get; }
+        bool IsConnected { get; }
 
-        bool IsConnecting{ get; }
+        bool IsConnecting { get; }
 
-        string AppId{ set; }
+        string AppId { get; set; }
 
-        FacebookUser User{ get; }
+        string ApiVersion { get; set; }
 
-        List<FacebookUser> Friends{ get; }
+        FacebookUser User { get; }
 
-        List<string> LoginPermissions{ get; }
+        List<FacebookUser> Friends { get; }
+
+        List<string> LoginPermissions { get; }
 
     }
 }

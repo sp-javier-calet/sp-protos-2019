@@ -19,7 +19,7 @@ namespace SocialPoint.Network
 
         public const int DefaultPort = 8888;
 
-        public UnetNetworkServer(IUpdateScheduler updateScheduler, int port=DefaultPort, HostTopology topology=null)
+        public UnetNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort, HostTopology topology = null)
         {
             _updateScheduler = updateScheduler;
             _port = port;
@@ -136,7 +136,7 @@ namespace SocialPoint.Network
 
         void OnMessageReceived(NetworkMessage umsg)
         {
-            var data = new NetworkMessageData{
+            var data = new NetworkMessageData {
                 MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
                 ChannelId = (byte)umsg.channelId,
                 ClientId = (byte)umsg.conn.connectionId

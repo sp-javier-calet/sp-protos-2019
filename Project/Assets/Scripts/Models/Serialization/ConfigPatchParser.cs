@@ -1,6 +1,6 @@
 ﻿using SocialPoint.Attributes;
 
-public class ConfigPatchParser : IParser<ConfigPatch>
+public class ConfigPatchParser : IAttrObjParser<ConfigPatch>
 {
     #region IParser implementation
 

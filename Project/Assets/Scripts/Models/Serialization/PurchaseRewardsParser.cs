@@ -2,15 +2,15 @@
 using SocialPoint.Attributes;
 using System.Collections.Generic;
 
-public class PurchaseRewardsParser : IParser<IDictionary<string, IReward>>
+public class PurchaseRewardsParser : IAttrObjParser<IDictionary<string, IReward>>
 {
     const string AttrKeyPurchases = "purchases";
     const string AttrKeyProductId = "productId";
     const string AttrKeyReward = "reward";
 
-    IParser<IReward> _rewardParser;
+    IAttrObjParser<IReward> _rewardParser;
 
-    public PurchaseRewardsParser(IParser<IReward> rewardParser)
+    public PurchaseRewardsParser(IAttrObjParser<IReward> rewardParser)
     {
         _rewardParser = rewardParser;
     }

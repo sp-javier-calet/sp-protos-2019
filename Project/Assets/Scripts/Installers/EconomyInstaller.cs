@@ -18,8 +18,8 @@ public class EconomyInstaller : SubInstaller
         Container.Bind<IChildParser<ICost>>().ToSingle<ResourcesCostParser>();
         Container.Bind<IChildParser<ICost>>().ToMethod<PurchaseCostParser>(CreatePurchaseCostParser);
 
-        Container.Rebind<IParser<IReward>>().ToMethod<FamilyParser<IReward>>(CreateRewardParser);
-        Container.Rebind<IParser<ICost>>().ToMethod<FamilyParser<ICost>>(CreateCostParser);
+        Container.Rebind<IAttrObjParser<IReward>>().ToMethod<FamilyParser<IReward>>(CreateRewardParser);
+        Container.Rebind<IAttrObjParser<ICost>>().ToMethod<FamilyParser<ICost>>(CreateCostParser);
     }
 
     PurchaseCostParser CreatePurchaseCostParser()

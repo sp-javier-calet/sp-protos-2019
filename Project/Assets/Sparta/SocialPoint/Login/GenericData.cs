@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
 
@@ -10,8 +9,8 @@ namespace SocialPoint.Login
         public UpgradeType Type;
         public string Message;
         public string Version;
-        private const string AttrKeyUpgradeMessage = "message";
-        private const string AttrKeyUpgradeVersion = "version";
+        const string AttrKeyUpgradeMessage = "message";
+        const string AttrKeyUpgradeVersion = "version";
         
         public UpgradeData(UpgradeType type, Attr data = null)
         {
@@ -65,9 +64,9 @@ namespace SocialPoint.Login
         public string Title;
         public string Message;
         public string Button;
-        private const string AttrKeyMaintenanceMessage = "message";
-        private const string AttrKeyMaintenanceTitle = "title";
-        private const string AttrKeyMaintenanceButton = "button";
+        const string AttrKeyMaintenanceMessage = "message";
+        const string AttrKeyMaintenanceTitle = "title";
+        const string AttrKeyMaintenanceButton = "button";
 
         public MaintenanceData(IStreamReader reader)
         {

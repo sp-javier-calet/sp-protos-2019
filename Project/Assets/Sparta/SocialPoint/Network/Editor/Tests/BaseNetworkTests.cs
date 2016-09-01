@@ -76,11 +76,10 @@ namespace SocialPoint.Network
             _server.Start();
             _client.Connect();
 
-            var data = new NetworkMessageData {
+            var msg = _client.CreateMessage(new NetworkMessageData {
                 MessageType = 5,
                 ChannelId = 1
-            };
-            var msg = _client.CreateMessage(data);
+            });
 
             msg.Writer.Write(42);
             msg.Writer.Write("test");
@@ -88,7 +87,10 @@ namespace SocialPoint.Network
             msg.Send();
 
             WaitForEvents();
-            receiver.Received(1).OnMessageReceived(data,
+            receiver.Received(1).OnMessageReceived(
+                Arg.Is<NetworkMessageData>( data => 
+                    data.MessageType == 5 &&
+                    data.ChannelId == 1),
                 Arg.Is<IReader>( reader => 
                     reader.ReadInt32() == 42 &&
                     reader.ReadString() == "test"

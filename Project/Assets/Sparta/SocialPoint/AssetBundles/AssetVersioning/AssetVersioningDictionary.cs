@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using SocialPoint.Utils;
 
 namespace SocialPoint.AssetVersioning
@@ -205,7 +206,7 @@ namespace SocialPoint.AssetVersioning
 
         public override string ToString()
         {
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             sb.AppendFormat("EntityDictionary: {0}", GetType().Name).AppendLine();
 
             var itr = Values.GetEnumerator();

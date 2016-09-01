@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
@@ -30,9 +28,7 @@ namespace SocialPoint.Login
             while(itr.MoveNext())
             {
                 var kvp = itr.Current;
-                layout.CreateButton(kvp.Key, () => {
-                    OnEnvironmentChange(kvp.Key);
-                } );
+                layout.CreateButton(kvp.Key, () => OnEnvironmentChange(kvp.Key) );
             }
             itr.Dispose();
 

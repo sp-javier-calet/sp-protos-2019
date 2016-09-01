@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using SocialPoint.Network;
 using SocialPoint.Base;
+using SocialPoint.Network;
 
 namespace SocialPoint.Login
 {

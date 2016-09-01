@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 using SocialPoint.Attributes;
 
-public class StoreParser : IParser<StoreModel>
+public class StoreParser : IAttrObjParser<StoreModel>
 {
     StoreModel _storeModel;
     PlayerModel _playerModel;
-    IParser<IDictionary<string, IReward>> _purchaseRewardsParser;
+    IAttrObjParser<IDictionary<string, IReward>> _purchaseRewardsParser;
 
-    public StoreParser(PlayerModel playerModel, StoreModel storeModel, IParser<IDictionary<string, IReward>> purchaseRewardsParser)
+    public StoreParser(PlayerModel playerModel, StoreModel storeModel, IAttrObjParser<IDictionary<string, IReward>> purchaseRewardsParser)
     {
         _storeModel = storeModel;
         _playerModel = playerModel;

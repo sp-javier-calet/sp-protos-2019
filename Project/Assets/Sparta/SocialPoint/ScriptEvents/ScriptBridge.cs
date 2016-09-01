@@ -27,9 +27,9 @@ namespace SocialPoint.ScriptEvents
 
     public sealed class RunScriptActionParser : BaseScriptEventParser<RunScriptAction>
     {
-        readonly IParser<ScriptModel> _parser;
+        readonly IAttrObjParser<ScriptModel> _parser;
 
-        public RunScriptActionParser(IParser<ScriptModel> parser) : base("action.base.run_script")
+        public RunScriptActionParser(IAttrObjParser<ScriptModel> parser) : base("action.base.run_script")
         {
             _parser = parser;
         }
@@ -112,10 +112,10 @@ namespace SocialPoint.ScriptEvents
     {
         IEventDispatcher _dispatcher;
         IScriptEventDispatcher _scriptDispatcher;
-        IParser<ScriptModel> _scriptParser;
+        IAttrObjParser<ScriptModel> _scriptParser;
         ICoroutineRunner _runner;
 
-        public ScriptBridge(IParser<ScriptModel> scriptParser, ICoroutineRunner runner)
+        public ScriptBridge(IAttrObjParser<ScriptModel> scriptParser, ICoroutineRunner runner)
         {
             _scriptParser = scriptParser;
             _runner = runner;

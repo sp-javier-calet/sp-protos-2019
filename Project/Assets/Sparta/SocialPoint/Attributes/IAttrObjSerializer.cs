@@ -1,7 +1,7 @@
 
 namespace SocialPoint.Attributes
 {
-    public interface ISerializer<T>
+    public interface IAttrObjSerializer<T>
     {
         Attr Serialize(T obj);
     }

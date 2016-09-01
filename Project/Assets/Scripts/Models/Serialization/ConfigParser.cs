@@ -2,7 +2,7 @@
 using SocialPoint.ScriptEvents;
 using System.Collections.Generic;
 
-public class ConfigParser : IParser<ConfigModel>
+public class ConfigParser : IAttrObjParser<ConfigModel>
 {
     const string AttrKeyGame = "game";
     const string AttrKeyResources = "resources";
@@ -14,11 +14,11 @@ public class ConfigParser : IParser<ConfigModel>
     const string AttrKeyGlobalValue = "value";
 
     ConfigModel _config;
-    IParser<ScriptModel> _scriptParser;
-    IParser<StoreModel> _storeParser;
-    IParser<GoalsTypeModel> _goalsParser;
+    IAttrObjParser<ScriptModel> _scriptParser;
+    IAttrObjParser<StoreModel> _storeParser;
+    IAttrObjParser<GoalsTypeModel> _goalsParser;
 
-    public ConfigParser(ConfigModel config, IParser<StoreModel> storeParser, IParser<GoalsTypeModel> goalsParser, IParser<ScriptModel> scriptParser)
+    public ConfigParser(ConfigModel config, IAttrObjParser<StoreModel> storeParser, IAttrObjParser<GoalsTypeModel> goalsParser, IAttrObjParser<ScriptModel> scriptParser)
     {
         _config = config;
         _scriptParser = scriptParser;

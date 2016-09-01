@@ -1,7 +1,6 @@
 *.cs diff=csharp
 *.unity binary
 *.prefab binary
-*.asset binary
 *.anim binary
 *.controller binary
 *.meta binary
