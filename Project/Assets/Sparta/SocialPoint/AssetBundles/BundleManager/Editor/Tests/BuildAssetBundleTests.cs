@@ -22,6 +22,7 @@ namespace SocialPoint.BundleManagerTest
             BundleManager.RefreshAll();
             previousUseEditorTarget = BuildConfiger.UseEditorTarget;
             BuildConfiger.UseEditorTarget = true;
+            BuildConfiger.UnityBuildTarget = EditorUserBuildSettings.activeBuildTarget;
             //Creates the bundle
             BundleManager.CreateNewBundle("NUnitTest", "", false);
             parent = BundleManager.GetBundleData("NUnitTest");
