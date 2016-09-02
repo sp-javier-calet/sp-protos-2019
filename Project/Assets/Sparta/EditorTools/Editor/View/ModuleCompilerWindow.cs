@@ -165,7 +165,7 @@ namespace SpartaTools.Editor.View
                     {
                         if(variant.Status == CompileStatus.Failed)
                         {
-                            CompileVariant(variant);
+                            CompileVariant(variant, true);
                         }
                     }
                 }
@@ -176,13 +176,15 @@ namespace SpartaTools.Editor.View
 
         void CompileAll()
         {
+            ModuleCompiler.ClearOutputPath();
+
             foreach(var category in _categories)
             {
                 foreach(var data in category.Modules)
                 {
                     foreach(var variant in data.Variants)
                     {
-                        CompileVariant(variant);
+                        CompileVariant(variant, true);
                     }
                 }
             }
@@ -190,7 +192,7 @@ namespace SpartaTools.Editor.View
             Repaint();
         }
 
-        void CompileVariant(Variant variant)
+        void CompileVariant(Variant variant, bool skipAutomatically)
         {
             try
             {
@@ -203,7 +205,17 @@ namespace SpartaTools.Editor.View
                 variant.Status = CompileStatus.NoAction;
                 variant.Log = e.ToString();
             }
-            catch(CompilerErrorException e)
+            catch(DependencyNotFoundException e)
+            {
+                if(!skipAutomatically)
+                {
+                    var dialogMessage = string.Format("Failed while compiling '{0} - {1}'. Library file '{2}' not found. Make sure that dependencies and core libraries are compiled first.", variant.Module.Name, variant.Name, e.Dependency);
+                    EditorUtility.DisplayDialog("Missing module dependency", dialogMessage, "Skip");
+                }
+                variant.Status = CompileStatus.Failed;
+                variant.Log = e.ToString();
+            }
+            catch(SpartaBuildException e)
             {
                 variant.Status = CompileStatus.Failed;
                 variant.Log = e.ToString();
@@ -247,7 +259,7 @@ namespace SpartaTools.Editor.View
                 if(variant == _selectedVariant && t - _lastSelectionTime < 0.2f)
                 {
                     EditorUtility.DisplayProgressBar("Compile module", string.Format("Compiling {0} for {1}", variant.Module.Name, variant.Name), 0.1f);
-                    CompileVariant(variant);
+                    CompileVariant(variant, false);
                     EditorUtility.ClearProgressBar();
                 }
 
@@ -315,6 +327,12 @@ namespace SpartaTools.Editor.View
                 EditorUtility.DisplayProgressBar("Compile Failed", "Compiling failed modules and variants", 0.1f);
                 CompileFailed();
                 EditorUtility.ClearProgressBar();
+            }
+
+            if(GUILayout.Button("Clean", EditorStyles.toolbarButton))
+            {
+                ModuleCompiler.ClearOutputPath();
+                EditorUtility.DisplayDialog("Clean", "Output path cleaned successfully", "Accept");
             }
 
             GUILayout.EndHorizontal();
