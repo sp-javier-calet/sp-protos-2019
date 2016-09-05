@@ -343,6 +343,11 @@ namespace SpartaTools.Editor.View
                 Add(new ModData("Build Setting", string.Format("{0} = {1}", name, value), _currentXcodeMod));
             }
 
+            public void AddLocalization(string lang)
+            {
+                Add(new ModData("Localization", string.Format("Language '{0}'", lang), _currentXcodeMod));
+            }
+
             public void AddLocalization(string name, string path)
             {
                 Add(new ModData("Localization", string.Format("{0} > {1}", name, path), _currentXcodeMod));

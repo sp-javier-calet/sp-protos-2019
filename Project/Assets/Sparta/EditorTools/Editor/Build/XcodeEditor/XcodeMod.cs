@@ -248,12 +248,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         void ApplyLocalizations(XCodeProjectEditor editor)
         {
-            var localizations = (Hashtable)_datastore["localizations"];
+            var localizations = (ArrayList)_datastore["localizations"];
             if(localizations != null)
             {
-                foreach(DictionaryEntry loc in localizations)
+                foreach(string lang in localizations)
                 {
-                    editor.AddLocalization((string)loc.Key, (string)loc.Value);
+                    editor.AddLocalization(lang);
                 }
             }
         }

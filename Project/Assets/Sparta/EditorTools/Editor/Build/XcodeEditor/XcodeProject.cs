@@ -173,6 +173,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 GetEditor<BuildSettingsModEditor>().Add(name, value);
             }
 
+            public void AddLocalization(string lang)
+            {
+                GetEditor<LocalizationModEditor>().Add(lang);
+            }
+
             public void AddLocalization(string name, string path)
             {
                 GetEditor<LocalizationModEditor>().Add(name, path);
@@ -630,31 +635,58 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             class LocalizationModEditor : IModEditor
             {
                 const string DefaultLocalizationGroupName = "Localizable.strings";
+                const string DefaultLocalizationProjSuffix = ".lproj";
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
                 {
+                    public string Language;
+                    public bool CreateLocFile;
                     public string Name;
                     public string Path;
                     public string Group;
                 }
 
+                public void Add(string lang)
+                {
+                    Add(lang, true, string.Empty, string.Empty, DefaultLocalizationGroupName);
+                }
+
                 public void Add(string name, string path)
                 {
-                    Add(name, path, DefaultLocalizationGroupName);
+                    Add(string.Empty, false, name, path, DefaultLocalizationGroupName);
                 }
 
                 public void Add(string name, string path, string variantGroup)
                 {
-                    _mods.Add(new ModData{ Name = name, Path = path, Group = variantGroup });
+                    Add(string.Empty, false, name, path, variantGroup);
+                }
+
+                public void Add(string lang, bool createFile, string name, string path, string variantGroup)
+                {
+                    _mods.Add(new ModData{ Language = lang, CreateLocFile = createFile, Name = name, Path = path, Group = variantGroup });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
                     {
-                        var filePath = editor.ReplaceProjectVariables(mod.Path);
-                        editor.Pbx.AddLocalization(filePath, mod.Name, mod.Group);
+                        if(mod.CreateLocFile)
+                        {
+                            var folderName =  string.Format("{0}{1}", mod.Language, DefaultLocalizationProjSuffix);
+                            var groupPath = Path.Combine(editor.Project.ProjectPath, folderName);
+                            var filePath = Path.Combine(groupPath, DefaultLocalizationGroupName);
+
+                            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                            File.Create(filePath).Close();
+
+                            editor.Pbx.AddLocalization(filePath, mod.Language, DefaultLocalizationGroupName);
+                        }
+                        else
+                        {
+                            var filePath = editor.ReplaceProjectVariables(mod.Path);
+                            editor.Pbx.AddLocalization(filePath, mod.Name, mod.Group);
+                        }
                     }
                 }
             }
