@@ -33,7 +33,7 @@ namespace SocialPoint.Network
         const string PluginModuleName = "sp_unity_curl";
         #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
-        #else // linux editor and linux standalone
+        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
         const string PluginModuleName = "sp_unity_curl";
         #endif
 

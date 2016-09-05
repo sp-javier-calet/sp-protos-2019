@@ -133,56 +133,19 @@ namespace SpartaTools.Editor.Build
             Debug.Log(commandOutput.ToString());
         }
 
-        [MenuItem("Sparta/Build/Plugins/Linux Native Plugins", false, 201)]
-        public static void CompileLinuxNative()
-        {
-            if(string.IsNullOrEmpty(AndroidNDKPath))
-            {
-                Debug.LogError("Error compiling Android native plugins. No NDK Path configured");
-                return;
-            }
-
-            var commandOutput = new StringBuilder("Compile Linux Native Plugins");
-            var path = Path.Combine(SourcesDirectoryPath, "Linux/sp_unity_native_plugins");
-
-            var dirs = Directory.GetDirectories(path);
-
-            float step = 1.0f / (dirs.Length + 1);
-            float currentStep = step;
-
-            foreach(var plugin in dirs)
-            {
-                var pluginDir = Path.GetFileName(plugin);
-                var msg = string.Format("Compiling native plugin {0}", pluginDir);
-                Debug.Log(msg);
-                commandOutput.AppendLine(msg);
-
-                EditorUtility.DisplayProgressBar("Compiling native plugin", msg, currentStep);
-                currentStep += step;
-
-                var result = NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path);
-                commandOutput.AppendLine(result.Output);
-
-                EditorUtility.ClearProgressBar();
-
-                ValidateResult(result);
-            }
-            Debug.Log(commandOutput.ToString());
-        }
-
-        [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 301)]
+        [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin");
         }
 
-        [MenuItem("Sparta/Build/Plugins/tvOS Plugins", false, 302)]
+        [MenuItem("Sparta/Build/Plugins/tvOS Plugins", false, 202)]
         public static void CompileTVOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin_tvOS");
         }
 
-        [MenuItem("Sparta/Build/Plugins/OSX Plugins", false, 302)]
+        [MenuItem("Sparta/Build/Plugins/OSX Plugins", false, 202)]
         public static void CompileOSX()
         {
             CompileAppleProjectTarget("generateUnityPlugin_macOS");
@@ -202,7 +165,6 @@ namespace SpartaTools.Editor.Build
         {
             CompileAndroid();
             CompileAndroidNative();
-            CompileLinuxNative();
             CompileIOS();
             CompileTVOS();
             CompileOSX();

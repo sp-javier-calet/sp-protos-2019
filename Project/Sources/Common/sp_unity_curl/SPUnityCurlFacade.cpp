@@ -2,7 +2,7 @@
 #include "SPUnityCurlManager.h"
 #include <list>
 #include <vector>
-#include <string>
+#include <cstring>
 #include <cassert>
 
 extern "C" {
