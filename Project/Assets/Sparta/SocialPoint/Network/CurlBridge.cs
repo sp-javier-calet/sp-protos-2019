@@ -35,6 +35,8 @@ namespace SocialPoint.Network
         const string PluginModuleName = "__Internal";
         #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
         const string PluginModuleName = "sp_unity_curl";
+        #else
+        const string PluginModuleName = "none";
         #endif
 
         [DllImport(PluginModuleName)]
