@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -175,7 +176,12 @@ namespace SpartaTools.Editor.View
 
                 foreach(var mod in _modsData[dataType])
                 {
-                    GUILayout.Label(new GUIContent(mod.Content, Path.GetFileName(mod.Source.FilePath)));
+                    var name = "Invalid module";
+                    if(mod.Source != null)
+                    {
+                        name = Path.GetFileName(mod.Source.FilePath);
+                    }
+                    GUILayout.Label(new GUIContent(mod.Content, name));
                 }
 
                 GUILayout.EndVertical();
@@ -254,9 +260,16 @@ namespace SpartaTools.Editor.View
 
                 foreach(string file in mods.Files)
                 {
-                    _currentXcodeMod = new XcodeMod(file);
-                    _currentXcodeMod.Apply(this);
-                    _currentXcodeMod = null;
+                    try
+                    {
+                        _currentXcodeMod = new XcodeMod(file);
+                        _currentXcodeMod.Apply(this);
+                        _currentXcodeMod = null;
+                    }
+                    catch(Exception e)
+                    {
+                        Add(new ModData("Failed XcodeMod files", file, _currentXcodeMod));
+                    }
                 }
 
                 foreach(var list in Data.Values)
@@ -315,9 +328,9 @@ namespace SpartaTools.Editor.View
                 Add(new ModData("Folder", path, _currentXcodeMod));
             }
 
-            public void AddLibrary(string path)
+            public void AddLibrary(string path, bool weak)
             {
-                Add(new ModData("Library", path, _currentXcodeMod));
+                Add(new ModData("Library", string.Format("{0} : {1}", path, weak ? "weak" : "required"), _currentXcodeMod));
             }
 
             public void AddFramework(string framework, bool weak)

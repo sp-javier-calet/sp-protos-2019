@@ -158,9 +158,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 GetEditor<FolderModEditor>().Add(path, Path.GetFileName(path));
             }
 
-            public void AddLibrary(string path)
+            public void AddLibrary(string path, bool weak)
             {
-                GetEditor<LibraryModEditor>().Add(path, Path.GetFileName(path));
+                GetEditor<LibraryModEditor>().Add(path, Path.GetFileName(path), weak);
             }
 
             public void AddFramework(string framework, bool weak)
@@ -515,21 +515,35 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     public string FullPath;
                     public string Name;
+                    public bool Weak;
                 }
 
-                public void Add(string fullPath, string name)
+                public void Add(string fullPath, string name, bool weak)
                 {
-                    _mods.Add(new ModData{ FullPath = fullPath, Name = name });
+                    _mods.Add(new ModData{ FullPath = fullPath, Name = name, Weak = weak });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
                 {
                     foreach(var mod in _mods)
                     {
-                        var fullPath = editor.ReplaceProjectVariables(mod.FullPath);
+                        string fullPath;
+                        PBXSourceTree sourceTree = PBXSourceTree.Source;
+                        // If is only a filename, treat it as a System lib. 
+                        // Otherwise, process the library path.
+                        if(mod.Name.Equals(Path.GetFileName(mod.Name)))
+                        {
+                            fullPath = Path.Combine("usr/lib", mod.FullPath);
+                            sourceTree = PBXSourceTree.Sdk;
+                        }
+                        else
+                        {
+                            fullPath = editor.ReplaceProjectVariables(mod.FullPath);
+                        }
+
                         var projPath = Path.Combine(LibBasePath, mod.Name);
-                        var guid = editor.Pbx.AddFile(fullPath, projPath);
-                        editor.Pbx.AddFileToBuild(editor.DefaultTargetGuid, guid);
+                        var guid = editor.Pbx.AddFile(fullPath, projPath, sourceTree);
+                        editor.Pbx.AddFileToBuild(editor.DefaultTargetGuid, guid, mod.Weak);
                     }
                 }
             }

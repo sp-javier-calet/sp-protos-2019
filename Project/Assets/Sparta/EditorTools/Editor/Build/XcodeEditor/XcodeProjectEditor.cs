@@ -28,7 +28,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         void AddFolder(string path);
 
-        void AddLibrary(string path);
+        void AddLibrary(string path, bool weak);
 
         void AddFramework(string framework, bool weak);
 
