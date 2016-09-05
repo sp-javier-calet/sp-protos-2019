@@ -231,7 +231,7 @@ namespace SpartaTools.Editor.Build
         {
             if(Path.IsPathRooted(reference) && !File.Exists(reference))
             {
-                throw new DependencyNotFoundException("Referenced file '" + reference + "' not found");
+                throw new DependencyNotFoundException("Referenced file '" + reference + "' not found", Path.GetFileName(reference));
             }
 
             _references.Add(reference);
@@ -442,6 +442,14 @@ namespace SpartaTools.Editor.Build
         {
             var dllName = moduleName.Replace(" ", "").Replace("/", "_") + "_" + target + (editorAssembly ? "-Editor" : "") + ".dll";
             return Path.Combine(OutputPath, dllName);
+        }
+
+        public static void ClearOutputPath()
+        {
+            if(Directory.Exists(OutputPath))
+            {
+                Directory.Delete(OutputPath, true);
+            }
         }
 
         #endregion

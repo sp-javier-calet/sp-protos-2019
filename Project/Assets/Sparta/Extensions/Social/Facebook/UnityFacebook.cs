@@ -185,7 +185,7 @@ namespace SocialPoint.Social
             );
         }
 
-        bool HasPermissions(IList<string> permissions)
+        public override bool HasPermissions(IList<string> permissions)
         {
             for(int i = 0, permissionsCount = permissions.Count; i < permissionsCount; i++)
             {
@@ -329,7 +329,6 @@ namespace SocialPoint.Social
         {
             var s = UserPhotoSize;
             var uri = path + "?fields=id,name,installed,picture.width(" + s + ").height(" + s + ")";
-
             FB.API(uri, HttpMethod.GET, result => {
                 var err = new Error(result.Error);
                 if(Error.IsNullOrEmpty(err))
@@ -459,9 +458,25 @@ namespace SocialPoint.Social
 
         public override string AppId
         {
+            get
+            {
+                return FB.AppId;
+            }
             set
             {
                 throw new Exception("Unity Facebook SDK does not have the option to set the app id programatically.");
+            }
+        }
+
+        public override string ApiVersion 
+        { 
+            get
+            {
+                return FB.GraphApiVersion;
+            }
+            set
+            {
+                FB.GraphApiVersion = value;
             }
         }
 
