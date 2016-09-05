@@ -28,9 +28,12 @@ namespace SpartaTools.Editor.Build
 
     public class DependencyNotFoundException : SpartaBuildException
     {
-        public DependencyNotFoundException(string message)
+        public string Dependency { get; private set; }
+
+        public DependencyNotFoundException(string message, string dependency)
             : base(message)
         {
+            Dependency = dependency;
         }
     }
 
