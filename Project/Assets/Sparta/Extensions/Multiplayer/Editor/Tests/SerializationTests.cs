@@ -1,9 +1,9 @@
-
 using NUnit.Framework;
 using System.IO;
 using System;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using BulletSharp.Math;
 
 namespace SocialPoint.Multiplayer
 {
@@ -18,7 +18,7 @@ namespace SocialPoint.Multiplayer
             serializer.Serialize(obj, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            var obj2 =  parser.Parse(reader);
+            var obj2 = parser.Parse(reader);
             Assert.That(obj.Equals(obj2));
         }
 
@@ -51,7 +51,7 @@ namespace SocialPoint.Multiplayer
                 new Vector3Serializer(),
                 new Vector3Parser());
         }
-            
+
         [Test]
         public void Vector4Initial()
         {
@@ -157,10 +157,10 @@ namespace SocialPoint.Multiplayer
         {
             GenericInitial(
                 new NetworkGameObject(1, new Transform(
-                        new Vector3(1.0f, 2.3f, 4.2f),
-                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                        new Vector3(2.0f, 1.0f, 2.0f)
-                    )
+                    new Vector3(1.0f, 2.3f, 4.2f),
+                    new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new Vector3(2.0f, 1.0f, 2.0f)
+                )
                 ),
                 new NetworkGameObjectSerializer(),
                 new NetworkGameObjectParser());
@@ -171,16 +171,16 @@ namespace SocialPoint.Multiplayer
         {
             GenericDiff(
                 new NetworkGameObject(1, new Transform(
-                        new Vector3(1.0f, 2.3f, 4.2f),
-                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                        new Vector3(2.0f, 1.0f, 2.0f)
-                    )
+                    new Vector3(1.0f, 2.3f, 4.2f),
+                    new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new Vector3(2.0f, 1.0f, 2.0f)
+                )
                 ),
                 new NetworkGameObject(1, new Transform(
-                        new Vector3(1.0f, 3.3f, 4.2f),
-                        new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
-                        new Vector3(1.0f, 0.0f, 2.0f)
-                    )
+                    new Vector3(1.0f, 3.3f, 4.2f),
+                    new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                    new Vector3(1.0f, 0.0f, 2.0f)
+                )
                 ),
                 new NetworkGameObjectSerializer(),
                 new NetworkGameObjectParser());

@@ -1,27 +1,28 @@
 ﻿using UnityEngine;
+using BulletSharp.Math;
 
 namespace SocialPoint.Multiplayer
 {
     public static class UnityModelExtensions
     {
-        public static UnityEngine.Vector3 ToUnity(this Vector3 v)
+        public static UnityEngine.Vector3 ToUnity(this BulletSharp.Math.Vector3 v)
         {
-            return new UnityEngine.Vector3(v.x, v.y, v.z);
+            return new UnityEngine.Vector3(v.X, v.Y, v.Z);
         }
 
-        public static UnityEngine.Quaternion ToUnity(this Quaternion q)
+        public static UnityEngine.Quaternion ToUnity(this BulletSharp.Math.Quaternion q)
         {
-            return new UnityEngine.Quaternion(q.x, q.y, q.z, q.w);
+            return new UnityEngine.Quaternion(q.X, q.Y, q.Z, q.W);
         }
 
-        public static Vector3 ToMultiplayer(this UnityEngine.Vector3 v)
+        public static BulletSharp.Math.Vector3 ToMultiplayer(this UnityEngine.Vector3 v)
         {
-            return new Vector3(v.x, v.y, v.z);
+            return new BulletSharp.Math.Vector3(v.x, v.y, v.z);
         }
 
-        public static Quaternion ToMultiplayer(this UnityEngine.Quaternion q)
+        public static BulletSharp.Math.Quaternion ToMultiplayer(this UnityEngine.Quaternion q)
         {
-            return new Quaternion(q.x, q.y, q.z, q.w);
+            return new BulletSharp.Math.Quaternion(q.x, q.y, q.z, q.w);
         }
     }
 }

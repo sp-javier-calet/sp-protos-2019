@@ -1,8 +1,8 @@
-
 using NUnit.Framework;
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using BulletSharp.Math;
 
 namespace SocialPoint.Multiplayer
 {
@@ -40,8 +40,8 @@ namespace SocialPoint.Multiplayer
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
-            go.Transform.Position.x = 2.0f;
-            Assert.That(!_clientCtrl.Equals( _serverCtrl.Scene));
+            go.Transform.Position.X = 2.0f;
+            Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(!_client2Ctrl.Equals(_serverCtrl.Scene));
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));

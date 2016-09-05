@@ -1,4 +1,5 @@
 ﻿using SocialPoint.Utils;
+using BulletSharp.Math;
 
 namespace SocialPoint.Multiplayer
 {
@@ -44,9 +45,9 @@ namespace SocialPoint.Multiplayer
             if(_go != null)
             {
                 _go.Transform.Position = new Vector3(
-                    _easing(_time, _origin.x, _delta.x, _duration),
-                    _easing(_time, _origin.y, _delta.y, _duration),
-                    _easing(_time, _origin.z, _delta.z, _duration));
+                    _easing(_time, _origin.X, _delta.X, _duration),
+                    _easing(_time, _origin.Y, _delta.Y, _duration),
+                    _easing(_time, _origin.Z, _delta.Z, _duration));
             }
         }
 

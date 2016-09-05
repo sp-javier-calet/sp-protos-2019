@@ -4,6 +4,7 @@ using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using System;
 using System.Collections.Generic;
+using BulletSharp.Math;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
 {
@@ -51,9 +52,9 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 var p = itr.Current.Transform.Position;
 
                 p += new Vector3(
-                    RandomUtils.Range(-_movement.x, _movement.x),
-                    0.0f,//RandomUtils.Range(-_movement.y, _movement.y),
-                    RandomUtils.Range(-_movement.z, _movement.z));
+                    RandomUtils.Range(-_movement.X, _movement.X),
+                    0.0f,//RandomUtils.Range(-_movement.Y, _movement.Y),
+                    RandomUtils.Range(-_movement.Z, _movement.Z));
 
                 _controller.Tween(id, p, _moveInterval);
                 int times;
