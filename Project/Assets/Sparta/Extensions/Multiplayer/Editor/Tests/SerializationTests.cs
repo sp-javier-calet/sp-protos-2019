@@ -34,6 +34,16 @@ namespace SocialPoint.Multiplayer
         }
 
         [Test]
+        public void Vector3Hash()
+        {
+            Vector3 v1 = new Vector3(1.0f, 2.0f, 3.0f);
+            Vector3 v2 = new Vector3(1.0f, 3.0f, 2.0f);
+            Vector3 v3 = new Vector3(1.0f, 3.0f, 2.0f);
+            Assert.That(v1.GetHashCode() != v2.GetHashCode());
+            Assert.That(v2.GetHashCode() == v3.GetHashCode());
+        }
+
+        [Test]
         public void Vector3Initial()
         {
             GenericInitial(
@@ -50,6 +60,16 @@ namespace SocialPoint.Multiplayer
                 new Vector3(1.0f, 3.3f, 4.2f),
                 new Vector3Serializer(),
                 new Vector3Parser());
+        }
+
+        [Test]
+        public void Vector4Hash()
+        {
+            Vector4 v1 = new Vector4(1.0f, 2.0f, 3.0f, 4.0f);
+            Vector4 v2 = new Vector4(1.0f, 3.0f, 2.0f, 4.0f);
+            Vector4 v3 = new Vector4(1.0f, 3.0f, 2.0f, 4.0f);
+            Assert.That(v1.GetHashCode() != v2.GetHashCode());
+            Assert.That(v2.GetHashCode() == v3.GetHashCode());
         }
 
         [Test]
@@ -72,6 +92,16 @@ namespace SocialPoint.Multiplayer
         }
 
         [Test]
+        public void QuaternionHash()
+        {
+            Quaternion q1 = new Quaternion(1.0f, 2.0f, 3.0f, 4.0f);
+            Quaternion q2 = new Quaternion(1.0f, 3.0f, 2.0f, 4.0f);
+            Quaternion q3 = new Quaternion(1.0f, 3.0f, 2.0f, 4.0f);
+            Assert.That(q1.GetHashCode() != q2.GetHashCode());
+            Assert.That(q2.GetHashCode() == q3.GetHashCode());
+        }
+
+        [Test]
         public void QuaternionInitial()
         {
             GenericInitial(
@@ -91,34 +121,75 @@ namespace SocialPoint.Multiplayer
         }
 
         [Test]
-        public void Matrix4x4Initial()
+        public void MatrixHash()
         {
-            GenericInitial(
-                new Matrix4x4(
-                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
-                    new Vector4(4.0f, 4.5f, 4.5f, 15f),
-                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
-                new Matrix4x4Serializer(),
-                new Matrix4x4Parser());
+            Matrix m1 = new Matrix(
+                            1.0f, 2.0f, 3.0f, 4.0f,
+                            1.0f, 2.0f, 3.0f, 4.0f,
+                            1.0f, 2.0f, 3.0f, 4.0f,
+                            1.0f, 2.0f, 3.0f, 4.0f);
+            Matrix m2 = new Matrix(
+                            4.0f, 2.0f, 3.0f, 4.0f,
+                            1.0f, 3.0f, 3.0f, 4.0f,
+                            1.0f, 2.0f, 2.0f, 4.0f,
+                            1.0f, 2.0f, 3.0f, 1.0f);
+            Matrix m3 = new Matrix(
+                            4.0f, 2.0f, 3.0f, 4.0f,
+                            1.0f, 3.0f, 3.0f, 4.0f,
+                            1.0f, 2.0f, 2.0f, 4.0f,
+                            1.0f, 2.0f, 3.0f, 1.0f);
+            Assert.That(m1.GetHashCode() != m2.GetHashCode());
+            Assert.That(m2.GetHashCode() == m3.GetHashCode());
         }
 
         [Test]
-        public void Matrix4x4Diff()
+        public void MatrixInitial()
+        {
+            GenericInitial(
+                new Matrix(
+                    1.0f, 2.3f, 4.2f, 5.2f,
+                    3.0f, 2.3f, 7.2f, 5.2f,
+                    4.0f, 4.5f, 4.5f, 15f,
+                    5.0f, 2.4f, 4.2f, 52.2f),
+                new MatrixSerializer(),
+                new MatrixParser());
+        }
+
+        [Test]
+        public void MatrixDiff()
         {
             GenericDiff(
-                new Matrix4x4(
-                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
-                    new Vector4(4.0f, 4.5f, 4.5f, 15f),
-                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
-                new Matrix4x4(
-                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
-                    new Vector4(4.0f, 5.5f, 4.5f, 15f),
-                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
-                new Matrix4x4Serializer(),
-                new Matrix4x4Parser());
+                new Matrix(
+                    1.0f, 2.3f, 4.2f, 5.2f,
+                    3.0f, 2.3f, 7.2f, 5.2f,
+                    4.0f, 4.5f, 4.5f, 15f,
+                    5.0f, 2.4f, 4.2f, 52.2f),
+                new Matrix(
+                    1.0f, 2.3f, 4.2f, 5.2f,
+                    3.0f, 2.3f, 7.2f, 5.2f,
+                    4.0f, 5.5f, 4.5f, 15f,
+                    5.0f, 2.4f, 4.2f, 52.2f),
+                new MatrixSerializer(),
+                new MatrixParser());
+        }
+
+        [Test]
+        public void TransformHash()
+        {
+            Transform t1 = new Transform(
+                               new Vector3(1.0f, 2.0f, 3.0f),
+                               new Quaternion(1.0f, 2.0f, 3.0f, 4.0f),
+                               new Vector3(1.0f, 1.0f, 2.0f));
+            Transform t2 = new Transform(
+                               new Vector3(1.0f, 3.0f, 2.0f),
+                               new Quaternion(1.0f, 3.0f, 2.0f, 4.0f),
+                               new Vector3(2.0f, 1.0f, 1.0f));
+            Transform t3 = new Transform(
+                               new Vector3(1.0f, 3.0f, 2.0f),
+                               new Quaternion(1.0f, 3.0f, 2.0f, 4.0f),
+                               new Vector3(2.0f, 1.0f, 1.0f));
+            Assert.That(t1.GetHashCode() != t2.GetHashCode());
+            Assert.That(t2.GetHashCode() == t3.GetHashCode());
         }
 
         [Test]
