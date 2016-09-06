@@ -22,10 +22,15 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         /// <summary>
         /// XcodeProject constructor.
         /// </summary>
-        /// <param name="xcodeProjectPath">Path to the '.xcodeproj' file</param>
-        /// <param name="baseAppPath">Base path of the current client application (i.e. the Unity's data path)</param>
+        /// <param name="xcodeProjectPath">Full Path to the '.xcodeproj' file</param>
+        /// <param name="baseAppPath">Full base path of the current client application (i.e. the Unity's data path)</param>
         public XcodeProject(string xcodeProjectPath, string baseAppPath)
         {
+            if(!Path.IsPathRooted(xcodeProjectPath) || !Path.IsPathRooted(baseAppPath))
+            {
+                throw new InvalidDataException("XcodeProject requires full project paths");
+            }
+
             // Initialize paths
             ProjectPath = xcodeProjectPath;
             ProjectRootPath = Path.GetDirectoryName(xcodeProjectPath);

@@ -46,7 +46,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 }
             }
 
-            return projectPath;
+            return Path.GetFullPath(projectPath);
         }
 
         [PostProcessBuild(701)]
