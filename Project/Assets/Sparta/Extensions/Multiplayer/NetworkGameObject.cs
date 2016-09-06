@@ -2,6 +2,7 @@
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using System;
+using BulletSharp;
 
 namespace SocialPoint.Multiplayer
 {
@@ -10,6 +11,8 @@ namespace SocialPoint.Multiplayer
         public int Id{ get; private set; }
 
         public Transform Transform;
+
+        public CollisionObject CollisionObject;
 
         public NetworkGameObject(int id)
         {

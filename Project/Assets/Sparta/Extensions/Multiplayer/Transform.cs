@@ -9,7 +9,9 @@ namespace SocialPoint.Multiplayer
     public class Transform : IEquatable<Transform>, ICloneable
     {
         public Vector3 Position;
+
         public Quaternion Rotation;
+
         public Vector3 Scale;
 
         public Transform(Vector3 p, Quaternion r, Vector3 s)
@@ -39,6 +41,18 @@ namespace SocialPoint.Multiplayer
                 Rotation = t.Rotation;
                 Scale = t.Scale;
             }
+        }
+
+        public Matrix WorldToLocalMatrix()
+        {
+            return Matrix.Transformation(Vector3.Zero, Quaternion.Identity, Scale, Vector3.Zero, Rotation, Position);
+        }
+
+        public Matrix LocalToWorldMatrix()
+        {
+            Matrix m = WorldToLocalMatrix();
+            m.Invert();
+            return m;
         }
 
         public object Clone()
