@@ -56,13 +56,20 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
+                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
+
                 var projectPath = GetProjectPath(path);
+
+                // Manage relative paths if needed
+                if(!Path.IsPathRooted(projectPath))
+                {
+                    projectPath = Path.Combine(baseAppPath, projectPath);
+                }
+
                 if(!Directory.Exists(projectPath))
                 {
                     throw new FileNotFoundException(string.Format("Xcode project filed not found in path '{0}'", projectPath));
                 }
-
-                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
 
                 var project = new XcodeProject(projectPath, baseAppPath);
                 var mods = new XcodeModsSet(target);
