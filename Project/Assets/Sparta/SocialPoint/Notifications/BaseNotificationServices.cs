@@ -10,17 +10,13 @@ namespace SocialPoint.Notifications
 {
     public abstract class BaseNotificationServices : INotificationServices, IDisposable
     {
-        const string kPushTokenKey = "notifications_push_token";
-        const string kPlayerAllowsNotificationKey = "player_allow_notification";
-
         protected ICoroutineRunner _runner;
         protected string _pushToken;
         bool _validPushToken;
 
-        ICommandQueue _commandQueue;
         IList<Action<bool, string>> _pushTokenReceivedListeners;
 
-        protected BaseNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue = null)
+        protected BaseNotificationServices(ICoroutineRunner runner)
         {
             if(runner == null)
             {
@@ -28,7 +24,6 @@ namespace SocialPoint.Notifications
             }
 
             _runner = runner;
-            _commandQueue = commandqueue;
             _pushTokenReceivedListeners = new List<Action<bool, string>>();
         }
 
@@ -47,38 +42,6 @@ namespace SocialPoint.Notifications
         {
             _validPushToken = false;
             NotifyPushTokenReceived();
-        }
-
-        public void SendPushToken()
-        {
-            if(_commandQueue == null || _pushToken == null)
-            {
-                return;
-            }
-
-            string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
-            bool userAllowedNotifications = PlayerPrefs.GetInt(kPlayerAllowsNotificationKey, 0) != 0;
-
-            bool pushTokenChanged = _pushToken != currentPushToken;
-            bool allowNotificationsChanged = userAllowedNotifications != UserAllowsNofitication;
-
-            if(pushTokenChanged || allowNotificationsChanged)
-            {
-                string pushTokenToSend = UserAllowsNofitication ? _pushToken : currentPushToken;
-                if(string.IsNullOrEmpty(pushTokenToSend))
-                {
-                    return;
-                }
-
-                _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, UserAllowsNofitication), (data, err) => {
-                    if(Error.IsNullOrEmpty(err))
-                    {
-                        PlayerPrefs.SetString(kPushTokenKey, _pushToken);
-                        PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, UserAllowsNofitication ? 1 : 0);
-                        PlayerPrefs.Save();
-                    }
-                });
-            }
         }
 
         void NotifyPushTokenReceived()

@@ -37,18 +37,21 @@ public class NotificationInstaller : SubInstaller, IInitializable
     }
 
     #if !UNITY_EDITOR
-    #if UNITY_IOS
+    
+
+#if UNITY_IOS
     IosNotificationServices CreateIosNotificationServices()
     {
-        return new IosNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+        return new IosNotificationServices(Container.Resolve<ICoroutineRunner>());
     }
 
 #elif UNITY_ANDROID
     AndroidNotificationServices CreateAndroidNotificationServices()
     {
-        return new AndroidNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+        return new AndroidNotificationServices(Container.Resolve<ICoroutineRunner>());
     }
 #endif
+    
     #endif
 
     AdminPanelNotifications CreateAdminPanel()
@@ -61,7 +64,8 @@ public class NotificationInstaller : SubInstaller, IInitializable
     {
         return new NotificationManager(
             Container.Resolve<INotificationServices>(),
-            Container.Resolve<IAppEvents>()
+            Container.Resolve<IAppEvents>(),
+            Container.Resolve<ICommandQueue>()
         );
     }
 

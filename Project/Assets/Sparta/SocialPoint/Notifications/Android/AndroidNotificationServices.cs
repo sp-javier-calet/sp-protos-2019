@@ -16,8 +16,8 @@ namespace SocialPoint.Notifications
         AndroidJavaClass _notifClass = null;
         IEnumerator _checkPermissionStatusCoroutine;
 
-        public AndroidNotificationServices(ICoroutineRunner runner, ICommandQueue commandqueue)
-            : base(runner, commandqueue)
+        public AndroidNotificationServices(ICoroutineRunner runner)
+            : base(runner)
         {
 #if !UNITY_EDITOR
             _notifClass = new AndroidJavaClass(FullClassName);
@@ -99,7 +99,7 @@ namespace SocialPoint.Notifications
         }
     }
         
-#else
+    #else
     public sealed class AndroidNotificationServices : EmptyNotificationServices
     {
     }

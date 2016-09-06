@@ -21,10 +21,6 @@ namespace SocialPoint.Notifications
             callback(false, "");
         }
 
-        public void SendPushToken()
-        {
-        }
-
         public void RequestPermissions()
         {
         }

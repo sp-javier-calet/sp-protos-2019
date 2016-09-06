@@ -1,6 +1,8 @@
 using System;
+using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
 
@@ -8,14 +10,19 @@ namespace SocialPoint.Notifications
 {
     public abstract class NotificationManager : IDisposable
     {
+        const string kPushTokenKey = "notifications_push_token";
+        const string kPlayerAllowsNotificationKey = "player_allow_notification";
+
         public INotificationServices Services{ protected set; get; }
 
         protected IAppEvents _appEvents;
+        protected ICommandQueue _commandQueue;
 
         List<Notification> _notifications = new List<Notification>();
 
         bool _gameLoaded;
         bool _pushTokenReceived;
+        string _pushToken;
 
         protected NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
         {
@@ -28,6 +35,7 @@ namespace SocialPoint.Notifications
                 throw new ArgumentNullException("appEvents", "appEvents cannot be null or empty!");
             }
             _appEvents = appEvents;
+            _commandQueue = commandQueue;
 
 #if UNITY_IOS && !UNITY_EDITOR
             Services = new IosNotificationServices(coroutineRunner, commandQueue);
@@ -39,9 +47,10 @@ namespace SocialPoint.Notifications
             Init();
         }
 
-        protected NotificationManager(INotificationServices services, IAppEvents appEvents)
+        protected NotificationManager(INotificationServices services, IAppEvents appEvents, ICommandQueue commandQueue)
         {
             _appEvents = appEvents;
+            _commandQueue = commandQueue;
             Services = services;
             Init();
         }
@@ -120,6 +129,7 @@ namespace SocialPoint.Notifications
         void OnPushTokenReceived(bool valid, string token)
         {
             _pushTokenReceived = true;
+            _pushToken = token;
             VerifyPushReady();
         }
 
@@ -127,7 +137,39 @@ namespace SocialPoint.Notifications
         {
             if(_gameLoaded && _pushTokenReceived)
             {
-                Services.SendPushToken();
+                SendPushToken();
+            }
+        }
+
+        void SendPushToken()
+        {
+            if(_commandQueue == null || _pushToken == null)
+            {
+                return;
+            }
+
+            string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
+            bool userAllowedNotifications = PlayerPrefs.GetInt(kPlayerAllowsNotificationKey, 0) != 0;
+
+            bool pushTokenChanged = _pushToken != currentPushToken;
+            bool allowNotificationsChanged = userAllowedNotifications != Services.UserAllowsNofitication;
+
+            if(pushTokenChanged || allowNotificationsChanged)
+            {
+                string pushTokenToSend = Services.UserAllowsNofitication ? _pushToken : currentPushToken;
+                if(string.IsNullOrEmpty(pushTokenToSend))
+                {
+                    return;
+                }
+
+                _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, Services.UserAllowsNofitication), (data, err) => {
+                    if(Error.IsNullOrEmpty(err))
+                    {
+                        PlayerPrefs.SetString(kPushTokenKey, _pushToken);
+                        PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, Services.UserAllowsNofitication ? 1 : 0);
+                        PlayerPrefs.Save();
+                    }
+                });
             }
         }
 
