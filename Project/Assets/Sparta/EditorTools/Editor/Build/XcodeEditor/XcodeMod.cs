@@ -19,7 +19,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     ///     * 'weak' : Mark the framework as optional.
     ///  - buildSettings : Dictionary of Settings name and value pairs.
     ///  - variantGroups :
-    ///  - localizations : Dictionary of language and file pairs for localizations.
+    ///  - localizations : List of supported languages
     ///  - infoPlist : 
     ///  - shellScripts : 
     ///  - systemCapabilities : Dictionary of Capabilitiy names and boolean values pairs.
