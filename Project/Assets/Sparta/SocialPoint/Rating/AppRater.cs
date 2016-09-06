@@ -243,7 +243,7 @@ namespace SocialPoint.Rating
             }
 
             // Has the user rated any version of the game?
-            if(HasRatedAnyVersion())
+            if(HasRatedAnyVersion)
             {
                 return false;
             }
@@ -251,14 +251,17 @@ namespace SocialPoint.Rating
             return PreRatingCustomConditionsHaveBeenMet();
         }
 
-        public bool HasRatedAnyVersion()
+        public bool HasRatedAnyVersion
         {
-            if(AnyVersionRateIsValid && _appRaterInfo.GetValue(RatedAnyVersionKey).ToBool())
+            get
             {
-                return true;
-            }
+                if(AnyVersionRateIsValid && _appRaterInfo.GetValue(RatedAnyVersionKey).ToBool())
+                {
+                    return true;
+                }
 
-            return false;
+                return false;
+            }
         }
 
         protected virtual bool PreRatingCustomConditionsHaveBeenMet()
