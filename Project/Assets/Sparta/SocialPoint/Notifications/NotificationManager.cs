@@ -38,9 +38,9 @@ namespace SocialPoint.Notifications
             _commandQueue = commandQueue;
 
 #if UNITY_IOS && !UNITY_EDITOR
-            Services = new IosNotificationServices(coroutineRunner, commandQueue);
+            Services = new IosNotificationServices(coroutineRunner);
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            Services = new AndroidNotificationServices(coroutineRunner, commandQueue);
+            Services = new AndroidNotificationServices(coroutineRunner);
 #else
             Services = new EmptyNotificationServices();
 #endif
