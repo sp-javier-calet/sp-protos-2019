@@ -8,6 +8,7 @@ namespace SocialPoint.EventSystems
         event Action<PointerEventData> OnBeginDrag;
         event Action<PointerEventData> OnEndDrag;
         event Action<PointerEventData> OnDrag;
+        event Action<PointerEventData> OnDragMain;
         event Action<PointerEventData> OnScroll;
         event Action<PointerEventData> OnPointerEnter;
         event Action<PointerEventData> OnPointerExit;
