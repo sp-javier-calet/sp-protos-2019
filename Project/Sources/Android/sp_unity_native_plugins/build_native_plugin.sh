@@ -48,6 +48,8 @@ mkdir -p $MODULE_PATH/libs
 PROJECT_ROOT=$MODULE_PATH/../../../..
 INSTALL_PATH=/Assets/Sparta/Binaries/Plugins/Android/
 
+mkdir -p $PROJECT_ROOT$INSTALL_PATH
+
 cp -R $MODULE_PATH/libs $PROJECT_ROOT$INSTALL_PATH
 INSTALL_SUCCESS=$?
 

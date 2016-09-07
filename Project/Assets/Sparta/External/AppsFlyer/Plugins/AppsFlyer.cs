@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class AppsFlyer : MonoBehaviour {
 	
-    #if UNITY_EDITOR
+    #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_TVOS
     public static void trackEvent(string eventName,string eventValue){}
     public static void setCurrencyCode(string currencyCode){}
     public static void setCustomerUserID(string customerUserID){}
