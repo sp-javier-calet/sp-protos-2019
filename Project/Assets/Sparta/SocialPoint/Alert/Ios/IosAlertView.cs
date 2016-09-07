@@ -1,3 +1,7 @@
+#if UNITY_IOS && !UNITY_EDITOR
+#define IOS_DEVICE
+#endif
+
 using System;
 using System.Runtime.InteropServices;
 using SocialPoint.Utils;
@@ -29,7 +33,7 @@ namespace SocialPoint.Alert
         public NativeCallsHandler NativeHandler;
         NativeResultDelegate _resultDelegate;
 
-        #if UNITY_IOS && !UNITY_EDITOR
+        #if IOS_DEVICE
         [DllImport ("__Internal")]
         public static extern void SPUnityAlertViewShow(Data data);
         #else
@@ -38,7 +42,7 @@ namespace SocialPoint.Alert
         }
         #endif
         
-        #if UNITY_IOS && !UNITY_EDITOR
+        #if IOS_DEVICE
         [DllImport ("__Internal")]
         public static extern void SPUnityAlertViewHide();
         #else

@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿#if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#define IOS_TVOS_DEVICE
+#endif
+
+using UnityEngine;
 using System;
 using System.Runtime.InteropServices;
 using System.Collections;
@@ -21,7 +25,7 @@ namespace SocialPoint.IosKeychain
             AccessGroup;
         };
 
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_TVOS_DEVICE
         [DllImport ("__Internal")]
         public static extern int SPUnityKeychainSet(ItemStruct item, string value);
         #else
@@ -31,7 +35,7 @@ namespace SocialPoint.IosKeychain
         }
         #endif
 
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_TVOS_DEVICE
         [DllImport ("__Internal")]
         public static extern string SPUnityKeychainGet(ItemStruct item);
         #else
@@ -41,7 +45,7 @@ namespace SocialPoint.IosKeychain
         }
         #endif
 
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_TVOS_DEVICE
         [DllImport ("__Internal")]
         public static extern int SPUnityKeychainClear(ItemStruct item);
         #else
@@ -51,7 +55,7 @@ namespace SocialPoint.IosKeychain
         }
         #endif
 
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #if IOS_TVOS_DEVICE
         [DllImport ("__Internal")]
         public static extern string SPUnityKeychainGetDefaultAccessGroup();
         #else

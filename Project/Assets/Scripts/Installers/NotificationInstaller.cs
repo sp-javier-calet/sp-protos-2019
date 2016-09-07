@@ -36,19 +36,23 @@ public class NotificationInstaller : SubInstaller, IInitializable
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
     }
 
-#if !UNITY_EDITOR
+    #if !UNITY_EDITOR
+    
+
 #if UNITY_IOS
     IosNotificationServices CreateIosNotificationServices()
     {
-        return new IosNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+        return new IosNotificationServices(Container.Resolve<ICoroutineRunner>());
     }
+
 #elif UNITY_ANDROID
     AndroidNotificationServices CreateAndroidNotificationServices()
     {
-        return new AndroidNotificationServices(Container.Resolve<ICoroutineRunner>(), Container.Resolve<ICommandQueue>());
+        return new AndroidNotificationServices(Container.Resolve<ICoroutineRunner>());
     }
 #endif
-#endif
+    
+    #endif
 
     AdminPanelNotifications CreateAdminPanel()
     {
@@ -60,13 +64,14 @@ public class NotificationInstaller : SubInstaller, IInitializable
     {
         return new NotificationManager(
             Container.Resolve<INotificationServices>(),
-            Container.Resolve<IAppEvents>()
+            Container.Resolve<IAppEvents>(),
+            Container.Resolve<ICommandQueue>()
         );
     }
 
     public void Initialize()
     {
-        Container.Resolve<SocialPoint.Notifications.NotificationManager>();
+        Container.Resolve<NotificationManager>();
         var services = Container.Resolve<INotificationServices>();
         if(Settings.AutoRegisterForRemote)
         {
