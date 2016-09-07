@@ -1,10 +1,11 @@
 using SocialPoint.AppEvents;
 using SocialPoint.Notifications;
+using SocialPoint.ServerSync;
 
 public class NotificationManager : SocialPoint.Notifications.NotificationManager
 {
-    public NotificationManager(INotificationServices services, IAppEvents appEvents) :
-        base(services, appEvents)
+    public NotificationManager(INotificationServices services, IAppEvents appEvents, ICommandQueue commandQueue) :
+        base(services, appEvents, commandQueue)
     {
     }
 
