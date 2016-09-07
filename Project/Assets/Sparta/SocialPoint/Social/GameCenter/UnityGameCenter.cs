@@ -178,7 +178,7 @@ namespace SocialPoint.Social
             }));
         }
 
-        public UnityGameCenter(NativeCallsHandler handler = null, bool showAchievements = true)
+        public UnityGameCenter(NativeCallsHandler handler, bool showAchievements = true)
         {
             _friends = new List<GameCenterUser>();
             _achievementsUpdating = new HashSet<string>();
