@@ -17,6 +17,9 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     [SerializeField]
     GameObject _unitPrefab;
 
+    [SerializeField]
+    GameObject _loadingPrefab;
+
 	void Start()
     {
         _lockstep = ServiceLocator.Instance.Resolve<ClientLockstepController>();
@@ -52,8 +55,24 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         var p = eventData.pointerPressRaycast.worldPosition;
-        _lockstep.AddPendingCommand(new ClickCommand(
-            (Fix64)p.x, (Fix64)p.y, (Fix64)p.z,
-            _lockstep.ExecutionTurn, _model));
+        var cmd = new ClickCommand(
+                      (Fix64)p.x, (Fix64)p.y, (Fix64)p.z,
+                      _lockstep.ExecutionTurn, _model);
+
+        var loading = SocialPoint.ObjectPool.ObjectPool.Spawn(
+            _loadingPrefab, transform, p, Quaternion.identity);
+
+        cmd.Applied += (arg1, arg2) => FinishLoading(loading);
+        cmd.Discarded += (obj) =>  FinishLoading(loading);
+
+        _lockstep.AddPendingCommand(cmd);
     }
+
+    public void FinishLoading(GameObject loading)
+    {
+        Destroy(loading);
+    }
+
+
+
 }
