@@ -138,7 +138,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     {
         UpdatePhysicsPositions();
 
-        //_controller.PhysicsLateHelper.Update(dt);
+        //TODO: Improve calls to Update/FixedUpdate (call only one? call both but as in Unity?)
+        _controller.PhysicsLateHelper.Update(dt);
         _controller.PhysicsLateHelper.FixedUpdate();
         _controller.PhysicsWorld.OnDrawGizmos();
         //CollisionEventHandler.OnPhysicsStep(_controller.CollisionWorld);

@@ -39,8 +39,7 @@ namespace SocialPoint.Multiplayer
         //protected virtual void FixedUpdate()
         public virtual void FixedUpdate()
         {
-
-            /*if(m_ddWorld != null)
+            if(m_ddWorld != null)
             {
                 m__frameCount++;
                 float deltaTime = UnityEngine.Time.time - m_lastSimulationStepTime;
@@ -50,11 +49,12 @@ namespace SocialPoint.Multiplayer
                     ///By default, Bullet will subdivide the timestep in constant substeps of each 'fixedTimeStep'.
                     ///in order to keep the simulation real-time, the maximum number of substeps can be clamped to 'maxSubSteps'.
                     ///You can disable subdividing the timestep/substepping by passing maxSubSteps=0 as second argument to stepSimulation, but in that case you have to keep the timeStep constant.
+                    m_ddWorld.StepSimulation(deltaTime, m_maxSubsteps, m_fixedTimeStep);
                     //int numSteps = m_ddWorld.StepSimulation(deltaTime, m_maxSubsteps, m_fixedTimeStep);
                     //Debug.Log("FixedUpdate " + numSteps);
                     m_lastSimulationStepTime = UnityEngine.Time.time;
                 }
-            }*/
+            }
 
             //collisions
             if(m_collisionEventHandler != null)
@@ -64,15 +64,16 @@ namespace SocialPoint.Multiplayer
         }
 
         //This is needed for rigidBody interpolation. The motion states will update the positions of the rigidbodies
-        public virtual void Update(float deltaTime)
+        public virtual void Update(float dt)
         {
-            //float deltaTime = UnityEngine.Time.time - m_lastSimulationStepTime;
-            /*if(deltaTime > 0f)
+            float deltaTime = UnityEngine.Time.time - m_lastSimulationStepTime;
+            if(deltaTime > 0f)
             {
+                m_ddWorld.StepSimulation(deltaTime, m_maxSubsteps, m_fixedTimeStep);
                 //int numSteps = m_ddWorld.StepSimulation(deltaTime, m_maxSubsteps, m_fixedTimeStep);
                 //Debug.Log("Update " + numSteps);
                 m_lastSimulationStepTime = UnityEngine.Time.time;
-            }*/
+            }
         }
     }
 }
