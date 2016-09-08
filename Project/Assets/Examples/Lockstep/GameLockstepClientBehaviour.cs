@@ -70,7 +70,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void FinishLoading(GameObject loading)
     {
-        Destroy(loading);
+        SocialPoint.ObjectPool.ObjectPool.Recycle(loading);
     }
 
 
