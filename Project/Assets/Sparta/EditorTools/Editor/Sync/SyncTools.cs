@@ -122,7 +122,8 @@ namespace SpartaTools.Editor.Sync
         /// <returns><c>true</c>, if modules was updated successfully, <c>false</c> otherwise.</returns>
         /// <param name="targetPath">Target project path.</param>
         /// <param name="modules">List of ModuleSync to proccess. Actions will be differents depending on the sync status.</param>
-        public static bool UpdateModules(string targetPath, IList<ModuleSync> modules)
+        /// <param name="sourceInfo">Source project repository information, to be added to the target project's log.</param>
+        public static bool UpdateModules(string targetPath, IList<ModuleSync> modules, RepositoryInfo sourceInfo)
         {
             var spartaProject = new Project(targetPath);
             if(!spartaProject.Valid)
@@ -135,7 +136,7 @@ namespace SpartaTools.Editor.Sync
                 spartaProject.Initialize();
             }
 
-            spartaProject.AddLog(DateTime.UtcNow, spartaProject.GetRepositoryInfo());
+            spartaProject.AddLog(DateTime.UtcNow, sourceInfo);
             spartaProject.Save();
 
             foreach(var module in modules)

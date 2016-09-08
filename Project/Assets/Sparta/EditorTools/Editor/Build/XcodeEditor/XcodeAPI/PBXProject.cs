@@ -186,6 +186,11 @@ namespace SpartaTools.iOS.Xcode
             }
         }
 
+        public void AddFileToBuild(string targetGuid, string fileGuid, bool weak)
+        {
+            AddBuildFileImpl(targetGuid, fileGuid, weak, null);
+        }
+
         public void AddFileToBuild(string targetGuid, string fileGuid)
         {
             AddBuildFileImpl(targetGuid, fileGuid, false, null);
