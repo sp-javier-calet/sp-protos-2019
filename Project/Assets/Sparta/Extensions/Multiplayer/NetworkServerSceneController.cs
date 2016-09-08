@@ -74,6 +74,7 @@ namespace SocialPoint.Multiplayer
             PhysicsLateHelper = new PhysicsWorldLateHelper();
             PhysicsWorld = new PhysicsWorld(new UnityDebugger(), PhysicsLateHelper);
             PhysicsWorld.DoDebugDraw = true;
+            //PhysicsWorld.worldType = PhysicsWorld.WorldType.CollisionOnly;
             PhysicsWorld.Awake();
 
             //CollisionConfiguration collisionConf = new DefaultCollisionConfiguration();

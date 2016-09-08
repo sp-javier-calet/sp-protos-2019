@@ -32,7 +32,7 @@ namespace SocialPoint.Multiplayer
         }
 
         //TODO: Set debugger
-        PhysicsDebugger _debugger;
+        protected PhysicsDebugger _debugger;
 
         public PhysicsDebugger Debugger
         {

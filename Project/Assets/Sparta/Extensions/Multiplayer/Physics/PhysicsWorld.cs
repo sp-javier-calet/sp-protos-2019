@@ -371,8 +371,7 @@ namespace SocialPoint.Multiplayer
             //TODO handle removing kinematic character controller action
         }
 
-        /*
-        public bool AddRigidBody(BRigidBody rb)
+        public void AddRigidBody(BRigidBody rb)
         {
             if(m_worldType < WorldType.RigidBodyDynamics)
             {
@@ -399,7 +398,6 @@ namespace SocialPoint.Multiplayer
             if(rb.UserObject is PhysicsCollisionObject)
                 ((PhysicsCollisionObject)rb.UserObject).isInWorld = false;
         }
-        //*/
 
         /*
         public bool AddConstraint(BTypedConstraint c)
