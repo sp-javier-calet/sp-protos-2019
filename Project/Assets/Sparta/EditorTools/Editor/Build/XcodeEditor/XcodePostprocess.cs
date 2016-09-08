@@ -16,7 +16,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             get
             {
                 // XCodeModSchemes prefs are written by BuildSet.
-                var customPrefixes = EditorPrefs.GetString(BuildSet.XcodeModSchemesPrefsKey, string.Empty);
+                var customPrefixes = BuildSet.CurrentXcodeModSchemes;
                 if(string.IsNullOrEmpty(customPrefixes))
                 {
                     return new string[0];

@@ -254,9 +254,11 @@ namespace SpartaTools.Editor.View
                 GUILayout.BeginVertical();
                 config.App.ProductName = InheritableTextField("Product Name", "Application name", config.App.ProductName, data.IsBase);
                 config.Common.Flags = InheritableTextField("Flags", "Defined symbols for all platforms", config.Common.Flags, data.IsBase);
+                config.Common.LogLevel = (BuildSet.LogLevel)EditorGUILayout.EnumPopup("Log Level", config.Common.LogLevel);
 
                 if(!data.IsBase)
                 {
+                    config.Common.EnableAdminPanel = EditorGUILayout.Toggle(new GUIContent("Enable Admin Panel", "Enable Admin Panel features"), config.Common.EnableAdminPanel);
                     config.Common.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.Common.RebuildNativePlugins);
                     config.Common.IsDevelopmentBuild = EditorGUILayout.Toggle(new GUIContent("Development build", "Build as development build"), config.Common.IsDevelopmentBuild);
                     config.Common.IncludeDebugScenes = EditorGUILayout.Toggle(new GUIContent("Include debug scenes", "Include scene files starting with 'Debug'"), config.Common.IncludeDebugScenes);
@@ -286,6 +288,12 @@ namespace SpartaTools.Editor.View
                     config.Ios.UseEnvironmentProvisioningUuid = EditorGUILayout.Toggle(new GUIContent("Use Global Provisioning", 
                         "Uses the Provisioning profile UUID defined by the 'SP_XCODE_PROVISIONING_PROFILE_UUID' environment variable"), 
                         config.Ios.UseEnvironmentProvisioningUuid);
+
+                    if(config.Ios.UseEnvironmentProvisioningUuid)
+                    {
+                        TextDataLabel("Environment", "Local value of 'SP_XCODE_PROVISIONING_PROFILE_UUID'", BuildSet.EnvironmentProvisioningUuid);
+                        TextDataLabel("Current", "Active Environment UUID value", BuildSet.CurrentGlobalProvisioningUuid);
+                    }
                 }
 
                 EditorGUILayout.Space();
@@ -381,6 +389,17 @@ namespace SpartaTools.Editor.View
 
             // Update Asset content
             EditorUtility.SetDirty(data.Config);
+        }
+
+        void TextDataLabel(string label, string tooltip, string value)
+        {
+            var content = new GUIContent("<none>");
+            if(!string.IsNullOrEmpty(value))
+            {
+                content = new GUIContent(value);
+            }
+
+            EditorGUILayout.LabelField(new GUIContent(label, tooltip), content);
         }
 
         string InheritableTextField(string label, string tooltip, string value, bool isBaseConfig)
