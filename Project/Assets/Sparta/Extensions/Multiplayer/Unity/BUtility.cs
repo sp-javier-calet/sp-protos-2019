@@ -12,7 +12,6 @@ namespace SocialPoint.Multiplayer
 
         public static void DebugDrawRope(Vector3 position, Quaternion rotation, Vector3 scale, Vector3 begin, Vector3 end, int res, Color color)
         {
-            Gizmos.color = color;
             Matrix4x4 matrix = Matrix4x4.TRS(position, rotation, scale);
             Vector3 p1 = matrix.MultiplyPoint(begin);
             Vector3 p2 = matrix.MultiplyPoint(end);
@@ -22,7 +21,6 @@ namespace SocialPoint.Multiplayer
             Vector3 deltaZ = new Vector3(0, 0.05f, 0.05f);
             for(int i = 0; i < r; i++)
             {
-                Gizmos.color = color;
                 float t = i * 1.0f / (r - 1);
                 float tNext = (i + 1) * 1.0f / (r - 1);
 
@@ -31,19 +29,16 @@ namespace SocialPoint.Multiplayer
 
                 if(i != r - 1)
                 {
-                    Gizmos.DrawLine(p, pNext); // line
+                    Debug.DrawLine(p, pNext, color); // line
                 }
 
-                Gizmos.color = Color.white;
-                Gizmos.DrawLine(p - deltaX, p + deltaX);
-                Gizmos.DrawLine(p - deltaZ, p + deltaZ);
-
+                Debug.DrawLine(p - deltaX, p + deltaX, Color.white);
+                Debug.DrawLine(p - deltaZ, p + deltaZ, Color.white);
             }
         }
 
         public static void DebugDrawSphere(Vector3 position, Quaternion rotation, Vector3 scale, Vector3 radius, Color color)
         {
-            Gizmos.color = color;
             Vector3 start = position;
 
             Vector3 xoffs = new Vector3(radius.x * scale.x, 0, 0);
@@ -67,7 +62,7 @@ namespace SocialPoint.Multiplayer
             {
                 float angle = 360.0f * i / nSteps;
                 Vector3 next = start + rotation * (radius.x * vx * Mathf.Cos(angle) + radius.y * vy * Mathf.Sin(angle));
-                Gizmos.DrawLine(prev, next);
+                Debug.DrawLine(prev, next, color);
                 prev = next;
             }
 
@@ -76,7 +71,7 @@ namespace SocialPoint.Multiplayer
             {
                 float angle = 360.0f * i / nSteps;
                 Vector3 next = start + rotation * (radius.x * vx * Mathf.Cos(angle) + radius.z * vz * Mathf.Sin(angle));
-                Gizmos.DrawLine(prev, next);
+                Debug.DrawLine(prev, next, color);
                 prev = next;
             }
 
@@ -85,7 +80,7 @@ namespace SocialPoint.Multiplayer
             {
                 float angle = 360.0f * i / nSteps;
                 Vector3 next = start + rotation * (radius.y * vy * Mathf.Cos(angle) + radius.z * vz * Mathf.Sin(angle));
-                Gizmos.DrawLine(prev, next);
+                Debug.DrawLine(prev, next, color);
                 prev = next;
             }
 
@@ -98,7 +93,6 @@ namespace SocialPoint.Multiplayer
                 return;
 
             Matrix4x4 matrix = Matrix4x4.TRS(position, rotation, scale);
-            Gizmos.color = color;
 
             Vector3 p00 = matrix.MultiplyPoint(c00);
             Vector3 p01 = matrix.MultiplyPoint(c01);
@@ -141,11 +135,11 @@ namespace SocialPoint.Multiplayer
                     Vector3 py1_11 = Vector3.Lerp(p10, p11, ty_11);
                     Vector3 pxy_11 = Vector3.Lerp(py0_11, py1_11, tx_11);
 
-                    Gizmos.DrawLine(pxy_00, pxy_01);
-                    Gizmos.DrawLine(pxy_01, pxy_11);
-                    Gizmos.DrawLine(pxy_00, pxy_11);
-                    Gizmos.DrawLine(pxy_00, pxy_10);
-                    Gizmos.DrawLine(pxy_10, pxy_11);
+                    Debug.DrawLine(pxy_00, pxy_01, color);
+                    Debug.DrawLine(pxy_01, pxy_11, color);
+                    Debug.DrawLine(pxy_00, pxy_11, color);
+                    Debug.DrawLine(pxy_00, pxy_10, color);
+                    Debug.DrawLine(pxy_10, pxy_11, color);
                 }
             }
         }
@@ -164,20 +158,19 @@ namespace SocialPoint.Multiplayer
             Vector3 aaa = matrix.MultiplyPoint(maxVec);
             Vector3 iaa = matrix.MultiplyPoint(new Vector3(minVec[0], maxVec[1], maxVec[2]));
 
-            Gizmos.color = color;
 
-            Gizmos.DrawLine(iii, aii);
-            Gizmos.DrawLine(aii, aai);
-            Gizmos.DrawLine(aai, iai);
-            Gizmos.DrawLine(iai, iii);
-            Gizmos.DrawLine(iii, iia);
-            Gizmos.DrawLine(aii, aia);
-            Gizmos.DrawLine(aai, aaa);
-            Gizmos.DrawLine(iai, iaa);
-            Gizmos.DrawLine(iia, aia);
-            Gizmos.DrawLine(aia, aaa);
-            Gizmos.DrawLine(aaa, iaa);
-            Gizmos.DrawLine(iaa, iia);
+            Debug.DrawLine(iii, aii, color);
+            Debug.DrawLine(aii, aai, color);
+            Debug.DrawLine(aai, iai, color);
+            Debug.DrawLine(iai, iii, color);
+            Debug.DrawLine(iii, iia, color);
+            Debug.DrawLine(aii, aia, color);
+            Debug.DrawLine(aai, aaa, color);
+            Debug.DrawLine(iai, iaa, color);
+            Debug.DrawLine(iia, aia, color);
+            Debug.DrawLine(aia, aaa, color);
+            Debug.DrawLine(aaa, iaa, color);
+            Debug.DrawLine(iaa, iia, color);
         }
 
         public static void DebugDrawCapsule(Vector3 position, Quaternion rotation, Vector3 scale, float radius, float halfHeight, int upAxis, Color color)
@@ -185,7 +178,6 @@ namespace SocialPoint.Multiplayer
 
             Matrix4x4 matrix = Matrix4x4.TRS(position, rotation, scale);
 
-            Gizmos.color = color;
 
             Vector3 capStart = new Vector3(0.0f, 0.0f, 0.0f);
             capStart[upAxis] = -halfHeight;
@@ -193,36 +185,38 @@ namespace SocialPoint.Multiplayer
             Vector3 capEnd = new Vector3(0.0f, 0.0f, 0.0f);
             capEnd[upAxis] = halfHeight;
 
-            Gizmos.DrawWireSphere(matrix.MultiplyPoint(capStart), radius);
-            Gizmos.DrawWireSphere(matrix.MultiplyPoint(capEnd), radius);
+            //Debug.DrawWireSphere(matrix.MultiplyPoint(capStart), radius);
+            //Debug.DrawWireSphere(matrix.MultiplyPoint(capEnd), radius);
+            Vector3 vRadius = new Vector3(radius, radius, radius);
+            DebugDrawSphere(matrix.MultiplyPoint(capStart), rotation, scale, vRadius, color);
+            DebugDrawSphere(matrix.MultiplyPoint(capEnd), rotation, scale, vRadius, color);
 
             // Draw some additional lines
             Vector3 start = position;
 
             capStart[(upAxis + 1) % 3] = radius;
             capEnd[(upAxis + 1) % 3] = radius;
-            Gizmos.DrawLine(start + rotation * capStart, start + rotation * capEnd);
+            Debug.DrawLine(start + rotation * capStart, start + rotation * capEnd, color);
 
             capStart[(upAxis + 1) % 3] = -radius;
             capEnd[(upAxis + 1) % 3] = -radius;
-            Gizmos.DrawLine(start + rotation * capStart, start + rotation * capEnd);
+            Debug.DrawLine(start + rotation * capStart, start + rotation * capEnd, color);
 
             capStart[(upAxis + 1) % 3] = 0.0f;
             capEnd[(upAxis + 1) % 3] = 0.0f;
 
             capStart[(upAxis + 2) % 3] = radius;
             capEnd[(upAxis + 2) % 3] = radius;
-            Gizmos.DrawLine(start + rotation * capStart, start + rotation * capEnd);
+            Debug.DrawLine(start + rotation * capStart, start + rotation * capEnd, color);
 
             capStart[(upAxis + 2) % 3] = -radius;
             capEnd[(upAxis + 2) % 3] = -radius;
-            Gizmos.DrawLine(start + rotation * capStart, start + rotation * capEnd);
+            Debug.DrawLine(start + rotation * capStart, start + rotation * capEnd, color);
 
         }
 
         public static void DebugDrawCylinder(Vector3 position, Quaternion rotation, Vector3 scale, float radius, float halfHeight, int upAxis, Color color)
         {
-            Gizmos.color = color;
             Vector3 start = position;
             Vector3 offsetHeight = new Vector3(0, 0, 0);
             offsetHeight[upAxis] = halfHeight;
@@ -236,8 +230,8 @@ namespace SocialPoint.Multiplayer
             offsetRadius.y *= scale.y;
             offsetRadius.z *= scale.z;
 
-            Gizmos.DrawLine(start + rotation * (offsetHeight + offsetRadius), start + rotation * (-offsetHeight + offsetRadius));
-            Gizmos.DrawLine(start + rotation * (offsetHeight - offsetRadius), start + rotation * (-offsetHeight - offsetRadius));
+            Debug.DrawLine(start + rotation * (offsetHeight + offsetRadius), start + rotation * (-offsetHeight + offsetRadius), color);
+            Debug.DrawLine(start + rotation * (offsetHeight - offsetRadius), start + rotation * (-offsetHeight - offsetRadius), color);
 
             // Drawing top and bottom caps of the cylinder
             Vector3 yaxis = new Vector3(0, 0, 0);
@@ -252,8 +246,6 @@ namespace SocialPoint.Multiplayer
 
         public static void DebugDrawCone(Vector3 position, Quaternion rotation, Vector3 scale, float radius, float height, int upAxis, Color color)
         {
-            Gizmos.color = color;
-
             Vector3 start = position;
 
             Vector3 offsetHeight = new Vector3(0, 0, 0);
@@ -273,10 +265,10 @@ namespace SocialPoint.Multiplayer
             offset2Radius.y *= scale.y;
             offset2Radius.z *= scale.z;
 
-            Gizmos.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight + offsetRadius));
-            Gizmos.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight - offsetRadius));
-            Gizmos.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight + offset2Radius));
-            Gizmos.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight - offset2Radius));
+            Debug.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight + offsetRadius), color);
+            Debug.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight - offsetRadius), color);
+            Debug.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight + offset2Radius), color);
+            Debug.DrawLine(start + rotation * (offsetHeight), start + rotation * (-offsetHeight - offset2Radius), color);
 
             // Drawing the base of the cone
             Vector3 yaxis = new Vector3(0, 0, 0);
@@ -291,8 +283,6 @@ namespace SocialPoint.Multiplayer
             Matrix4x4 matrix = Matrix4x4.TRS(position, rotation, new Vector3(1, 1, 1));
 
 
-            Gizmos.color = color;
-
             Vector3 planeOrigin = planeNormal * planeConst;
             Vector3 vec0 = new Vector3(0, 0, 0);
             Vector3 vec1 = new Vector3(0, 0, 0);
@@ -302,8 +292,8 @@ namespace SocialPoint.Multiplayer
             Vector3 pt1 = planeOrigin - vec0 * vecLen;
             Vector3 pt2 = planeOrigin + vec1 * vecLen;
             Vector3 pt3 = planeOrigin - vec1 * vecLen;
-            Gizmos.DrawLine(matrix.MultiplyPoint(pt0), matrix.MultiplyPoint(pt1));
-            Gizmos.DrawLine(matrix.MultiplyPoint(pt2), matrix.MultiplyPoint(pt3));
+            Debug.DrawLine(matrix.MultiplyPoint(pt0), matrix.MultiplyPoint(pt1), color);
+            Debug.DrawLine(matrix.MultiplyPoint(pt2), matrix.MultiplyPoint(pt3), color);
 
         }
 
@@ -340,8 +330,6 @@ namespace SocialPoint.Multiplayer
         public static void DebugDrawArc(Vector3 center, Vector3 normal, Vector3 axis, float radiusA, float radiusB, float minAngle, float maxAngle,
                                         Color color, bool drawSect, float stepDegrees)
         {
-            Gizmos.color = color;
-
             Vector3 vx = axis;
             Vector3 vy = Vector3.Cross(normal, axis);
             float step = stepDegrees * RADS_PER_DEG;
@@ -351,18 +339,18 @@ namespace SocialPoint.Multiplayer
             Vector3 prev = center + radiusA * vx * Mathf.Cos(minAngle) + radiusB * vy * Mathf.Sin(minAngle);
             if(drawSect)
             {
-                Gizmos.DrawLine(center, prev);
+                Debug.DrawLine(center, prev, color);
             }
             for(int i = 1; i <= nSteps; i++)
             {
                 float angle = minAngle + (maxAngle - minAngle) * i * 1.0f / (nSteps * 1.0f);
                 Vector3 next = center + radiusA * vx * Mathf.Cos(angle) + radiusB * vy * Mathf.Sin(angle);
-                Gizmos.DrawLine(prev, next);
+                Debug.DrawLine(prev, next, color);
                 prev = next;
             }
             if(drawSect)
             {
-                Gizmos.DrawLine(center, prev);
+                Debug.DrawLine(center, prev, color);
             }
         }
     }

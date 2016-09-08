@@ -4,6 +4,7 @@ using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using System;
 using System.Collections.Generic;
+using BulletSharp;
 using BulletSharp.Math;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
@@ -80,6 +81,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             }
             itr.Dispose();
         }
+
+        CheckPlayerCollision(dt);
     }
 
     void SendExplosionEvent(Transform t)
@@ -112,5 +115,55 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void INetworkServerSceneBehaviour.OnClientDisconnected(byte clientId)
     {
+    }
+
+    //TODO: Improve logic... super inefficient method
+    void CheckPlayerCollision(float dt)
+    {
+        UpdatePhysicsPositions();
+
+        //_controller.PhysicsLateHelper.Update(dt);
+        _controller.PhysicsLateHelper.FixedUpdate();
+        _controller.PhysicsWorld.OnDrawGizmos();
+        //CollisionEventHandler.OnPhysicsStep(_controller.CollisionWorld);
+
+        var itr1 = _controller.Scene.GetObjectEnumerator();
+        while(itr1.MoveNext())
+        {
+            var itr2 = _controller.Scene.GetObjectEnumerator();
+            while(itr2.MoveNext())
+            {
+                if(itr1.Current.Id == itr2.Current.Id)
+                {
+                    continue;
+                }
+
+                NetworkGameObject obj1 = itr1.Current;
+                NetworkGameObject obj2 = itr2.Current;
+                obj1.CollisionObject.WorldTransform = obj1.Transform.WorldToLocalMatrix();
+                obj2.CollisionObject.WorldTransform = obj2.Transform.WorldToLocalMatrix();
+
+                //BoxBoxDetector detector = new BoxBoxDetector((BoxShape)obj1.CollisionObject.CollisionShape, (BoxShape)obj2.CollisionObject.CollisionShape); 
+                //bool collision = detector.
+                /*bool collision = obj1.CollisionObject.CheckCollideWith(obj2.CollisionObject);
+                if(collision)
+                {
+                    UnityEngine.Debug.Log("*** TEST Collision!");
+                }*/
+            }
+            itr2.Dispose();
+        }
+        itr1.Dispose();
+    }
+
+    void UpdatePhysicsPositions()
+    {
+        var itr = _controller.Scene.GetObjectEnumerator();
+        while(itr.MoveNext())
+        {
+            NetworkGameObject obj = itr.Current;
+            obj.CollisionObject.WorldTransform = obj.Transform.WorldToLocalMatrix();
+        }
+        itr.Dispose();
     }
 }

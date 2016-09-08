@@ -9,22 +9,32 @@ namespace SocialPoint.Multiplayer
     {
         public override void DrawLine(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 fromColor)
         {
-            UnityEngine.Gizmos.color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
-            UnityEngine.Gizmos.DrawLine(from.ToUnity(), to.ToUnity());
+            //UnityEngine.Gizmos.color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
+            //UnityEngine.Gizmos.DrawLine(from.ToUnity(), to.ToUnity());
+            UnityEngine.Color color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
+            UnityEngine.Debug.DrawLine(from.ToUnity(), to.ToUnity(), color);
         }
 
         public override void DrawLine(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 fromColor, ref BM.Vector3 toColor)
         {
-            UnityEngine.Gizmos.color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
-            UnityEngine.Gizmos.DrawLine(from.ToUnity(), to.ToUnity());
+            //UnityEngine.Gizmos.color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
+            //UnityEngine.Gizmos.DrawLine(from.ToUnity(), to.ToUnity());
+            UnityEngine.Color color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
+            UnityEngine.Debug.DrawLine(from.ToUnity(), to.ToUnity(), color);
         }
 
         public override void DrawBox(ref BM.Vector3 bbMin, ref BM.Vector3 bbMax, ref BM.Vector3 color)
         {
-            UnityEngine.Bounds b = new UnityEngine.Bounds(bbMin.ToUnity(), UnityEngine.Vector3.zero);
-            b.Encapsulate(bbMax.ToUnity());
-            UnityEngine.Gizmos.color = new UnityEngine.Color(color.X, color.Y, color.Z);
-            UnityEngine.Gizmos.DrawWireCube(b.center, b.size);
+            //UnityEngine.Bounds b = new UnityEngine.Bounds(bbMin.ToUnity(), UnityEngine.Vector3.zero);
+            //b.Encapsulate(bbMax.ToUnity());
+            //UnityEngine.Gizmos.color = new UnityEngine.Color(color.X, color.Y, color.Z);
+            //UnityEngine.Gizmos.DrawWireCube(b.center, b.size);
+
+            BM.Matrix matrix = BM.Matrix.Identity;
+            BM.Vector3 halfSize = new BM.Vector3(bbMax.X - bbMin.X, bbMax.Y - bbMin.Y, bbMax.Z - bbMin.Z);
+            halfSize /= 2;
+            matrix.Origin = new BM.Vector3(bbMin.X + halfSize.X, bbMin.Y + halfSize.Y, bbMin.Z + halfSize.Z);
+            DrawBox(ref bbMin, ref bbMax, ref matrix, ref color);
         }
 
         public override void DrawBox(ref BM.Vector3 bbMin, ref BM.Vector3 bbMax, ref BM.Matrix trans, ref BM.Vector3 color)
@@ -55,18 +65,27 @@ namespace SocialPoint.Multiplayer
         public override void DrawTriangle(ref BM.Vector3 v0, ref BM.Vector3 v1, ref BM.Vector3 v2, ref BM.Vector3 n0, ref BM.Vector3 n1, ref BM.Vector3 n2, ref BM.Vector3 color, float alpha)
         {
             //todo normals and alpha
-            UnityEngine.Gizmos.color = new UnityEngine.Color(color.X, color.Y, color.Z);
-            UnityEngine.Gizmos.DrawLine(v0.ToUnity(), v1.ToUnity());
-            UnityEngine.Gizmos.DrawLine(v1.ToUnity(), v2.ToUnity());
-            UnityEngine.Gizmos.DrawLine(v2.ToUnity(), v0.ToUnity());
+            //UnityEngine.Gizmos.color = new UnityEngine.Color(color.X, color.Y, color.Z);
+            //UnityEngine.Gizmos.DrawLine(v0.ToUnity(), v1.ToUnity());
+            //UnityEngine.Gizmos.DrawLine(v1.ToUnity(), v2.ToUnity());
+            //UnityEngine.Gizmos.DrawLine(v2.ToUnity(), v0.ToUnity());
+            UnityEngine.Color uicolor = new UnityEngine.Color(color.X, color.Y, color.Z);
+            UnityEngine.Debug.DrawLine(v0.ToUnity(), v1.ToUnity(), uicolor);
+            UnityEngine.Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), uicolor);
+            UnityEngine.Debug.DrawLine(v2.ToUnity(), v0.ToUnity(), uicolor);
+
         }
 
         public override void DrawTriangle(ref BM.Vector3 v0, ref BM.Vector3 v1, ref BM.Vector3 v2, ref BM.Vector3 color, float alpha)
         {
-            UnityEngine.Gizmos.color = new UnityEngine.Color(color.X, color.Y, color.Z);
-            UnityEngine.Gizmos.DrawLine(v0.ToUnity(), v1.ToUnity());
-            UnityEngine.Gizmos.DrawLine(v1.ToUnity(), v2.ToUnity());
-            UnityEngine.Gizmos.DrawLine(v2.ToUnity(), v0.ToUnity());
+            //UnityEngine.Gizmos.color = new UnityEngine.Color(color.X, color.Y, color.Z);
+            //UnityEngine.Gizmos.DrawLine(v0.ToUnity(), v1.ToUnity());
+            //UnityEngine.Gizmos.DrawLine(v1.ToUnity(), v2.ToUnity());
+            //UnityEngine.Gizmos.DrawLine(v2.ToUnity(), v0.ToUnity());
+            UnityEngine.Color uicolor = new UnityEngine.Color(color.X, color.Y, color.Z);
+            UnityEngine.Debug.DrawLine(v0.ToUnity(), v1.ToUnity(), uicolor);
+            UnityEngine.Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), uicolor);
+            UnityEngine.Debug.DrawLine(v2.ToUnity(), v0.ToUnity(), uicolor);
         }
 
         public override void DrawContactPoint(ref BM.Vector3 pointOnB, ref BM.Vector3 normalOnB, float distance, int lifeTime, ref BM.Vector3 color)
@@ -103,13 +122,13 @@ namespace SocialPoint.Multiplayer
             UnityEngine.Quaternion rot = BSExtensionMethods2.ExtractRotationFromMatrix(ref trans);
             UnityEngine.Vector3 p1 = pos + rot * UnityEngine.Vector3.up * orthoLen;
             UnityEngine.Vector3 p2 = pos - rot * UnityEngine.Vector3.up * orthoLen;
-            UnityEngine.Gizmos.DrawLine(p1, p2);
+            UnityEngine.Debug.DrawLine(p1, p2);
             p1 = pos + rot * UnityEngine.Vector3.right * orthoLen;
             p2 = pos - rot * UnityEngine.Vector3.right * orthoLen;
-            UnityEngine.Gizmos.DrawLine(p1, p2);
+            UnityEngine.Debug.DrawLine(p1, p2);
             p1 = pos + rot * UnityEngine.Vector3.forward * orthoLen;
             p2 = pos - rot * UnityEngine.Vector3.forward * orthoLen;
-            UnityEngine.Gizmos.DrawLine(p1, p2);
+            UnityEngine.Debug.DrawLine(p1, p2);
         }
 
         public override void DrawArc(ref BM.Vector3 center, ref BM.Vector3 normal, ref BM.Vector3 axis, float radiusA, float radiusB, float minAngle, float maxAngle,

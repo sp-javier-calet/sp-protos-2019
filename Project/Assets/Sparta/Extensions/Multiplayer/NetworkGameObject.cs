@@ -3,6 +3,7 @@ using SocialPoint.Utils;
 using SocialPoint.Network;
 using System;
 using BulletSharp;
+using BulletSharp.Math;
 
 namespace SocialPoint.Multiplayer
 {
@@ -12,17 +13,28 @@ namespace SocialPoint.Multiplayer
 
         public Transform Transform;
 
-        public CollisionObject CollisionObject;
+        public PhysicsCollisionObject PhysicsCollisionObject;
+
+        public CollisionObject CollisionObject
+        {
+            get
+            {
+                return PhysicsCollisionObject.GetCollisionObject();
+            }
+        }
 
         public NetworkGameObject(int id)
         {
             Id = id;
+            Transform = new Transform();
+            InitCollision();
         }
 
         public NetworkGameObject(int id, Transform t)
         {
             Id = id;
             Transform = t;
+            InitCollision();
         }
 
         public NetworkGameObject(NetworkGameObject go)
@@ -32,6 +44,27 @@ namespace SocialPoint.Multiplayer
                 Id = go.Id;
                 Transform = new Transform(go.Transform);
             }
+            else
+            {
+                Transform = new Transform();
+            }
+            InitCollision();
+        }
+
+        void InitCollision()
+        {
+            PhysicsCollisionObject = new PhysicsCollisionObject();
+            PhysicsCollisionObject.GameObject = this;
+            PhysicsBoxShape boxShape = new PhysicsBoxShape();
+            boxShape.Extents = new Vector3(0.5f);
+            PhysicsCollisionObject.CollisionShape = boxShape;
+            PhysicsCollisionObject.Debugger = new UnityDebugger();//TODO: Share single debugger
+
+            PhysicsCollisionObject.SetPosition(Transform.Position);
+
+            CollisionObject co = CollisionObject;
+            co.CollisionFlags = CollisionFlags.KinematicObject;
+            co.ActivationState = ActivationState.DisableDeactivation;
         }
 
         public object Clone()

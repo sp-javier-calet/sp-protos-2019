@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using SocialPoint.Network;
+using BulletSharp;
 
 namespace SocialPoint.Multiplayer
 {
@@ -31,6 +32,11 @@ namespace SocialPoint.Multiplayer
 
         Dictionary<byte, int> _lastReceivedAction;
         Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
+
+        public PhysicsWorld PhysicsWorld;
+        public PhysicsWorldLateHelper PhysicsLateHelper;
+        //public CollisionWorld CollisionWorld;
+        //public PhysicsDefaultCollisionHandler CollisionEventHandler;
 
         public NetworkScene Scene
         {
@@ -63,6 +69,17 @@ namespace SocialPoint.Multiplayer
 
             _lastReceivedAction = new Dictionary<byte, int>();
             _actionDelegates = new Dictionary<Type, List<INetworkActionDelegate>>();
+
+
+            PhysicsLateHelper = new PhysicsWorldLateHelper();
+            PhysicsWorld = new PhysicsWorld(new UnityDebugger(), PhysicsLateHelper);
+            PhysicsWorld.DoDebugDraw = true;
+            PhysicsWorld.Awake();
+
+            //CollisionConfiguration collisionConf = new DefaultCollisionConfiguration();
+            //Dispatcher dispatcher = new CollisionDispatcher(collisionConf);
+            //CollisionWorld = new DiscreteDynamicsWorld(dispatcher, new DbvtBroadphase(), null, collisionConf);
+            //CollisionEventHandler = new PhysicsDefaultCollisionHandler();
         }
 
         public virtual void Dispose()
@@ -267,6 +284,13 @@ namespace SocialPoint.Multiplayer
             {
                 behaviours[i].OnStart(go);
             }
+
+            //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
+            go.PhysicsCollisionObject.PhysicsWorld = PhysicsWorld;
+            go.PhysicsCollisionObject.Start();//TODO: Change start to remove internal Add to world
+            BCollisionCallbacksDefault collCallback = new BCollisionCallbacksDefault(go.CollisionObject);
+            go.PhysicsCollisionObject.AddOnCollisionCallbackEventHandler(collCallback);
+
             return go;
         }
 
@@ -277,6 +301,12 @@ namespace SocialPoint.Multiplayer
 
         public void Destroy(int id)
         {
+            NetworkGameObject go = _scene.FindObject(id);
+            if(go != null)
+            {
+                go.PhysicsCollisionObject.OnDisable();
+            }
+
             if(!_scene.RemoveObject(id))
             {
                 return;

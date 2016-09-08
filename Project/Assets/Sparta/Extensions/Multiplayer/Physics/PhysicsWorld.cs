@@ -300,7 +300,7 @@ namespace SocialPoint.Multiplayer
 
         //It is critical that Awake be called before any other scripts call BPhysicsWorld.Get()
         //Set this script and any derived classes very early in script execution order.
-        protected virtual void Awake()
+        public virtual void Awake()
         {
             InitializePhysicsWorld();
         }
