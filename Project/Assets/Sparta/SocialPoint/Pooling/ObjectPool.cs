@@ -2,7 +2,7 @@
 using SocialPoint.Base;
 using UnityEngine;
 
-namespace SocialPoint.ObjectPool
+namespace SocialPoint.Pooling
 {
     public sealed class ObjectPool : MonoBehaviour
     {

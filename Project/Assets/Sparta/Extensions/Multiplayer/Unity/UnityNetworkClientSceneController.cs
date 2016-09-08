@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using SocialPoint.ObjectPool;
+using SocialPoint.Pooling;
 using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
@@ -56,7 +56,7 @@ namespace SocialPoint.Multiplayer
                 }
             }
 
-            var go = SocialPoint.ObjectPool.ObjectPool.Spawn(prefab, parent,
+            var go = ObjectPool.Spawn(prefab, parent,
                          ev.Transform.Position.ToUnity(), ev.Transform.Rotation.ToUnity());
             _objects[ev.ObjectId] = go;
         }
@@ -66,7 +66,7 @@ namespace SocialPoint.Multiplayer
             GameObject go;
             if(_objects.TryGetValue(ev.ObjectId, out go))
             {
-                SocialPoint.ObjectPool.ObjectPool.Recycle(go);
+                ObjectPool.Recycle(go);
                 _objects.Remove(ev.ObjectId);
             }
         }

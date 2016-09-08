@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SocialPoint.ObjectPool
+namespace SocialPoint.Pooling
 {
     public static class ObjectPoolExtensions
     {

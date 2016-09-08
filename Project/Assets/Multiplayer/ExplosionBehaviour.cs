@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using SocialPoint.ObjectPool;
+using SocialPoint.Pooling;
 
 public class ExplosionBehaviour : MonoBehaviour, IRecyclable
 {
@@ -23,7 +23,7 @@ public class ExplosionBehaviour : MonoBehaviour, IRecyclable
         _timeSinceSpawn += Time.deltaTime;
         if(_timeSinceSpawn >= _lifetime)
         {
-            SocialPoint.ObjectPool.ObjectPool.Recycle(gameObject);
+            ObjectPool.Recycle(gameObject);
         }
     }
 }
