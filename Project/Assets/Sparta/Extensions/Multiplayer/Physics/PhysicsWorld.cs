@@ -371,7 +371,7 @@ namespace SocialPoint.Multiplayer
             //TODO handle removing kinematic character controller action
         }
 
-        public void AddRigidBody(BRigidBody rb)
+        public void AddRigidBody(PhysicsRigidBody rb)
         {
             if(m_worldType < WorldType.RigidBodyDynamics)
             {

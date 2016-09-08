@@ -6,7 +6,7 @@ using System.Collections;
 namespace SocialPoint.Multiplayer
 {
     //[AddComponentMenu("Physics Bullet/RigidBody")]
-    public class BRigidBody : PhysicsCollisionObject, IDisposable
+    public class PhysicsRigidBody : PhysicsCollisionObject, IDisposable
     {
         BGameObjectMotionState m_motionState;
 

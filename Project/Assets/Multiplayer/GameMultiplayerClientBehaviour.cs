@@ -64,10 +64,12 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     {
         if(_client.Connected)
         {
+            UnityEngine.Ray clickRay = eventData.pressEventCamera.ScreenPointToRay(eventData.pressPosition);
             _client.SendMessage(new NetworkMessageData {
                 MessageType = GameMsgType.ClickAction
             }, new ClickAction {
-                Position = eventData.pointerPressRaycast.worldPosition.ToMultiplayer()
+                Position = eventData.pointerPressRaycast.worldPosition.ToMultiplayer(),
+                Ray = new SocialPoint.Multiplayer.Ray(clickRay.origin.ToMultiplayer(), clickRay.direction.ToMultiplayer())
             });
         }
     }

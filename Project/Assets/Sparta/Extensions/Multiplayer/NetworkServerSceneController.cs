@@ -397,5 +397,19 @@ namespace SocialPoint.Multiplayer
         {
             return NetworkActionUtils.UnregisterActionDelegate<T>(callback, _actionDelegates);
         }
+
+        public bool IntersectsRay(NetworkGameObject gameObject, Ray ray)
+        {
+            if(gameObject == null)
+                return false;
+
+            float maxDistance = 100;
+            PhysicsRayResultCallback rayResult = new PhysicsRayResultCallback(gameObject.Id);
+            PhysicsWorld.world.RayTest(ray.origin, 
+                ray.origin + (ray.direction * maxDistance),
+                rayResult);
+
+            return rayResult.IsHit();
+        }
     }
 }

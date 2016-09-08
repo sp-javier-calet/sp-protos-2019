@@ -13,7 +13,15 @@ namespace SocialPoint.Multiplayer
 
         public Transform Transform;
 
-        public PhysicsCollisionObject PhysicsCollisionObject;
+        public PhysicsRigidBody RigidBody;
+
+        public PhysicsCollisionObject PhysicsCollisionObject
+        {
+            get
+            {
+                return RigidBody;
+            }
+        }
 
         public CollisionObject CollisionObject
         {
@@ -53,7 +61,16 @@ namespace SocialPoint.Multiplayer
 
         void InitCollision()
         {
-            PhysicsCollisionObject = new PhysicsCollisionObject();
+            RigidBody = new PhysicsRigidBody();
+            RigidBody.collisionFlags = CollisionFlags.KinematicObject;
+            //RigidBody.collisionMask = CollisionFilterGroups.AllFilter;
+            bool isKinematic = !RigidBody.isDynamic();
+            if(!isKinematic)
+            {
+                UnityEngine.Debug.Log("*** TEST RigidBody NO Kinematic");
+            }
+
+            //PhysicsCollisionObject = new PhysicsCollisionObject();
             PhysicsCollisionObject.GameObject = this;
             PhysicsBoxShape boxShape = new PhysicsBoxShape();
             boxShape.Extents = new Vector3(0.5f);
@@ -63,7 +80,7 @@ namespace SocialPoint.Multiplayer
             PhysicsCollisionObject.SetPosition(Transform.Position);
 
             CollisionObject co = CollisionObject;
-            co.CollisionFlags = CollisionFlags.KinematicObject;
+            //co.CollisionFlags = CollisionFlags.KinematicObject;
             co.ActivationState = ActivationState.DisableDeactivation;
         }
 
