@@ -11,6 +11,20 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         public const string BaseScheme = "base";
         public const string EditorScheme = "editor";
 
+        const string LastPathPrefsKey = "XcodePostProcessLastPath";
+
+        public static string LastProjectPath
+        {
+            set
+            {
+                EditorPrefs.SetString(LastPathPrefsKey, value);
+            }
+            get
+            {
+                return EditorPrefs.GetString(LastPathPrefsKey, string.Empty);
+            }
+        }
+            
         static string[] Schemes
         {
             get
@@ -52,9 +66,17 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
+            ApplyXcodeMods(target, path);
+        }
+
+        public static void ApplyXcodeMods(BuildTarget target, string path)
+        {
             if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
             {
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
+
+                // Store project path for manual execution
+                LastProjectPath = path;
 
                 var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
 
