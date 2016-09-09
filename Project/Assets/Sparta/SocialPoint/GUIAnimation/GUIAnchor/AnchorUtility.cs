@@ -57,7 +57,7 @@ namespace SocialPoint.GUIAnimation
             #if NGUI
             return ToPixelsNGUI (clipSpace);
             #else
-            return clipSpace;
+            throw new System.NotImplementedException();
             #endif
         }
 
@@ -66,7 +66,7 @@ namespace SocialPoint.GUIAnimation
             #if NGUI
             return ToClipSpaceNGUI (pixels);
             #else
-            return pixels;
+            throw new System.NotImplementedException();
             #endif
         }
 
@@ -86,7 +86,7 @@ namespace SocialPoint.GUIAnimation
 
         public static Vector2 GetCanvasScale()
         {
-            #if NGUI
+            #if NGUIs
             return GetCanvasScaleNGUI ();
             #else
             return GetCanvasScaleNative();
