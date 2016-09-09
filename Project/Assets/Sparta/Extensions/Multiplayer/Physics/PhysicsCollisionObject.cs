@@ -11,11 +11,11 @@ namespace SocialPoint.Multiplayer
         {
             get
             {
-                return m_collisionShape;
+                return _collisionShape;
             }
             set
             {
-                m_collisionShape = value;
+                _collisionShape = value;
             }
         }
 
@@ -59,92 +59,92 @@ namespace SocialPoint.Multiplayer
         //Problem is OnEnable gets called before Awake and Start so that developer has no chance to configure object before it is added to world or prevent
         //It from being added.
         //Solution is not to add object to the world until after Start has been called. Start will do the first add to world.
-        protected bool m_startHasBeenCalled = false;
+        protected bool _startHasBeenCalled = false;
 
-        protected CollisionObject m_collisionObject;
-        protected PhysicsCollisionShape m_collisionShape;
+        protected CollisionObject _collisionObject;
+        protected PhysicsCollisionShape _collisionShape;
         internal bool isInWorld = false;
         //[SerializeField]
-        protected BulletSharp.CollisionFlags m_collisionFlags = BulletSharp.CollisionFlags.None;
+        protected BulletSharp.CollisionFlags _collisionFlags = BulletSharp.CollisionFlags.None;
         //[SerializeField]
-        protected BulletSharp.CollisionFilterGroups m_groupsIBelongTo = BulletSharp.CollisionFilterGroups.DefaultFilter;
+        protected BulletSharp.CollisionFilterGroups _groupsIBelongTo = BulletSharp.CollisionFilterGroups.DefaultFilter;
         // A bitmask
         //[SerializeField]
-        protected BulletSharp.CollisionFilterGroups m_collisionMask = BulletSharp.CollisionFilterGroups.AllFilter;
+        protected BulletSharp.CollisionFilterGroups _collisionMask = BulletSharp.CollisionFilterGroups.AllFilter;
         // A colliding object must match this mask in order to collide with me.
 
         public BulletSharp.CollisionFlags collisionFlags
         {
-            get { return m_collisionFlags; }
+            get { return _collisionFlags; }
             set
             {
-                m_collisionFlags = value;
-                if(m_collisionObject != null && value != m_collisionFlags)
+                _collisionFlags = value;
+                if(_collisionObject != null && value != _collisionFlags)
                 {
-                    m_collisionObject.CollisionFlags = value;
+                    _collisionObject.CollisionFlags = value;
                 }
             }
         }
 
         public BulletSharp.CollisionFilterGroups groupsIBelongTo
         {
-            get { return m_groupsIBelongTo; }
+            get { return _groupsIBelongTo; }
             set
             {
-                if(m_collisionObject != null && value != m_groupsIBelongTo)
+                if(_collisionObject != null && value != _groupsIBelongTo)
                 {
                     _debugger.LogError("Cannot change the collision group once a collision object has been created");
                 }
                 else
                 {
-                    m_groupsIBelongTo = value;
+                    _groupsIBelongTo = value;
                 }
             }
         }
 
         public BulletSharp.CollisionFilterGroups collisionMask
         {
-            get { return m_collisionMask; }
+            get { return _collisionMask; }
             set
             {
-                if(m_collisionObject != null && value != m_collisionMask)
+                if(_collisionObject != null && value != _collisionMask)
                 {
                     _debugger.LogError("Cannot change the collision mask once a collision object has been created");
                 }
                 else
                 {
-                    m_collisionMask = value;
+                    _collisionMask = value;
                 }
             }
         }
 
-        BICollisionCallbackEventHandler m_onCollisionCallback;
+        BICollisionCallbackEventHandler _onCollisionCallback;
 
         public virtual BICollisionCallbackEventHandler collisionCallbackEventHandler
         {
-            get { return m_onCollisionCallback; }
+            get { return _onCollisionCallback; }
         }
 
         public virtual void AddOnCollisionCallbackEventHandler(BICollisionCallbackEventHandler myCallback)
         {
             PhysicsWorld bhw = PhysicsWorld;
-            if(m_onCollisionCallback != null)
+            if(_onCollisionCallback != null)
             {
                 _debugger.LogErrorFormat("BCollisionObject {0} already has a collision callback. You must remove it before adding another. ", GameObject.Id);
 
             }
-            m_onCollisionCallback = myCallback;
-            bhw.RegisterCollisionCallbackListener(m_onCollisionCallback);
+            _onCollisionCallback = myCallback;
+            bhw.RegisterCollisionCallbackListener(_onCollisionCallback);
         }
 
         public virtual void RemoveOnCollisionCallbackEventHandler()
         {
             PhysicsWorld bhw = PhysicsWorld;
-            if(bhw != null && m_onCollisionCallback != null)
+            if(bhw != null && _onCollisionCallback != null)
             {
-                bhw.DeregisterCollisionCallbackListener(m_onCollisionCallback);
+                bhw.DeregisterCollisionCallbackListener(_onCollisionCallback);
             }
-            m_onCollisionCallback = null;
+            _onCollisionCallback = null;
         }
 
         //called by Physics World just before rigid body is added to world.
@@ -152,11 +152,11 @@ namespace SocialPoint.Multiplayer
         internal virtual bool _BuildCollisionObject()
         {
             PhysicsWorld world = PhysicsWorld;
-            if(m_collisionObject != null)
+            if(_collisionObject != null)
             {
                 if(isInWorld && world != null)
                 {
-                    world.RemoveCollisionObject(m_collisionObject);
+                    world.RemoveCollisionObject(_collisionObject);
                 }
             }
 
@@ -165,57 +165,57 @@ namespace SocialPoint.Multiplayer
                 _debugger.LogError("The local scale on this collision shape is not one. Bullet physics does not support scaling on a rigid body world transform. Instead alter the dimensions of the CollisionShape.");
             }*/
 
-            m_collisionShape = CollisionShape;
-            if(m_collisionShape == null)
+            _collisionShape = CollisionShape;
+            if(_collisionShape == null)
             {
                 _debugger.LogError("There was no collision shape component attached to this BRigidBody. " + GameObject.Id);
                 return false;
             }
 
-            CollisionShape cs = m_collisionShape.GetCollisionShape();
+            CollisionShape cs = _collisionShape.GetCollisionShape();
             //rigidbody is dynamic if and only if mass is non zero, otherwise static
 
 
-            if(m_collisionObject == null)
+            if(_collisionObject == null)
             {
-                m_collisionObject = new CollisionObject();
-                m_collisionObject.CollisionShape = cs;
-                m_collisionObject.UserObject = this;
+                _collisionObject = new CollisionObject();
+                _collisionObject.CollisionShape = cs;
+                _collisionObject.UserObject = this;
 
                 Matrix worldTrans;
                 Quaternion q = GameObject.Transform.Rotation;
                 Matrix.RotationQuaternion(ref q, out worldTrans);
                 worldTrans.Origin = GameObject.Transform.Position;
-                m_collisionObject.WorldTransform = worldTrans;
-                m_collisionObject.CollisionFlags = m_collisionFlags;
+                _collisionObject.WorldTransform = worldTrans;
+                _collisionObject.CollisionFlags = _collisionFlags;
             }
             else
             {
-                m_collisionObject.CollisionShape = cs;
+                _collisionObject.CollisionShape = cs;
                 Matrix worldTrans;
                 Quaternion q = GameObject.Transform.Rotation;
                 Matrix.RotationQuaternion(ref q, out worldTrans);
                 worldTrans.Origin = GameObject.Transform.Position;
-                m_collisionObject.WorldTransform = worldTrans;
-                m_collisionObject.CollisionFlags = m_collisionFlags;
+                _collisionObject.WorldTransform = worldTrans;
+                _collisionObject.CollisionFlags = _collisionFlags;
             }
             return true;
         }
 
         public virtual CollisionObject GetCollisionObject()
         {
-            if(m_collisionObject == null)
+            if(_collisionObject == null)
             {
                 _BuildCollisionObject();
             }
-            return m_collisionObject;
+            return _collisionObject;
         }
 
         //Don't try to call functions on other objects such as the Physics world since they may not exit.
         protected virtual void Awake()
         {
-            m_collisionShape = CollisionShape;
-            if(m_collisionShape == null)
+            _collisionShape = CollisionShape;
+            if(_collisionShape == null)
             {
                 _debugger.LogError("A BCollisionObject component must be on an object with a PhysicsCollisionShape component.");
             }
@@ -228,7 +228,7 @@ namespace SocialPoint.Multiplayer
 
         protected virtual void RemoveObjectFromBulletWorld()
         {
-            PhysicsWorld.RemoveCollisionObject(m_collisionObject);
+            PhysicsWorld.RemoveCollisionObject(_collisionObject);
         }
 
 
@@ -238,7 +238,7 @@ namespace SocialPoint.Multiplayer
         //make sure that objects they depend on have been added to the world before they add themselves.
         public virtual void Start()
         {
-            m_startHasBeenCalled = true;
+            _startHasBeenCalled = true;
             AddObjectToBulletWorld();
         }
 
@@ -249,7 +249,7 @@ namespace SocialPoint.Multiplayer
         //don't try to call functions on world before Start is called. It may not exist.
         public virtual void OnEnable()
         {
-            if(!isInWorld && m_startHasBeenCalled)
+            if(!isInWorld && _startHasBeenCalled)
             {
                 AddObjectToBulletWorld();
             }
@@ -279,19 +279,19 @@ namespace SocialPoint.Multiplayer
 
         protected virtual void Dispose(bool isdisposing)
         {
-            if(isInWorld && isdisposing && m_collisionObject != null)
+            if(isInWorld && isdisposing && _collisionObject != null)
             {
                 PhysicsWorld pw = PhysicsWorld;
                 if(pw != null && pw.world != null)
                 {
-                    ((DiscreteDynamicsWorld)pw.world).RemoveCollisionObject(m_collisionObject);
+                    ((DiscreteDynamicsWorld)pw.world).RemoveCollisionObject(_collisionObject);
                 }
             }
-            if(m_collisionObject != null)
+            if(_collisionObject != null)
             {
 
-                m_collisionObject.Dispose();
-                m_collisionObject = null;
+                _collisionObject.Dispose();
+                _collisionObject = null;
             }
         }
 
@@ -299,9 +299,9 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                Matrix newTrans = m_collisionObject.WorldTransform;
+                Matrix newTrans = _collisionObject.WorldTransform;
                 newTrans.Origin = position;
-                m_collisionObject.WorldTransform = newTrans;
+                _collisionObject.WorldTransform = newTrans;
                 GameObject.Transform.Position = position;
             }
             else
@@ -315,11 +315,11 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                Matrix newTrans = m_collisionObject.WorldTransform;
+                Matrix newTrans = _collisionObject.WorldTransform;
                 Quaternion q = rotation;
                 Matrix.RotationQuaternion(ref q, out newTrans);
                 newTrans.Origin = GameObject.Transform.Position;
-                m_collisionObject.WorldTransform = newTrans;
+                _collisionObject.WorldTransform = newTrans;
                 GameObject.Transform.Position = position;
                 GameObject.Transform.Rotation = rotation;
             }
@@ -334,11 +334,11 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                Matrix newTrans = m_collisionObject.WorldTransform;
+                Matrix newTrans = _collisionObject.WorldTransform;
                 Quaternion q = rotation;
                 Matrix.RotationQuaternion(ref q, out newTrans);
                 newTrans.Origin = GameObject.Transform.Position;
-                m_collisionObject.WorldTransform = newTrans;
+                _collisionObject.WorldTransform = newTrans;
                 GameObject.Transform.Rotation = rotation;
             }
             else

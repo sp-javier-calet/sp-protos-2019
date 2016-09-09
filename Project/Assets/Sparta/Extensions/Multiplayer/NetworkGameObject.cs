@@ -72,10 +72,9 @@ namespace SocialPoint.Multiplayer
 
             //PhysicsCollisionObject = new PhysicsCollisionObject();
             PhysicsCollisionObject.GameObject = this;
-            PhysicsBoxShape boxShape = new PhysicsBoxShape();
-            boxShape.Extents = new Vector3(0.5f);
+            PhysicsBoxShape boxShape = new PhysicsBoxShape(new Vector3(0.5f));
             PhysicsCollisionObject.CollisionShape = boxShape;
-            PhysicsCollisionObject.Debugger = new UnityDebugger();//TODO: Share single debugger
+            PhysicsCollisionObject.Debugger = new UnityPhysicsDebugger();//TODO: Share single debugger
 
             PhysicsCollisionObject.SetPosition(Transform.Position);
 

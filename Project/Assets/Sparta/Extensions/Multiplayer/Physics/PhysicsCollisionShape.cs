@@ -24,7 +24,13 @@ namespace SocialPoint.Multiplayer
             StaticPlaneShape = 8,
         };
 
-        protected CollisionShape collisionShapePtr = null;
+        // Derived classes must create it upon construction
+        protected CollisionShape _collisionShapePtr = null;
+
+        public CollisionShape GetCollisionShape()
+        {
+            return _collisionShapePtr;
+        }
 
         void OnDestroy()
         {
@@ -39,15 +45,11 @@ namespace SocialPoint.Multiplayer
 
         protected virtual void Dispose(bool isdisposing)
         {
-            if(collisionShapePtr != null)
+            if(_collisionShapePtr != null)
             {
-                collisionShapePtr.Dispose();
-                collisionShapePtr = null;
+                _collisionShapePtr.Dispose();
+                _collisionShapePtr = null;
             }
         }
-
-        //public abstract void OnDrawGizmosSelected();
-
-        public abstract CollisionShape GetCollisionShape();
     }
 }

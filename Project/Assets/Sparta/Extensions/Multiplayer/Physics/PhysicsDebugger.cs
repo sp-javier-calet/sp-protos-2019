@@ -3,7 +3,6 @@ using BulletSharp;
 
 public abstract class PhysicsDebugger : DebugDraw
 {
-    //[Flags]
     public enum DebugType
     {
         Error = 1,

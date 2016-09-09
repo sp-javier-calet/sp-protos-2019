@@ -50,9 +50,9 @@ namespace SocialPoint.Multiplayer
             set
             {
                 _debugDrawMode = value;
-                if(_doDebugDraw && m_world != null && m_world.DebugDrawer != null)
+                if(_doDebugDraw && _world != null && _world.DebugDrawer != null)
                 {
-                    m_world.DebugDrawer.DebugMode = value;
+                    _world.DebugDrawer.DebugMode = value;
                 }
             }
         }
@@ -65,21 +65,21 @@ namespace SocialPoint.Multiplayer
             get { return _doDebugDraw; }
             set
             {
-                if(_doDebugDraw != value && m_world != null)
+                if(_doDebugDraw != value && _world != null)
                 {
                     if(value == true)
                     {
                         _debugger.DebugMode = _debugDrawMode;
-                        m_world.DebugDrawer = _debugger;
+                        _world.DebugDrawer = _debugger;
                     }
                     else
                     {
-                        IDebugDraw db = m_world.DebugDrawer;
+                        IDebugDraw db = _world.DebugDrawer;
                         if(db != null && db is IDisposable)
                         {
                             ((IDisposable)db).Dispose();
                         }
-                        m_world.DebugDrawer = null;
+                        _world.DebugDrawer = null;
                     }
                 }
                 _doDebugDraw = value;
@@ -87,96 +87,96 @@ namespace SocialPoint.Multiplayer
         }
 
         //[SerializeField]
-        WorldType m_worldType = WorldType.RigidBodyDynamics;
+        WorldType _worldType = WorldType.RigidBodyDynamics;
 
         public WorldType worldType
         {
-            get { return m_worldType; }
+            get { return _worldType; }
             set
             {
-                if(value != m_worldType && m_world != null)
+                if(value != _worldType && _world != null)
                 {
                     _debugger.LogError("Can't modify a Physics World after simulation has started");
                     return;
                 }
-                m_worldType = value;
+                _worldType = value;
             }
         }
 
         //[SerializeField]
-        CollisionConfType m_collisionType = CollisionConfType.DefaultDynamicsWorldCollisionConf;
+        CollisionConfType _collisionType = CollisionConfType.DefaultDynamicsWorldCollisionConf;
 
         public CollisionConfType collisionType
         {
-            get { return m_collisionType; }
+            get { return _collisionType; }
             set
             {
-                if(value != m_collisionType && m_world != null)
+                if(value != _collisionType && _world != null)
                 {
                     _debugger.LogError(debugType, "Can't modify a Physics World after simulation has started");
                     return;
                 }
-                m_collisionType = value;
+                _collisionType = value;
             }
         }
 
         //[SerializeField]
-        BroadphaseType m_broadphaseType = BroadphaseType.DynamicAABBBroadphase;
+        BroadphaseType _broadphaseType = BroadphaseType.DynamicAABBBroadphase;
 
         public BroadphaseType broadphaseType
         {
-            get { return m_broadphaseType; }
+            get { return _broadphaseType; }
             set
             {
-                if(value != m_broadphaseType && m_world != null)
+                if(value != _broadphaseType && _world != null)
                 {
                     _debugger.LogError(debugType, "Can't modify a Physics World after simulation has started");
                     return;
                 }
-                m_broadphaseType = value;
+                _broadphaseType = value;
             }
         }
 
         //[SerializeField]
-        Vector3 m_axis3SweepBroadphaseMin = new Vector3(-1000f, -1000f, -1000f);
+        Vector3 _axis3SweepBroadphaseMin = new Vector3(-1000f, -1000f, -1000f);
 
         public Vector3 axis3SweepBroadphaseMin
         {
-            get { return m_axis3SweepBroadphaseMin; }
+            get { return _axis3SweepBroadphaseMin; }
             set
             {
-                if(value != m_axis3SweepBroadphaseMin && m_world != null)
+                if(value != _axis3SweepBroadphaseMin && _world != null)
                 {
                     _debugger.LogError(debugType, "Can't modify a Physics World after simulation has started");
                     return;
                 }
-                m_axis3SweepBroadphaseMin = value;
+                _axis3SweepBroadphaseMin = value;
             }
         }
 
         //[SerializeField]
-        Vector3 m_axis3SweepBroadphaseMax = new Vector3(1000f, 1000f, 1000f);
+        Vector3 _axis3SweepBroadphaseMax = new Vector3(1000f, 1000f, 1000f);
 
         public Vector3 axis3SweepBroadphaseMax
         {
-            get { return m_axis3SweepBroadphaseMax; }
+            get { return _axis3SweepBroadphaseMax; }
             set
             {
-                if(value != m_axis3SweepBroadphaseMax && m_world != null)
+                if(value != _axis3SweepBroadphaseMax && _world != null)
                 {
                     _debugger.LogError(debugType, "Can't modify a Physics World after simulation has started");
                     return;
                 }
-                m_axis3SweepBroadphaseMax = value;
+                _axis3SweepBroadphaseMax = value;
             }
         }
 
         //[SerializeField]
-        Vector3 m_gravity = new Vector3(0f, -9.8f, 0f);
+        Vector3 _gravity = new Vector3(0f, -9.8f, 0f);
 
         public Vector3 gravity
         {
-            get { return m_gravity; }
+            get { return _gravity; }
             set
             {
                 if(_ddWorld != null)
@@ -184,45 +184,45 @@ namespace SocialPoint.Multiplayer
                     Vector3 grav = value;
                     _ddWorld.SetGravity(ref grav);
                 }
-                m_gravity = value;
+                _gravity = value;
             }
         }
 
         //[SerializeField]
-        float m_fixedTimeStep = 1f / 60f;
+        float _fixedTimeStep = 1f / 60f;
 
         public float fixedTimeStep
         {
             get
             {
-                return m_fixedTimeStep;
+                return _fixedTimeStep;
             }
             set
             {
                 if(lateUpdateHelper != null)
                 {
-                    lateUpdateHelper.m_fixedTimeStep = value;
+                    lateUpdateHelper._fixedTimeStep = value;
                 }
-                m_fixedTimeStep = value;
+                _fixedTimeStep = value;
             }
         }
 
         //[SerializeField]
-        int m_maxSubsteps = 3;
+        int _maxSubsteps = 3;
 
         public int maxSubsteps
         {
             get
             {
-                return m_maxSubsteps;
+                return _maxSubsteps;
             }
             set
             {
                 if(lateUpdateHelper != null)
                 {
-                    lateUpdateHelper.m_maxSubsteps = value;
+                    lateUpdateHelper._maxSubsteps = value;
                 }
-                m_maxSubsteps = value;
+                _maxSubsteps = value;
             }
         }
 
@@ -230,11 +230,11 @@ namespace SocialPoint.Multiplayer
 
         /*
         [SerializeField]
-        bool m_doCollisionCallbacks = true;
+        bool _doCollisionCallbacks = true;
         public bool doCollisionCallbacks
         {
-            get { return m_doCollisionCallbacks; }
-            set { m_doCollisionCallbacks = value; }
+            get { return _doCollisionCallbacks; }
+            set { _doCollisionCallbacks = value; }
         }
         */
 
@@ -250,12 +250,12 @@ namespace SocialPoint.Multiplayer
 
 
 
-        CollisionWorld m_world;
+        CollisionWorld _world;
 
         public CollisionWorld world
         {
-            get { return m_world; }
-            set { m_world = value; }
+            get { return _world; }
+            set { _world = value; }
         }
 
         private DiscreteDynamicsWorld _ddWorld;
@@ -267,7 +267,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(lateUpdateHelper != null)
                 {
-                    return lateUpdateHelper.m__frameCount;
+                    return lateUpdateHelper._frameCount;
                 }
                 else
                 {
@@ -292,9 +292,9 @@ namespace SocialPoint.Multiplayer
 
         public void OnDrawGizmos()
         {
-            if(_doDebugDraw && m_world != null)
+            if(_doDebugDraw && _world != null)
             {
-                m_world.DebugDrawWorld();
+                _world.DebugDrawWorld();
             }
         }
 
@@ -319,7 +319,7 @@ namespace SocialPoint.Multiplayer
 
         public void AddAction(IAction action)
         {
-            if(m_worldType < WorldType.RigidBodyDynamics)
+            if(_worldType < WorldType.RigidBodyDynamics)
             {
                 _debugger.LogError("World type must not be collision only");
             }
@@ -331,11 +331,11 @@ namespace SocialPoint.Multiplayer
 
         public void RemoveAction(IAction action)
         {
-            if(m_worldType < WorldType.RigidBodyDynamics)
+            if(_worldType < WorldType.RigidBodyDynamics)
             {
                 _debugger.LogError(debugType, "World type must not be collision only");
             }
-            ((DiscreteDynamicsWorld)m_world).RemoveAction(action);
+            ((DiscreteDynamicsWorld)_world).RemoveAction(action);
         }
 
         public void AddCollisionObject(PhysicsCollisionObject co)
@@ -344,7 +344,7 @@ namespace SocialPoint.Multiplayer
                 _debugger.LogFormat("Adding collision object {0} to world", co);
             if(co._BuildCollisionObject())
             {
-                m_world.AddCollisionObject(co.GetCollisionObject(), co.groupsIBelongTo, co.collisionMask);
+                _world.AddCollisionObject(co.GetCollisionObject(), co.groupsIBelongTo, co.collisionMask);
                 co.isInWorld = true;
                 /*
                 if(ghostPairCallback == null && co is BGhostObject && world is DynamicsWorld)
@@ -365,7 +365,7 @@ namespace SocialPoint.Multiplayer
         {
             if(debugType >= PhysicsDebugger.DebugType.Debug)
                 _debugger.LogFormat("Removing collisionObject {0} from world", co.UserObject);
-            m_world.RemoveCollisionObject(co);
+            _world.RemoveCollisionObject(co);
             if(co.UserObject is PhysicsCollisionObject)
                 ((PhysicsCollisionObject)co.UserObject).isInWorld = false;
             //TODO handle removing kinematic character controller action
@@ -373,7 +373,7 @@ namespace SocialPoint.Multiplayer
 
         public void AddRigidBody(PhysicsRigidBody rb)
         {
-            if(m_worldType < WorldType.RigidBodyDynamics)
+            if(_worldType < WorldType.RigidBodyDynamics)
             {
                 _debugger.LogError(debugType, "World type must not be collision only");
             }
@@ -381,143 +381,76 @@ namespace SocialPoint.Multiplayer
                 _debugger.LogFormat("Adding rigidbody {0} to world", rb);
             if(rb._BuildCollisionObject())
             {
-                ((DiscreteDynamicsWorld)m_world).AddRigidBody((RigidBody)rb.GetCollisionObject(), rb.groupsIBelongTo, rb.collisionMask);
+                ((DiscreteDynamicsWorld)_world).AddRigidBody((RigidBody)rb.GetCollisionObject(), rb.groupsIBelongTo, rb.collisionMask);
                 rb.isInWorld = true;
             }
         }
 
         public void RemoveRigidBody(BulletSharp.RigidBody rb)
         {
-            if(m_worldType < WorldType.RigidBodyDynamics)
+            if(_worldType < WorldType.RigidBodyDynamics)
             {
                 _debugger.LogError(debugType, "World type must not be collision only");
             }
             if(debugType >= PhysicsDebugger.DebugType.Debug)
                 _debugger.LogFormat("Removing rigidbody {0} from world", rb.UserObject);
-            ((DiscreteDynamicsWorld)m_world).RemoveRigidBody(rb);
+            ((DiscreteDynamicsWorld)_world).RemoveRigidBody(rb);
             if(rb.UserObject is PhysicsCollisionObject)
                 ((PhysicsCollisionObject)rb.UserObject).isInWorld = false;
         }
 
-        /*
-        public bool AddConstraint(BTypedConstraint c)
-        {
-            if(m_worldType < WorldType.RigidBodyDynamics)
-            {
-                B_debugger.LogError(debugType, "World type must not be collision only");
-                return false;
-            }
-            if(debugType >= PhysicsDebugger.DebugType.Debug)
-                _debugger.LogFormat("Adding constraint {0} to world", c);
-            if(c._BuildConstraint())
-            {
-                ((DiscreteDynamicsWorld)m_world).AddConstraint(c.GetConstraint(), c.disableCollisionsBetweenConstrainedBodies);
-                c.m_isInWorld = true;
-            }
-        }
-
-        public void RemoveConstraint(BulletSharp.TypedConstraint c)
-        {
-            if(m_worldType < WorldType.RigidBodyDynamics)
-            {
-                _debugger.LogError(debugType, "World type must not be collision only");
-            }
-            if(debugType >= PhysicsDebugger.DebugType.Debug)
-                _debugger.LogFormat("Removing constraint {0} from world", c.Userobject);
-            ((DiscreteDynamicsWorld)m_world).RemoveConstraint(c);
-            if(c.Userobject is BTypedConstraint)
-                ((BTypedConstraint)c.Userobject).m_isInWorld = false;
-        }
-        //*/
-
-        /*
-        public bool AddSoftBody(BSoftBody softBody)
-        {
-            if(!(m_world is BulletSharp.SoftBody.SoftRigidDynamicsWorld))
-            {
-                if(debugType >= PhysicsDebugger.DebugType.Debug)
-                    _debugger.LogFormat("The Physics World must be a BSoftBodyWorld for adding soft bodies");
-                return false;
-            }
-            if(!_isDisposed)
-            {
-                if(debugType >= PhysicsDebugger.DebugType.Debug)
-                    _debugger.LogFormat("Adding softbody {0} to world", softBody);
-                if(softBody._BuildCollisionObject())
-                {
-                    ((BulletSharp.SoftBody.SoftRigidDynamicsWorld)m_world).AddSoftBody((SoftBody)softBody.GetCollisionObject());
-                    softBody.isInWorld = true;
-                }
-                return true;
-            }
-            return false;
-        }
-
-        public void RemoveSoftBody(BulletSharp.SoftBody.SoftBody softBody)
-        {
-            if(m_world is BulletSharp.SoftBody.SoftRigidDynamicsWorld)
-            {
-                if(debugType >= PhysicsDebugger.DebugType.Debug)
-                    _debugger.LogFormat("Removing softbody {0} from world", softBody.UserObject);
-                ((BulletSharp.SoftBody.SoftRigidDynamicsWorld)m_world).RemoveSoftBody(softBody);
-                if(softBody.UserObject is PhysicsCollisionObject)
-                    ((PhysicsCollisionObject)softBody.UserObject).isInWorld = false;
-            }
-        }
-        //*/
-
         protected virtual void InitializePhysicsWorld()
         {
-            if(m_worldType == WorldType.SoftBodyAndRigidBody && m_collisionType == CollisionConfType.DefaultDynamicsWorldCollisionConf)
+            if(_worldType == WorldType.SoftBodyAndRigidBody && _collisionType == CollisionConfType.DefaultDynamicsWorldCollisionConf)
             {
                 _debugger.LogError(debugType, "For World Type = SoftBodyAndRigidBody collisionType must be collisionType=SoftBodyRigidBodyCollisionConf. Switching");
-                m_collisionType = CollisionConfType.SoftBodyRigidBodyCollisionConf;
+                _collisionType = CollisionConfType.SoftBodyRigidBodyCollisionConf;
             }
 
-            if(m_collisionType == CollisionConfType.DefaultDynamicsWorldCollisionConf)
+            if(_collisionType == CollisionConfType.DefaultDynamicsWorldCollisionConf)
             {
                 CollisionConf = new DefaultCollisionConfiguration();
             }
-            else if(m_collisionType == CollisionConfType.SoftBodyRigidBodyCollisionConf)
+            else if(_collisionType == CollisionConfType.SoftBodyRigidBodyCollisionConf)
             {
                 CollisionConf = new SoftBodyRigidBodyCollisionConfiguration();
             }
 
             Dispatcher = new CollisionDispatcher(CollisionConf);
 
-            if(m_broadphaseType == BroadphaseType.DynamicAABBBroadphase)
+            if(_broadphaseType == BroadphaseType.DynamicAABBBroadphase)
             {
                 Broadphase = new DbvtBroadphase();
             }
-            else if(m_broadphaseType == BroadphaseType.Axis3SweepBroadphase)
+            else if(_broadphaseType == BroadphaseType.Axis3SweepBroadphase)
             {
-                Broadphase = new AxisSweep3(m_axis3SweepBroadphaseMin, m_axis3SweepBroadphaseMax, axis3SweepMaxProxies);
+                Broadphase = new AxisSweep3(_axis3SweepBroadphaseMin, _axis3SweepBroadphaseMax, axis3SweepMaxProxies);
             }
-            else if(m_broadphaseType == BroadphaseType.Axis3SweepBroadphase_32bit)
+            else if(_broadphaseType == BroadphaseType.Axis3SweepBroadphase_32bit)
             {
-                Broadphase = new AxisSweep3_32Bit(m_axis3SweepBroadphaseMin, m_axis3SweepBroadphaseMax, axis3SweepMaxProxies);
+                Broadphase = new AxisSweep3_32Bit(_axis3SweepBroadphaseMin, _axis3SweepBroadphaseMax, axis3SweepMaxProxies);
             }
             else
             {
                 Broadphase = null;
             }
 
-            if(m_worldType == WorldType.CollisionOnly)
+            if(_worldType == WorldType.CollisionOnly)
             {
-                m_world = new CollisionWorld(Dispatcher, Broadphase, CollisionConf);
+                _world = new CollisionWorld(Dispatcher, Broadphase, CollisionConf);
                 _ddWorld = null;
             }
-            else if(m_worldType == WorldType.RigidBodyDynamics)
+            else if(_worldType == WorldType.RigidBodyDynamics)
             {
-                m_world = new DiscreteDynamicsWorld(Dispatcher, Broadphase, null, CollisionConf);
-                _ddWorld = (DiscreteDynamicsWorld)m_world;
+                _world = new DiscreteDynamicsWorld(Dispatcher, Broadphase, null, CollisionConf);
+                _ddWorld = (DiscreteDynamicsWorld)_world;
             }
-            else if(m_worldType == WorldType.MultiBodyWorld)
+            else if(_worldType == WorldType.MultiBodyWorld)
             {
-                m_world = new MultiBodyDynamicsWorld(Dispatcher, Broadphase, null, CollisionConf);
-                _ddWorld = (DiscreteDynamicsWorld)m_world;
+                _world = new MultiBodyDynamicsWorld(Dispatcher, Broadphase, null, CollisionConf);
+                _ddWorld = (DiscreteDynamicsWorld)_world;
             }
-            else if(m_worldType == WorldType.SoftBodyAndRigidBody)
+            else if(_worldType == WorldType.SoftBodyAndRigidBody)
             {
                 Solver = new SequentialImpulseConstraintSolver();
                 Solver.RandSeed = sequentialImpulseConstraintSolverRandomSeed;
@@ -526,31 +459,31 @@ namespace SocialPoint.Multiplayer
                     WaterDensity = 0,
                     WaterOffset = 0,
                     WaterNormal = Vector3.Zero,
-                    Gravity = m_gravity,
+                    Gravity = _gravity,
                     Dispatcher = Dispatcher,
                     Broadphase = Broadphase
                 };
                 softBodyWorldInfo.SparseSdf.Initialize();
 
-                m_world = new SoftRigidDynamicsWorld(Dispatcher, Broadphase, Solver, CollisionConf);
-                _ddWorld = (DiscreteDynamicsWorld)m_world;
+                _world = new SoftRigidDynamicsWorld(Dispatcher, Broadphase, Solver, CollisionConf);
+                _ddWorld = (DiscreteDynamicsWorld)_world;
 
-                m_world.DispatchInfo.EnableSpu = true;
+                _world.DispatchInfo.EnableSpu = true;
                 softBodyWorldInfo.SparseSdf.Reset();
                 softBodyWorldInfo.AirDensity = 1.2f;
                 softBodyWorldInfo.WaterDensity = 0;
                 softBodyWorldInfo.WaterOffset = 0;
                 softBodyWorldInfo.WaterNormal = Vector3.Zero;
-                softBodyWorldInfo.Gravity = m_gravity;
+                softBodyWorldInfo.Gravity = _gravity;
             }
             if(_ddWorld != null)
             {
-                _ddWorld.Gravity = m_gravity;
+                _ddWorld.Gravity = _gravity;
             }
             if(_doDebugDraw)
             {
                 _debugger.DebugMode = _debugDrawMode;
-                m_world.DebugDrawer = _debugger;
+                _world.DebugDrawer = _debugger;
             }
 
             //Add a BPhysicsWorldLateHelper component to call FixedUpdate
@@ -559,11 +492,11 @@ namespace SocialPoint.Multiplayer
             {
                 lateUpdateHelper = gameObject.AddComponent<PhysicsWorldLateHelper>();
             }*/
-            lateUpdateHelper.m_world = m_world;
-            lateUpdateHelper.m_ddWorld = _ddWorld;
-            lateUpdateHelper.m_physicsWorld = this;
-            lateUpdateHelper.m__frameCount = 0;
-            lateUpdateHelper.m_lastSimulationStepTime = 0;
+            lateUpdateHelper._world = _world;
+            lateUpdateHelper._ddWorld = _ddWorld;
+            lateUpdateHelper._physicsWorld = this;
+            lateUpdateHelper._frameCount = 0;
+            lateUpdateHelper._lastSimulationStepTime = 0;
         }
 
         protected void Dispose(bool disposing)
@@ -573,10 +506,10 @@ namespace SocialPoint.Multiplayer
 
             if(lateUpdateHelper != null)
             {
-                lateUpdateHelper.m_ddWorld = null;
-                lateUpdateHelper.m_world = null;
+                lateUpdateHelper._ddWorld = null;
+                lateUpdateHelper._world = null;
             }
-            if(m_world != null)
+            if(_world != null)
             {
                 //remove/dispose constraints
                 int i;
@@ -590,7 +523,7 @@ namespace SocialPoint.Multiplayer
                         TypedConstraint constraint = _ddWorld.GetConstraint(i);
                         _ddWorld.RemoveConstraint(constraint);
                         if(constraint.Userobject is BTypedConstraint)
-                            ((BTypedConstraint)constraint.Userobject).m_isInWorld = false;
+                            ((BTypedConstraint)constraint.Userobject)._isInWorld = false;
                         if(debugType >= PhysicsDebugger.DebugType.Debug)
                             _debugger.LogFormat("Removed Constaint {0}", constraint.Userobject);
                         constraint.Dispose();
@@ -601,16 +534,16 @@ namespace SocialPoint.Multiplayer
                 if(debugType >= PhysicsDebugger.DebugType.Debug)
                     _debugger.LogFormat("Removing Collision Objects {0}", _ddWorld.NumCollisionObjects);
                 //remove the rigidbodies from the dynamics world and delete them
-                for(i = m_world.NumCollisionObjects - 1; i >= 0; i--)
+                for(i = _world.NumCollisionObjects - 1; i >= 0; i--)
                 {
-                    CollisionObject obj = m_world.CollisionObjectArray[i];
+                    CollisionObject obj = _world.CollisionObjectArray[i];
                     RigidBody body = obj as RigidBody;
                     if(body != null && body.MotionState != null)
                     {
                         _debugger.Assert(body.NumConstraintRefs == 0, "Rigid body still had constraints");
                         body.MotionState.Dispose();
                     }
-                    m_world.RemoveCollisionObject(obj);
+                    _world.RemoveCollisionObject(obj);
                     if(obj.UserObject is PhysicsCollisionObject)
                         ((PhysicsCollisionObject)obj.UserObject).isInWorld = false;
                     if(debugType >= PhysicsDebugger.DebugType.Debug)
@@ -618,21 +551,21 @@ namespace SocialPoint.Multiplayer
                     obj.Dispose();
                 }
 
-                if(m_world.DebugDrawer != null)
+                if(_world.DebugDrawer != null)
                 {
-                    if(m_world.DebugDrawer is IDisposable)
+                    if(_world.DebugDrawer is IDisposable)
                     {
-                        IDisposable dis = (IDisposable)m_world.DebugDrawer;
+                        IDisposable dis = (IDisposable)_world.DebugDrawer;
                         dis.Dispose();
                     }
                 }
 
-                m_world.Dispose();
+                _world.Dispose();
                 Broadphase.Dispose();
                 Dispatcher.Dispose();
                 CollisionConf.Dispose();
                 _ddWorld = null;
-                m_world = null;
+                _world = null;
             }
 
             if(Broadphase != null)

@@ -5,15 +5,14 @@ using System.Collections;
 
 namespace SocialPoint.Multiplayer
 {
-    //[AddComponentMenu("Physics Bullet/RigidBody")]
     public class PhysicsRigidBody : PhysicsCollisionObject, IDisposable
     {
-        BGameObjectMotionState m_motionState;
+        PhysicsGameObjectMotionState _motionState;
 
-        RigidBody m_rigidBody
+        RigidBody _rigidBody
         {
-            get { return (RigidBody)m_collisionObject; }
-            set { m_collisionObject = value; }
+            get { return (RigidBody)_collisionObject; }
+            set { _collisionObject = value; }
         }
 
 
@@ -29,8 +28,8 @@ namespace SocialPoint.Multiplayer
 
         public bool isDynamic()
         {
-            return (m_collisionFlags & BulletSharp.CollisionFlags.StaticObject) != BulletSharp.CollisionFlags.StaticObject
-            && (m_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != BulletSharp.CollisionFlags.KinematicObject;
+            return (_collisionFlags & BulletSharp.CollisionFlags.StaticObject) != BulletSharp.CollisionFlags.StaticObject
+            && (_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != BulletSharp.CollisionFlags.KinematicObject;
         }
 
         //[SerializeField]
@@ -41,9 +40,9 @@ namespace SocialPoint.Multiplayer
             get { return _friction; }
             set
             {
-                if(m_collisionObject != null && _friction != value)
+                if(_collisionObject != null && _friction != value)
                 {
-                    m_collisionObject.Friction = value;
+                    _collisionObject.Friction = value;
                 }
                 _friction = value;
             }
@@ -57,9 +56,9 @@ namespace SocialPoint.Multiplayer
             get { return _rollingFriction; }
             set
             {
-                if(m_collisionObject != null && _rollingFriction != value)
+                if(_collisionObject != null && _rollingFriction != value)
                 {
-                    m_collisionObject.RollingFriction = value;
+                    _collisionObject.RollingFriction = value;
                 }
                 _rollingFriction = value;
             }
@@ -73,9 +72,9 @@ namespace SocialPoint.Multiplayer
             get { return _linearDamping; }
             set
             {
-                if(m_collisionObject != null && _linearDamping != value)
+                if(_collisionObject != null && _linearDamping != value)
                 {
-                    m_rigidBody.SetDamping(value, _angularDamping);
+                    _rigidBody.SetDamping(value, _angularDamping);
                 }
                 _linearDamping = value;
             }
@@ -89,9 +88,9 @@ namespace SocialPoint.Multiplayer
             get { return _angularDamping; }
             set
             {
-                if(m_collisionObject != null && _angularDamping != value)
+                if(_collisionObject != null && _angularDamping != value)
                 {
-                    m_rigidBody.SetDamping(_linearDamping, value);
+                    _rigidBody.SetDamping(_linearDamping, value);
                 }
                 _angularDamping = value;
             }
@@ -105,9 +104,9 @@ namespace SocialPoint.Multiplayer
             get { return _restitution; }
             set
             {
-                if(m_collisionObject != null && _restitution != value)
+                if(_collisionObject != null && _restitution != value)
                 {
-                    m_collisionObject.Restitution = value;
+                    _collisionObject.Restitution = value;
                 }
                 _restitution = value;
             }
@@ -121,9 +120,9 @@ namespace SocialPoint.Multiplayer
             get { return _linearSleepingThreshold; }
             set
             {
-                if(m_collisionObject != null && _linearSleepingThreshold != value)
+                if(_collisionObject != null && _linearSleepingThreshold != value)
                 {
-                    m_rigidBody.SetSleepingThresholds(value, _angularSleepingThreshold);
+                    _rigidBody.SetSleepingThresholds(value, _angularSleepingThreshold);
                 }
                 _linearSleepingThreshold = value;
             }
@@ -137,9 +136,9 @@ namespace SocialPoint.Multiplayer
             get { return _angularSleepingThreshold; }
             set
             {
-                if(m_collisionObject != null && _angularSleepingThreshold != value)
+                if(_collisionObject != null && _angularSleepingThreshold != value)
                 {
-                    m_rigidBody.SetSleepingThresholds(_linearSleepingThreshold, value);
+                    _rigidBody.SetSleepingThresholds(_linearSleepingThreshold, value);
                 }
                 _angularSleepingThreshold = value;
             }
@@ -170,7 +169,7 @@ namespace SocialPoint.Multiplayer
             get { return _additionalDampingFactor; }
             set
             {
-                if(m_collisionObject != null && _additionalDampingFactor != value)
+                if(_collisionObject != null && _additionalDampingFactor != value)
                 {
                     _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -187,7 +186,7 @@ namespace SocialPoint.Multiplayer
             get { return _additionalLinearDampingThresholdSqr; }
             set
             {
-                if(m_collisionObject != null && _additionalLinearDampingThresholdSqr != value)
+                if(_collisionObject != null && _additionalLinearDampingThresholdSqr != value)
                 {
                     _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -204,7 +203,7 @@ namespace SocialPoint.Multiplayer
             get { return _additionalAngularDampingThresholdSqr; }
             set
             {
-                if(m_collisionObject != null && _additionalAngularDampingThresholdSqr != value)
+                if(_collisionObject != null && _additionalAngularDampingThresholdSqr != value)
                 {
                     _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -221,7 +220,7 @@ namespace SocialPoint.Multiplayer
             get { return _additionalAngularDampingFactor; }
             set
             {
-                if(m_collisionObject != null && _additionalAngularDampingFactor != value)
+                if(_collisionObject != null && _additionalAngularDampingFactor != value)
                 {
                     _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -239,9 +238,9 @@ namespace SocialPoint.Multiplayer
             get { return _linearFactor; }
             set
             {
-                if(m_collisionObject != null && _linearFactor != value)
+                if(_collisionObject != null && _linearFactor != value)
                 {
-                    m_rigidBody.LinearFactor = value;
+                    _rigidBody.LinearFactor = value;
                 }
                 _linearFactor = value;
             }
@@ -255,9 +254,9 @@ namespace SocialPoint.Multiplayer
             get { return _angularFactor; }
             set
             {
-                if(m_rigidBody != null && _angularFactor != value)
+                if(_rigidBody != null && _angularFactor != value)
                 {
-                    m_rigidBody.AngularFactor = value;
+                    _rigidBody.AngularFactor = value;
                 }
                 _angularFactor = value;
             }
@@ -277,14 +276,14 @@ namespace SocialPoint.Multiplayer
                         _debugger.LogError(debugType, "Rigid bodies that are not static or kinematic must have positive mass");
                         return;
                     }
-                    if(m_rigidBody != null)
+                    if(_rigidBody != null)
                     {
                         _localInertia = BulletSharp.Math.Vector3.Zero;
                         if(isDynamic())
                         {
-                            m_collisionShape.GetCollisionShape().CalculateLocalInertia(_mass, out _localInertia);
+                            _collisionShape.GetCollisionShape().CalculateLocalInertia(_mass, out _localInertia);
                         }
-                        m_rigidBody.SetMassProps(_mass, _localInertia);
+                        _rigidBody.SetMassProps(_mass, _localInertia);
                     }
                     _mass = value;
                 }
@@ -304,7 +303,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(isInWorld)
                 {
-                    return m_rigidBody.LinearVelocity;
+                    return _rigidBody.LinearVelocity;
                 }
                 else
                 {
@@ -315,7 +314,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(isInWorld)
                 {
-                    m_rigidBody.LinearVelocity = value;
+                    _rigidBody.LinearVelocity = value;
                 }
                 _linearVelocity = value;
             }
@@ -330,7 +329,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(isInWorld)
                 {
-                    return m_rigidBody.AngularVelocity;
+                    return _rigidBody.AngularVelocity;
                 }
                 else
                 {
@@ -341,7 +340,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(isInWorld)
                 {
-                    m_rigidBody.AngularVelocity = value;
+                    _rigidBody.AngularVelocity = value;
                 }
                 _angularVelocity = value;
             }
@@ -354,12 +353,12 @@ namespace SocialPoint.Multiplayer
         internal override bool _BuildCollisionObject()
         {
             PhysicsWorld world = PhysicsWorld;
-            if(m_rigidBody != null)
+            if(_rigidBody != null)
             {
                 if(isInWorld && world != null)
                 {
                     isInWorld = false;
-                    world.RemoveRigidBody(m_rigidBody);
+                    world.RemoveRigidBody(_rigidBody);
                 }
             }
             
@@ -368,14 +367,14 @@ namespace SocialPoint.Multiplayer
                 _debugger.LogError(debugType, "The local scale on this rigid body is not one. Bullet physics does not support scaling on a rigid body world transform. Instead alter the dimensions of the CollisionShape.");
             }*/
 
-            m_collisionShape = CollisionShape;
-            if(m_collisionShape == null)
+            _collisionShape = CollisionShape;
+            if(_collisionShape == null)
             {
                 _debugger.LogError(debugType, "There was no collision shape component attached to this BRigidBody. {0}", GameObject.Id);
                 return false;
             }
 
-            CollisionShape cs = m_collisionShape.GetCollisionShape();
+            CollisionShape cs = _collisionShape.GetCollisionShape();
             //rigidbody is dynamic if and only if mass is non zero, otherwise static
             _localInertia = BulletSharp.Math.Vector3.Zero;
             if(isDynamic())
@@ -383,16 +382,16 @@ namespace SocialPoint.Multiplayer
                 cs.CalculateLocalInertia(_mass, out _localInertia);
             }
 
-            if(m_rigidBody == null)
+            if(_rigidBody == null)
             {
-                m_motionState = new BGameObjectMotionState(GameObject.Transform);
+                _motionState = new PhysicsGameObjectMotionState(GameObject.Transform);
                 float bulletMass = _mass;
                 if(!isDynamic())
                 {
                     bulletMass = 0f;
                 }
 
-                RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(bulletMass, m_motionState, cs, _localInertia);
+                RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(bulletMass, _motionState, cs, _localInertia);
                 rbInfo.Friction = _friction;
                 rbInfo.RollingFriction = _rollingFriction;
                 rbInfo.LinearDamping = _linearDamping;
@@ -405,10 +404,10 @@ namespace SocialPoint.Multiplayer
                 rbInfo.AdditionalAngularDampingThresholdSqr = _additionalAngularDampingThresholdSqr;
                 rbInfo.AdditionalDampingFactor = _additionalDampingFactor;
                 rbInfo.AdditionalLinearDampingThresholdSqr = _additionalLinearDampingThresholdSqr;
-                m_rigidBody = new RigidBody(rbInfo);
-                m_rigidBody.UserObject = this;
-                m_rigidBody.AngularVelocity = _angularVelocity;
-                m_rigidBody.LinearVelocity = _linearVelocity;
+                _rigidBody = new RigidBody(rbInfo);
+                _rigidBody.UserObject = this;
+                _rigidBody.AngularVelocity = _angularVelocity;
+                _rigidBody.LinearVelocity = _linearVelocity;
                 rbInfo.Dispose();
             }
             else
@@ -418,25 +417,25 @@ namespace SocialPoint.Multiplayer
                 {
                     usedMass = _mass;
                 }
-                m_rigidBody.SetMassProps(usedMass, _localInertia);
-                m_rigidBody.Friction = _friction;
-                m_rigidBody.RollingFriction = _rollingFriction;
-                m_rigidBody.SetDamping(_linearDamping, _angularDamping);
-                m_rigidBody.Restitution = _restitution;
-                m_rigidBody.SetSleepingThresholds(_linearSleepingThreshold, _angularSleepingThreshold);
-                m_rigidBody.AngularVelocity = _angularVelocity;
-                m_rigidBody.LinearVelocity = _linearVelocity;
-                m_rigidBody.CollisionShape = cs;
+                _rigidBody.SetMassProps(usedMass, _localInertia);
+                _rigidBody.Friction = _friction;
+                _rigidBody.RollingFriction = _rollingFriction;
+                _rigidBody.SetDamping(_linearDamping, _angularDamping);
+                _rigidBody.Restitution = _restitution;
+                _rigidBody.SetSleepingThresholds(_linearSleepingThreshold, _angularSleepingThreshold);
+                _rigidBody.AngularVelocity = _angularVelocity;
+                _rigidBody.LinearVelocity = _linearVelocity;
+                _rigidBody.CollisionShape = cs;
                 
             }
-            m_rigidBody.CollisionFlags = m_collisionFlags;
-            m_rigidBody.LinearFactor = _linearFactor;
-            m_rigidBody.AngularFactor = _angularFactor;
+            _rigidBody.CollisionFlags = _collisionFlags;
+            _rigidBody.LinearFactor = _linearFactor;
+            _rigidBody.AngularFactor = _angularFactor;
 
             //if kinematic then disable deactivation
-            if((m_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != 0)
+            if((_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != 0)
             {
-                m_rigidBody.ActivationState = ActivationState.DisableDeactivation;
+                _rigidBody.ActivationState = ActivationState.DisableDeactivation;
             }
             return true;
         }
@@ -448,8 +447,8 @@ namespace SocialPoint.Multiplayer
             {
                 _debugger.LogError(debugType, "Can't nest rigid bodies. The transforms are updated by Bullet in undefined order which can cause spasing. Object {0}", GameObject.Id);
             }*/
-            m_collisionShape = CollisionShape;
-            if(m_collisionShape == null)
+            _collisionShape = CollisionShape;
+            if(_collisionShape == null)
             {
                 _debugger.LogError(debugType, "A BRigidBody component must be on an object with a BCollisionShape component.");
             }
@@ -457,7 +456,7 @@ namespace SocialPoint.Multiplayer
 
         public override void OnDisable()
         {
-            if(m_rigidBody != null && isInWorld)
+            if(_rigidBody != null && isInWorld)
             {
                 //all constraints using RB must be disabled before rigid body is disabled
                 /*for(int i = m_rigidBody.NumConstraintRefs - 1; i >= 0; i--)
@@ -478,17 +477,17 @@ namespace SocialPoint.Multiplayer
         protected override void RemoveObjectFromBulletWorld()
         {
             PhysicsWorld pw = PhysicsWorld;
-            if(pw != null && m_rigidBody != null && isInWorld)
+            if(pw != null && _rigidBody != null && isInWorld)
             {
-                _debugger.Assert(m_rigidBody.NumConstraintRefs == 0, "Removing rigid body that still had constraints. Remove constraints first.");
+                _debugger.Assert(_rigidBody.NumConstraintRefs == 0, "Removing rigid body that still had constraints. Remove constraints first.");
                 //constraints must be removed before rigid body is removed
-                pw.RemoveRigidBody((RigidBody)m_collisionObject);
+                pw.RemoveRigidBody((RigidBody)_collisionObject);
             }
         }
 
         protected override void Dispose(bool isdisposing)
         {
-            if(isInWorld && isdisposing && m_rigidBody != null)
+            if(isInWorld && isdisposing && _rigidBody != null)
             {
                 PhysicsWorld pw = PhysicsWorld;
                 if(pw != null && pw.world != null)
@@ -499,15 +498,15 @@ namespace SocialPoint.Multiplayer
                         BTypedConstraint tc = (BTypedConstraint)m_rigidBody.GetConstraintRef(i - 1).Userobject;
                         ((DiscreteDynamicsWorld)pw.world).RemoveConstraint(tc.GetConstraint());
                     }*/
-                    ((DiscreteDynamicsWorld)pw.world).RemoveRigidBody(m_rigidBody);
+                    ((DiscreteDynamicsWorld)pw.world).RemoveRigidBody(_rigidBody);
                 }
             }
-            if(m_rigidBody != null)
+            if(_rigidBody != null)
             {
-                if(m_rigidBody.MotionState != null)
-                    m_rigidBody.MotionState.Dispose();
-                m_rigidBody.Dispose();
-                m_rigidBody = null;
+                if(_rigidBody.MotionState != null)
+                    _rigidBody.MotionState.Dispose();
+                _rigidBody.Dispose();
+                _rigidBody = null;
             }
         }
 
@@ -515,7 +514,7 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                m_rigidBody.ApplyCentralImpulse(impulse);
+                _rigidBody.ApplyCentralImpulse(impulse);
             }
         }
 
@@ -524,7 +523,7 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                m_rigidBody.ApplyImpulse(impulse, relativePostion);
+                _rigidBody.ApplyImpulse(impulse, relativePostion);
             }
         }
 
@@ -532,7 +531,7 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                m_rigidBody.ApplyTorqueImpulse(impulseTorque);
+                _rigidBody.ApplyTorqueImpulse(impulseTorque);
             }
         }
 
@@ -544,7 +543,7 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                m_rigidBody.ApplyCentralForce(force);
+                _rigidBody.ApplyCentralForce(force);
             }
         }
 
@@ -556,7 +555,7 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                m_rigidBody.ApplyForce(force, relativePostion);
+                _rigidBody.ApplyForce(force, relativePostion);
             }
         }
 
@@ -568,7 +567,7 @@ namespace SocialPoint.Multiplayer
         {
             if(isInWorld)
             {
-                m_rigidBody.ApplyTorque(torque);
+                _rigidBody.ApplyTorque(torque);
             }
         }
     }

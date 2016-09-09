@@ -72,7 +72,7 @@ namespace SocialPoint.Multiplayer
 
 
             PhysicsLateHelper = new PhysicsWorldLateHelper();
-            PhysicsWorld = new PhysicsWorld(new UnityDebugger(), PhysicsLateHelper);
+            PhysicsWorld = new PhysicsWorld(new UnityPhysicsDebugger(), PhysicsLateHelper);
             PhysicsWorld.DoDebugDraw = true;
             //PhysicsWorld.worldType = PhysicsWorld.WorldType.CollisionOnly;
             PhysicsWorld.Awake();
@@ -289,7 +289,7 @@ namespace SocialPoint.Multiplayer
             //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
             go.PhysicsCollisionObject.PhysicsWorld = PhysicsWorld;
             go.PhysicsCollisionObject.Start();//TODO: Change start to remove internal Add to world
-            BCollisionCallbacksDefault collCallback = new BCollisionCallbacksDefault(go.CollisionObject);
+            PhysicsDefaultCollisionCallbacks collCallback = new PhysicsDefaultCollisionCallbacks(go.CollisionObject);
             go.PhysicsCollisionObject.AddOnCollisionCallbackEventHandler(collCallback);
 
             return go;
