@@ -86,7 +86,7 @@ namespace SocialPoint.GUIAnimation
 
         public static Vector2 GetCanvasScale()
         {
-            #if NGUIs
+            #if NGUI
             return GetCanvasScaleNGUI ();
             #else
             return GetCanvasScaleNative();
