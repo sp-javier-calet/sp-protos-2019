@@ -2,7 +2,7 @@
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class WindowResizer 
+    public sealed class WindowResizer 
 	{
 		public delegate void OnResized(Vector2 delta);
 

@@ -1,5 +1,5 @@
 using UnityEngine;
-using SocialPoint.Base;
+using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -12,9 +12,9 @@ namespace SocialPoint.GUIAnimation
         { 
             get
             {
-                AnimationClip clip = GetCurrentAnimationClip ();
-                _stepName = StepsManager.GetStepName (GetType ());
-                if (clip != null)
+                AnimationClip clip = GetCurrentAnimationClip();
+                _stepName = StepsManager.GetStepName(GetType());
+                if(clip != null)
                 {
                     _stepName += " (" + clip.name + ")";
                 }
@@ -32,43 +32,43 @@ namespace SocialPoint.GUIAnimation
 
         public string StateName { get { return _stateName; } set { _stateName = value; } }
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
-            CopyActionValues ((AnimatorEffect)other);
+            base.Copy(other);
+            CopyActionValues((AnimatorEffect)other);
         }
 
-        public override void CopyActionValues (Effect other)
+        public override void CopyActionValues(Effect other)
         {
             Target = other.Target;
             StateName = ((AnimatorEffect)other).StateName;
         }
 
-        public override void OnRemoved ()
+        public override void OnRemoved()
         {
         }
 
-        public override void SetOrCreateDefaultValues ()
+        public override void SetOrCreateDefaultValues()
         {
         }
 
-        public override void DoAction ()
+        public override void DoAction()
         {
-            if (!Application.isPlaying)
+            if(!Application.isPlaying)
             {
                 return;
             }
 
-            PlayAnimation (Target.gameObject);
+            PlayAnimation(Target.gameObject);
 		
         }
 
-        public override float GetFixedDuration ()
+        public override float GetFixedDuration()
         {
-            float duration = base.GetFixedDuration ();
+            float duration = base.GetFixedDuration();
 
-            AnimationClip clip = GetCurrentAnimationClip ();
-            if (clip != null)
+            AnimationClip clip = GetCurrentAnimationClip();
+            if(clip != null)
             {
                 duration = clip.length;
             }
@@ -76,15 +76,15 @@ namespace SocialPoint.GUIAnimation
             return duration;
         }
 
-        AnimationClip GetCurrentAnimationClip ()
+        AnimationClip GetCurrentAnimationClip()
         {
             AnimationClip clip = null;
 
-            Animator anim = GUIAnimationUtility.GetComponentRecursiveDown<Animator> (Target.gameObject);
+            Animator anim = GUIAnimationUtility.GetComponentRecursiveDown<Animator>(Target.gameObject);
             if(anim != null)
             {
                 AnimatorClipInfo[] clipsInfo = anim.GetCurrentAnimatorClipInfo(0); 
-                for (int i = 0; i < clipsInfo.Length; ++i)
+                for(int i = 0; i < clipsInfo.Length; ++i)
                 {
                     if(clipsInfo[i].clip.name == _stateName)
                     {
@@ -97,23 +97,23 @@ namespace SocialPoint.GUIAnimation
             return clip;
         }
 
-        void PlayAnimation (GameObject go)
+        void PlayAnimation(GameObject go)
         {
-            Animator animator = GUIAnimationUtility.GetComponentRecursiveDown<Animator> (go);
-            if (animator != null)
+            Animator animator = GUIAnimationUtility.GetComponentRecursiveDown<Animator>(go);
+            if(animator != null)
             {
-                if (!animator.gameObject.activeSelf)
+                if(!animator.gameObject.activeSelf)
                 {
-                    animator.gameObject.SetActive (true);
+                    animator.gameObject.SetActive(true);
                 }
 
-                animator.Play (_stateName);
+                animator.Play(_stateName);
             }
         }
 
-        public override void SaveValuesAt (float localTimeNormalized)
+        public override void SaveValuesAt(float localTimeNormalized)
         {
-            Log.w(GetType () + " -> SaveValues. Nothing to save :(");
+            Debug.LogWarning(GetType() + " -> SaveValues. Nothing to save :(");
         }
     }
 }

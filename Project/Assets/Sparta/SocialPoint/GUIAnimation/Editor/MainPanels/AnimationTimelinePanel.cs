@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class AnimationStepBox
+    public sealed class AnimationStepBox
 	{
 		public Step AnimationItem;
 		public WindowResizer WinResizer = new WindowResizer(10, Vector2.one * 16f);
@@ -14,9 +14,9 @@ namespace SocialPoint.GUIAnimation
 	}
 
 	// This class show the grid with the options that can be done in the current Collection
-	public sealed class AnimationTimelinePanel 
+	public class AnimationTimelinePanel 
 	{
-		public sealed class GridProperties
+		public class GridProperties
 		{
 			public float PixelsPerSecond = 316f;
 			public float PixelsPerSlot = 36f;
@@ -344,6 +344,11 @@ namespace SocialPoint.GUIAnimation
 			GUILayout.Space(22f);
 			GUILayout.Label("Play On Start: ", GUILayout.Width(75f));
 			_animationTool.AnimationModel.CurrentAnimation.PlayOnStart = EditorGUILayout.Toggle(_animationTool.AnimationModel.CurrentAnimation.PlayOnStart, GUILayout.Width(25f));
+
+            // Ignore TimeScale
+            GUILayout.Space(22f);
+            GUILayout.Label("Ignore Timescale: ", GUILayout.Width(100f));
+            _animationTool.AnimationModel.CurrentAnimation.IgnoreTimeScale = EditorGUILayout.Toggle(_animationTool.AnimationModel.CurrentAnimation.IgnoreTimeScale, GUILayout.Width(25f));
 
 			GUILayout.EndHorizontal();
 

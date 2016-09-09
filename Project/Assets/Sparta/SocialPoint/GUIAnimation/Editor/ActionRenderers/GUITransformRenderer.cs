@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class GUITransformRenderer : BaseGUIActionRenderer
+    public sealed class GUITransformRenderer : BaseGUIActionRenderer
 	{
 		public bool _showGeneratedAnchors;
 

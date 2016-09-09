@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class TargetMonitorController
+    public sealed class TargetMonitorController
 	{
 		public interface IMonitorController
 		{
@@ -12,7 +12,7 @@ namespace SocialPoint.GUIAnimation
 		}
 
 		//-------
-		public sealed class EffectTargetMonitorController : IMonitorController
+		public class EffectTargetMonitorController : IMonitorController
         {
 			Effect _step;
 			MultiTargetValueMonitor _monitor = new MultiTargetValueMonitor();
@@ -26,6 +26,11 @@ namespace SocialPoint.GUIAnimation
 
 			public bool Monitor(List<StepMonitorData> modifiedData)
 			{
+                if(_step == null)
+                {
+                    return false;
+                }
+                
 				bool hasChanged = _monitor.HasChanged();
 				_monitor.Backup();
 				if(hasChanged)
@@ -43,7 +48,7 @@ namespace SocialPoint.GUIAnimation
 		//------
 
 		//-------
-		public sealed class EffectsGroupTargetMonitorController : IMonitorController
+		public class EffectsGroupTargetMonitorController : IMonitorController
 		{
 			EffectsGroup _step;
 			List<MultiTargetValueMonitor> _monitors = new List<MultiTargetValueMonitor>();
@@ -131,5 +136,10 @@ namespace SocialPoint.GUIAnimation
 				monitorController.Backup();
 			}
 		}
+
+        public void Reset()
+        {
+            monitorController = null;
+        }
 	}
 }

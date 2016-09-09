@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -15,7 +14,7 @@ namespace SocialPoint.GUIAnimation
         }
 
         [System.Serializable]
-        public sealed class UniformValues
+        public class UniformValues
         {
             [SerializeField]
             public UniformValueType ValueType = UniformValueType.Float;
@@ -151,7 +150,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Target == null)
                 {
-                    Log.d("There is no target");
+                    Debug.Log("There is no target");
                     return null;
                 }
 
@@ -171,7 +170,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(GraphicObject == null)
                 {
-                    Log.d("There is no graphic object");
+                    Debug.Log("There is no graphic object");
                     return null;
                 }
 
@@ -222,7 +221,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(Material == null)
             {
-                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 

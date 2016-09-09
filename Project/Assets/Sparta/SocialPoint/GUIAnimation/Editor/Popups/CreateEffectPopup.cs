@@ -5,7 +5,7 @@ using System;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class CreateEffectPopup : EditorWindowCallback
+    public sealed class CreateEffectPopup : EditorWindowCallback
 	{
 		public static void ShowWindow()
 		{

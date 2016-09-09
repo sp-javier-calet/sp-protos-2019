@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class AnimationEditorPlayer
+    public sealed class AnimationEditorPlayer
 	{
 		enum State
 		{
@@ -62,7 +62,7 @@ namespace SocialPoint.GUIAnimation
 
 		public bool IsPlaying()
 		{
-			if(_animTool.AnimationModel.CurrentAnimation != null)
+            if(_animTool != null && _animTool.AnimationModel != null && _animTool.AnimationModel.CurrentAnimation != null)
 			{
 				return _state == State.Playing || _state == State.Finish;
 			}
@@ -84,6 +84,7 @@ namespace SocialPoint.GUIAnimation
 				{
 					_animTool.AnimationModel.CurrentAnimation.SetEditorTimeGetter(_editorTimeGetter);
 					_animTool.AnimationModel.CurrentAnimation.Update();
+                    _animTool.ForceRepaint();
 
 					if(!_animTool.AnimationModel.CurrentAnimation.IsPlaying())
 					{

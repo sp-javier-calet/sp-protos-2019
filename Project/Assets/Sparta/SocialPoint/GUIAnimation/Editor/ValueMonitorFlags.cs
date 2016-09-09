@@ -5,7 +5,7 @@ namespace SocialPoint.GUIAnimation
 {
 	// Class used to store a boolean, for instance when some scene object changes we can set the flag FlagType.ObjectChanged=true
 	//, then we can use this flag anywhere in the GUI to do something, for instance, draw with red color a button that say "Save Object New State"
-	class ValueMonitorFlags<T> where T : System.IComparable
+    sealed class ValueMonitorFlags<T> where T : System.IComparable
 	{
 		public Dictionary<T, bool> _eventValues = new Dictionary<T, bool>();
 		

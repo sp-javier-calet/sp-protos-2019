@@ -4,7 +4,7 @@ using System;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class EditorWindowCallback : EditorWindow
+    public class EditorWindowCallback : EditorWindow
 	{
 		Action _onAccept;
 		Action _onCancel;

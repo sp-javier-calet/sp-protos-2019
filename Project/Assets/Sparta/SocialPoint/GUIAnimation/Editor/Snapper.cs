@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class Snapper
+    public sealed class Snapper
 	{
 		public static float kMaxVerticalDistance = 350f;
 		

@@ -1,12 +1,12 @@
 using UnityEngine;
-using SocialPoint.Base;
+using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
     public sealed class OpacityEffect : BlendEffect
     {
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public float Alpha;
 
@@ -18,6 +18,7 @@ namespace SocialPoint.GUIAnimation
                     Alpha = widget.Alpha;
                 }
             }
+
 
             IGraphicObject GetWidget()
             {
@@ -107,7 +108,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(TargetWidget == null)
             {
-                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 

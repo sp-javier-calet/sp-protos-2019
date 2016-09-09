@@ -1,6 +1,5 @@
 using UnityEngine;
 using SocialPoint.GUIControl;
-using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -9,7 +8,7 @@ namespace SocialPoint.GUIAnimation
     public sealed class TransformEffect : BlendEffect, IPositionable
     {
         [System.Serializable]
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Vector3 Position;
             public Vector3 Scale;
@@ -242,7 +241,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Animation != null && Animation.EnableWarnings)
                 {
-                    Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                    Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 }
                 return;
             }
@@ -375,7 +374,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Animation != null && Animation.EnableWarnings)
                 {
-                    Log.w(GetType() + " Target is null");
+                    Debug.LogWarning(GetType() + " Target is null");
                 }
                 return;
             }

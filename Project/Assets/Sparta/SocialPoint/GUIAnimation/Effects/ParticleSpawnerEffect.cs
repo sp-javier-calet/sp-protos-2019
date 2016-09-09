@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -16,7 +15,7 @@ namespace SocialPoint.GUIAnimation
             GameObject Spawn(GameObject prefab);
         }
 
-        public sealed class DefaultSpawner : ISpawner
+        public class DefaultSpawner : ISpawner
         {
             public GameObject Spawn(GameObject prefab)
             {
@@ -142,7 +141,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void SaveValuesAt(float localTimeNormalized)
         {
-            Log.w(GetType() + " -> SaveValues. Nothing to save :(");
+            Debug.LogWarning(GetType() + " -> SaveValues. Nothing to save :(");
         }
     }
 }

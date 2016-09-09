@@ -1,6 +1,5 @@
 using UnityEngine;
 using SocialPoint.GUIControl;
-using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -37,7 +36,7 @@ namespace SocialPoint.GUIAnimation
     public sealed class AnchorsEffect : BlendEffect
     {
         [System.Serializable]
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Vector2 AnchorsMin;
             public Vector2 AnchorsMax;
@@ -128,7 +127,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Animation != null && Animation.EnableWarnings)
                 {
-                    Log.w("(SPTransform) OnBlend " + StepName + " Target is null");
+                    Debug.LogWarning("(SPTransform) OnBlend " + StepName + " Target is null");
                 }
                 return;
             }
@@ -173,7 +172,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Animation != null && Animation.EnableWarnings)
                 {
-                    Log.w(GetType() + " Target is null");
+                    Debug.LogWarning(GetType() + " Target is null");
                 }
                 return;
             }

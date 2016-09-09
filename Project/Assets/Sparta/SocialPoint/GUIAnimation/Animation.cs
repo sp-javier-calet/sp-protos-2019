@@ -76,6 +76,10 @@ namespace SocialPoint.GUIAnimation
 
         public bool IsInverted { get { return _isInverted; } }
 
+        bool _ignoreTimeScale = true;
+
+        public bool IgnoreTimeScale{ get { return _ignoreTimeScale; } set { _ignoreTimeScale = value; } }
+
         ITimeGetter _editorTimeGetter = null;
 
         System.Action _onEndCallback = null;
@@ -360,7 +364,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(Application.isPlaying || _editorTimeGetter == null)
             {
-                return Time.time;
+                return IgnoreTimeScale ? Time.unscaledTime : Time.time;
             }
             else
             {

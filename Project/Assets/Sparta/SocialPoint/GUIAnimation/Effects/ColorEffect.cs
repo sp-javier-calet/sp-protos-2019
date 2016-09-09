@@ -1,12 +1,12 @@
 using UnityEngine;
-using SocialPoint.Base;
+using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
     public sealed class ColorEffect : BlendEffect
     {
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Color Color;
 
@@ -110,7 +110,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Animation != null && Animation.EnableWarnings)
                 {
-                    Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                    Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 }
                 return;
             }

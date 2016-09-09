@@ -1,5 +1,5 @@
 using UnityEngine;
-using SocialPoint.Base;
+using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -48,17 +48,17 @@ namespace SocialPoint.GUIAnimation
         {
             if(Target == null)
             {
-                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 
             if(string.IsNullOrEmpty(_parameters))
             {
-                Target.SendMessage(_method, SendMessageOptions.DontRequireReceiver);
+                Target.SendMessageUpwards(_method, SendMessageOptions.DontRequireReceiver);
             }
             else
             {
-                Target.SendMessage(_method, _parameters, SendMessageOptions.DontRequireReceiver);
+                Target.SendMessageUpwards(_method, _parameters, SendMessageOptions.DontRequireReceiver);
             }
         }
 
@@ -69,7 +69,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void SaveValuesAt(float localTimeNormalized)
         {
-            Log.w(GetType() + " -> SaveValues. Nothing to save :(");
+            Debug.LogWarning(GetType() + " -> SaveValues. Nothing to save :(");
         }
     }
 }

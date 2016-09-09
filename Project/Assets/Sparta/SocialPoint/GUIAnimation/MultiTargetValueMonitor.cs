@@ -5,65 +5,70 @@ namespace SocialPoint.GUIAnimation
 {
     public sealed class MultiTargetValueMonitor : StepMonitor
     {
-        List<StepMonitor> _targetMonitors = new List<StepMonitor> ();
+        List<StepMonitor> _targetMonitors = new List<StepMonitor>();
 
         System.Type _monitorType;
 
         public System.Type MonitorType { get { return _monitorType; } }
 
-        public void Init (List<Transform> targets, System.Type type)
+        public void Init(List<Transform> targets, System.Type type)
         {
-            _targetMonitors.Clear ();
+            _targetMonitors.Clear();
 
-            for (int i = 0; i < targets.Count; ++i)
+            for(int i = 0; i < targets.Count; ++i)
             {
-                AddMonitors (targets [i], type);
+                AddMonitors(targets[i], type);
             }
         }
 
-        public void Init (Transform target, StepMonitor valueMonitor)
+        public void Init(Transform target, StepMonitor valueMonitor)
         {
-            _targetMonitors.Clear ();
-            AddMonitor (target, valueMonitor);
+            _targetMonitors.Clear();
+            AddMonitor(target, valueMonitor);
         }
 
-        void AddMonitors (Transform target, System.Type type)
+        public void Reset()
         {
-            if (GetTargetIndex (target) >= 0)
+            _targetMonitors.Clear();
+        }
+
+        void AddMonitors(Transform target, System.Type type)
+        {
+            if(GetTargetIndex(target) >= 0)
             {
                 return;
             }
 
             _monitorType = type;
-            StepMonitor targetMonitor = (StepMonitor)System.Activator.CreateInstance (_monitorType);
+            StepMonitor targetMonitor = (StepMonitor)System.Activator.CreateInstance(_monitorType);
             targetMonitor.Target = target;
-            _targetMonitors.Add (targetMonitor);
+            _targetMonitors.Add(targetMonitor);
         }
 
-        public void AddMonitor (Transform target, StepMonitor targetMonitor)
+        public void AddMonitor(Transform target, StepMonitor targetMonitor)
         {
-            _targetMonitors.Clear ();
+            _targetMonitors.Clear();
 
-            if (targetMonitor == null)
+            if(targetMonitor == null)
             {
                 return;
             }
 
-            if (GetTargetIndex (targetMonitor.Target) >= 0)
+            if(GetTargetIndex(targetMonitor.Target) >= 0)
             {
                 return;
             }
-            _monitorType = targetMonitor.GetType ();
+            _monitorType = targetMonitor.GetType();
             targetMonitor.Target = target;
-            _targetMonitors.Add (targetMonitor);
+            _targetMonitors.Add(targetMonitor);
         }
 
-        public bool RemoveTarget (Transform target)
+        public bool RemoveTarget(Transform target)
         {
-            int idx = GetTargetIndex (target);
-            if (idx >= 0)
+            int idx = GetTargetIndex(target);
+            if(idx >= 0)
             {
-                _targetMonitors.RemoveAt (idx);
+                _targetMonitors.RemoveAt(idx);
 			
                 return true;
             }
@@ -73,26 +78,26 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        int GetTargetIndex (Transform target)
+        int GetTargetIndex(Transform target)
         {
-            return _targetMonitors.FindIndex ((StepMonitor aMonitor) => {
+            return _targetMonitors.FindIndex((StepMonitor aMonitor) => {
                 return aMonitor.Target == target;
             });
         }
 
-        public override void Backup ()
+        public override void Backup()
         {
-            for (int i = 0; i < _targetMonitors.Count; ++i)
+            for(int i = 0; i < _targetMonitors.Count; ++i)
             {
-                _targetMonitors [i].Backup ();
+                _targetMonitors[i].Backup();
             }
         }
 
-        public override bool HasChanged ()
+        public override bool HasChanged()
         {
-            for (int i = 0; i < _targetMonitors.Count; ++i)
+            for(int i = 0; i < _targetMonitors.Count; ++i)
             {
-                if (_targetMonitors [i].HasChanged ())
+                if(_targetMonitors[i].HasChanged())
                 {
                     return true;
                 }

@@ -1,13 +1,12 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
     public sealed class AnimationPropertiesPanel
     {
-        public sealed class MonitorChangedEventData
+        public class MonitorChangedEventData
         {
             public System.Type EffectType;
             public float ChangedTime;
@@ -47,7 +46,7 @@ namespace SocialPoint.GUIAnimation
             _viewModeId = 0;
             _isInit = false;
 
-            _monitorController.Backup();
+            _monitorController.Reset();
         }
 
         public void Render(GUIAnimationTool animationTool, Rect parentRect)
@@ -279,7 +278,7 @@ namespace SocialPoint.GUIAnimation
             _timeValueGridEditor.ResetState();
             ResetState();
 
-            if(selectedAnimItem == null)
+            if(selectedAnimItem == null || _animationTool.AnimationModel.CurrentAnimation == null)
             {
                 return;
             }
@@ -322,7 +321,7 @@ namespace SocialPoint.GUIAnimation
             Handles.color = prevColor;
         }
 
-        public sealed class GUIMonitor
+        public class GUIMonitor
         {
             bool _isEnabled = false;
 
@@ -571,6 +570,8 @@ namespace SocialPoint.GUIAnimation
                             Color col = Color.Lerp(startColor, endColor, Mathf.Pow(0.5f + 0.5f * Mathf.Sin(t * 2f * Mathf.PI + Mathf.PI * 3f / 2f), 0.1f));
                             GUI.backgroundColor = col;
                             GUI.color = col;
+
+                            _animationTool.ForceRepaint();
                         }
                     }
 

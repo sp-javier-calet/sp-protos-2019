@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -11,14 +10,14 @@ namespace SocialPoint.GUIAnimation
     {
         public interface ISpawner
         {
-            GameObject Spawn(GameObject prefab);
+            GameObject Spawn (GameObject prefab);
         }
 
-        public sealed class DefaultSpawner : ISpawner
+        public class DefaultSpawner : ISpawner
         {
-            public GameObject Spawn(GameObject prefab)
+            public GameObject Spawn (GameObject prefab)
             {
-                return GameObject.Instantiate(prefab);
+                return GameObject.Instantiate (prefab);
             }
         }
 
@@ -30,9 +29,9 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if(_spawner == null)
+                if (_spawner == null)
                 {
-                    _spawner = new DefaultSpawner();
+                    _spawner = new DefaultSpawner ();
                 }
                 return _spawner;
             }
@@ -40,7 +39,7 @@ namespace SocialPoint.GUIAnimation
 
         [ShowInEditor]
         [SerializeField]
-        List<GameObject> _particles = new List<GameObject>();
+        List<GameObject> _particles = new List<GameObject> ();
 
         public List<GameObject> Particles
         {
@@ -50,50 +49,50 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public override void Copy(Step other)
+        public override void Copy (Step other)
         {
-            base.Copy(other);
-            CopyActionValues((ParticleSpawnerEffect)other);
+            base.Copy (other);
+            CopyActionValues ((ParticleSpawnerEffect)other);
         }
 
-        public override void CopyActionValues(Effect other)
+        public override void CopyActionValues (Effect other)
         {
             _particles = ((ParticlePlayerEffect)other).Particles;
         }
 
-        public override void OnRemoved()
+        public override void OnRemoved ()
         {
         }
 
-        public override void SetOrCreateDefaultValues()
+        public override void SetOrCreateDefaultValues ()
         {
         }
 
-        public override void DoAction()
+        public override void DoAction ()
         {
-            if(!Application.isPlaying)
+            if (!Application.isPlaying)
             {
                 return;
             }
 
-            for(int i = 0; i < Particles.Count; ++i)
+            for (int i = 0; i < Particles.Count; ++i)
             {
-                PlayParticle(Particles[i]);
+                PlayParticle (Particles [i]);
             }
         }
 
-        void PlayParticle(GameObject go)
+        void PlayParticle (GameObject go)
         {
-            ParticleSystem particle = GUIAnimationUtility.GetComponentRecursiveDown<ParticleSystem>(go);
-            if(particle != null)
+            ParticleSystem particle = GUIAnimationUtility.GetComponentRecursiveDown<ParticleSystem> (go);
+            if (particle != null)
             {
-                particle.Play();
+                particle.Play ();
             }
         }
 
-        public override void SaveValuesAt(float localTimeNormalized)
+        public override void SaveValuesAt (float localTimeNormalized)
         {
-            Log.w(GetType() + " -> SaveValues. Nothing to save :(");
+            Debug.LogWarning (GetType () + " -> SaveValues. Nothing to save :(");
         }
     }
 }

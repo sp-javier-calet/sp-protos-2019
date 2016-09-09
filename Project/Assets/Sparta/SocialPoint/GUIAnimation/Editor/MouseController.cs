@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace SocialPoint.GUIAnimation
 {
 	// Class to encapsulate the Mouse states
-	public sealed class MouseController
+    public sealed class MouseController
 	{
 		MouseDoubleClickMonitor _doubleClick = new MouseDoubleClickMonitor();
 		Dictionary<int, bool> _buttons = new Dictionary<int, bool>();

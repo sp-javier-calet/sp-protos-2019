@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class EffectsChangesMonitor
+    public sealed class EffectsChangesMonitor
 	{
-		public sealed class EffectsGroup
+		public class EffectsGroup
 		{
 			public List<StepMonitor> Monitors = new List<StepMonitor>();
 

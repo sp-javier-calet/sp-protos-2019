@@ -47,7 +47,7 @@ namespace SocialPoint.GUIAnimation
                 color.b = value.b;
                 color.a *= value.a;
                 _graphic.color = color;
-
+s
                 if (!Application.isPlaying)
                 {
                     Refresh ();

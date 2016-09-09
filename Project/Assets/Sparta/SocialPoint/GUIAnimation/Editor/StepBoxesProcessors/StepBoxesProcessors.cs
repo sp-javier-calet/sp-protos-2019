@@ -1,12 +1,11 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
 	// This class will control the boxes position, scale and snapping taking into account the user interaction with the boxes windows
-	public sealed class StepBoxesProcessors
+    public sealed class StepBoxesProcessors
 	{
 		abstract class BaseBoxProcessor
 		{
@@ -318,7 +317,7 @@ namespace SocialPoint.GUIAnimation
 				}
 				else
 				{
-					Log.w("Not found good position");
+					Debug.LogWarning("Not found good position");
 				}
 			}
 

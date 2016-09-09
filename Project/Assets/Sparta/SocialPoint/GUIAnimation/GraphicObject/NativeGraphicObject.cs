@@ -7,27 +7,27 @@ namespace SocialPoint.GUIAnimation
     {
         Graphic _graphic;
 
-        public static NativeGraphicObject Load (Transform root, bool searchInChild)
+        public static NativeGraphicObject Load(Transform root, bool searchInChild)
         {
             Graphic graphic = null;
-            if (searchInChild)
+            if(searchInChild)
             {
-                graphic = root.GetComponentInChildren<Graphic> ();
+                graphic = root.GetComponentInChildren<Graphic>();
             }
             else
             {
-                graphic = root.GetComponent<Graphic> ();
+                graphic = root.GetComponent<Graphic>();
             }
 
             NativeGraphicObject wrapper = null;
-            if (graphic != null)
+            if(graphic != null)
             {
-                wrapper = new NativeGraphicObject (graphic);
+                wrapper = new NativeGraphicObject(graphic);
             }
             return wrapper;
         }
 
-        public NativeGraphicObject (Graphic panel)
+        public NativeGraphicObject(Graphic panel)
         {
             _graphic = panel;
         }
@@ -75,7 +75,7 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public void Refresh ()
+        public void Refresh()
         {
             // It is not needed to do anything with the native UI system to refresh the UI widget
         }

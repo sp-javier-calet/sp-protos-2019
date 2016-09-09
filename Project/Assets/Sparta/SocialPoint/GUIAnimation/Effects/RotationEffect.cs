@@ -1,5 +1,5 @@
 using UnityEngine;
-using SocialPoint.Base;
+using SocialPoint.GUIControl;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -7,7 +7,7 @@ namespace SocialPoint.GUIAnimation
     public sealed class RotationEffect : BlendEffect
     {
         [System.Serializable]
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Quaternion Rotation;
 
@@ -90,7 +90,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Animation != null && Animation.EnableWarnings)
                 {
-                    Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                    Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 }
                 return;
             }
@@ -110,7 +110,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Animation != null && Animation.EnableWarnings)
                 {
-                    Log.w(GetType() + " Target is null");
+                    Debug.LogWarning(GetType() + " Target is null");
                 }
                 return;
             }

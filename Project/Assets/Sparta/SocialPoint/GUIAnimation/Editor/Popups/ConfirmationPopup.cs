@@ -4,7 +4,7 @@ using System;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class ConfirmationPopup : EditorWindowCallback
+    public sealed class ConfirmationPopup : EditorWindowCallback
 	{
 		public static void ShowWindow()
 		{

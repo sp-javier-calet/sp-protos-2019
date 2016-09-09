@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class GUIUniformRenderer : BaseGUIActionRenderer
+    public sealed class GUIUniformRenderer : BaseGUIActionRenderer
 	{
 		public override bool CanRender(Effect action)
 		{

@@ -1,12 +1,12 @@
 using UnityEngine;
-using SocialPoint.Base;
+using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
     [System.Serializable]
     public sealed class GameObjectEnablerEffect : TriggerEffect
     {
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public bool WasEnabled;
 
@@ -81,7 +81,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(Target == null)
             {
-                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 
@@ -105,7 +105,7 @@ namespace SocialPoint.GUIAnimation
 
             if(Target == null)
             {
-                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
+                Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 
@@ -124,7 +124,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void SaveValuesAt(float localTimeNormalized)
         {
-            Log.w(GetType() + " -> SaveValues. Nothing to save :(");
+            Debug.LogWarning(GetType() + " -> SaveValues. Nothing to save :(");
         }
     }
 }

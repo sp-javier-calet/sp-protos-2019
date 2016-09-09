@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace SocialPoint.GUIAnimation
 {
-	public class GUIDefaultActionRenderer : BaseGUIActionRenderer
+    public class GUIDefaultActionRenderer : BaseGUIActionRenderer
 	{
 		public override bool CanRender(Effect selectedActionTemplate)
 		{
