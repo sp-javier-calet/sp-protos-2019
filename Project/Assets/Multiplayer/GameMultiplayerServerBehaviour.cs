@@ -18,6 +18,9 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     int _maxUpdateTimes = 1;
     Vector3 _movement;
 
+    public PhysicsWorld PhysicsWorld;
+    public PhysicsWorldLateHelper PhysicsLateHelper;
+
     //*** TEST
     static NetworkGameObject playerCube = null;
 
@@ -29,6 +32,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
         _movement = new Vector3(2.0f, 0.0f, 2.0f);
+
+        AddPhysicsWorld();
     }
 
     public void Dispose()
@@ -84,8 +89,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             }
             itr.Dispose();
         }
-
-        CheckPlayerCollision(dt);
     }
 
     void SendExplosionEvent(Transform t)
@@ -135,6 +138,16 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     {
     }
 
+    void AddPhysicsWorld()
+    {
+        PhysicsLateHelper = new PhysicsWorldLateHelper();
+        PhysicsWorld = new PhysicsWorld(new UnityPhysicsDebugger(), PhysicsLateHelper);
+        PhysicsWorld.DoDebugDraw = true;
+        PhysicsWorld.Awake();
+        _controller.AddBehaviour(PhysicsWorld);
+    }
+
+
     void AddCollision(NetworkGameObject go)
     {
         PhysicsRigidBody RigidBody = new PhysicsRigidBody();
@@ -151,7 +164,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         co.ActivationState = ActivationState.DisableDeactivation;
 
         //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
-        RigidBody.PhysicsWorld = _controller.PhysicsWorld;
+        RigidBody.PhysicsWorld = PhysicsWorld;
         //go.PhysicsCollisionObject.Start();//TODO: Change start to remove internal Add to world
         PhysicsDefaultCollisionCallbacks collCallback = new PhysicsDefaultCollisionCallbacks(co);
         RigidBody.AddOnCollisionCallbackEventHandler(collCallback);
@@ -159,18 +172,17 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _controller.AddRigidbody(go.Id, RigidBody);
     }
 
-    //TODO: Improve logic... super inefficient method
-    void CheckPlayerCollision(float dt)
+    public bool IntersectsRay(NetworkGameObject gameObject, Ray ray)
     {
-        //TODO: Improve calls to Update/FixedUpdate (call only one? call both but as in Unity?)
-        _controller.PhysicsLateHelper.Update(dt);
-        _controller.PhysicsLateHelper.FixedUpdate();
-        _controller.PhysicsWorld.OnDrawGizmos();
-    }
+        if(gameObject == null)
+            return false;
 
-    bool IntersectsRay(NetworkGameObject gameObject, Ray ray)
-    {
-        return _controller.IntersectsRay(gameObject, ray);
-    }
+        float maxDistance = 100;
+        PhysicsRayResultCallback rayResult = new PhysicsRayResultCallback(gameObject.Id);
+        PhysicsWorld.world.RayTest(ray.origin, 
+            ray.origin + (ray.direction * maxDistance),
+            rayResult);
 
+        return rayResult.IsHit();
+    }
 }

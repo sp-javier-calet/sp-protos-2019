@@ -252,8 +252,8 @@ namespace SocialPoint.Multiplayer
                     ((DiscreteDynamicsWorld)pw.world).RemoveCollisionObject(_collisionObject);
                 }
             }
-            PhysicsUtilities.Dispose(ref _collisionShape);
-            PhysicsUtilities.Dispose(ref _collisionObject);
+            PhysicsUtilities.DisposeMember(ref _collisionShape);
+            PhysicsUtilities.DisposeMember(ref _collisionObject);
         }
 
         public Object Clone()

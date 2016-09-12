@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
 {
-    public class PhysicsWorld : IDisposable
+    public class PhysicsWorld : INetworkServerSceneBehaviour, IDisposable
     {
         public enum WorldType
         {
@@ -290,7 +290,7 @@ namespace SocialPoint.Multiplayer
                 lateUpdateHelper.DeregisterCollisionCallbackListener(toBeRemoved);
         }
 
-        public void OnDrawGizmos()
+        public void DrawGizmos()
         {
             if(_doDebugDraw && _world != null)
             {
@@ -315,6 +315,23 @@ namespace SocialPoint.Multiplayer
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public void Update(float dt, NetworkScene scene, NetworkScene oldScene)
+        {
+            lateUpdateHelper.Update(dt);
+            if(DoDebugDraw)
+            {
+                DrawGizmos();
+            }
+        }
+
+        public void OnClientConnected(byte clientId)
+        {
+        }
+
+        public void OnClientDisconnected(byte clientId)
+        {
         }
 
         public void AddAction(IAction action)

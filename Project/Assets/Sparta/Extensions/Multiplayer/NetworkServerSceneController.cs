@@ -33,11 +33,6 @@ namespace SocialPoint.Multiplayer
         Dictionary<byte, int> _lastReceivedAction;
         Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
 
-        public PhysicsWorld PhysicsWorld;
-        public PhysicsWorldLateHelper PhysicsLateHelper;
-        //public CollisionWorld CollisionWorld;
-        //public PhysicsDefaultCollisionHandler CollisionEventHandler;
-
         public NetworkScene Scene
         {
             get
@@ -69,18 +64,6 @@ namespace SocialPoint.Multiplayer
 
             _lastReceivedAction = new Dictionary<byte, int>();
             _actionDelegates = new Dictionary<Type, List<INetworkActionDelegate>>();
-
-
-            PhysicsLateHelper = new PhysicsWorldLateHelper();
-            PhysicsWorld = new PhysicsWorld(new UnityPhysicsDebugger(), PhysicsLateHelper);
-            PhysicsWorld.DoDebugDraw = true;
-            //PhysicsWorld.worldType = PhysicsWorld.WorldType.CollisionOnly;
-            PhysicsWorld.Awake();
-
-            //CollisionConfiguration collisionConf = new DefaultCollisionConfiguration();
-            //Dispatcher dispatcher = new CollisionDispatcher(collisionConf);
-            //CollisionWorld = new DiscreteDynamicsWorld(dispatcher, new DbvtBroadphase(), null, collisionConf);
-            //CollisionEventHandler = new PhysicsDefaultCollisionHandler();
         }
 
         public virtual void Dispose()
@@ -384,20 +367,6 @@ namespace SocialPoint.Multiplayer
         public bool UnregisterActionDelegate<T>(Action<T, NetworkScene> callback)
         {
             return NetworkActionUtils.UnregisterActionDelegate<T>(callback, _actionDelegates);
-        }
-
-        public bool IntersectsRay(NetworkGameObject gameObject, Ray ray)
-        {
-            if(gameObject == null)
-                return false;
-
-            float maxDistance = 100;
-            PhysicsRayResultCallback rayResult = new PhysicsRayResultCallback(gameObject.Id);
-            PhysicsWorld.world.RayTest(ray.origin, 
-                ray.origin + (ray.direction * maxDistance),
-                rayResult);
-
-            return rayResult.IsHit();
         }
     }
 }

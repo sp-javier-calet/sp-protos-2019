@@ -5,7 +5,6 @@ namespace SocialPoint.Multiplayer
 {
     /**
     This script is last in the script execution order. Its purpose is to ensure that StepSimulation is called after other scripts LateUpdate calls
-    Do not add this script manually. The BPhysicsWorld will add it.
     */
     public class PhysicsWorldLateHelper
     {
@@ -15,13 +14,17 @@ namespace SocialPoint.Multiplayer
         public void RegisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeAdded)
         {
             if(_collisionEventHandler != null)
+            {
                 _collisionEventHandler.RegisterCollisionCallbackListener(toBeAdded);
+            }
         }
 
         public void DeregisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeRemoved)
         {
             if(_collisionEventHandler != null)
+            {
                 _collisionEventHandler.DeregisterCollisionCallbackListener(toBeRemoved);
+            }
         }
 
         internal DiscreteDynamicsWorld _ddWorld;
@@ -37,7 +40,7 @@ namespace SocialPoint.Multiplayer
         }
 
         //protected virtual void FixedUpdate()
-        public virtual void FixedUpdate()
+        /*public virtual void FixedUpdate()
         {
             if(_ddWorld != null)
             {
@@ -61,18 +64,18 @@ namespace SocialPoint.Multiplayer
             {
                 _collisionEventHandler.OnPhysicsStep(_world);
             }
-        }
+        }*/
 
         //This is needed for rigidBody interpolation. The motion states will update the positions of the rigidbodies
-        public virtual void Update(float dt)
+        public void Update(float dt)
         {
-            float deltaTime = UnityEngine.Time.time - _lastSimulationStepTime;
-            if(deltaTime > 0f)
+            //StepSimulation returns number of steps
+            _ddWorld.StepSimulation(dt, _maxSubsteps, _fixedTimeStep);
+
+            //collisions
+            if(_collisionEventHandler != null)
             {
-                _ddWorld.StepSimulation(deltaTime, _maxSubsteps, _fixedTimeStep);
-                //int numSteps = _ddWorld.StepSimulation(deltaTime, _maxSubsteps, _fixedTimeStep);
-                //Debug.Log("Update " + numSteps);
-                _lastSimulationStepTime = UnityEngine.Time.time;
+                _collisionEventHandler.OnPhysicsStep(_world);
             }
         }
     }

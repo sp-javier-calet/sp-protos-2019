@@ -462,7 +462,7 @@ namespace SocialPoint.Multiplayer
             {
                 _rigidBody.MotionState.Dispose();
             }
-            PhysicsUtilities.Dispose(ref _rigidBody);
+            PhysicsUtilities.DisposeMember(ref _rigidBody);
 
             base.OnDestroy();
         }
