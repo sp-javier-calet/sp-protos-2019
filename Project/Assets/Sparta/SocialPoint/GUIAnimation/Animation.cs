@@ -76,6 +76,7 @@ namespace SocialPoint.GUIAnimation
 
         public bool IsInverted { get { return _isInverted; } }
 
+        [SerializeField]
         bool _ignoreTimeScale = true;
 
         public bool IgnoreTimeScale{ get { return _ignoreTimeScale; } set { _ignoreTimeScale = value; } }
