@@ -38,9 +38,6 @@ namespace SocialPoint.GUIAnimation
         double _nextSaveTime = 0.0;
         double _saveMinTime = 10.0;
 
-        double _nextGCClean = 0.0;
-        double _gccleanMinTime = 20.0;
-
         int _currentScreenIdx = 0;
         int _currentAnimationIdx = 0;
 
@@ -316,12 +313,6 @@ namespace SocialPoint.GUIAnimation
 
                 _saveState = false;
             }
-
-            if(EditorApplication.timeSinceStartup > _nextGCClean)
-            {
-                CleanGarbageCollector();
-                _nextGCClean = EditorApplication.timeSinceStartup + _gccleanMinTime;
-            }
         }
 
         public void ForceRepaint()
@@ -353,7 +344,6 @@ namespace SocialPoint.GUIAnimation
         void CleanGarbageCollector()
         {
             System.GC.Collect();
-            _nextGCClean = EditorApplication.timeSinceStartup + _gccleanMinTime;
         }
     }
 }
