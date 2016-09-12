@@ -7,7 +7,7 @@ namespace SocialPoint.GUIAnimation
     [System.Serializable]
     public sealed class OpacityEffect : BlendEffect
     {
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public float Alpha;
 

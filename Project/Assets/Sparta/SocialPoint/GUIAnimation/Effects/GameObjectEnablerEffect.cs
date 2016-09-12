@@ -7,7 +7,7 @@ namespace SocialPoint.GUIAnimation
     [System.Serializable]
     public sealed class GameObjectEnablerEffect : TriggerEffect
     {
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public bool WasEnabled;
 

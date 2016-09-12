@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -136,7 +137,7 @@ namespace SocialPoint.GUIAnimation
         public static Transform CreatePivotTransform(string name = "")
         {
             #if NGUI
-            Debug.Log ("Setting Dimmensions...");
+            Log.d ("Setting Dimmensions...");
 
             GameObject go = new GameObject (name);
             UIWidget widget = go.AddComponent<UIWidget> ();
@@ -239,7 +240,7 @@ namespace SocialPoint.GUIAnimation
 
         static Vector2[] SetAnchorsNative(Transform trans, AnchorMode anchorMode)
         {
-            Debug.Assert(anchorMode != AnchorMode.Disabled);
+            DebugUtils.Assert(anchorMode != AnchorMode.Disabled);
 
             Vector2 anchorMin = new Vector2(0.5f, 0.5f);
             Vector2 anchorMax = new Vector2(0.5f, 0.5f);
@@ -718,7 +719,7 @@ namespace SocialPoint.GUIAnimation
 
         static Vector2[] SetAnchorsNGUI (Transform trans, Transform transParent, AnchorMode anchorMode, bool isResursive)
         {
-            Debug.Assert (anchorMode != AnchorMode.Disabled);
+            DebugUtils.Assert (anchorMode != AnchorMode.Disabled);
 
             Vector2 anchorMin = new Vector2 (0.5f, 0.5f);
             Vector2 anchorMax = new Vector2 (0.5f, 0.5f);

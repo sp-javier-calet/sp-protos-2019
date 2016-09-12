@@ -37,7 +37,7 @@ namespace SocialPoint.GUIAnimation
     public sealed class AnchorsEffect : BlendEffect
     {
         [System.Serializable]
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public Vector2 AnchorsMin;
             public Vector2 AnchorsMax;

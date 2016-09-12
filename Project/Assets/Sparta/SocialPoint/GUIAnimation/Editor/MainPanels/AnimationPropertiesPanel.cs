@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {

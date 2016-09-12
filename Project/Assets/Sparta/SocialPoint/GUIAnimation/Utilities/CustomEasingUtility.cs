@@ -1,15 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
     public static class CustomEasingUtility
     {
-        public static void Invert(List<Vector2> easeCustom)
+        public static void Invert(List<EasePoint> easeCustom)
         {
             for(int i = 0; i < easeCustom.Count; ++i)
             {
-                Vector2 aEase = easeCustom[i];
+                EasePoint aEase = easeCustom[i];
 
                 aEase.x = 1f - aEase.x;
                 aEase.y = 1f - aEase.y;
@@ -20,7 +21,7 @@ namespace SocialPoint.GUIAnimation
             easeCustom.Sort(SortFuncton);
         }
 
-        static int SortFuncton(Vector2 a, Vector2 b)
+        static int SortFuncton(EasePoint a, EasePoint b)
         {
             return a.x < b.x ? -1 : 1;
         }

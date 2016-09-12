@@ -13,7 +13,7 @@ namespace SocialPoint.GUIAnimation
             GameObject Spawn (GameObject prefab);
         }
 
-        public class DefaultSpawner : ISpawner
+        public sealed class DefaultSpawner : ISpawner
         {
             public GameObject Spawn (GameObject prefab)
             {

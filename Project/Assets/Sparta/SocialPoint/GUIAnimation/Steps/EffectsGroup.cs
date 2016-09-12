@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -29,12 +30,12 @@ namespace SocialPoint.GUIAnimation
         public bool UseEaseCustom { get { return _useEaseCustom; } set { _useEaseCustom = value; } }
 
         [SerializeField]
-        List<Vector2> _easeCustom = new List<Vector2> () {
-            new Vector2 (0f, 0f),
-            new Vector2 (1f, 1f)
+        List<EasePoint> _easeCustom = new List<EasePoint> () {
+            new EasePoint (0f, 0f),
+            new EasePoint (1f, 1f)
         };
 
-        public List<Vector2> EaseCustom { get { return _easeCustom; } set { _easeCustom = value; } }
+        public List<EasePoint> EaseCustom { get { return _easeCustom; } set { _easeCustom = value; } }
 
         [SerializeField]
         EaseType _easeType;
@@ -80,7 +81,7 @@ namespace SocialPoint.GUIAnimation
 
             // Copy Easing
             _useEaseCustom = ((EffectsGroup)other).UseEaseCustom;
-            _easeCustom = new List<Vector2> (((EffectsGroup)other).EaseCustom);
+            _easeCustom = new List<EasePoint> (((EffectsGroup)other).EaseCustom);
             _easeType = ((EffectsGroup)other).EaseType;
         }
 

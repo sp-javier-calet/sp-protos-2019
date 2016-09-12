@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -60,7 +61,7 @@ namespace SocialPoint.GUIAnimation
 
     public interface IEaseCustom
     {
-        float ease(float t, float d, List<Vector2> timeValues);
+        float ease(float t, float d, List<EasePoint> timeValues);
     }
 
     public sealed class EaseManager
@@ -493,7 +494,7 @@ namespace SocialPoint.GUIAnimation
     //----
     public class easeCustom : IEaseCustom
     {
-        public float ease(float t, float d, List<Vector2> timeValues)
+        public float ease(float t, float d, List<EasePoint> timeValues)
         {
             if(timeValues.Count == 0)
             {
@@ -517,8 +518,8 @@ namespace SocialPoint.GUIAnimation
 
             endIdx = Mathf.Min(startIdx + 1, timeValues.Count - 1);
 
-            Vector2 start = timeValues[startIdx];
-            Vector2 end = timeValues[endIdx];
+            EasePoint start = timeValues[startIdx];
+            EasePoint end = timeValues[endIdx];
 
             float deltaT = (end.x - start.x);
             float lerpValue = 0f;
