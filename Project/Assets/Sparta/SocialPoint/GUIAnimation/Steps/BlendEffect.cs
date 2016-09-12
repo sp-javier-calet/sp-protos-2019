@@ -40,7 +40,7 @@ namespace SocialPoint.GUIAnimation
         public override void Invert(bool invertTime)
         {
             base.Invert(invertTime);
-            CustomEasingUtility.Invert(_easeCustom);
+            Easing.InvertCustom(_easeCustom);
         }
 
         public override void OnUpdate()
@@ -79,13 +79,11 @@ namespace SocialPoint.GUIAnimation
         {
             if(_useEaseCustom)
             {
-                IEaseCustom ease = EaseManager.GetInstance().GetCustom();
-                return ease.ease(time, duration, _easeCustom);
+                return Easing.Custom(time, duration, _easeCustom);
             }
             else
             {
-                IEase ease = EaseManager.GetInstance().Get(EaseType);
-                return ease.ease(time, start, deltaVal, duration);
+                return _easeType.ToFunction()(time, start, deltaVal, duration);
             }
         }
 

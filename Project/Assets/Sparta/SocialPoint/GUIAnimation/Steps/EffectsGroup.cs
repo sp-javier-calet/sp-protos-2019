@@ -51,7 +51,7 @@ namespace SocialPoint.GUIAnimation
         public override void Invert (bool invertTime)
         {
             base.Invert (invertTime);
-            CustomEasingUtility.Invert (_easeCustom);
+            Easing.InvertCustom (_easeCustom);
         }
 
         public override void OnRemoved ()
