@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -280,7 +281,7 @@ namespace SocialPoint.GUIAnimation
             Effect atemplate = GetActionTemplate<Effect> (type);
             if (atemplate == null)
             {
-                Debug.LogWarning ("Template: " + type.ToString () + " is not found");
+                Log.w ("Template: " + type.ToString () + " is not found");
                 return false;
             }
 
