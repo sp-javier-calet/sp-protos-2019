@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -150,7 +151,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(Target == null)
                 {
-                    Debug.Log("There is no target");
+                    Log.d("There is no target");
                     return null;
                 }
 
@@ -170,7 +171,7 @@ namespace SocialPoint.GUIAnimation
             {
                 if(GraphicObject == null)
                 {
-                    Debug.Log("There is no graphic object");
+                    Log.d("There is no graphic object");
                     return null;
                 }
 
@@ -221,7 +222,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(Material == null)
             {
-                Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
+                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 

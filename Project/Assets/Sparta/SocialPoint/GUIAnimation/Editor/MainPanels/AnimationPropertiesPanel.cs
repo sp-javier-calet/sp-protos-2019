@@ -321,7 +321,7 @@ namespace SocialPoint.GUIAnimation
             Handles.color = prevColor;
         }
 
-        public class GUIMonitor
+        public sealed class GUIMonitor
         {
             bool _isEnabled = false;
 

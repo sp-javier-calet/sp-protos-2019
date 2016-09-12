@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -108,7 +109,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(TargetWidget == null)
             {
-                Debug.LogWarning(GetType() + " OnBlend " + StepName + " Target is null");
+                Log.w(GetType() + " OnBlend " + StepName + " Target is null");
                 return;
             }
 

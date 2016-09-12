@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -496,7 +497,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(timeValues.Count == 0)
             {
-                Debug.LogWarning("TimeValues is Empty :(");
+                Log.w("TimeValues is Empty :(");
                 return 0f;
             }
 

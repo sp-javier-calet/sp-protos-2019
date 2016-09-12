@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -317,7 +318,7 @@ namespace SocialPoint.GUIAnimation
 				}
 				else
 				{
-					Debug.LogWarning("Not found good position");
+					Log.w("Not found good position");
 				}
 			}
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -174,9 +175,8 @@ namespace SocialPoint.GUIAnimation
             }
             else
             {
-                Debug.LogWarning("[SPCollection] Trying to remove item " + item.name + " that is not in this collection");
+                Log.w("[SPCollection] Trying to remove item " + item.name + " that is not in this collection");
             }
-
             _animation.RefreshAndInit();
         }
 
@@ -217,7 +217,7 @@ namespace SocialPoint.GUIAnimation
             });
             if(!existInSource)
             {
-                Debug.LogWarning("[SPCollection] Trying to move item " + sourceItem.name + " that is not in this collection");
+                Log.w("[SPCollection] Trying to move item " + sourceItem.name + " that is not in this collection");
                 return default(T);
             }
 			
