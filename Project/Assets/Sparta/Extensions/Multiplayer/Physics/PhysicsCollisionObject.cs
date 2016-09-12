@@ -7,7 +7,6 @@ namespace SocialPoint.Multiplayer
 {
     public class PhysicsCollisionObject : INetworkBehaviour
     {
-
         public interface ICollisionCallbackEventHandler
         {
             void OnVisitPersistentManifold(PersistentManifold pm);

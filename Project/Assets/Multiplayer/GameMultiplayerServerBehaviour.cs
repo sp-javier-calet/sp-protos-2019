@@ -15,7 +15,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     Dictionary<int,int> _updateTimes;
     float _moveInterval = 1.0f;
     float _timeSinceLastMove = 0.0f;
-    int _maxUpdateTimes = 1;
+    int _maxUpdateTimes = 3;
     Vector3 _movement;
 
     public PhysicsWorld PhysicsWorld;
@@ -105,11 +105,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         if(data.MessageType == GameMsgType.ClickAction)
         {
             var ac = reader.Read<ClickAction>();
-            if(playerCube != null && IntersectsRay(playerCube, ac.Ray))
-            {
-                UnityEngine.Debug.Log("*** TEST Ray Intersects Player!");
-            }
-            else
+            if(playerCube == null || !ClosestIntersectsRay(playerCube, ac.Ray))
             {
                 NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
                                                     ac.Position, Quaternion.Identity, Vector3.One));
@@ -150,7 +146,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void AddCollision(NetworkGameObject go)
     {
-        PhysicsRigidBody RigidBody = new PhysicsRigidBody();
+        var RigidBody = new PhysicsRigidBody();
         RigidBody.collisionFlags = CollisionFlags.KinematicObject;
 
         //PhysicsCollisionObject = new PhysicsCollisionObject();
@@ -159,30 +155,37 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         RigidBody.CollisionShape = boxShape;
         RigidBody.Debugger = new UnityPhysicsDebugger();//TODO: Share single debugger
 
-        CollisionObject co = RigidBody.GetCollisionObject();
+        var co = RigidBody.GetCollisionObject();
         //co.CollisionFlags = CollisionFlags.KinematicObject;
         co.ActivationState = ActivationState.DisableDeactivation;
 
         //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
         RigidBody.PhysicsWorld = PhysicsWorld;
         //go.PhysicsCollisionObject.Start();//TODO: Change start to remove internal Add to world
-        PhysicsDefaultCollisionCallbacks collCallback = new PhysicsDefaultCollisionCallbacks(co);
+        var collCallback = new PhysicsDefaultCollisionCallbacks(co);
         RigidBody.AddOnCollisionCallbackEventHandler(collCallback);
 
         _controller.AddRigidbody(go.Id, RigidBody);
     }
 
-    public bool IntersectsRay(NetworkGameObject gameObject, Ray ray)
+    public bool ClosestIntersectsRay(NetworkGameObject gameObject, Ray ray)
     {
         if(gameObject == null)
+        {
             return false;
+        }
 
         float maxDistance = 100;
-        PhysicsRayResultCallback rayResult = new PhysicsRayResultCallback(gameObject.Id);
-        PhysicsWorld.world.RayTest(ray.origin, 
-            ray.origin + (ray.direction * maxDistance),
-            rayResult);
+        var rayResultClosest = new PhysicsRaycast.ClosestResult();
 
-        return rayResult.IsHit();
+        if(PhysicsRaycast.Raycast(ray, maxDistance, PhysicsWorld, out rayResultClosest))
+        {
+            if(rayResultClosest.GameObjectHit.Id == gameObject.Id)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

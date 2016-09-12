@@ -105,17 +105,17 @@ namespace SocialPoint.Multiplayer
 
         public virtual void BOnCollisionEnter(CollisionObject other, PersistentManifoldList manifoldList)
         {
-            UnityEngine.Debug.Log("*** TEST Collision Enter");
+            //UnityEngine.Debug.Log("*** TEST Collision Enter");
         }
 
         public virtual void BOnCollisionStay(CollisionObject other, PersistentManifoldList manifoldList)
         {
-            UnityEngine.Debug.Log("*** TEST Collision Stay");
+            //UnityEngine.Debug.Log("*** TEST Collision Stay");
         }
 
         public virtual void BOnCollisionExit(CollisionObject other)
         {
-            UnityEngine.Debug.Log("*** TEST Collision Exit");
+            //UnityEngine.Debug.Log("*** TEST Collision Exit");
         }
     }
 }
