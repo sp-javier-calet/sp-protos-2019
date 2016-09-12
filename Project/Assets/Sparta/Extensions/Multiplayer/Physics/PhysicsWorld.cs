@@ -278,13 +278,13 @@ namespace SocialPoint.Multiplayer
 
         public float timeStr;
 
-        public void RegisterCollisionCallbackListener(PhysicsCollisionObject.BICollisionCallbackEventHandler toBeAdded)
+        public void RegisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeAdded)
         {
             if(lateUpdateHelper != null)
                 lateUpdateHelper.RegisterCollisionCallbackListener(toBeAdded);
         }
 
-        public void DeregisterCollisionCallbackListener(PhysicsCollisionObject.BICollisionCallbackEventHandler toBeRemoved)
+        public void DeregisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeRemoved)
         {
             if(lateUpdateHelper != null)
                 lateUpdateHelper.DeregisterCollisionCallbackListener(toBeRemoved);
@@ -598,14 +598,14 @@ namespace SocialPoint.Multiplayer
 
     public class PhysicsDefaultCollisionHandler
     {
-        HashSet<PhysicsCollisionObject.BICollisionCallbackEventHandler> collisionCallbackListeners = new HashSet<PhysicsCollisionObject.BICollisionCallbackEventHandler>();
+        HashSet<PhysicsCollisionObject.ICollisionCallbackEventHandler> collisionCallbackListeners = new HashSet<PhysicsCollisionObject.ICollisionCallbackEventHandler>();
 
-        public void RegisterCollisionCallbackListener(PhysicsCollisionObject.BICollisionCallbackEventHandler toBeAdded)
+        public void RegisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeAdded)
         {
             collisionCallbackListeners.Add(toBeAdded);
         }
 
-        public void DeregisterCollisionCallbackListener(PhysicsCollisionObject.BICollisionCallbackEventHandler toBeRemoved)
+        public void DeregisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeRemoved)
         {
             collisionCallbackListeners.Remove(toBeRemoved);
         }
@@ -628,7 +628,7 @@ namespace SocialPoint.Multiplayer
                     ((PhysicsCollisionObject)b.UserObject).collisionCallbackEventHandler.OnVisitPersistentManifold(contactManifold);
                 }
             }
-            foreach(PhysicsCollisionObject.BICollisionCallbackEventHandler coeh in collisionCallbackListeners)
+            foreach(PhysicsCollisionObject.ICollisionCallbackEventHandler coeh in collisionCallbackListeners)
             {
                 if(coeh != null)
                     coeh.OnFinishedVisitingManifolds();

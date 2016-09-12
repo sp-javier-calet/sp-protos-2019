@@ -286,12 +286,6 @@ namespace SocialPoint.Multiplayer
                 behaviours[i].OnStart(go);
             }
 
-            //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
-            go.PhysicsCollisionObject.PhysicsWorld = PhysicsWorld;
-            go.PhysicsCollisionObject.Start();//TODO: Change start to remove internal Add to world
-            PhysicsDefaultCollisionCallbacks collCallback = new PhysicsDefaultCollisionCallbacks(go.CollisionObject);
-            go.PhysicsCollisionObject.AddOnCollisionCallbackEventHandler(collCallback);
-
             return go;
         }
 
@@ -302,12 +296,6 @@ namespace SocialPoint.Multiplayer
 
         public void Destroy(int id)
         {
-            NetworkGameObject go = _scene.FindObject(id);
-            if(go != null)
-            {
-                go.PhysicsCollisionObject.OnDisable();
-            }
-
             if(!_scene.RemoveObject(id))
             {
                 return;

@@ -7,9 +7,8 @@ using AOT;
 
 namespace SocialPoint.Multiplayer
 {
-    public class PhysicsGameObjectMotionState : MotionState, IDisposable
+    public class PhysicsGameObjectMotionState : MotionState
     {
-
         public Transform transform;
         BM.Matrix wt;
 

@@ -5,7 +5,7 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class PhysicsDefaultCollisionCallbacks : PhysicsCollisionObject.BICollisionCallbackEventHandler
+    public class PhysicsDefaultCollisionCallbacks : PhysicsCollisionObject.ICollisionCallbackEventHandler
     {
         public class PersistentManifoldList
         {

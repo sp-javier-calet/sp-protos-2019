@@ -13,36 +13,16 @@ namespace SocialPoint.Multiplayer
 
         public Transform Transform;
 
-        public PhysicsRigidBody RigidBody;
-
-        public PhysicsCollisionObject PhysicsCollisionObject
-        {
-            get
-            {
-                return RigidBody;
-            }
-        }
-
-        public CollisionObject CollisionObject
-        {
-            get
-            {
-                return PhysicsCollisionObject.GetCollisionObject();
-            }
-        }
-
         public NetworkGameObject(int id)
         {
             Id = id;
             Transform = new Transform();
-            InitCollision();
         }
 
         public NetworkGameObject(int id, Transform t)
         {
             Id = id;
             Transform = t;
-            InitCollision();
         }
 
         public NetworkGameObject(NetworkGameObject go)
@@ -56,31 +36,6 @@ namespace SocialPoint.Multiplayer
             {
                 Transform = new Transform();
             }
-            InitCollision();
-        }
-
-        void InitCollision()
-        {
-            RigidBody = new PhysicsRigidBody();
-            RigidBody.collisionFlags = CollisionFlags.KinematicObject;
-            //RigidBody.collisionMask = CollisionFilterGroups.AllFilter;
-            bool isKinematic = !RigidBody.isDynamic();
-            if(!isKinematic)
-            {
-                UnityEngine.Debug.Log("*** TEST RigidBody NO Kinematic");
-            }
-
-            //PhysicsCollisionObject = new PhysicsCollisionObject();
-            PhysicsCollisionObject.GameObject = this;
-            PhysicsBoxShape boxShape = new PhysicsBoxShape(new Vector3(0.5f));
-            PhysicsCollisionObject.CollisionShape = boxShape;
-            PhysicsCollisionObject.Debugger = new UnityPhysicsDebugger();//TODO: Share single debugger
-
-            PhysicsCollisionObject.SetPosition(Transform.Position);
-
-            CollisionObject co = CollisionObject;
-            //co.CollisionFlags = CollisionFlags.KinematicObject;
-            co.ActivationState = ActivationState.DisableDeactivation;
         }
 
         public object Clone()

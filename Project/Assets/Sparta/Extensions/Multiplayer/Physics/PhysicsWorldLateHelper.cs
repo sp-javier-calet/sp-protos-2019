@@ -12,13 +12,13 @@ namespace SocialPoint.Multiplayer
         internal PhysicsWorld _physicsWorld;
         internal PhysicsDefaultCollisionHandler _collisionEventHandler = new PhysicsDefaultCollisionHandler();
 
-        public void RegisterCollisionCallbackListener(PhysicsCollisionObject.BICollisionCallbackEventHandler toBeAdded)
+        public void RegisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeAdded)
         {
             if(_collisionEventHandler != null)
                 _collisionEventHandler.RegisterCollisionCallbackListener(toBeAdded);
         }
 
-        public void DeregisterCollisionCallbackListener(PhysicsCollisionObject.BICollisionCallbackEventHandler toBeRemoved)
+        public void DeregisterCollisionCallbackListener(PhysicsCollisionObject.ICollisionCallbackEventHandler toBeRemoved)
         {
             if(_collisionEventHandler != null)
                 _collisionEventHandler.DeregisterCollisionCallbackListener(toBeRemoved);

@@ -20,8 +20,8 @@ namespace SocialPoint.Multiplayer
             PhysicsCollisionObject co = (PhysicsCollisionObject)(rayResult.CollisionObject.UserObject);
             if(co != null)
             {
-                UnityEngine.Debug.Log("*** TEST Raycast with object: " + co.GameObject.Id);
-                if(co.GameObject.Id == _targetId)
+                UnityEngine.Debug.Log("*** TEST Raycast with object: " + co.NetworkGameObject.Id);
+                if(co.NetworkGameObject.Id == _targetId)
                 {
                     hitObject = true;
                 }

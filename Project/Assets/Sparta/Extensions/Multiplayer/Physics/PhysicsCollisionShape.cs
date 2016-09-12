@@ -32,24 +32,10 @@ namespace SocialPoint.Multiplayer
             return _collisionShapePtr;
         }
 
-        void OnDestroy()
-        {
-            Dispose(false);
-        }
-
         public void Dispose()
         {
-            Dispose(true);
+            PhysicsUtilities.Dispose(ref _collisionShapePtr);
             GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool isdisposing)
-        {
-            if(_collisionShapePtr != null)
-            {
-                _collisionShapePtr.Dispose();
-                _collisionShapePtr = null;
-            }
         }
     }
 }

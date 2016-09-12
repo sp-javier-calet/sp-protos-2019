@@ -5,20 +5,13 @@ using System.Collections;
 
 namespace SocialPoint.Multiplayer
 {
-    public class PhysicsRigidBody : PhysicsCollisionObject, IDisposable
+    public class PhysicsRigidBody : PhysicsCollisionObject
     {
+        RigidBody _rigidBody;
         PhysicsGameObjectMotionState _motionState;
+        Vector3 _localInertia = Vector3.Zero;
 
-        RigidBody _rigidBody
-        {
-            get { return (RigidBody)_collisionObject; }
-            set { _collisionObject = value; }
-        }
-
-
-        BulletSharp.Math.Vector3 _localInertia = BulletSharp.Math.Vector3.Zero;
-
-        public BulletSharp.Math.Vector3 localInertia
+        public Vector3 localInertia
         {
             get
             {
@@ -278,7 +271,7 @@ namespace SocialPoint.Multiplayer
                     }
                     if(_rigidBody != null)
                     {
-                        _localInertia = BulletSharp.Math.Vector3.Zero;
+                        _localInertia = Vector3.Zero;
                         if(isDynamic())
                         {
                             _collisionShape.GetCollisionShape().CalculateLocalInertia(_mass, out _localInertia);
@@ -370,13 +363,13 @@ namespace SocialPoint.Multiplayer
             _collisionShape = CollisionShape;
             if(_collisionShape == null)
             {
-                _debugger.LogError(debugType, "There was no collision shape component attached to this BRigidBody. {0}", GameObject.Id);
+                _debugger.LogError(debugType, "There was no collision shape component attached to this BRigidBody. {0}", NetworkGameObject.Id);
                 return false;
             }
 
             CollisionShape cs = _collisionShape.GetCollisionShape();
             //rigidbody is dynamic if and only if mass is non zero, otherwise static
-            _localInertia = BulletSharp.Math.Vector3.Zero;
+            _localInertia = Vector3.Zero;
             if(isDynamic())
             {
                 cs.CalculateLocalInertia(_mass, out _localInertia);
@@ -384,7 +377,7 @@ namespace SocialPoint.Multiplayer
 
             if(_rigidBody == null)
             {
-                _motionState = new PhysicsGameObjectMotionState(GameObject.Transform);
+                _motionState = new PhysicsGameObjectMotionState(NetworkGameObject.Transform);
                 float bulletMass = _mass;
                 if(!isDynamic())
                 {
@@ -404,7 +397,11 @@ namespace SocialPoint.Multiplayer
                 rbInfo.AdditionalAngularDampingThresholdSqr = _additionalAngularDampingThresholdSqr;
                 rbInfo.AdditionalDampingFactor = _additionalDampingFactor;
                 rbInfo.AdditionalLinearDampingThresholdSqr = _additionalLinearDampingThresholdSqr;
+
+                //Important: Base _collisionObject must be the same as _rigidBody
                 _rigidBody = new RigidBody(rbInfo);
+                _collisionObject = _rigidBody;
+
                 _rigidBody.UserObject = this;
                 _rigidBody.AngularVelocity = _angularVelocity;
                 _rigidBody.LinearVelocity = _linearVelocity;
@@ -440,33 +437,34 @@ namespace SocialPoint.Multiplayer
             return true;
         }
 
-        protected override void Awake()
+        public override void OnStart(NetworkGameObject go)
         {
+            base.OnStart(go);
+
             /*BRigidBody[] rbs = GetComponentsInParent<BRigidBody>();
             if(rbs.Length != 1)
             {
                 _debugger.LogError(debugType, "Can't nest rigid bodies. The transforms are updated by Bullet in undefined order which can cause spasing. Object {0}", GameObject.Id);
             }*/
-            _collisionShape = CollisionShape;
-            if(_collisionShape == null)
-            {
-                _debugger.LogError(debugType, "A BRigidBody component must be on an object with a BCollisionShape component.");
-            }
         }
 
-        public override void OnDisable()
+        public override void OnDestroy()
         {
-            if(_rigidBody != null && isInWorld)
+            if(isInWorld && _rigidBody != null)
             {
-                //all constraints using RB must be disabled before rigid body is disabled
-                /*for(int i = m_rigidBody.NumConstraintRefs - 1; i >= 0; i--)
+                PhysicsWorld pw = PhysicsWorld;
+                if(pw != null && pw.world != null)
                 {
-                    BTypedConstraint btc = (BTypedConstraint)m_rigidBody.GetConstraintRef(i).Userobject;
-                    Debug.Assert(btc != null);
-                    btc.enabled = false; //should remove it from the scene
-                }*/
+                    ((DiscreteDynamicsWorld)pw.world).RemoveRigidBody(_rigidBody);
+                }
             }
-            base.OnDisable();
+            if(_rigidBody != null && _rigidBody.MotionState != null)
+            {
+                _rigidBody.MotionState.Dispose();
+            }
+            PhysicsUtilities.Dispose(ref _rigidBody);
+
+            base.OnDestroy();
         }
 
         protected override void AddObjectToBulletWorld()
@@ -482,31 +480,6 @@ namespace SocialPoint.Multiplayer
                 _debugger.Assert(_rigidBody.NumConstraintRefs == 0, "Removing rigid body that still had constraints. Remove constraints first.");
                 //constraints must be removed before rigid body is removed
                 pw.RemoveRigidBody((RigidBody)_collisionObject);
-            }
-        }
-
-        protected override void Dispose(bool isdisposing)
-        {
-            if(isInWorld && isdisposing && _rigidBody != null)
-            {
-                PhysicsWorld pw = PhysicsWorld;
-                if(pw != null && pw.world != null)
-                {
-                    //constraints must be removed before rigid body is removed
-                    /*for(int i = m_rigidBody.NumConstraintRefs; i > 0; i--)
-                    {
-                        BTypedConstraint tc = (BTypedConstraint)m_rigidBody.GetConstraintRef(i - 1).Userobject;
-                        ((DiscreteDynamicsWorld)pw.world).RemoveConstraint(tc.GetConstraint());
-                    }*/
-                    ((DiscreteDynamicsWorld)pw.world).RemoveRigidBody(_rigidBody);
-                }
-            }
-            if(_rigidBody != null)
-            {
-                if(_rigidBody.MotionState != null)
-                    _rigidBody.MotionState.Dispose();
-                _rigidBody.Dispose();
-                _rigidBody = null;
             }
         }
 

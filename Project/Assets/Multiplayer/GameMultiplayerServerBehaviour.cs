@@ -15,11 +15,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     Dictionary<int,int> _updateTimes;
     float _moveInterval = 1.0f;
     float _timeSinceLastMove = 0.0f;
-    int _maxUpdateTimes = 3;
+    int _maxUpdateTimes = 1;
     Vector3 _movement;
 
     //*** TEST
-    static NetworkGameObject firstCube = null;
+    static NetworkGameObject playerCube = null;
 
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
     {
@@ -46,13 +46,13 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var itr = _controller.Scene.GetObjectEnumerator();
             while(itr.MoveNext())
             {
-                var id = itr.Current.Id;
-                if(id == 1)
+                if(itr.Current == playerCube)
                 {
                     //Using first cube as MovementAction target
                     continue;
                 }
 
+                var id = itr.Current.Id;
                 var p = itr.Current.Transform.Position;
 
                 p += new Vector3(
@@ -102,7 +102,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         if(data.MessageType == GameMsgType.ClickAction)
         {
             var ac = reader.Read<ClickAction>();
-            if(firstCube != null && IntersectsRay(firstCube, ac.Ray))
+            if(playerCube != null && IntersectsRay(playerCube, ac.Ray))
             {
                 UnityEngine.Debug.Log("*** TEST Ray Intersects Player!");
             }
@@ -111,10 +111,12 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
                                                     ac.Position, Quaternion.Identity, Vector3.One));
 
-                if(firstCube == null)
+                if(playerCube == null)
                 {
-                    firstCube = currentCube;
+                    playerCube = currentCube;
                 }
+
+                AddCollision(currentCube);
             }
 
         }
@@ -133,60 +135,37 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     {
     }
 
+    void AddCollision(NetworkGameObject go)
+    {
+        PhysicsRigidBody RigidBody = new PhysicsRigidBody();
+        RigidBody.collisionFlags = CollisionFlags.KinematicObject;
+
+        //PhysicsCollisionObject = new PhysicsCollisionObject();
+        RigidBody.NetworkGameObject = go;
+        PhysicsBoxShape boxShape = new PhysicsBoxShape(new Vector3(0.5f));
+        RigidBody.CollisionShape = boxShape;
+        RigidBody.Debugger = new UnityPhysicsDebugger();//TODO: Share single debugger
+
+        CollisionObject co = RigidBody.GetCollisionObject();
+        //co.CollisionFlags = CollisionFlags.KinematicObject;
+        co.ActivationState = ActivationState.DisableDeactivation;
+
+        //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
+        RigidBody.PhysicsWorld = _controller.PhysicsWorld;
+        //go.PhysicsCollisionObject.Start();//TODO: Change start to remove internal Add to world
+        PhysicsDefaultCollisionCallbacks collCallback = new PhysicsDefaultCollisionCallbacks(co);
+        RigidBody.AddOnCollisionCallbackEventHandler(collCallback);
+
+        _controller.AddRigidbody(go.Id, RigidBody);
+    }
+
     //TODO: Improve logic... super inefficient method
     void CheckPlayerCollision(float dt)
     {
-        UpdatePhysicsPositions();
-
         //TODO: Improve calls to Update/FixedUpdate (call only one? call both but as in Unity?)
         _controller.PhysicsLateHelper.Update(dt);
         _controller.PhysicsLateHelper.FixedUpdate();
         _controller.PhysicsWorld.OnDrawGizmos();
-        //CollisionEventHandler.OnPhysicsStep(_controller.CollisionWorld);
-
-        /*var itr1 = _controller.Scene.GetObjectEnumerator();
-        while(itr1.MoveNext())
-        {
-            var itr2 = _controller.Scene.GetObjectEnumerator();
-            while(itr2.MoveNext())
-            {
-                if(itr1.Current.Id == itr2.Current.Id)
-                {
-                    continue;
-                }
-
-                NetworkGameObject obj1 = itr1.Current;
-                NetworkGameObject obj2 = itr2.Current;
-                obj1.CollisionObject.WorldTransform = obj1.Transform.WorldToLocalMatrix();
-                obj2.CollisionObject.WorldTransform = obj2.Transform.WorldToLocalMatrix();
-
-                //BoxBoxDetector detector = new BoxBoxDetector((BoxShape)obj1.CollisionObject.CollisionShape, (BoxShape)obj2.CollisionObject.CollisionShape); 
-                //bool collision = detector.
-                //bool collision = obj1.CollisionObject.CheckCollideWith(obj2.CollisionObject);
-                //if(collision)
-                //{
-                //    UnityEngine.Debug.Log("*** TEST Collision!");
-                //}
-            }
-            itr2.Dispose();
-        }
-        itr1.Dispose();*/
-    }
-
-    void UpdatePhysicsPositions()
-    {
-        var itr = _controller.Scene.GetObjectEnumerator();
-        while(itr.MoveNext())
-        {
-            NetworkGameObject obj = itr.Current;
-            /*if(obj.Id == 1)
-            {
-                obj.RigidBody.collisionFlags = CollisionFlags.CharacterObject;
-            }*/
-
-            obj.CollisionObject.WorldTransform = obj.Transform.WorldToLocalMatrix();
-        }
-        itr.Dispose();
     }
 
     bool IntersectsRay(NetworkGameObject gameObject, Ray ray)
