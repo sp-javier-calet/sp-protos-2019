@@ -5,61 +5,61 @@ using System;
 namespace SocialPoint.GUIAnimation
 {
     public sealed class WindowMover
-	{
-		public delegate void DeltaMomement(Vector2 delta);
+    {
+        public delegate void DeltaMomement(Vector2 delta);
 
-		public Vector2 GrabSize = Vector2.zero;
+        public Vector2 GrabSize = Vector2.zero;
 		
-		private Vector2 _prevMousePos;
+        private Vector2 _prevMousePos;
 		
-		bool _isMoving = false;
-		public bool IsMoving { get { return _isMoving; } }
+        bool _isMoving = false;
 
-		public Vector2 Delta;
+        public bool IsMoving { get { return _isMoving; } }
 
-		public WindowMover(Vector2 grabSize)
-		{
-			GrabSize = grabSize;
-		}
+        public Vector2 Delta;
 
-		public void Stop()
-		{
-			_isMoving = false;
-		}
+        public WindowMover(Vector2 grabSize)
+        {
+            GrabSize = grabSize;
+        }
 
-		public void Update(ref Rect window, DeltaMomement callback = null)
-		{
-			Rect expandedWindow = window;
-			expandedWindow.size += GrabSize;
+        public void Stop()
+        {
+            _isMoving = false;
+        }
+
+        public void Update(ref Rect window, DeltaMomement callback = null)
+        {
+            Rect expandedWindow = window;
+            expandedWindow.size += GrabSize;
 			
-			if(Event.current.type == EventType.mouseUp)
-			{
-				_isMoving = false;
-				return;
-			}
+            if(Event.current.type == EventType.mouseUp)
+            {
+                _isMoving = false;
+                return;
+            }
 			
-			if ( _isMoving == false && Event.current.type == EventType.mouseDown &&
-			    expandedWindow.Contains(Event.current.mousePosition)
-			    )
-			{
-				_isMoving = true;
-				Delta = Vector2.zero;
-				_prevMousePos = Event.current.mousePosition;
-			}
+            if(_isMoving == false && Event.current.type == EventType.mouseDown &&
+            expandedWindow.Contains(Event.current.mousePosition))
+            {
+                _isMoving = true;
+                Delta = Vector2.zero;
+                _prevMousePos = Event.current.mousePosition;
+            }
 			
-			if (_isMoving)
-			{
-				Vector2 currentMousePos = Event.current.mousePosition;
-				Delta = Event.current.mousePosition - _prevMousePos;
-				window.position += Delta;
+            if(_isMoving)
+            {
+                Vector2 currentMousePos = Event.current.mousePosition;
+                Delta = Event.current.mousePosition - _prevMousePos;
+                window.position += Delta;
 
-				_prevMousePos = currentMousePos;
+                _prevMousePos = currentMousePos;
 
-				if(callback != null)
-				{
-					callback(Delta);
-				}
-			}
-		}
-	}
+                if(callback != null)
+                {
+                    callback(Delta);
+                }
+            }
+        }
+    }
 }

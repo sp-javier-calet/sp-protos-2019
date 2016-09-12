@@ -5,459 +5,486 @@ using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
 {
-	// This class will control the boxes position, scale and snapping taking into account the user interaction with the boxes windows
+    // This class will control the boxes position, scale and snapping taking into account the user interaction with the boxes windows
     public sealed class StepBoxesProcessors
-	{
-		abstract class BaseBoxProcessor
-		{
-			protected StepBoxesProcessors Host;
-			public BaseBoxProcessor(StepBoxesProcessors host) { Host = host;  }
+    {
+        abstract class BaseBoxProcessor
+        {
+            protected StepBoxesProcessors Host;
 
-			public abstract void ResetState();
-			public abstract bool UpdateState();
-		}
+            public BaseBoxProcessor(StepBoxesProcessors host)
+            {
+                Host = host;
+            }
 
-		class ResizeProcessor : BaseBoxProcessor
-		{	
-			public ResizeProcessor(StepBoxesProcessors host) : base(host){}
-			public override void ResetState()
-			{
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					pair.Value.WinResizer.Stop();
-				}
-			}
+            public abstract void ResetState();
 
-			public override bool UpdateState()
-			{
-				bool someIsResizing = false;
+            public abstract bool UpdateState();
+        }
 
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					AnimationStepBox animationItemBox = pair.Value;
-					if(animationItemBox.AnimationItem is TriggerEffect)
-					{
-						continue;
-					}
+        sealed class ResizeProcessor : BaseBoxProcessor
+        {
+            public ResizeProcessor(StepBoxesProcessors host) : base(host)
+            {
+            }
 
-					animationItemBox.WinResizer.Resize(ref animationItemBox.Rect, Vector2.right, (Vector2 delta)=>{
-						if(Host.BoxContainer.StepsSelection.IsSelected(animationItemBox.AnimationItem))
-						{
-							Host.BoxContainer.StepsSelection.OnResized(animationItemBox.AnimationItem, delta, Host.BoxContainer.CacheWindows);
-						}
-						else
-						{
-							Host.BoxContainer.OnAnimationItemSelected(animationItemBox.AnimationItem);
-						}
+            public override void ResetState()
+            {
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    pair.Value.WinResizer.Stop();
+                }
+            }
+
+            public override bool UpdateState()
+            {
+                bool someIsResizing = false;
+
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    AnimationStepBox animationItemBox = pair.Value;
+                    if(animationItemBox.AnimationItem is TriggerEffect)
+                    {
+                        continue;
+                    }
+
+                    animationItemBox.WinResizer.Resize(ref animationItemBox.Rect, Vector2.right, (Vector2 delta) => {
+                        if(Host.BoxContainer.StepsSelection.IsSelected(animationItemBox.AnimationItem))
+                        {
+                            Host.BoxContainer.StepsSelection.OnResized(animationItemBox.AnimationItem, delta, Host.BoxContainer.CacheWindows);
+                        }
+                        else
+                        {
+                            Host.BoxContainer.OnAnimationItemSelected(animationItemBox.AnimationItem);
+                        }
 						
-					});
-					bool isResizing = animationItemBox.WinResizer.IsResizing && animationItemBox.WinResizer.DeltaSize.magnitude > 1e-1f;
-					someIsResizing |= isResizing;
-				}
+                    });
+                    bool isResizing = animationItemBox.WinResizer.IsResizing && animationItemBox.WinResizer.DeltaSize.magnitude > 1e-1f;
+                    someIsResizing |= isResizing;
+                }
 
-				return someIsResizing;
-			}
-		}
+                return someIsResizing;
+            }
+        }
 
-		class MoveProcessor : BaseBoxProcessor
-		{
-			public MoveProcessor(StepBoxesProcessors host) : base(host){}
-			public override void ResetState()
-			{
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					pair.Value.WinMover.Stop();
-				}
-			}
+        sealed class MoveProcessor : BaseBoxProcessor
+        {
+            public MoveProcessor(StepBoxesProcessors host) : base(host)
+            {
+            }
 
-			public override bool UpdateState()
-			{
-				bool someIsMoving = false;
+            public override void ResetState()
+            {
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    pair.Value.WinMover.Stop();
+                }
+            }
 
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					AnimationStepBox animationItemBox = pair.Value;
+            public override bool UpdateState()
+            {
+                bool someIsMoving = false;
 
-					// Move
-					Vector2 prevPosition = animationItemBox.Rect.position;
-					animationItemBox.WinMover.Update(ref animationItemBox.Rect);
-					bool isMoving = (animationItemBox.WinMover.IsMoving && animationItemBox.WinMover.Delta.magnitude > 1e-1f);
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    AnimationStepBox animationItemBox = pair.Value;
 
-					// Align
-					if(   GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftShift)
-					   && Host.BoxContainer.StepsSelection.IsFirstSelected(animationItemBox.AnimationItem))
-					{
-						isMoving = AlignBox(animationItemBox);
-					}
+                    // Move
+                    Vector2 prevPosition = animationItemBox.Rect.position;
+                    animationItemBox.WinMover.Update(ref animationItemBox.Rect);
+                    bool isMoving = (animationItemBox.WinMover.IsMoving && animationItemBox.WinMover.Delta.magnitude > 1e-1f);
 
-					// Select or Expand movement to the rest of the selection
-					if(isMoving)
-					{
-						if(Host.BoxContainer.StepsSelection.IsSelected(animationItemBox.AnimationItem))
-						{
-							Vector3 delta = animationItemBox.Rect.position - prevPosition;
-							Host.BoxContainer.StepsSelection.OnMoved(animationItemBox.AnimationItem, delta, Host.BoxContainer.CacheWindows);
-						}
-						else
-						{
-							Host.BoxContainer.OnAnimationItemSelected(animationItemBox.AnimationItem);
-						}
+                    // Align
+                    if(GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftShift)
+                       && Host.BoxContainer.StepsSelection.IsFirstSelected(animationItemBox.AnimationItem))
+                    {
+                        isMoving = AlignBox(animationItemBox);
+                    }
 
-						Host.AddMovedBox(animationItemBox);
-					}
+                    // Select or Expand movement to the rest of the selection
+                    if(isMoving)
+                    {
+                        if(Host.BoxContainer.StepsSelection.IsSelected(animationItemBox.AnimationItem))
+                        {
+                            Vector3 delta = animationItemBox.Rect.position - prevPosition;
+                            Host.BoxContainer.StepsSelection.OnMoved(animationItemBox.AnimationItem, delta, Host.BoxContainer.CacheWindows);
+                        }
+                        else
+                        {
+                            Host.BoxContainer.OnAnimationItemSelected(animationItemBox.AnimationItem);
+                        }
 
-					someIsMoving |= isMoving;
+                        Host.AddMovedBox(animationItemBox);
+                    }
 
-					if(isMoving)
-					{
-						break;
-					}
-				}
+                    someIsMoving |= isMoving;
 
-				return someIsMoving;
-			}
+                    if(isMoving)
+                    {
+                        break;
+                    }
+                }
 
-			bool AlignBox(AnimationStepBox animationItemBox)
-			{
-				if(DoTryToAlign(animationItemBox, 0f, 0f)) { return true; }
-				if(DoTryToAlign(animationItemBox, 0f, 1f)) { return true; }
-				if(DoTryToAlign(animationItemBox, 1f, 0f)) { return true; }
-				if(DoTryToAlign(animationItemBox, 1f, 1f)) { return true; }
+                return someIsMoving;
+            }
 
-				return false;
-			}
+            bool AlignBox(AnimationStepBox animationItemBox)
+            {
+                if(DoTryToAlign(animationItemBox, 0f, 0f))
+                {
+                    return true;
+                }
+                if(DoTryToAlign(animationItemBox, 0f, 1f))
+                {
+                    return true;
+                }
+                if(DoTryToAlign(animationItemBox, 1f, 0f))
+                {
+                    return true;
+                }
+                if(DoTryToAlign(animationItemBox, 1f, 1f))
+                {
+                    return true;
+                }
 
-			bool DoTryToAlign(AnimationStepBox animationItemBox, float sourceWidthFactor, float otherWidthFactor)
-			{
-				float distanceToAlignSQ = 10f;
+                return false;
+            }
+
+            bool DoTryToAlign(AnimationStepBox animationItemBox, float sourceWidthFactor, float otherWidthFactor)
+            {
+                float distanceToAlignSQ = 10f;
 				
-				// Find Closest EndTime to current StartTime
-				Vector2 myStartPosition = animationItemBox.Rect.position + animationItemBox.Rect.size * sourceWidthFactor;
-				Vector2 closestEndPosition = Vector2.zero;
-				Rect closestEndRect = new Rect();
-				float closestDistSQ = 9999f;
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					if( pair.Value == animationItemBox )
-					{
-						continue;
-					}
+                // Find Closest EndTime to current StartTime
+                Vector2 myStartPosition = animationItemBox.Rect.position + animationItemBox.Rect.size * sourceWidthFactor;
+                Vector2 closestEndPosition = Vector2.zero;
+                Rect closestEndRect = new Rect();
+                float closestDistSQ = 9999f;
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    if(pair.Value == animationItemBox)
+                    {
+                        continue;
+                    }
 
-					if(   animationItemBox.AnimationItem.Slot == pair.Key.Slot
-					   && Mathf.Abs(sourceWidthFactor - otherWidthFactor) < 1e-1f
-						)
-					{
-						continue;
-					}
+                    if(animationItemBox.AnimationItem.Slot == pair.Key.Slot
+                       && Mathf.Abs(sourceWidthFactor - otherWidthFactor) < 1e-1f)
+                    {
+                        continue;
+                    }
 
-					Vector2 currOtherPosition = pair.Value.Rect.position + pair.Value.Rect.size * otherWidthFactor;
-					float distSQ = Mathf.Abs(currOtherPosition.x - myStartPosition.x);
-					if(distSQ < closestDistSQ)
-					{
-						closestDistSQ = distSQ;
-						closestEndPosition = currOtherPosition;
-						closestEndRect = pair.Value.Rect;
-					}
-				}
-				if(closestDistSQ < distanceToAlignSQ)
-				{
-					Vector2 delta = closestEndPosition - myStartPosition;
-					animationItemBox.Rect.position += new Vector2(delta.x, 0f);
+                    Vector2 currOtherPosition = pair.Value.Rect.position + pair.Value.Rect.size * otherWidthFactor;
+                    float distSQ = Mathf.Abs(currOtherPosition.x - myStartPosition.x);
+                    if(distSQ < closestDistSQ)
+                    {
+                        closestDistSQ = distSQ;
+                        closestEndPosition = currOtherPosition;
+                        closestEndRect = pair.Value.Rect;
+                    }
+                }
+                if(closestDistSQ < distanceToAlignSQ)
+                {
+                    Vector2 delta = closestEndPosition - myStartPosition;
+                    animationItemBox.Rect.position += new Vector2(delta.x, 0f);
 					
-					RenderAlignLine(animationItemBox.Rect, closestEndRect, otherWidthFactor);
-					return true;
-				}
+                    RenderAlignLine(animationItemBox.Rect, closestEndRect, otherWidthFactor);
+                    return true;
+                }
 
-				return false;
-			}
+                return false;
+            }
 
-			void RenderAlignLine(Rect source, Rect reference, float referenceWidthFactor)
-			{
-				float extraYPixels = 4f;
+            void RenderAlignLine(Rect source, Rect reference, float referenceWidthFactor)
+            {
+                float extraYPixels = 4f;
 				
-				float alignYStart = Mathf.Max(source.position.y + source.size.y, reference.position.y + reference.size.y) +extraYPixels;
-				float alignYEnd = Mathf.Min(source.position.y, reference.position.y) -extraYPixels;
+                float alignYStart = Mathf.Max(source.position.y + source.size.y, reference.position.y + reference.size.y) + extraYPixels;
+                float alignYEnd = Mathf.Min(source.position.y, reference.position.y) - extraYPixels;
 				
-				Vector3 startPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYStart, 0f);
-				Vector3 endPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYEnd, 0f);
+                Vector3 startPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYStart, 0f);
+                Vector3 endPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYEnd, 0f);
 				
-				Color prevColor = Handles.color;
-				Handles.color = Color.white;
-				Handles.DrawLine(startPoint, endPoint);
-				Handles.color = prevColor;
-			}
-		}
+                Color prevColor = Handles.color;
+                Handles.color = Color.white;
+                Handles.DrawLine(startPoint, endPoint);
+                Handles.color = prevColor;
+            }
+        }
 
-		class SelectionProcessor : BaseBoxProcessor
-		{
-			public SelectionProcessor(StepBoxesProcessors host) : base(host){}
+        sealed class SelectionProcessor : BaseBoxProcessor
+        {
+            public SelectionProcessor(StepBoxesProcessors host) : base(host)
+            {
+            }
 
-			public override void ResetState()
-			{
-			}
-			public override bool UpdateState()
-			{
-				bool someIsSelected = false;
+            public override void ResetState()
+            {
+            }
 
-				if(Event.current.type == EventType.mouseUp )
-				{
-					foreach (var pair in Host.BoxContainer.CacheWindows) 
-					{
-						if(pair.Value.InteractuableRect.Contains(Event.current.mousePosition))
-						{
-							if(   GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl)
-							   || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand)
-							   )
-							{
-								Host.BoxContainer.OnAnimationItemAppend(pair.Key);
-							}
-							else
-							{
-								if(  GUIAnimationTool.MouseController.IsDoubleClick()
-								   && Host.BoxContainer.StepsSelection.IsSelected(pair.Key)
-								   && pair.Key is Group
-								   )
-								{
-									Host.BoxContainer.SetCurrentCollection ((Group) pair.Key);
-								}
-								else
-								{
-									Host.BoxContainer.OnAnimationItemSelected(pair.Key);
-								}
-							}
-							someIsSelected = true;
-						}
-					}
+            public override bool UpdateState()
+            {
+                bool someIsSelected = false;
 
-					if(!someIsSelected)
-					{
-						// Disable Selected boxes if none is selected
-						Rect boxesWindow = new Rect(Host.BoxContainer.BoxesOffsetPosition.x, Host.BoxContainer.BoxesOffsetPosition.y, Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(1f, 0).x, Host.BoxContainer.GridMaxHeight);
-						if(
-							Event.current.type == EventType.mouseUp
-							&& boxesWindow.Contains(Event.current.mousePosition))
-						{
-							Host.BoxContainer.OnAnimationItemSelected(null);
-						}
-					}
-				}
+                if(Event.current.type == EventType.mouseUp)
+                {
+                    foreach(var pair in Host.BoxContainer.CacheWindows)
+                    {
+                        if(pair.Value.InteractuableRect.Contains(Event.current.mousePosition))
+                        {
+                            if(GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl)
+                               || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
+                            {
+                                Host.BoxContainer.OnAnimationItemAppend(pair.Key);
+                            }
+                            else
+                            {
+                                if(GUIAnimationTool.MouseController.IsDoubleClick()
+                                   && Host.BoxContainer.StepsSelection.IsSelected(pair.Key)
+                                   && pair.Key is Group)
+                                {
+                                    Host.BoxContainer.SetCurrentCollection((Group)pair.Key);
+                                }
+                                else
+                                {
+                                    Host.BoxContainer.OnAnimationItemSelected(pair.Key);
+                                }
+                            }
+                            someIsSelected = true;
+                        }
+                    }
 
-				return false;
-			}
-		}
+                    if(!someIsSelected)
+                    {
+                        // Disable Selected boxes if none is selected
+                        Rect boxesWindow = new Rect(Host.BoxContainer.BoxesOffsetPosition.x, Host.BoxContainer.BoxesOffsetPosition.y, Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(1f, 0).x, Host.BoxContainer.GridMaxHeight);
+                        if(
+                            Event.current.type == EventType.mouseUp
+                            && boxesWindow.Contains(Event.current.mousePosition))
+                        {
+                            Host.BoxContainer.OnAnimationItemSelected(null);
+                        }
+                    }
+                }
 
-		class RealignProcessor : BaseBoxProcessor
-		{
-			public RealignProcessor(StepBoxesProcessors host) : base(host){}
-			public override void ResetState()
-			{
-			}
+                return false;
+            }
+        }
 
-			public override bool UpdateState()
-			{
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					AnimationStepBox animationItemBox = pair.Value;
-					Host.BoxContainer.AlignAnimationItemBoxPosition(ref animationItemBox, pair.Key);
-				}
+        sealed class RealignProcessor : BaseBoxProcessor
+        {
+            public RealignProcessor(StepBoxesProcessors host) : base(host)
+            {
+            }
 
-				for (int boxIdx = 0; boxIdx < Host.MovedBoxes.Count; ++boxIdx) 
-				{
-					AnimationStepBox animationItemBox = Host.MovedBoxes[boxIdx];
-					ReallocateBoxIfOverlapped(animationItemBox);
-				}
-				Host.ClearMovedBoxes();
+            public override void ResetState()
+            {
+            }
 
-				return false;
-			}
+            public override bool UpdateState()
+            {
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    AnimationStepBox animationItemBox = pair.Value;
+                    Host.BoxContainer.AlignAnimationItemBoxPosition(ref animationItemBox, pair.Key);
+                }
 
-			void ReallocateBoxIfOverlapped(AnimationStepBox animationItemBox)
-			{
-				Vector2 myStart = animationItemBox.Rect.position;
-				Vector2 myEnd = animationItemBox.Rect.position + animationItemBox.Rect.size;
+                for(int boxIdx = 0; boxIdx < Host.MovedBoxes.Count; ++boxIdx)
+                {
+                    AnimationStepBox animationItemBox = Host.MovedBoxes[boxIdx];
+                    ReallocateBoxIfOverlapped(animationItemBox);
+                }
+                Host.ClearMovedBoxes();
 
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					AnimationStepBox otherBox = pair.Value;
+                return false;
+            }
 
-					if(otherBox == animationItemBox)
-					{
-						continue;
-					}
+            void ReallocateBoxIfOverlapped(AnimationStepBox animationItemBox)
+            {
+                Vector2 myStart = animationItemBox.Rect.position;
+                Vector2 myEnd = animationItemBox.Rect.position + animationItemBox.Rect.size;
 
-					// Discart boxes of other slots
-					float normSeconds = 0f; int slot = animationItemBox.AnimationItem.Slot;
-					Host.BoxContainer.GridProps.GetNormalizedTimeSlotFromGridPos(ref normSeconds, ref slot, myStart);
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    AnimationStepBox otherBox = pair.Value;
 
-					normSeconds = 0f; int otherSlot = otherBox.AnimationItem.Slot;
-					Host.BoxContainer.GridProps.GetNormalizedTimeSlotFromGridPos(ref normSeconds, ref slot, myStart);
-					if(otherSlot != slot)
-					{
-						continue;
-					}
+                    if(otherBox == animationItemBox)
+                    {
+                        continue;
+                    }
 
-					Vector2 otherStart = otherBox.Rect.position;
-					Vector2 otherEnd = otherBox.Rect.position + otherBox.Rect.size;
+                    // Discart boxes of other slots
+                    float normSeconds = 0f;
+                    int slot = animationItemBox.AnimationItem.Slot;
+                    Host.BoxContainer.GridProps.GetNormalizedTimeSlotFromGridPos(ref normSeconds, ref slot, myStart);
 
-					if(   (myStart.x >= otherStart.x && (myStart.x) <= otherEnd.x)
-					   || ((myEnd.x) >= otherStart.x && myEnd.x <= otherEnd.x)
-					   )
-					{
-						ReallocateBox(animationItemBox, slot, slot +100);
-						break;
-					}
-				}
-			}
+                    normSeconds = 0f;
+                    int otherSlot = otherBox.AnimationItem.Slot;
+                    Host.BoxContainer.GridProps.GetNormalizedTimeSlotFromGridPos(ref normSeconds, ref slot, myStart);
+                    if(otherSlot != slot)
+                    {
+                        continue;
+                    }
 
-			void ReallocateBox(AnimationStepBox animationItemBox, int slotMin, int slotMax)
-			{
-				Vector2 position = animationItemBox.Rect.position;
-				if(FindFreePosition(ref position, slotMin, slotMax, animationItemBox.Rect.size.x, animationItemBox))
-				{
-					animationItemBox.Rect.position = position;
-				}
-				else
-				{
-					Log.w("Not found good position");
-				}
-			}
+                    Vector2 otherStart = otherBox.Rect.position;
+                    Vector2 otherEnd = otherBox.Rect.position + otherBox.Rect.size;
 
-			bool FindFreePosition(ref Vector2 position, int slotMin, int slotMax, float width, AnimationStepBox discartBox = null)
-			{
-				for (int slotIdx = slotMin; slotIdx <= slotMax; ++slotIdx)
-				{
-					if(FindFreePositionInSlot(ref position, slotIdx, width, discartBox))
-					{
-						return true;
-					}
-				}
+                    if((myStart.x >= otherStart.x && (myStart.x) <= otherEnd.x)
+                       || ((myEnd.x) >= otherStart.x && myEnd.x <= otherEnd.x))
+                    {
+                        ReallocateBox(animationItemBox, slot, slot + 100);
+                        break;
+                    }
+                }
+            }
 
-				return false;
-			}
+            void ReallocateBox(AnimationStepBox animationItemBox, int slotMin, int slotMax)
+            {
+                Vector2 position = animationItemBox.Rect.position;
+                if(FindFreePosition(ref position, slotMin, slotMax, animationItemBox.Rect.size.x, animationItemBox))
+                {
+                    animationItemBox.Rect.position = position;
+                }
+                else
+                {
+                    Log.w("Not found good position");
+                }
+            }
 
-			bool FindFreePositionInSlot(ref Vector2 position, int slot, float width, AnimationStepBox discartBox = null)
-			{
-				List<AnimationStepBox> boxesInSlot = new List<AnimationStepBox>();
-				foreach (var pair in Host.BoxContainer.CacheWindows) 
-				{
-					AnimationStepBox otherBox = pair.Value;
-					if(otherBox == discartBox)
-					{
-						continue;
-					}
+            bool FindFreePosition(ref Vector2 position, int slotMin, int slotMax, float width, AnimationStepBox discartBox = null)
+            {
+                for(int slotIdx = slotMin; slotIdx <= slotMax; ++slotIdx)
+                {
+                    if(FindFreePositionInSlot(ref position, slotIdx, width, discartBox))
+                    {
+                        return true;
+                    }
+                }
 
-					float normSeconds = 0f; int otherSlot = otherBox.AnimationItem.Slot;
-					Host.BoxContainer.GridProps.GetNormalizedTimeSlotFromGridPos(ref normSeconds, ref otherSlot, otherBox.Rect.position);
-					if(otherSlot == slot)
-					{
-						boxesInSlot.Add(otherBox);
-					}
-				}
+                return false;
+            }
 
-				// Get Last Position
-				Vector2 lastBoxPos = Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(0f, slot);
-				for (int boxIdx = 0; boxIdx < boxesInSlot.Count; ++boxIdx) 
-				{
-					AnimationStepBox otherBox = boxesInSlot[boxIdx];
-					Vector2 otherBoxEndPos = otherBox.Rect.position + new Vector2(otherBox.Rect.size.x, 0f);
-					if(otherBoxEndPos.x > lastBoxPos.x)
-					{
-						lastBoxPos = otherBoxEndPos;
-					}
-				}
+            bool FindFreePositionInSlot(ref Vector2 position, int slot, float width, AnimationStepBox discartBox = null)
+            {
+                List<AnimationStepBox> boxesInSlot = new List<AnimationStepBox>();
+                foreach(var pair in Host.BoxContainer.CacheWindows)
+                {
+                    AnimationStepBox otherBox = pair.Value;
+                    if(otherBox == discartBox)
+                    {
+                        continue;
+                    }
 
-				// Check remaining X Distance is less or equal to width
-				Vector2 gridLastPosition = Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(1f, slot);
-				float remainingX = gridLastPosition.x - lastBoxPos.x;
-				if(remainingX >= width)
-				{
-					position = lastBoxPos;
-					return true;
-				}
+                    float normSeconds = 0f;
+                    int otherSlot = otherBox.AnimationItem.Slot;
+                    Host.BoxContainer.GridProps.GetNormalizedTimeSlotFromGridPos(ref normSeconds, ref otherSlot, otherBox.Rect.position);
+                    if(otherSlot == slot)
+                    {
+                        boxesInSlot.Add(otherBox);
+                    }
+                }
 
-				return false;
-			}
-		}
+                // Get Last Position
+                Vector2 lastBoxPos = Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(0f, slot);
+                for(int boxIdx = 0; boxIdx < boxesInSlot.Count; ++boxIdx)
+                {
+                    AnimationStepBox otherBox = boxesInSlot[boxIdx];
+                    Vector2 otherBoxEndPos = otherBox.Rect.position + new Vector2(otherBox.Rect.size.x, 0f);
+                    if(otherBoxEndPos.x > lastBoxPos.x)
+                    {
+                        lastBoxPos = otherBoxEndPos;
+                    }
+                }
 
-		// Processors properties
-		AnimationTimelinePanel BoxContainer;
-		List<BaseBoxProcessor> _processors = new List<BaseBoxProcessor>();
-		BaseBoxProcessor EnabledProcessor = null;
-		double _lastBlockingActionTime = 0;
-		List<AnimationStepBox> MovedBoxes = new List<AnimationStepBox>();
+                // Check remaining X Distance is less or equal to width
+                Vector2 gridLastPosition = Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(1f, slot);
+                float remainingX = gridLastPosition.x - lastBoxPos.x;
+                if(remainingX >= width)
+                {
+                    position = lastBoxPos;
+                    return true;
+                }
 
-		void Init()
-		{
-			EnabledProcessor = null;
-			_lastBlockingActionTime = 0;
+                return false;
+            }
+        }
+
+        // Processors properties
+        AnimationTimelinePanel BoxContainer;
+        List<BaseBoxProcessor> _processors = new List<BaseBoxProcessor>();
+        BaseBoxProcessor EnabledProcessor = null;
+        double _lastBlockingActionTime = 0;
+        List<AnimationStepBox> MovedBoxes = new List<AnimationStepBox>();
+
+        void Init()
+        {
+            EnabledProcessor = null;
+            _lastBlockingActionTime = 0;
 		
-			MovedBoxes.Clear();
+            MovedBoxes.Clear();
 
-			_processors.Clear();
-			_processors.Add(new RealignProcessor(this));
-			_processors.Add(new ResizeProcessor(this));
-			_processors.Add(new MoveProcessor(this));
-			_processors.Add(new SelectionProcessor(this));
-		}
+            _processors.Clear();
+            _processors.Add(new RealignProcessor(this));
+            _processors.Add(new ResizeProcessor(this));
+            _processors.Add(new MoveProcessor(this));
+            _processors.Add(new SelectionProcessor(this));
+        }
 
-		public void ResetState()
-		{
-			Init();
-		}
+        public void ResetState()
+        {
+            Init();
+        }
 
-		public void AddMovedBox(AnimationStepBox box)
-		{
-			if(!MovedBoxes.Contains(box))
-			{
-				MovedBoxes.Add(box);
-			}
-		}
+        public void AddMovedBox(AnimationStepBox box)
+        {
+            if(!MovedBoxes.Contains(box))
+            {
+                MovedBoxes.Add(box);
+            }
+        }
 
-		public void ClearMovedBoxes()
-		{
-			MovedBoxes.Clear();
-		}
+        public void ClearMovedBoxes()
+        {
+            MovedBoxes.Clear();
+        }
 
-		// Processors Methods
-		public void UpdateState(AnimationTimelinePanel boxContainer)
-		{
-			BoxContainer = boxContainer;
+        // Processors Methods
+        public void UpdateState(AnimationTimelinePanel boxContainer)
+        {
+            BoxContainer = boxContainer;
 
-			for (int i = 0; i < _processors.Count; ++i) 
-			{
-				if(EditorApplication.timeSinceStartup - _lastBlockingActionTime < 1e-2)
-				{
-					continue;
-				}
+            for(int i = 0; i < _processors.Count; ++i)
+            {
+                if(EditorApplication.timeSinceStartup - _lastBlockingActionTime < 1e-2)
+                {
+                    continue;
+                }
 
-				// Run all or the fixed one
-				if(   EnabledProcessor == null
-				   || EnabledProcessor == _processors[i]
-				   )
-				{
-					bool isUsed = _processors[i].UpdateState();
-					if(isUsed)
-					{
-						EnabledProcessor = _processors[i];
-						break;
-					}
-				}
-			}
+                // Run all or the fixed one
+                if(EnabledProcessor == null
+                   || EnabledProcessor == _processors[i])
+                {
+                    bool isUsed = _processors[i].UpdateState();
+                    if(isUsed)
+                    {
+                        EnabledProcessor = _processors[i];
+                        break;
+                    }
+                }
+            }
 
-			// Reset all on mouseup
-			if(Event.current.type == EventType.mouseUp)
-			{
-				if(EnabledProcessor != null)
-				{
-					_lastBlockingActionTime = EditorApplication.timeSinceStartup;
-					EnabledProcessor = null;
-				}
+            // Reset all on mouseup
+            if(Event.current.type == EventType.mouseUp)
+            {
+                if(EnabledProcessor != null)
+                {
+                    _lastBlockingActionTime = EditorApplication.timeSinceStartup;
+                    EnabledProcessor = null;
+                }
 
-				for (int i = 0; i < _processors.Count; ++i) 
-				{
-					_processors[i].ResetState();
-				}
-			}
-		}
-	}
+                for(int i = 0; i < _processors.Count; ++i)
+                {
+                    _processors[i].ResetState();
+                }
+            }
+        }
+    }
 }
