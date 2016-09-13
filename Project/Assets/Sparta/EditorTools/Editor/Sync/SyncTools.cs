@@ -42,9 +42,25 @@ namespace SpartaTools.Editor.Sync
 
             var list = new List<ModuleSync>();
 
+            // Manage cancel
+            if(CurrentProgress.Cancelled)
+            {
+                SyncReport.Log("User cancelled");
+                SyncReport.Dump();
+                return null;
+            }
+            
             CurrentProgress.Update("Retrieving Sparta modules", 0.05f);
             var spartaModules = Project.GetModules(Project.BasePath);
 
+            // Manage cancel
+            if(CurrentProgress.Cancelled)
+            {
+                SyncReport.Log("User cancelled");
+                SyncReport.Dump();
+                return null;
+            }
+            
             CurrentProgress.Update("Retrieving Target modules", 0.05f);
             var targetModules = Project.GetModules(projectPath);
 
@@ -54,6 +70,14 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var spartaMod in spartaModules.Values)
             {
+                // Manage cancel
+                if(CurrentProgress.Cancelled)
+                {
+                    SyncReport.Log("User cancelled");
+                    SyncReport.Dump();
+                    return null;
+                }
+                
                 CurrentProgress.Update(string.Format("Comparing {0}", spartaMod.Name), modulePercent);
 
                 // Search for module in target
@@ -85,6 +109,14 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var targetMod in targetModules.Values)
             {
+                // Manage cancel
+                if(CurrentProgress.Cancelled)
+                {
+                    SyncReport.Log("User cancelled");
+                    SyncReport.Dump();
+                    return null;
+                }
+                
                 CurrentProgress.Update(string.Format("Comparing {0}", targetMod.Name), modulePercent);
 
                 ModuleSync.SyncStatus status;
