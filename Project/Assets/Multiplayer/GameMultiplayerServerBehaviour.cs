@@ -147,16 +147,9 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void AddCollision(NetworkGameObject go)
     {
         var boxShape = new PhysicsBoxShape(new Vector3(0.5f));
-        var rigidBody = new PhysicsRigidBody(boxShape, _physicsDebugger, CollisionFlags.KinematicObject);
+        var rigidBody = new PhysicsRigidBody(boxShape, _physicsWorld, _physicsDebugger, CollisionFlags.KinematicObject);
         var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
-
-        rigidBody.PhysicsWorld = _physicsWorld;
         rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
-
-        //co.CollisionFlags = CollisionFlags.KinematicObject;
-        //co.ActivationState = ActivationState.DisableDeactivation;
-
-        //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
 
         _controller.AddRigidbody(go.Id, rigidBody);
     }

@@ -269,7 +269,7 @@ namespace SocialPoint.Multiplayer
         {
             if(co.CollisionObject != null)
             {
-                _world.AddCollisionObject(co.CollisionObject, co.groupsIBelongTo, co.collisionMask);
+                _world.AddCollisionObject(co.CollisionObject, co.GroupsIBelongTo, co.CollisionMask);
                 co.IsInWorld = true;
             }
         }
@@ -291,7 +291,7 @@ namespace SocialPoint.Multiplayer
             }
             if(rb.CollisionObject != null)
             {
-                ((DiscreteDynamicsWorld)_world).AddRigidBody((RigidBody)rb.CollisionObject, rb.groupsIBelongTo, rb.collisionMask);
+                ((DiscreteDynamicsWorld)_world).AddRigidBody((RigidBody)rb.CollisionObject, rb.GroupsIBelongTo, rb.CollisionMask);
                 rb.IsInWorld = true;
             }
         }

@@ -13,15 +13,59 @@ namespace SocialPoint.Multiplayer
             private set;
         }
 
-        protected PhysicsDebugger _debugger;
-
-        ICollisionCallbackEventHandler _onCollisionCallback;
-
-        public PhysicsCollisionObject(PhysicsCollisionShape shape, PhysicsDebugger debugger, CollisionFlags collisionFlags)
+        public CollisionFlags CollisionFlags
         {
-            _debugger = debugger;
+            get;
+            private set;
+        }
+
+        // A colliding object must match this mask in order to collide with me.
+        public CollisionFilterGroups CollisionMask
+        {
+            get;
+            private set;
+        }
+
+        // A bitmask
+        public CollisionFilterGroups GroupsIBelongTo
+        {
+            get;
+            private set;
+        }
+
+        public virtual ICollisionCallbackEventHandler CollisionCallbackEventHandler
+        {
+            get;
+            private set;
+        }
+
+        public virtual CollisionObject CollisionObject
+        {
+            get
+            {
+                return _collisionObject;
+            }
+        }
+
+        protected CollisionObject _collisionObject;
+        protected PhysicsWorld _physicsWorld;
+        protected PhysicsCollisionShape _collisionShape;
+        protected PhysicsDebugger _debugger;
+        internal bool IsInWorld = false;
+
+        public PhysicsCollisionObject(PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger, 
+                                      CollisionFlags collisionFlags = BulletSharp.CollisionFlags.None, 
+                                      CollisionFilterGroups collisionMask = BulletSharp.CollisionFilterGroups.AllFilter, 
+                                      CollisionFilterGroups belongGroups = BulletSharp.CollisionFilterGroups.DefaultFilter)
+        {
             _collisionShape = shape;
-            _collisionFlags = collisionFlags;
+            _physicsWorld = physicsWorld;
+            _debugger = debugger;
+
+            CollisionFlags = collisionFlags;
+            CollisionMask = collisionMask;
+            GroupsIBelongTo = belongGroups;
+
             BuildCollisionObject();
         }
 
@@ -33,127 +77,35 @@ namespace SocialPoint.Multiplayer
             AddObjectToBulletWorld();
         }
 
-        public virtual CollisionObject CollisionObject
-        {
-            get
-            {
-                return _collisionObject;
-            }
-        }
-
-        public PhysicsCollisionShape CollisionShape
-        {
-            get
-            {
-                return _collisionShape;
-            }
-            set
-            {
-                _collisionShape = value;
-            }
-        }
-
-        public PhysicsWorld PhysicsWorld
-        {
-            get;
-            set;
-        }
-
-        protected CollisionObject _collisionObject;
-        protected PhysicsCollisionShape _collisionShape;
-        internal bool IsInWorld = false;
-        //[SerializeField]
-        protected BulletSharp.CollisionFlags _collisionFlags = BulletSharp.CollisionFlags.None;
-        //[SerializeField]
-        protected BulletSharp.CollisionFilterGroups _groupsIBelongTo = BulletSharp.CollisionFilterGroups.DefaultFilter;
-        // A bitmask
-        //[SerializeField]
-        protected BulletSharp.CollisionFilterGroups _collisionMask = BulletSharp.CollisionFilterGroups.AllFilter;
-        // A colliding object must match this mask in order to collide with me.
-
-        public BulletSharp.CollisionFlags collisionFlags
-        {
-            get { return _collisionFlags; }
-            set
-            {
-                _collisionFlags = value;
-                if(_collisionObject != null && value != _collisionFlags)
-                {
-                    _collisionObject.CollisionFlags = value;
-                }
-            }
-        }
-
-        public BulletSharp.CollisionFilterGroups groupsIBelongTo
-        {
-            get { return _groupsIBelongTo; }
-            set
-            {
-                if(_collisionObject != null && value != _groupsIBelongTo)
-                {
-                    _debugger.LogError("Cannot change the collision group once a collision object has been created");
-                }
-                else
-                {
-                    _groupsIBelongTo = value;
-                }
-            }
-        }
-
-        public BulletSharp.CollisionFilterGroups collisionMask
-        {
-            get { return _collisionMask; }
-            set
-            {
-                if(_collisionObject != null && value != _collisionMask)
-                {
-                    _debugger.LogError("Cannot change the collision mask once a collision object has been created");
-                }
-                else
-                {
-                    _collisionMask = value;
-                }
-            }
-        }
-
-        public virtual ICollisionCallbackEventHandler collisionCallbackEventHandler
-        {
-            get { return _onCollisionCallback; }
-        }
-
         public virtual void AddOnCollisionCallbackEventHandler(ICollisionCallbackEventHandler myCallback)
         {
-            PhysicsWorld bhw = PhysicsWorld;
-            if(_onCollisionCallback != null)
+            if(CollisionCallbackEventHandler != null)
             {
                 _debugger.LogError("PhysicsCollisionObject already has a collision callback. You must remove it before adding another.");
             }
-            _onCollisionCallback = myCallback;
-            bhw.RegisterCollisionCallbackListener(_onCollisionCallback);
+            CollisionCallbackEventHandler = myCallback;
+            _physicsWorld.RegisterCollisionCallbackListener(CollisionCallbackEventHandler);
         }
 
         public virtual void RemoveOnCollisionCallbackEventHandler()
         {
-            PhysicsWorld bhw = PhysicsWorld;
-            if(bhw != null && _onCollisionCallback != null)
+            if(_physicsWorld != null && CollisionCallbackEventHandler != null)
             {
-                bhw.DeregisterCollisionCallbackListener(_onCollisionCallback);
+                _physicsWorld.DeregisterCollisionCallbackListener(CollisionCallbackEventHandler);
             }
-            _onCollisionCallback = null;
+            CollisionCallbackEventHandler = null;
         }
 
         protected virtual bool BuildCollisionObject()
         {
-            PhysicsWorld world = PhysicsWorld;
             if(_collisionObject != null)
             {
-                if(IsInWorld && world != null)
+                if(IsInWorld && _physicsWorld != null)
                 {
-                    world.RemoveCollisionObject(_collisionObject);
+                    _physicsWorld.RemoveCollisionObject(_collisionObject);
                 }
             }
 
-            _collisionShape = CollisionShape;
             if(_collisionShape == null)
             {
                 _debugger.LogError("There was no collision shape component attached to this PhysicsRigidBody");
@@ -168,35 +120,34 @@ namespace SocialPoint.Multiplayer
             }
             _collisionObject.CollisionShape = cs;
             _collisionObject.UserObject = this;
-            _collisionObject.CollisionFlags = _collisionFlags;
+            _collisionObject.CollisionFlags = CollisionFlags;
 
             return true;
         }
 
         protected virtual void AddObjectToBulletWorld()
         {
-            PhysicsWorld.AddCollisionObject(this);
+            _physicsWorld.AddCollisionObject(this);
         }
 
         protected virtual void RemoveObjectFromBulletWorld()
         {
-            PhysicsWorld.RemoveCollisionObject(_collisionObject);
+            _physicsWorld.RemoveCollisionObject(_collisionObject);
         }
 
         public virtual void Update(float dt)
         {
-            //TODO: Do only on physics step? use dirty? try to reduce the number of matrix creations
+            //TODO: Try to reduce the number of matrix creations (use dirty?)
             _collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
         }
 
         public virtual void OnDestroy()
         {
-            if(IsInWorld && _collisionObject != null)//&& isdisposing
+            if(IsInWorld && _collisionObject != null)
             {
-                PhysicsWorld pw = PhysicsWorld;
-                if(pw != null && pw.world != null)
+                if(_physicsWorld != null && _physicsWorld.world != null)
                 {
-                    ((DiscreteDynamicsWorld)pw.world).RemoveCollisionObject(_collisionObject);
+                    ((DiscreteDynamicsWorld)_physicsWorld.world).RemoveCollisionObject(_collisionObject);
                 }
             }
             PhysicsUtilities.DisposeMember(ref _collisionShape);
@@ -205,13 +156,12 @@ namespace SocialPoint.Multiplayer
 
         public Object Clone()
         {
-            //TODO: Improve Clone
-            var behavior = new PhysicsCollisionObject(_collisionShape, _debugger, _collisionFlags);
+            //TODO: Improve Clone (clone shape, etc, to avoid multiple dispose)
+            var behavior = new PhysicsCollisionObject(_collisionShape, _physicsWorld, _debugger, CollisionFlags);
             behavior.NetworkGameObject = NetworkGameObject;
-            behavior.PhysicsWorld = PhysicsWorld;
-            behavior._collisionObject = _collisionObject;
+            //behavior._collisionObject = _collisionObject;
             //behavior.IsInWorld = IsInWorld;
-            behavior._onCollisionCallback = _onCollisionCallback;
+            behavior.CollisionCallbackEventHandler = CollisionCallbackEventHandler;
             return behavior;
         }
 
@@ -222,31 +172,8 @@ namespace SocialPoint.Multiplayer
                 Matrix newTrans = _collisionObject.WorldTransform;
                 newTrans.Origin = position;
                 _collisionObject.WorldTransform = newTrans;
-                NetworkGameObject.Transform.Position = position;
             }
-            else
-            {
-                NetworkGameObject.Transform.Position = position;
-            }
-        }
-
-        public virtual void SetPositionAndRotation(Vector3 position, Quaternion rotation)
-        {
-            if(IsInWorld)
-            {
-                Matrix newTrans = _collisionObject.WorldTransform;
-                Quaternion q = rotation;
-                Matrix.RotationQuaternion(ref q, out newTrans);
-                newTrans.Origin = NetworkGameObject.Transform.Position;
-                _collisionObject.WorldTransform = newTrans;
-                NetworkGameObject.Transform.Position = position;
-                NetworkGameObject.Transform.Rotation = rotation;
-            }
-            else
-            {
-                NetworkGameObject.Transform.Position = position;
-                NetworkGameObject.Transform.Rotation = rotation;
-            }
+            NetworkGameObject.Transform.Position = position;
         }
 
         public virtual void SetRotation(Quaternion rotation)
@@ -258,13 +185,22 @@ namespace SocialPoint.Multiplayer
                 Matrix.RotationQuaternion(ref q, out newTrans);
                 newTrans.Origin = NetworkGameObject.Transform.Position;
                 _collisionObject.WorldTransform = newTrans;
-                NetworkGameObject.Transform.Rotation = rotation;
             }
-            else
-            {
-                NetworkGameObject.Transform.Rotation = rotation;
-            }
+            NetworkGameObject.Transform.Rotation = rotation;
         }
 
+        public virtual void SetPositionAndRotation(Vector3 position, Quaternion rotation)
+        {
+            if(IsInWorld)
+            {
+                Matrix newTrans = _collisionObject.WorldTransform;
+                Quaternion q = rotation;
+                Matrix.RotationQuaternion(ref q, out newTrans);
+                newTrans.Origin = position;
+                _collisionObject.WorldTransform = newTrans;
+            }
+            NetworkGameObject.Transform.Position = position;
+            NetworkGameObject.Transform.Rotation = rotation;
+        }
     }
 }

@@ -11,8 +11,11 @@ namespace SocialPoint.Multiplayer
         PhysicsGameObjectMotionState _motionState;
         Vector3 _localInertia = Vector3.Zero;
 
-        public PhysicsRigidBody(PhysicsCollisionShape shape, PhysicsDebugger debugger, CollisionFlags collisionFlags)
-            : base(shape, debugger, collisionFlags)
+        public PhysicsRigidBody(PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger, 
+                                CollisionFlags collisionFlags = BulletSharp.CollisionFlags.None, 
+                                CollisionFilterGroups collisionMask = BulletSharp.CollisionFilterGroups.AllFilter, 
+                                CollisionFilterGroups belongGroups = BulletSharp.CollisionFilterGroups.DefaultFilter)
+            : base(shape, physicsWorld, debugger, collisionFlags, collisionMask, belongGroups)
         {
         }
 
@@ -26,10 +29,9 @@ namespace SocialPoint.Multiplayer
         {
             if(IsInWorld && _rigidBody != null)
             {
-                PhysicsWorld pw = PhysicsWorld;
-                if(pw != null && pw.world != null)
+                if(_physicsWorld != null && _physicsWorld.world != null)
                 {
-                    ((DiscreteDynamicsWorld)pw.world).RemoveRigidBody(_rigidBody);
+                    ((DiscreteDynamicsWorld)_physicsWorld.world).RemoveRigidBody(_rigidBody);
                 }
             }
             if(_rigidBody != null && _rigidBody.MotionState != null)
@@ -51,8 +53,8 @@ namespace SocialPoint.Multiplayer
 
         public bool isDynamic()
         {
-            return (_collisionFlags & BulletSharp.CollisionFlags.StaticObject) != BulletSharp.CollisionFlags.StaticObject
-            && (_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != BulletSharp.CollisionFlags.KinematicObject;
+            return (CollisionFlags & BulletSharp.CollisionFlags.StaticObject) != BulletSharp.CollisionFlags.StaticObject
+            && (CollisionFlags & BulletSharp.CollisionFlags.KinematicObject) != BulletSharp.CollisionFlags.KinematicObject;
         }
 
         //[SerializeField]
@@ -371,22 +373,15 @@ namespace SocialPoint.Multiplayer
 
         protected override bool BuildCollisionObject()
         {
-            PhysicsWorld world = PhysicsWorld;
             if(_rigidBody != null)
             {
-                if(IsInWorld && world != null)
+                if(IsInWorld && _physicsWorld != null)
                 {
                     IsInWorld = false;
-                    world.RemoveRigidBody(_rigidBody);
+                    _physicsWorld.RemoveRigidBody(_rigidBody);
                 }
             }
-            
-            /*if(transform.localScale != Vector3.One)
-            {
-                _debugger.LogError("The local scale on this rigid body is not one. Bullet physics does not support scaling on a rigid body world transform. Instead alter the dimensions of the CollisionShape.");
-            }*/
 
-            _collisionShape = CollisionShape;
             if(_collisionShape == null)
             {
                 _debugger.LogError("There was no collision shape component attached to this PhysicsRigidBody.");
@@ -451,12 +446,12 @@ namespace SocialPoint.Multiplayer
                 _rigidBody.CollisionShape = cs;
                 
             }
-            _rigidBody.CollisionFlags = _collisionFlags;
+            _rigidBody.CollisionFlags = CollisionFlags;
             _rigidBody.LinearFactor = _linearFactor;
             _rigidBody.AngularFactor = _angularFactor;
 
             //if kinematic then disable deactivation
-            if((_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != 0)
+            if((CollisionFlags & BulletSharp.CollisionFlags.KinematicObject) != 0)
             {
                 _rigidBody.ActivationState = ActivationState.DisableDeactivation;
             }
@@ -465,17 +460,16 @@ namespace SocialPoint.Multiplayer
 
         protected override void AddObjectToBulletWorld()
         {
-            PhysicsWorld.AddRigidBody(this);
+            _physicsWorld.AddRigidBody(this);
         }
 
         protected override void RemoveObjectFromBulletWorld()
         {
-            PhysicsWorld pw = PhysicsWorld;
-            if(pw != null && _rigidBody != null && IsInWorld)
+            if(_physicsWorld != null && _rigidBody != null && IsInWorld)
             {
                 _debugger.Assert(_rigidBody.NumConstraintRefs == 0, "Removing rigid body that still had constraints. Remove constraints first.");
                 //constraints must be removed before rigid body is removed
-                pw.RemoveRigidBody((RigidBody)_collisionObject);
+                _physicsWorld.RemoveRigidBody((RigidBody)_collisionObject);
             }
         }
 
