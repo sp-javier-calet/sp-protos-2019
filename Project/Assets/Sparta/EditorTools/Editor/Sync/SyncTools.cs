@@ -42,22 +42,27 @@ namespace SpartaTools.Editor.Sync
 
             var list = new List<ModuleSync>();
 
-            // Manage cancel
-            if(CurrentProgress.Cancelled)
-            {
-                SyncReport.Log("User cancelled");
-                SyncReport.Dump();
+            // Lambda to check cancellation.
+            Func<bool> checkCancelled = () => {
+                var cancelled = CurrentProgress.Cancelled;
+                if(cancelled)
+                {
+                    SyncReport.Log("User cancelled");
+                    SyncReport.Dump();
+                }
+                return cancelled;
+            };
+                
+            if(checkCancelled())
+            {   
                 return null;
             }
             
             CurrentProgress.Update("Retrieving Sparta modules", 0.05f);
             var spartaModules = Project.GetModules(Project.BasePath);
 
-            // Manage cancel
-            if(CurrentProgress.Cancelled)
-            {
-                SyncReport.Log("User cancelled");
-                SyncReport.Dump();
+            if(checkCancelled())
+            {   
                 return null;
             }
             
@@ -70,11 +75,8 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var spartaMod in spartaModules.Values)
             {
-                // Manage cancel
-                if(CurrentProgress.Cancelled)
-                {
-                    SyncReport.Log("User cancelled");
-                    SyncReport.Dump();
+                if(checkCancelled())
+                {   
                     return null;
                 }
                 
@@ -109,11 +111,8 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var targetMod in targetModules.Values)
             {
-                // Manage cancel
-                if(CurrentProgress.Cancelled)
-                {
-                    SyncReport.Log("User cancelled");
-                    SyncReport.Dump();
+                if(checkCancelled())
+                {   
                     return null;
                 }
                 
