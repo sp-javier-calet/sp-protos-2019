@@ -5,10 +5,7 @@ namespace SocialPoint.Multiplayer
 {
     public static class PhysicsNetworkExtensions
     {
-        public static void AddRigidbody(this NetworkServerSceneController ctrl, int id)
-        {
-            ctrl.AddRigidbody(id, new PhysicsRigidBody());
-        }
+        //TODO: Simplify extension? use an extension that creates a default rigidbody?
 
         public static void AddRigidbody(this NetworkServerSceneController ctrl, int id, PhysicsRigidBody rigidBody)
         {

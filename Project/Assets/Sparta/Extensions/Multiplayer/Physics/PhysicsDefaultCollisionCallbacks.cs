@@ -5,27 +5,28 @@ using System;
 
 namespace SocialPoint.Multiplayer
 {
-    public class PhysicsDefaultCollisionCallbacks : PhysicsCollisionObject.ICollisionCallbackEventHandler
+    public class PhysicsDefaultCollisionCallbacks : ICollisionCallbackEventHandler
     {
         public class PersistentManifoldList
         {
             public List<PersistentManifold> manifolds = new List<PersistentManifold>();
         }
 
+        protected CollisionObject _collisionObject;
+
+        Dictionary<CollisionObject, PersistentManifoldList> _otherObjs2ManifoldMap = new Dictionary<CollisionObject, PersistentManifoldList>();
+        List<PersistentManifoldList> _newContacts = new List<PersistentManifoldList>();
+        List<CollisionObject> _objectsToRemove = new List<CollisionObject>();
+
         public PhysicsDefaultCollisionCallbacks(CollisionObject collisionObject)
         {
-            myCollisionObject = collisionObject;
+            _collisionObject = collisionObject;
         }
-
-        CollisionObject myCollisionObject;
-        Dictionary<CollisionObject, PersistentManifoldList> otherObjs2ManifoldMap = new Dictionary<CollisionObject, PersistentManifoldList>();
-        List<PersistentManifoldList> newContacts = new List<PersistentManifoldList>();
-        List<CollisionObject> objectsToRemove = new List<CollisionObject>();
 
         public void OnVisitPersistentManifold(PersistentManifold pm)
         {
             CollisionObject other;
-            if(pm.Body0 == myCollisionObject)
+            if(pm.Body0 == _collisionObject)
             {
                 other = pm.Body1;
             }
@@ -34,44 +35,44 @@ namespace SocialPoint.Multiplayer
                 other = pm.Body0;
             }
             PersistentManifoldList pml;
-            if(!otherObjs2ManifoldMap.TryGetValue(other, out pml))
+            if(!_otherObjs2ManifoldMap.TryGetValue(other, out pml))
             {
                 //todo get from object pool
                 pml = new PersistentManifoldList();
-                newContacts.Add(pml);
+                _newContacts.Add(pml);
             }
             pml.manifolds.Add(pm);
         }
 
         public void OnFinishedVisitingManifolds()
         {
-            objectsToRemove.Clear();
-            foreach(CollisionObject co in otherObjs2ManifoldMap.Keys)
+            _objectsToRemove.Clear();
+            foreach(CollisionObject co in _otherObjs2ManifoldMap.Keys)
             {
-                PersistentManifoldList pml = otherObjs2ManifoldMap[co];
+                PersistentManifoldList pml = _otherObjs2ManifoldMap[co];
                 if(pml.manifolds.Count > 0)
                 {
-                    BOnCollisionStay(co, pml);
+                    OnCollisionStay(co, pml);
                 }
                 else
                 {
-                    BOnCollisionExit(co);
-                    objectsToRemove.Add(co);
+                    OnCollisionExit(co);
+                    _objectsToRemove.Add(co);
                 }
             }
 
-            for(int i = 0; i < objectsToRemove.Count; i++)
+            for(int i = 0; i < _objectsToRemove.Count; i++)
             {
-                otherObjs2ManifoldMap.Remove(objectsToRemove[i]);
+                _otherObjs2ManifoldMap.Remove(_objectsToRemove[i]);
             }
-            objectsToRemove.Clear();
+            _objectsToRemove.Clear();
 
 
-            for(int i = 0; i < newContacts.Count; i++)
+            for(int i = 0; i < _newContacts.Count; i++)
             {
-                PersistentManifoldList pml = newContacts[i];
+                PersistentManifoldList pml = _newContacts[i];
                 CollisionObject other;
-                if(pml.manifolds[0].Body0 == myCollisionObject)
+                if(pml.manifolds[0].Body0 == _collisionObject)
                 {
                     other = pml.manifolds[0].Body1;
                 }
@@ -79,14 +80,14 @@ namespace SocialPoint.Multiplayer
                 {
                     other = pml.manifolds[0].Body0;
                 }
-                otherObjs2ManifoldMap.Add(other, pml);
-                BOnCollisionEnter(other, pml);
+                _otherObjs2ManifoldMap.Add(other, pml);
+                OnCollisionEnter(other, pml);
             }
-            newContacts.Clear();
+            _newContacts.Clear();
 
-            foreach(CollisionObject co in otherObjs2ManifoldMap.Keys)
+            foreach(CollisionObject co in _otherObjs2ManifoldMap.Keys)
             {
-                PersistentManifoldList pml = otherObjs2ManifoldMap[co];
+                PersistentManifoldList pml = _otherObjs2ManifoldMap[co];
                 pml.manifolds.Clear();
             }
         }
@@ -103,19 +104,16 @@ namespace SocialPoint.Multiplayer
         /// }
         /// </summary>
 
-        public virtual void BOnCollisionEnter(CollisionObject other, PersistentManifoldList manifoldList)
+        public virtual void OnCollisionEnter(CollisionObject other, PersistentManifoldList manifoldList)
         {
-            //UnityEngine.Debug.Log("*** TEST Collision Enter");
         }
 
-        public virtual void BOnCollisionStay(CollisionObject other, PersistentManifoldList manifoldList)
+        public virtual void OnCollisionStay(CollisionObject other, PersistentManifoldList manifoldList)
         {
-            //UnityEngine.Debug.Log("*** TEST Collision Stay");
         }
 
-        public virtual void BOnCollisionExit(CollisionObject other)
+        public virtual void OnCollisionExit(CollisionObject other)
         {
-            //UnityEngine.Debug.Log("*** TEST Collision Exit");
         }
     }
 }

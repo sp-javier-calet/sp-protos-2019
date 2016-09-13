@@ -17,12 +17,10 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     float _timeSinceLastMove = 0.0f;
     int _maxUpdateTimes = 3;
     Vector3 _movement;
+    NetworkGameObject playerCube = null;
 
-    public PhysicsWorld PhysicsWorld;
-    public PhysicsWorldLateHelper PhysicsLateHelper;
-
-    //*** TEST
-    static NetworkGameObject playerCube = null;
+    PhysicsWorld _physicsWorld;
+    PhysicsDebugger _physicsDebugger;
 
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
     {
@@ -33,6 +31,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _updateTimes = new Dictionary<int,int>();
         _movement = new Vector3(2.0f, 0.0f, 2.0f);
 
+        _physicsDebugger = new UnityPhysicsDebugger();
         AddPhysicsWorld();
     }
 
@@ -105,7 +104,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         if(data.MessageType == GameMsgType.ClickAction)
         {
             var ac = reader.Read<ClickAction>();
-            if(playerCube == null || !ClosestIntersectsRay(playerCube, ac.Ray))
+            if(!ClosestIntersectsRay(playerCube, ac.Ray))
             {
                 NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
                                                     ac.Position, Quaternion.Identity, Vector3.One));
@@ -116,6 +115,10 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 }
 
                 AddCollision(currentCube);
+            }
+            else
+            {
+                _physicsDebugger.Log("Raycast over player!");
             }
 
         }
@@ -136,36 +139,26 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void AddPhysicsWorld()
     {
-        PhysicsLateHelper = new PhysicsWorldLateHelper();
-        PhysicsWorld = new PhysicsWorld(new UnityPhysicsDebugger(), PhysicsLateHelper);
-        PhysicsWorld.DoDebugDraw = true;
-        PhysicsWorld.Awake();
-        _controller.AddBehaviour(PhysicsWorld);
+        _physicsWorld = new PhysicsWorld(new PhysicsDefaultCollisionHandler(), _physicsDebugger);
+        _physicsWorld.DoDebugDraw = true;
+        _controller.AddBehaviour(_physicsWorld);
     }
-
 
     void AddCollision(NetworkGameObject go)
     {
-        var RigidBody = new PhysicsRigidBody();
-        RigidBody.collisionFlags = CollisionFlags.KinematicObject;
+        var boxShape = new PhysicsBoxShape(new Vector3(0.5f));
+        var rigidBody = new PhysicsRigidBody(boxShape, _physicsDebugger, CollisionFlags.KinematicObject);
+        var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
 
-        //PhysicsCollisionObject = new PhysicsCollisionObject();
-        RigidBody.NetworkGameObject = go;
-        PhysicsBoxShape boxShape = new PhysicsBoxShape(new Vector3(0.5f));
-        RigidBody.CollisionShape = boxShape;
-        RigidBody.Debugger = new UnityPhysicsDebugger();//TODO: Share single debugger
+        rigidBody.PhysicsWorld = _physicsWorld;
+        rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
 
-        var co = RigidBody.GetCollisionObject();
         //co.CollisionFlags = CollisionFlags.KinematicObject;
-        co.ActivationState = ActivationState.DisableDeactivation;
+        //co.ActivationState = ActivationState.DisableDeactivation;
 
         //PhysicsWorld.AddCollisionObject(go.PhysicsCollisionObject);
-        RigidBody.PhysicsWorld = PhysicsWorld;
-        //go.PhysicsCollisionObject.Start();//TODO: Change start to remove internal Add to world
-        var collCallback = new PhysicsDefaultCollisionCallbacks(co);
-        RigidBody.AddOnCollisionCallbackEventHandler(collCallback);
 
-        _controller.AddRigidbody(go.Id, RigidBody);
+        _controller.AddRigidbody(go.Id, rigidBody);
     }
 
     public bool ClosestIntersectsRay(NetworkGameObject gameObject, Ray ray)
@@ -178,7 +171,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         float maxDistance = 100;
         var rayResultClosest = new PhysicsRaycast.ClosestResult();
 
-        if(PhysicsRaycast.Raycast(ray, maxDistance, PhysicsWorld, out rayResultClosest))
+        if(PhysicsRaycast.Raycast(ray, maxDistance, _physicsWorld, out rayResultClosest))
         {
             if(rayResultClosest.GameObjectHit.Id == gameObject.Id)
             {

@@ -11,6 +11,36 @@ namespace SocialPoint.Multiplayer
         PhysicsGameObjectMotionState _motionState;
         Vector3 _localInertia = Vector3.Zero;
 
+        public PhysicsRigidBody(PhysicsCollisionShape shape, PhysicsDebugger debugger, CollisionFlags collisionFlags)
+            : base(shape, debugger, collisionFlags)
+        {
+        }
+
+        public override void OnStart(NetworkGameObject go)
+        {
+            _motionState.Transform = go.Transform;
+            base.OnStart(go);
+        }
+
+        public override void OnDestroy()
+        {
+            if(IsInWorld && _rigidBody != null)
+            {
+                PhysicsWorld pw = PhysicsWorld;
+                if(pw != null && pw.world != null)
+                {
+                    ((DiscreteDynamicsWorld)pw.world).RemoveRigidBody(_rigidBody);
+                }
+            }
+            if(_rigidBody != null && _rigidBody.MotionState != null)
+            {
+                _rigidBody.MotionState.Dispose();
+            }
+            PhysicsUtilities.DisposeMember(ref _rigidBody);
+
+            base.OnDestroy();
+        }
+
         public Vector3 localInertia
         {
             get
@@ -145,9 +175,9 @@ namespace SocialPoint.Multiplayer
             get { return _additionalDamping; }
             set
             {
-                if(isInWorld && _additionalDamping != value)
+                if(IsInWorld && _additionalDamping != value)
                 {
-                    _debugger.LogError(debugType, "Need to remove and re-add the rigid body to change additional damping setting");
+                    _debugger.LogError("Need to remove and re-add the rigid body to change additional damping setting");
                     return;
                 }
                 _additionalDamping = value;
@@ -164,7 +194,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(_collisionObject != null && _additionalDampingFactor != value)
                 {
-                    _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
                 }
                 _additionalDampingFactor = value;
@@ -181,7 +211,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(_collisionObject != null && _additionalLinearDampingThresholdSqr != value)
                 {
-                    _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
                 }
                 _additionalLinearDampingThresholdSqr = value;
@@ -198,7 +228,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(_collisionObject != null && _additionalAngularDampingThresholdSqr != value)
                 {
-                    _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
                 }
                 _additionalAngularDampingThresholdSqr = value;
@@ -215,7 +245,7 @@ namespace SocialPoint.Multiplayer
             {
                 if(_collisionObject != null && _additionalAngularDampingFactor != value)
                 {
-                    _debugger.LogError(debugType, "Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
                 }
                 _additionalAngularDampingFactor = value;
@@ -266,7 +296,7 @@ namespace SocialPoint.Multiplayer
                 {
                     if(_mass == 0f && isDynamic())
                     {
-                        _debugger.LogError(debugType, "Rigid bodies that are not static or kinematic must have positive mass");
+                        _debugger.LogError("Rigid bodies that are not static or kinematic must have positive mass");
                         return;
                     }
                     if(_rigidBody != null)
@@ -294,7 +324,7 @@ namespace SocialPoint.Multiplayer
         {
             get
             {
-                if(isInWorld)
+                if(IsInWorld)
                 {
                     return _rigidBody.LinearVelocity;
                 }
@@ -305,7 +335,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(isInWorld)
+                if(IsInWorld)
                 {
                     _rigidBody.LinearVelocity = value;
                 }
@@ -320,7 +350,7 @@ namespace SocialPoint.Multiplayer
         {
             get
             {
-                if(isInWorld)
+                if(IsInWorld)
                 {
                     return _rigidBody.AngularVelocity;
                 }
@@ -331,7 +361,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(isInWorld)
+                if(IsInWorld)
                 {
                     _rigidBody.AngularVelocity = value;
                 }
@@ -339,31 +369,27 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public PhysicsDebugger.DebugType debugType;
-
-        //called by Physics World just before rigid body is added to world.
-        //the current rigid body properties are used to rebuild the rigid body.
-        internal override bool _BuildCollisionObject()
+        protected override bool BuildCollisionObject()
         {
             PhysicsWorld world = PhysicsWorld;
             if(_rigidBody != null)
             {
-                if(isInWorld && world != null)
+                if(IsInWorld && world != null)
                 {
-                    isInWorld = false;
+                    IsInWorld = false;
                     world.RemoveRigidBody(_rigidBody);
                 }
             }
             
             /*if(transform.localScale != Vector3.One)
             {
-                _debugger.LogError(debugType, "The local scale on this rigid body is not one. Bullet physics does not support scaling on a rigid body world transform. Instead alter the dimensions of the CollisionShape.");
+                _debugger.LogError("The local scale on this rigid body is not one. Bullet physics does not support scaling on a rigid body world transform. Instead alter the dimensions of the CollisionShape.");
             }*/
 
             _collisionShape = CollisionShape;
             if(_collisionShape == null)
             {
-                _debugger.LogError(debugType, "There was no collision shape component attached to this BRigidBody. {0}", NetworkGameObject.Id);
+                _debugger.LogError("There was no collision shape component attached to this PhysicsRigidBody.");
                 return false;
             }
 
@@ -377,7 +403,7 @@ namespace SocialPoint.Multiplayer
 
             if(_rigidBody == null)
             {
-                _motionState = new PhysicsGameObjectMotionState(NetworkGameObject.Transform);
+                _motionState = new PhysicsGameObjectMotionState();
                 float bulletMass = _mass;
                 if(!isDynamic())
                 {
@@ -437,36 +463,6 @@ namespace SocialPoint.Multiplayer
             return true;
         }
 
-        public override void OnStart(NetworkGameObject go)
-        {
-            base.OnStart(go);
-
-            /*BRigidBody[] rbs = GetComponentsInParent<BRigidBody>();
-            if(rbs.Length != 1)
-            {
-                _debugger.LogError(debugType, "Can't nest rigid bodies. The transforms are updated by Bullet in undefined order which can cause spasing. Object {0}", GameObject.Id);
-            }*/
-        }
-
-        public override void OnDestroy()
-        {
-            if(isInWorld && _rigidBody != null)
-            {
-                PhysicsWorld pw = PhysicsWorld;
-                if(pw != null && pw.world != null)
-                {
-                    ((DiscreteDynamicsWorld)pw.world).RemoveRigidBody(_rigidBody);
-                }
-            }
-            if(_rigidBody != null && _rigidBody.MotionState != null)
-            {
-                _rigidBody.MotionState.Dispose();
-            }
-            PhysicsUtilities.DisposeMember(ref _rigidBody);
-
-            base.OnDestroy();
-        }
-
         protected override void AddObjectToBulletWorld()
         {
             PhysicsWorld.AddRigidBody(this);
@@ -475,7 +471,7 @@ namespace SocialPoint.Multiplayer
         protected override void RemoveObjectFromBulletWorld()
         {
             PhysicsWorld pw = PhysicsWorld;
-            if(pw != null && _rigidBody != null && isInWorld)
+            if(pw != null && _rigidBody != null && IsInWorld)
             {
                 _debugger.Assert(_rigidBody.NumConstraintRefs == 0, "Removing rigid body that still had constraints. Remove constraints first.");
                 //constraints must be removed before rigid body is removed
@@ -485,7 +481,7 @@ namespace SocialPoint.Multiplayer
 
         public void AddImpulse(Vector3 impulse)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 _rigidBody.ApplyCentralImpulse(impulse);
             }
@@ -494,7 +490,7 @@ namespace SocialPoint.Multiplayer
 
         public void AddImpulseAtPosition(Vector3 impulse, Vector3 relativePostion)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 _rigidBody.ApplyImpulse(impulse, relativePostion);
             }
@@ -502,7 +498,7 @@ namespace SocialPoint.Multiplayer
 
         public void AddTorqueImpulse(Vector3 impulseTorque)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 _rigidBody.ApplyTorqueImpulse(impulseTorque);
             }
@@ -514,7 +510,7 @@ namespace SocialPoint.Multiplayer
         //accumulator and do nothing.
         public void AddForce(Vector3 force)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 _rigidBody.ApplyCentralForce(force);
             }
@@ -526,7 +522,7 @@ namespace SocialPoint.Multiplayer
         //accumulator and do nothing.
         public void AddForceAtPosition(Vector3 force, Vector3 relativePostion)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 _rigidBody.ApplyForce(force, relativePostion);
             }
@@ -538,7 +534,7 @@ namespace SocialPoint.Multiplayer
         //accumulator and do nothing.
         public void AddTorque(Vector3 torque)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 _rigidBody.ApplyTorque(torque);
             }

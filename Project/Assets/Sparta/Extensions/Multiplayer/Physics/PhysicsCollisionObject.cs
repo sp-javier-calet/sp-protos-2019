@@ -7,14 +7,39 @@ namespace SocialPoint.Multiplayer
 {
     public class PhysicsCollisionObject : INetworkBehaviour
     {
-        public interface ICollisionCallbackEventHandler
+        public NetworkGameObject NetworkGameObject
         {
-            void OnVisitPersistentManifold(PersistentManifold pm);
-
-            void OnFinishedVisitingManifolds();
+            get;
+            private set;
         }
 
+        protected PhysicsDebugger _debugger;
+
         ICollisionCallbackEventHandler _onCollisionCallback;
+
+        public PhysicsCollisionObject(PhysicsCollisionShape shape, PhysicsDebugger debugger, CollisionFlags collisionFlags)
+        {
+            _debugger = debugger;
+            _collisionShape = shape;
+            _collisionFlags = collisionFlags;
+            BuildCollisionObject();
+        }
+
+        public virtual void OnStart(NetworkGameObject go)
+        {
+            NetworkGameObject = go;
+            _collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
+
+            AddObjectToBulletWorld();
+        }
+
+        public virtual CollisionObject CollisionObject
+        {
+            get
+            {
+                return _collisionObject;
+            }
+        }
 
         public PhysicsCollisionShape CollisionShape
         {
@@ -28,44 +53,15 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public NetworkGameObject NetworkGameObject
-        {
-            get;
-            set;//TODO: Private set
-        }
-
         public PhysicsWorld PhysicsWorld
         {
             get;
             set;
         }
 
-        //TODO: Set debugger
-        protected PhysicsDebugger _debugger;
-
-        public PhysicsDebugger Debugger
-        {
-            get
-            {
-                return _debugger;
-            }
-            set
-            {
-                _debugger = value;
-            }
-        }
-
-        //This is used to handle a design problem.
-        //We want OnEnable to add physics object to world and OnDisable to remove.
-        //We also want user to be able to in script: AddComponent<CollisionObject>, configure it, add it to world, potentialy disable to delay it being added to world
-        //Problem is OnEnable gets called before Awake and Start so that developer has no chance to configure object before it is added to world or prevent
-        //It from being added.
-        //Solution is not to add object to the world until after Start has been called. Start will do the first add to world.
-        protected bool _startHasBeenCalled = false;
-
         protected CollisionObject _collisionObject;
         protected PhysicsCollisionShape _collisionShape;
-        internal bool isInWorld = false;
+        internal bool IsInWorld = false;
         //[SerializeField]
         protected BulletSharp.CollisionFlags _collisionFlags = BulletSharp.CollisionFlags.None;
         //[SerializeField]
@@ -130,7 +126,7 @@ namespace SocialPoint.Multiplayer
             PhysicsWorld bhw = PhysicsWorld;
             if(_onCollisionCallback != null)
             {
-                _debugger.LogErrorFormat("BCollisionObject {0} already has a collision callback. You must remove it before adding another. ", NetworkGameObject.Id);
+                _debugger.LogError("PhysicsCollisionObject already has a collision callback. You must remove it before adding another.");
             }
             _onCollisionCallback = myCallback;
             bhw.RegisterCollisionCallbackListener(_onCollisionCallback);
@@ -146,68 +142,35 @@ namespace SocialPoint.Multiplayer
             _onCollisionCallback = null;
         }
 
-        //called by Physics World just before rigid body is added to world.
-        //the current rigid body properties are used to rebuild the rigid body.
-        internal virtual bool _BuildCollisionObject()
+        protected virtual bool BuildCollisionObject()
         {
             PhysicsWorld world = PhysicsWorld;
             if(_collisionObject != null)
             {
-                if(isInWorld && world != null)
+                if(IsInWorld && world != null)
                 {
                     world.RemoveCollisionObject(_collisionObject);
                 }
             }
 
-            /*if(GameObject.Transform.localScale != UnityEngine.Vector3.one)
-            {
-                _debugger.LogError("The local scale on this collision shape is not one. Bullet physics does not support scaling on a rigid body world transform. Instead alter the dimensions of the CollisionShape.");
-            }*/
-
             _collisionShape = CollisionShape;
             if(_collisionShape == null)
             {
-                _debugger.LogError("There was no collision shape component attached to this BRigidBody. " + NetworkGameObject.Id);
+                _debugger.LogError("There was no collision shape component attached to this PhysicsRigidBody");
                 return false;
             }
 
             CollisionShape cs = _collisionShape.GetCollisionShape();
-            //rigidbody is dynamic if and only if mass is non zero, otherwise static
-
 
             if(_collisionObject == null)
             {
                 _collisionObject = new CollisionObject();
-                _collisionObject.CollisionShape = cs;
-                _collisionObject.UserObject = this;
+            }
+            _collisionObject.CollisionShape = cs;
+            _collisionObject.UserObject = this;
+            _collisionObject.CollisionFlags = _collisionFlags;
 
-                Matrix worldTrans;
-                Quaternion q = NetworkGameObject.Transform.Rotation;
-                Matrix.RotationQuaternion(ref q, out worldTrans);
-                worldTrans.Origin = NetworkGameObject.Transform.Position;
-                _collisionObject.WorldTransform = worldTrans;
-                _collisionObject.CollisionFlags = _collisionFlags;
-            }
-            else
-            {
-                _collisionObject.CollisionShape = cs;
-                Matrix worldTrans;
-                Quaternion q = NetworkGameObject.Transform.Rotation;
-                Matrix.RotationQuaternion(ref q, out worldTrans);
-                worldTrans.Origin = NetworkGameObject.Transform.Position;
-                _collisionObject.WorldTransform = worldTrans;
-                _collisionObject.CollisionFlags = _collisionFlags;
-            }
             return true;
-        }
-
-        public virtual CollisionObject GetCollisionObject()
-        {
-            if(_collisionObject == null)
-            {
-                _BuildCollisionObject();
-            }
-            return _collisionObject;
         }
 
         protected virtual void AddObjectToBulletWorld()
@@ -220,21 +183,6 @@ namespace SocialPoint.Multiplayer
             PhysicsWorld.RemoveCollisionObject(_collisionObject);
         }
 
-
-        public virtual void OnStart(NetworkGameObject go)
-        {
-            NetworkGameObject = go;
-
-            _collisionShape = CollisionShape;
-            if(_collisionShape == null)
-            {
-                _debugger.LogError("A PhysicsCollisionObject component must be on an object with a PhysicsCollisionShape component.");
-            }
-
-            _startHasBeenCalled = true;
-            AddObjectToBulletWorld();
-        }
-
         public virtual void Update(float dt)
         {
             //TODO: Do only on physics step? use dirty? try to reduce the number of matrix creations
@@ -243,7 +191,7 @@ namespace SocialPoint.Multiplayer
 
         public virtual void OnDestroy()
         {
-            if(isInWorld && _collisionObject != null)//&& isdisposing
+            if(IsInWorld && _collisionObject != null)//&& isdisposing
             {
                 PhysicsWorld pw = PhysicsWorld;
                 if(pw != null && pw.world != null)
@@ -258,21 +206,18 @@ namespace SocialPoint.Multiplayer
         public Object Clone()
         {
             //TODO: Improve Clone
-            var behavior = new PhysicsCollisionObject();
+            var behavior = new PhysicsCollisionObject(_collisionShape, _debugger, _collisionFlags);
             behavior.NetworkGameObject = NetworkGameObject;
-            behavior.CollisionShape = CollisionShape;
             behavior.PhysicsWorld = PhysicsWorld;
-            behavior._debugger = _debugger;
             behavior._collisionObject = _collisionObject;
-            behavior._collisionShape = _collisionShape;//Use this or CollisionShape setter/getter?
-            behavior.isInWorld = isInWorld;
+            //behavior.IsInWorld = IsInWorld;
             behavior._onCollisionCallback = _onCollisionCallback;
             return behavior;
         }
 
         public virtual void SetPosition(Vector3 position)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 Matrix newTrans = _collisionObject.WorldTransform;
                 newTrans.Origin = position;
@@ -287,7 +232,7 @@ namespace SocialPoint.Multiplayer
 
         public virtual void SetPositionAndRotation(Vector3 position, Quaternion rotation)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 Matrix newTrans = _collisionObject.WorldTransform;
                 Quaternion q = rotation;
@@ -306,7 +251,7 @@ namespace SocialPoint.Multiplayer
 
         public virtual void SetRotation(Quaternion rotation)
         {
-            if(isInWorld)
+            if(IsInWorld)
             {
                 Matrix newTrans = _collisionObject.WorldTransform;
                 Quaternion q = rotation;

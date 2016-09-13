@@ -179,12 +179,12 @@ namespace SocialPoint.Multiplayer
             UnityEngine.Debug.Log(message);
         }
 
-        public override void Log(DebugType debugType, object message)
+        public override void Log(object message)
         {
             UnityEngine.Debug.Log(message);
         }
 
-        public override void Log(DebugType debugType, object message, params object[] arguments)
+        public override void Log(object message, params object[] arguments)
         {
             UnityEngine.Debug.LogFormat(message.ToString(), arguments);
         }
@@ -199,12 +199,12 @@ namespace SocialPoint.Multiplayer
             UnityEngine.Debug.LogWarning(message);
         }
 
-        public override void LogWarning(DebugType debugType, object message)
+        public override void LogWarning(object message)
         {
             UnityEngine.Debug.LogWarning(message);
         }
 
-        public override void LogWarning(DebugType debugType, object message, params object[] arguments)
+        public override void LogWarning(object message, params object[] arguments)
         {
             UnityEngine.Debug.LogWarningFormat(message.ToString(), arguments);
         }
@@ -219,12 +219,12 @@ namespace SocialPoint.Multiplayer
             UnityEngine.Debug.LogError(message);
         }
 
-        public override void LogError(DebugType debugType, object message)
+        public override void LogError(object message)
         {
             UnityEngine.Debug.LogError(message);
         }
 
-        public override void LogError(DebugType debugType, object message, params object[] arguments)
+        public override void LogError(object message, params object[] arguments)
         {
             UnityEngine.Debug.LogErrorFormat(message.ToString(), arguments);
         }

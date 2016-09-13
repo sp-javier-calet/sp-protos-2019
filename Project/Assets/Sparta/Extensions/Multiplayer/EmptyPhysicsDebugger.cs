@@ -106,11 +106,11 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public override void Log(DebugType debugType, object message)
+        public override void Log(object message)
         {
         }
 
-        public override void Log(DebugType debugType, object message, params object[] arguments)
+        public override void Log(object message, params object[] arguments)
         {
         }
 
@@ -122,11 +122,11 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public override void LogWarning(DebugType debugType, object message)
+        public override void LogWarning(object message)
         {
         }
 
-        public override void LogWarning(DebugType debugType, object message, params object[] arguments)
+        public override void LogWarning(object message, params object[] arguments)
         {
         }
 
@@ -138,11 +138,11 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public override void LogError(DebugType debugType, object message)
+        public override void LogError(object message)
         {
         }
 
-        public override void LogError(DebugType debugType, object message, params object[] arguments)
+        public override void LogError(object message, params object[] arguments)
         {
         }
 
