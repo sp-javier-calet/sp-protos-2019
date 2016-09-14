@@ -383,6 +383,14 @@ namespace SocialPoint.Multiplayer
             _additionalAngularDampingThresholdSqr = rbInfo.AdditionalAngularDampingThresholdSqr;
         }
 
+        public override Object Clone()
+        {
+            PhysicsCollisionShape shapeClone = (PhysicsCollisionShape)_collisionShape.Clone();
+            RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(_mass, new PhysicsGameObjectMotionState(), shapeClone.GetCollisionShape(), _localInertia);
+            var behavior = new PhysicsRigidBody(rbInfo, shapeClone, _physicsWorld, _debugger, _collisionFlags, _collisionMask, _groupsIBelongTo);
+            return behavior;
+        }
+
         public override void OnStart(NetworkGameObject go)
         {
             _motionState.Transform = go.Transform;

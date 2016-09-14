@@ -44,5 +44,10 @@ namespace SocialPoint.Multiplayer
             _collisionShapePtr = new BoxShape(_extents);
             ((BoxShape)_collisionShapePtr).LocalScaling = _localScaling;
         }
+
+        public override Object Clone()
+        {
+            return new PhysicsBoxShape(Extents);
+        }
     }
 }

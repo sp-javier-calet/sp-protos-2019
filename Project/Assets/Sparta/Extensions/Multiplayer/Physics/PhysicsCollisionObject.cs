@@ -70,14 +70,10 @@ namespace SocialPoint.Multiplayer
             BuildCollisionObject();
         }
 
-        public Object Clone()
+        public virtual Object Clone()
         {
-            //TODO: Improve Clone (clone shape, etc, to avoid multiple dispose)
-            var behavior = new PhysicsCollisionObject(_collisionShape, _physicsWorld, _debugger, _collisionFlags);
-            behavior.NetworkGameObject = NetworkGameObject;
-            //behavior._collisionObject = _collisionObject;
-            //behavior.IsInWorld = IsInWorld;
-            behavior.CollisionCallbackEventHandler = CollisionCallbackEventHandler;
+            PhysicsCollisionShape shapeClone = (PhysicsCollisionShape)_collisionShape.Clone();
+            var behavior = new PhysicsCollisionObject(shapeClone, _physicsWorld, _debugger, _collisionFlags, _collisionMask, _groupsIBelongTo);
             return behavior;
         }
 
@@ -103,13 +99,13 @@ namespace SocialPoint.Multiplayer
             PhysicsUtilities.DisposeMember(ref _collisionObject);
         }
 
-        public virtual void AddOnCollisionCallbackEventHandler(ICollisionCallbackEventHandler myCallback)
+        public virtual void AddOnCollisionCallbackEventHandler(ICollisionCallbackEventHandler callback)
         {
             if(CollisionCallbackEventHandler != null)
             {
                 _debugger.LogError("PhysicsCollisionObject already has a collision callback. You must remove it before adding another.");
             }
-            CollisionCallbackEventHandler = myCallback;
+            CollisionCallbackEventHandler = callback;
             _physicsWorld.RegisterCollisionCallbackListener(CollisionCallbackEventHandler);
         }
 

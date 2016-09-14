@@ -6,7 +6,7 @@ using BulletSharp;
 namespace SocialPoint.Multiplayer
 {
     [System.Serializable]
-    public abstract class PhysicsCollisionShape : IDisposable
+    public abstract class PhysicsCollisionShape : IDisposable, ICloneable
     {
         // Derived classes must create it upon construction
         protected CollisionShape _collisionShapePtr = null;
@@ -15,6 +15,8 @@ namespace SocialPoint.Multiplayer
         {
             return _collisionShapePtr;
         }
+
+        public abstract Object Clone();
 
         public void Dispose()
         {
