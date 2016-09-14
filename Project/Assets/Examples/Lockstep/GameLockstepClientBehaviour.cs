@@ -23,14 +23,23 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _lockstep = ServiceLocator.Instance.Resolve<ClientLockstepController>();
+        _lockstep.Simulate += Simulate;
         _model = ServiceLocator.Instance.Resolve<LockstepModel>();
         _model.OnInstantiate += OnInstantiate;
+        _lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
+
         _lockstep.Start(TimeUtils.TimestampMilliseconds);
     }
 
     void OnDestroy()
     {
+        _lockstep.Simulate -= Simulate;
         _model.OnInstantiate -= OnInstantiate;
+    }
+
+    void Simulate(long tsmillis)
+    {
+        _model.Simulate(tsmillis);
     }
 
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)

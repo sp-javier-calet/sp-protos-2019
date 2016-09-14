@@ -90,6 +90,7 @@ namespace SocialPoint.Lockstep
         public event Action<long> SimulationStartScheduled;
         public event Action SimulationStarted;
         public event Action<LockstepCommandData> CommandApplied;
+        public event Action<long> Simulate;
 
         public LockstepConfig LockstepConfig { get; protected set; }
 
@@ -98,12 +99,9 @@ namespace SocialPoint.Lockstep
         Dictionary<int, List<LockstepCommandData>> _pendingCommands = new Dictionary<int, List<LockstepCommandData>>();
         Dictionary<int, List<LockstepCommandData>> _confirmedCommands = new Dictionary<int, List<LockstepCommandData>>();
 
-        public ClientLockstepController(ISimulateable model,
-                                        IUpdateScheduler updateScheduler)
+        public ClientLockstepController(IUpdateScheduler updateScheduler)
         {
-            _updateScheduler = updateScheduler;             
-            NeedsTurnConfirmation = true;
-            _model = model;
+            _updateScheduler = updateScheduler;
             _simulationTime = 0;
             _lastConfirmedTurnTime = 0;
             _lastConfirmedTurn = 0;
@@ -422,7 +420,10 @@ namespace SocialPoint.Lockstep
                 for(long nextST = _lastModelSimulationTime + _simulationStep; nextST <= nextModelSimulationTime; nextST += _simulationStep)
                 {
                     _lastModelSimulationTime = nextST;
-                    _model.Simulate(_lastModelSimulationTime);
+                    if(Simulate != null)
+                    {
+                        Simulate(_lastModelSimulationTime);
+                    }
                     if(_lastModelSimulationTime >= _lastAppliedTurnTime + _commandStep)
                     {
                         ConsumeTurn(_lastAppliedTurn + 1);

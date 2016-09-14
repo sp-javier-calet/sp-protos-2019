@@ -35,13 +35,11 @@ public class LockstepInstaller : Installer
 
     ClientLockstepController CreateClientController()
     {
-        var model = Container.Resolve<LockstepModel>();
-        var ctrl = new ClientLockstepController(model,
+        var ctrl = new ClientLockstepController(
                Container.Resolve<IUpdateScheduler>()
        );
         ctrl.Init(new LockstepConfig {
         });
-        ctrl.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(model));
         return ctrl;
     }
 

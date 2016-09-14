@@ -14,7 +14,6 @@ namespace SocialPoint.Lockstep
             configMessage.Deserialize(reader);
             clientLockstep.Init(configMessage.Config);
             int count = reader.ReadInt32();
-            clientLockstep.NeedsTurnConfirmation = false;
             for(int i = 0; i < count; ++i)
             {
                 var command = new LockstepCommandData();

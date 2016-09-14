@@ -2,7 +2,7 @@
 using System;
 using FixMath.NET;
 
-public class LockstepModel : ISimulateable
+public class LockstepModel
 {
     long _mana = 0;
     long _lastTimestamp;
@@ -46,13 +46,5 @@ public class LockstepModel : ISimulateable
             _mana = MaxMana;
         }
         _lastTimestamp = timestamp;
-    }
-
-    public long KeyTimestamp
-    {
-        get
-        {
-            return 0;
-        }
     }
 }
