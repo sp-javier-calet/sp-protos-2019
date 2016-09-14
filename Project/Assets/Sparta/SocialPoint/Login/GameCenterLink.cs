@@ -16,12 +16,6 @@ namespace SocialPoint.Login
 
         LinkState _state;
 
-        public GameCenterLink()
-        {
-            _gameCenter = new UnityGameCenter();
-            Init();
-        }
-
         public GameCenterLink(IGameCenter gameCenter)
         {
             _gameCenter = gameCenter;
