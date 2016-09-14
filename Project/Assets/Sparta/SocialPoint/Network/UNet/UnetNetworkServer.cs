@@ -189,5 +189,10 @@ namespace SocialPoint.Network
         {
             _receiver = receiver;
         }
+
+        public int GetTimestamp()
+        {
+            return NetworkTransport.GetNetworkTimestamp();
+        }
     }
 }
