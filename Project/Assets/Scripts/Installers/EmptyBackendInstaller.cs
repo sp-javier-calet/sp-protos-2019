@@ -50,11 +50,11 @@ public class EmptyBackendInstaller : Installer, IInitializable
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanelMessageCenter);
         }
-        if(!Container.HasBinding<SocialPoint.Notifications.NotificationManager>())
+        if(!Container.HasBinding<NotificationManager>())
         {
             Container.Install<NotificationInstaller>();
         }
-        if(!Container.HasBinding<SocialPoint.CrossPromotion.CrossPromotionManager>())
+        if(!Container.HasBinding<CrossPromotionManager>())
         {
             Container.Install<CrossPromotionInstaller>();
         }

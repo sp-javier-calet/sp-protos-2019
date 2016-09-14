@@ -19,7 +19,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     ///     * 'weak' : Mark the framework as optional.
     ///  - buildSettings : Dictionary of Settings name and value pairs.
     ///  - variantGroups :
-    ///  - localizations : Dictionary of language and file pairs for localizations.
+    ///  - localizations : List of supported languages
     ///  - infoPlist : 
     ///  - shellScripts : 
     ///  - systemCapabilities : Dictionary of Capabilitiy names and boolean values pairs.
@@ -193,8 +193,11 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(string lib in libs)
                 {
-                    string fullPath = GetModPath(lib);
-                    editor.AddLibrary(fullPath);
+
+                    string[] attrs;
+                    var filename = SplitAttributes(lib, out attrs);
+                    bool isWeak = (attrs.Length > 0 && attrs[0].Equals("weak"));
+                    editor.AddLibrary(filename, isWeak);
                 }
             }
         }
@@ -245,12 +248,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         void ApplyLocalizations(XCodeProjectEditor editor)
         {
-            var localizations = (Hashtable)_datastore["localizations"];
+            var localizations = (ArrayList)_datastore["localizations"];
             if(localizations != null)
             {
-                foreach(DictionaryEntry loc in localizations)
+                foreach(string lang in localizations)
                 {
-                    editor.AddLocalization((string)loc.Key, (string)loc.Value);
+                    editor.AddLocalization(lang);
                 }
             }
         }

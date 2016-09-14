@@ -27,12 +27,16 @@ namespace SocialPoint.Network
         };
 
 
-        #if UNITY_EDITOR || UNITY_STANDALONE
+        #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         const string PluginModuleName = "SPUnityPlugins";
-        #elif UNITY_ANDROID
+        #elif UNITY_ANDROID && !UNITY_EDITOR
         const string PluginModuleName = "sp_unity_curl";
-        #elif (UNITY_IOS || UNITY_TVOS)
+        #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
+        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+        const string PluginModuleName = "sp_unity_curl";
+        #else
+        const string PluginModuleName = "none";
         #endif
 
         [DllImport(PluginModuleName)]

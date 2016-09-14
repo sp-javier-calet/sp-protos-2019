@@ -85,7 +85,7 @@ namespace SocialPoint.CrossPromotion
             }
         }
 
-        bool IsAutoOpened
+        protected bool IsAutoOpened
         {
             get
             {
