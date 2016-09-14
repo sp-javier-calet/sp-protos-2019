@@ -19,7 +19,7 @@ public class LockstepModel : ISimulateable
     {
         get
         {
-            return ((float)_mana)/(float)MaxMana ;
+            return ((float)_mana) / (float)MaxMana;
         }
     }
 
@@ -36,17 +36,17 @@ public class LockstepModel : ISimulateable
         }
         return true;
     }
-        
+
     public void Simulate(long timestamp)
     {
         var dt = timestamp - _lastTimestamp;
-        _mana += dt*ManaSpeed;
+        _mana += dt * ManaSpeed;
         if(_mana > MaxMana)
         {
             _mana = MaxMana;
         }
         _lastTimestamp = timestamp;
-    }        
+    }
 
     public long KeyTimestamp
     {

@@ -33,9 +33,9 @@ public class LockstepInstaller : Installer
     ClientLockstepController CreateClientController()
     {
         var ctrl = new ClientLockstepController(
-            Container.Resolve<LockstepModel>(),
-            Container.Resolve<IUpdateScheduler>()
-        );
+                       Container.Resolve<LockstepModel>(),
+                       Container.Resolve<IUpdateScheduler>()
+                   );
         ctrl.Init(new LockstepConfig {
         });
         return ctrl;
@@ -44,8 +44,8 @@ public class LockstepInstaller : Installer
     ServerLockstepController CreateServerController()
     {
         var ctrl = new ServerLockstepController(
-            Container.Resolve<IUpdateScheduler>(),
-            Settings.Clients, Settings.CommandStep);
+                       Container.Resolve<IUpdateScheduler>(),
+                       Settings.Clients, Settings.CommandStep);
         return ctrl;
     }
 

@@ -8,8 +8,9 @@ public class ClickCommand : ILockstepCommand
     public event System.Action<ILockstepCommand> Discarded;
 
     public int Turn { get; private set; }
+
     public int Retries { get; private set; }
-        
+
     Fix64 _x;
     Fix64 _y;
     Fix64 _z;
@@ -47,7 +48,7 @@ public class ClickCommand : ILockstepCommand
         ++Retries;
         return true;
     }
-        
+
     public byte LockstepCommandDataType
     {
         get
