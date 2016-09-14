@@ -6,15 +6,15 @@ namespace SocialPoint.Lockstep
     {
         public int Turn { get; private set; }
 
-        public List<ILockstepCommand> Commands { get; set; }
+        public List<LockstepCommandData> Commands { get; set; }
 
         public LockstepTurnData(int turn)
         {
             Turn = turn;
-            Commands = new List<ILockstepCommand>();
+            Commands = new List<LockstepCommandData>();
         }
 
-        public LockstepTurnData(int turn, List<ILockstepCommand> commands)
+        public LockstepTurnData(int turn, List<LockstepCommandData> commands)
         {
             Turn = turn;
             Commands = commands;

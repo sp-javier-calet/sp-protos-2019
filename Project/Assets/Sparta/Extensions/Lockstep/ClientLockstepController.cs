@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
+using SocialPoint.Base;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
-    public sealed class ClientLockstepController : IUpdateable, IDisposable
+    public class ClientLockstepController : IUpdateable, IDisposable
     {
         ISimulateable _model;
         IUpdateScheduler _updateScheduler;
@@ -23,8 +25,8 @@ namespace SocialPoint.Lockstep
         long _lastAppliedTurnTime;
         int _maxRetries;
         bool _missingTurn;
-
         float _simulationSpeed;
+        int _nextCommandId;
 
         public float SimulationSpeed
         {
@@ -77,23 +79,23 @@ namespace SocialPoint.Lockstep
 
         public event Action<int> MissingTurnConfirmation;
         public event Action<int> MissingTurnConfirmationReceived;
-
         public event Action<int[]> TurnsConfirmed;
-        public event Action<ILockstepCommand> PendingCommandAdded;
+        public event Action<LockstepCommandData> PendingCommandAdded;
         public event Action<long> SimulationStartScheduled;
         public event Action SimulationStarted;
-        public event Action<ILockstepCommand> CommandApplied;
+        public event Action<LockstepCommandData> CommandApplied;
 
-        public LockstepConfig LockstepConfig { get; private set; }
+        public LockstepConfig LockstepConfig { get; protected set; }
 
-        Dictionary<int, List<ILockstepCommand>> _pendingCommands = new Dictionary<int, List<ILockstepCommand>>();
+        Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
 
-        Dictionary<int, List<ILockstepCommand>> _confirmedCommands = new Dictionary<int, List<ILockstepCommand>>();
+        Dictionary<int, List<LockstepCommandData>> _pendingCommands = new Dictionary<int, List<LockstepCommandData>>();
+        Dictionary<int, List<LockstepCommandData>> _confirmedCommands = new Dictionary<int, List<LockstepCommandData>>();
 
         public ClientLockstepController(ISimulateable model,
                                         IUpdateScheduler updateScheduler)
         {
-            _updateScheduler = updateScheduler;				
+            _updateScheduler = updateScheduler;             
             NeedsTurnConfirmation = true;
             _model = model;
             _simulationTime = 0;
@@ -127,6 +129,21 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public void RegisterCommandLogic<T>(Action<T> apply) where T:  ILockstepCommand, new()
+        {
+            RegisterCommandLogic<T>(new ActionLockstepCommandLogic<T>(apply));
+        }
+
+        public void RegisterCommandLogic<T>(ILockstepCommandLogic<T> logic) where T:  ILockstepCommand, new()
+        {
+            RegisterCommandLogic(typeof(T), new LockstepCommandLogic<T>(logic));
+        }
+
+        public void RegisterCommandLogic(Type type, ILockstepCommandLogic logic)
+        {
+            _commandLogics[type] = logic;
+        }
+
         void ReportPendingCommandResult(bool result)
         {
             _pendingCommandResults[_pendingCommandResultsIndex] = result;
@@ -147,7 +164,12 @@ namespace SocialPoint.Lockstep
                 float successRate = (float)confirmedCommands / (float)_pendingCommandResults.Length;
                 if(successRate >= TurnAnticipationAdjustmentFactor)
                 {
+                    var previousAnticipation = ExecutionTurnAnticipation;
                     ExecutionTurnAnticipation = Math.Max(MinExecutionTurnAnticipation, ExecutionTurnAnticipation - 1);
+                    if(previousAnticipation != ExecutionTurnAnticipation)
+                    {
+                        Log.i("Turn anticipation decreased to " + ExecutionTurnAnticipation);
+                    }
                 }
                 if(successRate <= 1f - TurnAnticipationAdjustmentFactor)
                 {
@@ -191,18 +213,35 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddPendingCommand(ILockstepCommand command)
+        public void AddPendingCommand<T>(T command, Action<T> dlg) where T : ILockstepCommand
         {
-            List<ILockstepCommand> commands;
-            if(!_pendingCommands.TryGetValue(command.Turn, out commands))
+            AddPendingCommand(command, new LockstepCommandLogic<T>(dlg));
+        }
+
+        public void AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
+        {
+            var commandData = new LockstepCommandData {
+                Id = _nextCommandId,
+                Command = command,
+                Turn = ExecutionTurn,
+                Logic = logic
+            };
+            _nextCommandId++;
+            AddPendingCommand(commandData);
+        }
+
+        public void AddPendingCommand(LockstepCommandData commandData)
+        {
+            List<LockstepCommandData> commands;
+            if(!_pendingCommands.TryGetValue(commandData.Turn, out commands))
             {
-                commands = new List<ILockstepCommand>();
-                _pendingCommands.Add(command.Turn, commands);
+                commands = new List<LockstepCommandData>();
+                _pendingCommands.Add(commandData.Turn, commands);
             }
-            commands.Add(command);
+            commands.Add(commandData);
             if(PendingCommandAdded != null)
             {
-                PendingCommandAdded(command);
+                PendingCommandAdded(commandData);
             }
         }
 
@@ -211,7 +250,7 @@ namespace SocialPoint.Lockstep
             return _confirmedCommands.ContainsKey(turn);
         }
 
-        public void ConfirmTurn(int turn, List<ILockstepCommand> commands)
+        public void ConfirmTurn(int turn, List<LockstepCommandData> commands)
         {
             DoConfirmTurn(turn, commands);
             if(TurnsConfirmed != null)
@@ -220,7 +259,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void DoConfirmTurn(int turn, List<ILockstepCommand> commands)
+        public void DoConfirmTurn(int turn, List<LockstepCommandData> commands)
         {
             _confirmedCommands[turn] = commands;
         }
@@ -240,21 +279,21 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddConfirmedCommand(ILockstepCommand command)
+        public void AddConfirmedCommand(LockstepCommandData commandData)
         {
-            List<ILockstepCommand> commands;
-            if(!_confirmedCommands.TryGetValue(command.Turn, out commands))
+            List<LockstepCommandData> commands;
+            if(!_confirmedCommands.TryGetValue(commandData.Turn, out commands))
             {
-                commands = new List<ILockstepCommand>();
-                _confirmedCommands.Add(command.Turn, commands);
+                commands = new List<LockstepCommandData>();
+                _confirmedCommands.Add(commandData.Turn, commands);
             }
-            commands.Add(command);
+            commands.Add(commandData);
         }
 
         void ConsumeTurn(int turn)
         {
-            List<ILockstepCommand> commands;
-            List<ILockstepCommand> pendingCommands = null;
+            List<LockstepCommandData> commands;
+            List<LockstepCommandData> pendingCommands = null;
             if(_pendingCommands.TryGetValue(turn, out pendingCommands))
             {
                 _pendingCommands.Remove(turn);
@@ -316,13 +355,32 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        void ApplyCommand(ILockstepCommand command)
+        void ApplyCommand(LockstepCommandData command)
         {
+            var itr = _commandLogics.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                if(itr.Current.Key.IsAssignableFrom(command.Command.GetType()))
+                {
+                    itr.Current.Value.Apply(command.Command);
+                }
+            }
+            itr.Dispose();
             command.Apply();
             if(CommandApplied != null)
             {
                 CommandApplied(command);
             }
+        }
+
+        public void Pause()
+        {
+            _lastTimestamp = long.MaxValue;
+        }
+
+        public void Resume()
+        {
+            _lastTimestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
         }
 
         #region IUpdateable implementation
@@ -331,7 +389,7 @@ namespace SocialPoint.Lockstep
         {
             long timestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
             long elapsedTime = (long)(DesiredSimulationSpeed * (float)(timestamp - _lastTimestamp));
-            if(elapsedTime <= 0)
+            if(elapsedTime <= 0 && DesiredSimulationSpeed > 0f)
             {
                 return;
             }
@@ -361,7 +419,7 @@ namespace SocialPoint.Lockstep
                     }
                 }
                 _lastRawModelSimulationTime = nextModelSimulationTime;
-                _simulationSpeed = (float)elapsedSimulationTime / (float)elapsedTime;
+                _simulationSpeed = elapsedTime > 0f ? ((float)elapsedSimulationTime / (float)elapsedTime) : 0f; 
             }
             else
             {

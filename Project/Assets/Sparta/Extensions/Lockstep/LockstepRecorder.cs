@@ -1,43 +1,42 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System;
 using SocialPoint.IO;
-using System.IO;
-using UnityEngine.Networking;
+using SocialPoint.Utils;
 using SocialPoint.Lockstep.Network;
 
 namespace SocialPoint.Lockstep
 {
-    public sealed class LockstepRecorder : IDisposable
+    public class LockstepRecorder : IDisposable
     {
         ClientLockstepController _clientLockstep;
-        LockstepCommandDataFactory _commandDataFactory;
-        List<ILockstepCommand> _recordedCommands;
+        LockstepCommandFactory _commandFactory;
+        List<LockstepCommandData> _recordedCommands;
 
-        public LockstepRecorder(ClientLockstepController clientLockstep, LockstepCommandDataFactory commandDataFactory)
+        public LockstepRecorder(ClientLockstepController clientLockstep, LockstepCommandFactory commandFactory)
         {
-            _recordedCommands = new List<ILockstepCommand>();
+            _recordedCommands = new List<LockstepCommandData>();
             _clientLockstep = clientLockstep;
-            _commandDataFactory = commandDataFactory;
+            _commandFactory = commandFactory;
             _clientLockstep.CommandApplied += OnCommandApplied;
         }
 
-        void OnCommandApplied(ILockstepCommand command)
+        void OnCommandApplied(LockstepCommandData command)
         {
             _recordedCommands.Add(command);
         }
 
         public void Serialize(IWriter writer)
         {
-            SetLockstepConfigMessage configMessage = new SetLockstepConfigMessage(0, _clientLockstep.LockstepConfig);
-            configMessage.Serialize(writer);
+            var setup = new ClientSetupMessage( _clientLockstep.LockstepConfig);
+            setup.Serialize(writer);
             writer.Write(_recordedCommands.Count);
             for(int i = 0; i < _recordedCommands.Count; ++i)
             {
                 var command = _recordedCommands[i];
-                writer.Write(command.Turn);
-                _commandDataFactory.CreateNetworkLockstepCommandData(command).Serialize(writer);
+                command.Serialize(_commandFactory, writer);
             }
         }
 

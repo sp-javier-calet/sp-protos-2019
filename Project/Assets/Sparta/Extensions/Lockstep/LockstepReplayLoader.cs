@@ -1,6 +1,5 @@
 ﻿using SocialPoint.Lockstep.Network;
-using UnityEngine.Networking;
-using System.IO;
+using SocialPoint.Utils;
 using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
@@ -9,17 +8,17 @@ namespace SocialPoint.Lockstep
     {
         public static void LoadReplay(IReader reader, 
                                       ClientLockstepController clientLockstep,
-                                      LockstepCommandDataFactory commandDataFactory)
+                                      LockstepCommandFactory commandFactory)
         {
-            SetLockstepConfigMessage configMessage = new SetLockstepConfigMessage();
+            var configMessage = new ClientSetupMessage();
             configMessage.Deserialize(reader);
             clientLockstep.Init(configMessage.Config);
             int count = reader.ReadInt32();
             clientLockstep.NeedsTurnConfirmation = false;
             for(int i = 0; i < count; ++i)
             {
-                int turn = reader.ReadInt32();
-                var command = commandDataFactory.CreateNetworkLockstepCommandData(turn, reader).LockstepCommand;
+                var command = new LockstepCommandData();
+                command.Deserialize(commandFactory, reader);
                 clientLockstep.AddConfirmedCommand(command);
             }
         }

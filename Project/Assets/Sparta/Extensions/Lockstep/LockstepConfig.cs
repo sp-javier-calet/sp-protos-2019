@@ -1,6 +1,9 @@
-﻿namespace SocialPoint.Lockstep
+﻿using SocialPoint.IO;
+
+namespace SocialPoint.Lockstep
 {
-    public sealed class LockstepConfig
+    [System.Serializable]
+    public sealed class LockstepConfig : INetworkShareable
     {
         // The commands will be only processed every CommandStepFactor simulation steps reached
         public int CommandStepFactor = 10;
@@ -30,5 +33,25 @@
 
         // Maximum retries allowed per command
         public int MaxRetries = 2;
+
+        public void Deserialize(IReader reader)
+        {
+            CommandStepFactor = reader.ReadInt32();
+            SimulationStep = reader.ReadInt32();
+            MinExecutionTurnAnticipation = reader.ReadInt32();
+            MaxExecutionTurnAnticipation = reader.ReadInt32();
+            ExecutionTurnAnticipation = reader.ReadInt32();
+            MaxRetries = reader.ReadInt32();
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(CommandStepFactor);
+            writer.Write(SimulationStep);
+            writer.Write(MinExecutionTurnAnticipation);
+            writer.Write(MaxExecutionTurnAnticipation);
+            writer.Write(ExecutionTurnAnticipation);
+            writer.Write(MaxRetries);
+        }
     }
 }

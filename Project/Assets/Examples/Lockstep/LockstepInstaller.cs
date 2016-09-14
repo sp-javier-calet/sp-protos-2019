@@ -4,17 +4,20 @@ using SocialPoint.Lockstep;
 using SocialPoint.Utils;
 using System;
 
+public static class GameLockstepMsgType
+{
+    public static byte Click = 1;
+}
+
 public class LockstepInstaller : Installer
 {
     [Serializable]
     public class SettingsData
     {
-        public int Clients = 2;
         public long CommandStep = 300;
     }
 
     public SettingsData Settings = new SettingsData();
-
 
     public override void InstallBindings()
     {
@@ -32,12 +35,13 @@ public class LockstepInstaller : Installer
 
     ClientLockstepController CreateClientController()
     {
-        var ctrl = new ClientLockstepController(
-                       Container.Resolve<LockstepModel>(),
-                       Container.Resolve<IUpdateScheduler>()
-                   );
+        var model = Container.Resolve<LockstepModel>();
+        var ctrl = new ClientLockstepController(model,
+               Container.Resolve<IUpdateScheduler>()
+       );
         ctrl.Init(new LockstepConfig {
         });
+        ctrl.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(model));
         return ctrl;
     }
 
@@ -45,7 +49,7 @@ public class LockstepInstaller : Installer
     {
         var ctrl = new ServerLockstepController(
                        Container.Resolve<IUpdateScheduler>(),
-                       Settings.Clients, Settings.CommandStep);
+                       Settings.CommandStep);
         return ctrl;
     }
 

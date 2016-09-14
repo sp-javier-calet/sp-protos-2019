@@ -36,7 +36,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
         _model.OnInstantiate -= OnInstantiate;
     }
 
-    void AutoConfirmCommand(ILockstepCommand c)
+    void AutoConfirmCommand(LockstepCommandData c)
     {
         _lockstep.AddConfirmedCommand(c);
     }
@@ -56,16 +56,11 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     {
         var p = eventData.pointerPressRaycast.worldPosition;
         var cmd = new ClickCommand(
-                      (Fix64)p.x, (Fix64)p.y, (Fix64)p.z,
-                      _lockstep.ExecutionTurn, _model);
+                      (Fix64)p.x, (Fix64)p.y, (Fix64)p.z);
 
         var loading = SocialPoint.ObjectPool.ObjectPool.Spawn(
                           _loadingPrefab, transform, p, Quaternion.identity);
-
-        cmd.Applied += (arg1, arg2) => FinishLoading(loading);
-        cmd.Discarded += (obj) => FinishLoading(loading);
-
-        _lockstep.AddPendingCommand(cmd);
+        _lockstep.AddPendingCommand(cmd, (c) => FinishLoading(loading));
     }
 
     public void FinishLoading(GameObject loading)
