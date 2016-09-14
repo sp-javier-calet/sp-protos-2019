@@ -70,7 +70,13 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public bool NeedsTurnConfirmation { get; set; }
+        bool NeedsTurnConfirmation
+        {
+            get
+            {
+                return PendingCommandAdded != null;
+            }
+        }
 
         public float TurnAnticipationAdjustmentFactor { get; set; }
 
@@ -242,6 +248,10 @@ namespace SocialPoint.Lockstep
             if(PendingCommandAdded != null)
             {
                 PendingCommandAdded(commandData);
+            }
+            else
+            {
+                AddConfirmedCommand(commandData);
             }
         }
 

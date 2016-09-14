@@ -23,8 +23,6 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _lockstep = ServiceLocator.Instance.Resolve<ClientLockstepController>();
-        _lockstep.PendingCommandAdded += AutoConfirmCommand;
-        _lockstep.NeedsTurnConfirmation = false;
         _model = ServiceLocator.Instance.Resolve<LockstepModel>();
         _model.OnInstantiate += OnInstantiate;
         _lockstep.Start(TimeUtils.TimestampMilliseconds);
@@ -32,13 +30,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     void OnDestroy()
     {
-        _lockstep.PendingCommandAdded -= AutoConfirmCommand;
         _model.OnInstantiate -= OnInstantiate;
-    }
-
-    void AutoConfirmCommand(LockstepCommandData c)
-    {
-        _lockstep.AddConfirmedCommand(c);
     }
 
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)
