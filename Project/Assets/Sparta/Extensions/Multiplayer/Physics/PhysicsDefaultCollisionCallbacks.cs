@@ -9,7 +9,7 @@ namespace SocialPoint.Multiplayer
     {
         public class PersistentManifoldList
         {
-            public List<PersistentManifold> manifolds = new List<PersistentManifold>();
+            public List<PersistentManifold> Manifolds = new List<PersistentManifold>();
         }
 
         protected CollisionObject _collisionObject;
@@ -41,7 +41,7 @@ namespace SocialPoint.Multiplayer
                 pml = new PersistentManifoldList();
                 _newContacts.Add(pml);
             }
-            pml.manifolds.Add(pm);
+            pml.Manifolds.Add(pm);
         }
 
         public void OnFinishedVisitingManifolds()
@@ -50,7 +50,7 @@ namespace SocialPoint.Multiplayer
             foreach(CollisionObject co in _otherObjs2ManifoldMap.Keys)
             {
                 PersistentManifoldList pml = _otherObjs2ManifoldMap[co];
-                if(pml.manifolds.Count > 0)
+                if(pml.Manifolds.Count > 0)
                 {
                     OnCollisionStay(co, pml);
                 }
@@ -72,13 +72,13 @@ namespace SocialPoint.Multiplayer
             {
                 PersistentManifoldList pml = _newContacts[i];
                 CollisionObject other;
-                if(pml.manifolds[0].Body0 == _collisionObject)
+                if(pml.Manifolds[0].Body0 == _collisionObject)
                 {
-                    other = pml.manifolds[0].Body1;
+                    other = pml.Manifolds[0].Body1;
                 }
                 else
                 {
-                    other = pml.manifolds[0].Body0;
+                    other = pml.Manifolds[0].Body0;
                 }
                 _otherObjs2ManifoldMap.Add(other, pml);
                 OnCollisionEnter(other, pml);
@@ -88,7 +88,7 @@ namespace SocialPoint.Multiplayer
             foreach(CollisionObject co in _otherObjs2ManifoldMap.Keys)
             {
                 PersistentManifoldList pml = _otherObjs2ManifoldMap[co];
-                pml.manifolds.Clear();
+                pml.Manifolds.Clear();
             }
         }
 

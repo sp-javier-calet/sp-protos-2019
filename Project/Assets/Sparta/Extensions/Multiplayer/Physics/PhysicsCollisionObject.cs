@@ -13,26 +13,6 @@ namespace SocialPoint.Multiplayer
             private set;
         }
 
-        public CollisionFlags CollisionFlags
-        {
-            get;
-            private set;
-        }
-
-        // A colliding object must match this mask in order to collide with me.
-        public CollisionFilterGroups CollisionMask
-        {
-            get;
-            private set;
-        }
-
-        // A bitmask
-        public CollisionFilterGroups GroupsIBelongTo
-        {
-            get;
-            private set;
-        }
-
         public virtual ICollisionCallbackEventHandler CollisionCallbackEventHandler
         {
             get;
@@ -50,23 +30,55 @@ namespace SocialPoint.Multiplayer
         protected CollisionObject _collisionObject;
         protected PhysicsWorld _physicsWorld;
         protected PhysicsCollisionShape _collisionShape;
+        protected CollisionFlags _collisionFlags;
+        protected CollisionFilterGroups _collisionMask;
+        protected CollisionFilterGroups _groupsIBelongTo;
         protected PhysicsDebugger _debugger;
-        internal bool IsInWorld = false;
+        protected bool _isInWorld = false;
+
+        public PhysicsCollisionObject(PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger)
+            : this(shape, physicsWorld, debugger, BulletSharp.CollisionFlags.None)
+        {
+        }
 
         public PhysicsCollisionObject(PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger, 
-                                      CollisionFlags collisionFlags = BulletSharp.CollisionFlags.None, 
-                                      CollisionFilterGroups collisionMask = BulletSharp.CollisionFilterGroups.AllFilter, 
-                                      CollisionFilterGroups belongGroups = BulletSharp.CollisionFilterGroups.DefaultFilter)
+                                      CollisionFlags collisionFlags)
+            : this(shape, physicsWorld, debugger, collisionFlags, BulletSharp.CollisionFilterGroups.AllFilter, BulletSharp.CollisionFilterGroups.DefaultFilter)
+        {
+        }
+
+        public PhysicsCollisionObject(PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger, 
+                                      CollisionFlags collisionFlags, 
+                                      CollisionFilterGroups collisionMask)
+            : this(shape, physicsWorld, debugger, collisionFlags, collisionMask, BulletSharp.CollisionFilterGroups.DefaultFilter)
+        {
+        }
+
+        public PhysicsCollisionObject(PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger, 
+                                      CollisionFlags collisionFlags, 
+                                      CollisionFilterGroups collisionMask, 
+                                      CollisionFilterGroups belongGroups)
         {
             _collisionShape = shape;
             _physicsWorld = physicsWorld;
             _debugger = debugger;
 
-            CollisionFlags = collisionFlags;
-            CollisionMask = collisionMask;
-            GroupsIBelongTo = belongGroups;
+            _collisionFlags = collisionFlags;
+            _collisionMask = collisionMask;
+            _groupsIBelongTo = belongGroups;
 
             BuildCollisionObject();
+        }
+
+        public Object Clone()
+        {
+            //TODO: Improve Clone (clone shape, etc, to avoid multiple dispose)
+            var behavior = new PhysicsCollisionObject(_collisionShape, _physicsWorld, _debugger, _collisionFlags);
+            behavior.NetworkGameObject = NetworkGameObject;
+            //behavior._collisionObject = _collisionObject;
+            //behavior.IsInWorld = IsInWorld;
+            behavior.CollisionCallbackEventHandler = CollisionCallbackEventHandler;
+            return behavior;
         }
 
         public virtual void OnStart(NetworkGameObject go)
@@ -75,6 +87,20 @@ namespace SocialPoint.Multiplayer
             _collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
 
             AddObjectToBulletWorld();
+        }
+
+        public virtual void Update(float dt)
+        {
+            //TODO: Try to reduce the number of matrix creations (use dirty?)
+            _collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
+        }
+
+        public virtual void OnDestroy()
+        {
+            RemoveObjectFromBulletWorld();
+
+            PhysicsUtilities.DisposeMember(ref _collisionShape);
+            PhysicsUtilities.DisposeMember(ref _collisionObject);
         }
 
         public virtual void AddOnCollisionCallbackEventHandler(ICollisionCallbackEventHandler myCallback)
@@ -100,7 +126,7 @@ namespace SocialPoint.Multiplayer
         {
             if(_collisionObject != null)
             {
-                if(IsInWorld && _physicsWorld != null)
+                if(_isInWorld && _physicsWorld != null)
                 {
                     _physicsWorld.RemoveCollisionObject(_collisionObject);
                 }
@@ -120,54 +146,32 @@ namespace SocialPoint.Multiplayer
             }
             _collisionObject.CollisionShape = cs;
             _collisionObject.UserObject = this;
-            _collisionObject.CollisionFlags = CollisionFlags;
+            _collisionObject.CollisionFlags = _collisionFlags;
 
             return true;
         }
 
         protected virtual void AddObjectToBulletWorld()
         {
-            _physicsWorld.AddCollisionObject(this);
+            if(!_isInWorld)
+            {
+                _physicsWorld.AddCollisionObject(_collisionObject, _groupsIBelongTo, _collisionMask);
+                _isInWorld = true;
+            }
         }
 
         protected virtual void RemoveObjectFromBulletWorld()
         {
-            _physicsWorld.RemoveCollisionObject(_collisionObject);
-        }
-
-        public virtual void Update(float dt)
-        {
-            //TODO: Try to reduce the number of matrix creations (use dirty?)
-            _collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
-        }
-
-        public virtual void OnDestroy()
-        {
-            if(IsInWorld && _collisionObject != null)
+            if(_isInWorld)
             {
-                if(_physicsWorld != null && _physicsWorld.world != null)
-                {
-                    ((DiscreteDynamicsWorld)_physicsWorld.world).RemoveCollisionObject(_collisionObject);
-                }
+                _physicsWorld.RemoveCollisionObject(_collisionObject);
+                _isInWorld = false;
             }
-            PhysicsUtilities.DisposeMember(ref _collisionShape);
-            PhysicsUtilities.DisposeMember(ref _collisionObject);
-        }
-
-        public Object Clone()
-        {
-            //TODO: Improve Clone (clone shape, etc, to avoid multiple dispose)
-            var behavior = new PhysicsCollisionObject(_collisionShape, _physicsWorld, _debugger, CollisionFlags);
-            behavior.NetworkGameObject = NetworkGameObject;
-            //behavior._collisionObject = _collisionObject;
-            //behavior.IsInWorld = IsInWorld;
-            behavior.CollisionCallbackEventHandler = CollisionCallbackEventHandler;
-            return behavior;
         }
 
         public virtual void SetPosition(Vector3 position)
         {
-            if(IsInWorld)
+            if(_isInWorld)
             {
                 Matrix newTrans = _collisionObject.WorldTransform;
                 newTrans.Origin = position;
@@ -178,7 +182,7 @@ namespace SocialPoint.Multiplayer
 
         public virtual void SetRotation(Quaternion rotation)
         {
-            if(IsInWorld)
+            if(_isInWorld)
             {
                 Matrix newTrans = _collisionObject.WorldTransform;
                 Quaternion q = rotation;
@@ -191,7 +195,7 @@ namespace SocialPoint.Multiplayer
 
         public virtual void SetPositionAndRotation(Vector3 position, Quaternion rotation)
         {
-            if(IsInWorld)
+            if(_isInWorld)
             {
                 Matrix newTrans = _collisionObject.WorldTransform;
                 Quaternion q = rotation;

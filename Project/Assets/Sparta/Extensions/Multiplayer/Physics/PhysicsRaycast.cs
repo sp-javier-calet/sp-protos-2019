@@ -109,7 +109,7 @@ namespace SocialPoint.Multiplayer
 
         private static bool Raycast(ref Vector3 startPoint, ref Vector3 endPoint, PhysicsWorld physicsWorld, RayResultCallback rayResult)
         {
-            physicsWorld.world.RayTestRef(ref startPoint, ref endPoint, rayResult);
+            physicsWorld.CollisionWorld.RayTestRef(ref startPoint, ref endPoint, rayResult);
             return rayResult.HasHit;
         }
 

@@ -9,10 +9,6 @@ namespace SocialPoint.Multiplayer
 {
     public class PhysicsGameObjectMotionState : MotionState
     {
-        public delegate void GetTransformDelegate(out BM.Matrix worldTrans);
-
-        public delegate void SetTransformDelegate(ref BM.Matrix m);
-
         public Transform Transform
         {
             set
