@@ -141,6 +141,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     {
         _physicsWorld = new PhysicsWorld(new PhysicsDefaultCollisionHandler(), _physicsDebugger);
         _physicsWorld.DoDebugDraw = true;
+
         _controller.AddBehaviour(_physicsWorld);
     }
 
@@ -151,7 +152,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
         rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
 
-        _controller.AddRigidbody(go.Id, rigidBody);
+        _controller.AddBehaviour(go.Id, rigidBody);
     }
 
     public bool ClosestIntersectsRay(NetworkGameObject gameObject, Ray ray)
@@ -161,7 +162,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             return false;
         }
 
-        float maxDistance = 100;
+        float maxDistance = 100f;
         var rayResultClosest = new PhysicsRaycast.ClosestResult();
 
         if(PhysicsRaycast.Raycast(ray, maxDistance, _physicsWorld, out rayResultClosest))

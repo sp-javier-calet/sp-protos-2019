@@ -9,25 +9,331 @@ namespace SocialPoint.Multiplayer
     {
         RigidBody _rigidBody;
         PhysicsGameObjectMotionState _motionState;
-        Vector3 _localInertia = Vector3.Zero;
+
+        float _mass = 1f;
+        Vector3 _linearVelocity;
+        Vector3 _angularVelocity;
 
         float _friction = .5f;
         float _rollingFriction = 0f;
         float _linearDamping = 0f;
-        float _restitution = 0f;
         float _angularDamping = 0f;
+        float _restitution = 0f;
         float _linearSleepingThreshold = .8f;
         float _angularSleepingThreshold = 1f;
         bool _additionalDamping = false;
         float _additionalDampingFactor = .005f;
+        float _additionalAngularDampingFactor = .01f;
         float _additionalLinearDampingThresholdSqr = .01f;
         float _additionalAngularDampingThresholdSqr = .01f;
+
         Vector3 _linearFactor = Vector3.One;
         Vector3 _angularFactor = Vector3.One;
-        float _mass = 1f;
-        float _additionalAngularDampingFactor = .01f;
-        protected Vector3 _linearVelocity;
-        protected Vector3 _angularVelocity;
+        Vector3 _localInertia = Vector3.Zero;
+
+        public float Mass
+        {
+            get
+            {
+                return _mass;
+            }
+            set
+            {
+                if(_mass != value)
+                {
+                    if(_mass == 0f && IsDynamic())
+                    {
+                        _debugger.LogError("Rigid bodies that are not static or kinematic must have positive mass");
+                        return;
+                    }
+                    if(_rigidBody != null)
+                    {
+                        _localInertia = Vector3.Zero;
+                        if(IsDynamic())
+                        {
+                            _collisionShape.GetCollisionShape().CalculateLocalInertia(_mass, out _localInertia);
+                        }
+                        _rigidBody.SetMassProps(_mass, _localInertia);
+                    }
+                    _mass = value;
+                }
+            }
+        }
+
+        public Vector3 Velocity
+        {
+            get
+            {
+                if(_isInWorld)
+                {
+                    return _rigidBody.LinearVelocity;
+                }
+                else
+                {
+                    return _linearVelocity;
+                }
+            }
+            set
+            {
+                if(_isInWorld)
+                {
+                    _rigidBody.LinearVelocity = value;
+                }
+                _linearVelocity = value;
+            }
+        }
+
+        public Vector3 AngularVelocity
+        {
+            get
+            {
+                if(_isInWorld)
+                {
+                    return _rigidBody.AngularVelocity;
+                }
+                else
+                {
+                    return _angularVelocity;
+                }
+            }
+            set
+            {
+                if(_isInWorld)
+                {
+                    _rigidBody.AngularVelocity = value;
+                }
+                _angularVelocity = value;
+            }
+        }
+
+        public float Friction
+        {
+            get
+            { 
+                return _friction; 
+            }
+            set
+            {
+                if(_collisionObject != null && _friction != value)
+                {
+                    _collisionObject.Friction = value;
+                }
+                _friction = value;
+            }
+        }
+
+        public float RollingFriction
+        {
+            get
+            { 
+                return _rollingFriction; 
+            }
+            set
+            {
+                if(_collisionObject != null && _rollingFriction != value)
+                {
+                    _collisionObject.RollingFriction = value;
+                }
+                _rollingFriction = value;
+            }
+        }
+
+        public float LinearDamping
+        {
+            get
+            { 
+                return _linearDamping; 
+            }
+            set
+            {
+                if(_collisionObject != null && _linearDamping != value)
+                {
+                    _rigidBody.SetDamping(value, _angularDamping);
+                }
+                _linearDamping = value;
+            }
+        }
+
+        public float AngularDamping
+        {
+            get
+            { 
+                return _angularDamping; 
+            }
+            set
+            {
+                if(_collisionObject != null && _angularDamping != value)
+                {
+                    _rigidBody.SetDamping(_linearDamping, value);
+                }
+                _angularDamping = value;
+            }
+        }
+
+        public float Restitution
+        {
+            get
+            { 
+                return _restitution; 
+            }
+            set
+            {
+                if(_collisionObject != null && _restitution != value)
+                {
+                    _collisionObject.Restitution = value;
+                }
+                _restitution = value;
+            }
+        }
+
+        public float LinearSleepingThreshold
+        {
+            get
+            { 
+                return _linearSleepingThreshold; 
+            }
+            set
+            {
+                if(_collisionObject != null && _linearSleepingThreshold != value)
+                {
+                    _rigidBody.SetSleepingThresholds(value, _angularSleepingThreshold);
+                }
+                _linearSleepingThreshold = value;
+            }
+        }
+
+        public float AngularSleepingThreshold
+        {
+            get
+            { 
+                return _angularSleepingThreshold; 
+            }
+            set
+            {
+                if(_collisionObject != null && _angularSleepingThreshold != value)
+                {
+                    _rigidBody.SetSleepingThresholds(_linearSleepingThreshold, value);
+                }
+                _angularSleepingThreshold = value;
+            }
+        }
+
+        public bool AdditionalDamping
+        {
+            get
+            { 
+                return _additionalDamping; 
+            }
+            set
+            {
+                if(_isInWorld && _additionalDamping != value)
+                {
+                    _debugger.LogError("Need to remove and re-add the rigid body to change additional damping setting");
+                    return;
+                }
+                _additionalDamping = value;
+            }
+        }
+
+        public float AdditionalDampingFactor
+        {
+            get
+            { 
+                return _additionalDampingFactor; 
+            }
+            set
+            {
+                if(_collisionObject != null && _additionalDampingFactor != value)
+                {
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    return;
+                }
+                _additionalDampingFactor = value;
+            }
+        }
+
+        public float AdditionalLinearDampingThresholdSqr
+        {
+            get
+            { 
+                return _additionalLinearDampingThresholdSqr; 
+            }
+            set
+            {
+                if(_collisionObject != null && _additionalLinearDampingThresholdSqr != value)
+                {
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    return;
+                }
+                _additionalLinearDampingThresholdSqr = value;
+            }
+        }
+
+        public float AdditionalAngularDampingThresholdSqr
+        {
+            get
+            { 
+                return _additionalAngularDampingThresholdSqr; 
+            }
+            set
+            {
+                if(_collisionObject != null && _additionalAngularDampingThresholdSqr != value)
+                {
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    return;
+                }
+                _additionalAngularDampingThresholdSqr = value;
+            }
+        }
+
+        public float AdditionalAngularDampingFactor
+        {
+            get
+            { 
+                return _additionalAngularDampingFactor; 
+            }
+            set
+            {
+                if(_collisionObject != null && _additionalAngularDampingFactor != value)
+                {
+                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
+                    return;
+                }
+                _additionalAngularDampingFactor = value;
+            }
+        }
+
+        public Vector3 LinearFactor
+        {
+            get
+            { 
+                return _linearFactor; 
+            }
+            set
+            {
+                if(_collisionObject != null && _linearFactor != value)
+                {
+                    _rigidBody.LinearFactor = value;
+                }
+                _linearFactor = value;
+            }
+        }
+
+        public Vector3 AngularFactor
+        {
+            get
+            { 
+                return _angularFactor; 
+            }
+            set
+            {
+                if(_rigidBody != null && _angularFactor != value)
+                {
+                    _rigidBody.AngularFactor = value;
+                }
+                _angularFactor = value;
+            }
+        }
 
         public PhysicsRigidBody(PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger)
             : base(shape, physicsWorld, debugger)
@@ -55,6 +361,28 @@ namespace SocialPoint.Multiplayer
         {
         }
 
+        public PhysicsRigidBody(RigidBodyConstructionInfo rbInfo, PhysicsCollisionShape shape, PhysicsWorld physicsWorld, PhysicsDebugger debugger, 
+                                CollisionFlags collisionFlags, 
+                                CollisionFilterGroups collisionMask, 
+                                CollisionFilterGroups belongGroups)
+            : base(shape, physicsWorld, debugger, collisionFlags, collisionMask, belongGroups)
+        {
+            _mass = rbInfo.Mass;
+            _localInertia = rbInfo.LocalInertia;
+            _friction = rbInfo.Friction;
+            _rollingFriction = rbInfo.RollingFriction;
+            _linearDamping = rbInfo.LinearDamping;
+            _angularDamping = rbInfo.AngularDamping;
+            _restitution = rbInfo.Restitution;
+            _linearSleepingThreshold = rbInfo.LinearSleepingThreshold;
+            _angularSleepingThreshold = rbInfo.AngularSleepingThreshold;
+            _additionalDamping = rbInfo.AdditionalDamping;
+            _additionalDampingFactor = rbInfo.AdditionalDampingFactor;
+            _additionalAngularDampingFactor = rbInfo.AdditionalAngularDampingFactor;
+            _additionalLinearDampingThresholdSqr = rbInfo.AdditionalLinearDampingThresholdSqr;
+            _additionalAngularDampingThresholdSqr = rbInfo.AdditionalAngularDampingThresholdSqr;
+        }
+
         public override void OnStart(NetworkGameObject go)
         {
             _motionState.Transform = go.Transform;
@@ -78,310 +406,6 @@ namespace SocialPoint.Multiplayer
         {
             return (_collisionFlags & BulletSharp.CollisionFlags.StaticObject) != BulletSharp.CollisionFlags.StaticObject
             && (_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != BulletSharp.CollisionFlags.KinematicObject;
-        }
-
-        public float friction
-        {
-            get
-            { 
-                return _friction; 
-            }
-            set
-            {
-                if(_collisionObject != null && _friction != value)
-                {
-                    _collisionObject.Friction = value;
-                }
-                _friction = value;
-            }
-        }
-
-        public float rollingFriction
-        {
-            get
-            { 
-                return _rollingFriction; 
-            }
-            set
-            {
-                if(_collisionObject != null && _rollingFriction != value)
-                {
-                    _collisionObject.RollingFriction = value;
-                }
-                _rollingFriction = value;
-            }
-        }
-
-        public float linearDamping
-        {
-            get
-            { 
-                return _linearDamping; 
-            }
-            set
-            {
-                if(_collisionObject != null && _linearDamping != value)
-                {
-                    _rigidBody.SetDamping(value, _angularDamping);
-                }
-                _linearDamping = value;
-            }
-        }
-
-        public float angularDamping
-        {
-            get
-            { 
-                return _angularDamping; 
-            }
-            set
-            {
-                if(_collisionObject != null && _angularDamping != value)
-                {
-                    _rigidBody.SetDamping(_linearDamping, value);
-                }
-                _angularDamping = value;
-            }
-        }
-
-        public float restitution
-        {
-            get
-            { 
-                return _restitution; 
-            }
-            set
-            {
-                if(_collisionObject != null && _restitution != value)
-                {
-                    _collisionObject.Restitution = value;
-                }
-                _restitution = value;
-            }
-        }
-
-        public float linearSleepingThreshold
-        {
-            get
-            { 
-                return _linearSleepingThreshold; 
-            }
-            set
-            {
-                if(_collisionObject != null && _linearSleepingThreshold != value)
-                {
-                    _rigidBody.SetSleepingThresholds(value, _angularSleepingThreshold);
-                }
-                _linearSleepingThreshold = value;
-            }
-        }
-
-        public float angularSleepingThreshold
-        {
-            get
-            { 
-                return _angularSleepingThreshold; 
-            }
-            set
-            {
-                if(_collisionObject != null && _angularSleepingThreshold != value)
-                {
-                    _rigidBody.SetSleepingThresholds(_linearSleepingThreshold, value);
-                }
-                _angularSleepingThreshold = value;
-            }
-        }
-
-        public bool additionalDamping
-        {
-            get
-            { 
-                return _additionalDamping; 
-            }
-            set
-            {
-                if(_isInWorld && _additionalDamping != value)
-                {
-                    _debugger.LogError("Need to remove and re-add the rigid body to change additional damping setting");
-                    return;
-                }
-                _additionalDamping = value;
-            }
-        }
-
-        public float additionalDampingFactor
-        {
-            get
-            { 
-                return _additionalDampingFactor; 
-            }
-            set
-            {
-                if(_collisionObject != null && _additionalDampingFactor != value)
-                {
-                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
-                    return;
-                }
-                _additionalDampingFactor = value;
-            }
-        }
-
-        public float additionalLinearDampingThresholdSqr
-        {
-            get
-            { 
-                return _additionalLinearDampingThresholdSqr; 
-            }
-            set
-            {
-                if(_collisionObject != null && _additionalLinearDampingThresholdSqr != value)
-                {
-                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
-                    return;
-                }
-                _additionalLinearDampingThresholdSqr = value;
-            }
-        }
-
-        public float additionalAngularDampingThresholdSqr
-        {
-            get
-            { 
-                return _additionalAngularDampingThresholdSqr; 
-            }
-            set
-            {
-                if(_collisionObject != null && _additionalAngularDampingThresholdSqr != value)
-                {
-                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
-                    return;
-                }
-                _additionalAngularDampingThresholdSqr = value;
-            }
-        }
-
-        public float additionalAngularDampingFactor
-        {
-            get
-            { 
-                return _additionalAngularDampingFactor; 
-            }
-            set
-            {
-                if(_collisionObject != null && _additionalAngularDampingFactor != value)
-                {
-                    _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
-                    return;
-                }
-                _additionalAngularDampingFactor = value;
-            }
-        }
-
-        public Vector3 linearFactor
-        {
-            get
-            { 
-                return _linearFactor; 
-            }
-            set
-            {
-                if(_collisionObject != null && _linearFactor != value)
-                {
-                    _rigidBody.LinearFactor = value;
-                }
-                _linearFactor = value;
-            }
-        }
-
-        public Vector3 angularFactor
-        {
-            get
-            { 
-                return _angularFactor; 
-            }
-            set
-            {
-                if(_rigidBody != null && _angularFactor != value)
-                {
-                    _rigidBody.AngularFactor = value;
-                }
-                _angularFactor = value;
-            }
-        }
-
-        public float mass
-        {
-            set
-            {
-                if(_mass != value)
-                {
-                    if(_mass == 0f && IsDynamic())
-                    {
-                        _debugger.LogError("Rigid bodies that are not static or kinematic must have positive mass");
-                        return;
-                    }
-                    if(_rigidBody != null)
-                    {
-                        _localInertia = Vector3.Zero;
-                        if(IsDynamic())
-                        {
-                            _collisionShape.GetCollisionShape().CalculateLocalInertia(_mass, out _localInertia);
-                        }
-                        _rigidBody.SetMassProps(_mass, _localInertia);
-                    }
-                    _mass = value;
-                }
-            }
-            get
-            {
-                return _mass;
-            }
-        }
-
-        public Vector3 velocity
-        {
-            get
-            {
-                if(_isInWorld)
-                {
-                    return _rigidBody.LinearVelocity;
-                }
-                else
-                {
-                    return _linearVelocity;
-                }
-            }
-            set
-            {
-                if(_isInWorld)
-                {
-                    _rigidBody.LinearVelocity = value;
-                }
-                _linearVelocity = value;
-            }
-        }
-
-        public Vector3 angularVelocity
-        {
-            get
-            {
-                if(_isInWorld)
-                {
-                    return _rigidBody.AngularVelocity;
-                }
-                else
-                {
-                    return _angularVelocity;
-                }
-            }
-            set
-            {
-                if(_isInWorld)
-                {
-                    _rigidBody.AngularVelocity = value;
-                }
-                _angularVelocity = value;
-            }
         }
 
         protected override bool BuildCollisionObject()
@@ -427,10 +451,10 @@ namespace SocialPoint.Multiplayer
                 rbInfo.LinearSleepingThreshold = _linearSleepingThreshold;
                 rbInfo.AngularSleepingThreshold = _angularSleepingThreshold;
                 rbInfo.AdditionalDamping = _additionalDamping;
-                rbInfo.AdditionalAngularDampingFactor = _additionalAngularDampingFactor;
-                rbInfo.AdditionalAngularDampingThresholdSqr = _additionalAngularDampingThresholdSqr;
                 rbInfo.AdditionalDampingFactor = _additionalDampingFactor;
+                rbInfo.AdditionalAngularDampingFactor = _additionalAngularDampingFactor;
                 rbInfo.AdditionalLinearDampingThresholdSqr = _additionalLinearDampingThresholdSqr;
+                rbInfo.AdditionalAngularDampingThresholdSqr = _additionalAngularDampingThresholdSqr;
 
                 //Important: Base _collisionObject must be the same as _rigidBody
                 _rigidBody = new RigidBody(rbInfo);
@@ -527,7 +551,6 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        
         //Warning for single pulses use AddImpulse. AddForce should only be used over a period of time (several fixedTimeSteps or longer)
         //The force accumulator is cleared after every StepSimulation call including interpolation StepSimulation calls which clear the force
         //accumulator and do nothing.

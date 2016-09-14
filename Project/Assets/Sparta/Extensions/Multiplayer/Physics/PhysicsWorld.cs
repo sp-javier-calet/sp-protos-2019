@@ -34,6 +34,68 @@ namespace SocialPoint.Multiplayer
         const int kAxis3SweepMaxProxies = 32766;
         const ulong kSequentialImpulseConstraintSolverRandomSeed = 12345;
 
+        Vector3 _gravity;
+
+        WorldType _worldType;
+        CollisionConfType _collisionType;
+        BroadphaseType _broadphaseType;
+        Vector3 _axis3SweepBroadphaseMin;
+        Vector3 _axis3SweepBroadphaseMax;
+
+        IPhysicsCollisionHandler _collisionEventHandler;
+        CollisionConfiguration _collisionConf;
+        CollisionDispatcher _dispatcher;
+        BroadphaseInterface _broadphase;
+        SoftBodyWorldInfo _softBodyWorldInfo;
+        SequentialImpulseConstraintSolver _solver;
+
+        CollisionWorld _world;
+        // Convenience variable so we arn't typecasting all the time.
+        DiscreteDynamicsWorld _ddWorld;
+
+        PhysicsDebugger _debugger;
+        DebugDrawModes _debugDrawMode = DebugDrawModes.DrawWireframe;
+        bool _doDebugDraw = false;
+
+        public float FixedTimeStep
+        {
+            get;
+            set;
+        }
+
+        public Vector3 Gravity
+        {
+            get
+            { 
+                return _gravity; 
+            }
+            set
+            {
+                if(_ddWorld != null)
+                {
+                    Vector3 grav = value;
+                    _ddWorld.SetGravity(ref grav);
+                }
+                _gravity = value;
+            }
+        }
+
+        public CollisionWorld CollisionWorld
+        {
+            get
+            { 
+                return _world; 
+            }
+        }
+
+        public WorldType Type
+        {
+            get
+            { 
+                return _worldType; 
+            }
+        }
+
         public DebugDrawModes DebugDrawMode
         {
             get
@@ -78,68 +140,6 @@ namespace SocialPoint.Multiplayer
                 _doDebugDraw = value;
             }
         }
-
-        public float FixedTimeStep
-        {
-            get;
-            set;
-        }
-
-        public Vector3 Gravity
-        {
-            get
-            { 
-                return _gravity; 
-            }
-            set
-            {
-                if(_ddWorld != null)
-                {
-                    Vector3 grav = value;
-                    _ddWorld.SetGravity(ref grav);
-                }
-                _gravity = value;
-            }
-        }
-
-        public CollisionWorld CollisionWorld
-        {
-            get
-            { 
-                return _world; 
-            }
-        }
-
-        public WorldType Type
-        {
-            get
-            { 
-                return _worldType; 
-            }
-        }
-
-        Vector3 _gravity;
-
-        WorldType _worldType;
-        CollisionConfType _collisionType;
-        BroadphaseType _broadphaseType;
-        Vector3 _axis3SweepBroadphaseMin;
-        Vector3 _axis3SweepBroadphaseMax;
-
-        IPhysicsCollisionHandler _collisionEventHandler;
-        CollisionConfiguration _collisionConf;
-        CollisionDispatcher _dispatcher;
-        BroadphaseInterface _broadphase;
-        SoftBodyWorldInfo _softBodyWorldInfo;
-        SequentialImpulseConstraintSolver _solver;
-
-        CollisionWorld _world;
-        // Convenience variable so we arn't typecasting all the time.
-        DiscreteDynamicsWorld _ddWorld;
-
-        PhysicsDebugger _debugger;
-        DebugDrawModes _debugDrawMode = DebugDrawModes.DrawWireframe;
-        bool _doDebugDraw = false;
 
         public PhysicsWorld(IPhysicsCollisionHandler collisionHandler, PhysicsDebugger debugger)
             : this(collisionHandler, debugger, 
