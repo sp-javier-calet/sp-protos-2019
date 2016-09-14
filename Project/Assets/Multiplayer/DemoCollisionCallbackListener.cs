@@ -28,10 +28,6 @@ public class DemoCollisionCallbackListener : PhysicsDefaultCollisionCallbacks
 
     NetworkGameObject GetNetworkGameObject(CollisionObject co)
     {
-        if(co.UserObject is PhysicsCollisionObject)
-        {
-            return ((PhysicsCollisionObject)co.UserObject).NetworkGameObject;
-        }
-        return null;
+        return ((PhysicsCollisionObject)co.UserObject).NetworkGameObject;
     }
 }

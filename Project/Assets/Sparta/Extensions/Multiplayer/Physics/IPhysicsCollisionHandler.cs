@@ -36,13 +36,15 @@ namespace SocialPoint.Multiplayer
                 PersistentManifold contactManifold = dispatcher.GetManifoldByIndexInternal(i);
                 CollisionObject a = contactManifold.Body0;
                 CollisionObject b = contactManifold.Body1;
-                if(a is CollisionObject && a.UserObject is PhysicsCollisionObject && ((PhysicsCollisionObject)a.UserObject).CollisionCallbackEventHandler != null)
+                PhysicsCollisionObject aUserObj = (PhysicsCollisionObject)a.UserObject;
+                PhysicsCollisionObject bUserObj = (PhysicsCollisionObject)b.UserObject;
+                if(aUserObj.CollisionCallbackEventHandler != null)
                 {
-                    ((PhysicsCollisionObject)a.UserObject).CollisionCallbackEventHandler.OnVisitPersistentManifold(contactManifold);
+                    aUserObj.CollisionCallbackEventHandler.OnVisitPersistentManifold(contactManifold);
                 }
-                if(b is CollisionObject && b.UserObject is PhysicsCollisionObject && ((PhysicsCollisionObject)b.UserObject).CollisionCallbackEventHandler != null)
+                if(bUserObj.CollisionCallbackEventHandler != null)
                 {
-                    ((PhysicsCollisionObject)b.UserObject).CollisionCallbackEventHandler.OnVisitPersistentManifold(contactManifold);
+                    bUserObj.CollisionCallbackEventHandler.OnVisitPersistentManifold(contactManifold);
                 }
             }
             foreach(ICollisionCallbackEventHandler coeh in collisionCallbackListeners)

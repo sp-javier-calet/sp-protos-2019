@@ -87,8 +87,6 @@ namespace SocialPoint.Multiplayer
 
         public virtual void Update(float dt)
         {
-            //TODO: Try to reduce the number of matrix creations (use dirty?)
-            _collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
         }
 
         public virtual void OnDestroy()
@@ -130,7 +128,7 @@ namespace SocialPoint.Multiplayer
 
             if(_collisionShape == null)
             {
-                _debugger.LogError("There was no collision shape component attached to this PhysicsRigidBody");
+                _debugger.LogError("There was no collision shape component attached to this PhysicsCollisionObject");
                 return false;
             }
 

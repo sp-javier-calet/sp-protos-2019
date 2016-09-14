@@ -258,7 +258,7 @@ namespace SocialPoint.Multiplayer
             }
             if(rb != null)
             {
-                ((DiscreteDynamicsWorld)_world).AddRigidBody(rb, collisionFilterGroup, collisionFilterMask);
+                _ddWorld.AddRigidBody(rb, collisionFilterGroup, collisionFilterMask);
             }
         }
 
@@ -268,7 +268,7 @@ namespace SocialPoint.Multiplayer
             {
                 _debugger.LogError("World type must not be collision only");
             }
-            ((DiscreteDynamicsWorld)_world).RemoveRigidBody(rb);
+            _ddWorld.RemoveRigidBody(rb);
         }
 
         protected void InitializePhysicsWorld()

@@ -37,7 +37,7 @@ namespace SocialPoint.Multiplayer
             PersistentManifoldList pml;
             if(!_otherObjs2ManifoldMap.TryGetValue(other, out pml))
             {
-                //todo get from object pool
+                //TODO: get from object pool
                 pml = new PersistentManifoldList();
                 _newContacts.Add(pml);
             }

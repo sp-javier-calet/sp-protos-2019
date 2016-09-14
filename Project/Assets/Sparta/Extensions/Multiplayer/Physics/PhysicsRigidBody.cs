@@ -114,9 +114,9 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _friction != value)
+                if(_rigidBody != null && _friction != value)
                 {
-                    _collisionObject.Friction = value;
+                    _rigidBody.Friction = value;
                 }
                 _friction = value;
             }
@@ -130,9 +130,9 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _rollingFriction != value)
+                if(_rigidBody != null && _rollingFriction != value)
                 {
-                    _collisionObject.RollingFriction = value;
+                    _rigidBody.RollingFriction = value;
                 }
                 _rollingFriction = value;
             }
@@ -146,7 +146,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _linearDamping != value)
+                if(_rigidBody != null && _linearDamping != value)
                 {
                     _rigidBody.SetDamping(value, _angularDamping);
                 }
@@ -162,7 +162,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _angularDamping != value)
+                if(_rigidBody != null && _angularDamping != value)
                 {
                     _rigidBody.SetDamping(_linearDamping, value);
                 }
@@ -178,9 +178,9 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _restitution != value)
+                if(_rigidBody != null && _restitution != value)
                 {
-                    _collisionObject.Restitution = value;
+                    _rigidBody.Restitution = value;
                 }
                 _restitution = value;
             }
@@ -194,7 +194,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _linearSleepingThreshold != value)
+                if(_rigidBody != null && _linearSleepingThreshold != value)
                 {
                     _rigidBody.SetSleepingThresholds(value, _angularSleepingThreshold);
                 }
@@ -210,7 +210,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _angularSleepingThreshold != value)
+                if(_rigidBody != null && _angularSleepingThreshold != value)
                 {
                     _rigidBody.SetSleepingThresholds(_linearSleepingThreshold, value);
                 }
@@ -243,7 +243,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _additionalDampingFactor != value)
+                if(_rigidBody != null && _additionalDampingFactor != value)
                 {
                     _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -260,7 +260,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _additionalLinearDampingThresholdSqr != value)
+                if(_rigidBody != null && _additionalLinearDampingThresholdSqr != value)
                 {
                     _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -277,7 +277,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _additionalAngularDampingThresholdSqr != value)
+                if(_rigidBody != null && _additionalAngularDampingThresholdSqr != value)
                 {
                     _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -294,7 +294,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _additionalAngularDampingFactor != value)
+                if(_rigidBody != null && _additionalAngularDampingFactor != value)
                 {
                     _debugger.LogError("Additional Damping settings cannot be changed once the Rigid Body has been created");
                     return;
@@ -311,7 +311,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_collisionObject != null && _linearFactor != value)
+                if(_rigidBody != null && _linearFactor != value)
                 {
                     _rigidBody.LinearFactor = value;
                 }
@@ -397,6 +397,15 @@ namespace SocialPoint.Multiplayer
             base.OnStart(go);
         }
 
+        public override void Update(float dt)
+        {
+            //If kinematic then update physic object with game object transform
+            if((_collisionFlags & CollisionFlags.KinematicObject) != 0)
+            {
+                _collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
+            }
+        }
+
         public override void OnDestroy()
         {
             RemoveObjectFromBulletWorld();
@@ -412,8 +421,8 @@ namespace SocialPoint.Multiplayer
 
         public bool IsDynamic()
         {
-            return (_collisionFlags & BulletSharp.CollisionFlags.StaticObject) != BulletSharp.CollisionFlags.StaticObject
-            && (_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != BulletSharp.CollisionFlags.KinematicObject;
+            return (_collisionFlags & CollisionFlags.StaticObject) != CollisionFlags.StaticObject
+            && (_collisionFlags & CollisionFlags.KinematicObject) != CollisionFlags.KinematicObject;
         }
 
         protected override bool BuildCollisionObject()
@@ -489,14 +498,13 @@ namespace SocialPoint.Multiplayer
                 _rigidBody.AngularVelocity = _angularVelocity;
                 _rigidBody.LinearVelocity = _linearVelocity;
                 _rigidBody.CollisionShape = cs;
-                
             }
             _rigidBody.CollisionFlags = _collisionFlags;
             _rigidBody.LinearFactor = _linearFactor;
             _rigidBody.AngularFactor = _angularFactor;
 
             //if kinematic then disable deactivation
-            if((_collisionFlags & BulletSharp.CollisionFlags.KinematicObject) != 0)
+            if((_collisionFlags & CollisionFlags.KinematicObject) != 0)
             {
                 _rigidBody.ActivationState = ActivationState.DisableDeactivation;
             }

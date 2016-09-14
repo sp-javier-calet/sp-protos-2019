@@ -16,12 +16,12 @@ namespace SocialPoint.Multiplayer
             return _collisionShapePtr;
         }
 
-        public abstract Object Clone();
-
         public void Dispose()
         {
             PhysicsUtilities.DisposeMember(ref _collisionShapePtr);
             GC.SuppressFinalize(this);
         }
+
+        public abstract Object Clone();
     }
 }
