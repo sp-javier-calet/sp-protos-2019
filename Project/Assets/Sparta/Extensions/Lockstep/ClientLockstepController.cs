@@ -133,6 +133,14 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public void Stop()
+        {
+            if(_updateScheduler != null)
+            {
+                _updateScheduler.Remove(this);
+            }
+        }
+
         public void RegisterCommandLogic<T>(Action<T> apply) where T:  ILockstepCommand, new()
         {
             RegisterCommandLogic<T>(new ActionLockstepCommandLogic<T>(apply));

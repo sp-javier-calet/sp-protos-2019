@@ -26,12 +26,16 @@ public class ClickCommand : ILockstepCommand
 
     public void Deserialize(IReader reader)
     {
-        
+        X = Fix64.FromRaw(reader.ReadInt64());
+        Y = Fix64.FromRaw(reader.ReadInt64());
+        Z = Fix64.FromRaw(reader.ReadInt64());
     }
 
     public void Serialize(IWriter writer)
     {
-
+        writer.Write((long)X.RawValue);
+        writer.Write((long)Y.RawValue);
+        writer.Write((long)Z.RawValue);
     }
 
 }

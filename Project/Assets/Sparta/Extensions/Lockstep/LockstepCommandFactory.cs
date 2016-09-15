@@ -28,7 +28,7 @@ namespace SocialPoint.Lockstep
             Register<T>(type, new T());
         }
 
-        public ILockstepCommand Create(byte type)
+        ILockstepCommand Create(byte type)
         {
             ILockstepCommand prototype;
             if(_prototypes.TryGetValue(type, out prototype))
@@ -42,14 +42,15 @@ namespace SocialPoint.Lockstep
         {
             var type = reader.ReadByte();
             var cmd = Create(type);
-            if(cmd != null)
+            if(cmd == null)
             {
-                cmd.Deserialize(reader);
+                throw new InvalidOperationException("Command type '"+type+"' not registered!");
             }
+            cmd.Deserialize(reader);
             return cmd;
         }
 
-        public bool Write(IWriter writer, ILockstepCommand cmd)
+        public void Write(IWriter writer, ILockstepCommand cmd)
         {
             var itr = _prototypes.GetEnumerator();
             var success = false;
@@ -64,7 +65,10 @@ namespace SocialPoint.Lockstep
                 }
             }
             itr.Dispose();
-            return success;
+            if(!success)
+            {
+                throw new InvalidOperationException("Command type '"+cmd.GetType()+"' not registered!");
+            }
         }
     }
 }

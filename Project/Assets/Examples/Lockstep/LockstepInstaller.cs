@@ -21,16 +21,25 @@ public class LockstepInstaller : Installer
 
     public override void InstallBindings()
     {
-        Container.Rebind<LockstepModel>().ToMethod<LockstepModel>(CreateModel);
         Container.Rebind<ClientLockstepController>().ToMethod<ClientLockstepController>(CreateClientController);
         Container.Bind<IDisposable>().ToLookup<ClientLockstepController>();
         Container.Rebind<ServerLockstepController>().ToMethod<ServerLockstepController>(CreateServerController);
         Container.Bind<IDisposable>().ToLookup<ServerLockstepController>();
+        Container.Rebind<LockstepCommandFactory>().ToMethod<LockstepCommandFactory>(CreateCommandFactory);
+        Container.Rebind<LockstepReplay>().ToMethod<LockstepReplay>(CreateReplay);
     }
 
-    LockstepModel CreateModel()
+    LockstepCommandFactory CreateCommandFactory()
     {
-        return new LockstepModel();
+        return new LockstepCommandFactory();
+    }
+
+    LockstepReplay CreateReplay()
+    {
+        return new LockstepReplay(
+            Container.Resolve<ClientLockstepController>(),
+            Container.Resolve<LockstepCommandFactory>()
+        );
     }
 
     ClientLockstepController CreateClientController()
