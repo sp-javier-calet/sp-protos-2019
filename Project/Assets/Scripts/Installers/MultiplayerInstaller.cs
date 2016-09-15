@@ -25,6 +25,9 @@ public class MultiplayerInstaller : Installer
 
     public SettingsData Settings = new SettingsData();
 
+    public const string ServerTag = "server";
+    public const string ClientTag = "client";
+
     public override void InstallBindings()
     {
         if(Settings.Tech == MultiplayerTech.Local)
@@ -46,7 +49,7 @@ public class MultiplayerInstaller : Installer
 
         Container.Rebind<NetworkServerSceneController>()
             .ToMethod<NetworkServerSceneController>(CreateServerSceneController, SetupServerSceneController);
-        Container.Rebind<INetworkMessageReceiver>("server")
+        Container.Rebind<INetworkMessageReceiver>(ServerTag)
             .ToLookup<NetworkServerSceneController>();
         Container.Rebind<GameMultiplayerServerBehaviour>()
             .ToMethod<GameMultiplayerServerBehaviour>(CreateGameServer);
@@ -54,7 +57,7 @@ public class MultiplayerInstaller : Installer
             .ToLookup<GameMultiplayerServerBehaviour>();
         Container.Rebind<NetworkClientSceneController>()
             .ToMethod<NetworkClientSceneController>(CreateClientSceneController, SetupClientSceneController);
-        Container.Rebind<INetworkMessageReceiver>("client")
+        Container.Rebind<INetworkMessageReceiver>(ClientTag)
             .ToLookup<NetworkClientSceneController>();
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMultiplayer>(CreateAdminPanel);
     }
@@ -117,7 +120,7 @@ public class MultiplayerInstaller : Installer
         {
             server.AddDelegate(dlgs[i]);
         }
-        var receiver = Container.Resolve<INetworkMessageReceiver>("server");
+        var receiver = Container.Resolve<INetworkMessageReceiver>(ServerTag);
         if(receiver != null)
         {
             server.RegisterReceiver(receiver);
@@ -131,7 +134,7 @@ public class MultiplayerInstaller : Installer
         {
             client.AddDelegate(dlgs[i]);
         }
-        var receiver = Container.Resolve<INetworkMessageReceiver>("client");
+        var receiver = Container.Resolve<INetworkMessageReceiver>(ClientTag);
         if(receiver != null)
         {
             client.RegisterReceiver(receiver);

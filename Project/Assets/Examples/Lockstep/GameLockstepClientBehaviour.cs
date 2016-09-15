@@ -3,10 +3,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using SocialPoint.Base;
 using SocialPoint.Lockstep;
+using SocialPoint.Lockstep.Network;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
+using SocialPoint.Network;
 using FixMath.NET;
 using System;
 using System.IO;
@@ -39,6 +41,9 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     LockstepModel _model;
     LockstepReplay _replay;
     LockstepCommandFactory _factory;
+    INetworkClient _netClient;
+    ClientLockstepNetworkController _netLockstepClient;
+    INetworkServer _netServer;
     GameLockstepMode _mode;
 
     string ReplayPath
@@ -105,6 +110,21 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
         _mode = GameLockstepMode.Replay;
         _replay.Replay();
         _lockstep.Start(TimeUtils.TimestampMilliseconds);
+    }
+
+    public void OnClientClicked()
+    {
+        _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
+        _netLockstepClient = ServiceLocator.Instance.Resolve<ClientLockstepNetworkController>();
+        _netClient.Connect();
+        _netLockstepClient.SendPlayerReady();
+    }
+
+    public void OnServerClicked()
+    {
+        _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
+        ServiceLocator.Instance.Resolve<ServerLockstepNetworkController>();
+        _netServer.Start();
     }
 
     public void OnCloseClicked()
