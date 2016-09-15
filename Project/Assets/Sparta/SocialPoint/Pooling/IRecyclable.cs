@@ -1,5 +1,5 @@
 
-namespace SocialPoint.ObjectPool
+namespace SocialPoint.Pooling
 {
     interface IRecyclable
     {

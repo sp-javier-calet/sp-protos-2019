@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using SocialPoint.Lockstep;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
+using SocialPoint.Pooling;
 using FixMath.NET;
 
 public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
@@ -43,7 +44,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)
     {
-        SocialPoint.ObjectPool.ObjectPool.Spawn(_unitPrefab, transform, 
+        ObjectPool.Spawn(_unitPrefab, transform,
             new Vector3((float)x, (float)y, (float)z), Quaternion.identity);
     }
 
@@ -59,7 +60,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
                       (Fix64)p.x, (Fix64)p.y, (Fix64)p.z,
                       _lockstep.ExecutionTurn, _model);
 
-        var loading = SocialPoint.ObjectPool.ObjectPool.Spawn(
+        var loading = ObjectPool.Spawn(
                           _loadingPrefab, transform, p, Quaternion.identity);
 
         cmd.Applied += (arg1, arg2) => FinishLoading(loading);
@@ -70,7 +71,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void FinishLoading(GameObject loading)
     {
-        SocialPoint.ObjectPool.ObjectPool.Recycle(loading);
+        ObjectPool.Recycle(loading);
     }
 
 
