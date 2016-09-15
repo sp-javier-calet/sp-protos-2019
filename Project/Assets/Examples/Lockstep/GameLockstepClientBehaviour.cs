@@ -93,6 +93,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
             var stream = new FileStream(ReplayPath, FileMode.Open);
             var reader = new SystemBinaryReader(stream);
             _replay.Deserialize(reader);
+            stream.Close();
             stream.Dispose();
         }
         catch(IOException e)
@@ -129,6 +130,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
             var stream = new FileStream(ReplayPath, FileMode.OpenOrCreate);
             var writer = new SystemBinaryWriter(stream);
             _replay.Serialize(writer);
+            stream.Close();
             stream.Dispose();
         }
         _lockstep.Stop();

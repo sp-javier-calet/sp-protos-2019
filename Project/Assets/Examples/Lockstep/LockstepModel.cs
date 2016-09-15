@@ -50,6 +50,7 @@ public class LockstepModel
 
     public void Reset()
     {
+        _lastTimestamp = 0;
         _mana = 0;
     }
 }

@@ -27,6 +27,8 @@ namespace SocialPoint.Lockstep
         bool _missingTurn;
         float _simulationSpeed;
         int _nextCommandId;
+        bool[] _pendingCommandResults = new bool[4];
+        int _pendingCommandResultsIndex = 0;
 
         public float SimulationSpeed
         {
@@ -80,9 +82,6 @@ namespace SocialPoint.Lockstep
 
         public float TurnAnticipationAdjustmentFactor { get; set; }
 
-        bool[] _pendingCommandResults = new bool[4];
-        int _pendingCommandResultsIndex = 0;
-
         public event Action<int> MissingTurnConfirmation;
         public event Action<int> MissingTurnConfirmationReceived;
         public event Action<int[]> TurnsConfirmed;
@@ -135,6 +134,19 @@ namespace SocialPoint.Lockstep
 
         public void Stop()
         {
+            _simulationTime = 0;
+            _lastModelSimulationTime = 0;
+            _lastRawModelSimulationTime = 0;
+            _lastTimestamp = 0;
+            _lastConfirmedTurnTime = 0;
+            _lastConfirmedTurn = 0;
+            _lastAppliedTurn = 0;
+            _lastAppliedTurnTime = 0;
+            _missingTurn = false;
+            _nextCommandId = 0;
+            _pendingCommandResults = new bool[4];
+            _pendingCommandResultsIndex = 0;
+
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
