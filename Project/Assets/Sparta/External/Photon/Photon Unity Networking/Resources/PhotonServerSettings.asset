@@ -16,6 +16,7 @@ MonoBehaviour:
   ServerAddress: 192.168.84.97
   ServerPort: 5055
   AppID: b3aa356b-d5d5-482a-afdb-2345b74ec41a
+  VoiceAppID: 
   PreferredRegion: 0
   EnabledRegions: -1
   JoinLobby: 0
@@ -30,4 +31,6 @@ MonoBehaviour:
   - PunPickupSimple
   - PunRespawn
   - RequestForPickupTimes
+  - RequestForPickupItems
+  - MessageRPC
   DisableAutoOpenWizard: 1
