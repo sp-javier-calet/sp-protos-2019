@@ -220,6 +220,7 @@ namespace SocialPoint.Lockstep.Network
 
         public void OnServerStopped()
         {
+            Stop();
         }
 
         public void OnMessageReceived(NetworkMessageData data)
@@ -253,8 +254,6 @@ namespace SocialPoint.Lockstep.Network
 
         public void Stop()
         {
-            _server.RegisterReceiver(null);
-            _server.RemoveDelegate(this);
             if(_serverLockstep != null)
             {
                 _serverLockstep.Stop();
@@ -264,9 +263,10 @@ namespace SocialPoint.Lockstep.Network
         public void Dispose()
         {
             Stop();
+            _server.RegisterReceiver(null);
+            _server.RemoveDelegate(this);
             if(_serverLockstep != null)
             {
-                _serverLockstep.SendClientTurnData = null;
                 _serverLockstep.Dispose();
             }
         }

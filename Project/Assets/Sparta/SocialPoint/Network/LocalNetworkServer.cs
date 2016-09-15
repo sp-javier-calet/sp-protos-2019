@@ -70,16 +70,19 @@ namespace SocialPoint.Network
                 throw new InvalidOperationException("Too many clients.");
             }
             _clients[client] = clientId;
+            return clientId;
+        }
 
-            if(Running)
+        public void OnClientConnected(LocalNetworkClient client)
+        {
+            byte clientId;
+            if(Running && _clients.TryGetValue(client, out clientId))
             {
                 for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnClientConnected(clientId);
                 }
             }
-
-            return clientId;
         }
 
         public void OnClientDisconnected(LocalNetworkClient client)

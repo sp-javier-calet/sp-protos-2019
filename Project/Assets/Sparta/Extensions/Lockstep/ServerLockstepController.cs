@@ -77,6 +77,9 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             _isRunning = false;
+            _simulationTime = 0;
+            _lastTimestamp = 0;
+            _lastTurn = 0;
         }
 
         void RemoveClientConfirmedTurns()
@@ -185,6 +188,7 @@ namespace SocialPoint.Lockstep
 
         public void Dispose()
         {
+            SendClientTurnData = null;
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);

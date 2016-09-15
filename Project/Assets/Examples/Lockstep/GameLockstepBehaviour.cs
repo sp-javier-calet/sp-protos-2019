@@ -17,10 +17,13 @@ public enum GameLockstepMode
 {
     None,
     Local,
-    Replay
+    Replay,
+    Client,
+    Server,
+    Host
 }
 
-public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
+public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     Slider _manaSlider;
@@ -44,6 +47,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     INetworkClient _netClient;
     ClientLockstepNetworkController _netLockstepClient;
     INetworkServer _netServer;
+    ServerLockstepNetworkController _netLockstepServer;
     GameLockstepMode _mode;
 
     string ReplayPath
@@ -83,7 +87,6 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnLocalClicked()
     {
-        _model.Reset();
         SetupGameScreen();
         _mode = GameLockstepMode.Local;
         _replay.Record();
@@ -92,7 +95,6 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnReplayClicked()
     {
-        _model.Reset();
         try
         {
             var stream = new FileStream(ReplayPath, FileMode.Open);
@@ -115,6 +117,13 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnClientClicked()
     {
+        SetupGameScreen();
+        _mode = GameLockstepMode.Client;
+        StartClient();
+    }
+
+    void StartClient()
+    {
         _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
         _netLockstepClient = ServiceLocator.Instance.Resolve<ClientLockstepNetworkController>();
         _netClient.Connect();
@@ -123,9 +132,24 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnServerClicked()
     {
+        SetupGameScreen();
+        _mode = GameLockstepMode.Server;
+        StartServer();
+    }
+
+    void StartServer()
+    {
         _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
-        ServiceLocator.Instance.Resolve<ServerLockstepNetworkController>();
+        _netLockstepServer = ServiceLocator.Instance.Resolve<ServerLockstepNetworkController>();
         _netServer.Start();
+    }
+
+    public void OnHostClicked()
+    {
+        SetupGameScreen();
+        _mode = GameLockstepMode.Host;
+        StartServer();
+        StartClient();
     }
 
     public void OnCloseClicked()
@@ -154,6 +178,19 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
             stream.Dispose();
         }
         _lockstep.Stop();
+        _model.Reset();
+        if(_netClient != null)
+        {
+            _netClient.Disconnect();
+        }
+        if(_netLockstepServer != null)
+        {
+            _netLockstepServer.Stop();
+        }
+        if(_netServer != null)
+        {
+            _netServer.Stop();
+        }
     }
 
     void SetupGameScreen()
