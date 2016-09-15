@@ -4,29 +4,30 @@ using SocialPoint.Lockstep;
 using SocialPoint.Utils;
 using System;
 
-public static class GameLockstepMsgType
-{
-    public static byte Click = 1;
-}
-
 public class LockstepInstaller : Installer
 {
     [Serializable]
     public class SettingsData
     {
-        public long CommandStep = 300;
+        public LockstepConfig Config;
     }
 
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
+        Container.Rebind<LockstepConfig>().ToMethod<LockstepConfig>(CreateConfig);
         Container.Rebind<ClientLockstepController>().ToMethod<ClientLockstepController>(CreateClientController);
         Container.Bind<IDisposable>().ToLookup<ClientLockstepController>();
         Container.Rebind<ServerLockstepController>().ToMethod<ServerLockstepController>(CreateServerController);
         Container.Bind<IDisposable>().ToLookup<ServerLockstepController>();
         Container.Rebind<LockstepCommandFactory>().ToMethod<LockstepCommandFactory>(CreateCommandFactory);
         Container.Rebind<LockstepReplay>().ToMethod<LockstepReplay>(CreateReplay);
+    }
+
+    LockstepConfig CreateConfig()
+    {
+        return Settings.Config ?? new LockstepConfig();
     }
 
     LockstepCommandFactory CreateCommandFactory()
@@ -45,18 +46,17 @@ public class LockstepInstaller : Installer
     ClientLockstepController CreateClientController()
     {
         var ctrl = new ClientLockstepController(
-               Container.Resolve<IUpdateScheduler>()
-       );
-        ctrl.Init(new LockstepConfig {
-        });
+            Container.Resolve<IUpdateScheduler>()
+        );
+        ctrl.Init(Container.Resolve<LockstepConfig>());
         return ctrl;
     }
 
     ServerLockstepController CreateServerController()
     {
         var ctrl = new ServerLockstepController(
-                       Container.Resolve<IUpdateScheduler>(),
-                       Settings.CommandStep);
+            Container.Resolve<IUpdateScheduler>(),
+            Container.Resolve<LockstepConfig>().CommandStep);
         return ctrl;
     }
 
