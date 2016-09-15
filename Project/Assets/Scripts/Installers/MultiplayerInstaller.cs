@@ -25,9 +25,6 @@ public class MultiplayerInstaller : Installer
 
     public SettingsData Settings = new SettingsData();
 
-    public const string ServerTag = "server";
-    public const string ClientTag = "client";
-
     public override void InstallBindings()
     {
         if(Settings.Tech == MultiplayerTech.Local)
@@ -48,17 +45,10 @@ public class MultiplayerInstaller : Installer
         }
 
         Container.Rebind<NetworkServerSceneController>()
-            .ToMethod<NetworkServerSceneController>(CreateServerSceneController, SetupServerSceneController);
-        Container.Rebind<INetworkMessageReceiver>(ServerTag)
-            .ToLookup<NetworkServerSceneController>();
-        Container.Rebind<GameMultiplayerServerBehaviour>()
-            .ToMethod<GameMultiplayerServerBehaviour>(CreateGameServer);
-        Container.Rebind<INetworkServerSceneReceiver>()
-            .ToLookup<GameMultiplayerServerBehaviour>();
+            .ToMethod<NetworkServerSceneController>(CreateServerSceneController, SetupServerSceneController);        
         Container.Rebind<NetworkClientSceneController>()
             .ToMethod<NetworkClientSceneController>(CreateClientSceneController, SetupClientSceneController);
-        Container.Rebind<INetworkMessageReceiver>(ClientTag)
-            .ToLookup<NetworkClientSceneController>();
+        
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMultiplayer>(CreateAdminPanel);
     }
 
@@ -66,13 +56,6 @@ public class MultiplayerInstaller : Installer
     {
         return new AdminPanelMultiplayer(
             Container.Resolve<IUpdateScheduler>(), Container);
-    }
-
-    GameMultiplayerServerBehaviour CreateGameServer()
-    {
-        return new GameMultiplayerServerBehaviour(
-            Container.Resolve<INetworkServer>(),
-            Container.Resolve<NetworkServerSceneController>());
     }
 
     NetworkServerSceneController CreateServerSceneController()
@@ -120,11 +103,6 @@ public class MultiplayerInstaller : Installer
         {
             server.AddDelegate(dlgs[i]);
         }
-        var receiver = Container.Resolve<INetworkMessageReceiver>(ServerTag);
-        if(receiver != null)
-        {
-            server.RegisterReceiver(receiver);
-        }
     }
 
     void SetupClient(INetworkClient client)
@@ -133,11 +111,6 @@ public class MultiplayerInstaller : Installer
         for(var i = 0; i < dlgs.Count; i++)
         {
             client.AddDelegate(dlgs[i]);
-        }
-        var receiver = Container.Resolve<INetworkMessageReceiver>(ClientTag);
-        if(receiver != null)
-        {
-            client.RegisterReceiver(receiver);
         }
     }
 
@@ -148,11 +121,6 @@ public class MultiplayerInstaller : Installer
         {
             ctrl.AddBehaviour(behaviours[i]);
         }
-        var receiver = Container.Resolve<INetworkServerSceneReceiver>();
-        if(receiver != null)
-        {
-            ctrl.RegisterReceiver(receiver);
-        }
     }
 
     void SetupClientSceneController(NetworkClientSceneController ctrl)
@@ -161,11 +129,6 @@ public class MultiplayerInstaller : Installer
         for(var i = 0; i < behaviours.Count; i++)
         {
             ctrl.AddBehaviour(behaviours[i]);
-        }
-        var receiver = Container.Resolve<INetworkClientSceneReceiver>();
-        if(receiver != null)
-        {
-            ctrl.RegisterReceiver(receiver);
         }
     }
 }
