@@ -48,6 +48,10 @@ namespace SocialPoint.Lockstep
 
         public void Serialize(IWriter writer)
         {
+            if(_config == null)
+            {
+                return;
+            }
             _config.Serialize(writer);
             writer.Write(_commands.Count);
             for(int i = 0; i < _commands.Count; ++i)

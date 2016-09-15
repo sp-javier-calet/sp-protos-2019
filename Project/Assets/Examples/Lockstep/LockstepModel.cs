@@ -47,4 +47,9 @@ public class LockstepModel
         }
         _lastTimestamp = timestamp;
     }
+
+    public void Reset()
+    {
+        _mana = 0;
+    }
 }

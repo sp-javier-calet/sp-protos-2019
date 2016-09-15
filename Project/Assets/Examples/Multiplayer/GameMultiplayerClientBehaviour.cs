@@ -4,6 +4,7 @@ using SocialPoint.Dependency;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using SocialPoint.IO;
+using SocialPoint.Pooling;
 
 public static class GameMsgType
 {
@@ -85,7 +86,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         if(data.MessageType == GameMsgType.ExplosionEvent)
         {
             var ev = reader.Read<ExplosionEvent>();
-            SocialPoint.ObjectPool.ObjectPool.Spawn(_explosionPrefab, transform, ev.Position.ToUnity());
+            ObjectPool.Spawn(_explosionPrefab, transform, ev.Position.ToUnity());
         }
     }
 }

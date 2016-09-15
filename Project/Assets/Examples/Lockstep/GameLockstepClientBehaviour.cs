@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using SocialPoint.Base;
 using SocialPoint.Lockstep;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using SocialPoint.IO;
+using SocialPoint.Pooling;
 using FixMath.NET;
 using System;
 using System.IO;
@@ -76,6 +78,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnLocalClicked()
     {
+        _model.Reset();
         SetupGameScreen();
         _mode = GameLockstepMode.Local;
         _replay.Record();
@@ -84,14 +87,22 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnReplayClicked()
     {
-        if(!FileUtils.ExistsFile(ReplayPath))
+        _model.Reset();
+        try
         {
+            var stream = new FileStream(ReplayPath, FileMode.Open);
+            var reader = new SystemBinaryReader(stream);
+            _replay.Deserialize(reader);
+            stream.Dispose();
+        }
+        catch(IOException e)
+        {
+            Log.e("Could not load replay file: "+e);
             return;
         }
+
         SetupGameScreen();
         _mode = GameLockstepMode.Replay;
-        var reader = new SystemBinaryReader(new FileStream(ReplayPath, FileMode.Open));
-        _replay.Deserialize(reader);
         _replay.Replay();
         _lockstep.Start(TimeUtils.TimestampMilliseconds);
     }
@@ -115,8 +126,10 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
         if(_mode == GameLockstepMode.Local)
         {
-            var writer = new SystemBinaryWriter(new FileStream(ReplayPath, FileMode.OpenOrCreate));
+            var stream = new FileStream(ReplayPath, FileMode.OpenOrCreate);
+            var writer = new SystemBinaryWriter(stream);
             _replay.Serialize(writer);
+            stream.Dispose();
         }
         _lockstep.Stop();
     }
@@ -140,7 +153,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)
     {
-        SocialPoint.ObjectPool.ObjectPool.Spawn(_unitPrefab, transform, 
+        ObjectPool.Spawn(_unitPrefab, transform,
             new Vector3((float)x, (float)y, (float)z), Quaternion.identity);
     }
 
@@ -159,14 +172,14 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
         var cmd = new ClickCommand(
                       (Fix64)p.x, (Fix64)p.y, (Fix64)p.z);
 
-        var loading = SocialPoint.ObjectPool.ObjectPool.Spawn(
+        var loading = ObjectPool.Spawn(
                           _loadingPrefab, transform, p, Quaternion.identity);
         _lockstep.AddPendingCommand(cmd, (c) => FinishLoading(loading));
     }
 
     public void FinishLoading(GameObject loading)
     {
-        SocialPoint.ObjectPool.ObjectPool.Recycle(loading);
+        ObjectPool.Recycle(loading);
     }
 
 
