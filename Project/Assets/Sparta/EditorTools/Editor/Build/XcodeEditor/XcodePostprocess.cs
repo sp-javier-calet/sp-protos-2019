@@ -46,7 +46,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 }
             }
 
-            return projectPath;
+            return Path.GetFullPath(projectPath);
         }
 
         [PostProcessBuild(701)]
@@ -56,13 +56,20 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
+                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
+
                 var projectPath = GetProjectPath(path);
+
+                // Manage relative paths if needed
+                if(!Path.IsPathRooted(projectPath))
+                {
+                    projectPath = Path.Combine(baseAppPath, projectPath);
+                }
+
                 if(!Directory.Exists(projectPath))
                 {
                     throw new FileNotFoundException(string.Format("Xcode project filed not found in path '{0}'", projectPath));
                 }
-
-                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
 
                 var project = new XcodeProject(projectPath, baseAppPath);
                 var mods = new XcodeModsSet(target);
@@ -74,8 +81,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 Log(string.Format("Enabling config schemes for xcodemods: {0}", string.Join(", ", schemes)));
                 mods.AddScheme(schemes);
 
-                if(UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
-                    !UnityEditorInternal.InternalEditorUtility.inBatchMode)
+                if(IsEditorMode)
                 {
                     mods.AddScheme(EditorScheme);
                     Log("Enabling 'editor' scheme for xcodemods");
@@ -95,11 +101,27 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 catch(Exception e)
                 {
                     #if UNITY_EDITOR
-                    EditorUtility.DisplayDialog("Xcode Postprocess Error", "There was an error while applying XcodeMods. XcodeProject probably has an invalid state. Error: " + e.Message, "I will close Xcode"); 
+                    if(IsEditorMode)
+                    {
+                        EditorUtility.DisplayDialog("Xcode Postprocess Error", "There was an error while applying XcodeMods. XcodeProject probably has an invalid state. Error: " + e.Message, "I will close Xcode"); 
+                    }
                     #endif
 
                     throw e;
                 }
+            }
+        }
+
+        static bool IsEditorMode
+        {
+            get
+            {
+                #if UNITY_EDITOR
+                return UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
+                    !UnityEditorInternal.InternalEditorUtility.inBatchMode;
+                #else
+                return false;
+                #endif
             }
         }
     }

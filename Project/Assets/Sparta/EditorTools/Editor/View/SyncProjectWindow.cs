@@ -256,7 +256,7 @@ namespace SpartaTools.Editor.View
                         progress.Update("Fetching repository info", 0.1f);
                         Sparta.FetchInfo();
                         progress.Update("Updating modules", 0.5f);
-                        SyncTools.UpdateModules(Sparta.Target.ProjectPath, _modules);
+                        SyncTools.UpdateModules(Sparta.Target.ProjectPath, _modules, Sparta.Current.GetRepositoryInfo());
                         progress.Finish();
                     });
 

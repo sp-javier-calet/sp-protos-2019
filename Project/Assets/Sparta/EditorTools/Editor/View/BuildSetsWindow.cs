@@ -206,6 +206,11 @@ namespace SpartaTools.Editor.View
 
         Dictionary<string, BuildSetViewData> LoadViewConfig()
         {
+            if(!Directory.Exists(BuildSet.ContainerPath))
+            {
+                Directory.CreateDirectory(BuildSet.ContainerPath);
+            }
+
             var configs = new Dictionary<string, BuildSetViewData>();
             foreach(var path in Directory.GetFiles(BuildSet.ContainerPath))
             {

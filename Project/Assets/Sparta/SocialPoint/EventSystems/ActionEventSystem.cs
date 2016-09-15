@@ -13,6 +13,8 @@ namespace SocialPoint.EventSystems
         [SerializeField]
         LayerMask _preemptMask;
 
+        List<int> _pointerIds = new List<int>();
+
         protected override void OnEnable()
         {
             // do not assign EventSystem.current
@@ -97,6 +99,7 @@ namespace SocialPoint.EventSystems
         public event Action<PointerEventData> OnBeginDrag;
         public event Action<PointerEventData> OnEndDrag;
         public event Action<PointerEventData> OnDrag;
+        public event Action<PointerEventData> OnDragMain;
         public event Action<PointerEventData> OnScroll;
         public event Action<PointerEventData> OnPointerEnter;
         public event Action<PointerEventData> OnPointerExit;
@@ -106,6 +109,7 @@ namespace SocialPoint.EventSystems
 
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
+            _pointerIds.Add(eventData.pointerId);
             var handler = OnBeginDrag;
             if(handler != null)
             {
@@ -115,6 +119,7 @@ namespace SocialPoint.EventSystems
 
         void IEndDragHandler.OnEndDrag(PointerEventData eventData)
         {
+            _pointerIds.Remove(eventData.pointerId);
             var handler = OnEndDrag;
             if(handler != null)
             {
@@ -124,6 +129,14 @@ namespace SocialPoint.EventSystems
 
         void IDragHandler.OnDrag(PointerEventData eventData)
         {
+            if(_pointerIds.IndexOf(eventData.pointerId) == 0)
+            {
+                var mhandler = OnDragMain;
+                if(mhandler != null)
+                {
+                    mhandler(eventData);
+                }
+            }
             var handler = OnDrag;
             if(handler != null)
             {
