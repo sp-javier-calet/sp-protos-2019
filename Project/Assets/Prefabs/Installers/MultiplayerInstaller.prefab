@@ -41,9 +41,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Settings:
-    Mode: 0
+    Tech: 2
     ServerAddress: localhost
     ServerPort: 8888
+    PhotonConfig:
+      GameVersion: 
+      RoomName: 
+    MultiplayerParentTag: MultiplayerParent
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

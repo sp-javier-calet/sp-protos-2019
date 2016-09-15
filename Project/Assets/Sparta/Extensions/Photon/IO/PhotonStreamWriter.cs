@@ -1,80 +1,85 @@
-﻿using System.IO;
-using SocialPoint.Attributes;
+using System;
+using Photon;
 
 namespace SocialPoint.IO
 {
-    public class AttrWriter : SimpleWriter
-    {
-        readonly AttrList _attr;
+    class PhotonStreamWriter : SimpleWriter
+	{
+        PhotonStream _stream;
 
-        public AttrWriter(AttrList attr)
+        public PhotonStreamWriter(PhotonStream stream)
         {
-            _attr = attr;
+            _stream = stream;
+        }
+
+        void SendNext<T>(T data)
+        {
+            _stream.SendNext(data);
         }
 
         public override void Write(bool value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(ushort value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(short value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(sbyte value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(byte value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(char value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(int value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(string value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(double value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(float value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(ulong value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(long value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
 
         public override void Write(uint value)
         {
-            _attr.AddValue(value);
+            SendNext(value);
         }
     }
 }

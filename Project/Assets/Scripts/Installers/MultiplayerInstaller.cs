@@ -11,7 +11,8 @@ public class MultiplayerInstaller : Installer
     public enum MultiplayerTech
     {
         Local,
-        Unet
+        Unet,
+        Photon
     }
 
     [Serializable]
@@ -20,6 +21,7 @@ public class MultiplayerInstaller : Installer
         public MultiplayerTech Tech = MultiplayerTech.Local;
         public string ServerAddress = UnetNetworkClient.DefaultServerAddr;
         public int ServerPort = UnetNetworkServer.DefaultPort;
+        public PhotonNetworkConfig PhotonConfig;
         public string MultiplayerParentTag = "MultiplayerParent";
     }
 
@@ -42,6 +44,13 @@ public class MultiplayerInstaller : Installer
             Container.Rebind<UnetNetworkClient>().ToMethod<UnetNetworkClient>(CreateUnetClient, SetupClient);
             Container.Bind<IDisposable>().ToLookup<UnetNetworkClient>();
             Container.Rebind<INetworkClient>().ToLookup<UnetNetworkClient>();
+        }
+        else if(Settings.Tech == MultiplayerTech.Photon)
+        {
+            Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
+            Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();
+            Container.RebindUnityComponent<PhotonNetworkClient>().WithSetup<PhotonNetworkServer>(SetupPhotonClient);
+            Container.Rebind<INetworkClient>().ToLookup<PhotonNetworkClient>();
         }
 
         Container.Rebind<NetworkServerSceneController>()
@@ -130,5 +139,17 @@ public class MultiplayerInstaller : Installer
         {
             ctrl.AddBehaviour(behaviours[i]);
         }
+    }
+
+    void SetupPhotonServer(PhotonNetworkServer server)
+    {
+        server.Init(Settings.PhotonConfig);
+        SetupServer(server);
+    }
+
+    void SetupPhotonClient(PhotonNetworkClient client)
+    {
+        client.Init(Settings.PhotonConfig);
+        SetupClient(client);
     }
 }
