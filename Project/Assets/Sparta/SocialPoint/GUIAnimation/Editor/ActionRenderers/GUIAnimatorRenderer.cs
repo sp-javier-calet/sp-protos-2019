@@ -3,29 +3,29 @@ using UnityEditor;
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class GUIAnimatorRenderer : GUIDefaultActionRenderer
-	{
-		public override bool CanRender(Effect action)
-		{
-			return action is AnimatorEffect;
-		}
-		
-		public override void Render(Effect effect, StepsSelection stepsSelection, OnActionChanged onChanged)
-		{
-			AnimatorEffect animEffect = (AnimatorEffect) effect;
+    public sealed class GUIAnimatorRenderer : GUIDefaultActionRenderer
+    {
+        public override bool CanRender(Effect action)
+        {
+            return action is AnimatorEffect;
+        }
 
-			base.Render(effect, stepsSelection, onChanged);
+        public override void Render(Effect effect, StepsSelection stepsSelection, OnActionChanged onChanged)
+        {
+            AnimatorEffect animEffect = (AnimatorEffect)effect;
 
-			if(GUILayout.Button("Open Animator", GUILayout.ExpandWidth(false)))
-			{
-				OpenAnimator(animEffect.Target != null ? animEffect.Target.gameObject : null);
-			}
-		}
+            base.Render(effect, stepsSelection, onChanged);
 
-		void OpenAnimator(GameObject target)
-		{
-			Selection.activeGameObject = target;
-			EditorApplication.ExecuteMenuItem("Window/Animation");
-		}
-	}
+            if(GUILayout.Button("Open Animator", GUILayout.ExpandWidth(false)))
+            {
+                OpenAnimator(animEffect.Target != null ? animEffect.Target.gameObject : null);
+            }
+        }
+
+        void OpenAnimator(GameObject target)
+        {
+            Selection.activeGameObject = target;
+            EditorApplication.ExecuteMenuItem("Window/Animation");
+        }
+    }
 }

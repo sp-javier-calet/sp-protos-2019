@@ -3,38 +3,39 @@ using UnityEditor;
 
 namespace SocialPoint.GUIAnimation
 {
-	// Class to detect doble clicks
-	public sealed class MouseDoubleClickMonitor 
-	{
-		const float kMaxTimeToDoubleClick = 0.50f;
+    // Class to detect doble clicks
+    public sealed class MouseDoubleClickMonitor
+    {
+        const float kMaxTimeToDoubleClick = 0.50f;
 
-		double _lastTimeClicked = 0;
-		bool _doubleClick = false;
-		public bool DoubleClick 
-		{
-			get
-			{
-				return _doubleClick;
-			} 
-		} 
+        double _lastTimeClicked = 0;
+        bool _doubleClick = false;
 
-		public void UpdateState()
-		{
-			if(Event.current.type == EventType.mouseDown)
-			{
-				_doubleClick = IsDoubleClick();
-				_lastTimeClicked = EditorApplication.timeSinceStartup;
-			}
-		}
+        public bool DoubleClick
+        {
+            get
+            {
+                return _doubleClick;
+            } 
+        }
 
-		bool IsDoubleClick()
-		{
-			return (Abs(_lastTimeClicked - EditorApplication.timeSinceStartup) < kMaxTimeToDoubleClick);
-		}
+        public void UpdateState()
+        {
+            if(Event.current.type == EventType.mouseDown)
+            {
+                _doubleClick = IsDoubleClick();
+                _lastTimeClicked = EditorApplication.timeSinceStartup;
+            }
+        }
 
-		double Abs(double val)
-		{
-			return val < 0 ? -val : val;
-		}
-	}
+        bool IsDoubleClick()
+        {
+            return (Abs(_lastTimeClicked - EditorApplication.timeSinceStartup) < kMaxTimeToDoubleClick);
+        }
+
+        double Abs(double val)
+        {
+            return val < 0 ? -val : val;
+        }
+    }
 }

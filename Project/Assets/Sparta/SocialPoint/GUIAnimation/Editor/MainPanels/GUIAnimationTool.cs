@@ -30,6 +30,14 @@ namespace SocialPoint.GUIAnimation
 
         AnimationEditorContainer _animationEditorContainer = new AnimationEditorContainer();
 
+        bool _repaint = false;
+        double _nextRepaintTime = 0.0;
+        double _repaintMinTime = 2.0;
+
+        bool _saveState = false;
+        double _nextSaveTime = 0.0;
+        double _saveMinTime = 10.0;
+
         int _currentScreenIdx = 0;
         int _currentAnimationIdx = 0;
 
@@ -47,14 +55,6 @@ namespace SocialPoint.GUIAnimation
             ResetState();
         }
 
-        public void SaveState()
-        {
-            if(AnimationModel.CurrentScreen != null)
-            {
-                AnimationPrefabUtility.SaveScreenPrefab(AnimationModel.CurrentScreen.gameObject);
-            }
-        }
-
         void ResetState()
         {
             _animationModel.ResetState();
@@ -69,17 +69,34 @@ namespace SocialPoint.GUIAnimation
             _animationEditorPlayer.Init(this);
         }
 
-        void Update()
-        {
-            if(Application.isPlaying)
-            {
-                return;
-            }
-        }
-
         void OnGUI()
         {
-            DoUpdate();
+            KeyController.UpdateState();
+            MouseController.UpdateState();
+            
+            bool doRepaintGUI = Event.current.type == EventType.mouseDown || Event.current.type == EventType.mouseUp || Event.current.type == EventType.mouseDrag;
+            if(doRepaintGUI)
+            {
+                ForceRepaint();
+            }
+
+            if(Event.current.type == EventType.Repaint)
+            {
+                List<UIViewController> screens = AnimationModel.FindScreens();
+                if(screens.Count == 0)
+                {
+                    ResetState();
+                    RenderNoScreenMessage();
+                    ForceRepaint();
+
+                    return;
+                }
+                else
+                {
+                    DoUpdate();
+                }
+            }
+
             DoRender();
         }
 
@@ -90,9 +107,6 @@ namespace SocialPoint.GUIAnimation
                 _isInit = true;
                 Init();
             }
-
-            KeyController.UpdateState();
-            MouseController.UpdateState();
             _animationEditorPlayer.Update(this);
 
             TryResetPanelOnFocus();
@@ -111,56 +125,43 @@ namespace SocialPoint.GUIAnimation
             GUILayout.BeginVertical();
             List<UIViewController> screens = AnimationModel.FindScreens();
 
-            if(screens.Count == 0)
-            {
-                if(Event.current.type == EventType.Repaint)
-                {
-                    ResetState();
-                    RenderNoScreenMessage();
-                }
-                return;
-            }
-
             RenderScreensSelector(screens);
-            if(AnimationModel.CurrentScreen == null)
+            if(Event.current.type == EventType.Repaint && AnimationModel.CurrentScreen == null)
             {
-                if(Event.current.type == EventType.Repaint)
-                {
-                    ResetState();
-                }
+                ResetState();
+                ForceRepaint();
+
                 return;
             }
 
             List<Animation> animations = _animationModel.FindAnimations();
-
-            if(animations.Count == 0)
+            if(Event.current.type == EventType.Repaint && animations.Count == 0)
             {
                 _animationModel.RemoveCurrentAnimation();
+                ForceRepaint();
             }
-			
+
             GUILayout.BeginHorizontal();
-			
+
             RenderAnimationSelection(animations);
             RenderActionButtons();
-			
+
             GUILayout.EndHorizontal();
-			
+
             GUILayout.EndVertical();
-			
+
             if(_animationModel.CurrentAnimation == null)
             {
+                ForceRepaint();
                 return;
             }
-			
+
             _animationEditorContainer.Render(this);
         }
 
         void RenderNoScreenMessage()
         {
-            if(Event.current.type == EventType.Layout)
-            {
-                GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
-            }
+            GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
         }
 
         void RenderScreensSelector(List<UIViewController> screens)
@@ -173,7 +174,7 @@ namespace SocialPoint.GUIAnimation
             GUILayout.EndHorizontal();
 
             UIViewController currentScreen = _animationModel.GetScreenByIdx(_currentScreenIdx);
-            if(currentScreen != _animationModel.CurrentScreen)
+            if(Event.current.type == EventType.Repaint && currentScreen != _animationModel.CurrentScreen)
             {
                 _animationModel.SetCurrentScreen(currentScreen);
 
@@ -190,15 +191,17 @@ namespace SocialPoint.GUIAnimation
             _currentAnimationIdx = EditorGUILayout.Popup(_currentAnimationIdx, animationsOptionList.Count > 0 ? animationsOptionList.ToArray() : new string[1]{ "" }, GUILayout.MaxWidth(160f), GUILayout.ExpandWidth(false));
 
             Animation currentAnimation = _animationModel.GetAnimationByIdx(_currentAnimationIdx);
-            if(currentAnimation != _animationModel.CurrentAnimation)
+            if(Event.current.type == EventType.Repaint && currentAnimation != _animationModel.CurrentAnimation)
             {
                 _animationModel.SetCurrentAnimation(currentAnimation);
                 _animationEditorContainer.ResetState();
+
+                CleanGarbageCollector();
             }
         }
 
         void RenderActionButtons()
-        {
+        {  
             if(GUILayout.Button(_animationEditorPlayer.IsPlaying() ? "Stop" : "Play", GUILayout.ExpandWidth(false), GUILayout.Width(50f)))
             {
                 if(_animationEditorPlayer.IsPlaying())
@@ -223,7 +226,7 @@ namespace SocialPoint.GUIAnimation
             UnityEngine.GUI.enabled = AnimationModel.CurrentScreen != null;
             if(GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
             {
-                SaveState();
+                SaveState(true);
             }
             UnityEngine.GUI.enabled = true;
 
@@ -264,7 +267,7 @@ namespace SocialPoint.GUIAnimation
                     List<Animation> animations = _animationModel.FindAnimations();
                     _currentAnimationIdx = animations.Count - 1;
                     _animationModel.SetCurrentAnimation(animation);
-					
+
                     _animationEditorContainer.ResetState();
                 });
             }
@@ -291,8 +294,56 @@ namespace SocialPoint.GUIAnimation
 
         void OnInspectorUpdate()
         {
-            Repaint();
+            if(AnimationModel.CurrentAnimation != null)
+            {
+                AnimationModel.CurrentAnimation.Init();
+            }
+
+            if(_repaint || EditorApplication.timeSinceStartup > _nextRepaintTime)
+            {
+                Repaint();
+
+                _nextRepaintTime = (float)EditorApplication.timeSinceStartup + _repaintMinTime;
+                _repaint = false;
+            }
+
+            if(_saveState && (EditorApplication.timeSinceStartup > _nextSaveTime))
+            {
+                DoSaveState();
+
+                _saveState = false;
+            }
         }
 
+        public void ForceRepaint()
+        {
+            _repaint = true;
+        }
+
+        public void SaveState(bool isImmediate = false)
+        {
+            if(isImmediate)
+            {
+                DoSaveState();
+            }
+            else
+            {
+                _saveState = true;
+                _nextSaveTime = EditorApplication.timeSinceStartup + _saveMinTime;
+            }
+        }
+
+        void DoSaveState()
+        {
+            if(AnimationModel.CurrentScreen != null)
+            {
+                AnimationPrefabUtility.SaveScreenPrefab(AnimationModel.CurrentScreen.gameObject);
+            }
+        }
+
+        void CleanGarbageCollector()
+        {
+            System.GC.Collect();
+        }
     }
 }

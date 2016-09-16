@@ -42,10 +42,10 @@ namespace SocialPoint.GUIAnimation
     }
 
     [System.Serializable]
-    public sealed class PositionEffect : BlendEffect, IPositionable
+    public class PositionEffect : BlendEffect, IPositionable
     {
         [System.Serializable]
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Vector3 Position;
 
