@@ -5,18 +5,18 @@ namespace SocialPoint.GUIAnimation
     // Load the Graphic Object, compatible with ngui and native ui
     public sealed class GraphicObjectLoader
     {
-        public static IGraphicObject Load (Transform trans, bool recursive)
+        public static IGraphicObject Load(Transform trans, bool recursive)
         {
             #if NGUI
 			return LoadNGUI(trans, recursive);
             #else
-            return LoadNative (trans, recursive);
+            return LoadNative(trans, recursive);
             #endif
         }
 
-        static IGraphicObject LoadNative (Transform trans, bool recursive)
+        static IGraphicObject LoadNative(Transform trans, bool recursive)
         {
-            return NativeGraphicObject.Load (trans, recursive);
+            return NativeGraphicObject.Load(trans, recursive);
         }
 
         #if NGUI

@@ -15,7 +15,7 @@ namespace SocialPoint.GUIAnimation
         }
 
         [System.Serializable]
-        public sealed class UniformValues
+        public class UniformValues
         {
             [SerializeField]
             public UniformValueType ValueType = UniformValueType.Float;

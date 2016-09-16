@@ -7,6 +7,12 @@ namespace SocialPoint.GUIAnimation
     {
         const string kBaseAnimationsName = "Animations";
 
+        public static bool ResetAndPlay(GameObject obj, string animationName, System.Action onEndCallback = null)
+        {
+            Reset(obj, animationName);
+            return Play(obj, animationName, onEndCallback);
+        }
+
         public static bool Play(GameObject obj, string animationName, System.Action onEndCallback = null)
         {
             Animation anim = GetAnimation(obj, animationName);

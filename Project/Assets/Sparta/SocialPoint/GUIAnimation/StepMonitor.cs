@@ -7,13 +7,13 @@ namespace SocialPoint.GUIAnimation
     {
         public Transform Target;
 
-        public void Init (Transform iTarget)
+        public void Init(Transform iTarget)
         {
             Target = iTarget;
         }
 
-        public abstract void Backup ();
+        public abstract void Backup();
 
-        public abstract bool HasChanged ();
+        public abstract bool HasChanged();
     }
 }

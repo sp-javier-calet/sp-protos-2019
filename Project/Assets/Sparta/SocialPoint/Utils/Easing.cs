@@ -53,6 +53,7 @@ namespace SocialPoint.Utils
         OutDanielBounce,
     }
 
+    [System.Serializable]
     public struct EasePoint
     {
         public float x;

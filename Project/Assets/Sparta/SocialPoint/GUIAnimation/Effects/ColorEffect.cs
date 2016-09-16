@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
@@ -6,7 +7,7 @@ namespace SocialPoint.GUIAnimation
     [System.Serializable]
     public sealed class ColorEffect : BlendEffect
     {
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Color Color;
 
