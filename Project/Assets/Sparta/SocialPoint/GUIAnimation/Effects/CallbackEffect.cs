@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
@@ -54,11 +55,11 @@ namespace SocialPoint.GUIAnimation
 
             if(string.IsNullOrEmpty(_parameters))
             {
-                Target.SendMessage(_method, SendMessageOptions.DontRequireReceiver);
+                Target.SendMessageUpwards(_method, SendMessageOptions.DontRequireReceiver);
             }
             else
             {
-                Target.SendMessage(_method, _parameters, SendMessageOptions.DontRequireReceiver);
+                Target.SendMessageUpwards(_method, _parameters, SendMessageOptions.DontRequireReceiver);
             }
         }
 

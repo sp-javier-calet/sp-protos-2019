@@ -1,4 +1,5 @@
 using UnityEngine;
+using SocialPoint.GUIControl;
 using SocialPoint.Base;
 
 namespace SocialPoint.GUIAnimation
@@ -7,7 +8,7 @@ namespace SocialPoint.GUIAnimation
     public sealed class RotationEffect : BlendEffect
     {
         [System.Serializable]
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Quaternion Rotation;
 

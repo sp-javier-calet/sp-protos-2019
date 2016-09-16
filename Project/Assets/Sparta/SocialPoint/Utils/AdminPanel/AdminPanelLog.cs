@@ -70,6 +70,18 @@ namespace SocialPoint.Utils
 
             layout.CreateMargin();
 
+            layout.CreateTextInput("Filter", 
+                value => 
+                {
+                    _config.Filter = string.IsNullOrEmpty(value)? null : value.ToLower();
+                    RefreshContent();
+                },
+                status => 
+                {
+                    _config.Filter = string.IsNullOrEmpty(status.Content)? null : status.Content.ToLower();
+                    RefreshContent();
+                });
+
             RefreshContent();
         }
 
@@ -108,6 +120,11 @@ namespace SocialPoint.Utils
                     LogEntry entry = _entries[i];
                     if(_config.ActiveTypes[entry.Type])
                     {
+                        if(_config.Filter != null && !entry.LowerContent.Contains(_config.Filter))
+                        {
+                            continue;
+                        }
+
                         logContent.Append(entry.Content);
                         numEntriesToDisplay++;
                     }
@@ -128,6 +145,7 @@ namespace SocialPoint.Utils
             public readonly Dictionary<LogType, bool> ActiveTypes = new Dictionary<LogType, bool>();
             public bool AutoRefresh = true;
             public int MaxEntriesToDisplay = 100;
+            public string Filter;
         }
 
         sealed class LogEntry
@@ -144,6 +162,8 @@ namespace SocialPoint.Utils
 
             public string Content { get; private set; }
 
+            public string LowerContent { get; private set; }
+
             public LogEntry(LogType type, string message, string stackTrace)
             {
                 Type = type;
@@ -156,6 +176,7 @@ namespace SocialPoint.Utils
                               .Append(((type == LogType.Exception) ? "<b>Stack:</b>" + stackTrace : ""))
                               .AppendLine("</color>");
                 Content = StringUtils.FinishBuilder(contentBuilder);
+                LowerContent = Content.ToLower();
             }
         }
     }

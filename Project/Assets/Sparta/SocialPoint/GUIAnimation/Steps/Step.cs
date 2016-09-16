@@ -44,30 +44,30 @@ namespace SocialPoint.GUIAnimation
 
         public Step Parent { get { return _parent; } set { _parent = value; } }
 
-        public abstract void Refresh ();
+        public abstract void Refresh();
 
-        public abstract void OnRemoved ();
+        public abstract void OnRemoved();
 
-        public abstract void SaveValuesAt (float localTimeNormalized);
+        public abstract void SaveValuesAt(float localTimeNormalized);
 
-        public virtual void SaveValues ()
+        public virtual void SaveValues()
         {
-            SaveValuesAt (0f);
-            SaveValuesAt (1f);
+            SaveValuesAt(0f);
+            SaveValuesAt(1f);
         }
 
-        public void ScaleTime (float scale)
+        public void ScaleTime(float scale)
         {
             _startTime *= scale;
             _endTime *= scale;
         }
 
-        public virtual void OnCreated ()
+        public virtual void OnCreated()
         {
-            _editorColor = new Color (1f, 1f, 1f, 1f);
+            _editorColor = new Color(1f, 1f, 1f, 1f);
         }
 
-        public virtual void Copy (Step other)
+        public virtual void Copy(Step other)
         {
             _startTime = other.StartTime;
             _endTime = other.EndTime;
@@ -79,34 +79,34 @@ namespace SocialPoint.GUIAnimation
             _editorColor = other.EditorColor;
         }
 
-        public virtual void Invert (bool invertTime = false)
+        public virtual void Invert(bool invertTime = false)
         {
-            if (_parent == null || !invertTime)
+            if(_parent == null || !invertTime)
             {
                 return;
             }
 
-            float duration = GetDuration (AnimTimeMode.Local);
-            float newStartTime = 1f - GetEndTime (AnimTimeMode.Local);
+            float duration = GetDuration(AnimTimeMode.Local);
+            float newStartTime = 1f - GetEndTime(AnimTimeMode.Local);
             float newEndTime = newStartTime + duration;
 
             _startTime = newStartTime;
             _endTime = newEndTime;
         }
 
-        public virtual void Init (Animation animation, Step parent)
+        public virtual void Init(Animation animation, Step parent)
         {
             _animation = animation;
             _parent = parent;
         }
 
-        public float NormalizedToAbsoluteTime (float iTime)
+        public float NormalizedToAbsoluteTime(float iTime)
         {
             float localTime = _startTime + (_endTime - _startTime) * iTime;
 
-            if (_parent != null)
+            if(_parent != null)
             {
-                return _parent.NormalizedToAbsoluteTime (localTime);
+                return _parent.NormalizedToAbsoluteTime(localTime);
             }
             else
             {
@@ -114,17 +114,17 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public void SetSlot (int timelineIdx)
+        public void SetSlot(int timelineIdx)
         {
             _slot = timelineIdx;
         }
 
-        public float AbsoluteToNormalizedTime (float iAbsoluteTime)
+        public float AbsoluteToNormalizedTime(float iAbsoluteTime)
         {
-            if (_parent != null)
+            if(_parent != null)
             {
-                float parentStartTime = _parent.GetStartTime (AnimTimeMode.Global);
-                float parentEndTime = _parent.GetEndTime (AnimTimeMode.Global);
+                float parentStartTime = _parent.GetStartTime(AnimTimeMode.Global);
+                float parentEndTime = _parent.GetEndTime(AnimTimeMode.Global);
 
                 return (iAbsoluteTime - parentStartTime) / (parentEndTime - parentStartTime);
             }
@@ -134,45 +134,45 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public void SetDuration (float duration, AnimTimeMode mode)
+        public void SetDuration(float duration, AnimTimeMode mode)
         {
-            if (_parent == null)
+            if(_parent == null)
             {
                 _endTime = _startTime + duration;
             }
             else
             {
-                if (mode == AnimTimeMode.Local)
+                if(mode == AnimTimeMode.Local)
                 {
                     _endTime = _startTime + duration;
                 }
                 else
                 {
-                    float parentStartTime = _parent.GetStartTime (AnimTimeMode.Global);
-                    float parentEndTime = _parent.GetEndTime (AnimTimeMode.Global);
+                    float parentStartTime = _parent.GetStartTime(AnimTimeMode.Global);
+                    float parentEndTime = _parent.GetEndTime(AnimTimeMode.Global);
                     float durationNormalized = duration / (parentEndTime - parentStartTime);
                     _endTime = _startTime + durationNormalized;
                 }
             }
         }
 
-        public virtual float GetDuration (AnimTimeMode mode)
+        public virtual float GetDuration(AnimTimeMode mode)
         {
-            if (mode == AnimTimeMode.Global)
+            if(mode == AnimTimeMode.Global)
             {
-                return GetEndTime (AnimTimeMode.Global) - GetStartTime (AnimTimeMode.Global);
+                return GetEndTime(AnimTimeMode.Global) - GetStartTime(AnimTimeMode.Global);
             }
             else
             {
-                return GetEndTime (AnimTimeMode.Local) - GetStartTime (AnimTimeMode.Local);
+                return GetEndTime(AnimTimeMode.Local) - GetStartTime(AnimTimeMode.Local);
             }
         }
 
-        public void SetStartTime (float time, AnimTimeMode mode)
+        public void SetStartTime(float time, AnimTimeMode mode)
         {
-            if (mode == AnimTimeMode.Global)
+            if(mode == AnimTimeMode.Global)
             {
-                _startTime = AbsoluteToNormalizedTime (time);
+                _startTime = AbsoluteToNormalizedTime(time);
             }
             else
             {
@@ -180,11 +180,11 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public void SetEndTime (float time, AnimTimeMode mode)
+        public void SetEndTime(float time, AnimTimeMode mode)
         {
-            if (mode == AnimTimeMode.Global)
+            if(mode == AnimTimeMode.Global)
             {
-                _endTime = AbsoluteToNormalizedTime (time);
+                _endTime = AbsoluteToNormalizedTime(time);
             }
             else
             {
@@ -192,11 +192,11 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public float GetStartTime (AnimTimeMode mode)
+        public float GetStartTime(AnimTimeMode mode)
         {
-            if (mode == AnimTimeMode.Global && _parent != null)
+            if(mode == AnimTimeMode.Global && _parent != null)
             {
-                return _parent.NormalizedToAbsoluteTime (_startTime);
+                return _parent.NormalizedToAbsoluteTime(_startTime);
             }
             else
             {
@@ -204,11 +204,11 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public float GetEndTime (AnimTimeMode mode)
+        public float GetEndTime(AnimTimeMode mode)
         {
-            if (mode == AnimTimeMode.Global && _parent != null)
+            if(mode == AnimTimeMode.Global && _parent != null)
             {
-                return _parent.NormalizedToAbsoluteTime (_endTime);
+                return _parent.NormalizedToAbsoluteTime(_endTime);
             }
             else
             {
@@ -216,12 +216,12 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public bool IsEnabledInHierarchy ()
+        public bool IsEnabledInHierarchy()
         {
             bool isEnabledInH = _isEnabled;
-            if (_isEnabled && _parent != null)
+            if(_isEnabled && _parent != null)
             {
-                isEnabledInH = _parent.IsEnabledInHierarchy ();
+                isEnabledInH = _parent.IsEnabledInHierarchy();
             }
 
             return isEnabledInH;

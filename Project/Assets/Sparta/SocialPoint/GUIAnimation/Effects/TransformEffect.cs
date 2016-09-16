@@ -9,7 +9,7 @@ namespace SocialPoint.GUIAnimation
     public sealed class TransformEffect : BlendEffect, IPositionable
     {
         [System.Serializable]
-        public sealed class TargetValueMonitor : StepMonitor
+        public class TargetValueMonitor : StepMonitor
         {
             public Vector3 Position;
             public Vector3 Scale;

@@ -1,9 +1,6 @@
 ﻿using System;
-using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
-using SocialPoint.IO;
-using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
@@ -44,16 +41,7 @@ public class HttpClientInstaller : Installer
 
     HttpClient CreateHttpClient()
     {
-        string proxy = null;
-        #if UNITY_EDITOR
-        var proxyPath = FileUtils.Combine(Application.dataPath, "../.proxy");
-        if(FileUtils.ExistsFile(proxyPath))
-        {
-            proxy = FileUtils.ReadAllText(proxyPath).Trim();
-            Log.i(string.Format("Using editor proxy '{0}'", proxy));
-        }
-        #endif
-
+        string proxy = EditorProxy.GetProxy();
         var client = new HttpClient(
             Container.Resolve<ICoroutineRunner>(), proxy,
             Container.Resolve<IDeviceInfo>(),
