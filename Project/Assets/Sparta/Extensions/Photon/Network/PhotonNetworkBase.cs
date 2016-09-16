@@ -163,7 +163,15 @@ namespace SocialPoint.Network
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             var options = new RaiseEventOptions();
-            if(info.ClientId != 0)
+            options.SequenceChannel = info.ChannelId;
+
+            var serverId = PhotonNetwork.room.masterClientId;
+            if(PhotonNetwork.player.ID != serverId)
+            {
+                // clients always send to server
+                options.TargetActors = new int[]{ serverId };
+            }
+            else if(info.ClientId != 0)
             {
                 var player = GetClientIdPlayer(info.ClientId);
                 if(player == null)
@@ -180,7 +188,11 @@ namespace SocialPoint.Network
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
             var contentArr = (object[])content;
-            var clientId = GetPlayerClientId(GetClientIdPlayer((byte)senderid));
+            byte clientId = 0;
+            if(senderid != PhotonNetwork.room.masterClientId)
+            {
+                clientId = GetPlayerClientId(GetClientIdPlayer((byte)senderid));
+            }
             var channelId = (byte)contentArr[0];
             var data = (byte[])contentArr[1];
             var info = new NetworkMessageData {
