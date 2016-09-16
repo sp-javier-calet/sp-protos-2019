@@ -218,7 +218,10 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
 
     void Update()
     {
-        _manaSlider.value = _model.ManaView;
+        if(_manaSlider != null && _model != null)
+        {
+            _manaSlider.value = _model.ManaView;
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
