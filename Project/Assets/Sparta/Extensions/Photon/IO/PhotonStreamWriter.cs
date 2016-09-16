@@ -4,7 +4,7 @@ using Photon;
 namespace SocialPoint.IO
 {
     class PhotonStreamWriter : SimpleWriter
-	{
+    {
         PhotonStream _stream;
 
         public PhotonStreamWriter(PhotonStream stream)

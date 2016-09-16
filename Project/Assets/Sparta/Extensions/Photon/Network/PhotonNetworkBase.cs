@@ -18,7 +18,7 @@ namespace SocialPoint.Network
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
-	{
+    {
         PhotonNetworkConfig _config;
 
         const int ConnectionError = 1;
@@ -46,8 +46,11 @@ namespace SocialPoint.Network
         }
 
         abstract protected void OnNetworkError(Error err);
+
         abstract protected void OnConnected();
+
         abstract protected void OnDisconnected();
+
         abstract protected void OnMessageReceived(NetworkMessageData data, IReader reader);
 
         #region photon callbacks
@@ -85,7 +88,7 @@ namespace SocialPoint.Network
 
         void OnPhotonCreateRoomFailed(object[] codeAndMsg)
         {
-            var err = new Error(CreateRoomError, "Failed to create room: " +  StringUtils.Join(codeAndMsg, " "));
+            var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
         }
 
@@ -176,7 +179,7 @@ namespace SocialPoint.Network
                 var player = GetClientIdPlayer(info.ClientId);
                 if(player == null)
                 {
-                    throw new InvalidOperationException("Could not find player with client id "+info.ClientId+".");
+                    throw new InvalidOperationException("Could not find player with client id " + info.ClientId + ".");
                 }
                 options.TargetActors = new int[]{ player.ID };
             }

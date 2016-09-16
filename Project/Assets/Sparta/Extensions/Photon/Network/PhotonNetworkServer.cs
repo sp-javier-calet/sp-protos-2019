@@ -5,7 +5,7 @@ using SocialPoint.IO;
 namespace SocialPoint.Network
 {
     class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
-	{
+    {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         INetworkMessageReceiver _receiver;
 

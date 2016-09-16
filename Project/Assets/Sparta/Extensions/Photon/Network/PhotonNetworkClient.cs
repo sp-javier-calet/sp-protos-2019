@@ -8,7 +8,7 @@ using System;
 namespace SocialPoint.Network
 {
     public class PhotonNetworkClient : PhotonNetworkBase, INetworkClient
-	{
+    {
         public byte ClientId
         {
             get
@@ -24,7 +24,7 @@ namespace SocialPoint.Network
                 return PhotonNetwork.connected;
             }
         }
-            
+
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         INetworkMessageReceiver _receiver;
 

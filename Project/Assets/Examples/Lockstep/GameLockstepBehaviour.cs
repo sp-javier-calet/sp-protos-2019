@@ -105,7 +105,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         }
         catch(IOException e)
         {
-            Log.e("Could not load replay file: "+e);
+            Log.e("Could not load replay file: " + e);
             return;
         }
 

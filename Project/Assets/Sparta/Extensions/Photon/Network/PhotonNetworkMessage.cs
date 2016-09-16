@@ -5,7 +5,7 @@ using System.IO;
 namespace SocialPoint.Network
 {
     class PhotonNetworkMessage : INetworkMessage
-	{
+    {
         NetworkMessageData _data;
         SystemBinaryWriter _writer;
         MemoryStream _stream;

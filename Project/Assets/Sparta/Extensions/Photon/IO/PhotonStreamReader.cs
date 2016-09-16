@@ -3,9 +3,9 @@ using Photon;
 namespace SocialPoint.IO
 {
     class PhotonStreamReader : SimpleReader
-	{
+    {
         PhotonStream _stream;
-         
+
         public PhotonStreamReader(PhotonStream stream)
         {
             _stream = stream;
