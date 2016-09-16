@@ -14,7 +14,7 @@ namespace SocialPoint.Network
         public string GameVersion;
         public string RoomName;
         public RoomOptions RoomOptions;
-        public byte[] ReliableChannels;
+        public byte[] UnreliableChannels;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -144,6 +144,22 @@ namespace SocialPoint.Network
             return new PhotonNetworkMessage(info, this);
         }
 
+        bool IsChannelReliable(byte channelId)
+        {
+            if(_config.UnreliableChannels == null)
+            {
+                return true;
+            }
+            for(var i = 0; i < _config.UnreliableChannels.Length; i++)
+            {
+                if(_config.UnreliableChannels[i] == channelId)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             var options = new RaiseEventOptions();
@@ -156,14 +172,7 @@ namespace SocialPoint.Network
                 }
                 options.TargetActors = new int[]{ player.ID };
             }
-            var reliable = false;
-            for(var i = 0; i < _config.ReliableChannels.Length; i++)
-            {
-                if(_config.ReliableChannels[i] == info.ChannelId)
-                {
-                    reliable = true;
-                }
-            }
+            var reliable = IsChannelReliable(info.ChannelId);
             var content = new object[]{ info.ChannelId, data };
             PhotonNetwork.RaiseEvent(info.MessageType, content, reliable, options);
         }
@@ -173,7 +182,7 @@ namespace SocialPoint.Network
             var contentArr = (object[])content;
             var clientId = GetPlayerClientId(GetClientIdPlayer((byte)senderid));
             var channelId = (byte)contentArr[0];
-            var data = (byte[])contentArr[0];
+            var data = (byte[])contentArr[1];
             var info = new NetworkMessageData {
                 MessageType = eventcode,
                 ClientId = clientId,
