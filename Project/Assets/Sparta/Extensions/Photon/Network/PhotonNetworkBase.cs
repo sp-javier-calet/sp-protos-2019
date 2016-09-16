@@ -123,13 +123,17 @@ namespace SocialPoint.Network
 
         #endregion
 
-        protected static byte GetPlayerClientId(PhotonPlayer player)
+        protected static byte GetClientId(PhotonPlayer player)
         {
             return (byte)player.ID;
         }
 
-        protected static PhotonPlayer GetClientIdPlayer(byte clientId)
+        protected static PhotonPlayer GetPlayer(byte clientId)
         {
+            if(PhotonNetwork.player.ID == clientId)
+            {
+                return PhotonNetwork.player;
+            }
             var players = PhotonNetwork.otherPlayers;
             for(var i = 0; i < players.Length; i++)
             {
@@ -176,7 +180,7 @@ namespace SocialPoint.Network
             }
             else if(info.ClientId != 0)
             {
-                var player = GetClientIdPlayer(info.ClientId);
+                var player = GetPlayer(info.ClientId);
                 if(player == null)
                 {
                     throw new InvalidOperationException("Could not find player with client id " + info.ClientId + ".");
@@ -194,7 +198,7 @@ namespace SocialPoint.Network
             byte clientId = 0;
             if(senderid != PhotonNetwork.room.masterClientId)
             {
-                clientId = GetPlayerClientId(GetClientIdPlayer((byte)senderid));
+                clientId = GetClientId(GetPlayer((byte)senderid));
             }
             var channelId = (byte)contentArr[0];
             var data = (byte[])contentArr[1];

@@ -49,7 +49,7 @@ namespace SocialPoint.Network
 
         void OnPhotonPlayerConnected(PhotonPlayer player)
         {
-            var clientId = GetPlayerClientId(player);
+            var clientId = GetClientId(player);
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientConnected(clientId);
@@ -58,7 +58,7 @@ namespace SocialPoint.Network
 
         void OnPhotonPlayerDisconnected(PhotonPlayer player)
         {
-            var clientId = GetPlayerClientId(player);
+            var clientId = GetClientId(player);
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected(clientId);

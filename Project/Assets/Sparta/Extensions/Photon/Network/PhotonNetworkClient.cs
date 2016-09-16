@@ -13,7 +13,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return GetPlayerClientId(PhotonNetwork.player);
+                return GetClientId(PhotonNetwork.player);
             }
         }
 
