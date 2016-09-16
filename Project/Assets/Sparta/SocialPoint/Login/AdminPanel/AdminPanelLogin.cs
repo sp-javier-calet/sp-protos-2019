@@ -80,7 +80,7 @@ namespace SocialPoint.Login
                 .Append("User Id: ").AppendLine(_login.UserId.ToString())
                 .Append("Session Id: ").AppendLine(_login.SessionId)
                 .Append("Temp Id: ").AppendLine(_login.User.TempId)
-                .Append("User name").AppendLine(_login.User.Name);
+                .Append("User name: ").AppendLine(_login.User.Name);
 
             if(spLogin != null)
             {

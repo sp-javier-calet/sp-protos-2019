@@ -10,7 +10,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		VC6HubEZQ7zIYLb3wmeMVWyu9CY=
+		+4RWvQ/NiEdS/kznZmHdh9aOI0A=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -20,13 +20,27 @@
 	<key>files2</key>
 	<dict>
 		<key>Headers/UnityGameObject.h</key>
-		<data>
-		m78W3PPIMN+NbOdc2Jt36l7Agi4=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			m78W3PPIMN+NbOdc2Jt36l7Agi4=
+			</data>
+			<key>hash2</key>
+			<data>
+			FcGJyLs5jfA5V46J1TC5fvasudTaFyBTZOLy/U8kFc4=
+			</data>
+		</dict>
 		<key>Modules/module.modulemap</key>
-		<data>
-		9a/PH/Uk75OH4MTJ8AbPLQ+pw50=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			9a/PH/Uk75OH4MTJ8AbPLQ+pw50=
+			</data>
+			<key>hash2</key>
+			<data>
+			uYJM7nbWl9eBPpQIx3r79X08d22D0OZD+ksttmpEGNU=
+			</data>
+		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>

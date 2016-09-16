@@ -19,7 +19,7 @@ LOCAL_C_INCLUDES := $(CURL_SRC_PATH) \
                     $(CURL_INLCUDE_PATH)
 
 LOCAL_LDLIBS := -lz -llog
-LOCAL_STATIC_LIBRARIES := curl ssl crypto
+LOCAL_STATIC_LIBRARIES := curl ssl crypto nghttp2
 
 include $(BUILD_SHARED_LIBRARY)
 
@@ -27,3 +27,4 @@ include $(BUILD_SHARED_LIBRARY)
 $(call import-add-path,$(BASE_PATH)/lib)
 $(call import-module,curl)
 $(call import-module,openssl)
+$(call import-module,nghttp2)
