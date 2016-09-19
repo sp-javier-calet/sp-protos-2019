@@ -266,7 +266,7 @@ namespace SpartaTools.Editor.View
                         _currentXcodeMod.Apply(this);
                         _currentXcodeMod = null;
                     }
-                    catch(Exception e)
+                    catch
                     {
                         Add(new ModData("Failed XcodeMod files", file, _currentXcodeMod));
                     }
