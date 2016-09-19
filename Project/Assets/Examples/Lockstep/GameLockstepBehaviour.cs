@@ -3,10 +3,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using SocialPoint.Base;
 using SocialPoint.Lockstep;
+using SocialPoint.Lockstep.Network;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
+using SocialPoint.Network;
 using FixMath.NET;
 using System;
 using System.IO;
@@ -15,10 +17,13 @@ public enum GameLockstepMode
 {
     None,
     Local,
-    Replay
+    Replay,
+    Client,
+    Server,
+    Host
 }
 
-public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
+public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     Slider _manaSlider;
@@ -39,6 +44,10 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
     LockstepModel _model;
     LockstepReplay _replay;
     LockstepCommandFactory _factory;
+    INetworkClient _netClient;
+    ClientLockstepNetworkController _netLockstepClient;
+    INetworkServer _netServer;
+    ServerLockstepNetworkController _netLockstepServer;
     GameLockstepMode _mode;
 
     string ReplayPath
@@ -78,7 +87,6 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnLocalClicked()
     {
-        _model.Reset();
         SetupGameScreen();
         _mode = GameLockstepMode.Local;
         _replay.Record();
@@ -87,7 +95,6 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     public void OnReplayClicked()
     {
-        _model.Reset();
         try
         {
             var stream = new FileStream(ReplayPath, FileMode.Open);
@@ -98,7 +105,7 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
         }
         catch(IOException e)
         {
-            Log.e("Could not load replay file: "+e);
+            Log.e("Could not load replay file: " + e);
             return;
         }
 
@@ -106,6 +113,43 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
         _mode = GameLockstepMode.Replay;
         _replay.Replay();
         _lockstep.Start(TimeUtils.TimestampMilliseconds);
+    }
+
+    public void OnClientClicked()
+    {
+        SetupGameScreen();
+        _mode = GameLockstepMode.Client;
+        StartClient();
+    }
+
+    void StartClient()
+    {
+        _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
+        _netLockstepClient = ServiceLocator.Instance.Resolve<ClientLockstepNetworkController>();
+        _netClient.Connect();
+        _netLockstepClient.SendPlayerReady();
+    }
+
+    public void OnServerClicked()
+    {
+        SetupGameScreen();
+        _mode = GameLockstepMode.Server;
+        StartServer();
+    }
+
+    void StartServer()
+    {
+        _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
+        _netLockstepServer = ServiceLocator.Instance.Resolve<ServerLockstepNetworkController>();
+        _netServer.Start();
+    }
+
+    public void OnHostClicked()
+    {
+        SetupGameScreen();
+        _mode = GameLockstepMode.Host;
+        StartServer();
+        StartClient();
     }
 
     public void OnCloseClicked()
@@ -134,6 +178,19 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
             stream.Dispose();
         }
         _lockstep.Stop();
+        _model.Reset();
+        if(_netClient != null)
+        {
+            _netClient.Disconnect();
+        }
+        if(_netLockstepServer != null)
+        {
+            _netLockstepServer.Stop();
+        }
+        if(_netServer != null)
+        {
+            _netServer.Stop();
+        }
     }
 
     void SetupGameScreen()
@@ -161,7 +218,10 @@ public class GameLockstepClientBehaviour : MonoBehaviour, IPointerClickHandler
 
     void Update()
     {
-        _manaSlider.value = _model.ManaView;
+        if(_manaSlider != null && _model != null)
+        {
+            _manaSlider.value = _model.ManaView;
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)

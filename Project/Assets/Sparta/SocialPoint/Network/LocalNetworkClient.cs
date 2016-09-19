@@ -25,14 +25,18 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            ClientId = _server.OnClientConnecting(this);
             if(_server.Running)
             {
                 Connected = true;
+            }
+            ClientId = _server.OnClientConnecting(this);
+            if(_server.Running)
+            {
                 for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnClientConnected();
                 }
+                _server.OnClientConnected(this);
             }
         }
 

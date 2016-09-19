@@ -31,4 +31,39 @@ namespace SocialPoint.IO
 
         ulong ReadUInt64();
     }
+
+    public abstract class SimpleReader : IReader
+    {
+        public abstract bool ReadBoolean();
+
+        public abstract byte ReadByte();
+
+        public abstract double ReadDouble();
+
+        public abstract short ReadInt16();
+
+        public abstract int ReadInt32();
+
+        public abstract long ReadInt64();
+
+        public abstract float ReadSingle();
+
+        public abstract string ReadString();
+
+        public abstract ushort ReadUInt16();
+
+        public abstract uint ReadUInt32();
+
+        public abstract ulong ReadUInt64();
+
+        public byte[] ReadBytes(int count)
+        {
+            var bytes = new byte[count];
+            for(var i = 0; i < count; i++)
+            {
+                bytes[i] = ReadByte();
+            }
+            return bytes;
+        }
+    }
 }

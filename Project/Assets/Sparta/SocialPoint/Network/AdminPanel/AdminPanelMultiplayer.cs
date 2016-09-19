@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SocialPoint.Network
 {
-    public sealed class AdminPanelMultiplayer : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
+    public sealed class AdminPanelNetwork : IAdminPanelGUI, IAdminPanelConfigurer, INetworkClientDelegate, INetworkServerDelegate
     {
         DependencyContainer _container;
         IUpdateScheduler _updateScheduler;
@@ -28,7 +28,7 @@ namespace SocialPoint.Network
         Text _opServer;
         Text _opClient;
 
-        public AdminPanelMultiplayer(IUpdateScheduler updateScheduler, DependencyContainer container = null)
+        public AdminPanelNetwork(IUpdateScheduler updateScheduler, DependencyContainer container = null)
         {
             _updateScheduler = updateScheduler;
             _container = container;
@@ -37,13 +37,13 @@ namespace SocialPoint.Network
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
             _console = adminPanel.Console;
-            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Multiplayer", this));
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Network", this));
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             // Inflate layout
-            layout.CreateLabel("Multiplayer");
+            layout.CreateLabel("Network");
             layout.CreateMargin();
 
             layout.CreateLabel("Send Message");
@@ -326,9 +326,9 @@ namespace SocialPoint.Network
         InputField _serverPort;
         InputField _clientAddress;
         InputField _clientPort;
-        AdminPanelMultiplayer _parent;
+        AdminPanelNetwork _parent;
 
-        public AdminPanelUnetMultiplayer(AdminPanelMultiplayer parent, IUpdateScheduler updateScheduler, DependencyContainer container = null)
+        public AdminPanelUnetMultiplayer(AdminPanelNetwork parent, IUpdateScheduler updateScheduler, DependencyContainer container = null)
         {
             _updateScheduler = updateScheduler;
             _parent = parent;
