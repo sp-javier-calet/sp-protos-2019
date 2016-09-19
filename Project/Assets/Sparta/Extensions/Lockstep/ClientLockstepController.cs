@@ -472,6 +472,5 @@ namespace SocialPoint.Lockstep
         }
 
         #endregion
-
     }
 }
