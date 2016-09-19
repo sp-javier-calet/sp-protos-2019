@@ -56,7 +56,7 @@ namespace SocialPoint.Multiplayer
         // Convenience variable so we arn't typecasting all the time.
         //DiscreteDynamicsWorld _ddWorld;
 
-        PhysicsDebugger _debugger;
+        //PhysicsDebugger _debugger;
         //DebugDrawModes _debugDrawMode = DebugDrawModes.DrawWireframe;
         bool _doDebugDraw = false;
 
@@ -162,7 +162,7 @@ namespace SocialPoint.Multiplayer
                             JVector axis3SweepBroadphaseMax)
         {
             _collisionEventHandler = collisionHandler;
-            _debugger = debugger;
+            //_debugger = debugger;
 
             _worldType = worldType;
             //_collisionType = collisionType;
@@ -257,10 +257,10 @@ namespace SocialPoint.Multiplayer
 
         public void AddRigidBody(RigidBody rb, PhysicsCollisionObject.CollisionFilterGroups collisionFilterGroup, PhysicsCollisionObject.CollisionFilterGroups collisionFilterMask)
         {
-            if(_worldType < WorldType.RigidBodyDynamics)
+            /*if(_worldType < WorldType.RigidBodyDynamics)
             {
                 _debugger.LogError("World type must not be collision only");
-            }
+            }*/
             if(rb != null)
             {
                 _world.AddBody(rb);
@@ -270,12 +270,22 @@ namespace SocialPoint.Multiplayer
 
         public void RemoveRigidBody(RigidBody rb)
         {
-            if(_worldType < WorldType.RigidBodyDynamics)
+            /*if(_worldType < WorldType.RigidBodyDynamics)
             {
                 _debugger.LogError("World type must not be collision only");
-            }
+            }*/
             _world.RemoveBody(rb);
             //_ddWorld.RemoveRigidBody(rb);
+        }
+
+        public void AddCollisionHandler(CollisionDetectedHandler handler)
+        {
+            _collisionSystem.CollisionDetected += handler;
+        }
+
+        public void RemoveCollisionHandler(CollisionDetectedHandler handler)
+        {
+            _collisionSystem.CollisionDetected -= handler;
         }
 
         protected void InitializePhysicsWorld()

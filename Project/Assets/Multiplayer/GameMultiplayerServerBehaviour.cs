@@ -4,7 +4,10 @@ using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using System;
 using System.Collections.Generic;
+using Jitter;
 using Jitter.LinearMath;
+using Jitter.Dynamics;
+using Jitter.Collision;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
 {
@@ -140,13 +143,14 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     {
         _physicsWorld = new PhysicsWorld(new PhysicsDefaultCollisionHandler(), _physicsDebugger);
         _physicsWorld.DoDebugDraw = true;
+        _physicsWorld.AddCollisionHandler(CollisionDetectedHandler);
 
         _controller.AddBehaviour(_physicsWorld);
     }
 
     void AddCollision(NetworkGameObject go)
     {
-        var boxShape = new PhysicsBoxShape(new JVector(0.5f));
+        var boxShape = new PhysicsBoxShape(new JVector(1f));
         var rigidBody = new PhysicsRigidBody(boxShape, _physicsWorld, _physicsDebugger, PhysicsCollisionObject.CollisionFlags.KinematicObject);
         //var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
         //rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
@@ -173,5 +177,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         }
 
         return false;
+    }
+
+    void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
+                                  JVector point1, JVector point2, JVector normal, float penetration)
+    {
+        UnityEngine.Debug.Log("*** TEST Collision Detected");
     }
 }

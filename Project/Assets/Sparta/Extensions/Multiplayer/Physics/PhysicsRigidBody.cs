@@ -406,7 +406,11 @@ namespace SocialPoint.Multiplayer
             if((_collisionFlags & CollisionFlags.KinematicObject) != 0)
             {
                 //_collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
+                _rigidBody.Position = NetworkGameObject.Transform.Position;
+                //_debugger.Log(_rigidBody.Position);
             }
+            _rigidBody.EnableDebugDraw = true;
+            _rigidBody.DebugDraw(_debugger);
         }
 
         public override void OnDestroy()
@@ -510,6 +514,9 @@ namespace SocialPoint.Multiplayer
             if((_collisionFlags & CollisionFlags.KinematicObject) != 0)
             {
                 //_rigidBody.ActivationState = ActivationState.DisableDeactivation;
+
+                //_rigidBody.IsStatic = true;
+                _rigidBody.AffectedByGravity = false;
             }
             return true;
         }
