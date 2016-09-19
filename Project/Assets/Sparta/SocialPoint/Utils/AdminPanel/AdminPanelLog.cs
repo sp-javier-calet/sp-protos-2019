@@ -10,16 +10,14 @@ namespace SocialPoint.Utils
     public sealed class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly List<LogEntry> _entries;
-        Dictionary<LogType, bool> _activeTypes;
+        bool _showLogLevels;
         Text _textComponent;
-        bool _autoRefresh;
-        readonly int _maxEntriesToDisplay = 100;
+        LogConfig _config;
 
         public AdminPanelLog()
         {
-            _autoRefresh = true;
             _entries = new List<LogEntry>();
-            _activeTypes = new Dictionary<LogType, bool>();
+            _config = new LogConfig();
 
             LogCallbackHandler.RegisterLogCallback(HandleLog);
 
@@ -27,7 +25,7 @@ namespace SocialPoint.Utils
             for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
             {
                 var type = (LogType)array.GetValue(i);
-                _activeTypes[type] = true;
+                _config.ActiveTypes[type] = true;
             }
         }
 
@@ -48,8 +46,8 @@ namespace SocialPoint.Utils
 
             using(var hLayout = layout.CreateHorizontalLayout())
             {
-                hLayout.CreateToggleButton("Auto", _autoRefresh, value => {
-                    _autoRefresh = value;
+                hLayout.CreateToggleButton("Auto", _config.AutoRefresh, value => {
+                    _config.AutoRefresh = value;
                 });
 
                 hLayout.CreateButton("Refresh", RefreshContent);
@@ -60,25 +58,52 @@ namespace SocialPoint.Utils
                 });
             }
 
-            layout.CreateMargin();
-            layout.CreateLabel("Log level");
-
-            var array = Enum.GetValues(typeof(LogType));
-            for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
+            layout.CreateToggleButton("Log Levels", _showLogLevels, status =>
+                {
+                    _showLogLevels = status;
+                    layout.Refresh();
+                });
+            if(_showLogLevels)
             {
-                // Each lambda must capture a diferent reference, so it has to be a local variable
-                var type = (LogType)array.GetValue(i);
-                LogType aType = type;
-                layout.CreateToggleButton(aType.ToString(), _activeTypes[aType], value => ActivateLogType(aType, value));
+                LogLevelsFoldoutGUI(layout);
             }
+
+            layout.CreateMargin();
+
+            layout.CreateTextInput("Filter", 
+                value => 
+                {
+                    _config.Filter = string.IsNullOrEmpty(value)? null : value.ToLower();
+                    RefreshContent();
+                },
+                status => 
+                {
+                    _config.Filter = string.IsNullOrEmpty(status.Content)? null : status.Content.ToLower();
+                    RefreshContent();
+                });
 
             RefreshContent();
         }
 
+        public void LogLevelsFoldoutGUI(AdminPanelLayout layout)
+        {
+            using(var vlayout = layout.CreateVerticalLayout())
+            {
+                var array = Enum.GetValues(typeof(LogType));
+                for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
+                {
+                    // Each lambda must capture a diferent reference, so it has to be a local variable
+                    var type = (LogType)array.GetValue(i);
+                    LogType aType = type;
+                    vlayout.CreateToggleButton(aType.ToString(), _config.ActiveTypes[aType], value => ActivateLogType(aType, value));
+                }
+            }
+        }
+
         void ActivateLogType(LogType type, bool active)
         {
-            _activeTypes[type] = active;
-            if(_autoRefresh)
+            _config.ActiveTypes[type] = active;
+            if(_config.AutoRefresh)
             {
                 RefreshContent();
             }
@@ -90,11 +115,16 @@ namespace SocialPoint.Utils
             {
                 int numEntriesToDisplay = 0;
                 var logContent = StringUtils.StartBuilder();
-                for(int i = _entries.Count - 1; i > -1 && numEntriesToDisplay < _maxEntriesToDisplay; i--)
+                for(int i = _entries.Count - 1; i > -1 && numEntriesToDisplay < _config.MaxEntriesToDisplay; i--)
                 {
                     LogEntry entry = _entries[i];
-                    if(_activeTypes[entry.Type])
+                    if(_config.ActiveTypes[entry.Type])
                     {
+                        if(_config.Filter != null && !entry.LowerContent.Contains(_config.Filter))
+                        {
+                            continue;
+                        }
+
                         logContent.Append(entry.Content);
                         numEntriesToDisplay++;
                     }
@@ -110,7 +140,15 @@ namespace SocialPoint.Utils
             RefreshContent();
         }
 
-        class LogEntry
+        sealed class LogConfig
+        {
+            public readonly Dictionary<LogType, bool> ActiveTypes = new Dictionary<LogType, bool>();
+            public bool AutoRefresh = true;
+            public int MaxEntriesToDisplay = 100;
+            public string Filter;
+        }
+
+        sealed class LogEntry
         {
             static readonly Dictionary<LogType, string> LogColors = new Dictionary<LogType, string> {
                 { LogType.Log, "#EEE" },
@@ -124,6 +162,8 @@ namespace SocialPoint.Utils
 
             public string Content { get; private set; }
 
+            public string LowerContent { get; private set; }
+
             public LogEntry(LogType type, string message, string stackTrace)
             {
                 Type = type;
@@ -136,6 +176,7 @@ namespace SocialPoint.Utils
                               .Append(((type == LogType.Exception) ? "<b>Stack:</b>" + stackTrace : ""))
                               .AppendLine("</color>");
                 Content = StringUtils.FinishBuilder(contentBuilder);
+                LowerContent = Content.ToLower();
             }
         }
     }

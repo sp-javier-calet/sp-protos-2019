@@ -41,10 +41,20 @@ namespace SpartaTools.Editor.Sync
             SyncReport.Log("Synchronizing " + projectPath);
 
             var list = new List<ModuleSync>();
-
+                
+            if(CheckCancelled())
+            {   
+                return null;
+            }
+            
             CurrentProgress.Update("Retrieving Sparta modules", 0.05f);
             var spartaModules = Project.GetModules(Project.BasePath);
 
+            if(CheckCancelled())
+            {   
+                return null;
+            }
+            
             CurrentProgress.Update("Retrieving Target modules", 0.05f);
             var targetModules = Project.GetModules(projectPath);
 
@@ -54,6 +64,11 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var spartaMod in spartaModules.Values)
             {
+                if(CheckCancelled())
+                {   
+                    return null;
+                }
+                
                 CurrentProgress.Update(string.Format("Comparing {0}", spartaMod.Name), modulePercent);
 
                 // Search for module in target
@@ -85,6 +100,11 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var targetMod in targetModules.Values)
             {
+                if(CheckCancelled())
+                {   
+                    return null;
+                }
+                
                 CurrentProgress.Update(string.Format("Comparing {0}", targetMod.Name), modulePercent);
 
                 ModuleSync.SyncStatus status;
@@ -98,6 +118,17 @@ namespace SpartaTools.Editor.Sync
             SyncReport.Dump();
             CurrentProgress.Finish();
             return list;
+        }
+
+        static bool CheckCancelled()
+        {
+            var cancelled = CurrentProgress.Cancelled;
+            if(cancelled)
+            {
+                SyncReport.Log("User cancelled");
+                SyncReport.Dump();
+            }
+            return cancelled;
         }
 
         /// <summary>
@@ -122,7 +153,8 @@ namespace SpartaTools.Editor.Sync
         /// <returns><c>true</c>, if modules was updated successfully, <c>false</c> otherwise.</returns>
         /// <param name="targetPath">Target project path.</param>
         /// <param name="modules">List of ModuleSync to proccess. Actions will be differents depending on the sync status.</param>
-        public static bool UpdateModules(string targetPath, IList<ModuleSync> modules)
+        /// <param name="sourceInfo">Source project repository information, to be added to the target project's log.</param>
+        public static bool UpdateModules(string targetPath, IList<ModuleSync> modules, RepositoryInfo sourceInfo)
         {
             var spartaProject = new Project(targetPath);
             if(!spartaProject.Valid)
@@ -135,7 +167,7 @@ namespace SpartaTools.Editor.Sync
                 spartaProject.Initialize();
             }
 
-            spartaProject.AddLog(DateTime.UtcNow, spartaProject.GetRepositoryInfo());
+            spartaProject.AddLog(DateTime.UtcNow, sourceInfo);
             spartaProject.Save();
 
             foreach(var module in modules)

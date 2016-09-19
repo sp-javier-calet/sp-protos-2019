@@ -1,19 +1,18 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public sealed class ConfirmTurnsMessage : INetworkMessage
+    public sealed class ConfirmTurnsMessage : INetworkShareable
     {
-        LockstepCommandDataFactory _commandDataFactory;
+        LockstepCommandFactory _factory;
 
         public LockstepTurnData[] ConfirmedTurns { get; set; }
 
-        public ConfirmTurnsMessage(LockstepCommandDataFactory commandDataFactory)
+        public ConfirmTurnsMessage(LockstepCommandFactory factory)
         {
-            _commandDataFactory = commandDataFactory;
+            _factory = factory;
         }
 
         public void Deserialize(IReader reader)
@@ -24,11 +23,12 @@ namespace SocialPoint.Lockstep.Network
             {
                 int turn = reader.ReadInt32();
                 int commandCount = (int)reader.ReadByte();
-                var commands = new List<ILockstepCommand>();
+                var commands = new List<LockstepCommandData>();
                 for(int j = 0; j < commandCount; ++j)
                 {
-                    LockstepCommandData data = _commandDataFactory.CreateNetworkLockstepCommandData(turn, reader);
-                    commands.Add(data.LockstepCommand);
+                    var command = new LockstepCommandData();
+                    command.Deserialize(_factory, reader);
+                    commands.Add(command);
                 }
                 ConfirmedTurns[i] = new LockstepTurnData(turn, commands);
             }
@@ -45,17 +45,8 @@ namespace SocialPoint.Lockstep.Network
                 for(int j = 0; j < confirmedTurn.Commands.Count; ++j)
                 {
                     var command = confirmedTurn.Commands[j];
-                    LockstepCommandData data = _commandDataFactory.CreateNetworkLockstepCommandData(command);
-                    data.Serialize(writer);
+                    command.Serialize(_factory, writer);
                 }
-            }
-        }
-
-        public bool RequiresSync
-        {
-            get
-            {
-                return false;
             }
         }
     }

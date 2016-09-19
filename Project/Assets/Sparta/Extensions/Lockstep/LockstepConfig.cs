@@ -1,12 +1,36 @@
-﻿namespace SocialPoint.Lockstep
+﻿using SocialPoint.IO;
+
+namespace SocialPoint.Lockstep
 {
-    public sealed class LockstepConfig
+    [System.Serializable]
+    public sealed class LockstepConfig : INetworkShareable
     {
+        public const int DefaultCommandStepFactor = 10;
+        public const int DefaultSimulationStep = 10;
+        public const int DefaultMinExecutionTurnAnticipation = 1;
+        public const int DefaultMaxExecutionTurnAnticipation = 20;
+        public const int DefaultExecutionTurnAnticipation = 2;
+        public const int DefaultMaxRetries = 2;
+
         // The commands will be only processed every CommandStepFactor simulation steps reached
-        public int CommandStepFactor = 10;
+        public int CommandStepFactor = DefaultCommandStepFactor;
 
         // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
-        public int SimulationStep = 10;
+        public int SimulationStep = DefaultSimulationStep;
+
+        // Minimum turn anticipation allowed (ExecutionTurnAnticipation will get reduced when good networking conditions
+        // met)
+        public int MinExecutionTurnAnticipation = DefaultMinExecutionTurnAnticipation;
+
+        // Maximum turn anticipation allowed (ExecutionTurnAnticipation will grow when bad networking conditions met)
+        public int MaxExecutionTurnAnticipation = DefaultMaxExecutionTurnAnticipation;
+
+        // Initial turn anticipation (commands will be scheduled to be executed by default to current
+        // command + ExecutionTurnAnticipation)
+        public int ExecutionTurnAnticipation = DefaultExecutionTurnAnticipation;
+
+        // Maximum retries allowed per command
+        public int MaxRetries = DefaultMaxRetries;
 
         // Command processing tick.
         public int CommandStep
@@ -17,18 +41,24 @@
             }
         }
 
-        // Minimum turn anticipation allowed (ExecutionTurnAnticipation will get reduced when good networking conditions
-        // met)
-        public int MinExecutionTurnAnticipation = 1;
+        public void Deserialize(IReader reader)
+        {
+            CommandStepFactor = reader.ReadInt32();
+            SimulationStep = reader.ReadInt32();
+            MinExecutionTurnAnticipation = reader.ReadInt32();
+            MaxExecutionTurnAnticipation = reader.ReadInt32();
+            ExecutionTurnAnticipation = reader.ReadInt32();
+            MaxRetries = reader.ReadInt32();
+        }
 
-        // Maximum turn anticipation allowed (ExecutionTurnAnticipation will grow when bad networking conditions met)
-        public int MaxExecutionTurnAnticipation = 20;
-
-        // Initial turn anticipation (commands will be scheduled to be executed by default to current
-        // command + ExecutionTurnAnticipation)
-        public int ExecutionTurnAnticipation = 2;
-
-        // Maximum retries allowed per command
-        public int MaxRetries = 2;
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(CommandStepFactor);
+            writer.Write(SimulationStep);
+            writer.Write(MinExecutionTurnAnticipation);
+            writer.Write(MaxExecutionTurnAnticipation);
+            writer.Write(ExecutionTurnAnticipation);
+            writer.Write(MaxRetries);
+        }
     }
 }

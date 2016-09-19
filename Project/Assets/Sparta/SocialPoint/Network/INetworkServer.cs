@@ -36,6 +36,8 @@ namespace SocialPoint.Network
         void RemoveDelegate(INetworkServerDelegate dlg);
 
         void RegisterReceiver(INetworkMessageReceiver receiver);
+
+        int GetTimestamp();
     }
 
     public static class NetworkServerExtensions

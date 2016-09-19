@@ -165,7 +165,9 @@ namespace SocialPoint.GUIAnimation
         {
             _animation.Refresh();
 
-            bool exist = AnimItems.Find((Step i) => i == item);
+            bool exist = AnimItems.Find((Step i) => {
+                return i == item;
+            });
             if(exist)
             {
                 item.OnRemoved();
@@ -175,7 +177,6 @@ namespace SocialPoint.GUIAnimation
             {
                 Log.w("[SPCollection] Trying to remove item " + item.name + " that is not in this collection");
             }
-
             _animation.RefreshAndInit();
         }
 
@@ -211,7 +212,9 @@ namespace SocialPoint.GUIAnimation
 
         public static T CopyItem<T>(Group target, Group source, T sourceItem, bool isRecursive) where T:Step
         {
-            bool existInSource = source.AnimItems.Find((Step i) => i == sourceItem);
+            bool existInSource = source.AnimItems.Find((Step i) => {
+                return i == sourceItem;
+            });
             if(!existInSource)
             {
                 Log.w("[SPCollection] Trying to move item " + sourceItem.name + " that is not in this collection");
@@ -259,7 +262,9 @@ namespace SocialPoint.GUIAnimation
             int slot = min;
             for(; slot < max; ++slot)
             {
-                isFree = !AnimItems.Exists((Step animItem) => animItem.Slot == slot);
+                isFree = !AnimItems.Exists((Step animItem) => {
+                    return animItem.Slot == slot;
+                });
                 if(isFree)
                 {
                     return slot;

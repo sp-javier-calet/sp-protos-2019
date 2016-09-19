@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -15,10 +14,35 @@ namespace SocialPoint.GUIAnimation
 
     public static class AnchorUtility
     {
+        public static void GetNormalizedPositionSize(Transform trans, ref Vector2 normPos, ref Vector2 normSize)
+        {
+            #if NGUI
+            GetNormalizedPositionSizeNGUI (trans, ref normPos, ref normSize );
+            #else
+            #endif
+        }
+
         public static void UpdateAndRemoveAnchors(Transform trans, bool isRecursive)
         {
             Update(trans, isRecursive);
             RemoveAnchors(trans, isRecursive);
+        }
+
+        public static void SetToAnchoredPosition(Transform trans, Vector2 anchoredPosition)
+        {
+            #if NGUI
+            SetToAnchoredPositionNGUI (trans, anchoredPosition );
+            #else
+            #endif
+        }
+
+        public static Vector3 GetNormalizedPosition(Vector3 position, Transform root)
+        {
+            #if NGUI
+            return GetNormalizedPositionNGUI (position, root );
+            #else
+            return  position;
+            #endif
         }
 
         public static void Update(Transform trans, bool isRecursive)
@@ -34,7 +58,7 @@ namespace SocialPoint.GUIAnimation
             #if NGUI
             return ToPixelsNGUI (clipSpace);
             #else
-            return clipSpace;
+            throw new System.NotImplementedException();
             #endif
         }
 
@@ -43,7 +67,7 @@ namespace SocialPoint.GUIAnimation
             #if NGUI
             return ToClipSpaceNGUI (pixels);
             #else
-            return pixels;
+            throw new System.NotImplementedException();
             #endif
         }
 
@@ -113,7 +137,7 @@ namespace SocialPoint.GUIAnimation
         public static Transform CreatePivotTransform(string name = "")
         {
             #if NGUI
-            Log.d("Setting Dimmensions...");
+            Log.d ("Setting Dimmensions...");
 
             GameObject go = new GameObject (name);
             UIWidget widget = go.AddComponent<UIWidget> ();
@@ -218,8 +242,8 @@ namespace SocialPoint.GUIAnimation
         {
             DebugUtils.Assert(anchorMode != AnchorMode.Disabled);
 
-            var anchorMin = new Vector2(0.5f, 0.5f);
-            var anchorMax = new Vector2(0.5f, 0.5f);
+            Vector2 anchorMin = new Vector2(0.5f, 0.5f);
+            Vector2 anchorMax = new Vector2(0.5f, 0.5f);
 
             // Parent Rect Info
             Canvas canvas = GameObject.FindObjectOfType<Canvas>();
@@ -434,7 +458,7 @@ namespace SocialPoint.GUIAnimation
             return new Vector2 (w / uiRoot.manualWidth, h / uiRoot.manualHeight);
         }
 
-        static Vector2 GetCanvasSizeNGUI ()
+        public static Vector2 GetCanvasSizeNGUI ()
         {
             UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot> ();
             UICamera uiCamera = uiRoot.GetComponentInChildren<UICamera> ();
@@ -465,6 +489,36 @@ namespace SocialPoint.GUIAnimation
             }
 
             return new Vector2 (w, h);
+        }
+
+        static Vector2 GetNormalizedPositionNGUI(Vector3 position, Transform root)
+        {
+            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot>();
+            UIRect parentGraphic = uiRoot.GetComponent<UIRect>();
+            if(root != null)
+            {
+                parentGraphic = uiRoot.GetComponentInParent<UIRect>();
+            }
+            Vector3[] parentWC = parentGraphic.worldCorners;
+            Vector2 parentHalfSize = new Vector2((parentWC[2].x-parentWC[1].x)*0.5f, (parentWC[1].y-parentWC[0].y)*0.5f);
+            Vector2 parentPos = new Vector2((parentWC[2].x+parentWC[1].x)*0.5f, (parentWC[1].y+parentWC[0].y)*0.5f);
+            Vector2 parentPosMin = parentPos - parentHalfSize;
+
+            Vector3 normaPos = new Vector2( (position.x - parentPosMin.x) / parentHalfSize.x , (position.y - parentPosMin.y) / parentHalfSize.y ) / 2f;
+            return normaPos;
+        }
+
+        static void SetToAnchoredPositionNGUI(Transform trans, Vector2 newAnchoredPos)
+        {
+            UIRect graphic = trans.GetComponentInChildren<UIRect> ();
+            Vector2 anchorPos = new Vector2(graphic.leftAnchor.relative + graphic.rightAnchor.relative, graphic.topAnchor.relative + graphic.bottomAnchor.relative) * 0.5f;
+            Vector2 offsetPos = newAnchoredPos - anchorPos;
+
+            graphic.leftAnchor.relative += offsetPos.x;
+            graphic.rightAnchor.relative += offsetPos.x;
+
+            graphic.topAnchor.relative += offsetPos.y;
+            graphic.bottomAnchor.relative += offsetPos.y;
         }
 
         static Vector2 ToPixelsNGUI (Vector2 screenDelta)
@@ -511,7 +565,10 @@ namespace SocialPoint.GUIAnimation
                 List<UIRect> rects = new List<UIRect> (trans.GetComponentsInChildren<UIRect> (true));
                 for (int i = 0; i < rects.Count; ++i)
                 {
-                    DoRemoveAnchorsNGUI (rects [i]);
+                    if(rects[i].gameObject.tag.CompareTo("Anchored") != 0)
+                    {
+                        DoRemoveAnchorsNGUI (rects [i]);
+                    }
                 }
             }
             else
@@ -832,6 +889,30 @@ namespace SocialPoint.GUIAnimation
                 anchoredPosAbsMin,
                 anchoredPosAbsMax
             };
+        }
+
+        static void GetNormalizedPositionSizeNGUI(Transform trans, ref Vector2 normPos, ref Vector2 normSize)
+        {
+            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot>();
+            UIRect parentGraphic = uiRoot.GetComponent<UIRect>();
+            Vector3[] parentWC = parentGraphic.worldCorners;
+            Vector2 parentHalfSize = new Vector2((parentWC[2].x - parentWC[1].x) * 0.5f, (parentWC[1].y - parentWC[0].y) * 0.5f);
+            Vector2 parentPos = new Vector2((parentWC[2].x + parentWC[1].x) * 0.5f, (parentWC[1].y + parentWC[0].y) * 0.5f);
+            Vector2 parentPosMin = parentPos - parentHalfSize;
+
+            UIRect graphic = trans.GetComponentInChildren<UIRect>();
+            Vector3[] wc = graphic.worldCorners;
+            Vector2 halfSize = new Vector2((wc[2].x - wc[1].x) * 0.5f, (wc[1].y - wc[0].y) * 0.5f);
+            Vector2 pos = new Vector2((wc[2].x + wc[1].x) * 0.5f, (wc[1].y + wc[0].y) * 0.5f);
+            Vector2 posMin = pos - halfSize;
+            Vector2 posMax = pos + halfSize;
+
+            // Normalized positions
+            Vector2 anchorMin = new Vector2((posMin.x - parentPosMin.x) / (2f * parentHalfSize.x), (posMin.y - parentPosMin.y) / (2f * parentHalfSize.y));
+            Vector2 anchorMax = new Vector2((posMax.x - parentPosMin.x) / (2f * parentHalfSize.x), (posMax.y - parentPosMin.y) / (2f * parentHalfSize.y));
+
+            normPos = (anchorMax + anchorMin) * 0.5f;
+            normSize = (anchorMax - anchorMin) * 0.5f;
         }
 
         #endif

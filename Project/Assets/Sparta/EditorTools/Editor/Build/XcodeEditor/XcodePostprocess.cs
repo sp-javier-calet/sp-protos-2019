@@ -11,12 +11,26 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         public const string BaseScheme = "base";
         public const string EditorScheme = "editor";
 
+        const string LastPathPrefsKey = "XcodePostProcessLastPath";
+
+        public static string LastProjectPath
+        {
+            set
+            {
+                EditorPrefs.SetString(LastPathPrefsKey, value);
+            }
+            get
+            {
+                return EditorPrefs.GetString(LastPathPrefsKey, string.Empty);
+            }
+        }
+            
         static string[] Schemes
         {
             get
             {
                 // XCodeModSchemes prefs are written by BuildSet.
-                var customPrefixes = EditorPrefs.GetString(BuildSet.XcodeModSchemesPrefsKey, string.Empty);
+                var customPrefixes = BuildSet.CurrentXcodeModSchemes;
                 if(string.IsNullOrEmpty(customPrefixes))
                 {
                     return new string[0];
@@ -46,23 +60,38 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 }
             }
 
-            return projectPath;
+            return Path.GetFullPath(projectPath);
         }
 
         [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
+            ApplyXcodeMods(target, path);
+        }
+
+        public static void ApplyXcodeMods(BuildTarget target, string path)
+        {
             if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
             {
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
+                // Store project path for manual execution
+                LastProjectPath = path;
+
+                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
+
                 var projectPath = GetProjectPath(path);
+
+                // Manage relative paths if needed
+                if(!Path.IsPathRooted(projectPath))
+                {
+                    projectPath = Path.Combine(baseAppPath, projectPath);
+                }
+
                 if(!Directory.Exists(projectPath))
                 {
                     throw new FileNotFoundException(string.Format("Xcode project filed not found in path '{0}'", projectPath));
                 }
-
-                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
 
                 var project = new XcodeProject(projectPath, baseAppPath);
                 var mods = new XcodeModsSet(target);

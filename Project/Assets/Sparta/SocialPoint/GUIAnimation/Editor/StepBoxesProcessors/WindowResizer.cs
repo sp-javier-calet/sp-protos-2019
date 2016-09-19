@@ -2,67 +2,68 @@
 
 namespace SocialPoint.GUIAnimation
 {
-	public sealed class WindowResizer 
-	{
-		public delegate void OnResized(Vector2 delta);
+    public sealed class WindowResizer
+    {
+        public delegate void OnResized(Vector2 delta);
 
-		private int _grabDistance;
-		public int GrabDistance { get { return _grabDistance; } set { _grabDistance = value; } }
+        private int _grabDistance;
 
-		private bool _isResizing;
-		public bool IsResizing { get { return _isResizing; } }
+        public int GrabDistance { get { return _grabDistance; } set { _grabDistance = value; } }
 
-		private Vector2 LastMousePos;
-		private Vector2 _minSize;
+        private bool _isResizing;
 
-		public Vector2 DeltaSize;
+        public bool IsResizing { get { return _isResizing; } }
 
-		public WindowResizer (int grabDistance, Vector2 minSize)
-		{
-			_grabDistance = grabDistance;
-			_minSize = minSize;
-			_isResizing = false;
-		}
+        private Vector2 LastMousePos;
+        private Vector2 _minSize;
 
-		public void Stop()
-		{
-			_isResizing = false;
-		}
+        public Vector2 DeltaSize;
 
-		public void Resize (ref Rect ResizingWindow, Vector2 axis, OnResized callback = null)
-		{
-			if (ResizingWindow.Contains(Event.current.mousePosition) &&
-			    Event.current.type == EventType.mouseDown &&
-			    Mathf.Abs(Event.current.mousePosition.x - (ResizingWindow.position.x + ResizingWindow.width)) < _grabDistance &&
-			    Mathf.Abs(Event.current.mousePosition.y - (ResizingWindow.position.y + ResizingWindow.height)) < _grabDistance
-			    )
-			{
-				_isResizing = true;
-				LastMousePos = Event.current.mousePosition;
-			}
-			else if (Event.current.type == EventType.mouseUp )
-			{
-				_isResizing = false;
-			}
+        public WindowResizer(int grabDistance, Vector2 minSize)
+        {
+            _grabDistance = grabDistance;
+            _minSize = minSize;
+            _isResizing = false;
+        }
 
-			if (_isResizing)
-			{
-				Vector2 prevSize = ResizingWindow.size;
+        public void Stop()
+        {
+            _isResizing = false;
+        }
 
-				ResizingWindow.width += (Event.current.mousePosition.x - LastMousePos.x) * axis.x;
-				ResizingWindow.width = Mathf.Max(_minSize.x, ResizingWindow.width);
+        public void Resize(ref Rect ResizingWindow, Vector2 axis, OnResized callback = null)
+        {
+            if(ResizingWindow.Contains(Event.current.mousePosition) &&
+            Event.current.type == EventType.mouseDown &&
+            Mathf.Abs(Event.current.mousePosition.x - (ResizingWindow.position.x + ResizingWindow.width)) < _grabDistance &&
+            Mathf.Abs(Event.current.mousePosition.y - (ResizingWindow.position.y + ResizingWindow.height)) < _grabDistance)
+            {
+                _isResizing = true;
+                LastMousePos = Event.current.mousePosition;
+            }
+            else if(Event.current.type == EventType.mouseUp)
+            {
+                _isResizing = false;
+            }
 
-				ResizingWindow.height += (Event.current.mousePosition.y - LastMousePos.y) * axis.y;
-				ResizingWindow.height = Mathf.Max(_minSize.y, ResizingWindow.height);
+            if(_isResizing)
+            {
+                Vector2 prevSize = ResizingWindow.size;
 
-				LastMousePos = Event.current.mousePosition;
+                ResizingWindow.width += (Event.current.mousePosition.x - LastMousePos.x) * axis.x;
+                ResizingWindow.width = Mathf.Max(_minSize.x, ResizingWindow.width);
 
-				DeltaSize = ResizingWindow.size - prevSize;
-				if(callback != null)
-				{
-					callback(DeltaSize);
-				}
-			}
-		}
-	}
+                ResizingWindow.height += (Event.current.mousePosition.y - LastMousePos.y) * axis.y;
+                ResizingWindow.height = Mathf.Max(_minSize.y, ResizingWindow.height);
+
+                LastMousePos = Event.current.mousePosition;
+
+                DeltaSize = ResizingWindow.size - prevSize;
+                if(callback != null)
+                {
+                    callback(DeltaSize);
+                }
+            }
+        }
+    }
 }
