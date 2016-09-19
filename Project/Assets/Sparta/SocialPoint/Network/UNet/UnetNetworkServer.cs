@@ -159,9 +159,12 @@ namespace SocialPoint.Network
                 var conn = _server.FindConnection(data.ClientId);
                 if(conn == null)
                 {
-                    throw new InvalidOperationException("Could not find client id.");
+                    conns = new NetworkConnection[]{ };
                 }
-                conns = new NetworkConnection[]{ conn };
+                else
+                {
+                    conns = new NetworkConnection[]{ conn };
+                }
             }
             else
             {
