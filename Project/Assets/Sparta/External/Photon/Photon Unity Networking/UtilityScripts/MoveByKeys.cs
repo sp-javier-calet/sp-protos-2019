@@ -41,9 +41,14 @@ public class MoveByKeys : Photon.MonoBehaviour
             return;
         }
 
-        if ((Input.GetAxisRaw("Horizontal") < -0.1f) || (Input.GetAxisRaw("Horizontal") > 0.1f))
+        if (Input.GetKey(KeyCode.A))
         {
-            transform.position += Vector3.right * (Speed * Time.deltaTime) * Input.GetAxisRaw("Horizontal");
+            transform.position += Vector3.left*(this.Speed*Time.deltaTime);
+        }
+
+        if (Input.GetKey(KeyCode.D))
+        {
+            transform.position += Vector3.right*(this.Speed*Time.deltaTime);
         }
 
         // jumping has a simple "cooldown" time but you could also jump in the air
@@ -76,9 +81,14 @@ public class MoveByKeys : Photon.MonoBehaviour
         // 2d objects can't be moved in 3d "forward"
         if (!this.isSprite)
         {
-            if ((Input.GetAxisRaw("Vertical") < -0.1f) || (Input.GetAxisRaw("Vertical") > 0.1f))
+            if (Input.GetKey(KeyCode.W))
             {
-                transform.position += Vector3.forward * (Speed * Time.deltaTime) * Input.GetAxisRaw("Vertical");
+                transform.position += Vector3.forward*(this.Speed*Time.deltaTime);
+            }
+
+            if (Input.GetKey(KeyCode.S))
+            {
+                transform.position -= Vector3.forward*(this.Speed*Time.deltaTime);
             }
         }
     }

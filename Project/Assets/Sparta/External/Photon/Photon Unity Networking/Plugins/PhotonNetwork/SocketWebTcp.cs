@@ -13,7 +13,7 @@ using System.Collections;
 using UnityEngine;
 using SupportClassPun = ExitGames.Client.Photon.SupportClass;
 
-#if UNITY_WEBGL || UNITY_XBOXONE
+#if UNITY_WEBGL
 
 namespace ExitGames.Client.Photon
 {
@@ -76,7 +76,7 @@ namespace ExitGames.Client.Photon
             }
 
             websocketConnectionObject = new GameObject("websocketConnectionObject");
-            MonoBehaviour mb = websocketConnectionObject.AddComponent<MonoBehaviourExt>();
+            MonoBehaviour mb = websocketConnectionObject.AddComponent<MonoBehaviour>();
             // TODO: not hidden for debug
             //websocketConnectionObject.hideFlags = HideFlags.HideInHierarchy;
             UnityEngine.Object.DontDestroyOnLoad(websocketConnectionObject);
@@ -247,8 +247,6 @@ namespace ExitGames.Client.Photon
             Disconnect();
         }
     }
-
-	internal class MonoBehaviourExt : MonoBehaviour {}
 }
 
 #endif

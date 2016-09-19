@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using System;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 
@@ -57,7 +56,7 @@ public class PickupItemSyncer : Photon.MonoBehaviour
             
             if (nextPlayer != null && !nextPlayer.Equals(PhotonNetwork.player))
             {
-                this.photonView.RPC("RequestForPickupItems", nextPlayer);
+                this.photonView.RPC("RequestForPickupTimes", nextPlayer);
                 
                 // you could restart this invoke and try to find another player after 4 seconds. but after a while it doesnt make a difference anymore
                 //this.Invoke("AskForPickupItemSpawnTimes", 2.0f);
@@ -71,14 +70,7 @@ public class PickupItemSyncer : Photon.MonoBehaviour
     }
 
     [PunRPC]
-    [Obsolete("Use RequestForPickupItems(PhotonMessageInfo msgInfo) with corrected typing instead.")]
     public void RequestForPickupTimes(PhotonMessageInfo msgInfo)
-    {
-        RequestForPickupItems(msgInfo);
-    }
-
-    [PunRPC]
-    public void RequestForPickupItems(PhotonMessageInfo msgInfo)
     {
         if (msgInfo.sender == null)
         {
@@ -89,11 +81,12 @@ public class PickupItemSyncer : Photon.MonoBehaviour
         SendPickedUpItems(msgInfo.sender);
     }
 
+
     /// <summary>Summarizes all PickupItem ids and spawn times for new players. Calls RPC "PickupItemInit".</summary>
-    /// <param name="targetPlayer">The player to send the pickup times to. It's a targetted RPC.</param>
-    private void SendPickedUpItems(PhotonPlayer targetPlayer)
+    /// <param name="targtePlayer">The player to send the pickup times to. It's a targetted RPC.</param>
+    private void SendPickedUpItems(PhotonPlayer targtePlayer)
     {
-        if (targetPlayer == null)
+        if (targtePlayer == null)
         {
             Debug.LogWarning("Cant send PickupItem spawn times to unknown targetPlayer.");
             return;
@@ -129,7 +122,7 @@ public class PickupItemSyncer : Photon.MonoBehaviour
         }
 
         Debug.Log("Sent count: " + valuesToSend.Count + " now: " + now);
-        this.photonView.RPC("PickupItemInit", targetPlayer, PhotonNetwork.time, valuesToSend.ToArray());
+        this.photonView.RPC("PickupItemInit", targtePlayer, PhotonNetwork.time, valuesToSend.ToArray());
     }
 
 

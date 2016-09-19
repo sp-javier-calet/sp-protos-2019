@@ -8,8 +8,6 @@
 // <author>developer@exitgames.com</author>
 // ----------------------------------------------------------------------------
 
-//#define PHOTON_VOICE
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -98,7 +96,7 @@ public class PhotonEditor : EditorWindow
 
     protected static string DocumentationLocation = "Assets/Photon Unity Networking/PhotonNetwork-Documentation.pdf";
 
-    protected static string UrlFreeLicense = "https://www.photonengine.com/dashboard/OnPremise";
+    protected static string UrlFreeLicense = "https://www.photonengine.com/en/OnPremise/Dashboard";
 
     protected static string UrlDevNet = "http://doc.photonengine.com/en/pun/current";
 
@@ -112,7 +110,7 @@ public class PhotonEditor : EditorWindow
 
     protected static string UrlAccountPage = "https://www.photonengine.com/Account/SignIn?email="; // opened in browser
 
-    protected static string UrlCloudDashboard = "https://www.photonengine.com/dashboard?email=";
+    protected static string UrlCloudDashboard = "https://www.photonengine.com/Dashboard?email=";
 
 
     private enum PhotonSetupStates
@@ -559,23 +557,14 @@ public class PhotonEditor : EditorWindow
     protected virtual void RegisterWithEmail(string email)
     {
         EditorUtility.DisplayProgressBar(CurrentLang.ConnectionTitle, CurrentLang.ConnectionInfo, 0.5f);
-
-        string accountServiceType = string.Empty;
-        #if PHOTON_VOICE
-        accountServiceType = "voice";
-        #endif
-
-        AccountService client = new AccountService();
-        client.RegisterByEmail(email, RegisterOrigin, accountServiceType); // this is the synchronous variant using the static RegisterOrigin. "result" is in the client
+        var client = new AccountService();
+        client.RegisterByEmail(email, RegisterOrigin); // this is the synchronous variant using the static RegisterOrigin. "result" is in the client
 
         EditorUtility.ClearProgressBar();
         if (client.ReturnCode == 0)
         {
             this.mailOrAppId = client.AppId;
             PhotonNetwork.PhotonServerSettings.UseCloud(this.mailOrAppId, 0);
-            #if PHOTON_VOICE
-            PhotonNetwork.PhotonServerSettings.VoiceAppID = client.AppId2;
-            #endif
             PhotonEditor.SaveSettings();
 
             this.photonSetupState = PhotonSetupStates.GoEditPhotonServerSettings;
@@ -585,7 +574,7 @@ public class PhotonEditor : EditorWindow
             PhotonNetwork.PhotonServerSettings.HostType = ServerSettings.HostingOption.PhotonCloud;
             PhotonEditor.SaveSettings();
 
-            Debug.LogWarning(client.Message + " ReturnCode: " + client.ReturnCode);
+            Debug.LogWarning(client.Message);
             if (client.Message.Contains("registered"))
             {
                 this.photonSetupState = PhotonSetupStates.EmailAlreadyRegistered;
@@ -601,11 +590,8 @@ public class PhotonEditor : EditorWindow
 
     protected internal static bool CheckPunPlus()
     {
-		androidLibExists = 	File.Exists("Assets/Plugins/Android/armeabi-v7a/libPhotonSocketPlugin.so") && 
-							File.Exists("Assets/Plugins/Android/x86/libPhotonSocketPlugin.so");
-
-
-        iphoneLibExists = File.Exists("Assets/Plugins/IOS/libPhotonSocketPlugin.a");
+        androidLibExists = File.Exists("Assets/Plugins/Android/libPhotonSocketPlugin.so");
+        iphoneLibExists = File.Exists("Assets/Plugins/IPhone/libPhotonSocketPlugin.a");
 
         isPunPlus = androidLibExists || iphoneLibExists;
         return isPunPlus;

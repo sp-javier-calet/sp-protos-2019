@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// This class helps you to synchronize position, rotation and scale
@@ -18,7 +19,7 @@ using UnityEngine;
 /// Simply add the component to your GameObject and make sure that
 /// the PhotonTransformView is added to the list of observed components
 /// </summary>
-[RequireComponent(typeof(PhotonView))]
+[RequireComponent( typeof( PhotonView ) )]
 [AddComponentMenu("Photon Networking/Photon Transform View")]
 public class PhotonTransformView : MonoBehaviour, IPunObservable
 {
@@ -46,53 +47,65 @@ public class PhotonTransformView : MonoBehaviour, IPunObservable
 
     void Awake()
     {
-        this.m_PhotonView = GetComponent<PhotonView>();
+        m_PhotonView = GetComponent<PhotonView>();
 
-        this.m_PositionControl = new PhotonTransformViewPositionControl(this.m_PositionModel);
-        this.m_RotationControl = new PhotonTransformViewRotationControl(this.m_RotationModel);
-        this.m_ScaleControl = new PhotonTransformViewScaleControl(this.m_ScaleModel);
+        m_PositionControl = new PhotonTransformViewPositionControl( m_PositionModel );
+        m_RotationControl = new PhotonTransformViewRotationControl( m_RotationModel );
+        m_ScaleControl = new PhotonTransformViewScaleControl( m_ScaleModel );
     }
+
+	void Reset()
+	{
+		Debug.Log("Reset");
+		m_PositionModel =  new PhotonTransformViewPositionModel();
+		m_RotationModel = new PhotonTransformViewRotationModel();
+		m_ScaleModel = new PhotonTransformViewScaleModel();
+
+		m_PositionControl = new PhotonTransformViewPositionControl( m_PositionModel );
+		m_RotationControl = new PhotonTransformViewRotationControl( m_RotationModel );
+		m_ScaleControl = new PhotonTransformViewScaleControl( m_ScaleModel );
+	}
 
     void Update()
     {
-        if (this.m_PhotonView == null || this.m_PhotonView.isMine == true || PhotonNetwork.connected == false)
+        if( m_PhotonView == null || m_PhotonView.isMine == true || PhotonNetwork.connected == false )
         {
             return;
         }
 
-        this.UpdatePosition();
-        this.UpdateRotation();
-        this.UpdateScale();
+        UpdatePosition();
+        UpdateRotation();
+        UpdateScale();
     }
 
     void UpdatePosition()
     {
-        if (this.m_PositionModel.SynchronizeEnabled == false || this.m_ReceivedNetworkUpdate == false)
+        if( m_PositionModel.SynchronizeEnabled == false || m_ReceivedNetworkUpdate == false )
         {
             return;
         }
 
-        transform.localPosition = this.m_PositionControl.UpdatePosition(transform.localPosition);
+        transform.localPosition = m_PositionControl.UpdatePosition( transform.localPosition );
     }
 
     void UpdateRotation()
     {
-        if (this.m_RotationModel.SynchronizeEnabled == false || this.m_ReceivedNetworkUpdate == false)
+        if( m_RotationModel.SynchronizeEnabled == false || m_ReceivedNetworkUpdate == false )
         {
             return;
         }
 
-        transform.localRotation = this.m_RotationControl.GetRotation(transform.localRotation);
+        transform.localRotation = m_RotationControl.GetRotation( transform.localRotation );
     }
 
     void UpdateScale()
     {
-        if (this.m_ScaleModel.SynchronizeEnabled == false || this.m_ReceivedNetworkUpdate == false)
+        if( m_ScaleModel.SynchronizeEnabled == false || m_ReceivedNetworkUpdate == false )
         {
             return;
         }
 
-        transform.localScale = this.m_ScaleControl.GetScale(transform.localScale);
+        transform.localScale = m_ScaleControl.GetScale( transform.localScale );
     }
 
     /// <summary>
@@ -103,25 +116,25 @@ public class PhotonTransformView : MonoBehaviour, IPunObservable
     /// </summary>
     /// <param name="speed">The current movement vector of the object in units/second.</param>
     /// <param name="turnSpeed">The current turn speed of the object in angles/second.</param>
-    public void SetSynchronizedValues(Vector3 speed, float turnSpeed)
+    public void SetSynchronizedValues( Vector3 speed, float turnSpeed )
     {
-        this.m_PositionControl.SetSynchronizedValues(speed, turnSpeed);
+        m_PositionControl.SetSynchronizedValues( speed, turnSpeed );
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    public void OnPhotonSerializeView( PhotonStream stream, PhotonMessageInfo info )
     {
-        this.m_PositionControl.OnPhotonSerializeView(transform.localPosition, stream, info);
-        this.m_RotationControl.OnPhotonSerializeView(transform.localRotation, stream, info);
-        this.m_ScaleControl.OnPhotonSerializeView(transform.localScale, stream, info);
+        m_PositionControl.OnPhotonSerializeView( transform.localPosition, stream, info );
+        m_RotationControl.OnPhotonSerializeView( transform.localRotation, stream, info );
+        m_ScaleControl.OnPhotonSerializeView( transform.localScale, stream, info );
 
-        if (this.m_PhotonView.isMine == false && this.m_PositionModel.DrawErrorGizmo == true)
+        if( m_PhotonView.isMine == false && m_PositionModel.DrawErrorGizmo == true )
         {
-            this.DoDrawEstimatedPositionError();
+            DoDrawEstimatedPositionError();
         }
 
-        if (stream.isReading == true)
+        if( stream.isReading == true )
         {
-            this.m_ReceivedNetworkUpdate = true;
+            m_ReceivedNetworkUpdate = true;
         }
     }
 
@@ -138,11 +151,11 @@ public class PhotonTransformView : MonoBehaviour, IPunObservable
 
     void DoDrawEstimatedPositionError()
     {
-        Vector3 targetPosition = this.m_PositionControl.GetNetworkPosition();
+        Vector3 targetPosition = m_PositionControl.GetNetworkPosition();
 
-        Debug.DrawLine(targetPosition, transform.position, Color.red, 2f);
-        Debug.DrawLine(transform.position, transform.position + Vector3.up, Color.green, 2f);
-        Debug.DrawLine(targetPosition, targetPosition + Vector3.up, Color.red, 2f);
+        Debug.DrawLine( targetPosition, transform.position, Color.red, 2f );
+        Debug.DrawLine( transform.position, transform.position + Vector3.up, Color.green, 2f );
+        Debug.DrawLine( targetPosition, targetPosition + Vector3.up, Color.red, 2f );
     }
 
     //void DoDrawNetworkPositionGizmo()
