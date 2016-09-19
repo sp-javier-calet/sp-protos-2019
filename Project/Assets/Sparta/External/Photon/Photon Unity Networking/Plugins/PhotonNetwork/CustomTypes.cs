@@ -14,8 +14,12 @@
 #pragma warning restore 1587
 
 
+using System.IO;
+using System.Runtime.InteropServices;
 using ExitGames.Client.Photon;
+using System;
 using UnityEngine;
+
 
 
 /// <summary>
@@ -38,7 +42,7 @@ internal static class CustomTypes
 
 
     public static readonly byte[] memVector3 = new byte[3 * 4];
-    private static short SerializeVector3(StreamBuffer outStream, object customobject)
+    private static short SerializeVector3(MemoryStream outStream, object customobject)
     {
         Vector3 vo = (Vector3)customobject;
 
@@ -55,7 +59,7 @@ internal static class CustomTypes
         return 3 * 4;
     }
 
-    private static object DeserializeVector3(StreamBuffer inStream, short length)
+    private static object DeserializeVector3(MemoryStream inStream, short length)
     {
         Vector3 vo = new Vector3();
         lock (memVector3)
@@ -72,7 +76,7 @@ internal static class CustomTypes
 
 
     public static readonly byte[] memVector2 = new byte[2 * 4];
-    private static short SerializeVector2(StreamBuffer outStream, object customobject)
+    private static short SerializeVector2(MemoryStream outStream, object customobject)
     {
         Vector2 vo = (Vector2)customobject;
         lock (memVector2)
@@ -87,7 +91,7 @@ internal static class CustomTypes
         return 2 * 4;
     }
 
-    private static object DeserializeVector2(StreamBuffer inStream, short length)
+    private static object DeserializeVector2(MemoryStream inStream, short length)
     {
         Vector2 vo = new Vector2();
         lock (memVector2)
@@ -103,7 +107,7 @@ internal static class CustomTypes
 
 
     public static readonly byte[] memQuarternion = new byte[4 * 4];
-    private static short SerializeQuaternion(StreamBuffer outStream, object customobject)
+    private static short SerializeQuaternion(MemoryStream outStream, object customobject)
     {
         Quaternion o = (Quaternion)customobject;
 
@@ -121,7 +125,7 @@ internal static class CustomTypes
         return 4 * 4;
     }
 
-    private static object DeserializeQuaternion(StreamBuffer inStream, short length)
+    private static object DeserializeQuaternion(MemoryStream inStream, short length)
     {
         Quaternion o = new Quaternion();
 
@@ -139,7 +143,7 @@ internal static class CustomTypes
     }
 
     public static readonly byte[] memPlayer = new byte[4];
-    private static short SerializePhotonPlayer(StreamBuffer outStream, object customobject)
+    private static short SerializePhotonPlayer(MemoryStream outStream, object customobject)
     {
         int ID = ((PhotonPlayer)customobject).ID;
 
@@ -153,7 +157,7 @@ internal static class CustomTypes
         }
     }
 
-    private static object DeserializePhotonPlayer(StreamBuffer inStream, short length)
+    private static object DeserializePhotonPlayer(MemoryStream inStream, short length)
     {
         int ID;
         lock (memPlayer)
