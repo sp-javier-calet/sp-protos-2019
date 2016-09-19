@@ -1,11 +1,11 @@
 ﻿using SocialPoint.Network;
 using SocialPoint.Multiplayer;
 using SocialPoint.IO;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 public class MovementAction : INetworkShareable
 {
-    public Vector3 Movement;
+    public JVector Movement;
 
     public void Deserialize(IReader reader)
     {

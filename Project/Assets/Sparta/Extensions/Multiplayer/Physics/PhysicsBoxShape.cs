@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections;
-using BulletSharp;
-using BulletSharp.Math;
+using Jitter.LinearMath;
+using Jitter.Collision.Shapes;
 
 namespace SocialPoint.Multiplayer
 {
     public class PhysicsBoxShape : PhysicsCollisionShape
     {
-        public Vector3 Extents
+        public JVector Extents
         {
             get
             {
@@ -15,7 +15,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public Vector3 LocalScaling
+        public JVector LocalScaling
         {
             get
             { 
@@ -24,25 +24,25 @@ namespace SocialPoint.Multiplayer
             set
             {
                 _localScaling = value;
-                ((BoxShape)_collisionShapePtr).LocalScaling = value;
+                //((BoxShape)_collisionShapePtr).LocalScaling = value;
             }
         }
 
-        Vector3 _extents;
+        JVector _extents;
 
-        Vector3 _localScaling;
+        JVector _localScaling;
 
-        public PhysicsBoxShape() : this(Vector3.One)
+        public PhysicsBoxShape() : this(JVector.One)
         {
         }
 
-        public PhysicsBoxShape(Vector3 extents)
+        public PhysicsBoxShape(JVector extents)
         {
             _extents = extents;
-            _localScaling = Vector3.One;
+            _localScaling = JVector.One;
 
             _collisionShapePtr = new BoxShape(_extents);
-            ((BoxShape)_collisionShapePtr).LocalScaling = _localScaling;
+            //((BoxShape)_collisionShapePtr).LocalScaling = _localScaling;
         }
 
         public override Object Clone()

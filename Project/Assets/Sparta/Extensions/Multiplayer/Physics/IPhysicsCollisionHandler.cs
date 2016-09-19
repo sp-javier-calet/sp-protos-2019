@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using BulletSharp;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
@@ -10,7 +10,7 @@ namespace SocialPoint.Multiplayer
 
         void DeregisterCollisionCallbackListener(ICollisionCallbackEventHandler toBeRemoved);
 
-        void OnPhysicsStep(CollisionWorld world);
+        //void OnPhysicsStep(CollisionWorld world);
     }
 
     public class PhysicsDefaultCollisionHandler : IPhysicsCollisionHandler
@@ -27,7 +27,7 @@ namespace SocialPoint.Multiplayer
             collisionCallbackListeners.Remove(toBeRemoved);
         }
 
-        public void OnPhysicsStep(CollisionWorld world)
+        /*public void OnPhysicsStep(CollisionWorld world)
         {
             Dispatcher dispatcher = world.Dispatcher;
             int numManifolds = dispatcher.NumManifolds;
@@ -54,6 +54,6 @@ namespace SocialPoint.Multiplayer
                     coeh.OnFinishedVisitingManifolds();
                 }
             }
-        }
+        }*/
     }
 }

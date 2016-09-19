@@ -1,11 +1,10 @@
-﻿using BulletSharp;
-
+﻿
 namespace SocialPoint.Multiplayer
 {
     public interface ICollisionCallbackEventHandler
     {
-        void OnVisitPersistentManifold(PersistentManifold pm);
+        //void OnVisitPersistentManifold(PersistentManifold pm);
 
-        void OnFinishedVisitingManifolds();
+        //void OnFinishedVisitingManifolds();
     }
 }

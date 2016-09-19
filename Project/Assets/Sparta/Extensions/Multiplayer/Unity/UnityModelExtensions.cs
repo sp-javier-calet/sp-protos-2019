@@ -1,21 +1,21 @@
 ﻿using UnityEngine;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
     public static class UnityModelExtensions
     {
-        public static UnityEngine.Vector3 ToUnity(this BulletSharp.Math.Vector3 v)
+        public static UnityEngine.Vector3 ToUnity(this Jitter.LinearMath.JVector v)
         {
             return new UnityEngine.Vector3(v.X, v.Y, v.Z);
         }
 
-        public static UnityEngine.Quaternion ToUnity(this BulletSharp.Math.Quaternion q)
+        public static UnityEngine.Quaternion ToUnity(this Jitter.LinearMath.JQuaternion q)
         {
             return new UnityEngine.Quaternion(q.X, q.Y, q.Z, q.W);
         }
 
-        public static UnityEngine.Matrix4x4 ToUnity(this BulletSharp.Math.Matrix bm)
+        /*public static UnityEngine.Matrix4x4 ToUnity(this BulletSharp.Math.Matrix bm)
         {
             Matrix4x4 um = new Matrix4x4();
             um[0, 0] = bm[0, 0];
@@ -38,26 +38,26 @@ namespace SocialPoint.Multiplayer
             um[3, 2] = bm[2, 3];
             um[3, 3] = bm[3, 3];
             return um;
-        }
+        }*/
 
-        public static BulletSharp.Math.Vector3 ToMultiplayer(this UnityEngine.Vector3 v)
+        public static Jitter.LinearMath.JVector ToMultiplayer(this UnityEngine.Vector3 v)
         {
-            return new BulletSharp.Math.Vector3(v.x, v.y, v.z);
+            return new Jitter.LinearMath.JVector(v.x, v.y, v.z);
         }
 
-        public static BulletSharp.Math.Quaternion ToMultiplayer(this UnityEngine.Quaternion q)
+        public static Jitter.LinearMath.JQuaternion ToMultiplayer(this UnityEngine.Quaternion q)
         {
-            return new BulletSharp.Math.Quaternion(q.x, q.y, q.z, q.w);
+            return new Jitter.LinearMath.JQuaternion(q.x, q.y, q.z, q.w);
         }
 
-        public static BulletSharp.Math.Matrix ToMultiplayer(this UnityEngine.Matrix4x4 um)
+        /*public static BulletSharp.Math.Matrix ToMultiplayer(this UnityEngine.Matrix4x4 um)
         {
             BulletSharp.Math.Matrix bm = new BulletSharp.Math.Matrix();
             um.ToMultiplayer(ref bm);
             return bm;
-        }
+        }*/
 
-        public static void ToMultiplayer(this UnityEngine.Matrix4x4 um, ref BulletSharp.Math.Matrix bm)
+        /*public static void ToMultiplayer(this UnityEngine.Matrix4x4 um, ref BulletSharp.Math.Matrix bm)
         {
             bm[0, 0] = um[0, 0];
             bm[0, 1] = um[1, 0];
@@ -78,7 +78,7 @@ namespace SocialPoint.Multiplayer
             bm[3, 1] = um[1, 3];
             bm[3, 2] = um[2, 3];
             bm[3, 3] = um[3, 3];
-        }
+        }*/
 
         /// <summary>
         /// Extract translation from transform matrix.
@@ -97,14 +97,14 @@ namespace SocialPoint.Multiplayer
             return translate;
         }
 
-        public static UnityEngine.Vector3 ExtractTranslationFromMatrix(ref BulletSharp.Math.Matrix matrix)
+        /*public static UnityEngine.Vector3 ExtractTranslationFromMatrix(ref BulletSharp.Math.Matrix matrix)
         {
             UnityEngine.Vector3 translate;
             translate.x = matrix.M41;
             translate.y = matrix.M42;
             translate.z = matrix.M43;
             return translate;
-        }
+        }*/
 
         /// <summary>
         /// Extract rotation quaternion from transform matrix.
@@ -129,7 +129,7 @@ namespace SocialPoint.Multiplayer
             return UnityEngine.Quaternion.LookRotation(forward, upwards);
         }
 
-        public static UnityEngine.Quaternion ExtractRotationFromMatrix(ref BulletSharp.Math.Matrix matrix)
+        /*public static UnityEngine.Quaternion ExtractRotationFromMatrix(ref BulletSharp.Math.Matrix matrix)
         {
             UnityEngine.Vector3 forward;
             forward.x = matrix.M31;
@@ -142,7 +142,7 @@ namespace SocialPoint.Multiplayer
             upwards.z = matrix.M23;
 
             return UnityEngine.Quaternion.LookRotation(forward, upwards);
-        }
+        }*/
 
         /// <summary>
         /// Extract scale from transform matrix.
@@ -161,14 +161,14 @@ namespace SocialPoint.Multiplayer
             return scale;
         }
 
-        public static UnityEngine.Vector3 ExtractScaleFromMatrix(ref BulletSharp.Math.Matrix matrix)
+        /*public static UnityEngine.Vector3 ExtractScaleFromMatrix(ref BulletSharp.Math.Matrix matrix)
         {
             UnityEngine.Vector3 scale;
             scale.x = new UnityEngine.Vector4(matrix.M11, matrix.M12, matrix.M13, matrix.M14).magnitude;
             scale.y = new UnityEngine.Vector4(matrix.M21, matrix.M22, matrix.M23, matrix.M24).magnitude;
             scale.z = new UnityEngine.Vector4(matrix.M31, matrix.M32, matrix.M33, matrix.M34).magnitude;
             return scale;
-        }
+        }*/
 
         /// <summary>
         /// Extract position, rotation and scale from TRS matrix.

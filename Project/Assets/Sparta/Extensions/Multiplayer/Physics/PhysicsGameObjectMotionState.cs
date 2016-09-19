@@ -1,15 +1,16 @@
 ﻿using System.Collections;
-using BulletSharp;
-using BM = BulletSharp.Math;
+
+//using BulletSharp;
+//using BM = BulletSharp.Math;
 using System;
 using System.Runtime.InteropServices;
 using AOT;
 
 namespace SocialPoint.Multiplayer
 {
-    public class PhysicsGameObjectMotionState : MotionState
+    public class PhysicsGameObjectMotionState //: MotionState
     {
-        public Transform Transform
+        /* public Transform Transform
         {
             set
             {
@@ -39,6 +40,6 @@ namespace SocialPoint.Multiplayer
         {
             _transform.Position = UnityModelExtensions.ExtractTranslationFromMatrix(ref m).ToMultiplayer();
             _transform.Rotation = UnityModelExtensions.ExtractRotationFromMatrix(ref m).ToMultiplayer();
-        }
+        }*/
     }
 }

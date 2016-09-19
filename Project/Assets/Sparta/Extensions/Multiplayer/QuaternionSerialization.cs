@@ -2,15 +2,28 @@
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using System;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class QuaternionSerializer : IWriteSerializer<Quaternion>
+    public static class JQuaternionExtension
+    {
+        public static JQuaternion Identity()
+        {
+            return new JQuaternion(0.0f, 0.0f, 0.0f, 1.0f);
+        }
+
+        public static bool Equals(this JQuaternion value1, JQuaternion value2)
+        {
+            return (((value1.X == value2.X) && (value1.Y == value2.Y)) && (value1.Z == value2.Z) && (value1.W == value2.W));
+        }
+    }
+
+    public class QuaternionSerializer : IWriteSerializer<JQuaternion>
     {
         public static readonly QuaternionSerializer Instance = new QuaternionSerializer();
 
-        public void Compare(Quaternion newObj, Quaternion oldObj, Bitset dirty)
+        public void Compare(JQuaternion newObj, JQuaternion oldObj, Bitset dirty)
         {
             dirty.Set(newObj.X != oldObj.X);
             dirty.Set(newObj.Y != oldObj.Y);
@@ -18,7 +31,7 @@ namespace SocialPoint.Multiplayer
             dirty.Set(newObj.W != oldObj.W);
         }
 
-        public void Serialize(Quaternion newObj, IWriter writer)
+        public void Serialize(JQuaternion newObj, IWriter writer)
         {
             writer.Write(newObj.X);
             writer.Write(newObj.Y);
@@ -26,7 +39,7 @@ namespace SocialPoint.Multiplayer
             writer.Write(newObj.W);
         }
 
-        public void Serialize(Quaternion newObj, Quaternion oldObj, IWriter writer, Bitset dirty)
+        public void Serialize(JQuaternion newObj, JQuaternion oldObj, IWriter writer, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
@@ -47,13 +60,13 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class QuaternionParser : IReadParser<Quaternion>
+    public class QuaternionParser : IReadParser<JQuaternion>
     {
         public static readonly QuaternionParser Instance = new QuaternionParser();
 
-        public Quaternion Parse(IReader reader)
+        public JQuaternion Parse(IReader reader)
         {
-            Quaternion obj;
+            JQuaternion obj;
             obj.X = reader.ReadSingle();
             obj.Y = reader.ReadSingle();
             obj.Z = reader.ReadSingle();
@@ -61,12 +74,12 @@ namespace SocialPoint.Multiplayer
             return obj;
         }
 
-        public int GetDirtyBitsSize(Quaternion obj)
+        public int GetDirtyBitsSize(JQuaternion obj)
         {
             return 4;
         }
 
-        public Quaternion Parse(Quaternion obj, IReader reader, Bitset dirty)
+        public JQuaternion Parse(JQuaternion obj, IReader reader, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {

@@ -1,11 +1,11 @@
 ﻿using SocialPoint.Network;
 using SocialPoint.Multiplayer;
 using SocialPoint.IO;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 public class ClickAction : INetworkShareable
 {
-    public Vector3 Position;
+    public JVector Position;
     public Ray Ray;
 
     public void Deserialize(IReader reader)

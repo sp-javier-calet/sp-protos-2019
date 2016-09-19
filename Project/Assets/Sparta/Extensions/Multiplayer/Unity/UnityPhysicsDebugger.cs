@@ -1,40 +1,59 @@
 ﻿using System;
 using System.Collections;
-using BulletSharp;
-using BM = BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
     public class UnityPhysicsDebugger : PhysicsDebugger
     {
-        public override DebugDrawModes DebugMode
+        /*public override DebugDrawModes DebugMode
         {
             get;
             set;
+        }*/
+
+        public override void DrawLine(JVector start, JVector end)
+        {
+            UnityEngine.Color color = UnityEngine.Color.green;
+            UnityEngine.Debug.DrawLine(start.ToUnity(), end.ToUnity(), color);
         }
 
-        public override void DrawLine(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 fromColor)
+        public override void DrawPoint(JVector pos)
+        {
+            UnityEngine.Color color = UnityEngine.Color.green;
+            UnityPhysicsDebuggerUtility.DebugDrawSphere(pos.ToUnity(), UnityEngine.Quaternion.identity, UnityEngine.Vector3.one, UnityEngine.Vector3.one * 1, color);
+        }
+
+        public override void DrawTriangle(JVector pos1, JVector pos2, JVector pos3)
+        {
+            UnityEngine.Color uicolor = UnityEngine.Color.green;
+            UnityEngine.Debug.DrawLine(pos1.ToUnity(), pos2.ToUnity(), uicolor);
+            UnityEngine.Debug.DrawLine(pos2.ToUnity(), pos3.ToUnity(), uicolor);
+            UnityEngine.Debug.DrawLine(pos3.ToUnity(), pos1.ToUnity(), uicolor);
+        }
+
+        /*public void DrawLine(ref JVector from, ref JVector to, ref JVector fromColor)
         {
             UnityEngine.Color color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
             UnityEngine.Debug.DrawLine(from.ToUnity(), to.ToUnity(), color);
         }
 
-        public override void DrawLine(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 fromColor, ref BM.Vector3 toColor)
+        public void DrawLine(ref JVector from, ref JVector to, ref JVector fromColor, ref JVector toColor)
         {
             UnityEngine.Color color = new UnityEngine.Color(fromColor.X, fromColor.Y, fromColor.Z);
             UnityEngine.Debug.DrawLine(from.ToUnity(), to.ToUnity(), color);
         }
 
-        public override void DrawBox(ref BM.Vector3 bbMin, ref BM.Vector3 bbMax, ref BM.Vector3 color)
+        public override void DrawBox(ref JVector bbMin, ref JVector bbMax, ref JVector color)
         {
             BM.Matrix matrix = BM.Matrix.Identity;
-            BM.Vector3 halfSize = new BM.Vector3(bbMax.X - bbMin.X, bbMax.Y - bbMin.Y, bbMax.Z - bbMin.Z);
+            JVector halfSize = new JVector(bbMax.X - bbMin.X, bbMax.Y - bbMin.Y, bbMax.Z - bbMin.Z);
             halfSize /= 2;
-            matrix.Origin = new BM.Vector3(bbMin.X + halfSize.X, bbMin.Y + halfSize.Y, bbMin.Z + halfSize.Z);
+            matrix.Origin = new JVector(bbMin.X + halfSize.X, bbMin.Y + halfSize.Y, bbMin.Z + halfSize.Z);
             DrawBox(ref bbMin, ref bbMax, ref matrix, ref color);
         }
 
-        public override void DrawBox(ref BM.Vector3 bbMin, ref BM.Vector3 bbMax, ref BM.Matrix trans, ref BM.Vector3 color)
+        /*public void DrawBox(ref JVector bbMin, ref JVector bbMax, ref BM.Matrix trans, ref JVector color)
         {
             UnityEngine.Vector3 pos = UnityModelExtensions.ExtractTranslationFromMatrix(ref trans);
             UnityEngine.Quaternion rot = UnityModelExtensions.ExtractRotationFromMatrix(ref trans);
@@ -44,13 +63,13 @@ namespace SocialPoint.Multiplayer
             UnityPhysicsDebuggerUtility.DebugDrawBox(pos, rot, scale, size, c);
         }
 
-        public override void DrawSphere(ref BM.Vector3 p, float radius, ref BM.Vector3 color)
+        public void DrawSphere(ref JVector p, float radius, ref JVector color)
         {
             UnityEngine.Color c = new UnityEngine.Color(color.X, color.Y, color.Z);
             UnityPhysicsDebuggerUtility.DebugDrawSphere(p.ToUnity(), UnityEngine.Quaternion.identity, UnityEngine.Vector3.one, UnityEngine.Vector3.one * radius, c);
         }
 
-        public override void DrawSphere(float radius, ref BM.Matrix trans, ref BM.Vector3 color)
+        public override void DrawSphere(float radius, ref BM.Matrix trans, ref JVector color)
         {
             UnityEngine.Vector3 pos = UnityModelExtensions.ExtractTranslationFromMatrix(ref trans);
             UnityEngine.Quaternion rot = UnityModelExtensions.ExtractRotationFromMatrix(ref trans);
@@ -59,7 +78,7 @@ namespace SocialPoint.Multiplayer
             UnityPhysicsDebuggerUtility.DebugDrawSphere(pos, rot, scale, UnityEngine.Vector3.one * radius, c);
         }
 
-        public override void DrawTriangle(ref BM.Vector3 v0, ref BM.Vector3 v1, ref BM.Vector3 v2, ref BM.Vector3 n0, ref BM.Vector3 n1, ref BM.Vector3 n2, ref BM.Vector3 color, float alpha)
+        public void DrawTriangle(ref JVector v0, ref JVector v1, ref JVector v2, ref JVector n0, ref JVector n1, ref JVector n2, ref JVector color, float alpha)
         {
             UnityEngine.Color uicolor = new UnityEngine.Color(color.X, color.Y, color.Z);
             UnityEngine.Debug.DrawLine(v0.ToUnity(), v1.ToUnity(), uicolor);
@@ -68,7 +87,7 @@ namespace SocialPoint.Multiplayer
 
         }
 
-        public override void DrawTriangle(ref BM.Vector3 v0, ref BM.Vector3 v1, ref BM.Vector3 v2, ref BM.Vector3 color, float alpha)
+        public void DrawTriangle(ref JVector v0, ref JVector v1, ref JVector v2, ref JVector color, float alpha)
         {
             UnityEngine.Color uicolor = new UnityEngine.Color(color.X, color.Y, color.Z);
             UnityEngine.Debug.DrawLine(v0.ToUnity(), v1.ToUnity(), uicolor);
@@ -76,22 +95,22 @@ namespace SocialPoint.Multiplayer
             UnityEngine.Debug.DrawLine(v2.ToUnity(), v0.ToUnity(), uicolor);
         }
 
-        public override void DrawContactPoint(ref BM.Vector3 pointOnB, ref BM.Vector3 normalOnB, float distance, int lifeTime, ref BM.Vector3 color)
+        public void DrawContactPoint(ref JVector pointOnB, ref JVector normalOnB, float distance, int lifeTime, ref JVector color)
         {
             UnityEngine.Debug.LogError("Not implemented");
         }
 
-        public override void ReportErrorWarning(String warningString)
+        public void ReportErrorWarning(String warningString)
         {
             UnityEngine.Debug.LogError(warningString);
         }
 
-        public override void Draw3dText(ref BM.Vector3 location, String textString)
+        public void Draw3dText(ref JVector location, String textString)
         {
             UnityEngine.Debug.LogError("Not implemented");
         }
 
-        public override void DrawAabb(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 color)
+        public override void DrawAabb(ref JVector from, ref JVector to, ref JVector color)
         {
             DrawBox(ref from, ref to, ref color);
         }
@@ -111,33 +130,33 @@ namespace SocialPoint.Multiplayer
             UnityEngine.Debug.DrawLine(p1, p2);
         }
 
-        public override void DrawArc(ref BM.Vector3 center, ref BM.Vector3 normal, ref BM.Vector3 axis, float radiusA, float radiusB, float minAngle, float maxAngle,
-                                     ref BM.Vector3 color, bool drawSect)
+        public void DrawArc(ref JVector center, ref JVector normal, ref JVector axis, float radiusA, float radiusB, float minAngle, float maxAngle,
+                            ref JVector color, bool drawSect)
         {
             UnityEngine.Debug.LogError("Not implemented");
         }
 
-        public override void DrawArc(ref BM.Vector3 center, ref BM.Vector3 normal, ref BM.Vector3 axis, float radiusA, float radiusB, float minAngle, float maxAngle,
-                                     ref BM.Vector3 color, bool drawSect, float stepDegrees)
+        public void DrawArc(ref JVector center, ref JVector normal, ref JVector axis, float radiusA, float radiusB, float minAngle, float maxAngle,
+                            ref JVector color, bool drawSect, float stepDegrees)
         {
             UnityEngine.Color col = new UnityEngine.Color(color.X, color.Y, color.Z);
             UnityPhysicsDebuggerUtility.DebugDrawArc(center.ToUnity(), normal.ToUnity(), axis.ToUnity(), radiusA, radiusB, minAngle, maxAngle, col, drawSect, stepDegrees);
         }
 
-        public override void DrawSpherePatch(ref BM.Vector3 center, ref BM.Vector3 up, ref BM.Vector3 axis, float radius,
-                                             float minTh, float maxTh, float minPs, float maxPs, ref BM.Vector3 color)
+        public void DrawSpherePatch(ref JVector center, ref JVector up, ref JVector axis, float radius,
+                                    float minTh, float maxTh, float minPs, float maxPs, ref JVector color)
         {
             UnityEngine.Debug.LogError("Not implemented");
 
         }
 
-        public override void DrawSpherePatch(ref BM.Vector3 center, ref BM.Vector3 up, ref BM.Vector3 axis, float radius,
-                                             float minTh, float maxTh, float minPs, float maxPs, ref BM.Vector3 color, float stepDegrees)
+        public void DrawSpherePatch(ref JVector center, ref JVector up, ref JVector axis, float radius,
+                                    float minTh, float maxTh, float minPs, float maxPs, ref JVector color, float stepDegrees)
         {
             UnityEngine.Debug.LogError("Not implemented");
         }
 
-        public override void DrawCapsule(float radius, float halfHeight, int upAxis, ref BM.Matrix trans, ref BM.Vector3 color)
+        public void DrawCapsule(float radius, float halfHeight, int upAxis, ref BM.Matrix trans, ref JVector color)
         {
             UnityEngine.Vector3 pos = UnityModelExtensions.ExtractTranslationFromMatrix(ref trans);
             UnityEngine.Quaternion rot = UnityModelExtensions.ExtractRotationFromMatrix(ref trans);
@@ -146,7 +165,7 @@ namespace SocialPoint.Multiplayer
             UnityPhysicsDebuggerUtility.DebugDrawCapsule(pos, rot, scale, radius, halfHeight, upAxis, c);
         }
 
-        public override void DrawCylinder(float radius, float halfHeight, int upAxis, ref BM.Matrix trans, ref BM.Vector3 color)
+        public void DrawCylinder(float radius, float halfHeight, int upAxis, ref BM.Matrix trans, ref JVector color)
         {
             UnityEngine.Vector3 pos = UnityModelExtensions.ExtractTranslationFromMatrix(ref trans);
             UnityEngine.Quaternion rot = UnityModelExtensions.ExtractRotationFromMatrix(ref trans);
@@ -155,7 +174,7 @@ namespace SocialPoint.Multiplayer
             UnityPhysicsDebuggerUtility.DebugDrawCylinder(pos, rot, scale, radius, halfHeight, upAxis, c);
         }
 
-        public override void DrawCone(float radius, float height, int upAxis, ref BM.Matrix trans, ref BM.Vector3 color)
+        public void DrawCone(float radius, float height, int upAxis, ref BM.Matrix trans, ref JVector color)
         {
             UnityEngine.Vector3 pos = UnityModelExtensions.ExtractTranslationFromMatrix(ref trans);
             UnityEngine.Quaternion rot = UnityModelExtensions.ExtractRotationFromMatrix(ref trans);
@@ -164,7 +183,7 @@ namespace SocialPoint.Multiplayer
             UnityPhysicsDebuggerUtility.DebugDrawCone(pos, rot, scale, radius, height, upAxis, c);
         }
 
-        public override void DrawPlane(ref BM.Vector3 planeNormal, float planeConst, ref BM.Matrix trans, ref BM.Vector3 color)
+        public void DrawPlane(ref JVector planeNormal, float planeConst, ref BM.Matrix trans, ref JVector color)
         {
             UnityEngine.Vector3 pos = UnityModelExtensions.ExtractTranslationFromMatrix(ref trans);
             UnityEngine.Quaternion rot = UnityModelExtensions.ExtractRotationFromMatrix(ref trans);
@@ -172,7 +191,7 @@ namespace SocialPoint.Multiplayer
             UnityEngine.Color c = new UnityEngine.Color(color.X, color.Y, color.Z);
             UnityPhysicsDebuggerUtility.DebugDrawPlane(pos, rot, scale, planeNormal.ToUnity(), planeConst, c);
         }
-
+//*/
 
         public override void Log(string message)
         {

@@ -2,8 +2,7 @@
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using System;
-using BulletSharp;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {

@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using SocialPoint.Multiplayer;
-using BulletSharp;
+using Jitter;
+using Jitter.Dynamics;
 
 public class DemoCollisionCallbackListener : PhysicsDefaultCollisionCallbacks
 {
     PhysicsDebugger _debugger;
 
+    /*
     public DemoCollisionCallbackListener(CollisionObject collisionObject, PhysicsDebugger debugger) : base(collisionObject)
     {
         _debugger = debugger;
@@ -30,4 +32,5 @@ public class DemoCollisionCallbackListener : PhysicsDefaultCollisionCallbacks
     {
         return ((PhysicsCollisionObject)co.UserObject).NetworkGameObject;
     }
+    //*/
 }

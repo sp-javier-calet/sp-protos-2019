@@ -4,8 +4,7 @@ using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using System;
 using System.Collections.Generic;
-using BulletSharp;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
 {
@@ -16,7 +15,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     float _moveInterval = 1.0f;
     float _timeSinceLastMove = 0.0f;
     int _maxUpdateTimes = 3;
-    Vector3 _movement;
+    JVector _movement;
     NetworkGameObject playerCube = null;
 
     PhysicsWorld _physicsWorld;
@@ -29,7 +28,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _controller.RegisterReceiver(this);
         _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
-        _movement = new Vector3(2.0f, 0.0f, 2.0f);
+        _movement = new JVector(2.0f, 0.0f, 2.0f);
 
         _physicsDebugger = new UnityPhysicsDebugger();
         AddPhysicsWorld();
@@ -59,7 +58,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 var id = itr.Current.Id;
                 var p = itr.Current.Transform.Position;
 
-                p += new Vector3(
+                p += new JVector(
                     RandomUtils.Range(-_movement.X, _movement.X),
                     0.0f,//RandomUtils.Range(-_movement.Y, _movement.Y),
                     RandomUtils.Range(-_movement.Z, _movement.Z));
@@ -107,7 +106,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             if(!ClosestIntersectsRay(playerCube, ac.Ray))
             {
                 NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
-                                                    ac.Position, Quaternion.Identity, Vector3.One));
+                                                    ac.Position, JQuaternionExtension.Identity(), JVector.One));
 
                 if(playerCube == null)
                 {
@@ -147,10 +146,10 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void AddCollision(NetworkGameObject go)
     {
-        var boxShape = new PhysicsBoxShape(new Vector3(0.5f));
-        var rigidBody = new PhysicsRigidBody(boxShape, _physicsWorld, _physicsDebugger, CollisionFlags.KinematicObject);
-        var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
-        rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
+        var boxShape = new PhysicsBoxShape(new JVector(0.5f));
+        var rigidBody = new PhysicsRigidBody(boxShape, _physicsWorld, _physicsDebugger, PhysicsCollisionObject.CollisionFlags.KinematicObject);
+        //var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
+        //rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
 
         _controller.AddBehaviour(go.Id, rigidBody);
     }

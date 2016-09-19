@@ -44,8 +44,8 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     void KeyInputHandler()
     {
         float delta = 0.1f;
-        var movement = new BulletSharp.Math.Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * delta;
-        bool input = (movement != BulletSharp.Math.Vector3.Zero);
+        var movement = new Jitter.LinearMath.JVector(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * delta;
+        bool input = (movement != Jitter.LinearMath.JVector.Zero);
 
         if(input && _client.Connected)
         {

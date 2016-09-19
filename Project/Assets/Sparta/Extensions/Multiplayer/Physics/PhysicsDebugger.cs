@@ -1,8 +1,15 @@
 ﻿using System.Collections;
-using BulletSharp;
+using Jitter;
+using Jitter.LinearMath;
 
-public abstract class PhysicsDebugger : DebugDraw
+public abstract class PhysicsDebugger : IDebugDrawer
 {
+    public abstract void DrawLine(JVector start, JVector end);
+
+    public abstract void DrawPoint(JVector pos);
+
+    public abstract void DrawTriangle(JVector pos1, JVector pos2, JVector pos3);
+
     public abstract void Log(string message);
 
     public abstract void Log(object message);

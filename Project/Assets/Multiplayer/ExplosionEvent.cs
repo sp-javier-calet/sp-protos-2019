@@ -1,11 +1,11 @@
 ﻿using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using SocialPoint.IO;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 public class ExplosionEvent : INetworkShareable
 {
-    public Vector3 Position;
+    public JVector Position;
 
     public void Deserialize(IReader reader)
     {

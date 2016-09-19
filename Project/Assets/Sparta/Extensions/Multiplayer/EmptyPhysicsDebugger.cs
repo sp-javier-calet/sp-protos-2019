@@ -1,51 +1,63 @@
 ﻿using System;
 using System.Collections;
-using BulletSharp;
-using BM = BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
     public class EmptyPhysicsDebugger : PhysicsDebugger
     {
-        public override DebugDrawModes DebugMode
+        /*public override DebugDrawModes DebugMode
         {
             get;
             set;
-        }
+        }*/
 
-        public override void DrawLine(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 fromColor)
+        public override void DrawLine(JVector start, JVector end)
         {
         }
 
-        public override void DrawLine(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 fromColor, ref BM.Vector3 toColor)
+        public override void DrawPoint(JVector pos)
         {
         }
 
-        public override void DrawBox(ref BM.Vector3 bbMin, ref BM.Vector3 bbMax, ref BM.Vector3 color)
+        public override void DrawTriangle(JVector pos1, JVector pos2, JVector pos3)
         {
         }
 
-        public override void DrawBox(ref BM.Vector3 bbMin, ref BM.Vector3 bbMax, ref BM.Matrix trans, ref BM.Vector3 color)
+        /*
+        public override void DrawLine(ref JVector from, ref JVector to, ref JVector fromColor)
         {
         }
 
-        public override void DrawSphere(ref BM.Vector3 p, float radius, ref BM.Vector3 color)
+        public override void DrawLine(ref JVector from, ref JVector to, ref JVector fromColor, ref JVector toColor)
         {
         }
 
-        public override void DrawSphere(float radius, ref BM.Matrix trans, ref BM.Vector3 color)
+        public override void DrawBox(ref JVector bbMin, ref JVector bbMax, ref JVector color)
         {
         }
 
-        public override void DrawTriangle(ref BM.Vector3 v0, ref BM.Vector3 v1, ref BM.Vector3 v2, ref BM.Vector3 n0, ref BM.Vector3 n1, ref BM.Vector3 n2, ref BM.Vector3 color, float alpha)
+        public override void DrawBox(ref JVector bbMin, ref JVector bbMax, ref JMatrix trans, ref JVector color)
         {
         }
 
-        public override void DrawTriangle(ref BM.Vector3 v0, ref BM.Vector3 v1, ref BM.Vector3 v2, ref BM.Vector3 color, float alpha)
+        public override void DrawSphere(ref JVector p, float radius, ref JVector color)
         {
         }
 
-        public override void DrawContactPoint(ref BM.Vector3 pointOnB, ref BM.Vector3 normalOnB, float distance, int lifeTime, ref BM.Vector3 color)
+        public override void DrawSphere(float radius, ref JMatrix trans, ref JVector color)
+        {
+        }
+
+        public override void DrawTriangle(ref JVector v0, ref JVector v1, ref JVector v2, ref JVector n0, ref JVector n1, ref JVector n2, ref JVector color, float alpha)
+        {
+        }
+
+        public override void DrawTriangle(ref JVector v0, ref JVector v1, ref JVector v2, ref JVector color, float alpha)
+        {
+        }
+
+        public override void DrawContactPoint(ref JVector pointOnB, ref JVector normalOnB, float distance, int lifeTime, ref JVector color)
         {
         }
 
@@ -53,54 +65,54 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public override void Draw3dText(ref BM.Vector3 location, String textString)
+        public override void Draw3dText(ref JVector location, String textString)
         {
         }
 
-        public override void DrawAabb(ref BM.Vector3 from, ref BM.Vector3 to, ref BM.Vector3 color)
+        public override void DrawAabb(ref JVector from, ref JVector to, ref JVector color)
         {
         }
 
-        public override void DrawTransform(ref BM.Matrix trans, float orthoLen)
+        public override void DrawTransform(ref JMatrix trans, float orthoLen)
         {
         }
 
-        public override void DrawArc(ref BM.Vector3 center, ref BM.Vector3 normal, ref BM.Vector3 axis, float radiusA, float radiusB, float minAngle, float maxAngle,
-                                     ref BM.Vector3 color, bool drawSect)
+        public override void DrawArc(ref JVector center, ref JVector normal, ref JVector axis, float radiusA, float radiusB, float minAngle, float maxAngle,
+                                     ref JVector color, bool drawSect)
         {
         }
 
-        public override void DrawArc(ref BM.Vector3 center, ref BM.Vector3 normal, ref BM.Vector3 axis, float radiusA, float radiusB, float minAngle, float maxAngle,
-                                     ref BM.Vector3 color, bool drawSect, float stepDegrees)
+        public override void DrawArc(ref JVector center, ref JVector normal, ref JVector axis, float radiusA, float radiusB, float minAngle, float maxAngle,
+                                     ref JVector color, bool drawSect, float stepDegrees)
         {
         }
 
-        public override void DrawSpherePatch(ref BM.Vector3 center, ref BM.Vector3 up, ref BM.Vector3 axis, float radius,
-                                             float minTh, float maxTh, float minPs, float maxPs, ref BM.Vector3 color)
+        public override void DrawSpherePatch(ref JVector center, ref JVector up, ref JVector axis, float radius,
+                                             float minTh, float maxTh, float minPs, float maxPs, ref JVector color)
         {
         }
 
-        public override void DrawSpherePatch(ref BM.Vector3 center, ref BM.Vector3 up, ref BM.Vector3 axis, float radius,
-                                             float minTh, float maxTh, float minPs, float maxPs, ref BM.Vector3 color, float stepDegrees)
+        public override void DrawSpherePatch(ref JVector center, ref JVector up, ref JVector axis, float radius,
+                                             float minTh, float maxTh, float minPs, float maxPs, ref JVector color, float stepDegrees)
         {
         }
 
-        public override void DrawCapsule(float radius, float halfHeight, int upAxis, ref BM.Matrix trans, ref BM.Vector3 color)
+        public override void DrawCapsule(float radius, float halfHeight, int upAxis, ref JMatrix trans, ref JVector color)
         {
         }
 
-        public override void DrawCylinder(float radius, float halfHeight, int upAxis, ref BM.Matrix trans, ref BM.Vector3 color)
+        public override void DrawCylinder(float radius, float halfHeight, int upAxis, ref JMatrix trans, ref JVector color)
         {
         }
 
-        public override void DrawCone(float radius, float height, int upAxis, ref BM.Matrix trans, ref BM.Vector3 color)
+        public override void DrawCone(float radius, float height, int upAxis, ref JMatrix trans, ref JVector color)
         {
         }
 
-        public override void DrawPlane(ref BM.Vector3 planeNormal, float planeConst, ref BM.Matrix trans, ref BM.Vector3 color)
+        public override void DrawPlane(ref JVector planeNormal, float planeConst, ref JMatrix trans, ref JVector color)
         {
         }
-
+//*/
 
         public override void Log(string message)
         {

@@ -2,7 +2,7 @@
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
@@ -68,7 +68,7 @@ namespace SocialPoint.Multiplayer
 
             //Instantiate
             var instantiateAction = new TestInstatiateAction {
-                Position = Vector3.Zero
+                Position = JVector.Zero
             };
             msgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
@@ -83,7 +83,7 @@ namespace SocialPoint.Multiplayer
 
             //Move
             var movementAction = new TestMovementAction {
-                Movement = Vector3.One
+                Movement = JVector.One
             };
             msgData = new NetworkMessageData {
                 MessageType = MovementActionType
@@ -105,7 +105,7 @@ namespace SocialPoint.Multiplayer
 
             //Instantiate
             var instantiateAction = new TestInstatiateAction {
-                Position = Vector3.Zero
+                Position = JVector.Zero
             };
             NetworkMessageData instatiateMsgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
@@ -123,7 +123,7 @@ namespace SocialPoint.Multiplayer
             for(int i = 0; i < totalActions; i++)
             {
                 actions[i] = new TestMovementAction {
-                    Movement = Vector3.One * (i + 1)
+                    Movement = JVector.One * (i + 1)
                 };
                 msgData[i] = new NetworkMessageData {
                     MessageType = MovementActionType
@@ -156,7 +156,7 @@ namespace SocialPoint.Multiplayer
 
             //Instantiate in one client and update for all
             var instantiateAction = new TestInstatiateAction {
-                Position = Vector3.Zero
+                Position = JVector.Zero
             };
             NetworkMessageData instatiateMsgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
@@ -169,7 +169,7 @@ namespace SocialPoint.Multiplayer
             Assert.That(_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
 
             var movementAction = new TestMovementAction {
-                Movement = Vector3.One
+                Movement = JVector.One
             };
             NetworkMessageData msgData = new NetworkMessageData {
                 MessageType = MovementActionType
@@ -206,7 +206,7 @@ namespace SocialPoint.Multiplayer
 
         class TestInstatiateAction : INetworkShareable
         {
-            public Vector3 Position;
+            public JVector Position;
 
             public void Deserialize(IReader reader)
             {
@@ -229,7 +229,7 @@ namespace SocialPoint.Multiplayer
 
         class TestMovementAction : INetworkShareable, IAppliableSceneAction
         {
-            public Vector3 Movement;
+            public JVector Movement;
 
             public void Deserialize(IReader reader)
             {

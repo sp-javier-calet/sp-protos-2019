@@ -1,19 +1,19 @@
 ﻿using SocialPoint.Utils;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
     public class TweenNetworkBehaviour : INetworkBehaviour
     {
-        Vector3 _origin;
-        Vector3 _destination;
-        Vector3 _delta;
+        JVector _origin;
+        JVector _destination;
+        JVector _delta;
         float _duration;
         Easing.Function _easing;
         float _time;
         NetworkGameObject _go;
 
-        public TweenNetworkBehaviour(Vector3 dest, float duration, Easing.Function easing)
+        public TweenNetworkBehaviour(JVector dest, float duration, Easing.Function easing)
         {
             _destination = dest;
             _duration = duration;
@@ -44,7 +44,7 @@ namespace SocialPoint.Multiplayer
 
             if(_go != null)
             {
-                _go.Transform.Position = new Vector3(
+                _go.Transform.Position = new JVector(
                     _easing(_time, _origin.X, _delta.X, _duration),
                     _easing(_time, _origin.Y, _delta.Y, _duration),
                     _easing(_time, _origin.Z, _delta.Z, _duration));
@@ -60,12 +60,12 @@ namespace SocialPoint.Multiplayer
 
     public static class TweenNetworkGameObjectExtensions
     {
-        public static void Tween(this NetworkServerSceneController ctrl, int id, Vector3 dest, float duration, Easing.Function easing)
+        public static void Tween(this NetworkServerSceneController ctrl, int id, JVector dest, float duration, Easing.Function easing)
         {
             ctrl.AddBehaviour(id, new TweenNetworkBehaviour(dest, duration, easing));
         }
 
-        public static void Tween(this NetworkServerSceneController ctrl, int id, Vector3 dest, float duration)
+        public static void Tween(this NetworkServerSceneController ctrl, int id, JVector dest, float duration)
         {
             ctrl.Tween(id, dest, duration, Easing.Linear);
         }

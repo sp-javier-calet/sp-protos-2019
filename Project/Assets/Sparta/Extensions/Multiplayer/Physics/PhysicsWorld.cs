@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections;
-using BulletSharp;
-using BulletSharp.Math;
-using BulletSharp.SoftBody;
+using Jitter;
+using Jitter.LinearMath;
+using Jitter.Dynamics;
+using Jitter.Collision;
 using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
@@ -34,27 +35,29 @@ namespace SocialPoint.Multiplayer
         const int kAxis3SweepMaxProxies = 32766;
         const ulong kSequentialImpulseConstraintSolverRandomSeed = 12345;
 
-        Vector3 _gravity;
+        JVector _gravity;
 
         WorldType _worldType;
-        CollisionConfType _collisionType;
-        BroadphaseType _broadphaseType;
-        Vector3 _axis3SweepBroadphaseMin;
-        Vector3 _axis3SweepBroadphaseMax;
+        CollisionSystem _collisionSystem;
+
+        //CollisionConfType _collisionType;
+        //BroadphaseType _broadphaseType;
+        //JVector _axis3SweepBroadphaseMin;
+        //JVector _axis3SweepBroadphaseMax;
 
         IPhysicsCollisionHandler _collisionEventHandler;
-        CollisionConfiguration _collisionConf;
-        CollisionDispatcher _dispatcher;
-        BroadphaseInterface _broadphase;
-        SoftBodyWorldInfo _softBodyWorldInfo;
-        SequentialImpulseConstraintSolver _solver;
+        //CollisionConfiguration _collisionConf;
+        //CollisionDispatcher _dispatcher;
+        //BroadphaseInterface _broadphase;
+        //SoftBodyWorldInfo _softBodyWorldInfo;
+        //SequentialImpulseConstraintSolver _solver;
 
-        CollisionWorld _world;
+        World _world;
         // Convenience variable so we arn't typecasting all the time.
-        DiscreteDynamicsWorld _ddWorld;
+        //DiscreteDynamicsWorld _ddWorld;
 
         PhysicsDebugger _debugger;
-        DebugDrawModes _debugDrawMode = DebugDrawModes.DrawWireframe;
+        //DebugDrawModes _debugDrawMode = DebugDrawModes.DrawWireframe;
         bool _doDebugDraw = false;
 
         public float FixedTimeStep
@@ -63,7 +66,7 @@ namespace SocialPoint.Multiplayer
             set;
         }
 
-        public Vector3 Gravity
+        public JVector Gravity
         {
             get
             { 
@@ -71,16 +74,16 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_ddWorld != null)
+                /*if(_ddWorld != null)
                 {
-                    Vector3 grav = value;
+                    JVector grav = value;
                     _ddWorld.SetGravity(ref grav);
-                }
+                }*/
                 _gravity = value;
             }
         }
 
-        public CollisionWorld CollisionWorld
+        public World CollisionWorld
         {
             get
             { 
@@ -96,7 +99,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public DebugDrawModes DebugDrawMode
+        /*public DebugDrawModes DebugDrawMode
         {
             get
             { 
@@ -110,7 +113,7 @@ namespace SocialPoint.Multiplayer
                     _world.DebugDrawer.DebugMode = value;
                 }
             }
-        }
+        }*/
 
         public bool DoDebugDraw
         {
@@ -120,7 +123,7 @@ namespace SocialPoint.Multiplayer
             }
             set
             {
-                if(_doDebugDraw != value && _world != null)
+                /*if(_doDebugDraw != value && _world != null)
                 {
                     if(value == true)
                     {
@@ -136,7 +139,7 @@ namespace SocialPoint.Multiplayer
                         }
                         _world.DebugDrawer = null;
                     }
-                }
+                }*/
                 _doDebugDraw = value;
             }
         }
@@ -146,8 +149,8 @@ namespace SocialPoint.Multiplayer
                    WorldType.RigidBodyDynamics, 
                    CollisionConfType.DefaultDynamicsWorldCollisionConf, 
                    BroadphaseType.DynamicAABBBroadphase,
-                   new Vector3(-1000f),
-                   new Vector3(1000f))
+                   new JVector(-1000f),
+                   new JVector(1000f))
         {
         }
 
@@ -155,20 +158,20 @@ namespace SocialPoint.Multiplayer
                             WorldType worldType,
                             CollisionConfType collisionType,
                             BroadphaseType broadphaseType,
-                            Vector3 axis3SweepBroadphaseMin,
-                            Vector3 axis3SweepBroadphaseMax)
+                            JVector axis3SweepBroadphaseMin,
+                            JVector axis3SweepBroadphaseMax)
         {
             _collisionEventHandler = collisionHandler;
             _debugger = debugger;
 
             _worldType = worldType;
-            _collisionType = collisionType;
-            _broadphaseType = broadphaseType;
-            _axis3SweepBroadphaseMin = axis3SweepBroadphaseMin;
-            _axis3SweepBroadphaseMax = axis3SweepBroadphaseMax;
+            //_collisionType = collisionType;
+            //_broadphaseType = broadphaseType;
+            //_axis3SweepBroadphaseMin = axis3SweepBroadphaseMin;
+            //_axis3SweepBroadphaseMax = axis3SweepBroadphaseMax;
 
             FixedTimeStep = 1f / 60f;
-            Gravity = new Vector3(0f, -9.8f, 0f);
+            Gravity = new JVector(0f, -9.8f, 0f);
 
             InitializePhysicsWorld();
         }
@@ -193,7 +196,7 @@ namespace SocialPoint.Multiplayer
         {
             if(_doDebugDraw && _world != null)
             {
-                _world.DebugDrawWorld();
+                //_world.DebugDrawWorld();
             }
         }
 
@@ -212,21 +215,23 @@ namespace SocialPoint.Multiplayer
             ///By default, Bullet will subdivide the timestep in constant substeps of each 'fixedTimeStep'.
             ///in order to keep the simulation real-time, the maximum number of substeps can be clamped to 'maxSubSteps'.
             ///You can disable subdividing the timestep/substepping by passing maxSubSteps=0 as second argument to stepSimulation, but in that case you have to keep the timeStep constant.
-            int maxSubsteps = (int)System.Math.Ceiling(dt / fixedTimeStep);//Alternatively, use a const cap for maxSubsteps
+            /*int maxSubsteps = (int)System.Math.Ceiling(dt / fixedTimeStep);//Alternatively, use a const cap for maxSubsteps
             int numSteps = _ddWorld.StepSimulation(dt, maxSubsteps, fixedTimeStep);
             if(numSteps > 0)
             {
                 FixedUpdate();
-            }
+            }*/
+
+            _world.Step(dt, true);
         }
 
         void FixedUpdate()
         {
             //Collision check
-            if(_collisionEventHandler != null)
+            /*if(_collisionEventHandler != null)
             {
                 _collisionEventHandler.OnPhysicsStep(_world);
-            }
+            }*/
         }
 
         public void OnClientConnected(byte clientId)
@@ -237,20 +242,20 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public void AddCollisionObject(CollisionObject co, CollisionFilterGroups collisionFilterGroup, CollisionFilterGroups collisionFilterMask)
+        public void AddCollisionObject(RigidBody co, PhysicsCollisionObject.CollisionFilterGroups collisionFilterGroup, PhysicsCollisionObject.CollisionFilterGroups collisionFilterMask)
         {
             if(co != null)
             {
-                _world.AddCollisionObject(co, collisionFilterGroup, collisionFilterMask);
+                _world.AddBody(co);
             }
         }
 
-        public void RemoveCollisionObject(CollisionObject co)
+        public void RemoveCollisionObject(RigidBody co)
         {
-            _world.RemoveCollisionObject(co);
+            _world.RemoveBody(co);
         }
 
-        public void AddRigidBody(RigidBody rb, CollisionFilterGroups collisionFilterGroup, CollisionFilterGroups collisionFilterMask)
+        public void AddRigidBody(RigidBody rb, PhysicsCollisionObject.CollisionFilterGroups collisionFilterGroup, PhysicsCollisionObject.CollisionFilterGroups collisionFilterMask)
         {
             if(_worldType < WorldType.RigidBodyDynamics)
             {
@@ -258,7 +263,8 @@ namespace SocialPoint.Multiplayer
             }
             if(rb != null)
             {
-                _ddWorld.AddRigidBody(rb, collisionFilterGroup, collisionFilterMask);
+                _world.AddBody(rb);
+                //_ddWorld.AddRigidBody(rb, collisionFilterGroup, collisionFilterMask);
             }
         }
 
@@ -268,12 +274,15 @@ namespace SocialPoint.Multiplayer
             {
                 _debugger.LogError("World type must not be collision only");
             }
-            _ddWorld.RemoveRigidBody(rb);
+            _world.RemoveBody(rb);
+            //_ddWorld.RemoveRigidBody(rb);
         }
 
         protected void InitializePhysicsWorld()
         {
-            if(_worldType == WorldType.SoftBodyAndRigidBody && _collisionType == CollisionConfType.DefaultDynamicsWorldCollisionConf)
+            _collisionSystem = new CollisionSystemPersistentSAP();
+            _world = new World(_collisionSystem);
+            /*if(_worldType == WorldType.SoftBodyAndRigidBody && _collisionType == CollisionConfType.DefaultDynamicsWorldCollisionConf)
             {
                 _debugger.LogError("For World Type = SoftBodyAndRigidBody collisionType must be collisionType=SoftBodyRigidBodyCollisionConf. Switching");
                 _collisionType = CollisionConfType.SoftBodyRigidBodyCollisionConf;
@@ -330,7 +339,7 @@ namespace SocialPoint.Multiplayer
                     AirDensity = 1.2f,
                     WaterDensity = 0,
                     WaterOffset = 0,
-                    WaterNormal = Vector3.Zero,
+                    WaterNormal = JVector.Zero,
                     Gravity = _gravity,
                     Dispatcher = _dispatcher,
                     Broadphase = _broadphase
@@ -345,7 +354,7 @@ namespace SocialPoint.Multiplayer
                 _softBodyWorldInfo.AirDensity = 1.2f;
                 _softBodyWorldInfo.WaterDensity = 0;
                 _softBodyWorldInfo.WaterOffset = 0;
-                _softBodyWorldInfo.WaterNormal = Vector3.Zero;
+                _softBodyWorldInfo.WaterNormal = JVector.Zero;
                 _softBodyWorldInfo.Gravity = _gravity;
             }
             if(_ddWorld != null)
@@ -356,12 +365,12 @@ namespace SocialPoint.Multiplayer
             {
                 _debugger.DebugMode = _debugDrawMode;
                 _world.DebugDrawer = _debugger;
-            }
+            }*/
         }
 
         public void Dispose()
         {
-            if(_world != null)
+            /*if(_world != null)
             {
                 //Remove the rigidbodies from the dynamics world and delete them
                 for(int i = _world.NumCollisionObjects - 1; i >= 0; i--)
@@ -395,7 +404,7 @@ namespace SocialPoint.Multiplayer
             PhysicsUtilities.DisposeMember(ref _solver);
             PhysicsUtilities.DisposeMember(ref _softBodyWorldInfo);
 
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);*/
         }
     }
 }

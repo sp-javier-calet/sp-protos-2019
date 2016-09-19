@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using BulletSharp;
 using System;
 
 namespace SocialPoint.Multiplayer
 {
     public class PhysicsDefaultCollisionCallbacks : ICollisionCallbackEventHandler
     {
-        public class PersistentManifoldList
+        /*public class PersistentManifoldList
         {
             public List<PersistentManifold> Manifolds = new List<PersistentManifold>();
         }
@@ -114,6 +113,6 @@ namespace SocialPoint.Multiplayer
 
         public virtual void OnCollisionExit(CollisionObject other)
         {
-        }
+        }*/
     }
 }

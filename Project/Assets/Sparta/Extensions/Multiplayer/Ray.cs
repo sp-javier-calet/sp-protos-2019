@@ -2,18 +2,18 @@
 using System.Collections;
 using SocialPoint.IO;
 using SocialPoint.Utils;
-using BulletSharp.Math;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
     public struct Ray : IEquatable<Ray>
     {
-        Vector3 _direction;
+        JVector _direction;
 
         /// <summary>
         /// The origin point of the ray.
         /// </summary>
-        public Vector3 origin
+        public JVector origin
         {
             get;
             set;
@@ -22,7 +22,7 @@ namespace SocialPoint.Multiplayer
         /// <summary>
         /// Direction is always a normalized vector. If you assign a vector of non unit length, it will be normalized.
         /// </summary>
-        public Vector3 direction
+        public JVector direction
         {
             get
             {
@@ -35,7 +35,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public Ray(Vector3 pOrigin, Vector3 pDirection)
+        public Ray(JVector pOrigin, JVector pDirection)
         {
             origin = pOrigin;
 
