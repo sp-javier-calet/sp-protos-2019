@@ -1,64 +1,58 @@
 ﻿using SocialPoint.Lockstep;
-using SocialPoint.Utils;
+using SocialPoint.IO;
 using FixMath.NET;
 
 public class ClickCommand : ILockstepCommand
 {
-    public event System.Action<ILockstepCommand, bool> Applied;
-    public event System.Action<ILockstepCommand> Discarded;
+    public Fix64 X{ get; private set; }
 
-    public int Turn { get; private set; }
+    public Fix64 Y{ get; private set; }
 
-    public int Retries { get; private set; }
+    public Fix64 Z{ get; private set; }
 
-    Fix64 _x;
-    Fix64 _y;
-    Fix64 _z;
+    public ClickCommand()
+    {
+    }
+
+    public ClickCommand(Fix64 x, Fix64 y, Fix64 z)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+    }
+
+    public object Clone()
+    {
+        return new ClickCommand(X, Y, Z);
+    }
+
+    public void Deserialize(IReader reader)
+    {
+        X = Fix64.FromRaw(reader.ReadInt64());
+        Y = Fix64.FromRaw(reader.ReadInt64());
+        Z = Fix64.FromRaw(reader.ReadInt64());
+    }
+
+    public void Serialize(IWriter writer)
+    {
+        writer.Write((long)X.RawValue);
+        writer.Write((long)Y.RawValue);
+        writer.Write((long)Z.RawValue);
+    }
+
+}
+
+public class ClickCommandLogic : ILockstepCommandLogic<ClickCommand>
+{
     LockstepModel _model;
 
-    public ClickCommand(Fix64 x, Fix64 y, Fix64 z, int turn, LockstepModel model)
+    public ClickCommandLogic(LockstepModel model)
     {
-        _x = x;
-        _y = y;
-        _z = z;
-        Turn = turn;
         _model = model;
     }
 
-    public bool Apply()
+    public void Apply(ClickCommand cmd)
     {
-        var result = _model.OnClick(_x, _y, _z);
-        if(Applied != null)
-        {
-            Applied(this, result);
-        }
-        return result;
-    }
-
-    public void Discard()
-    {
-        if(Discarded != null)
-        {
-            Discarded(this);
-        }
-    }
-
-    public bool Retry(int turn)
-    {
-        ++Retries;
-        return true;
-    }
-
-    public byte LockstepCommandDataType
-    {
-        get
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-
-    public bool Equals(ILockstepCommand other)
-    {
-        return true;
+        _model.OnClick(cmd.X, cmd.Y, cmd.Z);
     }
 }

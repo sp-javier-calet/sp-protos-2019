@@ -1,14 +1,11 @@
-﻿using System;
-using System.IO;
+﻿
 using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep.Network
 {
-    public sealed class ConfirmTurnsReceptionMessage : INetworkMessage
+    public sealed class ConfirmTurnsReceptionMessage : INetworkShareable
     {
         public int[] ConfirmedTurns { get; private set; }
-
-        public int Client;
 
         public ConfirmTurnsReceptionMessage(int[] confirmedTurns = null)
         {
@@ -31,14 +28,6 @@ namespace SocialPoint.Lockstep.Network
             for(int i = 0; i < ConfirmedTurns.Length; ++i)
             {
                 writer.Write(ConfirmedTurns[i]);
-            }
-        }
-
-        public bool RequiresSync
-        {
-            get
-            {
-                return false;
             }
         }
     }
