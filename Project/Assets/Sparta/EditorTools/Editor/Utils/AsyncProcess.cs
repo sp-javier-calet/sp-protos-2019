@@ -11,6 +11,8 @@ namespace SpartaTools.Editor.Utils
 
         public bool Finished{ get; private set; }
 
+        public bool Cancelled { get; private set; }
+
         public void Update(string message, float increment)
         {
             Message = message;
@@ -29,7 +31,8 @@ namespace SpartaTools.Editor.Utils
 
         public void Cancel()
         {
-            Finished = true;
+            Cancelled = true;
+            Message = "Cancelled by user..."; 
         }
     }
 
