@@ -41,19 +41,8 @@ namespace SpartaTools.Editor.Sync
             SyncReport.Log("Synchronizing " + projectPath);
 
             var list = new List<ModuleSync>();
-
-            // Lambda to check cancellation.
-            Func<bool> checkCancelled = () => {
-                var cancelled = CurrentProgress.Cancelled;
-                if(cancelled)
-                {
-                    SyncReport.Log("User cancelled");
-                    SyncReport.Dump();
-                }
-                return cancelled;
-            };
                 
-            if(checkCancelled())
+            if(CheckCancelled())
             {   
                 return null;
             }
@@ -61,7 +50,7 @@ namespace SpartaTools.Editor.Sync
             CurrentProgress.Update("Retrieving Sparta modules", 0.05f);
             var spartaModules = Project.GetModules(Project.BasePath);
 
-            if(checkCancelled())
+            if(CheckCancelled())
             {   
                 return null;
             }
@@ -75,7 +64,7 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var spartaMod in spartaModules.Values)
             {
-                if(checkCancelled())
+                if(CheckCancelled())
                 {   
                     return null;
                 }
@@ -111,7 +100,7 @@ namespace SpartaTools.Editor.Sync
              */
             foreach(var targetMod in targetModules.Values)
             {
-                if(checkCancelled())
+                if(CheckCancelled())
                 {   
                     return null;
                 }
@@ -129,6 +118,17 @@ namespace SpartaTools.Editor.Sync
             SyncReport.Dump();
             CurrentProgress.Finish();
             return list;
+        }
+
+        static bool CheckCancelled()
+        {
+            var cancelled = CurrentProgress.Cancelled;
+            if(cancelled)
+            {
+                SyncReport.Log("User cancelled");
+                SyncReport.Dump();
+            }
+            return cancelled;
         }
 
         /// <summary>
