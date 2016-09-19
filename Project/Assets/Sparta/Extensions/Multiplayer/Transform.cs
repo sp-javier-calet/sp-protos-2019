@@ -43,7 +43,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public JMatrix WorldToLocalMatrix()
+        /*public JMatrix WorldToLocalMatrix()
         {
             return new JMatrix();//JMatrix.Transformation(JVector.Zero, JQuaternion.Identity, Scale, JVector.Zero, Rotation, Position);
         }
@@ -54,7 +54,7 @@ namespace SocialPoint.Multiplayer
             JMatrix mInv = new JMatrix();
             JMatrix.Invert(ref m, out mInv);
             return m;
-        }
+        }*/
 
         public object Clone()
         {

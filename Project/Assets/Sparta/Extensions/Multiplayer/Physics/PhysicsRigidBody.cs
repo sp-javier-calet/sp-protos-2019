@@ -405,9 +405,7 @@ namespace SocialPoint.Multiplayer
             //If kinematic then update physic object with game object transform
             if((_collisionFlags & CollisionFlags.KinematicObject) != 0)
             {
-                //_collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
-                _rigidBody.Position = NetworkGameObject.Transform.Position;
-                //_debugger.Log(_rigidBody.Position);
+                UpdateTransformFromGameObject();
             }
             _rigidBody.EnableDebugDraw = true;
             _rigidBody.DebugDraw(_debugger);

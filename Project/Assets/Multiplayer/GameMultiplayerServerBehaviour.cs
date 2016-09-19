@@ -166,7 +166,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         }
 
         float maxDistance = 100f;
-        var rayResultClosest = new PhysicsRaycast.ClosestResult();
+        /*var rayResultClosest = new PhysicsRaycast.ClosestResult();
 
         if(PhysicsRaycast.Raycast(ray, maxDistance, _physicsWorld, out rayResultClosest))
         {
@@ -174,10 +174,26 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             {
                 return true;
             }
+        }*/
+        RigidBody resBody;
+        JVector hitNormal;
+        float fraction;
+
+        if(_physicsWorld.CollisionWorld.CollisionSystem.Raycast(ray.origin, ray.direction * maxDistance, null, out resBody, out hitNormal, out fraction))
+        {
+            if(((NetworkGameObject)resBody.Tag).Id == gameObject.Id)
+            {
+                return true;
+            }
         }
 
         return false;
     }
+
+    /*bool PlayerRaycastCallback(RigidBody body, JVector normal, float fraction)
+    {
+        return true;
+    }*/
 
     void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
                                   JVector point1, JVector point2, JVector normal, float penetration)

@@ -98,7 +98,8 @@ namespace SocialPoint.Multiplayer
         public virtual void OnStart(NetworkGameObject go)
         {
             NetworkGameObject = go;
-            //_collisionObject.WorldTransform = NetworkGameObject.Transform.WorldToLocalMatrix();
+            _collisionObject.Tag = NetworkGameObject;
+            UpdateTransformFromGameObject();
 
             AddObjectToBulletWorld();
         }
@@ -113,6 +114,11 @@ namespace SocialPoint.Multiplayer
 
             PhysicsUtilities.DisposeMember(ref _collisionShape);
             //PhysicsUtilities.DisposeMember(ref _collisionObject);
+        }
+
+        protected void UpdateTransformFromGameObject()
+        {
+            _collisionObject.Position = NetworkGameObject.Transform.Position;
         }
 
         public virtual void AddOnCollisionCallbackEventHandler(ICollisionCallbackEventHandler callback)
