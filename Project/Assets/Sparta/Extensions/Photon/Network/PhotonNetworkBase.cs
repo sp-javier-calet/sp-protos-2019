@@ -30,6 +30,14 @@ namespace SocialPoint.Network
             _config = config;
         }
 
+        void Awake()
+        {
+            if(_config == null)
+            {
+                _config = new PhotonNetworkConfig();
+            }
+        }
+
         protected void DoConnect()
         {
             PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
@@ -183,7 +191,7 @@ namespace SocialPoint.Network
                 var player = GetPlayer(info.ClientId);
                 if(player == null)
                 {
-                    throw new InvalidOperationException("Could not find player with client id " + info.ClientId + ".");
+                    return;
                 }
                 options.TargetActors = new int[]{ player.ID };
             }

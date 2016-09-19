@@ -1,6 +1,7 @@
 ﻿using System;
 using SocialPoint.Network;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep.Network
 {
@@ -115,7 +116,7 @@ namespace SocialPoint.Lockstep.Network
             var delay = _client.GetDelay(msg.ServerTimestamp);
             int remaining = msg.RemainingMillisecondsToStart - delay;
             PlayerIds = msg.PlayerIds;
-            _clientLockstep.Start(SocialPoint.Utils.TimeUtils.TimestampMilliseconds + (long)remaining);
+            _clientLockstep.Start(TimeUtils.TimestampMilliseconds + (long)remaining);
         }
 
         public void SendPlayerReady()

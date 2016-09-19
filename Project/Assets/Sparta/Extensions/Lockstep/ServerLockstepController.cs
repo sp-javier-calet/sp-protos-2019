@@ -38,7 +38,7 @@ namespace SocialPoint.Lockstep
             _pendingTurns = new Dictionary<byte, HashSet<int>>();
         }
 
-        public void OnClientCommandReceived(byte client, LockstepCommandData command)
+        public void OnClientCommandReceived(LockstepCommandData command)
         {
             // If the execution turn is not in the future, ignore it.
             if(command.Turn > _lastTurn)
@@ -79,7 +79,7 @@ namespace SocialPoint.Lockstep
             _isRunning = false;
             _simulationTime = 0;
             _lastTimestamp = 0;
-            _lastTurn = 0;
+            _lastTurn = -1;
         }
 
         void RemoveClientConfirmedTurns()
@@ -146,6 +146,7 @@ namespace SocialPoint.Lockstep
                 }
             }
             itr.Dispose();
+            SendLocalClientTurnData();
         }
 
         void CreateTurnIfEmpty(int turn)
@@ -193,6 +194,49 @@ namespace SocialPoint.Lockstep
             {
                 _updateScheduler.Remove(this);
             }
+            RemoveLocalClient();
         }
+
+        #region local client implementation
+
+        ClientLockstepController _localClient;
+        const int LocalClientId = -1;
+
+        void RemoveLocalClient()
+        {
+            if(_localClient != null)
+            {
+                _localClient.PendingCommandAdded -= AddPendingLocalClientCommand;
+            }
+            _localClient = null;
+        }
+
+        public void RegisterLocalClient(ClientLockstepController client)
+        {
+            RemoveLocalClient();
+            _localClient = client;
+            if(_localClient != null)
+            {
+                _localClient.PendingCommandAdded += AddPendingLocalClientCommand;
+            }
+        }
+
+        void AddPendingLocalClientCommand(LockstepCommandData command)
+        {
+            command.ClientId = LocalClientId;
+            OnClientCommandReceived(command);
+        }
+
+        void SendLocalClientTurnData()
+        {
+            var itr = _turns.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var data = itr.Current.Value;
+                _localClient.ConfirmTurn(data.Turn, data.Commands);
+            }
+        }
+
+        #endregion
     }
 }
