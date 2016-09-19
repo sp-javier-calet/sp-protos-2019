@@ -11,6 +11,7 @@ namespace SocialPoint.Network
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         LocalNetworkServer _server;
 
+        public byte ClientId{ get; private set; }
         public bool Connected{ get; private set; }
 
         public LocalNetworkClient(LocalNetworkServer server)
@@ -27,12 +28,16 @@ namespace SocialPoint.Network
             if(_server.Running)
             {
                 Connected = true;
+            }
+            ClientId = _server.OnClientConnecting(this);
+            if(_server.Running)
+            {
                 for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnClientConnected();
                 }
+                _server.OnClientConnected(this);
             }
-            _server.OnClientConnecting(this);
         }
 
         public void Disconnect()
@@ -41,6 +46,7 @@ namespace SocialPoint.Network
             {
                 return;
             }
+            ClientId = 0;
             Connected = false;
             _server.OnClientDisconnected(this);
             for(var i = 0; i < _delegates.Count; i++)
@@ -107,6 +113,11 @@ namespace SocialPoint.Network
         public void RegisterReceiver(INetworkMessageReceiver receiver)
         {
             _receiver = receiver;
+        }
+
+        public int GetDelay(int serverTimestamp)
+        {
+            return 0;
         }
     }
 }

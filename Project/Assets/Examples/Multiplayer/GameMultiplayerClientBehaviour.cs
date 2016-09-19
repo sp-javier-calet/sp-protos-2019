@@ -17,6 +17,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
 {
     INetworkClient _client;
     NetworkClientSceneController _controller;
+    GameMultiplayerServerBehaviour _gameServer;
 
     [SerializeField]
     GameObject _explosionPrefab;

@@ -52,16 +52,17 @@ namespace SocialPoint.Dependency
 
     public static class DependencyContainerUnityExtensions
     {
-        public static void BindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
+        public static UnityComponentBinding<T> BindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
         {
             var bind = new UnityComponentBinding<T>(container);
             container.AddBinding(bind, typeof(T), tag);
+            return bind;
         }
 
-        public static void RebindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
+        public static UnityComponentBinding<T> RebindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
         {
             container.Remove<T>(tag);
-            container.BindUnityComponent<T>(tag);
+            return container.BindUnityComponent<T>(tag);
         }
     }
 

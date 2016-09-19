@@ -4,6 +4,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+#if UNITY_5 && (!UNITY_5_0 && !UNITY_5_1 && !UNITY_5_2 && !UNITY_5_3) || UNITY_6
+#define UNITY_MIN_5_4
+#endif
+
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -52,6 +56,30 @@ internal class PhotonHandler : Photon.MonoBehaviour
 
         PhotonHandler.StartFallbackSendAckThread();
     }
+
+
+    #if UNITY_MIN_5_4
+
+    protected void Start()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (scene, loadingMode) =>
+        {
+            PhotonNetwork.networkingPeer.NewSceneLoaded();
+            PhotonNetwork.networkingPeer.SetLevelInPropsIfSynced(SceneManagerHelper.ActiveSceneName);
+        };
+    }
+    
+    #else
+    
+    /// <summary>Called by Unity after a new level was loaded.</summary>
+    protected void OnLevelWasLoaded(int level)
+    {
+        PhotonNetwork.networkingPeer.NewSceneLoaded();
+        PhotonNetwork.networkingPeer.SetLevelInPropsIfSynced(SceneManagerHelper.ActiveSceneName);
+    }
+
+    #endif
+
 
     /// <summary>Called by Unity when the application is closed. Disconnects.</summary>
     protected void OnApplicationQuit()
@@ -106,7 +134,7 @@ internal class PhotonHandler : Photon.MonoBehaviour
             return;
         }
 
-        if (PhotonNetwork.connectionStateDetailed == PeerState.PeerCreated || PhotonNetwork.connectionStateDetailed == PeerState.Disconnected || PhotonNetwork.offlineMode)
+        if (PhotonNetwork.connectionStateDetailed == ClientState.PeerCreated || PhotonNetwork.connectionStateDetailed == ClientState.Disconnected || PhotonNetwork.offlineMode)
         {
             return;
         }
@@ -148,13 +176,6 @@ internal class PhotonHandler : Photon.MonoBehaviour
 
             this.nextSendTickCount = currentMsSinceStart + this.updateInterval;
         }
-    }
-
-    /// <summary>Called by Unity after a new level was loaded.</summary>
-    protected void OnLevelWasLoaded(int level)
-    {
-        PhotonNetwork.networkingPeer.NewSceneLoaded();
-        PhotonNetwork.networkingPeer.SetLevelInPropsIfSynced(SceneManagerHelper.ActiveSceneName);
     }
 
     protected void OnJoinedRoom()
@@ -251,7 +272,7 @@ internal class PhotonHandler : Photon.MonoBehaviour
         BestRegionCodeCurrently = CloudRegionCode.none;
         while (PhotonNetwork.networkingPeer.AvailableRegions == null)
         {
-            if (PhotonNetwork.connectionStateDetailed != PeerState.ConnectingToNameServer && PhotonNetwork.connectionStateDetailed != PeerState.ConnectedToNameServer)
+            if (PhotonNetwork.connectionStateDetailed != ClientState.ConnectingToNameServer && PhotonNetwork.connectionStateDetailed != ClientState.ConnectedToNameServer)
             {
                 Debug.LogError("Call ConnectToNameServer to ping available regions.");
                 yield break; // break if we don't connect to the nameserver at all

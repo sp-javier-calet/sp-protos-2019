@@ -1,0 +1,99 @@
+using Photon;
+using SocialPoint.Base;
+using SocialPoint.Utils;
+using SocialPoint.IO;
+using System.Collections.Generic;
+using System;
+
+namespace SocialPoint.Network
+{
+    public class PhotonNetworkClient : PhotonNetworkBase, INetworkClient
+    {
+        public byte ClientId
+        {
+            get
+            {
+                return GetClientId(PhotonNetwork.player);
+            }
+        }
+
+        public bool Connected
+        {
+            get
+            {
+                return PhotonNetwork.connected;
+            }
+        }
+
+        List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
+        INetworkMessageReceiver _receiver;
+
+
+        public void Connect()
+        {
+            DoConnect();
+        }
+
+        public void Disconnect()
+        {
+            DoDisconnect();
+        }
+
+        public void AddDelegate(INetworkClientDelegate dlg)
+        {
+            _delegates.Add(dlg);
+        }
+
+        public void RemoveDelegate(INetworkClientDelegate dlg)
+        {
+            _delegates.Remove(dlg);
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
+        }
+
+        public int GetDelay(int networkTimestamp)
+        {
+            return 0;
+        }
+
+        protected override void OnConnected()
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnClientConnected();
+            }
+        }
+
+        protected override void OnDisconnected()
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnClientDisconnected();
+            }
+        }
+
+        protected override void OnNetworkError(Error err)
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnNetworkError(err);
+            }
+        }
+
+        protected override void OnMessageReceived(NetworkMessageData data, IReader reader)
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnMessageReceived(data);
+            }
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(data, reader);
+            }
+        }
+
+    }
+}
