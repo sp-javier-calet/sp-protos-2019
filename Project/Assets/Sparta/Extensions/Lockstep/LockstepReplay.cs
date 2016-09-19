@@ -37,6 +37,12 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public void Reset()
+        {
+            _commands.Clear();
+            _config = null;
+        }
+
         void OnCommandApplied(LockstepCommandData command)
         {
             if(_config == null)
