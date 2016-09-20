@@ -11,6 +11,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 926e2218f960c4944b5d77ce259000de, type: 3}
   m_Name: FyberSettings
   m_EditorClassIdentifier: 
-  bundlesJson: '{"adapters":[{"name":"AdColony","qualifiedName":"com.fyber.mediation.adcolony.AdColonyMediationAdapter"},{"name":"Chartboost","qualifiedName":"com.fyber.mediation.chartboost.ChartboostMediationAdapter"},{"name":"Applifier","qualifiedName":"com.fyber.mediation.unityads.UnityAdsMediationAdapter"}]}'
-  configJson: '{"adapters":[{"name":"AdColony","settings":{}},{"name":"Chartboost","settings":{}},{"name":"Applifier","settings":{}}]}'
-  bundlesCount: 3
+  bundlesJson: 
+  configJson: 
+  bundlesCount: 0
