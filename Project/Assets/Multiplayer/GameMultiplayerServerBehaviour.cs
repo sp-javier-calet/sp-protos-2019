@@ -142,7 +142,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void AddPhysicsWorld()
     {
         _physicsWorld = new PhysicsWorld(true);
-        _physicsWorld.AddCollisionHandler(CollisionDetectedHandler);
 
         _controller.AddBehaviour(_physicsWorld);
     }
@@ -155,7 +154,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
         if(go.Id == playerCube.Id)
         {
-            rigidBody.AddCollisionHandler(PlayerCollisionDetectedHandler);
+            rigidBody.AddCollisionHandler(PlayerCollisionHandler);
         }
 
         _controller.AddBehaviour(go.Id, rigidBody);
@@ -182,15 +181,9 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         return false;
     }
 
-    void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
-                                  JVector point1, JVector point2, JVector normal, float penetration)
+    void PlayerCollisionHandler(RigidBody body1, RigidBody body2, 
+                                JVector point1, JVector point2, JVector normal, float penetration)
     {
-        //UnityEngine.Debug.Log("*** TEST Collision Detected");
-    }
-
-    void PlayerCollisionDetectedHandler(RigidBody body1, RigidBody body2, 
-                                        JVector point1, JVector point2, JVector normal, float penetration)
-    {
-        UnityEngine.Debug.Log("*** TEST Player Collision Detected");
+        _physicsDebugger.Log("Player Collision Detected!");
     }
 }

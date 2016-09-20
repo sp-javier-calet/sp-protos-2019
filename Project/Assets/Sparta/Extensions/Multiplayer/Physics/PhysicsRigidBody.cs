@@ -162,8 +162,7 @@ namespace SocialPoint.Multiplayer
             switch(_controlType)
             {
             case ControlType.Kinematic:
-                //_rigidBody.IsStatic = true;
-                _rigidBody.AffectedByGravity = false;
+                _rigidBody.IsKinematic = true;
                 break;
             case ControlType.Static:
                 _rigidBody.IsStatic = true;
