@@ -5,7 +5,7 @@ using Jitter.Collision.Shapes;
 namespace SocialPoint.Multiplayer
 {
     [System.Serializable]
-    public abstract class PhysicsCollisionShape : IDisposable, ICloneable
+    public abstract class PhysicsCollisionShape : ICloneable
     {
         // Derived classes must create it upon construction
         protected Shape _collisionShapePtr = null;
@@ -13,12 +13,6 @@ namespace SocialPoint.Multiplayer
         public Shape GetCollisionShape()
         {
             return _collisionShapePtr;
-        }
-
-        public void Dispose()
-        {
-            //PhysicsUtilities.DisposeMember(ref _collisionShapePtr);
-            GC.SuppressFinalize(this);
         }
 
         public abstract Object Clone();

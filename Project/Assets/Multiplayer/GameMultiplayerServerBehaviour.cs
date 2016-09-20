@@ -141,8 +141,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void AddPhysicsWorld()
     {
-        _physicsWorld = new PhysicsWorld(new PhysicsDefaultCollisionHandler(), _physicsDebugger);
-        _physicsWorld.DoDebugDraw = true;
+        _physicsWorld = new PhysicsWorld(true);
         _physicsWorld.AddCollisionHandler(CollisionDetectedHandler);
 
         _controller.AddBehaviour(_physicsWorld);
@@ -151,7 +150,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void AddCollision(NetworkGameObject go)
     {
         var boxShape = new PhysicsBoxShape(new JVector(1f));
-        var rigidBody = new PhysicsRigidBody(boxShape, _physicsWorld, _physicsDebugger, PhysicsCollisionObject.CollisionFlags.KinematicObject);
+        var rigidBody = new PhysicsRigidBody(boxShape, PhysicsRigidBody.ControlType.Kinematic, _physicsWorld, _physicsDebugger);
+        rigidBody.DoDebugDraw = true;
         //var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
         //rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
 
@@ -165,7 +165,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             return false;
         }
 
-        float maxDistance = 100f;
+        //float maxDistance = 100f;
         /*var rayResultClosest = new PhysicsRaycast.ClosestResult();
 
         if(PhysicsRaycast.Raycast(ray, maxDistance, _physicsWorld, out rayResultClosest))
@@ -175,25 +175,20 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 return true;
             }
         }*/
-        RigidBody resBody;
-        JVector hitNormal;
-        float fraction;
+        //RigidBody resBody;
+        //JVector hitNormal;
+        //float fraction;
 
-        if(_physicsWorld.CollisionWorld.CollisionSystem.Raycast(ray.origin, ray.direction * maxDistance, null, out resBody, out hitNormal, out fraction))
+        /*if(_physicsWorld.CollisionWorld.CollisionSystem.Raycast(ray.origin, ray.direction * maxDistance, null, out resBody, out hitNormal, out fraction))
         {
-            if(((NetworkGameObject)resBody.Tag).Id == gameObject.Id)
+            if(((PhysicsRigidBody)resBody.Tag).NetworkGameObject.Id == gameObject.Id)
             {
                 return true;
             }
-        }
+        }*/
 
         return false;
     }
-
-    /*bool PlayerRaycastCallback(RigidBody body, JVector normal, float fraction)
-    {
-        return true;
-    }*/
 
     void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
                                   JVector point1, JVector point2, JVector normal, float penetration)
