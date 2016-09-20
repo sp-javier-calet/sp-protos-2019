@@ -11,41 +11,41 @@ namespace SocialPoint.GUIAnimation
 
         public Transform Target { get { return _target; } set { _target = value; } }
 
-        public override void Init (Animation animation, Step parent)
+        public override void Init(Animation animation, Step parent)
         {
-            base.Init (animation, parent);
+            base.Init(animation, parent);
 
-            _animation.AddAction (this);
+            _animation.AddAction(this);
         }
 
-        public override void Refresh ()
+        public override void Refresh()
         {
         }
 
-        public override void Copy (Step other)
+        public override void Copy(Step other)
         {
-            base.Copy (other);
+            base.Copy(other);
 
             _target = ((Effect)other).Target;
         }
 
         // Copy another effect
-        public abstract void CopyActionValues (Effect other);
+        public abstract void CopyActionValues(Effect other);
 
         // Copy the values that are shared between different targets of the same effect
-        public virtual void CopySharedValues (Effect other)
+        public virtual void CopySharedValues(Effect other)
         {
         }
 
-        public virtual StepMonitor CreateTargetMonitor ()
+        public virtual StepMonitor CreateTargetMonitor()
         {
             return null;
         }
 
-        public abstract void OnUpdate ();
+        public abstract void OnUpdate();
 
-        public abstract void SetOrCreateDefaultValues ();
+        public abstract void SetOrCreateDefaultValues();
 
-        public abstract void OnReset ();
+        public abstract void OnReset();
     }
 }

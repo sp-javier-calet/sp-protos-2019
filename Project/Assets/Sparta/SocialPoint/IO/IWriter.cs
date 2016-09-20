@@ -37,4 +37,50 @@ namespace SocialPoint.IO
 
         void Write(uint value);
     }
+
+    public abstract class SimpleWriter : IWriter
+    {
+        public abstract void Write(bool value);
+
+        public abstract void Write(ushort value);
+
+        public abstract void Write(short value);
+
+        public abstract void Write(sbyte value);
+
+        public abstract void Write(byte value);
+
+        public abstract void Write(char value);
+
+        public abstract void Write(int value);       
+
+        public abstract void Write(string value);
+
+        public abstract void Write(double value);
+
+        public abstract void Write(float value);
+
+        public abstract void Write(ulong value);
+
+        public abstract void Write(long value);
+
+        public abstract void Write(uint value);
+
+        public void Write(byte[] buffer, int offset, int count)
+        {
+            if(buffer.Length - offset < count)
+            {
+                throw new ArgumentException("buffer too short");
+            }
+            for(var i = 0; i < count; i++)
+            {
+                Write(buffer[i + offset]);
+            }
+        }
+
+        public void Write(byte[] buffer, int count)
+        {
+            Write(buffer, 0, count);
+        }
+    }
 }

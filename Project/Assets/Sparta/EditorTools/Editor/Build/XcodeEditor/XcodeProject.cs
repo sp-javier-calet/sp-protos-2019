@@ -995,6 +995,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             class KeychainAccessGroupModEditor : IModEditor
             {
                 const string DefaultEntitlementsFile = "Unity-iPhone.entitlements";
+                const string KeychainAccessGroupsKey = "keychain-access-groups";
+
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData
@@ -1044,7 +1046,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                             plist.ReadFromFile(path);
                         }
 
-                        var el = plist.root["keychain-access-groups"] ?? plist.root.CreateArray("keychain-access-groups");
+                        var el = plist.root[KeychainAccessGroupsKey] ?? plist.root.CreateArray(KeychainAccessGroupsKey);
                         var list = el.AsArray();
                         foreach(var gr in groups[entitlementFile])
                         {

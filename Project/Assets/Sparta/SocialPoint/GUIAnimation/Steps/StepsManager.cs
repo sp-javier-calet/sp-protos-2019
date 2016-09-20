@@ -19,95 +19,95 @@ namespace SocialPoint.GUIAnimation
 
     public static class StepsManager
     {
-        public static List<StepData> BlendStepsData = new List<StepData> () {
-            new StepData () {
+        public static List<StepData> BlendStepsData = new List<StepData>() {
+            new StepData() {
                 StepType = typeof(AnchorsEffect),
                 ConfigurableInEditor = true
             },
-            new StepData () {
+            new StepData() {
                 StepType = typeof(PositionEffect),
                 ConfigurableInEditor = true
             },
-            new StepData (){ StepType = typeof(ScaleEffect) },
-            new StepData (){ StepType = typeof(RotationEffect) },
+            new StepData(){ StepType = typeof(ScaleEffect) },
+            new StepData(){ StepType = typeof(RotationEffect) },
 
-            new StepData (){ StepType = typeof(ColorEffect) },
-            new StepData (){ StepType = typeof(OpacityEffect) },
-            new StepData () {
+            new StepData(){ StepType = typeof(ColorEffect) },
+            new StepData(){ StepType = typeof(OpacityEffect) },
+            new StepData() {
                 StepType = typeof(UniformEffect),
                 ConfigurableInEditor = true
             },
 
             // Deprecated
-            new StepData () {
+            new StepData() {
                 StepType = typeof(TransformEffect),
                 ConfigurableInEditor = true
             },
         };
 
-        public static StepData GetBlendStepData (System.Type type)
+        public static StepData GetBlendStepData(System.Type type)
         {
-            return BlendStepsData.Find ((StepData adata) => {
+            return BlendStepsData.Find((StepData adata) => {
                 return adata.StepType == type;
             });
         }
 
-        public static List<StepMonitorData> BlendMonitorsData = new List<StepMonitorData> () {
-            new StepMonitorData () {
+        public static List<StepMonitorData> BlendMonitorsData = new List<StepMonitorData>() {
+            new StepMonitorData() {
                 StepType = typeof(TransformEffect),
                 StepMonitorType = typeof(TransformEffect.TargetValueMonitor)
             },
 
-            new StepMonitorData () {
+            new StepMonitorData() {
                 StepType = typeof(AnchorsEffect),
                 StepMonitorType = typeof(AnchorsEffect.TargetValueMonitor)
             },
-            new StepMonitorData () {
+            new StepMonitorData() {
                 StepType = typeof(PositionEffect),
                 StepMonitorType = typeof(PositionEffect.TargetValueMonitor)
             },
-            new StepMonitorData () {
+            new StepMonitorData() {
                 StepType = typeof(ScaleEffect),
                 StepMonitorType = typeof(ScaleEffect.TargetValueMonitor)
             },
-            new StepMonitorData () {
+            new StepMonitorData() {
                 StepType = typeof(RotationEffect),
                 StepMonitorType = typeof(RotationEffect.TargetValueMonitor)
             },
 
-            new StepMonitorData () {
+            new StepMonitorData() {
                 StepType = typeof(ColorEffect),
                 StepMonitorType = typeof(ColorEffect.TargetValueMonitor)
             },
-            new StepMonitorData () {
+            new StepMonitorData() {
                 StepType = typeof(OpacityEffect),
                 StepMonitorType = typeof(OpacityEffect.TargetValueMonitor)
             },
         };
 
-        public static StepMonitorData GeMonitorData (System.Type monitorType)
+        public static StepMonitorData GeMonitorData(System.Type monitorType)
         {
-            return BlendMonitorsData.Find ((StepMonitorData adata) => {
+            return BlendMonitorsData.Find((StepMonitorData adata) => {
                 return adata.StepMonitorType == monitorType;
             });
         }
 
-        public static List<StepData> TriggerStepsData = new List<StepData> () {
-            new StepData (){ StepType = typeof(ParticleSpawnerEffect) },
-            new StepData (){ StepType = typeof(GameObjectEnablerEffect) },
-            new StepData (){ StepType = typeof(ParticlePlayerEffect) },
-            new StepData (){ StepType = typeof(CallbackEffect) },
-            new StepData (){ StepType = typeof(AnimatorEffect) },
+        public static List<StepData> TriggerStepsData = new List<StepData>() {
+            new StepData(){ StepType = typeof(ParticleSpawnerEffect) },
+            new StepData(){ StepType = typeof(GameObjectEnablerEffect) },
+            new StepData(){ StepType = typeof(ParticlePlayerEffect) },
+            new StepData(){ StepType = typeof(CallbackEffect) },
+            new StepData(){ StepType = typeof(AnimatorEffect) },
         };
 
-        public static StepData GetInstantStepData (System.Type type)
+        public static StepData GetInstantStepData(System.Type type)
         {
-            return TriggerStepsData.Find ((StepData adata) => {
+            return TriggerStepsData.Find((StepData adata) => {
                 return adata.StepType == type;
             });
         }
 
-        public static Dictionary<System.Type, string> StepsNames = new Dictionary<System.Type, string> () {
+        public static Dictionary<System.Type, string> StepsNames = new Dictionary<System.Type, string>() {
             // Abstract Composite Types
             { typeof(Group), "Group" },
             { typeof(EffectsGroup), "Transition" },
@@ -136,47 +136,47 @@ namespace SocialPoint.GUIAnimation
             { typeof(AnimatorEffect), "Animator" },
         };
 
-        public static string GetStepName (System.Type type)
+        public static string GetStepName(System.Type type)
         {
-            string name = type.ToString ();
-            StepsNames.TryGetValue (type, out name);
+            string name = type.ToString();
+            StepsNames.TryGetValue(type, out name);
             return name;
         }
 
         //---- Methods to extend the steps and stepsMonitors
-        public static void AddBlendingStepData (System.Type blendingStepType, string visibleName)
+        public static void AddBlendingStepData(System.Type blendingStepType, string visibleName)
         {
-            AddStepData (StepsManager.BlendStepsData, blendingStepType, visibleName);
+            AddStepData(StepsManager.BlendStepsData, blendingStepType, visibleName);
         }
 
-        public static void AddTriggerStepData (System.Type triggerStepType, string visibleName)
+        public static void AddTriggerStepData(System.Type triggerStepType, string visibleName)
         {
-            AddStepData (StepsManager.TriggerStepsData, triggerStepType, visibleName);
+            AddStepData(StepsManager.TriggerStepsData, triggerStepType, visibleName);
         }
 
-        static void AddStepData (List<StepData> steps, System.Type stepType, string visibleName)
+        static void AddStepData(List<StepData> steps, System.Type stepType, string visibleName)
         {
-            if (steps.Exists ((StepData astep) => {
+            if(steps.Exists((StepData astep) => {
                 return astep.StepType == stepType;
             }))
             {
                 return;
             }
-            steps.Add (new StepData (){ StepType = stepType });
+            steps.Add(new StepData(){ StepType = stepType });
 
-            visibleName = !string.IsNullOrEmpty (visibleName) ? visibleName : stepType.ToString ();
-            StepsNames.Add (stepType, visibleName);
+            visibleName = !string.IsNullOrEmpty(visibleName) ? visibleName : stepType.ToString();
+            StepsNames.Add(stepType, visibleName);
         }
 
-        public static void AddMonitorStepData (System.Type stepType, System.Type stepMonitorType)
+        public static void AddMonitorStepData(System.Type stepType, System.Type stepMonitorType)
         {
-            if (StepsManager.BlendMonitorsData.Exists ((StepMonitorData astep) => {
+            if(StepsManager.BlendMonitorsData.Exists((StepMonitorData astep) => {
                 return astep.StepType == stepType;
             }))
             {
                 return;
             }
-            StepsManager.BlendMonitorsData.Add (new StepMonitorData () {
+            StepsManager.BlendMonitorsData.Add(new StepMonitorData() {
                 StepType = stepType,
                 StepMonitorType = stepMonitorType
             });

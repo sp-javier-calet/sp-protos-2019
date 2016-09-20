@@ -6,36 +6,36 @@ namespace SocialPoint.GUIAnimation
     {
         bool _wasRun = false;
 
-        public override void OnReset ()
+        public override void OnReset()
         {
             _wasRun = false;
         }
 
-        public override void OnUpdate ()
+        public override void OnUpdate()
         {
-            if (_wasRun)
+            if(_wasRun)
             {
                 return;
             }
 
-            if (IsEnabledInHierarchy ())
+            if(IsEnabledInHierarchy())
             {
-                float actionStartTime = GetStartTime (AnimTimeMode.Global);
+                float actionStartTime = GetStartTime(AnimTimeMode.Global);
 				
                 float t = _animation.CurrentTime;
 				
-                if (t >= actionStartTime)
+                if(t >= actionStartTime)
                 {
-                    DoAction ();
+                    DoAction();
 
                     _wasRun = true;
                 }
             }
         }
 
-        public abstract void DoAction ();
+        public abstract void DoAction();
 
-        public virtual float GetFixedDuration ()
+        public virtual float GetFixedDuration()
         {
             return 0.25f;
         }

@@ -8,27 +8,27 @@ namespace SocialPoint.GUIAnimation
     {
         UIWidget _graphic;
 
-        public static NGUIWidgetGraphicObject Load (Transform root, bool searchInChild)
+        public static NGUIWidgetGraphicObject Load(Transform root, bool searchInChild)
         {
             UIWidget graphic = null;
-            if (searchInChild)
+            if(searchInChild)
             {
-                graphic = GUIAnimationUtility.GetComponentRecursiveDown<UIWidget> (root.gameObject);
+                graphic = GUIAnimationUtility.GetComponentRecursiveDown<UIWidget>(root.gameObject);
             }
             else
             {
-                graphic = root.GetComponent<UIWidget> ();
+                graphic = root.GetComponent<UIWidget>();
             }
 			
             NGUIWidgetGraphicObject wrapper = null;
-            if (graphic != null)
+            if(graphic != null)
             {
-                wrapper = new NGUIWidgetGraphicObject (graphic);
+                wrapper = new NGUIWidgetGraphicObject(graphic);
             }
             return wrapper;
         }
 
-        public NGUIWidgetGraphicObject (UIWidget widget)
+        public NGUIWidgetGraphicObject(UIWidget widget)
         {
             _graphic = widget;
         }
@@ -48,9 +48,9 @@ namespace SocialPoint.GUIAnimation
                 color.a *= value.a;
                 _graphic.color = color;
 
-                if (!Application.isPlaying)
+                if(!Application.isPlaying)
                 {
-                    Refresh ();
+                    Refresh();
                 }
             }
         }
@@ -64,9 +64,9 @@ namespace SocialPoint.GUIAnimation
             set
             {
                 _graphic.alpha = value;
-                if (!Application.isPlaying)
+                if(!Application.isPlaying)
                 {
-                    Refresh ();
+                    Refresh();
                 }
             }
         }
@@ -80,17 +80,17 @@ namespace SocialPoint.GUIAnimation
             set
             {
                 _graphic.material = value;
-                Refresh ();
+                Refresh();
             }
         }
 
-        public void Refresh ()
+        public void Refresh()
         {
-            UIPanel panel = _graphic.GetComponentInParent<UIPanel> ();
-            if (panel)
+            UIPanel panel = _graphic.GetComponentInParent<UIPanel>();
+            if(panel)
             {
-                panel.Refresh ();
-                panel.Update ();
+                panel.Refresh();
+                panel.Update();
             }
         }
     }

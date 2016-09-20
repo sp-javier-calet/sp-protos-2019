@@ -1,4 +1,5 @@
 ﻿using SocialPoint.Base;
+using SocialPoint.Utils;
 using System.Collections.Generic;
 using System;
 
@@ -7,7 +8,7 @@ namespace SocialPoint.Network
     public sealed class LocalNetworkServer : INetworkServer
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
-        Dictionary<LocalNetworkClient,byte> _clients = new Dictionary<LocalNetworkClient,byte>();
+        Dictionary<LocalNetworkClient, byte> _clients = new Dictionary<LocalNetworkClient,byte>();
         INetworkMessageReceiver _receiver;
 
         public bool Running{ get; private set; }
@@ -52,7 +53,7 @@ namespace SocialPoint.Network
             itr.Dispose();
         }
 
-        public void OnClientConnecting(LocalNetworkClient client)
+        public byte OnClientConnecting(LocalNetworkClient client)
         {
             byte clientId = 1;
             bool found = false;
@@ -69,8 +70,13 @@ namespace SocialPoint.Network
                 throw new InvalidOperationException("Too many clients.");
             }
             _clients[client] = clientId;
+            return clientId;
+        }
 
-            if(Running)
+        public void OnClientConnected(LocalNetworkClient client)
+        {
+            byte clientId;
+            if(Running && _clients.TryGetValue(client, out clientId))
             {
                 for(var i = 0; i < _delegates.Count; i++)
                 {
@@ -164,6 +170,10 @@ namespace SocialPoint.Network
         public void RegisterReceiver(INetworkMessageReceiver receiver)
         {
             _receiver = receiver;
+        }
+        public int GetTimestamp()
+        {
+            return (int)TimeUtils.TimestampMilliseconds;
         }
     }
 }
