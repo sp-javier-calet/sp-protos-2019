@@ -109,7 +109,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             if(!ClosestIntersectsRay(playerCube, ac.Ray))
             {
                 NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
-                                                    ac.Position, JQuaternionExtension.Identity(), JVector.One));
+                                                    ac.Position, JQuaternion.Identity, JVector.One));
 
                 if(playerCube == null)
                 {

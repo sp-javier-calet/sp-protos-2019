@@ -25,7 +25,7 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public Transform(JVector p) : this(p, JQuaternionExtension.Identity())
+        public Transform(JVector p) : this(p, JQuaternion.Identity)
         {
         }
 
@@ -102,7 +102,7 @@ namespace SocialPoint.Multiplayer
 
         static bool Compare(Transform a, Transform b)
         {
-            return a.Position == b.Position && a.Rotation.Equals(b.Rotation) && a.Scale == b.Scale;
+            return a.Position == b.Position && a.Rotation == b.Rotation && a.Scale == b.Scale;
         }
 
         public override int GetHashCode()
@@ -134,7 +134,7 @@ namespace SocialPoint.Multiplayer
         public void Compare(Transform newObj, Transform oldObj, Bitset dirty)
         {
             dirty.Set(newObj.Position != oldObj.Position);
-            dirty.Set(!newObj.Rotation.Equals(oldObj.Rotation));
+            dirty.Set(newObj.Rotation != oldObj.Rotation);
             dirty.Set(newObj.Scale != oldObj.Scale);
         }
 

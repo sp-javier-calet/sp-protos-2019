@@ -6,19 +6,6 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public static class JQuaternionExtension
-    {
-        public static JQuaternion Identity()
-        {
-            return new JQuaternion(0.0f, 0.0f, 0.0f, 1.0f);
-        }
-
-        public static bool Equals(this JQuaternion value1, JQuaternion value2)
-        {
-            return (((value1.X == value2.X) && (value1.Y == value2.Y)) && (value1.Z == value2.Z) && (value1.W == value2.W));
-        }
-    }
-
     public class QuaternionSerializer : IWriteSerializer<JQuaternion>
     {
         public static readonly QuaternionSerializer Instance = new QuaternionSerializer();
