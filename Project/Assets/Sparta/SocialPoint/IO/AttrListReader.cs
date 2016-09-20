@@ -3,7 +3,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.IO
 {
-    public class AttrReader : IReader
+    public class AttrReader : SimpleReader
     {
         readonly AttrList _attr;
         int _position;
@@ -21,67 +21,57 @@ namespace SocialPoint.IO
             return v;
         }
 
-        public bool ReadBoolean()
+        public override bool ReadBoolean()
         {
             return GetValue().ToBool();
         }
 
-        public byte ReadByte()
+        public override byte ReadByte()
         {
             return (byte)ReadUInt32();
         }
 
-        public byte[] ReadBytes(int count)
-        {
-            var bytes = new byte[count];
-            for(var i = 0; i < count; i++)
-            {
-                bytes[i] = ReadByte();
-            }
-            return bytes;
-        }
-
-        public double ReadDouble()
+        public override double ReadDouble()
         {
             return GetValue().ToDouble();
         }
 
-        public short ReadInt16()
+        public override short ReadInt16()
         {
             return (short)ReadUInt32();
         }
 
-        public int ReadInt32()
+        public override int ReadInt32()
         {
             return GetValue().ToInt();
         }
 
-        public long ReadInt64()
+        public override long ReadInt64()
         {
             return GetValue().ToInt();
         }
 
-        public float ReadSingle()
+        public override float ReadSingle()
         {
             return GetValue().ToFloat();
         }
 
-        public string ReadString()
+        public override string ReadString()
         {
             return GetValue().ToString();
         }
 
-        public ushort ReadUInt16()
+        public override ushort ReadUInt16()
         {
             return (ushort)ReadInt32();
         }
 
-        public uint ReadUInt32()
+        public override uint ReadUInt32()
         {
             return (uint)ReadInt32();
         }
 
-        public ulong ReadUInt64()
+        public override ulong ReadUInt64()
         {
             return (ulong)ReadInt64();
         }

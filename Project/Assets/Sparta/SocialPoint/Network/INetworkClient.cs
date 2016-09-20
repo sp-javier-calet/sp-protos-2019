@@ -16,6 +16,8 @@ namespace SocialPoint.Network
 
     public interface INetworkClient
     {
+        byte ClientId{ get; }
+
         bool Connected{ get; }
 
         void Connect();
@@ -29,6 +31,13 @@ namespace SocialPoint.Network
         void RemoveDelegate(INetworkClientDelegate dlg);
 
         void RegisterReceiver(INetworkMessageReceiver receiver);
+
+        /**
+         * should return client delay in milliseconds
+         * serverTimestamp should be sent in a message
+         * from the server to the clients
+         */
+        int GetDelay(int networkTimestamp);
     }
 
     public static class NetworkClientExtensions

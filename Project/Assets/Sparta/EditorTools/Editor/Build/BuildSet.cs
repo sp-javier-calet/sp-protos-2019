@@ -15,17 +15,33 @@ namespace SpartaTools.Editor.Build
         public const string BaseSettingsName = "Base Settings";
         public const string DebugScenePrefix = "Debug";
 
-        public const string ProvisioningProfileEnvironmentKey = "SP_XCODE_PROVISIONING_PROFILE_UUID";
-        public const string XcodeModSchemesPrefsKey = "XCodeModSchemes";
-        public const string ProvisioningProfilePrefsKey = "XCodeProvisioningProfileUuid";
-
         public const string ContainerPath = "Assets/Sparta/Config/BuildSet/";
         public const string FileSuffix = "-BuildSet";
         public const string FileExtension = ".asset";
 
+        const string ProvisioningProfileEnvironmentKey = "SP_XCODE_PROVISIONING_PROFILE_UUID";
+        const string XcodeModSchemesPrefsKey = "XCodeModSchemes";
+        const string ProvisioningProfilePrefsKey = "XCodeProvisioningProfileUuid";
+
+        const string AdminPanelFlag = "ADMIN_PANEL";
+
         static readonly char[] ListSeparator = { ';' };
 
         #region Scriptable Object Data
+
+        /* 
+         * Log configuration
+         */
+        public enum LogLevel
+        {
+            Default,
+            None,
+            Verbose,
+            Debug,
+            Info,
+            Warning,
+            Error
+        }
 
         /* 
          * Icon configuration 
@@ -50,6 +66,8 @@ namespace SpartaTools.Editor.Build
             public bool RebuildNativePlugins;
             public bool IsDevelopmentBuild;
             public bool IncludeDebugScenes;
+            public LogLevel LogLevel;
+            public bool EnableAdminPanel;
         }
 
         public CommonConfiguration Common;
@@ -94,7 +112,6 @@ namespace SpartaTools.Editor.Build
         }
 
         public AndroidConfiguration Android;
-
 
         public string Name
         {
@@ -155,7 +172,11 @@ namespace SpartaTools.Editor.Build
             public string ErrorMessage;
         }
 
-        readonly List<Validator> _validators = new List<Validator> { 
+        readonly List<Validator> _validators = new List<Validator> {
+            new Validator {
+                Validate = (BuildSet bs) => !bs.Ios.Flags.Contains(AdminPanelFlag) && !bs.Common.Flags.Contains(AdminPanelFlag) && !bs.Android.Flags.Contains(AdminPanelFlag),
+                ErrorMessage = "Admin Panel flag must be enabled using the proper option"
+            },
             new Validator {
                 Validate = (BuildSet bs) => !bs.IsDebugConfig || bs.Ios.XcodeModSchemes.Contains("debug"),
                 ErrorMessage = "Debug Build Set must define the 'debug' scheme for XcodeMods"
@@ -179,6 +200,10 @@ namespace SpartaTools.Editor.Build
             new Validator {
                 Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Android.ForceBundleVersionCode,
                 ErrorMessage = "Shipping Build Set cannot force bundle version code"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.EnableAdminPanel,
+                ErrorMessage = "Shipping Build Set cannot enable Admin Panel features"
             }
         };
 
@@ -302,12 +327,14 @@ namespace SpartaTools.Editor.Build
             /* 
              * Per Platform Flags
              */
-            var commonFlags = string.IsNullOrEmpty(Common.Flags) ? baseSettings.Common.Flags : Common.Flags;
-            var androidFlags = string.IsNullOrEmpty(Android.Flags) ? baseSettings.Android.Flags : Android.Flags;
-            var iosFlags = string.IsNullOrEmpty(Ios.Flags) ? baseSettings.Ios.Flags : Ios.Flags;
+            var logLevelFlag = GetLogLevelFlag(baseSettings);
+            var commonFlags = MergeFlags(Common.Flags, baseSettings.Common.Flags);
+            var androidFlags = MergeFlags(Android.Flags, baseSettings.Android.Flags);
+            var iosFlags = MergeFlags(Ios.Flags, baseSettings.Ios.Flags);
+            var adminFlags = Common.EnableAdminPanel ? AdminPanelFlag : string.Empty;
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, commonFlags + ";" + androidFlags);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, commonFlags + ";" + iosFlags);
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format("{0};{1};{2};{3}", commonFlags, androidFlags, logLevelFlag, adminFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, string.Format("{0};{1};{2};{3}", commonFlags, iosFlags, logLevelFlag, adminFlags));
 
             /*
              * Android-only configuration
@@ -344,13 +371,58 @@ namespace SpartaTools.Editor.Build
             SetXcodeModSchemes(Ios.XcodeModSchemes);
 
             // Try to set the Provisioning Profile defined by a environment variable.
-            var globalProvisioningUuid = Ios.UseEnvironmentProvisioningUuid ? Environment.GetEnvironmentVariable(ProvisioningProfileEnvironmentKey) : null;
+            var globalProvisioningUuid = Ios.UseEnvironmentProvisioningUuid ? BuildSet.EnvironmentProvisioningUuid : null;
             SetXcodeProvisioningProfileUuid(globalProvisioningUuid);
 
             /*
              * Override shared configuration for the active target platform
              */
             Platform.OnApply(this);
+        }
+
+        string GetLogLevelFlag(BaseSettings baseSettings)
+        {
+            LogLevel level = LogLevel.Info;
+            if(Common.LogLevel == LogLevel.Default)
+            {
+                level = baseSettings.Common.LogLevel;
+            }
+
+            switch(level)
+            {
+            default:
+            case LogLevel.Default:
+            case LogLevel.None:
+                return string.Empty;
+            case LogLevel.Verbose: 
+                return "SPARTA_LOG_VERBOSE";
+            case LogLevel.Debug: 
+                return "SPARTA_LOG_DEBUG";
+            case LogLevel.Info:
+                return "SPARTA_LOG_INFO";
+            case LogLevel.Warning:
+                return "SPARTA_LOG_WARNING";
+            case LogLevel.Error:
+                return "SPARTA_LOG_ERROR";
+            }
+        }
+
+        string MergeFlags(string configFlags, string baseFlags)
+        {
+            if(string.IsNullOrEmpty(configFlags))
+            {
+                return baseFlags;
+            }
+            else if(configFlags.StartsWith("+"))
+            {
+                // If configuration flags starts with +, merge config and base flags
+                return baseFlags + ";" + configFlags.Substring(1);
+            }
+            else
+            {
+                // Overrid
+                return configFlags;
+            }
         }
 
         public void ApplyExtended()
@@ -401,6 +473,30 @@ namespace SpartaTools.Editor.Build
         public static BuildSet LoadByPath(string path)
         {
             return AssetDatabase.LoadAssetAtPath<BuildSet>(path);
+        }
+
+        public static string EnvironmentProvisioningUuid
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable(ProvisioningProfileEnvironmentKey);
+            }
+        }
+
+        public static string CurrentGlobalProvisioningUuid
+        {
+            get
+            {
+                return EditorPrefs.GetString(ProvisioningProfilePrefsKey, string.Empty);
+            }
+        }
+
+        public static string CurrentXcodeModSchemes
+        {
+            get
+            {
+                return EditorPrefs.GetString(XcodeModSchemesPrefsKey, string.Empty);
+            }
         }
 
         #region Platform Processors

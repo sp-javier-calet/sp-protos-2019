@@ -11,6 +11,6 @@ namespace SocialPoint.GUIAnimation
 
         Material Material { get; set; }
 
-        void Refresh ();
+        void Refresh();
     }
 }

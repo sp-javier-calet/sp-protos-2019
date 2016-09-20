@@ -13,8 +13,8 @@ namespace SocialPoint.Lockstep
         long _lastTimestamp;
         int _lastTurn;
         bool _isRunning;
-        Dictionary<int, LockstepTurnData> _turns = new Dictionary<int, LockstepTurnData>();
-        HashSet<int>[] _pendingConfirmationsPerClient;
+        Dictionary<int, LockstepTurnData> _turns;
+        Dictionary<byte, HashSet<int>> _pendingTurns;
         IUpdateScheduler _updateScheduler;
 
         public int CurrentTurn
@@ -25,7 +25,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public ServerLockstepController(IUpdateScheduler updateScheduler, int clientCount = 2, long commandStep = 300)
+        public ServerLockstepController(IUpdateScheduler updateScheduler, long commandStep = 300)
         {
             CommandStep = commandStep;
             if(updateScheduler != null)
@@ -34,14 +34,11 @@ namespace SocialPoint.Lockstep
                 updateScheduler.Add(this);
             }
             _lastTurn = -1;
-            _pendingConfirmationsPerClient = new HashSet<int>[clientCount];
-            for(int i = 0; i < clientCount; ++i)
-            {
-                _pendingConfirmationsPerClient[i] = new HashSet<int>();
-            }
+            _turns = new Dictionary<int, LockstepTurnData>();
+            _pendingTurns = new Dictionary<byte, HashSet<int>>();
         }
 
-        public void OnClientCommandReceived(int client, ILockstepCommand command)
+        public void OnClientCommandReceived(LockstepCommandData command)
         {
             // If the execution turn is not in the future, ignore it.
             if(command.Turn > _lastTurn)
@@ -50,20 +47,29 @@ namespace SocialPoint.Lockstep
                 if(!_turns.TryGetValue(command.Turn, out turnData))
                 {
                     turnData = new LockstepTurnData(command.Turn);
-                    turnData.Commands = new List<ILockstepCommand>();
+                    turnData.Commands = new List<LockstepCommandData>();
                     _turns.Add(turnData.Turn, turnData);
                 }
                 turnData.Commands.Add(command);
             }
         }
 
-        public void OnClientTurnReceptionConfirmed(int client, int turn)
+        public void OnClientTurnReceptionConfirmed(byte client, int turn)
         {
-            _pendingConfirmationsPerClient[client].Remove(turn);
+            HashSet<int> turns;
+            if(_pendingTurns.TryGetValue(client, out turns))
+            {
+                turns.Remove(turn);
+            }
         }
 
-        public void Start(long timestamp)
+        public void Start(long timestamp, byte[] clients)
         {
+            for(int i = 0; i < clients.Length; ++i)
+            {
+                _pendingTurns[clients[i]] = new HashSet<int>();
+            }
+
             _isRunning = true;
             _lastTimestamp = timestamp;
         }
@@ -71,6 +77,9 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             _isRunning = false;
+            _simulationTime = 0;
+            _lastTimestamp = 0;
+            _lastTurn = -1;
         }
 
         void RemoveClientConfirmedTurns()
@@ -84,14 +93,16 @@ namespace SocialPoint.Lockstep
                     continue;
                 }
                 bool isAnyPendingConfirmation = false;
-                for(int i = 0; i < _pendingConfirmationsPerClient.Length; ++i)
+                var itr = _pendingTurns.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    if(_pendingConfirmationsPerClient[i].Contains(enumerator.Current.Key))
+                    if(itr.Current.Value.Contains(enumerator.Current.Key))
                     {
                         isAnyPendingConfirmation = true;
                         break;
                     }
                 }
+                itr.Dispose();
                 if(!isAnyPendingConfirmation)
                 {
                     if(turnsToRemove == null)
@@ -112,14 +123,15 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public Action<int, LockstepTurnData[]> SendClientTurnData;
+        public Action<byte, LockstepTurnData[]> SendClientTurnData;
 
         void SendTurnData()
         {
-            for(int i = 0; i < _pendingConfirmationsPerClient.Length; ++i)
+            var itr = _pendingTurns.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var pendingConfirmation = _pendingConfirmationsPerClient[i];
-                LockstepTurnData[] pendingTurns = new LockstepTurnData[pendingConfirmation.Count];
+                var pendingConfirmation = itr.Current.Value;
+                var pendingTurns = new LockstepTurnData[pendingConfirmation.Count];
                 int j = 0;
                 var enumerator = pendingConfirmation.GetEnumerator();
                 while(enumerator.MoveNext())
@@ -130,9 +142,11 @@ namespace SocialPoint.Lockstep
 
                 if(SendClientTurnData != null)
                 {
-                    SendClientTurnData(i, pendingTurns);
+                    SendClientTurnData(itr.Current.Key, pendingTurns);
                 }
             }
+            itr.Dispose();
+            SendLocalClientTurnData();
         }
 
         void CreateTurnIfEmpty(int turn)
@@ -162,10 +176,12 @@ namespace SocialPoint.Lockstep
             {
                 RemoveClientConfirmedTurns();
                 _lastTurn++;
-                for(int i = 0; i < _pendingConfirmationsPerClient.Length; ++i)
+                var itr = _pendingTurns.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    _pendingConfirmationsPerClient[i].Add(_lastTurn);
+                    itr.Current.Value.Add(_lastTurn);
                 }
+                itr.Dispose();
                 CreateTurnIfEmpty(_lastTurn);
                 SendTurnData();
             }
@@ -173,10 +189,54 @@ namespace SocialPoint.Lockstep
 
         public void Dispose()
         {
+            SendClientTurnData = null;
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
             }
+            RemoveLocalClient();
         }
+
+        #region local client implementation
+
+        ClientLockstepController _localClient;
+        const int LocalClientId = -1;
+
+        void RemoveLocalClient()
+        {
+            if(_localClient != null)
+            {
+                _localClient.PendingCommandAdded -= AddPendingLocalClientCommand;
+            }
+            _localClient = null;
+        }
+
+        public void RegisterLocalClient(ClientLockstepController client)
+        {
+            RemoveLocalClient();
+            _localClient = client;
+            if(_localClient != null)
+            {
+                _localClient.PendingCommandAdded += AddPendingLocalClientCommand;
+            }
+        }
+
+        void AddPendingLocalClientCommand(LockstepCommandData command)
+        {
+            command.ClientId = LocalClientId;
+            OnClientCommandReceived(command);
+        }
+
+        void SendLocalClientTurnData()
+        {
+            var itr = _turns.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var data = itr.Current.Value;
+                _localClient.ConfirmTurn(data.Turn, data.Commands);
+            }
+        }
+
+        #endregion
     }
 }

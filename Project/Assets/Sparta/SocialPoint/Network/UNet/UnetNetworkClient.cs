@@ -17,6 +17,18 @@ namespace SocialPoint.Network
 
         public const string DefaultServerAddr = "localhost";
 
+        public byte ClientId
+        {
+            get
+            {
+                if(!Connected)
+                {
+                    return 0;
+                }
+                return (byte)_client.connection.connectionId;
+            }
+        }
+
         public bool Connected
         {
             get
@@ -162,6 +174,12 @@ namespace SocialPoint.Network
         public void RegisterReceiver(INetworkMessageReceiver receiver)
         {
             _receiver = receiver;
+        }
+
+        public int GetDelay(int serverTimestamp)
+        {
+            byte error;
+            return NetworkTransport.GetRemoteDelayTimeMS(_client.connection.hostId, _client.connection.connectionId, serverTimestamp, out error);
         }
     }
 }

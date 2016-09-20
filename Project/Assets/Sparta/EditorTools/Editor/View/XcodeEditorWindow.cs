@@ -50,7 +50,7 @@ namespace SpartaTools.Editor.View
             get
             {
                 // XCodeModSchemes prefs are written by BuildSet.
-                var customPrefixes = EditorPrefs.GetString(BuildSet.XcodeModSchemesPrefsKey, string.Empty);
+                var customPrefixes = BuildSet.CurrentXcodeModSchemes;
                 if(string.IsNullOrEmpty(customPrefixes))
                 {
                     return new string[0];
@@ -104,6 +104,18 @@ namespace SpartaTools.Editor.View
             return newStatus;
         }
 
+        void ApplyXcodeMods()
+        {
+            var lastProject = XcodePostprocess.LastProjectPath;
+            var path = EditorUtility.OpenFolderPanel("Select Target Project", lastProject, lastProject);
+
+            // Check for cancelled popup
+            if(!string.IsNullOrEmpty(path))
+            {
+                XcodePostprocess.ApplyXcodeMods(_target, path);
+            }
+        }
+
         void GUIToolBar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
@@ -129,13 +141,18 @@ namespace SpartaTools.Editor.View
             }
 
             GUILayout.FlexibleSpace();
-
-            if(GUILayout.Button("Reload", EditorStyles.toolbarButton))
+                
+            if(GUILayout.Button(new GUIContent("Reload", "Reload XcodeMods content from disk"), EditorStyles.toolbarButton))
             {
                 _modsData = null;
             }
 
             EditorGUILayout.Space();
+
+            if(GUILayout.Button(new GUIContent("Apply", "Apply XcodeMods to an existing Xcodeproj. Applies Active Schemes configuration."), EditorStyles.toolbarButton))
+            {
+                ApplyXcodeMods();
+            }
 
             EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
 
@@ -266,7 +283,7 @@ namespace SpartaTools.Editor.View
                         _currentXcodeMod.Apply(this);
                         _currentXcodeMod = null;
                     }
-                    catch(Exception e)
+                    catch
                     {
                         Add(new ModData("Failed XcodeMod files", file, _currentXcodeMod));
                     }

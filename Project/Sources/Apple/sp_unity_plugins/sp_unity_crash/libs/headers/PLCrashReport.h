@@ -42,12 +42,12 @@
 #import "PLCrashReportSystemInfo.h"
 #import "PLCrashReportThreadInfo.h"
 
-/** 
+/**
  * @ingroup constants
  * Crash file magic identifier */
 #define PLCRASH_REPORT_FILE_MAGIC "plcrash"
 
-/** 
+/**
  * @ingroup constants
  * Crash format version byte identifier. Will not change outside of the introduction of
  * an entirely new crash log format. */
@@ -62,7 +62,8 @@
  * The crash log message format itself is extensible, so this version number will only
  * be incremented in the event of an incompatible encoding or format change.
  */
-struct PLCrashReportFileHeader {
+struct PLCrashReportFileHeader
+{
     /** Crash log magic identifier, not NULL terminated */
     const char magic[7];
 
@@ -80,50 +81,51 @@ struct PLCrashReportFileHeader {
  */
 typedef struct _PLCrashReportDecoder _PLCrashReportDecoder;
 
-@interface PLCrashReport : NSObject {
-@private
+@interface PLCrashReport : NSObject
+{
+  @private
     /** Private implementation variables (used to hide the underlying protobuf parser) */
-    _PLCrashReportDecoder *_decoder;
+    _PLCrashReportDecoder* _decoder;
 
     /** System info */
-    PLCrashReportSystemInfo *_systemInfo;
-    
+    PLCrashReportSystemInfo* _systemInfo;
+
     /** Machine info */
-    PLCrashReportMachineInfo *_machineInfo;
+    PLCrashReportMachineInfo* _machineInfo;
 
     /** Application info */
-    PLCrashReportApplicationInfo *_applicationInfo;
-    
+    PLCrashReportApplicationInfo* _applicationInfo;
+
     /** Process info */
-    PLCrashReportProcessInfo *_processInfo;
+    PLCrashReportProcessInfo* _processInfo;
 
     /** Signal info */
-    PLCrashReportSignalInfo *_signalInfo;
-    
+    PLCrashReportSignalInfo* _signalInfo;
+
     /** Mach exception info */
-    PLCrashReportMachExceptionInfo *_machExceptionInfo;
+    PLCrashReportMachExceptionInfo* _machExceptionInfo;
 
     /** Thread info (PLCrashReportThreadInfo instances) */
-    NSArray *_threads;
+    NSArray* _threads;
 
     /** Binary images (PLCrashReportBinaryImageInfo instances */
-    NSArray *_images;
+    NSArray* _images;
 
     /** Exception information (may be nil) */
-    PLCrashReportExceptionInfo *_exceptionInfo;
+    PLCrashReportExceptionInfo* _exceptionInfo;
 
     /** Report UUID */
     CFUUIDRef _uuid;
 }
 
-- (id) initWithData: (NSData *) encodedData error: (NSError **) outError;
+- (id)initWithData:(NSData*)encodedData error:(NSError**)outError;
 
-- (PLCrashReportBinaryImageInfo *) imageForAddress: (uint64_t) address;
+- (PLCrashReportBinaryImageInfo*)imageForAddress:(uint64_t)address;
 
 /**
  * System information.
  */
-@property(nonatomic, readonly) PLCrashReportSystemInfo *systemInfo;
+@property(nonatomic, readonly) PLCrashReportSystemInfo* systemInfo;
 
 /**
  * YES if machine information is available.
@@ -134,12 +136,12 @@ typedef struct _PLCrashReportDecoder _PLCrashReportDecoder;
  * Machine information. Only available in later (v1.1+) crash report format versions. If not available,
  * will be nil.
  */
-@property(nonatomic, readonly) PLCrashReportMachineInfo *machineInfo;
+@property(nonatomic, readonly) PLCrashReportMachineInfo* machineInfo;
 
 /**
  * Application information.
  */
-@property(nonatomic, readonly) PLCrashReportApplicationInfo *applicationInfo;
+@property(nonatomic, readonly) PLCrashReportApplicationInfo* applicationInfo;
 
 /**
  * YES if process information is available.
@@ -150,12 +152,12 @@ typedef struct _PLCrashReportDecoder _PLCrashReportDecoder;
  * Process information. Only available in later (v1.1+) crash report format versions. If not available,
  * will be nil.
  */
-@property(nonatomic, readonly) PLCrashReportProcessInfo *processInfo;
+@property(nonatomic, readonly) PLCrashReportProcessInfo* processInfo;
 
 /**
  * Signal information. This provides the signal and signal code of the fatal signal.
  */
-@property(nonatomic, readonly) PLCrashReportSignalInfo *signalInfo;
+@property(nonatomic, readonly) PLCrashReportSignalInfo* signalInfo;
 
 /**
  * Mach exception information, if available. This will only be included in the
@@ -167,17 +169,17 @@ typedef struct _PLCrashReportDecoder _PLCrashReportDecoder;
  * Mach exception info by the encoding crash reporter, and thus may not exactly match the kernel exception-to-signal
  * mappings implemented in xnu. As such, when Mach exception info is available, its use should be preferred.
  */
-@property(nonatomic, readonly) PLCrashReportMachExceptionInfo *machExceptionInfo;
+@property(nonatomic, readonly) PLCrashReportMachExceptionInfo* machExceptionInfo;
 
 /**
  * Thread information. Returns a list of PLCrashReportThreadInfo instances.
  */
-@property(nonatomic, readonly) NSArray *threads;
+@property(nonatomic, readonly) NSArray* threads;
 
 /**
  * Binary image information. Returns a list of PLCrashReportBinaryImageInfo instances.
  */
-@property(nonatomic, readonly) NSArray *images;
+@property(nonatomic, readonly) NSArray* images;
 
 /**
  * YES if exception information is available.
@@ -188,7 +190,7 @@ typedef struct _PLCrashReportDecoder _PLCrashReportDecoder;
  * Exception information. Only available if a crash was caused by an uncaught exception,
  * otherwise nil.
  */
-@property(nonatomic, readonly) PLCrashReportExceptionInfo *exceptionInfo;
+@property(nonatomic, readonly) PLCrashReportExceptionInfo* exceptionInfo;
 
 /**
  * A client-generated 16-byte UUID. May be used to filter duplicate reports submitted or generated

@@ -10,18 +10,18 @@ namespace SocialPoint.GUIAnimation
 
     public interface IStep
     {
-        float GetStartTime (AnimTimeMode mode);
+        float GetStartTime(AnimTimeMode mode);
 
-        void SetStartTime (float time, AnimTimeMode mode);
+        void SetStartTime(float time, AnimTimeMode mode);
 
-        float GetEndTime (AnimTimeMode mode);
+        float GetEndTime(AnimTimeMode mode);
 
-        void SetEndTime (float time, AnimTimeMode mode);
+        void SetEndTime(float time, AnimTimeMode mode);
 
-        float GetDuration (AnimTimeMode mode);
+        float GetDuration(AnimTimeMode mode);
 
-        void SetDuration (float duration, AnimTimeMode mode);
+        void SetDuration(float duration, AnimTimeMode mode);
 
-        void Invert (bool invertTime = false);
+        void Invert(bool invertTime = false);
     }
 }
