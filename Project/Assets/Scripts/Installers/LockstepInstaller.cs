@@ -12,8 +12,6 @@ public class LockstepInstaller : Installer
     public class SettingsData
     {
         public LockstepConfig Config;
-        public byte UnreliableChannel = 0;
-        public byte ReliableChannel = 1;
         public int PlayersCount = 1;
         public int StartDelay = 3000;
     }
@@ -74,8 +72,7 @@ public class LockstepInstaller : Installer
     ClientLockstepNetworkController CreateClientNetworkController()
     {
         return new ClientLockstepNetworkController(
-            Container.Resolve<INetworkClient>(),
-            Settings.UnreliableChannel, Settings.ReliableChannel);
+            Container.Resolve<INetworkClient>());
     }
 
     void SetupClientNetworkController(ClientLockstepNetworkController ctrl)
@@ -90,8 +87,7 @@ public class LockstepInstaller : Installer
         return new ServerLockstepNetworkController(
             Container.Resolve<INetworkServer>(),
             Container.Resolve<LockstepConfig>(),
-            Settings.PlayersCount, Settings.StartDelay,
-            Settings.UnreliableChannel, Settings.ReliableChannel);
+            Settings.PlayersCount, Settings.StartDelay);
     }
 
     void SetupServerNetworkController(ServerLockstepNetworkController ctrl)

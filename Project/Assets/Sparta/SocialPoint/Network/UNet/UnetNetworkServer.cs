@@ -138,7 +138,6 @@ namespace SocialPoint.Network
         {
             var data = new NetworkMessageData {
                 MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
-                ChannelId = (byte)umsg.channelId,
                 ClientId = (byte)umsg.conn.connectionId
             };
             if(_receiver != null)

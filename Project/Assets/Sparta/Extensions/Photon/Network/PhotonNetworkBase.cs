@@ -178,7 +178,6 @@ namespace SocialPoint.Network
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             var options = new RaiseEventOptions();
-            options.SequenceChannel = info.ChannelId;
 
             var serverId = PhotonNetwork.room.masterClientId;
             if(PhotonNetwork.player.ID != serverId)
@@ -195,27 +194,22 @@ namespace SocialPoint.Network
                 }
                 options.TargetActors = new int[]{ player.ID };
             }
-            var reliable = IsChannelReliable(info.ChannelId);
-            var content = new object[]{ info.ChannelId, data };
-            PhotonNetwork.RaiseEvent(info.MessageType, content, reliable, options);
+            PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
-            var contentArr = (object[])content;
             byte clientId = 0;
             if(senderid != PhotonNetwork.room.masterClientId)
             {
                 clientId = GetClientId(GetPlayer((byte)senderid));
             }
-            var channelId = (byte)contentArr[0];
-            var data = (byte[])contentArr[1];
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId,
-                ChannelId = channelId
+                ClientId = clientId
             };
-            var reader = new SystemBinaryReader(new MemoryStream(data));
+            var stream = new MemoryStream((byte[])content)
+            var reader = new SystemBinaryReader(stream);
             OnMessageReceived(info, reader);
         }
     }

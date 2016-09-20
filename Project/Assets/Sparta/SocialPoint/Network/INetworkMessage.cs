@@ -15,7 +15,7 @@ namespace SocialPoint.Network
     public struct NetworkMessageData
     {
         public byte MessageType;
-        public byte ChannelId;
+        public bool Unreliable;
         public byte ClientId;
 
         public override bool Equals(System.Object obj)
@@ -31,14 +31,14 @@ namespace SocialPoint.Network
         public override int GetHashCode()
         {
             int hash = MessageType.GetHashCode();
-            hash = CryptographyUtils.HashCombine(hash, ChannelId.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, Unreliable.GetHashCode());
             hash = CryptographyUtils.HashCombine(hash, ClientId.GetHashCode());
             return hash;
         }
 
         public static bool operator ==(NetworkMessageData a, NetworkMessageData b)
         {
-            return a.MessageType == b.MessageType && a.ChannelId == b.ChannelId && a.ClientId == b.ClientId;
+            return a.MessageType == b.MessageType && a.Unreliable == b.Unreliable && a.ClientId == b.ClientId;
         }
 
         public static bool operator !=(NetworkMessageData a, NetworkMessageData b)
@@ -48,8 +48,8 @@ namespace SocialPoint.Network
 
         public override string ToString()
         {
-            return string.Format("[NetworkMessageData MessageType={0} ChannelId={1} ClientId={2}]",
-                MessageType, ChannelId, ClientId);
+            return string.Format("[NetworkMessageData MessageType={0} Unreliable={1} ClientId={2}]",
+                MessageType, Unreliable, ClientId);
         }
     }
 

@@ -31,25 +31,19 @@ namespace SocialPoint.Lockstep.Network
         int _startLockstepDelay;
         LockstepConfig _lockstepConfig;
         INetworkServer _server;
-        byte _unreliableChannel;
-        byte _reliableChannel;
         Dictionary<byte, LockstepClientData> _clients;
         INetworkMessageReceiver _receiver;
 
         public ServerLockstepNetworkController(INetworkServer server,
                                                LockstepConfig lockstepConfig = null,
                                                int playersCount = 2,
-                                               int startLockstepDelay = 5000,
-                                               byte unreliableChannel = 0,
-                                               byte reliableChannel = 1)
+                                               int startLockstepDelay = 5000)
         {
             if(lockstepConfig == null)
             {
                 lockstepConfig = new LockstepConfig();
             }
             _clients = new Dictionary<byte, LockstepClientData>();
-            _unreliableChannel = unreliableChannel;
-            _reliableChannel = reliableChannel;
             _server = server;
             _playersCount = playersCount;
             _lockstepConfig = lockstepConfig;
@@ -78,7 +72,7 @@ namespace SocialPoint.Lockstep.Network
 
             _server.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.ConfirmTurns,
-                ChannelId = _unreliableChannel,
+                Unreliable = true,
                 ClientId = clientId
             }, action);
         }
@@ -253,7 +247,7 @@ namespace SocialPoint.Lockstep.Network
             _server.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.ClientSetup,
                 ClientId = clientId,
-                ChannelId = _reliableChannel
+                Unreliable = false
             }, new ClientSetupMessage(_lockstepConfig));
         }
 
