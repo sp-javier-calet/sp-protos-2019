@@ -37,13 +37,13 @@ namespace SocialPoint.Multiplayer
         RigidBody _rigidBody;
         PhysicsCollisionShape _collisionShape;
         ControlType _controlType;
-        PhysicsDebugger _debugger;
+        IPhysicsDebugger _debugger;
         PhysicsWorld _physicsWorld;
         bool _isInWorld = false;
 
         event CollisionDetectedHandler _collisionListeners;
 
-        public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, PhysicsDebugger debugger)
+        public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger)
         {
             _collisionShape = shape;
             _controlType = type;

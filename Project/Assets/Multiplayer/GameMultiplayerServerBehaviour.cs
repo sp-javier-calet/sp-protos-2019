@@ -22,7 +22,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     NetworkGameObject playerCube = null;
 
     PhysicsWorld _physicsWorld;
-    PhysicsDebugger _physicsDebugger;
+    IPhysicsDebugger _physicsDebugger;
 
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
     {
