@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
 using Jitter.Collision.Shapes;
+
 #endregion
 
 namespace Jitter.LinearMath
@@ -39,7 +40,8 @@ namespace Jitter.LinearMath
         /// <summary>
         /// M11
         /// </summary>
-        public float M11; // 1st row vector
+        public float M11;
+        // 1st row vector
         /// <summary>
         /// M12
         /// </summary>
@@ -51,7 +53,8 @@ namespace Jitter.LinearMath
         /// <summary>
         /// M21
         /// </summary>
-        public float M21; // 2nd row vector
+        public float M21;
+        // 2nd row vector
         /// <summary>
         /// M22
         /// </summary>
@@ -63,7 +66,8 @@ namespace Jitter.LinearMath
         /// <summary>
         /// M31
         /// </summary>
-        public float M31; // 3rd row vector
+        public float M31;
+        // 3rd row vector
         /// <summary>
         /// M32
         /// </summary>
@@ -80,6 +84,90 @@ namespace Jitter.LinearMath
         /// </summary>
         public static readonly JMatrix Identity;
         public static readonly JMatrix Zero;
+
+        /// <summary>
+        /// Gets or sets the first row in the matrix; that is M11, M12, M13.
+        /// </summary>
+        public JVector Row1
+        {
+            get { return new JVector(M11, M12, M13); }
+            set
+            {
+                M11 = value.X;
+                M12 = value.Y;
+                M13 = value.Z;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the second row in the matrix; that is M21, M22, M23.
+        /// </summary>
+        public JVector Row2
+        {
+            get { return new JVector(M21, M22, M23); }
+            set
+            {
+                M21 = value.X;
+                M22 = value.Y;
+                M23 = value.Z;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the third row in the matrix; that is M31, M32, M33.
+        /// </summary>
+        public JVector Row3
+        {
+            get { return new JVector(M31, M32, M33); }
+            set
+            {
+                M31 = value.X;
+                M32 = value.Y;
+                M33 = value.Z;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the first column in the matrix; that is M11, M21, M31.
+        /// </summary>
+        public JVector Column1
+        {
+            get { return new JVector(M11, M21, M31); }
+            set
+            {
+                M11 = value.X;
+                M21 = value.Y;
+                M31 = value.Z;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the second column in the matrix; that is M12, M22, M32.
+        /// </summary>
+        public JVector Column2
+        {
+            get { return new JVector(M12, M22, M32); }
+            set
+            {
+                M12 = value.X;
+                M22 = value.Y;
+                M32 = value.Z;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the third column in the matrix; that is M13, M23, M33.
+        /// </summary>
+        public JVector Column3
+        {
+            get { return new JVector(M13, M23, M33); }
+            set
+            {
+                M13 = value.X;
+                M23 = value.Y;
+                M33 = value.Z;
+            }
+        }
 
         static JMatrix()
         {
@@ -213,7 +301,7 @@ namespace Jitter.LinearMath
         /// <param name="m32">m32</param>
         /// <param name="m33">m33</param>
         #region public JMatrix(float m11, float m12, float m13, float m21, float m22, float m23,float m31, float m32, float m33)
-        public JMatrix(float m11, float m12, float m13, float m21, float m22, float m23,float m31, float m32, float m33)
+        public JMatrix(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33)
         {
             this.M11 = m11;
             this.M12 = m12;
@@ -225,6 +313,7 @@ namespace Jitter.LinearMath
             this.M32 = m32;
             this.M33 = m33;
         }
+
         #endregion
 
         /// <summary>
@@ -280,6 +369,7 @@ namespace Jitter.LinearMath
             result.M32 = num7;
             result.M33 = num8;
         }
+
         #endregion
 
         /// <summary>
@@ -314,6 +404,7 @@ namespace Jitter.LinearMath
             result.M32 = matrix1.M32 + matrix2.M32;
             result.M33 = matrix1.M33 + matrix2.M33;
         }
+
         #endregion
 
         /// <summary>
@@ -332,7 +423,7 @@ namespace Jitter.LinearMath
         public float Determinant()
         {
             return M11 * M22 * M33 + M12 * M23 * M31 + M13 * M21 * M32 -
-                   M31 * M22 * M13 - M32 * M23 * M11 - M33 * M21 * M12;
+            M31 * M22 * M13 - M32 * M23 * M11 - M33 * M21 * M12;
         }
 
         public static void Invert(ref JMatrix matrix, out JMatrix result)
@@ -371,11 +462,11 @@ namespace Jitter.LinearMath
         public static void Inverse(ref JMatrix matrix, out JMatrix result)
         {
             float det = matrix.M11 * matrix.M22 * matrix.M33 -
-                matrix.M11 * matrix.M23 * matrix.M32 -
-                matrix.M12 * matrix.M21 * matrix.M33 +
-                matrix.M12 * matrix.M23 * matrix.M31 +
-                matrix.M13 * matrix.M21 * matrix.M32 -
-                matrix.M13 * matrix.M22 * matrix.M31;
+                        matrix.M11 * matrix.M23 * matrix.M32 -
+                        matrix.M12 * matrix.M21 * matrix.M33 +
+                        matrix.M12 * matrix.M23 * matrix.M31 +
+                        matrix.M13 * matrix.M21 * matrix.M32 -
+                        matrix.M13 * matrix.M22 * matrix.M31;
 
             float num11 = matrix.M22 * matrix.M33 - matrix.M23 * matrix.M32;
             float num12 = matrix.M13 * matrix.M32 - matrix.M12 * matrix.M33;
@@ -399,6 +490,7 @@ namespace Jitter.LinearMath
             result.M32 = num32 / det;
             result.M33 = num33 / det;
         }
+
         #endregion
 
         /// <summary>
@@ -434,6 +526,7 @@ namespace Jitter.LinearMath
             result.M32 = matrix1.M32 * num;
             result.M33 = matrix1.M33 * num;
         }
+
         #endregion
 
         /// <summary>
@@ -446,7 +539,7 @@ namespace Jitter.LinearMath
         public static JMatrix CreateFromQuaternion(JQuaternion quaternion)
         {
             JMatrix result;
-            JMatrix.CreateFromQuaternion(ref quaternion,out result);
+            JMatrix.CreateFromQuaternion(ref quaternion, out result);
             return result;
         }
 
@@ -476,6 +569,7 @@ namespace Jitter.LinearMath
             result.M32 = 2f * (num2 - num);
             result.M33 = 1f - (2f * (num8 + num9));
         }
+
         #endregion
 
         /// <summary>
@@ -508,6 +602,7 @@ namespace Jitter.LinearMath
             result.M32 = matrix.M23;
             result.M33 = matrix.M33;
         }
+
         #endregion
 
         /// <summary>
@@ -517,11 +612,13 @@ namespace Jitter.LinearMath
         /// <param name="value2">The second matrix.</param>
         /// <returns>The product of both values.</returns>
         #region public static JMatrix operator *(JMatrix value1,JMatrix value2)
-        public static JMatrix operator *(JMatrix value1,JMatrix value2)
+        public static JMatrix operator *(JMatrix value1, JMatrix value2)
         {
-            JMatrix result; JMatrix.Multiply(ref value1, ref value2, out result);
+            JMatrix result;
+            JMatrix.Multiply(ref value1, ref value2, out result);
             return result;
         }
+
         #endregion
 
 
@@ -539,9 +636,11 @@ namespace Jitter.LinearMath
         #region public static JMatrix operator +(JMatrix value1, JMatrix value2)
         public static JMatrix operator +(JMatrix value1, JMatrix value2)
         {
-            JMatrix result; JMatrix.Add(ref value1, ref value2, out result);
+            JMatrix result;
+            JMatrix.Add(ref value1, ref value2, out result);
             return result;
         }
+
         #endregion
 
         /// <summary>
@@ -553,10 +652,12 @@ namespace Jitter.LinearMath
         #region public static JMatrix operator -(JMatrix value1, JMatrix value2)
         public static JMatrix operator -(JMatrix value1, JMatrix value2)
         {
-            JMatrix result; JMatrix.Multiply(ref value2, -1.0f, out value2);
+            JMatrix result;
+            JMatrix.Multiply(ref value2, -1.0f, out value2);
             JMatrix.Add(ref value1, ref value2, out result);
             return result;
         }
+
         #endregion
 
 
@@ -599,7 +700,8 @@ namespace Jitter.LinearMath
         /// <returns>The resulting rotation matrix</returns>
         public static JMatrix CreateFromAxisAngle(JVector axis, float angle)
         {
-            JMatrix result; CreateFromAxisAngle(ref axis, angle, out result);
+            JMatrix result;
+            CreateFromAxisAngle(ref axis, angle, out result);
             return result;
         }
 
