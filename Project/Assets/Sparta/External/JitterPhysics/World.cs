@@ -29,6 +29,7 @@ using Jitter.Collision.Shapes;
 using Jitter.Collision;
 using Jitter.Dynamics.Constraints;
 using Jitter.DataStructures;
+
 #endregion
 
 namespace Jitter
@@ -65,73 +66,88 @@ namespace Jitter
             public event Action<RigidBody> DeactivatedBody;
             public event Action<RigidBody> ActivatedBody;
 
-            internal WorldEvents() { }
+            internal WorldEvents()
+            {
+            }
 
             #region Raise Events
 
             internal void RaiseWorldPreStep(float timestep)
             {
-                if (PreStep != null) PreStep(timestep);
+                if(PreStep != null)
+                    PreStep(timestep);
             }
 
             internal void RaiseWorldPostStep(float timestep)
             {
-                if (PostStep != null) PostStep(timestep);
+                if(PostStep != null)
+                    PostStep(timestep);
             }
 
             internal void RaiseAddedRigidBody(RigidBody body)
             {
-                if (AddedRigidBody != null) AddedRigidBody(body);
+                if(AddedRigidBody != null)
+                    AddedRigidBody(body);
             }
 
             internal void RaiseRemovedRigidBody(RigidBody body)
             {
-                if (RemovedRigidBody != null) RemovedRigidBody(body);
+                if(RemovedRigidBody != null)
+                    RemovedRigidBody(body);
             }
 
             internal void RaiseAddedConstraint(Constraint constraint)
             {
-                if (AddedConstraint != null) AddedConstraint(constraint);
+                if(AddedConstraint != null)
+                    AddedConstraint(constraint);
             }
 
             internal void RaiseRemovedConstraint(Constraint constraint)
             {
-                if (RemovedConstraint != null) RemovedConstraint(constraint);
+                if(RemovedConstraint != null)
+                    RemovedConstraint(constraint);
             }
 
             internal void RaiseAddedSoftBody(SoftBody body)
             {
-                if (AddedSoftBody != null) AddedSoftBody(body);
+                if(AddedSoftBody != null)
+                    AddedSoftBody(body);
             }
 
             internal void RaiseRemovedSoftBody(SoftBody body)
             {
-                if (RemovedSoftBody != null) RemovedSoftBody(body);
+                if(RemovedSoftBody != null)
+                    RemovedSoftBody(body);
             }
 
-            internal void RaiseBodiesBeginCollide(RigidBody body1,RigidBody body2)
+            internal void RaiseBodiesBeginCollide(RigidBody body1, RigidBody body2)
             {
-                if (BodiesBeginCollide != null) BodiesBeginCollide(body1,body2);
+                if(BodiesBeginCollide != null)
+                    BodiesBeginCollide(body1, body2);
             }
 
             internal void RaiseBodiesEndCollide(RigidBody body1, RigidBody body2)
             {
-                if (BodiesEndCollide != null) BodiesEndCollide(body1,body2);
+                if(BodiesEndCollide != null)
+                    BodiesEndCollide(body1, body2);
             }
 
             internal void RaiseActivatedBody(RigidBody body)
             {
-                if (ActivatedBody != null) ActivatedBody(body);
+                if(ActivatedBody != null)
+                    ActivatedBody(body);
             }
 
             internal void RaiseDeactivatedBody(RigidBody body)
             {
-                if (DeactivatedBody != null) DeactivatedBody(body);
+                if(DeactivatedBody != null)
+                    DeactivatedBody(body);
             }
 
             internal void RaiseContactCreated(Contact contact)
             {
-                if (ContactCreated != null) ContactCreated(contact);
+                if(ContactCreated != null)
+                    ContactCreated(contact);
             }
 
             #endregion
@@ -157,10 +173,13 @@ namespace Jitter
         private HashSet<SoftBody> softbodies = new HashSet<SoftBody>();
 
         public ReadOnlyHashset<RigidBody> RigidBodies { get; private set; }
+
         public ReadOnlyHashset<Constraint> Constraints { get; private set; }
+
         public ReadOnlyHashset<SoftBody> SoftBodies { get; private set; }
 
         private WorldEvents events = new WorldEvents();
+
         public WorldEvents Events { get { return events; } }
 
         private ThreadManager threadManager = ThreadManager.Instance;
@@ -170,6 +189,7 @@ namespace Jitter
         /// active arbiter in the <see cref="World"/> are stored in this map.
         /// </summary>
         public ArbiterMap ArbiterMap { get { return arbiterMap; } }
+
         private ArbiterMap arbiterMap;
 
         private Queue<Arbiter> removedArbiterQueue = new Queue<Arbiter>();
@@ -199,7 +219,7 @@ namespace Jitter
         /// </param>
         public World(CollisionSystem collision)
         {
-            if (collision == null)
+            if(collision == null)
                 throw new ArgumentNullException("The CollisionSystem can't be null.", "collision");
 
             arbiterCallback = new Action<object>(ArbiterCallback);
@@ -223,18 +243,20 @@ namespace Jitter
 
         public void AddBody(SoftBody body)
         {
-            if (body == null) throw new ArgumentNullException("body", "body can't be null.");
-            if (softbodies.Contains(body)) throw new ArgumentException("The body was already added to the world.", "body");
+            if(body == null)
+                throw new ArgumentNullException("body", "body can't be null.");
+            if(softbodies.Contains(body))
+                throw new ArgumentException("The body was already added to the world.", "body");
 
             this.softbodies.Add(body);
             this.CollisionSystem.AddEntity(body);
 
             events.RaiseAddedSoftBody(body);
 
-            foreach (Constraint constraint in body.EdgeSprings)
+            foreach(Constraint constraint in body.EdgeSprings)
                 AddConstraint(constraint);
 
-            foreach (SoftBody.MassPoint massPoint in body.VertexBodies)
+            foreach(SoftBody.MassPoint massPoint in body.VertexBodies)
             {
                 events.RaiseAddedRigidBody(massPoint);
                 rigidBodies.Add(massPoint);
@@ -243,16 +265,17 @@ namespace Jitter
 
         public bool RemoveBody(SoftBody body)
         {
-            if (!this.softbodies.Remove(body)) return false;
+            if(!this.softbodies.Remove(body))
+                return false;
 
             this.CollisionSystem.RemoveEntity(body);
 
             events.RaiseRemovedSoftBody(body);
 
-            foreach (Constraint constraint in body.EdgeSprings)
+            foreach(Constraint constraint in body.EdgeSprings)
                 RemoveConstraint(constraint);
 
-            foreach (SoftBody.MassPoint massPoint in body.VertexBodies)
+            foreach(SoftBody.MassPoint massPoint in body.VertexBodies)
                 RemoveBody(massPoint, true);
 
             return true;
@@ -284,11 +307,11 @@ namespace Jitter
         public void Clear()
         {
             // remove bodies from collision system
-            foreach (RigidBody body in rigidBodies)
+            foreach(RigidBody body in rigidBodies)
             {
                 CollisionSystem.RemoveEntity(body);
 
-                if (body.island != null)
+                if(body.island != null)
                 {
                     body.island.ClearLists();
                     body.island = null;
@@ -301,7 +324,7 @@ namespace Jitter
                 events.RaiseRemovedRigidBody(body);
             }
 
-            foreach (SoftBody body in softbodies)
+            foreach(SoftBody body in softbodies)
             {
                 CollisionSystem.RemoveEntity(body);
             }
@@ -310,7 +333,7 @@ namespace Jitter
             rigidBodies.Clear();
 
             // remove constraints
-            foreach (Constraint constraint in constraints)
+            foreach(Constraint constraint in constraints)
             {
                 events.RaiseRemovedConstraint(constraint);
             }
@@ -350,10 +373,10 @@ namespace Jitter
         /// The default value is 0.85</param>
         public void SetDampingFactors(float angularDamping, float linearDamping)
         {
-            if (angularDamping < 0.0f || angularDamping > 1.0f)
+            if(angularDamping < 0.0f || angularDamping > 1.0f)
                 throw new ArgumentException("Angular damping factor has to be between 0.0 and 1.0", "angularDamping");
 
-            if (linearDamping < 0.0f || linearDamping > 1.0f)
+            if(linearDamping < 0.0f || linearDamping > 1.0f)
                 throw new ArgumentException("Linear damping factor has to be between 0.0 and 1.0", "linearDamping");
 
             this.angularDamping = angularDamping;
@@ -376,13 +399,16 @@ namespace Jitter
         /// <param name="time">The threshold value for the time in seconds. The default value is 2.</param>
         public void SetInactivityThreshold(float angularVelocity, float linearVelocity, float time)
         {
-            if (angularVelocity < 0.0f) throw new ArgumentException("Angular velocity threshold has to " +
-                 "be larger than zero", "angularVelocity");
+            if(angularVelocity < 0.0f)
+                throw new ArgumentException("Angular velocity threshold has to " +
+                "be larger than zero", "angularVelocity");
 
-            if (linearVelocity < 0.0f) throw new ArgumentException("Linear velocity threshold has to " +
+            if(linearVelocity < 0.0f)
+                throw new ArgumentException("Linear velocity threshold has to " +
                 "be larger than zero", "linearVelocity");
 
-            if (time < 0.0f) throw new ArgumentException("Deactivation time threshold has to " +
+            if(time < 0.0f)
+                throw new ArgumentException("Deactivation time threshold has to " +
                 "be larger than zero", "time");
 
             this.inactiveAngularThresholdSq = angularVelocity * angularVelocity;
@@ -401,10 +427,12 @@ namespace Jitter
         /// More iterations means more stability and also a longer calculation time.</remarks>
         public void SetIterations(int iterations, int smallIterations)
         {
-            if (iterations < 1) throw new ArgumentException("The number of collision " +
-                 "iterations has to be larger than zero", "iterations");
+            if(iterations < 1)
+                throw new ArgumentException("The number of collision " +
+                "iterations has to be larger than zero", "iterations");
 
-            if (smallIterations < 1) throw new ArgumentException("The number of collision " +
+            if(smallIterations < 1)
+                throw new ArgumentException("The number of collision " +
                 "iterations has to be larger than zero", "smallIterations");
 
             this.contactIterations = iterations;
@@ -424,19 +452,21 @@ namespace Jitter
         private bool RemoveBody(RigidBody body, bool removeMassPoints)
         {
             // Its very important to clean up, after removing a body
-            if (!removeMassPoints && body.IsParticle) return false;
+            if(!removeMassPoints && body.IsParticle)
+                return false;
 
             // remove the body from the world list
-            if (!rigidBodies.Remove(body)) return false;
+            if(!rigidBodies.Remove(body))
+                return false;
 
             // Remove all connected constraints and arbiters
-            foreach (Arbiter arbiter in body.arbiters)
+            foreach(Arbiter arbiter in body.arbiters)
             {
                 arbiterMap.Remove(arbiter);
                 events.RaiseBodiesEndCollide(arbiter.body1, arbiter.body2);
             }
 
-            foreach (Constraint constraint in body.constraints)
+            foreach(Constraint constraint in body.constraints)
             {
                 constraints.Remove(constraint);
                 events.RaiseRemovedConstraint(constraint);
@@ -460,8 +490,10 @@ namespace Jitter
         /// <param name="body">The body which should be added.</param>
         public void AddBody(RigidBody body)
         {
-            if (body == null) throw new ArgumentNullException("body", "body can't be null.");
-            if(rigidBodies.Contains(body)) throw new ArgumentException("The body was already added to the world.", "body");
+            if(body == null)
+                throw new ArgumentNullException("body", "body can't be null.");
+            if(rigidBodies.Contains(body))
+                throw new ArgumentException("The body was already added to the world.", "body");
 
             events.RaiseAddedRigidBody(body);
 
@@ -477,7 +509,8 @@ namespace Jitter
         /// <returns>True if the constraint was successfully removed.</returns>
         public bool RemoveConstraint(Constraint constraint)
         {
-            if (!constraints.Remove(constraint)) return false;
+            if(!constraints.Remove(constraint))
+                return false;
             events.RaiseRemovedConstraint(constraint);
 
             islands.ConstraintRemoved(constraint);
@@ -491,7 +524,7 @@ namespace Jitter
         /// <param name="constraint">The constraint which should be removed.</param>
         public void AddConstraint(Constraint constraint)
         {
-            if(constraints.Contains(constraint)) 
+            if(constraints.Contains(constraint))
                 throw new ArgumentException("The constraint was already added to the world.", "constraint");
 
             constraints.Add(constraint);
@@ -504,15 +537,24 @@ namespace Jitter
         private float currentLinearDampFactor = 1.0f;
         private float currentAngularDampFactor = 1.0f;
 
-#if(!WINDOWS_PHONE)
+        #if(!WINDOWS_PHONE)
         Stopwatch sw = new Stopwatch();
 
         public enum DebugType
         {
-            CollisionDetect, BuildIslands, HandleArbiter, UpdateContacts,
-            PreStep, DeactivateBodies, IntegrateForces, Integrate, PostStep, ClothUpdate, Num
+            CollisionDetect,
+            BuildIslands,
+            HandleArbiter,
+            UpdateContacts,
+            PreStep,
+            DeactivateBodies,
+            IntegrateForces,
+            Integrate,
+            PostStep,
+            ClothUpdate,
+            Num
         }
-        
+
         /// <summary>
         /// Time in ms for every part of the <see cref="Step"/> method.
         /// </summary>
@@ -520,8 +562,9 @@ namespace Jitter
         /// the amount of time spent on collision detection during the last <see cref="Step"/>.
         /// </example>
         private double[] debugTimes = new double[(int)DebugType.Num];
+
         public double[] DebugTimes { get { return debugTimes; } }
-#endif
+        #endif
 
         /// <summary>
         /// Integrates the whole world a timestep further in time.
@@ -537,10 +580,12 @@ namespace Jitter
             this.timestep = timestep;
 
             // yeah! nothing to do!
-            if (timestep == 0.0f) return;
+            if(timestep == 0.0f)
+                return;
 
             // throw exception if the timestep is smaller zero.
-            if (timestep < 0.0f) throw new ArgumentException("The timestep can't be negative.", "timestep");
+            if(timestep < 0.0f)
+                throw new ArgumentException("The timestep can't be negative.", "timestep");
 
             // Calculate this
             currentAngularDampFactor = (float)Math.Pow(angularDamping, timestep);
@@ -572,59 +617,85 @@ namespace Jitter
             foreach (RigidBody body in rigidBodies) body.PostStep(timestep);
             events.RaiseWorldPostStep(timestep);
 #else
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             events.RaiseWorldPreStep(timestep);
-            foreach (RigidBody body in rigidBodies) body.PreStep(timestep);
+            foreach(RigidBody body in rigidBodies)
+                body.PreStep(timestep);
 
-            sw.Stop(); debugTimes[(int)DebugType.PreStep] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.PreStep] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             UpdateContacts();
-            sw.Stop(); debugTimes[(int)DebugType.UpdateContacts] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.UpdateContacts] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             double ms = 0;
-            while (removedArbiterQueue.Count > 0) islands.ArbiterRemoved(removedArbiterQueue.Dequeue());
-            sw.Stop(); ms = sw.Elapsed.TotalMilliseconds;
+            while(removedArbiterQueue.Count > 0)
+                islands.ArbiterRemoved(removedArbiterQueue.Dequeue());
+            sw.Stop();
+            ms = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
-            foreach (SoftBody body in softbodies)
+            sw.Reset();
+            sw.Start();
+            foreach(SoftBody body in softbodies)
             {
                 body.Update(timestep);
                 body.DoSelfCollision(collisionDetectionHandler);
             }
-            sw.Stop(); debugTimes[(int)DebugType.ClothUpdate] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.ClothUpdate] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             CollisionSystem.Detect(multithread);
-            sw.Stop(); debugTimes[(int)DebugType.CollisionDetect] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.CollisionDetect] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
 
-            while (addedArbiterQueue.Count > 0) islands.ArbiterCreated(addedArbiterQueue.Dequeue());
+            while(addedArbiterQueue.Count > 0)
+                islands.ArbiterCreated(addedArbiterQueue.Dequeue());
 
-            sw.Stop(); debugTimes[(int)DebugType.BuildIslands] = sw.Elapsed.TotalMilliseconds + ms;
+            sw.Stop();
+            debugTimes[(int)DebugType.BuildIslands] = sw.Elapsed.TotalMilliseconds + ms;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             CheckDeactivation();
-            sw.Stop(); debugTimes[(int)DebugType.DeactivateBodies] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.DeactivateBodies] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             IntegrateForces();
-            sw.Stop(); debugTimes[(int)DebugType.IntegrateForces] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.IntegrateForces] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             HandleArbiter(contactIterations, multithread);
-            sw.Stop(); debugTimes[(int)DebugType.HandleArbiter] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.HandleArbiter] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
+            sw.Reset();
+            sw.Start();
             Integrate(multithread);
-            sw.Stop(); debugTimes[(int)DebugType.Integrate] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.Integrate] = sw.Elapsed.TotalMilliseconds;
 
-            sw.Reset(); sw.Start();
-            foreach (RigidBody body in rigidBodies) body.PostStep(timestep);
+            sw.Reset();
+            sw.Start();
+            foreach(RigidBody body in rigidBodies)
+                body.PostStep(timestep);
             events.RaiseWorldPostStep(timestep);
-            sw.Stop(); debugTimes[(int)DebugType.PostStep] = sw.Elapsed.TotalMilliseconds;
+            sw.Stop();
+            debugTimes[(int)DebugType.PostStep] = sw.Elapsed.TotalMilliseconds;
 #endif
         }
 
@@ -647,14 +718,14 @@ namespace Jitter
             int counter = 0;
             accumulatedTime += totalTime;
 
-            while (accumulatedTime > timestep)
+            while(accumulatedTime > timestep)
             {
                 Step(timestep, multithread);
 
                 accumulatedTime -= timestep;
                 counter++;
 
-                if (counter > maxSteps)
+                if(counter > maxSteps)
                 {
                     // okay, okay... we can't keep up
                     accumulatedTime = 0.0f;
@@ -666,18 +737,21 @@ namespace Jitter
 
         private void UpdateArbiterContacts(Arbiter arbiter)
         {
-            if (arbiter.contactList.Count == 0)
+            if(arbiter.contactList.Count == 0)
             {
-                lock (removedArbiterStack) { removedArbiterStack.Push(arbiter); }
+                lock(removedArbiterStack)
+                {
+                    removedArbiterStack.Push(arbiter);
+                }
                 return;
             }
 
-            for (int i = arbiter.contactList.Count - 1; i >= 0; i--)
+            for(int i = arbiter.contactList.Count - 1; i >= 0; i--)
             {
                 Contact c = arbiter.contactList[i];
                 c.UpdatePosition();
 
-                if (c.penetration < -contactSettings.breakThreshold)
+                if(c.penetration < -contactSettings.breakThreshold)
                 {
                     Contact.Pool.GiveBack(c);
                     arbiter.contactList.RemoveAt(i);
@@ -685,7 +759,8 @@ namespace Jitter
                 }
                 else
                 {
-                    JVector diff; JVector.Subtract(ref c.p1, ref c.p2, out diff);
+                    JVector diff;
+                    JVector.Subtract(ref c.p1, ref c.p2, out diff);
                     float distance = JVector.Dot(ref diff, ref c.normal);
 
                     diff = diff - distance * c.normal;
@@ -693,7 +768,7 @@ namespace Jitter
 
                     // hack (multiplication by factor 100) in the
                     // following line.
-                    if (distance > contactSettings.breakThreshold * contactSettings.breakThreshold * 100)
+                    if(distance > contactSettings.breakThreshold * contactSettings.breakThreshold * 100)
                     {
                         Contact.Pool.GiveBack(c);
                         arbiter.contactList.RemoveAt(i);
@@ -708,12 +783,12 @@ namespace Jitter
 
         private void UpdateContacts()
         {
-            foreach (Arbiter arbiter in arbiterMap.Arbiters)
+            foreach(Arbiter arbiter in arbiterMap.Arbiters)
             {
                 UpdateArbiterContacts(arbiter);
             }
 
-            while (removedArbiterStack.Count > 0)
+            while(removedArbiterStack.Count > 0)
             {
                 Arbiter arbiter = removedArbiterStack.Pop();
                 Arbiter.Pool.GiveBack(arbiter);
@@ -726,57 +801,67 @@ namespace Jitter
         }
 
         #region private void ArbiterCallback(object obj)
+
         private void ArbiterCallback(object obj)
         {
             CollisionIsland island = obj as CollisionIsland;
 
             int thisIterations;
-            if (island.Bodies.Count + island.Constraints.Count > 3) thisIterations = contactIterations;
-            else thisIterations = smallIterations;
+            if(island.Bodies.Count + island.Constraints.Count > 3)
+                thisIterations = contactIterations;
+            else
+                thisIterations = smallIterations;
 
-            for (int i = -1; i < thisIterations; i++)
+            for(int i = -1; i < thisIterations; i++)
             {
                 // Contact and Collision
-                foreach (Arbiter arbiter in island.arbiter)
+                foreach(Arbiter arbiter in island.arbiter)
                 {
                     int contactCount = arbiter.contactList.Count;
-                    for (int e = 0; e < contactCount; e++)
+                    for(int e = 0; e < contactCount; e++)
                     {
-                        if (i == -1) arbiter.contactList[e].PrepareForIteration(timestep);
-                        else arbiter.contactList[e].Iterate();
+                        if(i == -1)
+                            arbiter.contactList[e].PrepareForIteration(timestep);
+                        else
+                            arbiter.contactList[e].Iterate();
                     }
                 }
 
                 //  Constraints
-                foreach (Constraint c in island.constraints)
+                foreach(Constraint c in island.constraints)
                 {
-                    if (c.body1 != null && !c.body1.IsActive && c.body2 != null && !c.body2.IsActive)
+                    if(c.body1 != null && !c.body1.IsActive && c.body2 != null && !c.body2.IsActive)
                         continue;
 
-                    if (i == -1) c.PrepareForIteration(timestep);
-                    else c.Iterate();
+                    if(i == -1)
+                        c.PrepareForIteration(timestep);
+                    else
+                        c.Iterate();
                 }
 
             }
         }
+
         #endregion
 
         private void HandleArbiter(int iterations, bool multiThreaded)
         {
-            if (multiThreaded)
+            if(multiThreaded)
             {
-                for (int i = 0; i < islands.Count; i++)
+                for(int i = 0; i < islands.Count; i++)
                 {
-                    if(islands[i].IsActive()) threadManager.AddTask(arbiterCallback, islands[i]);
+                    if(islands[i].IsActive())
+                        threadManager.AddTask(arbiterCallback, islands[i]);
                 }
 
                 threadManager.Execute();
             }
             else
             {
-                for (int i = 0; i < islands.Count; i++)
+                for(int i = 0; i < islands.Count; i++)
                 {
-                    if (islands[i].IsActive()) arbiterCallback(islands[i]);
+                    if(islands[i].IsActive())
+                        arbiterCallback(islands[i]);
                 }
 
             }
@@ -784,22 +869,22 @@ namespace Jitter
 
         private void IntegrateForces()
         {
-            foreach (RigidBody body in rigidBodies)
+            foreach(RigidBody body in rigidBodies)
             {
-                if (!body.isStatic && body.IsActive)
+                if(!body.isStatic && body.IsActive)
                 {
                     JVector temp;
                     JVector.Multiply(ref body.force, body.inverseMass * timestep, out temp);
                     JVector.Add(ref temp, ref body.linearVelocity, out body.linearVelocity);
 
-                    if (!(body.isParticle))
+                    if(!(body.isParticle))
                     {
                         JVector.Multiply(ref body.torque, timestep, out temp);
                         JVector.Transform(ref temp, ref body.invInertiaWorld, out temp);
                         JVector.Add(ref temp, ref body.angularVelocity, out body.angularVelocity);
                     }
 
-                    if (body.affectedByGravity)
+                    if(body.affectedByGravity)
                     {
                         JVector.Multiply(ref gravity, timestep, out temp);
                         JVector.Add(ref body.linearVelocity, ref temp, out body.linearVelocity);
@@ -813,6 +898,7 @@ namespace Jitter
         }
 
         #region private void IntegrateCallback(object obj)
+
         private void IntegrateCallback(object obj)
         {
             RigidBody body = obj as RigidBody;
@@ -821,14 +907,14 @@ namespace Jitter
             JVector.Multiply(ref body.linearVelocity, timestep, out temp);
             JVector.Add(ref temp, ref body.position, out body.position);
 
-            if (!(body.isParticle))
+            if(!(body.isParticle))
             {
 
                 //exponential map
                 JVector axis;
                 float angle = body.angularVelocity.Length();
 
-                if (angle < 0.001f)
+                if(angle < 0.001f)
                 {
                     // use Taylor's expansions of sync function
                     // axis = body.angularVelocity * (0.5f * timestep - (timestep * timestep * timestep) * (0.020833333333f) * angle * angle);
@@ -841,35 +927,39 @@ namespace Jitter
                 }
 
                 JQuaternion dorn = new JQuaternion(axis.X, axis.Y, axis.Z, (float)Math.Cos(angle * timestep * 0.5f));
-                JQuaternion ornA; JQuaternion.CreateFromMatrix(ref body.orientation, out ornA);
+                JQuaternion ornA;
+                JQuaternion.CreateFromMatrix(ref body.orientation, out ornA);
 
                 JQuaternion.Multiply(ref dorn, ref ornA, out dorn);
 
-                dorn.Normalize(); JMatrix.CreateFromQuaternion(ref dorn, out body.orientation);
+                dorn.Normalize();
+                JMatrix.CreateFromQuaternion(ref dorn, out body.orientation);
             }
 
-            if ((body.Damping & RigidBody.DampingType.Linear) != 0)
+            if((body.Damping & RigidBody.DampingType.Linear) != 0)
                 JVector.Multiply(ref body.linearVelocity, currentLinearDampFactor, out body.linearVelocity);
 
-            if ((body.Damping & RigidBody.DampingType.Angular) != 0)
+            if((body.Damping & RigidBody.DampingType.Angular) != 0)
                 JVector.Multiply(ref body.angularVelocity, currentAngularDampFactor, out body.angularVelocity);
 
             body.Update();
 
             
-            if (CollisionSystem.EnableSpeculativeContacts || body.EnableSpeculativeContacts)
+            if(CollisionSystem.EnableSpeculativeContacts || body.EnableSpeculativeContacts)
                 body.SweptExpandBoundingBox(timestep);
         }
+
         #endregion
 
 
         private void Integrate(bool multithread)
         {
-            if (multithread)
+            if(multithread)
             {
-                foreach (RigidBody body in rigidBodies)
+                foreach(RigidBody body in rigidBodies)
                 {
-                    if (body.isStatic || !body.IsActive) continue;
+                    if(body.isStatic || !body.IsActive)
+                        continue;
                     threadManager.AddTask(integrateCallback, body);
                 }
 
@@ -877,9 +967,10 @@ namespace Jitter
             }
             else
             {
-                foreach (RigidBody body in rigidBodies)
+                foreach(RigidBody body in rigidBodies)
                 {
-                    if (body.isStatic || !body.IsActive) continue;
+                    if(body.isStatic || !body.IsActive)
+                        continue;
                     integrateCallback(body);
                 }
             }
@@ -889,13 +980,14 @@ namespace Jitter
         {
             Arbiter arbiter = null;
 
-            lock (arbiterMap)
+            lock(arbiterMap)
             {
                 arbiterMap.LookUpArbiter(body1, body2, out arbiter);
-                if (arbiter == null)
+                if(arbiter == null)
                 {
                     arbiter = Arbiter.Pool.GetNew();
-                    arbiter.body1 = body1; arbiter.body2 = body2;
+                    arbiter.body1 = body1;
+                    arbiter.body2 = body2;
                     arbiterMap.Add(new ArbiterKey(body1, body2), arbiter);
 
                     addedArbiterQueue.Enqueue(arbiter);
@@ -906,7 +998,7 @@ namespace Jitter
 
             Contact contact = null;
 
-            if (arbiter.body1 == body1)
+            if(arbiter.body1 == body1)
             {
                 JVector.Negate(ref normal, out normal);
                 contact = arbiter.AddContact(point1, point2, normal, penetration, contactSettings);
@@ -916,7 +1008,8 @@ namespace Jitter
                 contact = arbiter.AddContact(point2, point1, normal, penetration, contactSettings);
             }
 
-            if (contact != null) events.RaiseContactCreated(contact);
+            if(contact != null)
+                events.RaiseContactCreated(contact);
 
         }
 
@@ -927,22 +1020,23 @@ namespace Jitter
             // contacts are reused. Also the collisionislands build every frame (based 
             // on the contacts) keep the same.
 
-            foreach (CollisionIsland island in islands)
+            foreach(CollisionIsland island in islands)
             {
                 bool deactivateIsland = true;
 
                 // global allowdeactivation
-                if (!this.AllowDeactivation) deactivateIsland = false;
+                if(!this.AllowDeactivation)
+                    deactivateIsland = false;
                 else
                 {
-                    foreach (RigidBody body in island.bodies)
+                    foreach(RigidBody body in island.bodies)
                     {
                         // body allowdeactivation
-                        if (body.AllowDeactivation && (body.angularVelocity.LengthSquared() < inactiveAngularThresholdSq &&
-                        (body.linearVelocity.LengthSquared() < inactiveLinearThresholdSq)))
+                        if(body.AllowDeactivation && (body.angularVelocity.LengthSquared() < inactiveAngularThresholdSq &&
+                           (body.linearVelocity.LengthSquared() < inactiveLinearThresholdSq)))
                         {
                             body.inactiveTime += timestep;
-                            if (body.inactiveTime < deactivationTime)
+                            if(body.inactiveTime < deactivationTime)
                                 deactivateIsland = false;
                         }
                         else
@@ -953,11 +1047,11 @@ namespace Jitter
                     }
                 }
 
-                foreach (RigidBody body in island.bodies)
+                foreach(RigidBody body in island.bodies)
                 {
-                    if (body.isActive == deactivateIsland)
+                    if(body.isActive == deactivateIsland)
                     {
-                        if (body.isActive)
+                        if(body.isActive)
                         {
                             body.IsActive = false;
                             events.RaiseDeactivatedBody(body);

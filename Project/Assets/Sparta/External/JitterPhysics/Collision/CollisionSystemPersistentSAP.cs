@@ -25,6 +25,7 @@ using Jitter.Dynamics;
 using Jitter.LinearMath;
 using Jitter.Collision.Shapes;
 using System.Collections;
+
 #endregion
 
 namespace Jitter.Collision
@@ -37,6 +38,7 @@ namespace Jitter.Collision
         private const int AddedObjectsBruteForceIsUsed = 250;
 
         #region private class SweepPoint
+
         private class SweepPoint
         {
             public IBroadphaseEntity Body;
@@ -54,26 +56,34 @@ namespace Jitter.Collision
             {
                 get
                 {
-                    if (Begin)
+                    if(Begin)
                     {
-                        if (Axis == 0) return Body.BoundingBox.Min.X;
-                        else if (Axis == 1) return Body.BoundingBox.Min.Y;
-                        else return Body.BoundingBox.Min.Z;
+                        if(Axis == 0)
+                            return Body.BoundingBox.Min.X;
+                        else if(Axis == 1)
+                            return Body.BoundingBox.Min.Y;
+                        else
+                            return Body.BoundingBox.Min.Z;
                     }
                     else
                     {
-                        if (Axis == 0) return Body.BoundingBox.Max.X;
-                        else if (Axis == 1) return Body.BoundingBox.Max.Y;
-                        else return Body.BoundingBox.Max.Z;
+                        if(Axis == 0)
+                            return Body.BoundingBox.Max.X;
+                        else if(Axis == 1)
+                            return Body.BoundingBox.Max.Y;
+                        else
+                            return Body.BoundingBox.Max.Z;
                     }
                 }
             }
 
 
         }
+
         #endregion
 
         #region private struct OverlapPair
+
         private struct OverlapPair
         {
             // internal values for faster access within the engine
@@ -111,7 +121,7 @@ namespace Jitter.Collision
             {
                 OverlapPair other = (OverlapPair)obj;
                 return (other.Entity1.Equals(Entity1) && other.Entity2.Equals(Entity2) ||
-                    other.Entity1.Equals(Entity2) && other.Entity2.Equals(Entity1));
+                other.Entity1.Equals(Entity2) && other.Entity2.Equals(Entity1));
             }
 
             /// <summary>
@@ -124,6 +134,7 @@ namespace Jitter.Collision
                 return Entity1.GetHashCode() + Entity2.GetHashCode();
             }
         }
+
         #endregion
 
         // not needed anymore
@@ -150,9 +161,12 @@ namespace Jitter.Collision
             float val1 = sweepPoint1.Value;
             float val2 = sweepPoint2.Value;
 
-            if (val1 > val2) return 1;
-            else if (val2 > val1) return -1;
-            else return 0;
+            if(val1 > val2)
+                return 1;
+            else if(val2 > val1)
+                return -1;
+            else
+                return 0;
         }
 
         List<IBroadphaseEntity> activeList = new List<IBroadphaseEntity>();
@@ -162,15 +176,15 @@ namespace Jitter.Collision
             axis.Sort(QuickSort);
             activeList.Clear();
 
-            for (int i = 0; i < axis.Count; i++)
+            for(int i = 0; i < axis.Count; i++)
             {
                 SweepPoint keyelement = axis[i];
 
-                if (keyelement.Begin)
+                if(keyelement.Begin)
                 {
-                    foreach (IBroadphaseEntity body in activeList)
+                    foreach(IBroadphaseEntity body in activeList)
                     {
-                        if (CheckBoundingBoxes(body,keyelement.Body)) 
+                        if(CheckBoundingBoxes(body, keyelement.Body))
                             fullOverlaps.Add(new OverlapPair(body, keyelement.Body));
                     }
 
@@ -182,34 +196,37 @@ namespace Jitter.Collision
                 }
             }
         }
+
         #endregion
 
         #region Coherent Update - Insertionsort
 
         private void SortAxis(List<SweepPoint> axis)
         {
-            for (int j = 1; j < axis.Count; j++)
+            for(int j = 1; j < axis.Count; j++)
             {
                 SweepPoint keyelement = axis[j];
                 float key = keyelement.Value;
 
                 int i = j - 1;
 
-                while (i >= 0 && axis[i].Value > key)
+                while(i >= 0 && axis[i].Value > key)
                 {
                     SweepPoint swapper = axis[i];
 
-                    if (keyelement.Begin && !swapper.Begin)
+                    if(keyelement.Begin && !swapper.Begin)
                     {
-                        if (CheckBoundingBoxes(swapper.Body, keyelement.Body))
+                        if(CheckBoundingBoxes(swapper.Body, keyelement.Body))
                         {
-                            lock (fullOverlaps) fullOverlaps.Add(new OverlapPair(swapper.Body, keyelement.Body));
+                            lock(fullOverlaps)
+                                fullOverlaps.Add(new OverlapPair(swapper.Body, keyelement.Body));
                         }
                     }
 
-                    if (!keyelement.Begin && swapper.Begin)
+                    if(!keyelement.Begin && swapper.Begin)
                     {
-                        lock (fullOverlaps) fullOverlaps.Remove(new OverlapPair(swapper.Body, keyelement.Body));
+                        lock(fullOverlaps)
+                            fullOverlaps.Remove(new OverlapPair(swapper.Body, keyelement.Body));
                     }
 
                     axis[i + 1] = swapper;
@@ -218,39 +235,75 @@ namespace Jitter.Collision
                 axis[i + 1] = keyelement;
             }
         }
+
         #endregion
 
         int addCounter = 0;
+
         public override void AddEntity(IBroadphaseEntity body)
         {
             bodyList.Add(body);
 
-            axis1.Add(new SweepPoint(body, true, 0)); axis1.Add(new SweepPoint(body, false, 0));
-            axis2.Add(new SweepPoint(body, true, 1)); axis2.Add(new SweepPoint(body, false, 1));
-            axis3.Add(new SweepPoint(body, true, 2)); axis3.Add(new SweepPoint(body, false, 2));
+            axis1.Add(new SweepPoint(body, true, 0));
+            axis1.Add(new SweepPoint(body, false, 0));
+            axis2.Add(new SweepPoint(body, true, 1));
+            axis2.Add(new SweepPoint(body, false, 1));
+            axis3.Add(new SweepPoint(body, true, 2));
+            axis3.Add(new SweepPoint(body, false, 2));
 
             addCounter++;
         }
 
         Stack<OverlapPair> depricated = new Stack<OverlapPair>();
+
         public override bool RemoveEntity(IBroadphaseEntity body)
         {
             int count;
 
             count = 0;
-            for (int i = 0; i < axis1.Count; i++)
-            { if (axis1[i].Body == body) { count++; axis1.RemoveAt(i); if (count == 2) break; i--; } }
+            for(int i = 0; i < axis1.Count; i++)
+            {
+                if(axis1[i].Body == body)
+                {
+                    count++;
+                    axis1.RemoveAt(i);
+                    if(count == 2)
+                        break;
+                    i--;
+                }
+            }
 
             count = 0;
-            for (int i = 0; i < axis2.Count; i++)
-            { if (axis2[i].Body == body) { count++; axis2.RemoveAt(i); if (count == 2) break; i--; } }
+            for(int i = 0; i < axis2.Count; i++)
+            {
+                if(axis2[i].Body == body)
+                {
+                    count++;
+                    axis2.RemoveAt(i);
+                    if(count == 2)
+                        break;
+                    i--;
+                }
+            }
 
             count = 0;
-            for (int i = 0; i < axis3.Count; i++)
-            { if (axis3[i].Body == body) { count++; axis3.RemoveAt(i); if (count == 2) break; i--; } }
+            for(int i = 0; i < axis3.Count; i++)
+            {
+                if(axis3[i].Body == body)
+                {
+                    count++;
+                    axis3.RemoveAt(i);
+                    if(count == 2)
+                        break;
+                    i--;
+                }
+            }
 
-            foreach (var pair in fullOverlaps) if (pair.Entity1 == body || pair.Entity2 == body) depricated.Push(pair);
-            while (depricated.Count > 0) fullOverlaps.Remove(depricated.Pop());
+            foreach(var pair in fullOverlaps)
+                if(pair.Entity1 == body || pair.Entity2 == body)
+                    depricated.Push(pair);
+            while(depricated.Count > 0)
+                fullOverlaps.Remove(depricated.Pop());
 
             bodyList.Remove(body);
 
@@ -267,7 +320,7 @@ namespace Jitter.Collision
         /// <param name="multiThreaded">If true internal multithreading is used.</param>
         public override void Detect(bool multiThreaded)
         {
-            if (addCounter > AddedObjectsBruteForceIsUsed)
+            if(addCounter > AddedObjectsBruteForceIsUsed)
             {
                 fullOverlaps.Clear();
 
@@ -277,7 +330,7 @@ namespace Jitter.Collision
             }
             else
             {
-                if (multiThreaded)
+                if(multiThreaded)
                 {
                     threadManager.AddTask(sortCallback, axis1);
                     threadManager.AddTask(sortCallback, axis2);
@@ -295,23 +348,36 @@ namespace Jitter.Collision
 
             addCounter = 0;
 
-            foreach (OverlapPair key in fullOverlaps)
+            foreach(OverlapPair key in fullOverlaps)
             {
-                if (this.CheckBothStaticOrInactive(key.Entity1, key.Entity2)) continue;
+                if(this.CheckBothStaticNonKinematic(key.Entity1, key.Entity2))
+                    continue;
 
-                if (base.RaisePassedBroadphase(key.Entity1, key.Entity2))
+                if(base.RaisePassedBroadphase(key.Entity1, key.Entity2))
                 {
-                    if (multiThreaded)
+                    if(multiThreaded)
                     {
                         BroadphasePair pair = BroadphasePair.Pool.GetNew();
-                        if (swapOrder) { pair.Entity1 = key.Entity1; pair.Entity2 = key.Entity2; }
-                        else { pair.Entity2 = key.Entity2; pair.Entity1 = key.Entity1; }
+                        if(swapOrder)
+                        {
+                            pair.Entity1 = key.Entity1;
+                            pair.Entity2 = key.Entity2;
+                        }
+                        else
+                        {
+                            pair.Entity2 = key.Entity2;
+                            pair.Entity1 = key.Entity1;
+                        }
                         threadManager.AddTask(detectCallback, pair);
                     }
                     else
                     {
-                        if (swapOrder) { Detect(key.Entity1, key.Entity2); }
-                        else Detect(key.Entity2, key.Entity1);
+                        if(swapOrder)
+                        {
+                            Detect(key.Entity1, key.Entity2);
+                        }
+                        else
+                            Detect(key.Entity2, key.Entity1);
                     }
 
                     swapOrder = !swapOrder;
@@ -337,13 +403,14 @@ namespace Jitter.Collision
         // okay, people often say raycasting can be made faster using the sweep
         // and prune data. (sorted axis lists). That's only partly correct,
         // the method commented out below uses the non-uniform voxelgrid
-        // approach (best approach known so far). 
+        // approach (best approach known so far).
         // but this is O(n) for long rays too and it even takes
         // more time. Just for short rays it has a small benefit.
         // it also gives the hits in order but the startposition problem
         // is unsolved - so it starts from outside the broadphase.
 
         #region Depricated
+
         //public void QueryRay(HashSet<IBroadphaseEntity> entities,JVector rayOrigin, JVector rayDirection)
         //{
         //    rayDirection.Normalize();
@@ -431,6 +498,7 @@ namespace Jitter.Collision
 
         //    System.Diagnostics.Debug.WriteLine(steps);
         //}
+
         #endregion
 
 
@@ -443,22 +511,25 @@ namespace Jitter.Collision
         #region public override bool Raycast(JVector rayOrigin, JVector rayDirection, out JVector normal,out float fraction)
         public override bool Raycast(JVector rayOrigin, JVector rayDirection, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction)
         {
-            body = null; normal = JVector.Zero; fraction = float.MaxValue;
+            body = null;
+            normal = JVector.Zero;
+            fraction = float.MaxValue;
 
-            JVector tempNormal;float tempFraction;
+            JVector tempNormal;
+            float tempFraction;
             bool result = false;
 
             // TODO: This can be done better in CollisionSystemPersistenSAP
-            foreach (IBroadphaseEntity e in bodyList)
+            foreach(IBroadphaseEntity e in bodyList)
             {
-                if (e is SoftBody)
+                if(e is SoftBody)
                 {
                     SoftBody softBody = e as SoftBody;
-                    foreach (RigidBody b in softBody.VertexBodies)
+                    foreach(RigidBody b in softBody.VertexBodies)
                     {
-                        if (this.Raycast(b, rayOrigin, rayDirection, out tempNormal, out tempFraction))
+                        if(this.Raycast(b, rayOrigin, rayDirection, out tempNormal, out tempFraction))
                         {
-                            if (tempFraction < fraction && (raycast == null || raycast(b, tempNormal, tempFraction)))
+                            if(tempFraction < fraction && (raycast == null || raycast(b, tempNormal, tempFraction)))
                             {
                                 body = b;
                                 normal = tempNormal;
@@ -472,9 +543,9 @@ namespace Jitter.Collision
                 {
                     RigidBody b = e as RigidBody;
 
-                    if (this.Raycast(b, rayOrigin, rayDirection, out tempNormal, out tempFraction))
+                    if(this.Raycast(b, rayOrigin, rayDirection, out tempNormal, out tempFraction))
                     {
-                        if (tempFraction < fraction && (raycast == null || raycast(b, tempNormal, tempFraction)))
+                        if(tempFraction < fraction && (raycast == null || raycast(b, tempNormal, tempFraction)))
                         {
                             body = b;
                             normal = tempNormal;
@@ -487,6 +558,7 @@ namespace Jitter.Collision
 
             return result;
         }
+
         #endregion
 
 
@@ -498,39 +570,44 @@ namespace Jitter.Collision
         #region public override bool Raycast(RigidBody body, JVector rayOrigin, JVector rayDirection, out JVector normal, out float fraction)
         public override bool Raycast(RigidBody body, JVector rayOrigin, JVector rayDirection, out JVector normal, out float fraction)
         {
-            fraction = float.MaxValue; normal = JVector.Zero;
+            fraction = float.MaxValue;
+            normal = JVector.Zero;
 
-            if (!body.BoundingBox.RayIntersect(ref rayOrigin, ref rayDirection)) return false;
+            if(!body.BoundingBox.RayIntersect(ref rayOrigin, ref rayDirection))
+                return false;
 
-            if (body.Shape is Multishape)
+            if(body.Shape is Multishape)
             {
                 Multishape ms = (body.Shape as Multishape).RequestWorkingClone();
                 
-                JVector tempNormal;float tempFraction;
+                JVector tempNormal;
+                float tempFraction;
                 bool multiShapeCollides = false;
 
-                JVector transformedOrigin; JVector.Subtract(ref rayOrigin, ref body.position, out transformedOrigin);
+                JVector transformedOrigin;
+                JVector.Subtract(ref rayOrigin, ref body.position, out transformedOrigin);
                 JVector.Transform(ref transformedOrigin, ref body.invOrientation, out transformedOrigin);
-                JVector transformedDirection; JVector.Transform(ref rayDirection, ref body.invOrientation, out transformedDirection);
+                JVector transformedDirection;
+                JVector.Transform(ref rayDirection, ref body.invOrientation, out transformedDirection);
 
                 int msLength = ms.Prepare(ref transformedOrigin, ref transformedDirection);
 
-                for (int i = 0; i < msLength; i++)
+                for(int i = 0; i < msLength; i++)
                 {
                     ms.SetCurrentShape(i);
 
-                    if (GJKCollide.Raycast(ms, ref body.orientation, ref body.invOrientation, ref body.position,
-                        ref rayOrigin, ref rayDirection, out tempFraction, out tempNormal))
+                    if(GJKCollide.Raycast(ms, ref body.orientation, ref body.invOrientation, ref body.position,
+                            ref rayOrigin, ref rayDirection, out tempFraction, out tempNormal))
                     {
-                        if (tempFraction < fraction)
+                        if(tempFraction < fraction)
                         {
-                            if (useTerrainNormal && ms is TerrainShape)
+                            if(useTerrainNormal && ms is TerrainShape)
                             {
                                 (ms as TerrainShape).CollisionNormal(out tempNormal);
                                 JVector.Transform(ref tempNormal, ref body.orientation, out tempNormal);
                                 tempNormal.Negate();
                             }
-                            else if (useTriangleMeshNormal && ms is TriangleMeshShape)
+                            else if(useTriangleMeshNormal && ms is TriangleMeshShape)
                             {
                                 (ms as TriangleMeshShape).CollisionNormal(out tempNormal);
                                 JVector.Transform(ref tempNormal, ref body.orientation, out tempNormal);
@@ -555,6 +632,7 @@ namespace Jitter.Collision
 
 
         }
+
         #endregion
 
 
