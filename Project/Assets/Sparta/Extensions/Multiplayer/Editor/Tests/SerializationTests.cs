@@ -53,25 +53,6 @@ namespace SocialPoint.Multiplayer
         }
 
         [Test]
-        public void Vector4Initial()
-        {
-            GenericInitial(
-                new JQuaternion(1.0f, 2.3f, 4.2f, 5.2f),
-                new Vector4Serializer(),
-                new Vector4Parser());
-        }
-
-        [Test]
-        public void Vector4Diff()
-        {
-            GenericDiff(
-                new JQuaternion(1.0f, 2.3f, 4.2f, 5.2f),
-                new JQuaternion(1.0f, 3.3f, 4.2f, 6.2f),
-                new Vector4Serializer(),
-                new Vector4Parser());
-        }
-
-        [Test]
         public void QuaternionInitial()
         {
             GenericInitial(
@@ -90,15 +71,14 @@ namespace SocialPoint.Multiplayer
                 new QuaternionParser());
         }
 
-        /*[Test]
+        [Test]
         public void MatrixInitial()
         {
             GenericInitial(
-                new Matrix(
-                    1.0f, 2.3f, 4.2f, 5.2f,
-                    3.0f, 2.3f, 7.2f, 5.2f,
-                    4.0f, 4.5f, 4.5f, 15f,
-                    5.0f, 2.4f, 4.2f, 52.2f),
+                new JMatrix(
+                    1.0f, 2.3f, 4.2f,
+                    3.0f, 2.3f, 7.2f,
+                    4.0f, 4.5f, 4.5f),
                 new MatrixSerializer(),
                 new MatrixParser());
         }
@@ -107,19 +87,17 @@ namespace SocialPoint.Multiplayer
         public void MatrixDiff()
         {
             GenericDiff(
-                new Matrix(
-                    1.0f, 2.3f, 4.2f, 5.2f,
-                    3.0f, 2.3f, 7.2f, 5.2f,
-                    4.0f, 4.5f, 4.5f, 15f,
-                    5.0f, 2.4f, 4.2f, 52.2f),
-                new Matrix(
-                    1.0f, 2.3f, 4.2f, 5.2f,
-                    3.0f, 2.3f, 7.2f, 5.2f,
-                    4.0f, 5.5f, 4.5f, 15f,
-                    5.0f, 2.4f, 4.2f, 52.2f),
+                new JMatrix(
+                    1.0f, 2.3f, 4.2f,
+                    3.0f, 2.3f, 7.2f,
+                    4.0f, 4.5f, 4.5f),
+                new JMatrix(
+                    1.0f, 2.3f, 4.2f,
+                    3.0f, 2.3f, 7.2f,
+                    4.0f, 5.5f, 4.5f),
                 new MatrixSerializer(),
                 new MatrixParser());
-        }*/
+        }
 
         [Test]
         public void TransformInitial()
