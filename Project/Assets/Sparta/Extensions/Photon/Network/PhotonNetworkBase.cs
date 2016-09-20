@@ -138,10 +138,6 @@ namespace SocialPoint.Network
 
         protected static PhotonPlayer GetPlayer(byte clientId)
         {
-            if(PhotonNetwork.player.ID == clientId)
-            {
-                return PhotonNetwork.player;
-            }
             var players = PhotonNetwork.otherPlayers;
             for(var i = 0; i < players.Length; i++)
             {
@@ -180,7 +176,7 @@ namespace SocialPoint.Network
             var options = new RaiseEventOptions();
             options.SequenceChannel = info.ChannelId;
 
-            var serverId = PhotonNetwork.room.masterClientId;
+            var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(PhotonNetwork.player.ID != serverId)
             {
                 // clients always send to server
@@ -204,7 +200,8 @@ namespace SocialPoint.Network
         {
             var contentArr = (object[])content;
             byte clientId = 0;
-            if(senderid != PhotonNetwork.room.masterClientId)
+            var serverId = PhotonNetworkServer.PhotonPlayerId;
+            if(senderid != serverId)
             {
                 clientId = GetClientId(GetPlayer((byte)senderid));
             }

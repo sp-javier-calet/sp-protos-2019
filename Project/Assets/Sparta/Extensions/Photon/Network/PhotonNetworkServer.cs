@@ -36,7 +36,7 @@ namespace SocialPoint.Network
 
         public int GetTimestamp()
         {
-            return 0;
+            return (int)PhotonNetwork.time;
         }
 
         public bool Running
@@ -45,6 +45,32 @@ namespace SocialPoint.Network
             {
                 return PhotonNetwork.connected;
             }
+        }
+
+        public const string ServerIdRoomProperty = "server";
+
+        public static int PhotonPlayerId
+        {
+            get
+            {
+                var room = PhotonNetwork.room;
+                object serverId = 0;
+                if(room != null && room.customProperties.TryGetValue(ServerIdRoomProperty, out serverId))
+                {
+                    if(serverId is int)
+                    {
+                        return (int)serverId;
+                    }
+                }
+                return 0;
+            }
+        }
+
+        void SetServerPlayer()
+        {
+            var props = new ExitGames.Client.Photon.Hashtable{
+                { ServerIdRoomProperty, PhotonNetwork.player.ID }};
+            PhotonNetwork.room.SetCustomProperties(props);
         }
 
         void OnPhotonPlayerConnected(PhotonPlayer player)
@@ -67,6 +93,7 @@ namespace SocialPoint.Network
 
         protected override void OnConnected()
         {
+            SetServerPlayer();
             var players = PhotonNetwork.otherPlayers;
             for(var i = 0; i < players.Length; i++)
             {
