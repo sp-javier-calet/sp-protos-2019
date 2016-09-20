@@ -86,6 +86,46 @@ namespace SocialPoint.Multiplayer
             RemoveObjectFromPhysicsWorld();
         }
 
+        public void AddImpulse(JVector impulse)
+        {
+            if(_isInWorld)
+            {
+                _rigidBody.ApplyImpulse(impulse);
+            }
+        }
+
+        public void AddImpulseAtPosition(JVector impulse, JVector relativePostion)
+        {
+            if(_isInWorld)
+            {
+                _rigidBody.ApplyImpulse(impulse, relativePostion);
+            }
+        }
+
+        public void AddForce(JVector force)
+        {
+            if(_isInWorld)
+            {
+                _rigidBody.AddForce(force);
+            }
+        }
+
+        public void AddForceAtPosition(JVector force, JVector relativePostion)
+        {
+            if(_isInWorld)
+            {
+                _rigidBody.AddForce(force, relativePostion);
+            }
+        }
+
+        public void AddTorque(JVector torque)
+        {
+            if(_isInWorld)
+            {
+                _rigidBody.AddTorque(torque);
+            }
+        }
+
         void BuildPhysicObject()
         {
 
@@ -132,46 +172,6 @@ namespace SocialPoint.Multiplayer
             {
                 _physicsWorld.RemoveRigidBody(_rigidBody);
                 _isInWorld = false;
-            }
-        }
-
-        public void AddImpulse(JVector impulse)
-        {
-            if(_isInWorld)
-            {
-                _rigidBody.ApplyImpulse(impulse);
-            }
-        }
-
-        public void AddImpulseAtPosition(JVector impulse, JVector relativePostion)
-        {
-            if(_isInWorld)
-            {
-                _rigidBody.ApplyImpulse(impulse, relativePostion);
-            }
-        }
-
-        public void AddForce(JVector force)
-        {
-            if(_isInWorld)
-            {
-                _rigidBody.AddForce(force);
-            }
-        }
-
-        public void AddForceAtPosition(JVector force, JVector relativePostion)
-        {
-            if(_isInWorld)
-            {
-                _rigidBody.AddForce(force, relativePostion);
-            }
-        }
-
-        public void AddTorque(JVector torque)
-        {
-            if(_isInWorld)
-            {
-                _rigidBody.AddTorque(torque);
             }
         }
     }

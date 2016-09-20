@@ -152,8 +152,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         var boxShape = new PhysicsBoxShape(new JVector(1f));
         var rigidBody = new PhysicsRigidBody(boxShape, PhysicsRigidBody.ControlType.Kinematic, _physicsWorld, _physicsDebugger);
         rigidBody.DoDebugDraw = true;
-        //var collCallback = new DemoCollisionCallbackListener(rigidBody.CollisionObject, _physicsDebugger);
-        //rigidBody.AddOnCollisionCallbackEventHandler(collCallback);
 
         _controller.AddBehaviour(go.Id, rigidBody);
     }
@@ -165,27 +163,16 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             return false;
         }
 
-        //float maxDistance = 100f;
-        /*var rayResultClosest = new PhysicsRaycast.ClosestResult();
+        float maxDistance = 100f;
+        PhysicsRaycast.Result rayResultClosest;
 
         if(PhysicsRaycast.Raycast(ray, maxDistance, _physicsWorld, out rayResultClosest))
         {
-            if(rayResultClosest.GameObjectHit.Id == gameObject.Id)
+            if(rayResultClosest.ObjectHit.NetworkGameObject.Id == gameObject.Id)
             {
                 return true;
             }
-        }*/
-        //RigidBody resBody;
-        //JVector hitNormal;
-        //float fraction;
-
-        /*if(_physicsWorld.CollisionWorld.CollisionSystem.Raycast(ray.origin, ray.direction * maxDistance, null, out resBody, out hitNormal, out fraction))
-        {
-            if(((PhysicsRigidBody)resBody.Tag).NetworkGameObject.Id == gameObject.Id)
-            {
-                return true;
-            }
-        }*/
+        }
 
         return false;
     }

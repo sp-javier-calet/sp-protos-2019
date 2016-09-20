@@ -1,118 +1,55 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Jitter;
+using Jitter.Collision;
+using Jitter.Dynamics;
 using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class PhysicsRaycast
+    public static class PhysicsRaycast
     {
-        /// <summary>
-        /// Raycast result with closest object hit.
-        /// </summary>
-        public class ClosestResult //: ClosestRayResultCallback
+        public struct Result
         {
-            public NetworkGameObject GameObjectHit
-            {
-                get;
-                private set;
-            }
-
-            public ClosestResult() : this(JVector.Zero, JVector.Zero)
-            {
-            }
-
-            private ClosestResult(JVector from, JVector to)// : base(ref from, ref to)
-            {
-            }
-
-            /*public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
-            {
-                PhysicsCollisionObject co = (PhysicsCollisionObject)(rayResult.CollisionObject.UserObject);
-                if(co != null)
-                {
-                    GameObjectHit = co.NetworkGameObject;
-                }
-                return base.AddSingleResult(rayResult, normalInWorldSpace);
-            }*/
-        }
-
-        /// <summary>
-        /// Raycast result with all objects hit.
-        /// WARNING: Objects may be in any order.
-        /// </summary>
-        public class AllHitsResult //: AllHitsRayResultCallback
-        {
-            public List<NetworkGameObject> GameObjectsHit
-            {
-                get;
-                private set;
-            }
-
-            public AllHitsResult() : this(JVector.Zero, JVector.Zero)
-            {
-            }
-
-            private AllHitsResult(JVector from, JVector to)// : base(from, to)
-            {
-                GameObjectsHit = new List<NetworkGameObject>();
-            }
-
-            /*public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
-            {
-                PhysicsCollisionObject co = (PhysicsCollisionObject)(rayResult.CollisionObject.UserObject);
-                if(co != null)
-                {
-                    GameObjectsHit.Add(co.NetworkGameObject);
-                }
-                return base.AddSingleResult(rayResult, normalInWorldSpace);
-            }*/
+            public PhysicsRigidBody ObjectHit;
+            public JVector HitNormal;
+            public float Fraction;
         }
 
         /* Raycast Calls */
 
-        public static bool Raycast(Ray ray, PhysicsWorld physicsWorld, out ClosestResult rayResult)
+        public static bool Raycast(Ray ray, PhysicsWorld physicsWorld, out Result rayResult)
         {
             return Raycast(ray, float.MaxValue, physicsWorld, out rayResult);
         }
 
-        public static bool Raycast(Ray ray, float maxDistance, PhysicsWorld physicsWorld, out ClosestResult rayResult)
+        public static bool Raycast(Ray ray, float maxDistance, PhysicsWorld physicsWorld, out Result rayResult)
         {
             JVector startPoint;
             JVector endPoint;
             RaycastPointsFromRay(ref ray, maxDistance, out startPoint, out endPoint);
 
-            rayResult = new ClosestResult();
-            //rayResult.RayFromWorld = startPoint;
-            //rayResult.RayToWorld = endPoint;
-
-            return Raycast(ref startPoint, ref endPoint, physicsWorld, rayResult);
+            return Raycast(ref startPoint, ref endPoint, physicsWorld, out rayResult);
         }
 
-        public static bool Raycast(Ray ray, PhysicsWorld physicsWorld, out AllHitsResult rayResult)
+        static bool Raycast(ref JVector startPoint, ref JVector endPoint, PhysicsWorld physicsWorld, out Result rayResult)
         {
-            return Raycast(ray, float.MaxValue, physicsWorld, out rayResult);
+            rayResult = new Result();
+            RigidBody resBody;
+            JVector hitNormal;
+            float fraction;
+
+            if(physicsWorld.World.CollisionSystem.Raycast(startPoint, endPoint, null, out resBody, out hitNormal, out fraction))
+            {
+                rayResult.ObjectHit = (PhysicsRigidBody)resBody.Tag;
+                rayResult.HitNormal = hitNormal;
+                rayResult.Fraction = fraction;
+                return true;
+            }
+            return false;
         }
 
-        public static bool Raycast(Ray ray, float maxDistance, PhysicsWorld physicsWorld, out AllHitsResult rayResult)
-        {
-            JVector startPoint;
-            JVector endPoint;
-            RaycastPointsFromRay(ref ray, maxDistance, out startPoint, out endPoint);
-
-            rayResult = new AllHitsResult();
-            //rayResult.RayFromWorld = startPoint;
-            //rayResult.RayToWorld = endPoint;
-
-            return Raycast(ref startPoint, ref endPoint, physicsWorld, rayResult);
-        }
-
-        private static bool Raycast(ref JVector startPoint, ref JVector endPoint, PhysicsWorld physicsWorld, object rayResult)//RayResultCallback rayResult
-        {
-            //physicsWorld.CollisionWorld.RayTestRef(ref startPoint, ref endPoint, rayResult);
-            return false;//rayResult.HasHit;
-        }
-
-        private static void RaycastPointsFromRay(ref Ray ray, float maxDistance, out JVector startPoint, out JVector endPoint)
+        static void RaycastPointsFromRay(ref Ray ray, float maxDistance, out JVector startPoint, out JVector endPoint)
         {
             startPoint = ray.origin;
             endPoint = startPoint + (ray.direction * maxDistance);

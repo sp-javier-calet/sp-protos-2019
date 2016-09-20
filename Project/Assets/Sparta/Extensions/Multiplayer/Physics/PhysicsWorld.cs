@@ -16,6 +16,11 @@ namespace SocialPoint.Multiplayer
             set;
         }
 
+        public World World
+        {
+            get { return _world; }
+        }
+
         World _world;
         CollisionSystem _collisionSystem;
 
