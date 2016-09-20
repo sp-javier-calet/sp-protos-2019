@@ -41,6 +41,8 @@ namespace SocialPoint.Multiplayer
         PhysicsWorld _physicsWorld;
         bool _isInWorld = false;
 
+        event CollisionDetectedHandler _collisionListeners;
+
         public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, PhysicsDebugger debugger)
         {
             _collisionShape = shape;
@@ -68,10 +70,17 @@ namespace SocialPoint.Multiplayer
 
         public void Update(float dt)
         {
-            //If kinematic then update physic object with game object transform
-            if(_controlType == ControlType.Kinematic)
+            //Update object transform
+            switch(_controlType)
             {
+            case ControlType.Kinematic:
                 UpdateTransformFromGameObject();
+                break;
+            case ControlType.Dynamic:
+                UpdateTransformFromPhysicsObject();
+                break;
+            default:
+                break;
             }
 
             //Debug if requested
@@ -84,6 +93,24 @@ namespace SocialPoint.Multiplayer
         public void OnDestroy()
         {
             RemoveObjectFromPhysicsWorld();
+        }
+
+        public void OnCollision(RigidBody other, JVector myPoint, JVector otherPoint, JVector normal, float penetration)
+        {
+            if(_collisionListeners != null)
+            {
+                _collisionListeners(_rigidBody, other, myPoint, otherPoint, normal, penetration);
+            }
+        }
+
+        public void AddCollisionHandler(CollisionDetectedHandler handler)
+        {
+            _collisionListeners += handler;
+        }
+
+        public void RemoveCollisionHandler(CollisionDetectedHandler handler)
+        {
+            _collisionListeners -= handler;
         }
 
         public void AddImpulse(JVector impulse)
@@ -128,7 +155,6 @@ namespace SocialPoint.Multiplayer
 
         void BuildPhysicObject()
         {
-
             Shape cs = _collisionShape.GetCollisionShape();
             _rigidBody = new RigidBody(cs);
             _rigidBody.Tag = this;

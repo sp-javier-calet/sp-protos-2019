@@ -69,9 +69,19 @@ namespace SocialPoint.Multiplayer
             _collisionSystem.CollisionDetected -= handler;
         }
 
+        void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
+                                      JVector point1, JVector point2, JVector normal, float penetration)
+        {
+            var behavior1 = (PhysicsRigidBody)body1.Tag;
+            var behavior2 = (PhysicsRigidBody)body2.Tag;
+            behavior1.OnCollision(body2, point1, point2, normal, penetration);
+            behavior2.OnCollision(body1, point2, point1, normal, penetration);
+        }
+
         void InitializePhysicsWorld()
         {
             _collisionSystem = new CollisionSystemPersistentSAP();
+            _collisionSystem.CollisionDetected += CollisionDetectedHandler;
             _world = new World(_collisionSystem);
         }
     }

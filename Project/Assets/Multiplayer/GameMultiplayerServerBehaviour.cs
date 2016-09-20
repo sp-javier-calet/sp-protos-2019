@@ -153,6 +153,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         var rigidBody = new PhysicsRigidBody(boxShape, PhysicsRigidBody.ControlType.Kinematic, _physicsWorld, _physicsDebugger);
         rigidBody.DoDebugDraw = true;
 
+        if(go.Id == playerCube.Id)
+        {
+            rigidBody.AddCollisionHandler(PlayerCollisionDetectedHandler);
+        }
+
         _controller.AddBehaviour(go.Id, rigidBody);
     }
 
@@ -180,6 +185,12 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
                                   JVector point1, JVector point2, JVector normal, float penetration)
     {
-        UnityEngine.Debug.Log("*** TEST Collision Detected");
+        //UnityEngine.Debug.Log("*** TEST Collision Detected");
+    }
+
+    void PlayerCollisionDetectedHandler(RigidBody body1, RigidBody body2, 
+                                        JVector point1, JVector point2, JVector normal, float penetration)
+    {
+        UnityEngine.Debug.Log("*** TEST Player Collision Detected");
     }
 }
