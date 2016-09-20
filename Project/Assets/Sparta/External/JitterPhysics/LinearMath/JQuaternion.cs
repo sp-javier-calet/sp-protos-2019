@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
 using Jitter.Collision.Shapes;
+
 #endregion
 
 namespace Jitter.LinearMath
@@ -46,8 +47,14 @@ namespace Jitter.LinearMath
         /// <summary>The W component of the quaternion.</summary>
         public float W;
 
+        /// <summary>
+        /// A quaternion with components (0,0,0,1);
+        /// </summary>
+        public static readonly JQuaternion Identity;
+
         static JQuaternion()
         {
+            Identity = new JQuaternion(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
         /// <summary>
@@ -64,6 +71,75 @@ namespace Jitter.LinearMath
             this.Z = z;
             this.W = w;
         }
+
+        /// <summary>
+        /// Builds a string from the JQuaternion.
+        /// </summary>
+        /// <returns>A string containing all four components.</returns>
+        #region public override string ToString()
+        public override string ToString()
+        {
+            return "X=" + X.ToString() + " Y=" + Y.ToString() + " Z=" + Z.ToString() + " W=" + W.ToString();
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tests if an object is equal to this quaternion.
+        /// </summary>
+        /// <param name="obj">The object to test.</param>
+        /// <returns>Returns true if they are euqal, otherwise false.</returns>
+        #region public override bool Equals(object obj)
+        public override bool Equals(object obj)
+        {
+            if(!(obj is JQuaternion))
+                return false;
+            JQuaternion other = (JQuaternion)obj;
+
+            return (((X == other.X) && (Y == other.Y)) && (Z == other.Z) && (W == other.W));
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tests if two JQuaternion are equal.
+        /// </summary>
+        /// <param name="value1">The first value.</param>
+        /// <param name="value2">The second value.</param>
+        /// <returns>Returns true if both values are equal, otherwise false.</returns>
+        #region public static bool operator ==(JQuaternion value1, JQuaternion value2)
+        public static bool operator ==(JQuaternion value1, JQuaternion value2)
+        {
+            return (((value1.X == value2.X) && (value1.Y == value2.Y)) && (value1.Z == value2.Z) && (value1.W == value2.W));
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tests if two JQuaternion are not equal.
+        /// </summary>
+        /// <param name="value1">The first value.</param>
+        /// <param name="value2">The second value.</param>
+        /// <returns>Returns false if both values are equal, otherwise true.</returns>
+        #region public static bool operator !=(JQuaternion value1, JQuaternion value2)
+        public static bool operator !=(JQuaternion value1, JQuaternion value2)
+        {
+            return !(value1 == value2);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gets the hashcode of the quaternion.
+        /// </summary>
+        /// <returns>Returns the hashcode of the quaternion.</returns>
+        #region public override int GetHashCode()
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode() ^ W.GetHashCode();
+        }
+
+        #endregion
 
         /// <summary>
         /// Quaternions are added.
@@ -112,6 +188,7 @@ namespace Jitter.LinearMath
             result.Z = quaternion1.Z + quaternion2.Z;
             result.W = quaternion1.W + quaternion2.W;
         }
+
         #endregion
 
         public static JQuaternion Conjugate(JQuaternion value)
@@ -151,6 +228,7 @@ namespace Jitter.LinearMath
             result.Z = quaternion1.Z - quaternion2.Z;
             result.W = quaternion1.W - quaternion2.W;
         }
+
         #endregion
 
         /// <summary>
@@ -192,6 +270,7 @@ namespace Jitter.LinearMath
             result.Z = ((z * num) + (num2 * w)) + num10;
             result.W = (w * num) - num9;
         }
+
         #endregion
 
         /// <summary>
@@ -221,6 +300,7 @@ namespace Jitter.LinearMath
             result.Z = quaternion1.Z * scaleFactor;
             result.W = quaternion1.W * scaleFactor;
         }
+
         #endregion
 
         /// <summary>
@@ -236,6 +316,7 @@ namespace Jitter.LinearMath
             this.Z *= num;
             this.W *= num;
         }
+
         #endregion
 
         /// <summary>
@@ -259,7 +340,7 @@ namespace Jitter.LinearMath
         public static void CreateFromMatrix(ref JMatrix matrix, out JQuaternion result)
         {
             float num8 = (matrix.M11 + matrix.M22) + matrix.M33;
-            if (num8 > 0f)
+            if(num8 > 0f)
             {
                 float num = (float)Math.Sqrt((double)(num8 + 1f));
                 result.W = num * 0.5f;
@@ -268,7 +349,7 @@ namespace Jitter.LinearMath
                 result.Y = (matrix.M31 - matrix.M13) * num;
                 result.Z = (matrix.M12 - matrix.M21) * num;
             }
-            else if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
+            else if((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
             {
                 float num7 = (float)Math.Sqrt((double)(((1f + matrix.M11) - matrix.M22) - matrix.M33));
                 float num4 = 0.5f / num7;
@@ -277,7 +358,7 @@ namespace Jitter.LinearMath
                 result.Z = (matrix.M13 + matrix.M31) * num4;
                 result.W = (matrix.M23 - matrix.M32) * num4;
             }
-            else if (matrix.M22 > matrix.M33)
+            else if(matrix.M22 > matrix.M33)
             {
                 float num6 = (float)Math.Sqrt((double)(((1f + matrix.M22) - matrix.M11) - matrix.M33));
                 float num3 = 0.5f / num6;
@@ -296,6 +377,7 @@ namespace Jitter.LinearMath
                 result.W = (matrix.M12 - matrix.M21) * num2;
             }
         }
+
         #endregion
 
         /// <summary>
@@ -308,9 +390,10 @@ namespace Jitter.LinearMath
         public static JQuaternion operator *(JQuaternion value1, JQuaternion value2)
         {
             JQuaternion result;
-            JQuaternion.Multiply(ref value1, ref value2,out result);
+            JQuaternion.Multiply(ref value1, ref value2, out result);
             return result;
         }
+
         #endregion
 
         /// <summary>
@@ -326,6 +409,7 @@ namespace Jitter.LinearMath
             JQuaternion.Add(ref value1, ref value2, out result);
             return result;
         }
+
         #endregion
 
         /// <summary>
@@ -341,6 +425,7 @@ namespace Jitter.LinearMath
             JQuaternion.Subtract(ref value1, ref value2, out result);
             return result;
         }
+
         #endregion
 
     }
