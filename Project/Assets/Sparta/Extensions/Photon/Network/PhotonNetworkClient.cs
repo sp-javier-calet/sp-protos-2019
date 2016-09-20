@@ -56,7 +56,7 @@ namespace SocialPoint.Network
 
         public int GetDelay(int networkTimestamp)
         {
-            return 0;
+            return (int)PhotonNetwork.time - networkTimestamp;
         }
 
         protected override void OnConnected()
