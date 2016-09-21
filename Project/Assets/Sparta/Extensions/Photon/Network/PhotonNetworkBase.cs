@@ -205,7 +205,7 @@ namespace SocialPoint.Network
                 MessageType = eventcode,
                 ClientId = clientId
             };
-            var stream = new MemoryStream((byte[])content)
+            var stream = new MemoryStream((byte[])content);
             var reader = new SystemBinaryReader(stream);
             OnMessageReceived(info, reader);
         }
