@@ -14,8 +14,30 @@ namespace SocialPoint.Lockstep.Network
         int _sendPlayerReadyPending;
         bool _clientSetupReceived;
         INetworkMessageReceiver _receiver;
+        byte[] _playerIds;
 
-        public byte[] PlayerIds { get; private set; }
+        public int PlayerCount
+        {
+            get
+            {
+                if(_playerIds == null)
+                {
+                    return 0;
+                }
+                return _playerIds.Length;
+            }
+        }
+
+        public bool GetPlayerId(int position, out byte playerId)
+        {
+            if(_playerIds == null || _playerIds.Length <= position)
+            {
+                playerId = byte.MaxValue;
+                return false;
+            }
+            playerId = _playerIds[position];
+            return true;
+        }
 
         public ClientLockstepNetworkController(INetworkClient client)
         {
@@ -109,7 +131,7 @@ namespace SocialPoint.Lockstep.Network
             msg.Deserialize(reader);
             var delay = _client.GetDelay(msg.ServerTimestamp);
             int remaining = msg.RemainingMillisecondsToStart - delay;
-            PlayerIds = msg.PlayerIds;
+            _playerIds = msg.PlayerIds;
             _clientLockstep.Start(TimeUtils.TimestampMilliseconds + (long)remaining);
         }
 
