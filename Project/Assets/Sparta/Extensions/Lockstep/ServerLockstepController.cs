@@ -230,6 +230,10 @@ namespace SocialPoint.Lockstep
 
         void SendLocalClientTurnData()
         {
+            if(_localClient == null)
+            {
+                return;
+            }
             var itr = _turns.GetEnumerator();
             while(itr.MoveNext())
             {

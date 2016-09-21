@@ -170,8 +170,7 @@ namespace Photon.Hive.Plugin.Lockstep
             _netServer = new ServerLockstepNetworkController(
                 this, lsConfig, playersCount, startDelay);
             _netServer.Init(
-                new ServerLockstepController(_updateScheduler, lsConfig.CommandStep),
-                _factory);
+                new ServerLockstepController(_updateScheduler, lsConfig.CommandStep));
 
             _updateInterval = (float)lsConfig.CommandStep/1000.0f;
             _timer = PluginHost.CreateTimer(Update, 0, lsConfig.CommandStep);
@@ -219,7 +218,7 @@ namespace Photon.Hive.Plugin.Lockstep
 
         int INetworkServer.GetTimestamp()
         {
-            return (int)TimeUtils.Timestamp;
+            return System.Environment.TickCount;
         }
     }
 }
