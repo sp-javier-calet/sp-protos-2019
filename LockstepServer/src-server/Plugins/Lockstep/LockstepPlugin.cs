@@ -119,7 +119,6 @@ namespace Photon.Hive.Plugin.Lockstep
         const string MaxExecutionTurnAnticipationKey = "MaxExecutionTurnAnticipation";
         const string ExecutionTurnAnticipationKey = "ExecutionTurnAnticipation";
         const string MaxRetriesKey = "MaxRetries";
-        const string MaxRetriesKey = "MaxRetries";
 
         int GetConfigOption(Dictionary<string, string> config, string key, int def)
         {
@@ -184,7 +183,7 @@ namespace Photon.Hive.Plugin.Lockstep
                 actors = new List<int>();
                 actors.Add(info.ClientId);
             }
-            return new PluginNetworkMessage(PluginHost, info.MessageType, info.ChannelId, actors);
+            return new PluginNetworkMessage(PluginHost, info.MessageType, info.Unreliable, actors);
         }
 
         void INetworkServer.AddDelegate(INetworkServerDelegate dlg)

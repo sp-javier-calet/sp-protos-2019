@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
@@ -10,7 +9,6 @@ namespace SocialPoint.Lockstep
 {
     public class ClientLockstepController : IUpdateable, IDisposable
     {
-        ISimulateable _model;
         IUpdateScheduler _updateScheduler;
 
         long _simulationTime;

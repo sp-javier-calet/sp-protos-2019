@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\lib\Newtonsoft\Newtonsoft.Json.6.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="PhotonHivePlugin">
       <HintPath>..\lib\PhotonHivePlugin.dll</HintPath>
     </Reference>
@@ -46,36 +43,96 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Lib\Base\DebugUtils.cs" />
-    <Compile Include="Lib\Base\Error.cs" />
-    <Compile Include="Lib\Base\Log.cs" />
-    <Compile Include="Lib\IO\Bitset.cs" />
-    <Compile Include="Lib\IO\INetworkShareable.cs" />
-    <Compile Include="Lib\IO\IReader.cs" />
-    <Compile Include="Lib\IO\IReadParser.cs" />
-    <Compile Include="Lib\IO\IWriter.cs" />
-    <Compile Include="Lib\IO\IWriteSerializer.cs" />
-    <Compile Include="Lib\IO\SystemBinaryReader.cs" />
-    <Compile Include="Lib\IO\SystemBinaryWriter.cs" />
-    <Compile Include="Lib\Lockstep\ClientLockstepController.cs" />
-    <Compile Include="Lib\Lockstep\LockstepCommand.cs" />
-    <Compile Include="Lib\Lockstep\LockstepCommandFactory.cs" />
-    <Compile Include="Lib\Lockstep\LockstepConfig.cs" />
-    <Compile Include="Lib\Lockstep\LockstepReplay.cs" />
-    <Compile Include="Lib\Lockstep\LockstepTurnData.cs" />
-    <Compile Include="Lib\Lockstep\Network\AllPlayersReadyMessage.cs" />
-    <Compile Include="Lib\Lockstep\Network\ClientSetupMessage.cs" />
-    <Compile Include="Lib\Lockstep\Network\ConfirmTurnReceptionMessage.cs" />
-    <Compile Include="Lib\Lockstep\Network\ConfirmTurnsMessage.cs" />
-    <Compile Include="Lib\Lockstep\Network\ServerLockstepNetworkController.cs" />
-    <Compile Include="Lib\Lockstep\ServerLockstepController.cs" />
-    <Compile Include="Lib\Network\INetworkClient.cs" />
-    <Compile Include="Lib\Network\INetworkMessage.cs" />
-    <Compile Include="Lib\Network\INetworkServer.cs" />
-    <Compile Include="Lib\Utils\CryptographyUtils.cs" />
-    <Compile Include="Lib\Utils\StringUtils.cs" />
-    <Compile Include="Lib\Utils\TimeUtils.cs" />
-    <Compile Include="Lib\Utils\UpdateRunner.cs" />
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Base\DebugUtils.cs">
+      <Link>Lib\Base\DebugUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Base\Error.cs">
+      <Link>Lib\Base\Error.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Base\Log.cs">
+      <Link>Lib\Base\Log.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\Bitset.cs">
+      <Link>Lib\IO\Bitset.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\INetworkShareable.cs">
+      <Link>Lib\IO\INetworkShareable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IReader.cs">
+      <Link>Lib\IO\IReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IReadParser.cs">
+      <Link>Lib\IO\IReadParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IWriter.cs">
+      <Link>Lib\IO\IWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IWriteSerializer.cs">
+      <Link>Lib\IO\IWriteSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\SystemBinaryReader.cs">
+      <Link>Lib\IO\SystemBinaryReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
+      <Link>Lib\IO\SystemBinaryWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ClientLockstepController.cs">
+      <Link>Lib\Lockstep\ClientLockstepController.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepCommand.cs">
+      <Link>Lib\Lockstep\LockstepCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepCommandFactory.cs">
+      <Link>Lib\Lockstep\LockstepCommandFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepConfig.cs">
+      <Link>Lib\Lockstep\LockstepConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepReplay.cs">
+      <Link>Lib\Lockstep\LockstepReplay.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepTurnData.cs">
+      <Link>Lib\Lockstep\LockstepTurnData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ServerLockstepController.cs">
+      <Link>Lib\Lockstep\ServerLockstepController.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\AllPlayersReadyMessage.cs">
+      <Link>Lib\Lockstep\Network\AllPlayersReadyMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ClientSetupMessage.cs">
+      <Link>Lib\Lockstep\Network\ClientSetupMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ConfirmTurnReceptionMessage.cs">
+      <Link>Lib\Lockstep\Network\ConfirmTurnReceptionMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ConfirmTurnsMessage.cs">
+      <Link>Lib\Lockstep\Network\ConfirmTurnsMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ServerLockstepNetworkController.cs">
+      <Link>Lib\Lockstep\Network\ServerLockstepNetworkController.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkClient.cs">
+      <Link>Lib\Network\INetworkClient.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkMessage.cs">
+      <Link>Lib\Network\INetworkMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
+      <Link>Lib\Network\INetworkServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
+      <Link>Lib\Utils\CryptographyUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\StringUtils.cs">
+      <Link>Lib\Utils\StringUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\TimeUtils.cs">
+      <Link>Lib\Utils\TimeUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\UpdateRunner.cs">
+      <Link>Lib\Utils\UpdateRunner.cs</Link>
+    </Compile>
     <Compile Include="LockstepPlugin.cs" />
     <Compile Include="PluginFactory.cs" />
     <Compile Include="PluginNetworkMessage.cs" />
@@ -92,7 +149,7 @@ xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\LoadBalancing\Plugins\LockstepPl
     </StartWorkingDirectory>
     <StartArguments>/run LoadBalancing /configPath ..\..\..\..\deploy\bin_Win32</StartArguments>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

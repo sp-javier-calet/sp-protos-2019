@@ -12,12 +12,11 @@ public class PluginNetworkMessage : INetworkMessage
     byte _msgType;
     MemoryStream _stream;
     SystemBinaryWriter _writer;
-    byte _channelId;
     bool _unreliable;
 
     const byte EventDataKey = 245;
 
-	public PluginNetworkMessage(IPluginHost host, byte msgType, byte ChannelId, bool unreliable, List<int> actors)
+	public PluginNetworkMessage(IPluginHost host, byte msgType, bool unreliable, List<int> actors)
 	{
         _host = host;
         _actors = actors;
@@ -37,7 +36,7 @@ public class PluginNetworkMessage : INetworkMessage
 
     public void Send()
     {
-        var evData = new object[] { _channelId, _stream.GetBuffer() };
+        var evData = _stream.GetBuffer();
         var data = new Dictionary<byte, object> { { EventDataKey, evData } };
         var parms = new SendParameters();
         parms.Unreliable = _unreliable;
