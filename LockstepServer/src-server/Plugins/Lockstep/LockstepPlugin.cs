@@ -3,7 +3,8 @@ using SocialPoint.Utils;
 using SocialPoint.Network;
 using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
-using System;
+using SocialPoint.IO;
+using System.IO;
 
 namespace Photon.Hive.Plugin.Lockstep
 {
@@ -103,6 +104,21 @@ namespace Photon.Hive.Plugin.Lockstep
 
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
         {
+            if (_receiver != null)
+            {
+                var data = info.Request.Data as byte[];
+                if (data != null)
+                {
+                    var stream = new MemoryStream(data);
+                    var reader = new SystemBinaryReader(stream);
+                    var netData = new NetworkMessageData
+                    {
+                        ClientId = GetClientId(info.ActorNr),
+                        MessageType = info.Request.EvCode
+                    };
+                    _receiver.OnMessageReceived(netData, reader);
+                }
+            }
             info.Continue();
         }
 

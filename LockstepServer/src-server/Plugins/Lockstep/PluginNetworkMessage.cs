@@ -15,6 +15,7 @@ public class PluginNetworkMessage : INetworkMessage
     bool _unreliable;
 
     const byte EventDataKey = 245;
+    const byte SenderActorKey = 254;
 
 	public PluginNetworkMessage(IPluginHost host, byte msgType, bool unreliable, List<int> actors)
 	{
