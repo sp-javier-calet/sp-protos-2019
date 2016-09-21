@@ -133,6 +133,10 @@ namespace SocialPoint.Network
 
         protected static byte GetClientId(PhotonPlayer player)
         {
+            if(player == null)
+            {
+                return 0;
+            }
             return (byte)player.ID;
         }
 
