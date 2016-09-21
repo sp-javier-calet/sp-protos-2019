@@ -93,8 +93,8 @@ namespace SocialPoint.Utils
             uint cd2 = GenerateRandom32();
             ulong cd = (ulong)(cd1 << 32 | cd2);
 
-            ab = (ab & 0xFFFFFFFFFFFF0FFFULL) | 0x0000000000004000ULL;
-            cd = (cd & 0x3FFFFFFFFFFFFFFFULL) | 0x8000000000000000ULL;
+            ab = (ab & 0xFFFFFFFFFFFF0FFFUL) | 0x0000000000004000UL;
+            cd = (cd & 0x3FFFFFFFFFFFFFFFUL) | 0x8000000000000000UL;
 
             //ulong a = (ulong) (ab >> 32);
             ulong b = (ulong)(ab & 0xFFFFFFFF);

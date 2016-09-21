@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Photon.Hive.Plugin.Lockstep</RootNamespace>
-    <AssemblyName>PhotonHive.Lockstep</AssemblyName>
+    <AssemblyName>PhotonHive.LockstepPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -55,6 +55,8 @@
     <Compile Include="Lib\IO\IReadParser.cs" />
     <Compile Include="Lib\IO\IWriter.cs" />
     <Compile Include="Lib\IO\IWriteSerializer.cs" />
+    <Compile Include="Lib\IO\SystemBinaryReader.cs" />
+    <Compile Include="Lib\IO\SystemBinaryWriter.cs" />
     <Compile Include="Lib\Lockstep\ClientLockstepController.cs" />
     <Compile Include="Lib\Lockstep\LockstepCommand.cs" />
     <Compile Include="Lib\Lockstep\LockstepCommandFactory.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="Lib\Utils\UpdateRunner.cs" />
     <Compile Include="LockstepPlugin.cs" />
     <Compile Include="PluginFactory.cs" />
+    <Compile Include="PluginNetworkMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
