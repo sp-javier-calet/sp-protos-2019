@@ -85,7 +85,7 @@ namespace SocialPoint.Lockstep.Network
 
         void OnConfirmTurnsReceived(IReader reader)
         {
-            var turnsAction = new ConfirmTurnsMessage(_commandFactory);
+            var turnsAction = new ClientConfirmTurnsMessage(_commandFactory);
             turnsAction.Deserialize(reader);
             _clientLockstep.ConfirmTurns(turnsAction.ConfirmedTurns);
         }
@@ -143,7 +143,7 @@ namespace SocialPoint.Lockstep.Network
             }, confirmTurnReception);
         }
 
-        void OnPendingCommandAdded(LockstepCommandData command)
+        void OnPendingCommandAdded(ClientLockstepCommandData command)
         {
             command.ClientId = _client.ClientId;
             var msg = _client.CreateMessage(new NetworkMessageData {

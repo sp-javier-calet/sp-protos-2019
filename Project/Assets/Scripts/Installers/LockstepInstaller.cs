@@ -93,7 +93,6 @@ public class LockstepInstaller : Installer
     void SetupServerNetworkController(ServerLockstepNetworkController ctrl)
     {
         ctrl.Init(
-            Container.Resolve<ServerLockstepController>(),
-            Container.Resolve<LockstepCommandFactory>());
+            Container.Resolve<ServerLockstepController>());
     }
 }

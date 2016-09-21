@@ -26,7 +26,6 @@ namespace SocialPoint.Lockstep.Network
         }
 
         int _playersCount;
-        LockstepCommandFactory _commandFactory;
         ServerLockstepController _serverLockstep;
         int _startLockstepDelay;
         LockstepConfig _lockstepConfig;
@@ -50,12 +49,11 @@ namespace SocialPoint.Lockstep.Network
             _startLockstepDelay = startLockstepDelay;
         }
 
-        public void Init(ServerLockstepController serverLockstep, LockstepCommandFactory commandFactory)
+        public void Init(ServerLockstepController serverLockstep)
         {
             _serverLockstep = serverLockstep;
             _serverLockstep.CommandStep = _lockstepConfig.CommandStep;
             _serverLockstep.SendClientTurnData = SendClientTurnData;
-            _commandFactory = commandFactory;
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
         }
@@ -65,9 +63,9 @@ namespace SocialPoint.Lockstep.Network
             _receiver = receiver;
         }
 
-        void SendClientTurnData(byte clientId, LockstepTurnData[] turnData)
+        void SendClientTurnData(byte clientId, ServerLockstepTurnData[] turnData)
         {
-            var action = new ConfirmTurnsMessage(_commandFactory);
+            var action = new ServerConfirmTurnsMessage();
             action.ConfirmedTurns = turnData;
 
             _server.SendMessage(new NetworkMessageData {
@@ -116,8 +114,8 @@ namespace SocialPoint.Lockstep.Network
 
         void OnLockstepCommandReceived(LockstepClientData clientData, IReader reader)
         {
-            var command = new LockstepCommandData();
-            command.Deserialize(_commandFactory, reader);
+            var command = new ServerLockstepCommandData();
+            command.Deserialize(reader);
             command.ClientId = clientData.ClientId;
             _serverLockstep.OnClientCommandReceived(command);
         }
@@ -292,10 +290,10 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public void RegisterLocalClient(ClientLockstepController ctrl)
+        public void RegisterLocalClient(ClientLockstepController ctrl, LockstepCommandFactory factory)
         {
             _localClient = ctrl;
-            _serverLockstep.RegisterLocalClient(ctrl);
+            _serverLockstep.RegisterLocalClient(ctrl, factory);
         }
 
         public byte LocalPlayerReady()
