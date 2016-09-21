@@ -37,11 +37,11 @@ namespace Jitter.LinearMath
     /// </summary>
     public struct JMatrix
     {
+        // 1st row vector
         /// <summary>
         /// M11
         /// </summary>
         public float M11;
-        // 1st row vector
         /// <summary>
         /// M12
         /// </summary>
@@ -50,11 +50,12 @@ namespace Jitter.LinearMath
         /// M13
         /// </summary>
         public float M13;
+
+        // 2nd row vector
         /// <summary>
         /// M21
         /// </summary>
         public float M21;
-        // 2nd row vector
         /// <summary>
         /// M22
         /// </summary>
@@ -63,11 +64,12 @@ namespace Jitter.LinearMath
         /// M23
         /// </summary>
         public float M23;
+
+        // 3rd row vector
         /// <summary>
         /// M31
         /// </summary>
         public float M31;
-        // 3rd row vector
         /// <summary>
         /// M32
         /// </summary>

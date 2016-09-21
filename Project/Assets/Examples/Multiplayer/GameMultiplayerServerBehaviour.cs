@@ -19,7 +19,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     float _timeSinceLastMove = 0.0f;
     int _maxUpdateTimes = 3;
     JVector _movement;
-    NetworkGameObject playerCube = null;
+    NetworkGameObject _playerCube;
 
     PhysicsWorld _physicsWorld;
     IPhysicsDebugger _physicsDebugger;
@@ -52,7 +52,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var itr = _controller.Scene.GetObjectEnumerator();
             while(itr.MoveNext())
             {
-                if(itr.Current == playerCube)
+                if(itr.Current == _playerCube)
                 {
                     //Using first cube as MovementAction target
                     continue;
@@ -106,14 +106,14 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         if(data.MessageType == GameMsgType.ClickAction)
         {
             var ac = reader.Read<ClickAction>();
-            if(!ClosestIntersectsRay(playerCube, ac.Ray))
+            if(!ClosestIntersectsRay(_playerCube, ac.Ray))
             {
                 NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
                                                     ac.Position, JQuaternion.Identity, JVector.One));
 
-                if(playerCube == null)
+                if(_playerCube == null)
                 {
-                    playerCube = currentCube;
+                    _playerCube = currentCube;
                 }
 
                 AddCollision(currentCube);
@@ -152,7 +152,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         var rigidBody = new PhysicsRigidBody(boxShape, PhysicsRigidBody.ControlType.Kinematic, _physicsWorld, _physicsDebugger);
         rigidBody.DoDebugDraw = true;
 
-        if(go.Id == playerCube.Id)
+        if(go.Id == _playerCube.Id)
         {
             rigidBody.AddCollisionHandler(PlayerCollisionHandler);
         }
