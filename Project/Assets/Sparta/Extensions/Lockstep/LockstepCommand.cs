@@ -49,14 +49,21 @@ namespace SocialPoint.Lockstep
             writer.Write(ClientId);
             writer.Write(Turn);
 
-            // write to memory to get the size
-            var stream = new MemoryStream();
-            var memWriter = new SystemBinaryWriter(stream);
-            factory.Write(memWriter, _command);
-            var cmdData = stream.GetBuffer();
+            if(_command == null)
+            {
+                writer.Write(0);
+            }
+            else
+            {
+                // write to memory to get the size
+                var stream = new MemoryStream();
+                var memWriter = new SystemBinaryWriter(stream);
+                factory.Write(memWriter, _command);
+                var len = (int)stream.Length;
 
-            writer.Write(cmdData.Length);
-            writer.Write(cmdData, cmdData.Length);
+                writer.Write(len);
+                writer.Write(stream.GetBuffer(), len);
+            }
         }            
 
         public void Deserialize(LockstepCommandFactory factory, IReader reader)
@@ -64,8 +71,12 @@ namespace SocialPoint.Lockstep
             _id = reader.ReadInt32();
             ClientId = reader.ReadInt32();
             Turn = reader.ReadInt32();
-            reader.ReadUInt32();
-            _command = factory.Read(reader);
+            var cmdLen = reader.ReadInt32();
+            _command = null;
+            if(cmdLen > 0)
+            {
+                _command = factory.Read(reader);
+            }
         }
 
         public void Discard()
@@ -179,7 +190,10 @@ namespace SocialPoint.Lockstep
             ClientId = reader.ReadInt32();
             Turn = reader.ReadInt32();
             var cmdLen = reader.ReadInt32();
-            _command = reader.ReadBytes(cmdLen);
+            if(cmdLen > 0)
+            {
+                _command = reader.ReadBytes(cmdLen);
+            }
         }
 
     }
