@@ -144,7 +144,7 @@ namespace SocialPoint.Lockstep.Network
                 byte id = 0;
                 for(; id < byte.MaxValue; id++)
                 {
-                    if(FindPlayerClient(id) == 0)
+                    if(FindPlayerClient(id) == 0 && !IsLocalPlayerId(id))
                     {
                         break;
                     }
@@ -256,6 +256,14 @@ namespace SocialPoint.Lockstep.Network
 
         public void Stop()
         {
+            if(_clients != null)
+            {
+                _clients.Clear();
+            }
+            if(_localPlayerIds != null)
+            {
+                _localPlayerIds.Clear();
+            }
             if(_serverLockstep != null)
             {
                 _serverLockstep.Stop();
@@ -278,16 +286,32 @@ namespace SocialPoint.Lockstep.Network
         ClientLockstepController _localClient;
         List<byte> _localPlayerIds = new List<byte>();
 
-        public byte[] LocalPlayerIds
+        public int LocalPlayerCount
         {
             get
             {
                 if(_localPlayerIds == null)
                 {
-                    return null;
+                    return 0;
                 }
-                return _localPlayerIds.ToArray();
+                return _localPlayerIds.Count;
             }
+        }
+
+        public bool GetLocalPlayerId(int position, out byte playerId)
+        {
+            if(_localPlayerIds == null || _localPlayerIds.Count <= position)
+            {
+                playerId = byte.MaxValue;
+                return false;
+            }
+            playerId = _localPlayerIds[position];
+            return true;
+        }
+
+        public bool IsLocalPlayerId(byte playerId)
+        {
+            return _localPlayerIds != null && _localPlayerIds.Contains(playerId);
         }
 
         public void RegisterLocalClient(ClientLockstepController ctrl, LockstepCommandFactory factory)

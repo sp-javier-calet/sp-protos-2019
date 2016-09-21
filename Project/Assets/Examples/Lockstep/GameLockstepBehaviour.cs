@@ -135,6 +135,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         SetupGameScreen();
         _mode = GameLockstepMode.Server;
         StartServer();
+        _netLockstepServer.LocalPlayerReady();
     }
 
     void StartServer()

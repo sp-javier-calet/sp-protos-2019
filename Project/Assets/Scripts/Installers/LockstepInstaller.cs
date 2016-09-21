@@ -14,6 +14,7 @@ public class LockstepInstaller : Installer
         public LockstepConfig Config;
         public int PlayersCount = 1;
         public int StartDelay = 3000;
+        public bool RunServerClient = true;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -94,5 +95,11 @@ public class LockstepInstaller : Installer
     {
         ctrl.Init(
             Container.Resolve<ServerLockstepController>());
+        if(Settings.RunServerClient)
+        {
+            ctrl.RegisterLocalClient(
+                Container.Resolve<ClientLockstepController>(),
+                Container.Resolve<LockstepCommandFactory>());
+        }
     }
 }
