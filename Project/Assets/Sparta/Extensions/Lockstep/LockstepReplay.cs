@@ -12,12 +12,12 @@ namespace SocialPoint.Lockstep
     {
         ClientLockstepController _clientLockstep;
         LockstepCommandFactory _commandFactory;
-        List<LockstepCommandData> _commands;
+        List<ClientLockstepCommandData> _commands;
         LockstepConfig _config;
 
         public LockstepReplay(ClientLockstepController clientLockstep, LockstepCommandFactory commandFactory)
         {
-            _commands = new List<LockstepCommandData>();
+            _commands = new List<ClientLockstepCommandData>();
             _clientLockstep = clientLockstep;
             _commandFactory = commandFactory;
         }
@@ -43,7 +43,7 @@ namespace SocialPoint.Lockstep
             _config = null;
         }
 
-        void OnCommandApplied(LockstepCommandData command)
+        void OnCommandApplied(ClientLockstepCommandData command)
         {
             if(_config == null)
             {
@@ -74,7 +74,7 @@ namespace SocialPoint.Lockstep
             int count = reader.ReadInt32();
             for(int i = 0; i < count; ++i)
             {
-                var cmd = new LockstepCommandData();
+                var cmd = new ClientLockstepCommandData();
                 cmd.Deserialize(_commandFactory, reader);
                 _commands.Add(cmd);
             }

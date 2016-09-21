@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 
@@ -8,45 +9,88 @@ namespace SocialPoint.Lockstep
     {
     }
 
-    public class LockstepCommandData
+    public class ClientLockstepCommandData
     {
-        public ILockstepCommand Command;
+        ILockstepCommand _command;
+        ILockstepCommandLogic _logic;
+        int _id;
 
-        public int Id;
         public int ClientId;
-        public int Turn;
-        public int Retries;
-        public ILockstepCommandLogic Logic;
+        public int Turn{ get; private set; }
+        public int Retries{ get; private set; }
+
+        public ClientLockstepCommandData(int id, ILockstepCommand cmd, int turn, ILockstepCommandLogic logic)
+        {
+            _id = id;
+            _command = cmd;
+            Turn = turn;
+            _logic = logic;
+        }
+
+        public ClientLockstepCommandData()
+        {
+        }            
+
+        public ServerLockstepCommandData ToServer(LockstepCommandFactory factory)
+        {
+            var stream = new MemoryStream();
+            var writer = new SystemBinaryWriter(stream);
+            Serialize(factory, writer);
+            stream.Seek(0, SeekOrigin.Begin);
+            var reader = new SystemBinaryReader(stream);
+            var server = new ServerLockstepCommandData();
+            server.Deserialize(reader);
+            return server;
+        }
 
         public void Serialize(LockstepCommandFactory factory, IWriter writer)
         {
-            writer.Write(Id);
+            writer.Write(_id);
             writer.Write(ClientId);
             writer.Write(Turn);
-            factory.Write(writer, Command);
-        }
+
+            // write to memory to get the size
+            var stream = new MemoryStream();
+            var memWriter = new SystemBinaryWriter(stream);
+            factory.Write(memWriter, _command);
+            var cmdData = stream.GetBuffer();
+
+            writer.Write(cmdData.Length);
+            writer.Write(cmdData, cmdData.Length);
+        }            
 
         public void Deserialize(LockstepCommandFactory factory, IReader reader)
         {
-            Id = reader.ReadInt32();
+            _id = reader.ReadInt32();
             ClientId = reader.ReadInt32();
             Turn = reader.ReadInt32();
-            Command = factory.Read(reader);
+            reader.ReadUInt32();
+            _command = factory.Read(reader);
         }
 
         public void Discard()
         {
-            if(Logic != null)
+            if(_logic != null)
             {
-                Logic.Apply(Command);
+                _logic.Apply(_command);
             }
+        }
+
+        public bool Apply(Type type, ILockstepCommandLogic logic)
+        {
+            if(type.IsAssignableFrom(_command.GetType()))
+            {
+                logic.Apply(_command);
+                return true;
+            }
+            return false;
         }
 
         public void Apply()
         {
-            if(Logic != null)
+            if(_logic != null)
             {
-                Logic.Apply(Command);
+                _logic.Apply(_command);
             }
         }
 
@@ -59,10 +103,10 @@ namespace SocialPoint.Lockstep
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as LockstepCommandData);
+            return Equals(obj as ClientLockstepCommandData);
         }
 
-        public bool Equals(LockstepCommandData obj)
+        public bool Equals(ClientLockstepCommandData obj)
         {
             if((object)obj == null)
             {
@@ -73,20 +117,71 @@ namespace SocialPoint.Lockstep
 
         public override int GetHashCode()
         {
-            var hash = Id.GetHashCode();
+            var hash = _id.GetHashCode();
             hash = CryptographyUtils.HashCombine(hash, ClientId.GetHashCode());
             return hash;
         }
 
-        public static bool operator ==(LockstepCommandData a, LockstepCommandData b)
+        public static bool operator ==(ClientLockstepCommandData a, ClientLockstepCommandData b)
         {
-            return a.Id == b.Id && a.ClientId == b.ClientId;
+            return a._id == b._id && a.ClientId == b.ClientId;
         }
 
-        public static bool operator !=(LockstepCommandData a, LockstepCommandData b)
+        public static bool operator !=(ClientLockstepCommandData a, ClientLockstepCommandData b)
         {
             return !(a == b);
         }
+    }
+
+    public class ServerLockstepCommandData
+    {
+        byte[] _command;
+        int _id;
+
+        public int ClientId;
+        public int Turn{ get; private set; }
+
+        public ServerLockstepCommandData()
+        {
+        }
+
+        public ClientLockstepCommandData ToClient(LockstepCommandFactory factory)
+        {
+            var stream = new MemoryStream();
+            var writer = new SystemBinaryWriter(stream);
+            Serialize(writer);
+            stream.Seek(0, SeekOrigin.Begin);
+            var reader = new SystemBinaryReader(stream);
+            var client = new ClientLockstepCommandData();
+            client.Deserialize(factory, reader);
+            return client;
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(_id);
+            writer.Write(ClientId);
+            writer.Write(Turn);
+            if(_command == null)
+            {
+                writer.Write(0);
+            }
+            else
+            {
+                writer.Write(_command.Length);
+                writer.Write(_command, _command.Length);
+            }
+        }
+
+        public void Deserialize(IReader reader)
+        {
+            _id = reader.ReadInt32();
+            ClientId = reader.ReadInt32();
+            Turn = reader.ReadInt32();
+            var cmdLen = reader.ReadInt32();
+            _command = reader.ReadBytes(cmdLen);
+        }
+
     }
 
     public interface ILockstepCommandLogic<T>
