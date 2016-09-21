@@ -33,7 +33,7 @@ namespace SocialPoint.Lockstep
                 var cmd = Commands[i];
                 if(cmd != null)
                 {
-                    commands[i] = cmd.ToServer(factory);
+                    commands.Add(cmd.ToServer(factory));
                 }
             }
             return new ServerLockstepTurnData(Turn, commands);
@@ -71,7 +71,7 @@ namespace SocialPoint.Lockstep
                 var cmd = Commands[i];
                 if(cmd != null)
                 {
-                    commands[i] = cmd.ToClient(factory);
+                    commands.Add(cmd.ToClient(factory));
                 }
             }
             return new ClientLockstepTurnData(Turn, commands);
