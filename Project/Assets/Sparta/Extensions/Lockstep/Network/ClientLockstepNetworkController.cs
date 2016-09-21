@@ -12,8 +12,6 @@ namespace SocialPoint.Lockstep.Network
         ClientLockstepController _clientLockstep;
         LockstepConfig _lockstepConfig;
         int _sendPlayerReadyPending;
-        byte _unreliableChannel;
-        byte _reliableChannel;
         bool _clientSetupReceived;
         INetworkMessageReceiver _receiver;
         byte[] _playerIds;
@@ -41,12 +39,8 @@ namespace SocialPoint.Lockstep.Network
             return true;
         }
 
-        public ClientLockstepNetworkController(INetworkClient client,
-                                               byte unreliableChannel = 0,
-                                               byte reliableChannel = 1)
+        public ClientLockstepNetworkController(INetworkClient client)
         {
-            _unreliableChannel = unreliableChannel;
-            _reliableChannel = reliableChannel;
             _client = client;
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
@@ -157,7 +151,7 @@ namespace SocialPoint.Lockstep.Network
             {
                 _client.CreateMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                    ChannelId = _reliableChannel
+                    Unreliable = false
                 }).Send();
             }
         }
@@ -167,7 +161,7 @@ namespace SocialPoint.Lockstep.Network
             var confirmTurnReception = new ConfirmTurnsReceptionMessage(turns);
             _client.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.ConfirmTurnsReception,
-                ChannelId = _unreliableChannel
+                Unreliable = true
             }, confirmTurnReception);
         }
 
@@ -176,7 +170,7 @@ namespace SocialPoint.Lockstep.Network
             command.ClientId = _client.ClientId;
             var msg = _client.CreateMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.LockstepCommand,
-                ChannelId = _unreliableChannel
+                Unreliable = true
             });
             command.Serialize(_commandFactory, msg.Writer);
             msg.Send();
