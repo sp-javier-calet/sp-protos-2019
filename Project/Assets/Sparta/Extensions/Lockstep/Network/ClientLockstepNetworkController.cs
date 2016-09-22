@@ -17,6 +17,14 @@ namespace SocialPoint.Lockstep.Network
 
         public int PlayerId{ get; private set; }
 
+        public bool Running
+        {
+            get
+            {
+                return _client.Connected && _clientLockstep.Running;
+            }
+        }
+
         public ClientLockstepNetworkController(INetworkClient client)
         {
             _client = client;

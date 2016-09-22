@@ -78,6 +78,14 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public bool Running
+        {
+            get
+            {
+                return _simulationTime > 0;
+            }
+        }
+
         public float TurnAnticipationAdjustmentFactor { get; set; }
 
         public event Action<int> MissingTurnConfirmation;

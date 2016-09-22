@@ -37,10 +37,12 @@ namespace SocialPoint.Lockstep.Network
 
             public void Clear()
             {
-                PlayerId = 0;
+                PlayerId = BadPlayerId;
                 Ready = false;
             }
         }
+
+        const byte BadPlayerId = byte.MaxValue;
 
         ServerLockstepController _serverLockstep;
         LockstepConfig _lockstepConfig;
@@ -141,11 +143,11 @@ namespace SocialPoint.Lockstep.Network
         byte FindPlayerClient(byte playerId)
         {
             var itr = _clients.GetEnumerator();
-            byte clientId = 0;
+            byte clientId = BadPlayerId;
             while(itr.MoveNext())
             {
                 var client = itr.Current.Value;
-                if(client.PlayerId == playerId)
+                if(client.Ready && client.PlayerId == playerId)
                 {
                     clientId = client.ClientId;
                     break;
@@ -162,10 +164,15 @@ namespace SocialPoint.Lockstep.Network
                 byte id = 0;
                 for(; id < byte.MaxValue; id++)
                 {
-                    if(FindPlayerClient(id) == 0 && id != _localClientData.PlayerId)
+                    if(FindPlayerClient(id) != BadPlayerId)
                     {
-                        break;
+                        continue;
                     }
+                    if(IsLocalPlayerId(id))
+                    {
+                        continue;
+                    }
+                    break;
                 }
                 return id;
             }
@@ -351,10 +358,15 @@ namespace SocialPoint.Lockstep.Network
             {
                 if(_localClientData == null)
                 {
-                    return 0;
+                    return BadPlayerId;
                 }
                 return _localClientData.PlayerId;
             }
+        }
+
+        public bool IsLocalPlayerId(byte id)
+        {
+            return _localClientData != null && _localClientData.Ready && _localClientData.PlayerId == id;
         }
 
         public void RegisterLocalClient(ClientLockstepController ctrl, LockstepCommandFactory factory)
@@ -368,7 +380,7 @@ namespace SocialPoint.Lockstep.Network
         {
             if(_localClientData == null)
             {
-                return 0;
+                return BadPlayerId;
             }
             var playerId = FreePlayerId;
             _localClientData.Ready = true;
