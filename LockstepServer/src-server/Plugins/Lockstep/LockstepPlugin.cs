@@ -5,7 +5,7 @@ using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
 using SocialPoint.IO;
 using System.IO;
-using System;
+using System.Collections;
 
 namespace Photon.Hive.Plugin.Lockstep
 {
@@ -37,6 +37,8 @@ namespace Photon.Hive.Plugin.Lockstep
  
         const byte MaxPlayersKey = 255;
         const byte MasterClientIdKey = 248;
+        const byte IsOpenKey = 253;
+        const int NoRandomMatchFoundCode = 32760;
         const string ServerIdRoomProperty = "server";
 
         public LockstepPlugin()
@@ -75,12 +77,17 @@ namespace Photon.Hive.Plugin.Lockstep
 
         public override void OnCreateGame(ICreateGameCallInfo info)
         {
-            info.Continue();
+            if(!CheckServer(info))
+            {
+                return;
+            }
+            PluginHost.SetProperties(0, new Hashtable {
+                { (int)MaxPlayersKey, (int)_netServer.MaxPlayers },
+                { (int)MasterClientIdKey, 0 },
+                { ServerIdRoomProperty, 0 },
+            }, null, false);
             var clientId = GetClientId(info.UserId);
             OnClientConnected(clientId);
-            PluginHost.GameProperties[(int)MaxPlayersKey] = _netServer.MaxPlayers;
-            PluginHost.GameProperties[(int)MasterClientIdKey] = 0;
-            PluginHost.CustomGameProperties[ServerIdRoomProperty] = 0;
         }
 
         void OnClientConnected(byte clientId)
@@ -89,9 +96,19 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 _delegates[i].OnClientConnected(clientId);
             }
+            UpdateRoomOpen();
         }
 
-        public override void BeforeJoin(IBeforeJoinGameCallInfo info)
+        void UpdateRoomOpen()
+        {
+            if (_netServer != null)
+            {
+                PluginHost.SetProperties(0,
+                    new Hashtable { { (int)IsOpenKey, !_netServer.Full } }, null, false);
+            }
+        }
+
+        bool CheckServer(ICallInfo info)
         {
             if (_netServer.Full)
             {
@@ -104,7 +121,14 @@ namespace Photon.Hive.Plugin.Lockstep
             else
             {
                 info.Continue();
+                return true;
             }
+            return false;
+        }
+
+        public override void BeforeJoin(IBeforeJoinGameCallInfo info)
+        {
+            CheckServer(info);
         }
 
         public override void OnJoin(IJoinGameCallInfo info)
@@ -125,6 +149,7 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 _delegates[i].OnClientDisconnected(clientId);
             }
+            UpdateRoomOpen();
         }
 
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
@@ -181,8 +206,6 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 return false;
             }
-            var playersCount = GetConfigOption(config, PlayersCountKey, 2);
-            var startDelay = GetConfigOption(config, StartDelayKey, 3000);
             var lsConfig = new LockstepConfig
             {
                 CommandStepFactor = GetConfigOption(config, CommandStepFactorKey, LockstepConfig.DefaultCommandStepFactor),
@@ -192,8 +215,13 @@ namespace Photon.Hive.Plugin.Lockstep
                 ExecutionTurnAnticipation = GetConfigOption(config, ExecutionTurnAnticipationKey, LockstepConfig.DefaultExecutionTurnAnticipation),
                 MaxRetries = GetConfigOption(config, MaxRetriesKey, LockstepConfig.DefaultMaxRetries),
             };
+            var srvConfig = new ServerLockstepConfig
+            {
+                MaxPlayers = (byte)GetConfigOption(config, PlayersCountKey, 2),
+                StartDelay = GetConfigOption(config, StartDelayKey, 3000)
+            };
             _netServer = new ServerLockstepNetworkController(
-                this, lsConfig, playersCount, startDelay);
+                this, lsConfig, srvConfig);
             _netServer.Init(
                 new ServerLockstepController(_updateScheduler, lsConfig.CommandStep));
 

@@ -211,6 +211,13 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public byte MaxPlayers
+        {
+            get
+            {
+                return _serverConfig.MaxPlayers;
+            }
+        }
 
         public int ClientCount
         {
@@ -332,8 +339,11 @@ namespace SocialPoint.Lockstep.Network
             {
                 _clients.Clear();
             }
-            _localClientData.Clear();
-            if(_serverLockstep != null)
+            if (_localClientData != null)
+            {
+                _localClientData.Clear();
+            }
+            if (_serverLockstep != null)
             {
                 _serverLockstep.Stop();
             }
