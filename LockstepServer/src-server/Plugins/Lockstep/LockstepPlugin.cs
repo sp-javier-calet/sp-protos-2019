@@ -5,6 +5,7 @@ using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
 using SocialPoint.IO;
 using System.IO;
+using System;
 
 namespace Photon.Hive.Plugin.Lockstep
 {
@@ -33,9 +34,14 @@ namespace Photon.Hive.Plugin.Lockstep
         LockstepCommandFactory _factory;
         object _timer;
         float _updateInterval;
+ 
+        const byte MaxPlayersKey = 255;
+        const byte MasterClientIdKey = 248;
+        const string ServerIdRoomProperty = "server";
 
         public LockstepPlugin()
         {
+            UseStrictMode = true;
             _updateScheduler = new UpdateScheduler();
             _delegates = new List<INetworkServerDelegate>();
             _factory = new LockstepCommandFactory();
@@ -72,6 +78,9 @@ namespace Photon.Hive.Plugin.Lockstep
             info.Continue();
             var clientId = GetClientId(info.UserId);
             OnClientConnected(clientId);
+            PluginHost.GameProperties[(int)MaxPlayersKey] = _netServer.MaxPlayers;
+            PluginHost.GameProperties[(int)MasterClientIdKey] = 0;
+            PluginHost.CustomGameProperties[ServerIdRoomProperty] = 0;
         }
 
         void OnClientConnected(byte clientId)
@@ -84,7 +93,11 @@ namespace Photon.Hive.Plugin.Lockstep
 
         public override void BeforeJoin(IBeforeJoinGameCallInfo info)
         {
-            if(_netServer.Running)
+            if (_netServer.Full)
+            {
+                info.Fail("Game is full.");
+            }
+            else if (_netServer.Running)
             {
                 info.Fail("Game already running.");
             }
