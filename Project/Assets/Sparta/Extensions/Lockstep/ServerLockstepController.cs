@@ -246,7 +246,7 @@ namespace SocialPoint.Lockstep
             while(itr.MoveNext())
             {
                 var data = itr.Current.Value.ToClient(_localFactory);
-                _localClient.ConfirmTurn(data.Turn, data.Commands);
+                _localClient.ConfirmTurn(data);
             }
         }
 

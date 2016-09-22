@@ -40,8 +40,6 @@ namespace SocialPoint.Lockstep.Network
             {
                 _clientLockstep.Init(_lockstepConfig);
             }
-
-            _clientLockstep.TurnsConfirmed += OnTurnsConfirmed;
             _clientLockstep.PendingCommandAdded += OnPendingCommandAdded;
         }
 
@@ -72,8 +70,8 @@ namespace SocialPoint.Lockstep.Network
         {
             switch(data.MessageType)
             {
-            case LockstepMsgType.ConfirmTurns:
-                OnConfirmTurnsReceived(reader);
+            case LockstepMsgType.ConfirmTurn:
+                OnConfirmTurnReceived(reader);
                 break;
             case LockstepMsgType.ClientSetup:
                 OnClientSetupReceived(reader);
@@ -90,11 +88,15 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnConfirmTurnsReceived(IReader reader)
+        void OnConfirmTurnReceived(IReader reader)
         {
-            var turnsAction = new ClientConfirmTurnsMessage(_commandFactory);
-            turnsAction.Deserialize(reader);
-            _clientLockstep.ConfirmTurns(turnsAction.ConfirmedTurns);
+            var turn = new ClientLockstepTurnData();
+            turn.Deserialize(_commandFactory, reader);
+            _clientLockstep.ConfirmTurn(turn);
+            _client.SendMessage(new NetworkMessageData {
+                MessageType = LockstepMsgType.ConfirmTurnReception,
+                Unreliable = true
+            }, new ConfirmTurnReceptionMessage(turn.Turn));
         }
 
         void OnClientSetupReceived(IReader reader)
@@ -146,15 +148,6 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnTurnsConfirmed(int[] turns)
-        {
-            var confirmTurnReception = new ConfirmTurnsReceptionMessage(turns);
-            _client.SendMessage(new NetworkMessageData {
-                MessageType = LockstepMsgType.ConfirmTurnsReception,
-                Unreliable = true
-            }, confirmTurnReception);
-        }
-
         void OnPendingCommandAdded(ClientLockstepCommandData command)
         {
             command.ClientId = _client.ClientId;
@@ -172,7 +165,6 @@ namespace SocialPoint.Lockstep.Network
             _client.RemoveDelegate(this);
             if(_clientLockstep != null)
             {
-                _clientLockstep.TurnsConfirmed -= OnTurnsConfirmed;
                 _clientLockstep.PendingCommandAdded -= OnPendingCommandAdded;
             }
         }

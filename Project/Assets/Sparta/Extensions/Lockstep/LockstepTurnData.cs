@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
@@ -8,7 +9,7 @@ namespace SocialPoint.Lockstep
 
         public List<ClientLockstepCommandData> Commands { get; set; }
 
-        public ClientLockstepTurnData(int turn)
+        public ClientLockstepTurnData(int turn=0)
         {
             Turn = turn;
             Commands = new List<ClientLockstepCommandData>();
@@ -23,6 +24,30 @@ namespace SocialPoint.Lockstep
         public override string ToString()
         {
             return string.Format("[ClientLockstepTurnData: Turn={0}, CommandsCount={1}]", Turn, Commands.Count);
+        }
+
+        public void Deserialize(LockstepCommandFactory factory, IReader reader)
+        {
+            Turn = reader.ReadInt32();
+            int commandCount = (int)reader.ReadByte();
+            Commands = new List<ClientLockstepCommandData>();
+            for(int j = 0; j < commandCount; ++j)
+            {
+                var command = new ClientLockstepCommandData();
+                command.Deserialize(factory, reader);
+                Commands.Add(command);
+            }
+        }
+
+        public void Serialize(LockstepCommandFactory factory, IWriter writer)
+        {
+            writer.Write(Turn);
+            writer.Write((byte)Commands.Count);
+            for(int i = 0; i < Commands.Count; ++i)
+            {
+                var command = Commands[i];
+                command.Serialize(factory, writer);
+            }
         }
 
         public ServerLockstepTurnData ToServer(LockstepCommandFactory factory)
@@ -40,7 +65,7 @@ namespace SocialPoint.Lockstep
         }
     }
 
-    public sealed class ServerLockstepTurnData
+    public sealed class ServerLockstepTurnData : INetworkShareable
     {
         public int Turn { get; private set; }
 
@@ -61,6 +86,31 @@ namespace SocialPoint.Lockstep
         public override string ToString()
         {
             return string.Format("[ServerLockstepTurnData: Turn={0}, CommandsCount={1}]", Turn, Commands.Count);
+        }
+
+        public void Deserialize(IReader reader)
+        {
+            Turn = reader.ReadInt32();
+            int commandCount = (int)reader.ReadByte();
+            Commands = new List<ServerLockstepCommandData>();
+            for(int j = 0; j < commandCount; ++j)
+            {
+                var command = new ServerLockstepCommandData();
+                command.Deserialize(reader);
+                Commands.Add(command);
+            }
+
+            throw new System.NotImplementedException();
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write((byte)Commands.Count);
+            for(int i = 0; i < Commands.Count; ++i)
+            {
+                var command = Commands[i];
+                command.Serialize(writer);
+            }
         }
 
         public ClientLockstepTurnData ToClient(LockstepCommandFactory factory)

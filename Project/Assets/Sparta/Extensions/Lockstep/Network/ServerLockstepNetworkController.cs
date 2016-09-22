@@ -10,8 +10,8 @@ namespace SocialPoint.Lockstep.Network
     public static class LockstepMsgType
     {
         public const byte LockstepCommand = 2;
-        public const byte ConfirmTurns = 3;
-        public const byte ConfirmTurnsReception = 4;
+        public const byte ConfirmTurn = 3;
+        public const byte ConfirmTurnReception = 4;
         public const byte ClientSetup = 5;
         public const byte PlayerReady = 6;
         public const byte AllPlayersReady = 7;
@@ -87,14 +87,14 @@ namespace SocialPoint.Lockstep.Network
 
         void SendClientTurnData(byte clientId, ServerLockstepTurnData[] turnData)
         {
-            var action = new ServerConfirmTurnsMessage();
-            action.ConfirmedTurns = turnData;
-
-            _server.SendMessage(new NetworkMessageData {
-                MessageType = LockstepMsgType.ConfirmTurns,
-                Unreliable = true,
-                ClientId = clientId
-            }, action);
+            for(var i = 0; i < turnData.Length; i++)
+            {
+                _server.SendMessage(new NetworkMessageData {
+                    MessageType = LockstepMsgType.ConfirmTurn,
+                    Unreliable = true,
+                    ClientId = clientId
+                }, turnData[i]);
+            }
         }
 
         public void OnMessageReceived(NetworkMessageData data, IReader reader)
@@ -106,8 +106,8 @@ namespace SocialPoint.Lockstep.Network
             }
             switch(data.MessageType)
             {
-            case LockstepMsgType.ConfirmTurnsReception:
-                OnConfirmTurnsReceptionReceived(clientData, reader);
+            case LockstepMsgType.ConfirmTurnReception:
+                OnConfirmTurnReceptionReceived(clientData, reader);
                 break;
             case LockstepMsgType.LockstepCommand:
                 OnLockstepCommandReceived(clientData, reader);
@@ -124,14 +124,11 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnConfirmTurnsReceptionReceived(ClientData clientData, IReader reader)
+        void OnConfirmTurnReceptionReceived(ClientData clientData, IReader reader)
         {
-            var msg = new ConfirmTurnsReceptionMessage();
+            var msg = new ConfirmTurnReceptionMessage();
             msg.Deserialize(reader);
-            for(int i = 0; i < msg.ConfirmedTurns.Length; ++i)
-            {
-                _serverLockstep.OnClientTurnReceptionConfirmed(clientData.ClientId, msg.ConfirmedTurns[i]);
-            }
+            _serverLockstep.OnClientTurnReceptionConfirmed(clientData.ClientId, msg.Turn);
         }
 
         void OnLockstepCommandReceived(ClientData clientData, IReader reader)

@@ -146,7 +146,7 @@ namespace SocialPoint.Lockstep
         }
     }
 
-    public class ServerLockstepCommandData
+    public class ServerLockstepCommandData : INetworkShareable
     {
         byte[] _command;
         int _id;

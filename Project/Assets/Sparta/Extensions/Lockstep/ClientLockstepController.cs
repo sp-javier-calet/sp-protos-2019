@@ -90,7 +90,6 @@ namespace SocialPoint.Lockstep
 
         public event Action<int> MissingTurnConfirmation;
         public event Action<int> MissingTurnConfirmationReceived;
-        public event Action<int[]> TurnsConfirmed;
         public event Action<ClientLockstepCommandData> PendingCommandAdded;
         public event Action<long> SimulationStartScheduled;
         public event Action SimulationStarted;
@@ -279,33 +278,16 @@ namespace SocialPoint.Lockstep
         {
             return _confirmedCommands.ContainsKey(turn);
         }
-
-        public void ConfirmTurn(int turn, List<ClientLockstepCommandData> commands)
+            
+        public void ConfirmTurn(ClientLockstepTurnData confirmation)
         {
-            DoConfirmTurn(turn, commands);
-            if(TurnsConfirmed != null)
+            if(!_confirmedCommands.ContainsKey(confirmation.Turn))
             {
-                TurnsConfirmed(new int[1]{ turn });
+                _confirmedCommands[confirmation.Turn] = new List<ClientLockstepCommandData>();
             }
-        }
-
-        public void DoConfirmTurn(int turn, List<ClientLockstepCommandData> commands)
-        {
-            _confirmedCommands[turn] = commands;
-        }
-
-        public void ConfirmTurns(ClientLockstepTurnData[] confirmations)
-        {
-            int[] confirmedTurns = new int[confirmations.Length];
-            for(int i = 0; i < confirmations.Length; ++i)
+            for(var i = 0; i < confirmation.Commands.Count; i++)
             {
-                var confirmation = confirmations[i];
-                DoConfirmTurn(confirmation.Turn, confirmation.Commands);
-                confirmedTurns[i] = confirmation.Turn;
-            }
-            if(TurnsConfirmed != null)
-            {
-                TurnsConfirmed(confirmedTurns);
+                AddConfirmedCommand(confirmation.Commands[i]);
             }
         }
 
