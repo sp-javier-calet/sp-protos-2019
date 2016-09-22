@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using Jitter.LinearMath;
-
-namespace SocialPoint.Multiplayer
+﻿namespace SocialPoint.Multiplayer
 {
     public static class UnityModelExtensions
     {

@@ -79,7 +79,7 @@ namespace Jitter.LinearMath
         #region public override string ToString()
         public override string ToString()
         {
-            return "X=" + X.ToString() + " Y=" + Y.ToString() + " Z=" + Z.ToString() + " W=" + W.ToString();
+            return string.Format("X={0} Y={1} Z={2} W={3}", X.ToString(), Y.ToString(), Z.ToString(), W.ToString());
         }
 
         #endregion

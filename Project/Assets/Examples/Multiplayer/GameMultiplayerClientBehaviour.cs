@@ -5,6 +5,7 @@ using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
+using Jitter.LinearMath;
 
 public static class GameMsgType
 {
@@ -46,8 +47,8 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     void KeyInputHandler()
     {
         float delta = 0.1f;
-        var movement = new Jitter.LinearMath.JVector(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * delta;
-        bool input = (movement != Jitter.LinearMath.JVector.Zero);
+        var movement = new JVector(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * delta;
+        bool input = (movement != JVector.Zero);
 
         if(input && _client.Connected)
         {

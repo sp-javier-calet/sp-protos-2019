@@ -13,7 +13,7 @@ namespace SocialPoint.Multiplayer
         /// <summary>
         /// The origin point of the ray.
         /// </summary>
-        public JVector origin
+        public JVector Origin
         {
             get;
             set;
@@ -22,7 +22,7 @@ namespace SocialPoint.Multiplayer
         /// <summary>
         /// Direction is always a normalized vector. If you assign a vector of non unit length, it will be normalized.
         /// </summary>
-        public JVector direction
+        public JVector Direction
         {
             get
             {
@@ -37,10 +37,10 @@ namespace SocialPoint.Multiplayer
 
         public Ray(JVector pOrigin, JVector pDirection)
         {
-            origin = pOrigin;
+            Origin = pOrigin;
 
             _direction = pDirection;
-            direction = pDirection;
+            Direction = pDirection;
         }
 
         public override bool Equals(System.Object obj)
@@ -55,14 +55,14 @@ namespace SocialPoint.Multiplayer
 
         public override int GetHashCode()
         {
-            var hash = origin.GetHashCode();
-            hash = CryptographyUtils.HashCombine(hash, direction.GetHashCode());
+            var hash = Origin.GetHashCode();
+            hash = CryptographyUtils.HashCombine(hash, Direction.GetHashCode());
             return hash;
         }
 
         public static bool operator ==(Ray a, Ray b)
         {
-            return a.origin == b.origin && a.direction == b.direction;
+            return a.Origin == b.Origin && a.Direction == b.Direction;
         }
 
         public static bool operator !=(Ray a, Ray b)
@@ -77,15 +77,15 @@ namespace SocialPoint.Multiplayer
 
         public void Compare(Ray newObj, Ray oldObj, Bitset dirty)
         {
-            dirty.Set(newObj.origin != oldObj.origin);
-            dirty.Set(newObj.direction != oldObj.direction);
+            dirty.Set(newObj.Origin != oldObj.Origin);
+            dirty.Set(newObj.Direction != oldObj.Direction);
         }
 
         public void Serialize(Ray newObj, IWriter writer)
         {
             var vs = Vector3Serializer.Instance;
-            vs.Serialize(newObj.origin, writer);
-            vs.Serialize(newObj.direction, writer);
+            vs.Serialize(newObj.Origin, writer);
+            vs.Serialize(newObj.Direction, writer);
         }
 
         public void Serialize(Ray newObj, Ray oldObj, IWriter writer, Bitset dirty)
@@ -93,11 +93,11 @@ namespace SocialPoint.Multiplayer
             var vs = Vector3Serializer.Instance;
             if(Bitset.NullOrGet(dirty))
             {
-                vs.Serialize(newObj.origin, oldObj.origin, writer);
+                vs.Serialize(newObj.Origin, oldObj.Origin, writer);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                vs.Serialize(newObj.direction, oldObj.direction, writer);
+                vs.Serialize(newObj.Direction, oldObj.Direction, writer);
             }
         }
     }
@@ -111,8 +111,8 @@ namespace SocialPoint.Multiplayer
         {
             var vp = Vector3Parser.Instance;
             var obj = new Ray();
-            obj.origin = vp.Parse(reader);
-            obj.direction = vp.Parse(reader);
+            obj.Origin = vp.Parse(reader);
+            obj.Direction = vp.Parse(reader);
             return obj;
         }
 
@@ -126,11 +126,11 @@ namespace SocialPoint.Multiplayer
             var vp = Vector3Parser.Instance;
             if(Bitset.NullOrGet(dirty))
             {
-                obj.origin = vp.Parse(obj.origin, reader);
+                obj.Origin = vp.Parse(obj.Origin, reader);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                obj.direction = vp.Parse(obj.direction, reader);
+                obj.Direction = vp.Parse(obj.Direction, reader);
             }
             return obj;
         }

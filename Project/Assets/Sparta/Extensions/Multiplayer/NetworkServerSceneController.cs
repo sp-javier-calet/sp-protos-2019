@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using SocialPoint.Network;
-using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {

@@ -24,7 +24,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     PhysicsWorld _physicsWorld;
     IPhysicsDebugger _physicsDebugger;
 
-    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
+    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger)
     {
         _server = server;
         _controller = ctrl;
@@ -33,7 +33,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _updateTimes = new Dictionary<int,int>();
         _movement = new JVector(2.0f, 0.0f, 2.0f);
 
-        _physicsDebugger = new UnityPhysicsDebugger();
+        _physicsDebugger = physicsDebugger;
         AddPhysicsWorld();
     }
 

@@ -51,8 +51,8 @@ namespace SocialPoint.Multiplayer
 
         static void RaycastPointsFromRay(ref Ray ray, float maxDistance, out JVector startPoint, out JVector endPoint)
         {
-            startPoint = ray.origin;
-            endPoint = startPoint + (ray.direction * maxDistance);
+            startPoint = ray.Origin;
+            endPoint = startPoint + (ray.Direction * maxDistance);
         }
     }
 }
