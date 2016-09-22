@@ -6,9 +6,9 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class MatrixSerializer : IWriteSerializer<JMatrix>
+    public class JMatrixSerializer : IWriteSerializer<JMatrix>
     {
-        public static readonly MatrixSerializer Instance = new MatrixSerializer();
+        public static readonly JMatrixSerializer Instance = new JMatrixSerializer();
 
         public void Compare(JMatrix newObj, JMatrix oldObj, Bitset dirty)
         {
@@ -19,7 +19,7 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(JMatrix newObj, IWriter writer)
         {
-            var vs = Vector3Serializer.Instance;
+            var vs = JVectorSerializer.Instance;
             vs.Serialize(newObj.Row1, writer);
             vs.Serialize(newObj.Row2, writer);
             vs.Serialize(newObj.Row3, writer);
@@ -27,7 +27,7 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(JMatrix newObj, JMatrix oldObj, IWriter writer, Bitset dirty)
         {
-            var vs = Vector3Serializer.Instance;
+            var vs = JVectorSerializer.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj.Row1, oldObj.Row1, writer);
@@ -43,13 +43,13 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class MatrixParser : IReadParser<JMatrix>
+    public class JMatrixParser : IReadParser<JMatrix>
     {
-        public static readonly MatrixParser Instance = new MatrixParser();
+        public static readonly JMatrixParser Instance = new JMatrixParser();
 
         public JMatrix Parse(IReader reader)
         {
-            var vp = Vector3Parser.Instance;
+            var vp = JVectorParser.Instance;
             var obj = new JMatrix();
             obj.Row1 = vp.Parse(reader);
             obj.Row2 = vp.Parse(reader);
@@ -64,7 +64,7 @@ namespace SocialPoint.Multiplayer
 
         public JMatrix Parse(JMatrix obj, IReader reader, Bitset dirty)
         {
-            var vp = Vector3Parser.Instance;
+            var vp = JVectorParser.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 obj.Row1 = vp.Parse(obj.Row1, reader);

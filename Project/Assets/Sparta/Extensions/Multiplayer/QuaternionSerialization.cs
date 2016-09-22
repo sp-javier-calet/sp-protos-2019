@@ -6,9 +6,9 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class QuaternionSerializer : IWriteSerializer<JQuaternion>
+    public class JQuaternionSerializer : IWriteSerializer<JQuaternion>
     {
-        public static readonly QuaternionSerializer Instance = new QuaternionSerializer();
+        public static readonly JQuaternionSerializer Instance = new JQuaternionSerializer();
 
         public void Compare(JQuaternion newObj, JQuaternion oldObj, Bitset dirty)
         {
@@ -47,9 +47,9 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class QuaternionParser : IReadParser<JQuaternion>
+    public class JQuaternionParser : IReadParser<JQuaternion>
     {
-        public static readonly QuaternionParser Instance = new QuaternionParser();
+        public static readonly JQuaternionParser Instance = new JQuaternionParser();
 
         public JQuaternion Parse(IReader reader)
         {

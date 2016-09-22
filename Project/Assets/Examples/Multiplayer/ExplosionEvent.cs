@@ -9,11 +9,11 @@ public class ExplosionEvent : INetworkShareable
 
     public void Deserialize(IReader reader)
     {
-        Position = Vector3Parser.Instance.Parse(reader);
+        Position = JVectorParser.Instance.Parse(reader);
     }
 
     public void Serialize(IWriter writer)
     {
-        Vector3Serializer.Instance.Serialize(Position, writer);
+        JVectorSerializer.Instance.Serialize(Position, writer);
     }
 }

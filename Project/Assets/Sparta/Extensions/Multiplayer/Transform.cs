@@ -127,24 +127,24 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(Transform newObj, IWriter writer)
         {
-            Vector3Serializer.Instance.Serialize(newObj.Position, writer);
-            QuaternionSerializer.Instance.Serialize(newObj.Rotation, writer);
-            Vector3Serializer.Instance.Serialize(newObj.Scale, writer);
+            JVectorSerializer.Instance.Serialize(newObj.Position, writer);
+            JQuaternionSerializer.Instance.Serialize(newObj.Rotation, writer);
+            JVectorSerializer.Instance.Serialize(newObj.Scale, writer);
         }
 
         public void Serialize(Transform newObj, Transform oldObj, IWriter writer, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
-                Vector3Serializer.Instance.Serialize(newObj.Position, oldObj.Position, writer);
+                JVectorSerializer.Instance.Serialize(newObj.Position, oldObj.Position, writer);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                QuaternionSerializer.Instance.Serialize(newObj.Rotation, oldObj.Rotation, writer);
+                JQuaternionSerializer.Instance.Serialize(newObj.Rotation, oldObj.Rotation, writer);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                Vector3Serializer.Instance.Serialize(newObj.Scale, oldObj.Scale, writer);
+                JVectorSerializer.Instance.Serialize(newObj.Scale, oldObj.Scale, writer);
             }
         }
     }
@@ -156,9 +156,9 @@ namespace SocialPoint.Multiplayer
         public Transform Parse(IReader reader)
         {
             var obj = new Transform();
-            obj.Position = Vector3Parser.Instance.Parse(reader);
-            obj.Rotation = QuaternionParser.Instance.Parse(reader);
-            obj.Scale = Vector3Parser.Instance.Parse(reader);
+            obj.Position = JVectorParser.Instance.Parse(reader);
+            obj.Rotation = JQuaternionParser.Instance.Parse(reader);
+            obj.Scale = JVectorParser.Instance.Parse(reader);
             return obj;
         }
 
@@ -171,15 +171,15 @@ namespace SocialPoint.Multiplayer
         {
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Position = Vector3Parser.Instance.Parse(obj.Position, reader);
+                obj.Position = JVectorParser.Instance.Parse(obj.Position, reader);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Rotation = QuaternionParser.Instance.Parse(obj.Rotation, reader);
+                obj.Rotation = JQuaternionParser.Instance.Parse(obj.Rotation, reader);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Scale = Vector3Parser.Instance.Parse(obj.Scale, reader);
+                obj.Scale = JVectorParser.Instance.Parse(obj.Scale, reader);
             }
             return obj;
         }

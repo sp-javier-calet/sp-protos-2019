@@ -38,8 +38,8 @@ namespace SocialPoint.Multiplayer
         {
             GenericInitial(
                 new JVector(1.0f, 2.3f, 4.2f),
-                new Vector3Serializer(),
-                new Vector3Parser());
+                new JVectorSerializer(),
+                new JVectorParser());
         }
 
         [Test]
@@ -48,8 +48,8 @@ namespace SocialPoint.Multiplayer
             GenericDiff(
                 new JVector(1.0f, 2.3f, 4.2f),
                 new JVector(1.0f, 3.3f, 4.2f),
-                new Vector3Serializer(),
-                new Vector3Parser());
+                new JVectorSerializer(),
+                new JVectorParser());
         }
 
         [Test]
@@ -57,8 +57,8 @@ namespace SocialPoint.Multiplayer
         {
             GenericInitial(
                 new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                new QuaternionSerializer(),
-                new QuaternionParser());
+                new JQuaternionSerializer(),
+                new JQuaternionParser());
         }
 
         [Test]
@@ -67,8 +67,8 @@ namespace SocialPoint.Multiplayer
             GenericDiff(
                 new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
                 new JQuaternion(1.0f, 3.3f, 4.2f, 6.0f),
-                new QuaternionSerializer(),
-                new QuaternionParser());
+                new JQuaternionSerializer(),
+                new JQuaternionParser());
         }
 
         [Test]
@@ -79,8 +79,8 @@ namespace SocialPoint.Multiplayer
                     1.0f, 2.3f, 4.2f,
                     3.0f, 2.3f, 7.2f,
                     4.0f, 4.5f, 4.5f),
-                new MatrixSerializer(),
-                new MatrixParser());
+                new JMatrixSerializer(),
+                new JMatrixParser());
         }
 
         [Test]
@@ -95,8 +95,8 @@ namespace SocialPoint.Multiplayer
                     1.0f, 2.3f, 4.2f,
                     3.0f, 2.3f, 7.2f,
                     4.0f, 5.5f, 4.5f),
-                new MatrixSerializer(),
-                new MatrixParser());
+                new JMatrixSerializer(),
+                new JMatrixParser());
         }
 
         [Test]

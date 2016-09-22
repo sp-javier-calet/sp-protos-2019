@@ -83,14 +83,14 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(Ray newObj, IWriter writer)
         {
-            var vs = Vector3Serializer.Instance;
+            var vs = JVectorSerializer.Instance;
             vs.Serialize(newObj.Origin, writer);
             vs.Serialize(newObj.Direction, writer);
         }
 
         public void Serialize(Ray newObj, Ray oldObj, IWriter writer, Bitset dirty)
         {
-            var vs = Vector3Serializer.Instance;
+            var vs = JVectorSerializer.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj.Origin, oldObj.Origin, writer);
@@ -109,7 +109,7 @@ namespace SocialPoint.Multiplayer
 
         public Ray Parse(IReader reader)
         {
-            var vp = Vector3Parser.Instance;
+            var vp = JVectorParser.Instance;
             var obj = new Ray();
             obj.Origin = vp.Parse(reader);
             obj.Direction = vp.Parse(reader);
@@ -123,7 +123,7 @@ namespace SocialPoint.Multiplayer
 
         public Ray Parse(Ray obj, IReader reader, Bitset dirty)
         {
-            var vp = Vector3Parser.Instance;
+            var vp = JVectorParser.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 obj.Origin = vp.Parse(obj.Origin, reader);
