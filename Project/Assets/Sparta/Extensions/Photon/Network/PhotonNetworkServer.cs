@@ -36,7 +36,7 @@ namespace SocialPoint.Network
 
         public int GetTimestamp()
         {
-            return (int)PhotonNetwork.time;
+            return PhotonNetwork.ServerTimestamp;
         }
 
         public bool Running
