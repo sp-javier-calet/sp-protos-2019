@@ -9,6 +9,12 @@ using System.Collections;
 
 namespace Photon.Hive.Plugin.Lockstep
 {
+    /**
+     * more info:
+     * https://doc.photonengine.com/en/onpremise/current/plugins/manual
+     * https://doc.photonengine.com/en/onpremise/current/plugins/plugins-faq
+     * https://doc.photonengine.com/en/onpremise/current/plugins/plugins-upload-guide
+     */
     public class LockstepPlugin : PluginBase, INetworkServer
     {
         public override string Name
@@ -77,7 +83,7 @@ namespace Photon.Hive.Plugin.Lockstep
 
         public override void OnCreateGame(ICreateGameCallInfo info)
         {
-            if(!CheckServer(info))
+            if (!CheckServer(info))
             {
                 return;
             }
@@ -174,7 +180,14 @@ namespace Photon.Hive.Plugin.Lockstep
 
         public override void OnSetProperties(ISetPropertiesCallInfo info)
         {
-            info.Continue();
+            if (info.Request.Properties.ContainsKey(ServerIdRoomProperty))
+            {
+                info.Fail("This room already has a server.");
+            }
+            else
+            {
+                info.Continue();
+            }
         }
 
         const string PlayersCountKey = "PlayersCount";
