@@ -17,6 +17,16 @@ namespace SocialPoint.Lockstep.Network
         public const byte AllPlayersReady = 7;
     }
 
+    [Serializable]
+    public sealed class ServerLockstepConfig
+    {
+        public const byte DefaultMaxPlayers = 2;
+        public const int DefaultStartDelay = 3000;
+
+        public byte MaxPlayers = DefaultMaxPlayers;
+        public int StartDelay = DefaultStartDelay;
+    }
+
     public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate
     {
         class ClientData
@@ -32,28 +42,29 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        int _playersCount;
         ServerLockstepController _serverLockstep;
-        int _startLockstepDelay;
         LockstepConfig _lockstepConfig;
+        ServerLockstepConfig _serverConfig;
         INetworkServer _server;
         Dictionary<byte, ClientData> _clients;
         INetworkMessageReceiver _receiver;
 
         public ServerLockstepNetworkController(INetworkServer server,
                                                LockstepConfig lockstepConfig = null,
-                                               int playersCount = 2,
-                                               int startLockstepDelay = 5000)
+                                               ServerLockstepConfig serverConfig = null)
         {
             if(lockstepConfig == null)
             {
                 lockstepConfig = new LockstepConfig();
             }
+            if(serverConfig == null)
+            {
+                serverConfig = new ServerLockstepConfig();
+            }
             _clients = new Dictionary<byte, ClientData>();
             _server = server;
-            _playersCount = playersCount;
+            _serverConfig = serverConfig;
             _lockstepConfig = lockstepConfig;
-            _startLockstepDelay = startLockstepDelay;
         }
 
         public void Init(ServerLockstepController serverLockstep)
@@ -212,6 +223,14 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public bool Full
+        {
+            get
+            {
+                return PlayerCount >= _serverConfig.MaxPlayers;
+            }
+        }
+
         byte OnPlayerReadyReceived(ClientData clientData)
         {
             var playerId = FreePlayerId;
@@ -223,7 +242,7 @@ namespace SocialPoint.Lockstep.Network
 
         void CheckAllPlayersReady()
         {
-            if(ReadyPlayerCount == _playersCount)
+            if(ReadyPlayerCount == _serverConfig.MaxPlayers)
             {
                 StartLockstep();
             }
@@ -237,7 +256,7 @@ namespace SocialPoint.Lockstep.Network
                 var client = itr.Current.Value;
                 var msg = new AllPlayersReadyMessage(
                               _server.GetTimestamp(),
-                              _startLockstepDelay,
+                              _serverConfig.StartDelay,
                               client.PlayerId);
                 _server.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.AllPlayersReady,
@@ -250,7 +269,7 @@ namespace SocialPoint.Lockstep.Network
             {
                 var ts = TimeUtils.TimestampMilliseconds;
                 _serverLockstep.Start(
-                    ts + _startLockstepDelay - _serverLockstep.CommandStep,
+                    ts + _serverConfig.StartDelay - _serverLockstep.CommandStep,
                     new List<byte>(_clients.Keys).ToArray());
             }
 
@@ -362,7 +381,7 @@ namespace SocialPoint.Lockstep.Network
         {
             if(_localClient != null)
             {
-                _localClient.Start(TimeUtils.TimestampMilliseconds + _startLockstepDelay);
+                _localClient.Start(TimeUtils.TimestampMilliseconds + _serverConfig.StartDelay);
             }
         }
 

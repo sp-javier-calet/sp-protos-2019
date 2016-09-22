@@ -107,7 +107,7 @@ namespace SocialPoint.Lockstep.Network
             var msg = new AllPlayersReadyMessage();
             msg.Deserialize(reader);
             var delay = _client.GetDelay(msg.ServerTimestamp);
-            int remaining = msg.RemainingMillisecondsToStart - delay;
+            int remaining = msg.StartDelay - delay;
             if(remaining < 0)
             {
                 throw new InvalidOperationException("Should have already started lockstep.");
