@@ -1,4 +1,5 @@
-﻿using SocialPoint.Utils;
+﻿using SocialPoint.Base;
+using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
@@ -120,7 +121,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             }
             else
             {
-                _physicsDebugger.Log("Raycast over player!");
+                Log.i("Raycast over player!");
             }
 
         }
@@ -184,6 +185,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void PlayerCollisionHandler(RigidBody body1, RigidBody body2, 
                                 JVector point1, JVector point2, JVector normal, float penetration)
     {
-        _physicsDebugger.Log("Player Collision Detected!");
+        Log.i("Player Collision Detected!");
     }
 }
