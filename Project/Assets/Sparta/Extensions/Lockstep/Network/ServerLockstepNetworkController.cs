@@ -170,6 +170,14 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public bool Running
+        {
+            get
+            {
+                return _server.Running && _serverLockstep.Running;
+            }
+        }
+
         byte OnPlayerReadyReceived(LockstepClientData clientData)
         {
             var playerId = FreePlayerId;

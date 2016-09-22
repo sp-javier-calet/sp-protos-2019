@@ -82,10 +82,22 @@ namespace Photon.Hive.Plugin.Lockstep
             }
         }
 
+        public override void BeforeJoin(IBeforeJoinGameCallInfo info)
+        {
+            if(_netServer.Running)
+            {
+                info.Fail("Game already running.");
+            }
+            else
+            {
+                info.Continue();
+            }
+        }
+
         public override void OnJoin(IJoinGameCallInfo info)
         {
-            OnClientConnected(GetClientId(info.ActorNr));
             info.Continue();
+            OnClientConnected(GetClientId(info.ActorNr));
         }
 
         public override void OnLeave(ILeaveGameCallInfo info)
@@ -104,6 +116,7 @@ namespace Photon.Hive.Plugin.Lockstep
 
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
         {
+            info.Continue();
             if (_receiver != null)
             {
                 var data = info.Request.Data as byte[];
@@ -119,7 +132,6 @@ namespace Photon.Hive.Plugin.Lockstep
                     _receiver.OnMessageReceived(netData, reader);
                 }
             }
-            info.Continue();
         }
 
         public override void OnSetProperties(ISetPropertiesCallInfo info)

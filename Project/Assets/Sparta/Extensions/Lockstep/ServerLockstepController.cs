@@ -23,6 +23,14 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public bool Running
+        {
+            get
+            {
+                return _isRunning;
+            }
+        }
+
         public ServerLockstepController(IUpdateScheduler updateScheduler, long commandStep = 300)
         {
             CommandStep = commandStep;
