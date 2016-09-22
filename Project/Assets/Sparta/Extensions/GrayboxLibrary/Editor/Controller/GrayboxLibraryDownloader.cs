@@ -8,32 +8,32 @@ namespace SocialPoint.GrayboxLibrary
     public class GrayboxLibraryDownloader
     {
 
-        private static GrayboxLibraryDownloader instance;
-        private static Dictionary<string, Texture2D> downloadCache;
+        private static GrayboxLibraryDownloader _instance;
+        private static Dictionary<string, Texture2D> _downloadCache;
 
 
         private GrayboxLibraryDownloader()
         {
-            downloadCache = new Dictionary<string, Texture2D>();
+            _downloadCache = new Dictionary<string, Texture2D>();
         }
 
         public static GrayboxLibraryDownloader GetInstance()
         {
-            if (instance == null)
-                instance = new GrayboxLibraryDownloader();
+            if(_instance == null)
+                _instance = new GrayboxLibraryDownloader();
 
-            return instance;
+            return _instance;
         }
 
 
         public Texture2D DownloadImage(string path)
         {
-            if (downloadCache.ContainsKey(path))
-                return downloadCache[path];
+            if(_downloadCache.ContainsKey(path))
+                return _downloadCache[path];
 
             Texture2D loadedTexture = new Texture2D(0, 0);
             loadedTexture.LoadImage(File.ReadAllBytes(path));
-            downloadCache.Add(path, loadedTexture);
+            _downloadCache.Add(path, loadedTexture);
 
             return loadedTexture;
         }

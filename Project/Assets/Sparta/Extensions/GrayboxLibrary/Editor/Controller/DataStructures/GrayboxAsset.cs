@@ -4,36 +4,36 @@ namespace SocialPoint.GrayboxLibrary
 {
     public class GrayboxAsset
     {
-        public int id;
-        public string name, packagePath, thumbnailPath, animatedThumbnailPath, mainAssetPath;
-        public GrayboxAssetCategory category;
-        public Texture thumbnail;
-        public DateTime creation_date;
+        public int Id;
+        public string Name, PackagePath, ThumbnailPath, AnimatedThumbnailPath, MainAssetPath;
+        public GrayboxAssetCategory Category;
+        public Texture Thumbnail;
+        public DateTime CreationDate;
 
         public GrayboxAsset()
         {
-            this.id = -1;
-            this.name = "";
-            this.category = GrayboxAssetCategory.Buildings;
-            this.mainAssetPath = "";
-            this.packagePath = "";
-            this.thumbnailPath = "";
-            this.animatedThumbnailPath = "";
-            this.thumbnail = null;
-            this.creation_date = new DateTime();
+            this.Id = -1;
+            this.Name = "";
+            this.Category = GrayboxAssetCategory.Buildings;
+            this.MainAssetPath = "";
+            this.PackagePath = "";
+            this.ThumbnailPath = "";
+            this.AnimatedThumbnailPath = "";
+            this.Thumbnail = null;
+            this.CreationDate = new DateTime();
         }
 
-        public GrayboxAsset(int id, string name, GrayboxAssetCategory category, string mainAssetPath, string packagePath, string thumbnailPath, string animatedThumbnailPath, Texture thumbnail, DateTime creation_date)
+        public GrayboxAsset(int id, string name, GrayboxAssetCategory category, string mainAssetPath, string packagePath, string thumbnailPath, string animatedThumbnailPath, Texture thumbnail, DateTime creationDate)
         {
-            this.id = id;
-            this.name = name;
-            this.category = category;
-            this.mainAssetPath = mainAssetPath;
-            this.packagePath = packagePath;
-            this.thumbnailPath = thumbnailPath;
-            this.animatedThumbnailPath = animatedThumbnailPath;
-            this.thumbnail = thumbnail;
-            this.creation_date = creation_date;
+            this.Id = id;
+            this.Name = name;
+            this.Category = category;
+            this.MainAssetPath = mainAssetPath;
+            this.PackagePath = packagePath;
+            this.ThumbnailPath = thumbnailPath;
+            this.AnimatedThumbnailPath = animatedThumbnailPath;
+            this.Thumbnail = thumbnail;
+            this.CreationDate = creationDate;
         }
 
     }

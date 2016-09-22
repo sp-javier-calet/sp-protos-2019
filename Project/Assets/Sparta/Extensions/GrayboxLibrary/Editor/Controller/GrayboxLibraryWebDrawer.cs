@@ -7,21 +7,21 @@ namespace SocialPoint.GrayboxLibrary
 {
     public class GrayboxLibraryWebDrawer
     {
-        private object thisWindowGuiView;
-        private Type webViewType;
-        private ScriptableObject webView;
+        private object _thisWindowGuiView;
+        private Type _webViewType;
+        private ScriptableObject _webView;
 
         public GrayboxLibraryWebDrawer(EditorWindow window, string url, Rect webViewRect)
         {
-            thisWindowGuiView = typeof(EditorWindow).GetField("m_Parent", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(window);
+            _thisWindowGuiView = typeof(EditorWindow).GetField("m_Parent", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(window);
 
-            webViewType = GetTypeFromAllAssemblies("WebView");
-            webView = ScriptableObject.CreateInstance(webViewType);
+            _webViewType = GetTypeFromAllAssemblies("WebView");
+            _webView = ScriptableObject.CreateInstance(_webViewType);
 
-            if (webView != null)
+            if(_webView != null)
             {
-                webViewType.GetMethod("InitWebView").Invoke(webView, new object[] { thisWindowGuiView, (int)webViewRect.x, (int)webViewRect.y, (int)webViewRect.width, (int)webViewRect.height, true });
-                webViewType.GetMethod("LoadFile").Invoke(webView, new object[] { url });
+                _webViewType.GetMethod("InitWebView").Invoke(_webView, new object[] { _thisWindowGuiView, (int)webViewRect.x, (int)webViewRect.y, (int)webViewRect.width, (int)webViewRect.height, true });
+                _webViewType.GetMethod("LoadFile").Invoke(_webView, new object[] { url });
             }
         }
 
@@ -33,7 +33,7 @@ namespace SocialPoint.GrayboxLibrary
                 Type[] types = assembly.GetTypes();
                 foreach (Type type in types)
                 {
-                    if (type.Name.Equals(typeName, StringComparison.CurrentCultureIgnoreCase) || type.Name.Contains('+' + typeName)) //+ check for inline classes
+                    if(type.Name.Equals(typeName, StringComparison.CurrentCultureIgnoreCase) || type.Name.Contains('+' + typeName)) //+ check forinline classes
                         return type;
                 }
             }
@@ -42,16 +42,16 @@ namespace SocialPoint.GrayboxLibrary
 
         public void Draw(Rect drawRect)
         {
-            if (webView != null)
-                webViewType.GetMethod("SetSizeAndPosition").Invoke(webView, new object[] { (int)drawRect.x, (int)drawRect.y, (int)drawRect.width, (int)drawRect.height });
+            if(_webView != null)
+                _webViewType.GetMethod("SetSizeAndPosition").Invoke(_webView, new object[] { (int)drawRect.x, (int)drawRect.y, (int)drawRect.width, (int)drawRect.height });
         }
 
         public void ClearView()
         {
-            if (webView != null && webViewType != null)
+            if(_webView != null && _webViewType != null)
             {
-                webViewType.GetMethod("OnDestroy").Invoke(webView, new object[] { });
-                webView = null;
+                _webViewType.GetMethod("OnDestroy").Invoke(_webView, new object[] { });
+                _webView = null;
             }
         }
 

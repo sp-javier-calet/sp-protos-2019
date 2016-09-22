@@ -5,18 +5,18 @@ namespace SocialPoint.GrayboxLibrary
 {
     public class GrayboxLibraryWebWindow : EditorWindow
     {
-        public static GrayboxLibraryWebWindow window;
+        public static GrayboxLibraryWebWindow Window;
         public static GrayboxLibraryWebWindow Launch()
         {
-            window = (GrayboxLibraryWebWindow)ScriptableObject.CreateInstance<GrayboxLibraryWebWindow>();
-            window.ShowPopup();
-            window.Focus();
-            return window;
+            Window = (GrayboxLibraryWebWindow)ScriptableObject.CreateInstance<GrayboxLibraryWebWindow>();
+            Window.ShowPopup();
+            Window.Focus();
+            return Window;
         }
 
         public void Draw(Rect viewRect)
         {
-            window.position = viewRect;
+            Window.position = viewRect;
         }
     }
 }

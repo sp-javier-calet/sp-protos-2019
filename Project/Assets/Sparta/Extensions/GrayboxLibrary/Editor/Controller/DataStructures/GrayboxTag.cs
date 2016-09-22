@@ -2,15 +2,15 @@
 {
     public class GrayboxTag
     {
-        public int id;
-        public string name;
+        public int Id;
+        public string Name;
 
         public GrayboxTag() { }
 
         public GrayboxTag(int id, string name)
         {
-            this.id = id;
-            this.name = name;
+            this.Id = id;
+            this.Name = name;
         }
 
     }

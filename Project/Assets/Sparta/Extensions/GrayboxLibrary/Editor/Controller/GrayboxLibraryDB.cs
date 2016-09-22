@@ -10,22 +10,22 @@ namespace SocialPoint.GrayboxLibrary
     {
 
         // connection object
-        MySqlConnection con = null;
+        private MySqlConnection _con = null;
         // command object
-        MySqlCommand cmd = null;
+        private MySqlCommand _cmd = null;
         // reader object
-        MySqlDataReader rdr = null;
+        private MySqlDataReader _rdr = null;
 
-        private static GrayboxLibraryDB instance;
+        private static GrayboxLibraryDB _instance;
 
         private GrayboxLibraryDB() { }
 
         public static GrayboxLibraryDB GetInstance()
         {
-            if (instance == null)
-                instance = new GrayboxLibraryDB();
+            if(_instance == null)
+                _instance = new GrayboxLibraryDB();
 
-            return instance;
+            return _instance;
         }
 
 
@@ -34,8 +34,8 @@ namespace SocialPoint.GrayboxLibrary
         {
             try
             {
-                con = new MySqlConnection(GrayboxLibraryConfig.DB_CONFIG);
-                con.Open();
+                _con = new MySqlConnection(GrayboxLibraryConfig.DbConfig);
+                _con.Open();
             }
             catch (Exception ex)
             {
@@ -52,31 +52,31 @@ namespace SocialPoint.GrayboxLibrary
 
             try
             {
-                if (con.State.ToString() != "Open")
-                    con.Open();
+                if(_con.State.ToString() != "Open")
+                    _con.Open();
 
-                using (con)
+                using (_con)
                 {
-                    using (cmd = new MySqlCommand(sql, con))
+                    using (_cmd = new MySqlCommand(sql, _con))
                     {
-                        rdr = cmd.ExecuteReader();
-                        if (rdr.HasRows)
+                        _rdr = _cmd.ExecuteReader();
+                        if(_rdr.HasRows)
                         {
-                            while (rdr.Read())
+                            while(_rdr.Read())
                             {
-                                if (rdr[0].ToString().Length > 0)
+                                if(_rdr[0].ToString().Length > 0)
                                 {
 
                                     Dictionary<string, string> row = new Dictionary<string, string>();
 
-                                    for (int column = 0; column < rdr.FieldCount; column++)
-                                        row.Add(rdr.GetName(column), rdr[column].ToString());
+                                    for(int column = 0; column < _rdr.FieldCount; column++)
+                                        row.Add(_rdr.GetName(column), _rdr[column].ToString());
 
                                     result.Add(row);
                                 }
                             }
                         }
-                        rdr.Dispose();
+                        _rdr.Dispose();
                     }
                 }
             }
@@ -96,13 +96,13 @@ namespace SocialPoint.GrayboxLibrary
         {
             try
             {
-                if (con.State.ToString() != "Open")
-                    con.Open();
+                if(_con.State.ToString() != "Open")
+                    _con.Open();
 
-                using (con)
+                using (_con)
                 {
-                    using (cmd = new MySqlCommand(sql, con))
-                        cmd.ExecuteNonQuery();
+                    using (_cmd = new MySqlCommand(sql, _con))
+                        _cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -116,12 +116,12 @@ namespace SocialPoint.GrayboxLibrary
         //Closes the connection to the DB
         public void Disconnect()
         {
-            if (con != null)
+            if(_con != null)
             {
-                MySqlConnection.ClearPool(con);
-                if (con.State.ToString() != "Closed")
-                    con.Close();
-                con.Dispose();
+                MySqlConnection.ClearPool(_con);
+                if(_con.State.ToString() != "Closed")
+                    _con.Close();
+                _con.Dispose();
             }
         }
     }

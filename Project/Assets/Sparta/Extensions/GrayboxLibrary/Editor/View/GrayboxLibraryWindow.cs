@@ -8,191 +8,191 @@ namespace SocialPoint.GrayboxLibrary
 {
     public class GrayboxLibraryWindow : EditorWindow
     {
-        private static ArrayList currentAssetList;
-        private static ArrayList currentGUIContent;
-        public static GrayboxLibraryController tool;
-        private static List<GrayboxAsset> toInstanciate;
-        private static List<GrayboxAsset> toDownload;
+        private static ArrayList _currentAssetList;
+        private static ArrayList _currentGUIContent;
+        public static GrayboxLibraryController Tool;
+        private static List<GrayboxAsset> _toInstanciate;
+        private static List<GrayboxAsset> _toDownload;
 
-        private static string[] categories;
-        public static string filter = "";
-        public static List<string> filters = new List<string>();
-        private float timeFilterUpdated = Time.realtimeSinceStartup;
-        private static bool filterUpdated = false;
-        private static bool displayFilterOptions = false;
-        private static string currentSelectedOption = "";
-        private string[] tagList = new string[0];
-        private const float TIME_TO_SEARCH_TAGS = 0.1f;
-        private static int currentCategory = 0;
-        private static int currentPage = 0;
-        private static int maxPage = 0;
-        private Vector2 scrollPos;
-        private GUIStyle buttonStyle, buttonAreaStyle, bottomMenuStyle, bottomMenuTextStyle, bottomMenuTextBoldStyle, searchOptionStyle, searchSelectedOptionStyle, separatorStyle;
-        public static float thumbWidth = 640;
-        public static float thumbHeight = 480;
-        public static float animatedThumbWidth = 640;
-        public static float animatedThumbHeight = 480;
-        private float thumbSizeMultiplier = 0.3f;
-        private const float THUMB_MIN_SIZE = 0.1f;
-        private const float THUMB_MAX_SIZE = 0.5f;
-        private const int ASSETS_PER_PAGE = 20;
-        public static GrayboxLibraryWindow window;
-        private float timeKeyPressed = Time.realtimeSinceStartup;
-        private const float KEY_DELAY = 0.2f;
-        private static int focusChangeDelay = 0;
-        public static GrayboxAsset assetChosen = null;
-        public static GrayboxAsset assetDragged = null;
-        private static bool dragging = false;
-        private string currentDraggedAsset = "";
-        private bool secondGUIDraw = false;
-        private static GrayboxLibraryInspectorDummy inspectorDummyA, inspectorDummyB;
-        private static int currentInspectorDummy;
+        private static string[] _categories;
+        public static string Filter = "";
+        public static List<string> Filters = new List<string>();
+        private float _timeFilterUpdated = Time.realtimeSinceStartup;
+        private static bool _filterUpdated = false;
+        private static bool _displayFilterOptions = false;
+        private static string _currentSelectedOption = "";
+        private string[] _tagList = new string[0];
+        private const float _timeToSearchTags = 0.1f;
+        private static int _currentCategory = 0;
+        private static int _currentPage = 0;
+        private static int _maxPage = 0;
+        private Vector2 _scrollPos;
+        private GUIStyle _buttonStyle, _buttonAreaStyle, _bottomMenuStyle, _bottomMenuTextStyle, _bottomMenuTextBoldStyle, _searchOptionStyle, _searchSelectedOptionStyle, _separatorStyle;
+        public static float ThumbWidth = 640;
+        public static float ThumbHeight = 480;
+        public static float AnimatedThumbWidth = 640;
+        public static float AnimatedThumbHeight = 480;
+        private float _thumbSizeMultiplier = 0.3f;
+        private const float _thumbMinSize = 0.1f;
+        private const float _thumbMaxSize = 0.5f;
+        private const int _assetsPerPage = 20;
+        public static GrayboxLibraryWindow Window;
+        private float _timeKeyPressed = Time.realtimeSinceStartup;
+        private const float _keyDelay = 0.2f;
+        private static int _focusChangeDelay = 0;
+        public static GrayboxAsset AssetChosen = null;
+        public static GrayboxAsset AssetDragged = null;
+        private static bool _dragging = false;
+        private string _currentDraggedAsset = "";
+        private bool _secondGUIDraw = false;
+        private static GrayboxLibraryInspectorDummy _inspectorDummyA, _inspectorDummyB;
+        private static int _currentInspectorDummy;
 
         [MenuItem("Social Point/Graybox Library/Buildings")]
         public static void LaunchBuldingsClient()
         {
-            currentCategory = (int)GrayboxAssetCategory.Buildings;
+            _currentCategory = (int)GrayboxAssetCategory.Buildings;
             LaunchClient();
         }
 
         [MenuItem("Social Point/Graybox Library/Props")]
         public static void LaunchPropsClient()
         {
-            currentCategory = (int)GrayboxAssetCategory.Props;
+            _currentCategory = (int)GrayboxAssetCategory.Props;
             LaunchClient();
         }
 
         [MenuItem("Social Point/Graybox Library/Fx")]
         public static void LaunchFxClient()
         {
-            currentCategory = (int)GrayboxAssetCategory.Fx;
+            _currentCategory = (int)GrayboxAssetCategory.Fx;
             LaunchClient();
         }
 
         [MenuItem("Social Point/Graybox Library/Characters")]
         public static void LaunchCharactersClient()
         {
-            currentCategory = (int)GrayboxAssetCategory.Characters;
+            _currentCategory = (int)GrayboxAssetCategory.Characters;
             LaunchClient();
         }
 
         [MenuItem("Social Point/Graybox Library/Vehicles")]
         public static void LaunchVehiclesClient()
         {
-            currentCategory = (int)GrayboxAssetCategory.Vehicles;
+            _currentCategory = (int)GrayboxAssetCategory.Vehicles;
             LaunchClient();
         }
 
         [MenuItem("Social Point/Graybox Library/UI")]
         public static void LaunchUIClient()
         {
-            currentCategory = (int) GrayboxAssetCategory.UI;
+            _currentCategory = (int) GrayboxAssetCategory.UI;
             LaunchClient();
         }
 
         public static void LaunchClient()
         {
-            window = (GrayboxLibraryWindow)EditorWindow.GetWindow(typeof(GrayboxLibraryWindow));
-            window.titleContent.text = "Library";
-            tool = new GrayboxLibraryController();
-            currentGUIContent = new ArrayList();
-            currentAssetList = tool.GetAssets(filters.ToArray(), (GrayboxAssetCategory)currentCategory, currentPage * ASSETS_PER_PAGE, ASSETS_PER_PAGE);
+            Window = (GrayboxLibraryWindow)EditorWindow.GetWindow(typeof(GrayboxLibraryWindow));
+            Window.titleContent.text = "Library";
+            Tool = new GrayboxLibraryController();
+            _currentGUIContent = new ArrayList();
+            _currentAssetList = Tool.GetAssets(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
             LoadThumbnails();
-            toInstanciate = new List<GrayboxAsset>();
-            toDownload = new List<GrayboxAsset>();
-            maxPage = (int)Math.Ceiling(tool.GetAssetCount(filters.ToArray(), (GrayboxAssetCategory)currentCategory) / (float)ASSETS_PER_PAGE);
-            categories = Enum.GetNames(typeof(GrayboxAssetCategory));
-            filterUpdated = true;
+            _toInstanciate = new List<GrayboxAsset>();
+            _toDownload = new List<GrayboxAsset>();
+            _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
+            _categories = Enum.GetNames(typeof(GrayboxAssetCategory));
+            _filterUpdated = true;
         }
 
 
         void OnGUI()
         {
-            if (tool == null)
+            if(Tool == null)
                 LaunchClient();
 
             ManageDragAndDrop();
 
-            if (Event.current.clickCount == 2 && assetChosen != null && secondGUIDraw)
+            if(Event.current.clickCount == 2 && AssetChosen != null && _secondGUIDraw)
                 InstantiateAsset();
 
-            if (buttonStyle == null)
+            if(_buttonStyle == null)
             {
-                buttonStyle = new GUIStyle(GUI.skin.label);
-                buttonStyle.border = new RectOffset(0, 0, 0, 0);
-                buttonStyle.margin = new RectOffset(10, 10, 10, 0);
+                _buttonStyle = new GUIStyle(GUI.skin.label);
+                _buttonStyle.border = new RectOffset(0, 0, 0, 0);
+                _buttonStyle.margin = new RectOffset(10, 10, 10, 0);
             }
-            if (buttonAreaStyle == null)
+            if(_buttonAreaStyle == null)
             {
-                buttonAreaStyle = new GUIStyle(GUI.skin.label);
+                _buttonAreaStyle = new GUIStyle(GUI.skin.label);
                 Texture2D texH = new Texture2D(1, 1);
                 texH.SetPixel(0, 0, new Color(0f, 0.2f, 0.5f, 0.5f));
                 texH.Apply();
-                buttonAreaStyle.active.background = Texture2D.blackTexture;
-                buttonAreaStyle.hover.background = texH;
+                _buttonAreaStyle.active.background = Texture2D.blackTexture;
+                _buttonAreaStyle.hover.background = texH;
 
-                buttonAreaStyle.border = new RectOffset(0, 0, 0, 0);
-                buttonAreaStyle.margin = new RectOffset(0, 0, 0, 10);
+                _buttonAreaStyle.border = new RectOffset(0, 0, 0, 0);
+                _buttonAreaStyle.margin = new RectOffset(0, 0, 0, 10);
             }
-            if (bottomMenuStyle == null)
+            if(_bottomMenuStyle == null)
             {
-                bottomMenuStyle = new GUIStyle(GUI.skin.label);
+                _bottomMenuStyle = new GUIStyle(GUI.skin.label);
                 Texture2D tex = new Texture2D(1, 1);
                 tex.SetPixel(0, 0, new Color(0.25f, 0.25f, 0.25f, 1f));
                 tex.Apply();
-                bottomMenuStyle.normal.background = tex;
+                _bottomMenuStyle.normal.background = tex;
             }
-            if (separatorStyle == null)
+            if(_separatorStyle == null)
             {
-                separatorStyle = new GUIStyle(GUI.skin.label);
+                _separatorStyle = new GUIStyle(GUI.skin.label);
                 Texture2D tex = new Texture2D(1, 1);
                 tex.SetPixel(0, 0, new Color(0.1f, 0.1f, 0.1f, 1f));
                 tex.Apply();
-                separatorStyle.normal.background = tex;
-                separatorStyle.border = new RectOffset(0, 0, 0, 0);
-                separatorStyle.margin = separatorStyle.border;
+                _separatorStyle.normal.background = tex;
+                _separatorStyle.border = new RectOffset(0, 0, 0, 0);
+                _separatorStyle.margin = _separatorStyle.border;
             }
-            if (bottomMenuTextStyle == null)
+            if(_bottomMenuTextStyle == null)
             {
-                bottomMenuTextStyle = new GUIStyle(GUI.skin.label);
-                bottomMenuTextStyle.fontSize = 12;
+                _bottomMenuTextStyle = new GUIStyle(GUI.skin.label);
+                _bottomMenuTextStyle.fontSize = 12;
             }
-            if (bottomMenuTextBoldStyle == null)
+            if(_bottomMenuTextBoldStyle == null)
             {
-                bottomMenuTextBoldStyle = new GUIStyle(bottomMenuTextStyle);
-                bottomMenuTextBoldStyle.fontStyle = FontStyle.Bold;
+                _bottomMenuTextBoldStyle = new GUIStyle(_bottomMenuTextStyle);
+                _bottomMenuTextBoldStyle.fontStyle = FontStyle.Bold;
             }
-            if (searchOptionStyle == null)
+            if(_searchOptionStyle == null)
             {
-                searchOptionStyle = new GUIStyle(GUI.skin.label);
-                searchOptionStyle.normal.textColor = new Color(0.7f, 0.7f, 0.7f);
-                searchOptionStyle.alignment = TextAnchor.UpperLeft;
-                searchOptionStyle.active.textColor = new Color(0.6f, 0.6f, 0.6f);
-                searchOptionStyle.hover.textColor = new Color(1f, 1f, 1f);
+                _searchOptionStyle = new GUIStyle(GUI.skin.label);
+                _searchOptionStyle.normal.textColor = new Color(0.7f, 0.7f, 0.7f);
+                _searchOptionStyle.alignment = TextAnchor.UpperLeft;
+                _searchOptionStyle.active.textColor = new Color(0.6f, 0.6f, 0.6f);
+                _searchOptionStyle.hover.textColor = new Color(1f, 1f, 1f);
                 Texture2D texH = new Texture2D(1, 1);
                 texH.SetPixel(0, 0, new Color(0f, 0.2f, 0.5f, 0.5f));
                 texH.Apply();
-                searchOptionStyle.active.background = Texture2D.blackTexture;
-                searchOptionStyle.hover.background = texH;
-                searchOptionStyle.border = new RectOffset(0, 0, 0, 0);
-                searchOptionStyle.margin = searchOptionStyle.border;
+                _searchOptionStyle.active.background = Texture2D.blackTexture;
+                _searchOptionStyle.hover.background = texH;
+                _searchOptionStyle.border = new RectOffset(0, 0, 0, 0);
+                _searchOptionStyle.margin = _searchOptionStyle.border;
             }
-            if (searchSelectedOptionStyle == null)
+            if(_searchSelectedOptionStyle == null)
             {
-                searchSelectedOptionStyle = new GUIStyle(searchOptionStyle);
-                searchSelectedOptionStyle.normal = searchSelectedOptionStyle.hover;
+                _searchSelectedOptionStyle = new GUIStyle(_searchOptionStyle);
+                _searchSelectedOptionStyle.normal = _searchSelectedOptionStyle.hover;
             }
 
             GUILayout.BeginVertical();
 
-            GUILayout.BeginHorizontal(bottomMenuStyle);
+            GUILayout.BeginHorizontal(_bottomMenuStyle);
             GUILayout.BeginVertical();
             GUILayout.Label("", GUILayout.Height(7));
-            int previousCategory = currentCategory;
-            currentCategory = EditorGUILayout.Popup(currentCategory, categories, GUILayout.Width(120), GUILayout.Height(20));
-            if (previousCategory != currentCategory)
+            int previousCategory = _currentCategory;
+            _currentCategory = EditorGUILayout.Popup(_currentCategory, _categories, GUILayout.Width(120), GUILayout.Height(20));
+            if(previousCategory != _currentCategory)
             {
-                Search(filters);
+                Search(Filters);
             }
 
             GUILayout.EndVertical();
@@ -202,18 +202,18 @@ namespace SocialPoint.GrayboxLibrary
             DisplaySearchBar();
 
             GUILayout.EndHorizontal();
-            GUILayout.Label("", separatorStyle, GUILayout.ExpandWidth(true), GUILayout.Height(1));
-            scrollPos = EditorGUILayout.BeginScrollView(scrollPos, GUILayout.ExpandWidth(false));
-            if (thumbSizeMultiplier == THUMB_MIN_SIZE)
+            GUILayout.Label("", _separatorStyle, GUILayout.ExpandWidth(true), GUILayout.Height(1));
+            _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUILayout.ExpandWidth(false));
+            if(_thumbSizeMultiplier == _thumbMinSize)
             {
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                for (int i = 0; i < currentAssetList.Count; i++)
+                for(int i = 0; i < _currentAssetList.Count; i++)
                 {
-                    GrayboxAsset asset = (GrayboxAsset)currentAssetList[i];
+                    GrayboxAsset asset = (GrayboxAsset)_currentAssetList[i];
 
-                    if (Event.current.clickCount < 2 && GUILayout.Button(asset.name, searchOptionStyle))
+                    if(Event.current.clickCount < 2 && GUILayout.Button(asset.Name, _searchOptionStyle))
                     {
-                        assetChosen = asset;
+                        AssetChosen = asset;
                         DisplayInspector();
                     }
                 }
@@ -224,12 +224,12 @@ namespace SocialPoint.GrayboxLibrary
                 GUILayout.Label("", GUILayout.Height(15));
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 int column = 0;
-                for (int i = 0; i < currentAssetList.Count; i++)
+                for(int i = 0; i < _currentAssetList.Count; i++)
                 {
-                    float buttonHeight = thumbHeight * thumbSizeMultiplier;
-                    float buttonWidth = thumbWidth * thumbSizeMultiplier;
+                    float buttonHeight = ThumbHeight * _thumbSizeMultiplier;
+                    float buttonWidth = ThumbWidth * _thumbSizeMultiplier;
 
-                    if (((column + 1) * (buttonWidth + 30)) > position.width)
+                    if(((column + 1) * (buttonWidth + 30)) > position.width)
                     {
                         column = 0;
                         GUILayout.Label("", GUILayout.ExpandWidth(true));
@@ -237,17 +237,17 @@ namespace SocialPoint.GrayboxLibrary
                         GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                     }
 
-                    GrayboxAsset asset = (GrayboxAsset)currentAssetList[i];
+                    GrayboxAsset asset = (GrayboxAsset)_currentAssetList[i];
 
-                    GUILayout.BeginVertical(buttonAreaStyle, GUILayout.MaxWidth(buttonWidth));
+                    GUILayout.BeginVertical(_buttonAreaStyle, GUILayout.MaxWidth(buttonWidth));
 
-                    if (Event.current.clickCount < 2 && GUILayout.Button((GUIContent)currentGUIContent[i], buttonStyle, GUILayout.Width(buttonWidth), GUILayout.Height(buttonHeight), GUILayout.ExpandWidth(false)))
+                    if(Event.current.clickCount < 2 && GUILayout.Button((GUIContent)_currentGUIContent[i], _buttonStyle, GUILayout.Width(buttonWidth), GUILayout.Height(buttonHeight), GUILayout.ExpandWidth(false)))
                     {
-                        assetChosen = asset;
+                        AssetChosen = asset;
                         DisplayInspector();
                     }
 
-                    GUILayout.Label(asset.name, GUILayout.Width(buttonWidth));
+                    GUILayout.Label(asset.Name, GUILayout.Width(buttonWidth));
                     GUILayout.EndVertical();
 
                     column++;
@@ -258,46 +258,46 @@ namespace SocialPoint.GrayboxLibrary
 
             EditorGUILayout.EndScrollView();
 
-            GUILayout.Label("", separatorStyle, GUILayout.ExpandWidth(true), GUILayout.Height(1));
+            GUILayout.Label("", _separatorStyle, GUILayout.ExpandWidth(true), GUILayout.Height(1));
 
-            GUILayout.BeginHorizontal(bottomMenuStyle, GUILayout.Height(25));
-            GUILayout.Label("Page " + (currentPage + 1) + "/" + maxPage, bottomMenuTextStyle, GUILayout.Width(80));
+            GUILayout.BeginHorizontal(_bottomMenuStyle, GUILayout.Height(25));
+            GUILayout.Label("Page " + (_currentPage + 1) + "/" + _maxPage, _bottomMenuTextStyle, GUILayout.Width(80));
 
             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
             GUILayout.Label("", GUILayout.ExpandWidth(true));
-            if (currentPage > 0)
+            if(_currentPage > 0)
             {
-                if (GUILayout.Button("<<", bottomMenuTextStyle, GUILayout.Width(20), GUILayout.Height(20)))
+                if(GUILayout.Button("<<", _bottomMenuTextStyle, GUILayout.Width(20), GUILayout.Height(20)))
                     changePage(0);
 
-                if (GUILayout.Button("<", bottomMenuTextStyle, GUILayout.Width(15), GUILayout.Height(20)))
-                    changePage(currentPage - 1);
+                if(GUILayout.Button("<", _bottomMenuTextStyle, GUILayout.Width(15), GUILayout.Height(20)))
+                    changePage(_currentPage - 1);
             }
             else
                 GUILayout.Label("", GUILayout.Width(40), GUILayout.Height(20));
 
-            if (maxPage > 1)
+            if(_maxPage > 1)
             {
-                for (int i = 1; i <= maxPage && i < 10; i++)
+                for(int i = 1; i <= _maxPage && i < 10; i++)
                 {
-                    if (currentPage == (i - 1))
-                        GUILayout.Button(i.ToString(), bottomMenuTextBoldStyle, GUILayout.Width(15), GUILayout.Height(20));
+                    if(_currentPage == (i - 1))
+                        GUILayout.Button(i.ToString(), _bottomMenuTextBoldStyle, GUILayout.Width(15), GUILayout.Height(20));
 
                     else
                     {
-                        if (GUILayout.Button(i.ToString(), bottomMenuTextStyle, GUILayout.Width(15), GUILayout.Height(20)))
+                        if(GUILayout.Button(i.ToString(), _bottomMenuTextStyle, GUILayout.Width(15), GUILayout.Height(20)))
                             changePage(i - 1);
                     }
                 }
             }
 
-            if (currentPage < (maxPage - 1))
+            if(_currentPage < (_maxPage - 1))
             {
-                if (GUILayout.Button(">", bottomMenuTextStyle, GUILayout.Width(15), GUILayout.Height(20)))
-                    changePage(currentPage + 1);
+                if(GUILayout.Button(">", _bottomMenuTextStyle, GUILayout.Width(15), GUILayout.Height(20)))
+                    changePage(_currentPage + 1);
 
-                if (GUILayout.Button(">>", bottomMenuTextStyle, GUILayout.Width(20), GUILayout.Height(20)))
-                    changePage(maxPage - 1);
+                if(GUILayout.Button(">>", _bottomMenuTextStyle, GUILayout.Width(20), GUILayout.Height(20)))
+                    changePage(_maxPage - 1);
             }
             else
                 GUILayout.Label("", GUILayout.Width(40), GUILayout.Height(20));
@@ -305,38 +305,38 @@ namespace SocialPoint.GrayboxLibrary
             GUILayout.Label("", GUILayout.ExpandWidth(true));
             GUILayout.EndHorizontal();
 
-            thumbSizeMultiplier = GUILayout.HorizontalSlider(thumbSizeMultiplier, THUMB_MIN_SIZE, THUMB_MAX_SIZE, GUILayout.Width(50));
+            _thumbSizeMultiplier = GUILayout.HorizontalSlider(_thumbSizeMultiplier, _thumbMinSize, _thumbMaxSize, GUILayout.Width(50));
 
-            if (GUILayout.Button("Contact", GUILayout.Width(100)))
-                Application.OpenURL(GrayboxLibraryConfig.CONTACT_URL);
+            if(GUILayout.Button("Contact", GUILayout.Width(100)))
+                Application.OpenURL(GrayboxLibraryConfig.ContactUrl);
 
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
-            if (focusChangeDelay > 0)
-                focusChangeDelay--;
+            if(_focusChangeDelay > 0)
+                _focusChangeDelay--;
 
-            else if (focusChangeDelay == 0)
+            else if(_focusChangeDelay == 0)
             {
-                focusChangeDelay = -1;
+                _focusChangeDelay = -1;
                 EditorGUI.FocusTextInControl("");
                 EditorGUI.FocusTextInControl("SearchBar");
             }
 
-            if (GUI.tooltip.Length > 0)
-                currentSelectedOption = GUI.tooltip;
+            if(GUI.tooltip.Length > 0)
+                _currentSelectedOption = GUI.tooltip;
 
-            if (secondGUIDraw)
+            if(_secondGUIDraw)
             {
-                secondGUIDraw = false;
-                currentDraggedAsset = GUI.tooltip;
+                _secondGUIDraw = false;
+                _currentDraggedAsset = GUI.tooltip;
             }
             else
-                secondGUIDraw = true;
+                _secondGUIDraw = true;
 
-            if (dragging && assetDragged != null)
+            if(_dragging && AssetDragged != null)
             {
-                GUI.DrawTexture(new Rect(Event.current.mousePosition, new Vector2(thumbWidth / 1.5f, thumbHeight / 1.5f)), assetDragged.thumbnail);
+                GUI.DrawTexture(new Rect(Event.current.mousePosition, new Vector2(ThumbWidth / 1.5f, ThumbHeight / 1.5f)), AssetDragged.Thumbnail);
                 EditorGUIUtility.AddCursorRect(new Rect(Vector2.zero, position.size), MouseCursor.MoveArrow);
             }
 
@@ -347,8 +347,8 @@ namespace SocialPoint.GrayboxLibrary
 
         public void changePage(int pageIndex)
         {
-            currentPage = pageIndex;
-            currentAssetList = tool.GetAssets(filters.ToArray(), (GrayboxAssetCategory)currentCategory, currentPage * ASSETS_PER_PAGE, ASSETS_PER_PAGE);
+            _currentPage = pageIndex;
+            _currentAssetList = Tool.GetAssets(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
             LoadThumbnails();
         }
 
@@ -358,26 +358,26 @@ namespace SocialPoint.GrayboxLibrary
 
         public static void DisplayInspector()
         {
-            if (inspectorDummyA == null)
+            if(_inspectorDummyA == null)
             {
-                inspectorDummyA = ScriptableObject.CreateInstance<GrayboxLibraryInspectorDummy>();
-                inspectorDummyA.hideFlags = HideFlags.DontSave;
+                _inspectorDummyA = ScriptableObject.CreateInstance<GrayboxLibraryInspectorDummy>();
+                _inspectorDummyA.hideFlags = HideFlags.DontSave;
             }
-            if (inspectorDummyB == null)
+            if(_inspectorDummyB == null)
             {
-                inspectorDummyB = ScriptableObject.CreateInstance<GrayboxLibraryInspectorDummy>();
-                inspectorDummyB.hideFlags = HideFlags.DontSave;
+                _inspectorDummyB = ScriptableObject.CreateInstance<GrayboxLibraryInspectorDummy>();
+                _inspectorDummyB.hideFlags = HideFlags.DontSave;
             }
 
-            if (currentInspectorDummy == 1)
+            if(_currentInspectorDummy == 1)
             {
-                Selection.activeObject = inspectorDummyA;
-                currentInspectorDummy = 0;
+                Selection.activeObject = _inspectorDummyA;
+                _currentInspectorDummy = 0;
             }
             else
             {
-                Selection.activeObject = inspectorDummyB;
-                currentInspectorDummy = 1;
+                Selection.activeObject = _inspectorDummyB;
+                _currentInspectorDummy = 1;
             }
         }
 
@@ -389,57 +389,57 @@ namespace SocialPoint.GrayboxLibrary
             EditorGUILayout.BeginVertical();
             EditorGUILayout.BeginHorizontal();
 
-            int previousFilterCount = filters.Count;
+            int previousFilterCount = Filters.Count;
             DisplayTags();
-            if (previousFilterCount != filters.Count)
+            if(previousFilterCount != Filters.Count)
                 DisplayTags();
 
-            string previousFilter = filter;
+            string previousFilter = Filter;
 
             GUILayout.BeginVertical();
             GUILayout.Label("", GUILayout.Height(3));
             GUI.SetNextControlName("SearchBar");
-            filter = GUILayout.TextField(filter, GUILayout.ExpandWidth(true), GUILayout.Height(20));
+            Filter = GUILayout.TextField(Filter, GUILayout.ExpandWidth(true), GUILayout.Height(20));
             GUILayout.EndVertical();
 
-            if (previousFilter != filter && filter.Length > 0)
+            if(previousFilter != Filter && Filter.Length > 0)
             {
-                filterUpdated = true;
-                timeFilterUpdated = Time.realtimeSinceStartup;
+                _filterUpdated = true;
+                _timeFilterUpdated = Time.realtimeSinceStartup;
             }
 
-            if (filterUpdated && timeFilterUpdated + TIME_TO_SEARCH_TAGS < Time.realtimeSinceStartup)
+            if(_filterUpdated && _timeFilterUpdated + _timeToSearchTags < Time.realtimeSinceStartup)
             {
-                filterUpdated = false;
-                displayFilterOptions = false;
-                tagList = tool.GetTagsAsText(filter, 0, 10);
-                if (tagList.Length > 0 && filter.Length > 0)
-                    displayFilterOptions = true;
+                _filterUpdated = false;
+                _displayFilterOptions = false;
+                _tagList = Tool.GetTagsAsText(Filter, 0, 10);
+                if(_tagList.Length > 0 && Filter.Length > 0)
+                    _displayFilterOptions = true;
             }
 
             GUILayout.BeginVertical(GUILayout.Width(22), GUILayout.Height(25));
             GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(1));
-            if (GUILayout.Button(tool.DownloadImage(GrayboxLibraryConfig.ICONS_PATH + "search.png"), GUILayout.Width(22), GUILayout.Height(22)))
-                Search(filters);
+            if(GUILayout.Button(Tool.DownloadImage(GrayboxLibraryConfig.IconsPath + "search.png"), GUILayout.Width(22), GUILayout.Height(22)))
+                Search(Filters);
             GUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
 
-            if (displayFilterOptions && filter.Length > 0)
+            if(_displayFilterOptions && Filter.Length > 0)
             {
                 EditorGUILayout.BeginVertical(GUI.skin.box);
-                for (int i = 0; i < tagList.Length; i++)
+                for(int i = 0; i < _tagList.Length; i++)
                 {
-                    string option = tagList[i];
+                    string option = _tagList[i];
 
-                    if (currentSelectedOption == option)
+                    if(_currentSelectedOption == option)
                     {
-                        if (GUILayout.Button(new GUIContent(option, option), searchSelectedOptionStyle))
+                        if(GUILayout.Button(new GUIContent(option, option), _searchSelectedOptionStyle))
                             AddTag(option);
                     }
                     else
                     {
-                        if (GUILayout.Button(new GUIContent(option, option), searchOptionStyle))
+                        if(GUILayout.Button(new GUIContent(option, option), _searchOptionStyle))
                             AddTag(option);
                     }
                 }
@@ -457,24 +457,24 @@ namespace SocialPoint.GrayboxLibrary
         {
             Event evt = Event.current;
 
-            if (evt.clickCount > 0 && dragging)
+            if(evt.clickCount > 0 && _dragging)
             {
-                if (assetDragged != null && !position.Contains(evt.mousePosition + position.position))
+                if(AssetDragged != null && !position.Contains(evt.mousePosition + position.position))
                     InstantiateAsset(true);
             }
 
             switch (evt.type)
             {
                 case EventType.mouseDown:
-                    if (Event.current.clickCount == 1 && assetDragged == null && currentDraggedAsset.Length > 0)
-                        assetDragged = tool.GetAsset(currentDraggedAsset);
+                    if(Event.current.clickCount == 1 && AssetDragged == null && _currentDraggedAsset.Length > 0)
+                        AssetDragged = Tool.GetAsset(_currentDraggedAsset);
                     break;
                 case EventType.mouseUp:
-                    dragging = false;
-                    assetDragged = null;
+                    _dragging = false;
+                    AssetDragged = null;
                     break;
                 case EventType.MouseDrag:
-                    dragging = true;
+                    _dragging = true;
                     break;
             }
         }
@@ -482,41 +482,41 @@ namespace SocialPoint.GrayboxLibrary
 
         private void ManageKeyInputs()
         {
-            if (Event.current.isKey)
+            if(Event.current.isKey)
             {
                 switch (Event.current.keyCode)
                 {
                     case KeyCode.Return:
 
-                        if (timeKeyPressed + KEY_DELAY < Time.realtimeSinceStartup)
+                        if(_timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
                         {
-                            if (currentSelectedOption.Length == 0)
-                                Search(filters);
+                            if(_currentSelectedOption.Length == 0)
+                                Search(Filters);
                             else
-                                AddTag(currentSelectedOption);
+                                AddTag(_currentSelectedOption);
 
-                            timeKeyPressed = Time.realtimeSinceStartup;
+                            _timeKeyPressed = Time.realtimeSinceStartup;
                         }
                         break;
 
                     case KeyCode.DownArrow:
 
-                        if (displayFilterOptions && timeKeyPressed + KEY_DELAY < Time.realtimeSinceStartup)
+                        if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
                         {
-                            int currentIndex = ArrayUtility.IndexOf(tagList, currentSelectedOption);
-                            if (currentIndex < tagList.Length - 1)
-                                currentSelectedOption = tagList[currentIndex + 1];
-                            timeKeyPressed = Time.realtimeSinceStartup;
+                            int currentIndex = ArrayUtility.IndexOf(_tagList, _currentSelectedOption);
+                            if(currentIndex < _tagList.Length - 1)
+                                _currentSelectedOption = _tagList[currentIndex + 1];
+                            _timeKeyPressed = Time.realtimeSinceStartup;
                         }
                         break;
 
                     case KeyCode.UpArrow:
-                        if (displayFilterOptions && timeKeyPressed + KEY_DELAY < Time.realtimeSinceStartup)
+                        if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
                         {
-                            int currentIndex = ArrayUtility.IndexOf(tagList, currentSelectedOption);
-                            if (currentIndex > 0)
-                                currentSelectedOption = tagList[currentIndex - 1];
-                            timeKeyPressed = Time.realtimeSinceStartup;
+                            int currentIndex = ArrayUtility.IndexOf(_tagList, _currentSelectedOption);
+                            if(currentIndex > 0)
+                                _currentSelectedOption = _tagList[currentIndex - 1];
+                            _timeKeyPressed = Time.realtimeSinceStartup;
                         }
                         break;
                 }
@@ -525,11 +525,11 @@ namespace SocialPoint.GrayboxLibrary
 
         private void DisplayTags()
         {
-            for (int i = 0; i < filters.Count; i++)
+            for(int i = 0; i < Filters.Count; i++)
             {
-                string tag = filters[i];
+                string tag = Filters[i];
 
-                if (GUILayout.Button("x  " + tag, GUILayout.ExpandWidth(false)))
+                if(GUILayout.Button("x  " + tag, GUILayout.ExpandWidth(false)))
                 {
                     RemoveTag(tag);
                     break;
@@ -539,77 +539,77 @@ namespace SocialPoint.GrayboxLibrary
 
         private static void Search(List<string> filters)
         {
-            currentGUIContent = new ArrayList();
-            currentAssetList = tool.GetAssets(filters.ToArray(), (GrayboxAssetCategory)currentCategory, currentPage * ASSETS_PER_PAGE, ASSETS_PER_PAGE);
+            _currentGUIContent = new ArrayList();
+            _currentAssetList = Tool.GetAssets(filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
             LoadThumbnails();
-            maxPage = (int)Math.Ceiling(tool.GetAssetCount(filters.ToArray(), (GrayboxAssetCategory)currentCategory) / (float)ASSETS_PER_PAGE);
+            _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
         }
 
         private static void LoadThumbnails()
         {
-            for (int i = 0; i < currentAssetList.Count; i++)
+            for(int i = 0; i < _currentAssetList.Count; i++)
             {
-                GrayboxAsset asset = (GrayboxAsset)currentAssetList[i];
-                currentGUIContent.Add(new GUIContent(asset.thumbnail, asset.name));
+                GrayboxAsset asset = (GrayboxAsset)_currentAssetList[i];
+                _currentGUIContent.Add(new GUIContent(asset.Thumbnail, asset.Name));
             }
         }
 
         public static void AddTag(string tag)
         {
-            filters.Add(tag);
-            filter = "";
-            currentSelectedOption = "";
-            displayFilterOptions = false;
-            focusChangeDelay = 1;
-            Search(filters);
+            Filters.Add(tag);
+            Filter = "";
+            _currentSelectedOption = "";
+            _displayFilterOptions = false;
+            _focusChangeDelay = 1;
+            Search(Filters);
         }
 
         public static void RemoveTag(string tag)
         {
-            filters.Remove(tag);
-            Search(filters);
+            Filters.Remove(tag);
+            Search(Filters);
         }
 
         public static void InstantiateAsset(bool dragAndDrop = false)
         {
-            if (dragAndDrop)
+            if(dragAndDrop)
             {
-                if (assetDragged != null)
+                if(AssetDragged != null)
                 {
-                    toDownload.Add(assetDragged);
+                    _toDownload.Add(AssetDragged);
                 }
             }
-            else if (assetChosen != null)
+            else if(AssetChosen != null)
             {
-                toDownload.Add(assetChosen);
+                _toDownload.Add(AssetChosen);
             }
 
-            dragging = false;
-            assetDragged = null;
-            focusChangeDelay = 0;
+            _dragging = false;
+            AssetDragged = null;
+            _focusChangeDelay = 0;
         }
 
 
         void Update()
         {
-            if (toDownload != null)
+            if(_toDownload != null)
             {
-                for (int i = 0; i < toDownload.Count; i++)
+                for(int i = 0; i < _toDownload.Count; i++)
                 {
-                    tool.DownloadAsset(toDownload[i]);
-                    toInstanciate.Add(toDownload[i]);
-                    toDownload.RemoveAt(i);
+                    Tool.DownloadAsset(_toDownload[i]);
+                    _toInstanciate.Add(_toDownload[i]);
+                    _toDownload.RemoveAt(i);
                 }
             }
 
-            if (toInstanciate != null)
+            if(_toInstanciate != null)
             {
-                for (int i = 0; i < toInstanciate.Count; i++)
+                for(int i = 0; i < _toInstanciate.Count; i++)
                 {
-                    if (AssetDatabase.LoadMainAssetAtPath(toInstanciate[i].mainAssetPath) != null)
+                    if(AssetDatabase.LoadMainAssetAtPath(_toInstanciate[i].MainAssetPath) != null)
                     {
-                        tool.InstanciateAsset(toInstanciate[i]);
-                        toInstanciate.RemoveAt(i);
+                        Tool.InstanciateAsset(_toInstanciate[i]);
+                        _toInstanciate.RemoveAt(i);
                     }
                 }
             }
@@ -618,7 +618,7 @@ namespace SocialPoint.GrayboxLibrary
 
         void OnDestroy()
         {
-            tool.Disconnect();
+            Tool.Disconnect();
         }
 
         void OnInspectorUpdate()

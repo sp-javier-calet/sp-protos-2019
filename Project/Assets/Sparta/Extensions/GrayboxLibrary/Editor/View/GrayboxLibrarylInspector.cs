@@ -7,50 +7,50 @@ namespace SocialPoint.GrayboxLibrary
     [CustomEditor(typeof(GrayboxLibraryInspectorDummy))]
     public class GrayboxLibraryInspector : UnityEditor.Editor
     {
-        private string[] tags = null;
-        private GrayboxLibraryWebDrawer webDrawer;
-        private GrayboxLibraryWebWindow webWindow;
-        private EditorWindow inspectorWindow;
+        private string[] _tags = null;
+        private GrayboxLibraryWebDrawer _webDrawer;
+        private GrayboxLibraryWebWindow _webWindow;
+        private EditorWindow _inspectorWindow;
 
         public override void OnInspectorGUI()
         {
-            if (EditorApplication.isCompiling)
+            if(EditorApplication.isCompiling)
                 ClearView();
 
-            else if (GrayboxLibraryWindow.assetChosen != null)
+            else if(GrayboxLibraryWindow.AssetChosen != null)
             {
-                if (inspectorWindow == null)
+                if(_inspectorWindow == null)
                 {
                     var editorAsm = typeof(UnityEditor.Editor).Assembly;
                     Type inspWndType = editorAsm.GetType("UnityEditor.InspectorWindow");
-                    inspectorWindow = EditorWindow.GetWindow(inspWndType);
-                    GrayboxLibraryWindow.window.Focus();
+                    _inspectorWindow = EditorWindow.GetWindow(inspWndType);
+                    GrayboxLibraryWindow.Window.Focus();
                 }
 
-                GrayboxAsset asset = GrayboxLibraryWindow.assetChosen;
+                GrayboxAsset asset = GrayboxLibraryWindow.AssetChosen;
 
-                EditorGUILayout.LabelField(asset.name, EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(asset.Name, EditorStyles.boldLabel);
                 EditorGUILayout.Separator();
 
                 GUILayout.BeginVertical();
                 Rect previewRect;
-                if (asset.animatedThumbnailPath.Length > 0)
+                if(asset.AnimatedThumbnailPath.Length > 0)
                 {
-                    float width = Mathf.Min(inspectorWindow.position.width - 25, GrayboxLibraryWindow.animatedThumbWidth);
-                    previewRect = GUILayoutUtility.GetRect(width, GrayboxLibraryWindow.animatedThumbHeight, GUILayout.Width(width));
-                    if (webDrawer == null)
+                    float width = Mathf.Min(_inspectorWindow.position.width - 25, GrayboxLibraryWindow.AnimatedThumbWidth);
+                    previewRect = GUILayoutUtility.GetRect(width, GrayboxLibraryWindow.AnimatedThumbHeight, GUILayout.Width(width));
+                    if(_webDrawer == null)
                     {
-                        webWindow = GrayboxLibraryWebWindow.Launch();
-                        Rect webWindowRect = new Rect(previewRect.x + inspectorWindow.position.x, previewRect.y + inspectorWindow.position.y, previewRect.width, previewRect.height);
+                        _webWindow = GrayboxLibraryWebWindow.Launch();
+                        Rect webWindowRect = new Rect(previewRect.x + _inspectorWindow.position.x, previewRect.y + _inspectorWindow.position.y, previewRect.width, previewRect.height);
                         Rect webDrawerRect = new Rect(0, 0, webWindowRect.width, webWindowRect.height);
-                        webDrawer = new GrayboxLibraryWebDrawer(webWindow, asset.animatedThumbnailPath, webDrawerRect);
+                        _webDrawer = new GrayboxLibraryWebDrawer(_webWindow, asset.AnimatedThumbnailPath, webDrawerRect);
                     }
-                    if (previewRect.width > 1)
+                    if(previewRect.width > 1)
                     {
-                        Rect webWindowRect = new Rect(previewRect.x + inspectorWindow.position.x, previewRect.y + inspectorWindow.position.y, previewRect.width, previewRect.height);
-                        webWindow.Draw(webWindowRect);
+                        Rect webWindowRect = new Rect(previewRect.x + _inspectorWindow.position.x, previewRect.y + _inspectorWindow.position.y, previewRect.width, previewRect.height);
+                        _webWindow.Draw(webWindowRect);
                         Rect webDrawerRect = new Rect(0, 0, webWindowRect.width, webWindowRect.height);
-                        webDrawer.Draw(webDrawerRect);
+                        _webDrawer.Draw(webDrawerRect);
                     }
                     GUILayout.Label("", GUILayout.Height(10));
 
@@ -58,8 +58,8 @@ namespace SocialPoint.GrayboxLibrary
                 }
                 else
                 {
-                    previewRect = GUILayoutUtility.GetRect(inspectorWindow.position.width, inspectorWindow.position.width * (GrayboxLibraryWindow.thumbHeight / GrayboxLibraryWindow.thumbWidth));
-                    GUI.DrawTexture(previewRect, asset.thumbnail);
+                    previewRect = GUILayoutUtility.GetRect(_inspectorWindow.position.width, _inspectorWindow.position.width * (GrayboxLibraryWindow.ThumbHeight / GrayboxLibraryWindow.ThumbWidth));
+                    GUI.DrawTexture(previewRect, asset.Thumbnail);
                 }
 
 
@@ -67,14 +67,14 @@ namespace SocialPoint.GrayboxLibrary
 
                 GUILayout.BeginHorizontal();
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                GUILayout.Label(asset.name);
+                GUILayout.Label(asset.Name);
                 GUILayout.EndVertical();
 
                 GUILayout.BeginVertical();
-                if (tags == null)
-                    tags = GrayboxLibraryWindow.tool.GetAssetTagsAsText(asset);
+                if(_tags == null)
+                    _tags = GrayboxLibraryWindow.Tool.GetAssetTagsAsText(asset);
 
-                foreach (string tag in tags)
+                foreach (string tag in _tags)
                 {
                     GUILayout.Label(tag);
                 }
@@ -82,7 +82,7 @@ namespace SocialPoint.GrayboxLibrary
 
                 GUILayout.EndHorizontal();
                 GUILayout.Label("", GUILayout.Height(20));
-                if (GUILayout.Button("Add to Scene", GUILayout.Width(100f), GUILayout.Height(25f)))
+                if(GUILayout.Button("Add to Scene", GUILayout.Width(100f), GUILayout.Height(25f)))
                     GrayboxLibraryWindow.InstantiateAsset();
 
                 GUILayout.EndVertical();
@@ -97,10 +97,10 @@ namespace SocialPoint.GrayboxLibrary
 
         void ClearView()
         {
-            if (webDrawer != null)
-                webDrawer.ClearView();
-            if (webWindow != null)
-                webWindow.Close();
+            if(_webDrawer != null)
+                _webDrawer.ClearView();
+            if(_webWindow != null)
+                _webWindow.Close();
         }
 
         void OnDestroy()
