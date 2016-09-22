@@ -44,7 +44,7 @@ namespace SocialPoint.Lockstep
             var cmd = Create(type);
             if(cmd == null)
             {
-                throw new InvalidOperationException("Command type '"+type+"' not registered!");
+                throw new InvalidOperationException("Command type '" + type + "' not registered!");
             }
             cmd.Deserialize(reader);
             return cmd;
@@ -67,7 +67,7 @@ namespace SocialPoint.Lockstep
             itr.Dispose();
             if(!success)
             {
-                throw new InvalidOperationException("Command type '"+cmd.GetType()+"' not registered!");
+                throw new InvalidOperationException("Command type '" + cmd.GetType() + "' not registered!");
             }
         }
     }

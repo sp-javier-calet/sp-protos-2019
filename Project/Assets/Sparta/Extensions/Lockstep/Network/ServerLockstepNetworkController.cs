@@ -14,7 +14,7 @@ namespace SocialPoint.Lockstep.Network
         public const byte ConfirmTurnsReception = 4;
         public const byte ClientSetup = 5;
         public const byte PlayerReady = 6;
-        public const byte AllClientsReady = 7;
+        public const byte AllPlayersReady = 7;
     }
 
     public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate
@@ -170,6 +170,14 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public bool Running
+        {
+            get
+            {
+                return _server.Running && _serverLockstep.Running;
+            }
+        }
+
         byte OnPlayerReadyReceived(LockstepClientData clientData)
         {
             var playerId = FreePlayerId;
@@ -193,11 +201,11 @@ namespace SocialPoint.Lockstep.Network
             {
                 var client = itr.Current.Value;
                 var msg = new AllPlayersReadyMessage(
-                    _server.GetTimestamp(),
-                    _startLockstepDelay,
-                   client.Players.ToArray());
+                              _server.GetTimestamp(),
+                              _startLockstepDelay,
+                              client.Players.ToArray());
                 _server.SendMessage(new NetworkMessageData {
-                    MessageType = LockstepMsgType.AllClientsReady,
+                    MessageType = LockstepMsgType.AllPlayersReady,
                     ClientId = client.ClientId
                 }, msg);
             }

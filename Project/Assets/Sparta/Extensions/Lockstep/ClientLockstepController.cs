@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
@@ -10,7 +9,6 @@ namespace SocialPoint.Lockstep
 {
     public class ClientLockstepController : IUpdateable, IDisposable
     {
-        ISimulateable _model;
         IUpdateScheduler _updateScheduler;
 
         long _simulationTime;
@@ -245,7 +243,7 @@ namespace SocialPoint.Lockstep
         public void AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
             var commandData = new ClientLockstepCommandData(
-                _nextCommandId, command, ExecutionTurn, logic);
+                                  _nextCommandId, command, ExecutionTurn, logic);
             _nextCommandId++;
             AddPendingCommand(commandData);
         }

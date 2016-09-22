@@ -16,7 +16,9 @@ namespace SocialPoint.Lockstep
         int _id;
 
         public int ClientId;
+
         public int Turn{ get; private set; }
+
         public int Retries{ get; private set; }
 
         public ClientLockstepCommandData(int id, ILockstepCommand cmd, int turn, ILockstepCommandLogic logic)
@@ -29,7 +31,7 @@ namespace SocialPoint.Lockstep
 
         public ClientLockstepCommandData()
         {
-        }            
+        }
 
         public ServerLockstepCommandData ToServer(LockstepCommandFactory factory)
         {
@@ -64,7 +66,7 @@ namespace SocialPoint.Lockstep
                 writer.Write(len);
                 writer.Write(stream.GetBuffer(), len);
             }
-        }            
+        }
 
         public void Deserialize(LockstepCommandFactory factory, IReader reader)
         {
@@ -150,6 +152,7 @@ namespace SocialPoint.Lockstep
         int _id;
 
         public int ClientId;
+
         public int Turn{ get; private set; }
 
         public ServerLockstepCommandData()
@@ -190,6 +193,7 @@ namespace SocialPoint.Lockstep
             ClientId = reader.ReadInt32();
             Turn = reader.ReadInt32();
             var cmdLen = reader.ReadInt32();
+            _command = null;
             if(cmdLen > 0)
             {
                 _command = reader.ReadBytes(cmdLen);

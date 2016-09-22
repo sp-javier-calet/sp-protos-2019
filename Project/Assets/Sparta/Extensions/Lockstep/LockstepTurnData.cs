@@ -28,7 +28,7 @@ namespace SocialPoint.Lockstep
         public ServerLockstepTurnData ToServer(LockstepCommandFactory factory)
         {
             var commands = new List<ServerLockstepCommandData>(Commands.Count);
-            for(var i=0; i<Commands.Count;i++)
+            for(var i = 0; i < Commands.Count; i++)
             {
                 var cmd = Commands[i];
                 if(cmd != null)
@@ -66,7 +66,7 @@ namespace SocialPoint.Lockstep
         public ClientLockstepTurnData ToClient(LockstepCommandFactory factory)
         {
             var commands = new List<ClientLockstepCommandData>(Commands.Count);
-            for(var i=0; i<Commands.Count;i++)
+            for(var i = 0; i < Commands.Count; i++)
             {
                 var cmd = Commands[i];
                 if(cmd != null)

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
 
@@ -22,6 +20,14 @@ namespace SocialPoint.Lockstep
             get
             {
                 return (int)(_simulationTime / CommandStep);
+            }
+        }
+
+        public bool Running
+        {
+            get
+            {
+                return _isRunning;
             }
         }
 
@@ -232,6 +238,10 @@ namespace SocialPoint.Lockstep
 
         void SendLocalClientTurnData()
         {
+            if(_localClient == null)
+            {
+                return;
+            }
             var itr = _turns.GetEnumerator();
             while(itr.MoveNext())
             {
