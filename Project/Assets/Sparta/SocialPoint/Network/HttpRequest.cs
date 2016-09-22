@@ -50,6 +50,8 @@ namespace SocialPoint.Network
 
         public string Proxy;
 
+        public bool Http2;
+
         public Uri Url
         {
             get

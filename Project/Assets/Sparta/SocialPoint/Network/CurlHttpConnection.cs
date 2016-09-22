@@ -109,7 +109,6 @@ namespace SocialPoint.Network
         byte[] _body;
         public string _headers;
         int _respCode;
-        readonly int _connectionId;
         bool _dataReceived;
         double _downloadSize;
         double _downloadSpeed;
@@ -123,11 +122,21 @@ namespace SocialPoint.Network
         const string kSlash = @"/";
         const string kQuestionMark = @"?";
 
+        readonly CurlBridge.Connection _connection;
+
+        public override IHttpStream Stream
+        {
+            get
+            {
+                return null;
+            }
+        }
+
         public override IEnumerator Update()
         {
             while(!_dataReceived)
             {
-                int isFinished = CurlBridge.SPUnityCurlUpdate(_connectionId);
+                int isFinished = _connection.Update();
                 if(isFinished == 1)
                 {
                     ReceiveData();
@@ -137,13 +146,13 @@ namespace SocialPoint.Network
             }
         }
 
-        public CurlHttpConnection(int connectionId, HttpRequest req, HttpResponseDelegate del) :
+        public CurlHttpConnection(CurlBridge.Connection connection, HttpRequest req, HttpResponseDelegate del) :
             base(del)
         {
-            _connectionId = connectionId;
+            _connection = connection;
             _request = req;
             _dataReceived = false;
-            Send(_connectionId, _request);
+            Send(_connection, _request);
         }
 
 
@@ -280,10 +289,10 @@ namespace SocialPoint.Network
             return data;
         }
 
-        void Send(int id, HttpRequest req)
+        void Send(CurlBridge.Connection connection, HttpRequest req)
         {
-            var data = CreateRequestStruct(req, id);
-            int ok = CurlBridge.SPUnityCurlSend(data);
+            var data = CreateRequestStruct(req, connection.Id);
+            int ok = connection.Send(data);
             if(ok == 0)
             {
                 ReceiveData();
@@ -293,41 +302,25 @@ namespace SocialPoint.Network
         void ReceiveData()
         {
             _dataReceived = true;
-            int bodyLength = CurlBridge.SPUnityCurlGetBodyLength(_connectionId);
-            int HeadersLength = CurlBridge.SPUnityCurlGetHeadersLength(_connectionId);
+            _connectTime = _connection.ConnectTime;
+            _totalTime = _connection.TotalTime;
+            _downloadSize = _connection.DownloadSize;
+            _downloadSpeed = _connection.DownloadSize;
 
-            _connectTime = CurlBridge.SPUnityCurlGetConnectTime(_connectionId);
-            _totalTime = CurlBridge.SPUnityCurlGetTotalTime(_connectionId);
-            _downloadSize = CurlBridge.SPUnityCurlGetDownloadSize(_connectionId);
-            _downloadSpeed = CurlBridge.SPUnityCurlGetDownloadSpeed(_connectionId);
-            _respCode = CurlBridge.SPUnityCurlGetResponseCode(_connectionId);
+            _respCode = _connection.Code;
+
             _error = null;
-            int errorCode = CurlBridge.SPUnityCurlGetErrorCode(_connectionId);
+            int errorCode = _connection.ErrorCode;
             if(errorCode != 0)
             {
-                int errorLength = CurlBridge.SPUnityCurlGetErrorLength(_connectionId);
-                var bytes = new byte[errorLength];
-                CurlBridge.SPUnityCurlGetError(_connectionId, bytes);
                 _error = new Error(
                     GetResponseErrorCode(errorCode),
-                    System.Text.Encoding.ASCII.GetString(bytes));
+                    _connection.Error);
             }
             
-            _body = new byte[0];
-            if(bodyLength > 0)
-            {
-                _body = new byte[bodyLength];
-                CurlBridge.SPUnityCurlGetBody(_connectionId, _body);
-            }
-            _headers = String.Empty;
-            if(HeadersLength > 0)
-            {
-                var bytes = new byte[HeadersLength];
-                CurlBridge.SPUnityCurlGetHeaders(_connectionId, bytes);
-                _headers = System.Text.Encoding.ASCII.GetString(bytes);
-            }
-
-            CurlBridge.SPUnityCurlDestroyConn(_connectionId);
+            _body = _connection.Body;
+            _headers = _connection.Headers;
+            _connection.Dispose();
             
             HttpResponse resp;
             try

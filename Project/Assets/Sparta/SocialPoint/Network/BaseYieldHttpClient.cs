@@ -7,6 +7,8 @@ namespace SocialPoint.Network
 {
     public abstract class BaseYieldHttpConnection : IHttpConnection
     {
+        public abstract IHttpStream Stream { get; }
+
         public abstract IEnumerator Update();
 
         public abstract void Cancel();

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +10,8 @@ namespace SocialPoint.Network
     {
         static int _initCount = 0;
         IAppEvents _appEvents;
+
+        CurlBridge _curl;
 
         public IAppEvents AppEvents
         {
@@ -39,7 +40,7 @@ namespace SocialPoint.Network
         {
             set
             {
-                CurlBridge.SPUnityCurlSetConfig(value);
+                _curl.SetConfig(value);
             }
         }
 
@@ -47,7 +48,7 @@ namespace SocialPoint.Network
         {
             if(_initCount == 0)
             {
-                CurlBridge.SPUnityCurlInit();
+                _curl = new CurlBridge(false);
             }
             _initCount++;
         }
@@ -59,7 +60,7 @@ namespace SocialPoint.Network
             _initCount--;
             if(_initCount <= 0)
             {
-                CurlBridge.SPUnityCurlDestroy();
+                _curl.Dispose();
             }
         }
 
@@ -70,18 +71,19 @@ namespace SocialPoint.Network
                 IEnumerator e = Current.Update();
                 e.MoveNext();
             }
-            CurlBridge.SPUnityCurlOnApplicationPause(true);
+            _curl.Pause = true;
         }
 
         void WasOnBackground()
         {
-            CurlBridge.SPUnityCurlOnApplicationPause(false);
+            _curl.Pause = false;
         }
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)
         {
-            int id = CurlBridge.SPUnityCurlCreateConn();
-            return new CurlHttpConnection(id, req, del);
+            
+            var conn = _curl.CreateConnection();
+            return new CurlHttpConnection(conn, req, del);
         }
     }
 }

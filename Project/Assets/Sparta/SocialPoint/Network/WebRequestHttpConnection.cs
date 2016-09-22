@@ -20,6 +20,14 @@ namespace SocialPoint.Network
             _requestBody = reqBody;
         }
     
+        public override IHttpStream Stream
+        {
+            get
+            {
+                return null;
+            }
+        }
+
         public override void Cancel()
         {
             _request.Abort();

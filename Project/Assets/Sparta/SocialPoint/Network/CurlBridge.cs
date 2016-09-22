@@ -1,4 +1,6 @@
+using System;
 using System.Runtime.InteropServices;
+using SocialPoint.Base;
 using SocialPoint.Network;
 
 namespace SocialPoint.Network
@@ -26,6 +28,172 @@ namespace SocialPoint.Network
             public int BodyLength;
         };
 
+        readonly UIntPtr _nativeClient;
+
+        public CurlBridge(bool enableHttp2)
+        {
+            _nativeClient = SPUnityCurlCreate(enableHttp2);
+        }
+
+        public void SetConfig(string config)
+        {
+            SPUnityCurlSetConfig(_nativeClient, config);
+        }
+
+        public Connection CreateConnection()
+        {
+            var id = SPUnityCurlCreateConn(_nativeClient);
+            return new Connection(this, id);
+        }
+
+        public void Dispose()
+        {
+            SPUnityCurlDestroy(_nativeClient);
+        }
+
+        public bool Pause
+        {
+            set
+            {
+                SPUnityCurlOnApplicationPause(_nativeClient, value);
+            }
+        }
+
+        #region Inner Connection class
+
+        public class Connection
+        {
+            readonly CurlBridge _curl;
+            readonly int _connectionId;
+
+            public Connection(CurlBridge curl, int connection)
+            {
+                _curl = curl;
+                _connectionId = connection;
+            }
+
+            public int Update()
+            {
+                return SPUnityCurlUpdate(_curl._nativeClient, _connectionId);
+            }
+
+            public int Send(RequestStruct req)
+            {
+                return SPUnityCurlSend(_curl._nativeClient, req);
+            }
+
+            public int Id
+            {
+                get
+                {
+                    return _connectionId;
+                }
+            }
+
+            public double ConnectTime
+            {
+                get
+                {
+                    return SPUnityCurlGetConnectTime(_curl._nativeClient, _connectionId);
+                }
+            }
+
+            public double TotalTime
+            {
+                get
+                {
+                    return SPUnityCurlGetTotalTime(_curl._nativeClient, _connectionId);
+                }
+            }
+
+            public double DownloadSize
+            {
+                get
+                {
+                    return SPUnityCurlGetDownloadSize(_curl._nativeClient, _connectionId);
+                }
+            }
+
+            public double DownloadSpeed
+            {
+                get
+                {
+                    return SPUnityCurlGetDownloadSpeed(_curl._nativeClient, _connectionId);
+                }
+            }
+
+            public int Code
+            {
+                get
+                {   
+                    return SPUnityCurlGetResponseCode(_curl._nativeClient, _connectionId);
+                }
+            }
+
+            public string Headers
+            {
+                get
+                {
+                    var headers = String.Empty;
+                    var headersLength = SPUnityCurlGetHeadersLength(_curl._nativeClient, _connectionId);
+                    if(headersLength > 0)
+                    {
+                        var bytes = new byte[headersLength];
+                        SPUnityCurlGetHeaders(_curl._nativeClient, _connectionId, bytes);
+                        headers = System.Text.Encoding.ASCII.GetString(bytes);
+                    }
+                    return headers;
+                }
+            }
+
+            public byte[] Body
+            {
+                get
+                {
+                    byte[] body = null;
+                    var bodyLength = SPUnityCurlGetBodyLength(_curl._nativeClient, _connectionId);
+                    if(bodyLength > 0)
+                    {
+                        body = new byte[bodyLength];
+                        SPUnityCurlGetBody(_curl._nativeClient, _connectionId, body);
+                    }
+                    else
+                    {
+                        body = new byte[0];
+                    }
+                    return body;
+                }
+            }
+
+            public int ErrorCode
+            {
+                get
+                {
+                    return SPUnityCurlGetErrorCode(_curl._nativeClient, _connectionId);
+                }
+            }
+
+            public string Error
+            {
+                get
+                {
+                    int errorLength = CurlBridge.SPUnityCurlGetErrorLength(_curl._nativeClient, _connectionId);
+                    var bytes = new byte[errorLength];
+                    SPUnityCurlGetError(_curl._nativeClient, _connectionId, bytes);
+                    var error = System.Text.Encoding.ASCII.GetString(bytes);
+                    return error;
+                }
+            }
+
+            public void Dispose()
+            {
+                SPUnityCurlDestroyConn(_curl._nativeClient, _connectionId);
+            }
+        }
+
+        #endregion
+
+        #region Native interface
 
         #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
         const string PluginModuleName = "SPUnityPlugins";
@@ -40,63 +208,65 @@ namespace SocialPoint.Network
         #endif
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlGetError(int id, byte[] data);
+        static extern UIntPtr SPUnityCurlCreate(bool enableHttp2);
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlGetBody(int id, byte[] data);
+        static extern void SPUnityCurlDestroy(UIntPtr client);
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlGetHeaders(int id, byte[] data);
+        static extern int SPUnityCurlCreateConn(UIntPtr client);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetResponseCode(int id);
+        static extern void SPUnityCurlDestroyConn(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetErrorCode(int id);
+        static extern int SPUnityCurlSend(UIntPtr client, RequestStruct data);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetErrorLength(int id);
+        static extern int SPUnityCurlUpdate(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetBodyLength(int id);
+        static extern void SPUnityCurlGetError(UIntPtr client, int id, byte[] data);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetHeadersLength(int id);
+        static extern void SPUnityCurlGetBody(UIntPtr client, int id, byte[] data);
 
         [DllImport(PluginModuleName)]
-        public static extern double SPUnityCurlGetConnectTime(int id);
+        static extern void SPUnityCurlGetHeaders(UIntPtr client, int id, byte[] data);
 
         [DllImport(PluginModuleName)]
-        public static extern double SPUnityCurlGetTotalTime(int id);
+        static extern int SPUnityCurlGetResponseCode(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetDownloadSize(int id);
+        static extern int SPUnityCurlGetErrorCode(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlGetDownloadSpeed(int id);
+        static extern int SPUnityCurlGetErrorLength(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlInit();
+        static extern int SPUnityCurlGetBodyLength(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlDestroy();
+        static extern int SPUnityCurlGetHeadersLength(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlCreateConn();
+        static extern double SPUnityCurlGetConnectTime(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlDestroyConn(int id);
+        static extern double SPUnityCurlGetTotalTime(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlSend(RequestStruct data);
+        static extern int SPUnityCurlGetDownloadSize(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern int SPUnityCurlUpdate(int id);
+        static extern int SPUnityCurlGetDownloadSpeed(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlOnApplicationPause(bool pause);
+        static extern void SPUnityCurlOnApplicationPause(UIntPtr client, bool pause);
 
         [DllImport(PluginModuleName)]
-        public static extern void SPUnityCurlSetConfig(string name);
+        static extern void SPUnityCurlSetConfig(UIntPtr client, string name);
+
+        #endregion
     }
 }
