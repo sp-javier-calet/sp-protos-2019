@@ -11,40 +11,17 @@ namespace SocialPoint.Lockstep.Network
         LockstepCommandFactory _commandFactory;
         ClientLockstepController _clientLockstep;
         LockstepConfig _lockstepConfig;
-        int _sendPlayerReadyPending;
+        bool _sendPlayerReadyPending;
         bool _clientSetupReceived;
         INetworkMessageReceiver _receiver;
-        byte[] _playerIds;
 
-        public int PlayerCount
-        {
-            get
-            {
-                if(_playerIds == null)
-                {
-                    return 0;
-                }
-                return _playerIds.Length;
-            }
-        }
-
-        public bool GetPlayerId(int position, out byte playerId)
-        {
-            if(_playerIds == null || _playerIds.Length <= position)
-            {
-                playerId = byte.MaxValue;
-                return false;
-            }
-            playerId = _playerIds[position];
-            return true;
-        }
+        public int PlayerId{ get; private set; }
 
         public ClientLockstepNetworkController(INetworkClient client)
         {
             _client = client;
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
-            _sendPlayerReadyPending = 0;
         }
 
         public void Init(ClientLockstepController clientLockstep, LockstepCommandFactory factory)
@@ -135,13 +112,13 @@ namespace SocialPoint.Lockstep.Network
             {
                 throw new InvalidOperationException("Should have already started lockstep.");
             }
-            _playerIds = msg.PlayerIds;
+            PlayerId = msg.PlayerId;
             _clientLockstep.Start(TimeUtils.TimestampMilliseconds + (long)remaining);
         }
 
         public void SendPlayerReady()
         {
-            _sendPlayerReadyPending++;
+            _sendPlayerReadyPending = true;
             TrySendPlayerReady();
         }
 
@@ -151,8 +128,9 @@ namespace SocialPoint.Lockstep.Network
             {
                 return;
             }
-            for(; _sendPlayerReadyPending > 0; _sendPlayerReadyPending--)
+            if(_sendPlayerReadyPending)
             {
+                _sendPlayerReadyPending = false;
                 _client.CreateMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
                     Unreliable = false
