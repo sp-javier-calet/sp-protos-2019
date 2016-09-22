@@ -93,7 +93,7 @@ namespace SocialPoint.Lockstep.Network
             case LockstepMsgType.ClientSetup:
                 OnClientSetupReceived(reader);
                 break;
-            case LockstepMsgType.AllClientsReady:
+            case LockstepMsgType.AllPlayersReady:
                 OnAllPlayersReadyReceived(reader);
                 break;
             default:

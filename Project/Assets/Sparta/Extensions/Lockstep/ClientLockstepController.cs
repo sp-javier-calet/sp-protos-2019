@@ -243,7 +243,7 @@ namespace SocialPoint.Lockstep
         public void AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
             var commandData = new ClientLockstepCommandData(
-                _nextCommandId, command, ExecutionTurn, logic);
+                                  _nextCommandId, command, ExecutionTurn, logic);
             _nextCommandId++;
             AddPendingCommand(commandData);
         }
