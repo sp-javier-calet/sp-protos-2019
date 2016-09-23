@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 
@@ -11,7 +9,7 @@ namespace SocialPoint.Network
         static int _initCount = 0;
         IAppEvents _appEvents;
 
-        CurlBridge _curl;
+        readonly Curl _curl;
 
         public IAppEvents AppEvents
         {
@@ -48,7 +46,7 @@ namespace SocialPoint.Network
         {
             if(_initCount == 0)
             {
-                _curl = new CurlBridge(false);
+                _curl = new Curl(false);
             }
             _initCount++;
         }
