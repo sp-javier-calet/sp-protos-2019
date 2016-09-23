@@ -53,6 +53,53 @@ namespace
         return s;
     }
     
+    /* called when data is received through stream */
+    static size_t message_receive_callback(char* ptr, size_t size, size_t nmemb, void* userdata)
+    {
+        /* TODO:
+         The documentation for CURLOPT_WRITEFUNCTION says that we cannot make assumptions about the amount of
+         data received through this function. We should create a protocol to define the end of a "package" sent
+         through the server.
+         */
+        
+        CurlConnection* conn = (CurlConnection*)userdata;
+        
+        size_t totalBytes = size * nmemb;
+        std::string data(ptr, totalBytes);
+        
+        conn->messages.incoming.append(ptr, size * nmemb);
+        
+        return writeToString(ptr, size, nmemb, &conn->bodyBuffer);
+    }
+    
+    static size_t message_send_callback(char* buffer, size_t size, size_t nmemb, void* userdata)
+    {
+        CurlConnection* conn = (CurlConnection*)userdata;
+        size_t bufferSize = size * nmemb;
+        size_t msgLength = conn->messages.outcoming.length();
+        size_t msgSize = msgLength * sizeof(char);
+        size_t bytesWritten = 0;
+        
+        if(msgSize < bufferSize)
+        {
+            bytesWritten = msgSize;
+        }
+        else
+        {
+            bytesWritten = bufferSize;
+        }
+        
+        if(!msgLength)
+        {
+            return CURL_READFUNC_PAUSE;
+        }
+        
+        memcpy(buffer, &conn->messages.outcoming, bytesWritten);
+        conn->messages.outcoming = conn->messages.outcoming.substr(bytesWritten / sizeof(char));
+        
+        return CURLE_OK;
+    }
+    
     static int server_push_callback(CURL* parent, CURL* easy, size_t num_headers, struct curl_pushheaders* headers, void* userp)
     {
         /* TODO:
@@ -101,6 +148,11 @@ CurlClient::~CurlClient()
         curl_multi_cleanup(_multi);
         _multi = nullptr;
     }
+}
+
+bool CurlClient::isRunning()
+{
+    return _running > 0;
 }
 
 CURL* CurlClient::create(CurlRequest req)
@@ -225,15 +277,21 @@ bool CurlClient::send(CurlRequest req)
     curl_easy_setopt(conn->easy, CURLOPT_WRITEDATA, &conn->bodyBuffer);
     curl_easy_setopt(conn->easy, CURLOPT_PRIVATE, conn);
     
-    /* HTTP/2 please */
-    curl_easy_setopt(conn->easy, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-    
-    /* Wait for pipe connection to confirm. Works together with CURLMOPT_PIPELINING option in the multi handle */
-    //curl_easy_setopt(conn->easy, CURLOPT_PIPEWAIT, 1L);
-    
-    //*** TEST
-    curl_easy_setopt(conn->easy, CURLOPT_VERBOSE, 1L);
-    
+    if(_supportsHttp2)
+    {
+        /* Upgrade requests to http2 if possible */
+        curl_easy_setopt(conn->easy, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+        
+        /* Wait for pipe connection to confirm. Works together with CURLMOPT_PIPELINING option in the multi handle */
+        curl_easy_setopt(conn->easy, CURLOPT_PIPEWAIT, 1L);
+        
+        // Change the previously defined write function.
+        curl_easy_setopt(conn->easy, CURLOPT_WRITEFUNCTION, message_receive_callback);
+        curl_easy_setopt(conn->easy, CURLOPT_WRITEDATA, conn);
+        
+        curl_easy_setopt(conn->easy, CURLOPT_READFUNCTION, message_send_callback);
+        curl_easy_setopt(conn->easy, CURLOPT_READDATA, conn);
+    }
     
     conn->bodyBuffer.clear();
     conn->headersBuffer.clear();
@@ -378,7 +436,10 @@ void CurlClient::update()
 
 bool CurlClient::update(int id)
 {
-    update();
+    if(!isFinished(id))
+    {
+        update();
+    }
     return isFinished(id);
 }
 
@@ -408,6 +469,41 @@ bool CurlClient::destroyConnection(int id)
 {
     printf("\n\n###  ======================  DESSTROY CONN %d ###\n\n", id);
     return _connections.remove(id);
+}
+
+bool CurlClient::sendStreamMessage(int id, CurlMessage data)
+{
+    CurlConnection* conn = _connections.get(id);
+    if(conn)
+    {
+        if(conn->messages.outcoming.empty())
+        {
+            curl_easy_pause(conn->easy, CURLPAUSE_CONT);
+        }
+        
+        conn->messages.outcoming.append((char*)data.message, data.messageLength * sizeof(char));
+        return true;
+    }
+    return false;
+}
+
+int CurlClient::getStreamMessageLenght(int id)
+{
+    CurlConnection* conn = _connections.get(id);
+    if(conn)
+    {
+        return (int)conn->messages.incoming.length();
+    }
+    return 0;
+}
+
+void CurlClient::getStreamMessage(int id, char* data)
+{
+    CurlConnection* conn = _connections.get(id);
+    if(conn)
+    {
+        memcpy(data, conn->messages.incoming.c_str(), conn->messages.incoming.length() * sizeof(char));
+    }
 }
 
 double CurlClient::getTime(int id)

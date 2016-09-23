@@ -18,6 +18,12 @@ extern "C" {
 }
 
 /* Information associated with a specific easy handle */
+struct SPUnityCurlMessagesInfo
+{
+    std::string incoming;
+    std::string outcoming;
+};
+
 class CurlConnection
 {
 public:
@@ -36,6 +42,7 @@ public:
     double connectTime = 0.0;
     double totalTime = 0.0;
     bool hasStreamData = false;
+    SPUnityCurlMessagesInfo messages;
     
     CurlConnection(int pId)
     : id(pId)

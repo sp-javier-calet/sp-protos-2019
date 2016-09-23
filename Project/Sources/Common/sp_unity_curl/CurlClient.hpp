@@ -33,6 +33,12 @@ struct CurlRequest
     int bodyLength;
 };
 
+struct CurlMessage
+{
+    const uint8_t* message;
+    int messageLength;
+};
+
 
 class CurlClient
 {
@@ -64,6 +70,10 @@ public:
     
     int createConnection();
     bool destroyConnection(int id);
+    
+    bool sendStreamMessage(int id, CurlMessage data);
+    int getStreamMessageLenght(int id);
+    void getStreamMessage(int id, char* data);
     
     double getTime(int id);
     double getTotalTime(int id);
