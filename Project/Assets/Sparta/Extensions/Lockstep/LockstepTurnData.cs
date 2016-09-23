@@ -67,7 +67,7 @@ namespace SocialPoint.Lockstep
 
     public sealed class ServerLockstepTurnData : INetworkShareable
     {
-        public int Turn { get; private set; }
+        public int Turn { get; set; }
 
         public List<ServerLockstepCommandData> Commands { get; set; }
 

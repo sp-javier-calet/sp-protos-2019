@@ -12,21 +12,16 @@ namespace SocialPoint.Lockstep
     public class ClientLockstepCommandData
     {
         ILockstepCommand _command;
-        ILockstepCommandLogic _logic;
+        ILockstepCommandLogic _finish;
         int _id;
 
         public int ClientId;
 
-        public int Turn{ get; private set; }
-
-        public int Retries{ get; private set; }
-
-        public ClientLockstepCommandData(int id, ILockstepCommand cmd, int turn, ILockstepCommandLogic logic)
+        public ClientLockstepCommandData(int id, ILockstepCommand cmd, ILockstepCommandLogic finish)
         {
             _id = id;
             _command = cmd;
-            Turn = turn;
-            _logic = logic;
+            _finish = finish;
         }
 
         public ClientLockstepCommandData()
@@ -49,7 +44,6 @@ namespace SocialPoint.Lockstep
         {
             writer.Write(_id);
             writer.Write(ClientId);
-            writer.Write(Turn);
 
             if(_command == null)
             {
@@ -72,7 +66,6 @@ namespace SocialPoint.Lockstep
         {
             _id = reader.ReadInt32();
             ClientId = reader.ReadInt32();
-            Turn = reader.ReadInt32();
             var cmdLen = reader.ReadInt32();
             _command = null;
             if(cmdLen > 0)
@@ -81,11 +74,11 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void Discard()
+        public void Finish()
         {
-            if(_logic != null)
+            if(_finish != null)
             {
-                _logic.Apply(_command);
+                _finish.Apply(_command);
             }
         }
 
@@ -97,21 +90,6 @@ namespace SocialPoint.Lockstep
                 return true;
             }
             return false;
-        }
-
-        public void Apply()
-        {
-            if(_logic != null)
-            {
-                _logic.Apply(_command);
-            }
-        }
-
-        public bool Retry(int turn)
-        {
-            Turn = turn;
-            Retries++;
-            return true;
         }
 
         public override bool Equals(object obj)
@@ -153,8 +131,6 @@ namespace SocialPoint.Lockstep
 
         public int ClientId;
 
-        public int Turn{ get; private set; }
-
         public ServerLockstepCommandData()
         {
         }
@@ -175,7 +151,6 @@ namespace SocialPoint.Lockstep
         {
             writer.Write(_id);
             writer.Write(ClientId);
-            writer.Write(Turn);
             if(_command == null)
             {
                 writer.Write(0);
@@ -191,7 +166,6 @@ namespace SocialPoint.Lockstep
         {
             _id = reader.ReadInt32();
             ClientId = reader.ReadInt32();
-            Turn = reader.ReadInt32();
             var cmdLen = reader.ReadInt32();
             _command = null;
             if(cmdLen > 0)

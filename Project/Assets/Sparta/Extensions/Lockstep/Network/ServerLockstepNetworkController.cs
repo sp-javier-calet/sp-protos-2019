@@ -9,9 +9,8 @@ namespace SocialPoint.Lockstep.Network
 {
     public static class LockstepMsgType
     {
-        public const byte LockstepCommand = 2;
+        public const byte Command = 2;
         public const byte ConfirmTurn = 3;
-        public const byte ConfirmTurnReception = 4;
         public const byte ClientSetup = 5;
         public const byte PlayerReady = 6;
         public const byte AllPlayersReady = 7;
@@ -85,16 +84,18 @@ namespace SocialPoint.Lockstep.Network
             _receiver = receiver;
         }
 
-        void SendClientTurnData(byte clientId, ServerLockstepTurnData[] turnData)
+        void SendClientTurnData(ServerLockstepTurnData turnData)
         {
-            for(var i = 0; i < turnData.Length; i++)
+            var itr = _clients.GetEnumerator();
+            while(itr.MoveNext())
             {
                 _server.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.ConfirmTurn,
                     Unreliable = true,
-                    ClientId = clientId
-                }, turnData[i]);
+                    ClientId = itr.Current.Key
+                }, turnData);
             }
+            itr.Dispose();
         }
 
         public void OnMessageReceived(NetworkMessageData data, IReader reader)
@@ -106,10 +107,7 @@ namespace SocialPoint.Lockstep.Network
             }
             switch(data.MessageType)
             {
-            case LockstepMsgType.ConfirmTurnReception:
-                OnConfirmTurnReceptionReceived(clientData, reader);
-                break;
-            case LockstepMsgType.LockstepCommand:
+            case LockstepMsgType.Command:
                 OnLockstepCommandReceived(clientData, reader);
                 break;
             case LockstepMsgType.PlayerReady:
@@ -122,13 +120,6 @@ namespace SocialPoint.Lockstep.Network
                 }
                 break;
             }
-        }
-
-        void OnConfirmTurnReceptionReceived(ClientData clientData, IReader reader)
-        {
-            var msg = new ConfirmTurnReceptionMessage();
-            msg.Deserialize(reader);
-            _serverLockstep.OnClientTurnReceptionConfirmed(clientData.ClientId, msg.Turn);
         }
 
         void OnLockstepCommandReceived(ClientData clientData, IReader reader)
@@ -283,8 +274,7 @@ namespace SocialPoint.Lockstep.Network
             {
                 var ts = TimeUtils.TimestampMilliseconds;
                 _serverLockstep.Start(
-                    ts + _serverConfig.StartDelay - _serverLockstep.CommandStep,
-                    new List<byte>(_clients.Keys).ToArray());
+                    ts + _serverConfig.StartDelay - _serverLockstep.CommandStep);
             }
 
             StartLocalClientOnAllPlayersReady();

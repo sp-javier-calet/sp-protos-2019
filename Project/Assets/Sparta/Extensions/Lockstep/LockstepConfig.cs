@@ -10,7 +10,6 @@ namespace SocialPoint.Lockstep
         public const int DefaultMinExecutionTurnAnticipation = 1;
         public const int DefaultMaxExecutionTurnAnticipation = 20;
         public const int DefaultExecutionTurnAnticipation = 2;
-        public const int DefaultMaxRetries = 2;
 
         // The commands will be only processed every CommandStepFactor simulation steps reached
         public int CommandStepFactor = DefaultCommandStepFactor;
@@ -29,9 +28,6 @@ namespace SocialPoint.Lockstep
         // command + ExecutionTurnAnticipation)
         public int ExecutionTurnAnticipation = DefaultExecutionTurnAnticipation;
 
-        // Maximum retries allowed per command
-        public int MaxRetries = DefaultMaxRetries;
-
         // Command processing tick.
         public int CommandStep
         {
@@ -48,7 +44,6 @@ namespace SocialPoint.Lockstep
             MinExecutionTurnAnticipation = reader.ReadInt32();
             MaxExecutionTurnAnticipation = reader.ReadInt32();
             ExecutionTurnAnticipation = reader.ReadInt32();
-            MaxRetries = reader.ReadInt32();
         }
 
         public void Serialize(IWriter writer)
@@ -58,7 +53,6 @@ namespace SocialPoint.Lockstep
             writer.Write(MinExecutionTurnAnticipation);
             writer.Write(MaxExecutionTurnAnticipation);
             writer.Write(ExecutionTurnAnticipation);
-            writer.Write(MaxRetries);
         }
     }
 }
