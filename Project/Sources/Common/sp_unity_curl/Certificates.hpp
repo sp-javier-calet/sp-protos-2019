@@ -13,11 +13,16 @@
 
 class Certificate
 {
-public:
-    const uint8_t* const key;
-    const size_t keySize;
+    const uint8_t* key;
+    size_t keySize;
+    
+    void obfuscate(const uint8_t* in, uint8_t** out, size_t size);
 
+public:
+    Certificate();
     Certificate(const std::string& name);
+    
+    bool getPinnedKey(uint8_t** out);
 };
 
 #endif /* __sparta__Certificates__ */

@@ -13,6 +13,7 @@
 #include <string>
 #include "Mutex.hpp"
 #include "ConnectionManager.hpp"
+#include "Certificates.hpp"
 
 extern "C" {
     #include "curl.h"
@@ -36,11 +37,19 @@ struct CurlRequest
 class CurlClient
 {
 private:
-    CURLM* _multi;
     Mutex curlUpdateLock;
     ConnectionManager _connections;
+    Certificate _certificate;
+    
+    CURLM* _multi;
     bool _supportsHttp2;
     int _running;
+    bool _verbose;
+    
+    const uint8_t* _pinnedPublicKey;
+    size_t _pinnedPublicKeySize;
+    
+    CURL* create(CurlRequest req);
     
 public:
     CurlClient(bool enableHttp2);

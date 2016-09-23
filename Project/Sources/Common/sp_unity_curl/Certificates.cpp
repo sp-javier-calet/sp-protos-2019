@@ -42,6 +42,11 @@ namespace
                                                   0x0D, 0x66, 0x20, 0x45, 0x71, 0x07, 0xF3, 0xBF, 0x51, 0x46, 0x7C, 0x6D, 0x7A};
 }
 
+
+/*
+ * Static structure and methods for available certificates definition
+ */
+
 struct CertificateInfo
 {
     const uint8_t* key;
@@ -49,6 +54,7 @@ struct CertificateInfo
 };
 
 #define CERTIFICATE_INFO(cert) { cert, sizeof(cert) / sizeof(cert[0]) }
+
 std::map<std::string, CertificateInfo> availableCertificates = {
     { "basegame", CERTIFICATE_INFO(pinnedCertBaseGame) },
     { "dragonland", CERTIFICATE_INFO(pinnedCertDragonLand) },
@@ -59,7 +65,7 @@ std::map<std::string, CertificateInfo> availableCertificates = {
 
 CertificateInfo InvalidCertificate{ nullptr, 0 };
 
-CertificateInfo& get(const std::string& name)
+const CertificateInfo& get(const std::string& name)
 {
     auto it = availableCertificates.find(name);
     if(it != availableCertificates.end())
@@ -72,8 +78,44 @@ CertificateInfo& get(const std::string& name)
     }
 }
 
-Certificate::Certificate(const std::string& name)
-: key(get(name).key)
-, keySize(get(name).keySize)
+
+/*
+ * Certificate class implementation
+ */
+
+Certificate::Certificate()
+: key(nullptr)
+, keySize(0)
 {
+}
+
+Certificate::Certificate(const std::string& name)
+: Certificate()
+{
+    auto cert = get(name);
+    key = cert.key;
+    keySize = cert.keySize;
+}
+
+void Certificate::obfuscate(const uint8_t* in, uint8_t** out, size_t size)
+{
+    static const uint8_t secret[] = {55, 11, 44, 71, 66, 177, 253, 122};
+    (*out) = new uint8_t[size + 1];// size + null terminated char
+    
+    for(size_t i = 0; i < size; ++i)
+    {
+        (*out)[i] = in[i] ^ secret[i % (sizeof(secret) / sizeof(secret[0]))];
+    }
+    
+    (*out)[size] = 0;
+}
+
+bool Certificate::getPinnedKey(uint8_t** out)
+{
+    if(key != nullptr)
+    {
+        obfuscate(key, out, keySize);
+        return true;
+    }
+    return false;
 }

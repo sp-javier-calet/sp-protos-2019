@@ -66,16 +66,24 @@ namespace
 }
 
 CurlClient::CurlClient(bool enableHttp2)
-: _connections(enableHttp2)
+: _multi(nullptr)
+, _connections(enableHttp2)
+, _verbose(false)
+, _running(0)
+, _pinnedPublicKey(nullptr)
+, _pinnedPublicKeySize(0)
 {
     _multi = curl_multi_init();
     
-    curl_multi_setopt(_multi, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
-    curl_multi_setopt(_multi, CURLMOPT_PUSHFUNCTION, server_push_callback);
-    static int dummy = 0;// TODO: Remove, define and use other pointer for desired struct needed in callback.
-    curl_multi_setopt(_multi, CURLMOPT_PUSHDATA, &dummy);
-    /* We do HTTP/2 so let's stick to one connection per host */
-    curl_multi_setopt(_multi, CURLMOPT_MAX_HOST_CONNECTIONS, 1L);
+    if(enableHttp2) // TODO Move to a configurer class
+    {
+        curl_multi_setopt(_multi, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
+        curl_multi_setopt(_multi, CURLMOPT_PUSHFUNCTION, server_push_callback);
+        static int dummy = 0;// TODO: Remove, define and use other pointer for desired struct needed in callback.
+        curl_multi_setopt(_multi, CURLMOPT_PUSHDATA, &dummy);
+        /* We do HTTP/2 so let's stick to one connection per host */
+        curl_multi_setopt(_multi, CURLMOPT_MAX_HOST_CONNECTIONS, 1L);
+    }
 }
 
 CurlClient::~CurlClient()
@@ -96,7 +104,7 @@ CurlClient::~CurlClient()
     }
 }
 
-CURL* create(CurlRequest req)
+CURL* CurlClient::create(CurlRequest req)
 {
     CURL* curl = curl_easy_init();
     if(!curl)
@@ -150,8 +158,17 @@ CURL* create(CurlRequest req)
         curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
     
-    //*** TEST Borrar luego de descomentar lo anterior
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+    uint8_t* pinnedKey = nullptr;
+    if(_certificate.getPinnedKey(&pinnedKey))
+    {
+        curl_easy_setopt(curl, CURLOPT_PINNEDPUBLICKEY, pinnedKey);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2);
+        delete[] pinnedKey;
+    }
+    else
+    {
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+    }
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
     
     if(req.bodyLength > 0)
@@ -172,7 +189,16 @@ CURL* create(CurlRequest req)
     }
     
     // setting to print details about this
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
+    if(_verbose)
+    {
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
+    }
+    
+    // TODO HTTP2
+    //*** TEST Borrar luego de descomentar lo anterior
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    
     
     return curl;
 }
@@ -512,6 +538,5 @@ int CurlClient::getHeadersLength(int id)
 
 void CurlClient::setConfig(const std::string &name)
 {
-    Certificate cert(name);
-    // TODO asign
+    _certificate = Certificate(name);
 }
