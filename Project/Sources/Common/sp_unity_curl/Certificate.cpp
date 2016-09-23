@@ -1,12 +1,12 @@
 //
-//  Certificates.cpp
+//  Certificate.cpp
 //  sp_unity_plugins
 //
 //  Created by Manuel Álvarez de Toledoon 23/09/16.
 //
 //
 
-#include "Certificates.hpp"
+#include "Certificate.hpp"
 #include <map>
 
 namespace

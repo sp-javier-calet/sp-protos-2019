@@ -13,7 +13,7 @@
 #include <string>
 #include "Mutex.hpp"
 #include "ConnectionManager.hpp"
-#include "Certificates.hpp"
+#include "Certificate.hpp"
 
 extern "C" {
     #include "curl.h"

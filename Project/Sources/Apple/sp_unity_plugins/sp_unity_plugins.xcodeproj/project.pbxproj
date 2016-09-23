@@ -475,9 +475,9 @@
 		FE6970551D952BB40078027E /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6970511D952BB40078027E /* ConnectionManager.hpp */; };
 		FE6970561D952BB40078027E /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6970511D952BB40078027E /* ConnectionManager.hpp */; };
 		FE6970571D952BB40078027E /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6970511D952BB40078027E /* ConnectionManager.hpp */; };
-		FE6970591D9535E80078027E /* Certificates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificates.cpp */; };
-		FE69705A1D9535E80078027E /* Certificates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificates.cpp */; };
-		FE69705B1D9535E80078027E /* Certificates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificates.cpp */; };
+		FE6970591D9535E80078027E /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificate.cpp */; };
+		FE69705A1D9535E80078027E /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificate.cpp */; };
+		FE69705B1D9535E80078027E /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificate.cpp */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
 		FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
@@ -962,11 +962,11 @@
 		FE69703F1D9516300078027E /* CurlClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurlClient.cpp; sourceTree = "<group>"; };
 		FE6970401D9516300078027E /* CurlClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CurlClient.hpp; sourceTree = "<group>"; };
 		FE6970471D95169E0078027E /* Mutex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Mutex.hpp; sourceTree = "<group>"; };
-		FE69704B1D9517A10078027E /* Certificates.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Certificates.hpp; sourceTree = "<group>"; };
+		FE69704B1D9517A10078027E /* Certificate.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Certificate.hpp; sourceTree = "<group>"; };
 		FE69704C1D951CB60078027E /* SPUnityCurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurl.cpp; sourceTree = "<group>"; };
 		FE6970501D952BB40078027E /* ConnectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectionManager.cpp; sourceTree = "<group>"; };
 		FE6970511D952BB40078027E /* ConnectionManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ConnectionManager.hpp; sourceTree = "<group>"; };
-		FE6970581D9535E80078027E /* Certificates.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Certificates.cpp; sourceTree = "<group>"; };
+		FE6970581D9535E80078027E /* Certificate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Certificate.cpp; sourceTree = "<group>"; };
 		FEE21F661C20198100ECC3E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
 		FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnityGameObject.cpp; sourceTree = "<group>"; };
@@ -1880,8 +1880,8 @@
 		FE448FE21C1EEAD800A10FEA /* sp_unity_curl */ = {
 			isa = PBXGroup;
 			children = (
-				FE6970581D9535E80078027E /* Certificates.cpp */,
-				FE69704B1D9517A10078027E /* Certificates.hpp */,
+				FE6970581D9535E80078027E /* Certificate.cpp */,
+				FE69704B1D9517A10078027E /* Certificate.hpp */,
 				FE6970501D952BB40078027E /* ConnectionManager.cpp */,
 				FE6970511D952BB40078027E /* ConnectionManager.hpp */,
 				FE69703F1D9516300078027E /* CurlClient.cpp */,
@@ -2577,7 +2577,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE69705B1D9535E80078027E /* Certificates.cpp in Sources */,
+				FE69705B1D9535E80078027E /* Certificate.cpp in Sources */,
 				FE6970541D952BB40078027E /* ConnectionManager.cpp in Sources */,
 				FE6970431D9516300078027E /* CurlClient.cpp in Sources */,
 				06A2492D1D5C84B500499252 /* SPUnityBreadcrumbManager.cpp in Sources */,
@@ -2622,7 +2622,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE69705A1D9535E80078027E /* Certificates.cpp in Sources */,
+				FE69705A1D9535E80078027E /* Certificate.cpp in Sources */,
 				FE6970531D952BB40078027E /* ConnectionManager.cpp in Sources */,
 				FE6970421D9516300078027E /* CurlClient.cpp in Sources */,
 				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
@@ -2647,7 +2647,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE6970591D9535E80078027E /* Certificates.cpp in Sources */,
+				FE6970591D9535E80078027E /* Certificate.cpp in Sources */,
 				FE6970521D952BB40078027E /* ConnectionManager.cpp in Sources */,
 				FE6970411D9516300078027E /* CurlClient.cpp in Sources */,
 				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,
