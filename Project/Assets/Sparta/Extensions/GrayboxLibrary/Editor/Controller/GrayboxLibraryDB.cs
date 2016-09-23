@@ -18,7 +18,9 @@ namespace SocialPoint.GrayboxLibrary
 
         private static GrayboxLibraryDB _instance;
 
-        private GrayboxLibraryDB() { }
+        private GrayboxLibraryDB()
+        {
+        }
 
         public static GrayboxLibraryDB GetInstance()
         {
@@ -37,7 +39,7 @@ namespace SocialPoint.GrayboxLibrary
                 _con = new MySqlConnection(GrayboxLibraryConfig.DbConfig);
                 _con.Open();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 ex.ToString();
                 //Debug.Log(ex.ToString());
@@ -55,9 +57,9 @@ namespace SocialPoint.GrayboxLibrary
                 if(_con.State.ToString() != "Open")
                     _con.Open();
 
-                using (_con)
+                using(_con)
                 {
-                    using (_cmd = new MySqlCommand(sql, _con))
+                    using(_cmd = new MySqlCommand(sql, _con))
                     {
                         _rdr = _cmd.ExecuteReader();
                         if(_rdr.HasRows)
@@ -80,7 +82,7 @@ namespace SocialPoint.GrayboxLibrary
                     }
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 ex.ToString();
                 Debug.LogError(ex.ToString());
@@ -99,13 +101,13 @@ namespace SocialPoint.GrayboxLibrary
                 if(_con.State.ToString() != "Open")
                     _con.Open();
 
-                using (_con)
+                using(_con)
                 {
-                    using (_cmd = new MySqlCommand(sql, _con))
+                    using(_cmd = new MySqlCommand(sql, _con))
                         _cmd.ExecuteNonQuery();
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 ex.ToString();
                 //Debug.Log(ex.ToString());

@@ -16,7 +16,6 @@ namespace SocialPoint.GrayboxLibrary
         {
             if(EditorApplication.isCompiling)
                 ClearView();
-
             else if(GrayboxLibraryWindow.AssetChosen != null)
             {
                 if(_inspectorWindow == null)
@@ -74,7 +73,7 @@ namespace SocialPoint.GrayboxLibrary
                 if(_tags == null)
                     _tags = GrayboxLibraryWindow.Tool.GetAssetTagsAsText(asset);
 
-                foreach (string tag in _tags)
+                foreach(string tag in _tags)
                 {
                     GUILayout.Label(tag);
                 }

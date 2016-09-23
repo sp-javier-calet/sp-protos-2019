@@ -86,7 +86,7 @@ namespace SocialPoint.GrayboxLibrary
         [MenuItem("Social Point/Graybox Library/UI")]
         public static void LaunchUIClient()
         {
-            _currentCategory = (int) GrayboxAssetCategory.UI;
+            _currentCategory = (int)GrayboxAssetCategory.UI;
             LaunchClient();
         }
 
@@ -282,7 +282,6 @@ namespace SocialPoint.GrayboxLibrary
                 {
                     if(_currentPage == (i - 1))
                         GUILayout.Button(i.ToString(), _bottomMenuTextBoldStyle, GUILayout.Width(15), GUILayout.Height(20));
-
                     else
                     {
                         if(GUILayout.Button(i.ToString(), _bottomMenuTextStyle, GUILayout.Width(15), GUILayout.Height(20)))
@@ -315,7 +314,6 @@ namespace SocialPoint.GrayboxLibrary
 
             if(_focusChangeDelay > 0)
                 _focusChangeDelay--;
-
             else if(_focusChangeDelay == 0)
             {
                 _focusChangeDelay = -1;
@@ -463,19 +461,19 @@ namespace SocialPoint.GrayboxLibrary
                     InstantiateAsset(true);
             }
 
-            switch (evt.type)
+            switch(evt.type)
             {
-                case EventType.mouseDown:
-                    if(Event.current.clickCount == 1 && AssetDragged == null && _currentDraggedAsset.Length > 0)
-                        AssetDragged = Tool.GetAsset(_currentDraggedAsset);
-                    break;
-                case EventType.mouseUp:
-                    _dragging = false;
-                    AssetDragged = null;
-                    break;
-                case EventType.MouseDrag:
-                    _dragging = true;
-                    break;
+            case EventType.mouseDown:
+                if(Event.current.clickCount == 1 && AssetDragged == null && _currentDraggedAsset.Length > 0)
+                    AssetDragged = Tool.GetAsset(_currentDraggedAsset);
+                break;
+            case EventType.mouseUp:
+                _dragging = false;
+                AssetDragged = null;
+                break;
+            case EventType.MouseDrag:
+                _dragging = true;
+                break;
             }
         }
 
@@ -484,41 +482,41 @@ namespace SocialPoint.GrayboxLibrary
         {
             if(Event.current.isKey)
             {
-                switch (Event.current.keyCode)
+                switch(Event.current.keyCode)
                 {
-                    case KeyCode.Return:
+                case KeyCode.Return:
 
-                        if(_timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
-                        {
-                            if(_currentSelectedOption.Length == 0)
-                                Search(Filters);
-                            else
-                                AddTag(_currentSelectedOption);
+                    if(_timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
+                    {
+                        if(_currentSelectedOption.Length == 0)
+                            Search(Filters);
+                        else
+                            AddTag(_currentSelectedOption);
 
-                            _timeKeyPressed = Time.realtimeSinceStartup;
-                        }
-                        break;
+                        _timeKeyPressed = Time.realtimeSinceStartup;
+                    }
+                    break;
 
-                    case KeyCode.DownArrow:
+                case KeyCode.DownArrow:
 
-                        if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
-                        {
-                            int currentIndex = ArrayUtility.IndexOf(_tagList, _currentSelectedOption);
-                            if(currentIndex < _tagList.Length - 1)
-                                _currentSelectedOption = _tagList[currentIndex + 1];
-                            _timeKeyPressed = Time.realtimeSinceStartup;
-                        }
-                        break;
+                    if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
+                    {
+                        int currentIndex = ArrayUtility.IndexOf(_tagList, _currentSelectedOption);
+                        if(currentIndex < _tagList.Length - 1)
+                            _currentSelectedOption = _tagList[currentIndex + 1];
+                        _timeKeyPressed = Time.realtimeSinceStartup;
+                    }
+                    break;
 
-                    case KeyCode.UpArrow:
-                        if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
-                        {
-                            int currentIndex = ArrayUtility.IndexOf(_tagList, _currentSelectedOption);
-                            if(currentIndex > 0)
-                                _currentSelectedOption = _tagList[currentIndex - 1];
-                            _timeKeyPressed = Time.realtimeSinceStartup;
-                        }
-                        break;
+                case KeyCode.UpArrow:
+                    if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
+                    {
+                        int currentIndex = ArrayUtility.IndexOf(_tagList, _currentSelectedOption);
+                        if(currentIndex > 0)
+                            _currentSelectedOption = _tagList[currentIndex - 1];
+                        _timeKeyPressed = Time.realtimeSinceStartup;
+                    }
+                    break;
                 }
             }
         }

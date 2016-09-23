@@ -8,19 +8,19 @@
 
         public static string WinVolumePath = "//spserver/3dshare/";
 
-#if UNITY_EDITOR_OSX
+        #if UNITY_EDITOR_OSX
         public static string VolumePath = MacVolumePath;
-#else
+        #else
         public static string VolumePath = WinVolumePath;
 #endif
         public static string IconsPath = VolumePath + "TA/UnityGrayboxLibrary/tool_icons/";
 
-#if UNITY_EDITOR_OSX
+        #if UNITY_EDITOR_OSX
         public static string PkgDefaultFolder = VolumePath + "TA/UnityGrayboxLibrary/Packages";
-#else
+        #else
         public static string PkgDefaultFolder = (VolumePath + "TA/UnityGrayboxLibrary/Packages").Replace("/", "\\");
 #endif
-        public static string SmbConnectionUrl = "//guest@"+ WinVolumePath.Substring(2);
+        public static string SmbConnectionUrl = "//guest@" + WinVolumePath.Substring(2);
 
         public static string ContactUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=techart@socialpoint.es&su=Graybox Tool Contact";
 

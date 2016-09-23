@@ -5,7 +5,9 @@
         public int Id;
         public string Name;
 
-        public GrayboxTag() { }
+        public GrayboxTag()
+        {
+        }
 
         public GrayboxTag(int id, string name)
         {

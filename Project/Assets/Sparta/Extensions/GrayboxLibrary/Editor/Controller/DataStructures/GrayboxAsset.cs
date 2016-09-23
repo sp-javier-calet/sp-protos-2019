@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+
 namespace SocialPoint.GrayboxLibrary
 {
     public class GrayboxAsset
@@ -38,5 +39,14 @@ namespace SocialPoint.GrayboxLibrary
 
     }
 
-    public enum GrayboxAssetCategory { Buildings, Props, Fx, Characters, Vehicles, UI };
+    public enum GrayboxAssetCategory
+    {
+        Buildings,
+        Props,
+        Fx,
+        Characters,
+        Vehicles,
+        UI}
+
+    ;
 }

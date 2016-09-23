@@ -20,7 +20,14 @@ namespace SocialPoint.GrayboxLibrary
 
             if(_webView != null)
             {
-                _webViewType.GetMethod("InitWebView").Invoke(_webView, new object[] { _thisWindowGuiView, (int)webViewRect.x, (int)webViewRect.y, (int)webViewRect.width, (int)webViewRect.height, true });
+                _webViewType.GetMethod("InitWebView").Invoke(_webView, new object[] {
+                    _thisWindowGuiView,
+                    (int)webViewRect.x,
+                    (int)webViewRect.y,
+                    (int)webViewRect.width,
+                    (int)webViewRect.height,
+                    true
+                });
                 _webViewType.GetMethod("LoadFile").Invoke(_webView, new object[] { url });
             }
         }
@@ -28,10 +35,10 @@ namespace SocialPoint.GrayboxLibrary
         private Type GetTypeFromAllAssemblies(string typeName)
         {
             Assembly[] assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
+            foreach(Assembly assembly in assemblies)
             {
                 Type[] types = assembly.GetTypes();
-                foreach (Type type in types)
+                foreach(Type type in types)
                 {
                     if(type.Name.Equals(typeName, StringComparison.CurrentCultureIgnoreCase) || type.Name.Contains('+' + typeName)) //+ check forinline classes
                         return type;
@@ -43,7 +50,12 @@ namespace SocialPoint.GrayboxLibrary
         public void Draw(Rect drawRect)
         {
             if(_webView != null)
-                _webViewType.GetMethod("SetSizeAndPosition").Invoke(_webView, new object[] { (int)drawRect.x, (int)drawRect.y, (int)drawRect.width, (int)drawRect.height });
+                _webViewType.GetMethod("SetSizeAndPosition").Invoke(_webView, new object[] {
+                    (int)drawRect.x,
+                    (int)drawRect.y,
+                    (int)drawRect.width,
+                    (int)drawRect.height
+                });
         }
 
         public void ClearView()

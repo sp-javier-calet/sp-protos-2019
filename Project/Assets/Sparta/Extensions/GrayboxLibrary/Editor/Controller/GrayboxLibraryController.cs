@@ -17,7 +17,7 @@ namespace SocialPoint.GrayboxLibrary
         public GrayboxLibraryController()
         {
             //Mounts the smb folder
-        #if  UNITY_EDITOR_OSX
+            #if  UNITY_EDITOR_OSX
             if(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
             {
                 ProcessStartInfo process = new ProcessStartInfo();
@@ -29,12 +29,14 @@ namespace SocialPoint.GrayboxLibrary
                 process = new ProcessStartInfo();
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 process.FileName = "mount_smbfs";
-                process.Arguments = GrayboxLibraryConfig.SmbConnectionUrl +" "+ GrayboxLibraryConfig.VolumePath;
+                process.Arguments = GrayboxLibraryConfig.SmbConnectionUrl + " " + GrayboxLibraryConfig.VolumePath;
                 Process.Start(process);
 
-                while(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder)){}
+                while(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
+                {
+                }
             }
-        #endif
+            #endif
 
             _dbController = GrayboxLibraryDB.GetInstance();
             _downloadController = GrayboxLibraryDownloader.GetInstance();
@@ -87,7 +89,7 @@ namespace SocialPoint.GrayboxLibrary
             }
 
             string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date "
-                + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "' ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
+                         + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "' ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
             //Debug.Log(sql);
             ArrayList queryResult = _dbController.ExecuteQuery(sql);
 
@@ -105,13 +107,13 @@ namespace SocialPoint.GrayboxLibrary
                 DateTime finalDate = new DateTime(int.Parse(date[2]), int.Parse(date[0]), int.Parse(date[1]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
 
                 GrayboxAsset asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
-                    row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
-                    row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
-                    row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
-                    row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
 
                 assets.Add(asset);
@@ -127,10 +129,10 @@ namespace SocialPoint.GrayboxLibrary
             string tagSearchSQL = "";
 
             string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path,  a.creation_date "
-                + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "'";
+                         + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "'";
 
             string filteredSQL = "";
-            foreach (string filter in filters)
+            foreach(string filter in filters)
             {
                 filteredSQL = filteredSQL + " a.name LIKE '%" + filter + "%' AND";
             }
@@ -155,13 +157,13 @@ namespace SocialPoint.GrayboxLibrary
                 DateTime finalDate = new DateTime(int.Parse(date[2]), int.Parse(date[0]), int.Parse(date[1]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
 
                 GrayboxAsset asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
-                    row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
-                    row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
-                    row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
-                    row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
+                                         row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
                     .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
 
                 assets.Add(asset);
@@ -209,7 +211,7 @@ namespace SocialPoint.GrayboxLibrary
             }
 
             string sql = "SELECT DISTINCT a.id_asset "
-                + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "'";
+                         + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "'";
             //Debug.Log(sql);
             ArrayList queryResult = _dbController.ExecuteQuery(sql);
 
@@ -338,26 +340,26 @@ namespace SocialPoint.GrayboxLibrary
             if(queryResult.Count == 0)
             {
                 sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES ('" +
-                    asset.Name + "','" +
-                    asset.Category + "','" +
-                    asset.MainAssetPath.Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.WinVolumePath) + "','" +
-                    asset.PackagePath + "','" +
-                    asset.ThumbnailPath + "','" +
-                    asset.AnimatedThumbnailPath +
-                    "')";
+                asset.Name + "','" +
+                asset.Category + "','" +
+                asset.MainAssetPath.Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.WinVolumePath) + "','" +
+                asset.PackagePath + "','" +
+                asset.ThumbnailPath + "','" +
+                asset.AnimatedThumbnailPath +
+                "')";
                 //Debug.Log(sql);
                 _dbController.ExecuteSQL(sql);
             }
             else
             {
                 sql = "UPDATE asset SET " +
-                    "name ='" + asset.Name + "', " +
-                    "category ='" + asset.Category.ToString() + "', " +
-                    "main_asset_path ='" + asset.MainAssetPath + "', " +
-                    "pkg_path ='" + asset.PackagePath + "', " +
-                    "thumb_path ='" + asset.ThumbnailPath + "', " +
-                    "animated_thumb_path ='" + asset.AnimatedThumbnailPath + "' " +
-                    "WHERE id_asset = " + asset.Id;
+                "name ='" + asset.Name + "', " +
+                "category ='" + asset.Category.ToString() + "', " +
+                "main_asset_path ='" + asset.MainAssetPath + "', " +
+                "pkg_path ='" + asset.PackagePath + "', " +
+                "thumb_path ='" + asset.ThumbnailPath + "', " +
+                "animated_thumb_path ='" + asset.AnimatedThumbnailPath + "' " +
+                "WHERE id_asset = " + asset.Id;
                 //Debug.Log(sql);
                 _dbController.ExecuteSQL(sql);
             }

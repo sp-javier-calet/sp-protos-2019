@@ -6,6 +6,7 @@ namespace SocialPoint.GrayboxLibrary
     public class GrayboxLibraryWebWindow : EditorWindow
     {
         public static GrayboxLibraryWebWindow Window;
+
         public static GrayboxLibraryWebWindow Launch()
         {
             Window = (GrayboxLibraryWebWindow)ScriptableObject.CreateInstance<GrayboxLibraryWebWindow>();
