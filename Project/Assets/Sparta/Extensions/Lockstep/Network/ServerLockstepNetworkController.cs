@@ -44,7 +44,6 @@ namespace SocialPoint.Lockstep.Network
         const byte BadPlayerId = byte.MaxValue;
 
         ServerLockstepController _serverLockstep;
-
         LockstepConfig _lockstepConfig;
         ServerLockstepConfig _serverConfig;
         INetworkServer _server;
@@ -74,7 +73,7 @@ namespace SocialPoint.Lockstep.Network
         {
             _serverLockstep = serverLockstep;
             _serverLockstep.CommandStep = _lockstepConfig.CommandStep;
-            _serverLockstep.SendClientTurnData = SendClientTurnData;
+            _serverLockstep.TurnReady = OnServerTurnReady;
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
         }
@@ -84,7 +83,7 @@ namespace SocialPoint.Lockstep.Network
             _receiver = receiver;
         }
 
-        void SendClientTurnData(ServerLockstepTurnData turnData)
+        void OnServerTurnReady(ServerLockstepTurnData turnData)
         {
             var itr = _clients.GetEnumerator();
             while(itr.MoveNext())

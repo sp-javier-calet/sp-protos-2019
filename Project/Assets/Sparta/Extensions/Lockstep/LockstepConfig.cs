@@ -9,7 +9,7 @@ namespace SocialPoint.Lockstep
         public const int DefaultSimulationStep = 10;
         public const int DefaultMinExecutionTurnAnticipation = 1;
         public const int DefaultMaxExecutionTurnAnticipation = 20;
-        public const int DefaultExecutionTurnAnticipation = 2;
+        public const int DefaultInitialExecutionTurnAnticipation = 2;
 
         // The commands will be only processed every CommandStepFactor simulation steps reached
         public int CommandStepFactor = DefaultCommandStepFactor;
@@ -26,7 +26,7 @@ namespace SocialPoint.Lockstep
 
         // Initial turn anticipation (commands will be scheduled to be executed by default to current
         // command + ExecutionTurnAnticipation)
-        public int ExecutionTurnAnticipation = DefaultExecutionTurnAnticipation;
+        public int InitialExecutionTurnAnticipation = DefaultInitialExecutionTurnAnticipation;
 
         // Command processing tick.
         public int CommandStep
@@ -43,7 +43,7 @@ namespace SocialPoint.Lockstep
             SimulationStep = reader.ReadInt32();
             MinExecutionTurnAnticipation = reader.ReadInt32();
             MaxExecutionTurnAnticipation = reader.ReadInt32();
-            ExecutionTurnAnticipation = reader.ReadInt32();
+            InitialExecutionTurnAnticipation = reader.ReadInt32();
         }
 
         public void Serialize(IWriter writer)
@@ -52,7 +52,7 @@ namespace SocialPoint.Lockstep
             writer.Write(SimulationStep);
             writer.Write(MinExecutionTurnAnticipation);
             writer.Write(MaxExecutionTurnAnticipation);
-            writer.Write(ExecutionTurnAnticipation);
+            writer.Write(InitialExecutionTurnAnticipation);
         }
     }
 }

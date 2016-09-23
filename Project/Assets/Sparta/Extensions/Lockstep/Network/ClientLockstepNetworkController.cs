@@ -40,7 +40,7 @@ namespace SocialPoint.Lockstep.Network
             {
                 _clientLockstep.Init(_lockstepConfig);
             }
-            _clientLockstep.PendingCommandAdded += OnPendingCommandAdded;
+            _clientLockstep.CommandAdded += OnCommandAdded;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -144,12 +144,12 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnPendingCommandAdded(ClientLockstepCommandData command, int turn)
+        void OnCommandAdded(ClientLockstepCommandData command, int turn)
         {
             command.ClientId = _client.ClientId;
             var msg = _client.CreateMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.Command,
-                Unreliable = true
+                Unreliable = false
             });
             command.Serialize(_commandFactory, msg.Writer);
             msg.Send();
@@ -161,7 +161,7 @@ namespace SocialPoint.Lockstep.Network
             _client.RemoveDelegate(this);
             if(_clientLockstep != null)
             {
-                _clientLockstep.PendingCommandAdded -= OnPendingCommandAdded;
+                _clientLockstep.CommandAdded -= OnCommandAdded;
             }
         }
     }

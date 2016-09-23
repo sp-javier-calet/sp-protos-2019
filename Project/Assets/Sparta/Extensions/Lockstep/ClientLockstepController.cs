@@ -15,27 +15,26 @@ namespace SocialPoint.Lockstep
         long _lastModelSimulationTime;
         long _lastRawModelSimulationTime;
         long _lastTimestamp;
-        long _simulationStep;
-        long _commandStep = 10;
         long _lastConfirmedTurnTime;
         int _lastConfirmedTurn;
         int _lastAppliedTurn;
         long _lastAppliedTurnTime;
-        bool _missingTurn;
         float _simulationSpeed;
         int _nextCommandId;
         bool[] _pendingCommandResults = new bool[4];
         int _pendingCommandResultsIndex = 0;
 
+        Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
+        Dictionary<int, List<ClientLockstepCommandData>> _pendingCommands = new Dictionary<int, List<ClientLockstepCommandData>>();
+        Dictionary<int, List<ClientLockstepCommandData>> _confirmedCommands = new Dictionary<int, List<ClientLockstepCommandData>>();
+
         public float SimulationSpeed
         {
             get
             {
-                return _simulationSpeed * DesiredSimulationSpeed;
+                return _simulationSpeed * SimulationSpeedFactor;
             }
         }
-
-        public float DesiredSimulationSpeed { get; set; }
 
         public long LastConfirmedTurn
         {
@@ -45,19 +44,11 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        const int _maxSimulationStepsPerFrame = 10;
-
-        public int ExecutionTurnAnticipation { get; set; }
-
-        public int MinExecutionTurnAnticipation { get; set; }
-
-        public int MaxExecutionTurnAnticipation { get; set; }
-
         public int CurrentTurn
         {
             get
             {
-                return (int)(_simulationTime / _commandStep);
+                return (int)(_simulationTime / Config.CommandStep);
             }
         }
 
@@ -73,7 +64,7 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return PendingCommandAdded != null;
+                return CommandAdded != null;
             }
         }
 
@@ -81,26 +72,22 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return _simulationTime > 0;
+                return _simulationTime >= 0;
             }
         }
 
+
+        const int _maxSimulationStepsPerFrame = 10;
+
+        public LockstepConfig Config { get; private set; }
+        public int ExecutionTurnAnticipation { get; set; }
+        public float SimulationSpeedFactor { get; set; }
         public float TurnAnticipationAdjustmentFactor { get; set; }
 
-        public event Action<int> MissingTurnConfirmation;
-        public event Action<int> MissingTurnConfirmationReceived;
-        public event Action<ClientLockstepCommandData, int> PendingCommandAdded;
-        public event Action<long> SimulationStartScheduled;
-        public event Action SimulationStarted;
+        public event Action<ClientLockstepCommandData, int> CommandAdded;
         public event Action<ClientLockstepCommandData, int> CommandApplied;
+        public event Action SimulationStarted;
         public event Action<long> Simulate;
-
-        public LockstepConfig LockstepConfig { get; protected set; }
-
-        Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
-
-        Dictionary<int, List<ClientLockstepCommandData>> _pendingCommands = new Dictionary<int, List<ClientLockstepCommandData>>();
-        Dictionary<int, List<ClientLockstepCommandData>> _confirmedCommands = new Dictionary<int, List<ClientLockstepCommandData>>();
 
         public ClientLockstepController(IUpdateScheduler updateScheduler)
         {
@@ -109,17 +96,13 @@ namespace SocialPoint.Lockstep
             _lastConfirmedTurnTime = 0;
             _lastConfirmedTurn = 0;
             TurnAnticipationAdjustmentFactor = 0.7f;
-            DesiredSimulationSpeed = 1f;
+            SimulationSpeedFactor = 1f;
         }
 
         public void Init(LockstepConfig config)
         {
-            LockstepConfig = config;
-            _simulationStep = config.SimulationStep;
-            _commandStep = config.CommandStep;
-            ExecutionTurnAnticipation = config.ExecutionTurnAnticipation;
-            MinExecutionTurnAnticipation = config.MinExecutionTurnAnticipation;
-            MaxExecutionTurnAnticipation = config.MaxExecutionTurnAnticipation;
+            Config = config;
+            ExecutionTurnAnticipation = config.InitialExecutionTurnAnticipation;
         }
 
         public void Start(long timestamp)
@@ -128,10 +111,6 @@ namespace SocialPoint.Lockstep
             if(_updateScheduler != null)
             {
                 _updateScheduler.Add(this);
-            }
-            if(SimulationStartScheduled != null)
-            {
-                SimulationStartScheduled(timestamp);
             }
         }
 
@@ -145,7 +124,6 @@ namespace SocialPoint.Lockstep
             _lastConfirmedTurn = 0;
             _lastAppliedTurn = 0;
             _lastAppliedTurnTime = 0;
-            _missingTurn = false;
             _nextCommandId = 0;
             _pendingCommandResults = new bool[4];
             _pendingCommandResultsIndex = 0;
@@ -192,7 +170,7 @@ namespace SocialPoint.Lockstep
                 if(successRate >= TurnAnticipationAdjustmentFactor)
                 {
                     var previousAnticipation = ExecutionTurnAnticipation;
-                    ExecutionTurnAnticipation = Math.Max(MinExecutionTurnAnticipation, ExecutionTurnAnticipation - 1);
+                    ExecutionTurnAnticipation = Math.Max(Config.MinExecutionTurnAnticipation, ExecutionTurnAnticipation - 1);
                     if(previousAnticipation != ExecutionTurnAnticipation)
                     {
                         Log.i("Turn anticipation decreased to " + ExecutionTurnAnticipation);
@@ -200,7 +178,7 @@ namespace SocialPoint.Lockstep
                 }
                 if(successRate <= 1f - TurnAnticipationAdjustmentFactor)
                 {
-                    ExecutionTurnAnticipation = Math.Min(MaxExecutionTurnAnticipation, ExecutionTurnAnticipation + 1);
+                    ExecutionTurnAnticipation = Math.Min(Config.MaxExecutionTurnAnticipation, ExecutionTurnAnticipation + 1);
                 }
             }
         }
@@ -208,34 +186,16 @@ namespace SocialPoint.Lockstep
         void UpdateTurnConfirmations()
         {
             int currentTurn = CurrentTurn;
-            while(_lastConfirmedTurn < currentTurn)
+            if(!NeedsTurnConfirmation)
             {
-                int nextTurn = _lastConfirmedTurn + 1;
-                if(!NeedsTurnConfirmation || IsTurnConfirmed(nextTurn))
-                {
-                    _lastConfirmedTurn++;
-                    _lastConfirmedTurnTime += _commandStep;
-                }
-                else
-                {
-                    if(!_missingTurn)
-                    {
-                        _missingTurn = true;
-                        if(MissingTurnConfirmation != null)
-                        {
-                            MissingTurnConfirmation(nextTurn);
-                        }
-                    }
-                    return;
-                }
+                _lastConfirmedTurn = currentTurn - 1;
+                return;
             }
-
-            if(_missingTurn)
+            for(; _lastConfirmedTurn < currentTurn; _lastConfirmedTurn++)
             {
-                _missingTurn = false;
-                if(MissingTurnConfirmationReceived != null)
+                if(!IsTurnConfirmed(_lastConfirmedTurn + 1))
                 {
-                    MissingTurnConfirmationReceived(currentTurn);
+                    break;
                 }
             }
         }
@@ -245,7 +205,12 @@ namespace SocialPoint.Lockstep
             AddPendingCommand(command, new LockstepCommandLogic<T>(dlg));
         }
 
-        public void AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
+        public void AddPendingCommand<T>(T command, ILockstepCommandLogic<T> dlg=null) where T : ILockstepCommand
+        {
+            AddPendingCommand(command, new LockstepCommandLogic<T>(dlg));
+        }
+
+        void AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
             var commandData = new ClientLockstepCommandData(
                                   _nextCommandId, command, logic);
@@ -253,7 +218,7 @@ namespace SocialPoint.Lockstep
             AddPendingCommand(commandData);
         }
 
-        public void AddPendingCommand(ClientLockstepCommandData commandData)
+        void AddPendingCommand(ClientLockstepCommandData commandData)
         {
             List<ClientLockstepCommandData> commands;
             var turn = ExecutionTurn;
@@ -263,9 +228,9 @@ namespace SocialPoint.Lockstep
                 _pendingCommands.Add(turn, commands);
             }
             commands.Add(commandData);
-            if(PendingCommandAdded != null)
+            if(CommandAdded != null)
             {
-                PendingCommandAdded(commandData, turn);
+                CommandAdded(commandData, turn);
             }
             else
             {
@@ -352,7 +317,7 @@ namespace SocialPoint.Lockstep
             if(turn > _lastAppliedTurn)
             {
                 _lastAppliedTurn = turn;
-                _lastAppliedTurnTime = turn * _commandStep;
+                _lastAppliedTurnTime = turn * Config.CommandStep;
             }
         }
 
@@ -378,16 +343,14 @@ namespace SocialPoint.Lockstep
 
         public void Resume()
         {
-            _lastTimestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
+            _lastTimestamp = TimeUtils.TimestampMilliseconds;
         }
-
-        #region IUpdateable implementation
 
         public void Update()
         {
-            long timestamp = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
-            long elapsedTime = (long)(DesiredSimulationSpeed * (float)(timestamp - _lastTimestamp));
-            if(elapsedTime <= 0 && DesiredSimulationSpeed > 0f)
+            long timestamp = TimeUtils.TimestampMilliseconds;
+            long elapsedTime = (long)(SimulationSpeedFactor * (float)(timestamp - _lastTimestamp));
+            if(elapsedTime <= 0 && SimulationSpeedFactor > 0f)
             {
                 return;
             }
@@ -401,20 +364,22 @@ namespace SocialPoint.Lockstep
             _simulationTime += elapsedTime;
             UpdateTurnConfirmations();
 
-            long maxConfirmedSimulationTime = NeedsTurnConfirmation ? _lastConfirmedTurnTime + _commandStep - _simulationStep : long.MaxValue;
+            var simStep = Config.SimulationStep;
+            var comStep = Config.CommandStep;
+            long maxConfirmedSimulationTime = NeedsTurnConfirmation ? _lastConfirmedTurnTime + comStep - simStep : long.MaxValue;
             if(_lastModelSimulationTime <= maxConfirmedSimulationTime)
             {
                 long nextModelSimulationTime = Math.Min(maxConfirmedSimulationTime, _simulationTime);
-                nextModelSimulationTime = Math.Min(nextModelSimulationTime, _lastModelSimulationTime + _maxSimulationStepsPerFrame * _simulationStep);
+                nextModelSimulationTime = Math.Min(nextModelSimulationTime, _lastModelSimulationTime + _maxSimulationStepsPerFrame * simStep);
                 long elapsedSimulationTime = nextModelSimulationTime - _lastRawModelSimulationTime;
-                for(long nextST = _lastModelSimulationTime + _simulationStep; nextST <= nextModelSimulationTime; nextST += _simulationStep)
+                for(long nextST = _lastModelSimulationTime + simStep; nextST <= nextModelSimulationTime; nextST += simStep)
                 {
                     _lastModelSimulationTime = nextST;
                     if(Simulate != null)
                     {
                         Simulate(_lastModelSimulationTime);
                     }
-                    if(_lastModelSimulationTime >= _lastAppliedTurnTime + _commandStep)
+                    if(_lastModelSimulationTime >= _lastAppliedTurnTime + comStep)
                     {
                         ConsumeTurn(_lastAppliedTurn + 1);
                     }
@@ -429,10 +394,6 @@ namespace SocialPoint.Lockstep
             _lastTimestamp = timestamp;
         }
 
-        #endregion
-
-        #region IDisposable implementation
-
         public void Dispose()
         {
             if(_updateScheduler != null)
@@ -441,6 +402,5 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        #endregion
     }
 }

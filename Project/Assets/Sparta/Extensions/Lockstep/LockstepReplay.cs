@@ -49,7 +49,7 @@ namespace SocialPoint.Lockstep
         {
             if(_config == null)
             {
-                _config = _clientLockstep.LockstepConfig;
+                _config = _clientLockstep.Config;
             }
             ClientLockstepTurnData turnData;
             if(!_turns.TryGetValue(turn, out turnData))
