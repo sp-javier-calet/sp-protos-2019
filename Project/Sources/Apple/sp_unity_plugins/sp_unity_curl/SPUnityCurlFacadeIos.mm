@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#include "CurlClient.hpp"
 #include "SPUnityCurlFacade.h"
 #include "SPUnityCurlManager.h"
 #include <mutex>
@@ -18,11 +19,12 @@ void SPUnityCurlEndBackgroundTask()
     }
 }
 
-EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
+EXPORT_API void SPUnityCurlOnApplicationPause(CurlClient* client, bool paused)
 {
     std::lock_guard<std::mutex> lk(AppPaused_mutex);
     AppPaused = paused;
-    if(SPUnityCurlRunning() == 0)
+    
+    if(client->isRunning())
     {
         return;
     }
@@ -35,12 +37,12 @@ EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
                                 }];
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          while(SPUnityCurlRunning() > 0)
+          while(client->isRunning())
           {
               std::lock_guard<std::mutex> lk(AppPaused_mutex);
               if(AppPaused)
               {
-                  SPUnityCurlUpdate(0);
+                  client->update(0);
               }
               else
               {
