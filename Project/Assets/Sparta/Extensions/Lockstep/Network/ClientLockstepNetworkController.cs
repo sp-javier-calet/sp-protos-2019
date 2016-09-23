@@ -139,17 +139,15 @@ namespace SocialPoint.Lockstep.Network
                 _sendPlayerReadyPending = false;
                 _client.CreateMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                    Unreliable = false
                 }).Send();
             }
         }
 
-        void OnCommandAdded(ClientLockstepCommandData command, int turn)
+        void OnCommandAdded(ClientLockstepCommandData command)
         {
             command.ClientId = _client.ClientId;
             var msg = _client.CreateMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.Command,
-                Unreliable = false
             });
             command.Serialize(_commandFactory, msg.Writer);
             msg.Send();

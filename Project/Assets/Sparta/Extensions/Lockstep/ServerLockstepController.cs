@@ -127,7 +127,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        void AddPendingLocalClientCommand(ClientLockstepCommandData command, int turn)
+        void AddPendingLocalClientCommand(ClientLockstepCommandData command)
         {
             command.ClientId = LocalClientId;
             var serverCommand = command.ToServer(_localFactory);

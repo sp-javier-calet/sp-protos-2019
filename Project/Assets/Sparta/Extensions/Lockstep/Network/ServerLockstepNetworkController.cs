@@ -90,7 +90,6 @@ namespace SocialPoint.Lockstep.Network
             {
                 _server.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.ConfirmTurn,
-                    Unreliable = true,
                     ClientId = itr.Current.Key
                 }, turnData);
             }
