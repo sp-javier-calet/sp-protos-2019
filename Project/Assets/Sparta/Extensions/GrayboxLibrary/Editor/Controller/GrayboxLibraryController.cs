@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace SocialPoint.GrayboxLibrary
 {
@@ -32,8 +33,17 @@ namespace SocialPoint.GrayboxLibrary
                 process.Arguments = GrayboxLibraryConfig.SmbConnectionUrl + " " + GrayboxLibraryConfig.VolumePath;
                 Process.Start(process);
 
-                while(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
+                for(int i = 0; !Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder) && i < 100; i ++)
                 {
+                    Thread.Sleep(100);
+                    if (i == 99)
+                    {
+                        if (EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
+                        {
+                            GrayboxLibraryWindow.Window.Close();
+                            Selection.activeObject = null;
+                        }
+                    }
                 }
             }
             #endif
