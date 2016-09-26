@@ -104,6 +104,11 @@ namespace SocialPoint.Network
                 return SPUnityCurlSend(_curl._nativeClient, req);
             }
 
+            public int SendStreamMessage(MessageStruct msg)
+            {
+                return SPUnityCurlSendStreamMessage(_curl._nativeClient, _connectionId, msg);
+            }
+
             public int Id
             {
                 get
@@ -187,6 +192,22 @@ namespace SocialPoint.Network
                 }
             }
 
+            public byte[] Incoming
+            {
+                get
+                {
+                    byte[] message = null;
+                    var len = SPUnityCurlGetStreamMessageLenght(_curl._nativeClient, _connectionId);
+                    if(len > 0)
+                    {
+                        message = new byte[len];
+                        SPUnityCurlGetStreamMessage(_curl._nativeClient, _connectionId, message);
+                    }
+
+                    return message;
+                }
+            }
+
             public int ErrorCode
             {
                 get
@@ -250,6 +271,14 @@ namespace SocialPoint.Network
             [MarshalAs(UnmanagedType.LPArray)]
             public byte[] Body;
             public int BodyLength;
+        };
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MessageStruct
+        {
+            [MarshalAs(UnmanagedType.LPArray)]
+            public byte[] Message;
+            public int MessageLength;
         };
 
         /// <summary>
@@ -380,6 +409,9 @@ namespace SocialPoint.Network
         static extern int SPUnityCurlSend(UIntPtr client, RequestStruct data);
 
         [DllImport(PluginModuleName)]
+        static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, MessageStruct data);
+
+        [DllImport(PluginModuleName)]
         static extern int SPUnityCurlUpdate(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
@@ -390,6 +422,9 @@ namespace SocialPoint.Network
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCurlGetHeaders(UIntPtr client, int id, byte[] data);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityCurlGetStreamMessage(UIntPtr client, int id, byte[] data);
 
         [DllImport(PluginModuleName)]
         static extern int SPUnityCurlGetResponseCode(UIntPtr client, int id);
@@ -405,6 +440,9 @@ namespace SocialPoint.Network
 
         [DllImport(PluginModuleName)]
         static extern int SPUnityCurlGetHeadersLength(UIntPtr client, int id);
+
+        [DllImport(PluginModuleName)]
+        static extern int SPUnityCurlGetStreamMessageLenght(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
         static extern double SPUnityCurlGetConnectTime(UIntPtr client, int id);

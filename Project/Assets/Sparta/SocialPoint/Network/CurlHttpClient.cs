@@ -6,7 +6,6 @@ namespace SocialPoint.Network
 {
     public class CurlHttpClient  : BaseYieldHttpClient
     {
-        static int _initCount = 0;
         IAppEvents _appEvents;
 
         readonly Curl _curl;
@@ -42,24 +41,20 @@ namespace SocialPoint.Network
             }
         }
 
-        public CurlHttpClient(ICoroutineRunner runner) : base(runner)
+        public CurlHttpClient(ICoroutineRunner runner, bool supportHttp2) : base(runner)
         {
-            if(_initCount == 0)
-            {
-                _curl = new Curl(false);
-            }
-            _initCount++;
+            _curl = new Curl(supportHttp2);
+        }
+
+        public CurlHttpClient(ICoroutineRunner runner) : this(runner, false)
+        {
         }
 
         override public void Dispose()
         {
             base.Dispose();
             DisconnectAppEvents();
-            _initCount--;
-            if(_initCount <= 0)
-            {
-                _curl.Dispose();
-            }
+            _curl.Dispose();
         }
 
         void OnWillGoBackground()

@@ -27,11 +27,13 @@ namespace SocialPoint.Network
 
         readonly Curl.Connection _connection;
 
+        CurlHttpStream _stream;
+
         public override IHttpStream Stream
         {
             get
             {
-                return null;
+                return _stream;
             }
         }
 
@@ -39,11 +41,19 @@ namespace SocialPoint.Network
         {
             while(!_dataReceived)
             {
-                int isFinished = _connection.Update();
-                if(isFinished == 1)
+                int status = _connection.Update();
+                if(status == 1) // Is finished
                 {
                     ReceiveData();
                     break;
+                }
+                else // Has messages
+                {
+                    var data = _connection.Incoming;
+                    if(data != null)
+                    {
+                        _stream.ReceiveData(data);
+                    }
                 }
                 yield return null;
             }
@@ -53,6 +63,7 @@ namespace SocialPoint.Network
             base(del)
         {
             _connection = connection;
+            _stream = new CurlHttpStream(connection);
             _request = req;
             _dataReceived = false;
             Send(_connection, _request);
@@ -186,6 +197,35 @@ namespace SocialPoint.Network
             }
             
             OnResponse(resp);
+        }
+
+        class CurlHttpStream : IHttpStream
+        {
+            readonly Curl.Connection _connection;
+
+            public event Action<byte[]> DataReceived;
+
+            public CurlHttpStream(Curl.Connection connection)
+            {
+                _connection = connection;
+            }
+
+            public void ReceiveData(byte[] data)
+            {
+                if(DataReceived != null)
+                {
+                    DataReceived(data);
+                }
+            }
+
+            public void SendData(byte[] data)
+            {
+                var msg = new Curl.MessageStruct();
+                msg.Message = data;
+                msg.MessageLength = data.Length;
+
+                _connection.SendStreamMessage(msg);
+            }
         }
     }
 }

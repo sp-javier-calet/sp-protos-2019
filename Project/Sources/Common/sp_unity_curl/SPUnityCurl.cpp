@@ -45,6 +45,11 @@ extern "C"
         return client->send(req);
     }
     
+    EXPORT_API int SPUnityCurlSendStreamMessage(CurlClient* client, int id, CurlMessage msg)
+    {
+        return client->sendStreamMessage(id, msg);
+    }
+    
     EXPORT_API int SPUnityCurlUpdate(CurlClient* client, int id)
     {
         return client->update(id);
@@ -95,6 +100,11 @@ extern "C"
         client->getHeaders(id, data);
     }
     
+    EXPORT_API void SPUnityCurlGetStreamMessage(CurlClient* client, int id, char* data)
+    {
+        client->getStreamMessage(id, data);
+    }
+    
     EXPORT_API int SPUnityCurlGetErrorLength(CurlClient* client, int id)
     {
         return client->getErrorLength(id);
@@ -108,6 +118,11 @@ extern "C"
     EXPORT_API int SPUnityCurlGetHeadersLength(CurlClient* client, int id)
     {
         return client->getHeadersLength(id);
+    }
+    
+    EXPORT_API int SPUnityCurlGetStreamMessageLenght(CurlClient* client, int id)
+    {
+        return client->getStreamMessageLenght(id);
     }
     
     EXPORT_API CurlClient* SPUnityCurlCreate(bool enableHttp2)

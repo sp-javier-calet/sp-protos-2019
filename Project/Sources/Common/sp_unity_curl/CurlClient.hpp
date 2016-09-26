@@ -39,7 +39,6 @@ struct CurlMessage
     int messageLength;
 };
 
-
 class CurlClient
 {
 private:
