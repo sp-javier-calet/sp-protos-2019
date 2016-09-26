@@ -12,35 +12,16 @@ namespace SocialPoint.Lockstep
         IUpdateScheduler _updateScheduler;
 
         long _simulationTime;
-        long _lastModelSimulationTime;
-        long _lastRawModelSimulationTime;
+        long _lastSimulationTime;
         long _lastTimestamp;
-        int _lastConfirmedTurn;
         int _lastAppliedTurn;
-        float _simulationSpeed;
         int _nextCommandId;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientLockstepCommandData> _pendingCommands = new List<ClientLockstepCommandData>();
         Dictionary<int, List<ClientLockstepCommandData>> _confirmedCommands = new Dictionary<int, List<ClientLockstepCommandData>>();
 
-        public float SimulationSpeed
-        {
-            get
-            {
-                return _simulationSpeed * SimulationSpeedFactor;
-            }
-        }
-
-        public long LastConfirmedTurn
-        {
-            get
-            {
-                return _lastConfirmedTurn;
-            }
-        }
-
-        public int CurrentTurn
+        int CurrentTurn
         {
             get
             {
@@ -64,11 +45,28 @@ namespace SocialPoint.Lockstep
             }
         }
 
-
+        int LastConfirmedTurn
+        {
+            get
+            {
+                var turn = 0;
+                if(_confirmedCommands != null)
+                {
+                    var itr = _confirmedCommands.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        turn = Math.Max(turn, itr.Current.Key);
+                    }
+                    itr.Dispose();
+                }
+                return turn;
+            }
+        }
+            
         const int _maxSimulationStepsPerFrame = 10;
 
         public LockstepConfig Config { get; private set; }
-        public float SimulationSpeedFactor { get; set; }
+        public float SimulationSpeed { get; set; }
 
         public event Action<ClientLockstepCommandData> CommandAdded;
         public event Action<ClientLockstepCommandData, int> CommandApplied;
@@ -79,8 +77,7 @@ namespace SocialPoint.Lockstep
         {
             _updateScheduler = updateScheduler;
             _simulationTime = 0;
-            _lastConfirmedTurn = 0;
-            SimulationSpeedFactor = 1f;
+            SimulationSpeed = 1f;
         }
 
         public void Init(LockstepConfig config)
@@ -100,10 +97,8 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             _simulationTime = 0;
-            _lastModelSimulationTime = 0;
-            _lastRawModelSimulationTime = 0;
+            _lastSimulationTime = 0;
             _lastTimestamp = 0;
-            _lastConfirmedTurn = 0;
             _lastAppliedTurn = 0;
             _nextCommandId = 0;
 
@@ -128,39 +123,22 @@ namespace SocialPoint.Lockstep
             _commandLogics[type] = logic;
         }
 
-        void UpdateTurnConfirmations()
+        public void AddPendingCommand<T>(T command, Action<T> finish) where T : ILockstepCommand
         {
-            int currentTurn = CurrentTurn;
-            if(!NeedsTurnConfirmation)
-            {
-                _lastConfirmedTurn = currentTurn - 1;
-                return;
-            }
-            for(; _lastConfirmedTurn < currentTurn; _lastConfirmedTurn++)
-            {
-                if(!IsTurnConfirmed(_lastConfirmedTurn + 1))
-                {
-                    break;
-                }
-            }
+            AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
         }
 
-        public void AddPendingCommand<T>(T command, Action<T> dlg) where T : ILockstepCommand
+        public void AddPendingCommand<T>(T command, ILockstepCommandLogic<T> finish=null) where T : ILockstepCommand
         {
-            AddPendingCommand(command, new LockstepCommandLogic<T>(dlg));
-        }
-
-        public void AddPendingCommand<T>(T command, ILockstepCommandLogic<T> dlg=null) where T : ILockstepCommand
-        {
-            AddPendingCommand(command, new LockstepCommandLogic<T>(dlg));
+            AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
         }
 
         void AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
-            var commandData = new ClientLockstepCommandData(
+            var data = new ClientLockstepCommandData(
                 _nextCommandId, command, logic);
             _nextCommandId++;
-            AddPendingCommand(commandData);
+            AddPendingCommand(data);
         }
 
         void AddPendingCommand(ClientLockstepCommandData commandData)
@@ -204,7 +182,7 @@ namespace SocialPoint.Lockstep
             commands.Add(commandData);
         }
 
-        void ConsumeTurn(int turn)
+        void ApplyTurn(int turn)
         {
             var turns = new List<int>(_confirmedCommands.Keys);
             for(var i=0; i<turns.Count;i++)
@@ -265,11 +243,6 @@ namespace SocialPoint.Lockstep
             command.Finish();
         }
 
-        void DiscardCommand(ClientLockstepCommandData command, int turn)
-        {
-            command.Finish();
-        }
-
         public void Pause()
         {
             _lastTimestamp = long.MaxValue;
@@ -283,8 +256,8 @@ namespace SocialPoint.Lockstep
         public void Update()
         {
             long timestamp = TimeUtils.TimestampMilliseconds;
-            long elapsedTime = (long)(SimulationSpeedFactor * (float)(timestamp - _lastTimestamp));
-            if(elapsedTime <= 0 && SimulationSpeedFactor > 0f)
+            long elapsedTime = (long)(SimulationSpeed * (float)(timestamp - _lastTimestamp));
+            if(elapsedTime <= 0 && SimulationSpeed > 0f)
             {
                 return;
             }
@@ -296,34 +269,27 @@ namespace SocialPoint.Lockstep
                 }
             }
             _simulationTime += elapsedTime;
-            UpdateTurnConfirmations();
 
             var simStep = Config.SimulationStep;
             var comStep = Config.CommandStep;
-            long maxConfirmedSimulationTime = NeedsTurnConfirmation ? (_lastConfirmedTurn * Config.CommandStep) + comStep - simStep : long.MaxValue;
-            if(_lastModelSimulationTime <= maxConfirmedSimulationTime)
+            var lastTurn = LastConfirmedTurn;
+            long maxConfirmedSimulationTime = NeedsTurnConfirmation ? (lastTurn * Config.CommandStep) + comStep - simStep : long.MaxValue;
+            if(_lastSimulationTime <= maxConfirmedSimulationTime)
             {
-                long nextModelSimulationTime = Math.Min(maxConfirmedSimulationTime, _simulationTime);
-                nextModelSimulationTime = Math.Min(nextModelSimulationTime, _lastModelSimulationTime + _maxSimulationStepsPerFrame * simStep);
-                long elapsedSimulationTime = nextModelSimulationTime - _lastRawModelSimulationTime;
-                for(long nextST = _lastModelSimulationTime + simStep; nextST <= nextModelSimulationTime; nextST += simStep)
+                long simulationTime = Math.Min(maxConfirmedSimulationTime, _simulationTime);
+                simulationTime = Math.Min(simulationTime, _lastSimulationTime + _maxSimulationStepsPerFrame * simStep);
+                for(long nextST = _lastSimulationTime + simStep; nextST <= simulationTime; nextST += simStep)
                 {
-                    _lastModelSimulationTime = nextST;
                     if(Simulate != null)
                     {
-                        Simulate(_lastModelSimulationTime);
+                        Simulate(nextST);
                     }
-                    if(_lastModelSimulationTime >= _lastAppliedTurn * Config.CommandStep + comStep)
+                    if(nextST >= _lastAppliedTurn * Config.CommandStep + comStep)
                     {
-                        ConsumeTurn(_lastAppliedTurn + 1);
+                        ApplyTurn(_lastAppliedTurn + 1);
                     }
                 }
-                _lastRawModelSimulationTime = nextModelSimulationTime;
-                _simulationSpeed = elapsedTime > 0f ? ((float)elapsedSimulationTime / (float)elapsedTime) : 0f; 
-            }
-            else
-            {
-                _simulationSpeed = 0f;
+                _lastSimulationTime = simulationTime;
             }
             _lastTimestamp = timestamp;
         }
