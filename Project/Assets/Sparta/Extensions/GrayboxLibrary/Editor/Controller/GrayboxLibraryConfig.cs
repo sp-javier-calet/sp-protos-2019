@@ -13,12 +13,12 @@
         #else
         public static string VolumePath = WinVolumePath;
 #endif
-        public static string IconsPath = VolumePath + "TA/UnityGrayboxLibrary/tool_icons/";
+        public static string IconsPath = VolumePath + "TA/UnityAssetLibrary/tool_icons/";
 
-        #if UNITY_EDITOR_OSX
-        public static string PkgDefaultFolder = VolumePath + "TA/UnityGrayboxLibrary/Packages";
-        #else
-        public static string PkgDefaultFolder = (VolumePath + "TA/UnityGrayboxLibrary/Packages").Replace("/", "\\");
+#if UNITY_EDITOR_OSX
+        public static string PkgDefaultFolder = VolumePath + "TA/UnityAssetLibrary/Packages";
+#else
+        public static string PkgDefaultFolder = (VolumePath + "TA/UnityAssetLibrary/Packages").Replace("/", "\\");
 #endif
         public static string SmbConnectionUrl = "//guest@" + WinVolumePath.Substring(2);
 
