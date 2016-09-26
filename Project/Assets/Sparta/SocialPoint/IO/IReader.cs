@@ -1,8 +1,4 @@
-﻿using System;
-using UnityEngine.Networking;
-using System.Collections.Generic;
-using System.IO;
-
+﻿
 namespace SocialPoint.IO
 {
     public interface IReader

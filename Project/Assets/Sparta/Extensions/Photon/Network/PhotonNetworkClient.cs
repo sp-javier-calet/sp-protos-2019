@@ -56,7 +56,13 @@ namespace SocialPoint.Network
 
         public int GetDelay(int networkTimestamp)
         {
-            return (int)PhotonNetwork.time - networkTimestamp;
+            var realTs = PhotonNetwork.ServerTimestamp;
+            var delay = realTs - networkTimestamp;
+            if(delay < 0)
+            {
+                delay = Int32.MaxValue - networkTimestamp + realTs;
+            }
+            return delay;
         }
 
         protected override void OnConnected()
