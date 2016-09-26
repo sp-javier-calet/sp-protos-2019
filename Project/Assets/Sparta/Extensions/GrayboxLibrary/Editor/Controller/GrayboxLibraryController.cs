@@ -428,6 +428,11 @@ namespace SocialPoint.GrayboxLibrary
             GameObject assetGO = (GameObject)AssetDatabase.LoadMainAssetAtPath(asset.MainAssetPath);
             GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(assetGO);
             instance.name = instance.name.Replace("(Clone)", "");
+            if(asset.Category == GrayboxAssetCategory.UI)
+            {
+                Canvas canvas = (Canvas) GameObject.FindObjectOfType(typeof(Canvas));
+                instance.transform.parent = canvas.transform;
+            }
 
             return instance;
         }

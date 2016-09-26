@@ -594,9 +594,26 @@ namespace SocialPoint.GrayboxLibrary
             {
                 for(int i = 0; i < _toDownload.Count; i++)
                 {
-                    Tool.DownloadAsset(_toDownload[i]);
-                    _toInstanciate.Add(_toDownload[i]);
-                    _toDownload.RemoveAt(i);
+                    if(_toDownload[i].Category == GrayboxAssetCategory.UI)
+                    {
+                        if(GameObject.FindObjectsOfType(typeof(Canvas)).Length != 1)
+                        {
+                            EditorUtility.DisplayDialog("Graybox Library", "No canvas found. You need to have exactly one Canvas in your current scene in order to download the UI graybox asset. The asset will not be downloaded.", "Close");
+                            _toDownload.RemoveAt(i);
+                        }
+                        else
+                        {
+                            Tool.DownloadAsset(_toDownload[i]);
+                            _toInstanciate.Add(_toDownload[i]);
+                            _toDownload.RemoveAt(i);
+                        }
+                    }
+                    else
+                    {
+                        Tool.DownloadAsset(_toDownload[i]);
+                        _toInstanciate.Add(_toDownload[i]);
+                        _toDownload.RemoveAt(i);
+                    }
                 }
             }
 
