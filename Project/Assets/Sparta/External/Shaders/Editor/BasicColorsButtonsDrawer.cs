@@ -34,10 +34,6 @@ public class BasicColorsButtonsDrawer : MaterialPropertyDrawer
         m_colorButtonsStyle.hover.background = focusedButtonImg;
         m_colorButtonsStyle.active.background = focusedButtonImg;
         m_colorButtonsStyle.focused.background = focusedButtonImg;
-        /*colorButtonsStyle.onActive.background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd").texture;
-        colorButtonsStyle.onFocused.background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd").texture;
-        colorButtonsStyle.onHover.background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd").texture;
-        colorButtonsStyle.onNormal.background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd").texture;*/
         m_colorButtonsStyle.fixedHeight = 12f;
         m_colorButtonsStyle.alignment = TextAnchor.MiddleCenter;
         m_colorButtonsStyle.border = new RectOffset(4, 4, 2, 2);

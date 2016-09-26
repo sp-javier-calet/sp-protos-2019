@@ -41,8 +41,7 @@ namespace SocialPoint.GrayboxLibrary
             }
             catch(Exception ex)
             {
-                ex.ToString();
-                //Debug.Log(ex.ToString());
+                Debug.LogError(ex.ToString());
             }
         }
 
@@ -78,13 +77,11 @@ namespace SocialPoint.GrayboxLibrary
                                 }
                             }
                         }
-                        _rdr.Dispose();
                     }
                 }
             }
             catch(Exception ex)
             {
-                ex.ToString();
                 Debug.LogError(ex.ToString());
             }
 
@@ -109,8 +106,7 @@ namespace SocialPoint.GrayboxLibrary
             }
             catch(Exception ex)
             {
-                ex.ToString();
-                //Debug.Log(ex.ToString());
+                Debug.LogError(ex.ToString());
             }
         }
 

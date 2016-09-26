@@ -339,16 +339,23 @@ namespace SocialPoint.GrayboxLibrary
             ArrayList queryResult = _dbController.ExecuteQuery(sql);
             if(queryResult.Count == 0)
             {
-                sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES ('" +
-                asset.Name + "','" +
-                asset.Category + "','" +
-                asset.MainAssetPath.Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.WinVolumePath) + "','" +
-                asset.PackagePath + "','" +
-                asset.ThumbnailPath + "','" +
-                asset.AnimatedThumbnailPath +
-                "')";
+                sql = "SELECT a.id_asset FROM asset a WHERE a.name LIKE '" + asset.Name+"'";
                 //Debug.Log(sql);
-                _dbController.ExecuteSQL(sql);
+                queryResult = _dbController.ExecuteQuery(sql);
+                if (queryResult.Count == 0)
+                {
+
+                    sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES ('" +
+                    asset.Name + "','" +
+                    asset.Category + "','" +
+                    asset.MainAssetPath.Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.WinVolumePath) + "','" +
+                    asset.PackagePath + "','" +
+                    asset.ThumbnailPath + "','" +
+                    asset.AnimatedThumbnailPath +
+                    "')";
+                    //Debug.Log(sql);
+                    _dbController.ExecuteSQL(sql);
+                }
             }
             else
             {

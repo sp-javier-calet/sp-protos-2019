@@ -271,7 +271,11 @@ namespace SocialPoint.GrayboxLibrary
                     _tool.AssignTag(_asset, _tool.GetTag(tag));
                 }
 
+                GrayboxAssetCategory category = _asset.Category;
+
                 _asset = new GrayboxAsset();
+
+                _asset.Category = category;
 
                 EditorUtility.DisplayDialog("Graybox Library", "The asset has been succesfully registered to the Graybox Library", "Close");
             }
