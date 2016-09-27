@@ -30,6 +30,7 @@ namespace SocialPoint.Lockstep
 
         public ServerLockstepController(IUpdateScheduler updateScheduler = null, long commandStep = 300)
         {
+            Stop();
             CommandStep = commandStep;
             if(updateScheduler != null)
             {
@@ -54,7 +55,10 @@ namespace SocialPoint.Lockstep
         {
             _simulationTime = -1;
             _lastTimestamp = 0;
-            _turn.Turn = -1;
+            if(_turn != null)
+            {
+                _turn.Turn = -1;
+            }
         }           
 
         public Action<ServerLockstepTurnData> TurnReady;

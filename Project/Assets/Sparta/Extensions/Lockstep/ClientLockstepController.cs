@@ -76,7 +76,7 @@ namespace SocialPoint.Lockstep
         public ClientLockstepController(IUpdateScheduler updateScheduler)
         {
             _updateScheduler = updateScheduler;
-            _simulationTime = 0;
+            Stop();
             SimulationSpeed = 1f;
         }
 
