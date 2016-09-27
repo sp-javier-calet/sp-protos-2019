@@ -41,6 +41,14 @@ namespace SocialPoint.Network
             }
         }
 
+        public bool Verbose
+        {
+            set
+            {
+                SPUnityCurlSetVerbose(_nativeClient, value);
+            }
+        }
+
         static int GetResponseErrorCode(int code)
         {
             switch((CurlError)code)
@@ -87,6 +95,8 @@ namespace SocialPoint.Network
         {
             readonly Curl _curl;
             readonly int _connectionId;
+
+            public bool Streamed;
 
             public Connection(Curl curl, int connection)
             {
@@ -461,6 +471,9 @@ namespace SocialPoint.Network
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCurlSetConfig(UIntPtr client, string name);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityCurlSetVerbose(UIntPtr client, bool verbose);
 
         #endregion
     }

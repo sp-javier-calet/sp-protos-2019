@@ -1,10 +1,8 @@
-﻿
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using UnityEngine.UI;
 using System;
-using System.Text;
 
 namespace SocialPoint.Network
 {

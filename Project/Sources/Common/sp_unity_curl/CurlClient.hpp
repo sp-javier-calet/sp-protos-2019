@@ -61,6 +61,7 @@ public:
     ~CurlClient();
 
     bool isRunning();
+    void setVerbose(bool verbose);
     
     bool send(CurlRequest req);
     void update();

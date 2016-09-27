@@ -105,8 +105,6 @@ namespace
         /* TODO:
          This feature is not tested yet. We should define its possible uses and retrieve the pushed data accordingly.
          */
-        
-        // SPNativeCallsSender::SendMessage("OnHttp2Push", "");
         return CURL_PUSH_OK;
     }
 }
@@ -154,6 +152,11 @@ CurlClient::~CurlClient()
 bool CurlClient::isRunning()
 {
     return _running > 0;
+}
+
+void CurlClient::setVerbose(bool verbose)
+{
+    _verbose = verbose;
 }
 
 CURL* CurlClient::create(CurlRequest req)
@@ -400,7 +403,7 @@ void CurlClient::update()
     mc = curl_multi_perform(_multi, &_running);
     
     // Wait required?
-    if(mc == CURLM_OK )
+    if(mc == CURLM_OK)
     {
         mc = curl_multi_wait(_multi, nullptr, 0, 1000, &numfds);
     }

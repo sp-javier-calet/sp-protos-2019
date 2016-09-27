@@ -33,6 +33,10 @@ namespace SocialPoint.Network
         {
             get
             {
+                if(_stream == null)
+                {
+                    _stream = new CurlHttpStream(_connection);
+                }
                 return _stream;
             }
         }
@@ -42,12 +46,8 @@ namespace SocialPoint.Network
             while(!_dataReceived)
             {
                 int status = _connection.Update();
-                if(status == 1) // Is finished
-                {
-                    ReceiveData();
-                    break;
-                }
-                else // Has messages
+
+                if(_connection.Streamed)
                 {
                     var data = _connection.Incoming;
                     if(data != null)
@@ -55,6 +55,13 @@ namespace SocialPoint.Network
                         _stream.ReceiveData(data);
                     }
                 }
+
+                if(status == 1) // Is finished
+                {
+                    ReceiveData();
+                    break;
+                }
+
                 yield return null;
             }
         }
@@ -63,7 +70,6 @@ namespace SocialPoint.Network
             base(del)
         {
             _connection = connection;
-            _stream = new CurlHttpStream(connection);
             _request = req;
             _dataReceived = false;
             Send(_connection, _request);
@@ -207,7 +213,12 @@ namespace SocialPoint.Network
 
             public CurlHttpStream(Curl.Connection connection)
             {
+                if(connection.Streamed)
+                {
+                    throw new InvalidOperationException("Http is already streamed");
+                }
                 _connection = connection;
+                _connection.Streamed = true;
             }
 
             public void ReceiveData(byte[] data)
