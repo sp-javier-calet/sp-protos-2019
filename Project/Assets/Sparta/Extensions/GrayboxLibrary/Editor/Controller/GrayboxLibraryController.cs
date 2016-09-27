@@ -3,6 +3,7 @@ using UnityEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -58,7 +59,10 @@ namespace SocialPoint.GrayboxLibrary
         {
             GrayboxAsset asset = null;
 
-            ArrayList queryResult = _dbController.ExecuteQuery("SELECT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date FROM asset a WHERE a.name LIKE '" + name + "'");
+            MySqlCommand command = new MySqlCommand("SELECT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date FROM asset a WHERE a.name LIKE @NAME");
+            command.Parameters.AddWithValue("@NAME",name);
+
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
 
             if(queryResult.Count > 0)
             {
@@ -91,17 +95,23 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList assets = new ArrayList();
 
-            string tagSearchSQL = "";
+            MySqlCommand commandTag = new MySqlCommand("");
             for(int i = 0; i < tags.Length; i++)
             {
                 string tag = tags[i];
-                tagSearchSQL += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE '%" + tag + "%') as tag" + i;
+                commandTag.CommandText += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE CONCAT('%', @TAG" + i + ", '%')) as tag" + i;
+                commandTag.Parameters.AddWithValue("@TAG"+i, tag);
             }
 
             string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date "
-                         + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "' ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
-            //Debug.Log(sql);
-            ArrayList queryResult = _dbController.ExecuteQuery(sql);
+                         + "FROM asset a " + commandTag.CommandText + " WHERE a.category LIKE '" + category.ToString() + "' ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
+            
+            MySqlCommand command = new MySqlCommand(sql);
+
+            for(int i = 0; i < commandTag.Parameters.Count; i++)
+                command.Parameters.AddWithValue(commandTag.Parameters[i].ParameterName, commandTag.Parameters[i].Value);
+            
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
 
             for(int i = 0; i < queryResult.Count; i++)
             {
@@ -136,22 +146,29 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList assets = new ArrayList();
 
-            string tagSearchSQL = "";
-
             string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path,  a.creation_date "
-                         + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "'";
+                         + "FROM asset a WHERE a.category LIKE '" + category.ToString() + "'";
 
-            string filteredSQL = "";
-            foreach(string filter in filters)
+            MySqlCommand commandFilteredSQL = new MySqlCommand("");
+            
+            for(int i = 0; i < filters.Length; i ++)
             {
-                filteredSQL = filteredSQL + " a.name LIKE '%" + filter + "%' AND";
+                string filter = filters[i];
+                commandFilteredSQL.CommandText = commandFilteredSQL.CommandText + " a.name LIKE CONCAT('%', @FILTER" + i + ", '%') AND";
+                commandFilteredSQL.Parameters.AddWithValue("@FILTER" + i, filter);
             }
-            if(filteredSQL.Length > 0)
-                filteredSQL = " AND (" + filteredSQL.Substring(0, filteredSQL.Length - 3) + ")";
 
-            sql = sql + filteredSQL + " ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
-            //Debug.Log(sql);
-            ArrayList queryResult = _dbController.ExecuteQuery(sql);
+            if(commandFilteredSQL.CommandText.Length > 0)
+                commandFilteredSQL.CommandText = " AND (" + commandFilteredSQL.CommandText.Substring(0, commandFilteredSQL.CommandText.Length - 3) + ")";
+
+            sql = sql + commandFilteredSQL.CommandText + " ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
+
+            MySqlCommand command = new MySqlCommand(sql);
+
+            for (int i = 0; i < commandFilteredSQL.Parameters.Count; i++)
+                command.Parameters.AddWithValue(commandFilteredSQL.Parameters[i].ParameterName, commandFilteredSQL.Parameters[i].Value);
+
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
 
             for(int i = 0; i < queryResult.Count; i++)
             {
@@ -213,34 +230,35 @@ namespace SocialPoint.GrayboxLibrary
 
         public int GetAssetCount(string[] tags, GrayboxAssetCategory category)
         {
-            string tagSearchSQL = "";
+            MySqlCommand commandTagSearchSQL = new MySqlCommand("");
             for(int i = 0; i < tags.Length; i++)
             {
                 string tag = tags[i];
-                tagSearchSQL += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE '%" + tag + "%') as tag" + i;
+                commandTagSearchSQL.CommandText += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE CONCAT('%', @TAG" + i + ", '%')) as tag" + i;
+                commandTagSearchSQL.Parameters.AddWithValue("@TAG"+i, tag);
             }
 
             string sql = "SELECT DISTINCT a.id_asset "
-                         + "FROM asset a " + tagSearchSQL + " WHERE a.category LIKE '" + category.ToString() + "'";
-            //Debug.Log(sql);
-            ArrayList queryResult = _dbController.ExecuteQuery(sql);
+                         + "FROM asset a " + commandTagSearchSQL.CommandText + " WHERE a.category LIKE '" + category.ToString() + "'";
+
+            MySqlCommand command = new MySqlCommand(sql);
+
+            for (int i = 0; i < commandTagSearchSQL.Parameters.Count; i++)
+                command.Parameters.AddWithValue(commandTagSearchSQL.Parameters[i].ParameterName, commandTagSearchSQL.Parameters[i].Value);
+
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
 
             return queryResult.Count;
         }
 
 
 
-        public GrayboxTag GetTag(string tagName)
+        public GrayboxTag GetTag(string name)
         {
+            ArrayList tags = GetTags(name, 0, 1);
             GrayboxTag tag = null;
-
-            ArrayList queryResult = _dbController.ExecuteQuery("SELECT t.id_tag, t.name FROM tag t WHERE t.name LIKE '" + tagName + "'");
-
-            if(queryResult.Count > 0)
-            {
-                Dictionary<string, string> row = (Dictionary<string, string>)queryResult[0];
-                tag = new GrayboxTag(int.Parse(row["id_tag"]), row["name"]);
-            }
+            if (tags.Count > 0)
+                tag = (GrayboxTag) tags[0];
 
             return tag;
         }
@@ -250,9 +268,12 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList tags = new ArrayList();
 
-            ArrayList queryResult = _dbController.ExecuteQuery("SELECT t.id_tag, t.name FROM tag t WHERE t.name LIKE '%" + name + "%' LIMIT " + startLimit + ", " + endLimit);
+            MySqlCommand command = new MySqlCommand("SELECT t.id_tag, t.name FROM tag t WHERE t.name LIKE CONCAT('%', @NAME, '%') LIMIT " + startLimit + ", " + endLimit);
+            command.Parameters.AddWithValue("@NAME", name);
 
-            for(int i = 0; i < queryResult.Count; i++)
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
+
+            for (int i = 0; i < queryResult.Count; i++)
             {
                 Dictionary<string, string> row = (Dictionary<string, string>)queryResult[i];
                 GrayboxTag tag = new GrayboxTag(int.Parse(row["id_tag"]), row["name"]);
@@ -266,12 +287,12 @@ namespace SocialPoint.GrayboxLibrary
         {
             List<string> tags = new List<string>();
 
-            ArrayList queryResult = _dbController.ExecuteQuery("SELECT t.id_tag, t.name FROM tag t WHERE t.name LIKE '%" + name + "%' LIMIT " + startLimit + ", " + endLimit);
+            ArrayList gbTags = GetTags(name, startLimit, endLimit);
 
-            for(int i = 0; i < queryResult.Count; i++)
+            for (int i = 0; i < gbTags.Count; i++)
             {
-                Dictionary<string, string> row = (Dictionary<string, string>)queryResult[i];
-                tags.Add(row["name"]);
+                GrayboxTag tag = (GrayboxTag) gbTags[i];
+                tags.Add(tag.Name);
             }
 
             return tags.ToArray();
@@ -282,7 +303,9 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList tags = new ArrayList();
 
-            ArrayList queryResult = _dbController.ExecuteQuery("SELECT DISTINCT t.id_tag, t.name FROM tag t, asset_tag atag WHERE t.id_tag = atag.id_tag AND atag.id_asset = " + asset.Id + " LIMIT " + startLimit + "," + endLimit);
+            MySqlCommand command = new MySqlCommand("SELECT DISTINCT t.id_tag, t.name FROM tag t, asset_tag atag WHERE t.id_tag = atag.id_tag AND atag.id_asset = " + asset.Id + " LIMIT " + startLimit + "," + endLimit);
+
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
 
             for(int i = 0; i < queryResult.Count; i++)
             {
@@ -314,7 +337,9 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList tags = new ArrayList();
 
-            ArrayList queryResult = _dbController.ExecuteQuery("SELECT DISTINCT t.id_tag, t.name FROM tag t LIMIT " + startLimit + "," + endLimit);
+            MySqlCommand command = new MySqlCommand("SELECT DISTINCT t.id_tag, t.name FROM tag t LIMIT " + startLimit + "," + endLimit);
+
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
 
             for(int i = 0; i < queryResult.Count; i++)
             {
@@ -345,76 +370,93 @@ namespace SocialPoint.GrayboxLibrary
         public void RegisterAsset(GrayboxAsset asset)
         {
             string sql = "SELECT a.id_asset FROM asset a WHERE a.id_asset = " + asset.Id;
-            //Debug.Log(sql);
-            ArrayList queryResult = _dbController.ExecuteQuery(sql);
+
+            MySqlCommand command = new MySqlCommand(sql);
+
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
             if(queryResult.Count == 0)
             {
-                sql = "SELECT a.id_asset FROM asset a WHERE a.name LIKE '" + asset.Name+"'";
-                //Debug.Log(sql);
-                queryResult = _dbController.ExecuteQuery(sql);
+                sql = "SELECT a.id_asset FROM asset a WHERE a.name LIKE @NAME";
+
+                command = new MySqlCommand(sql);
+                command.Parameters.AddWithValue("@NAME", asset.Name);
+
+                queryResult = _dbController.ExecuteQuery(command);
                 if (queryResult.Count == 0)
                 {
+                    sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES ('@NAME','@CATEGORY','@MAINASSET','@PKG','@THUMB','@ANIMTHUMB')";
 
-                    sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES ('" +
-                    asset.Name + "','" +
-                    asset.Category + "','" +
-                    asset.MainAssetPath.Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.WinVolumePath) + "','" +
-                    asset.PackagePath + "','" +
-                    asset.ThumbnailPath + "','" +
-                    asset.AnimatedThumbnailPath +
-                    "')";
-                    //Debug.Log(sql);
-                    _dbController.ExecuteSQL(sql);
+                    command = new MySqlCommand(sql);
+                    command.Parameters.AddWithValue("@NAME", asset.Name);
+                    command.Parameters.AddWithValue("@CATEGORY", asset.Category.ToString());
+                    command.Parameters.AddWithValue("@MAINASSET", asset.MainAssetPath.Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.WinVolumePath));
+                    command.Parameters.AddWithValue("@PKG", asset.PackagePath);
+                    command.Parameters.AddWithValue("@THUMB", asset.ThumbnailPath);
+                    command.Parameters.AddWithValue("@ANIMTHUMB", asset.AnimatedThumbnailPath);
+
+                    _dbController.ExecuteSQL(command);
                 }
             }
             else
             {
-                sql = "UPDATE asset SET " +
-                "name ='" + asset.Name + "', " +
-                "category ='" + asset.Category.ToString() + "', " +
-                "main_asset_path ='" + asset.MainAssetPath + "', " +
-                "pkg_path ='" + asset.PackagePath + "', " +
-                "thumb_path ='" + asset.ThumbnailPath + "', " +
-                "animated_thumb_path ='" + asset.AnimatedThumbnailPath + "' " +
-                "WHERE id_asset = " + asset.Id;
-                //Debug.Log(sql);
-                _dbController.ExecuteSQL(sql);
+                sql = "UPDATE asset SET name ='@NAME', category ='@CATEGORY', main_asset_path ='@MAINASSET', pkg_path ='@PKG', thumb_path ='@THUMB', animated_thumb_path ='@ANIMTHUMB' WHERE id_asset = " + asset.Id;
+
+                command = new MySqlCommand(sql);
+                command.Parameters.AddWithValue("@NAME", asset.Name);
+                command.Parameters.AddWithValue("@CATEGORY", asset.Category.ToString());
+                command.Parameters.AddWithValue("@MAINASSET", asset.MainAssetPath.Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.WinVolumePath));
+                command.Parameters.AddWithValue("@PKG", asset.PackagePath);
+                command.Parameters.AddWithValue("@THUMB", asset.ThumbnailPath);
+                command.Parameters.AddWithValue("@ANIMTHUMB", asset.AnimatedThumbnailPath);
+                
+                _dbController.ExecuteSQL(command);
             }
         }
 
         public void RemoveAsset(GrayboxAsset asset)
         {
             string sql = "DELETE FROM asset_tag WHERE id_asset = " + asset.Id;
-            //Debug.Log(sql);
-            _dbController.ExecuteSQL(sql);
+
+            MySqlCommand command = new MySqlCommand(sql);
+
+            _dbController.ExecuteSQL(command);
 
             sql = "DELETE FROM asset WHERE id_asset = " + asset.Id;
-            //Debug.Log(sql);
-            _dbController.ExecuteSQL(sql);
+
+            command = new MySqlCommand(sql);
+
+            _dbController.ExecuteSQL(command);
 
         }
 
 
         public void CreateTag(GrayboxTag tag)
         {
-            string sql = "INSERT INTO tag (name) VALUES ('" + tag.Name + "')";
-            //Debug.Log(sql);
-            _dbController.ExecuteSQL(sql);
+            string sql = "INSERT INTO tag (name) VALUES ('@NAME')";
+
+            MySqlCommand command = new MySqlCommand(sql);
+            command.Parameters.AddWithValue("@NAME", tag.Name);
+
+            _dbController.ExecuteSQL(command);
         }
 
 
         public void AssignTag(GrayboxAsset asset, GrayboxTag tag)
         {
             string sql = "INSERT INTO asset_tag VALUES (" + asset.Id + "," + tag.Id + ")";
-            //Debug.Log(sql);
-            _dbController.ExecuteSQL(sql);
+
+            MySqlCommand command = new MySqlCommand(sql);
+
+            _dbController.ExecuteSQL(command);
         }
 
         public void UnassignTag(GrayboxAsset asset, GrayboxTag tag)
         {
             string sql = "DELETE FROM asset_tag WHERE id_asset = " + asset.Id + " AND id_tag = " + tag.Id;
-            //Debug.Log(sql);
-            _dbController.ExecuteSQL(sql);
+
+            MySqlCommand command = new MySqlCommand(sql);
+
+            _dbController.ExecuteSQL(command);
         }
 
 
@@ -441,7 +483,7 @@ namespace SocialPoint.GrayboxLibrary
             if(asset.Category == GrayboxAssetCategory.UI)
             {
                 Canvas canvas = (Canvas) GameObject.FindObjectOfType(typeof(Canvas));
-                instance.transform.parent = canvas.transform;
+                instance.transform.SetParent(canvas.transform, false);
             }
 
             return instance;

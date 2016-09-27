@@ -11,8 +11,6 @@ namespace SocialPoint.GrayboxLibrary
 
         // connection object
         private MySqlConnection _con = null;
-        // command object
-        private MySqlCommand _cmd = null;
         // reader object
         private MySqlDataReader _rdr = null;
 
@@ -47,7 +45,7 @@ namespace SocialPoint.GrayboxLibrary
 
 
         //Execute a query and returns the result
-        public ArrayList ExecuteQuery(string sql)
+        public ArrayList ExecuteQuery(MySqlCommand cmd)
         {
             ArrayList result = new ArrayList();
 
@@ -58,16 +56,16 @@ namespace SocialPoint.GrayboxLibrary
 
                 using(_con)
                 {
-                    using(_cmd = new MySqlCommand(sql, _con))
+                    using(cmd)
                     {
-                        _rdr = _cmd.ExecuteReader();
+                        cmd.Connection = _con;
+                        _rdr = cmd.ExecuteReader();
                         if(_rdr.HasRows)
                         {
                             while(_rdr.Read())
                             {
                                 if(_rdr[0].ToString().Length > 0)
                                 {
-
                                     Dictionary<string, string> row = new Dictionary<string, string>();
 
                                     for(int column = 0; column < _rdr.FieldCount; column++)
@@ -91,7 +89,7 @@ namespace SocialPoint.GrayboxLibrary
 
 
         //Execute a query and returns the result
-        public void ExecuteSQL(string sql)
+        public void ExecuteSQL(MySqlCommand cmd)
         {
             try
             {
@@ -100,8 +98,11 @@ namespace SocialPoint.GrayboxLibrary
 
                 using(_con)
                 {
-                    using(_cmd = new MySqlCommand(sql, _con))
-                        _cmd.ExecuteNonQuery();
+                    using (cmd)
+                    {
+                        cmd.Connection = _con;
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch(Exception ex)
