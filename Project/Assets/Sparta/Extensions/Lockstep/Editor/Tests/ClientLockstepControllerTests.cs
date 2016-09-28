@@ -51,7 +51,7 @@ namespace SocialPoint.Lockstep
             long time = 0;
             int times = 0;
             _client.Config.SimulationStepDuration = 100;
-            _client.Config.MaxSimulationStepsPerFrame = 10;
+            _client.MaxSimulationStepsPerFrame = 10;
             _client.Simulate += (dt) => { times++; time += dt; };
 
             _client.Update(200);
@@ -88,7 +88,7 @@ namespace SocialPoint.Lockstep
         public void CommandsProcessed()
         {
             _client.Config.CommandStepDuration = 100;
-            _client.Config.SimulationDelay = 0;
+            _client.LocalSimulationDelay = 0;
 
             var cmd = Substitute.For<ILockstepCommand>();
             var apply = Substitute.For<ILockstepCommandLogic>();
@@ -110,8 +110,7 @@ namespace SocialPoint.Lockstep
             finish = Substitute.For<ILockstepCommandLogic>();
 
             _client.RegisterCommandLogic(cmd.GetType(), apply);
-            _client.Config.SimulationDelay = 1000;
-            _client.Config.MaxSimulationStepsPerFrame = 1000;
+            _client.LocalSimulationDelay = 1000;
             _client.Start();
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);
@@ -129,7 +128,7 @@ namespace SocialPoint.Lockstep
             _client.ConnectionChanged += () =>  connChanged = true;
             // add delegate to simulate server that needs to confirm commands
             _client.CommandAdded += delegate {};
-            _client.Config.SimulationDelay = 1000;
+            _client.LocalSimulationDelay = 1000;
             _client.Config.CommandStepDuration = 100;
             _client.Config.SimulationStepDuration = 1000;
 

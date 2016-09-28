@@ -103,7 +103,7 @@ namespace SocialPoint.Lockstep
             {
                 return false;
             }
-            return this == obj;
+            return Compare(this, obj);
         }
 
         public override int GetHashCode()
@@ -113,9 +113,24 @@ namespace SocialPoint.Lockstep
             return hash;
         }
 
-        public static bool operator ==(ClientLockstepCommandData a, ClientLockstepCommandData b)
+        static bool Compare(ClientLockstepCommandData a, ClientLockstepCommandData b)
         {
             return a._id == b._id && a.ClientId == b.ClientId;
+        }
+
+        public static bool operator ==(ClientLockstepCommandData a, ClientLockstepCommandData b)
+        {
+            var na = (object)a == null;
+            var nb = (object)b == null;
+            if(na && nb)
+            {
+                return true;
+            }
+            else if(na || nb)
+            {
+                return false;
+            }
+            return Compare(a, b);
         }
 
         public static bool operator !=(ClientLockstepCommandData a, ClientLockstepCommandData b)

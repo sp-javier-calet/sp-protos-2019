@@ -38,7 +38,7 @@ namespace SocialPoint.Lockstep.Network
             _commandFactory = factory;
             if(_lockstepConfig != null)
             {
-                _clientLockstep.Init(_lockstepConfig);
+                _clientLockstep.Config = _lockstepConfig;
             }
             _clientLockstep.CommandAdded += OnCommandAdded;
         }
@@ -103,7 +103,7 @@ namespace SocialPoint.Lockstep.Network
             _clientSetupReceived = true;
             if(_clientLockstep != null)
             {
-                _clientLockstep.Init(_lockstepConfig);
+                _clientLockstep.Config = _lockstepConfig;
             }
             TrySendPlayerReady();
         }

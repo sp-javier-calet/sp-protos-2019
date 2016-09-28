@@ -61,7 +61,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _lockstep = ServiceLocator.Instance.Resolve<ClientLockstepController>();
-        _lockstep.Config.SimulationDelay = 500;
+        _lockstep.LocalSimulationDelay = 500;
         _replay = ServiceLocator.Instance.Resolve<LockstepReplay>();
         _factory = ServiceLocator.Instance.Resolve<LockstepCommandFactory>();
         _lockstep.Simulate += Simulate;

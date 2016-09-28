@@ -72,8 +72,8 @@ namespace SocialPoint.Lockstep.Network
         public void Init(ServerLockstepController serverLockstep)
         {
             _serverLockstep = serverLockstep;
-            _serverLockstep.CommandStep = _lockstepConfig.CommandStepDuration;
-            _serverLockstep.TurnReady = OnServerTurnReady;
+            _serverLockstep.Config.CommandStepDuration = _lockstepConfig.CommandStepDuration;
+            _serverLockstep.TurnReady += OnServerTurnReady;
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
         }
@@ -125,7 +125,7 @@ namespace SocialPoint.Lockstep.Network
             var command = new ServerLockstepCommandData();
             command.Deserialize(reader);
             command.ClientId = clientData.ClientId;
-            _serverLockstep.OnClientCommandReceived(command);
+            _serverLockstep.AddCommand(command);
         }
 
         byte FindPlayerClient(byte playerId)
@@ -270,9 +270,8 @@ namespace SocialPoint.Lockstep.Network
 
             if(_serverLockstep != null)
             {
-                var ts = TimeUtils.TimestampMilliseconds;
-                _serverLockstep.Start(
-                    ts + _serverConfig.StartDelay - _serverLockstep.CommandStep);
+                _serverLockstep.Start();
+                // TODO: _serverConfig.StartDelay - _serverLockstep.Config.CommandStepDuration
             }
 
             StartLocalClientOnAllPlayersReady();

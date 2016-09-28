@@ -6,99 +6,85 @@ namespace SocialPoint.Lockstep
 {
     public sealed class ServerLockstepController : IUpdateable, IDisposable
     {
-        public long CommandStep;
-        long _simulationTime;
-        long _lastTimestamp;
+        int _time;
+        long _timestamp;
+        int _lastCmdTime;
         ServerLockstepTurnData _turn;
         IUpdateScheduler _updateScheduler;
 
-        public int CurrentTurn
-        {
-            get
-            {
-                return (int)(_simulationTime / CommandStep);
-            }
-        }
+        public bool Running{ get; private set; }
+        public LockstepConfig Config { get; set; }
 
-        public bool Running
-        {
-            get
-            {
-                return _simulationTime >= 0;
-            }
-        }
+        public event Action<ServerLockstepTurnData> TurnReady;
 
-        public ServerLockstepController(IUpdateScheduler updateScheduler = null, long commandStep = 300)
+        public ServerLockstepController(IUpdateScheduler updateScheduler = null)
         {
-            Stop();
-            CommandStep = commandStep;
-            if(updateScheduler != null)
-            {
-                _updateScheduler = updateScheduler;
-                updateScheduler.Add(this);
-            }
+            Config = new LockstepConfig();
+            _updateScheduler = updateScheduler;
             _turn = new ServerLockstepTurnData();
+            Stop();
         }
 
-        public void OnClientCommandReceived(ServerLockstepCommandData command)
+        public void AddCommand(ServerLockstepCommandData command)
         {
             _turn.AddCommand(command);
         }
 
-        public void Start(long timestamp)
+        public void Start()
         {
-            _simulationTime = 0;
-            _lastTimestamp = timestamp;
+            Running = true;
+            _time = 0;
+            _timestamp = TimeUtils.TimestampMilliseconds;
+            if(_updateScheduler != null)
+            {
+                _updateScheduler.Add(this);
+            }
         }
 
         public void Stop()
         {
-            _simulationTime = -1;
-            _lastTimestamp = 0;
-        }           
-
-        public Action<ServerLockstepTurnData> TurnReady;
-
-        void SendTurnData()
-        {
-            if(TurnReady != null)
-            {
-                TurnReady(_turn);
-            }
-            ConfirmLocalClientTurn();
-            _turn.Clear();
-        }
-
-        public void Update()
-        {
-            if(_simulationTime < 0)
-            {
-                return;
-            }
-            long timestamp = TimeUtils.TimestampMilliseconds;
-            long elapsedTime = timestamp - _lastTimestamp;
-            if(elapsedTime <= 0)
-            {
-                return;
-            }
-            _simulationTime += elapsedTime;
-            _lastTimestamp = timestamp;
-            /*
-*             long currentTurn = CurrentTurn;
-            while(_turn.Turn < currentTurn)
-            {
-                SendTurnData();
-                _turn.Turn++;
-            }*/
-        }
-
-        public void Dispose()
-        {
-            TurnReady = null;
+            Running = false;
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
             }
+        }
+
+        public void Update()
+        {
+            var timestamp = TimeUtils.TimestampMilliseconds;
+            Update((int)(timestamp - _timestamp));
+            _timestamp = timestamp;
+        }
+
+        public void Update(int dt)
+        {
+            if(!Running || dt < 0)
+            {
+                return;
+            }
+            _time += dt;
+            while(true)
+            {
+                var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
+                if(nextCmdTime > _time)
+                {                
+                    break;
+                }
+                if(TurnReady != null)
+                {
+                    TurnReady(_turn);
+                }
+                ConfirmLocalClientTurn(_turn);
+                _turn.Clear();
+                _lastCmdTime = nextCmdTime;
+            }
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            TurnReady = null;
             RemoveLocalClient();
         }
 
@@ -122,6 +108,7 @@ namespace SocialPoint.Lockstep
             RemoveLocalClient();
             _localClient = client;
             _localFactory = factory;
+            _localClient.Config = Config;
             if(_localClient != null)
             {
                 _localClient.CommandAdded += AddPendingLocalClientCommand;
@@ -132,16 +119,16 @@ namespace SocialPoint.Lockstep
         {
             command.ClientId = LocalClientId;
             var serverCommand = command.ToServer(_localFactory);
-            OnClientCommandReceived(serverCommand);
+            AddCommand(serverCommand);
         }
 
-        void ConfirmLocalClientTurn()
+        void ConfirmLocalClientTurn(ServerLockstepTurnData turn)
         {
             if(_localClient == null)
             {
                 return;
             }
-            var clientTurn = _turn.ToClient(_localFactory);
+            var clientTurn = turn.ToClient(_localFactory);
             _localClient.AddConfirmedTurn(clientTurn);
         }
 

@@ -22,10 +22,8 @@ namespace SocialPoint.Lockstep
         List<ClientLockstepTurnData> _confirmedTurns = new List<ClientLockstepTurnData>();
 
         public bool Connected{ get; private set; }
-
         public bool Running{ get; private set; }
-
-        public LockstepConfig Config { get; private set; }
+        public LockstepConfig Config { get; set; }
         public float SpeedFactor { get; set; }
 
         public event Action<ClientLockstepCommandData> CommandAdded;
@@ -34,17 +32,18 @@ namespace SocialPoint.Lockstep
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
 
+        public const int DefaultLocalSimulationDelay = 1000;
+        public int LocalSimulationDelay = DefaultLocalSimulationDelay;
+
+        public const int DefaultMaxSimulationStepsPerFrame = 0;
+        public int MaxSimulationStepsPerFrame = DefaultMaxSimulationStepsPerFrame;
+
         public ClientLockstepController(IUpdateScheduler updateScheduler=null)
         {
             Config = new LockstepConfig();
             _updateScheduler = updateScheduler;
             Stop();
             SpeedFactor = 1f;
-        }
-
-        public void Init(LockstepConfig config)
-        {
-            Config = config;
         }
 
         public void Start(int dt=0)
@@ -125,7 +124,7 @@ namespace SocialPoint.Lockstep
 
         void AddConfirmedCommand(ClientLockstepCommandData cmd)
         {
-            var turnCount = Config.SimulationDelay / Config.CommandStepDuration;
+            var turnCount = LocalSimulationDelay / Config.CommandStepDuration;
             turnCount = Math.Max(turnCount, 1);
             while(_confirmedTurns.Count < turnCount)
             {
@@ -149,7 +148,11 @@ namespace SocialPoint.Lockstep
         {
             for(var i=0; i<turn.CommandCount; i++)
             {
-                var command = turn.GetCommand(i);
+                var command = FindCommand(turn.GetCommand(i));
+                if(command == null)
+                {
+                    continue;
+                }
                 var itr = _commandLogics.GetEnumerator();
                 while(itr.MoveNext())
                 {
@@ -181,6 +184,7 @@ namespace SocialPoint.Lockstep
             Update((int)(timestamp - _timestamp));
             _timestamp = timestamp;
         }
+
         public void Update(int dt)
         {
             if(!Running || dt < 0)
@@ -212,7 +216,7 @@ namespace SocialPoint.Lockstep
                     }
                     _lastSimTime = nextSimTime;
                     simSteps++;
-                    if(simSteps < Config.MaxSimulationStepsPerFrame)
+                    if(MaxSimulationStepsPerFrame <= 0 || simSteps < MaxSimulationStepsPerFrame)
                     {
                         finished = false;
                     }

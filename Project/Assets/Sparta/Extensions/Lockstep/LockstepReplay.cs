@@ -30,7 +30,7 @@ namespace SocialPoint.Lockstep
 
         public void Replay()
         {
-            _clientLockstep.Init(_config);
+            _clientLockstep.Config = _config;
             for(var i = 0; i < _turns.Count; i++)
             {
                 _clientLockstep.AddConfirmedTurn(_turns[i]);
