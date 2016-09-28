@@ -1,4 +1,5 @@
 ﻿using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.Utils;
@@ -37,6 +38,8 @@ public class HttpClientInstaller : Installer
         Container.Rebind<IHttpClient>("internal").ToLookup<HttpClient>();
         Container.Rebind<IHttpClient>().ToLookup<HttpClient>();
         Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHttpClient>(CreateAdminPanel);
     }
 
     HttpClient CreateHttpClient()
@@ -49,5 +52,11 @@ public class HttpClientInstaller : Installer
         );
         client.Config = Settings.Config;
         return client;
+    }
+
+    AdminPanelHttpClient CreateAdminPanel()
+    {
+        return new AdminPanelHttpClient(
+            Container.Resolve<ICoroutineRunner>());
     }
 }

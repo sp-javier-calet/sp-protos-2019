@@ -46,6 +46,14 @@ namespace SocialPoint.Network
             Send(_connection, _request);
         }
 
+        public bool Active
+        {
+            get
+            {
+                return !_cancelled && !_dataReceived;
+            }
+        }
+
         public void SendData(byte[] data)
         {
             var msg = new Curl.MessageStruct();
