@@ -140,6 +140,11 @@ extern "C"
         client->setConfig(name);
     }
     
+    EXPORT_API void SPUnityCurlSetVerbose(CurlClient* client, bool verbose)
+    {
+        client->setVerbose(verbose);
+    }
+    
     // needs to be implemented for each platform
     EXPORT_API void SPUnityCurlOnApplicationPause(CurlClient* client, bool paused);
 }

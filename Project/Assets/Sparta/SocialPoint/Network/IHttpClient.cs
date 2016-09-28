@@ -1,5 +1,4 @@
 using System;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {

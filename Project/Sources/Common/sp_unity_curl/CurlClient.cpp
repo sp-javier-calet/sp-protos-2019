@@ -518,7 +518,9 @@ void CurlClient::getStreamMessage(int id, char* data)
     if(conn)
     {
         memcpy(data, conn->messages.incoming.c_str(), conn->messages.incoming.length() * sizeof(char));
-        conn->messages.incoming.clear(); // TODO?
+        
+        // Clear message after retrieve it
+        conn->messages.incoming.clear(); // TODO If we need to store de full body, we may use it as message buffer too
     }
 }
 

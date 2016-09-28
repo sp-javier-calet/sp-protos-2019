@@ -47,7 +47,7 @@ namespace SocialPoint.Network
             {
                 int status = _connection.Update();
 
-                if(_connection.Streamed)
+                if(_connection.Streamed && _stream.Connected)
                 {
                     var data = _connection.Incoming;
                     if(data != null)
@@ -210,6 +210,14 @@ namespace SocialPoint.Network
             readonly Curl.Connection _connection;
 
             public event Action<byte[]> DataReceived;
+
+            public bool Connected
+            {
+                get
+                {
+                    return DataReceived != null;
+                }
+            }
 
             public CurlHttpStream(Curl.Connection connection)
             {
