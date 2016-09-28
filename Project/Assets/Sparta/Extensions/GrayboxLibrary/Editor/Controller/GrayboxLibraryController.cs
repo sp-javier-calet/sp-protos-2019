@@ -268,7 +268,26 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList tags = new ArrayList();
 
-            MySqlCommand command = new MySqlCommand("SELECT t.id_tag, t.name FROM tag t WHERE t.name LIKE CONCAT('%', @NAME, '%') LIMIT " + startLimit + ", " + endLimit);
+            MySqlCommand command = new MySqlCommand("SELECT DISTINCT t.id_tag, t.name FROM tag t WHERE t.name LIKE CONCAT('%', @NAME, '%') LIMIT " + startLimit + ", " + endLimit);
+            command.Parameters.AddWithValue("@NAME", name);
+
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
+
+            for (int i = 0; i < queryResult.Count; i++)
+            {
+                Dictionary<string, string> row = (Dictionary<string, string>)queryResult[i];
+                GrayboxTag tag = new GrayboxTag(int.Parse(row["id_tag"]), row["name"]);
+                tags.Add(tag);
+            }
+
+            return tags;
+        }
+
+        public ArrayList GetTagsInCategory(string name, GrayboxAssetCategory category, int startLimit = 0, int endLimit = 1000)
+        {
+            ArrayList tags = new ArrayList();
+
+            MySqlCommand command = new MySqlCommand("SELECT DISTINCT t.id_tag, t.name FROM tag t INNER JOIN asset_tag atag on t.id_tag = atag.id_tag INNER JOIN asset a on atag.id_asset = a.id_asset WHERE t.name LIKE CONCAT('%', @NAME, '%') AND a.category LIKE '" + category.ToString() + "' LIMIT " + startLimit + ", " + endLimit);
             command.Parameters.AddWithValue("@NAME", name);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
@@ -292,6 +311,21 @@ namespace SocialPoint.GrayboxLibrary
             for (int i = 0; i < gbTags.Count; i++)
             {
                 GrayboxTag tag = (GrayboxTag) gbTags[i];
+                tags.Add(tag.Name);
+            }
+
+            return tags.ToArray();
+        }
+
+        public string[] GetTagsInCategoryAsText(string name, GrayboxAssetCategory category, int startLimit = 0, int endLimit = 1000)
+        {
+            List<string> tags = new List<string>();
+
+            ArrayList gbTags = GetTagsInCategory(name, category, startLimit, endLimit);
+
+            for (int i = 0; i < gbTags.Count; i++)
+            {
+                GrayboxTag tag = (GrayboxTag)gbTags[i];
                 tags.Add(tag.Name);
             }
 
@@ -475,7 +509,7 @@ namespace SocialPoint.GrayboxLibrary
             return _downloadController.DownloadImage(path);
         }
 
-        public GameObject InstanciateAsset(GrayboxAsset asset)
+        public GameObject InstantiateAsset(GrayboxAsset asset)
         {
             GameObject assetGO = (GameObject)AssetDatabase.LoadMainAssetAtPath(asset.MainAssetPath);
             GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(assetGO);

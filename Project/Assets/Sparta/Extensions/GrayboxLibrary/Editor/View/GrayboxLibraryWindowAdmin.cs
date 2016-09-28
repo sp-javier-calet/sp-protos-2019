@@ -454,12 +454,6 @@ namespace SocialPoint.GrayboxLibrary
                 if(_asset.MainAssetPath.Length > 0)
                 {
                     _assetPreview = AssetPreview.GetMiniThumbnail(_mainAsset);
-                    /*assetPreview = AssetPreview.GetAssetPreview(mainAsset);
-                        for (int i = 0; i < 75 && assetPreview == null; i++)
-                        {
-                            assetPreview = AssetPreview.GetAssetPreview(mainAsset);
-                            System.Threading.Thread.Sleep(15);
-                        }*/
                 }
                 else
                 {
@@ -603,12 +597,15 @@ namespace SocialPoint.GrayboxLibrary
         private void DisplaySearchBar()
         {
             EditorGUILayout.BeginVertical();
-            EditorGUILayout.BeginHorizontal();
 
+            EditorGUILayout.BeginHorizontal();
             int previousFilterCount = _assetTags.Count;
             DisplayTags();
-            if(previousFilterCount != _assetTags.Count)
+            if (previousFilterCount != _assetTags.Count)
                 DisplayTags();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
 
             string previousFilter = _newTag;
 
@@ -628,7 +625,7 @@ namespace SocialPoint.GrayboxLibrary
             {
                 _filterUpdated = false;
                 _displayFilterOptions = false;
-                _tagList = _tool.GetTagsAsText(_newTag, 0, 10);
+                _tagList = _tool.GetTagsInCategoryAsText(_newTag, _asset.Category, 0, 10);
                 if(_tagList.Length > 0 && _newTag.Length > 0)
                     _displayFilterOptions = true;
             }
@@ -674,7 +671,6 @@ namespace SocialPoint.GrayboxLibrary
 
             EditorGUILayout.Separator();
             EditorGUILayout.EndVertical();
-
         }
 
         private void DisplayAssetSearchBar()

@@ -11,8 +11,9 @@ namespace SocialPoint.GrayboxLibrary
         private static ArrayList _currentAssetList;
         private static ArrayList _currentGUIContent;
         public static GrayboxLibraryController Tool;
-        private static List<GrayboxAsset> _toInstanciate;
+        private static List<GrayboxAsset> _toInstantiate;
         private static List<GrayboxAsset> _toDownload;
+        private static Dictionary<string, Vector3> _instantiatePositions;
 
         private static string[] _categories;
         public static string Filter = "";
@@ -96,10 +97,12 @@ namespace SocialPoint.GrayboxLibrary
             Window.titleContent.text = "Library";
             Tool = new GrayboxLibraryController();
             _currentGUIContent = new ArrayList();
+            _currentPage = 0;
             _currentAssetList = Tool.GetAssets(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
             LoadThumbnails();
-            _toInstanciate = new List<GrayboxAsset>();
+            _toInstantiate = new List<GrayboxAsset>();
             _toDownload = new List<GrayboxAsset>();
+            _instantiatePositions = new Dictionary<string, Vector3>();
             _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
             _categories = Enum.GetNames(typeof(GrayboxAssetCategory));
             _filterUpdated = true;
@@ -346,8 +349,7 @@ namespace SocialPoint.GrayboxLibrary
         public void changePage(int pageIndex)
         {
             _currentPage = pageIndex;
-            _currentAssetList = Tool.GetAssets(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
-            LoadThumbnails();
+            Search(Filters, false, false);
         }
 
 
@@ -410,7 +412,7 @@ namespace SocialPoint.GrayboxLibrary
             {
                 _filterUpdated = false;
                 _displayFilterOptions = false;
-                _tagList = Tool.GetTagsAsText(Filter, 0, 10);
+                _tagList = Tool.GetTagsInCategoryAsText(Filter, (GrayboxAssetCategory) _currentCategory, 0, 10);
                 if(_tagList.Length > 0 && Filter.Length > 0)
                     _displayFilterOptions = true;
             }
@@ -458,7 +460,14 @@ namespace SocialPoint.GrayboxLibrary
             if(evt.clickCount > 0 && _dragging)
             {
                 if(AssetDragged != null && !position.Contains(evt.mousePosition + position.position))
-                    InstantiateAsset(true);
+                {
+                    Vector2 mouseScreendPos = evt.mousePosition + position.position - SceneView.lastActiveSceneView.position.position;
+                    Ray _raycast = SceneView.lastActiveSceneView.camera.ScreenPointToRay(new Vector3(mouseScreendPos.x, Screen.height - (mouseScreendPos.y + 300), 0));
+                    Plane ground = new Plane(new Vector3(0,1,0), Vector3.zero);
+                    float distanceToHit = 0;
+                    ground.Raycast(_raycast, out distanceToHit);
+                    InstantiateAssetAtPosition(_raycast.GetPoint(distanceToHit), true);
+                }
             }
 
             switch(evt.type)
@@ -535,12 +544,15 @@ namespace SocialPoint.GrayboxLibrary
             }
         }
 
-        private static void Search(List<string> filters)
+        private static void Search(List<string> filters, bool resetPage = true, bool updateMaxPage = true)
         {
+            if (resetPage)
+                _currentPage = 0;
+            if (updateMaxPage)
+                _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
             _currentGUIContent = new ArrayList();
             _currentAssetList = Tool.GetAssets(filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
             LoadThumbnails();
-            _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
         }
 
         private static void LoadThumbnails()
@@ -568,23 +580,36 @@ namespace SocialPoint.GrayboxLibrary
             Search(Filters);
         }
 
-        public static void InstantiateAsset(bool dragAndDrop = false)
+        public static GrayboxAsset InstantiateAsset(bool dragAndDrop = false)
         {
-            if(dragAndDrop)
+            GrayboxAsset asset= null;
+
+            if (dragAndDrop)
             {
                 if(AssetDragged != null)
                 {
+                    asset = AssetDragged;
                     _toDownload.Add(AssetDragged);
                 }
             }
             else if(AssetChosen != null)
             {
+                asset = AssetChosen;
                 _toDownload.Add(AssetChosen);
             }
 
             _dragging = false;
             AssetDragged = null;
             _focusChangeDelay = 0;
+
+            return asset;
+        }
+
+
+        public static void InstantiateAssetAtPosition(Vector3 position, bool dragAndDrop = false)
+        {
+            GrayboxAsset asset = InstantiateAsset(dragAndDrop);
+            _instantiatePositions.Add(asset.Name, position);
         }
 
 
@@ -604,27 +629,33 @@ namespace SocialPoint.GrayboxLibrary
                         else
                         {
                             Tool.DownloadAsset(_toDownload[i]);
-                            _toInstanciate.Add(_toDownload[i]);
+                            _toInstantiate.Add(_toDownload[i]);
                             _toDownload.RemoveAt(i);
                         }
                     }
                     else
                     {
                         Tool.DownloadAsset(_toDownload[i]);
-                        _toInstanciate.Add(_toDownload[i]);
+                        _toInstantiate.Add(_toDownload[i]);
                         _toDownload.RemoveAt(i);
                     }
                 }
             }
 
-            if(_toInstanciate != null)
+            if(_toInstantiate != null)
             {
-                for(int i = 0; i < _toInstanciate.Count; i++)
+                for(int i = 0; i < _toInstantiate.Count; i++)
                 {
-                    if(AssetDatabase.LoadMainAssetAtPath(_toInstanciate[i].MainAssetPath) != null)
+                    if(AssetDatabase.LoadMainAssetAtPath(_toInstantiate[i].MainAssetPath) != null)
                     {
-                        Tool.InstanciateAsset(_toInstanciate[i]);
-                        _toInstanciate.RemoveAt(i);
+                        GameObject instance = Tool.InstantiateAsset(_toInstantiate[i]);
+                        if (_instantiatePositions.ContainsKey(_toInstantiate[i].Name))
+                        {
+                            instance.transform.position = _instantiatePositions[_toInstantiate[i].Name];
+                            Debug.Log(_instantiatePositions[_toInstantiate[i].Name]);
+                            _instantiatePositions.Remove(_toInstantiate[i].Name);
+                        }
+                        _toInstantiate.RemoveAt(i);
                     }
                 }
             }
