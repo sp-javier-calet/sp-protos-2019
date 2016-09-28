@@ -74,10 +74,7 @@ namespace SocialPoint.Multiplayer
         public bool RemoveObject(int id)
         {
             var r = _objects.Remove(id);
-            if(FreeObjectId > id)
-            {
-                FreeObjectId = id;
-            }
+            //TODO: Find a way to reuse ids?
             return r;
         }
 

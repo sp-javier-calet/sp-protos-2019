@@ -1,27 +1,31 @@
-﻿using UnityEngine;
+﻿using UnityVector = UnityEngine.Vector3;
+using UnityQuaternion = UnityEngine.Quaternion;
+using PhysicsVector = Jitter.LinearMath.JVector;
+using PhysicsQuaternion = Jitter.LinearMath.JQuaternion;
 
 namespace SocialPoint.Multiplayer
 {
     public static class UnityModelExtensions
     {
-        public static UnityEngine.Vector3 ToUnity(this Vector3 v)
+        public static UnityVector ToUnity(this PhysicsVector v)
         {
-            return new UnityEngine.Vector3(v.x, v.y, v.z);
+            return new UnityVector(v.X, v.Y, v.Z);
         }
 
-        public static UnityEngine.Quaternion ToUnity(this Quaternion q)
+        public static UnityQuaternion ToUnity(this PhysicsQuaternion q)
         {
-            return new UnityEngine.Quaternion(q.x, q.y, q.z, q.w);
+            return new UnityQuaternion(q.X, q.Y, q.Z, q.W);
         }
 
-        public static Vector3 ToMultiplayer(this UnityEngine.Vector3 v)
+
+        public static PhysicsVector ToMultiplayer(this UnityVector v)
         {
-            return new Vector3(v.x, v.y, v.z);
+            return new PhysicsVector(v.x, v.y, v.z);
         }
 
-        public static Quaternion ToMultiplayer(this UnityEngine.Quaternion q)
+        public static PhysicsQuaternion ToMultiplayer(this UnityQuaternion q)
         {
-            return new Quaternion(q.x, q.y, q.z, q.w);
+            return new PhysicsQuaternion(q.x, q.y, q.z, q.w);
         }
     }
 }

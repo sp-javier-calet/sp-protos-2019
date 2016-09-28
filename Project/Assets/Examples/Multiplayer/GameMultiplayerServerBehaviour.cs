@@ -1,9 +1,14 @@
-﻿using SocialPoint.Utils;
+﻿using SocialPoint.Base;
+using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using System;
 using System.Collections.Generic;
+using Jitter;
+using Jitter.LinearMath;
+using Jitter.Dynamics;
+using Jitter.Collision;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
 {
@@ -14,16 +19,23 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     float _moveInterval = 1.0f;
     float _timeSinceLastMove = 0.0f;
     int _maxUpdateTimes = 3;
-    Vector3 _movement;
+    JVector _movement;
+    NetworkGameObject _playerCube;
 
-    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
+    PhysicsWorld _physicsWorld;
+    IPhysicsDebugger _physicsDebugger;
+
+    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger)
     {
         _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
         _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
-        _movement = new Vector3(2.0f, 0.0f, 2.0f);
+        _movement = new JVector(2.0f, 0.0f, 2.0f);
+
+        _physicsDebugger = physicsDebugger;
+        AddPhysicsWorld();
     }
 
     public void Dispose()
@@ -41,19 +53,19 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var itr = _controller.Scene.GetObjectEnumerator();
             while(itr.MoveNext())
             {
-                var id = itr.Current.Id;
-                if(id == 1)
+                if(itr.Current == _playerCube)
                 {
                     //Using first cube as MovementAction target
                     continue;
                 }
 
+                var id = itr.Current.Id;
                 var p = itr.Current.Transform.Position;
 
-                p += new Vector3(
-                    RandomUtils.Range(-_movement.x, _movement.x),
-                    0.0f,//RandomUtils.Range(-_movement.y, _movement.y),
-                    RandomUtils.Range(-_movement.z, _movement.z));
+                p += new JVector(
+                    RandomUtils.Range(-_movement.X, _movement.X),
+                    0.0f,//RandomUtils.Range(-_movement.Y, _movement.Y),
+                    RandomUtils.Range(-_movement.Z, _movement.Z));
 
                 _controller.Tween(id, p, _moveInterval);
                 int times;
@@ -95,8 +107,23 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         if(data.MessageType == GameMsgType.ClickAction)
         {
             var ac = reader.Read<ClickAction>();
-            _controller.Instantiate("Cube", new Transform(
-                ac.Position, Quaternion.Identity, Vector3.One));
+            if(!ClosestIntersectsRay(_playerCube, ac.Ray))
+            {
+                NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
+                                                    ac.Position, JQuaternion.Identity, JVector.One));
+
+                if(_playerCube == null)
+                {
+                    _playerCube = currentCube;
+                }
+
+                AddCollision(currentCube);
+            }
+            else
+            {
+                Log.i("Raycast over player!");
+            }
+
         }
         else if(data.MessageType == GameMsgType.MovementAction)
         {
@@ -111,5 +138,53 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void INetworkServerSceneBehaviour.OnClientDisconnected(byte clientId)
     {
+    }
+
+    void AddPhysicsWorld()
+    {
+        _physicsWorld = new PhysicsWorld(true);
+
+        _controller.AddBehaviour(_physicsWorld);
+    }
+
+    void AddCollision(NetworkGameObject go)
+    {
+        var boxShape = new PhysicsBoxShape(new JVector(1f));
+        var rigidBody = new PhysicsRigidBody(boxShape, PhysicsRigidBody.ControlType.Kinematic, _physicsWorld, _physicsDebugger);
+        rigidBody.DoDebugDraw = true;
+
+        if(go.Id == _playerCube.Id)
+        {
+            rigidBody.AddCollisionHandler(PlayerCollisionHandler);
+        }
+
+        _controller.AddBehaviour(go.Id, rigidBody);
+    }
+
+    public bool ClosestIntersectsRay(NetworkGameObject gameObject, Ray ray)
+    {
+        if(gameObject == null)
+        {
+            return false;
+        }
+
+        float maxDistance = 100f;
+        PhysicsRaycast.Result rayResultClosest;
+
+        if(PhysicsRaycast.Raycast(ray, maxDistance, _physicsWorld, out rayResultClosest))
+        {
+            if(rayResultClosest.ObjectHit.NetworkGameObject.Id == gameObject.Id)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void PlayerCollisionHandler(RigidBody body1, RigidBody body2, 
+                                JVector point1, JVector point2, JVector normal, float penetration)
+    {
+        Log.i("Player Collision Detected!");
     }
 }
