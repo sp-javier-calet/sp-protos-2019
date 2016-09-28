@@ -92,7 +92,7 @@ namespace SocialPoint.Lockstep.Network
         {
             var turn = new ClientLockstepTurnData();
             turn.Deserialize(_commandFactory, reader);
-            _clientLockstep.ConfirmTurn(turn);
+            _clientLockstep.AddConfirmedTurn(turn);
         }
 
         void OnClientSetupReceived(IReader reader)
@@ -119,7 +119,7 @@ namespace SocialPoint.Lockstep.Network
                 throw new InvalidOperationException("Should have already started lockstep.");
             }
             PlayerId = msg.PlayerId;
-            _clientLockstep.Start(TimeUtils.TimestampMilliseconds + (long)remaining);
+            _clientLockstep.Start(remaining);
         }
 
         public void SendPlayerReady()

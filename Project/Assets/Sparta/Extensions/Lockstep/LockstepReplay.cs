@@ -12,12 +12,12 @@ namespace SocialPoint.Lockstep
     {
         ClientLockstepController _clientLockstep;
         LockstepCommandFactory _commandFactory;
-        Dictionary<int, ClientLockstepTurnData> _turns;
+        List<ClientLockstepTurnData> _turns;
         LockstepConfig _config;
 
         public LockstepReplay(ClientLockstepController clientLockstep, LockstepCommandFactory commandFactory)
         {
-            _turns = new Dictionary<int, ClientLockstepTurnData>();
+            _turns = new List<ClientLockstepTurnData>();
             _clientLockstep = clientLockstep;
             _commandFactory = commandFactory;
         }
@@ -31,12 +31,10 @@ namespace SocialPoint.Lockstep
         public void Replay()
         {
             _clientLockstep.Init(_config);
-            var itr = _turns.GetEnumerator();
-            while(itr.MoveNext())
+            for(var i = 0; i < _turns.Count; i++)
             {
-                _clientLockstep.ConfirmTurn(itr.Current.Value);
+                _clientLockstep.AddConfirmedTurn(_turns[i]);
             }
-            itr.Dispose();
         }
 
         public void Reset()
@@ -45,19 +43,16 @@ namespace SocialPoint.Lockstep
             _config = null;
         }
 
-        void OnCommandApplied(ClientLockstepCommandData command, int turn)
+        void OnCommandApplied(ClientLockstepCommandData command)
         {
             if(_config == null)
             {
                 _config = _clientLockstep.Config;
             }
-            ClientLockstepTurnData turnData;
-            if(!_turns.TryGetValue(turn, out turnData))
+            if(_turns.Count > 0)
             {
-                turnData = new ClientLockstepTurnData(turn);
-                _turns[turn] = turnData;
+                _turns[_turns.Count - 1].AddCommand(command);
             }
-            turnData.Commands.Add(command);
         }
 
         public void Serialize(IWriter writer)
@@ -68,12 +63,10 @@ namespace SocialPoint.Lockstep
             }
             _config.Serialize(writer);
             writer.Write(_turns.Count);
-            var itr = _turns.GetEnumerator();
-            while(itr.MoveNext())
+            for(var i=0; i<_turns.Count; i++)
             {
-                itr.Current.Value.Serialize(_commandFactory, writer);
+                _turns[i].Serialize(_commandFactory, writer);
             }
-            itr.Dispose();
         }
 
         public void Deserialize(IReader reader)
@@ -85,7 +78,7 @@ namespace SocialPoint.Lockstep
             {
                 var turn = new ClientLockstepTurnData();
                 turn.Deserialize(_commandFactory, reader);
-                _turns[turn.Turn] = turn;
+                _turns.Add(turn);
             }
         }
 

@@ -70,7 +70,7 @@ public class LockstepInstaller : Installer
     {
         var ctrl = new ServerLockstepController(
             Container.Resolve<IUpdateScheduler>(),
-            Container.Resolve<LockstepConfig>().CommandStep);
+            Container.Resolve<LockstepConfig>().CommandStepDuration);
         return ctrl;
     }
 

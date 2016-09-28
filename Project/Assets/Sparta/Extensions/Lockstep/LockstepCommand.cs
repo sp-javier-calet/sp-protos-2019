@@ -219,7 +219,7 @@ namespace SocialPoint.Lockstep
 
         public void Apply(ILockstepCommand data)
         {
-            if(data is T)
+            if(data is T && _inner != null)
             {
                 _inner.Apply((T)data);
             }

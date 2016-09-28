@@ -37,12 +37,12 @@ namespace SocialPoint.Lockstep
                 _updateScheduler = updateScheduler;
                 updateScheduler.Add(this);
             }
-            _turn = new ServerLockstepTurnData(-1);
+            _turn = new ServerLockstepTurnData();
         }
 
         public void OnClientCommandReceived(ServerLockstepCommandData command)
         {
-            _turn.Commands.Add(command);
+            _turn.AddCommand(command);
         }
 
         public void Start(long timestamp)
@@ -55,10 +55,6 @@ namespace SocialPoint.Lockstep
         {
             _simulationTime = -1;
             _lastTimestamp = 0;
-            if(_turn != null)
-            {
-                _turn.Turn = -1;
-            }
         }           
 
         public Action<ServerLockstepTurnData> TurnReady;
@@ -70,7 +66,7 @@ namespace SocialPoint.Lockstep
                 TurnReady(_turn);
             }
             ConfirmLocalClientTurn();
-            _turn.Commands.Clear();
+            _turn.Clear();
         }
 
         public void Update()
@@ -87,12 +83,13 @@ namespace SocialPoint.Lockstep
             }
             _simulationTime += elapsedTime;
             _lastTimestamp = timestamp;
-            long currentTurn = CurrentTurn;
+            /*
+*             long currentTurn = CurrentTurn;
             while(_turn.Turn < currentTurn)
             {
                 SendTurnData();
                 _turn.Turn++;
-            }
+            }*/
         }
 
         public void Dispose()
@@ -145,7 +142,7 @@ namespace SocialPoint.Lockstep
                 return;
             }
             var clientTurn = _turn.ToClient(_localFactory);
-            _localClient.ConfirmTurn(clientTurn);
+            _localClient.AddConfirmedTurn(clientTurn);
         }
 
         #endregion

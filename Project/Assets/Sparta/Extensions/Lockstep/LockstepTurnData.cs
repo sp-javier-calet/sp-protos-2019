@@ -5,99 +5,124 @@ namespace SocialPoint.Lockstep
 {
     public sealed class ClientLockstepTurnData
     {
-        public int Turn { get; private set; }
+        List<ClientLockstepCommandData> _commands;
 
-        public List<ClientLockstepCommandData> Commands { get; set; }
-
-        public ClientLockstepTurnData(int turn=0)
+        public ClientLockstepTurnData(List<ClientLockstepCommandData> commands=null)
         {
-            Turn = turn;
-            Commands = new List<ClientLockstepCommandData>();
+            if(commands == null)
+            {
+                commands = new List<ClientLockstepCommandData>();
+            }
+            _commands = commands;
         }
 
-        public ClientLockstepTurnData(int turn, List<ClientLockstepCommandData> commands)
+        public int CommandCount
         {
-            Turn = turn;
-            Commands = commands;
+            get
+            {
+                return _commands.Count;
+            }
+        }
+
+        public ClientLockstepCommandData GetCommand(int i)
+        {
+            return _commands[i];
+        }
+
+        public void AddCommand(ClientLockstepCommandData cmd)
+        {
+            _commands.Add(cmd);
+        }
+
+        public void Clear()
+        {
+            _commands.Clear();
+        }
+
+        public List<ClientLockstepCommandData>.Enumerator GetCommandEnumerator()
+        {
+            return _commands.GetEnumerator();
         }
 
         public override string ToString()
         {
-            return string.Format("[ClientLockstepTurnData: Turn={0}, CommandsCount={1}]", Turn, Commands.Count);
+            return string.Format("[ClientLockstepTurnData:{0}]", _commands.Count);
         }
 
         public void Deserialize(LockstepCommandFactory factory, IReader reader)
         {
-            Turn = reader.ReadInt32();
             int commandCount = (int)reader.ReadByte();
-            Commands = new List<ClientLockstepCommandData>();
+            _commands = new List<ClientLockstepCommandData>();
             for(int j = 0; j < commandCount; ++j)
             {
                 var command = new ClientLockstepCommandData();
                 command.Deserialize(factory, reader);
-                Commands.Add(command);
+                _commands.Add(command);
             }
         }
 
         public void Serialize(LockstepCommandFactory factory, IWriter writer)
         {
-            writer.Write(Turn);
-            writer.Write((byte)Commands.Count);
-            for(int i = 0; i < Commands.Count; ++i)
+            writer.Write((byte)_commands.Count);
+            for(int i = 0; i < _commands.Count; ++i)
             {
-                var command = Commands[i];
+                var command = _commands[i];
                 command.Serialize(factory, writer);
             }
         }
 
         public ServerLockstepTurnData ToServer(LockstepCommandFactory factory)
         {
-            var commands = new List<ServerLockstepCommandData>(Commands.Count);
-            for(var i = 0; i < Commands.Count; i++)
+            var commands = new List<ServerLockstepCommandData>(_commands.Count);
+            for(var i = 0; i < _commands.Count; i++)
             {
-                var cmd = Commands[i];
+                var cmd = _commands[i];
                 if(cmd != null)
                 {
                     commands.Add(cmd.ToServer(factory));
                 }
             }
-            return new ServerLockstepTurnData(Turn, commands);
+            return new ServerLockstepTurnData(commands);
         }
     }
 
     public sealed class ServerLockstepTurnData : INetworkShareable
     {
-        public int Turn { get; set; }
+        List<ServerLockstepCommandData> _commands;
 
-        public List<ServerLockstepCommandData> Commands { get; set; }
-
-        public ServerLockstepTurnData(int turn)
+        public ServerLockstepTurnData(List<ServerLockstepCommandData> commands=null)
         {
-            Turn = turn;
-            Commands = new List<ServerLockstepCommandData>();
+            if(commands == null)
+            {
+                commands = new List<ServerLockstepCommandData>();
+            }
+            _commands = commands;
         }
 
-        public ServerLockstepTurnData(int turn, List<ServerLockstepCommandData> commands)
+        public void AddCommand(ServerLockstepCommandData cmd)
         {
-            Turn = turn;
-            Commands = commands;
+            _commands.Add(cmd);
+        }
+
+        public void Clear()
+        {
+            _commands.Clear();
         }
 
         public override string ToString()
         {
-            return string.Format("[ServerLockstepTurnData: Turn={0}, CommandsCount={1}]", Turn, Commands.Count);
+            return string.Format("[ServerLockstepTurnData:{0}]", _commands.Count);
         }
 
         public void Deserialize(IReader reader)
         {
-            Turn = reader.ReadInt32();
             int commandCount = (int)reader.ReadByte();
-            Commands = new List<ServerLockstepCommandData>();
+            _commands = new List<ServerLockstepCommandData>();
             for(int j = 0; j < commandCount; ++j)
             {
                 var command = new ServerLockstepCommandData();
                 command.Deserialize(reader);
-                Commands.Add(command);
+                _commands.Add(command);
             }
 
             throw new System.NotImplementedException();
@@ -105,26 +130,26 @@ namespace SocialPoint.Lockstep
 
         public void Serialize(IWriter writer)
         {
-            writer.Write((byte)Commands.Count);
-            for(int i = 0; i < Commands.Count; ++i)
+            writer.Write((byte)_commands.Count);
+            for(int i = 0; i < _commands.Count; ++i)
             {
-                var command = Commands[i];
+                var command = _commands[i];
                 command.Serialize(writer);
             }
         }
 
         public ClientLockstepTurnData ToClient(LockstepCommandFactory factory)
         {
-            var commands = new List<ClientLockstepCommandData>(Commands.Count);
-            for(var i = 0; i < Commands.Count; i++)
+            var commands = new List<ClientLockstepCommandData>(_commands.Count);
+            for(var i = 0; i < _commands.Count; i++)
             {
-                var cmd = Commands[i];
+                var cmd = _commands[i];
                 if(cmd != null)
                 {
                     commands.Add(cmd.ToClient(factory));
                 }
             }
-            return new ClientLockstepTurnData(Turn, commands);
+            return new ClientLockstepTurnData(commands);
         }
     }
 }

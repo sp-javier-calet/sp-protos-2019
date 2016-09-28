@@ -72,7 +72,7 @@ namespace SocialPoint.Lockstep.Network
         public void Init(ServerLockstepController serverLockstep)
         {
             _serverLockstep = serverLockstep;
-            _serverLockstep.CommandStep = _lockstepConfig.CommandStep;
+            _serverLockstep.CommandStep = _lockstepConfig.CommandStepDuration;
             _serverLockstep.TurnReady = OnServerTurnReady;
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
@@ -391,7 +391,7 @@ namespace SocialPoint.Lockstep.Network
         {
             if(_localClient != null)
             {
-                _localClient.Start(TimeUtils.TimestampMilliseconds + _serverConfig.StartDelay);
+                _localClient.Start(_serverConfig.StartDelay);
             }
         }
 

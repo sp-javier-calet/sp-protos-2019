@@ -5,34 +5,33 @@ namespace SocialPoint.Lockstep
     [System.Serializable]
     public sealed class LockstepConfig : INetworkShareable
     {
-        public const int DefaultCommandStepFactor = 10;
-        public const int DefaultSimulationStep = 10;
-
-        // The commands will be only processed every CommandStepFactor simulation steps reached
-        public int CommandStepFactor = DefaultCommandStepFactor;
+        public const int DefaultCommandStepDuration = 100;
+        public const int DefaultSimulationStepDuration = 10;
+        public const int DefaultMaxSimulationStepsPerFrame = 10;
+        public const int DefaultSimulationDelay = 1000;
 
         // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
-        public int SimulationStep = DefaultSimulationStep;
+        public int SimulationStepDuration = DefaultSimulationStepDuration;
+
+        public int MaxSimulationStepsPerFrame = DefaultMaxSimulationStepsPerFrame;
 
         // Command processing tick.
-        public int CommandStep
-        {
-            get
-            {
-                return SimulationStep * CommandStepFactor;
-            }
-        }
+        public int CommandStepDuration = DefaultCommandStepDuration;
+
+        public int SimulationDelay = DefaultSimulationDelay;
 
         public void Deserialize(IReader reader)
         {
-            CommandStepFactor = reader.ReadInt32();
-            SimulationStep = reader.ReadInt32();
+            CommandStepDuration = reader.ReadInt32();
+            SimulationStepDuration = reader.ReadInt32();
+            MaxSimulationStepsPerFrame = reader.ReadInt32();
         }
 
         public void Serialize(IWriter writer)
         {
-            writer.Write(CommandStepFactor);
-            writer.Write(SimulationStep);
+            writer.Write(CommandStepDuration);
+            writer.Write(SimulationStepDuration);
+            writer.Write(MaxSimulationStepsPerFrame);
         }
     }
 }
