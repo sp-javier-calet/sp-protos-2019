@@ -28,6 +28,11 @@ namespace SocialPoint.Network
             return new Connection(this, id);
         }
 
+        public void Update()
+        {
+            SPUnityCurlUpdate(_nativeClient, 0);
+        }
+
         public void Dispose()
         {
             SPUnityCurlDestroy(_nativeClient);
@@ -124,6 +129,14 @@ namespace SocialPoint.Network
                 get
                 {
                     return _connectionId;
+                }
+            }
+
+            public bool Finished
+            {
+                get
+                {
+                    return SPUnityCurlIsFinished(_curl._nativeClient, _connectionId);
                 }
             }
 
@@ -453,6 +466,9 @@ namespace SocialPoint.Network
 
         [DllImport(PluginModuleName)]
         static extern int SPUnityCurlGetStreamMessageLenght(UIntPtr client, int id);
+
+        [DllImport(PluginModuleName)]
+        static extern bool SPUnityCurlIsFinished(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
         static extern double SPUnityCurlGetConnectTime(UIntPtr client, int id);

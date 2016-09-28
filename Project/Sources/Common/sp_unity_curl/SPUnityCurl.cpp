@@ -55,6 +55,11 @@ extern "C"
         return client->update(id);
     }
     
+    EXPORT_API double SPUnityCurlIsFinished(CurlClient* client, int id)
+    {
+        return client->isFinished(id);
+    }
+    
     EXPORT_API double SPUnityCurlGetConnectTime(CurlClient* client, int id)
     {
         return client->getTime(id);

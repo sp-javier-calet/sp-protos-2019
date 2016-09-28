@@ -8,7 +8,7 @@ namespace SocialPoint.Network
     {
         IAppEvents _appEvents;
 
-        readonly Curl _curl;
+        protected readonly Curl _curl;
 
         public IAppEvents AppEvents
         {
@@ -74,10 +74,8 @@ namespace SocialPoint.Network
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)
         {
-            
             var conn = _curl.CreateConnection();
             return new CurlHttpConnection(conn, req, del);
         }
     }
 }
-

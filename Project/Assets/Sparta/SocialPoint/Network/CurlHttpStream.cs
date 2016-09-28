@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public sealed class CurlHttpConnection : BaseYieldHttpConnection
+    public sealed class CurlHttpStream : IHttpStream
     {
         byte[] _body;
         public string _headers;
@@ -26,29 +26,73 @@ namespace SocialPoint.Network
         const string kQuestionMark = @"?";
 
         readonly Curl.Connection _connection;
+        HttpStreamClosedDelegate _callback;
 
-        public override IEnumerator Update()
+        public event Action<byte[]> DataReceived;
+
+        public CurlHttpStream(Curl.Connection connection, HttpRequest req, HttpStreamClosedDelegate del)
         {
-            while(!_dataReceived)
+            if(connection.Streamed)
             {
-                int status = _connection.Update();
-                if(status == 1) // Is finished
-                {
-                    ReceiveData();
-                    break;
-                }
+                throw new InvalidOperationException("Http is already streamed");
+            }
 
-                yield return null;
+            _connection = connection;
+            _connection.Streamed = true;
+
+            _request = req;
+            _dataReceived = false;
+            _callback = del;
+            Send(_connection, _request);
+        }
+
+        public void SendData(byte[] data)
+        {
+            var msg = new Curl.MessageStruct();
+            msg.Message = data;
+            msg.MessageLength = data.Length;
+
+            _connection.SendStreamMessage(msg);
+        }
+
+        public bool Update()
+        {
+            if(_connection.Streamed && DataReceived != null)
+            {
+                var data = _connection.Incoming;
+                if(data != null)
+                {
+                    DataReceived(data);
+                }
+            }
+
+            bool finished = _connection.Finished;
+            if(finished && !_dataReceived)
+            {
+                ReceiveData();
+            }
+
+            return finished;
+        }
+
+        void OnResponse(HttpResponse resp)
+        {
+            if(_callback != null)
+            {
+                try
+                {
+                    _callback(resp);
+                }
+                catch(Exception e)
+                {
+                    Log.x(e);
+                }
             }
         }
 
-        public CurlHttpConnection(Curl.Connection connection, HttpRequest req, HttpResponseDelegate del) :
-            base(del)
+        public void Release()
         {
-            _connection = connection;
-            _request = req;
-            _dataReceived = false;
-            Send(_connection, _request);
+            _callback = null;
         }
 
         public HttpResponse getResponse()
@@ -92,11 +136,11 @@ namespace SocialPoint.Network
 
             r.ConnectionDuration = _connectTime;
             r.TransferDuration = _totalTime - _connectTime;
-            
+
             return r;
         }
 
-        public override void Cancel()
+        public void Cancel()
         {
             _cancelled = true;
             ReceiveData();
@@ -166,7 +210,7 @@ namespace SocialPoint.Network
             _body = _connection.Body;
             _headers = _connection.Headers;
             _connection.Dispose();
-            
+
             HttpResponse resp;
             try
             {
@@ -177,7 +221,7 @@ namespace SocialPoint.Network
                 Log.x(e);
                 return;
             }
-            
+
             OnResponse(resp);
         }
     }
