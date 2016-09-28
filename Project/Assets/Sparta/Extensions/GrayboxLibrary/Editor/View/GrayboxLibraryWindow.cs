@@ -461,12 +461,17 @@ namespace SocialPoint.GrayboxLibrary
             {
                 if(AssetDragged != null && !position.Contains(evt.mousePosition + position.position))
                 {
-                    Vector2 mouseScreendPos = evt.mousePosition + position.position - SceneView.lastActiveSceneView.position.position;
-                    Ray _raycast = SceneView.lastActiveSceneView.camera.ScreenPointToRay(new Vector3(mouseScreendPos.x, Screen.height - (mouseScreendPos.y + 300), 0));
-                    Plane ground = new Plane(new Vector3(0,1,0), Vector3.zero);
-                    float distanceToHit = 0;
-                    ground.Raycast(_raycast, out distanceToHit);
-                    InstantiateAssetAtPosition(_raycast.GetPoint(distanceToHit), true);
+                    if(AssetDragged.Category != GrayboxAssetCategory.UI && SceneView.lastActiveSceneView != null && SceneView.lastActiveSceneView.position.Contains(evt.mousePosition + position.position))
+                    {
+                        Vector2 mouseScreendPos = evt.mousePosition + position.position - SceneView.lastActiveSceneView.position.position;
+                        Ray _raycast = SceneView.lastActiveSceneView.camera.ScreenPointToRay(new Vector3(mouseScreendPos.x, Screen.height - (mouseScreendPos.y + 300), 0));
+                        Plane ground = new Plane(new Vector3(0, 1, 0), Vector3.zero);
+                        float distanceToHit = 0;
+                        ground.Raycast(_raycast, out distanceToHit);
+                        InstantiateAssetAtPosition(_raycast.GetPoint(distanceToHit), true);
+                    }
+                    else
+                        InstantiateAsset(true);
                 }
             }
 
