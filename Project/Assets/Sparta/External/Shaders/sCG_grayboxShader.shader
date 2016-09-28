@@ -5,6 +5,8 @@
 		_Color("Global tint", Color) = (1,1,1,1)
 		[BasicColorsButtons] _MaskColor("VC alpha masked color", Color) = (1,1,1,1)
 		_Overbright("Overbright", Float) = 1.0
+
+		[HideInInspector]__BASICCOLORSBUTTONDRAWER_PALETTEINDEX__("INTERNAL PARAMETER", Float) = 0.0
 	}
 	
 	SubShader
@@ -42,3 +44,4 @@
 	}
 	Fallback "VertexLit"
 }
+
