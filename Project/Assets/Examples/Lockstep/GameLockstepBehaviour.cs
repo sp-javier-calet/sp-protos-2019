@@ -61,7 +61,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _lockstep = ServiceLocator.Instance.Resolve<ClientLockstepController>();
-        _lockstep.LocalSimulationDelay = 500;
+        _lockstep.ClientConfig.LocalSimulationDelay = 500;
         _replay = ServiceLocator.Instance.Resolve<LockstepReplay>();
         _factory = ServiceLocator.Instance.Resolve<LockstepCommandFactory>();
         _lockstep.Simulate += Simulate;
@@ -136,6 +136,10 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         SetupGameScreen();
         _mode = GameLockstepMode.Server;
         StartServer();
+        _netLockstepServer.RegisterLocalClient(
+            ServiceLocator.Instance.Resolve<ClientLockstepController>(),
+            ServiceLocator.Instance.Resolve<LockstepCommandFactory>()
+        );
         _netLockstepServer.LocalPlayerReady();
     }
 
@@ -152,6 +156,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _mode = GameLockstepMode.Host;
         StartServer();
         StartClient();
+        _netLockstepServer.UnregisterLocalClient();
     }
 
     public void OnCloseClicked()

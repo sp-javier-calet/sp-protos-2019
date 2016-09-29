@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Lockstep
 {
@@ -30,10 +31,11 @@ namespace SocialPoint.Lockstep
             _turn.AddCommand(command);
         }
 
-        public void Start()
+        public void Start(int dt=0)
         {
             Running = true;
-            _time = 0;
+            _time = -dt;
+            _lastCmdTime = 0;
             _timestamp = TimeUtils.TimestampMilliseconds;
             if(_updateScheduler != null)
             {
@@ -44,6 +46,7 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             Running = false;
+            _turn.Clear();
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
@@ -85,27 +88,27 @@ namespace SocialPoint.Lockstep
         {
             Stop();
             TurnReady = null;
-            RemoveLocalClient();
+            UnregisterLocalClient();
         }
 
         #region local client implementation
 
         ClientLockstepController _localClient;
         LockstepCommandFactory _localFactory;
-        const int LocalClientId = -1;
 
-        void RemoveLocalClient()
+        public void UnregisterLocalClient()
         {
             if(_localClient != null)
             {
                 _localClient.CommandAdded -= AddPendingLocalClientCommand;
             }
             _localClient = null;
+            _localFactory = null;
         }
 
         public void RegisterLocalClient(ClientLockstepController client, LockstepCommandFactory factory)
         {
-            RemoveLocalClient();
+            UnregisterLocalClient();
             _localClient = client;
             _localFactory = factory;
             _localClient.Config = Config;
@@ -117,7 +120,6 @@ namespace SocialPoint.Lockstep
 
         void AddPendingLocalClientCommand(ClientLockstepCommandData command)
         {
-            command.ClientId = LocalClientId;
             var serverCommand = command.ToServer(_localFactory);
             AddCommand(serverCommand);
         }

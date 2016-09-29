@@ -89,11 +89,7 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData info)
         {
-            if(!Connected)
-            {
-                throw new InvalidOperationException("Client not connected.");
-            }
-            return new LocalNetworkMessage(info, this, _server);
+            return new LocalNetworkMessage(info, this, Connected ? _server : null);
         }
 
         public void AddDelegate(INetworkClientDelegate dlg)

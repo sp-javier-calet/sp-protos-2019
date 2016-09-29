@@ -13,13 +13,11 @@ namespace SocialPoint.Lockstep
     {
         ILockstepCommand _command;
         ILockstepCommandLogic _finish;
-        int _id;
+        uint _id;
 
-        public int ClientId;
-
-        public ClientLockstepCommandData(int id, ILockstepCommand cmd, ILockstepCommandLogic finish)
+        public ClientLockstepCommandData(ILockstepCommand cmd, ILockstepCommandLogic finish)
         {
-            _id = id;
+            _id = RandomUtils.GenerateUint();
             _command = cmd;
             _finish = finish;
         }
@@ -43,8 +41,6 @@ namespace SocialPoint.Lockstep
         public void Serialize(LockstepCommandFactory factory, IWriter writer)
         {
             writer.Write(_id);
-            writer.Write(ClientId);
-
             if(_command == null)
             {
                 writer.Write(0);
@@ -64,8 +60,7 @@ namespace SocialPoint.Lockstep
 
         public void Deserialize(LockstepCommandFactory factory, IReader reader)
         {
-            _id = reader.ReadInt32();
-            ClientId = reader.ReadInt32();
+            _id = reader.ReadUInt32();
             var cmdLen = reader.ReadInt32();
             _command = null;
             if(cmdLen > 0)
@@ -109,13 +104,13 @@ namespace SocialPoint.Lockstep
         public override int GetHashCode()
         {
             var hash = _id.GetHashCode();
-            hash = CryptographyUtils.HashCombine(hash, ClientId.GetHashCode());
+
             return hash;
         }
 
         static bool Compare(ClientLockstepCommandData a, ClientLockstepCommandData b)
         {
-            return a._id == b._id && a.ClientId == b.ClientId;
+            return a._id == b._id;
         }
 
         public static bool operator ==(ClientLockstepCommandData a, ClientLockstepCommandData b)
@@ -137,18 +132,22 @@ namespace SocialPoint.Lockstep
         {
             return !(a == b);
         }
+
+        public override string ToString()
+        {
+            return string.Format("[ClientLockstepCommandData:{0} {1}]", _id, _command);
+        }
     }
 
     public class ServerLockstepCommandData : INetworkShareable
     {
         byte[] _command;
-        int _id;
+        uint _id;
 
-        public int ClientId;
 
         public ServerLockstepCommandData()
         {
-        }
+        }            
 
         public ClientLockstepCommandData ToClient(LockstepCommandFactory factory)
         {
@@ -165,7 +164,6 @@ namespace SocialPoint.Lockstep
         public void Serialize(IWriter writer)
         {
             writer.Write(_id);
-            writer.Write(ClientId);
             if(_command == null)
             {
                 writer.Write(0);
@@ -179,14 +177,18 @@ namespace SocialPoint.Lockstep
 
         public void Deserialize(IReader reader)
         {
-            _id = reader.ReadInt32();
-            ClientId = reader.ReadInt32();
+            _id = reader.ReadUInt32();
             var cmdLen = reader.ReadInt32();
             _command = null;
             if(cmdLen > 0)
             {
                 _command = reader.ReadBytes(cmdLen);
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[ServerLockstepCommandData:{0}]", _id);
         }
 
     }

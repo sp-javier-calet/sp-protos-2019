@@ -51,7 +51,7 @@ namespace SocialPoint.Lockstep
             long time = 0;
             int times = 0;
             _client.Config.SimulationStepDuration = 100;
-            _client.MaxSimulationStepsPerFrame = 10;
+            _client.ClientConfig.MaxSimulationStepsPerFrame = 10;
             _client.Simulate += (dt) => { times++; time += dt; };
 
             _client.Update(200);
@@ -72,10 +72,10 @@ namespace SocialPoint.Lockstep
             _client.Update(50);
             Assert.AreEqual(400, time, "Client should store the last simulation step to add update dts");
 
-            _client.SpeedFactor = 2.0f;
+            _client.ClientConfig.SpeedFactor = 2.0f;
             _client.Update(50);
             Assert.AreEqual(500, time, "SpeedFactor will multiply time to accelerate steps");
-            _client.SpeedFactor = 0.5f;
+            _client.ClientConfig.SpeedFactor = 0.5f;
             _client.Update(50);
             Assert.AreEqual(500, time);
             _client.Update(160);
@@ -88,7 +88,7 @@ namespace SocialPoint.Lockstep
         public void CommandsProcessed()
         {
             _client.Config.CommandStepDuration = 100;
-            _client.LocalSimulationDelay = 0;
+            _client.ClientConfig.LocalSimulationDelay = 0;
 
             var cmd = Substitute.For<ILockstepCommand>();
             var apply = Substitute.For<ILockstepCommandLogic>();
@@ -110,7 +110,7 @@ namespace SocialPoint.Lockstep
             finish = Substitute.For<ILockstepCommandLogic>();
 
             _client.RegisterCommandLogic(cmd.GetType(), apply);
-            _client.LocalSimulationDelay = 1000;
+            _client.ClientConfig.LocalSimulationDelay = 1000;
             _client.Start();
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);
@@ -128,7 +128,7 @@ namespace SocialPoint.Lockstep
             _client.ConnectionChanged += () =>  connChanged = true;
             // add delegate to simulate server that needs to confirm commands
             _client.CommandAdded += delegate {};
-            _client.LocalSimulationDelay = 1000;
+            _client.ClientConfig.LocalSimulationDelay = 1000;
             _client.Config.CommandStepDuration = 100;
             _client.Config.SimulationStepDuration = 1000;
 

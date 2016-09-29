@@ -98,6 +98,14 @@ namespace SocialPoint.Lockstep
             }
             _commands = commands;
         }
+            
+        public int CommandCount
+        {
+            get
+            {
+                return _commands.Count;
+            }
+        }
 
         public void AddCommand(ServerLockstepCommandData cmd)
         {

@@ -7,12 +7,23 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
+    [Serializable]
+    public sealed class ClientLockstepConfig
+    {
+        public const int DefaultLocalSimulationDelay = 1000;
+        public const int DefaultMaxSimulationStepsPerFrame = 0;
+        public const float DefaultSpeedFactor = 1.0f;
+
+        public int LocalSimulationDelay = DefaultLocalSimulationDelay;
+        public int MaxSimulationStepsPerFrame = DefaultMaxSimulationStepsPerFrame;
+        public float SpeedFactor = DefaultSpeedFactor;
+    }
+
     public class ClientLockstepController : IUpdateable, IDisposable
     {
         IUpdateScheduler _updateScheduler;
 
         long _timestamp;
-        int _nextCommandId;
         int _time;
         int _lastSimTime;
         int _lastCmdTime;
@@ -24,7 +35,7 @@ namespace SocialPoint.Lockstep
         public bool Connected{ get; private set; }
         public bool Running{ get; private set; }
         public LockstepConfig Config { get; set; }
-        public float SpeedFactor { get; set; }
+        public ClientLockstepConfig ClientConfig { get; set; }
 
         public event Action<ClientLockstepCommandData> CommandAdded;
         public event Action<ClientLockstepCommandData> CommandApplied;
@@ -32,18 +43,18 @@ namespace SocialPoint.Lockstep
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
 
-        public const int DefaultLocalSimulationDelay = 1000;
-        public int LocalSimulationDelay = DefaultLocalSimulationDelay;
-
-        public const int DefaultMaxSimulationStepsPerFrame = 0;
-        public int MaxSimulationStepsPerFrame = DefaultMaxSimulationStepsPerFrame;
-
         public ClientLockstepController(IUpdateScheduler updateScheduler=null)
         {
             Config = new LockstepConfig();
+            ClientConfig = new ClientLockstepConfig();
             _updateScheduler = updateScheduler;
             Stop();
-            SpeedFactor = 1f;
+        }
+
+        [Obsolete("Use the Config setter")]
+        public void Init(LockstepConfig config)
+        {
+            Config = config;
         }
 
         public void Start(int dt=0)
@@ -64,18 +75,20 @@ namespace SocialPoint.Lockstep
         {
             Running = false;
             Connected = false;
+            _confirmedTurns.Clear();
+            _pendingCommands.Clear();
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
             }
         }
 
-        public void RegisterCommandLogic<T>(Action<T> apply) where T:  ILockstepCommand, new()
+        public void RegisterCommandLogic<T>(Action<T> apply) where T:  ILockstepCommand
         {
             RegisterCommandLogic<T>(new ActionLockstepCommandLogic<T>(apply));
         }
 
-        public void RegisterCommandLogic<T>(ILockstepCommandLogic<T> logic) where T:  ILockstepCommand, new()
+        public void RegisterCommandLogic<T>(ILockstepCommandLogic<T> logic) where T:  ILockstepCommand
         {
             RegisterCommandLogic(typeof(T), new LockstepCommandLogic<T>(logic));
         }
@@ -97,23 +110,21 @@ namespace SocialPoint.Lockstep
 
         ClientLockstepCommandData AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
-            var data = new ClientLockstepCommandData(
-                _nextCommandId, command, logic);
-            _nextCommandId++;
+            var data = new ClientLockstepCommandData(command, logic);
             AddPendingCommand(data);
             return data;
         }
 
-        void AddPendingCommand(ClientLockstepCommandData commandData)
+        void AddPendingCommand(ClientLockstepCommandData command)
         {
-            _pendingCommands.Add(commandData);
+            _pendingCommands.Add(command);
             if(CommandAdded != null)
             {
-                CommandAdded(commandData);
+                CommandAdded(command);
             }
             else
             {
-                AddConfirmedCommand(commandData);
+                AddConfirmedCommand(command);
             }
         }
  
@@ -124,7 +135,7 @@ namespace SocialPoint.Lockstep
 
         void AddConfirmedCommand(ClientLockstepCommandData cmd)
         {
-            var turnCount = LocalSimulationDelay / Config.CommandStepDuration;
+            var turnCount = ClientConfig.LocalSimulationDelay / Config.CommandStepDuration;
             turnCount = Math.Max(turnCount, 1);
             while(_confirmedTurns.Count < turnCount)
             {
@@ -191,7 +202,7 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
-            dt = (int)(SpeedFactor*(float)dt);
+            dt = (int)(ClientConfig.SpeedFactor*(float)dt);
             var time = _time + dt;
             if(_time <= 0 && time >= 0)
             {
@@ -216,7 +227,7 @@ namespace SocialPoint.Lockstep
                     }
                     _lastSimTime = nextSimTime;
                     simSteps++;
-                    if(MaxSimulationStepsPerFrame <= 0 || simSteps < MaxSimulationStepsPerFrame)
+                    if(ClientConfig.MaxSimulationStepsPerFrame <= 0 || simSteps < ClientConfig.MaxSimulationStepsPerFrame)
                     {
                         finished = false;
                     }

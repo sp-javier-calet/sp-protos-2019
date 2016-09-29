@@ -2,6 +2,7 @@
 using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Lockstep.Network
 {
@@ -10,10 +11,10 @@ namespace SocialPoint.Lockstep.Network
         INetworkClient _client;
         LockstepCommandFactory _commandFactory;
         ClientLockstepController _clientLockstep;
-        LockstepConfig _lockstepConfig;
+        INetworkMessageReceiver _receiver;
+
         bool _sendPlayerReadyPending;
         bool _clientSetupReceived;
-        INetworkMessageReceiver _receiver;
 
         public int PlayerId{ get; private set; }
 
@@ -25,6 +26,8 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public event Action<int> StartScheduled;
+
         public ClientLockstepNetworkController(INetworkClient client)
         {
             _client = client;
@@ -32,14 +35,24 @@ namespace SocialPoint.Lockstep.Network
             _client.AddDelegate(this);
         }
 
+        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory)
+        {
+            _client = client;
+            _client.RegisterReceiver(this);
+            _client.AddDelegate(this);
+            SetupClientLockstep(clientLockstep, factory);
+        }
+
+        [Obsolete("Use the constructor")]
         public void Init(ClientLockstepController clientLockstep, LockstepCommandFactory factory)
+        {
+            SetupClientLockstep(clientLockstep, factory);
+        }
+
+        public void SetupClientLockstep(ClientLockstepController clientLockstep, LockstepCommandFactory factory)
         {
             _clientLockstep = clientLockstep;
             _commandFactory = factory;
-            if(_lockstepConfig != null)
-            {
-                _clientLockstep.Config = _lockstepConfig;
-            }
             _clientLockstep.CommandAdded += OnCommandAdded;
         }
 
@@ -62,7 +75,7 @@ namespace SocialPoint.Lockstep.Network
         {
         }
 
-        public void OnNetworkError(SocialPoint.Base.Error err)
+        public void OnNetworkError(Error err)
         {
         }
 
@@ -99,11 +112,10 @@ namespace SocialPoint.Lockstep.Network
         {
             var msg = new ClientSetupMessage();
             msg.Deserialize(reader);
-            _lockstepConfig = msg.Config;
             _clientSetupReceived = true;
             if(_clientLockstep != null)
             {
-                _clientLockstep.Config = _lockstepConfig;
+                _clientLockstep.Config = msg.Config;
             }
             TrySendPlayerReady();
         }
@@ -112,14 +124,17 @@ namespace SocialPoint.Lockstep.Network
         {
             var msg = new AllPlayersReadyMessage();
             msg.Deserialize(reader);
-            var delay = _client.GetDelay(msg.ServerTimestamp);
-            int remaining = msg.StartDelay - delay;
-            if(remaining < 0)
+            int delay = msg.StartDelay - _client.GetDelay(msg.ServerTimestamp);
+            if(delay < 0)
             {
                 throw new InvalidOperationException("Should have already started lockstep.");
             }
             PlayerId = msg.PlayerId;
-            _clientLockstep.Start(remaining);
+            _clientLockstep.Start(delay);
+            if(StartScheduled != null)
+            {
+                StartScheduled(delay);
+            }
         }
 
         public void SendPlayerReady()
@@ -145,7 +160,6 @@ namespace SocialPoint.Lockstep.Network
 
         void OnCommandAdded(ClientLockstepCommandData command)
         {
-            command.ClientId = _client.ClientId;
             var msg = _client.CreateMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.Command,
             });
