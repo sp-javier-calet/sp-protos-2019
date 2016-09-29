@@ -7,55 +7,30 @@ namespace SocialPoint.Lockstep
 {
     public interface ILockstepCommand : INetworkShareable, ICloneable
     {
-    }   
-
-    public interface ILockstepCommandLogic<T>
-    {
-        void Apply(T data);
     }
 
-    public class ActionLockstepCommandLogic<T> : ILockstepCommandLogic<T>
+    [System.Serializable]
+    public sealed class LockstepConfig : INetworkShareable
     {
-        Action<T> _action;
+        public const int DefaultCommandStepDuration = 100;
+        public const int DefaultSimulationStepDuration = 10;
 
-        public ActionLockstepCommandLogic(Action<T> action)
+        // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
+        public int SimulationStepDuration = DefaultSimulationStepDuration;
+
+        // Command processing tick.
+        public int CommandStepDuration = DefaultCommandStepDuration;
+
+        public void Deserialize(IReader reader)
         {
-            _action = action;
+            CommandStepDuration = reader.ReadInt32();
+            SimulationStepDuration = reader.ReadInt32();
         }
 
-        public void Apply(T data)
+        public void Serialize(IWriter writer)
         {
-            if(_action != null)
-            {
-                _action(data);
-            }
-        }
-    }
-
-    public interface ILockstepCommandLogic : ILockstepCommandLogic<ILockstepCommand>
-    {
-    }
-
-    public class LockstepCommandLogic<T> : ILockstepCommandLogic
-    {
-        ILockstepCommandLogic<T> _inner;
-
-        public LockstepCommandLogic(Action<T> action) :
-            this(new ActionLockstepCommandLogic<T>(action))
-        {
-        }
-
-        public LockstepCommandLogic(ILockstepCommandLogic<T> inner)
-        {
-            _inner = inner;
-        }
-
-        public void Apply(ILockstepCommand data)
-        {
-            if(data is T && _inner != null)
-            {
-                _inner.Apply((T)data);
-            }
+            writer.Write(CommandStepDuration);
+            writer.Write(SimulationStepDuration);
         }
     }
 }

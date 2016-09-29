@@ -7,28 +7,53 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
-    [System.Serializable]
-    public sealed class LockstepConfig : INetworkShareable
+    public interface ILockstepCommandLogic<T>
     {
-        public const int DefaultCommandStepDuration = 100;
-        public const int DefaultSimulationStepDuration = 10;
+        void Apply(T data);
+    }
 
-        // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
-        public int SimulationStepDuration = DefaultSimulationStepDuration;
+    public class ActionLockstepCommandLogic<T> : ILockstepCommandLogic<T>
+    {
+        Action<T> _action;
 
-        // Command processing tick.
-        public int CommandStepDuration = DefaultCommandStepDuration;
-
-        public void Deserialize(IReader reader)
+        public ActionLockstepCommandLogic(Action<T> action)
         {
-            CommandStepDuration = reader.ReadInt32();
-            SimulationStepDuration = reader.ReadInt32();
+            _action = action;
         }
 
-        public void Serialize(IWriter writer)
+        public void Apply(T data)
         {
-            writer.Write(CommandStepDuration);
-            writer.Write(SimulationStepDuration);
+            if(_action != null)
+            {
+                _action(data);
+            }
+        }
+    }
+
+    public interface ILockstepCommandLogic : ILockstepCommandLogic<ILockstepCommand>
+    {
+    }
+
+    public class LockstepCommandLogic<T> : ILockstepCommandLogic
+    {
+        ILockstepCommandLogic<T> _inner;
+
+        public LockstepCommandLogic(Action<T> action) :
+        this(new ActionLockstepCommandLogic<T>(action))
+        {
+        }
+
+        public LockstepCommandLogic(ILockstepCommandLogic<T> inner)
+        {
+            _inner = inner;
+        }
+
+        public void Apply(ILockstepCommand data)
+        {
+            if(data is T && _inner != null)
+            {
+                _inner.Apply((T)data);
+            }
         }
     }
 
