@@ -229,7 +229,7 @@ namespace Photon.Hive.Plugin.Lockstep
 
         void Update()
         {
-            _netServer.Update(_netServer.Config.CommandStepDuration);
+            _netServer.Update();
         }
 
         void INetworkServer.Start()

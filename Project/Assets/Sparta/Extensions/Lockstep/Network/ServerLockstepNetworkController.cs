@@ -91,6 +91,11 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public void Update()
+        {
+            _serverLockstep.Update();
+        }
+
         public void Update(int dt)
         {
             _serverLockstep.Update(dt);
