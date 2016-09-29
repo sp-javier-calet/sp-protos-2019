@@ -28,6 +28,10 @@ namespace SocialPoint.Lockstep
 
         public void AddCommand(ServerLockstepCommandData command)
         {
+            if(!Running || _time < 0)
+            {
+                return;
+            }
             _turn.AddCommand(command);
         }
 

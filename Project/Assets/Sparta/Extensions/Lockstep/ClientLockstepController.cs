@@ -111,6 +111,11 @@ namespace SocialPoint.Lockstep
         ClientLockstepCommandData AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
             var data = new ClientLockstepCommandData(command, logic);
+            if(!Running || _time < 0)
+            {
+                data.Finish();
+                return;
+            }
             AddPendingCommand(data);
             return data;
         }
