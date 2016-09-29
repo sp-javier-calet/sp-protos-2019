@@ -51,7 +51,7 @@ namespace SocialPoint.GrayboxLibrary
 
             _dbController = GrayboxLibraryDB.GetInstance();
             _downloadController = GrayboxLibraryDownloader.GetInstance();
-            _dbController.Connect();
+            Connect();
         }
 
 
@@ -520,12 +520,20 @@ namespace SocialPoint.GrayboxLibrary
                 instance.transform.SetParent(canvas.transform, false);
             }
 
+            if (GrayboxLibraryConfig.ScriptOnInstance[asset.Category] != null)
+                instance.AddComponent(GrayboxLibraryConfig.ScriptOnInstance[asset.Category]);
+
             return instance;
         }
 
         public void Disconnect()
         {
             _dbController.Disconnect();
+        }
+
+        public void Connect()
+        {
+            _dbController.Connect();
         }
     }
 }

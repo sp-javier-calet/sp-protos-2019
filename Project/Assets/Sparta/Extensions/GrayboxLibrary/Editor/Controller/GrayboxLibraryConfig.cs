@@ -1,4 +1,8 @@
-﻿namespace SocialPoint.GrayboxLibrary
+﻿using UnityEngine;
+using System.Collections.Generic;
+using System;
+
+namespace SocialPoint.GrayboxLibrary
 {
     public class GrayboxLibraryConfig
     {
@@ -22,9 +26,20 @@
 #endif
         public static string SmbConnectionUrl = "//guest@" + WinVolumePath.Substring(2);
 
-        public static string ContactUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=techart@socialpoint.es&su=Graybox Tool Contact";
+        public static string ContactMail = "technical-art@socialpoint.es";
+
+        public static string ContactUrl = "https://mail.google.com/mail/?view=cm&fs=1&to="+ ContactMail + "&su=Graybox Tool Contact";
 
         public static string HelpUrl = "https://sites.google.com/a/socialpoint.es/technical-art/07---tools-documentation/greybox-library";
+        
+        public static Dictionary <GrayboxAssetCategory, Type> ScriptOnInstance = new Dictionary<GrayboxAssetCategory, Type>{
+            { GrayboxAssetCategory.Buildings, typeof(ModelClickPoping) },
+            { GrayboxAssetCategory.Characters, null },
+            { GrayboxAssetCategory.Fx, null },
+            { GrayboxAssetCategory.Props, null },
+            { GrayboxAssetCategory.UI, null },
+            { GrayboxAssetCategory.Vehicles, null }
+        };
 
     }
 }

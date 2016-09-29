@@ -108,10 +108,16 @@ namespace SocialPoint.GrayboxLibrary
             _filterUpdated = true;
         }
 
-
         void OnGUI()
         {
-            if(Tool == null)
+            /*if (EditorApplication.isCompiling && Tool != null)
+            {
+                Tool.Disconnect();
+                GUILayout.Label("Project compiling, please wait...");
+                return;
+            }*/
+
+            if (Tool == null)
                 LaunchClient();
 
             ManageDragAndDrop();
