@@ -625,7 +625,7 @@ namespace SocialPoint.GrayboxLibrary
             {
                 _filterUpdated = false;
                 _displayFilterOptions = false;
-                _tagList = _tool.GetTagsInCategoryAsText(_newTag, _asset.Category, 0, 10);
+                _tagList = _tool.GetTagsAsText(_newTag, 0, 10);
                 if(_tagList.Length > 0 && _newTag.Length > 0)
                     _displayFilterOptions = true;
             }

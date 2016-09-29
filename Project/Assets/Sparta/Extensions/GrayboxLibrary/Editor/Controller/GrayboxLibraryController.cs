@@ -418,7 +418,7 @@ namespace SocialPoint.GrayboxLibrary
                 queryResult = _dbController.ExecuteQuery(command);
                 if (queryResult.Count == 0)
                 {
-                    sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES ('@NAME','@CATEGORY','@MAINASSET','@PKG','@THUMB','@ANIMTHUMB')";
+                    sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES (@NAME, @CATEGORY, @MAINASSET, @PKG, @THUMB, @ANIMTHUMB)";
 
                     command = new MySqlCommand(sql);
                     command.Parameters.AddWithValue("@NAME", asset.Name);
@@ -433,7 +433,7 @@ namespace SocialPoint.GrayboxLibrary
             }
             else
             {
-                sql = "UPDATE asset SET name ='@NAME', category ='@CATEGORY', main_asset_path ='@MAINASSET', pkg_path ='@PKG', thumb_path ='@THUMB', animated_thumb_path ='@ANIMTHUMB' WHERE id_asset = " + asset.Id;
+                sql = "UPDATE asset SET name =@NAME, category =@CATEGORY, main_asset_path =@MAINASSET, pkg_path =@PKG, thumb_path =@THUMB, animated_thumb_path =@ANIMTHUMB WHERE id_asset = " + asset.Id;
 
                 command = new MySqlCommand(sql);
                 command.Parameters.AddWithValue("@NAME", asset.Name);
@@ -466,7 +466,7 @@ namespace SocialPoint.GrayboxLibrary
 
         public void CreateTag(GrayboxTag tag)
         {
-            string sql = "INSERT INTO tag (name) VALUES ('@NAME')";
+            string sql = "INSERT INTO tag (name) VALUES (@NAME)";
 
             MySqlCommand command = new MySqlCommand(sql);
             command.Parameters.AddWithValue("@NAME", tag.Name);

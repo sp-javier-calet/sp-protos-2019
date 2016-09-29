@@ -28,7 +28,7 @@ namespace SocialPoint.GrayboxLibrary
         private static int _currentPage = 0;
         private static int _maxPage = 0;
         private Vector2 _scrollPos;
-        private GUIStyle _buttonStyle, _buttonAreaStyle, _bottomMenuStyle, _bottomMenuTextStyle, _bottomMenuTextBoldStyle, _searchOptionStyle, _searchSelectedOptionStyle, _separatorStyle;
+        private GUIStyle _buttonStyle, _buttonAreaStyle, _simpleButtonStyle, _bottomMenuStyle, _bottomMenuTextStyle, _bottomMenuTextBoldStyle, _searchOptionStyle, _searchSelectedOptionStyle, _separatorStyle;
         public static float ThumbWidth = 640;
         public static float ThumbHeight = 480;
         public static float AnimatedThumbWidth = 320;
@@ -119,10 +119,15 @@ namespace SocialPoint.GrayboxLibrary
             if(Event.current.clickCount == 2 && AssetChosen != null && _secondGUIDraw)
                 InstantiateAsset();
 
+            if(_simpleButtonStyle == null)
+            {
+                _simpleButtonStyle = new GUIStyle(GUI.skin.label);
+                _simpleButtonStyle.border = new RectOffset(0, 0, 0, 0);
+                _simpleButtonStyle.margin = _simpleButtonStyle.border;
+            }
             if(_buttonStyle == null)
             {
-                _buttonStyle = new GUIStyle(GUI.skin.label);
-                _buttonStyle.border = new RectOffset(0, 0, 0, 0);
+                _buttonStyle = new GUIStyle(_simpleButtonStyle);
                 _buttonStyle.margin = new RectOffset(10, 10, 10, 0);
             }
             if(_buttonAreaStyle == null)
@@ -312,6 +317,9 @@ namespace SocialPoint.GrayboxLibrary
             if(GUILayout.Button("Contact", GUILayout.Width(100)))
                 Application.OpenURL(GrayboxLibraryConfig.ContactUrl);
 
+            if (GUILayout.Button(Tool.DownloadImage(GrayboxLibraryConfig.IconsPath + "help.png"), _simpleButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
+                Application.OpenURL(GrayboxLibraryConfig.HelpUrl);
+
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
@@ -464,7 +472,7 @@ namespace SocialPoint.GrayboxLibrary
                     if(AssetDragged.Category != GrayboxAssetCategory.UI && SceneView.lastActiveSceneView != null && SceneView.lastActiveSceneView.position.Contains(evt.mousePosition + position.position))
                     {
                         Vector2 mouseScreendPos = evt.mousePosition + position.position - SceneView.lastActiveSceneView.position.position;
-                        Ray _raycast = SceneView.lastActiveSceneView.camera.ScreenPointToRay(new Vector3(mouseScreendPos.x, Screen.height - (mouseScreendPos.y + 300), 0));
+                        Ray _raycast = SceneView.lastActiveSceneView.camera.ScreenPointToRay(new Vector3(mouseScreendPos.x, Screen.height - (mouseScreendPos.y + position.height - SceneView.lastActiveSceneView.camera.pixelHeight), 0));
                         Plane ground = new Plane(new Vector3(0, 1, 0), Vector3.zero);
                         float distanceToHit = 0;
                         ground.Raycast(_raycast, out distanceToHit);
@@ -614,7 +622,8 @@ namespace SocialPoint.GrayboxLibrary
         public static void InstantiateAssetAtPosition(Vector3 position, bool dragAndDrop = false)
         {
             GrayboxAsset asset = InstantiateAsset(dragAndDrop);
-            _instantiatePositions.Add(asset.Name, position);
+            if(!_instantiatePositions.ContainsKey(asset.Name) && asset.MainAssetPath.Length > 0)
+                _instantiatePositions.Add(asset.Name, position);
         }
 
 
@@ -641,7 +650,8 @@ namespace SocialPoint.GrayboxLibrary
                     else
                     {
                         Tool.DownloadAsset(_toDownload[i]);
-                        _toInstantiate.Add(_toDownload[i]);
+                        if(_toDownload[i].MainAssetPath.Length > 0)
+                            _toInstantiate.Add(_toDownload[i]);
                         _toDownload.RemoveAt(i);
                     }
                 }
@@ -657,7 +667,6 @@ namespace SocialPoint.GrayboxLibrary
                         if (_instantiatePositions.ContainsKey(_toInstantiate[i].Name))
                         {
                             instance.transform.position = _instantiatePositions[_toInstantiate[i].Name];
-                            Debug.Log(_instantiatePositions[_toInstantiate[i].Name]);
                             _instantiatePositions.Remove(_toInstantiate[i].Name);
                         }
                         _toInstantiate.RemoveAt(i);
