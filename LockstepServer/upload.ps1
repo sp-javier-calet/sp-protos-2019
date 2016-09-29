@@ -6,13 +6,13 @@ $basePath = ".\src-server\Plugins"
 $solutionName = "Lockstep"
 $solutionPath = "$basePath\$solutionName.sln"
 $buildPath = "$basePath\$solutionName\bin"
-$customer = "SocialPoint"
+$customer = "Socialpoint"
 $key = "66QFur7XJcyRsCXxuk7yrtwDHw8Xsne9"
 $plugin = "PhotonHive.LockstepPlugin"
 
 Write-Host "building server solution..."
-#$p = Start-Process -FilePath $vsPath\devenv.exe -ArgumentList $solutionPath,"/Rebuild Release" -PassThru
-#$null = $p.WaitForExit(-1)
+$p = Start-Process -FilePath $vsPath\devenv.exe -ArgumentList $solutionPath,"/Rebuild Release" -PassThru
+$null = $p.WaitForExit(-1)
 Write-Host "server solution ready!"
 Write-Host "creating plugin package..."
 Compress-Archive -Path $buildPath -DestinationPath archive.zip -Force
