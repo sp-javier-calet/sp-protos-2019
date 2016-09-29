@@ -120,7 +120,7 @@ namespace SpartaTools.Editor.View
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-            var isIos = _target == BuildTarget.iOS;
+            var isIos =  _target == BuildTarget.iOS;
             isIos = AddToogleWithReload(isIos, "iOS", "Use iOS Variant");
             isIos = !AddToogleWithReload(!isIos, "tvOS", "Use tvOS Variant");
             _target = isIos ? BuildTarget.iOS : BuildTarget.tvOS;
@@ -283,7 +283,7 @@ namespace SpartaTools.Editor.View
                         _currentXcodeMod.Apply(this);
                         _currentXcodeMod = null;
                     }
-                    catch(Exception)
+                    catch
                     {
                         Add(new ModData("Failed XcodeMod files", file, _currentXcodeMod));
                     }

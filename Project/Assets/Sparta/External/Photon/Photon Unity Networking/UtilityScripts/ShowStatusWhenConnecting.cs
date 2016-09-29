@@ -24,7 +24,7 @@ public class ShowStatusWhenConnecting : MonoBehaviour
         }
         GUILayout.EndArea();
 
-        if( PhotonNetwork.inRoom )
+        if( PhotonNetwork.connectionStateDetailed == PeerState.Joined )
         {
             enabled = false;
         }

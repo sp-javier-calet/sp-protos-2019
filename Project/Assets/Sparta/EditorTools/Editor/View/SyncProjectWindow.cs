@@ -134,23 +134,27 @@ namespace SpartaTools.Editor.View
                     var dic = new Dictionary<string, ModuleSyncCategory>();
                     var categories = new List<ModuleSyncCategory>();
                     var modules = SyncTools.Synchronize(Sparta.Target.ProjectPath, progress);
-                    foreach(var mod in modules)
+
+                    if(modules != null) 
                     {
-                        ModuleSyncCategory category;
-                        var categoryName = mod.Type.ToString();
-                        if(!dic.TryGetValue(categoryName, out category))
+                        foreach(var mod in modules)
                         {
-                            category = new ModuleSyncCategory(categoryName);
-                            categories.Add(category);
-                            dic.Add(categoryName, category);
+                            ModuleSyncCategory category;
+                            var categoryName = mod.Type.ToString();
+                            if(!dic.TryGetValue(categoryName, out category))
+                            {
+                                category = new ModuleSyncCategory(categoryName);
+                                categories.Add(category);
+                                dic.Add(categoryName, category);
+                            }
+
+                            category.Modules.Add(mod);
                         }
 
-                        category.Modules.Add(mod);
+                        // Synchronize
+                        _modules = modules;
+                        _categories = categories;
                     }
-
-                    // Synchronize
-                    _modules = modules;
-                    _categories = categories;
                     _refreshFinished = true;
                 });
             }
@@ -292,13 +296,19 @@ namespace SpartaTools.Editor.View
                     _progressHandler = null;
                     EditorUtility.ClearProgressBar();
                 }
+                else if(_progressHandler.Cancelled && _refreshFinished)
+                {
+                    // Disable autorefresh if needed, to avoid a new sync after cancel
+                    _autoRefresh = Synchronized && _autoRefresh;
+
+                    _progressHandler = null;
+                    EditorUtility.ClearProgressBar();
+                }
                 else
                 {
                     if(EditorUtility.DisplayCancelableProgressBar("Synchronizing", _progressHandler.Message, _progressHandler.Percent))
                     {
-                        // TODO Cancel process
                         _progressHandler.Cancel();
-                        _refreshFinished = true;
                     }
                 }
             }

@@ -138,7 +138,6 @@ namespace SocialPoint.Network
         {
             var data = new NetworkMessageData {
                 MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
-                ChannelId = (byte)umsg.channelId,
                 ClientId = (byte)umsg.conn.connectionId
             };
             if(_receiver != null)
@@ -159,9 +158,12 @@ namespace SocialPoint.Network
                 var conn = _server.FindConnection(data.ClientId);
                 if(conn == null)
                 {
-                    throw new InvalidOperationException("Could not find client id.");
+                    conns = new NetworkConnection[]{ };
                 }
-                conns = new NetworkConnection[]{ conn };
+                else
+                {
+                    conns = new NetworkConnection[]{ conn };
+                }
             }
             else
             {

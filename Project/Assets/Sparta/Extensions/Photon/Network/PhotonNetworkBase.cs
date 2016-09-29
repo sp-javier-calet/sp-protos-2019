@@ -30,6 +30,14 @@ namespace SocialPoint.Network
             _config = config;
         }
 
+        void Awake()
+        {
+            if(_config == null)
+            {
+                _config = new PhotonNetworkConfig();
+            }
+        }
+
         protected void DoConnect()
         {
             PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
@@ -125,15 +133,15 @@ namespace SocialPoint.Network
 
         protected static byte GetClientId(PhotonPlayer player)
         {
+            if(player == null)
+            {
+                return 0;
+            }
             return (byte)player.ID;
         }
 
         protected static PhotonPlayer GetPlayer(byte clientId)
         {
-            if(PhotonNetwork.player.ID == clientId)
-            {
-                return PhotonNetwork.player;
-            }
             var players = PhotonNetwork.otherPlayers;
             for(var i = 0; i < players.Length; i++)
             {
@@ -170,9 +178,8 @@ namespace SocialPoint.Network
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             var options = new RaiseEventOptions();
-            options.SequenceChannel = info.ChannelId;
 
-            var serverId = PhotonNetwork.room.masterClientId;
+            var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(PhotonNetwork.player.ID != serverId)
             {
                 // clients always send to server
@@ -183,31 +190,27 @@ namespace SocialPoint.Network
                 var player = GetPlayer(info.ClientId);
                 if(player == null)
                 {
-                    throw new InvalidOperationException("Could not find player with client id " + info.ClientId + ".");
+                    return;
                 }
                 options.TargetActors = new int[]{ player.ID };
             }
-            var reliable = IsChannelReliable(info.ChannelId);
-            var content = new object[]{ info.ChannelId, data };
-            PhotonNetwork.RaiseEvent(info.MessageType, content, reliable, options);
+            PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
-            var contentArr = (object[])content;
             byte clientId = 0;
-            if(senderid != PhotonNetwork.room.masterClientId)
+            var serverId = PhotonNetworkServer.PhotonPlayerId;
+            if(senderid != serverId)
             {
                 clientId = GetClientId(GetPlayer((byte)senderid));
             }
-            var channelId = (byte)contentArr[0];
-            var data = (byte[])contentArr[1];
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId,
-                ChannelId = channelId
+                ClientId = clientId
             };
-            var reader = new SystemBinaryReader(new MemoryStream(data));
+            var stream = new MemoryStream((byte[])content);
+            var reader = new SystemBinaryReader(stream);
             OnMessageReceived(info, reader);
         }
     }

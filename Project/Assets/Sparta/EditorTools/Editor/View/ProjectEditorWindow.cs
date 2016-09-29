@@ -17,6 +17,7 @@ namespace SpartaTools.Editor.View
         bool _showMergeLog;
 
         bool _editEnabled;
+
         bool EditEnabled
         {
             set
@@ -220,11 +221,18 @@ namespace SpartaTools.Editor.View
                 if(string.IsNullOrEmpty(_mergeLogContent))
                 {
                     var repository = new Repository(Sparta.Current.ProjectPath);
-                    _mergeLogContent = repository.CreateLogQuery()
-                        .Since(Sparta.Target.LastEntry.Time)
-                        .WithOption("merges", "master")
-                        .WithLimit(20)
-                        .Exec();
+                    var logQuery = repository.CreateLogQuery();
+
+                    var target = Sparta.Target;
+                    if(target != null && target.LastEntry != null)
+                    {
+                        logQuery.Since(Sparta.Target.LastEntry.Time);
+                    }
+
+                    logQuery.WithOption("merges", "master")
+                            .WithLimit(20);
+
+                    _mergeLogContent = logQuery.Exec();
                 }
 
                 GUILayout.BeginVertical(Styles.Group);
@@ -239,12 +247,12 @@ namespace SpartaTools.Editor.View
             if(_showRawFile)
             {
                 GUILayout.BeginVertical(Styles.Group);
-				if(string.IsNullOrEmpty(_fileContent))
-				{
-					LoadProjectFileContent();
-				}
+                if(string.IsNullOrEmpty(_fileContent))
+                {
+                    LoadProjectFileContent();
+                }
 
-				_fileContent = GUILayout.TextArea(_fileContent);
+                _fileContent = GUILayout.TextArea(_fileContent);
 
                 GUILayout.BeginHorizontal(Styles.Group);
                 if(GUILayout.Button("Reload", GUILayout.MaxWidth(60)))

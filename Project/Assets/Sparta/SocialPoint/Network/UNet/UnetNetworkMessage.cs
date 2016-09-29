@@ -13,7 +13,7 @@ namespace SocialPoint.Network
 
         public UnetNetworkMessage(NetworkMessageData data, NetworkConnection[] conns)
         {
-            _channelId = data.ChannelId;
+            _channelId = data.Unreliable ? Channels.DefaultUnreliable : Channels.DefaultReliable;
             _conns = conns;
             _writer = new NetworkWriter();
             _writer.StartMessage((short)(UnityEngine.Networking.MsgType.Highest + 1 + data.MessageType));

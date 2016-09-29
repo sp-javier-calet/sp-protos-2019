@@ -20,7 +20,7 @@ namespace SocialPoint.Network
 
         Dropdown _msgOrigin;
         InputField _msgType;
-        InputField _msgChannel;
+        Toggle _msgReliable;
         InputField _msgBody;
 
         Text _opServer;
@@ -60,8 +60,7 @@ namespace SocialPoint.Network
             }
             using(var hlayout = layout.CreateHorizontalLayout())
             {
-                hlayout.CreateFormLabel("Channel");
-                _msgChannel = hlayout.CreateTextInput("0");
+                _msgReliable = hlayout.CreateToggleButton("Reliable", true, null);
             }
 
             _msgBody = layout.CreateTextInput();
@@ -193,11 +192,8 @@ namespace SocialPoint.Network
             {
                 type = 0;
             }
-            byte chan;
-            if(!byte.TryParse(_msgChannel.text, out chan))
-            {
-                chan = 0;
-            }
+            bool reliable = _msgReliable.isOn;
+            var reliableStr = reliable ? "reliable" : "unreliable";
             INetworkMessage msg = null;
             if(_msgOrigin.value == 0)
             {
@@ -207,10 +203,10 @@ namespace SocialPoint.Network
                 }
                 else
                 {
-                    Log("sending message from server to client of type " + type + " through channel " + chan);
+                    Log("sending "+reliableStr+" message from server to client of type " + type);
                     msg = _server.CreateMessage(new NetworkMessageData {
                         MessageType = type,
-                        ChannelId = chan
+                        Unreliable = !reliable
                     });
                 }
             }
@@ -222,10 +218,10 @@ namespace SocialPoint.Network
                 }
                 else
                 {
-                    Log("sending message from client to server of type " + type + " through channel " + chan);
+                    Log("sending "+reliableStr+" message from client to server of type " + type);
                     msg = _client.CreateMessage(new NetworkMessageData {
                         MessageType = type,
-                        ChannelId = chan
+                        Unreliable = !reliable
                     });
                 }
             }
@@ -267,7 +263,7 @@ namespace SocialPoint.Network
 
         void INetworkClientDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            Log("client received message of type " + data.MessageType + " through channel " + data.ChannelId);
+            Log("client received message of type " + data.MessageType);
         }
 
         void INetworkClientDelegate.OnNetworkError(SocialPoint.Base.Error err)
@@ -305,7 +301,7 @@ namespace SocialPoint.Network
 
         void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            Log("server received message from client " + data.ClientId + " of type " + data.MessageType + " through channel " + data.ChannelId);
+            Log("server received message from client " + data.ClientId + " of type " + data.MessageType);
         }
 
         void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)

@@ -12,10 +12,8 @@ public class LockstepInstaller : Installer
     public class SettingsData
     {
         public LockstepConfig Config;
-        public byte UnreliableChannel = 0;
-        public byte ReliableChannel = 1;
-        public int PlayersCount = 1;
-        public int StartDelay = 3000;
+        public ServerLockstepConfig ServerConfig;
+        public bool RunServerClient = true;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -23,6 +21,7 @@ public class LockstepInstaller : Installer
     public override void InstallBindings()
     {
         Container.Rebind<LockstepConfig>().ToMethod<LockstepConfig>(CreateConfig);
+        Container.Rebind<ServerLockstepConfig>().ToMethod<ServerLockstepConfig>(CreateServerConfig);
         Container.Rebind<ClientLockstepController>().ToMethod<ClientLockstepController>(CreateClientController);
         Container.Bind<IDisposable>().ToLookup<ClientLockstepController>();
         Container.Rebind<ServerLockstepController>().ToMethod<ServerLockstepController>(CreateServerController);
@@ -38,6 +37,11 @@ public class LockstepInstaller : Installer
     LockstepConfig CreateConfig()
     {
         return Settings.Config ?? new LockstepConfig();
+    }
+
+    ServerLockstepConfig CreateServerConfig()
+    {
+        return Settings.ServerConfig ?? new ServerLockstepConfig();
     }
 
     LockstepCommandFactory CreateCommandFactory()
@@ -74,8 +78,7 @@ public class LockstepInstaller : Installer
     ClientLockstepNetworkController CreateClientNetworkController()
     {
         return new ClientLockstepNetworkController(
-            Container.Resolve<INetworkClient>(),
-            Settings.UnreliableChannel, Settings.ReliableChannel);
+            Container.Resolve<INetworkClient>());
     }
 
     void SetupClientNetworkController(ClientLockstepNetworkController ctrl)
@@ -90,14 +93,18 @@ public class LockstepInstaller : Installer
         return new ServerLockstepNetworkController(
             Container.Resolve<INetworkServer>(),
             Container.Resolve<LockstepConfig>(),
-            Settings.PlayersCount, Settings.StartDelay,
-            Settings.UnreliableChannel, Settings.ReliableChannel);
+            Container.Resolve<ServerLockstepConfig>());
     }
 
     void SetupServerNetworkController(ServerLockstepNetworkController ctrl)
     {
         ctrl.Init(
-            Container.Resolve<ServerLockstepController>(),
-            Container.Resolve<LockstepCommandFactory>());
+            Container.Resolve<ServerLockstepController>());
+        if(Settings.RunServerClient)
+        {
+            ctrl.RegisterLocalClient(
+                Container.Resolve<ClientLockstepController>(),
+                Container.Resolve<LockstepCommandFactory>());
+        }
     }
 }
