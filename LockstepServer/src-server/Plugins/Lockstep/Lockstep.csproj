@@ -103,12 +103,6 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ClientSetupMessage.cs">
       <Link>Lib\Lockstep\Network\ClientSetupMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ConfirmTurnReceptionMessage.cs">
-      <Link>Lib\Lockstep\Network\ConfirmTurnReceptionMessage.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ConfirmTurnsMessage.cs">
-      <Link>Lib\Lockstep\Network\ConfirmTurnsMessage.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ServerLockstepNetworkController.cs">
       <Link>Lib\Lockstep\Network\ServerLockstepNetworkController.cs</Link>
     </Compile>
