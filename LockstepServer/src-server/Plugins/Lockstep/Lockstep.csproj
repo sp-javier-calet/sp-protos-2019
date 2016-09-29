@@ -43,6 +43,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ClientLockstepCommandData.cs">
+      <Link>Lib\Lockstep\ClientLockstepCommandData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ClientLockstepController.cs">
+      <Link>Lib\Lockstep\ClientLockstepController.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ClientLockstepTurnData.cs">
+      <Link>Lib\Lockstep\ClientLockstepTurnData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ServerLockstepCommandData.cs">
+      <Link>Lib\Lockstep\ServerLockstepCommandData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ServerLockstepTurnData.cs">
+      <Link>Lib\Lockstep\ServerLockstepTurnData.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Base\DebugUtils.cs">
       <Link>Lib\Base\DebugUtils.cs</Link>
     </Compile>
@@ -76,23 +91,11 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
       <Link>Lib\IO\SystemBinaryWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ClientLockstepController.cs">
-      <Link>Lib\Lockstep\ClientLockstepController.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepCommand.cs">
       <Link>Lib\Lockstep\LockstepCommand.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepCommandFactory.cs">
       <Link>Lib\Lockstep\LockstepCommandFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepConfig.cs">
-      <Link>Lib\Lockstep\LockstepConfig.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepReplay.cs">
-      <Link>Lib\Lockstep\LockstepReplay.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepTurnData.cs">
-      <Link>Lib\Lockstep\LockstepTurnData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ServerLockstepController.cs">
       <Link>Lib\Lockstep\ServerLockstepController.cs</Link>
@@ -117,6 +120,9 @@
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
       <Link>Lib\Utils\CryptographyUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\RandomUtils.cs">
+      <Link>Lib\Utils\RandomUtils.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\StringUtils.cs">
       <Link>Lib\Utils\StringUtils.cs</Link>
