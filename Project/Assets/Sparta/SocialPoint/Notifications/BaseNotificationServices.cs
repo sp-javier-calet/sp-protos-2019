@@ -1,10 +1,6 @@
 ﻿using System;
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Base;
 using SocialPoint.Utils;
-using SocialPoint.ServerSync;
 
 namespace SocialPoint.Notifications
 {

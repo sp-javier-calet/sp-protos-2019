@@ -1,10 +1,10 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.Notifications
 {
@@ -85,21 +85,6 @@ namespace SocialPoint.Notifications
 
         protected virtual void AddGameNotifications()
         {
-        }
-
-        [Obsolete("Use AddNotification(Notification notification)")]
-        protected void AddNotification(string action, string message, DateTime dateTime, int numBadge = 0)
-        {
-            var ln = new Notification(0, Notification.OffsetType.None);
-            ln.Title = action;
-            ln.Message = message;
-            ln.FireDate = dateTime;
-        }
-
-        [Obsolete("Use AddNotification(Notification notification)")]
-        protected void AddNotification(string action, string message, long timeStamp, int numBadge = 0)
-        {
-            AddNotification(action, message, timeStamp.ToDateTime(), numBadge);
         }
 
         protected void AddNotification(Notification notification)
@@ -190,14 +175,5 @@ namespace SocialPoint.Notifications
         }
 
         #endregion
-    }
-
-    [Obsolete("Use NotificationManager instead")]
-    abstract class LocalNotificationManager : NotificationManager
-    {
-        protected LocalNotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue) :
-            base(coroutineRunner, appEvents, commandQueue)
-        {
-        }
     }
 }
