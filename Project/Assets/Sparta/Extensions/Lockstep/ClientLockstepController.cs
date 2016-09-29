@@ -38,7 +38,7 @@ namespace SocialPoint.Lockstep
         public ClientLockstepConfig ClientConfig { get; set; }
 
         public event Action<ClientLockstepCommandData> CommandAdded;
-        public event Action<ClientLockstepCommandData> CommandApplied;
+        public event Action<ClientLockstepTurnData> TurnApplied;
         public event Action Started;
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
@@ -114,7 +114,7 @@ namespace SocialPoint.Lockstep
             if(!Running || _time < 0)
             {
                 data.Finish();
-                return;
+                return null;
             }
             AddPendingCommand(data);
             return data;
@@ -175,11 +175,11 @@ namespace SocialPoint.Lockstep
                     command.Apply(itr.Current.Key, itr.Current.Value);
                 }
                 itr.Dispose();
-                if(CommandApplied != null)
-                {
-                    CommandApplied(command);
-                }
                 command.Finish();
+            }
+            if(TurnApplied != null)
+            {
+                TurnApplied(turn);
             }
             _confirmedTurns.Remove(turn);
         }
@@ -224,7 +224,7 @@ namespace SocialPoint.Lockstep
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
                 var finished = true;
-                if(nextSimTime < nextCmdTime && nextSimTime <= time)
+                if(nextSimTime <= nextCmdTime && nextSimTime <= time)
                 {
                     if(Simulate != null)
                     {
@@ -232,7 +232,7 @@ namespace SocialPoint.Lockstep
                     }
                     _lastSimTime = nextSimTime;
                     simSteps++;
-                    if(ClientConfig.MaxSimulationStepsPerFrame <= 0 || simSteps < ClientConfig.MaxSimulationStepsPerFrame)
+                    if(ClientConfig.MaxSimulationStepsPerFrame <= 0 || simSteps <= ClientConfig.MaxSimulationStepsPerFrame)
                     {
                         finished = false;
                     }
@@ -245,7 +245,11 @@ namespace SocialPoint.Lockstep
                         var turn = _confirmedTurns[0];
                         ProcessTurn(turn);
                     }
-                    else if(CommandAdded != null)
+                    else if(CommandAdded == null)
+                    {
+                        ProcessTurn(new ClientLockstepTurnData());
+                    }
+                    else
                     {
                         Connected = false;
                     }

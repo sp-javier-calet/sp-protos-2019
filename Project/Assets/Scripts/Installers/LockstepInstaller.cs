@@ -12,7 +12,7 @@ public class LockstepInstaller : Installer
     public class SettingsData
     {
         public LockstepConfig Config;
-        public ServerLockstepNetworkConfig ServerConfig;
+        public ServerLockstepConfig ServerConfig;
         public ClientLockstepConfig ClientConfig;
         public bool RunLocalServerClient = true;
     }
@@ -22,7 +22,7 @@ public class LockstepInstaller : Installer
     public override void InstallBindings()
     {
         Container.Rebind<LockstepConfig>().ToMethod<LockstepConfig>(CreateConfig);
-        Container.Rebind<ServerLockstepNetworkConfig>().ToMethod<ServerLockstepNetworkConfig>(CreateServerConfig);
+        Container.Rebind<ServerLockstepConfig>().ToMethod<ServerLockstepConfig>(CreateServerConfig);
         Container.Rebind<ClientLockstepController>().ToMethod<ClientLockstepController>(CreateClientController);
         Container.Bind<IDisposable>().ToLookup<ClientLockstepController>();
         Container.Rebind<LockstepCommandFactory>().ToMethod<LockstepCommandFactory>(CreateCommandFactory);
@@ -38,9 +38,9 @@ public class LockstepInstaller : Installer
         return Settings.Config ?? new LockstepConfig();
     }
 
-    ServerLockstepNetworkConfig CreateServerConfig()
+    ServerLockstepConfig CreateServerConfig()
     {
-        return Settings.ServerConfig ?? new ServerLockstepNetworkConfig();
+        return Settings.ServerConfig ?? new ServerLockstepConfig();
     }
 
     ClientLockstepConfig CreateClientConfig()
@@ -93,7 +93,7 @@ public class LockstepInstaller : Installer
             Container.Resolve<INetworkServer>(),
             Container.Resolve<IUpdateScheduler>());
         ctrl.Config = Container.Resolve<LockstepConfig>();
-        ctrl.ServerConfig = Container.Resolve<ServerLockstepNetworkConfig>();
+        ctrl.ServerConfig = Container.Resolve<ServerLockstepConfig>();
 
         if(Settings.RunLocalServerClient)
         {

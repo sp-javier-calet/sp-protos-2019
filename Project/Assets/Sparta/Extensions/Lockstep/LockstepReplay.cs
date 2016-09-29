@@ -25,7 +25,7 @@ namespace SocialPoint.Lockstep
         public void Record()
         {
             _config = null;
-            _clientLockstep.CommandApplied += OnCommandApplied;
+            _clientLockstep.TurnApplied += OnTurnApplied;
         }
 
         public void Replay()
@@ -43,16 +43,13 @@ namespace SocialPoint.Lockstep
             _config = null;
         }
 
-        void OnCommandApplied(ClientLockstepCommandData command)
+        void OnTurnApplied(ClientLockstepTurnData turn)
         {
             if(_config == null)
             {
                 _config = _clientLockstep.Config;
             }
-            if(_turns.Count > 0)
-            {
-                _turns[_turns.Count - 1].AddCommand(command);
-            }
+            _turns.Add(turn);
         }
 
         public void Serialize(IWriter writer)
@@ -86,7 +83,7 @@ namespace SocialPoint.Lockstep
         {
             if(_clientLockstep != null)
             {
-                _clientLockstep.CommandApplied -= OnCommandApplied;
+                _clientLockstep.TurnApplied -= OnTurnApplied;
             }
         }
     }

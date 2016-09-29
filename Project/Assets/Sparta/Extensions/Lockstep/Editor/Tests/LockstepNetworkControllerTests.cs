@@ -52,6 +52,7 @@ namespace SocialPoint.Lockstep.Network
         LocalNetworkClient _netClient1;
         ClientLockstepController _lockClient1;
         ClientLockstepNetworkController _netLockClient1;
+        TestCommandLogic _logic1;
 
         LocalNetworkClient _netClient2;
         ClientLockstepController _lockClient2;
@@ -77,6 +78,10 @@ namespace SocialPoint.Lockstep.Network
             _netClient2 = new LocalNetworkClient(_netServer);
             _lockClient2 = new ClientLockstepController();
             _netLockClient2 = new ClientLockstepNetworkController(_netClient2, _lockClient2, _factory);
+
+            _factory.Register<TestCommand>(1, new TestCommand());
+            _logic1 = new TestCommandLogic();
+            _lockClient1.RegisterCommandLogic<TestCommand>(_logic1);
         }
 
         void Update(int dt)
@@ -119,30 +124,67 @@ namespace SocialPoint.Lockstep.Network
             Assert.AreEqual(_netLockServer.Config.CommandStepDuration, _lockClient1.Config.CommandStepDuration, "Lockstep config is sent to the clients");
         }
 
-        [Test]
-        public void SendingCommands()
+        void StartMatch()
         {
             _netLockServer.ServerConfig.ClientSimulationDelay = 50;
             _netLockServer.ServerConfig.ClientStartDelay = 100;
-            _factory.Register<TestCommand>(1, new TestCommand());
-            var logic1 = new TestCommandLogic();
-            _lockClient1.RegisterCommandLogic<TestCommand>(logic1);
+            _lockClient1.ClientConfig.MaxSimulationStepsPerFrame = 10;
 
             _netServer.Start();
             _netClient1.Connect();
             _netClient2.Connect();
             _netLockClient1.SendPlayerReady();
             _netLockClient2.SendPlayerReady();
+        }
+
+        [Test]
+        public void SendingCommands()
+        {
+            StartMatch();
 
             Update(100);
 
             _lockClient2.AddPendingCommand(new TestCommand(4));
 
-            Assert.AreEqual(0, logic1.SumValues, "Clients will not get commands before start plus sim delay");
+            Assert.AreEqual(0, _logic1.SumValues, "Clients will not get commands before start plus sim delay");
 
             Update(150);
 
-            Assert.AreEqual(4, logic1.SumValues, "Commands are sent from the clients to the server and back");
+            Assert.AreEqual(4, _logic1.SumValues, "Commands are sent from the clients to the server and back");
+        }
+
+
+        [Test]
+        public void LagSituation()
+        {
+            StartMatch();
+
+            Update(150);
+
+            Assert.IsTrue(_lockClient1.Connected, "Client is connected");
+
+            _netClient1.DelayReceivedMessages = true;
+
+            Update(100);
+            Update(100);
+
+            _lockClient2.AddPendingCommand(new TestCommand(4));
+
+            Update(100);
+            Update(100);
+
+            Assert.IsFalse(_lockClient1.Connected, "Client is lagging, it's not getting any messages");
+            Assert.AreEqual(0, _logic1.SumValues, "Client is lagging, it's not getting any messages");
+
+            _netClient1.DelayReceivedMessages = false;
+
+            Update(150);
+
+            Assert.AreEqual(0, _logic1.SumValues, "Catches up at MaxSimulationStepsPerFrame");
+
+            Update(100);
+
+            Assert.AreEqual(4, _logic1.SumValues, "Catches up at MaxSimulationStepsPerFrame");
         }
     }
 

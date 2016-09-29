@@ -17,7 +17,7 @@ namespace SocialPoint.Lockstep.Network
     }
 
     [Serializable]
-    public sealed class ServerLockstepNetworkConfig
+    public sealed class ServerLockstepConfig
     {
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultClientStartDelay = 3000;
@@ -50,7 +50,7 @@ namespace SocialPoint.Lockstep.Network
         Dictionary<byte, ClientData> _clients;
         INetworkMessageReceiver _receiver;
 
-        public ServerLockstepNetworkConfig ServerConfig{ get; set; }
+        public ServerLockstepConfig ServerConfig{ get; set; }
         public LockstepConfig Config
         {
             get
@@ -66,7 +66,7 @@ namespace SocialPoint.Lockstep.Network
 
         public ServerLockstepNetworkController(INetworkServer server, IUpdateScheduler scheduler=null)
         {
-            ServerConfig = new ServerLockstepNetworkConfig();
+            ServerConfig = new ServerLockstepConfig();
             _clients = new Dictionary<byte, ClientData>();
             _server = server;
             _server.RegisterReceiver(this);

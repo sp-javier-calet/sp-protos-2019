@@ -97,8 +97,12 @@ namespace SocialPoint.Lockstep
             _client.RegisterCommandLogic(cmd.GetType(), apply);
             _client.AddPendingCommand(cmd, finish);
             _client.Update(1000);
-            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            // finish called because client not started
+            finish.Received().Apply(cmd);
+            apply.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish = Substitute.For<ILockstepCommandLogic>();
             _client.Start();
+            _client.AddPendingCommand(cmd, finish);
             _client.Update(50);
             finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
             _client.Update(50);
