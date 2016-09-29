@@ -63,13 +63,13 @@ namespace SocialPoint.Utils
         {
             Init();
             UInt64 ts = (UInt64)TimeUtils.Timestamp;
-            UInt64 rn = (UInt64)GenerateRandom32();
+            UInt64 rn = (UInt64)GenerateUint();
             ts = ts << 31;
             rn = rn & 0x7FFFFFFF;
             return ts + rn;
         }
 
-        static uint GenerateRandom32()
+        public static uint GenerateUint()
         {
             Init();
             return (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
@@ -85,16 +85,16 @@ namespace SocialPoint.Utils
         public static string GenerateSecurityToken()
         {
             Init();
-            uint ab1 = GenerateRandom32();
-            uint ab2 = GenerateRandom32();
+            uint ab1 = GenerateUint();
+            uint ab2 = GenerateUint();
             ulong ab = (ulong)(ab1 << 32 | ab2);
 
-            uint cd1 = GenerateRandom32();
-            uint cd2 = GenerateRandom32();
+            uint cd1 = GenerateUint();
+            uint cd2 = GenerateUint();
             ulong cd = (ulong)(cd1 << 32 | cd2);
 
-            ab = (ab & 0xFFFFFFFFFFFF0FFFULL) | 0x0000000000004000ULL;
-            cd = (cd & 0x3FFFFFFFFFFFFFFFULL) | 0x8000000000000000ULL;
+            ab = (ab & 0xFFFFFFFFFFFF0FFFUL) | 0x0000000000004000UL;
+            cd = (cd & 0x3FFFFFFFFFFFFFFFUL) | 0x8000000000000000UL;
 
             //ulong a = (ulong) (ab >> 32);
             ulong b = (ulong)(ab & 0xFFFFFFFF);
