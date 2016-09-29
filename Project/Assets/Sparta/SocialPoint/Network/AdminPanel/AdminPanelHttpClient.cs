@@ -2,15 +2,14 @@
 using SocialPoint.Base;
 using SocialPoint.Network;
 using SocialPoint.Utils;
-using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Text;
 
 public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
 {
     readonly ICoroutineRunner _runner;
-    IHttpStreamClient _client;
+    CurlHttpStreamClient _client;
     AdminPanelConsole _console;
+    bool _verbose;
 
     struct StreamData
     {
@@ -40,6 +39,7 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
                 if(value)
                 {
                     _client = new CurlHttpStreamClient(_runner);
+                    _client.Verbose = _verbose;
                 }
                 else
                 {
@@ -48,6 +48,12 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
                     _streams.Clear();
                 }
                 layout.Refresh();
+            });
+
+        layout.CreateToggleButton("Verbose", _verbose, (value) => 
+            {
+                _verbose = value;
+                _client.Verbose = _verbose;
             });
         
         layout.CreateButton("Open Clock stream", () => {

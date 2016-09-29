@@ -314,12 +314,13 @@ bool CurlClient::send(CurlRequest req)
 
 void CurlClient::update()
 {
+    /*
     printf("\n\n###  ======================  UPDATE ###\n\n");
     
     //do {
     struct timeval timeout;
-    int rc; /* select() return code */
-    CURLMcode mc; /* curl_multi_fdset() return code */
+    int rc; // select() return code
+    CURLMcode mc; // curl_multi_fdset() return code
     
     fd_set fdread;
     fd_set fdwrite;
@@ -332,7 +333,7 @@ void CurlClient::update()
     FD_ZERO(&fdwrite);
     FD_ZERO(&fdexcep);
     
-    /* set a suitable timeout to play around with */
+    //set a suitable timeout to play around with
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
     
@@ -350,7 +351,7 @@ void CurlClient::update()
         }
     }
     
-    /* get file descriptors from the transfers */
+    // get file descriptors from the transfers
     mc = curl_multi_fdset(_multi, &fdread, &fdwrite, &fdexcep, &maxfd);
     
     if(mc != CURLM_OK)
@@ -359,50 +360,48 @@ void CurlClient::update()
         //break;
     }
     
-    /* On success the value of maxfd is guaranteed to be >= -1. We call
-     select(maxfd + 1, ...); specially in case of (maxfd == -1) there are
-     no fds ready yet so we call select(0, ...) --or Sleep() on Windows--
-     to sleep 100ms, which is the minimum suggested value in the
-     curl_multi_fdset() doc. */
+     // On success the value of maxfd is guaranteed to be >= -1. We call
+     //  select(maxfd + 1, ...); specially in case of (maxfd == -1) there are
+     // no fds ready yet so we call select(0, ...) --or Sleep() on Windows--
+     // to sleep 100ms, which is the minimum suggested value in the
+     // curl_multi_fdset() doc.
     
     if(maxfd == -1)
     {
-        /* Portable sleep for platforms other than Windows. */
-        struct timeval wait = { 0, 100 * 1000 }; /* 100ms */
+        ///Portable sleep for platforms other than Windows. //
+        struct timeval wait = { 0, 100 * 1000 };
         rc = select(0, nullptr, nullptr, nullptr, &wait);
     }
     else
     {
-        /* Note that on some platforms 'timeout' may be modified by select().
-         If you need access to the original value save a copy beforehand. */
+        // Note that on some platforms 'timeout' may be modified by select().
+        //If you need access to the original value save a copy beforehand.
         rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
     }
     
     switch(rc)
     {
         case -1:
-            /* select error */
+            //select error
             return;
             //break;
-        case 0: /* timeout */
-        default: /* action */
+        case 0: // timeout
+        default: //action
             //curl_multi_perform(globalInfo.multi, &globalInfo.still_running);
             break;
     }
     //} while(globalInfo.still_running);
+    */
     
-    
-    
-    
+    CURLMcode mc;
     // Do multi_perform and read buffers
     CurlConnection* conn = nullptr;
-    //CURLMcode mc;
-    int numfds = 0;
-    
     curlUpdateLock.lock();
     mc = curl_multi_perform(_multi, &_running);
     
     // Wait required?
+    /*
+    int numfds = 0;
     if(mc == CURLM_OK)
     {
         mc = curl_multi_wait(_multi, nullptr, 0, 1000, &numfds);
@@ -414,6 +413,7 @@ void CurlClient::update()
         curlUpdateLock.unlock();
         return;
     }
+    */
     
     int msgs_left;
     while(auto res_msg = curl_multi_info_read(_multi, &msgs_left))

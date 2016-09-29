@@ -17,6 +17,13 @@ namespace SocialPoint.Network
         /// </summary>
         public event HttpStreamRequestDelegate RequestSetup;
 
+        public bool Verbose
+        {
+            set
+            {
+                _curl.Verbose = value;
+            }
+        }
 
         public CurlHttpStreamClient(ICoroutineRunner runner)
         {
