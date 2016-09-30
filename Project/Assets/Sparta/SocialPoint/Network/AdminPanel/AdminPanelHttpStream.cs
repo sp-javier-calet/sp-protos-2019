@@ -25,7 +25,7 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 
     public void OnConfigure(AdminPanel adminPanel)
     {
-        adminPanel.RegisterGUI("Http Stream", this);
+        adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Http Stream", this));
         _console = adminPanel.Console;
     }
 
