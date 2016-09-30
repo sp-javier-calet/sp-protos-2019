@@ -473,9 +473,6 @@
 		FE6970521D952BB40078027E /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970501D952BB40078027E /* ConnectionManager.cpp */; };
 		FE6970531D952BB40078027E /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970501D952BB40078027E /* ConnectionManager.cpp */; };
 		FE6970541D952BB40078027E /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970501D952BB40078027E /* ConnectionManager.cpp */; };
-		FE6970551D952BB40078027E /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6970511D952BB40078027E /* ConnectionManager.hpp */; };
-		FE6970561D952BB40078027E /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6970511D952BB40078027E /* ConnectionManager.hpp */; };
-		FE6970571D952BB40078027E /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6970511D952BB40078027E /* ConnectionManager.hpp */; };
 		FE6970591D9535E80078027E /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificate.cpp */; };
 		FE69705A1D9535E80078027E /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificate.cpp */; };
 		FE69705B1D9535E80078027E /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6970581D9535E80078027E /* Certificate.cpp */; };
@@ -946,10 +943,6 @@
 		FE2E800C1D9ABABA0045AB67 /* CurlTestClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurlTestClient.cpp; sourceTree = "<group>"; };
 		FE2E800D1D9ABABA0045AB67 /* CurlTestClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CurlTestClient.hpp; sourceTree = "<group>"; };
 		FE448F1A1C1EE88600A10FEA /* SPUnityCurlFacadeIos.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCurlFacadeIos.mm; sourceTree = "<group>"; };
-		FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlFacade.cpp; sourceTree = "<group>"; };
-		FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlFacade.h; sourceTree = "<group>"; };
-		FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityCurlManager.cpp; sourceTree = "<group>"; };
-		FE448FE81C1EEAD800A10FEA /* SPUnityCurlManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityCurlManager.h; sourceTree = "<group>"; };
 		FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityCrashReporter.mm; sourceTree = "<group>"; };
 		FE4490121C1EF36200A10FEA /* SPUnityHardwareFacade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityHardwareFacade.h; sourceTree = "<group>"; };
 		FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityHardwareFacade.mm; sourceTree = "<group>"; };
@@ -1893,10 +1886,6 @@
 				FE6970401D9516300078027E /* CurlClient.hpp */,
 				FE6970471D95169E0078027E /* Mutex.hpp */,
 				FE69704C1D951CB60078027E /* SPUnityCurl.cpp */,
-				FE448FE51C1EEAD800A10FEA /* SPUnityCurlFacade.cpp */,
-				FE448FE61C1EEAD800A10FEA /* SPUnityCurlFacade.h */,
-				FE448FE71C1EEAD800A10FEA /* SPUnityCurlManager.cpp */,
-				FE448FE81C1EEAD800A10FEA /* SPUnityCurlManager.h */,
 			);
 			path = sp_unity_curl;
 			sourceTree = "<group>";
@@ -2010,7 +1999,6 @@
 				46EB94D71D8BFA4B000E8891 /* comp.h in Headers */,
 				46EB94D81D8BFA4B000E8891 /* conf.h in Headers */,
 				46EB94D91D8BFA4B000E8891 /* conf_api.h in Headers */,
-				FE6970571D952BB40078027E /* ConnectionManager.hpp in Headers */,
 				46EB94BC1D8BFA4B000E8891 /* crc32.h in Headers */,
 				46EB94DA1D8BFA4B000E8891 /* crypto.h in Headers */,
 				46EB94B21D8BFA4B000E8891 /* curl.h in Headers */,
@@ -2117,7 +2105,6 @@
 				46EB95AF1D8BFA59000E8891 /* comp.h in Headers */,
 				46EB95B01D8BFA59000E8891 /* conf.h in Headers */,
 				46EB95B11D8BFA59000E8891 /* conf_api.h in Headers */,
-				FE6970561D952BB40078027E /* ConnectionManager.hpp in Headers */,
 				46D2D9E51D086FD400051221 /* CrashReporter.h in Headers */,
 				46EB95941D8BFA59000E8891 /* crc32.h in Headers */,
 				46EB95B21D8BFA59000E8891 /* crypto.h in Headers */,
@@ -2248,7 +2235,6 @@
 				46EB93FF1D8BFA35000E8891 /* comp.h in Headers */,
 				46EB94001D8BFA35000E8891 /* conf.h in Headers */,
 				46EB94011D8BFA35000E8891 /* conf_api.h in Headers */,
-				FE6970551D952BB40078027E /* ConnectionManager.hpp in Headers */,
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
 				46EB93E41D8BFA35000E8891 /* crc32.h in Headers */,
 				46EB94021D8BFA35000E8891 /* crypto.h in Headers */,

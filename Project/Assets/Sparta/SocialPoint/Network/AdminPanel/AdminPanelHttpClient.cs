@@ -10,6 +10,7 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
     CurlHttpStreamClient _client;
     AdminPanelConsole _console;
     bool _verbose;
+    IHttpStream _stream;
 
     struct StreamData
     {
@@ -55,7 +56,18 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
                 _verbose = value;
                 _client.Verbose = _verbose;
             });
-        
+
+        layout.CreateButton("Send message", () =>
+            {
+                foreach(var st in _streams)
+                {
+                    if(st.Stream.Active)
+                    {
+                        st.Stream.SendData(System.Text.ASCIIEncoding.ASCII.GetBytes("Message"));
+                    }
+                }
+            });
+
         layout.CreateButton("Open Clock stream", () => {
             var req = new HttpRequest("https://http2.golang.org/clockstream");
             req.Timeout = 10000000;
@@ -95,7 +107,6 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
     void OnDataReceived(byte[] data)
     {   
         var msg = System.Text.ASCIIEncoding.ASCII.GetString(data);
-        Log.d("Received http message: " + msg);
         _console.Print(msg);
 
     }
@@ -103,7 +114,6 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
     void OnRequestFinished(HttpResponse response)
     {
         var msg = System.Text.ASCIIEncoding.ASCII.GetString(response.Body);
-        Log.d("Finished request with body: " + msg); 
         _console.Print(msg);
     }
 }

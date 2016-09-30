@@ -45,7 +45,7 @@ namespace
         return tokens;
     }
     
-    static size_t writeToString(void* contents, size_t size, size_t nmemb, void* userp)
+    static size_t write_to_string(void* contents, size_t size, size_t nmemb, void* userp)
     {
         ((std::string*)userp)->append((char*)contents, size * nmemb);
         size_t s = size * nmemb;
@@ -69,7 +69,7 @@ namespace
         
         conn->messages.incoming.append(ptr, size * nmemb);
         
-        return writeToString(ptr, size, nmemb, &conn->bodyBuffer);
+        return write_to_string(ptr, size, nmemb, &conn->bodyBuffer);
     }
     
     static size_t message_send_callback(char* buffer, size_t size, size_t nmemb, void* userdata)
@@ -120,7 +120,7 @@ CurlClient::CurlClient(bool enableHttp2)
 {
     _multi = curl_multi_init();
     
-    if(_supportsHttp2) // TODO Move to a configurer class
+    if(_supportsHttp2)
     {
         curl_multi_setopt(_multi, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
         curl_multi_setopt(_multi, CURLMOPT_PUSHFUNCTION, server_push_callback);
@@ -249,18 +249,11 @@ CURL* CurlClient::create(CurlRequest req)
         curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
     }
     
-    // TODO HTTP2
-    //*** TEST Borrar luego de descomentar lo anterior
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-    
     return curl;
 }
 
 bool CurlClient::send(CurlRequest req)
 {
-    printf("\n\n###  ======================  SEND %d ###\n\n", req.id);
-    
     auto* conn = _connections.get(req.id);
     
     if(!conn)
@@ -274,7 +267,7 @@ bool CurlClient::send(CurlRequest req)
         return false;
     }
     
-    curl_easy_setopt(conn->easy, CURLOPT_HEADERFUNCTION, writeToString);
+    curl_easy_setopt(conn->easy, CURLOPT_HEADERFUNCTION, write_to_string);
     curl_easy_setopt(conn->easy, CURLOPT_HEADERDATA, &conn->headersBuffer);
     curl_easy_setopt(conn->easy, CURLOPT_PRIVATE, conn);
     
@@ -293,7 +286,8 @@ bool CurlClient::send(CurlRequest req)
     }
     else
     {
-        curl_easy_setopt(conn->easy, CURLOPT_WRITEFUNCTION, writeToString);
+        curl_easy_setopt(conn->easy, CURLOPT_WRITEFUNCTION, write_to_string);
+        
         curl_easy_setopt(conn->easy, CURLOPT_WRITEDATA, &conn->bodyBuffer);
     }
     
@@ -314,106 +308,11 @@ bool CurlClient::send(CurlRequest req)
 
 void CurlClient::update()
 {
-    /*
-    printf("\n\n###  ======================  UPDATE ###\n\n");
-    
-    //do {
-    struct timeval timeout;
-    int rc; // select() return code
-    CURLMcode mc; // curl_multi_fdset() return code
-    
-    fd_set fdread;
-    fd_set fdwrite;
-    fd_set fdexcep;
-    int maxfd = -1;
-    
-    long curl_timeout = -1;
-    
-    FD_ZERO(&fdread);
-    FD_ZERO(&fdwrite);
-    FD_ZERO(&fdexcep);
-    
-    //set a suitable timeout to play around with
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
-    
-    curl_multi_timeout(_multi, &curl_timeout);
-    if(curl_timeout >= 0)
-    {
-        timeout.tv_sec = curl_timeout / 1000;
-        if(timeout.tv_sec > 1)
-        {
-            timeout.tv_sec = 1;
-        }
-        else
-        {
-            timeout.tv_usec = (curl_timeout % 1000) * 1000;
-        }
-    }
-    
-    // get file descriptors from the transfers
-    mc = curl_multi_fdset(_multi, &fdread, &fdwrite, &fdexcep, &maxfd);
-    
-    if(mc != CURLM_OK)
-    {
-        fprintf(stderr, "curl_multi_fdset() failed, code %d.\n", mc);
-        //break;
-    }
-    
-     // On success the value of maxfd is guaranteed to be >= -1. We call
-     //  select(maxfd + 1, ...); specially in case of (maxfd == -1) there are
-     // no fds ready yet so we call select(0, ...) --or Sleep() on Windows--
-     // to sleep 100ms, which is the minimum suggested value in the
-     // curl_multi_fdset() doc.
-    
-    if(maxfd == -1)
-    {
-        ///Portable sleep for platforms other than Windows. //
-        struct timeval wait = { 0, 100 * 1000 };
-        rc = select(0, nullptr, nullptr, nullptr, &wait);
-    }
-    else
-    {
-        // Note that on some platforms 'timeout' may be modified by select().
-        //If you need access to the original value save a copy beforehand.
-        rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
-    }
-    
-    switch(rc)
-    {
-        case -1:
-            //select error
-            return;
-            //break;
-        case 0: // timeout
-        default: //action
-            //curl_multi_perform(globalInfo.multi, &globalInfo.still_running);
-            break;
-    }
-    //} while(globalInfo.still_running);
-    */
-    
     CURLMcode mc;
-    // Do multi_perform and read buffers
     CurlConnection* conn = nullptr;
+    
     curlUpdateLock.lock();
     mc = curl_multi_perform(_multi, &_running);
-    
-    // Wait required?
-    /*
-    int numfds = 0;
-    if(mc == CURLM_OK)
-    {
-        mc = curl_multi_wait(_multi, nullptr, 0, 1000, &numfds);
-    }
-    
-    if(mc != CURLM_OK || !numfds)
-    {
-        // TODO
-        curlUpdateLock.unlock();
-        return;
-    }
-    */
     
     int msgs_left;
     while(auto res_msg = curl_multi_info_read(_multi, &msgs_left))
@@ -476,13 +375,11 @@ bool CurlClient::isFinished(int id)
 
 int CurlClient::createConnection()
 {
-    printf("\n\n###  ======================  CONNECTION ####\n\n");
     return _connections.create();
 }
 
 bool CurlClient::destroyConnection(int id)
 {
-    printf("\n\n###  ======================  DESSTROY CONN %d ###\n\n", id);
     return _connections.remove(id);
 }
 
@@ -526,7 +423,6 @@ void CurlClient::getStreamMessage(int id, char* data)
 
 double CurlClient::getTime(int id)
 {
-    
     auto conn = _connections.get(id);
     if(conn)
     {
