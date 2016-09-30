@@ -7,6 +7,8 @@ namespace SocialPoint.Network
 
     public interface IHttpStream : IHttpConnection
     {
+        bool Active { get; }
+
         event Action<byte[]> DataReceived;
 
         void SendData(byte[] data);

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.AppEvents;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Network
@@ -8,6 +9,7 @@ namespace SocialPoint.Network
     {
         readonly List<CurlHttpStream> Running;
         readonly ICoroutineRunner _runner;
+        readonly IAppEvents _appEvents;
         readonly Curl _curl;
 
         IEnumerator _updateCoroutine;
@@ -25,10 +27,11 @@ namespace SocialPoint.Network
             }
         }
 
-        public CurlHttpStreamClient(ICoroutineRunner runner)
+        public CurlHttpStreamClient(ICoroutineRunner runner, IAppEvents appEvents)
         {
             _runner = runner;
             _curl = new Curl(true);
+            _appEvents = appEvents;
             Running = new List<CurlHttpStream>();
         }
 
@@ -68,18 +71,6 @@ namespace SocialPoint.Network
             }
         }
 
-        public void Dispose()
-        {
-            using(var itr = Running.GetEnumerator())
-            {
-                while(itr.MoveNext())
-                {
-                    itr.Current.Cancel();
-                }
-            }
-            _runner.StopCoroutine(_updateCoroutine);
-        }
-
         public virtual IEnumerator Update()
         {
             while(Running.Count > 0)
@@ -97,6 +88,46 @@ namespace SocialPoint.Network
                 yield return null;
             }
             _updateCoroutine = null;
+        }
+
+        void ConnectAppEvents()
+        {
+            if(_appEvents != null)
+            {
+                _appEvents.WillGoBackground.Add(-1000, OnWillGoBackground);
+                _appEvents.WasOnBackground += WasOnBackground;
+            }
+        }
+        void DisconnectAppEvents()
+        {
+            if(_appEvents != null)
+            {
+                _appEvents.WillGoBackground.Remove(OnWillGoBackground);
+                _appEvents.WasOnBackground -= WasOnBackground;
+            }
+        }
+
+        public void Dispose()
+        {
+            using(var itr = Running.GetEnumerator())
+            {
+                while(itr.MoveNext())
+                {
+                    itr.Current.Cancel();
+                }
+            }
+            _runner.StopCoroutine(_updateCoroutine);
+        }
+
+        void OnWillGoBackground()
+        {
+            Update();
+            _curl.Pause = true;
+        }
+
+        void WasOnBackground()
+        {
+            _curl.Pause = false;
         }
     }
 }

@@ -1,28 +1,25 @@
 ﻿using SocialPoint.AdminPanel;
-using SocialPoint.Base;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using System.Collections.Generic;
 
-public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
+public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 {
-    readonly ICoroutineRunner _runner;
-    CurlHttpStreamClient _client;
-    AdminPanelConsole _console;
-    bool _verbose;
-    IHttpStream _stream;
-
     struct StreamData
     {
         public string Name;
-        public CurlHttpStream Stream; 
+        public IHttpStream Stream; 
     }
 
+    readonly CurlHttpStreamClient _client;
+    AdminPanelConsole _console;
+    bool _verbose;
+    IHttpStream _stream;
     List<StreamData> _streams;
 
-    public AdminPanelHttpClient(ICoroutineRunner runner)
+    public AdminPanelHttpStream(CurlHttpStreamClient client)
     {
-        _runner = runner;
+        _client = client;
         _streams = new List<StreamData>();
     }
 
@@ -33,28 +30,14 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
     }
 
     public void OnCreateGUI(AdminPanelLayout layout)
-    {  
-        var enabled = _client != null;
-        layout.CreateToggleButton("Enable Client", enabled, value => 
-            {
-                if(value)
-                {
-                    _client = new CurlHttpStreamClient(_runner);
-                    _client.Verbose = _verbose;
-                }
-                else
-                {
-                    _client.Dispose();
-                    _client = null;
-                    _streams.Clear();
-                }
-                layout.Refresh();
-            });
-
+    {
         layout.CreateToggleButton("Verbose", _verbose, (value) => 
             {
                 _verbose = value;
-                _client.Verbose = _verbose;
+                if(_client != null)
+                {
+                    _client.Verbose = _verbose;
+                }
             });
 
         layout.CreateButton("Send message", () =>
@@ -76,7 +59,7 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
             conn.DataReceived += OnDataReceived;
             _streams.Add(new StreamData { Name = "Clock", Stream = conn as CurlHttpStream });
             layout.Refresh();
-        }, enabled);
+        });
 
         layout.CreateButton("Open Echo stream", () => {
             var req = new HttpRequest("https://http2.golang.org/ECHO");
@@ -88,7 +71,7 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
             conn.DataReceived += OnDataReceived;
             _streams.Add(new StreamData { Name = "Echo", Stream = conn as CurlHttpStream });
             layout.Refresh();
-        }, enabled);
+        });
 
 
         layout.CreateMargin();
@@ -100,7 +83,7 @@ public sealed class AdminPanelHttpClient : IAdminPanelConfigurer, IAdminPanelGUI
                 {
                     data.Stream.Cancel();
                 }
-            }, enabled);
+            });
         }
     }
 

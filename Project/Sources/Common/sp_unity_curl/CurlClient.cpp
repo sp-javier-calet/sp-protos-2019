@@ -342,6 +342,7 @@ void CurlClient::update()
             
             curl_multi_remove_handle(_multi, easy);
             curl_easy_cleanup(easy);
+            conn->isActive = false;
         }
     }
     
@@ -380,6 +381,14 @@ int CurlClient::createConnection()
 
 bool CurlClient::destroyConnection(int id)
 {
+    CurlConnection* conn = _connections.get(id);
+    if(conn && conn->isActive)
+    {
+        curl_multi_remove_handle(_multi, conn->easy);
+        curl_easy_cleanup(conn->easy);
+        conn->isActive = false;
+    }
+    
     return _connections.remove(id);
 }
 

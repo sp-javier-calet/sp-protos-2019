@@ -42,6 +42,7 @@ public:
     double connectTime = 0.0;
     double totalTime = 0.0;
     bool hasStreamData = false;
+    bool isActive = true;
     SPUnityCurlMessagesInfo messages;
     
     CurlConnection(int pId)

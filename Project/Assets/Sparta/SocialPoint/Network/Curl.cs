@@ -1,3 +1,11 @@
+#if (UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+#define UNITY_DEVICE
+#endif 
+#if UNITY_DEVICE || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX || UNITY_STANDALONE_LINUX || UNITY_EDITOR_LINUX
+#define CURL_SUPPORTED
+#endif
+
+
 using System;
 using System.Runtime.InteropServices;
 using SocialPoint.Base;
@@ -10,6 +18,22 @@ namespace SocialPoint.Network
     /// </summary>
     public sealed class Curl : IDisposable
     {
+
+        /// <summary>
+        /// Static method to ask if Curl implementation is available in the current platform
+        /// </summary>
+        public static bool IsSupported
+        {
+            get
+            {
+                #if CURL_SUPPORTED
+                return true;
+                #else
+                return false;
+                #endif
+            }
+        }
+
         readonly UIntPtr _nativeClient;
 
         public Curl(bool enableHttp2)
