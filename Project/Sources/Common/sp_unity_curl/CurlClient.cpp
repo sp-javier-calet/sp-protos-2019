@@ -47,10 +47,10 @@ namespace
     
     static size_t write_to_string(void* contents, size_t size, size_t nmemb, void* userp)
     {
-        ((std::string*)userp)->append((char*)contents, size * nmemb);
-        size_t s = size * nmemb;
+        size_t totalBytes = size * nmemb;
+        ((std::string*)userp)->append((char*)contents, totalBytes);
         
-        return s;
+        return totalBytes;
     }
     
     /* called when data is received through stream */
@@ -69,7 +69,7 @@ namespace
         
         conn->messages.incoming.append(ptr, size * nmemb);
         
-        return write_to_string(ptr, size, nmemb, &conn->bodyBuffer);
+        return totalBytes;
     }
     
     static size_t message_send_callback(char* buffer, size_t size, size_t nmemb, void* userdata)

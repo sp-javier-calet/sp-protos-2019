@@ -101,6 +101,8 @@ public class HttpClientInstaller : Installer
             Container.Resolve<IAppEvents>()
         );
 
+        client.RequestSetup += OnRequestSetup;
+        client.Config = Settings.Config;
         return client;
     }
 

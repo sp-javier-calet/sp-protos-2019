@@ -18,6 +18,9 @@ namespace SocialPoint.Network
     {
         IHttpStream Connect(HttpRequest request, HttpStreamClosedDelegate del = null);
 
+        //Use to set game related data if the implementation needs it
+        string Config { set; }
+
         event HttpStreamRequestDelegate RequestSetup;
     }
 }
