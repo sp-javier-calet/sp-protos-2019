@@ -14,7 +14,6 @@ namespace SocialPoint.Network
         public string GameVersion;
         public string RoomName;
         public RoomOptions RoomOptions;
-        public byte[] UnreliableChannels;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -157,22 +156,6 @@ namespace SocialPoint.Network
         public INetworkMessage CreateMessage(NetworkMessageData info)
         {
             return new PhotonNetworkMessage(info, this);
-        }
-
-        bool IsChannelReliable(byte channelId)
-        {
-            if(_config.UnreliableChannels == null)
-            {
-                return true;
-            }
-            for(var i = 0; i < _config.UnreliableChannels.Length; i++)
-            {
-                if(_config.UnreliableChannels[i] == channelId)
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
