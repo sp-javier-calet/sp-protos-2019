@@ -42,7 +42,6 @@ namespace SocialPoint.AdminPanel
             var template = CreateUIObject("Template", dropdown.transform);
             var item = CreateUIObject("Item", template);
             var itemLabel = CreateUIObject("Item Label", item);
-            template.gameObject.layer = Behaviour.gameObject.layer;
             var toggle = item.gameObject.AddComponent<Toggle>();
             toggle.image = item.gameObject.AddComponent<Image>();
             toggle.colors = GetToggleColors();

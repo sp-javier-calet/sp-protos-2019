@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.AdminPanel
 {
-    public sealed class AdminPanelController : UIViewController
+    public sealed class AdminPanelController : UIViewController, IAdminPanelController
     {
         Stack<IAdminPanelGUI> _activePanels;
 
@@ -22,7 +22,7 @@ namespace SocialPoint.AdminPanel
         bool _consoleEnabled;
         bool _mainPanelDirty;
 
-        public AdminPanel AdminPanel;
+        public AdminPanel AdminPanel{ get; set; }
 
         protected override void OnLoad()
         {
@@ -55,7 +55,7 @@ namespace SocialPoint.AdminPanel
 
         void InflateGUI()
         {
-            _root = new AdminPanelRootLayout(this);
+            _root = new AdminPanelRootLayout(this, transform);
 
             AdminPanelLayout horizontalLayout = _root.CreateHorizontalLayout();
             
@@ -129,14 +129,11 @@ namespace SocialPoint.AdminPanel
 
         public void OpenPanel(IAdminPanelGUI panel)
         {
-            _activePanels.Push(new AdminPanelGUIGroup(panel));
-            _mainPanelDirty = true;
-            RefreshPanel();
-        }
-
-        public void OpenPanel(AdminPanelGUIGroup panelLayout)
-        {
-            _activePanels.Push(panelLayout);
+            if(!(panel is AdminPanelGUIGroup))
+            {
+                panel = new AdminPanelGUIGroup(panel);
+            }
+            _activePanels.Push(panel);
             _mainPanelDirty = true;
             RefreshPanel();
         }
@@ -146,6 +143,16 @@ namespace SocialPoint.AdminPanel
             _activePanels.Pop();
             _mainPanelDirty = true;
             RefreshPanel();
+        }
+
+        public void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options)
+        {
+            var ctrl = Factory.Create<FloatingPanelController>();
+            ctrl.Parent = this;
+            ctrl.GUI = panel;
+            ctrl.CanvasSizeFactor = options.Size;
+            ctrl.Title = options.Title;
+            ctrl.Show();
         }
 
         public void RefreshPanel(bool force = false)
@@ -270,5 +277,21 @@ namespace SocialPoint.AdminPanel
                 }
             }
         }
+    }
+
+    public struct FloatingPanelOptions
+    {
+        public Vector2 Size;
+        public string Title;
+    }
+
+    public interface IAdminPanelController
+    {
+        void RefreshPanel(bool force = false);
+        void OpenPanel(IAdminPanelGUI panel);
+        void ReplacePanel(IAdminPanelGUI panel);
+        void ClosePanel();
+        void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options);
+        AdminPanel AdminPanel{ get; }
     }
 }

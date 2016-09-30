@@ -32,5 +32,12 @@ namespace SocialPoint.Lockstep
             writer.Write(CommandStepDuration);
             writer.Write(SimulationStepDuration);
         }
+
+        public override string ToString()
+        {
+            return string.Format("[LockstepConfig\n" +
+                "SimulationStepDuration:{0}\n" +
+                "CommandStepDuration:{1}]", SimulationStepDuration, CommandStepDuration);
+        }
     }
 }

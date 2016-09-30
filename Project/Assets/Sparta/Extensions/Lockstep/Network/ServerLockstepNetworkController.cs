@@ -26,6 +26,15 @@ namespace SocialPoint.Lockstep.Network
         public byte MaxPlayers = DefaultMaxPlayers;
         public int ClientStartDelay = DefaultClientStartDelay;
         public int ClientSimulationDelay = DefaultClientSimulationDelay;
+
+        public override string ToString()
+        {
+            return string.Format("[ServerLockstepConfig\n" +
+                "MaxPlayers:{0}\n" +
+                "ClientStartDelay:{1}\n" +
+                "ClientSimulationDelay:{2}]",
+                MaxPlayers, ClientStartDelay, ClientSimulationDelay);
+        }
     }
 
     public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate

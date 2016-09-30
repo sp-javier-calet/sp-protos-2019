@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SocialPoint.GUIControl
 {
@@ -193,6 +194,54 @@ namespace SocialPoint.GUIControl
                     }
                 }
                 return FixSize(size);
+            }
+        }
+
+        public Vector2 CanvasSizeFactor
+        {
+            set
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
+                {
+                    var canvas = canvases[i];
+                    var scaler = canvas.gameObject.GetComponent<CanvasScaler>();
+                    if(scaler != null)
+                    {
+                        var refres = scaler.referenceResolution;
+                        var itr = canvas.transform.GetEnumerator();
+                        while(itr.MoveNext())
+                        {
+                            var child = (RectTransform)itr.Current;
+                            child.sizeDelta = new Vector2(
+                                value.x * refres.x,
+                                value.y * refres.y);
+                        }
+                    }
+                }
+            }
+
+            get
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                var size = Vector2.zero;
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
+                {
+                    var canvas = canvases[i];
+                    var scaler = canvas.gameObject.GetComponent<CanvasScaler>();
+                    if(scaler != null)
+                    {
+                        var refres = scaler.referenceResolution;
+                        var itr = canvas.transform.GetEnumerator();
+                        while(itr.MoveNext())
+                        {
+                            var child = (RectTransform)itr.Current;
+                            size.x = Mathf.Max(size.x, child.sizeDelta.x / refres.x);
+                            size.y = Mathf.Max(size.y, child.sizeDelta.y / refres.y);
+                        }
+                    }
+                }
+                return size;
             }
         }
 
