@@ -18,12 +18,12 @@ namespace SocialPoint.GrayboxLibrary
         private static string[] _categories;
         public static string Filter = "";
         public static List<string> Filters = new List<string>();
-        private float _timeFilterUpdated = Time.realtimeSinceStartup;
+        private static float _timeFilterUpdated = Time.realtimeSinceStartup;
         private static bool _filterUpdated = false;
         private static bool _displayFilterOptions = false;
         private static string _currentSelectedOption = "";
-        private string[] _tagList = new string[0];
-        private const float _timeToSearchTags = 0.1f;
+        private static string[] _tagList = new string[0];
+        private static float _timeToSearchTags = 0.1f;
         private static int _currentCategory = 0;
         private static int _currentPage = 0;
         private static int _maxPage = 0;
@@ -37,17 +37,62 @@ namespace SocialPoint.GrayboxLibrary
         private const float _thumbMinSize = 0.1f;
         private const float _thumbMaxSize = 0.5f;
         private const int _assetsPerPage = 20;
+
         public static GrayboxLibraryWindow Window;
-        private float _timeKeyPressed = Time.realtimeSinceStartup;
+
+        private static float _timeKeyPressed = Time.realtimeSinceStartup;
         private const float _keyDelay = 0.2f;
         private static int _focusChangeDelay = 0;
+
         public static GrayboxAsset AssetChosen = null;
         public static GrayboxAsset AssetDragged = null;
         private static bool _dragging = false;
-        private string _currentDraggedAsset = "";
-        private bool _secondGUIDraw = false;
+        private static string _currentDraggedAsset = "";
+
+        private static bool _secondGUIDraw = false;
+        private static bool _wasPlaying = false;
+
         private static GrayboxLibraryInspectorDummy _inspectorDummyA, _inspectorDummyB;
-        private static int _currentInspectorDummy;
+        private static int _currentInspectorDummy = 0;
+
+        public static void LaunchClient()
+        {
+            _currentCategory = (int)GrayboxAssetCategory.Buildings;
+            Tool = new GrayboxLibraryController();
+            _currentPage = 0;
+
+            _currentAssetList = Tool.GetAssets(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
+            _currentGUIContent = new ArrayList();
+            _toInstantiate = new List<GrayboxAsset>();
+            _toDownload = new List<GrayboxAsset>();
+            _instantiatePositions = new Dictionary<string, Vector3>();
+
+            _categories = Enum.GetNames(typeof(GrayboxAssetCategory));
+            Filter = "";
+            Filters = new List<string>();
+            _timeFilterUpdated = Time.realtimeSinceStartup;
+            _filterUpdated = false;
+            _displayFilterOptions = false;
+            _currentSelectedOption = "";
+            _tagList = new string[0];
+            _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
+            _timeKeyPressed = Time.realtimeSinceStartup;
+            _focusChangeDelay = 0;
+            AssetChosen = null;
+            AssetDragged = null;
+            _dragging = false;
+            _currentDraggedAsset = "";
+            _secondGUIDraw = false;
+            _wasPlaying = false;
+            _inspectorDummyA = null;
+            _inspectorDummyB = null;
+            _currentInspectorDummy = 0;
+
+            LoadThumbnails();
+
+            Window = (GrayboxLibraryWindow)EditorWindow.GetWindow(typeof(GrayboxLibraryWindow));
+            Window.titleContent.text = "Library";
+        }
 
         [MenuItem("Social Point/Graybox Library/Buildings")]
         public static void LaunchBuldingsClient()
@@ -91,34 +136,35 @@ namespace SocialPoint.GrayboxLibrary
             LaunchClient();
         }
 
-        public static void LaunchClient()
-        {
-            Window = (GrayboxLibraryWindow)EditorWindow.GetWindow(typeof(GrayboxLibraryWindow));
-            Window.titleContent.text = "Library";
-            Tool = new GrayboxLibraryController();
-            _currentGUIContent = new ArrayList();
-            _currentPage = 0;
-            _currentAssetList = Tool.GetAssets(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
-            LoadThumbnails();
-            _toInstantiate = new List<GrayboxAsset>();
-            _toDownload = new List<GrayboxAsset>();
-            _instantiatePositions = new Dictionary<string, Vector3>();
-            _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(Filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
-            _categories = Enum.GetNames(typeof(GrayboxAssetCategory));
-            _filterUpdated = true;
-        }
+        
 
         void OnGUI()
         {
-            /*if (EditorApplication.isCompiling && Tool != null)
+            if (EditorApplication.isCompiling && Tool != null)
             {
                 Tool.Disconnect();
                 GUILayout.Label("Project compiling, please wait...");
                 return;
-            }*/
+            }
+
+            if (EditorApplication.isPlaying)
+            {
+                _wasPlaying = true;
+                GUILayout.Label("Project playing, please stop the game before importing using this tool.");
+                return;
+            }
+            else if (_wasPlaying)
+            {
+                _wasPlaying = false;
+                LaunchClient();
+                return;
+            }
 
             if (Tool == null)
+            {
                 LaunchClient();
+                return;
+            }
 
             ManageDragAndDrop();
 

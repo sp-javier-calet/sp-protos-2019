@@ -477,11 +477,20 @@ namespace SocialPoint.GrayboxLibrary
 
         public void AssignTag(GrayboxAsset asset, GrayboxTag tag)
         {
-            string sql = "INSERT INTO asset_tag VALUES (" + asset.Id + "," + tag.Id + ")";
+            string sql = "SELECT id_asset FROM asset_tag WHERE id_asset = " + asset.Id + " AND id_tag = " + tag.Id ;
 
             MySqlCommand command = new MySqlCommand(sql);
 
-            _dbController.ExecuteSQL(command);
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
+
+            if (queryResult.Count == 0)
+            {
+                sql = "INSERT INTO asset_tag VALUES (" + asset.Id + "," + tag.Id + ")";
+
+                command = new MySqlCommand(sql);
+
+                _dbController.ExecuteSQL(command);
+            }
         }
 
         public void UnassignTag(GrayboxAsset asset, GrayboxTag tag)
@@ -511,6 +520,8 @@ namespace SocialPoint.GrayboxLibrary
 
         public GameObject InstantiateAsset(GrayboxAsset asset)
         {
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
             GameObject assetGO = (GameObject)AssetDatabase.LoadMainAssetAtPath(asset.MainAssetPath);
             GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(assetGO);
             instance.name = instance.name.Replace("(Clone)", "");
