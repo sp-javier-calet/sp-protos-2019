@@ -1,8 +1,10 @@
 #if (UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
 #define UNITY_DEVICE
+#define UNITY
 #endif
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_DEVICE
 #define NATIVE_RANDOM
+#define UNITY
 #endif
 
 using System;
@@ -13,6 +15,11 @@ namespace SocialPoint.Utils
     public static class RandomUtils
     {
         static bool _init = false;
+
+        #if !UNITY
+        static Random _random;
+        #endif
+
 
         #if NATIVE_RANDOM
 
@@ -48,7 +55,11 @@ namespace SocialPoint.Utils
             {
                 return;
             }
+        #if UNITY
             UnityEngine.Random.seed = GetRandomSeed();
+        #else
+            _random = new Random(Guid.NewGuid().GetHashCode());
+        #endif
             _init = true;
         }
 
@@ -63,16 +74,10 @@ namespace SocialPoint.Utils
         {
             Init();
             UInt64 ts = (UInt64)TimeUtils.Timestamp;
-            UInt64 rn = (UInt64)GenerateRandom32();
+            UInt64 rn = (UInt64)GenerateUint();
             ts = ts << 31;
             rn = rn & 0x7FFFFFFF;
             return ts + rn;
-        }
-
-        static uint GenerateRandom32()
-        {
-            Init();
-            return (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
         }
 
         [System.Obsolete("Use GenerateSecurityToken instead", true)]
@@ -85,12 +90,12 @@ namespace SocialPoint.Utils
         public static string GenerateSecurityToken()
         {
             Init();
-            uint ab1 = GenerateRandom32();
-            uint ab2 = GenerateRandom32();
+            uint ab1 = GenerateUint();
+            uint ab2 = GenerateUint();
             ulong ab = (ulong)(ab1 << 32 | ab2);
 
-            uint cd1 = GenerateRandom32();
-            uint cd2 = GenerateRandom32();
+            uint cd1 = GenerateUint();
+            uint cd2 = GenerateUint();
             ulong cd = (ulong)(cd1 << 32 | cd2);
 
             ab = (ab & 0xFFFFFFFFFFFF0FFFUL) | 0x0000000000004000UL;
@@ -113,6 +118,16 @@ namespace SocialPoint.Utils
             return s.ToLower();
         }
 
+        public static uint GenerateUint()
+        {
+            Init();
+        #if UNITY
+            return (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+        #else
+            return (uint)_random.Next(Int32.MinValue, Int32.MaxValue);
+        #endif
+        }
+
         /// <summary>
         /// Return a random int value between the param range [min, max)
         /// </summary>
@@ -122,7 +137,12 @@ namespace SocialPoint.Utils
         {
             Init();
             DebugUtils.Assert(minInclusive < maxExclusive, "Max needs to be more that min.");
+            #if UNITY
             return UnityEngine.Random.Range(minInclusive, maxExclusive);
+            #else
+            return _random.Next(minInclusive, maxExclusive);
+            #endif
+
         }
 
         /// <summary>
@@ -134,7 +154,11 @@ namespace SocialPoint.Utils
         {
             Init();
             DebugUtils.Assert(minInclusive < maxInclusive, "Max needs to be more that min.");
+            #if UNITY
             return UnityEngine.Random.Range(minInclusive, maxInclusive);
+            #else
+            return (float)(float.MaxValue * 2.0 * (_random.NextDouble()-0.5));
+            #endif
         }
     }
 }
