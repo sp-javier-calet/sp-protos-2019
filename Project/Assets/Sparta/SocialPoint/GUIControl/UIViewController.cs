@@ -147,9 +147,9 @@ namespace SocialPoint.GUIControl
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                if(canvases.Count > 0)
+                for(var i=0; i<canvases.Count; i++)
                 {
-                    var itr = canvases[0].transform.GetEnumerator();
+                    var itr = canvases[i].transform.GetEnumerator();
                     while(itr.MoveNext())
                     {
                         var child = (Transform)itr.Current;
@@ -193,6 +193,87 @@ namespace SocialPoint.GUIControl
                     }
                 }
                 return FixSize(size);
+            }
+        }
+
+        public Vector2 ScreenPosition
+        {
+            set
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
+                {
+                    var canvas = canvases[i];
+                    var scale = UILayersController.GetCanvasScale(canvas);
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var child = (Transform)itr.Current;
+                        child.localPosition = new Vector2(
+                            value.x * scale.x,
+                            value.y * scale.y);
+                    }
+                }
+            }
+
+            get
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                for(var i=0; i<canvases.Count; i++)
+                {
+                    var canvas = canvases[i];
+                    var scale = UILayersController.GetCanvasScale(canvas);
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var child = (Transform)itr.Current;
+                        var p = child.localPosition;
+                        p.x /= scale.x;
+                        p.y /= scale.y;
+                        return p;
+                    }
+                }
+                return Vector2.zero;
+            }
+        }
+
+        public Vector2 ScreenSizeFactor
+        {
+            set
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
+                {
+                    var canvas = canvases[i];
+                    var refres = UILayersController.GetCanvasSize(canvas);
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var child = (RectTransform)itr.Current;
+                        child.sizeDelta = new Vector2(
+                            value.x * refres.x,
+                            value.y * refres.y);
+                    }
+                }
+            }
+
+            get
+            {
+                var canvases = UILayersController.GetCanvasFromElement(gameObject);
+                var size = Vector2.zero;
+                for(int i = 0, canvasesCount = canvases.Count; i < canvasesCount; i++)
+                {
+                    var canvas = canvases[i];
+                    var refres = UILayersController.GetCanvasSize(canvas);
+                    var itr = canvas.transform.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var child = (RectTransform)itr.Current;
+                        size.x = Mathf.Max(size.x, child.sizeDelta.x / refres.x);
+                        size.y = Mathf.Max(size.y, child.sizeDelta.y / refres.y);
+                    }
+                }
+                return size;
             }
         }
 
