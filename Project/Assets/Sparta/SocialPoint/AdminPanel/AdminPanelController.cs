@@ -170,7 +170,7 @@ namespace SocialPoint.AdminPanel
 
             // Main panel content
             if(_mainPanelDirty || force)
-            {                
+            {
                 // Destroy current content and hide main panel
                 if(_mainPanelContent != null)
                 {
