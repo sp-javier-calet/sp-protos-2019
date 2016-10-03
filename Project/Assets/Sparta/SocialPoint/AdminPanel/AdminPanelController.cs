@@ -150,19 +150,18 @@ namespace SocialPoint.AdminPanel
             var ctrl = Factory.Create<FloatingPanelController>();
             ctrl.Parent = this;
             ctrl.GUI = panel;
-            ctrl.CanvasSizeFactor = options.Size;
+            ctrl.Size = options.Size;
             ctrl.Title = options.Title;
+            ctrl.SetParent(transform.parent);
             ctrl.Show();
         }
 
         public void RefreshPanel(bool force = false)
         {
             // Categories panel
-            var itr = _categoriesPanelContent.Parent.GetEnumerator();
-            while(itr.MoveNext())
+            if(_categoriesPanelContent != null)
             {
-                var child = (Transform)itr.Current;
-                Destroy(child.gameObject);
+                _categoriesPanelContent.Clear();
             }
 
             IAdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(AdminPanel.Categories);
@@ -170,13 +169,11 @@ namespace SocialPoint.AdminPanel
 
             // Main panel content
             if(_mainPanelDirty || force)
-            {
+            {                
                 // Destroy current content and hide main panel
-                var itr2 =  _mainPanelContent.Parent.GetEnumerator();
-                while(itr2.MoveNext())
+                if(_mainPanelContent != null)
                 {
-                    var child = (Transform)itr2.Current;
-                    Destroy(child.gameObject);
+                    _mainPanelContent.Clear();
                 }
                 _mainPanel.SetActive(false);
 

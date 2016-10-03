@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using SocialPoint.GUIControl;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace SocialPoint.AdminPanel
 {
-    public sealed class FloatingPanelController : UIViewController, IAdminPanelController
+    public sealed class FloatingPanelController : UIViewController, IAdminPanelController, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         AdminPanelRootLayout _root;
         AdminPanelLayout _mainPanel;
@@ -18,6 +19,9 @@ namespace SocialPoint.AdminPanel
 
         [HideInInspector]
         public string Title;
+
+        [HideInInspector]
+        bool ShowBorder = true;
 
         public AdminPanel AdminPanel
         {
@@ -38,10 +42,32 @@ namespace SocialPoint.AdminPanel
 
         void InflateGUI()
         {
-            _root = new AdminPanelRootLayout(this, Root.transform);
-            _mainPanel = _root.CreatePanelLayout(Title, ClosePanel, 2);
-            _mainPanelContent = _mainPanel.CreateVerticalScrollLayout();
+            if(_root == null)
+            {
+                _root = new AdminPanelRootLayout(this, Root.transform);
+                _mainPanel = null;
+            }
+            if(_mainPanel == null)
+            {    
+                if(ShowBorder)
+                {
+                    _mainPanel = _root.CreatePanelLayout(Title, ClosePanel, 2);
+                }
+                else
+                {
+                    _mainPanel = _root;
+                }
+                _mainPanelContent = null;
+            }
+            InflateContent();
+        }
 
+        void InflateContent()
+        {
+            if(_mainPanelContent == null)
+            {
+                _mainPanelContent = _mainPanel.CreateVerticalScrollLayout();
+            }
             if(GUI != null)
             {
                 GUI.OnCreateGUI(_mainPanelContent);
@@ -59,7 +85,24 @@ namespace SocialPoint.AdminPanel
 
         public void RefreshPanel(bool force = false)
         {
-            
+            if(force)
+            {
+                if(_root != null)
+                {
+                    _root.Dispose();
+                }
+                _root = null;
+                InflateGUI();
+            }
+            else
+            {
+                if(_mainPanelContent != null)
+                {
+                    _mainPanelContent.Dispose();
+                }
+                _mainPanelContent = null;
+                InflateContent();
+            }
         }
 
         public void OpenPanel(IAdminPanelGUI panel)
@@ -86,6 +129,31 @@ namespace SocialPoint.AdminPanel
         public void ClosePanel()
         {
             Hide(true);
+        }
+
+        bool _dragging;
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            _dragging = true;
+            var p = ScreenPosition;
+            p.x += eventData.delta.x;
+            p.y += eventData.delta.y;
+            ScreenPosition = p;
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            _dragging = false;
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if(!_dragging)
+            {
+                ShowBorder = !ShowBorder;
+                RefreshPanel(true);
+            }
         }
     }
 }

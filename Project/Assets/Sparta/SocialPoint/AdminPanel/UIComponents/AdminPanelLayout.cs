@@ -80,6 +80,27 @@ namespace SocialPoint.AdminPanel
 
         public virtual void Dispose()
         {
+            if(Parent != null)
+            {
+                UnityEngine.Object.Destroy(Parent.gameObject);
+            }
+        }
+
+        public void Clear()
+        {
+            if(Parent == null)
+            {
+                return;
+            }
+            var itr = Parent.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var child = (Transform)itr.Current;
+                if(child != null)
+                {
+                    UnityEngine.Object.Destroy(child.gameObject);
+                }
+            }
         }
     }
 }

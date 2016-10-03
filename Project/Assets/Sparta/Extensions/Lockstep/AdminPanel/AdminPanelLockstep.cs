@@ -91,7 +91,7 @@ namespace SocialPoint.Lockstep
         void OnShowFloatingClient()
         {
             _layout.OpenFloatingPanel(_clientGui, new FloatingPanelOptions{
-                Size = new Vector2(0.3f, 0.5f),
+                Size = new Vector2(200, 200),
                 Title = AdminPanelLockstepClientGUI.Title
             });
         }
