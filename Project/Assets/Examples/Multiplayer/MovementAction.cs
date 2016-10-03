@@ -1,19 +1,20 @@
 ﻿using SocialPoint.Network;
 using SocialPoint.Multiplayer;
 using SocialPoint.IO;
+using Jitter.LinearMath;
 
 public class MovementAction : INetworkShareable
 {
-    public Vector3 Movement;
+    public JVector Movement;
 
     public void Deserialize(IReader reader)
     {
-        Movement = Vector3Parser.Instance.Parse(reader);
+        Movement = JVectorParser.Instance.Parse(reader);
     }
 
     public void Serialize(IWriter writer)
     {
-        Vector3Serializer.Instance.Serialize(Movement, writer);
+        JVectorSerializer.Instance.Serialize(Movement, writer);
     }
 
     public static void Apply(MovementAction action, NetworkScene scene)
