@@ -9,16 +9,52 @@ using System.Collections.Generic;
 namespace SocialPoint.Network
 {
     [Serializable]
+    public class PhotonNetworkRoomConfig
+    {
+        public const bool DefaultIsVisible = true;
+        public const bool DefaultIsOpen = true;
+        public const byte DefaultMaxPlayers = 2;
+        public const int DefaultPlayerTtl = 0;
+        public const bool DefaultCleanupCache = true;
+        public const bool DefaultPublishUserId = false;
+
+        public bool IsVisible = DefaultIsVisible;
+        public bool IsOpen = DefaultIsOpen;
+        public byte MaxPlayers = DefaultMaxPlayers;
+        public int PlayerTtl = DefaultPlayerTtl;
+        public bool CleanupCache = DefaultCleanupCache;
+        public bool PublishUserId = DefaultPublishUserId;
+        public string[] CustomProperties;
+        public string[] CustomLobbyProperties;
+        public string[] Plugins;
+
+        public RoomOptions ToPhoton()
+        {
+            return new RoomOptions {
+                isVisible = IsVisible,
+                isOpen = IsOpen,
+                maxPlayers = MaxPlayers,
+                PlayerTtl = PlayerTtl,
+                cleanupCacheOnLeave = CleanupCache,
+                customRoomPropertiesForLobby = CustomLobbyProperties,
+                plugins = Plugins,
+                publishUserId = PublishUserId
+            };
+        }
+    }
+
+    [Serializable]
     public class PhotonNetworkConfig
     {
         public string GameVersion;
         public string RoomName;
-        public RoomOptions RoomOptions;
+        public PhotonNetworkRoomConfig RoomOptions;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
         PhotonNetworkConfig _config;
+        bool _triedToCreate;
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
@@ -39,6 +75,7 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
+            _triedToCreate = false;
             PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
         }
 
@@ -84,7 +121,35 @@ namespace SocialPoint.Network
 
         void OnPhotonRandomJoinFailed()
         {
-            PhotonNetwork.CreateRoom(_config.RoomName, _config.RoomOptions, null);
+            if(_triedToCreate)
+            {
+                var err = new Error(ConnectionError, "Failed to join randomly");
+                OnNetworkError(err);
+            }
+            else
+            {
+                CreateRoom();
+            }
+        }
+
+        void OnPhotonJoinRoomFailed(object[] codeAndMsg)
+        {
+            if(_triedToCreate)
+            {
+                var err = new Error(ConnectionError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
+                OnNetworkError(err);
+            }
+            else
+            {
+                CreateRoom();
+            }
+        }
+
+        void CreateRoom()
+        {
+            _triedToCreate = true;
+            RoomOptions options = _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+            PhotonNetwork.CreateRoom(_config.RoomName, options, null);
         }
 
         void OnFailedToConnectToPhoton(DisconnectCause cause)
@@ -93,7 +158,7 @@ namespace SocialPoint.Network
             OnNetworkError(err);
         }
 
-        void OnPhotonCreateRoomFailed(object[] codeAndMsg)
+        public void OnPhotonCreateRoomFailed(object[] codeAndMsg)
         {
             var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);

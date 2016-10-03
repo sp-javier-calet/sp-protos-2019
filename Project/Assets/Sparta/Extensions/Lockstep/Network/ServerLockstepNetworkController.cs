@@ -41,10 +41,11 @@ namespace SocialPoint.Lockstep.Network
                 Ready = false;
             }
         }
-
+            
         const byte BadPlayerId = byte.MaxValue;
 
         ServerLockstepController _serverLockstep;
+
         LockstepConfig _lockstepConfig;
         ServerLockstepConfig _serverConfig;
         INetworkServer _server;
@@ -67,6 +68,7 @@ namespace SocialPoint.Lockstep.Network
             _server = server;
             _serverConfig = serverConfig;
             _lockstepConfig = lockstepConfig;
+
         }
 
         public void Init(ServerLockstepController serverLockstep)
@@ -209,6 +211,14 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public byte MaxPlayers
+        {
+            get
+            {
+                return _serverConfig.MaxPlayers;
+            }
+        }
+
         public int ClientCount
         {
             get
@@ -229,7 +239,7 @@ namespace SocialPoint.Lockstep.Network
                 return _server.Running && _serverLockstep.Running;
             }
         }
-
+            
         public bool Full
         {
             get
@@ -329,8 +339,11 @@ namespace SocialPoint.Lockstep.Network
             {
                 _clients.Clear();
             }
-            _localClientData.Clear();
-            if(_serverLockstep != null)
+            if (_localClientData != null)
+            {
+                _localClientData.Clear();
+            }
+            if (_serverLockstep != null)
             {
                 _serverLockstep.Stop();
             }
