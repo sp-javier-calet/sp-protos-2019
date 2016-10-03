@@ -7,21 +7,13 @@ namespace SocialPoint.AdminPanel
     {
         public RectTransform Parent { get; protected set; }
 
-        private AdminPanelController _adminPanelController;
+        private IAdminPanelController _adminPanelController;
 
         public AdminPanel AdminPanel
         {
             get
             {
                 return _adminPanelController.AdminPanel;
-            }
-        }
-
-        public MonoBehaviour Behaviour
-        {
-            get
-            {
-                return _adminPanelController;
             }
         }
 
@@ -48,7 +40,7 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        protected AdminPanelLayout(AdminPanelController controller)
+        protected AdminPanelLayout(IAdminPanelController controller)
         {
             _adminPanelController = controller;
         }
@@ -61,19 +53,24 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        protected void OpenPanel(IAdminPanelGUI panel)
+        public void OpenPanel(IAdminPanelGUI panel)
         {
             _adminPanelController.OpenPanel(panel);
         }
 
-        protected void ReplacePanel(IAdminPanelGUI panel)
+        public void ReplacePanel(IAdminPanelGUI panel)
         {
             _adminPanelController.ReplacePanel(panel);
         }
 
-        protected void ClosePanel()
+        public void ClosePanel()
         {
             _adminPanelController.ClosePanel();
+        }
+
+        public void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options)
+        {
+            _adminPanelController.OpenFloatingPanel(panel, options);
         }
 
         public void SetActive(bool active)
@@ -83,6 +80,27 @@ namespace SocialPoint.AdminPanel
 
         public virtual void Dispose()
         {
+            if(Parent != null)
+            {
+                UnityEngine.Object.Destroy(Parent.gameObject);
+            }
+        }
+
+        public void Clear()
+        {
+            if(Parent == null)
+            {
+                return;
+            }
+            var itr = Parent.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var child = (Transform)itr.Current;
+                if(child != null)
+                {
+                    UnityEngine.Object.Destroy(child.gameObject);
+                }
+            }
         }
     }
 }
