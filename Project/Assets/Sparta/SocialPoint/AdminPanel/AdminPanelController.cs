@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -191,6 +192,29 @@ namespace SocialPoint.AdminPanel
             _consolePanel.SetActive(_consoleEnabled);
         }
 
+        void Update()
+        {
+            for(var i = 0; i < _updateables.Count; i++)
+            {
+                _updateables[i].Update();
+            }
+        }
+
+        List<IUpdateable> _updateables = new List<IUpdateable>();
+
+        public void RegisterUpdateable(IUpdateable updateable)
+        {
+            if(updateable != null && !_updateables.Contains(updateable))
+            {
+                _updateables.Add(updateable);
+            }
+        }
+
+        public void UnregisterUpdateable(IUpdateable updateable)
+        {
+            _updateables.Remove(updateable);
+        }
+
         // Categories Panel content
         class AdminPanelCategoriesGUI : IAdminPanelGUI
         {
@@ -290,5 +314,7 @@ namespace SocialPoint.AdminPanel
         void ClosePanel();
         void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options);
         AdminPanel AdminPanel{ get; }
+        void RegisterUpdateable(IUpdateable updateable);
+        void UnregisterUpdateable(IUpdateable updateable);
     }
 }

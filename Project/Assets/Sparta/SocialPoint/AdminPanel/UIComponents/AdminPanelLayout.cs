@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.AdminPanel
 {
@@ -84,6 +85,16 @@ namespace SocialPoint.AdminPanel
             {
                 UnityEngine.Object.Destroy(Parent.gameObject);
             }
+        }
+
+        public void RegisterUpdateable(IUpdateable updateable)
+        {
+            _adminPanelController.RegisterUpdateable(updateable);
+        }
+
+        public void UnregisterUpdateable(IUpdateable updateable)
+        {
+            _adminPanelController.UnregisterUpdateable(updateable);
         }
 
         public void Clear()

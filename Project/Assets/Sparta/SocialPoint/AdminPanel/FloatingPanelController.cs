@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -87,18 +88,11 @@ namespace SocialPoint.AdminPanel
         {
             if(_root != null)
             {
-                _root.Clear();
+                _root.Dispose();
+                _root = null;
             }
-            if(_mainPanel != null)
-            {
-                _mainPanel.Dispose();
-                _mainPanel = null;
-            }
-            if(_mainPanelContent != null)
-            {
-                _mainPanelContent.Dispose();
-                _mainPanelContent = null;
-            }
+            _mainPanel = null;
+            _mainPanelContent = null;
             InflateGUI();
         }
 
@@ -150,6 +144,22 @@ namespace SocialPoint.AdminPanel
             {
                 ShowBorder = !ShowBorder;
                 RefreshPanel(true);
+            }
+        }
+
+        public void RegisterUpdateable(IUpdateable updateable)
+        {
+            if(Parent != null)
+            {
+                Parent.RegisterUpdateable(updateable);
+            }
+        }
+
+        public void UnregisterUpdateable(IUpdateable updateable)
+        {
+            if(Parent != null)
+            {
+                Parent.UnregisterUpdateable(updateable);
             }
         }
     }
