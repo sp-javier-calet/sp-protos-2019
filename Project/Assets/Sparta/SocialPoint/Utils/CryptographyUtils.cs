@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
+using System;
 
 namespace SocialPoint.Utils
 {
@@ -13,7 +11,7 @@ namespace SocialPoint.Utils
             byte[] bytes = Encoding.Unicode.GetBytes(original);
             SHA256Managed sha = new SHA256Managed();
             byte[] hash = sha.ComputeHash(bytes);
-            int hashSize = (2 * hash.Length) + Mathf.CeilToInt((float)hash.Length / 4.0f) - 1;//Capacity = 2 chars for each byte (hexadecimal) + dashes every 4 bytes
+            int hashSize = (2 * hash.Length) + (int)Math.Ceiling((double)hash.Length / 4.0) - 1;//Capacity = 2 chars for each byte (hexadecimal) + dashes every 4 bytes
             StringBuilder hashString = new StringBuilder(hashSize);
             for(int i = 0; i < hash.Length; ++i)
             {

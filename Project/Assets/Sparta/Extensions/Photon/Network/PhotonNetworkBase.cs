@@ -9,17 +9,52 @@ using System.Collections.Generic;
 namespace SocialPoint.Network
 {
     [Serializable]
+    public class PhotonNetworkRoomConfig
+    {
+        public const bool DefaultIsVisible = true;
+        public const bool DefaultIsOpen = true;
+        public const byte DefaultMaxPlayers = 2;
+        public const int DefaultPlayerTtl = 0;
+        public const bool DefaultCleanupCache = true;
+        public const bool DefaultPublishUserId = false;
+
+        public bool IsVisible = DefaultIsVisible;
+        public bool IsOpen = DefaultIsOpen;
+        public byte MaxPlayers = DefaultMaxPlayers;
+        public int PlayerTtl = DefaultPlayerTtl;
+        public bool CleanupCache = DefaultCleanupCache;
+        public bool PublishUserId = DefaultPublishUserId;
+        public string[] CustomProperties;
+        public string[] CustomLobbyProperties;
+        public string[] Plugins;
+
+        public RoomOptions ToPhoton()
+        {
+            return new RoomOptions {
+                isVisible = IsVisible,
+                isOpen = IsOpen,
+                maxPlayers = MaxPlayers,
+                PlayerTtl = PlayerTtl,
+                cleanupCacheOnLeave = CleanupCache,
+                customRoomPropertiesForLobby = CustomLobbyProperties,
+                plugins = Plugins,
+                publishUserId = PublishUserId
+            };
+        }
+    }
+
+    [Serializable]
     public class PhotonNetworkConfig
     {
         public string GameVersion;
         public string RoomName;
-        public RoomOptions RoomOptions;
-        public byte[] UnreliableChannels;
+        public PhotonNetworkRoomConfig RoomOptions;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
         PhotonNetworkConfig _config;
+        bool _triedToCreate;
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
@@ -40,6 +75,7 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
+            _triedToCreate = false;
             PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
         }
 
@@ -85,7 +121,35 @@ namespace SocialPoint.Network
 
         void OnPhotonRandomJoinFailed()
         {
-            PhotonNetwork.CreateRoom(_config.RoomName, _config.RoomOptions, null);
+            if(_triedToCreate)
+            {
+                var err = new Error(ConnectionError, "Failed to join randomly");
+                OnNetworkError(err);
+            }
+            else
+            {
+                CreateRoom();
+            }
+        }
+
+        void OnPhotonJoinRoomFailed(object[] codeAndMsg)
+        {
+            if(_triedToCreate)
+            {
+                var err = new Error(ConnectionError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
+                OnNetworkError(err);
+            }
+            else
+            {
+                CreateRoom();
+            }
+        }
+
+        void CreateRoom()
+        {
+            _triedToCreate = true;
+            RoomOptions options = _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+            PhotonNetwork.CreateRoom(_config.RoomName, options, null);
         }
 
         void OnFailedToConnectToPhoton(DisconnectCause cause)
@@ -94,7 +158,7 @@ namespace SocialPoint.Network
             OnNetworkError(err);
         }
 
-        void OnPhotonCreateRoomFailed(object[] codeAndMsg)
+        public void OnPhotonCreateRoomFailed(object[] codeAndMsg)
         {
             var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
@@ -133,6 +197,10 @@ namespace SocialPoint.Network
 
         protected static byte GetClientId(PhotonPlayer player)
         {
+            if(player == null)
+            {
+                return 0;
+            }
             return (byte)player.ID;
         }
 
@@ -155,26 +223,9 @@ namespace SocialPoint.Network
             return new PhotonNetworkMessage(info, this);
         }
 
-        bool IsChannelReliable(byte channelId)
-        {
-            if(_config.UnreliableChannels == null)
-            {
-                return true;
-            }
-            for(var i = 0; i < _config.UnreliableChannels.Length; i++)
-            {
-                if(_config.UnreliableChannels[i] == channelId)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             var options = new RaiseEventOptions();
-            options.SequenceChannel = info.ChannelId;
 
             var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(PhotonNetwork.player.ID != serverId)
@@ -191,28 +242,23 @@ namespace SocialPoint.Network
                 }
                 options.TargetActors = new int[]{ player.ID };
             }
-            var reliable = IsChannelReliable(info.ChannelId);
-            var content = new object[]{ info.ChannelId, data };
-            PhotonNetwork.RaiseEvent(info.MessageType, content, reliable, options);
+            PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
-            var contentArr = (object[])content;
             byte clientId = 0;
             var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(senderid != serverId)
             {
                 clientId = GetClientId(GetPlayer((byte)senderid));
             }
-            var channelId = (byte)contentArr[0];
-            var data = (byte[])contentArr[1];
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId,
-                ChannelId = channelId
+                ClientId = clientId
             };
-            var reader = new SystemBinaryReader(new MemoryStream(data));
+            var stream = new MemoryStream((byte[])content);
+            var reader = new SystemBinaryReader(stream);
             OnMessageReceived(info, reader);
         }
     }

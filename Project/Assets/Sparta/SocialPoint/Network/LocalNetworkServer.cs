@@ -122,7 +122,7 @@ namespace SocialPoint.Network
         {
             if(!Running)
             {
-                throw new InvalidOperationException("Server not running.");
+                return new LocalNetworkMessage(info, null);
             }
             LocalNetworkClient[] clients;
             if(info.ClientId > 0)
@@ -140,9 +140,12 @@ namespace SocialPoint.Network
                 itr.Dispose();
                 if(client == null)
                 {
-                    throw new InvalidOperationException("Could not find client id.");
+                    clients = new LocalNetworkClient[]{ };
                 }
-                clients = new LocalNetworkClient[]{ client };
+                else
+                {
+                    clients = new LocalNetworkClient[]{ client };
+                }
             }
             else
             {
