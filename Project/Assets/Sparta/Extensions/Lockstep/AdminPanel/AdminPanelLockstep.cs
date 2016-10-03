@@ -2,44 +2,34 @@
 using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
+using SocialPoint.Utils;
 using System.Text;
 
 namespace SocialPoint.Lockstep
 {
-    public class AdminPanelLockstepClientGUI : IAdminPanelGUI
+    public class AdminPanelLockstepClientGUI : IAdminPanelGUI, IUpdateable
     {
         ClientLockstepController _client;
         AdminPanel.AdminPanel _adminPanel;
+        Text _text;
 
-        public const string Title = "ClientLockstepController";
+        public const string Title = "Lockstep";
 
         public AdminPanelLockstepClientGUI(ClientLockstepController client)
         {
             _client = client;
         }
 
-        string GenerateClientInfo()
+        string GenerateInfo()
         {
             if(_client == null)
             {
                 return null;
             }
             var builder = new StringBuilder();
-            builder.AppendLine("State");
-            builder.AppendLine("==========");
             builder.AppendLine("Running: " + _client.Running);
             builder.AppendLine("Connected: " + _client.Connected);
             builder.AppendLine("TurnBuffer: " + _client.TurnBuffer);
-            builder.AppendLine("");
-            builder.AppendLine("Config");
-            builder.AppendLine("==========");
-            builder.AppendLine("CommandStepDuration: " + _client.Config.CommandStepDuration);
-            builder.AppendLine("SimulationStepDuration: " + _client.Config.SimulationStepDuration);
-            builder.AppendLine("ClientConfig");
-            builder.AppendLine("==========");
-            builder.AppendLine("LocalSimulationDelay: " + _client.ClientConfig.LocalSimulationDelay);
-            builder.AppendLine("MaxSimulationStepsPerFrame: " + _client.ClientConfig.MaxSimulationStepsPerFrame);
-            builder.AppendLine("SpeedFactor: " + _client.ClientConfig.SpeedFactor);
             return builder.ToString();
         }
 
@@ -50,7 +40,16 @@ namespace SocialPoint.Lockstep
                 return;
             }
 
-            layout.CreateTextArea(GenerateClientInfo());
+            _text = layout.CreateTextArea(GenerateInfo());
+            layout.RegisterUpdateable(this);
+        }
+
+        public void Update()
+        {
+            if(_text != null)
+            {
+                _text.text = GenerateInfo();
+            }
         }
     }
 
@@ -81,17 +80,31 @@ namespace SocialPoint.Lockstep
 
             if(_client != null)
             {
-                layout.CreateLabel(AdminPanelLockstepClientGUI.Title);
+                layout.CreateLabel("Config");
                 layout.CreateMargin();
-                _clientGui.OnCreateGUI(layout);
-                layout.CreateButton("Show", OnShowFloatingClient);
+
+                var builder = new StringBuilder();
+                builder.AppendLine("Shared");
+                builder.AppendLine("==========");
+                builder.AppendLine("CommandStepDuration: " + _client.Config.CommandStepDuration);
+                builder.AppendLine("SimulationStepDuration: " + _client.Config.SimulationStepDuration);
+                builder.AppendLine("");
+                builder.AppendLine("Client");
+                builder.AppendLine("==========");
+                builder.AppendLine("LocalSimulationDelay: " + _client.ClientConfig.LocalSimulationDelay);
+                builder.AppendLine("MaxSimulationStepsPerFrame: " + _client.ClientConfig.MaxSimulationStepsPerFrame);
+                builder.AppendLine("SpeedFactor: " + _client.ClientConfig.SpeedFactor);
+
+                layout.CreateTextArea(builder.ToString());
+
+                layout.CreateButton("Show State", OnShowFloatingClient);
             }
         }
 
         void OnShowFloatingClient()
         {
             _layout.OpenFloatingPanel(_clientGui, new FloatingPanelOptions{
-                Size = new Vector2(200, 200),
+                Size = new Vector2(200, 50),
                 Title = AdminPanelLockstepClientGUI.Title
             });
         }

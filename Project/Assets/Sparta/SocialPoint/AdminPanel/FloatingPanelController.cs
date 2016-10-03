@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -85,24 +86,14 @@ namespace SocialPoint.AdminPanel
 
         public void RefreshPanel(bool force = false)
         {
-            if(force)
+            if(_root != null)
             {
-                if(_root != null)
-                {
-                    _root.Dispose();
-                }
+                _root.Dispose();
                 _root = null;
-                InflateGUI();
             }
-            else
-            {
-                if(_mainPanelContent != null)
-                {
-                    _mainPanelContent.Dispose();
-                }
-                _mainPanelContent = null;
-                InflateContent();
-            }
+            _mainPanel = null;
+            _mainPanelContent = null;
+            InflateGUI();
         }
 
         public void OpenPanel(IAdminPanelGUI panel)
@@ -154,6 +145,29 @@ namespace SocialPoint.AdminPanel
                 ShowBorder = !ShowBorder;
                 RefreshPanel(true);
             }
+        }
+
+        void Update()
+        {
+            for(var i = 0; i < _updateables.Count; i++)
+            {
+                _updateables[i].Update();
+            }
+        }
+
+        List<IUpdateable> _updateables = new List<IUpdateable>();
+
+        public void RegisterUpdateable(IUpdateable updateable)
+        {
+            if(updateable != null && !_updateables.Contains(updateable))
+            {
+                _updateables.Add(updateable);
+            }
+        }
+
+        public void UnregisterUpdateable(IUpdateable updateable)
+        {
+            _updateables.Remove(updateable);
         }
     }
 }
