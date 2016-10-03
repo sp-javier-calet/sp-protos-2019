@@ -112,6 +112,30 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public int UpdateTime
+        {
+            get
+            {
+                return _time;
+            }
+        }
+
+        public int SimulationDeltaTime
+        {
+            get
+            {
+                return _time - _lastSimTime;
+            }
+        }
+
+        public int CommandDeltaTime
+        {
+            get
+            {
+                return _time - _lastCmdTime;
+            }
+        }
+
         public ClientLockstepController(IUpdateScheduler updateScheduler=null)
         {
             Config = new LockstepConfig();

@@ -69,11 +69,6 @@ namespace SocialPoint.AdminPanel
             _adminPanelController.ClosePanel();
         }
 
-        public void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options)
-        {
-            _adminPanelController.OpenFloatingPanel(panel, options);
-        }
-
         public void SetActive(bool active)
         {
             Parent.gameObject.SetActive(active);

@@ -3,17 +3,18 @@ using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
 using SocialPoint.Utils;
+using SocialPoint.GUIControl;
+using SocialPoint.Lockstep.Network;
 using System.Text;
 
 namespace SocialPoint.Lockstep
 {
-    public class AdminPanelLockstepClientGUI : IAdminPanelGUI, IUpdateable
+    public class AdminPanelLockstepClientGUI : IFloatingPanelGUI, IUpdateable
     {
         ClientLockstepController _client;
-        AdminPanel.AdminPanel _adminPanel;
         Text _text;
 
-        public const string Title = "Lockstep";
+        public const string Title = "LockstepClient";
 
         public AdminPanelLockstepClientGUI(ClientLockstepController client)
         {
@@ -27,10 +28,32 @@ namespace SocialPoint.Lockstep
                 return null;
             }
             var builder = new StringBuilder();
-            builder.AppendLine("Running: " + _client.Running);
-            builder.AppendLine("Connected: " + _client.Connected);
+            builder.Append(Title + " ");
+            if(_client.Running)
+            {
+                builder.Append("(running) ");
+                if(_client.Connected)
+                {
+                    builder.AppendLine("(connected)");
+                }
+                else
+                {
+                    builder.AppendLine("(disconnected)");
+                }
+            }
+            else
+            {
+                builder.AppendLine("(stopped)");
+            }
             builder.AppendLine("TurnBuffer: " + _client.TurnBuffer);
+            builder.AppendLine("Time: " + _client.UpdateTime + " sim:" + _client.SimulationDeltaTime + " cmd:" + _client.CommandDeltaTime);
             return builder.ToString();
+        }
+
+        public void OnCreateFloatingPanel(FloatingPanelController ctrl)
+        {
+            ctrl.Size = new Vector2(200, 50);
+            ctrl.Title = Title;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -53,16 +76,76 @@ namespace SocialPoint.Lockstep
         }
     }
 
+    public class AdminPanelLockstepServerGUI : IFloatingPanelGUI, IUpdateable
+    {
+        ServerLockstepNetworkController _server;
+        Text _text;
+
+        public const string Title = "LockstepServer";
+
+        public AdminPanelLockstepServerGUI(ServerLockstepNetworkController server)
+        {
+            _server = server;
+        }
+
+        string GenerateInfo()
+        {
+            if(_server == null)
+            {
+                return null;
+            }
+            var builder = new StringBuilder();
+            if(_server.Running)
+            {
+                builder.AppendLine(Title + " (running) " + _server.MaxPlayers + " players");
+            }
+            else
+            {
+                builder.AppendLine(_server.ReadyPlayerCount + "/" + _server.PlayerCount + "/" + _server.MaxPlayers + " players");
+            }
+            builder.AppendLine("Time: " + _server.UpdateTime + " cmd:" + _server.CommandDeltaTime);
+            return builder.ToString();
+        }
+
+        public void OnCreateGUI(AdminPanelLayout layout)
+        {
+            if(_server == null)
+            {
+                return;
+            }
+
+            _text = layout.CreateTextArea(GenerateInfo());
+            layout.RegisterUpdateable(this);
+        }
+
+        public void Update()
+        {
+            if(_text != null)
+            {
+                _text.text = GenerateInfo();
+            }
+        }
+
+        public void OnCreateFloatingPanel(FloatingPanelController ctrl)
+        {
+            ctrl.Size = new Vector2(200, 50);
+            ctrl.Title = Title;
+        }
+    }
+
     public sealed class AdminPanelLockstep : IAdminPanelConfigurer, IAdminPanelGUI
     {
         ClientLockstepController _client;
-        AdminPanelLayout _layout;
-        AdminPanelLockstepClientGUI _clientGui;
+        ServerLockstepNetworkController _server;
 
         public AdminPanelLockstep(ClientLockstepController client)
         {
             _client = client;
-            _clientGui = new AdminPanelLockstepClientGUI(_client);
+        }
+
+        public void RegisterServer(ServerLockstepNetworkController server)
+        {
+            _server = server;
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -71,43 +154,59 @@ namespace SocialPoint.Lockstep
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Lockstep", this));
         }
 
+        string GetConfigDescription(LockstepConfig config)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("CommandStepDuration: " + config.CommandStepDuration);
+            builder.AppendLine("SimulationStepDuration: " + config.SimulationStepDuration);
+            return builder.ToString();
+        }
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
-            _layout = layout;
             layout.CreateLabel("Lockstep");
             layout.CreateMargin();
 
             if(_client != null)
             {
-                layout.CreateLabel("Config");
+                layout.CreateLabel("Client");
                 layout.CreateMargin();
 
                 var builder = new StringBuilder();
-                builder.AppendLine("Shared");
-                builder.AppendLine("==========");
-                builder.AppendLine("CommandStepDuration: " + _client.Config.CommandStepDuration);
-                builder.AppendLine("SimulationStepDuration: " + _client.Config.SimulationStepDuration);
-                builder.AppendLine("");
-                builder.AppendLine("Client");
-                builder.AppendLine("==========");
+                builder.Append(GetConfigDescription(_client.Config));
                 builder.AppendLine("LocalSimulationDelay: " + _client.ClientConfig.LocalSimulationDelay);
                 builder.AppendLine("MaxSimulationStepsPerFrame: " + _client.ClientConfig.MaxSimulationStepsPerFrame);
                 builder.AppendLine("SpeedFactor: " + _client.ClientConfig.SpeedFactor);
 
                 layout.CreateTextArea(builder.ToString());
 
-                layout.CreateButton("Show State", OnShowFloatingClient);
+                layout.CreateButton("Show Client Info", OnShowClientInfoClicked);
+            }
+            if(_server != null)
+            {
+                layout.CreateLabel("Server");
+                layout.CreateMargin();
+
+                var builder = new StringBuilder();
+                builder.Append(GetConfigDescription(_server.Config));
+                builder.AppendLine("MaxPlayers: " + _server.ServerConfig.MaxPlayers);
+                builder.AppendLine("ClientStartDelay: " + _server.ServerConfig.ClientStartDelay);
+                builder.AppendLine("ClientSimulationDelay: " + _server.ServerConfig.ClientSimulationDelay);
+
+                layout.CreateTextArea(builder.ToString());
+
+                layout.CreateButton("Show Server Info", OnShowServerInfoClicked);
             }
         }
 
-        void OnShowFloatingClient()
+        void OnShowClientInfoClicked()
         {
-            _layout.OpenFloatingPanel(_clientGui, new FloatingPanelOptions{
-                Size = new Vector2(200, 50),
-                Title = AdminPanelLockstepClientGUI.Title
-            });
+            FloatingPanelController.Create(new AdminPanelLockstepClientGUI(_client)).Show();
         }
 
+        void OnShowServerInfoClicked()
+        {
+            FloatingPanelController.Create(new AdminPanelLockstepServerGUI(_server)).Show();
+        }
     }
 }

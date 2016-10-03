@@ -18,6 +18,22 @@ namespace SocialPoint.Lockstep
 
         public event Action<ServerLockstepTurnData> TurnReady;
 
+        public int UpdateTime
+        {
+            get
+            {
+                return _time;
+            }
+        }
+
+        public int CommandDeltaTime
+        {
+            get
+            {
+                return _time - _lastCmdTime;
+            }
+        }
+
         public ServerLockstepController(IUpdateScheduler updateScheduler = null)
         {
             Config = new LockstepConfig();

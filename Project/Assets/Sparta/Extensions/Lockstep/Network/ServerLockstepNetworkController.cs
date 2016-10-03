@@ -265,6 +265,22 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public int UpdateTime
+        {
+            get
+            {
+                return _serverLockstep.UpdateTime;
+            }
+        }            
+
+        public int CommandDeltaTime
+        {
+            get
+            {
+                return _serverLockstep.CommandDeltaTime;
+            }
+        }
+
         byte OnPlayerReadyReceived(ClientData clientData)
         {
             var playerId = FreePlayerId;

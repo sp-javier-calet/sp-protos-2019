@@ -33,13 +33,16 @@ public class LockstepInstaller : Installer
         Container.Rebind<ServerLockstepNetworkController>().ToMethod<ServerLockstepNetworkController>
             (CreateServerNetworkController);
 
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLockstep>(CreateAdminPanel);
+        Container.Bind<AdminPanelLockstep>().ToMethod<AdminPanelLockstep>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToLookup<AdminPanelLockstep>();
     }
 
+    AdminPanelLockstep _adminPanel;
     AdminPanelLockstep CreateAdminPanel()
     {
-        return new AdminPanelLockstep(
+        _adminPanel = new AdminPanelLockstep(
             Container.Resolve<ClientLockstepController>());
+        return _adminPanel;
     }
 
     LockstepConfig CreateConfig()
@@ -109,6 +112,11 @@ public class LockstepInstaller : Installer
             ctrl.RegisterLocalClient(
                 Container.Resolve<ClientLockstepController>(),
                 Container.Resolve<LockstepCommandFactory>());
+        }
+
+        if(_adminPanel != null)
+        {
+            _adminPanel.RegisterServer(ctrl);
         }
 
         return ctrl;

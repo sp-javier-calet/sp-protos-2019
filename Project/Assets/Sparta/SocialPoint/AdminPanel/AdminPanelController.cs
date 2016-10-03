@@ -146,17 +146,6 @@ namespace SocialPoint.AdminPanel
             RefreshPanel();
         }
 
-        public void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options)
-        {
-            var ctrl = Factory.Create<FloatingPanelController>();
-            ctrl.Parent = this;
-            ctrl.GUI = panel;
-            ctrl.Size = options.Size;
-            ctrl.Title = options.Title;
-            ctrl.SetParent(transform.parent);
-            ctrl.Show();
-        }
-
         public void RefreshPanel(bool force = false)
         {
             // Categories panel
@@ -300,11 +289,6 @@ namespace SocialPoint.AdminPanel
         }
     }
 
-    public struct FloatingPanelOptions
-    {
-        public Vector2 Size;
-        public string Title;
-    }
 
     public interface IAdminPanelController
     {
@@ -312,7 +296,6 @@ namespace SocialPoint.AdminPanel
         void OpenPanel(IAdminPanelGUI panel);
         void ReplacePanel(IAdminPanelGUI panel);
         void ClosePanel();
-        void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options);
         AdminPanel AdminPanel{ get; }
         void RegisterUpdateable(IUpdateable updateable);
         void UnregisterUpdateable(IUpdateable updateable);

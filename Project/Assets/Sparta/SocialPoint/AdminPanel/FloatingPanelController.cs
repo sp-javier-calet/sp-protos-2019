@@ -14,7 +14,6 @@ namespace SocialPoint.AdminPanel
         AdminPanelLayout _mainPanel;
         AdminPanelLayout _mainPanelContent;
 
-        public IAdminPanelController Parent;
         public IAdminPanelGUI GUI;
         public GameObject Root;
 
@@ -22,17 +21,13 @@ namespace SocialPoint.AdminPanel
         public string Title;
 
         [HideInInspector]
-        bool ShowBorder = true;
+        public bool Border = true;
 
         public AdminPanel AdminPanel
         {
             get
             {
-                if(Parent == null)
-                {
-                    return null;
-                }
-                return Parent.AdminPanel;
+                return null;
             }
         }
 
@@ -50,7 +45,7 @@ namespace SocialPoint.AdminPanel
             }
             if(_mainPanel == null)
             {    
-                if(ShowBorder)
+                if(Border)
                 {
                     _mainPanel = _root.CreatePanelLayout(Title, ClosePanel, 2);
                 }
@@ -98,23 +93,10 @@ namespace SocialPoint.AdminPanel
 
         public void OpenPanel(IAdminPanelGUI panel)
         {
-            if(Parent != null)
-            {
-                Parent.OpenPanel(panel);
-            }
         }
 
         public void ReplacePanel(IAdminPanelGUI panel)
         {
-            GUI = panel;
-        }
-
-        public void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options)
-        {
-            if(panel != null)
-            {
-                Parent.OpenFloatingPanel(panel, options);
-            }
         }
 
         public void ClosePanel()
@@ -142,7 +124,7 @@ namespace SocialPoint.AdminPanel
         {
             if(!_dragging)
             {
-                ShowBorder = !ShowBorder;
+                Border = !Border;
                 RefreshPanel(true);
             }
         }
@@ -169,5 +151,21 @@ namespace SocialPoint.AdminPanel
         {
             _updateables.Remove(updateable);
         }
+
+        public static FloatingPanelController Create(IFloatingPanelGUI gui)
+        {
+            var ctrl = UIViewController.Factory.Create<FloatingPanelController>();
+            ctrl.GUI = gui;
+            if(gui != null)
+            {
+                gui.OnCreateFloatingPanel(ctrl);
+            }
+            return ctrl;
+        }
+    }
+
+    public interface IFloatingPanelGUI : IAdminPanelGUI
+    {
+        void OnCreateFloatingPanel(FloatingPanelController panel);
     }
 }

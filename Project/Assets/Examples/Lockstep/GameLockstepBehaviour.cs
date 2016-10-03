@@ -9,6 +9,8 @@ using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
+using SocialPoint.AdminPanel;
+using SocialPoint.GUIControl;
 using FixMath.NET;
 using System;
 using System.IO;
@@ -49,6 +51,12 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     INetworkServer _netServer;
     ServerLockstepNetworkController _netLockstepServer;
     GameLockstepMode _mode;
+
+    FloatingPanelController _clientFloating;
+    FloatingPanelController _serverFloating;
+
+    static readonly Vector2 ClientFloatingPanelPosition = new Vector2(600, 200);
+    static readonly Vector2 ServerFloatingPanelPosition = new Vector2(600, 90);
 
     string ReplayPath
     {
@@ -148,6 +156,13 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
         _netLockstepServer = ServiceLocator.Instance.Resolve<ServerLockstepNetworkController>();
         _netServer.Start();
+        if(_serverFloating == null)
+        {
+            _serverFloating = FloatingPanelController.Create(new AdminPanelLockstepServerGUI(_netLockstepServer));
+            _serverFloating.Border = false;
+            _serverFloating.ScreenPosition = ServerFloatingPanelPosition;
+            _serverFloating.Show();
+        }
     }
 
     public void OnHostClicked()
@@ -209,6 +224,13 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         if(_setupContainer != null)
         {
             _setupContainer.SetActive(false);
+        }
+        if(_clientFloating == null)
+        {
+            _clientFloating = FloatingPanelController.Create(new AdminPanelLockstepClientGUI(_lockstep));
+            _clientFloating.Border = false;
+            _clientFloating.ScreenPosition = ClientFloatingPanelPosition;
+            _clientFloating.Show();
         }
     }
 
