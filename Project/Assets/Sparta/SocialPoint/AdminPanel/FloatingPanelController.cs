@@ -147,20 +147,27 @@ namespace SocialPoint.AdminPanel
             }
         }
 
+        void Update()
+        {
+            for(var i = 0; i < _updateables.Count; i++)
+            {
+                _updateables[i].Update();
+            }
+        }
+
+        List<IUpdateable> _updateables = new List<IUpdateable>();
+
         public void RegisterUpdateable(IUpdateable updateable)
         {
-            if(Parent != null)
+            if(updateable != null && !_updateables.Contains(updateable))
             {
-                Parent.RegisterUpdateable(updateable);
+                _updateables.Add(updateable);
             }
         }
 
         public void UnregisterUpdateable(IUpdateable updateable)
         {
-            if(Parent != null)
-            {
-                Parent.UnregisterUpdateable(updateable);
-            }
+            _updateables.Remove(updateable);
         }
     }
 }
