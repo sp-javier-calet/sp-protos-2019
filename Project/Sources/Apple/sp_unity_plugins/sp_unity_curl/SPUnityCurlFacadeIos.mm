@@ -41,7 +41,7 @@ extern "C"
                     std::lock_guard<std::mutex> lk(appPausedMutex);
                     if(appPaused)
                     {
-                        client->update(0);
+                        client->update();
                     }
                     else
                     {
