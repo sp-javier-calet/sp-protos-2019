@@ -71,7 +71,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public void RefreshPanel(bool force = false)
+        public void RefreshPanel()
         {
             if(_root != null)
             {
@@ -117,7 +117,7 @@ namespace SocialPoint.AdminPanel
             if(!_dragging)
             {
                 Border = !Border;
-                RefreshPanel(true);
+                RefreshPanel();
             }
         }
 

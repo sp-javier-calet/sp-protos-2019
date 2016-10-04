@@ -86,7 +86,7 @@ namespace SocialPoint.AdminPanel
         {
             var toggle = layout.CreateToggleButton("Console", _consoleEnabled, value => {
                 _consoleEnabled = value;
-                RefreshPanel();
+                RefreshPanel(false);
             });
 
             // Add feedback component
@@ -103,7 +103,7 @@ namespace SocialPoint.AdminPanel
             {
                 InflateGUI();
             }
-            RefreshPanel();
+            RefreshPanel(false);
             AdminPanel.OnAppearing();
         }
 
@@ -136,17 +136,22 @@ namespace SocialPoint.AdminPanel
             }
             _activePanels.Push(panel);
             _mainPanelDirty = true;
-            RefreshPanel();
+            RefreshPanel(false);
         }
 
         public void ClosePanel()
         {
             _activePanels.Pop();
             _mainPanelDirty = true;
-            RefreshPanel();
+            RefreshPanel(false);
         }
 
-        public void RefreshPanel(bool force = false)
+        public void RefreshPanel()
+        {
+            RefreshPanel(true);
+        }
+
+        void RefreshPanel(bool force)
         {
             // Categories panel
             if(_categoriesPanelContent != null)
@@ -292,7 +297,7 @@ namespace SocialPoint.AdminPanel
 
     public interface IAdminPanelController
     {
-        void RefreshPanel(bool force = false);
+        void RefreshPanel();
         void OpenPanel(IAdminPanelGUI panel);
         void ReplacePanel(IAdminPanelGUI panel);
         void ClosePanel();

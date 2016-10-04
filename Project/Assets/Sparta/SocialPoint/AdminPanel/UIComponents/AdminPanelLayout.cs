@@ -42,7 +42,7 @@ namespace SocialPoint.AdminPanel
         {
             if(IsActiveInHierarchy)
             {
-                _adminPanelController.RefreshPanel(true);
+                _adminPanelController.RefreshPanel();
             }
         }
 
