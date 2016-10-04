@@ -10,14 +10,6 @@ namespace SocialPoint.AdminPanel
 
         private IAdminPanelController _adminPanelController;
 
-        public AdminPanel AdminPanel
-        {
-            get
-            {
-                return _adminPanelController.AdminPanel;
-            }
-        }
-
         /// <summary>
         /// Check if the game object is active in the scene
         /// </summary>

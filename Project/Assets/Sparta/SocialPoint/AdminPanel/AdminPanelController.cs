@@ -296,7 +296,6 @@ namespace SocialPoint.AdminPanel
         void OpenPanel(IAdminPanelGUI panel);
         void ReplacePanel(IAdminPanelGUI panel);
         void ClosePanel();
-        AdminPanel AdminPanel{ get; }
         void RegisterUpdateable(IUpdateable updateable);
         void UnregisterUpdateable(IUpdateable updateable);
     }

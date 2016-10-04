@@ -9,7 +9,7 @@ namespace SocialPoint.Social
     public sealed class AdminPanelGameCenter : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly IGameCenter _gameCenter;
-        AdminPanel.AdminPanel _adminPanel;
+        AdminPanelConsole _console;
         Toggle _toggleLogin;
         AdminPanelGameCenterAchievementList _achisPanel;
 
@@ -26,9 +26,17 @@ namespace SocialPoint.Social
             {
                 return;
             }
-            _adminPanel = adminPanel;
+            _console = adminPanel.Console;
 
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Game Center", this));
+        }
+
+        void ConsolePrint(string msg)
+        {
+            if(_console != null)
+            {
+                _console.Print(msg);
+            }
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -41,10 +49,10 @@ namespace SocialPoint.Social
             _toggleLogin = layout.CreateToggleButton("Logged In", connected, status => {
                 if(status)
                 {
-                    _adminPanel.Console.Print("Logging in to Game Center");
+                    ConsolePrint("Logging in to Game Center");
                     _gameCenter.Login(err => {
                         _toggleLogin.isOn = (err == null);
-                        _adminPanel.Console.Print("Login finished." + err);
+                        ConsolePrint("Login finished." + err);
                     });
                 }
                 layout.Refresh();
@@ -66,7 +74,7 @@ namespace SocialPoint.Social
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
-            _achisPanel = new AdminPanelGameCenterAchievementList(_gameCenter);
+            _achisPanel = new AdminPanelGameCenterAchievementList(_gameCenter, _console);
             layout.CreateOpenPanelButton("Achievements", _achisPanel, connected);
             layout.CreateButton("Show Achievements UI", _gameCenter.ShowAchievementsUI, connected);
             layout.CreateConfirmButton("Reset Achievements", ResetAchievements, connected);
@@ -74,16 +82,16 @@ namespace SocialPoint.Social
 
         void ResetAchievements()
         {
-            _adminPanel.Console.Print("Reseting achievements...");
+            ConsolePrint("Reseting achievements...");
             _gameCenter.ResetAchievements(err => {
                 if(Error.IsNullOrEmpty(err))
                 {
-                    _adminPanel.Console.Print("Achievements were reset.");
+                    ConsolePrint("Achievements were reset.");
                     _achisPanel.Refresh();
                 }
                 else
                 {
-                    _adminPanel.Console.Print("Error reseting achievements.");
+                    ConsolePrint("Error reseting achievements.");
                 }
             });
         }
@@ -93,11 +101,13 @@ namespace SocialPoint.Social
         class AdminPanelGameCenterAchievementList : IAdminPanelGUI
         {
             readonly IGameCenter _gameCenter;
+            readonly AdminPanelConsole _console;
             AdminPanelLayout _layout;
 
-            public AdminPanelGameCenterAchievementList(IGameCenter gameCenter)
+            public AdminPanelGameCenterAchievementList(IGameCenter gameCenter, AdminPanelConsole console)
             {
                 _gameCenter = gameCenter;
+                _console = console;
             }
 
             public void Refresh()
@@ -119,7 +129,7 @@ namespace SocialPoint.Social
                     var achievement = itr.Current;
                     _layout.CreateOpenPanelButton(achievement.Title,
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
-                        new AdminPanelAchievement(_gameCenter, achievement));
+                        new AdminPanelAchievement(_gameCenter, achievement, _console));
                 }
                 itr.Dispose();
             }
@@ -130,12 +140,22 @@ namespace SocialPoint.Social
             readonly GameCenterAchievement _achievement;
             readonly GameCenterAchievement _achievementCloned;
             readonly IGameCenter _gameCenter;
+            readonly AdminPanelConsole _console;
 
-            public AdminPanelAchievement(IGameCenter gameCenter, GameCenterAchievement achievement)
+            public AdminPanelAchievement(IGameCenter gameCenter, GameCenterAchievement achievement, AdminPanelConsole console)
             {
                 _gameCenter = gameCenter;
                 _achievement = achievement;
+                _console = console;
                 _achievementCloned = (GameCenterAchievement)achievement.Clone();
+            }
+
+            void ConsolePrint(string msg)
+            {
+                if(_console != null)
+                {
+                    _console.Print(msg);
+                }
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -166,7 +186,7 @@ namespace SocialPoint.Social
                         _achievementCloned.Percent = Math.Min(_achievementCloned.Percent + AchievementPercent, 100.0f);
 
                         _gameCenter.UpdateAchievement(_achievementCloned, (achi, err) => {
-                            layout.AdminPanel.Console.Print(string.Format("- Updated {0}. - Percent: {1} - {2}", achi.Id, achi.Percent, err));
+                            ConsolePrint(string.Format("- Updated {0}. - Percent: {1} - {2}", achi.Id, achi.Percent, err));
                             layout.Refresh();
                         });
                     },

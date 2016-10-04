@@ -23,14 +23,6 @@ namespace SocialPoint.AdminPanel
         [HideInInspector]
         public bool Border = true;
 
-        public AdminPanel AdminPanel
-        {
-            get
-            {
-                return null;
-            }
-        }
-
         void OnLevelWasLoaded(int i)
         {
             Hide();

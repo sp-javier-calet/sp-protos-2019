@@ -9,7 +9,7 @@ namespace SocialPoint.Locale
     public sealed class AdminPanelLocale : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly ILocalizationManager _manager;
-        AdminPanel.AdminPanel _adminPanel;
+        AdminPanelConsole _console;
         Dictionary<string, Localization> _locales;
 
         public AdminPanelLocale(ILocalizationManager manager)
@@ -22,7 +22,7 @@ namespace SocialPoint.Locale
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
-            _adminPanel = adminPanel;
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Locale", this));
             var cmd = new ConsoleCommand()
                 .WithDescription("get a localized string")
@@ -180,7 +180,10 @@ namespace SocialPoint.Locale
             {
                 trans = string.Format(trans, list.ToArray());
             }
-            _adminPanel.Console.Print(trans);
+            if(_console != null)
+            {
+                _console.Print(trans);
+            }
         }
     }
 
