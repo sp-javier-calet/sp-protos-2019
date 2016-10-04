@@ -255,6 +255,7 @@ namespace SpartaTools.Editor.View
                 config.App.ProductName = InheritableTextField("Product Name", "Application name", config.App.ProductName, data.IsBase);
                 config.Common.Flags = InheritableTextField("Flags", "Defined symbols for all platforms", config.Common.Flags, data.IsBase);
                 config.Common.LogLevel = (BuildSet.LogLevel)EditorGUILayout.EnumPopup("Log Level", config.Common.LogLevel);
+                InheritableTextField("Environment Url", "Jenkins Forced Environment Url", BuildSet.EnvironmentUrl, data.IsBase);
 
                 if(!data.IsBase)
                 {

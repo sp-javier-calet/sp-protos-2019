@@ -20,6 +20,7 @@ namespace SpartaTools.Editor.Build
         public const string FileExtension = ".asset";
 
         const string ProvisioningProfileEnvironmentKey = "SP_XCODE_PROVISIONING_PROFILE_UUID";
+        const string EnvironmentUrlEnvironmentKey = "SP_ENVIRONMENT_URL";
         const string XcodeModSchemesPrefsKey = "XCodeModSchemes";
         const string ProvisioningProfilePrefsKey = "XCodeProvisioningProfileUuid";
 
@@ -459,7 +460,7 @@ namespace SpartaTools.Editor.Build
                 BaseSettings.Create();
             }
 
-            var asset = ScriptableObject.CreateInstance(typeof(BuildSet));
+            var asset = ScriptableObject.CreateInstance<BuildSet>();
             string assetPath = AssetDatabase.GenerateUniqueAssetPath(PathForConfigName(configName));
             AssetDatabase.CreateAsset(asset, assetPath);
             AssetDatabase.SaveAssets();
@@ -479,7 +480,15 @@ namespace SpartaTools.Editor.Build
         {
             get
             {
-                return Environment.GetEnvironmentVariable(ProvisioningProfileEnvironmentKey);
+                return Environment.GetEnvironmentVariable(ProvisioningProfileEnvironmentKey) ?? string.Empty;
+            }
+        }
+
+        public static string EnvironmentUrl
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable(EnvironmentUrlEnvironmentKey) ?? string.Empty;
             }
         }
 

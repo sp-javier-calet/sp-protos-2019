@@ -1,4 +1,6 @@
-﻿public enum BackendEnvironment
+﻿using SocialPoint.Base;
+
+public enum BackendEnvironment
 {
     None,
     Development,
@@ -16,6 +18,12 @@ public static class BackendEnvironmentExtensions
 
     public static string GetUrl(this BackendEnvironment env)
     {
+        var environmentUrl = EnvironmentSettings.Instance.EnvironmentUrl;
+        if(!string.IsNullOrEmpty(environmentUrl))
+        {
+            return environmentUrl;
+        }
+       
         switch(env)
         {
         case BackendEnvironment.None:
