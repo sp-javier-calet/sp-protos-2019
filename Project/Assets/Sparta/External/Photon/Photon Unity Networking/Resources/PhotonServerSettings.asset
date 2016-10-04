@@ -15,7 +15,7 @@ MonoBehaviour:
   Protocol: 0
   ServerAddress: 192.168.127.103
   ServerPort: 5055
-  AppID: 07e5c596-21c8-4013-ba9a-568c06087d58
+  AppID: 1eb3a592-f2d1-41c1-ac3a-cd6308fca5cb
   PreferredRegion: 0
   EnabledRegions: -1
   JoinLobby: 0
