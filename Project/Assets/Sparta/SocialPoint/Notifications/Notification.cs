@@ -1,4 +1,3 @@
-using System;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 
@@ -79,40 +78,6 @@ namespace SocialPoint.Notifications
          */
         public string Message = string.Empty;
 
-        [Obsolete("Use Title")]
-        public string AlertAction
-        {
-            set
-            {
-                Title = value;
-            }
-
-            get
-            {
-                return Title;
-            }
-        }
-
-        [Obsolete("Use Message")]
-        public string AlertBody
-        {
-            set
-            {
-                Message = value;
-            }
-            
-            get
-            {
-                return Message;
-            }
-        }
-
-        /**
-         * the number to display as the application's icon badge (used for IOs compatibility)
-         */
-        [Obsolete("Not supported anymore")]
-        public int IconBadgeNumber;
-
         /**
          * The delay in seconds from now when the system should deliver the notification (taking a random offset into account if needed)
          */
@@ -137,29 +102,6 @@ namespace SocialPoint.Notifications
                 _fireDelay = value;
             }
         }
-
-        /**
-         * the local date and time when the system should deliver the notification 
-         */
-        [Obsolete("Use FireDelay")]
-        public DateTime FireDate
-        {
-            get
-            {
-                return DateTime.Now.ToLocalTime().AddSeconds(FireDelay);
-            }
-
-            set
-            {
-                FireDelay = (long)value.Subtract(DateTime.Now.ToLocalTime()).TotalSeconds;
-            }
-        }
-
-        /**
-         * an amount of seconds after which the notification will be repeated
-         */
-        [Obsolete("Not supported anymore")]
-        public long RepeatingSeconds;
 
         public override string ToString()
         {

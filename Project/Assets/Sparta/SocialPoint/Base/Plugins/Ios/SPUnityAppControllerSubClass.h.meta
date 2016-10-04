@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 607a16939c78443b7b7b594b3d8ba64b
-timeCreated: 1455879701
+guid: d05b27bcfbe4e4b0d80aeaace8c000cf
+timeCreated: 1475050603
 licenseType: Pro
 PluginImporter:
   serializedVersion: 1
@@ -46,6 +46,11 @@ PluginImporter:
       settings:
         CPU: AnyCPU
     iOS:
+      enabled: 1
+      settings:
+        CompileFlags: 
+        FrameworkDependencies: 
+    tvOS:
       enabled: 1
       settings:
         CompileFlags: 
