@@ -541,7 +541,28 @@ namespace SocialPoint.GrayboxLibrary
                     }
                     break;
 
-                case KeyCode.DownArrow:
+                    case KeyCode.Escape:
+
+                        if (_timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
+                        {
+                            if (_displayFilterOptions && _currentSelectedOption.Length != 0)
+                            {
+                                _newTag = "";
+                                _currentSelectedOption = "";
+                                _displayFilterOptions = false;
+                                _focusChangeDelay = 1;
+                            }
+                            else if (_displayAssetFilterOptions)
+                            {
+                                _assetFilter = "";
+                                _displayAssetFilterOptions = false;
+                            }
+
+                            _timeKeyPressed = Time.realtimeSinceStartup;
+                        }
+                        break;
+
+                    case KeyCode.DownArrow:
 
                     if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
                     {

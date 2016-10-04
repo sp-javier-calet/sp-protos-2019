@@ -51,9 +51,16 @@ namespace SocialPoint.GrayboxLibrary
         public void ImportPackage(string path)
         {
             if (File.Exists(path))
+            {
                 AssetDatabase.ImportPackage(path, false);
+            }
             else
                 Debug.LogError("Graybox Library --> The asset package at path '"+path+ "' was not found. Please, contact the Tech Art team (" + GrayboxLibraryConfig.ContactMail + ").");
+        }
+
+        public void FlushImageCache()
+        {
+            _downloadCache = new Dictionary<string, Texture2D>();
         }
     }
 }

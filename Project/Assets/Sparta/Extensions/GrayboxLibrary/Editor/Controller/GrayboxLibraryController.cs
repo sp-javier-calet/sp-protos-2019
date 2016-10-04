@@ -518,6 +518,11 @@ namespace SocialPoint.GrayboxLibrary
             return _downloadController.DownloadImage(path);
         }
 
+        public void FlushImageCache()
+        {
+            _downloadController.FlushImageCache();
+        }
+
         public GameObject InstantiateAsset(GrayboxAsset asset)
         {
             AssetDatabase.SaveAssets();
