@@ -36,6 +36,8 @@ namespace SocialPoint.ServerSync
 
         AdminPanelLayout _layout;
 
+        AdminPanelConsole _console;
+
         public AdminPanelCommandReceiver(CommandReceiver receiver)
         {
             _commandReceiver = receiver;
@@ -55,6 +57,7 @@ namespace SocialPoint.ServerSync
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Command Receiver", this));
         }
 
@@ -77,7 +80,10 @@ namespace SocialPoint.ServerSync
             layout.CreateTextInput("Enter command", name => {
                 string commandId;
                 var result = _commandReceiver.Receive(CreateCommand(name), out commandId);
-                layout.AdminPanel.Console.Print(string.Format("Emulated STC Command '{0}'with cid '{1}'. Received: {2}", name, commandId, result));
+                if(_console != null)
+                {
+                    _console.Print(string.Format("Emulated STC Command '{0}'with cid '{1}'. Received: {2}", name, commandId, result));
+                }
             });
 
             layout.CreateOpenPanelButton("Available commands", new AdminPanelAvailableCommands(_commandReceiver));

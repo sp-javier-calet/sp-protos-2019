@@ -10,6 +10,7 @@ namespace SocialPoint.AppEvents
         IAppEvents _appEvents;
         Text _textComponent;
         string _eventsLog;
+        AdminPanelConsole _console;
 
         public AdminPanelAppEvents(IAppEvents appEvents)
         {
@@ -30,6 +31,7 @@ namespace SocialPoint.AppEvents
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("App Events", this));
         }
 
@@ -119,7 +121,10 @@ namespace SocialPoint.AppEvents
 
             layout.CreateConfirmButton("Quit Game", () => {
                 var moved = _appEvents.QuitGame();
-                layout.AdminPanel.Console.Print(string.Format("Moved to background: {0}", moved));
+                if(_console != null)
+                {
+                    _console.Print(string.Format("Moved to background: {0}", moved));
+                }
             });
 
             layout.CreateConfirmButton("Kill Game", () => _appEvents.KillGame());

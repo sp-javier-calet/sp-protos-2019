@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Profiling
 {
-    public sealed class FrameInfoGUI : IAdminPanelGUI, IUpdateable
+    public sealed class FrameInfoGUI : IFloatingPanelGUI, IUpdateable
     {
         PerfInfo _info;
         Text _text;
@@ -13,6 +13,12 @@ namespace SocialPoint.Profiling
         public FrameInfoGUI(PerfInfo info)
         {
             _info = info;
+        }
+
+        public void OnCreateFloatingPanel(FloatingPanelController panel)
+        {
+            panel.Title = "FrameInfo";
+            panel.Size = new Vector2(200, 120);
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -68,10 +74,7 @@ namespace SocialPoint.Profiling
             if(_info != null)
             {
                 layout.CreateButton("Show frame info", () => {
-                    layout.OpenFloatingPanel(new FrameInfoGUI(_info), new FloatingPanelOptions{
-                        Title = "FrameInfo",
-                        Size = new Vector2(200, 120)
-                    });
+                    FloatingPanelController.Create(new FrameInfoGUI(_info)).Show();
                 });
 
                 layout.CreateLabel("Frame Info");

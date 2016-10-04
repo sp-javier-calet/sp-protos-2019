@@ -8,38 +8,21 @@ using UnityEngine.EventSystems;
 
 namespace SocialPoint.AdminPanel
 {
-    public sealed class FloatingPanelController : UIViewController, IAdminPanelController, IDragHandler, IEndDragHandler, IPointerClickHandler
+    public sealed class FloatingPanelController : BasePanelController, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         AdminPanelRootLayout _root;
         AdminPanelLayout _mainPanel;
         AdminPanelLayout _mainPanelContent;
+        bool _dragging;
+        IAdminPanelGUI _gui;
 
-        public IAdminPanelController Parent;
-        public IAdminPanelGUI GUI;
         public GameObject Root;
 
         [HideInInspector]
         public string Title;
 
         [HideInInspector]
-        bool ShowBorder = true;
-
-        public AdminPanel AdminPanel
-        {
-            get
-            {
-                if(Parent == null)
-                {
-                    return null;
-                }
-                return Parent.AdminPanel;
-            }
-        }
-
-        void OnLevelWasLoaded(int i)
-        {
-            Hide();
-        }
+        public bool Border = true;
 
         void InflateGUI()
         {
@@ -50,7 +33,7 @@ namespace SocialPoint.AdminPanel
             }
             if(_mainPanel == null)
             {    
-                if(ShowBorder)
+                if(Border)
                 {
                     _mainPanel = _root.CreatePanelLayout(Title, ClosePanel, 2);
                 }
@@ -69,9 +52,9 @@ namespace SocialPoint.AdminPanel
             {
                 _mainPanelContent = _mainPanel.CreateVerticalScrollLayout();
             }
-            if(GUI != null)
+            if(_gui != null)
             {
-                GUI.OnCreateGUI(_mainPanelContent);
+                _gui.OnCreateGUI(_mainPanelContent);
             }
         }
 
@@ -84,7 +67,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public void RefreshPanel(bool force = false)
+        public override void RefreshPanel()
         {
             if(_root != null)
             {
@@ -96,33 +79,21 @@ namespace SocialPoint.AdminPanel
             InflateGUI();
         }
 
-        public void OpenPanel(IAdminPanelGUI panel)
+        public override void OpenPanel(IAdminPanelGUI panel)
         {
-            if(Parent != null)
-            {
-                Parent.OpenPanel(panel);
-            }
+            ReplacePanel(panel);
         }
 
-        public void ReplacePanel(IAdminPanelGUI panel)
+        public override void ReplacePanel(IAdminPanelGUI panel)
         {
-            GUI = panel;
+            _gui = panel;
+            RefreshPanel();
         }
 
-        public void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options)
-        {
-            if(panel != null)
-            {
-                Parent.OpenFloatingPanel(panel, options);
-            }
-        }
-
-        public void ClosePanel()
+        public override void ClosePanel()
         {
             Hide(true);
         }
-
-        bool _dragging;
 
         public void OnDrag(PointerEventData eventData)
         {
@@ -142,32 +113,28 @@ namespace SocialPoint.AdminPanel
         {
             if(!_dragging)
             {
-                ShowBorder = !ShowBorder;
-                RefreshPanel(true);
+                Border = !Border;
+                RefreshPanel();
             }
         }
 
-        void Update()
+        public static FloatingPanelController Create(IAdminPanelGUI gui)
         {
-            for(var i = 0; i < _updateables.Count; i++)
+            var ctrl = UIViewController.Factory.Create<FloatingPanelController>();
+            ctrl._gui = gui;
+            var fgui = gui as IFloatingPanelGUI;
+            if(fgui != null)
             {
-                _updateables[i].Update();
+                fgui.OnCreateFloatingPanel(ctrl);
             }
+            return ctrl;
         }
 
-        List<IUpdateable> _updateables = new List<IUpdateable>();
 
-        public void RegisterUpdateable(IUpdateable updateable)
-        {
-            if(updateable != null && !_updateables.Contains(updateable))
-            {
-                _updateables.Add(updateable);
-            }
-        }
+    }
 
-        public void UnregisterUpdateable(IUpdateable updateable)
-        {
-            _updateables.Remove(updateable);
-        }
+    public interface IFloatingPanelGUI : IAdminPanelGUI
+    {
+        void OnCreateFloatingPanel(FloatingPanelController panel);
     }
 }

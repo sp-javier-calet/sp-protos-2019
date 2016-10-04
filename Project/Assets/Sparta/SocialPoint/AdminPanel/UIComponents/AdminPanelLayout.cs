@@ -8,15 +8,7 @@ namespace SocialPoint.AdminPanel
     {
         public RectTransform Parent { get; protected set; }
 
-        private IAdminPanelController _adminPanelController;
-
-        public AdminPanel AdminPanel
-        {
-            get
-            {
-                return _adminPanelController.AdminPanel;
-            }
-        }
+        private IPanelController _adminPanelController;
 
         /// <summary>
         /// Check if the game object is active in the scene
@@ -41,7 +33,7 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        protected AdminPanelLayout(IAdminPanelController controller)
+        protected AdminPanelLayout(IPanelController controller)
         {
             _adminPanelController = controller;
         }
@@ -50,7 +42,7 @@ namespace SocialPoint.AdminPanel
         {
             if(IsActiveInHierarchy)
             {
-                _adminPanelController.RefreshPanel(true);
+                _adminPanelController.RefreshPanel();
             }
         }
 
@@ -67,11 +59,6 @@ namespace SocialPoint.AdminPanel
         public void ClosePanel()
         {
             _adminPanelController.ClosePanel();
-        }
-
-        public void OpenFloatingPanel(IAdminPanelGUI panel, FloatingPanelOptions options)
-        {
-            _adminPanelController.OpenFloatingPanel(panel, options);
         }
 
         public void SetActive(bool active)
