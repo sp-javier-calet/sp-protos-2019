@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.AdminPanel
 {
-    public sealed class AdminPanelController : UIViewController, IAdminPanelController
+    public sealed class AdminPanelController : BasePanelController
     {
         Stack<IAdminPanelGUI> _activePanels;
 
@@ -47,11 +47,6 @@ namespace SocialPoint.AdminPanel
                     }
                 }
             };
-        }
-
-        void OnLevelWasLoaded(int i)
-        {
-            Hide();
         }
 
         void InflateGUI()
@@ -113,7 +108,7 @@ namespace SocialPoint.AdminPanel
             AdminPanel.OnDisappeared();
         }
 
-        public void ReplacePanel(IAdminPanelGUI gui)
+        public override void ReplacePanel(IAdminPanelGUI gui)
         {
             IAdminPanelGUI currentGUI = null;
             if(_activePanels.Count > 0)
@@ -128,7 +123,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public void OpenPanel(IAdminPanelGUI panel)
+        public override void OpenPanel(IAdminPanelGUI panel)
         {
             if(!(panel is AdminPanelGUIGroup))
             {
@@ -139,14 +134,14 @@ namespace SocialPoint.AdminPanel
             RefreshPanel(false);
         }
 
-        public void ClosePanel()
+        public override void ClosePanel()
         {
             _activePanels.Pop();
             _mainPanelDirty = true;
             RefreshPanel(false);
         }
 
-        public void RefreshPanel()
+        public override void RefreshPanel()
         {
             RefreshPanel(true);
         }
@@ -184,29 +179,6 @@ namespace SocialPoint.AdminPanel
 
             // Console
             _consolePanel.SetActive(_consoleEnabled);
-        }
-
-        void Update()
-        {
-            for(var i = 0; i < _updateables.Count; i++)
-            {
-                _updateables[i].Update();
-            }
-        }
-
-        List<IUpdateable> _updateables = new List<IUpdateable>();
-
-        public void RegisterUpdateable(IUpdateable updateable)
-        {
-            if(updateable != null && !_updateables.Contains(updateable))
-            {
-                _updateables.Add(updateable);
-            }
-        }
-
-        public void UnregisterUpdateable(IUpdateable updateable)
-        {
-            _updateables.Remove(updateable);
         }
 
         // Categories Panel content
@@ -292,16 +264,5 @@ namespace SocialPoint.AdminPanel
                 }
             }
         }
-    }
-
-
-    public interface IAdminPanelController
-    {
-        void RefreshPanel();
-        void OpenPanel(IAdminPanelGUI panel);
-        void ReplacePanel(IAdminPanelGUI panel);
-        void ClosePanel();
-        void RegisterUpdateable(IUpdateable updateable);
-        void UnregisterUpdateable(IUpdateable updateable);
     }
 }

@@ -8,7 +8,7 @@ namespace SocialPoint.AdminPanel
     {
         public RectTransform Parent { get; protected set; }
 
-        private IAdminPanelController _adminPanelController;
+        private IPanelController _adminPanelController;
 
         /// <summary>
         /// Check if the game object is active in the scene
@@ -33,7 +33,7 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        protected AdminPanelLayout(IAdminPanelController controller)
+        protected AdminPanelLayout(IPanelController controller)
         {
             _adminPanelController = controller;
         }

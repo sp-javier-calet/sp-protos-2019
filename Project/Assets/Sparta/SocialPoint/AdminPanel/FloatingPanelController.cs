@@ -8,13 +8,14 @@ using UnityEngine.EventSystems;
 
 namespace SocialPoint.AdminPanel
 {
-    public sealed class FloatingPanelController : UIViewController, IAdminPanelController, IDragHandler, IEndDragHandler, IPointerClickHandler
+    public sealed class FloatingPanelController : BasePanelController, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         AdminPanelRootLayout _root;
         AdminPanelLayout _mainPanel;
         AdminPanelLayout _mainPanelContent;
+        bool _dragging;
+        IAdminPanelGUI _gui;
 
-        public IAdminPanelGUI GUI;
         public GameObject Root;
 
         [HideInInspector]
@@ -22,11 +23,6 @@ namespace SocialPoint.AdminPanel
 
         [HideInInspector]
         public bool Border = true;
-
-        void OnLevelWasLoaded(int i)
-        {
-            Hide();
-        }
 
         void InflateGUI()
         {
@@ -56,9 +52,9 @@ namespace SocialPoint.AdminPanel
             {
                 _mainPanelContent = _mainPanel.CreateVerticalScrollLayout();
             }
-            if(GUI != null)
+            if(_gui != null)
             {
-                GUI.OnCreateGUI(_mainPanelContent);
+                _gui.OnCreateGUI(_mainPanelContent);
             }
         }
 
@@ -71,7 +67,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public void RefreshPanel()
+        public override void RefreshPanel()
         {
             if(_root != null)
             {
@@ -83,20 +79,21 @@ namespace SocialPoint.AdminPanel
             InflateGUI();
         }
 
-        public void OpenPanel(IAdminPanelGUI panel)
+        public override void OpenPanel(IAdminPanelGUI panel)
         {
+            ReplacePanel(panel);
         }
 
-        public void ReplacePanel(IAdminPanelGUI panel)
+        public override void ReplacePanel(IAdminPanelGUI panel)
         {
+            _gui = panel;
+            RefreshPanel();
         }
 
-        public void ClosePanel()
+        public override void ClosePanel()
         {
             Hide(true);
         }
-
-        bool _dragging;
 
         public void OnDrag(PointerEventData eventData)
         {
@@ -121,33 +118,10 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        void Update()
-        {
-            for(var i = 0; i < _updateables.Count; i++)
-            {
-                _updateables[i].Update();
-            }
-        }
-
-        List<IUpdateable> _updateables = new List<IUpdateable>();
-
-        public void RegisterUpdateable(IUpdateable updateable)
-        {
-            if(updateable != null && !_updateables.Contains(updateable))
-            {
-                _updateables.Add(updateable);
-            }
-        }
-
-        public void UnregisterUpdateable(IUpdateable updateable)
-        {
-            _updateables.Remove(updateable);
-        }
-
         public static FloatingPanelController Create(IFloatingPanelGUI gui)
         {
             var ctrl = UIViewController.Factory.Create<FloatingPanelController>();
-            ctrl.GUI = gui;
+            ctrl._gui = gui;
             if(gui != null)
             {
                 gui.OnCreateFloatingPanel(ctrl);

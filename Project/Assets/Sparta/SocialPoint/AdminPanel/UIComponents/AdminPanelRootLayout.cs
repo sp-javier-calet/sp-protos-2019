@@ -4,7 +4,7 @@ namespace SocialPoint.AdminPanel
 {
     public sealed class AdminPanelRootLayout : AdminPanelLayout
     {
-        public AdminPanelRootLayout(IAdminPanelController controller, Transform trans=null) : base(controller)
+        public AdminPanelRootLayout(IPanelController controller, Transform trans=null) : base(controller)
         {
             var canvasObject = new GameObject("AdminPanel");
             if(trans != null)
