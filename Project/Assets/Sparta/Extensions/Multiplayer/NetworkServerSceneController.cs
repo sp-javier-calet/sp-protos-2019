@@ -267,6 +267,7 @@ namespace SocialPoint.Multiplayer
             {
                 behaviours[i].OnStart(go);
             }
+
             return go;
         }
 
