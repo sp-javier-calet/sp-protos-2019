@@ -20,6 +20,7 @@ namespace SocialPoint.Crash
         readonly IBreadcrumbManager _breadcrumbs;
         Text _textAreaComponent;
         bool _showOldBreadcrumbs;
+        AdminPanelConsole _console;
 
         public AdminPanelCrashReporter(ICrashReporter reporter, IBreadcrumbManager breadcrumbs)
         {
@@ -29,6 +30,7 @@ namespace SocialPoint.Crash
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Crash Reporter", this));
         }
 
@@ -75,7 +77,10 @@ namespace SocialPoint.Crash
                     _reporter.ExceptionLogActive = value;
                 });
                 layout.CreateButton("Clear unique exceptions", () => {
-                    layout.AdminPanel.Console.Print("Removed pending unique exceptions");
+                    if(_console != null)
+                    {
+                        _console.Print("Removed pending unique exceptions");
+                    }
                     _reporter.ClearUniqueExceptions();
                 });
                 layout.CreateMargin(2);

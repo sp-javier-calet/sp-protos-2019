@@ -158,6 +158,26 @@ namespace SocialPoint.GUIControl
             return uiCanvas;
         }
 
+        public static Vector2 GetCanvasScale(Canvas canvas)
+        {
+            var rect = canvas.GetComponent<RectTransform>();
+            if(rect == null)
+            {
+                return Vector2.one;
+            }
+            return new Vector2(rect.sizeDelta.x / Screen.width, rect.sizeDelta.y / Screen.height);
+        }
+
+        public static Vector2 GetCanvasSize(Canvas canvas)
+        {
+            var rect = canvas.GetComponent<RectTransform>();
+            if(rect == null)
+            {
+                return new Vector2(Screen.width, Screen.height);
+            }
+            return rect.sizeDelta;
+        }
+
         void ResetCameras()
         {
             if(_activeCameras.Count > 0)

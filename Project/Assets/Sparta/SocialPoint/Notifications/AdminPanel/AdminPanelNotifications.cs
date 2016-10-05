@@ -7,10 +7,10 @@ namespace SocialPoint.Notifications
     public sealed class AdminPanelNotifications : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly INotificationServices _services;
-        AdminPanel.AdminPanel _adminPanel;
         InputField _messageInput;
         InputField _actionInput;
         InputField _secondsInput;
+        AdminPanelConsole _console;
 
         public AdminPanelNotifications(INotificationServices services)
         {
@@ -23,7 +23,7 @@ namespace SocialPoint.Notifications
             {
                 return;
             }
-            _adminPanel = adminPanel;
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Notifications", this));
 
             var cmd = new ConsoleCommand()
@@ -43,6 +43,14 @@ namespace SocialPoint.Notifications
             var notify = new Notification(cmd["delay"].IntValue, Notification.OffsetType.None);
             notify.Title = cmd["title"].Value;
             notify.Message = cmd["message"].Value;
+        }
+
+        void ConsolePrint(string msg)
+        {
+            if(_console != null)
+            {
+                _console.Print(msg);
+            }
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -67,7 +75,7 @@ namespace SocialPoint.Notifications
                 {
                     msg = "Cannot retrieve push token (permission denied).";
                 }
-                layout.AdminPanel.Console.Print(msg);
+                ConsolePrint(msg);
                 layout.Refresh();
             }));
 
@@ -95,7 +103,7 @@ namespace SocialPoint.Notifications
                 notif.Message = _messageInput.text;
                 notif.Title = _actionInput.text;
                 _services.Schedule(notif);
-                _adminPanel.Console.Print(string.Format("A test notification should appear in {0} seconds.", secs));
+                ConsolePrint(string.Format("A test notification should appear in {0} seconds.", secs));
             });
         }
     }

@@ -42,7 +42,7 @@ namespace SocialPoint.AdminPanel
         {
             var gObject = new GameObject(name);
             gObject.transform.SetParent(parent, false);
-            
+            gObject.layer = parent.gameObject.layer;
             var rectTransform = gObject.AddComponent<RectTransform>();
             rectTransform.pivot = Vector2.up;
             rectTransform.offsetMin = Vector2.zero;
