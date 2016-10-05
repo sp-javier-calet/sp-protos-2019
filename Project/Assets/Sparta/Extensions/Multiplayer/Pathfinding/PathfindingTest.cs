@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 using SharpNav;
@@ -7,18 +8,22 @@ using SharpNav.Crowds;
 using SharpNav.Geometry;
 using SharpNav.IO;
 using SharpNav.Pathfinding;
+using SocialPoint.Pathfinding;
 
-public class PathfindingTest : MonoBehaviour
+public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 {
-    public GameObject mapObject;
-
     SharpNav.NavMesh navMesh;
+    int maxNodes = 1000;
+
+    List<SharpNav.Geometry.Vector3> navPath = new List<SharpNav.Geometry.Vector3>();
+    SharpNav.Geometry.Vector3 startPoint = SharpNav.Geometry.Vector3.Zero;
+    bool started = false;
 
     // Use this for initialization
     void Start()
     {
-        CombineMesh(mapObject);
-        Mesh map = GetMesh(mapObject);
+        CombineMesh(gameObject);
+        Mesh map = GetMesh(gameObject);
         UnityEngine.Vector3[] vertices = map.vertices;
         int[] triangles = map.triangles;
         int totalTriangles = triangles.Length / 3;
@@ -39,15 +44,73 @@ public class PathfindingTest : MonoBehaviour
 
     void Update()
     {
+        DrawNavmesh();
+        DrawPath();
+    }
+
+    void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
+    {
+        UnityEngine.Ray clickRay = eventData.pressEventCamera.ScreenPointToRay(eventData.pressPosition);
+        UnityEngine.RaycastHit hit;
+        if(Physics.Raycast(clickRay, out hit, float.MaxValue))
+        {
+            if(started)
+            {
+                var endPoint = hit.point.ToPathfinding();
+                NavMeshQuery query = new NavMeshQuery(navMesh, maxNodes);
+                NavPoint startPoly = query.FindNearestPoly(startPoint, SharpNav.Geometry.Vector3.One);
+                NavPoint endPoly = query.FindNearestPoly(endPoint, SharpNav.Geometry.Vector3.One);
+                Path path = new Path();
+                if(query.FindPath(ref startPoly, ref endPoly, new NavQueryFilter(), path))
+                {
+                    StraightPath straightPath = new StraightPath();
+                    if(query.FindStraightPath(startPoint, endPoint, path, straightPath, new PathBuildFlags()))
+                    {
+                        navPath.Clear();
+                        for(int i = 0; i < straightPath.Count; i++)
+                        {
+                            var pathVert = straightPath[i];
+                            var point = pathVert.Point;
+                            navPath.Add(point.Position);
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.Log("Path not found between selected points!");
+                }
+            }
+            started = true;
+            startPoint = hit.point.ToPathfinding();
+        }
+    }
+
+    void DrawNavmesh()
+    {
         foreach(var tile in navMesh.Tiles)
         {
-            var verts = tile.Verts;
-            for(int i = 0; i < verts.Length; i++)
+            foreach(var poly in tile.Polys)
             {
-                var v1 = verts[i];
-                var v2 = (i == verts.Length - 1) ? verts[0] : verts[i + 1];
-                Debug.DrawLine(new UnityEngine.Vector3(v1.X, v1.Y, v1.Z), new UnityEngine.Vector3(v2.X, v2.Y, v2.Z), Color.red);
+                var verts = poly.Verts;
+                for(int i = 0; i < verts.Length; i++)
+                {
+                    int index1 = verts[i];
+                    int index2 = (i == verts.Length - 1) ? verts[0] : verts[i + 1];
+                    var v1 = tile.Verts[index1];
+                    var v2 = tile.Verts[index2];
+                    Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), Color.red);
+                }
             }
+        }
+    }
+
+    void DrawPath()
+    {
+        for(int i = 0; i < navPath.Count - 1; i++)
+        {
+            var v1 = navPath[i];
+            var v2 = navPath[i + 1];
+            Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), Color.green);
         }
     }
 
@@ -69,8 +132,25 @@ public class PathfindingTest : MonoBehaviour
             meshFilters[i].gameObject.SetActive(false);
             i++;
         }
-        parent.GetComponent<MeshFilter>().mesh = new Mesh();
-        parent.GetComponent<MeshFilter>().mesh.CombineMeshes(combine);
+
+        parent.AddComponent<MeshFilter>();
+        MeshFilter meshFilter = parent.GetComponent<MeshFilter>();
+        meshFilter.mesh = new Mesh();
+        meshFilter.mesh.CombineMeshes(combine);
+
+        parent.AddComponent<MeshCollider>();
+        MeshCollider meshCollider = parent.GetComponent<MeshCollider>();
+        meshCollider.sharedMesh = meshFilter.mesh;
+
+        parent.AddComponent<MeshRenderer>();
+        MeshRenderer meshRenderer = parent.GetComponent<MeshRenderer>();
+        MeshRenderer childRenderer = parent.GetComponentInChildren<MeshRenderer>();
+        meshRenderer.material = childRenderer.material;
+        meshRenderer.shadowCastingMode = childRenderer.shadowCastingMode;
+        meshRenderer.receiveShadows = childRenderer.receiveShadows;
+        meshRenderer.reflectionProbeUsage = childRenderer.reflectionProbeUsage;
+        meshRenderer.useLightProbes = childRenderer.useLightProbes;
+
         parent.gameObject.SetActive(true);
     }
 
@@ -79,8 +159,7 @@ public class PathfindingTest : MonoBehaviour
         var navVectors = new SharpNav.Geometry.Vector3[vectors.Length];
         for(int i = 0; i < vectors.Length; i++)
         {
-            UnityEngine.Vector3 uVector = vectors[i];
-            navVectors[i] = new SharpNav.Geometry.Vector3(uVector.x, uVector.y, uVector.z);
+            navVectors[i] = vectors[i].ToPathfinding();
         }
         return navVectors;
     }
