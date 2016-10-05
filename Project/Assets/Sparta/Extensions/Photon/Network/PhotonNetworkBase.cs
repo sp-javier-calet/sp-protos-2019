@@ -87,10 +87,17 @@ namespace SocialPoint.Network
             DoDisconnect();
         }
 
+        RoomOptions PhotonRoomOptions
+        {
+            get
+            {
+                return _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+            }
+        }
+
         void JoinOrCreateRoom()
         {
-            RoomOptions options = _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
-            PhotonNetwork.JoinOrCreateRoom(_config.RoomName, options, null);
+            PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
         }
 
         abstract protected void OnNetworkError(Error err);
@@ -125,7 +132,7 @@ namespace SocialPoint.Network
 
         void OnPhotonRandomJoinFailed()
         {
-            JoinOrCreateRoom();
+            PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
         }
 
         public void OnPhotonJoinRoomFailed(object[] codeAndMsg)
