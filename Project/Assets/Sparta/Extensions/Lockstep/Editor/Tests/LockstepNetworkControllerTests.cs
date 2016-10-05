@@ -41,7 +41,6 @@ namespace SocialPoint.Lockstep.Network
         }
     }
 
-
     [TestFixture]
     [Category("SocialPoint.Lockstep")]
     class LockstepNetworkControllerTests

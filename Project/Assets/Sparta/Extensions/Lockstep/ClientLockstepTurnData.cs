@@ -24,6 +24,13 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public static readonly ClientLockstepTurnData Empty = new ClientLockstepTurnData();
+
+        public static bool IsNullOrEmpty(ClientLockstepTurnData turn)
+        {
+            return turn == null || turn.CommandCount == 0;
+        }
+
         public ClientLockstepCommandData GetCommand(int i)
         {
             return _commands[i];

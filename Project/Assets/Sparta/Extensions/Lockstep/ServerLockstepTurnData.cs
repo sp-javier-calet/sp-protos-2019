@@ -15,7 +15,7 @@ namespace SocialPoint.Lockstep
             }
             _commands = commands;
         }
-            
+
         public int CommandCount
         {
             get
@@ -26,8 +26,13 @@ namespace SocialPoint.Lockstep
 
         public void AddCommand(ServerLockstepCommandData cmd)
         {
-            _commands.Add(cmd);
+            if(cmd != null)
+            {
+                _commands.Add(cmd);
+            }
         }
+
+        public static readonly ServerLockstepTurnData Empty = new ServerLockstepTurnData();
 
         public void Clear()
         {

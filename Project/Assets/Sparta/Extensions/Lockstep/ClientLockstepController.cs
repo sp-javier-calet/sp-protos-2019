@@ -88,10 +88,11 @@ namespace SocialPoint.Lockstep
         int _time;
         int _lastSimTime;
         int _lastCmdTime;
+        int _lastConfirmedTurnNumber;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientLockstepCommandData> _pendingCommands = new List<ClientLockstepCommandData>();
-        List<ClientLockstepTurnData> _confirmedTurns = new List<ClientLockstepTurnData>();
+        Dictionary<int, ClientLockstepTurnData> _confirmedTurns = new Dictionary<int, ClientLockstepTurnData>();
 
         public bool Connected{ get; private set; }
         public bool Running{ get; private set; }
@@ -108,7 +109,9 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return _confirmedTurns.Count;
+                var b = _lastConfirmedTurnNumber - CurrentTurnNumber;
+                b = Math.Max(b, 0);
+                return b;
             }
         }
 
@@ -133,6 +136,14 @@ namespace SocialPoint.Lockstep
             get
             {
                 return _time - _lastCmdTime;
+            }
+        }
+
+        public int CurrentTurnNumber
+        {
+            get
+            {
+                return _lastCmdTime / Config.CommandStepDuration;
             }
         }
 
@@ -170,6 +181,7 @@ namespace SocialPoint.Lockstep
             Connected = false;
             _confirmedTurns.Clear();
             _pendingCommands.Clear();
+            _lastConfirmedTurnNumber = 0;
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
@@ -228,18 +240,24 @@ namespace SocialPoint.Lockstep
  
         public void AddConfirmedTurn(ClientLockstepTurnData turn)
         {
-            _confirmedTurns.Add(turn);
+            _lastConfirmedTurnNumber++;
+            if(!ClientLockstepTurnData.IsNullOrEmpty(turn))
+            {
+                _confirmedTurns[_lastConfirmedTurnNumber] = turn;
+            }
         }
 
         void AddConfirmedCommand(ClientLockstepCommandData cmd)
         {
-            var turnCount = ClientConfig.LocalSimulationDelay / Config.CommandStepDuration;
-            turnCount = Math.Max(turnCount, 1);
-            while(_confirmedTurns.Count < turnCount)
+            var t = 1 + ((_lastCmdTime + ClientConfig.LocalSimulationDelay ) / Config.CommandStepDuration);
+            ClientLockstepTurnData turn;
+            if(!_confirmedTurns.TryGetValue(t, out turn))
             {
-                _confirmedTurns.Add(new ClientLockstepTurnData());
+                turn = new ClientLockstepTurnData();
+                _confirmedTurns[t] = turn;
+                _lastConfirmedTurnNumber = Math.Max(_lastConfirmedTurnNumber, t);
             }
-            _confirmedTurns[_confirmedTurns.Count - 1].AddCommand(cmd);
+            turn.AddCommand(cmd);
         }
 
         ClientLockstepCommandData FindCommand(ClientLockstepCommandData cmd)
@@ -274,7 +292,6 @@ namespace SocialPoint.Lockstep
             {
                 TurnApplied(turn);
             }
-            _confirmedTurns.Remove(turn);
         }
 
         public void Pause()
@@ -332,15 +349,24 @@ namespace SocialPoint.Lockstep
                 }
                 else if(nextCmdTime <= time)
                 {
-                    if(_confirmedTurns.Count > 0)
+                    var t = CurrentTurnNumber + 1;
+                    if(_lastConfirmedTurnNumber >= t)
                     {
                         Connected = true;
-                        var turn = _confirmedTurns[0];
+                        ClientLockstepTurnData turn;
+                        if(!_confirmedTurns.TryGetValue(t, out turn))
+                        {
+                            turn = ClientLockstepTurnData.Empty;
+                        }
+                        else
+                        {
+                            _confirmedTurns.Remove(t);
+                        }
                         ProcessTurn(turn);
                     }
                     else if(CommandAdded == null)
                     {
-                        ProcessTurn(new ClientLockstepTurnData());
+                        ProcessTurn(ClientLockstepTurnData.Empty);
                     }
                     else
                     {

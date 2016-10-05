@@ -11,7 +11,6 @@ namespace SocialPoint.Lockstep
         long _timestamp;
         int _lastCmdTime;
         IUpdateScheduler _updateScheduler;
-        ServerLockstepTurnData _emptyTurn;
         Dictionary<int, ServerLockstepTurnData> _turns;
 
         public bool Running{ get; private set; }
@@ -35,7 +34,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        int CurrentTurnNumber
+        public int CurrentTurnNumber
         {
             get
             {
@@ -47,14 +46,13 @@ namespace SocialPoint.Lockstep
         {
             Config = new LockstepConfig();
             _updateScheduler = updateScheduler;
-            _emptyTurn = new ServerLockstepTurnData();
             _turns = new Dictionary<int, ServerLockstepTurnData>();
             Stop();
         }
 
         public void AddCommand(ServerLockstepCommandData command)
         {
-            if(!Running || _time < 0 || _turns == null)
+            if(!Running || _time < 0)
             {
                 return;
             }
@@ -100,7 +98,7 @@ namespace SocialPoint.Lockstep
 
         public void Update(int dt)
         {
-            if(!Running || dt < 0 || _turns == null)
+            if(!Running || dt < 0)
             {
                 return;
             }
@@ -116,7 +114,7 @@ namespace SocialPoint.Lockstep
                 var t = CurrentTurnNumber;
                 if(!_turns.TryGetValue(t, out turn))
                 {
-                    turn = _emptyTurn;
+                    turn = ServerLockstepTurnData.Empty;
                 }
                 if(TurnReady != null)
                 {

@@ -9,13 +9,11 @@ namespace SocialPoint.Lockstep
     class ClientLockstepControllerTests
     {
         ClientLockstepController _client;
-        UpdateScheduler _scheduler;
 
         [SetUp]
         public void SetUp()
         {
-            _scheduler = new UpdateScheduler();
-            _client = new ClientLockstepController(_scheduler);
+            _client = new ClientLockstepController();
         }
 
         [Test]
@@ -119,7 +117,10 @@ namespace SocialPoint.Lockstep
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);
             finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
-            _client.Update(50);
+            _client.Update(149);
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            apply.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            _client.Update(1);
             finish.Received().Apply(cmd);
             apply.Received().Apply(cmd);
 
