@@ -182,12 +182,6 @@ namespace SocialPoint.Network
             OnNetworkError(err);
         }
 
-        void OnPhotonMaxCccuReached()
-        {
-            var err = new Error(ConnectionError, "Max Cccu Reached");
-            OnNetworkError(err);
-        }
-
         #endregion
 
         protected static byte GetClientId(PhotonPlayer player)
