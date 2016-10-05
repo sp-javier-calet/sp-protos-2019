@@ -23,7 +23,7 @@ namespace SocialPoint.AdminPanel
         bool _consoleEnabled;
         bool _mainPanelDirty;
 
-        public AdminPanel AdminPanel{ get; set; }
+        public AdminPanel AdminPanel;
 
         protected override void OnLoad()
         {
