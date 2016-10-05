@@ -1,9 +1,9 @@
-
 using NUnit.Framework;
 using System.IO;
 using System;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
@@ -18,7 +18,7 @@ namespace SocialPoint.Multiplayer
             serializer.Serialize(obj, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            var obj2 =  parser.Parse(reader);
+            var obj2 = parser.Parse(reader);
             Assert.That(obj.Equals(obj2));
         }
 
@@ -37,88 +37,66 @@ namespace SocialPoint.Multiplayer
         public void Vector3Initial()
         {
             GenericInitial(
-                new Vector3(1.0f, 2.3f, 4.2f),
-                new Vector3Serializer(),
-                new Vector3Parser());
+                new JVector(1.0f, 2.3f, 4.2f),
+                new JVectorSerializer(),
+                new JVectorParser());
         }
 
         [Test]
         public void Vector3Diff()
         {
             GenericDiff(
-                new Vector3(1.0f, 2.3f, 4.2f),
-                new Vector3(1.0f, 3.3f, 4.2f),
-                new Vector3Serializer(),
-                new Vector3Parser());
-        }
-            
-        [Test]
-        public void Vector4Initial()
-        {
-            GenericInitial(
-                new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                new Vector4Serializer(),
-                new Vector4Parser());
-        }
-
-        [Test]
-        public void Vector4Diff()
-        {
-            GenericDiff(
-                new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                new Vector4(1.0f, 3.3f, 4.2f, 6.2f),
-                new Vector4Serializer(),
-                new Vector4Parser());
+                new JVector(1.0f, 2.3f, 4.2f),
+                new JVector(1.0f, 3.3f, 4.2f),
+                new JVectorSerializer(),
+                new JVectorParser());
         }
 
         [Test]
         public void QuaternionInitial()
         {
             GenericInitial(
-                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                new QuaternionSerializer(),
-                new QuaternionParser());
+                new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new JQuaternionSerializer(),
+                new JQuaternionParser());
         }
 
         [Test]
         public void QuaternionDiff()
         {
             GenericDiff(
-                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
-                new QuaternionSerializer(),
-                new QuaternionParser());
+                new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new JQuaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                new JQuaternionSerializer(),
+                new JQuaternionParser());
         }
 
         [Test]
-        public void Matrix4x4Initial()
+        public void MatrixInitial()
         {
             GenericInitial(
-                new Matrix4x4(
-                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
-                    new Vector4(4.0f, 4.5f, 4.5f, 15f),
-                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
-                new Matrix4x4Serializer(),
-                new Matrix4x4Parser());
+                new JMatrix(
+                    1.0f, 2.3f, 4.2f,
+                    3.0f, 2.3f, 7.2f,
+                    4.0f, 4.5f, 4.5f),
+                new JMatrixSerializer(),
+                new JMatrixParser());
         }
 
         [Test]
-        public void Matrix4x4Diff()
+        public void MatrixDiff()
         {
             GenericDiff(
-                new Matrix4x4(
-                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
-                    new Vector4(4.0f, 4.5f, 4.5f, 15f),
-                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
-                new Matrix4x4(
-                    new Vector4(1.0f, 2.3f, 4.2f, 5.2f),
-                    new Vector4(3.0f, 2.3f, 7.2f, 5.2f),
-                    new Vector4(4.0f, 5.5f, 4.5f, 15f),
-                    new Vector4(5.0f, 2.4f, 4.2f, 52.2f)),
-                new Matrix4x4Serializer(),
-                new Matrix4x4Parser());
+                new JMatrix(
+                    1.0f, 2.3f, 4.2f,
+                    3.0f, 2.3f, 7.2f,
+                    4.0f, 4.5f, 4.5f),
+                new JMatrix(
+                    1.0f, 2.3f, 4.2f,
+                    3.0f, 2.3f, 7.2f,
+                    4.0f, 5.5f, 4.5f),
+                new JMatrixSerializer(),
+                new JMatrixParser());
         }
 
         [Test]
@@ -126,9 +104,9 @@ namespace SocialPoint.Multiplayer
         {
             GenericInitial(
                 new Transform(
-                    new Vector3(1.0f, 2.3f, 4.2f),
-                    new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                    new Vector3(2.0f, 1.0f, 2.0f)
+                    new JVector(1.0f, 2.3f, 4.2f),
+                    new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new JVector(2.0f, 1.0f, 2.0f)
                 ),
                 new TransformSerializer(),
                 new TransformParser());
@@ -139,14 +117,14 @@ namespace SocialPoint.Multiplayer
         {
             GenericDiff(
                 new Transform(
-                    new Vector3(1.0f, 2.3f, 4.2f),
-                    new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                    new Vector3(2.0f, 1.0f, 2.0f)
+                    new JVector(1.0f, 2.3f, 4.2f),
+                    new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new JVector(2.0f, 1.0f, 2.0f)
                 ),
                 new Transform(
-                    new Vector3(1.0f, 3.3f, 4.2f),
-                    new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
-                    new Vector3(1.0f, 0.0f, 2.0f)
+                    new JVector(1.0f, 3.3f, 4.2f),
+                    new JQuaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                    new JVector(1.0f, 0.0f, 2.0f)
                 ),
                 new TransformSerializer(),
                 new TransformParser());
@@ -157,10 +135,10 @@ namespace SocialPoint.Multiplayer
         {
             GenericInitial(
                 new NetworkGameObject(1, new Transform(
-                        new Vector3(1.0f, 2.3f, 4.2f),
-                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                        new Vector3(2.0f, 1.0f, 2.0f)
-                    )
+                    new JVector(1.0f, 2.3f, 4.2f),
+                    new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new JVector(2.0f, 1.0f, 2.0f)
+                )
                 ),
                 new NetworkGameObjectSerializer(),
                 new NetworkGameObjectParser());
@@ -171,16 +149,16 @@ namespace SocialPoint.Multiplayer
         {
             GenericDiff(
                 new NetworkGameObject(1, new Transform(
-                        new Vector3(1.0f, 2.3f, 4.2f),
-                        new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                        new Vector3(2.0f, 1.0f, 2.0f)
-                    )
+                    new JVector(1.0f, 2.3f, 4.2f),
+                    new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                    new JVector(2.0f, 1.0f, 2.0f)
+                )
                 ),
                 new NetworkGameObject(1, new Transform(
-                        new Vector3(1.0f, 3.3f, 4.2f),
-                        new Quaternion(1.0f, 3.3f, 4.2f, 6.0f),
-                        new Vector3(1.0f, 0.0f, 2.0f)
-                    )
+                    new JVector(1.0f, 3.3f, 4.2f),
+                    new JQuaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                    new JVector(1.0f, 0.0f, 2.0f)
+                )
                 ),
                 new NetworkGameObjectSerializer(),
                 new NetworkGameObjectParser());
@@ -192,15 +170,15 @@ namespace SocialPoint.Multiplayer
             var scene = new NetworkScene();
 
             scene.AddObject(new NetworkGameObject(1, new Transform(
-                new Vector3(1.0f, 2.3f, 4.2f),
-                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(2.0f, 1.0f, 2.0f)
+                new JVector(1.0f, 2.3f, 4.2f),
+                new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(2.0f, 1.0f, 2.0f)
             )));
 
             scene.AddObject(new NetworkGameObject(2, new Transform(
-                new Vector3(2.0f, 2.3f, 4.2f),
-                new Quaternion(5.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(3.0f, 1.0f, 2.0f)
+                new JVector(2.0f, 2.3f, 4.2f),
+                new JQuaternion(5.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(3.0f, 1.0f, 2.0f)
             )));
 
             GenericInitial(scene,
@@ -214,23 +192,23 @@ namespace SocialPoint.Multiplayer
             var scene = new NetworkScene();
 
             scene.AddObject(new NetworkGameObject(1, new Transform(
-                new Vector3(1.0f, 2.3f, 4.2f),
-                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(2.0f, 1.0f, 2.0f)
+                new JVector(1.0f, 2.3f, 4.2f),
+                new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(2.0f, 1.0f, 2.0f)
             )));
 
             var scene2 = new NetworkScene();
 
             scene2.AddObject(new NetworkGameObject(1, new Transform(
-                new Vector3(1.0f, 2.3f, 4.6f),
-                new Quaternion(3.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(2.0f, 1.0f, 4.0f)
+                new JVector(1.0f, 2.3f, 4.6f),
+                new JQuaternion(3.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(2.0f, 1.0f, 4.0f)
             )));
 
             scene2.AddObject(new NetworkGameObject(2, new Transform(
-                new Vector3(2.0f, 2.3f, 4.2f),
-                new Quaternion(5.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(3.0f, 1.0f, 2.1f)
+                new JVector(2.0f, 2.3f, 4.2f),
+                new JQuaternion(5.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(3.0f, 1.0f, 2.1f)
             )));
 
             GenericDiff(scene2, scene,
@@ -244,23 +222,23 @@ namespace SocialPoint.Multiplayer
             var scene = new NetworkScene();
 
             scene.AddObject(new NetworkGameObject(1, new Transform(
-                new Vector3(1.0f, 2.3f, 4.2f),
-                new Quaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(2.0f, 1.0f, 2.0f)
+                new JVector(1.0f, 2.3f, 4.2f),
+                new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(2.0f, 1.0f, 2.0f)
             )));
 
             scene.AddObject(new NetworkGameObject(2, new Transform(
-                new Vector3(2.0f, 2.3f, 4.2f),
-                new Quaternion(5.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(3.0f, 1.0f, 2.1f)
+                new JVector(2.0f, 2.3f, 4.2f),
+                new JQuaternion(5.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(3.0f, 1.0f, 2.1f)
             )));
 
             var scene2 = new NetworkScene();
 
             scene2.AddObject(new NetworkGameObject(1, new Transform(
-                new Vector3(1.0f, 2.3f, 4.6f),
-                new Quaternion(3.0f, 2.3f, 4.2f, 5.0f),
-                new Vector3(2.0f, 1.0f, 4.0f)
+                new JVector(1.0f, 2.3f, 4.6f),
+                new JQuaternion(3.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(2.0f, 1.0f, 4.0f)
             )));
 
             GenericDiff(scene2, scene,

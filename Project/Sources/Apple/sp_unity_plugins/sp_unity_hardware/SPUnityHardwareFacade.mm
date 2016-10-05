@@ -3,6 +3,7 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <UIKit/UIKit.h>
+#include "SPUnityNativeUtils.h"
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <mach/mach.h>
@@ -11,13 +12,6 @@
 #include <string.h>
 #include <sys/sysctl.h>
 #include <sys/types.h>
-
-char* SPUnityHardwareCreateString(const char* str)
-{
-    char* nstr = (char*)malloc(sizeof(char) * (strlen(str) + 1));
-    strcpy(nstr, str);
-    return nstr;
-}
 
 EXPORT_API char* SPUnityHardwareGetDeviceString()
 {
@@ -33,9 +27,9 @@ EXPORT_API char* SPUnityHardwareGetDevicePlatformVersion()
     NSString* version = [[UIDevice currentDevice] systemVersion];
     if(version == nil)
     {
-        return SPUnityHardwareCreateString("");
+        return SPUnityNativeUtils::createString("");
     }
-    return SPUnityHardwareCreateString(version.UTF8String);
+    return SPUnityNativeUtils::createString(version.UTF8String);
 }
 
 EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
@@ -56,10 +50,10 @@ EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
         switch(subtype)
         {
             case CPU_SUBTYPE_ARM64_V8:
-                return SPUnityHardwareCreateString("arm64-v8");
+                return SPUnityNativeUtils::createString("arm64-v8");
                 break;
             default:
-                return SPUnityHardwareCreateString("arm64-unknown");
+                return SPUnityNativeUtils::createString("arm64-unknown");
                 break;
         }
     }
@@ -68,41 +62,41 @@ EXPORT_API char* SPUnityHardwareGetDeviceArchitecture()
         switch(subtype)
         {
             case CPU_SUBTYPE_ARM_V4T:
-                return SPUnityHardwareCreateString("arm-v4t");
+                return SPUnityNativeUtils::createString("arm-v4t");
                 break;
             case CPU_SUBTYPE_ARM_V6:
-                return SPUnityHardwareCreateString("arm-v6");
+                return SPUnityNativeUtils::createString("arm-v6");
                 break;
             case CPU_SUBTYPE_ARM_V5TEJ:
-                return SPUnityHardwareCreateString("arm-v5tej");
+                return SPUnityNativeUtils::createString("arm-v5tej");
                 break;
             case CPU_SUBTYPE_ARM_XSCALE:
-                return SPUnityHardwareCreateString("arm-xscale");
+                return SPUnityNativeUtils::createString("arm-xscale");
                 break;
             case CPU_SUBTYPE_ARM_V7:
-                return SPUnityHardwareCreateString("arm-v7");
+                return SPUnityNativeUtils::createString("arm-v7");
                 break;
             case CPU_SUBTYPE_ARM_V7F:
-                return SPUnityHardwareCreateString("arm-v7f");
+                return SPUnityNativeUtils::createString("arm-v7f");
                 break;
             case CPU_SUBTYPE_ARM_V7S:
-                return SPUnityHardwareCreateString("arm-v7s");
+                return SPUnityNativeUtils::createString("arm-v7s");
                 break;
             case CPU_SUBTYPE_ARM_V6M:
-                return SPUnityHardwareCreateString("arm-v6m");
+                return SPUnityNativeUtils::createString("arm-v6m");
                 break;
             case CPU_SUBTYPE_ARM_V7M:
-                return SPUnityHardwareCreateString("arm-v7m");
+                return SPUnityNativeUtils::createString("arm-v7m");
                 break;
             case CPU_SUBTYPE_ARM_V7EM:
-                return SPUnityHardwareCreateString("arm-v7em");
+                return SPUnityNativeUtils::createString("arm-v7em");
                 break;
             default:
-                return SPUnityHardwareCreateString("arm-unknown");
+                return SPUnityNativeUtils::createString("arm-unknown");
                 break;
         }
     }
-    return SPUnityHardwareCreateString("unknown");
+    return SPUnityNativeUtils::createString("unknown");
 }
 
 EXPORT_API char* SPUnityHardwareGetDeviceAdvertisingId()
@@ -112,10 +106,10 @@ EXPORT_API char* SPUnityHardwareGetDeviceAdvertisingId()
         NSString* idfa = [ASIdentifierManager sharedManager].advertisingIdentifier.UUIDString;
         if(idfa != nil)
         {
-            return SPUnityHardwareCreateString(idfa.UTF8String);
+            return SPUnityNativeUtils::createString(idfa.UTF8String);
         }
     }
-    return SPUnityHardwareCreateString("");
+    return SPUnityNativeUtils::createString("");
 }
 
 EXPORT_API bool SPUnityHardwareGetDeviceAdvertisingIdEnabled()
@@ -194,9 +188,9 @@ EXPORT_API char* SPUnityHardwareGetAppId()
     NSString* id = [[NSBundle mainBundle] bundleIdentifier];
     if(id == nil)
     {
-        return SPUnityHardwareCreateString("");
+        return SPUnityNativeUtils::createString("");
     }
-    return SPUnityHardwareCreateString(id.UTF8String);
+    return SPUnityNativeUtils::createString(id.UTF8String);
 }
 
 char* SPUnityHardwareGetBundleInfoString(const char* name)
@@ -205,9 +199,9 @@ char* SPUnityHardwareGetBundleInfoString(const char* name)
     NSString* value = [info objectForKey:[NSString stringWithUTF8String:name]];
     if(value == nil)
     {
-        return SPUnityHardwareCreateString("");
+        return SPUnityNativeUtils::createString("");
     }
-    return SPUnityHardwareCreateString(value.UTF8String);
+    return SPUnityNativeUtils::createString(value.UTF8String);
 }
 
 EXPORT_API char* SPUnityHardwareGetAppVersion()
@@ -235,10 +229,10 @@ EXPORT_API char* SPUnityHardwareGetAppLanguage()
         }
         if(lang != nil)
         {
-            return SPUnityHardwareCreateString(lang.UTF8String);
+            return SPUnityNativeUtils::createString(lang.UTF8String);
         }
     }
-    return SPUnityHardwareCreateString("");
+    return SPUnityNativeUtils::createString("");
 }
 
 EXPORT_API char* SPUnityHardwareGetAppCountry()
@@ -247,9 +241,9 @@ EXPORT_API char* SPUnityHardwareGetAppCountry()
     NSString* country = [locale objectForKey:NSLocaleCountryCode];
     if(country == nil)
     {
-        return SPUnityHardwareCreateString("");
+        return SPUnityNativeUtils::createString("");
     }
-    return SPUnityHardwareCreateString(country.UTF8String);
+    return SPUnityNativeUtils::createString(country.UTF8String);
 }
 
 EXPORT_API char* SPUnityHardwareGetNetworkConnectivity()
@@ -264,20 +258,20 @@ EXPORT_API char* SPUnityHardwareGetNetworkConnectivity()
         {
             if((flags & kSCNetworkReachabilityFlagsIsWWAN))
             {
-                return SPUnityHardwareCreateString("wwan");
+                return SPUnityNativeUtils::createString("wwan");
             }
             else
             {
-                return SPUnityHardwareCreateString("wifi");
+                return SPUnityNativeUtils::createString("wifi");
             }
         }
         else
         {
-            return SPUnityHardwareCreateString("none");
+            return SPUnityNativeUtils::createString("none");
         }
     }
     CFRelease(ref);
-    return SPUnityHardwareCreateString("none");
+    return SPUnityNativeUtils::createString("none");
 }
 
 const size_t kProxyBufferLength = 4096;
@@ -306,11 +300,11 @@ EXPORT_API char* SPUnityHardwareGetNetworkProxy()
         {
             char proxy[kProxyBufferLength];
             sprintf(proxy, "%s:%d", host, (int)port);
-            return SPUnityHardwareCreateString(proxy);
+            return SPUnityNativeUtils::createString(proxy);
         }
     }
 
-    return SPUnityHardwareCreateString(host);
+    return SPUnityNativeUtils::createString(host);
 }
 
 EXPORT_API char* SPUnityHardwareGetNetworkIpAddress()
@@ -353,9 +347,9 @@ EXPORT_API char* SPUnityHardwareGetNetworkIpAddress()
     freeifaddrs(interfaces);
     if(addr == nullptr)
     {
-        return SPUnityHardwareCreateString("");
+        return SPUnityNativeUtils::createString("");
     }
-    return SPUnityHardwareCreateString(addr);
+    return SPUnityNativeUtils::createString(addr);
 }
 
 uint64_t SPUnityHardwareGetStorageInfo(NSString* key)

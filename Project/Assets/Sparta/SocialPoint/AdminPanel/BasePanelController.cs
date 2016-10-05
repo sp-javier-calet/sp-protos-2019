@@ -8,10 +8,15 @@ namespace SocialPoint.AdminPanel
     public interface IPanelController
     {
         void RefreshPanel();
+
         void OpenPanel(IAdminPanelGUI panel);
+
         void ReplacePanel(IAdminPanelGUI panel);
+
         void ClosePanel();
+
         void RegisterUpdateable(IUpdateable updateable);
+
         void UnregisterUpdateable(IUpdateable updateable);
     }
 
@@ -21,7 +26,7 @@ namespace SocialPoint.AdminPanel
         {
             Hide();
         }
-        
+
         void Update()
         {
             for(var i = 0; i < _updateables.Count; i++)
@@ -31,8 +36,11 @@ namespace SocialPoint.AdminPanel
         }
 
         public abstract void RefreshPanel();
+
         public abstract void OpenPanel(IAdminPanelGUI panel);
+
         public abstract void ReplacePanel(IAdminPanelGUI panel);
+
         public abstract void ClosePanel();
 
         List<IUpdateable> _updateables = new List<IUpdateable>();

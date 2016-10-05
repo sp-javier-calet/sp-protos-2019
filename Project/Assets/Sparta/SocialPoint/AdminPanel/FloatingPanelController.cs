@@ -118,16 +118,19 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public static FloatingPanelController Create(IFloatingPanelGUI gui)
+        public static FloatingPanelController Create(IAdminPanelGUI gui)
         {
             var ctrl = UIViewController.Factory.Create<FloatingPanelController>();
             ctrl._gui = gui;
-            if(gui != null)
+            var fgui = gui as IFloatingPanelGUI;
+            if(fgui != null)
             {
-                gui.OnCreateFloatingPanel(ctrl);
+                fgui.OnCreateFloatingPanel(ctrl);
             }
             return ctrl;
         }
+
+
     }
 
     public interface IFloatingPanelGUI : IAdminPanelGUI

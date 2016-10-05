@@ -15,6 +15,12 @@ namespace SocialPoint.Profiling
             _info = info;
         }
 
+        public void OnCreateFloatingPanel(FloatingPanelController panel)
+        {
+            panel.Title = "FrameInfo";
+            panel.Size = new Vector2(200, 120);
+        }
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             _text = layout.CreateTextArea(_info.Frame.ToString());
@@ -27,12 +33,6 @@ namespace SocialPoint.Profiling
             {
                 _text.text = _info.Frame.ToString();
             }
-        }
-
-        public void OnCreateFloatingPanel(FloatingPanelController ctrl)
-        {
-            ctrl.Title = "FrameInfo";
-            ctrl.Size = new Vector2(200, 120);
         }
     }
 
