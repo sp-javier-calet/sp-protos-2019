@@ -33,5 +33,21 @@ namespace SocialPoint.Pathfinding
             }
             return array;
         }
+
+        public static Attr Array2Attr(int[] array)
+        {
+            AttrSerializeDelegate<int> converter = (int i) => { 
+                return new AttrInt(i); 
+            };
+            return Array2Attr<int>(array, converter);
+        }
+
+        public static int[] Attr2ArrayInt(Attr attr)
+        {
+            AttrParseDelegate<int> converter = (Attr a) => { 
+                return a.AsValue.ToInt(); 
+            };
+            return Attr2Array<int>(attr, converter);
+        }
     }
 }
