@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Lockstep.Network
 {
-    public sealed class AllPlayersReadyMessage : INetworkShareable
+    public sealed class ClientStartMessage : INetworkShareable
     {
         public int StartDelay { get; private set; }
 
@@ -10,7 +10,7 @@ namespace SocialPoint.Lockstep.Network
 
         public byte PlayerId{ get; private set; }
 
-        public AllPlayersReadyMessage(int serverTimestamp = 0, int startDelay = 0, byte playerId = 0)
+        public ClientStartMessage(int serverTimestamp = 0, int startDelay = 0, byte playerId = 0)
         {
             ServerTimestamp = serverTimestamp;
             StartDelay = startDelay;

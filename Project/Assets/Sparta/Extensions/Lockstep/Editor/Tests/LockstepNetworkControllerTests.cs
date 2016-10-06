@@ -123,8 +123,10 @@ namespace SocialPoint.Lockstep.Network
 
         void StartMatch()
         {
-            _netLockServer.ServerConfig.ClientSimulationDelay = 50;
-            _netLockServer.ServerConfig.ClientStartDelay = 100;
+            _netLockServer.ServerConfig.ClientSimulationDelay = 200;
+            _netLockServer.ServerConfig.ClientStartDelay = 500;
+            _netLockServer.Config.CommandStepDuration = 100;
+            _netLockServer.Config.SimulationStepDuration = 10;
             _lockClient1.ClientConfig.MaxSimulationStepsPerFrame = 10;
 
             _netServer.Start();
@@ -143,11 +145,24 @@ namespace SocialPoint.Lockstep.Network
 
             _lockClient2.AddPendingCommand(new TestCommand(4));
 
-            Assert.AreEqual(0, _logic1.SumValues, "Clients will not get commands before start plus sim delay");
+            Assert.AreEqual(0, _logic1.SumValues, "Clients will not get commands before start");
 
-            Update(150);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
 
-            Assert.AreEqual(4, _logic1.SumValues, "Commands are sent from the clients to the server and back");
+            _lockClient2.AddPendingCommand(new TestCommand(5));
+
+            Update(100);
+            Update(100);
+            Update(50);
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client did not get command because of the client sim delay");
+
+            Update(50);
+
+            Assert.AreEqual(5, _logic1.SumValues, "Commands are sent from the clients to the server and back");
         }
 
 
@@ -156,24 +171,33 @@ namespace SocialPoint.Lockstep.Network
         {
             StartMatch();
 
-            Update(150);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(50);
 
             Assert.IsTrue(_lockClient1.Connected, "Client is connected");
 
             _netClient1.DelayReceivedMessages = true;
 
-            Update(200);
+            Update(100);
+            Update(100);
+            Update(100);
 
             _lockClient2.AddPendingCommand(new TestCommand(4));
 
-            Update(200);
+            Update(100);
+            Update(100);
 
             Assert.IsFalse(_lockClient1.Connected, "Client is lagging, it's not getting any messages");
             Assert.AreEqual(0, _logic1.SumValues, "Client is lagging, it's not getting any messages");
 
             _netClient1.DelayReceivedMessages = false;
 
-            Update(150);
+            Update(100);
+            Update(50);
 
             Assert.AreEqual(0, _logic1.SumValues, "Catches up at MaxSimulationStepsPerFrame");
 
@@ -187,13 +211,29 @@ namespace SocialPoint.Lockstep.Network
         {
             StartMatch();
 
-            Update(200);
-
-            _lockClient2.AddPendingCommand(new TestCommand(4));
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
 
             _netClient1.Disconnect();
 
-            Update(1200);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+
+            _lockClient2.AddPendingCommand(new TestCommand(4));
+
+            Update(100);
+            Update(100);
+            Update(100);
 
             Assert.AreEqual(0, _logic1.SumValues, "Client is disconnected, it did not get the command");
             Assert.AreEqual(0, _lockClient1.TurnBuffer, "Client is disconnected, no turn buffer");
@@ -203,6 +243,26 @@ namespace SocialPoint.Lockstep.Network
             Assert.AreEqual(14, _lockClient1.TurnBuffer, "Client is reconnected, server resends all turns from the beginning");
 
             Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected, but has not applied command");
+
+            Update(0);
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected, but has not sent player ready");
+
+            _netLockClient1.SendPlayerReady();
+
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+
+            Assert.AreEqual(5, _lockClient1.TurnBuffer, "Client is reconnected and playing, but has not catched up");
+            Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected and playing, but has not catched up");
 
             Update(0);
 

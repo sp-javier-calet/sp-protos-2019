@@ -69,6 +69,7 @@ namespace SocialPoint.Lockstep.Network
         public void OnClientDisconnected()
         {
             _clientSetupReceived = false;
+            _clientLockstep.Stop();
         }
 
         public void OnMessageReceived(NetworkMessageData data)
@@ -89,8 +90,8 @@ namespace SocialPoint.Lockstep.Network
             case LockstepMsgType.ClientSetup:
                 OnClientSetupReceived(reader);
                 break;
-            case LockstepMsgType.AllPlayersReady:
-                OnAllPlayersReadyReceived(reader);
+            case LockstepMsgType.ClientStart:
+                OnClientStartReceived(reader);
                 break;
             default:
                 if(_receiver != null)
@@ -120,15 +121,11 @@ namespace SocialPoint.Lockstep.Network
             TrySendPlayerReady();
         }
 
-        void OnAllPlayersReadyReceived(IReader reader)
+        void OnClientStartReceived(IReader reader)
         {
-            var msg = new AllPlayersReadyMessage();
+            var msg = new ClientStartMessage();
             msg.Deserialize(reader);
-            int delay = msg.StartDelay - _client.GetDelay(msg.ServerTimestamp);
-            if(delay < 0)
-            {
-                throw new InvalidOperationException("Should have already started lockstep.");
-            }
+            var delay = msg.StartDelay - _client.GetDelay(msg.ServerTimestamp);
             PlayerId = msg.PlayerId;
             _clientLockstep.Start(delay);
             if(StartScheduled != null)
