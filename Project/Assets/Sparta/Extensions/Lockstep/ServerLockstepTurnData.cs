@@ -2,12 +2,12 @@
 using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
-{    
+{
     public sealed class ServerLockstepTurnData : INetworkShareable
     {
         List<ServerLockstepCommandData> _commands;
 
-        public ServerLockstepTurnData(List<ServerLockstepCommandData> commands=null)
+        public ServerLockstepTurnData(List<ServerLockstepCommandData> commands = null)
         {
             if(commands == null)
             {

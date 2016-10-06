@@ -7,7 +7,7 @@ namespace SocialPoint.Lockstep
     {
         List<ClientLockstepCommandData> _commands;
 
-        public ClientLockstepTurnData(List<ClientLockstepCommandData> commands=null)
+        public ClientLockstepTurnData(List<ClientLockstepCommandData> commands = null)
         {
             if(commands == null)
             {
@@ -86,5 +86,5 @@ namespace SocialPoint.Lockstep
             }
             return new ServerLockstepTurnData(commands);
         }
-    }    
+    }
 }

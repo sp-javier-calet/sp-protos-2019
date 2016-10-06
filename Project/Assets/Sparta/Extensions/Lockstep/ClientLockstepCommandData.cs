@@ -133,5 +133,5 @@ namespace SocialPoint.Lockstep
         {
             return string.Format("[ClientLockstepCommandData:{0} {1}]", _id, _command);
         }
-    }        
+    }
 }

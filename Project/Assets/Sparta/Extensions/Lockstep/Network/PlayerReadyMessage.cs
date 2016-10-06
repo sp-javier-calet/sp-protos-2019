@@ -6,7 +6,7 @@ namespace SocialPoint.Lockstep.Network
     {
         public uint PlayerHash { get; private set; }
 
-        public PlayerReadyMessage(uint playerHash=0)
+        public PlayerReadyMessage(uint playerHash = 0)
         {
             PlayerHash = playerHash;
         }

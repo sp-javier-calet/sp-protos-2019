@@ -30,9 +30,9 @@ namespace SocialPoint.Lockstep.Network
         public override string ToString()
         {
             return string.Format("[ServerLockstepConfig\n" +
-                "MaxPlayers:{0}\n" +
-                "ClientStartDelay:{1}\n" +
-                "ClientSimulationDelay:{2}]",
+            "MaxPlayers:{0}\n" +
+            "ClientStartDelay:{1}\n" +
+            "ClientSimulationDelay:{2}]",
                 MaxPlayers, ClientStartDelay, ClientSimulationDelay);
         }
     }
@@ -57,6 +57,7 @@ namespace SocialPoint.Lockstep.Network
         ClientData _localClientData;
 
         public ServerLockstepConfig ServerConfig{ get; set; }
+
         public LockstepConfig Config
         {
             get
@@ -70,7 +71,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public ServerLockstepNetworkController(INetworkServer server, IUpdateScheduler scheduler=null)
+        public ServerLockstepNetworkController(INetworkServer server, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new ServerLockstepConfig();
             _clients = new Dictionary<byte, ClientData>();
@@ -267,7 +268,7 @@ namespace SocialPoint.Lockstep.Network
                 return _server.Running && _serverLockstep.Running;
             }
         }
-            
+
         public bool Full
         {
             get
@@ -421,7 +422,7 @@ namespace SocialPoint.Lockstep.Network
             _clients.Clear();
             _playerIds.Clear();
             _localClientData.Ready = false;
-            if (_serverLockstep != null)
+            if(_serverLockstep != null)
             {
                 _serverLockstep.Stop();
             }
