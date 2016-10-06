@@ -53,15 +53,8 @@ namespace
         return totalBytes;
     }
     
-    /* called when data is received through stream */
     static size_t message_receive_callback(char* ptr, size_t size, size_t nmemb, void* userdata)
     {
-        /* TODO:
-         The documentation for CURLOPT_WRITEFUNCTION says that we cannot make assumptions about the amount of
-         data received through this function. We should create a protocol to define the end of a "package" sent
-         through the server.
-         */
-        
         CurlConnection* conn = (CurlConnection*)userdata;
         
         size_t totalBytes = size * nmemb;

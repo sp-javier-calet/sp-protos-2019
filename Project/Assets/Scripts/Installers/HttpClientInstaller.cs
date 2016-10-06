@@ -27,9 +27,6 @@ public class HttpClientInstaller : Installer
     public class SettingsData
     {
         public string Config = "basegame";
-        public bool EnableHttpClient = true;
-        public bool UseCurlIfAvailable = true;
-        public bool EnableStreamClient = true;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -42,25 +39,24 @@ public class HttpClientInstaller : Installer
         _httpProxy = EditorProxy.GetProxy();
         _deviceInfo = Container.Resolve<IDeviceInfo>();
 
-        if(Settings.EnableHttpClient)
+        // Http Client
+        if(Curl.IsSupported)
         {
-            if(Curl.IsSupported && Settings.UseCurlIfAvailable)
-            {
-                Container.Rebind<CurlHttpClient>().ToMethod<CurlHttpClient>(CreateCurlHttpClient);
-                Container.Rebind<IHttpClient>("internal").ToLookup<CurlHttpClient>();
-                Container.Rebind<IHttpClient>().ToLookup<CurlHttpClient>();
-            }
-            else
-            {
-                Container.Rebind<WebRequestHttpClient>().ToMethod<WebRequestHttpClient>(CreateWebRequestHttpClient);
-                Container.Rebind<IHttpClient>("internal").ToLookup<WebRequestHttpClient>();
-                Container.Rebind<IHttpClient>().ToLookup<WebRequestHttpClient>(); 
-            }
-
-            Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+            Container.Rebind<CurlHttpClient>().ToMethod<CurlHttpClient>(CreateCurlHttpClient);
+            Container.Rebind<IHttpClient>("internal").ToLookup<CurlHttpClient>();
+            Container.Rebind<IHttpClient>().ToLookup<CurlHttpClient>();
+        }
+        else
+        {
+            Container.Rebind<WebRequestHttpClient>().ToMethod<WebRequestHttpClient>(CreateWebRequestHttpClient);
+            Container.Rebind<IHttpClient>("internal").ToLookup<WebRequestHttpClient>();
+            Container.Rebind<IHttpClient>().ToLookup<WebRequestHttpClient>(); 
         }
 
-        if(Settings.EnableStreamClient)
+        Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+
+        // Http Stream Client
+        if(Curl.IsSupported)
         {
             Container.Bind<CurlHttpStreamClient>().ToMethod<CurlHttpStreamClient>(CreateStreamClient);    
             Container.Rebind<IHttpStreamClient>().ToLookup<CurlHttpStreamClient>(); 
@@ -73,8 +69,8 @@ public class HttpClientInstaller : Installer
     CurlHttpClient CreateCurlHttpClient()
     {
         var client = new CurlHttpClient(
-            Container.Resolve<ICoroutineRunner>()
-        );
+                         Container.Resolve<ICoroutineRunner>()
+                     );
 
         client.AppEvents = Container.Resolve<IAppEvents>();
 
@@ -86,8 +82,8 @@ public class HttpClientInstaller : Installer
     WebRequestHttpClient CreateWebRequestHttpClient()
     {
         var client = new WebRequestHttpClient(
-            Container.Resolve<ICoroutineRunner>()
-        );
+                         Container.Resolve<ICoroutineRunner>()
+                     );
 
         client.RequestSetup += OnRequestSetup;
         client.Config = Settings.Config;
@@ -97,9 +93,9 @@ public class HttpClientInstaller : Installer
     CurlHttpStreamClient CreateStreamClient()
     {
         var client = new CurlHttpStreamClient(
-            Container.Resolve<ICoroutineRunner>(),
-            Container.Resolve<IAppEvents>()
-        );
+                         Container.Resolve<ICoroutineRunner>(),
+                         Container.Resolve<IAppEvents>()
+                     );
 
         client.RequestSetup += OnRequestSetup;
         client.Config = Settings.Config;
