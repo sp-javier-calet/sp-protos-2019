@@ -1,5 +1,6 @@
 ﻿using UnityVector = UnityEngine.Vector3;
 using PathVector = SharpNav.Geometry.Vector3;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Pathfinding
 {

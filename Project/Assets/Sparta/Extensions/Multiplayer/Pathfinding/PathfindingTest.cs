@@ -6,8 +6,8 @@ using SharpNav;
 using SharpNav.Collections;
 using SharpNav.Crowds;
 using SharpNav.Geometry;
-using SharpNav.IO;
 using SharpNav.Pathfinding;
+using SocialPoint.Attributes;
 using SocialPoint.Pathfinding;
 
 public class PathfindingTest : MonoBehaviour, IPointerClickHandler
@@ -202,13 +202,13 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 
     void SaveNavMesh()
     {
-        //var serializer = new SharpNav.IO.Json.NavMeshJsonSerializer();
-        //serializer.Serialize(kTestNavMeshFile, navMesh);
+        var serializer = new NavMeshSerializer(new JsonAttrSerializer(), new JsonAttrParser());
+        serializer.Serialize(kTestNavMeshFile, navMesh);
     }
 
     void LoadNavMesh()
     {
-        //var serializer = new SharpNav.IO.Json.NavMeshJsonSerializer();
-        //navMesh = serializer.Deserialize(kTestNavMeshFile);
+        var serializer = new NavMeshSerializer(new JsonAttrSerializer(), new JsonAttrParser());
+        navMesh = serializer.Deserialize(kTestNavMeshFile);
     }
 }
