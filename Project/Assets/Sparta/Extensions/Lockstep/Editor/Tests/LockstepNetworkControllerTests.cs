@@ -57,17 +57,15 @@ namespace SocialPoint.Lockstep.Network
         ClientLockstepController _lockClient2;
         ClientLockstepNetworkController _netLockClient2;
 
-        UpdateScheduler _scheduler;
         LockstepCommandFactory _factory;
 
         [SetUp]
         public void SetUp()
         {
             _netServer = new LocalNetworkServer();
-            _scheduler = new UpdateScheduler();
             _factory = new LockstepCommandFactory();
 
-            _netLockServer = new ServerLockstepNetworkController(_netServer, _scheduler);
+            _netLockServer = new ServerLockstepNetworkController(_netServer);
             _netLockServer.ServerConfig.MaxPlayers = 2;
 
             _netClient1 = new LocalNetworkClient(_netServer);
@@ -164,13 +162,11 @@ namespace SocialPoint.Lockstep.Network
 
             _netClient1.DelayReceivedMessages = true;
 
-            Update(100);
-            Update(100);
+            Update(200);
 
             _lockClient2.AddPendingCommand(new TestCommand(4));
 
-            Update(100);
-            Update(100);
+            Update(200);
 
             Assert.IsFalse(_lockClient1.Connected, "Client is lagging, it's not getting any messages");
             Assert.AreEqual(0, _logic1.SumValues, "Client is lagging, it's not getting any messages");
@@ -189,7 +185,28 @@ namespace SocialPoint.Lockstep.Network
         [Test]
         public void ReconnectSituation()
         {
+            StartMatch();
 
+            Update(200);
+
+            _lockClient2.AddPendingCommand(new TestCommand(4));
+
+            _netClient1.Disconnect();
+
+            Update(1200);
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client is disconnected, it did not get the command");
+            Assert.AreEqual(0, _lockClient1.TurnBuffer, "Client is disconnected, no turn buffer");
+
+            _netClient1.Connect();
+
+            Assert.AreEqual(14, _lockClient1.TurnBuffer, "Client is reconnected, server resends all turns from the beginning");
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected, but has not applied command");
+
+            Update(0);
+
+            Assert.AreEqual(4, _logic1.SumValues, "Client is reconnected, client simulation catched up");
         }
     }
 

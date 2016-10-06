@@ -120,12 +120,17 @@ namespace SocialPoint.Lockstep.Network
             var itr = _clients.GetEnumerator();
             while(itr.MoveNext())
             {
-                _server.SendMessage(new NetworkMessageData {
-                    MessageType = LockstepMsgType.ConfirmTurn,
-                    ClientId = itr.Current.Key
-                }, turnData);
+                SendTurn(turnData, itr.Current.Key);
             }
             itr.Dispose();
+        }
+
+        void SendTurn(ServerLockstepTurnData turnData, byte client)
+        {
+            _server.SendMessage(new NetworkMessageData {
+                MessageType = LockstepMsgType.ConfirmTurn,
+                ClientId = client
+            }, turnData);
         }
 
         public void OnMessageReceived(NetworkMessageData data, IReader reader)
@@ -356,6 +361,13 @@ namespace SocialPoint.Lockstep.Network
                 ClientId = clientId,
                 Unreliable = false
             }, new ClientSetupMessage(Config));
+
+            var itr = _serverLockstep.GetTurnsEnumerator();
+            while(itr.MoveNext())
+            {
+                SendTurn(itr.Current, clientId);
+            }
+            itr.Dispose();
         }
 
         public void OnClientDisconnected(byte clientId)
