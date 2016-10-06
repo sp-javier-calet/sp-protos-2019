@@ -89,6 +89,7 @@ namespace SocialPoint.Lockstep
         int _lastSimTime;
         int _lastCmdTime;
         int _lastConfirmedTurnNumber;
+        bool _justStarted;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientLockstepCommandData> _pendingCommands = new List<ClientLockstepCommandData>();
@@ -172,6 +173,7 @@ namespace SocialPoint.Lockstep
             _timestamp = TimeUtils.TimestampMilliseconds;
             _lastSimTime = 0;
             _lastCmdTime = 0;
+            _justStarted = true;
             if(_updateScheduler != null)
             {
                 _updateScheduler.Add(this);
@@ -323,15 +325,15 @@ namespace SocialPoint.Lockstep
                 return;
             }
             dt = (int)(ClientConfig.SpeedFactor * (float)dt);
-            var time = _time + dt;
-            if(_time <= 0 && time >= 0)
+            _time += dt;
+            if(_justStarted && _time >= 0)
             {
+                _justStarted = false;
                 if(Started != null)
                 {
                     Started();
                 }
             }
-            _time = time;
             var simSteps = 0;
             var wasConnected = Connected;
             while(true)
@@ -339,7 +341,7 @@ namespace SocialPoint.Lockstep
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
                 var finished = true;
-                if(nextSimTime <= nextCmdTime && nextSimTime <= time)
+                if(nextSimTime <= nextCmdTime && nextSimTime <= _time)
                 {
                     if(Simulate != null)
                     {
@@ -352,7 +354,7 @@ namespace SocialPoint.Lockstep
                         finished = false;
                     }
                 }
-                else if(nextCmdTime <= time)
+                else if(nextCmdTime <= _time)
                 {
                     var t = CurrentTurnNumber + 1;
                     if(_lastConfirmedTurnNumber >= t)

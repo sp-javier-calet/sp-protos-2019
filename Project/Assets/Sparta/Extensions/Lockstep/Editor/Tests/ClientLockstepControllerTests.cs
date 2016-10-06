@@ -41,6 +41,11 @@ namespace SocialPoint.Lockstep
             Assert.IsFalse(started, "Started should not be called if update time is lower than start delay");
             _client.Update(150);
             Assert.IsTrue(started, "Started should be called after update time exceeds start delay");
+
+            started = false;
+            _client.Start(200);
+            _client.Update(0);
+            Assert.IsTrue(started, "Started should not be called if started after 0 time (reconnection)");
         }
 
         [Test]
