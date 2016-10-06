@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Login
@@ -77,6 +78,7 @@ namespace SocialPoint.Login
             
             var loginInfo = new StringBuilder();
             loginInfo.Append("Base URL: ").AppendLine(_login.BaseUrl)
+                .Append("Jenkins Forced Environment Url: ").AppendLine(EnvironmentSettings.Instance.EnvironmentUrl)
                 .Append("User Id: ").AppendLine(_login.UserId.ToString())
                 .Append("Session Id: ").AppendLine(_login.SessionId)
                 .Append("Temp Id: ").AppendLine(_login.User.TempId)

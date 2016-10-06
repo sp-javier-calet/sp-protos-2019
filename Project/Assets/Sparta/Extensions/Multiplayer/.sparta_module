@@ -1,3 +1,4 @@
 type extension
 desc Authoritative multiplayer server implementation for sparta
 name Extension/Multiplayer
+depends_on Assets/Sparta/External/JitterPhysics

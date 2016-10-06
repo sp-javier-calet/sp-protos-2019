@@ -53,7 +53,13 @@ namespace SpartaTools.Editor.Build
 
         public static BaseSettings Create()
         {
-            var asset = ScriptableObject.CreateInstance(typeof(BaseSettings)) as BaseSettings;
+            var asset = ScriptableObject.CreateInstance<BaseSettings>();
+
+            if(!Directory.Exists(ContainerPath))
+            {
+                Directory.CreateDirectory(ContainerPath);
+            }
+
             ImportConfig(asset);
             AssetDatabase.CreateAsset(asset, BaseSettingsAsset);
             AssetDatabase.SaveAssets();
