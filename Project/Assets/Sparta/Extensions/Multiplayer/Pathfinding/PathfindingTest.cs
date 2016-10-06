@@ -12,9 +12,12 @@ using SocialPoint.Pathfinding;
 
 public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 {
-    public GameObject pathNodePrefab;
+    const string kTestNavMeshFile = "/Users/abarrera/Projects/sp-unity-BaseGame/Project/Assets/Examples/Multiplayer/Resources/test_nav_mesh.txt";
 
-    SharpNav.NavMesh navMesh;
+    public GameObject pathNodePrefab;
+    public bool loadFromFile = false;
+
+    SharpNav.TiledNavMesh navMesh;
     int maxNodes = 1000;
 
     List<SharpNav.Geometry.Vector3> navPath = new List<SharpNav.Geometry.Vector3>();
@@ -33,16 +36,24 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         int totalTriangles = triangles.Length / 3;
         Debug.Log("Mesh Triangles: " + totalTriangles);
 
-        //prepare the geometry from your mesh data
-        var tris = TriangleEnumerable.FromIndexedVector3(ConvertVectorsToPathfinding(vertices), triangles, 0, 1, 0, totalTriangles);
+        if(!loadFromFile)
+        {
+            //prepare the geometry from your mesh data
+            var tris = TriangleEnumerable.FromIndexedVector3(ConvertVectorsToPathfinding(vertices), triangles, 0, 1, 0, totalTriangles);
 
-        //use the default generation settings
-        var settings = NavMeshGenerationSettings.Default;
-        settings.AgentHeight = 1.7f;
-        settings.AgentRadius = 0.5f;
+            //use the default generation settings
+            var settings = NavMeshGenerationSettings.Default;
+            settings.AgentHeight = 1.7f;
+            settings.AgentRadius = 0.5f;
 
-        //generate the mesh
-        navMesh = Generate(tris, settings);//change to SharpNav.NavMesh.
+            //generate the mesh
+            navMesh = SharpNav.NavMesh.Generate(tris, settings);
+            SaveNavMesh();
+        }
+        else
+        {
+            LoadNavMesh();
+        }
         Debug.Log("Total Tiles: " + navMesh.TileCount);
     }
 
@@ -189,29 +200,15 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         return navVectors;
     }
 
-    public static SharpNav.NavMesh Generate(IEnumerable<Triangle3> triangles, NavMeshGenerationSettings settings)
+    void SaveNavMesh()
     {
-        BBox3 bounds = triangles.GetBoundingBox(settings.CellSize);
-        var hf = new Heightfield(bounds, settings);
-        hf.RasterizeTriangles(triangles);
-        hf.FilterLedgeSpans(settings.VoxelAgentHeight, settings.VoxelMaxClimb);
-        hf.FilterLowHangingWalkableObstacles(settings.VoxelMaxClimb);
-        hf.FilterWalkableLowHeightSpans(settings.VoxelAgentHeight);
+        var serializer = new SharpNav.IO.Json.NavMeshJsonSerializer();
+        serializer.Serialize(kTestNavMeshFile, navMesh);
+    }
 
-        var chf = new CompactHeightfield(hf, settings);
-        chf.Erode(settings.VoxelAgentRadius);
-        chf.BuildDistanceField();
-        chf.BuildRegions(2, settings.MinRegionSize, settings.MergedRegionSize);
-
-        var cont = chf.BuildContourSet(settings);
-
-        var polyMesh = new PolyMesh(cont, settings);
-
-        var polyMeshDetail = new PolyMeshDetail(polyMesh, chf, settings);
-
-        var buildData = new NavMeshBuilder(polyMesh, polyMeshDetail, new OffMeshConnection[0], settings);
-
-        var navMesh = new SharpNav.NavMesh(buildData);
-        return navMesh;
+    void LoadNavMesh()
+    {
+        var serializer = new SharpNav.IO.Json.NavMeshJsonSerializer();
+        navMesh = serializer.Deserialize(kTestNavMeshFile);
     }
 }
