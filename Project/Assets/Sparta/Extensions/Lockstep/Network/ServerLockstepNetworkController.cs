@@ -310,16 +310,16 @@ namespace SocialPoint.Lockstep.Network
             }
             var msg = new PlayerReadyMessage();
             msg.Deserialize(reader);
+            var playerId = FreePlayerId;
             clientData.Ready = true;
             if(!Running)
             {
-                clientData.PlayerId = FreePlayerId;
+                clientData.PlayerId = playerId;
                 _playerIds[msg.PlayerHash] = clientData.PlayerId;
                 CheckAllPlayersReady();
                 return;
             }
             // client reconnected
-            byte playerId;
             if(!_playerIds.TryGetValue(msg.PlayerHash, out playerId))
             {
                 // bad player, kick him out!
@@ -483,10 +483,11 @@ namespace SocialPoint.Lockstep.Network
             {
                 return;
             }
+            var playerId = FreePlayerId;
             _localClientData.Ready = true;
             if(!Running)
             {
-                _localClientData.PlayerId = FreePlayerId;
+                _localClientData.PlayerId = playerId;
                 CheckAllPlayersReady();
                 return;
             }

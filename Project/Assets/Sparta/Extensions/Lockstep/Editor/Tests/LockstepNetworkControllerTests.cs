@@ -222,6 +222,10 @@ namespace SocialPoint.Lockstep.Network
             var playerId2 = _netLockClient2.PlayerId;
             var playerId3 = _netLockServer.LocalPlayerId;
 
+            Assert.AreEqual(0, playerId1, "Player ids should be consecutive");
+            Assert.AreEqual(1, playerId2, "Player ids should be consecutive");
+            Assert.AreEqual(2, playerId3, "Player ids should be consecutive");
+
             _netClient1.Disconnect();
             _netClient2.Disconnect();
             _netLockServer.UnregisterLocalClient();
