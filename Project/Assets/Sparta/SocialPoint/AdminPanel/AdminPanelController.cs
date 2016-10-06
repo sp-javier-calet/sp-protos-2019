@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SocialPoint.AdminPanel
 {
-    public sealed class AdminPanelController : UIViewController
+    public sealed class AdminPanelController : BasePanelController
     {
         Stack<IAdminPanelGUI> _activePanels;
 
@@ -48,14 +49,9 @@ namespace SocialPoint.AdminPanel
             };
         }
 
-        void OnLevelWasLoaded(int i)
-        {
-            Hide();
-        }
-
         void InflateGUI()
         {
-            _root = new AdminPanelRootLayout(this);
+            _root = new AdminPanelRootLayout(this, transform);
 
             AdminPanelLayout horizontalLayout = _root.CreateHorizontalLayout();
             
@@ -85,7 +81,7 @@ namespace SocialPoint.AdminPanel
         {
             var toggle = layout.CreateToggleButton("Console", _consoleEnabled, value => {
                 _consoleEnabled = value;
-                RefreshPanel();
+                RefreshPanel(false);
             });
 
             // Add feedback component
@@ -102,7 +98,7 @@ namespace SocialPoint.AdminPanel
             {
                 InflateGUI();
             }
-            RefreshPanel();
+            RefreshPanel(false);
             AdminPanel.OnAppearing();
         }
 
@@ -112,7 +108,7 @@ namespace SocialPoint.AdminPanel
             AdminPanel.OnDisappeared();
         }
 
-        public void ReplacePanel(IAdminPanelGUI gui)
+        public override void ReplacePanel(IAdminPanelGUI gui)
         {
             IAdminPanelGUI currentGUI = null;
             if(_activePanels.Count > 0)
@@ -127,35 +123,35 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public void OpenPanel(IAdminPanelGUI panel)
+        public override void OpenPanel(IAdminPanelGUI panel)
         {
-            _activePanels.Push(new AdminPanelGUIGroup(panel));
+            if(!(panel is AdminPanelGUIGroup))
+            {
+                panel = new AdminPanelGUIGroup(panel);
+            }
+            _activePanels.Push(panel);
             _mainPanelDirty = true;
-            RefreshPanel();
+            RefreshPanel(false);
         }
 
-        public void OpenPanel(AdminPanelGUIGroup panelLayout)
-        {
-            _activePanels.Push(panelLayout);
-            _mainPanelDirty = true;
-            RefreshPanel();
-        }
-
-        public void ClosePanel()
+        public override void ClosePanel()
         {
             _activePanels.Pop();
             _mainPanelDirty = true;
-            RefreshPanel();
+            RefreshPanel(false);
         }
 
-        public void RefreshPanel(bool force = false)
+        public override void RefreshPanel()
+        {
+            RefreshPanel(true);
+        }
+
+        void RefreshPanel(bool force)
         {
             // Categories panel
-            var itr = _categoriesPanelContent.Parent.GetEnumerator();
-            while(itr.MoveNext())
+            if(_categoriesPanelContent != null)
             {
-                var child = (Transform)itr.Current;
-                Destroy(child.gameObject);
+                _categoriesPanelContent.Clear();
             }
 
             IAdminPanelGUI rootPanel = new AdminPanelCategoriesGUI(AdminPanel.Categories);
@@ -165,11 +161,9 @@ namespace SocialPoint.AdminPanel
             if(_mainPanelDirty || force)
             {
                 // Destroy current content and hide main panel
-                var itr2 =  _mainPanelContent.Parent.GetEnumerator();
-                while(itr2.MoveNext())
+                if(_mainPanelContent != null)
                 {
-                    var child = (Transform)itr2.Current;
-                    Destroy(child.gameObject);
+                    _mainPanelContent.Clear();
                 }
                 _mainPanel.SetActive(false);
 

@@ -9,7 +9,7 @@ namespace SocialPoint.Social
     public sealed class AdminPanelGoogle : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly IGoogle _google;
-        AdminPanel.AdminPanel _adminPanel;
+        AdminPanelConsole _console;
 
         Toggle _toggleLogin;
         readonly AdminPanelGoogleLeaderboardIdHandler _leaderboardId;
@@ -26,9 +26,16 @@ namespace SocialPoint.Social
             {
                 return;
             }
-            _adminPanel = adminPanel;
-
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Google Play", this));
+        }
+
+        void ConsolePrint(string msg)
+        {
+            if(_console != null)
+            {
+                _console.Print(msg);
+            }
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -43,10 +50,13 @@ namespace SocialPoint.Social
                     {
                         return;
                     }
-                    _adminPanel.Console.Print("Logging in to Google Play Games");
+                    if(_console != null)
+                    {
+                        _console.Print("Logging in to Google Play Games");
+                    }
                     _google.Login(err => {
                         _toggleLogin.isOn = (err == null);
-                        _adminPanel.Console.Print("Login finished." + err);
+                        ConsolePrint("Login finished." + err);
                         layout.Refresh();
                     });
                 }
@@ -76,7 +86,7 @@ namespace SocialPoint.Social
 
             layout.CreateMargin(2);
             layout.CreateLabel("Achievements");
-            layout.CreateOpenPanelButton("Achievements", new AdminPanelGoogleAchievementList(_google), connected);
+            layout.CreateOpenPanelButton("Achievements", new AdminPanelGoogleAchievementList(_google, _console), connected);
             layout.CreateConfirmButton("Show Achievements UI", _google.ShowAchievementsUI, connected);
 
             layout.CreateMargin(2);
@@ -87,7 +97,7 @@ namespace SocialPoint.Social
                 _leaderboardId.Id = text;
             }, connected);
             ldbInput.text = _leaderboardId.Id;
-            groupLayout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelGoogleLeaderboard(_google, _leaderboardId), connected);
+            groupLayout.CreateOpenPanelButton("Leaderboard Info", new AdminPanelGoogleLeaderboard(_google, _leaderboardId, _console), connected);
 
             layout.CreateConfirmButton("Show Leaderboards UI", () => _google.ShowLeaderboardsUI(_leaderboardId.Id), connected);
 
@@ -98,7 +108,7 @@ namespace SocialPoint.Social
             var eventIdField = groupLayout.CreateTextInput("Event id", connected);
             groupLayout.CreateButton("+", () => _google.IncrementEvent(eventIdField.text), connected);
 
-            layout.CreateConfirmButton("Show Quests UI", () => _google.ShowViewQuestsUI((evt, err) => layout.AdminPanel.Console.Print("Event " + evt + ". " + err)), connected);
+            layout.CreateConfirmButton("Show Quests UI", () => _google.ShowViewQuestsUI((evt, err) => _console.Print("Event " + evt + ". " + err)), connected);
         }
 
         #region Achievements panels
@@ -106,10 +116,12 @@ namespace SocialPoint.Social
         class AdminPanelGoogleAchievementList : IAdminPanelGUI
         {
             readonly IGoogle _google;
+            readonly AdminPanelConsole _console;
 
-            public AdminPanelGoogleAchievementList(IGoogle google)
+            public AdminPanelGoogleAchievementList(IGoogle google, AdminPanelConsole console)
             {
                 _google = google;
+                _console = console;
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -122,7 +134,7 @@ namespace SocialPoint.Social
                     var achievement = itr.Current;
                     layout.CreateOpenPanelButton(achievement.Name,
                         achievement.IsUnlocked ? ButtonColor.Green : ButtonColor.Default,
-                        new AdminPanelGoogleAchievement(_google, achievement));
+                        new AdminPanelGoogleAchievement(_google, achievement, _console));
                 }
                 itr.Dispose();
             }
@@ -132,11 +144,21 @@ namespace SocialPoint.Social
         {
             readonly GoogleAchievement _achievement;
             readonly IGoogle _google;
+            readonly AdminPanelConsole _console;
 
-            public AdminPanelGoogleAchievement(IGoogle google, GoogleAchievement achievement)
+            public AdminPanelGoogleAchievement(IGoogle google, GoogleAchievement achievement, AdminPanelConsole console)
             {
                 _google = google;
                 _achievement = achievement;
+                _console = console;
+            }
+
+            void ConsolePrint(string msg)
+            {
+                if(_console != null)
+                {
+                    _console.Print(msg);
+                }
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -159,14 +181,14 @@ namespace SocialPoint.Social
                     () => {
                         _achievement.CurrentSteps++;
                         _google.UpdateAchievement(_achievement, (achi, err) => {
-                            layout.AdminPanel.Console.Print(string.Format("Updated Achievement {0}. {1}", achi.Name, err));
+                            ConsolePrint(string.Format("Updated Achievement {0}. {1}", achi.Name, err));
                             layout.Refresh();
                         });
                     },
                     !_achievement.IsUnlocked);
 
                 layout.CreateButton("Reset", () => _google.ResetAchievement(_achievement, (achi, err) => {
-                    layout.AdminPanel.Console.Print(string.Format("Reset Achievement {0}. {1}", achi.Name, err));
+                    ConsolePrint(string.Format("Reset Achievement {0}. {1}", achi.Name, err));
                     layout.Refresh();
                 }));
             }
@@ -185,14 +207,24 @@ namespace SocialPoint.Social
             bool _isFriendOnly;
             bool _playerCentered;
             TimeScope _scope;
+            readonly AdminPanelConsole _console;
 
-            public AdminPanelGoogleLeaderboard(IGoogle google, AdminPanelGoogleLeaderboardIdHandler idHandler)
+            public AdminPanelGoogleLeaderboard(IGoogle google, AdminPanelGoogleLeaderboardIdHandler idHandler, AdminPanelConsole console)
             {
                 _google = google;
                 _idHandler = idHandler;
                 _isFriendOnly = true;
                 _playerCentered = true;
                 _scope = TimeScope.Today;
+                _console = console;
+            }
+
+            void ConsolePrint(string msg)
+            {
+                if(_console != null)
+                {
+                    _console.Print(msg);
+                }
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -200,7 +232,7 @@ namespace SocialPoint.Social
                 _mainTitle = layout.CreateLabel("Leaderboard not found");
                 if(string.IsNullOrEmpty(_idHandler.Id))
                 {
-                    layout.AdminPanel.Console.Print("LeaderboardHandler id cannot be empty");
+                    ConsolePrint("LeaderboardHandler id cannot be empty");
                     return;
                 }
                 _google.LoadLeaderboard(new GoogleLeaderboard(_idHandler.Id, _isFriendOnly, _playerCentered, _scope), 10, (ldb, err) => {
@@ -236,7 +268,7 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        layout.AdminPanel.Console.Print("Error loading leaderboard " + _idHandler.Id + ". Error:" + err);
+                        ConsolePrint("Error loading leaderboard " + _idHandler.Id + ". Error:" + err);
                         _mainTitle.text = "Leaderboard not found";
                     }
                 });

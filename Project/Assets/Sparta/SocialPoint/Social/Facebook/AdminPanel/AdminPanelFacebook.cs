@@ -12,7 +12,7 @@ namespace SocialPoint.Social
 {
     public sealed class AdminPanelFacebook : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        AdminPanel.AdminPanel _adminPanel;
+        AdminPanelConsole _console;
         readonly IFacebook _facebook;
         bool _loginWithUi = true;
         bool _enabledLoggedOutInteraction;
@@ -20,15 +20,12 @@ namespace SocialPoint.Social
         Text _userText;
         RawImage _userPhoto;
 
-        readonly AdminPanelFacebookLoginConfig _loginConfigPanel;
-        readonly AdminPanelFacebookFriends _friendsPanel;
+        AdminPanelFacebookLoginConfig _loginConfigPanel;
+        AdminPanelFacebookFriends _friendsPanel;
 
         public AdminPanelFacebook(IFacebook facebook)
         {
             _facebook = facebook;
-
-            _loginConfigPanel = new AdminPanelFacebookLoginConfig(facebook);
-            _friendsPanel = new AdminPanelFacebookFriends(facebook);
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -37,7 +34,9 @@ namespace SocialPoint.Social
             {
                 return;
             }
-            _adminPanel = adminPanel;
+            _console = adminPanel.Console;
+            _loginConfigPanel = new AdminPanelFacebookLoginConfig(_facebook, adminPanel.Console);
+            _friendsPanel = new AdminPanelFacebookFriends(_facebook);
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Facebook", this));
 
 
@@ -66,28 +65,31 @@ namespace SocialPoint.Social
                     var serializer = new JsonAttrSerializer();
                     serializer.PrettyPrint = true;
                     var json = serializer.SerializeString(query.Response);
-                    PrintLog(string.Format("query response {0}", json));
+                    ConsolePrint(string.Format("query response {0}", json));
                 }
                 else
                 {
-                    PrintLog(string.Format("query error {0}", err));
+                    ConsolePrint(string.Format("query error {0}", err));
                 }
             });
         }
 
-        void PrintLog(string msg)
+        void ConsolePrint(string msg)
         {
-            _adminPanel.Console.Print(string.Format("Facebook: {0}", msg));
+            if(_console != null)
+            {
+                _console.Print(string.Format("Facebook: {0}", msg));
+            }
         }
 
         bool PrintError(string what, Error err)
         {
             if(Error.IsNullOrEmpty(err))
             {
-                PrintLog(string.Format("success when {0}", what));
+                ConsolePrint(string.Format("success when {0}", what));
                 return false;
             }
-            PrintLog(string.Format("error when {0}: {1}", what, err));
+            ConsolePrint(string.Format("error when {0}: {1}", what, err));
             return true;
         }
 
@@ -174,7 +176,7 @@ namespace SocialPoint.Social
                 _facebook.SendAppRequest(req, (_, err) => {
                     if(!PrintError("sending app request", err))
                     {
-                        PrintLog(req.ToString());
+                        ConsolePrint(req.ToString());
                     }
                 });
             }, enabled);
@@ -184,7 +186,7 @@ namespace SocialPoint.Social
                 _facebook.PostOnWallWithDialog(post, (_, err) => {
                     if(!PrintError("posting on wall", err))
                     {
-                        PrintLog(post.ToString());
+                        ConsolePrint(post.ToString());
                     }
                 });
             }, enabled);
@@ -198,9 +200,12 @@ namespace SocialPoint.Social
 
             readonly IFacebook _facebook;
 
-            public AdminPanelFacebookLoginConfig(IFacebook facebook)
+            readonly AdminPanelConsole _console;
+
+            public AdminPanelFacebookLoginConfig(IFacebook facebook, AdminPanelConsole console)
             {
                 _facebook = facebook;
+                _console = console;
             }
 
             void LoginPermissionButton(AdminPanelLayout layout, string name, List<string> permissionAsList)
@@ -229,9 +234,9 @@ namespace SocialPoint.Social
                         {
                             _facebook.AskForPermissions(permissionAsList, (permissions, err) =>
                                 {
-                                    if(!Error.IsNullOrEmpty(err))
+                                    if(_console != null && !Error.IsNullOrEmpty(err))
                                     {
-                                        layout.AdminPanel.Console.Print("Error when asking for permissions. " + err.Msg);
+                                        _console.Print("Error when asking for permissions. " + err.Msg);
                                     }
                                     layout.Refresh();
                                 });
