@@ -36,7 +36,7 @@ namespace SocialPoint.Lockstep
             _client.Update(2000);
             Assert.IsTrue(started);
             started = false;
-            _client.Start(200);
+            _client.Start(-200);
             _client.Update(150);
             Assert.IsFalse(started, "Started should not be called if update time is lower than start delay");
             _client.Update(150);
@@ -137,7 +137,7 @@ namespace SocialPoint.Lockstep
             _client.Config.CommandStepDuration = 100;
             _client.Config.SimulationStepDuration = 1000;
 
-            _client.Start(1000);
+            _client.Start(-1000);
             Assert.IsTrue(_client.Connected, "Client should be connected after start.");
             _client.Update(100);
             Assert.IsTrue(_client.Connected, "Client should be connected if update time is less than start delay.");

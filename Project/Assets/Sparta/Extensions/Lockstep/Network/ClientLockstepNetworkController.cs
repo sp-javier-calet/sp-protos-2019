@@ -124,7 +124,7 @@ namespace SocialPoint.Lockstep.Network
         {
             var msg = new ClientStartMessage();
             msg.Deserialize(reader);
-            var time = msg.StartTime - _client.GetDelay(msg.ServerTimestamp);
+            var time = msg.StartTime + _client.GetDelay(msg.ServerTimestamp);
             PlayerId = msg.PlayerId;
             _clientLockstep.Start(time);
             if(StartScheduled != null)

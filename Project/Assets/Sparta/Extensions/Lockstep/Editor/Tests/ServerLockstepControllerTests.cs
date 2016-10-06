@@ -56,7 +56,7 @@ namespace SocialPoint.Lockstep
             _server.Config.CommandStepDuration = 100;
 
             _server.Start();
-            client.Start(1000);
+            client.Start(-1000);
 
             _server.Update(1000);
             client.Update(1000);

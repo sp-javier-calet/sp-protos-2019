@@ -99,10 +99,10 @@ namespace SocialPoint.Lockstep
             turn.AddCommand(command);
         }
 
-        public void Start(int dt = 0)
+        public void Start(int startTime = 0)
         {
             Running = true;
-            _time = -dt;
+            _time = startTime;
             _lastCmdTime = 0;
             _timestamp = TimeUtils.TimestampMilliseconds;
             _turns.Clear();

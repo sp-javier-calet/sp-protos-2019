@@ -164,11 +164,11 @@ namespace SocialPoint.Lockstep
             Config = config;
         }
 
-        public void Start(int dt = 0)
+        public void Start(int startTime = 0)
         {
             Running = true;
             Connected = true;
-            _time = -dt;
+            _time = startTime;
             _timestamp = TimeUtils.TimestampMilliseconds;
             _lastSimTime = 0;
             _lastCmdTime = 0;

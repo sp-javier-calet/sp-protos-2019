@@ -341,7 +341,7 @@ namespace SocialPoint.Lockstep.Network
                 ClientId = clientData.ClientId
             }, new ClientStartMessage(
                 _server.GetTimestamp(),
-                -ClientUpdateTime,
+                ClientUpdateTime,
                 clientData.PlayerId
             ));
         }
@@ -358,7 +358,7 @@ namespace SocialPoint.Lockstep.Network
         {
             if(_serverLockstep != null)
             {
-                _serverLockstep.Start(ServerConfig.ClientStartDelay - ServerConfig.ClientSimulationDelay);
+                _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
             }
             var itr = _clients.GetEnumerator();
             while(itr.MoveNext())
@@ -369,7 +369,7 @@ namespace SocialPoint.Lockstep.Network
                     ClientId = clientData.ClientId
                 }, new ClientStartMessage(
                     _server.GetTimestamp(),
-                    -ClientUpdateTime,
+                    ClientUpdateTime,
                     clientData.PlayerId
                 ));
             }
@@ -496,14 +496,14 @@ namespace SocialPoint.Lockstep.Network
                 _localClient.AddConfirmedTurn(itr.Current.ToClient(_localFactory));
             }
             itr.Dispose();
-            _localClient.Start(-ClientUpdateTime);
+            _localClient.Start(ClientUpdateTime);
         }
 
         void StartLocalClientOnAllPlayersReady()
         {
             if(_localClient != null)
             {
-                _localClient.Start(-ClientUpdateTime);
+                _localClient.Start(ClientUpdateTime);
             }
         }
 
