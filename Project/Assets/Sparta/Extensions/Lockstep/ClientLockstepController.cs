@@ -273,21 +273,23 @@ namespace SocialPoint.Lockstep
 
         void ProcessTurn(ClientLockstepTurnData turn)
         {
-            for(var i=0; i<turn.CommandCount; i++)
+            var itr = turn.GetCommandEnumerator();
+            while(itr.MoveNext())
             {
-                var command = FindCommand(turn.GetCommand(i));
+                var command = FindCommand(itr.Current);
                 if(command == null)
                 {
                     continue;
                 }
-                var itr = _commandLogics.GetEnumerator();
-                while(itr.MoveNext())
+                var itr2 = _commandLogics.GetEnumerator();
+                while(itr2.MoveNext())
                 {
-                    command.Apply(itr.Current.Key, itr.Current.Value);
+                    command.Apply(itr2.Current.Key, itr2.Current.Value);
                 }
-                itr.Dispose();
+                itr2.Dispose();
                 command.Finish();
             }
+            itr.Dispose();
             if(TurnApplied != null)
             {
                 TurnApplied(turn);

@@ -31,10 +31,25 @@ namespace SocialPoint.Lockstep
             Assert.AreEqual(0, _replay.CommandCount);
             _client.Start();
             var cmd = Substitute.For<ILockstepCommand>();
-            _client.AddPendingCommand(cmd);
+            var cmdData = _client.AddPendingCommand(cmd);
             Assert.AreEqual(0, _replay.CommandCount);
             _client.Update(2000);
             Assert.AreEqual(1, _replay.CommandCount);
+
+            var itr = _replay.GetTurnsEnumerator();
+            ClientLockstepCommandData cmdData2 = null;
+            while(itr.MoveNext())
+            {
+                var turn = itr.Current;
+                var itr2 = turn.GetCommandEnumerator();
+                while(itr2.MoveNext())
+                {
+                    cmdData2 = itr2.Current;
+                }
+            }
+            itr.Dispose();
+
+            Assert.AreEqual(cmdData, cmdData2);
         }
 
         [Test]

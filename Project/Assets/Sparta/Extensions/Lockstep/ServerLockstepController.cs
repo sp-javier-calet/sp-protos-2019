@@ -50,6 +50,22 @@ namespace SocialPoint.Lockstep
             Stop();
         }
 
+        public IEnumerator<ServerLockstepTurnData> GetTurnsEnumerator()
+        {
+            var t = 0;
+            var itr = _turns.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                while(t < itr.Current.Key)
+                {
+                    yield return ServerLockstepTurnData.Empty;
+                    t++;
+                }
+                yield return itr.Current.Value;
+            }
+            itr.Dispose();
+        }
+
         public void AddCommand(ServerLockstepCommandData command)
         {
             if(!Running || _time < 0)

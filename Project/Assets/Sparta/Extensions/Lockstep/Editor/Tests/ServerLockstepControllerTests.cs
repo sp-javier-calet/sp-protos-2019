@@ -9,13 +9,11 @@ namespace SocialPoint.Lockstep
     class ServerLockstepControllerTests
     {
         ServerLockstepController _server;
-        UpdateScheduler _scheduler;
 
         [SetUp]
         public void SetUp()
         {
-            _scheduler = new UpdateScheduler();
-            _server = new ServerLockstepController(_scheduler);
+            _server = new ServerLockstepController();
         }
 
         [Test]
@@ -48,7 +46,7 @@ namespace SocialPoint.Lockstep
         [Test]
         public void LocalClientWorking()
         {
-            var client = new ClientLockstepController(_scheduler);
+            var client = new ClientLockstepController();
             var factory = new LockstepCommandFactory();
             var cmd = Substitute.For<ILockstepCommand>();
             cmd.Clone().Returns(cmd);
@@ -76,7 +74,6 @@ namespace SocialPoint.Lockstep
 
             finish.Received().Apply(cmd);
         }
-
     }
 
 }

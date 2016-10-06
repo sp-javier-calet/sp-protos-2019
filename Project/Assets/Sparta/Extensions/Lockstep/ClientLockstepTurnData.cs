@@ -31,11 +31,6 @@ namespace SocialPoint.Lockstep
             return turn == null || turn.CommandCount == 0;
         }
 
-        public ClientLockstepCommandData GetCommand(int i)
-        {
-            return _commands[i];
-        }
-
         public void AddCommand(ClientLockstepCommandData cmd)
         {
             _commands.Add(cmd);

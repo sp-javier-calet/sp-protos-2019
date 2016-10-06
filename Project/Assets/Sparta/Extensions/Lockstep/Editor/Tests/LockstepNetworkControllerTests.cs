@@ -185,6 +185,12 @@ namespace SocialPoint.Lockstep.Network
 
             Assert.AreEqual(4, _logic1.SumValues, "Catches up at MaxSimulationStepsPerFrame");
         }
+
+        [Test]
+        public void ReconnectSituation()
+        {
+
+        }
     }
 
 }

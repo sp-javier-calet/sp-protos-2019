@@ -56,16 +56,26 @@ namespace SocialPoint.Lockstep
                 _config = new LockstepConfig();
             }
             _client.Config = _config;
+            var itr = GetTurnsEnumerator();
+            while(itr.MoveNext())
+            {
+                _client.AddConfirmedTurn(itr.Current);
+            }
+            itr.Dispose();
+        }
+
+        public IEnumerator<ClientLockstepTurnData> GetTurnsEnumerator()
+        {
             var t = 0;
             var itr = _turns.GetEnumerator();
             while(itr.MoveNext())
             {
                 while(t < itr.Current.Key)
                 {
-                    _client.AddConfirmedTurn(ClientLockstepTurnData.Empty);
+                    yield return ClientLockstepTurnData.Empty;
                     t++;
                 }
-                _client.AddConfirmedTurn(itr.Current.Value);
+                yield return itr.Current.Value;
             }
             itr.Dispose();
         }
