@@ -12,12 +12,16 @@ using SocialPoint.Pathfinding;
 
 public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 {
+    public GameObject pathNodePrefab;
+
     SharpNav.NavMesh navMesh;
     int maxNodes = 1000;
 
     List<SharpNav.Geometry.Vector3> navPath = new List<SharpNav.Geometry.Vector3>();
     SharpNav.Geometry.Vector3 startPoint = SharpNav.Geometry.Vector3.Zero;
     bool started = false;
+
+    List<GameObject> navPathNodes = new List<GameObject>();
 
     // Use this for initialization
     void Start()
@@ -30,12 +34,12 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         Debug.Log("Mesh Triangles: " + totalTriangles);
 
         //prepare the geometry from your mesh data
-        var tris = TriangleEnumerable.FromIndexedVector3(ConvertVectors(vertices), triangles, 0, 1, 0, totalTriangles);
+        var tris = TriangleEnumerable.FromIndexedVector3(ConvertVectorsToPathfinding(vertices), triangles, 0, 1, 0, totalTriangles);
 
         //use the default generation settings
         var settings = NavMeshGenerationSettings.Default;
         settings.AgentHeight = 1.7f;
-        settings.AgentRadius = 0.6f;
+        settings.AgentRadius = 0.5f;
 
         //generate the mesh
         navMesh = Generate(tris, settings);//change to SharpNav.NavMesh.
@@ -67,11 +71,18 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
                     if(query.FindStraightPath(startPoint, endPoint, path, straightPath, new PathBuildFlags()))
                     {
                         navPath.Clear();
+                        foreach(var item in navPathNodes)
+                        {
+                            Destroy(item);
+                        }
+
                         for(int i = 0; i < straightPath.Count; i++)
                         {
                             var pathVert = straightPath[i];
                             var point = pathVert.Point;
                             navPath.Add(point.Position);
+
+                            navPathNodes.Add(Instantiate(pathNodePrefab, point.Position.ToUnity(), Quaternion.identity) as GameObject);
                         }
                     }
                 }
@@ -87,15 +98,19 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 
     void DrawNavmesh()
     {
-        foreach(var tile in navMesh.Tiles)
+        //IMPORTANT: Use TileCount, PolyCount, VertCount instead of the arrays.Lenth, arrays can have additional "blank" positions
+        for(int t = 0; t < navMesh.TileCount; t++)
         {
-            foreach(var poly in tile.Polys)
+            var tile = navMesh.Tiles[t];
+            var polys = tile.Polys;
+            for(int p = 0; p < tile.PolyCount; p++)
             {
+                var poly = polys[p];
                 var verts = poly.Verts;
-                for(int i = 0; i < verts.Length; i++)
+                for(int i = 0; i < poly.VertCount; i++)
                 {
                     int index1 = verts[i];
-                    int index2 = (i == verts.Length - 1) ? verts[0] : verts[i + 1];
+                    int index2 = verts[(i + 1) % poly.VertCount];
                     var v1 = tile.Verts[index1];
                     var v2 = tile.Verts[index2];
                     Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), Color.red);
@@ -129,7 +144,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         {
             combine[i].mesh = meshFilters[i].sharedMesh;
             combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-            meshFilters[i].gameObject.SetActive(false);
+            meshFilters[i].gameObject.SetActive(false);//Note: If not deactivated it can cause some problems with raycasting, even if they don't have colliders (weird)
             i++;
         }
 
@@ -154,12 +169,22 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         parent.gameObject.SetActive(true);
     }
 
-    SharpNav.Geometry.Vector3[] ConvertVectors(UnityEngine.Vector3[] vectors)
+    SharpNav.Geometry.Vector3[] ConvertVectorsToPathfinding(UnityEngine.Vector3[] vectors)
     {
         var navVectors = new SharpNav.Geometry.Vector3[vectors.Length];
         for(int i = 0; i < vectors.Length; i++)
         {
             navVectors[i] = vectors[i].ToPathfinding();
+        }
+        return navVectors;
+    }
+
+    UnityEngine.Vector3[] ConvertVectorsToUnity(SharpNav.Geometry.Vector3[] vectors)
+    {
+        var navVectors = new UnityEngine.Vector3[vectors.Length];
+        for(int i = 0; i < vectors.Length; i++)
+        {
+            navVectors[i] = vectors[i].ToUnity();
         }
         return navVectors;
     }
