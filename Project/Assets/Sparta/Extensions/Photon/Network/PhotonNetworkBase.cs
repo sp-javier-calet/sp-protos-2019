@@ -54,7 +54,6 @@ namespace SocialPoint.Network
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
         PhotonNetworkConfig _config;
-        bool _triedToCreate;
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
@@ -75,7 +74,6 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
-            _triedToCreate = false;
             PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
         }
 
@@ -87,6 +85,19 @@ namespace SocialPoint.Network
         public void Dispose()
         {
             DoDisconnect();
+        }
+
+        RoomOptions PhotonRoomOptions
+        {
+            get
+            {
+                return _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+            }
+        }
+
+        void JoinOrCreateRoom()
+        {
+            PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
         }
 
         abstract protected void OnNetworkError(Error err);
@@ -115,44 +126,22 @@ namespace SocialPoint.Network
             }
             else
             {
-                PhotonNetwork.JoinRoom(_config.RoomName);
+                JoinOrCreateRoom();
             }
         }
 
         void OnPhotonRandomJoinFailed()
         {
-            if(_triedToCreate)
-            {
-                var err = new Error(ConnectionError, "Failed to join randomly");
-                OnNetworkError(err);
-            }
-            else
-            {
-                CreateRoom();
-            }
+            PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
         }
 
-        void OnPhotonJoinRoomFailed(object[] codeAndMsg)
+        public void OnPhotonJoinRoomFailed(object[] codeAndMsg)
         {
-            if(_triedToCreate)
-            {
-                var err = new Error(ConnectionError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
-                OnNetworkError(err);
-            }
-            else
-            {
-                CreateRoom();
-            }
+            var err = new Error(ConnectionError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
+            OnNetworkError(err);
         }
 
-        void CreateRoom()
-        {
-            _triedToCreate = true;
-            RoomOptions options = _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
-            PhotonNetwork.CreateRoom(_config.RoomName, options, null);
-        }
-
-        void OnFailedToConnectToPhoton(DisconnectCause cause)
+        public void OnFailedToConnectToPhoton(DisconnectCause cause)
         {
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
             OnNetworkError(err);
