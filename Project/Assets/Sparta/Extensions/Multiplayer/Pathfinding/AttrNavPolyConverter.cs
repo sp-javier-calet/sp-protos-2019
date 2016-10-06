@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Pathfinding
 {
-    public class AttrNavPolyConverter
+    public static class AttrNavPolyConverter
     {
         const string kPolyType = "PolyType";
         const string kLinks = "Links";
@@ -18,6 +18,7 @@ namespace SocialPoint.Pathfinding
         {
             var attr = new AttrDic();
             attr.SetValue(kPolyType, (int)value.PolyType);
+            attr.Set(kLinks, SerializationUtils.Array2Attr(value.Links.ToArray(), AttrLinkConverter.Serialize));
             //TODO: Complete
             return attr;
         }
@@ -27,6 +28,11 @@ namespace SocialPoint.Pathfinding
             var dic = attr.AsDic;
             var navPoly = new NavPoly();
             navPoly.PolyType = (NavPolyType)dic[kPolyType].AsValue.ToInt();
+            var parsedLinks = SerializationUtils.Attr2Array<Link>(dic[kLinks], AttrLinkConverter.Parse);
+            for(int i = 0; i < parsedLinks.Length; i++)
+            {
+                navPoly.Links.Add(parsedLinks[i]);
+            }
             //TODO: Complete
             return navPoly;
         }

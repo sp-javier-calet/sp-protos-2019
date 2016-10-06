@@ -16,10 +16,6 @@ namespace SocialPoint.Pathfinding
 {
     public class NavMeshSerializer
     {
-        delegate Attr AttrSerializeDelegate<T>(T value);
-
-        delegate T AttrParseDelegate<T>(Attr attr);
-
         IAttrSerializer _serializer;
         IAttrParser _parser;
 
@@ -84,7 +80,7 @@ namespace SocialPoint.Pathfinding
             result.SetValue("layer", tile.Layer);
             result.SetValue("salt", tile.Salt);
             result.Set("bounds", AttrBBox3Converter.Serialize(tile.Bounds));
-            result.Set("polys", Array2Attr(tile.Polys, AttrNavPolyConverter.Serialize));
+            result.Set("polys", SerializationUtils.Array2Attr<NavPoly>(tile.Polys, AttrNavPolyConverter.Serialize));
             /*result.Add("verts", tile.Verts);
             result.Add("detailMeshes", tile.DetailMeshes);
             result.Add("detailVerts", tile.DetailVerts);
@@ -116,7 +112,7 @@ namespace SocialPoint.Pathfinding
 
             result.Salt = token["salt"].AsValue.ToInt();
             result.Bounds = AttrBBox3Converter.Parse(token["bounds"]);
-            result.Polys = Attr2Array(token["polys"], AttrNavPolyConverter.Parse);
+            result.Polys = SerializationUtils.Attr2Array<NavPoly>(token["polys"], AttrNavPolyConverter.Parse);
             /*result.PolyCount = result.Polys.Length;
             result.Verts = token["verts"].ToObject<Vector3[]>(serializer);
             result.DetailMeshes = token["detailMeshes"].ToObject<PolyMeshDetail.MeshData[]>(serializer);
@@ -134,27 +130,6 @@ namespace SocialPoint.Pathfinding
             result.BVTree = new BVTree(nodes);*/
 
             return result;
-        }
-
-        Attr Array2Attr<T>(T[] array, AttrSerializeDelegate<T> serializeDelegate)
-        {
-            AttrList attrList = new AttrList();
-            for(int i = 0; i < array.Length; i++)
-            {
-                attrList.Add(serializeDelegate(array[i]));
-            }
-            return attrList;
-        }
-
-        T[] Attr2Array<T>(Attr attr, AttrParseDelegate<T> parseDelegate)
-        {
-            var attrList = attr.AsList;
-            T[] array = new T[attrList.Count];
-            for(int i = 0; i < attrList.Count; i++)
-            {
-                array[i] = parseDelegate(attrList[i]);
-            }
-            return array;
         }
     }
 }

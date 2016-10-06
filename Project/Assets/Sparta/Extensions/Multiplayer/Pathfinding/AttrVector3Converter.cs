@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Pathfinding
 {
-    public class AttrVector3Converter
+    public static class AttrVector3Converter
     {
         public static Attr Serialize(Vector3 value)
         {
