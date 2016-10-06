@@ -15,6 +15,7 @@ namespace SocialPoint.Lockstep.Network
 
         bool _sendPlayerReadyPending;
         bool _clientSetupReceived;
+        uint _playerHash;
 
         public int PlayerId{ get; private set; }
 
@@ -30,16 +31,14 @@ namespace SocialPoint.Lockstep.Network
 
         public ClientLockstepNetworkController(INetworkClient client)
         {
+            _playerHash = RandomUtils.GenerateUint();
             _client = client;
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
         }
 
-        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory)
+        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory):this(client)
         {
-            _client = client;
-            _client.RegisterReceiver(this);
-            _client.AddDelegate(this);
             SetupClientLockstep(clientLockstep, factory);
         }
 
@@ -84,8 +83,8 @@ namespace SocialPoint.Lockstep.Network
         {
             switch(data.MessageType)
             {
-            case LockstepMsgType.ConfirmTurn:
-                OnConfirmTurnReceived(reader);
+            case LockstepMsgType.Turn:
+                OnTurnReceived(reader);
                 break;
             case LockstepMsgType.ClientSetup:
                 OnClientSetupReceived(reader);
@@ -102,7 +101,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnConfirmTurnReceived(IReader reader)
+        void OnTurnReceived(IReader reader)
         {
             var turn = new ClientLockstepTurnData();
             turn.Deserialize(_commandFactory, reader);
@@ -125,12 +124,12 @@ namespace SocialPoint.Lockstep.Network
         {
             var msg = new ClientStartMessage();
             msg.Deserialize(reader);
-            var delay = msg.StartDelay - _client.GetDelay(msg.ServerTimestamp);
+            var time = msg.StartTime - _client.GetDelay(msg.ServerTimestamp);
             PlayerId = msg.PlayerId;
-            _clientLockstep.Start(delay);
+            _clientLockstep.Start(time);
             if(StartScheduled != null)
             {
-                StartScheduled(delay);
+                StartScheduled(time);
             }
         }
 
@@ -149,9 +148,9 @@ namespace SocialPoint.Lockstep.Network
             if(_sendPlayerReadyPending)
             {
                 _sendPlayerReadyPending = false;
-                _client.CreateMessage(new NetworkMessageData {
+                _client.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }).Send();
+                }, new PlayerReadyMessage(_playerHash));
             }
         }
 

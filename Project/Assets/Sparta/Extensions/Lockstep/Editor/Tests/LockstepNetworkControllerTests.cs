@@ -207,6 +207,57 @@ namespace SocialPoint.Lockstep.Network
         }
 
         [Test]
+        public void ReconnectSamePlayerId()
+        {
+            _netLockServer.ServerConfig.MaxPlayers = 3;
+
+            var localClient = new ClientLockstepController();
+            _netLockServer.RegisterLocalClient(localClient, _factory);
+
+            StartMatch();
+
+            _netLockServer.LocalPlayerReady();
+
+            var playerId1 = _netLockClient1.PlayerId;
+            var playerId2 = _netLockClient2.PlayerId;
+            var playerId3 = _netLockServer.LocalPlayerId;
+
+            _netClient1.Disconnect();
+            _netClient2.Disconnect();
+            _netLockServer.UnregisterLocalClient();
+
+            _netClient2.Connect();
+            _netLockClient2.SendPlayerReady();
+
+            _netLockServer.RegisterLocalClient(localClient, _factory);
+            _netLockServer.LocalPlayerReady();
+
+            _netClient1.Connect();
+            _netLockClient1.SendPlayerReady();
+
+            Assert.AreEqual(playerId1, _netLockClient1.PlayerId, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId2, _netLockClient2.PlayerId, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerId, "Server maintains the same player id for the same client.");
+
+            _netLockServer.UnregisterLocalClient();
+            _netClient1.Disconnect();
+            _netClient2.Disconnect();
+
+            _netLockServer.RegisterLocalClient(localClient, _factory);
+            _netLockServer.LocalPlayerReady();
+
+            _netClient1.Connect();
+            _netLockClient1.SendPlayerReady();
+
+            _netClient2.Connect();
+            _netLockClient2.SendPlayerReady();
+
+            Assert.AreEqual(playerId1, _netLockClient1.PlayerId, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId2, _netLockClient2.PlayerId, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerId, "Server maintains the same player id for the same client.");
+        }
+
+        [Test]
         public void ReconnectSituation()
         {
             StartMatch();
@@ -240,17 +291,20 @@ namespace SocialPoint.Lockstep.Network
 
             _netClient1.Connect();
 
-            Assert.AreEqual(14, _lockClient1.TurnBuffer, "Client is reconnected, server resends all turns from the beginning");
-
             Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected, but has not applied command");
 
             Update(0);
 
             Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected, but has not sent player ready");
 
+            Assert.AreEqual(0, _lockClient1.TurnBuffer, "Client is reconnected, but has not sent player ready");
+
             _netLockClient1.SendPlayerReady();
 
             Update(0);
+
+            Assert.AreEqual(14, _lockClient1.TurnBuffer, "Client is reconnected, server resends all turns from the beginning");
+
             Update(0);
             Update(0);
             Update(0);

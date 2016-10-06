@@ -14,6 +14,7 @@ namespace SocialPoint.Lockstep
         Dictionary<int, ServerLockstepTurnData> _turns;
 
         public bool Running{ get; private set; }
+
         public LockstepConfig Config { get; set; }
 
         public event Action<ServerLockstepTurnData> TurnReady;
@@ -98,7 +99,7 @@ namespace SocialPoint.Lockstep
             turn.AddCommand(command);
         }
 
-        public void Start(int dt=0)
+        public void Start(int dt = 0)
         {
             Running = true;
             _time = -dt;
