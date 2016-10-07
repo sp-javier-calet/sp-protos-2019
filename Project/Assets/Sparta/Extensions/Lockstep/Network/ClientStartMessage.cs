@@ -8,27 +8,27 @@ namespace SocialPoint.Lockstep.Network
 
         public int ServerTimestamp { get; private set; }
 
-        public byte PlayerId{ get; private set; }
+        public byte PlayerNumber{ get; private set; }
 
         public ClientStartMessage(int serverTimestamp = 0, int startTime = 0, byte playerId = 0)
         {
             ServerTimestamp = serverTimestamp;
             StartTime = startTime;
-            PlayerId = playerId;
+            PlayerNumber = playerId;
         }
 
         public void Deserialize(IReader reader)
         {
             ServerTimestamp = reader.ReadInt32();
             StartTime = reader.ReadInt32();
-            PlayerId = reader.ReadByte();
+            PlayerNumber = reader.ReadByte();
         }
 
         public void Serialize(IWriter writer)
         {
             writer.Write(ServerTimestamp);
             writer.Write(StartTime);
-            writer.Write(PlayerId);
+            writer.Write(PlayerNumber);
         }
     }
 }

@@ -218,9 +218,9 @@ namespace SocialPoint.Lockstep.Network
 
             _netLockServer.LocalPlayerReady();
 
-            var playerId1 = _netLockClient1.PlayerId;
-            var playerId2 = _netLockClient2.PlayerId;
-            var playerId3 = _netLockServer.LocalPlayerId;
+            var playerId1 = _netLockClient1.PlayerNumber;
+            var playerId2 = _netLockClient2.PlayerNumber;
+            var playerId3 = _netLockServer.LocalPlayerNumber;
 
             Assert.AreEqual(0, playerId1, "Player ids should be consecutive");
             Assert.AreEqual(1, playerId2, "Player ids should be consecutive");
@@ -239,9 +239,9 @@ namespace SocialPoint.Lockstep.Network
             _netClient1.Connect();
             _netLockClient1.SendPlayerReady();
 
-            Assert.AreEqual(playerId1, _netLockClient1.PlayerId, "Server maintains the same player id for the same client.");
-            Assert.AreEqual(playerId2, _netLockClient2.PlayerId, "Server maintains the same player id for the same client.");
-            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerId, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId1, _netLockClient1.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId2, _netLockClient2.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerNumber, "Server maintains the same player id for the same client.");
 
             _netLockServer.UnregisterLocalClient();
             _netClient1.Disconnect();
@@ -256,9 +256,9 @@ namespace SocialPoint.Lockstep.Network
             _netClient2.Connect();
             _netLockClient2.SendPlayerReady();
 
-            Assert.AreEqual(playerId1, _netLockClient1.PlayerId, "Server maintains the same player id for the same client.");
-            Assert.AreEqual(playerId2, _netLockClient2.PlayerId, "Server maintains the same player id for the same client.");
-            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerId, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId1, _netLockClient1.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId2, _netLockClient2.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerNumber, "Server maintains the same player id for the same client.");
         }
 
         [Test]

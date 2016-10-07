@@ -4,21 +4,21 @@ namespace SocialPoint.Lockstep.Network
 {
     public sealed class PlayerReadyMessage : INetworkShareable
     {
-        public uint PlayerHash { get; private set; }
+        public uint PlayerId { get; private set; }
 
-        public PlayerReadyMessage(uint playerHash = 0)
+        public PlayerReadyMessage(uint playerId = 0)
         {
-            PlayerHash = playerHash;
+            PlayerId = playerId;
         }
 
         public void Deserialize(IReader reader)
         {
-            PlayerHash = reader.ReadUInt32();
+            PlayerId = reader.ReadUInt32();
         }
 
         public void Serialize(IWriter writer)
         {
-            writer.Write(PlayerHash);
+            writer.Write(PlayerId);
         }
     }
 }

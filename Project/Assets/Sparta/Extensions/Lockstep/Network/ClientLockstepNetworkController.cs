@@ -15,9 +15,9 @@ namespace SocialPoint.Lockstep.Network
 
         bool _sendPlayerReadyPending;
         bool _clientSetupReceived;
-        uint _playerHash;
 
-        public int PlayerId{ get; private set; }
+        public uint PlayerId;
+        public int PlayerNumber{ get; private set; }
 
         public bool Running
         {
@@ -31,7 +31,7 @@ namespace SocialPoint.Lockstep.Network
 
         public ClientLockstepNetworkController(INetworkClient client)
         {
-            _playerHash = RandomUtils.GenerateUint();
+            PlayerId = RandomUtils.GenerateUint();
             _client = client;
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
@@ -125,7 +125,7 @@ namespace SocialPoint.Lockstep.Network
             var msg = new ClientStartMessage();
             msg.Deserialize(reader);
             var time = msg.StartTime + _client.GetDelay(msg.ServerTimestamp);
-            PlayerId = msg.PlayerId;
+            PlayerNumber = msg.PlayerNumber;
             _clientLockstep.Start(time);
             if(StartScheduled != null)
             {
@@ -150,7 +150,7 @@ namespace SocialPoint.Lockstep.Network
                 _sendPlayerReadyPending = false;
                 _client.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }, new PlayerReadyMessage(_playerHash));
+                }, new PlayerReadyMessage(PlayerId));
             }
         }
 
