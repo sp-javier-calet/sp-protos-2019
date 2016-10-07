@@ -21,6 +21,8 @@ namespace SocialPoint.Pathfinding
             attr.SetValue(kPolyType, (int)value.PolyType);
             attr.Set(kLinks, SUtils.Array2Attr(value.Links.ToArray(), AttrLinkConverter.Serialize));
             attr.Set(kVerts, SUtils.Array2Attr(value.Verts));
+            attr.Set(kNeis, SUtils.Array2Attr(value.Neis));
+            //attr.SetValue(kTag, value.Tag);
             //TODO: Complete
             return attr;
         }
