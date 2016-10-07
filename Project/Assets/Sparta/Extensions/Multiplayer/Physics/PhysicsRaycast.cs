@@ -29,10 +29,10 @@ namespace SocialPoint.Multiplayer
             JVector endPoint;
             RaycastPointsFromRay(ref ray, maxDistance, out startPoint, out endPoint);
 
-            return Raycast(ref startPoint, ref endPoint, physicsWorld, out rayResult);
+            return Raycast(ref startPoint, ref endPoint, physicsWorld, out rayResult, ray.LayerIndex);
         }
 
-        static bool Raycast(ref JVector startPoint, ref JVector endPoint, PhysicsWorld physicsWorld, out Result rayResult)
+        static bool Raycast(ref JVector startPoint, ref JVector endPoint, PhysicsWorld physicsWorld, out Result rayResult, int rayLayerIdx)
         {
             rayResult = new Result();
             RigidBody resBody;
@@ -41,10 +41,17 @@ namespace SocialPoint.Multiplayer
 
             if(physicsWorld.World.CollisionSystem.Raycast(startPoint, endPoint, null, out resBody, out hitNormal, out fraction))
             {
-                rayResult.ObjectHit = (PhysicsRigidBody)resBody.Tag;
+                
+                var objectHit = (PhysicsRigidBody)resBody.Tag;
+                if(!physicsWorld.IsCollisionEnabled(objectHit.LayerIndex, rayLayerIdx))
+                {
+                    return false;
+                }
+
+                rayResult.ObjectHit = objectHit;
                 rayResult.HitNormal = hitNormal;
                 rayResult.Fraction = fraction;
-                return true;
+
             }
             return false;
         }

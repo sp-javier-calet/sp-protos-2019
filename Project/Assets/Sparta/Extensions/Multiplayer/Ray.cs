@@ -19,6 +19,12 @@ namespace SocialPoint.Multiplayer
             set;
         }
 
+        public int LayerIndex
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Direction is always a normalized vector. If you assign a vector of non unit length, it will be normalized.
         /// </summary>
@@ -35,8 +41,10 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public Ray(JVector pOrigin, JVector pDirection)
+        public Ray(JVector pOrigin, JVector pDirection, int layerIdx = 0)
         {
+            LayerIndex = layerIdx;
+
             Origin = pOrigin;
 
             _direction = pDirection;
@@ -57,12 +65,13 @@ namespace SocialPoint.Multiplayer
         {
             var hash = Origin.GetHashCode();
             hash = CryptographyUtils.HashCombine(hash, Direction.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, LayerIndex.GetHashCode());
             return hash;
         }
 
         public static bool operator ==(Ray a, Ray b)
         {
-            return a.Origin == b.Origin && a.Direction == b.Direction;
+            return a.Origin == b.Origin && a.Direction == b.Direction && a.LayerIndex == b.LayerIndex;
         }
 
         public static bool operator !=(Ray a, Ray b)
@@ -79,6 +88,7 @@ namespace SocialPoint.Multiplayer
         {
             dirty.Set(newObj.Origin != oldObj.Origin);
             dirty.Set(newObj.Direction != oldObj.Direction);
+            dirty.Set(newObj.LayerIndex != oldObj.LayerIndex);
         }
 
         public void Serialize(Ray newObj, IWriter writer)
@@ -86,6 +96,7 @@ namespace SocialPoint.Multiplayer
             var vs = JVectorSerializer.Instance;
             vs.Serialize(newObj.Origin, writer);
             vs.Serialize(newObj.Direction, writer);
+            writer.Write(newObj.LayerIndex);
         }
 
         public void Serialize(Ray newObj, Ray oldObj, IWriter writer, Bitset dirty)
@@ -98,6 +109,10 @@ namespace SocialPoint.Multiplayer
             if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj.Direction, oldObj.Direction, writer);
+            }
+            if(Bitset.NullOrGet(dirty))
+            {
+                writer.Write(newObj.LayerIndex);
             }
         }
     }
@@ -113,6 +128,7 @@ namespace SocialPoint.Multiplayer
             var obj = new Ray();
             obj.Origin = vp.Parse(reader);
             obj.Direction = vp.Parse(reader);
+            obj.LayerIndex = reader.ReadInt32();
             return obj;
         }
 
@@ -131,6 +147,10 @@ namespace SocialPoint.Multiplayer
             if(Bitset.NullOrGet(dirty))
             {
                 obj.Direction = vp.Parse(obj.Direction, reader);
+            }
+            if(Bitset.NullOrGet(dirty))
+            {
+                obj.LayerIndex = reader.ReadInt32();
             }
             return obj;
         }
