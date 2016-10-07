@@ -204,19 +204,13 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 
     void SaveNavMesh()
     {
-        //var serializer = new NavMeshSerializer(new JsonAttrSerializer(), new JsonAttrParser());
-        //serializer.Serialize(kTestNavMeshFile, navMesh);
-
         var stream = new FileStream(kTestNavMeshFile, FileMode.OpenOrCreate);
-        NavMeshBinarySerializer.Instance.Serialize(navMesh, new SystemBinaryWriter(stream));
+        NavMeshSerializer.Instance.Serialize(navMesh, new SystemBinaryWriter(stream));
     }
 
     void LoadNavMesh()
     {
-        //var serializer = new NavMeshSerializer(new JsonAttrSerializer(), new JsonAttrParser());
-        //navMesh = serializer.Deserialize(kTestNavMeshFile);
-
         var stream = new FileStream(kTestNavMeshFile, FileMode.Open);
-        navMesh = NavMeshBinaryParser.Instance.Parse(new SystemBinaryReader(stream));
+        navMesh = NavMeshParser.Instance.Parse(new SystemBinaryReader(stream));
     }
 }

@@ -11,9 +11,9 @@ using SocialPoint.IO;
 /// </summary>
 namespace SocialPoint.Pathfinding
 {
-    public class NavMeshBinarySerializer : SimpleWriteSerializer<TiledNavMesh>
+    public class NavMeshSerializer : SimpleWriteSerializer<TiledNavMesh>
     {
-        public static readonly NavMeshBinarySerializer Instance = new NavMeshBinarySerializer();
+        public static readonly NavMeshSerializer Instance = new NavMeshSerializer();
 
         public override void Serialize(TiledNavMesh mesh, IWriter writer)
         {
@@ -63,9 +63,9 @@ namespace SocialPoint.Pathfinding
         }
     }
 
-    public class NavMeshBinaryParser : SimpleReadParser<TiledNavMesh>
+    public class NavMeshParser : SimpleReadParser<TiledNavMesh>
     {
-        public static readonly NavMeshBinaryParser Instance = new NavMeshBinaryParser();
+        public static readonly NavMeshParser Instance = new NavMeshParser();
 
         public override TiledNavMesh Parse(IReader reader)
         {
